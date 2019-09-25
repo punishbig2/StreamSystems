@@ -8,8 +8,8 @@ const Grip = styled.div`
   border-width: 3px;
   border-style: solid;
   border-color: transparent;
-  border-bottom-color: rgba(0, 0, 0, 0.5);
-  border-right-color: rgba(0, 0, 0, 0.5);
+  border-bottom-color: rgba(0, 0, 0, 0.25);
+  border-right-color: rgba(0, 0, 0, 0.25);
   cursor: se-resize;
 `;
 
