@@ -1,35 +1,12 @@
+import {defaultSize} from 'components/Tiles/constants';
+import {Layout} from 'components/Tiles/Grid/layout';
+import {GridProps} from 'components/Tiles/Grid/props';
+import {GridState} from 'components/Tiles/Grid/state';
+import {ReducerHelper} from 'components/Tiles/Grid/tileReducerHelper';
+import {Geometry} from 'components/Tiles/Tile/geometry';
+import {Props} from 'components/Tiles/Tile/props';
 import React, {Children, PureComponent, ReactElement, ReactNode} from 'react';
-import styled from 'styled-components';
-import {Geometry} from '../Tile/Geometry';
-import {Props} from "../Tile/Props";
-import {defaultSize} from "../constants";
-
-const Layout = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-`;
-
-interface GridState {
-  boundingBox: Geometry;
-  tiles: ReactNode[];
-  currentlyDraggingTileKey: string | null;
-  currentlyMakingRoomKey: string | null;
-  isDocked: Map<any, boolean>;
-}
-
-interface GridProps {
-}
-
-// We use this as a helper structure to reduce the raw items
-// to a more suitable form
-interface ReducerHelper {
-  items: ReactNode[];
-  // Use memoization to prevent counting floating items
-  floatingCount: number;
-}
+import {arrayInsertAt} from 'utils';
 
 class Grid extends PureComponent<GridProps, GridState> {
   public readonly state: GridState = {
@@ -43,21 +20,6 @@ class Grid extends PureComponent<GridProps, GridState> {
     super(props);
     this.reference = null;
   }
-
-  private onResize = (): void => {
-    const {reference} = this;
-    if (reference === null)
-      return;
-    const geometry = Geometry.fromClientRect(reference.getBoundingClientRect());
-    // Update manager's internal state
-    this.setState({boundingBox: geometry} as GridState);
-  };
-
-  private extractChildren = (): void => {
-    const {props} = this;
-    // Handle children within the state
-    this.setState({tiles: Children.toArray(props.children)} as GridState, this.onResize);
-  };
 
   public componentDidMount = (): void => {
     window.addEventListener('resize', this.onResize);
@@ -75,6 +37,31 @@ class Grid extends PureComponent<GridProps, GridState> {
     window.removeEventListener('resize', this.onResize);
   };
 
+  public render = (): ReactNode => {
+    const {tiles} = this.state;
+    const initialReducer: ReducerHelper = {items: new Array<ReactNode>(), floatingCount: 0};
+    const reduced: ReducerHelper = tiles.reduce(this.tilesReducer, initialReducer);
+    return (
+      <Layout ref={this.setReference}>
+        {reduced.items}
+      </Layout>
+    );
+  };
+
+  private onResize = (): void => {
+    const {reference} = this;
+    if (reference === null)
+      return;
+    const geometry = Geometry.fromClientRect(reference.getBoundingClientRect());
+    this.setState({boundingBox: geometry} as GridState);
+  };
+
+  private extractChildren = (): void => {
+    const {props} = this;
+    // Handle children within the state since this way we can
+    this.setState({tiles: Children.toArray(props.children)} as GridState, this.onResize);
+  };
+
   private setReference = (element: HTMLDivElement): void => {
     this.reference = element;
   };
@@ -83,21 +70,24 @@ class Grid extends PureComponent<GridProps, GridState> {
     const {boundingBox} = this.state;
     if (!boundingBox)
       return new Geometry(0, 0, 0, 0);
-    const columnCount = Math.floor(boundingBox.width / defaultSize);
+    const columnCount = Math.floor(boundingBox.width / (defaultSize + 2 /* account for the border */));
     const col = index % columnCount;
     const row = (index - col) / columnCount;
     // Return the position based on the tile index in the array
     return new Geometry(col * defaultSize, row * defaultSize, defaultSize, defaultSize);
   };
 
+  private createNewIsDockedObject = (key: string, value: boolean): Map<string, boolean> => {
+    const {state} = this;
+    // Avoid horrible unreadable syntax
+    const oldMap = state.isDocked;
+    // Merge the old map with the new values in a new map
+    return new Map<string, boolean>([...Array.from(oldMap.entries()), [key, value]]);
+  };
+
   private setTileDocked = (key: string, value: boolean): void => {
-    console.log(key, value);
-    this.setState((state: GridState) => {
-      const oldMap = state.isDocked;
-      const newMap = new Map([...Array.from(oldMap.entries()), [key, value]]);
-      // Build the new state now
-      return {isDocked: newMap} as GridState;
-    });
+    // FIXME: move slightly the tile when un-docking
+    this.setState({isDocked: this.createNewIsDockedObject(key, value)});
   };
 
   private getIsDocked = (key: string | number | null): boolean => {
@@ -125,41 +115,20 @@ class Grid extends PureComponent<GridProps, GridState> {
   };
 
   private onTileReleased = (key: string) => {
-    const {currentlyMakingRoomKey} = this.state;
+    const {currentlyMakingRoomKey, tiles} = this.state;
+    const finalState: GridState = {} as GridState;
     // Update the state immediately (not really)
-    this.setState({currentlyDraggingTileKey: null} as GridState);
+    finalState.currentlyDraggingTileKey = null;
     // We should also attempt to dock it here if it can be docked
-    if (currentlyMakingRoomKey) {
+    if (currentlyMakingRoomKey && !this.getIsDocked(key)) {
       const source = this.findTileIndexByKey(key);
       const target = this.findTileIndexByKey(currentlyMakingRoomKey);
       // Swap the elements
-      this.setState((state: GridState) => {
-        const {tiles} = state;
-        const fn1 = (tile: ReactNode, index: number, array: ReactNode[]) => {
-          if (index === target) {
-            return array[source];
-          } else if (index > target && index <= source) {
-            return array[index - 1];
-          } else {
-            return array[index];
-          }
-        };
-        const fn2 = (tile: ReactNode, index: number, array: ReactNode[]) => {
-          if (index === target - 1) {
-            return array[source];
-          } else if (index >= source && index < target - 1) {
-            return array[index + 1];
-          } else {
-            return array[index];
-          }
-        };
-        return {
-          tiles: tiles.map(target < source ? fn1 : fn2),
-        };
-      }, () => {
-        this.setTileDocked(key, true);
-      });
+      finalState.isDocked = this.createNewIsDockedObject(key, true);
+      finalState.tiles = arrayInsertAt(tiles, source, target);
     }
+    // Now set the state just once and thus re-render only once
+    this.setState(finalState);
   };
 
   private onMakingRoom = (key: string) => {
@@ -193,17 +162,6 @@ class Grid extends PureComponent<GridProps, GridState> {
     );
     return reducer;
   };
-
-  public render = (): ReactNode => {
-    const {tiles} = this.state;
-    const initialReducer: ReducerHelper = {items: new Array<ReactNode>(), floatingCount: 0};
-    const reduced: ReducerHelper = tiles.reduce(this.tilesReducer, initialReducer);
-    return (
-      <Layout ref={this.setReference}>
-        {reduced.items}
-      </Layout>
-    );
-  }
 }
 
 export default Grid;

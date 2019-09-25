@@ -1,3 +1,3 @@
-import {ReactNode} from "react";
+import {ReactNode} from 'react';
 
 export type TileRenderer = (props: any) => ReactNode;

@@ -1,10 +1,17 @@
-import {CSSProperties} from "react";
+import {CSSProperties} from 'react';
 
 export class Geometry {
   public x: number;
   public y: number;
   public height: number;
   public width: number;
+
+  public constructor(x: number = 0, y: number = 0, width: number = 360, height: number = 360) {
+    this.x = x;
+    this.width = width;
+    this.y = y;
+    this.height = height;
+  }
 
   static fromClientRect = (clientRect: ClientRect): Geometry => {
     const geometry: Geometry = new Geometry();
@@ -16,13 +23,6 @@ export class Geometry {
     // Return the initialized object
     return geometry;
   };
-
-  public constructor(x: number = 0, y: number = 0, width: number = 360, height: number = 360) {
-    this.x = x;
-    this.width = width;
-    this.y = y;
-    this.height = height;
-  }
 
   public toStyle = (): CSSProperties => {
     return {

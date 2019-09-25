@@ -1,127 +1,29 @@
+import {defaultSize} from 'components/Tiles/constants';
+import {ITileProps} from 'components/Tiles/ITileProps';
+// Internal imports (within the same directory)
+import {Container} from 'components/Tiles/Tile/container';
+import {Content} from 'components/Tiles/Tile/content';
+import {Geometry} from 'components/Tiles/Tile/geometry';
+import {Layout} from 'components/Tiles/Tile/layout';
+import {Props} from 'components/Tiles/Tile/props';
+import {ResizeGrip} from 'components/Tiles/Tile/resizeGrip';
+import {TitleBar} from 'components/Tiles/Tile/TitleBar';
 import React, {PureComponent, ReactNode} from 'react';
-import {TitleBar} from './TitleBar';
-import {ResizeGrip} from './ResizeGrip';
-import {Content} from './Content';
-import {Layout} from './Layout';
-import {ITileProps} from '../ITileProps';
-import {Props} from './Props';
-import {Geometry} from './Geometry';
 import {CSSProperties} from 'styled-components';
-import {Container} from "./Container";
-import {defaultSize} from "../constants";
 
 class TileState {
-  public grabX: number | undefined;
-  public grabY: number | undefined;
-  public isGrabbed: boolean = false;
-  public isMakingRoom: boolean = false;
+  public grabX?: number;
+  public grabY?: number;
   public geometry: Geometry = new Geometry(0, 0, 0, 0);
-
-  constructor() {
-    this.isGrabbed = false;
-  }
+  public isMakingRoom: boolean = false;
+  public isGrabbed: boolean = false;
 }
 
 // FIXME: handle scroll
 class Tile extends PureComponent<Readonly<ITileProps>, Readonly<TileState>> {
-  private reference: HTMLDivElement | null = null;
   public state = new TileState();
-
-  private onGrab = (event: MouseEvent): void => {
-    const props = this.getProps();
-    // Install event listeners
-    document.addEventListener('mousemove', this.onMouseMove);
-    document.addEventListener('mouseup', this.onRelease);
-    // Set new state
-    this.setState({
-      grabX: event.clientX,
-      grabY: event.clientY,
-      isGrabbed: true,
-    } as TileState);
-    // Call the passed handler
-    props.onGrab(props.id);
-  };
-
-  private onRelease = () => {
-    const props = this.getProps();
-    // Uninstall event listeners to prevent memory leaks
-    document.removeEventListener('mousemove', this.onMouseMove);
-    document.removeEventListener('mouseup', this.onRelease);
-    // Update the state
-    this.setState({
-      grabX: undefined,
-      grabY: undefined,
-      isGrabbed: false,
-    } as TileState);
-    // Call the passed handler
-    props.onRelease(props.id);
-  };
-
-  private getProps = (): Readonly<Props> => {
-    const {props} = this;
-    return props as Readonly<Props>;
-  };
-
-  private drag = (event: MouseEvent, state: TileState): void => {
-    const {geometry} = state;
-    const props = this.getProps();
-    if (geometry === undefined || state.grabX === undefined || state.grabY === undefined)
-      return;
-    const x = event.clientX - state.grabX;
-    const y = event.clientY - state.grabY;
-    // Ignore the default action
-    event.preventDefault();
-    // Update geometry
-    const newGeometry = geometry.moveTo(x, y);
-    // Update the internal state
-    this.setState({
-      geometry: newGeometry,
-      grabX: event.clientX,
-      grabY: event.clientY,
-    } as TileState);
-    // If we're tiles we should let the grid know that it has to let us free
-    if (props.isDocked) {
-      // Tell our parent that we've moved
-      props.setTileDocked(props.id, false);
-    }
-  };
-
-  private onMouseEnter = (): void => {
-    const {reference} = this;
-    const {geometry} = this.state;
-    const props = this.getProps();
-    if (!props.isDocked || !props.isDraggingOneTile)
-      return;
-    if (reference) {
-      const onMouseMove = (event: MouseEvent) => {
-        if (event.offsetX < geometry.width / 4) {
-          this.setState({isMakingRoom: true} as TileState);
-          // Notify the parent object
-          props.onMakingRoom(props.id);
-        } else {
-          this.setState({isMakingRoom: false} as TileState);
-          // Clear the making room key in the parent
-          props.onMakingRoom(null);
-        }
-      };
-      const onMouseLeave = () => {
-        reference.removeEventListener('mouseup', onMouseLeave);
-        reference.removeEventListener('mouseleave', onMouseLeave);
-        reference.removeEventListener('mousemove', onMouseMove);
-        this.setState({isMakingRoom: false} as TileState);
-      };
-      reference.addEventListener('mouseup', onMouseLeave)
-      reference.addEventListener('mouseleave', onMouseLeave)
-      reference.addEventListener('mousemove', onMouseMove);
-    }
-  };
-
-  private onMouseMove = (event: MouseEvent): void => {
-    const {state} = this;
-    if (state.isGrabbed) {
-      this.drag(event, state);
-    }
-  };
+  private reference: HTMLDivElement | null = null;
+  private timer: number | undefined;
 
   public componentWillUnmount = (): void => {
     const {reference} = this;
@@ -157,6 +59,172 @@ class Tile extends PureComponent<Readonly<ITileProps>, Readonly<TileState>> {
     }
   };
 
+  private static getClassName = (props: Props): string | undefined => props.isDocked ? undefined : 'floating';
+
+  public render = (): ReactNode => {
+    const props: Props = this.getProps();
+    // Get the geometry
+    return (
+      <Layout
+        ref={this.setReference}
+        className={Tile.getClassName(props)}
+        style={this.getStyle(props, this.state)}
+        id={props.id}>
+        <Container className={Tile.getClassName(props)}>
+          <TitleBar
+            title={props.title}
+            onToggleDocking={() => props.setTileDocked(props.id, !props.isDocked)}
+            onGrab={this.onGrab}
+            isDocked={props.isDocked}
+            onMinimize={this.onMinimize}/>
+          <Content>
+            {props.render(props)}
+          </Content>
+          {/* Docked tiles can't be resized */}
+          {!props.isDocked && <ResizeGrip onResize={this.onResize} size={defaultSize / 24}/>}
+        </Container>
+      </Layout>
+    );
+  };
+
+  private getProps = (): Readonly<Props> => {
+    const {props} = this;
+    return props as Readonly<Props>;
+  };
+
+  private resetTimer = (): void => {
+    clearTimeout(this.timer);
+    this.timer = undefined;
+  };
+
+  private drag = (event: MouseEvent): void => {
+    const {state} = this;
+    const {geometry} = state;
+    if (geometry === undefined || state.grabX === undefined || state.grabY === undefined)
+      return;
+    const props = this.getProps();
+    // Pre-compute the new `x' and `y'
+    const x = event.clientX - state.grabX;
+    const y = event.clientY - state.grabY;
+    // Ignore the default action
+    event.stopPropagation();
+    event.preventDefault();
+    // Update geometry
+    const newGeometry = geometry.moveTo(x, y);
+    // Update the internal state
+    this.setState({
+      geometry: newGeometry,
+      grabX: event.clientX,
+      grabY: event.clientY,
+    } as TileState);
+    // If we're tiles we should let the grid know that it has to let us free
+    if (props.isDocked) {
+      // Tell our parent that we've moved
+      props.setTileDocked(props.id, false);
+    }
+  };
+
+  private executeMakeRoom = (x: number): any => {
+    const {geometry} = this.state;
+    const props = this.getProps();
+    return new Promise((resolve) => {
+      if (x < geometry.width / 4) {
+        this.timer = setTimeout(() => {
+          this.setState({isMakingRoom: true} as TileState);
+          resolve(props.id);
+        }, 300);
+      } else {
+        this.setState({isMakingRoom: false} as TileState);
+        resolve(null);
+      }
+    });
+  };
+
+  private makeRoomIfNeeded = (event: MouseEvent) => {
+    const props = this.getProps();
+    // Cancel any previous timer
+    this.resetTimer();
+    // Get the id if any, or null
+    this.executeMakeRoom(event.offsetX)
+      .then((id: string | null) => {
+        // Now we have the correct id
+        props.onMakingRoom(id);
+      })
+    ;
+  };
+
+  private onGrab = (event: React.MouseEvent): void => {
+    const props = this.getProps();
+    // Install event listeners
+    document.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('mouseup', this.onRelease);
+    // Set new state
+    this.setState({
+      grabX: event.clientX,
+      grabY: event.clientY,
+    } as TileState);
+    props.onGrab(props.id);
+  };
+
+  private onRelease = () => {
+    const props = this.getProps();
+    // Uninstall event listeners to prevent memory leaks
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onRelease);
+    // Update the state
+    this.setState({
+      grabX: undefined,
+      grabY: undefined,
+      isGrabbed: false,
+    } as TileState);
+    props.onRelease(props.id);
+  };
+
+  private onMouseEnter = (): void => {
+    const {reference} = this;
+    const props = this.getProps();
+    if (!props.isDocked || !props.isDraggingOneTile)
+      return;
+    if (reference) {
+      const stopTryingToMakeRoom = () => {
+        reference.removeEventListener('mousemove', this.makeRoomIfNeeded);
+        reference.removeEventListener('mouseup', stopTryingToMakeRoom);
+        reference.removeEventListener('mouseleave', stopTryingToMakeRoom);
+
+        this.resetTimer();
+        this.setState({isMakingRoom: false} as TileState);
+      };
+      reference.addEventListener('mousemove', this.makeRoomIfNeeded);
+      reference.addEventListener('mouseup', stopTryingToMakeRoom);
+      reference.addEventListener('mouseleave', stopTryingToMakeRoom);
+    }
+  };
+
+  private onMouseMove = (event: MouseEvent): void => {
+    const {state} = this;
+    if (state.isGrabbed) {
+      this.drag(event);
+    } else {
+      // Start moving after this ...
+      this.setState({isGrabbed: true});
+    }
+  };
+
+  private onResize = (amountX: number, amountY: number): void => {
+    const {geometry} = this.state;
+    this.setState({
+      geometry: geometry.resize(amountX, amountY),
+    });
+  };
+
+  private onMinimize = (): void => {
+  };
+
+  // Render helpers
+  private setReference = (reference: HTMLDivElement): void => {
+    this.reference = reference;
+  };
+
   private getStyle = (props: Props, state: TileState): CSSProperties => {
     const geometry: Geometry = state.geometry;
     if (!geometry)
@@ -175,42 +243,6 @@ class Tile extends PureComponent<Readonly<ITileProps>, Readonly<TileState>> {
       pointerEvents: state.isGrabbed ? 'none' : 'initial',
     }
   };
-
-  private setReference = (reference: HTMLDivElement): void => {
-    this.reference = reference;
-  };
-
-  private onResize = (amountX: number, amountY: number): void => {
-    const {geometry} = this.state;
-    this.setState({
-      geometry: geometry.resize(amountX, amountY),
-    });
-  };
-
-  private onMinimize = (): void => {
-  };
-
-  public render = (): ReactNode => {
-    const props: Props = this.getProps();
-    // Get the geometry
-    return (
-      <Layout ref={this.setReference} style={this.getStyle(props, this.state)} id={props.id}>
-        <Container>
-          <TitleBar
-            title={props.title}
-            toggleDock={() => props.setTileDocked(props.id, false)}
-            onGrab={this.onGrab}
-            isDocked={props.isDocked}
-            onMinimize={this.onMinimize}/>
-          <Content>
-            {props.render(props)}
-          </Content>
-          {/* Docked tiles can't be resized */}
-          {!props.isDocked && <ResizeGrip onResize={this.onResize} size={defaultSize / 24}/>}
-        </Container>
-      </Layout>
-    );
-  }
 }
 
 export default Tile;

@@ -1,5 +1,5 @@
-import {TileRenderer} from "./TileRenderer";
-import {ReactElement} from "react";
+import {TileRenderer} from 'components/Tiles/tileRenderer';
+import {ReactElement} from 'react';
 
 export interface TileSiblings {
   next: ReactElement | null;

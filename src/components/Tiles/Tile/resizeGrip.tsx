@@ -3,13 +3,13 @@ import styled from 'styled-components';
 
 const Grip = styled.div`
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: -1px;
+  bottom: -1px;
   border-width: 3px;
   border-style: solid;
   border-color: transparent;
-  border-bottom-color: red;
-  border-right-color: red;
+  border-bottom-color: rgba(0, 0, 0, 0.5);
+  border-right-color: rgba(0, 0, 0, 0.5);
   cursor: se-resize;
 `;
 
@@ -25,6 +25,29 @@ interface RGState {
 
 export class ResizeGrip extends Component<RGProps, RGState> {
   private reference: HTMLDivElement | null = null;
+
+  public componentDidMount = (): void => {
+    const {reference} = this;
+    if (reference) {
+      reference.addEventListener('mousedown', this.onStartResizing);
+    }
+  };
+
+  public componentWillUnmount = (): void => {
+    const {reference} = this;
+    if (reference) {
+      reference.removeEventListener('mousedown', this.onStartResizing);
+    }
+    // Other listener can be cleaned in some cases
+    this.clearListeners();
+  };
+
+  public render = (): ReactNode => {
+    const {props} = this;
+    return (
+      <Grip ref={this.setReference} style={{width: props.size, height: props.size}}/>
+    );
+  };
 
   private onResizing = (event: MouseEvent): void => {
     const {pivotX, pivotY} = this.state;
@@ -58,30 +81,7 @@ export class ResizeGrip extends Component<RGProps, RGState> {
     }
   };
 
-  public componentDidMount = (): void => {
-    const {reference} = this;
-    if (reference) {
-      reference.addEventListener('mousedown', this.onStartResizing);
-    }
-  };
-
-  public componentWillUnmount = (): void => {
-    const {reference} = this;
-    if (reference) {
-      reference.removeEventListener('mousedown', this.onStartResizing);
-    }
-    // Other listener can be cleaned in some cases
-    this.clearListeners();
-  };
-
   private setReference = (reference: HTMLDivElement): void => {
     this.reference = reference;
   };
-
-  public render = (): ReactNode => {
-    const {props} = this;
-    return (
-      <Grip ref={this.setReference} style={{width: props.size, height: props.size}}/>
-    );
-  }
 }

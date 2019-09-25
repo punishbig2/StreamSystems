@@ -1,45 +1,26 @@
-import React from "react";
-import styled from "styled-components";
+import {Button} from 'components/Tiles/Tile/TitleBar/button';
+import {Container} from 'components/Tiles/Tile/TitleBar/container';
+import {TBProps} from 'components/Tiles/Tile/TitleBar/props';
+import {Title} from 'components/Tiles/Tile/TitleBar/title';
+import React from 'react';
 
-interface TBProps {
-  onGrab: (event: MouseEvent) => void;
-  title: string | null;
-  toggleDock: () => void;
-  onMinimize: () => void;
-  isDocked: boolean;
-}
-
-const Container = styled.div`
-  padding: 4px 8px;
-  border: 1px solid blue;
-  display: flex;
-`;
-
-const Title = styled.h1`
-  flex: 1;
-  font-size: 14px;
-  margin: 0;
-`;
-
-const Button = styled.button`
-  background: none;
-  border: none;
-  font-size: 12px;
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+const getMaximizeIcon = (isDocked: boolean) => {
+  if (!isDocked) {
+    return 'fa fa-window-restore';
   }
-  pointer-events: all;
-`;
+  return 'fa fa-window-maximize';
+};
 
 export const TitleBar: React.FC<TBProps> = (props: TBProps) => {
   return (
-    <Container onMouseDown={props.onGrab as () => void}>
+    <Container onMouseDown={props.onGrab}>
       <Title>{props.title}</Title>
-      <Button><i className={'fa fa-window-minimize'}/></Button>
-      <Button><i className={'fa fa-window-maximize'} onClickCapture={props.toggleDock}/></Button>
+      <Button onClick={props.onMinimize}>
+        <i className={'fa fa-window-minimize'}/>
+      </Button>
+      <Button onClick={props.onToggleDocking}>
+        <i className={getMaximizeIcon(props.isDocked)}/>
+      </Button>
     </Container>
   );
 };

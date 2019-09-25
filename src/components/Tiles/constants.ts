@@ -1,1 +1,1 @@
-export const defaultSize = 480;
+export const defaultSize = (window.innerWidth - 16) / 4;
