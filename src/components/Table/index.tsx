@@ -1,32 +1,34 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import React, {Component, ReactNode} from 'react';
+import {Header} from 'components/Table/Header';
+import {Row} from 'components/Table/Row';
+import {User} from 'models/user';
+import React from 'react';
 import styled from 'styled-components';
+import {Body} from 'components/Table/Body';
 
 const Layout = styled.div`
-  padding: 10px;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  margin: 10px;
 `;
 
-const Header = styled.div``;
-const ColumnHeader = styled.div``;
-
-
 interface TableProps {
+  handlers: any;
   rows: any[],
   columns: ColumnSpec[],
+  user: User;
 }
 
-class Table extends Component<TableProps> {
-  public render = (): ReactNode => {
-    return (
-      <Layout>
-        <Header>
-          <ColumnHeader/>
-        </Header>
-        Example
-      </Layout>
-    );
-  }
-}
-
-export default Table;
+export const Table: React.FC<TableProps> = (props: TableProps) => {
+  const {rows, columns} = props;
+  return (
+    <Layout>
+      <Header columns={columns}/>
+      <Body>
+        {rows.map((row) => (
+          <Row key={row.id} handlers={props.handlers} user={props.user} columns={columns} data={row}/>
+        ))}
+      </Body>
+    </Layout>
+  );
+};

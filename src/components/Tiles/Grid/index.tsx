@@ -1,167 +1,109 @@
-import {defaultSize} from 'components/Tiles/constants';
+import {Point} from 'components/structures/point';
+import {
+  GRAB_TILE,
+  INSERT_TILE_BEFORE,
+  RELEASE_GRABBED_TILE,
+  SET_TILE_DOCKED,
+  UPDATE_BOUNDING_BOX,
+} from 'components/Tiles/Grid/constants';
 import {Layout} from 'components/Tiles/Grid/layout';
-import {GridProps} from 'components/Tiles/Grid/props';
-import {GridState} from 'components/Tiles/Grid/state';
-import {ReducerHelper} from 'components/Tiles/Grid/tileReducerHelper';
-import {Geometry} from 'components/Tiles/Tile/geometry';
-import {Props} from 'components/Tiles/Tile/props';
-import React, {Children, PureComponent, ReactElement, ReactNode} from 'react';
-import {arrayInsertAt} from 'utils';
+import {Props} from 'components/Tiles/Grid/props';
+import {reducer} from 'components/Tiles/Grid/reducer';
+import {State} from 'components/Tiles/Grid/state';
+import {TileManager} from 'components/Tiles/Grid/tileManager';
+import {TileState} from 'components/Tiles/Grid/tileState';
+import {TileController} from 'components/Tiles/TileController';
+import {Content} from 'components/Tiles/TileController/content';
+import {TitleBar} from 'components/Tiles/TileController/TitleBar';
+import {Action} from 'interfaces/action';
+import React, {Children, ReactElement, ReactNode, useEffect, useLayoutEffect, useReducer, useState} from 'react';
 
-class Grid extends PureComponent<GridProps, GridState> {
-  public readonly state: GridState = {
-    isDocked: new Map<any, boolean>(),
-    tiles: new Array<ReactNode>(),
-    currentlyDraggingTileKey: null,
-  } as GridState;
-  private reference: HTMLDivElement | null;
+const initialState: State = {
+  tiles: new TileManager(),
+};
 
-  public constructor(props: any) {
-    super(props);
-    this.reference = null;
-  }
+export const Grid: React.FC<Props> = (props: Props) => {
+  const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
+  const {tiles, grabbed} = state;
+  // Get the child items (all must be tiles)
+  const {children} = props;
+  // Reference to the container
+  const [reference, setReference] = useState<HTMLDivElement | null>(null);
 
-  public componentDidMount = (): void => {
-    window.addEventListener('resize', this.onResize);
-    this.extractChildren();
+  const tileGrabber = (tile: TileState) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    // Dispatch the grab action
+    dispatch(new Action(GRAB_TILE, {tile, grabbedAt: new Point(event.clientX, event.clientY)}));
   };
 
-  public componentDidUpdate = (prevProps: Readonly<GridProps>): void => {
-    // If the call was triggered by a state change, ignore it
-    if (prevProps === this.props)
-      return;
-    this.extractChildren();
-  };
-
-  public componentWillUnmount = (): void => {
-    window.removeEventListener('resize', this.onResize);
-  };
-
-  public render = (): ReactNode => {
-    const {tiles} = this.state;
-    const initialReducer: ReducerHelper = {items: new Array<ReactNode>(), floatingCount: 0};
-    const reduced: ReducerHelper = tiles.reduce(this.tilesReducer, initialReducer);
-    return (
-      <Layout ref={this.setReference}>
-        {reduced.items}
-      </Layout>
-    );
-  };
-
-  private onResize = (): void => {
-    const {reference} = this;
+  const toggleTileDocked = (tile: TileState) => dispatch(new Action(SET_TILE_DOCKED, {tile, isDocked: !tile.isDocked}));
+  // Update the bounding box when it changes
+  useLayoutEffect(() => {
     if (reference === null)
       return;
-    const geometry = Geometry.fromClientRect(reference.getBoundingClientRect());
-    this.setState({boundingBox: geometry} as GridState);
-  };
+    const onResize = () => {
+      dispatch(new Action(UPDATE_BOUNDING_BOX, reference.getBoundingClientRect()));
+    };
+    onResize();
+    // Watch future resize
+    window.addEventListener('resize', onResize);
+    return () => {
+      // Remove the watcher
+      window.removeEventListener('resize', onResize);
+    };
+  }, [reference]);
 
-  private extractChildren = (): void => {
-    const {props} = this;
-    // Handle children within the state since this way we can
-    this.setState({tiles: Children.toArray(props.children)} as GridState, this.onResize);
-  };
+  // If a tile is "grabbed" by the mouse install DOM event handlers on it
+  // to allow it to move and to undock it.
+  useEffect(() => {
+    if (grabbed === undefined)
+      return;
+    const release = () => dispatch(new Action(RELEASE_GRABBED_TILE));
+    // Call this function to undock the tile on first movement
+    // Install an event listener to release the tile when the mouse
+    // is released
+    document.addEventListener('mouseup', release);
+    return () => {
+      // Always cleanup, memory leaks and dangling handlers cause many
+      // bugs.
+      document.removeEventListener('mouseup', release);
+    };
+  }, [grabbed]);
 
-  private setReference = (element: HTMLDivElement): void => {
-    this.reference = element;
-  };
-
-  private computeGeometry = (index: number) => {
-    const {boundingBox} = this.state;
-    if (!boundingBox)
-      return new Geometry(0, 0, 0, 0);
-    const columnCount = Math.floor(boundingBox.width / (defaultSize + 2 /* account for the border */));
-    const col = index % columnCount;
-    const row = (index - col) / columnCount;
-    // Return the position based on the tile index in the array
-    return new Geometry(col * defaultSize, row * defaultSize, defaultSize, defaultSize);
-  };
-
-  private createNewIsDockedObject = (key: string, value: boolean): Map<string, boolean> => {
-    const {state} = this;
-    // Avoid horrible unreadable syntax
-    const oldMap = state.isDocked;
-    // Merge the old map with the new values in a new map
-    return new Map<string, boolean>([...Array.from(oldMap.entries()), [key, value]]);
-  };
-
-  private setTileDocked = (key: string, value: boolean): void => {
-    // FIXME: move slightly the tile when un-docking
-    this.setState({isDocked: this.createNewIsDockedObject(key, value)});
-  };
-
-  private getIsDocked = (key: string | number | null): boolean => {
-    const {isDocked} = this.state;
-    if ((key === null) || !isDocked.has(key)) {
-      // By default return true
-      return true;
-    } else {
-      // Otherwise return the saved value
-      return !!isDocked.get(key);
-    }
-  };
-
-  private onTileGrabbed = (key: string) => {
-    this.setState({currentlyDraggingTileKey: key} as GridState);
-  };
-
-  private findTileIndexByKey = (key: string): number => {
-    const {tiles} = this.state;
-    return tiles.findIndex((tile: ReactNode) => {
-      const element: ReactElement = tile as ReactElement;
-      // Compare the keys
-      return element.key === key;
-    })
-  };
-
-  private onTileReleased = (key: string) => {
-    const {currentlyMakingRoomKey, tiles} = this.state;
-    const finalState: GridState = {} as GridState;
-    // Update the state immediately (not really)
-    finalState.currentlyDraggingTileKey = null;
-    // We should also attempt to dock it here if it can be docked
-    if (currentlyMakingRoomKey && !this.getIsDocked(key)) {
-      const source = this.findTileIndexByKey(key);
-      const target = this.findTileIndexByKey(currentlyMakingRoomKey);
-      // Swap the elements
-      finalState.isDocked = this.createNewIsDockedObject(key, true);
-      finalState.tiles = arrayInsertAt(tiles, source, target);
-    }
-    // Now set the state just once and thus re-render only once
-    this.setState(finalState);
-  };
-
-  private onMakingRoom = (key: string) => {
-    this.setState({currentlyMakingRoomKey: key} as GridState);
-  };
-
-  private tilesReducer = (reducer: ReducerHelper, child: ReactNode): ReducerHelper => {
-    const element: ReactElement = child as ReactElement;
-    const {state} = this;
-    // Get original props
-    const {props} = element;
-    const {items} = reducer;
-    // Get whether the element is tiles
-    const isDocked: boolean = this.getIsDocked(element.key);
-    // Update the number of floating items
-    reducer.floatingCount += isDocked ? 0 : 1;
-    // Add the new item to the array
-    items.push(
-      React.cloneElement(child as ReactElement, {
-        id: element.key as string,
-        render: props.render,
-        title: props.title,
-        onMakingRoom: this.onMakingRoom,
-        setTileDocked: this.setTileDocked,
-        onGrab: this.onTileGrabbed,
-        onRelease: this.onTileReleased,
-        geometry: isDocked ? this.computeGeometry(items.length - reducer.floatingCount) : props.geometry,
-        isDraggingOneTile: state.currentlyDraggingTileKey !== null,
-        isDocked: isDocked,
-      } as Props)
+  const mapChildren = (child: ReactNode) => {
+    const {props: childProps} = child as ReactElement;
+    const {grabbed} = state;
+    // Get the inherited id
+    const id: string = childProps.id;
+    // We have one tile per child and if it doesn't yet exist we register it
+    // immediately
+    const tile: TileState = tiles.findTileByIdOrCreate(id);
+    const onInsertTile = () => {
+      if (grabbed === undefined)
+        throw new Error('attempted to insert a non-grabbed tile');
+      dispatch(new Action(INSERT_TILE_BEFORE, {target: tile, id: grabbed.id}));
+    };
+    const shouldMove = !!grabbed;
+    const unwrap = ({geometry, grabbedAt, isDocked}: TileState) => ({geometry, grabbedAt, isDocked});
+    return (
+      <TileController key={id} id={id} shouldMove={shouldMove} onInsertTile={onInsertTile} {...unwrap(tile)}>
+        <TitleBar
+          title={childProps.title}
+          onToggleDocking={() => toggleTileDocked(tile)}
+          onGrab={tileGrabber(tile)}
+          isDocked={tile.isDocked}
+          onMinimize={() => null}/>
+        {/* we don't mess with the actual content */}
+        <Content>{child}</Content>
+      </TileController>
     );
-    return reducer;
   };
-}
 
-export default Grid;
+  return (
+    <Layout ref={setReference}>
+      {reference && Children.map(children, mapChildren)}
+    </Layout>
+  );
+};
+
+

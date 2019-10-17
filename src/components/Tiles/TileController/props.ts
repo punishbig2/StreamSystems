@@ -1,10 +1,11 @@
 import {ITileProps} from 'components/Tiles/ITileProps';
-import {Geometry} from 'components/Tiles/Tile/geometry';
+import {Geometry} from 'components/structures/geometry';
 import {TileRenderer} from 'components/Tiles/tileRenderer';
+import {ReactElement} from 'react';
 
 export class Props implements ITileProps {
   public geometry: Geometry;
-  public title: string | null = '';
+  public title: (props: any) => ReactElement | null = () => null;
   public isDocked: boolean = true;
   public id: string;
   public isDraggingOneTile: boolean = false;
