@@ -1,136 +1,220 @@
-import {TileState} from 'components/Tiles/Grid/tileState';
+import {Point} from 'components/structures/point';
+import {TileList} from 'components/Tiles/Grid/tileList';
 import {Geometry} from 'components/structures/geometry';
+import {ReactElement, ReactNode} from 'react';
 
-const COLUMN_COUNT: number = 4;
+const compare = (tile: TileList, other: TileList): boolean => {
+  if (tile.id !== other.id)
+    return false;
+  if (tile.isDocked !== other.isDocked)
+    return false;
+  if (tile.grabbedAt !== other.grabbedAt)
+    return false;
+  if (tile.geometry !== other.geometry)
+    return false;
+  return tile.title === other.title;
 
-export class TileManager {
-  private readonly map: Map<string | number | symbol, TileState>;
-  private head: TileState | null;
-  private unitWidth: number;
+};
 
-  constructor(map: Map<string | number | symbol, TileState> = new Map<string | number | symbol, TileState>()) {
-    this.unitWidth = window.innerWidth / COLUMN_COUNT;
-    this.map = map;
-    this.head = null;
+class Tile implements TileList {
+  public content: ReactNode;
+  public geometry: Geometry;
+  public grabbedAt?: Point;
+  public id: string;
+  public isDocked: boolean;
+  public next: TileList | null;
+  public prev: TileList | null;
+  public readyToInsertBefore: boolean;
+  public title: (props: any) => ReactElement;
+
+  constructor(node: ReactElement) {
+    const {title, id} = node.props;
+    this.id = id;
+    this.geometry = new Geometry();
+    this.isDocked = true;
+    this.readyToInsertBefore = false;
+    this.title = title;
+    this.content = node;
+    this.next = null;
+    this.prev = null;
   }
+}
 
-  private add = (target: TileState) => {
-    if (this.head === null) {
-      this.head = target;
+class List {
+  public static remove = (list: TileList | null, tile: TileList): TileList | null => {
+    if (tile === null)
+      throw new Error('removeFromList(): invalid `tile\' parameter `null\'');
+    if (list === null)
+      return list;
+    const next: TileList | null = tile.next;
+    const prev: TileList | null = tile.prev;
+    // Unlink the removed tile
+    tile.next = null;
+    tile.prev = null;
+    if (next)
+      next.prev = prev;
+    if (prev === null) {
+      return next;
     } else {
-      let cursor: TileState = this.head;
-      while (cursor.next !== null)
-        cursor = cursor.next;
-      cursor.next = target;
-      target.prev = cursor;
+      prev.next = next;
     }
+    // Return the original head
+    return list;
   };
 
-  public insertBefore = (target: TileState, tile: TileState): TileManager => {
-    const replacement: TileManager = new TileManager(this.map);
-    const prev: TileState | null = target.prev;
-    // If there was tile before the target tile, now it's next
-    // will be the new tile
-    if (prev !== null) {
-      replacement.head = this.head;
+  public static replace = (list: TileList | null, oldTile: TileList, newTile: TileList): TileList | null => {
+    const prev: TileList | null = oldTile.prev;
+    const next: TileList | null = oldTile.next;
+    console.log(List.toString(list));
+    newTile.prev = prev;
+    newTile.next = next;
+    if (next)
+      next.prev = newTile;
+    if (prev) {
+      prev.next = newTile;
+    } else {
+      return newTile;
+    }
+    return list;
+  };
+
+  public static insert = (list: TileList | null, cursor: TileList, tile: TileList): TileList => {
+    if (list === null)
+      return tile;
+    const prev: TileList | null = cursor.prev;
+    tile.prev = prev;
+    tile.next = cursor;
+    // Link target tile back
+    cursor.prev = tile;
+    if (prev) {
       prev.next = tile;
     } else {
-      replacement.head = tile;
+      return tile;
     }
-    // Set inserted tile's neighbors
-    tile.next = target;
-    tile.prev = prev;
-    // This tile is docked now
-    tile.isDocked = true;
-    tile.grabbedAt = undefined;
-    // The target tile is now after the new inserted one
-    target.prev = tile;
-    // Ensure we have copied the linked list to the
-    // new object
-    // Update geometries and yet generate a new object
-    return replacement.updateGeometries();
+    return list;
   };
 
-  public replace = (tile: TileState, substitute: TileState): TileManager => {
-    const {map, head} = this;
-    if (tile.id !== substitute.id) {
-      throw new Error('you are not supposed to swap tiles with this method');
+  public static add = (list: TileList | null, tile: TileList): TileList | null => {
+    if (list)
+      list.prev = tile;
+    tile.next = list;
+    return tile;
+  };
+
+  public static toString = (list: TileList | null) => {
+    const nodes: string[] = [];
+    let cursor: TileList | null = list;
+    while (cursor !== null) {
+      nodes.push(cursor.id);
+      cursor = cursor.next;
     }
+    nodes.push('null');
+    return nodes.join(' => ');
+  };
+
+}
+
+export class TileManager {
+  private readonly map: Map<string, TileList>;
+  private floating: TileList | null;
+  private docked: TileList | null;
+
+  constructor(
+    map: Map<string, TileList> = new Map<string, TileList>(),
+    docked: TileList | null = null,
+    floating: TileList | null = null,
+  ) {
+    this.docked = docked;
+    this.map = map;
+    this.floating = floating;
+  }
+
+  public fromReactNodeArray = (nodes: ReactNode[]): TileManager => {
+    const {map} = this;
+    const manager: TileManager = new TileManager();
+    // Traverse all the nodes and create new elements or update existing ones
+    nodes.forEach((node: ReactNode) => {
+      const element = node as ReactElement;
+      const {props} = element;
+      // Get the original tile if any
+      const getExistingOrCreate = (id: string): TileList => {
+        const existing: TileList | undefined = map.get(id);
+        if (existing === undefined) {
+          return new Tile(element);
+        } else {
+          return {...existing, next: null, prev: null};
+        }
+      };
+      // Add a new tile
+      const tile: TileList = getExistingOrCreate(props.id);
+      // Add a reference to the linked list
+      manager.addDockedTile(tile);
+      if (tile.isDocked) {
+        manager.register(tile);
+      }
+    });
+    return manager;
+  };
+
+  public register = (tile: TileList) => {
+    const {map} = this;
+    if (map.has(tile.id))
+      throw new Error('attempting to add the same tile again, this must be a bug');
+    map.set(tile.id, tile);
+  };
+
+  public getFirstDockedTile = (): TileList | null => this.docked;
+  public getFirstFloatingTile = (): TileList | null => this.floating;
+
+  private addDockedTile = (tile: TileList) => {
+    this.docked = List.add(this.docked, tile);
+  };
+
+  public insertBefore = (target: TileList, tile: TileList): TileManager => {
+    const clone: TileManager = new TileManager(this.map, this.docked, this.floating);
+    // Remove the tile from the floating list
+    clone.floating = List.remove(clone.floating, tile);
+    // Insert the tile at a given point
+    clone.docked = List.insert(clone.docked, target, {...tile, isDocked: true, grabbedAt: undefined});
+    return clone;
+  };
+
+  public replace = (oldTile: TileList, newTile: TileList): TileManager => {
+    const {map} = this;
+    if (oldTile.id !== newTile.id)
+      throw new Error('you are not supposed to swap tiles with this method');
+
+    console.log(List.toString(this.docked));
+    if (compare(oldTile, newTile))
+      return this;
     // Clone the map
-    const mapClone = new Map<string | number | symbol, TileState>(map.entries());
+    const mapClone = new Map<string, TileList>(map.entries());
     // Create a new object to replace the reference
-    const replacement: TileManager = new TileManager(mapClone);
-    // If the tile was docked/un-docked update the linked list
-    if (tile.isDocked !== substitute.isDocked) {
-      // If tile was un-docked remove it from the linked list
-      if (!substitute.isDocked) {
-        const prev: TileState | null = substitute.prev;
-        const next: TileState | null = substitute.next;
-        if (prev !== null)
-          prev.next = next;
-        if (next != null)
-          next.prev = prev;
-        // Unlink the substitute that will replace
-        substitute.prev = null;
-        substitute.next = null;
-      } else {
-        this.add(substitute);
+    const clone: TileManager = new TileManager(mapClone, this.docked, this.floating);
+    if (oldTile.isDocked) {
+      clone.floating = List.replace(clone.floating, oldTile, newTile);
+    } else {
+      clone.docked = List.replace(clone.docked, oldTile, newTile);
+    }
+    // If the tile was docked/un-docked update the linked lists
+    if (oldTile.isDocked !== newTile.isDocked) {
+      if (!newTile.isDocked) {
+        clone.floating = List.add(clone.floating, newTile);
+        clone.docked = List.remove(clone.docked, oldTile);
       }
     }
     // Delete from the map the old tile
-    mapClone.delete(tile.id);
+    mapClone.delete(oldTile.id);
     // Replace the tile in the map with the new one
-    mapClone.set(tile.id, substitute);
-    // Don't change the head
-    replacement.head = head;
+    mapClone.set(oldTile.id, newTile);
     // Return the replacement
-    return replacement.updateGeometries();
+    return clone;
   };
 
-  public updateGeometries = (width?: number): TileManager => {
-    const replacement = new TileManager(this.map);
-    // Update the "unit width"
-    this.unitWidth = width !== undefined ? width / COLUMN_COUNT - 1 : this.unitWidth;
-    // Now use this value
-    const {unitWidth} = this;
-    let tile = this.head;
-    while (tile) {
-      if (!tile.isDocked)
-        throw new Error('a tile must be docked to be in the list');
-      const prev: TileState | null = tile.prev;
-      if (prev === null) {
-        tile.geometry = new Geometry(0, 0, unitWidth, unitWidth);
-      } else {
-        const {geometry} = prev;
-        const overflows: boolean = geometry.x + 2 * unitWidth > COLUMN_COUNT * unitWidth;
-        const x: number = overflows ? 0 : geometry.x + unitWidth;
-        const y: number = overflows ? geometry.y + unitWidth : geometry.y;
-        // Ok just this time, alter the object in place
-        tile.geometry = new Geometry(x, y, unitWidth, unitWidth);
-      }
-      tile = tile.next;
-    }
-    replacement.head = this.head;
-    return replacement;
-  };
-
-  public findTileByIdOrCreate = (key: string | number | symbol): TileState => {
+  public get = (id: string): TileList => {
     const {map} = this;
-    if (map.has(key) === false) {
-      const tile: TileState = {
-        id: key,
-        geometry: new Geometry(),
-        isDocked: true,
-        readyToInsertBefore: false,
-        next: null,
-        prev: null,
-      };
-      // Register the tile to the manager ...
-      map.set(key, tile);
-      // Link the previous tile
-      this.add(tile);
-    }
-    // We are 100% sure that this exists ...
-    return map.get(key) as TileState;
+    if (!map.has(id))
+      throw new Error(`tile with id \`${id}' not found in the map`);
+    return map.get(id) as TileList;
   };
 }

@@ -11,4 +11,5 @@ export const theme = {
   tableFontFamily: '"Roboto", sans-serif',
   tableBorderColor: 'rgba(0, 0, 0, 0.275)',
   tableXColor: '#4071af',
+  tableHoverColor: 'rgba(0, 0, 0, 0.05)',
 };

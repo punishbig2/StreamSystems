@@ -1,29 +1,48 @@
 import 'App.css';
 
 import {Table} from 'components/Table';
-import {Grid} from 'components/Tiles/Grid';
-import {ignoreAndRun} from 'components/Tiles/Grid/helpers';
-import {Tile} from 'components/Tiles/Tile';
+import {swallowEvent} from 'components/Tiles/Grid/helpers';
 
 import 'fonts/fontawesome/css/all.min.css';
 import {MDEntry, Types} from 'models/mdEntry';
 import {User} from 'models/user';
 
-import React, {ReactElement, ReactNode, useState} from 'react';
+import React, {useState} from 'react';
 import columns from 'definitions/TOB';
 import {fake, Message} from 'models/md';
 import styled, {ThemeProvider} from 'styled-components';
 import {theme} from 'theme';
 
+import {Mosaic, MosaicBranch, MosaicNode, MosaicWindow} from 'react-mosaic-component';
+import 'react-mosaic-component/react-mosaic-component.css';
+
+const TitleBar = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+const Buttons = styled.div`
+  justify-self: flex-end;
+  margin: 0 8px 0 auto;
+  button {
+    border: none;
+    background: none;
+    height: 28px;
+  }
+`;
+
 const StyledSelect = styled.select`
+  display: block;
   background: none;
   border: none;
-  padding: 2px 8px;
-  margin: 0 8px 0 0;
+  padding: 2px 12px;
   &:hover, &:focus {
     background-color: rgba(0, 0, 0, 0.15);
   }
 `;
+
+const Header = styled.div``;
 
 const rows = fake();
 const tableRows = rows.map((row) => ({...row, id: row.Tenor}));
@@ -101,7 +120,7 @@ const array: string[] = new Array<string>(8)
   .fill('')
   .map<string>((constant: string, index: number) => `tile-${index}`);
 const App: React.FC = () => {
-  const TileContent = (): ReactNode => {
+  const TileContent = (): JSX.Element => {
     const [tenor, setTenor] = useState<string | null>(null);
     const onTenorSelected = (newTenor: string) => {
       if (tenor !== null) {
@@ -115,26 +134,51 @@ const App: React.FC = () => {
     // Return the table with the selected content
     return <Table columns={columns} rows={rows} handlers={{onTenorSelected}} user={currentUser}/>;
   };
-  const title: React.FC = () => {
+  const Title: React.FC = () => {
     return (
-      <div>
-        <StyledSelect onMouseDownCapture={ignoreAndRun(() => null)}>
+      <TitleBar>
+        <StyledSelect onMouseDownCapture={swallowEvent(() => null)}>
           <option value={'USD/MXN'}>USD/MXN</option>
           <option value={'USD/VES'}>USD/VES</option>
         </StyledSelect>
-        <StyledSelect onMouseDownCapture={ignoreAndRun(() => null)}>
+        <StyledSelect onMouseDownCapture={swallowEvent(() => null)}>
           <option value={'ATM'}>ATM</option>
         </StyledSelect>
-      </div>
+        <Buttons>
+          <button><i className={'fa fa-window-minimize'}/></button>
+          <button><i className={'fa fa-window-restore'}/></button>
+          <button><i className={'fa fa-window-close'}/></button>
+        </Buttons>
+      </TitleBar>
     );
   };
+  const TILES: { [viewId: string]: JSX.Element } = {
+    'tile-0': <TileContent/>,
+  };
+
+  const initialValue: MosaicNode<string> = {
+    direction: 'row',
+    first: 'tile-0',
+    second: '',
+  };
+
+  const renderTile = (id: string, path: MosaicBranch[]): JSX.Element => {
+    return (
+      <MosaicWindow<string> title={''} toolbarControls={<Title/>} path={path} createNode={() => 'new'}>
+        {TILES[id]}
+      </MosaicWindow>
+    );
+  };
+
   return (
     <ThemeProvider theme={theme}>
-      <Grid>
-        {array.map<ReactElement>((id: string) => <Tile key={id} id={id} title={title} render={TileContent}/>)}
-      </Grid>
+      <Header>Header</Header>
+      <Content>
+        <Mosaic<string> renderTile={renderTile} initialValue={initialValue}/>
+      </Content>
     </ThemeProvider>
   );
 };
 
 export default App;
+

@@ -4,6 +4,7 @@ export const SizeLayout = styled.div`
   line-height: ${({theme}) => theme.tableRowSize}px;
   text-align: center;
   box-sizing: border-box;
+  white-space: nowrap;
   div {
     display: inline-block;
     text-align: center;
@@ -18,11 +19,14 @@ export const SizeLayout = styled.div`
       line-height: 22px;
       width: 22px;
       padding: 4px 0;
-      &:hover {
+      &.clickable:hover {
         &::after {
-          background-color: rgba(0, 0, 0, 0.15);
+          background-color: ${({theme}) => theme.tableHoverColor};
         }
         cursor: default;
+      }
+      &.clickable:active {
+        transform: translateY(1px);
       }
       &::after {
         display: inline-block;
@@ -31,9 +35,6 @@ export const SizeLayout = styled.div`
         line-height: 22px;
         width: 22px;
         height: 22px;
-      }
-      &:active {
-        transform: translateY(1px);
       }
     }
   }
