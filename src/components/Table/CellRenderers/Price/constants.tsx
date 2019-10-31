@@ -1,5 +1,3 @@
-export const SHOW_TOOLTIP = 'SHOW_TOOLTIP';
-export const HIDE_TOOLTIP = 'HIDE_TOOLTIP';
-export const START_SHOWING_TOOLTIP = 'START_SHOWING_TOOLTIP';
-export const STOP_SHOWING_TOOLTIP = 'STOP_SHOWING_TOOLTIP';
-export const MOVE_TOOLTIP = 'MOVE_TOOLTIP';
+export enum PriceRendererActions {
+  ShowTooltip, HideTooltip, StartShowingTooltip, StopShowingTooltip, MoveTooltip
+}

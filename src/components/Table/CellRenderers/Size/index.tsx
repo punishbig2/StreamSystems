@@ -1,10 +1,11 @@
 import {SizeLayout} from 'components/Table/CellRenderers/Size/layout';
-import {Types} from 'models/mdEntry';
+import {TableInput} from 'components/TableInput';
+import {EntryTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
 
 interface SizeProps {
-  type: Types;
-  value: number;
+  type: EntryTypes;
+  value?: string;
   mine: boolean;
 }
 
@@ -13,13 +14,17 @@ export const Size: React.FC<SizeProps> = (props: SizeProps) => {
   const classes: string[] = ['times'];
   if (props.mine)
     classes.push('clickable');
-  const children: ReactNode[] = [<div key={1}>{value.toFixed(0)}</div>];
+  const children: ReactNode[] = [
+    <TableInput key={1} defaultValue={value || ''} readOnly={!props.mine}/>,
+  ];
   const button = <div key={2} className={classes.join(' ')}/>;
-  if (props.type === Types.Bid)
+  if (props.type === EntryTypes.Bid)
     children.push(button);
   else
     children.unshift(button);
   return (
-    <SizeLayout>{children}</SizeLayout>
+    <SizeLayout>
+      {children}
+    </SizeLayout>
   );
 };

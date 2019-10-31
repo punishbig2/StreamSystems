@@ -1,0 +1,61 @@
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.mosaic.mosaic-blueprint-theme .zero-state {
+  background-color: white;
+  width: 100%;
+  height: 100%;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window-controls {
+  width: 100%;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window-title {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window, .mosaic-preview {
+  box-shadow: none;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-window-body,
+.mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-preview .mosaic-window-body {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-window-body,
+.mosaic.mosaic-blueprint-theme .mosaic-preview .mosaic-window-body {
+  background-color: white;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window.hidden .mosaic-window-toolbar,
+.mosaic.mosaic-blueprint-theme .mosaic-window.hidden .mosaic-window-toolbar.draggable:hover {
+  background: white;
+  border: none;
+  box-shadow: none;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-window-toolbar.draggable:hover,
+.mosaic.mosaic-blueprint-theme .mosaic-preview .mosaic-window-toolbar.draggable:hover {
+  background: white;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window.hidden .mosaic-window-body {
+  border: none;
+}
+
+.mosaic.mosaic-blueprint-theme .mosaic-window.hidden .mosaic-preview {
+  display: none;
+}

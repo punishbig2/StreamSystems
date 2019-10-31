@@ -1,5 +1,6 @@
-import {TooltipContainer} from 'components/Table/CellRenderers/Price/tooltipContainer';
+import {TooltipContent} from 'components/Table/CellRenderers/Price/tooltipContent';
 import React, {CSSProperties} from 'react';
+import ReactDOM from 'react-dom';
 
 interface TooltipProps {
   x: number;
@@ -9,9 +10,10 @@ interface TooltipProps {
 
 export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
   const style: CSSProperties = {left: props.x + 16, top: props.y + 16};
-  return (
-    <TooltipContainer style={style}>
+  const child = (
+    <TooltipContent style={style}>
       {props.render(0)}
-    </TooltipContainer>
+    </TooltipContent>
   );
+  return ReactDOM.createPortal(child, document.body);
 };

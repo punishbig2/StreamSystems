@@ -1,8 +1,10 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
 import {Row} from 'components/Table/Row';
-import {User} from 'models/user';
-import React from 'react';
+import {Order} from 'interfaces/order';
+import {EntryTypes} from 'interfaces/mdEntry';
+import {User} from 'interfaces/user';
+import React, {ReactElement, ReactNode} from 'react';
 import styled from 'styled-components';
 import {Body} from 'components/Table/Body';
 
@@ -12,14 +14,20 @@ const Layout = styled.div`
   margin: 10px;
 `;
 
-interface TableProps {
-  handlers: any;
-  rows: any[],
-  columns: ColumnSpec[],
-  user: User;
+export interface TOBHandlers {
+  onTenorSelected: (tenor: string) => void;
+  onDoubleClick: (type: EntryTypes, data: Order) => void;
 }
 
-export const Table: React.FC<TableProps> = (props: TableProps) => {
+interface TableProps<T> {
+  handlers: T;
+  rows: any[];
+  columns: ColumnSpec[];
+  user: User;
+  children?: ReactNode;
+}
+
+export const Table = <T extends unknown>(props: TableProps<T>): ReactElement => {
   const {rows, columns} = props;
   return (
     <Layout>

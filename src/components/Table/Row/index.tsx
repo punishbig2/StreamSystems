@@ -1,6 +1,6 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {User} from 'models/user';
+import {User} from 'interfaces/user';
 import React from 'react';
 import styled from 'styled-components';
 

@@ -1,12 +1,13 @@
+import {TableInput} from 'components/TableInput';
 import styled from 'styled-components';
 
 export const SizeLayout = styled.div`
+  display: flex;
   line-height: ${({theme}) => theme.tableRowSize}px;
   text-align: center;
   box-sizing: border-box;
   white-space: nowrap;
   div {
-    display: inline-block;
     text-align: center;
     box-sizing: border-box;
     width: 50%;
@@ -37,5 +38,7 @@ export const SizeLayout = styled.div`
         height: 22px;
       }
     }
+  }
+  ${TableInput} {
   }
 `;
