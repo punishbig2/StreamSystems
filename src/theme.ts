@@ -1,9 +1,10 @@
 export const theme = {
-  tableRowSize: 30,
   primaryColor: '#2150f0',
   primaryDarkColor: '#0120d0',
   foregroundColor: '#333',
   backgroundColor: '#fff',
+  tableHeaderHeight: 40,
+  tableRowSize: 30,
   tableCellRed: 'crimson',
   tableCellDarkGray: '#808080',
   tableCellLightGray: '#808080',

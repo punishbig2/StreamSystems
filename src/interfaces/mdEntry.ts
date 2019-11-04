@@ -1,6 +1,6 @@
 export enum EntryTypes {
-  Ask = '0',
-  Bid = '1',
+  Ask = '1',
+  Bid = '0',
   DarkPool = '2',
 }
 
@@ -16,4 +16,5 @@ export interface MDEntry {
   MDUserId: string;
   MDFirm: string;
   MDFirmType: FirmTypes;
-};
+  MDMkt: string;
+}

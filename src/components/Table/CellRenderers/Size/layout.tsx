@@ -10,7 +10,6 @@ export const SizeLayout = styled.div`
   div {
     text-align: center;
     box-sizing: border-box;
-    width: 50%;
     color: ${({theme}) => theme.tableXColor};
     line-height: ${({theme}) => theme.tableRowSize}px;
     height: ${({theme}) => theme.tableRowSize}px; 
@@ -40,5 +39,8 @@ export const SizeLayout = styled.div`
     }
   }
   ${TableInput} {
+    width: 80px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 `;

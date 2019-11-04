@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const StyledSelect = styled.select`
   pointer-events: initial;
+  font-weight: 600;
   display: block;
   background: none;
   border: none;

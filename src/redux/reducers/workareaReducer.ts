@@ -9,7 +9,10 @@ const initialState: WorkareaState = {
   symbols: [],
   tenors: [],
   products: [],
-  user: {id: '1'},
+  user: {
+    id: '1',
+    isBroker: true,
+  },
 };
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {

@@ -1,6 +1,6 @@
 import {ITile} from 'interfaces/tile';
 import {createBalancedTreeFromLeaves, getLeaves, MosaicNode} from 'react-mosaic-component';
-import {Action} from 'redux/action';
+import {AnyAction} from 'redux';
 import {WorkspaceAction} from 'redux/constants/workspaceConstants';
 import {WorkspaceState, Node} from 'redux/stateDefs/workspaceState';
 import {$$} from 'utils/stringPaster';
@@ -22,7 +22,7 @@ const createTile = (tile: ITile, state: WorkspaceState): WorkspaceState => {
 };
 
 export const createWorkspaceReducer = (id: string, initialState: WorkspaceState = genesisState) => {
-  return (state: WorkspaceState = initialState, {type, data}: Action<any>): WorkspaceState => {
+  return (state: WorkspaceState = initialState, {type, data}: AnyAction): WorkspaceState => {
     switch (type) {
       case $$(id, WorkspaceAction.AddTile):
         return {...state, ...createTile(data, state)};

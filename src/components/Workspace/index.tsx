@@ -1,19 +1,14 @@
 import {HTMLSelect} from '@blueprintjs/core';
-import {ModalWindow} from 'components/ModalWindow';
-import {OrderEntry} from 'components/OrderEntry';
-import {Title} from 'components/Tile';
+import {MessageBlotter} from 'components/MessageBlotter';
 import {TOBTile} from 'components/TOBTile';
 import {Toolbar} from 'components/Toolbar';
 import {Content} from 'components/Workspace/content';
 import {Tile} from 'components/Workspace/tile';
-import {EntryTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
 import {Product} from 'interfaces/product';
-import {ITile} from 'interfaces/tile';
 import {User} from 'interfaces/user';
 import strings from 'locales';
-import React, {ReactElement, useState} from 'react';
-import {Mosaic, MosaicBranch, MosaicNode, MosaicWindow} from 'react-mosaic-component';
+import React, {ReactElement} from 'react';
+import {Mosaic, MosaicBranch, MosaicNode} from 'react-mosaic-component';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {Action} from 'redux/action';
@@ -70,34 +65,35 @@ const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, 
   mapDispatchToProps,
 );
 
-const Workspace: React.FC<OwnProps> = withRedux((props: OwnProps & DispatchProps & WorkspaceState): ReactElement | null => {
-  const [orderTicket, setOrderTicket] = useState<Order | null>(null);
-  const {user, tiles} = props;
-  const renderTile = (onOrderWindowRequested: (type: EntryTypes, data: Order) => void) =>
-    (id: string, path: MosaicBranch[]): JSX.Element => {
-      const renderTOBTile = (id: string, path: MosaicBranch[], tile: ITile) => {
-        const toolbar = <Title symbols={props.symbols} products={props.products} tenors={props.tenors} id={tile.id}/>;
-        return (
-          <MosaicWindow<string> title={''} path={path} toolbarControls={toolbar}>
-            <TOBTile key={id} currentUser={user} onOrderWindowRequested={onOrderWindowRequested} data={[]}/>
-          </MosaicWindow>
-        );
-      };
+type Props = OwnProps & DispatchProps & WorkspaceState;
+const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
+  const {tiles} = props;
 
-      if (!tiles)
-        throw new Error('cannot determine the properties of the tiles (`tilesProps\') is null or undefined');
-      const tile = tiles[id];
-      if (!tile)
-        throw new Error(`tile \`${id}' type not found in the map`);
-      switch (tile.type) {
-        case TileTypes.TOB:
-          return renderTOBTile(id, path, tile);
-        case TileTypes.MessageBlotter:
-          return <div/>;
-        default:
-          throw new Error(`invalid tile type ${tile.type}`);
-      }
-    };
+  // Tile renderer function ...
+  const renderTile = (id: string, path: MosaicBranch[]): JSX.Element => {
+    if (!tiles)
+      throw new Error('cannot determine the properties of the tiles (`tilesProps\') is null or undefined');
+    const tile = tiles[id];
+    if (!tile)
+      throw new Error(`tile \`${id}' type not found in the map`);
+    switch (tile.type) {
+      case TileTypes.TOB:
+        return (
+          <TOBTile
+            id={tile.id}
+            onClose={() => null}
+            symbols={props.symbols}
+            products={props.products}
+            tenors={props.tenors}
+            user={props.user}
+            path={path}/>
+        );
+      case TileTypes.MessageBlotter:
+        return <MessageBlotter path={path} onClose={() => null}/>;
+      default:
+        throw new Error(`invalid tile type ${tile.type}`);
+    }
+  };
 
   const onChange = (tiles: string | MosaicNode<string> | null): void => {
     if (typeof tiles === 'string')
@@ -121,20 +117,6 @@ const Workspace: React.FC<OwnProps> = withRedux((props: OwnProps & DispatchProps
     }
   };
 
-  const onOrderWindowRequested = (type: EntryTypes, data: Order) => {
-    setOrderTicket(data);
-  };
-
-  const renderOrderTicket = () => {
-    const placeOrder = (quantity: number) => {
-      console.log(quantity);
-      // props.createOrder({...orderTicket, quantity} as Order);
-      // Remove the internal order ticket
-      setOrderTicket(null);
-    };
-    return <OrderEntry order={orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={placeOrder}/>;
-  };
-
   return (
     <React.Fragment>
       <Toolbar>
@@ -146,12 +128,11 @@ const Workspace: React.FC<OwnProps> = withRedux((props: OwnProps & DispatchProps
       </Toolbar>
       <Content>
         <Mosaic<string>
-          renderTile={renderTile(onOrderWindowRequested)}
+          renderTile={renderTile}
           value={props.tree}
           onChange={onChange}
           zeroStateView={<div className={'zero-state'}/>}/>
       </Content>
-      <ModalWindow render={renderOrderTicket} visible={orderTicket !== null}/>
     </React.Fragment>
   );
 });

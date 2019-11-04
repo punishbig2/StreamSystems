@@ -14,7 +14,6 @@ const CellLayout = styled.div`
   width: ${(props: { width: number }) => props.width}%;
   padding: 0;
   margin: 0;
-  border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
   &:not(:last-child) {
     border-right: 1px solid ${({theme}) => theme.tableBorderColor};
   }

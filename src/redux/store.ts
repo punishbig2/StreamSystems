@@ -1,14 +1,30 @@
+import {HubConnection} from '@microsoft/signalr';
 import {IWorkspace} from 'interfaces/workspace';
-import {Action, applyMiddleware, combineReducers, createStore, Reducer, Store, StoreEnhancer} from 'redux';
+import {
+  Action, AnyAction,
+  combineReducers,
+  createStore,
+  DeepPartial,
+  Dispatch,
+  Reducer,
+  Store,
+  StoreEnhancer,
+  StoreEnhancerStoreCreator,
+} from 'redux';
+import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
+import {AsyncAction} from 'redux/asyncAction';
+import {SignalRActions} from 'redux/constants/signalRActions';
+import {TileActions} from 'redux/constants/tileConstants';
+// redux-persist
 import {createTileReducer} from 'redux/reducers/tileReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
-// redux-persist
-import {asyncActionMiddleware} from 'redux/middleware/asyncActionMiddleware';
-import {signalRMiddleware} from 'redux/middleware/signalR';
-import {WorkareaState} from 'redux/stateDefs/workareaState';
 // Reducers
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
+import {ConnectionManager} from 'redux/signalR/connectionManager';
+import {WorkareaState} from 'redux/stateDefs/workareaState';
+import {SignalRAction} from 'redux/signalRAction';
+import {$$} from 'utils/stringPaster';
 
 const getObjectFromStorage = <T>(key: string): T => {
   const item: string | null = localStorage.getItem(key);
@@ -80,10 +96,67 @@ createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: any) 
   createDynamicReducers(state.tiles, createTileReducer, () => null);
 });
 
-// Configure middleware
-const enhancers: StoreEnhancer = applyMiddleware(asyncActionMiddleware, signalRMiddleware);
+const DummyAction: AnyAction = {type: undefined};
+const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
+  let connection: HubConnection | null = null;
+  // Return a store creator
+  return <S, A extends Action>(reducer: Reducer<S, A>, preloadedState?: DeepPartial<S>) => {
+    // FIXME: we can load the state here actually
+    const store: Store<S, A> = nextCreator(reducer, preloadedState);
+    // We have created the store
+    const $dispatch: Dispatch<A> = store.dispatch;
+    // Extract the "api"
+    const connectionManager: ConnectionManager<A> = new ConnectionManager<A>();
+    // Create a new custom dispatch function
+    const dispatch: Dispatch<A> = <T extends A>(action: A): T => {
+      if (action instanceof AsyncAction) {
+        // noinspection JSIgnoredPromiseFromCall
+        action.handle($dispatch);
+        // Return an ignored action
+        return {type: 'IGNORE'} as T;
+      } else if (action instanceof SignalRAction) {
+        if (connection === null) {
+          throw Error('this should never happen, connection MUST be defined if SignalRActions are dispatched');
+        } else {
+          // noinspection JSIgnoredPromiseFromCall
+          action.handle(connection);
+        }
+      } else {
+        return $dispatch(action) as T;
+      }
+      return DummyAction as T;
+    };
+    // FIXME: super ugly trick
+    dispatch(createAction<any, A>(SignalRActions.Disconnected));
+    // Here go all the listeners
+    const onConnected = (newConnection: HubConnection) => {
+      // Update the connection reference
+      connection = newConnection;
+      // Dispatch an action to notify successful connection
+      dispatch(createAction<any, A>(SignalRActions.Connected));
+    };
+    const onDisconnected = () => {
+      // Update the connection reference
+      connection = null;
+      // Dispatch an action to notify disconnection
+      dispatch(createAction<any, A>(SignalRActions.Disconnected));
+    };
+    const onUpdateMarketData = (data: any) => {
+      const type: string = $$(TileActions.UpdateRow, data.Strategy, data.Symbol);
+      // Dispatch the action
+      dispatch(createAction<any, A>(type, data));
+    };
+    // Setup the connection manager now
+    connectionManager.setOnConnectedListener(onConnected);
+    connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
+    connectionManager.setOnDisconnectedListener(onDisconnected);
+    connectionManager.connect();
+    // Build a new store with the modified dispatch
+    return {...store, dispatch};
+  };
+};
 // Create the store
-export const store: Store = createStore(createReducer(dynamicReducers), initialState, enhancers);
+export const store: Store = createStore(createReducer(dynamicReducers), initialState, enhancer);
 
 // Store persistence layer
 // FIXME keep references to check what changed and save that only

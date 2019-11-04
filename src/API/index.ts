@@ -1,7 +1,10 @@
 import config from 'config';
-import {Order} from 'interfaces/order';
+import {MessageTypes} from 'interfaces/md';
+import {EntryTypes} from 'interfaces/mdEntry';
+import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Product} from 'interfaces/product';
+import {TOBEntry} from 'interfaces/tobEntry';
 
 enum Method {
   Get = 'GET',
@@ -101,15 +104,28 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(order: Order): Promise<OrderResponse> {
-    return post<OrderResponse>(API.getUrl(API.Root, 'order', 'create'), order);
+  static async createOrder(entry: TOBEntry, quantity: number): Promise<OrderResponse> {
+    if (entry.price === null)
+      throw new Error('price MUST be specified');
+    const request: CreateOrder = {
+      MsgType: MessageTypes.D,
+      TransactTime: Date.now(),
+      User: 'ashar@anttechnologies.com',
+      Symbol: entry.symbol,
+      Strategy: entry.product,
+      Tenor: entry.tenor,
+      Side: entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell,
+      Quantity: quantity,
+      Price: entry.price,
+    };
+    return post<OrderResponse>(API.getUrl(API.Root, 'order', 'create'), request);
   }
 
-  static async updateOrder(order: Order): Promise<OrderResponse> {
+  static async updateOrder(entry: TOBEntry): Promise<OrderResponse> {
     return {} as OrderResponse;
   }
 
-  static async cancelOrder(order: Order): Promise<OrderResponse> {
+  static async cancelOrder(entry: TOBEntry): Promise<OrderResponse> {
     return {} as OrderResponse;
   }
 }

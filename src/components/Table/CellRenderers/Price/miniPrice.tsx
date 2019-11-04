@@ -6,6 +6,9 @@ export const MiniPrice = styled.div`
     border-left: 1px solid ${({theme}) => theme.tableBorderColor};
   }
   border-right: 1px solid ${({theme}) => theme.tableBorderColor};
-  min-width: 60px;
+  width: 80px;
+  text-overflow: ellipsis;
+  overflow: hidden;
   text-align: center;
+  line-height: 30px;
 `;

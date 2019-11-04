@@ -1,4 +1,4 @@
-export interface Action<T> {
+export interface Action<T = any> {
   type: T;
   data?: any;
 }

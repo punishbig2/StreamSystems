@@ -3,13 +3,14 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import React from 'react';
 import styled from 'styled-components';
 
-interface HeaderProps {
+interface HeaderProps<T> {
   columns: ColumnSpec[];
+  handlers?: T,
 }
 
 const HeaderLayout = styled.div``;
 
-export const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
+export const Header: <T extends unknown>(props: HeaderProps<T>) => any = <T extends unknown>(props: HeaderProps<T>) => {
   const {columns} = props;
   const total = columns.reduce((total, {weight}) => total + weight, 0);
   return (

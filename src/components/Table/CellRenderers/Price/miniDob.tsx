@@ -4,22 +4,24 @@ import {MiniDOBRow} from 'components/Table/CellRenderers/Price/miniDOBRow';
 import {MiniPrice} from 'components/Table/CellRenderers/Price/miniPrice';
 import {Size} from 'components/Table/CellRenderers/Size';
 import {EntryTypes} from 'interfaces/mdEntry';
+import {TOBEntry} from 'interfaces/tobEntry';
 import React, {ReactNode} from 'react';
 
 interface Props {
   type?: EntryTypes;
-  dob: { price: string, size: string }[];
+  rows?: TOBEntry[];
+  id: string,
 }
 
 export const MiniDOB: React.FC<Props> = (props: Props) => {
-  const {dob} = props;
-  if (!dob)
+  const {rows} = props;
+  if (!rows)
     return null;
-  const children = dob.map(({price, size}: { price: string, size: string }) => {
+  const children = rows.map(({price, size}: TOBEntry) => {
     const elements: ReactNode[] = [<MiniPrice key={1}>{price}</MiniPrice>];
     const sizeElement = (
       <MiniPrice key={2}>
-        <Size value={size} mine={false} type={props.type as EntryTypes}/>
+        <Size value={size} type={props.type as EntryTypes}/>
       </MiniPrice>
     );
     if (props.type === EntryTypes.Bid)
@@ -27,7 +29,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
     else
       elements.push(sizeElement);
     return (
-      <MiniDOBRow key={price}>
+      <MiniDOBRow key={props.id}>
         {elements}
       </MiniDOBRow>
     );

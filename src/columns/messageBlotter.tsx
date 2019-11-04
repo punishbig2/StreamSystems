@@ -44,7 +44,7 @@ const columns: ColumnSpec[] = [{
   ),
   weight: 1,
 }, {
-  name: 'strategy',
+  name: 'product',
   header: () => <div>Strategy</div>,
   render: () => (
     <div/>

@@ -1,6 +1,7 @@
 import {API} from 'API';
 import {Product} from 'interfaces/product';
-import {Action, AnyAction} from 'redux';
+import {AnyAction} from 'redux';
+import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {TileTypes, WorkareaActions} from 'redux/constants/workareaConstants';
@@ -8,8 +9,8 @@ import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import shortid from 'shortid';
 
-export const setWorkspaces = (id: string): Action => createAction(WorkareaActions.SetWorkspace, id);
-export const addWorkspaces = (): Action => {
+export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
+export const addWorkspaces = (): AnyAction => {
   const id = `workspace-${shortid()}`;
   // Create the reducer now, after doing this we will have the reducer
   // that will work specifically with this id

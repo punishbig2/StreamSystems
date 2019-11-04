@@ -1,13 +1,10 @@
 import styled from 'styled-components';
 
 export const TableInput = styled.input`
-  position: relative;
-  display: block;
   padding: 0 8px;
   min-width: 0;
   width: 100%;
-  box-sizing: border-box;
-  text-align: right;
+  text-align: ${({align}: { align?: 'center' | 'right' | 'left' }) => align ? align : 'right'};
   line-height: ${({theme}) => theme.tableRowSize}px;
   height: ${({theme}) => theme.tableRowSize}px;
   border: none;
@@ -18,10 +15,13 @@ export const TableInput = styled.input`
   &:focus {
     outline: 2px solid ${({theme}) => theme.primaryColor};
     outline-offset: 0;
-  z-index: 1;
+    z-index: 1;
   }
   &:not(:read-only) {
     color: crimson;
+  }
+  &.normal {
+    color: black;
   }
   &.dark-pool {
     color: #a0a0a0;

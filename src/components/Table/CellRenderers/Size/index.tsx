@@ -5,23 +5,28 @@ import React, {ReactNode} from 'react';
 
 interface SizeProps {
   type: EntryTypes;
-  value?: string;
-  mine: boolean;
+  value: number | null;
+  firm?: string;
 }
 
 export const Size: React.FC<SizeProps> = (props: SizeProps) => {
   const {value} = props;
   const classes: string[] = ['times'];
-  if (props.mine)
-    classes.push('clickable');
   const children: ReactNode[] = [
-    <TableInput key={1} defaultValue={value || ''} readOnly={!props.mine}/>,
+    <TableInput key={1} defaultValue={(value && value.toString()) || ''} align={'center'}/>,
   ];
   const button = <div key={2} className={classes.join(' ')}/>;
-  if (props.type === EntryTypes.Bid)
+  if (props.type === EntryTypes.Bid) {
+    if (props.firm) {
+      children.push(<div>{props.firm}</div>);
+    }
     children.push(button);
-  else
+  } else {
     children.unshift(button);
+    if (props.firm) {
+      children.push(<div>{props.firm}</div>);
+    }
+  }
   return (
     <SizeLayout>
       {children}

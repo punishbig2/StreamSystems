@@ -8,10 +8,14 @@ interface RowProps {
   columns: ColumnSpec[];
   data: any;
   handlers: any;
-  user: User;
+  user?: User;
 }
 
-const RowLayout = styled.div``;
+const RowLayout = styled.div`
+  &:not(:last-child) {
+    border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
+  }
+`;
 
 export const Row: React.FC<RowProps> = (props: RowProps) => {
   const {columns, data, user} = props;

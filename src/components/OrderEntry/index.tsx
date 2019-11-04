@@ -6,12 +6,14 @@ import {MiniTable} from 'components/OrderEntry/miniTable';
 import {Row} from 'components/OrderEntry/row';
 import {TitleEntry} from 'components/OrderEntry/titleEntry';
 import {DialogButtons} from 'components/PullRight';
-import {Order} from 'interfaces/order';
+import {EntryTypes} from 'interfaces/mdEntry';
+import {Sides} from 'interfaces/order';
+import {TOBEntry} from 'interfaces/tobEntry';
 import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';
 
 interface Props {
-  order: Order | null;
+  order: TOBEntry | null;
   onSubmit: (value: number) => void;
   onCancel: () => void;
 }
@@ -49,12 +51,12 @@ const OrderEntry: React.FC<Props> = (props: Props): ReactElement | null => {
             <Cell width={100} align={'center'}>
               <TitleEntry>{order.symbol}</TitleEntry>
               <TitleEntry>{order.tenor}</TitleEntry>
-              <TitleEntry>{order.strategy}</TitleEntry>
+              <TitleEntry>{order.product}</TitleEntry>
             </Cell>
           </Row>
           <Row>
             <Cell><span className={'title'}>Side</span></Cell>
-            <Cell><span>{order.side}</span></Cell>
+            <Cell><span>{order.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell}</span></Cell>
           </Row>
           <Row>
             <Cell><span className={'title'}>Qty.</span></Cell>

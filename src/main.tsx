@@ -1,6 +1,7 @@
 import {Workarea} from 'components/Workarea';
 
 import 'fonts/fontawesome/css/all.min.css';
+import 'fonts/montserrat/font.css';
 import 'main.css';
 
 import React from 'react';

@@ -1,4 +1,7 @@
 export enum SignalRActions {
-  Subscribe = 'subscribe',
-  UpdateMarketData = 'updateMarketData',
+  Unsibscribe = 'UnsubscribeMarketData',
+  Subscribe = 'SubscribeForMarketData',
+  Disconnected = 'SignalR.Disconnected',
+  Connected = 'SignalR.Connected',
+  Connecting = 'SignalR.Connecting',
 }

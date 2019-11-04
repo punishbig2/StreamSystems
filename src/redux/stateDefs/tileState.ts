@@ -1,4 +1,9 @@
+import {TOBRow} from 'interfaces/tobRow';
+
 export interface TileState {
-  product?: string;
-  symbol?: string;
+  rows: { [tenor: string]: TOBRow },
+  product: string;
+  symbol: string;
+  connected: boolean;
+  oco: boolean;
 }

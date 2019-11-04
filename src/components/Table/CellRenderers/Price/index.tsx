@@ -2,6 +2,7 @@ import {PriceRendererActions} from 'components/Table/CellRenderers/Price/constan
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
+import {TOBEntry} from 'interfaces/tobEntry';
 import {createAction} from 'redux/actionCreator';
 import {Point} from 'structures/point';
 import {PriceLayout} from 'components/Table/CellRenderers/Price/layout';
@@ -52,20 +53,21 @@ const initialState: State = {
 };
 
 export interface Props {
-  value?: string;
+  value: number | null;
   mine: boolean;
-  dob?: { price: string, size: string }[];
+  table?: TOBEntry[];
   type?: EntryTypes;
   priceType?: PriceTypes;
   // Events
   onDoubleClick: () => void;
+  onChange: (value: number) => void;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
   const [arrow, setArrow] = useState<Arrows>(Arrows.None);
-  const [lastValue, setLastValue] = useState<string | undefined>(undefined);
+  const [lastValue, setLastValue] = useState<number | null>(null);
   const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
-  const {value, dob} = props;
+  const {value, table} = props;
 
   useEffect(() => {
     if (state.startedShowingTooltip) {
@@ -97,9 +99,10 @@ export const Price: React.FC<Props> = (props: Props) => {
     createAction(PriceRendererActions.MoveTooltip, Point.fromEvent(event)),
   );
   const getTooltip = () => {
-    if ((state.visible === false) || (dob === undefined) || (dob.length === 0))
+    if ((state.visible === false) || (table === undefined) || (table.length === 0))
       return null;
-    return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} dob={dob}/>}/>;
+    const id: string = `${value}.xxx`;
+    return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table} id={id}/>}/>;
   };
   const ignoreOriginalEvent = (callback: () => void) => (event: React.MouseEvent) => {
     const target: HTMLInputElement = event.target as HTMLInputElement;
@@ -112,11 +115,20 @@ export const Price: React.FC<Props> = (props: Props) => {
     // Call the callback
     return callback();
   };
+  const onChange = ({target: {value}}: { target: HTMLInputElement }) => {
+    // FIXME: debounce if possible ...
+    props.onChange(Number(value));
+  };
+  const getValue = () => (value !== null && value.toString()) || '';
   return (
     <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
       <Direction direction={arrow}/>
-      <TableInput defaultValue={value || ''} readOnly={!props.mine} className={props.priceType}
-                  onDoubleClick={ignoreOriginalEvent(props.onDoubleClick)}/>
+      <TableInput
+        value={getValue()}
+        onChange={onChange}
+        readOnly={!props.mine}
+        className={props.priceType}
+        onDoubleClick={ignoreOriginalEvent(props.onDoubleClick)}/>
       {/* The floating object */}
       {getTooltip()}
     </PriceLayout>

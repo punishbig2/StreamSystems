@@ -3,16 +3,14 @@ import styled from 'styled-components';
 export const Column = styled.div`
   display: inline-block;
   border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
-  &:not(:last-child) {
-    border-right: 1px solid ${({theme}) => theme.tableBorderColor};
-  }
+  border-top: 1px solid transparent;
   vertical-align: middle;
   box-sizing: border-box;
   text-align: center;
   text-transform: uppercase;
   width: ${(props: {width: number}) => props.width}%;
-  line-height: ${({theme}) => theme.tableRowSize}px;
-  height: ${({theme}) => theme.tableRowSize}px;
+  line-height: ${({theme}) => theme.tableHeaderHeight}px;
+  height: ${({theme}) => theme.tableHeaderHeight}px;
   font-size: ${({theme}) => theme.tableFontSize}px;
   font-family: ${({theme}) => theme.tableFontFamily};
   font-weight: ${({theme}) => theme.tableFontWeight + 100};
