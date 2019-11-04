@@ -4,7 +4,7 @@ export const theme = {
   foregroundColor: '#333',
   backgroundColor: '#fff',
   tableHeaderHeight: 40,
-  tableRowSize: 30,
+  tableRowSize: 24,
   tableCellRed: 'crimson',
   tableCellDarkGray: '#808080',
   tableCellLightGray: '#808080',

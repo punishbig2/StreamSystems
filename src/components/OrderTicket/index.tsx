@@ -1,10 +1,10 @@
 import {Button} from '@blueprintjs/core';
 import {ModalContent} from 'components/ModalContent';
 import {ModalTitle} from 'components/ModalTitle';
-import {Cell} from 'components/OrderEntry/cell';
-import {MiniTable} from 'components/OrderEntry/miniTable';
-import {Row} from 'components/OrderEntry/row';
-import {TitleEntry} from 'components/OrderEntry/titleEntry';
+import {Cell} from 'components/OrderTicket/cell';
+import {MiniTable} from 'components/OrderTicket/miniTable';
+import {Row} from 'components/OrderTicket/row';
+import {TitleEntry} from 'components/OrderTicket/titleEntry';
 import {DialogButtons} from 'components/PullRight';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
@@ -13,14 +13,14 @@ import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';
 
 interface Props {
-  order: TOBEntry | null;
+  order: TOBEntry;
   onSubmit: (value: number) => void;
   onCancel: () => void;
 }
 
-const OrderEntry: React.FC<Props> = (props: Props): ReactElement | null => {
+const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const {order} = props;
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number | undefined>(order.quantity);
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   useEffect(() => {
     if (input === null)
@@ -38,7 +38,9 @@ const OrderEntry: React.FC<Props> = (props: Props): ReactElement | null => {
   };
   const onSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    props.onSubmit(quantity);
+    if (quantity) {
+      props.onSubmit(quantity);
+    }
   };
   return (
     <ModalContent>
@@ -64,16 +66,16 @@ const OrderEntry: React.FC<Props> = (props: Props): ReactElement | null => {
           </Row>
           <Row>
             <Cell><span className={'title'}>Vol.</span></Cell>
-            <Cell><span/></Cell>
+            <Cell><span>{order.size}</span></Cell>
           </Row>
         </MiniTable>
         <DialogButtons>
           <Button onClick={props.onCancel} text={strings.Cancel} intent={'none'}/>
-          <Button type={'submit'} text={strings.Submit} intent={'primary'} disabled={quantity <= 0}/>
+          <Button type={'submit'} text={strings.Submit} intent={'primary'} disabled={!quantity || quantity <= 0}/>
         </DialogButtons>
       </form>
     </ModalContent>
   );
 };
 
-export {OrderEntry};
+export {OrderTicket};

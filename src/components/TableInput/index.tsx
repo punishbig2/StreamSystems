@@ -1,33 +1,60 @@
-import styled from 'styled-components';
+import {Layout} from 'components/TableInput/layout';
+import React, {ReactElement, useEffect, useState} from 'react';
 
-export const TableInput = styled.input`
-  padding: 0 8px;
-  min-width: 0;
-  width: 100%;
-  text-align: ${({align}: { align?: 'center' | 'right' | 'left' }) => align ? align : 'right'};
-  line-height: ${({theme}) => theme.tableRowSize}px;
-  height: ${({theme}) => theme.tableRowSize}px;
-  border: none;
-  background: none;
-  font-size: ${({theme}) => theme.tableFontSize}px;
-  font-family: ${({theme}) => theme.tableFontFamily};
-  font-weight: ${({theme}) => theme.tableFontWeight};
-  &:focus {
-    outline: 2px solid ${({theme}) => theme.primaryColor};
-    outline-offset: 0;
-    z-index: 1;
-  }
-  &:not(:read-only) {
-    color: crimson;
-  }
-  &.normal {
-    color: black;
-  }
-  &.dark-pool {
-    color: #a0a0a0;
-  }
-  &:focus {
-    cursor: initial;
-  }
-  cursor: default;
-`;
+interface Props {
+  className?: string;
+  defaultValue?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  align?: 'left' | 'right' | 'center';
+  onDoubleClick?: (event: React.MouseEvent) => void;
+  onSubmit?: (value: string) => void;
+  readOnly?: boolean;
+}
+
+const coalesce = <T extends any>(...value: (T | undefined)[]): T => {
+  return value.find((current) => current !== undefined) as T;
+};
+
+const TableInput = <T extends any = string>(props: Props): ReactElement => {
+  const {onChange, onSubmit, defaultValue, value, ...otherProps} = props;
+  const [internalValue, setInternalValue] = useState<string | undefined>(coalesce<string>(value, defaultValue, ''));
+  const onInternalChange = (event: React.FormEvent<HTMLInputElement>) => {
+    const target: HTMLInputElement = event.currentTarget;
+    // Call the method with the appropriate value
+    if (props.onChange !== undefined) {
+      setInternalValue(target.value);
+    }
+  };
+  const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && onSubmit && internalValue) {
+      onSubmit(internalValue);
+    }
+  };
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+  useEffect(() => {
+    if (internalValue === value)
+      return;
+    if (!onChange)
+      return;
+    const timer = setTimeout(() => {
+      if (internalValue) {
+        onChange(internalValue);
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [internalValue]);
+  return (
+    <Layout
+      {...otherProps}
+      onChange={onInternalChange}
+      onKeyPress={onKeyPress}
+      value={internalValue}/>
+  );
+};
+
+export {TableInput};
+

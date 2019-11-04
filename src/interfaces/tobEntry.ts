@@ -6,6 +6,7 @@ export interface TOBEntry {
   symbol: string;
   price: number | null;
   size: number | null;
+  quantity?: number;
   table?: TOBEntry[];
   user: string;
   firm: string;

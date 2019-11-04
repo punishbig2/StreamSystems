@@ -6,8 +6,7 @@ interface CellProps {
   render: React.FC<any>,
   width: number;
   handlers: any;
-  user: User;
-  data: any;
+  user?: User;
 }
 
 const CellLayout = styled.div`

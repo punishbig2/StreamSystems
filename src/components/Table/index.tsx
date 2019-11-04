@@ -13,9 +13,12 @@ export interface TOBHandlers {
   onDoubleClick: (type: EntryTypes, data: any) => void;
   onRunButtonClicked: () => void;
   onRefBidsButtonClicked: () => void;
-  onRefOfrsButtonClicked: () => void;
+  onRefOffersButtonClicked: () => void;
   onPriceChanged: (entry: TOBEntry) => void;
   onSizeChanged: (entry: TOBEntry) => void;
+  onBidCanceled: (entry: TOBEntry) => void;
+  onOfferCanceled: (entry: TOBEntry) => void;
+  onOrderPlaced: (entry: TOBEntry, value: number) => void;
 }
 
 interface TableProps<T> {
@@ -36,7 +39,7 @@ export const Table: <T extends unknown>(props: TableProps<T>) => (React.ReactEle
         <Header<T> columns={columns} handlers={props.handlers}/>
         <Body>
           {keys.map((key) => (
-            <Row key={key} handlers={props.handlers} user={props.user} columns={columns} data={rows[key]}/>
+            <Row id={key} key={key} handlers={props.handlers} user={props.user} columns={columns} data={rows[key]}/>
           ))}
         </Body>
       </Layout>

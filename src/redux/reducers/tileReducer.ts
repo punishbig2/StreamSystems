@@ -1,10 +1,5 @@
-import {Message} from 'interfaces/md';
-import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
-import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
 import {AnyAction} from 'redux';
-import {SignalRActions} from 'redux/constants/signalRActions';
+import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TileActions} from 'redux/constants/tileConstants';
 import {TileState} from 'redux/stateDefs/tileState';
 import {$$} from 'utils/stringPaster';
@@ -17,13 +12,14 @@ const genesisState: TileState = {
   rows: {},
 };
 
-const reshape = (message: Message, bids: MDEntry[], asks: MDEntry[]): TOBTable => {
+/*const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
   const reducer = (table: TOBTable, row: TOBRow, index: number): TOBTable => {
     table[index] = row;
     return table;
   };
   const mapper = (other: MDEntry[]) => (entry: MDEntry, index: number): TOBRow => {
     return {
+      id: $$(message.Tenor, message.Symbol, message.Strategy),
       tenor: message.Tenor,
       bid: {
         tenor: message.Tenor,
@@ -35,7 +31,7 @@ const reshape = (message: Message, bids: MDEntry[], asks: MDEntry[]): TOBTable =
         firm: entry.MDFirm,
         type: EntryTypes.Bid,
       },
-      ask: {
+      offer: {
         tenor: message.Tenor,
         product: message.Strategy,
         symbol: message.Symbol,
@@ -45,14 +41,16 @@ const reshape = (message: Message, bids: MDEntry[], asks: MDEntry[]): TOBTable =
         firm: entry.MDFirm,
         type: EntryTypes.Ask,
       },
+      mid: null,
+      spread: null,
     };
   };
-  if (bids.length > asks.length) {
+  if (bids.length > offers.length) {
     return bids
-      .map(mapper(asks))
+      .map(mapper(offers))
       .reduce(reducer, {});
   } else {
-    return asks
+    return offers
       .map(mapper(bids))
       .reduce(reducer, {});
   }
@@ -74,29 +72,32 @@ const convertEntry = (message: Message) => (original: MDEntry): TOBEntry => {
 const toTOBRow = (message: any): TOBRow => {
   const entries: MDEntry[] = message.Entries;
   const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
-  const asks: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ask);
+  const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ask);
   // Sort all
   bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));
-  asks.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));
+  offers.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));
   return {
+    id: $$(message.Tenor, message.Symbol, message.Strategy),
     tenor: message.Tenor,
-    dob: reshape(message, bids, asks),
+    dob: reshape(message, bids, offers),
     bid: {...convertEntry(message)(bids[0]), table: bids.map(convertEntry(message))},
-    ask: {...convertEntry(message)(asks[0]), table: asks.map(convertEntry(message))},
+    offer: {...convertEntry(message)(offers[0]), table: offers.map(convertEntry(message))},
+    mid: null,
+    spread: null,
   };
 };
 
 const miniEntry = (data: TOBEntry) => {
   if (data.type === EntryTypes.Ask) {
-    return {ask: data};
+    return {offer: data};
   } else {
     return {bid: data};
   }
-};
+};*/
 
 export const createTileReducer = (id: string, initialState: TileState = genesisState) => {
   return (state: TileState = initialState, {type, data}: AnyAction) => {
-    const UpdateRow: string = $$(TileActions.UpdateRow, state.product, state.symbol);
+    // const UpdateRow: string = $$(TileActions.UpdateRow, state.product, state.symbol);
     switch (type) {
       case $$(id, TileActions.Initialize):
         return {...state, rows: data};
@@ -104,16 +105,15 @@ export const createTileReducer = (id: string, initialState: TileState = genesisS
         return {...state, product: data};
       case $$(id, TileActions.SetSymbol):
         return {...state, symbol: data};
-      case UpdateRow:
-        return {...state, rows: {...state.rows, [data.Tenor]: toTOBRow(data)}};
       case SignalRActions.Connected:
         return {...state, connected: true};
       case SignalRActions.Disconnected:
         return {...state, connected: false};
       case $$(id, TileActions.ToggleOCO):
         return {...state, oco: !state.oco};
-      case $$(id, TileActions.UpdateEntry):
-        return {...state, rows: {...state.rows, [data.tenor]: {...state.rows[data.tenor], ...miniEntry(data)}}};
+      // case $$(id, TileActions.UpdateEntry):
+      // FIXME: this should be handled in a row reducer
+      // return {...state, rows: {...state.rows, [data.tenor]: {...state.rows[data.tenor], ...miniEntry(data)}}};
       case TileActions.CreateOrder:
         // TODO: show a progress indicator
         return {...state};

@@ -85,7 +85,7 @@ type Endpoints = 'symbols' | 'products' | 'tenors' | 'order'
 
 // Synchronous request methods
 export class API {
-  static Root: string = '';
+  static Root: string = '/api/fxopt/oms';
   static Config: string = '/api/fxopt/config';
 
   static getUrl(section: string, object: Endpoints, verb: 'get' | 'create'): string {
@@ -107,6 +107,7 @@ export class API {
   static async createOrder(entry: TOBEntry, quantity: number): Promise<OrderResponse> {
     if (entry.price === null)
       throw new Error('price MUST be specified');
+    // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: Date.now(),

@@ -14,16 +14,19 @@ import {
 import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {AsyncAction} from 'redux/asyncAction';
-import {SignalRActions} from 'redux/constants/signalRActions';
-import {TileActions} from 'redux/constants/tileConstants';
+import {RowActions} from 'redux/constants/rowConstants';
+import {SignalRActions} from 'redux/constants/signalRConstants';
 // redux-persist
 import {createTileReducer} from 'redux/reducers/tileReducer';
+import {createRowReducer} from 'redux/reducers/tobRowReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Reducers
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {ConnectionManager} from 'redux/signalR/connectionManager';
+import {TileState} from 'redux/stateDefs/tileState';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {SignalRAction} from 'redux/signalRAction';
+import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {$$} from 'utils/stringPaster';
 
 const getObjectFromStorage = <T>(key: string): T => {
@@ -43,8 +46,8 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<any, Action> =>
   return combineReducers<any, Action>({workarea: workareaReducer, ...dynamicReducers});
 };
 
-export const injectNamedReducer = <T>(name: string, reducer: (name: string) => Reducer) => {
-  dynamicReducers[name] = reducer(name);
+export const injectNamedReducer = (name: string, reducer: (name: string, intialState: any) => Reducer, initialState: any = {}) => {
+  dynamicReducers[name] = reducer(name, initialState);
   // Replace the reducer
   store.replaceReducer(createReducer(dynamicReducers));
 };
@@ -77,7 +80,7 @@ type ReducerCreator = (key: string, state: any) => Reducer;
  * @param creator
  * @param nest
  */
-const createDynamicReducers = (base: any, creator: ReducerCreator, nest: (state: any) => void) => {
+const createDynamicReducers = (base: any, creator: ReducerCreator, nest: ((state: any) => void) | null) => {
   if (!base)
     return;
   // Install workspaces
@@ -85,15 +88,19 @@ const createDynamicReducers = (base: any, creator: ReducerCreator, nest: (state:
   for (const key of keys) {
     const state: any = getObjectFromStorage<any>(key);
     // Nest to the next level if needed
-    nest(state);
+    if (nest !== null) {
+      nest(state);
+    }
     // Add the reducer to the list
     dynamicReducers[key] = creator(key, state);
   }
 };
 const workarea: WorkareaState = initialState.workarea;
 // FIXME: prettify this
-createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: any) => {
-  createDynamicReducers(state.tiles, createTileReducer, () => null);
+createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: WorkspaceState) => {
+  createDynamicReducers(state.tiles, createTileReducer, (state: TileState) => {
+    createDynamicReducers(state.rows, createRowReducer, null);
+  });
 });
 
 const DummyAction: AnyAction = {type: undefined};
@@ -142,7 +149,8 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
     const onUpdateMarketData = (data: any) => {
-      const type: string = $$(TileActions.UpdateRow, data.Strategy, data.Symbol);
+      // A very specific action for the specific row
+      const type: string = $$(data.Tenor, data.Strategy, data.Symbol, RowActions.Update);
       // Dispatch the action
       dispatch(createAction<any, A>(type, data));
     };
@@ -173,6 +181,8 @@ store.subscribe(() => {
   localStorage.setItem(PersistedKeys.Workarea, JSON.stringify(persistedObject));
   // Save the dynamic keys
   for (const [key, object] of Object.entries(entries)) {
+    if (key.startsWith('__'))
+      continue;
     localStorage.setItem(key, JSON.stringify(object));
   }
 });

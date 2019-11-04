@@ -1,3 +1,4 @@
+import {qualifiedTypeIdentifier} from '@babel/types';
 import {PriceRendererActions} from 'components/Table/CellRenderers/Price/constants';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {TableInput} from 'components/TableInput';
@@ -54,13 +55,14 @@ const initialState: State = {
 
 export interface Props {
   value: number | null;
-  mine: boolean;
+  owned: boolean;
   table?: TOBEntry[];
   type?: EntryTypes;
   priceType?: PriceTypes;
   // Events
-  onDoubleClick: () => void;
+  onDoubleClick?: () => void;
   onChange: (value: number) => void;
+  onSubmit?: (value: number) => void;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -68,7 +70,6 @@ export const Price: React.FC<Props> = (props: Props) => {
   const [lastValue, setLastValue] = useState<number | null>(null);
   const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
   const {value, table} = props;
-
   useEffect(() => {
     if (state.startedShowingTooltip) {
       const timer = setTimeout(() => dispatch(createAction(PriceRendererActions.ShowTooltip)), 500);
@@ -79,20 +80,19 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   }, [state.startedShowingTooltip]);
   useEffect(() => {
-    const difference: number = Number(value) - Number(lastValue);
-    if (lastValue === undefined)
+    if (value === null)
       return;
-    if (difference > 0) {
+    if (lastValue === null) {
+      setArrow(Arrows.None);
+    } else if (value < lastValue) {
       setArrow(Arrows.Down);
-    } else if (difference < 0) {
+    } else if (value > lastValue) {
       setArrow(Arrows.Up);
     }
   }, [lastValue, value]);
-
   useEffect(() => {
     setLastValue(value);
   }, [value]);
-
   const showTooltip = () => dispatch(createAction(PriceRendererActions.StartShowingTooltip));
   const hideTooltip = () => dispatch(createAction(PriceRendererActions.HideTooltip));
   const onMouseMove = (event: React.MouseEvent) => dispatch(
@@ -104,31 +104,38 @@ export const Price: React.FC<Props> = (props: Props) => {
     const id: string = `${value}.xxx`;
     return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table} id={id}/>}/>;
   };
-  const ignoreOriginalEvent = (callback: () => void) => (event: React.MouseEvent) => {
-    const target: HTMLInputElement = event.target as HTMLInputElement;
-    // Stop the event
-    event.stopPropagation();
-    event.preventDefault();
-    // Remove focus and selection
-    target.setSelectionRange(0, 0);
-    target.blur();
-    // Call the callback
-    return callback();
+  // FIXME: debounce this if possible
+  const onChange = (value: string) => props.onChange(Number(value));
+  const getValue = (): string => (!!value && value.toString()) || '';
+  const onDoubleClick = (event: React.MouseEvent) => {
+    if (props.onDoubleClick) {
+      const target: HTMLInputElement = event.target as HTMLInputElement;
+      // Stop the event
+      event.stopPropagation();
+      event.preventDefault();
+      // Remove focus and selection
+      target.setSelectionRange(0, 0);
+      target.blur();
+      // Call the callback
+      return props.onDoubleClick();
+    }
   };
-  const onChange = ({target: {value}}: { target: HTMLInputElement }) => {
-    // FIXME: debounce if possible ...
-    props.onChange(Number(value));
+  const onSubmit = () => {
+    if (props.onSubmit) {
+      props.onSubmit(Number(getValue()));
+    }
   };
-  const getValue = () => (value !== null && value.toString()) || '';
+
   return (
     <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
       <Direction direction={arrow}/>
       <TableInput
         value={getValue()}
         onChange={onChange}
-        readOnly={!props.mine}
+        readOnly={!props.owned}
         className={props.priceType}
-        onDoubleClick={ignoreOriginalEvent(props.onDoubleClick)}/>
+        onDoubleClick={onDoubleClick}
+        onSubmit={onSubmit}/>
       {/* The floating object */}
       {getTooltip()}
     </PriceLayout>

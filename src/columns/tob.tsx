@@ -1,36 +1,44 @@
 import {Button} from '@blueprintjs/core';
+import {TOBHandlers} from 'components/Table';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
-import {Size} from 'components/Table/CellRenderers/Size';
+import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {TOBRow} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import React from 'react';
 
+type RowType = TOBRow & { handlers: TOBHandlers } & { user: User };
 const columns: ColumnSpec[] = [{
   name: 'tenor',
   header: () => <div/>,
-  render: ({tenor, handlers}: { tenor: string, handlers: any }) => (
+  render: ({tenor, handlers}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={handlers.onTenorSelected}/>
   ),
   weight: 1,
 }, {
-  name: 'bid-size',
+  name: 'bid-quantity',
   header: () => <div/>,
-  render: ({bid, user}: { bid: TOBEntry, user: User }) => (
-    <Size value={bid.size} type={EntryTypes.Bid} firm={user.isBroker ? bid.firm : undefined}/>
+  render: ({bid, user, handlers}: RowType) => bid && (
+    <Quantity
+      value={bid.quantity ? bid.quantity : null}
+      type={EntryTypes.Bid}
+      onChange={() => handlers.onSizeChanged(bid)}
+      onButtonClicked={() => handlers.onBidCanceled(bid)}
+      firm={user.isBroker ? bid.firm : undefined}/>
   ),
   weight: 2,
 }, {
   name: 'bid',
   header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bid'} intent={'none'} small/>,
-  render: ({bid, user, handlers}: { bid: TOBEntry, user: User, handlers: any }) => (
+  render: ({bid, user, handlers}: RowType) => bid && (
     <Price
-      mine={user.id === bid.user}
+      owned={user.id === bid.user}
       table={bid.table}
       type={EntryTypes.Bid}
+      onSubmit={(value: number) => handlers.onOrderPlaced(bid, value)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
       onChange={(price: number) => handlers.onPriceChanged({...bid, price})}
       value={bid.price}/>
@@ -41,7 +49,7 @@ const columns: ColumnSpec[] = [{
   header: () => <div/>,
   render: () => (
     <Price
-      mine={false}
+      owned={false}
       priceType={PriceTypes.DarkPool}
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
@@ -49,23 +57,32 @@ const columns: ColumnSpec[] = [{
   ),
   weight: 3,
 }, {
-  name: 'ask',
-  header: ({handlers}) => <Button onClick={handlers.onRefOfrsButtonClicked} text={'Ref. Ofr'} intent={'none'} small/>,
-  render: ({ask, user, handlers}: { ask: TOBEntry, user: User, handlers: any }) => (
+  name: 'offer',
+  header: ({handlers}) => <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Ofr'} intent={'none'} small/>,
+  render: ({offer, user, handlers}: RowType) => offer && (
     <Price
-      mine={user.id === ask.user}
-      table={ask.table}
+      owned={user.id === offer.user}
+      table={offer.table}
       type={EntryTypes.Ask}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Ask, ask)}
-      onChange={(price: number) => handlers.onPriceChanged({...ask, price})}
-      value={ask.price}/>
+      onSubmit={(value: number) => handlers.onOrderPlaced(offer, value)}
+      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Ask, offer)}
+      onChange={(price: number) => handlers.onPriceChanged({...offer, price})}
+      value={offer.price}/>
   ),
   weight: 3,
 }, {
-  name: 'ask-size',
+  name: 'offer-quantity',
   header: ({handlers}) => <Button onClick={handlers.onRunButtonClicked} text={'Run'} intent={'none'} small/>,
-  render: ({ask, user}) => <Size value={ask.size} type={EntryTypes.Ask} firm={user.isBroker ? ask.firm : undefined}/>,
+  render: ({offer, user, handlers}: RowType) => offer && (
+    <Quantity
+      value={offer.quantity ? offer.quantity : null}
+      type={EntryTypes.Ask}
+      onChange={() => handlers.onSizeChanged(offer)}
+      onButtonClicked={() => handlers.onOfferCanceled(offer)}
+      firm={user.isBroker ? offer.firm : undefined}></Quantity>
+  ),
   weight: 2,
 }];
 
 export default columns;
+

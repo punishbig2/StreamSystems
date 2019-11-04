@@ -2,9 +2,12 @@ import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBTable} from 'interfaces/tobTable';
 
 export interface TOBRow {
+  id: string;
   tenor: string;
   bid: TOBEntry;
   darkPool?: string;
-  ask: TOBEntry;
+  offer: TOBEntry;
+  mid: number | null;
+  spread: number | null;
   dob?: TOBTable;
 }

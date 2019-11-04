@@ -2,7 +2,7 @@ import {DOBContent} from 'components/Table/CellRenderers/Price/dobContent';
 import {DOBTitle} from 'components/Table/CellRenderers/Price/dobTitle';
 import {MiniDOBRow} from 'components/Table/CellRenderers/Price/miniDOBRow';
 import {MiniPrice} from 'components/Table/CellRenderers/Price/miniPrice';
-import {Size} from 'components/Table/CellRenderers/Size';
+import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import React, {ReactNode} from 'react';
@@ -21,7 +21,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
     const elements: ReactNode[] = [<MiniPrice key={1}>{price}</MiniPrice>];
     const sizeElement = (
       <MiniPrice key={2}>
-        <Size value={size} type={props.type as EntryTypes}/>
+        <Quantity value={size} type={props.type as EntryTypes} onChange={() => null} onButtonClicked={() => null}/>
       </MiniPrice>
     );
     if (props.type === EntryTypes.Bid)

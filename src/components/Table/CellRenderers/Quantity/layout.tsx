@@ -1,4 +1,3 @@
-import {TableInput} from 'components/TableInput';
 import styled from 'styled-components';
 
 export const SizeLayout = styled.div`
@@ -16,9 +15,9 @@ export const SizeLayout = styled.div`
     vertical-align: top;
     &.times {
       color: ${({theme}) => theme.tableCellRed};
-      line-height: 22px;
-      width: 22px;
-      padding: 4px 0;
+      line-height: ${({theme}) => theme.tableRowSize - 2}px;
+      width: ${({theme}) => theme.tableRowSize - 2}px;
+      padding: 1px 0;
       &.clickable:hover {
         &::after {
           background-color: ${({theme}) => theme.tableHoverColor};
@@ -38,7 +37,7 @@ export const SizeLayout = styled.div`
       }
     }
   }
-  ${TableInput} {
+  input {
     width: 80px;
     text-overflow: ellipsis;
     overflow: hidden;

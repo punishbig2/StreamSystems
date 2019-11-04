@@ -1,4 +1,4 @@
-import {SizeLayout} from 'components/Table/CellRenderers/Size/layout';
+import {SizeLayout} from 'components/Table/CellRenderers/Quantity/layout';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
@@ -7,13 +7,24 @@ interface SizeProps {
   type: EntryTypes;
   value: number | null;
   firm?: string;
+  onButtonClicked: () => void;
+  onChange: () => void,
+  defaultValue?: number;
 }
 
-export const Size: React.FC<SizeProps> = (props: SizeProps) => {
-  const {value} = props;
+export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
+  const {value, defaultValue} = props;
   const classes: string[] = ['times'];
+  const getValue = (): string => {
+    if (value === null) {
+      if (defaultValue === undefined)
+        return '';
+      return defaultValue.toString();
+    }
+    return value.toString();
+  };
   const children: ReactNode[] = [
-    <TableInput key={1} defaultValue={(value && value.toString()) || ''} align={'center'}/>,
+    <TableInput key={1} defaultValue={getValue()} align={'center'}/>,
   ];
   const button = <div key={2} className={classes.join(' ')}/>;
   if (props.type === EntryTypes.Bid) {
