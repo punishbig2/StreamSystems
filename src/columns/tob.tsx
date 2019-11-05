@@ -21,7 +21,7 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'bid-quantity',
   header: () => <div/>,
-  render: ({bid, user, handlers}: RowType) => bid && (
+  render: ({bid, user, handlers}: RowType) => (
     <Quantity
       value={bid.quantity ? bid.quantity : null}
       type={EntryTypes.Bid}
@@ -33,23 +33,25 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'bid',
   header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bid'} intent={'none'} small/>,
-  render: ({bid, user, handlers}: RowType) => bid && (
-    <Price
-      owned={user.id === bid.user}
-      table={bid.table}
-      type={EntryTypes.Bid}
-      onSubmit={(value: number) => handlers.onOrderPlaced(bid, value)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
-      onChange={(price: number) => handlers.onPriceChanged({...bid, price})}
-      value={bid.price}/>
-  ),
+  render: ({bid, user, handlers}: RowType) => {
+    return (
+      <Price
+        editable={user.id === bid.user}
+        table={bid.table}
+        type={EntryTypes.Bid}
+        onSubmit={(value: number) => handlers.onOrderPlaced(bid, value)}
+        onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
+        onChange={(price: number) => handlers.onPriceChanged({...bid, price})}
+        value={bid.price}/>
+    )
+  },
   weight: 3,
 }, {
   name: 'dark-pool',
   header: () => <div/>,
   render: () => (
     <Price
-      owned={false}
+      editable={false}
       priceType={PriceTypes.DarkPool}
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
@@ -59,9 +61,9 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'offer',
   header: ({handlers}) => <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Ofr'} intent={'none'} small/>,
-  render: ({offer, user, handlers}: RowType) => offer && (
+  render: ({offer, user, handlers}: RowType) => (
     <Price
-      owned={user.id === offer.user}
+      editable={user.id === offer.user}
       table={offer.table}
       type={EntryTypes.Ask}
       onSubmit={(value: number) => handlers.onOrderPlaced(offer, value)}
@@ -73,13 +75,13 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'offer-quantity',
   header: ({handlers}) => <Button onClick={handlers.onRunButtonClicked} text={'Run'} intent={'none'} small/>,
-  render: ({offer, user, handlers}: RowType) => offer && (
+  render: ({offer, user, handlers}: RowType) => (
     <Quantity
       value={offer.quantity ? offer.quantity : null}
       type={EntryTypes.Ask}
       onChange={() => handlers.onSizeChanged(offer)}
       onButtonClicked={() => handlers.onOfferCanceled(offer)}
-      firm={user.isBroker ? offer.firm : undefined}></Quantity>
+      firm={user.isBroker ? offer.firm : undefined}/>
   ),
   weight: 2,
 }];

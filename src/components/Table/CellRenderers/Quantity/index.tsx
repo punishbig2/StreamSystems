@@ -9,22 +9,19 @@ interface SizeProps {
   firm?: string;
   onButtonClicked: () => void;
   onChange: () => void,
-  defaultValue?: number;
 }
 
 export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
-  const {value, defaultValue} = props;
+  const {value} = props;
   const classes: string[] = ['times'];
   const getValue = (): string => {
     if (value === null) {
-      if (defaultValue === undefined)
-        return '';
-      return defaultValue.toString();
+      return '';
     }
     return value.toString();
   };
   const children: ReactNode[] = [
-    <TableInput key={1} defaultValue={getValue()} align={'center'}/>,
+    <TableInput key={1} value={getValue()} aligned={'center'}/>,
   ];
   const button = <div key={2} className={classes.join(' ')}/>;
   if (props.type === EntryTypes.Bid) {

@@ -28,19 +28,24 @@ interface TableProps<T> {
   user?: User;
 }
 
-export const Table: <T extends unknown>(props: TableProps<T>) => (React.ReactElement | null) =
+export const Table: <T>(props: TableProps<T>) => (React.ReactElement | null) =
   <T extends unknown>(props: TableProps<T>): ReactElement | null => {
-    const {rows, columns} = props;
+    const {rows, columns, handlers} = props;
     if (!rows)
       return null;
     const keys: string[] = Object.keys(rows);
+    const mapRow = (key: string) => {
+      const {user} = props;
+      const id: string = key;
+      const data: any = rows[key];
+      // Build the row object
+      return <Row {...{id, key, handlers, user, columns, data}}/>;
+    };
     return (
       <Layout>
         <Header<T> columns={columns} handlers={props.handlers}/>
         <Body>
-          {keys.map((key) => (
-            <Row id={key} key={key} handlers={props.handlers} user={props.user} columns={columns} data={rows[key]}/>
-          ))}
+          {keys.map(mapRow)}
         </Body>
       </Layout>
     );

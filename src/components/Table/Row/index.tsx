@@ -11,7 +11,7 @@ import styled from 'styled-components';
 interface OwnProps {
   id: string;
   columns: ColumnSpec[];
-  data: {[key: string]: any};
+  data: { [key: string]: any };
   handlers: any;
   user?: User;
 }
@@ -48,7 +48,7 @@ const withRedux: (ignored: any) => any = connect<TOBRowState, DispatchProps, Own
   mapDispatchToProps,
 );
 
-const Row: React.FC<OwnProps> = withRedux((props: OwnProps) => {
+const Row = withRedux((props: OwnProps) => {
   const {columns, data, user} = props;
   // Compute the total weight of the columns
   const total = columns.reduce((total, {weight}) => total + weight, 0);

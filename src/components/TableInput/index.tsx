@@ -3,22 +3,17 @@ import React, {ReactElement, useEffect, useState} from 'react';
 
 interface Props {
   className?: string;
-  defaultValue?: string;
-  value?: string;
+  value: string;
   onChange?: (value: string) => void;
-  align?: 'left' | 'right' | 'center';
+  aligned?: 'left' | 'right' | 'center';
   onDoubleClick?: (event: React.MouseEvent) => void;
   onSubmit?: (value: string) => void;
   readOnly?: boolean;
 }
 
-const coalesce = <T extends any>(...value: (T | undefined)[]): T => {
-  return value.find((current) => current !== undefined) as T;
-};
-
 const TableInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onChange, onSubmit, defaultValue, value, ...otherProps} = props;
-  const [internalValue, setInternalValue] = useState<string | undefined>(coalesce<string>(value, defaultValue, ''));
+  const {onChange, onSubmit, value, ...otherProps} = props;
+  const [internalValue, setInternalValue] = useState<string | undefined>(value);
   const onInternalChange = (event: React.FormEvent<HTMLInputElement>) => {
     const target: HTMLInputElement = event.currentTarget;
     // Call the method with the appropriate value
@@ -52,7 +47,7 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
       {...otherProps}
       onChange={onInternalChange}
       onKeyPress={onKeyPress}
-      value={internalValue}/>
+      value={internalValue || ''}/>
   );
 };
 

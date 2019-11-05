@@ -1,4 +1,3 @@
-import {qualifiedTypeIdentifier} from '@babel/types';
 import {PriceRendererActions} from 'components/Table/CellRenderers/Price/constants';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {TableInput} from 'components/TableInput';
@@ -55,7 +54,7 @@ const initialState: State = {
 
 export interface Props {
   value: number | null;
-  owned: boolean;
+  editable: boolean;
   table?: TOBEntry[];
   type?: EntryTypes;
   priceType?: PriceTypes;
@@ -63,6 +62,7 @@ export interface Props {
   onDoubleClick?: () => void;
   onChange: (value: number) => void;
   onSubmit?: (value: number) => void;
+  black?: boolean;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -106,7 +106,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
   // FIXME: debounce this if possible
   const onChange = (value: string) => props.onChange(Number(value));
-  const getValue = (): string => (!!value && value.toString()) || '';
+  const getValue = (): string => ((value !== undefined && value !== null) && value.toString()) || '';
   const onDoubleClick = (event: React.MouseEvent) => {
     if (props.onDoubleClick) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
@@ -132,8 +132,8 @@ export const Price: React.FC<Props> = (props: Props) => {
       <TableInput
         value={getValue()}
         onChange={onChange}
-        readOnly={!props.owned}
-        className={props.priceType}
+        readOnly={!props.editable}
+        className={[props.priceType, props.black ? 'black' : undefined].join(' ')}
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}/>
       {/* The floating object */}

@@ -132,7 +132,6 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
           mid: null,
           spread: null,
         };
-
         // Return row
         return row;
       }

@@ -4,7 +4,7 @@ export const Layout = styled.input`
   padding: 0 8px;
   min-width: 0;
   width: 100%;
-  text-align: ${({align}: { align?: 'center' | 'right' | 'left' }) => align ? align : 'right'};
+  text-align: ${({aligned}: { aligned?: 'center' | 'right' | 'left' }) => aligned ? aligned : 'right'};
   line-height: ${({theme}) => theme.tableRowSize}px;
   height: ${({theme}) => theme.tableRowSize}px;
   border: none;
@@ -17,7 +17,7 @@ export const Layout = styled.input`
     outline-offset: 0;
     z-index: 1;
   }
-  &:not(:read-only) {
+  &:not(.black):not(:read-only) {
     color: crimson;
   }
   &.normal {

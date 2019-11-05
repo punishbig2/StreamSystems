@@ -18,35 +18,32 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'bid-price',
   header: () => <div>{strings.Bid}</div>,
-  render: ({bid: entry, tenor, handlers}: RowType) => (
-    <TableInput className={'normal'}
-                onChange={(price: string) => handlers.onBidChanged(tenor, Number(price))}/>
+  render: ({tenor, handlers, bid}: RowType) => (
+    <Price editable={true} value={bid.price} onChange={(price: number) => handlers.onBidChanged(tenor, price)} black/>
   ),
   weight: 4,
 }, {
   name: 'bid-quantity',
   header: () => <div/>,
-  render: () => <TableInput className={'normal'} defaultValue={'10'} align={'center'}/>,
+  render: () => <TableInput className={'normal'} value={'10'} aligned={'center'}/>,
   weight: 3,
 }, {
   name: 'offer-price',
   header: () => <div>{strings.Offer}</div>,
-  render: ({offer: entry, tenor, handlers}: RowType) => (
-    <TableInput className={'normal'}
-                onChange={(price: string) => handlers.onOfferChanged(tenor, Number(price))}/>
+  render: ({tenor, offer, handlers}: RowType) => (
+    <Price editable={true} value={offer.price} onChange={(price: number) => handlers.onOfferChanged(tenor, price)} black/>
   ),
   weight: 4,
 }, {
   name: 'offer-quantity',
   header: () => <div/>,
-  render: () => <TableInput className={'normal'} defaultValue={'10'} align={'center'}/>,
+  render: () => <TableInput className={'normal'} value={'10'} aligned={'center'}/>,
   weight: 3,
 }, {
   name: 'mid',
   header: () => <div>{strings.Mid}</div>,
   render: ({tenor, handlers, mid}: RowType) => (
-    <Price owned={true}
-           onChange={(value: number) => handlers.onMidChanged(tenor, value)} value={mid ? mid : null}/>
+    <Price editable={true} value={mid} onChange={(value: number) => handlers.onMidChanged(tenor, value)} black/>
   ),
   weight: 4,
 }, {
@@ -54,8 +51,7 @@ const columns: ColumnSpec[] = [{
   header: () => <div>{strings.Spread}</div>,
   render: ({tenor, handlers, spread}: RowType) => {
     return (
-      <Price owned={true} value={spread ? spread : null}
-             onChange={(value: number) => handlers.onSpreadChanged(tenor, value)}/>
+      <Price editable={true} value={spread} onChange={(value: number) => handlers.onSpreadChanged(tenor, value)} black/>
     );
   },
   weight: 4,
