@@ -27,6 +27,7 @@ import {TileState} from 'redux/stateDefs/tileState';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {SignalRAction} from 'redux/signalRAction';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {toTOBRow} from 'utils/dataParser';
 import {$$} from 'utils/stringPaster';
 
 const getObjectFromStorage = <T>(key: string): T => {
@@ -151,8 +152,9 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     const onUpdateMarketData = (data: any) => {
       // A very specific action for the specific row
       const type: string = $$(data.Tenor, data.Strategy, data.Symbol, RowActions.Update);
+      console.log(type);
       // Dispatch the action
-      dispatch(createAction<any, A>(type, data));
+      dispatch(createAction<any, A>(type, toTOBRow(data)));
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);

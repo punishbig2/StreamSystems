@@ -121,11 +121,11 @@ export class API {
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: Date.now(),
-      User: 'ashar@anttechnologies.com',
+      User: '1',
       Symbol: entry.symbol,
       Strategy: entry.product,
       Tenor: entry.tenor,
-      Side: entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell,
+      Side: entry.type === EntryTypes.Bid ? Sides.Sell : Sides.Buy,
       Quantity: quantity,
       Price: entry.price,
     };

@@ -23,7 +23,7 @@ interface Props {
   rows: TOBTable;
   user: User;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (entries: TOBRow[]) => void;
 }
 
 interface State {
@@ -130,6 +130,13 @@ const Run: React.FC<Props> = (props: Props) => {
     onMidChanged: (tenor: string, value: number) => dispatch({type: Changes.Mid, data: {tenor, value}}),
     onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread, data: {tenor, value}}),
   };
+  const onSubmit = () => {
+    const entries = Object.values(state.rows)
+      .filter(({bid}) => bid.price !== null);
+    if (entries.length === 0)
+      return;
+    props.onSubmit(entries);
+  };
   return (
     <Layout>
       <TitleBar>
@@ -141,7 +148,7 @@ const Run: React.FC<Props> = (props: Props) => {
       </TitleBar>
       <Table<RunHandlers> columns={runColumns} rows={state.rows} handlers={handlers} user={props.user} prefix={'run'}/>
       <DialogButtons>
-        <Button text={strings.Submit} intent={'primary'} onClick={props.onSubmit}/>
+        <Button text={strings.Submit} intent={'primary'} onClick={onSubmit}/>
         <Button text={strings.Close} intent={'none'} onClick={props.onClose}/>
       </DialogButtons>
     </Layout>

@@ -158,7 +158,6 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
 
   const handlers: TOBHandlers = {
     onOrderPlaced: (entry: TOBEntry, price: number) => {
-      console.log(entry);
       if (entry.quantity) {
         props.createOrder({...entry, price}, entry.quantity);
       }
@@ -172,9 +171,9 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
     },
     onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
       if (entry.type === EntryTypes.Ask) {
-        setOrderTicket({...entry, type: EntryTypes.Bid});
+        setOrderTicket(entry);
       } else {
-        setOrderTicket({...entry, type: EntryTypes.Ask});
+        setOrderTicket(entry);
       }
     },
     onRunButtonClicked: () => {
@@ -213,6 +212,14 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
     return <OrderTicket order={orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={createOrder}/>;
   };
 
+  const bulkCreateOrders = (entries: TOBRow[]) => {
+    entries.forEach(({bid, offer}: TOBRow) => {
+      props.createOrder(bid, bid.quantity as number);
+      props.createOrder(offer, offer.quantity as number);
+    });
+    setRunVisible(false);
+  };
+
   const toolbar: ReactElement = (
       <TOBTileTitle
         symbol={symbol}
@@ -235,7 +242,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
         rows={props.rows}
         user={props.user}
         onClose={() => setRunVisible(false)}
-        onSubmit={() => console.log('wtf?')}/>
+        onSubmit={bulkCreateOrders}/>
     );
   };
 

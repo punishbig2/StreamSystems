@@ -43,7 +43,7 @@ const columns: ColumnSpec[] = [{
         onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
         onChange={(price: number) => handlers.onPriceChanged({...bid, price})}
         value={bid.price}/>
-    )
+    );
   },
   weight: 3,
 }, {
