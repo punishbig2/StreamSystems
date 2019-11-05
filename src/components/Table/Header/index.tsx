@@ -5,7 +5,8 @@ import styled from 'styled-components';
 
 interface HeaderProps<T> {
   columns: ColumnSpec[];
-  handlers?: T,
+  handlers?: T;
+  table: any;
 }
 
 const HeaderLayout = styled.div``;

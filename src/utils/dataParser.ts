@@ -68,15 +68,17 @@ export const toTOBRow = (message: any): TOBRow => {
   const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
   const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ask);
   // Sort all
-  bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));
   offers.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));
+  bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));
   const dob: TOBTable = reshape(message, bids, offers);
+  // Convert from input format to our local representation
+  const converter: (original: MDEntry) => TOBEntry = convertEntry(message);
   return {
     id: $$(message.Tenor, message.Symbol, message.Strategy),
     tenor: message.Tenor,
     dob: dob,
-    bid: {...convertEntry(message)(bids[0]), table: bids.map(convertEntry(message))},
-    offer: {...convertEntry(message)(offers[0]), table: offers.map(convertEntry(message))},
+    offer: {...converter(offers[0]), table: offers.map(converter)},
+    bid: {...converter(bids[0]), table: bids.map(converter)},
     mid: null,
     spread: null,
   };

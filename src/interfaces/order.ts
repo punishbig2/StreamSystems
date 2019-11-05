@@ -1,7 +1,7 @@
 import {MessageTypes} from 'interfaces/md';
 
 export enum Sides {
-  Buy = '0', Sell = '1',
+  Buy = 'BUY', Sell = 'SELL',
 }
 
 export interface CreateOrder {

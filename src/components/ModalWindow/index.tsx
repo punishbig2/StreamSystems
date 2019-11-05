@@ -3,7 +3,7 @@ import {Window} from 'components/ModalWindow/window';
 import React, {ReactElement} from 'react';
 
 interface Props {
-  render: (props: any) => ReactElement;
+  render: (props: any) => ReactElement | null;
   visible: boolean;
 }
 

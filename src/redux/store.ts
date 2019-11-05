@@ -1,4 +1,5 @@
 import {HubConnection} from '@microsoft/signalr';
+import {Message} from 'interfaces/md';
 import {IWorkspace} from 'interfaces/workspace';
 import {
   Action, AnyAction,
@@ -14,7 +15,6 @@ import {
 import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {AsyncAction} from 'redux/asyncAction';
-import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 // redux-persist
 import {createTileReducer} from 'redux/reducers/tileReducer';
@@ -27,8 +27,7 @@ import {TileState} from 'redux/stateDefs/tileState';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {SignalRAction} from 'redux/signalRAction';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
-import {toTOBRow} from 'utils/dataParser';
-import {$$} from 'utils/stringPaster';
+import {wMessageToAction} from 'utils/wMessageToAction';
 
 const getObjectFromStorage = <T>(key: string): T => {
   const item: string | null = localStorage.getItem(key);
@@ -151,12 +150,8 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       // Dispatch an action to notify disconnection
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
-    const onUpdateMarketData = (data: any) => {
-      // A very specific action for the specific row
-      const type: string = $$(data.Tenor, data.Strategy, data.Symbol, RowActions.Update);
-      console.log(type, toTOBRow(data));
-      // Dispatch the action
-      dispatch(createAction<any, A>(type, toTOBRow(data)));
+    const onUpdateMarketData = (data: Message) => {
+      wMessageToAction(data, dispatch);
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);

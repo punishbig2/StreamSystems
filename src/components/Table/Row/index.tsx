@@ -1,7 +1,7 @@
+import React from 'react';
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {User} from 'interfaces/user';
-import React from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {ApplicationState} from 'redux/applicationState';
@@ -52,7 +52,13 @@ const Row = withRedux((props: OwnProps & TOBRowState) => {
         const width = 100 * column.weight / total;
         const name = column.name;
         return (
-          <Cell key={name} width={width} render={column.render} handlers={props.handlers} user={user} {...data}/>
+          <Cell
+            key={name}
+            width={width}
+            render={column.render}
+            handlers={props.handlers}
+            user={user}
+            {...data}/>
         );
       })}
     </RowLayout>

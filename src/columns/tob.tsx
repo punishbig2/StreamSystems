@@ -7,15 +7,16 @@ import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBRow} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import React from 'react';
 
-type RowType = TOBRow & { handlers: TOBHandlers } & { user: User };
+type RowType = TOBRow & { handlers: TOBHandlers } & { user: User } & { table: TOBTable };
 const columns: ColumnSpec[] = [{
   name: 'tenor',
   header: () => <div/>,
-  render: ({tenor, handlers}: RowType) => (
-    <Tenor tenor={tenor} onTenorSelected={handlers.onTenorSelected}/>
+  render: ({tenor, handlers, dob}: RowType) => (
+    <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor, dob as TOBTable)}/>
   ),
   weight: 1,
 }, {
@@ -33,18 +34,16 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'bid',
   header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bid'} intent={'none'} small/>,
-  render: ({bid, user, handlers}: RowType) => {
-    return (
-      <Price
-        editable={user.id === bid.user || bid.user === undefined}
-        table={bid.table}
-        type={EntryTypes.Bid}
-        onSubmit={(value: number) => handlers.onOrderPlaced(bid, value)}
-        onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
-        onChange={(price: number) => handlers.onPriceChanged({...bid, price})}
-        value={bid.price}/>
-    );
-  },
+  render: ({bid, user, handlers}: RowType) => (
+    <Price
+      editable={user.id === bid.user}
+      table={bid.table}
+      type={EntryTypes.Bid}
+      onSubmit={(value: number) => handlers.onOrderPlaced(bid, value)}
+      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
+      onChange={(price: number) => handlers.onPriceChanged({...bid, price})}
+      value={bid.price}/>
+  ),
   weight: 3,
 }, {
   name: 'dark-pool',
@@ -60,7 +59,9 @@ const columns: ColumnSpec[] = [{
   weight: 3,
 }, {
   name: 'offer',
-  header: ({handlers}) => <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Ofr'} intent={'none'} small/>,
+  header: ({handlers}: RowType) => (
+    <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Ofr'} intent={'none'} small/>
+  ),
   render: ({offer, user, handlers}: RowType) => (
     <Price
       editable={user.id === offer.user}
@@ -74,7 +75,9 @@ const columns: ColumnSpec[] = [{
   weight: 3,
 }, {
   name: 'offer-quantity',
-  header: ({handlers}) => <Button onClick={handlers.onRunButtonClicked} text={'Run'} intent={'none'} small/>,
+  header: ({handlers, table}: RowType) => (
+    <Button onClick={() => handlers.onRunButtonClicked(table)} text={'Run'} intent={'none'} small/>
+  ),
   render: ({offer, user, handlers}: RowType) => (
     <Quantity
       value={offer.quantity ? offer.quantity : 10}

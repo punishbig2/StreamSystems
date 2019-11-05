@@ -5,13 +5,14 @@ import {Layout} from 'components/Table/layout';
 import {Row} from 'components/Table/Row';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
+import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import React, {ReactElement} from 'react';
 
 export interface TOBHandlers {
-  onTenorSelected: (tenor: string) => void;
+  onTenorSelected: (tenor: string, table: TOBTable) => void;
   onDoubleClick: (type: EntryTypes, data: any) => void;
-  onRunButtonClicked: () => void;
+  onRunButtonClicked: (rows: TOBTable) => void;
   onRefBidsButtonClicked: () => void;
   onRefOffersButtonClicked: () => void;
   onPriceChanged: (entry: TOBEntry) => void;
@@ -44,7 +45,7 @@ export const Table: <T>(props: Props<T>) => (React.ReactElement | null) =
     };
     return (
       <Layout>
-        <Header<T> columns={columns} handlers={props.handlers}/>
+        <Header<T> columns={columns} handlers={props.handlers} table={rows}/>
         <Body>
           {keys.map(mapRow)}
         </Body>

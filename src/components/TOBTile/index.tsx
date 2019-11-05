@@ -73,7 +73,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TileActions.Initialize), rows)),
   subscribe: (symbol: string, product: string, tenor: string) => dispatch(subscribe(symbol, product, tenor)),
   setProduct: (value: string) => dispatch(createAction($$(id, TileActions.SetProduct), value)),
-  createOrder: (order: TOBEntry, quantity: number) => dispatch(createOrder(order, quantity)),
+  createOrder: (order: TOBEntry, quantity: number) => dispatch(createOrder(id, order, quantity)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
   getSnapshot: (symbol: string, product: string, tenor: string) => dispatch(getSnapshot(symbol, product, tenor)),
@@ -88,8 +88,8 @@ type Props = OwnProps & DispatchProps & TileState;
 
 export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const [orderTicket, setOrderTicket] = useState<TOBEntry | null>(null);
-  const [tenor, setTenor] = useState<string | null>(null);
-  const [isRunVisible, setRunVisible] = useState<boolean>(false);
+  const [currentTenor, setCurrentTenor] = useState<{ tenor: string, table: TOBTable } | null>(null);
+  const [runTable, setRunTable] = useState<TOBTable | null>(null);
   // Extract properties to manage them better
   const {symbols, symbol, products, product, tenors, connected, user} = props;
   const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setProduct(value);
@@ -151,7 +151,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       // Inject a new reducer
       injectNamedReducer(row.id, createRowReducer, {data: row});
     });
-    // Initialize with base rows
+    // Initialize with base table
     props.initialize(rows.reduce(reducer, {}));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, product, tenors, connected]);
@@ -162,11 +162,11 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
         props.createOrder({...entry, price}, entry.quantity);
       }
     },
-    onTenorSelected: (value: string) => {
-      if (tenor === null) {
-        setTenor(value);
+    onTenorSelected: (tenor: string, table: TOBTable) => {
+      if (currentTenor === null) {
+        setCurrentTenor({tenor, table});
       } else {
-        setTenor(null);
+        setCurrentTenor(null);
       }
     },
     onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
@@ -176,8 +176,8 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
         setOrderTicket(entry);
       }
     },
-    onRunButtonClicked: () => {
-      setRunVisible(true);
+    onRunButtonClicked: (table: TOBTable) => {
+      setRunTable(table);
     },
     onRefBidsButtonClicked: () => null,
     onRefOffersButtonClicked: () => null,
@@ -217,7 +217,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       props.createOrder(bid, bid.quantity as number);
       props.createOrder(offer, offer.quantity as number);
     });
-    setRunVisible(false);
+    setRunTable(null);
   };
 
   const toolbar: ReactElement = (
@@ -233,52 +233,52 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
   ;
 
   const renderRun = () => {
+    if (!runTable)
+      return null;
     return (
       <Run
         symbol={symbol}
         product={product}
         toggleOCO={props.toggleOCO}
         oco={props.oco}
-        rows={props.rows}
+        table={runTable}
         user={props.user}
-        onClose={() => setRunVisible(false)}
+        onClose={() => setRunTable(null)}
         onSubmit={bulkCreateOrders}/>
     );
   };
 
-  const getData = (tenor: string | null): TOBTable | undefined => {
+  const getData = (object: { tenor: string, table: TOBTable } | null): TOBTable | undefined => {
     const {rows} = props;
-    if (tenor === null) {
+    if (!object) {
       return rows;
     } else {
-      const rowId: string = $$(tenor, symbol, product);
-      const row: TOBRow = rows[rowId];
-      const dob: TOBTable = row ? (row.dob ? row.dob : {}) : {};
+      const {tenor, table} = object;
       const missing: TOBTable = {};
       // Get dob row keys
-      const keys = Object.keys(dob);
+      const keys = Object.keys(table || {});
       for (let i = 0; i < Object.keys(rows).length - keys.length; ++i) {
         // Fill the missing items in the DOB table
         missing[keys.length + i] = {
           tenor: tenor,
-          id: tenor,
+          id: `${tenor}.${i}`,
           offer: emptyOffer(tenor, symbol, product, user.id),
           bid: emptyBid(tenor, symbol, product, user.id),
           spread: null,
           mid: null,
         };
       }
-      return {...dob, ...missing};
+      return {...table, ...missing};
     }
   };
 
   return (
     <React.Fragment>
       <MosaicWindow<string> title={''} path={props.path} toolbarControls={toolbar}>
-        <Table<TOBHandlers> columns={tobColumns} rows={getData(tenor)} handlers={handlers} user={props.user}/>
+        <Table<TOBHandlers> columns={tobColumns} rows={getData(currentTenor)} handlers={handlers} user={props.user}/>
       </MosaicWindow>
       <ModalWindow render={renderOrderTicket} visible={orderTicket !== null}/>
-      <ModalWindow render={renderRun} visible={isRunVisible}/>
+      <ModalWindow render={renderRun} visible={runTable !== null}/>
     </React.Fragment>
   );
 });

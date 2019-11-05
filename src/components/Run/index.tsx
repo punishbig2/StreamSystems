@@ -20,7 +20,7 @@ interface Props {
   symbol: string;
   product: string;
   oco: boolean;
-  rows: TOBTable;
+  table: TOBTable;
   user: User;
   onClose: () => void;
   onSubmit: (entries: TOBRow[]) => void;
@@ -28,7 +28,7 @@ interface Props {
 
 interface State {
   history: Changes[];
-  rows: TOBTable;
+  table: TOBTable;
 }
 
 interface Computed {
@@ -64,14 +64,14 @@ const computeRow = (type: Changes, last: Changes | undefined, data: Computed, v1
 };
 
 const reducer = (state: State, {type, data}: Action<Changes>): State => {
-  const {history, rows} = state;
+  const {history, table} = state;
   const findRow = (tenor: string): TOBRow | null => {
-    const key: string | undefined = Object.keys(state.rows)
+    const key: string | undefined = Object.keys(state.table)
       .find((key) => key.startsWith(tenor))
     ;
     if (key === undefined)
       return null;
-    return {...state.rows[key]};
+    return {...state.table[key]};
   };
   const row: TOBRow | null = findRow(data.tenor);
   if (!row)
@@ -102,8 +102,8 @@ const reducer = (state: State, {type, data}: Action<Changes>): State => {
     case Changes.Bid:
       return {
         ...state,
-        rows: {
-          ...rows,
+        table: {
+          ...table,
           [row.id]: {
             ...row,
             spread: computed.spread,
@@ -120,7 +120,8 @@ const reducer = (state: State, {type, data}: Action<Changes>): State => {
 };
 
 const Run: React.FC<Props> = (props: Props) => {
-  const [state, dispatch] = useReducer(reducer, {rows: props.rows, history: []});
+  const [state, dispatch] = useReducer(reducer, {table: props.table, history: []});
+  console.log(state.table);
   const onChange = () => {
     props.toggleOCO();
   };
@@ -131,7 +132,7 @@ const Run: React.FC<Props> = (props: Props) => {
     onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread, data: {tenor, value}}),
   };
   const onSubmit = () => {
-    const entries = Object.values(state.rows)
+    const entries = Object.values(state.table)
       .filter(({bid}) => bid.price !== null);
     if (entries.length === 0)
       return;
@@ -143,10 +144,10 @@ const Run: React.FC<Props> = (props: Props) => {
         <Item>{props.symbol}</Item>
         <Item>{props.product}</Item>
         <Item>
-          <Checkbox checked={props.oco} onChange={onChange} label={'OCO'} inline/>
+          <Checkbox checked={props.oco} onChange={onChange} label={'OCO'} style={{display: 'none'}} inline/>
         </Item>
       </TitleBar>
-      <Table<RunHandlers> columns={runColumns} rows={state.rows} handlers={handlers} user={props.user} prefix={'run'}/>
+      <Table<RunHandlers> columns={runColumns} rows={state.table} handlers={handlers} user={props.user} prefix={'run'}/>
       <DialogButtons>
         <Button text={strings.Submit} intent={'primary'} onClick={onSubmit}/>
         <Button text={strings.Close} intent={'none'} onClick={props.onClose}/>

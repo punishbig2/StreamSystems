@@ -6,7 +6,6 @@ export const SizeLayout = styled.div`
   text-align: center;
   box-sizing: border-box;
   white-space: nowrap;
-  min-width: 120px;
   div {
     text-align: center;
     box-sizing: border-box;
@@ -39,7 +38,6 @@ export const SizeLayout = styled.div`
     }
   }
   input {
-    width: 80px;
     text-overflow: ellipsis;
     overflow: hidden;
   }
