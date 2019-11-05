@@ -67,7 +67,7 @@ const initialState: ApplicationState = {
     tenors: [],
     workspaces: {},
     activeWorkspace: null,
-    user: {id: '1'},
+    user: {id: 'ashar@anttechnologies.com'},
     // Merge with the saved value
     ...savedWorkarea,
   },

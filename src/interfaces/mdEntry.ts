@@ -13,6 +13,7 @@ export interface MDEntry {
   MDEntryType: EntryTypes;
   MDEntryPx: string;
   MDEntrySize: string;
+  MDEntryOriginator: string,
   MDUserId: string;
   MDFirm: string;
   MDFirmType: FirmTypes;
