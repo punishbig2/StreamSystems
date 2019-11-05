@@ -118,10 +118,12 @@ export class API {
     if (entry.price === null)
       throw new Error('price MUST be specified');
     // Build a create order request
+    const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+    const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: Date.now(),
-      User: '1',
+      User: currentUserId,
       Symbol: entry.symbol,
       Strategy: entry.product,
       Tenor: entry.tenor,

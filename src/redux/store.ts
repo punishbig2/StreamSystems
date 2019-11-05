@@ -60,6 +60,8 @@ export const removeNamedReducer = <T>(name: string) => {
 };
 
 const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
+const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
 const initialState: ApplicationState = {
   workarea: {
     symbols: [],
@@ -67,7 +69,7 @@ const initialState: ApplicationState = {
     tenors: [],
     workspaces: {},
     activeWorkspace: null,
-    user: {id: 'ashar@anttechnologies.com'},
+    user: {id: currentUserId},
     // Merge with the saved value
     ...savedWorkarea,
   },
