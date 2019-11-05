@@ -15,7 +15,7 @@ import {MosaicBranch, MosaicWindow} from 'react-mosaic-component';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {createOrder} from 'redux/actions/tileActions';
+import {createOrder, getSnapshot} from 'redux/actions/tileActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TileActions} from 'redux/constants/tileConstants';
@@ -49,6 +49,7 @@ export const subscribe = (symbol: string, product: string, tenor: string): Signa
 
 interface DispatchProps {
   subscribe: (symbol: string, product: string, tenor: string) => void;
+  getSnapshot: (symbol: string, product: string, tenor: string) => void;
   initialize: (rows: { [tenor: string]: TOBRow }) => void;
   setProduct: (value: string) => void;
   setSymbol: (value: string) => void;
@@ -75,6 +76,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   createOrder: (order: TOBEntry, quantity: number) => dispatch(createOrder(order, quantity)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
+  getSnapshot: (symbol: string, product: string, tenor: string) => dispatch(getSnapshot(symbol, product, tenor)),
 });
 
 const withRedux: (ignored: any) => any = connect<TileState, DispatchProps, OwnProps, ApplicationState>(
@@ -142,10 +144,12 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       return tenorToNumber(at) - tenorToNumber(bt);
     });
     rows.forEach((row: TOBRow) => {
+      // Get snapshot W
+      props.getSnapshot(symbol, product, row.tenor);
       // Listen to websocket incoming messages
       props.subscribe(symbol, product, row.tenor);
       // Inject a new reducer
-      injectNamedReducer($$('__ROW', row.id), createRowReducer, {data: row});
+      injectNamedReducer(row.id, createRowReducer, {data: row});
     });
     // Initialize with base rows
     props.initialize(rows.reduce(reducer, {}));
@@ -167,7 +171,11 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       }
     },
     onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
-      setOrderTicket(entry);
+      if (entry.type === EntryTypes.Ask) {
+        setOrderTicket({...entry, type: EntryTypes.Bid});
+      } else {
+        setOrderTicket({...entry, type: EntryTypes.Ask});
+      }
     },
     onRunButtonClicked: () => {
       setRunVisible(true);

@@ -18,12 +18,12 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
   const {symbols, symbol, products, product, setSymbol, setProduct} = props;
   return (
     <TitleBar>
-      <StyledSelect value={symbol} onChange={setSymbol}>
-        <option value={''} disabled>Choose one</option>
+      <StyledSelect value={symbol || -1} onChange={setSymbol}>
+        <option value={-1} disabled>Choose one</option>
         {symbols.map((item: string) => <option value={item} key={item}>{item}</option>)}
       </StyledSelect>
-      <StyledSelect value={product} onChange={setProduct}>
-        <option value={''} disabled>Choose one</option>
+      <StyledSelect value={product || -1} onChange={setProduct}>
+        <option value={-1} disabled>Choose one</option>
         {products.map((item: Product) => <option value={item.name} key={item.name}>{item.name}</option>)}
       </StyledSelect>
       <DefaultWindowButtons onClose={props.onClose}/>

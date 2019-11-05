@@ -139,7 +139,7 @@ const Run: React.FC<Props> = (props: Props) => {
           <Checkbox checked={props.oco} onChange={onChange} label={'OCO'} inline/>
         </Item>
       </TitleBar>
-      <Table<RunHandlers> columns={runColumns} rows={state.rows} handlers={handlers} user={props.user}/>
+      <Table<RunHandlers> columns={runColumns} rows={state.rows} handlers={handlers} user={props.user} prefix={'run'}/>
       <DialogButtons>
         <Button text={strings.Submit} intent={'primary'} onClick={props.onSubmit}/>
         <Button text={strings.Close} intent={'none'} onClick={props.onClose}/>

@@ -1,5 +1,5 @@
 import config from 'config';
-import {MessageTypes} from 'interfaces/md';
+import {Message, MessageTypes} from 'interfaces/md';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
@@ -55,10 +55,15 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Prom
           if (xhr.status === 0) {
             reject();
           } else if (xhr.status >= 200 && xhr.status < 300) {
-            // TODO: throw an exception or handle the one thrown here
-            const object: any = JSON.parse(xhr.responseText);
-            // Return the object converted to the correct type
-            resolve(object as T);
+            const {responseText} = xhr;
+            if (responseText.length > 0) {
+              // TODO: throw an exception or handle the one thrown here
+              const object: any = JSON.parse(responseText);
+              // Return the object converted to the correct type
+              resolve(object as T);
+            } else {
+              resolve(null as unknown as T);
+            }
           } else {
             reject(new HTTPError(xhr.status, xhr.responseText));
           }
@@ -85,8 +90,13 @@ type Endpoints = 'symbols' | 'products' | 'tenors' | 'order'
 
 // Synchronous request methods
 export class API {
-  static Root: string = '/api/fxopt/oms';
+  static MarketData: string = '/api/fxopt/marketdata';
+  static Oms: string = '/api/fxopt/oms';
   static Config: string = '/api/fxopt/config';
+
+  static getRawUrl(section: string, rest: string): string {
+    return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
+  }
 
   static getUrl(section: string, object: Endpoints, verb: 'get' | 'create'): string {
     return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
@@ -119,7 +129,7 @@ export class API {
       Quantity: quantity,
       Price: entry.price,
     };
-    return post<OrderResponse>(API.getUrl(API.Root, 'order', 'create'), request);
+    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
   }
 
   static async updateOrder(entry: TOBEntry): Promise<OrderResponse> {
@@ -128,5 +138,11 @@ export class API {
 
   static async cancelOrder(entry: TOBEntry): Promise<OrderResponse> {
     return {} as OrderResponse;
+  }
+
+  static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<Message | null> {
+    const url: string = API.getRawUrl(API.MarketData, `snapshot?symbol=${symbol}&strategy=${strategy}&tenor=${tenor}`);
+    // Execute the query
+    return get<Message | null>(url);
   }
 }

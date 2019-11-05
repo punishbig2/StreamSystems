@@ -11,7 +11,6 @@ import styled from 'styled-components';
 interface OwnProps {
   id: string;
   columns: ColumnSpec[];
-  data: { [key: string]: any };
   handlers: any;
   user?: User;
 }
@@ -24,11 +23,6 @@ const RowLayout = styled.div`
     border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
   }
 `;
-
-/*updateEntryPrice: (entry: TOBEntry) => void;
-updateEntrySize: (entry: TOBEntry) => void;
-updateEntryPrice: (entry: TOBEntry) => dispatch(createAction($$(id, TileActions.UpdateEntry), entry)),
-  updateEntrySize: (entry: TOBEntry) => dispatch(createAction($$(id, TileActions.UpdateEntry), entry)),*/
 // FIXME: this could probably be extracted to a generic function
 const mapStateToProps: MapStateToProps<TOBRowState, OwnProps, ApplicationState> =
   (state: ApplicationState, ownProps: OwnProps): TOBRowState => {
@@ -48,7 +42,7 @@ const withRedux: (ignored: any) => any = connect<TOBRowState, DispatchProps, Own
   mapDispatchToProps,
 );
 
-const Row = withRedux((props: OwnProps) => {
+const Row = withRedux((props: OwnProps & TOBRowState) => {
   const {columns, data, user} = props;
   // Compute the total weight of the columns
   const total = columns.reduce((total, {weight}) => total + weight, 0);

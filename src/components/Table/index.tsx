@@ -21,22 +21,23 @@ export interface TOBHandlers {
   onOrderPlaced: (entry: TOBEntry, value: number) => void;
 }
 
-interface TableProps<T> {
+interface Props<T> {
   handlers?: T;
   rows?: { [id: string]: any };
   columns: ColumnSpec[];
   user?: User;
+  prefix?: string;
 }
 
-export const Table: <T>(props: TableProps<T>) => (React.ReactElement | null) =
-  <T extends unknown>(props: TableProps<T>): ReactElement | null => {
+export const Table: <T>(props: Props<T>) => (React.ReactElement | null) =
+  <T extends unknown>(props: Props<T>): ReactElement | null => {
     const {rows, columns, handlers} = props;
     if (!rows)
       return null;
     const keys: string[] = Object.keys(rows);
     const mapRow = (key: string) => {
       const {user} = props;
-      const id: string = key;
+      const id: string = props.prefix ? `${props.prefix}${key}` : key;
       const data: any = rows[key];
       // Build the row object
       return <Row {...{id, key, handlers, user, columns, data}}/>;

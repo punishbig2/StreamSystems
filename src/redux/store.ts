@@ -46,7 +46,7 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<any, Action> =>
   return combineReducers<any, Action>({workarea: workareaReducer, ...dynamicReducers});
 };
 
-export const injectNamedReducer = (name: string, reducer: (name: string, intialState: any) => Reducer, initialState: any = {}) => {
+export const injectNamedReducer = (name: string, reducer: (name: string, initialState: any) => Reducer, initialState: any = {}) => {
   dynamicReducers[name] = reducer(name, initialState);
   // Replace the reducer
   store.replaceReducer(createReducer(dynamicReducers));

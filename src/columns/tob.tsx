@@ -23,7 +23,7 @@ const columns: ColumnSpec[] = [{
   header: () => <div/>,
   render: ({bid, user, handlers}: RowType) => (
     <Quantity
-      value={bid.quantity ? bid.quantity : null}
+      value={bid.quantity ? bid.quantity : 10}
       type={EntryTypes.Bid}
       onChange={() => handlers.onSizeChanged(bid)}
       onButtonClicked={() => handlers.onBidCanceled(bid)}
@@ -36,7 +36,7 @@ const columns: ColumnSpec[] = [{
   render: ({bid, user, handlers}: RowType) => {
     return (
       <Price
-        editable={user.id === bid.user}
+        editable={user.id === bid.user || bid.user === undefined}
         table={bid.table}
         type={EntryTypes.Bid}
         onSubmit={(value: number) => handlers.onOrderPlaced(bid, value)}
@@ -77,7 +77,7 @@ const columns: ColumnSpec[] = [{
   header: ({handlers}) => <Button onClick={handlers.onRunButtonClicked} text={'Run'} intent={'none'} small/>,
   render: ({offer, user, handlers}: RowType) => (
     <Quantity
-      value={offer.quantity ? offer.quantity : null}
+      value={offer.quantity ? offer.quantity : 10}
       type={EntryTypes.Ask}
       onChange={() => handlers.onSizeChanged(offer)}
       onButtonClicked={() => handlers.onOfferCanceled(offer)}
