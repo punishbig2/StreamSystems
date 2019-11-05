@@ -7,7 +7,6 @@ import {Row} from 'components/OrderTicket/row';
 import {TitleEntry} from 'components/OrderTicket/titleEntry';
 import {DialogButtons} from 'components/PullRight';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/order';
 import {TOBEntry} from 'interfaces/tobEntry';
 import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';

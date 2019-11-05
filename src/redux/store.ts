@@ -152,7 +152,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     const onUpdateMarketData = (data: any) => {
       // A very specific action for the specific row
       const type: string = $$(data.Tenor, data.Strategy, data.Symbol, RowActions.Update);
-      console.log(type);
+      console.log(type, toTOBRow(data));
       // Dispatch the action
       dispatch(createAction<any, A>(type, toTOBRow(data)));
     };

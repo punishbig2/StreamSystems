@@ -6,6 +6,7 @@ export const SizeLayout = styled.div`
   text-align: center;
   box-sizing: border-box;
   white-space: nowrap;
+  min-width: 120px;
   div {
     text-align: center;
     box-sizing: border-box;

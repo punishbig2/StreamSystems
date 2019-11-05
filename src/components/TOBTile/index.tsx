@@ -251,9 +251,11 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
     if (tenor === null) {
       return rows;
     } else {
-      const row: TOBRow = rows[tenor];
+      const rowId: string = $$(tenor, symbol, product);
+      const row: TOBRow = rows[rowId];
       const dob: TOBTable = row ? (row.dob ? row.dob : {}) : {};
       const missing: TOBTable = {};
+      // Get dob row keys
       const keys = Object.keys(dob);
       for (let i = 0; i < Object.keys(rows).length - keys.length; ++i) {
         // Fill the missing items in the DOB table

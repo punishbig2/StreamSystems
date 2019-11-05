@@ -12,7 +12,7 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
   };
   const mapper = (other: MDEntry[]) => (entry: MDEntry, index: number): TOBRow => {
     return {
-      id: $$(message.Tenor, message.Symbol, message.Strategy),
+      id: $$('__DOB', message.Tenor, message.Symbol, message.Strategy),
       tenor: message.Tenor,
       bid: {
         tenor: message.Tenor,
@@ -70,10 +70,11 @@ export const toTOBRow = (message: any): TOBRow => {
   // Sort all
   bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));
   offers.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));
+  const dob: TOBTable = reshape(message, bids, offers);
   return {
     id: $$(message.Tenor, message.Symbol, message.Strategy),
     tenor: message.Tenor,
-    dob: reshape(message, bids, offers),
+    dob: dob,
     bid: {...convertEntry(message)(bids[0]), table: bids.map(convertEntry(message))},
     offer: {...convertEntry(message)(offers[0]), table: offers.map(convertEntry(message))},
     mid: null,

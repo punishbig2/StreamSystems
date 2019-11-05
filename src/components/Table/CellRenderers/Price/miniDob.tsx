@@ -17,7 +17,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const {rows} = props;
   if (!rows)
     return null;
-  const children = rows.map(({price, size}: TOBEntry) => {
+  const children = rows.map(({price, size}: TOBEntry, index: number) => {
     const elements: ReactNode[] = [<MiniPrice key={1}>{price}</MiniPrice>];
     const sizeElement = (
       <MiniPrice key={2}>
@@ -29,7 +29,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
     else
       elements.push(sizeElement);
     return (
-      <MiniDOBRow key={props.id}>
+      <MiniDOBRow key={index}>
         {elements}
       </MiniDOBRow>
     );

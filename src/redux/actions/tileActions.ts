@@ -1,9 +1,6 @@
 import {API} from 'API';
 import {Message} from 'interfaces/md';
-import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
-import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';

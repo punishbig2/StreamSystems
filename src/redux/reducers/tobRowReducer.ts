@@ -12,7 +12,7 @@ export const createRowReducer = (id: string, initialState: TOBRowState = genesis
     const OnRowChanged: string = $$(id, RowActions.Update);
     switch (type) {
       case OnRowChanged:
-        return {...state, data: {...state.data, ...data}};
+        return {...state, data};
       default:
         return state;
     }
