@@ -40,7 +40,6 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
       return null;
     const key: string | undefined = Object.keys(table)
       .find((key) => key.startsWith(tenor));
-    ;
     if (key === undefined)
       return null;
     return {...table[key]};
@@ -76,7 +75,7 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
         ...state,
         table: {
           ...table,
-          [row.id]: {
+          [row.tenor]: {
             ...row,
             spread: computed.spread,
             mid: computed.mid,

@@ -73,12 +73,10 @@ const Run: React.FC<Props> = (props: Props) => {
   const onSubmit = () => {
     if (state.table === null)
       return;
-    console.log(Object.values(state.table));
     const entries = Object.values(state.table)
       .filter(({bid, offer}) => {
         return bid.price !== null && offer.price !== null;
       });
-    console.log(entries);
     if (entries.length === 0)
       return;
     props.onSubmit(entries);

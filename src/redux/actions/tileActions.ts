@@ -45,9 +45,9 @@ export const cancelAll = (id: string, type: EntryTypes): AsyncAction<any, Action
   }, createAction($$(id, TileActions.CancelAllOrders)));
 };
 
-export const createOrder = (id: string, entry: TOBEntry, side: Sides, quantity: number): AsyncAction<any, ActionType> => {
+export const createOrder = (id: string, entry: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.createOrder(entry, side, quantity);
+    const result = await API.createOrder(entry, side, symbol, strategy, quantity);
     // FIXME: parse the result
     if (result.Status === 'Success') {
       return createAction($$(id, TileActions.OrderCreated), {

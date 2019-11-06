@@ -92,6 +92,8 @@ type Endpoints = 'symbols' | 'products' | 'tenors' | 'order'
 const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
 const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
 
+const getCurrentTime = (): string => Math.round(Date.now()).toString();
+
 export class API {
   static MarketData: string = '/api/fxopt/marketdata';
   static Oms: string = '/api/fxopt/oms';
@@ -117,16 +119,16 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(entry: TOBEntry, side: Sides, quantity: number): Promise<OrderResponse> {
+  static async createOrder(entry: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number): Promise<OrderResponse> {
     if (entry.price === null)
       throw new Error('price MUST be specified');
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
-      TransactTime: (Math.round(Date.now() / 1000)).toString(),
+      TransactTime: getCurrentTime(),
       User: currentUserId,
-      Symbol: entry.symbol,
-      Strategy: entry.strategy,
+      Symbol: symbol,
+      Strategy: strategy,
       Tenor: entry.tenor,
       Side: side,
       Quantity: quantity.toString(),
@@ -143,7 +145,7 @@ export class API {
     const request = {
       MsgType: MessageTypes.F,
       User: currentUserId,
-      TransactTime: Math.round(Date.now() / 1000).toString(),
+      TransactTime: getCurrentTime(),
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
@@ -151,7 +153,7 @@ export class API {
   static async cancelOrder(orderId: string, tenor: string, symbol: String, strategy: string): Promise<OrderResponse> {
     const request = {
       MsgType: MessageTypes.F,
-      TransactTime: Math.round(Date.now() / 1000).toString(),
+      TransactTime: getCurrentTime(),
       User: currentUserId,
       Symbol: symbol,
       Strategy: strategy,
