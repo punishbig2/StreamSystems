@@ -13,11 +13,11 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
     table[index] = row;
     return table;
   };
-  const mapper = (other: MDEntry[]) => (entry: MDEntry, index: number): TOBRow => {
+  const mapper = (key1: string, key2: string) => (other: MDEntry[]) => (entry: MDEntry, index: number): any => {
     return {
       id: $$('__DOB', message.Tenor, message.Symbol, message.Strategy),
       tenor: message.Tenor,
-      bid: {
+      [key1]: {
         tenor: message.Tenor,
         strategy: message.Strategy,
         symbol: message.Symbol,
@@ -27,11 +27,11 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
         firm: entry.MDFirm,
         type: EntryTypes.Bid,
       },
-      offer: {
+      [key2]: {
         tenor: message.Tenor,
         strategy: message.Strategy,
         symbol: message.Symbol,
-        user: entry.MDUserId || entry.MDEntryOriginator || currentUserId,
+        user: other[index] ? (other[index].MDUserId || other[index].MDEntryOriginator || currentUserId) : currentUserId,
         quantity: other[index] ? Number(other[index].MDEntrySize) : 10,
         price: other[index] ? Number(other[index].MDEntryPx) : null,
         firm: entry.MDFirm,
@@ -43,11 +43,11 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
   };
   if (bids.length > offers.length) {
     return bids
-      .map(mapper(offers))
+      .map(mapper('bid', 'offer')(offers))
       .reduce(reducer, {});
   } else {
     return offers
-      .map(mapper(bids))
+      .map(mapper('offer', 'bid')(bids))
       .reduce(reducer, {});
   }
 };

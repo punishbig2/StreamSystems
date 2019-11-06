@@ -21,7 +21,8 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
     return value.toString();
   };
   const children: ReactNode[] = [
-    <TableInput key={1} value={getValue()} aligned={'center'}/>,
+    <TableInput key={1} value={getValue()} aligned={'center'}
+                onChange={(value: string) => props.onChange(Number(value))}/>,
   ];
   if (props.cancelable)
     classes.push('clickable');
