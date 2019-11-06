@@ -15,6 +15,7 @@
     "@types/styled-components": "^4.1.19",
     "add": "^2.0.6",
     "mobx-react-typescript-boilerplate": "^1.0.0",
+    "moment": "^2.24.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-mosaic-component": "^3.2.0",

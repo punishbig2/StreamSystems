@@ -57,6 +57,8 @@ export const createTileReducer = (id: string, initialState: TileState = genesisS
         return {...state, status: TileStatus.OrderCanceled, orders: removeOrder(state.orders, data.order)};
       case $$(id, TileActions.OrderNotCanceled):
         return {...state, status: TileStatus.OrderNotCanceled};
+      case $$(id, TileActions.AllOrdersCanceled):
+        return {...state, orders: {}};
       default:
         return state;
     }

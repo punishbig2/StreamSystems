@@ -1,5 +1,6 @@
 import {API} from 'API';
 import {Message} from 'interfaces/md';
+import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {Action} from 'redux/action';
@@ -30,6 +31,18 @@ export const cancelOrder = (id: string, orderId: string, tenor: string, symbol: 
       return createAction($$(id, TileActions.OrderNotCanceled));
     }
   }, createAction($$(id, TileActions.CancelOrder)));
+};
+
+export const cancelAll = (id: string, type: EntryTypes): AsyncAction<any, ActionType> => {
+  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+    const result = await API.cancelAll(type);
+    // FIXME: parse the result
+    if (result.Status === 'Success') {
+      return createAction($$(id, TileActions.AllOrdersCanceled));
+    } else {
+      return createAction($$(id, TileActions.AllOrdersNotCanceled));
+    }
+  }, createAction($$(id, TileActions.CancelAllOrders)));
 };
 
 export const createOrder = (id: string, entry: TOBEntry, side: Sides, quantity: number): AsyncAction<any, ActionType> => {

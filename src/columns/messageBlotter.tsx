@@ -2,6 +2,18 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {Sides} from 'interfaces/order';
 import React from 'react';
+import styled from 'styled-components';
+import moment from 'moment';
+
+const Normal = styled.div`
+  text-align: center;
+  font-weight: 600;
+`;
+const Time = styled.div`
+  text-align: center;
+  font-weight: 600;
+`;
+// 20191106-13:24:41
 
 const columns: ColumnSpec[] = [{
   name: 'time',
@@ -9,10 +21,10 @@ const columns: ColumnSpec[] = [{
   render: (data: MessageBlotterEntry) => {
     console.log(data);
     return (
-      <div>{data.TransactTime}</div>
+      <Time>{moment(data.TransactTime, 'YYYYMMDD-hh:mm:ss').format('MM-DD-YYYY HH:mm P')}</Time>
     )
   },
-  weight: 1,
+  weight: 2,
 }, {
   name: 'side',
   header: () => <div>Side</div>,
@@ -24,56 +36,56 @@ const columns: ColumnSpec[] = [{
   name: 'quantity',
   header: () => <div>Qty.</div>,
   render: ({OrderQty}: MessageBlotterEntry) => (
-    <div>{OrderQty}</div>
+    <Normal>{OrderQty}</Normal>
   ),
   weight: 1,
 }, {
   name: 'currency',
   header: () => <div>Currency</div>,
   render: ({Currency}: MessageBlotterEntry) => (
-    <div>{Currency}</div>
+    <Normal>{Currency}</Normal>
   ),
   weight: 1,
 }, {
   name: 'spot',
   header: () => <div>Spot</div>,
   render: ({AvgPx}: MessageBlotterEntry) => (
-    <div>{AvgPx}</div>
+    <Normal>{AvgPx}</Normal>
   ),
   weight: 1,
 }, {
   name: 'tenor',
   header: () => <div>Tenor</div>,
   render: () => (
-    <div/>
+    <Normal/>
   ),
   weight: 1,
 }, {
   name: 'strategy',
   header: () => <div>Strategy</div>,
   render: () => (
-    <div/>
+    <Normal/>
   ),
   weight: 1,
 }, {
   name: 'level',
   header: () => <div>Level</div>,
   render: () => (
-    <div/>
+    <Normal/>
   ),
   weight: 1,
 }, {
   name: 'buyer',
   header: () => <div>Buyer</div>,
   render: () => (
-    <div/>
+    <Normal/>
   ),
   weight: 1,
 }, {
   name: 'seller',
   header: () => <div>Seller</div>,
   render: () => (
-    <div/>
+    <Normal/>
   ),
   weight: 1,
 }];

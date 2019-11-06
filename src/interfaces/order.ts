@@ -1,4 +1,6 @@
 import {MessageTypes} from 'interfaces/md';
+import {EntryTypes} from 'interfaces/mdEntry';
+import {TOBEntry} from 'interfaces/tobEntry';
 
 export enum Sides {
   Buy = 'BUY', Sell = 'SELL',
@@ -18,4 +20,7 @@ export interface CreateOrder {
 
 export interface Order {
   OrderID: string;
+  type: EntryTypes;
+  quantity: number;
+  price: number;
 }

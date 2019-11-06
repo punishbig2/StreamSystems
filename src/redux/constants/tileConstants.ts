@@ -11,4 +11,7 @@ export enum TileActions {
   OrderCreated = 'TileActions.OrderCreated',
   SnapshotReceived = 'TileActions.SnapshotReceived',
   GettingSnapshot = 'TileActions.GettingSnapshot',
+  CancelAllOrders = 'TileActions.CancelAllOrders',
+  AllOrdersNotCanceled = 'TileActions.AllOrdersNotCanceled',
+  AllOrdersCanceled = 'TileActions.AllOrdersCanceled',
 }

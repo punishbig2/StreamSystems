@@ -1,5 +1,6 @@
 import config from 'config';
 import {Message, MessageTypes} from 'interfaces/md';
+import {EntryTypes} from 'interfaces/mdEntry';
 import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
@@ -122,7 +123,7 @@ export class API {
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
-      TransactTime: Date.now() / 1000,
+      TransactTime: Math.round(Date.now() / 1000),
       User: currentUserId,
       Symbol: entry.symbol,
       Strategy: entry.strategy,
@@ -138,7 +139,7 @@ export class API {
     return {} as OrderResponse;
   }
 
-  static async cancelAll(): Promise<OrderResponse> {
+  static async cancelAll(type: EntryTypes): Promise<OrderResponse> {
     const request = {
       MsgType: MessageTypes.F,
       User: currentUserId,
@@ -150,7 +151,7 @@ export class API {
   static async cancelOrder(orderId: string, tenor: string, symbol: String, strategy: string): Promise<OrderResponse> {
     const request = {
       MsgType: MessageTypes.F,
-      TransactTime: Date.now() / 1000,
+      TransactTime: Math.round(Date.now() / 1000),
       User: currentUserId,
       Symbol: symbol,
       Strategy: strategy,

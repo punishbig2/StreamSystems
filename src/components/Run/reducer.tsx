@@ -7,11 +7,11 @@ import {Action} from 'redux/action';
 import {$$} from 'utils/stringPaster';
 
 type Calculator = (v1: number, v2: number) => number;
-const computeRow = (type: Changes, last: Changes | undefined, data: Computed, v1: number): Computed => {
+const computeRow = (type: string, last: string | undefined, data: Computed, v1: number): Computed => {
   if (!last)
     return data;
   // Get the last edited value
-  const v2: number = data[last] as number;
+  const v2: number = data[last as Changes] as number;
   if (type === last)
     return data;
   const findCalculator = (k1: string, k2: string, k3: string): Calculator => {
@@ -31,15 +31,19 @@ const computeRow = (type: Changes, last: Changes | undefined, data: Computed, v1
   };
 };
 
-export const reducer = (state: State, {type, data}: Action<Changes>): State => {
+export const reducer = (state: State, {type, data}: Action<string>): State => {
   const {history, table} = state;
+  if (type === 'SET_TABLE')
+    return {...state, table: data};
   const findRow = (tenor: string): TOBRow | null => {
-    const key: string | undefined = Object.keys(state.table)
+    if (table === null)
+      return null;
+    const key: string | undefined = Object.keys(table)
       .find((key) => key.startsWith($$('__ROW', tenor)))
     ;
     if (key === undefined)
       return null;
-    return {...state.table[key]};
+    return {...table[key]};
   };
   const row: TOBRow | null = findRow(data.tenor);
   if (!row)
@@ -54,16 +58,19 @@ export const reducer = (state: State, {type, data}: Action<Changes>): State => {
     // Overwrite the one that will be replaced
     [type]: data.value,
   };
-  const updateHistory = (newItem: Changes, original: Changes[]): Changes[] => {
+  const updateHistory = (newItem: Changes, original: string[]): string[] => {
     if (original.length === 0)
       return [newItem];
     if (original[0] === newItem)
       return [...original];
     return [type, ...original].slice(0, 2);
   };
-  const last: Changes | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
+  const last: string | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
   const computed: Computed = computeRow(type, last, seed, data.value);
+  console.log(type);
   switch (type) {
+    case 'SET_TABLE':
+      return {...state, table: data};
     case Changes.Mid:
     case Changes.Spread:
     case Changes.Offer:

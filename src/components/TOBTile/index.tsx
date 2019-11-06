@@ -16,7 +16,7 @@ import {MosaicBranch, MosaicWindow} from 'react-mosaic-component';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {cancelOrder, createOrder, getSnapshot} from 'redux/actions/tileActions';
+import {cancelAll, cancelOrder, createOrder, getSnapshot} from 'redux/actions/tileActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TileActions} from 'redux/constants/tileConstants';
@@ -24,15 +24,8 @@ import {createRowReducer} from 'redux/reducers/rowReducer';
 import {SignalRAction} from 'redux/signalRAction';
 import {TileState} from 'redux/stateDefs/tileState';
 import {injectNamedReducer} from 'redux/store';
+import {emptyBid, emptyOffer} from 'utils/dataGenerators';
 import {$$} from 'utils/stringPaster';
-
-const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string): TOBEntry => {
-  return {firm: '', type: EntryTypes.Ask, tenor, symbol, strategy, user, price: null, quantity: 10};
-};
-
-const emptyBid = (tenor: string, symbol: string, strategy: string, user: string): TOBEntry => {
-  return {firm: '', type: EntryTypes.Bid, tenor, symbol, strategy, user, price: null, quantity: 10};
-};
 
 interface OwnProps {
   id: string;
@@ -57,7 +50,20 @@ interface DispatchProps {
   toggleOCO: () => void;
   createOrder: (entry: TOBEntry, side: Sides, quantity: number) => void;
   cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => void;
+  cancelAll: (type: EntryTypes) => void;
 }
+
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
+  initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TileActions.Initialize), rows)),
+  subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
+  setStrategy: (value: string) => dispatch(createAction($$(id, TileActions.SetStrategy), value)),
+  createOrder: (order: TOBEntry, side: Sides, quantity: number) => dispatch(createOrder(id, order, side, quantity)),
+  setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
+  toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
+  cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => dispatch(cancelOrder(id, orderId, tenor, symbol, strategy)),
+  getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(symbol, strategy, tenor)),
+  cancelAll: (type: EntryTypes) => dispatch(cancelAll(id, type)),
+});
 
 // FIXME: this could probably be extracted to a generic function
 const mapStateToProps: MapStateToProps<TileState, OwnProps, ApplicationState> =
@@ -70,17 +76,6 @@ const mapStateToProps: MapStateToProps<TileState, OwnProps, ApplicationState> =
       return {} as TileState;
     }
   };
-
-const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TileActions.Initialize), rows)),
-  subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
-  setStrategy: (value: string) => dispatch(createAction($$(id, TileActions.SetStrategy), value)),
-  createOrder: (order: TOBEntry, side: Sides, quantity: number) => dispatch(createOrder(id, order, side, quantity)),
-  setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
-  toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
-  cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => dispatch(cancelOrder(id, orderId, tenor, symbol, strategy)),
-  getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(symbol, strategy, tenor)),
-});
 
 const withRedux: (ignored: any) => any = connect<TileState, DispatchProps, OwnProps, ApplicationState>(
   mapStateToProps,
@@ -188,8 +183,10 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       setRunTable(table);
     },
     onRefBidsButtonClicked: () => {
+      props.cancelAll(EntryTypes.Bid);
     },
     onRefOffersButtonClicked: () => {
+      props.cancelAll(EntryTypes.Ask);
     },
     onCancelOrder: (entry: TOBEntry) => {
       const key: string = $$(entry.tenor, entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell);
@@ -247,9 +244,10 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
         strategy={strategy}
         toggleOCO={props.toggleOCO}
         oco={props.oco}
-        table={runTable}
+        tenors={tenors}
         user={props.user}
         onClose={() => setRunTable(null)}
+        orders={props.orders}
         onSubmit={bulkCreateOrders}/>
     );
   };
