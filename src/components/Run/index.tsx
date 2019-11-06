@@ -42,22 +42,29 @@ const Run: React.FC<Props> = (props: Props) => {
     onMidChanged: (tenor: string, value: number) => dispatch({type: Changes.Mid as string, data: {tenor, value}}),
     onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread as string, data: {tenor, value}}),
   };
+  const {user} = props;
   useEffect(() => {
     const promises: Promise<TOBRow>[] = tenors
       .map(async (tenor: string) => {
         const entry = await API.getSnapshot(symbol, strategy, tenor);
+        const empty = {
+          id: tenor,
+          tenor: tenor,
+          bid: emptyBid(tenor, symbol, strategy, ''),
+          offer: emptyOffer(tenor, symbol, strategy, ''),
+          mid: null,
+          spread: null,
+        };
         if (entry) {
-          return toTOBRow(entry);
-        } else {
-          return {
-            id: tenor,
-            tenor: tenor,
-            bid: emptyBid(tenor, symbol, strategy, ''),
-            offer: emptyOffer(tenor, symbol, strategy, ''),
-            mid: null,
-            spread: null,
-          };
+          const nonEmpty = toTOBRow(entry);
+          if (nonEmpty.bid.user === user.email) {
+            empty.bid = nonEmpty.bid;
+          }
+          if (nonEmpty.offer.user === user.email) {
+            empty.offer = nonEmpty.offer;
+          }
         }
+        return empty;
       });
     Promise.all(promises)
       .then((rows: TOBRow[]) => {
