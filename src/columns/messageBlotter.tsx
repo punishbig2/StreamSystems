@@ -22,7 +22,7 @@ const columns: ColumnSpec[] = [{
   render: (data: MessageBlotterEntry) => {
     console.log(data);
     return (
-      <Time>{moment(data.TransactTime, 'YYYYMMDD-hh:mm:ss').format('MM-DD-YYYY HH:mm P')}</Time>
+      <Time>{moment(data.TransactTime, 'YYYYMMDD-hh:mm:ss').format('MM-DD-YYYY hh:mm a')}</Time>
     );
   },
   weight: 2,
@@ -43,15 +43,15 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'currency',
   header: () => <div>Currency</div>,
-  render: ({Currency}: MessageBlotterEntry) => (
-    <Normal>{Currency}</Normal>
+  render: ({Symbol}: MessageBlotterEntry) => (
+    <Normal>{Symbol}</Normal>
   ),
   weight: 1,
 }, {
   name: 'spot',
   header: () => <div>Spot</div>,
-  render: ({AvgPx}: MessageBlotterEntry) => (
-    <Normal>{AvgPx}</Normal>
+  render: () => (
+    <Normal/>
   ),
   weight: 1,
 }, {
@@ -71,8 +71,8 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'level',
   header: () => <div>Level</div>,
-  render: () => (
-    <Normal/>
+  render: ({AvgPx}: MessageBlotterEntry) => (
+    <Normal>{AvgPx}</Normal>
   ),
   weight: 1,
 }, {
