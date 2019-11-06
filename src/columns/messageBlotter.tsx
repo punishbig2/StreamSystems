@@ -71,8 +71,8 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'level',
   header: () => <div>Level</div>,
-  render: ({AvgPx}: MessageBlotterEntry) => (
-    <Normal>{AvgPx}</Normal>
+  render: ({Price}: MessageBlotterEntry) => (
+    <Normal>{Price}</Normal>
   ),
   weight: 1,
 }, {
