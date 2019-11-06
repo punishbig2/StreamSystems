@@ -10,7 +10,7 @@ const initialState: WorkareaState = {
   tenors: [],
   products: [],
   user: {
-    id: '1',
+    email: '1',
     isBroker: true,
   },
 };
@@ -43,25 +43,25 @@ const renameWorkspace = (state: WorkareaState, {name, id}: IWorkspace): Workarea
   return {...state, workspaces: {...workspaces, [id]: {...workspace, name}}};
 };
 
-/*const setupTOBTile = (state: WorkareaState, data: any): WorkareaState => {
+/*const setupTOBTile = (state: WorkareaState, row: any): WorkareaState => {
   const {tenors, user} = state;
-  // The input data
-  const {workspaceId, tileId, ...values} = data;
+  // The input row
+  const {workspaceId, tileId, ...values} = row;
   // The map of all workspaces
-  const workspaces: { [id: string]: IWorkspace } = state.workspaces;
+  const workspaces: { [email: string]: IWorkspace } = state.workspaces;
   // The workspace the tile belongs to
-  const workspace: IWorkspace = workspaces[data.workspaceId];
+  const workspace: IWorkspace = workspaces[row.workspaceId];
   // The internal properties of the tile
-  const tiles: { [id: string]: ITile } = workspace.tiles as { [id: string]: ITile };
+  const tiles: { [email: string]: ITile } = workspace.tiles as { [email: string]: ITile };
   // The old value of the tile (which was probably nothing at this point)
-  const tile = tiles[data.tileId];
-  // Initial data for the tile ... (then a real W message should arrive)
+  const tile = tiles[row.tileId];
+  // Initial row for the tile ... (then a real W message should arrive)
   const genesis: Message[] = tenors.map<Message>((tenor: string): Message => ({
     MsgType: MessageTypes.W,
     TransactTime: Date.now(),
     Symbol: tile.symbol as string,
     Strategy: tile.product as string,
-    User: user.id,
+    User: user.email,
     Tenor: tenor,
     NoMDEntries: 0,
     Entries: [],
@@ -70,14 +70,14 @@ const renameWorkspace = (state: WorkareaState, {name, id}: IWorkspace): Workarea
     ...state,
     workspaces: {
       ...workspaces,
-      [data.workspaceId]: {
+      [row.workspaceId]: {
         ...workspace,
         tiles: {
           ...tiles,
-          [data.tileId]: {
+          [row.tileId]: {
             ...tile,
             ...values,
-            data: genesis,
+            row: genesis,
           },
         },
       },
@@ -85,7 +85,7 @@ const renameWorkspace = (state: WorkareaState, {name, id}: IWorkspace): Workarea
   };
 };
 
-const updateTileIfFound = (state: WorkareaState, data: any): WorkareaState => {
+const updateTileIfFound = (state: WorkareaState, row: any): WorkareaState => {
   // NOTE: this would be a very rare situation, but in case it becomes possible to be in
   //       a state where there's no active workspace just do nothing
   if (state.activeWorkspace === null)
@@ -93,25 +93,25 @@ const updateTileIfFound = (state: WorkareaState, data: any): WorkareaState => {
   // Find the tile now (this is so complex that it's basically wrong for now)
   const workspace: IWorkspace = state.workspaces[state.activeWorkspace];
   // Internal tile properties
-  const tiles: { [id: string]: ITile } = workspace.tiles;
+  const tiles: { [email: string]: ITile } = workspace.tiles;
   // Find the tile that we want
   const entry: [string, ITile] | undefined = Object.entries(tiles)
-    .find((value: [string, ITile]): value is [string, ITile] => data.Symbol === value[1].symbol);
+    .find((value: [string, ITile]): value is [string, ITile] => row.Symbol === value[1].symbol);
   // If there's no tile of interest, just return the old state value so no updates
   // will occur on the DOM
   if (entry === undefined)
     return state;
-  const [id, tile] = entry;
+  const [email, tile] = entry;
   // Find the target tenor and replace the message
-  const messages: Message[] = [...tile.data];
+  const messages: Message[] = [...tile.row];
   const index: number | undefined = messages.findIndex((message: Message): message is Message => {
-    return message.Tenor === data.Tenor;
+    return message.Tenor === row.Tenor;
   });
   if (index === -1)
     throw new Error('a tenor was sent through the websocket but not in the gettenors response');
   const originalCopy: Message = {...messages[index]};
-  // Alter the copy of the data array
-  messages.splice(index, 1, {...originalCopy, ...data});
+  // Alter the copy of the row array
+  messages.splice(index, 1, {...originalCopy, ...row});
   // Return the new state
   return {
     ...state,
@@ -121,9 +121,9 @@ const updateTileIfFound = (state: WorkareaState, data: any): WorkareaState => {
         ...workspace,
         tiles: {
           ...tiles,
-          [id]: {
+          [email]: {
             ...tile,
-            data: messages,
+            row: messages,
           },
         },
       },
@@ -134,7 +134,7 @@ const updateTileIfFound = (state: WorkareaState, data: any): WorkareaState => {
 export default (state: WorkareaState = initialState, {type, data}: Action<WorkareaActions>): WorkareaState => {
   switch (type) {
     case WorkareaActions.AddWorkspace:
-      return {...state, workspaces: {...state.workspaces, [data.id]: data}, activeWorkspace: data.id};
+      return {...state, workspaces: {...state.workspaces, [data.email]: data}, activeWorkspace: data.email};
     case WorkareaActions.SetWorkspace:
       return {...state, activeWorkspace: data};
     case WorkareaActions.CloseWorkspace:
@@ -142,7 +142,7 @@ export default (state: WorkareaState = initialState, {type, data}: Action<Workar
     case WorkareaActions.RenameWorkspace:
       return renameWorkspace(state, data);
     case WorkareaActions.SetupTOBTile:
-      return state; // setupTOBTile(state, data);
+      return state; // setupTOBTile(state, row);
     case WorkareaActions.Initializing:
       return state;
     case WorkareaActions.Initialized:

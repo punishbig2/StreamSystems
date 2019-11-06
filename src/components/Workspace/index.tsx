@@ -17,6 +17,7 @@ import {ApplicationState} from 'redux/applicationState';
 import {TileTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceAction} from 'redux/constants/workspaceConstants';
 import {createTileReducer} from 'redux/reducers/tileReducer';
+import {TileState, TileStatus} from 'redux/stateDefs/tileState';
 import {Node, WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {injectNamedReducer} from 'redux/store';
 import {$$} from 'utils/stringPaster';
@@ -28,7 +29,7 @@ interface DispatchProps {
 
 interface OwnProps {
   id: string;
-  // Global data
+  // Global row
   symbols: string[],
   products: Product[],
   tenors: string[],
@@ -39,7 +40,15 @@ interface OwnProps {
 const addTile = (id: string, type: TileTypes): Action<string> => {
   const tile: Tile = new Tile(type);
   // Inject the tile reducer ...
-  injectNamedReducer(tile.id, createTileReducer);
+  const initialState: TileState = {
+    connected: false,
+    oco: false,
+    symbol: '',
+    product: '',
+    rows: {},
+    status: TileStatus.None,
+  };
+  injectNamedReducer(tile.id, createTileReducer, initialState);
   // Build-up the action
   return createAction($$(id, WorkspaceAction.AddTile), tile);
 };
@@ -67,8 +76,7 @@ const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, 
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
 const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
-  const {tiles} = props;
-
+  const {tiles, user} = props;
   // Tile renderer function ...
   const renderTile = (id: string, path: MosaicBranch[]): JSX.Element => {
     if (!tiles)
@@ -85,11 +93,11 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
             symbols={props.symbols}
             products={props.products}
             tenors={props.tenors}
-            user={props.user}
+            user={user}
             path={path}/>
         );
       case TileTypes.MessageBlotter:
-        return <MessageBlotter path={path} onClose={() => null}/>;
+        return <MessageBlotter path={path} user={user} onClose={() => null}/>;
       default:
         throw new Error(`invalid tile type ${tile.type}`);
     }

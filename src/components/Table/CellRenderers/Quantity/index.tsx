@@ -8,22 +8,25 @@ interface SizeProps {
   value: number | null;
   firm?: string;
   onButtonClicked: () => void;
-  onChange: () => void,
+  onChange: (value: number) => void;
+  cancelable?: boolean;
+  onCancel?: () => void;
 }
 
 export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
   const {value} = props;
   const classes: string[] = ['times'];
   const getValue = (): string => {
-    if (value === null) {
+    if (value === null)
       return '';
-    }
     return value.toString();
   };
   const children: ReactNode[] = [
     <TableInput key={1} value={getValue()} aligned={'center'}/>,
   ];
-  const button = <div key={2} className={classes.join(' ')}/>;
+  if (props.cancelable)
+    classes.push('clickable');
+  const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;
   if (props.type === EntryTypes.Bid) {
     if (props.firm) {
       children.push(<div>{props.firm}</div>);

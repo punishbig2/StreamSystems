@@ -1,5 +1,7 @@
 import {HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
 import config from 'config';
+import {Message} from 'interfaces/md';
+import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {Action, AnyAction} from 'redux';
 
 const ApiConfig = config.Api;
@@ -19,8 +21,9 @@ enum SignalRMessageTypes {
 export class ConnectionManager<A extends Action = AnyAction> {
   connection: HubConnection;
   onConnectedListener: ((connection: HubConnection) => void) | null = null;
-  onUpdateMarketDataListener: ((data: any) => void) | null = null;
   onDisconnectedListener: (() => void) | null = null;
+  onUpdateMarketDataListener: ((data: Message) => void) | null = null;
+  onUpdateMessageBlotterListener: ((data: MessageBlotterEntry) => void) | null = null;
   reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
@@ -55,10 +58,19 @@ export class ConnectionManager<A extends Action = AnyAction> {
     connection.onclose(this.onClose);
     // Install update market handler
     connection.on('updateMarketData', this.onUpdateMarket);
+    connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
+  };
+
+  onUpdateMessageBlotter = (message: string): void => {
+    const data: MessageBlotterEntry = JSON.parse(message);
+    // Dispatch the action
+    if (this.onUpdateMessageBlotterListener !== null) {
+      this.onUpdateMessageBlotterListener(data);
+    }
   };
 
   onUpdateMarket = (message: string): void => {
-    const data: any = JSON.parse(message);
+    const data: Message = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       this.onUpdateMarketDataListener(data);
@@ -69,8 +81,12 @@ export class ConnectionManager<A extends Action = AnyAction> {
     this.onConnectedListener = fn;
   };
 
-  setOnUpdateMarketDataListener = (fn: (data: any) => void) => {
+  setOnUpdateMarketDataListener = (fn: (data: Message) => void) => {
     this.onUpdateMarketDataListener = fn;
+  };
+
+  setOnUpdateMessageBlotter = (fn: (data: any) => void) => {
+    this.onUpdateMessageBlotterListener = fn;
   };
 
   setOnDisconnectedListener = (fn: () => void) => {
@@ -84,7 +100,8 @@ export class ConnectionManager<A extends Action = AnyAction> {
       this.onDisconnectedListener();
     }
     setTimeout(() => {
-      // Stop listening to market data
+      // Stop listening to market row
+      connection.off('updateMessageBlotter');
       connection.off('updateMarketData');
       // Restart connection
       this.connection = ConnectionManager.createConnection();

@@ -13,7 +13,7 @@ export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaAct
 export const addWorkspaces = (): AnyAction => {
   const id = `workspace-${shortid()}`;
   // Create the reducer now, after doing this we will have the reducer
-  // that will work specifically with this id
+  // that will work specifically with this email
   injectNamedReducer(id, createWorkspaceReducer);
   // Generate the action to make the reducer insert a new workspace
   return createAction(WorkareaActions.AddWorkspace, {id, name: 'Untitled'});

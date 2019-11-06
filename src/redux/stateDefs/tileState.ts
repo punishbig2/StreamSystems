@@ -1,5 +1,4 @@
 import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
 
 export enum TileStatus {
   None,
@@ -12,6 +11,5 @@ export interface TileState {
   symbol: string;
   connected: boolean;
   oco: boolean;
-  dobs: {[tenor: string]: TOBTable}
   status: TileStatus,
 }

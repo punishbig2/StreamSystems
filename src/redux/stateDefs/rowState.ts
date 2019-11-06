@@ -1,3 +1,3 @@
-export interface TOBRowState {
-  data: {[key: string]: any};
+export interface RowState {
+  row: {[key: string]: any};
 }

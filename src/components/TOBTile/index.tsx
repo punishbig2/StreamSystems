@@ -5,6 +5,7 @@ import {Run} from 'components/Run';
 import {Table, TOBHandlers} from 'components/Table';
 import {TOBTileTitle} from 'components/TOBTile/title';
 import {EntryTypes} from 'interfaces/mdEntry';
+import {Sides} from 'interfaces/order';
 import {Product} from 'interfaces/product';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
@@ -15,11 +16,11 @@ import {MosaicBranch, MosaicWindow} from 'react-mosaic-component';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {createOrder, getSnapshot} from 'redux/actions/tileActions';
+import {cancelOrder, createOrder, getSnapshot} from 'redux/actions/tileActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TileActions} from 'redux/constants/tileConstants';
-import {createRowReducer} from 'redux/reducers/tobRowReducer';
+import {createRowReducer} from 'redux/reducers/rowReducer';
 import {SignalRAction} from 'redux/signalRAction';
 import {TileState} from 'redux/stateDefs/tileState';
 import {injectNamedReducer} from 'redux/store';
@@ -44,7 +45,7 @@ interface OwnProps {
 }
 
 export const subscribe = (symbol: string, product: string, tenor: string): SignalRAction<TileActions> => {
-  return new SignalRAction(SignalRActions.Subscribe, [symbol, product, tenor]);
+  return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, product, tenor]);
 };
 
 interface DispatchProps {
@@ -54,7 +55,8 @@ interface DispatchProps {
   setProduct: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (entry: TOBEntry, quantity: number) => void;
+  createOrder: (entry: TOBEntry, side: Sides, quantity: number) => void;
+  cancelOrder: (orderId: string) => void;
 }
 
 // FIXME: this could probably be extracted to a generic function
@@ -73,9 +75,10 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TileActions.Initialize), rows)),
   subscribe: (symbol: string, product: string, tenor: string) => dispatch(subscribe(symbol, product, tenor)),
   setProduct: (value: string) => dispatch(createAction($$(id, TileActions.SetProduct), value)),
-  createOrder: (order: TOBEntry, quantity: number) => dispatch(createOrder(id, order, quantity)),
+  createOrder: (order: TOBEntry, side: Sides, quantity: number) => dispatch(createOrder(id, order, side, quantity)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
+  cancelOrder: (orderId: string) => dispatch(cancelOrder(id, orderId)),
   getSnapshot: (symbol: string, product: string, tenor: string) => dispatch(getSnapshot(symbol, product, tenor)),
 });
 
@@ -86,6 +89,67 @@ const withRedux: (ignored: any) => any = connect<TileState, DispatchProps, OwnPr
 
 type Props = OwnProps & DispatchProps & TileState;
 
+const initializeMe = (props: Props) => {
+  const {symbol, product, connected, tenors, user} = props;
+  if (!connected || symbol === '' || product === '')
+    return;
+  const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
+    object[item.id] = item;
+    // Return the accumulator
+    return object;
+  };
+  const tenorToNumber = (value: string) => {
+    // FIXME: probably search the number boundary
+    const multiplier: number = Number(value.substr(0, 1));
+    const unit: string = value.substr(1);
+    switch (unit) {
+      case 'W':
+        return multiplier;
+      case 'M':
+        return 5 * multiplier;
+      case 'Y':
+        return 60 * multiplier;
+    }
+    return 0;
+  };
+  const rows: TOBRow[] = tenors.map((tenor: string) => {
+    // This is here because javascript is super stupid and `connected' can change
+    // while we're subscribing combinations.
+    //
+    // Ideally, we should implement the ability to stop
+    if (connected) {
+      const id: string = $$(tenor, symbol, product);
+      const row: TOBRow = {
+        tenor: tenor,
+        id: $$('__ROW', id),
+        bid: emptyBid(tenor, symbol, product, user.email),
+        darkPool: '',
+        offer: emptyOffer(tenor, symbol, product, user.email),
+        dob: undefined,
+        mid: null,
+        spread: null,
+      };
+      // Return row
+      return row;
+    }
+    return {} as TOBRow;
+  }).sort((a: TOBRow, b: TOBRow) => {
+    const at: string = a.tenor;
+    const bt: string = b.tenor;
+    return tenorToNumber(at) - tenorToNumber(bt);
+  });
+  rows.forEach((row: TOBRow) => {
+    // Get snapshot W
+    props.getSnapshot(symbol, product, row.tenor);
+    // Listen to websocket incoming messages
+    props.subscribe(symbol, product, row.tenor);
+    // Inject a new reducer
+    injectNamedReducer(row.id, createRowReducer, {row});
+  });
+  // Initialize with base table
+  props.initialize(rows.reduce(reducer, {}));
+};
+
 export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const [orderTicket, setOrderTicket] = useState<TOBEntry | null>(null);
   const [currentTenor, setCurrentTenor] = useState<{ tenor: string, table: TOBTable } | null>(null);
@@ -94,72 +158,16 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
   const {symbols, symbol, products, product, tenors, connected, user} = props;
   const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setProduct(value);
   const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
-  // Subscribe all the tenors for the given pair
+  // SubscribeForMarketData all the tenors for the given pair
   useEffect(() => {
-    if (!connected || symbol === '' || product === '')
-      return;
-    const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
-      object[item.id] = item;
-      // Return the accumulator
-      return object;
-    };
-    const tenorToNumber = (value: string) => {
-      // FIXME: probably search the number boundary
-      const multiplier: number = Number(value.substr(0, 1));
-      const unit: string = value.substr(1);
-      switch (unit) {
-        case 'W':
-          return multiplier;
-        case 'M':
-          return 5 * multiplier;
-        case 'Y':
-          return 60 * multiplier;
-      }
-      return 0;
-    };
-    const rows: TOBRow[] = tenors.map((tenor: string) => {
-      // This is here because javascript is super stupid and `connected' can change
-      // while we're subscribing combinations.
-      //
-      // Ideally, we should implement the ability to stop
-      if (connected) {
-        const id: string = $$(tenor, symbol, product);
-        const row: TOBRow = {
-          tenor: tenor,
-          id: id,
-          bid: emptyBid(tenor, symbol, product, user.id),
-          darkPool: '',
-          offer: emptyOffer(tenor, symbol, product, user.id),
-          dob: undefined,
-          mid: null,
-          spread: null,
-        };
-        // Return row
-        return row;
-      }
-      return {} as TOBRow;
-    }).sort((a: TOBRow, b: TOBRow) => {
-      const at: string = a.tenor;
-      const bt: string = b.tenor;
-      return tenorToNumber(at) - tenorToNumber(bt);
-    });
-    rows.forEach((row: TOBRow) => {
-      // Get snapshot W
-      props.getSnapshot(symbol, product, row.tenor);
-      // Listen to websocket incoming messages
-      props.subscribe(symbol, product, row.tenor);
-      // Inject a new reducer
-      injectNamedReducer(row.id, createRowReducer, {data: row});
-    });
-    // Initialize with base table
-    props.initialize(rows.reduce(reducer, {}));
+    initializeMe(props);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, product, tenors, connected]);
 
   const handlers: TOBHandlers = {
-    onOrderPlaced: (entry: TOBEntry, price: number) => {
+    onCreateOrder: (entry: TOBEntry, price: number) => {
       if (entry.quantity) {
-        props.createOrder({...entry, price}, entry.quantity);
+        props.createOrder({...entry, price}, entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell, entry.quantity);
       }
     },
     onTenorSelected: (tenor: string, table: TOBTable) => {
@@ -179,21 +187,20 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
     onRunButtonClicked: (table: TOBTable) => {
       setRunTable(table);
     },
-    onRefBidsButtonClicked: () => null,
-    onRefOffersButtonClicked: () => null,
-    onPriceChanged: (entry: TOBEntry) => {
-      // FIXME: dispatch the action?
-      // props.updateEntryPrice(entry);
+    onRefBidsButtonClicked: () => {
+      props.cancelOrder('');
     },
-    onSizeChanged: (entry: TOBEntry) => {
-      // FIXME: dispatch the action?
-      // props.updateEntrySize(entry);
+    onRefOffersButtonClicked: () => {
+      props.cancelOrder('');
     },
     onOfferCanceled: (offer: TOBEntry) => {
       console.log(offer);
     },
     onBidCanceled: (bid: TOBEntry) => {
       console.log(bid);
+    },
+    onCancelOrder: (entry: TOBEntry) => {
+      console.log(entry);
     },
   };
 
@@ -202,7 +209,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       return <div/>;
     const createOrder = (quantity: number) => {
       if (orderTicket !== null) {
-        props.createOrder(orderTicket, quantity);
+        props.createOrder(orderTicket, orderTicket.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell, quantity);
         // Remove the internal order ticket
         setOrderTicket(null);
       } else {
@@ -214,8 +221,8 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
 
   const bulkCreateOrders = (entries: TOBRow[]) => {
     entries.forEach(({bid, offer}: TOBRow) => {
-      props.createOrder(bid, bid.quantity as number);
-      props.createOrder(offer, offer.quantity as number);
+      props.createOrder(bid, Sides.Sell, bid.quantity as number);
+      props.createOrder(offer, Sides.Buy, offer.quantity as number);
     });
     setRunTable(null);
   };
@@ -262,8 +269,8 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
         missing[keys.length + i] = {
           tenor: tenor,
           id: `${tenor}.${i}`,
-          offer: emptyOffer(tenor, symbol, product, user.id),
-          bid: emptyBid(tenor, symbol, product, user.id),
+          offer: emptyOffer(tenor, symbol, product, user.email),
+          bid: emptyBid(tenor, symbol, product, user.email),
           spread: null,
           mid: null,
         };

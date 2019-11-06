@@ -10,7 +10,6 @@ const genesisState: TileState = {
   symbol: '',
   product: '',
   rows: {},
-  dobs: {},
   status: TileStatus.None,
 };
 

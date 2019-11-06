@@ -4,9 +4,12 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {User} from 'interfaces/user';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
+import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
-import {TOBRowState} from 'redux/stateDefs/rowState';
+import {RowActions} from 'redux/constants/rowConstants';
+import {RowState} from 'redux/stateDefs/rowState';
 import styled from 'styled-components';
+import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
   id: string;
@@ -16,6 +19,10 @@ interface OwnProps {
 }
 
 interface DispatchProps {
+  setOfferQuantity: (value: number) => void;
+  setOfferPrice: (value: number) => void;
+  setBidQuantity: (value: number) => void;
+  setBidPrice: (value: number) => void;
 }
 
 const RowLayout = styled.div`
@@ -24,26 +31,31 @@ const RowLayout = styled.div`
   }
 `;
 // FIXME: this could probably be extracted to a generic function
-const mapStateToProps: MapStateToProps<TOBRowState, OwnProps, ApplicationState> =
-  (state: ApplicationState, ownProps: OwnProps): TOBRowState => {
+const mapStateToProps: MapStateToProps<RowState, OwnProps, ApplicationState> =
+  (state: ApplicationState, ownProps: OwnProps): RowState => {
     const generalizedState = state as any;
     if (generalizedState.hasOwnProperty(ownProps.id)) {
       // Forcing typescript to listen to me >(
-      return generalizedState[ownProps.id] as TOBRowState;
+      return generalizedState[ownProps.id] as RowState;
     } else {
-      return {} as TOBRowState;
+      return {} as RowState;
     }
   };
 
-const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({});
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
+  setOfferPrice: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
+  setOfferQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
+  setBidPrice: (value: number) => dispatch(createAction($$(id, RowActions.SetBidPrice), value)),
+  setBidQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+});
 
-const withRedux: (ignored: any) => any = connect<TOBRowState, DispatchProps, OwnProps, ApplicationState>(
+const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(
   mapStateToProps,
   mapDispatchToProps,
 );
 
-const Row = withRedux((props: OwnProps & TOBRowState) => {
-  const {columns, data, user} = props;
+const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
+  const {columns, row, user, setBidPrice, setOfferPrice, setBidQuantity, setOfferQuantity} = props;
   // Compute the total weight of the columns
   const total = columns.reduce((total, {weight}) => total + weight, 0);
   return (
@@ -55,10 +67,14 @@ const Row = withRedux((props: OwnProps & TOBRowState) => {
           <Cell
             key={name}
             width={width}
+            user={user}
             render={column.render}
             handlers={props.handlers}
-            user={user}
-            {...data}/>
+            setOfferQuantity={setOfferQuantity}
+            setOfferPrice={setOfferPrice}
+            setBidQuantity={setBidQuantity}
+            setBidPrice={setBidPrice}
+            {...row}/>
         );
       })}
     </RowLayout>

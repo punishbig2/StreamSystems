@@ -15,11 +15,10 @@ export interface TOBHandlers {
   onRunButtonClicked: (rows: TOBTable) => void;
   onRefBidsButtonClicked: () => void;
   onRefOffersButtonClicked: () => void;
-  onPriceChanged: (entry: TOBEntry) => void;
-  onSizeChanged: (entry: TOBEntry) => void;
   onBidCanceled: (entry: TOBEntry) => void;
   onOfferCanceled: (entry: TOBEntry) => void;
-  onOrderPlaced: (entry: TOBEntry, value: number) => void;
+  onCreateOrder: (entry: TOBEntry, value: number) => void;
+  onCancelOrder: (entry: TOBEntry) => void;
 }
 
 interface Props<T> {
@@ -39,9 +38,9 @@ export const Table: <T>(props: Props<T>) => (React.ReactElement | null) =
     const mapRow = (key: string) => {
       const {user} = props;
       const id: string = props.prefix ? `${props.prefix}${key}` : key;
-      const data: any = rows[key];
+      const row: any = rows[key];
       // Build the row object
-      return <Row {...{id, key, handlers, user, columns, data}}/>;
+      return <Row {...{id, key, handlers, user, columns, row}}/>;
     };
     return (
       <Layout>

@@ -7,6 +7,9 @@ interface CellProps {
   width: number;
   handlers: any;
   user?: User;
+
+  // Allow other properties
+  [key: string]: any;
 }
 
 const CellLayout = styled.div`

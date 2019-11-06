@@ -1,39 +1,44 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {Sides} from 'interfaces/order';
 import React from 'react';
 
 const columns: ColumnSpec[] = [{
   name: 'time',
   header: () => <div>Time (EST)</div>,
-  render: () => (
-    <div/>
-  ),
+  render: (data: MessageBlotterEntry) => {
+    console.log(data);
+    return (
+      <div>{data.TransactTime}</div>
+    )
+  },
   weight: 1,
 }, {
   name: 'side',
   header: () => <div>Side</div>,
-  render: () => (
-    <div/>
+  render: ({Side}: MessageBlotterEntry) => (
+    <div>{Side === Sides.Buy ? 'Buy' : 'Sell'}</div>
   ),
   weight: 1,
 }, {
   name: 'quantity',
   header: () => <div>Qty.</div>,
-  render: () => (
-    <div/>
+  render: ({OrderQty}: MessageBlotterEntry) => (
+    <div>{OrderQty}</div>
   ),
   weight: 1,
 }, {
   name: 'currency',
   header: () => <div>Currency</div>,
-  render: () => (
-    <div/>
+  render: ({Currency}: MessageBlotterEntry) => (
+    <div>{Currency}</div>
   ),
   weight: 1,
 }, {
   name: 'spot',
   header: () => <div>Spot</div>,
-  render: () => (
-    <div/>
+  render: ({AvgPx}: MessageBlotterEntry) => (
+    <div>{AvgPx}</div>
   ),
   weight: 1,
 }, {

@@ -1,5 +1,6 @@
 import {HubConnection} from '@microsoft/signalr';
 import {Message} from 'interfaces/md';
+import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {IWorkspace} from 'interfaces/workspace';
 import {
   Action, AnyAction,
@@ -13,20 +14,25 @@ import {
   StoreEnhancerStoreCreator,
 } from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {ApplicationState} from 'redux/applicationState';
+// Special action types
 import {AsyncAction} from 'redux/asyncAction';
-import {SignalRActions} from 'redux/constants/signalRConstants';
-// redux-persist
-import {createTileReducer} from 'redux/reducers/tileReducer';
-import {createRowReducer} from 'redux/reducers/tobRowReducer';
-import workareaReducer from 'redux/reducers/workareaReducer';
-// Reducers
-import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
-import {ConnectionManager} from 'redux/signalR/connectionManager';
-import {TileState} from 'redux/stateDefs/tileState';
-import {WorkareaState} from 'redux/stateDefs/workareaState';
+import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {SignalRAction} from 'redux/signalRAction';
+// Action enumerators
+import {SignalRActions} from 'redux/constants/signalRConstants';
+// Reducers
+import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
+import workareaReducer from 'redux/reducers/workareaReducer';
+// Dynamic reducer creators
+import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
+import {createTileReducer} from 'redux/reducers/tileReducer';
+// Special object helper for connection management
+import {ConnectionManager} from 'redux/signalR/connectionManager';
+// State shapes
+import {ApplicationState} from 'redux/applicationState';
+import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+// Websocket action parsers/converters
 import {wMessageToAction} from 'utils/wMessageToAction';
 
 const getObjectFromStorage = <T>(key: string): T => {
@@ -42,14 +48,23 @@ enum PersistedKeys {
 
 const dynamicReducers: { [name: string]: Reducer } = {};
 // Build the reducer from the fixed and dynamic reducers
-export const createReducer = (dynamicReducers: {} = {}): Reducer<any, Action> => {
-  return combineReducers<any, Action>({workarea: workareaReducer, ...dynamicReducers});
+export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationState, Action> => {
+  return combineReducers<any, Action>({
+    workarea: workareaReducer,
+    messageBlotter: messageBlotterReducer,
+    // Dynamically generated reducers
+    ...dynamicReducers,
+  });
 };
 
-export const injectNamedReducer = (name: string, reducer: (name: string, initialState: any) => Reducer, initialState: any = {}) => {
-  dynamicReducers[name] = reducer(name, initialState);
+type NamedReducerCreator = (name: string, initialState: any) => Reducer;
+export const injectNamedReducer = (name: string, createNamedReducer: NamedReducerCreator, initialState: any = {}) => {
+  if (dynamicReducers.hasOwnProperty(name))
+    console.log('creating the reducer more than once seems to me like a bug');
+  dynamicReducers[name] = createNamedReducer(name, initialState);
+  const finalReducer: Reducer = createReducer(dynamicReducers);
   // Replace the reducer
-  store.replaceReducer(createReducer(dynamicReducers));
+  store.replaceReducer(finalReducer);
 };
 
 export const removeNamedReducer = <T>(name: string) => {
@@ -68,9 +83,13 @@ const initialState: ApplicationState = {
     tenors: [],
     workspaces: {},
     activeWorkspace: null,
-    user: {id: currentUserId},
+    user: {email: currentUserId},
     // Merge with the saved value
     ...savedWorkarea,
+  },
+  messageBlotter: {
+    connected: false,
+    entries: {},
   },
 };
 
@@ -100,9 +119,7 @@ const createDynamicReducers = (base: any, creator: ReducerCreator, nest: ((state
 const workarea: WorkareaState = initialState.workarea;
 // FIXME: prettify this
 createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: WorkspaceState) => {
-  createDynamicReducers(state.tiles, createTileReducer, (state: TileState) => {
-    createDynamicReducers(state.rows, createRowReducer, null);
-  });
+  createDynamicReducers(state.tiles, createTileReducer, null);
 });
 
 const DummyAction: AnyAction = {type: undefined};
@@ -153,10 +170,14 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     const onUpdateMarketData = (data: Message) => {
       wMessageToAction(data, dispatch);
     };
+    const onUpdateMessageBlotter = (data: MessageBlotterEntry) => {
+      dispatch(createAction<any, A>(MessageBlotterActions.Update, data))
+    };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);
     connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
     connectionManager.setOnDisconnectedListener(onDisconnected);
+    connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
     connectionManager.connect();
     // Build a new store with the modified dispatch
     return {...store, dispatch};

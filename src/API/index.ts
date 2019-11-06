@@ -89,6 +89,9 @@ const get = <T>(url: string): Promise<T> => request(url, Method.Get);
 type Endpoints = 'symbols' | 'products' | 'tenors' | 'order'
 
 // Synchronous request methods
+const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
+
 export class API {
   static MarketData: string = '/api/fxopt/marketdata';
   static Oms: string = '/api/fxopt/oms';
@@ -98,7 +101,7 @@ export class API {
     return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
   }
 
-  static getUrl(section: string, object: Endpoints, verb: 'get' | 'create'): string {
+  static getUrl(section: string, object: Endpoints, verb: 'get' | 'create' | 'cancel' | 'modify'): string {
     return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
   }
 
@@ -114,12 +117,10 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(entry: TOBEntry, quantity: number): Promise<OrderResponse> {
+  static async createOrder(entry: TOBEntry, side: Sides, quantity: number): Promise<OrderResponse> {
     if (entry.price === null)
       throw new Error('price MUST be specified');
     // Build a create order request
-    const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-    const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: Date.now(),
@@ -127,7 +128,7 @@ export class API {
       Symbol: entry.symbol,
       Strategy: entry.product,
       Tenor: entry.tenor,
-      Side: entry.type === EntryTypes.Bid ? Sides.Sell : Sides.Buy,
+      Side: side,
       Quantity: quantity,
       Price: entry.price,
     };
@@ -138,11 +139,28 @@ export class API {
     return {} as OrderResponse;
   }
 
-  static async cancelOrder(entry: TOBEntry): Promise<OrderResponse> {
-    return {} as OrderResponse;
+  static async cancelAll(): Promise<OrderResponse> {
+    const request = {
+      MsgType: MessageTypes.F,
+      User: currentUserId,
+      TransactTime: Date.now(),
+    };
+    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
+  }
+
+  static async cancelOrder(orderId: string): Promise<OrderResponse> {
+    const request = {
+      MsgType: MessageTypes.G,
+      User: currentUserId,
+      TransactTime: Date.now(),
+      OrderId: orderId,
+    };
+    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
 
   static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<Message | null> {
+    if (!symbol || !strategy || !tenor)
+      return null;
     const url: string = API.getRawUrl(API.MarketData, `snapshot?symbol=${symbol}&strategy=${strategy}&tenor=${tenor}`);
     // Execute the query
     return get<Message | null>(url);
