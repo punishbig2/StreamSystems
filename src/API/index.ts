@@ -1,9 +1,8 @@
 import config from 'config';
 import {Message, MessageTypes} from 'interfaces/md';
-import {EntryTypes} from 'interfaces/mdEntry';
 import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
-import {Product} from 'interfaces/product';
+import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
 
 enum Method {
@@ -109,8 +108,8 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'symbols', 'get'));
   }
 
-  static getProducts(): Promise<Product[]> {
-    return get<Product[]>(API.getUrl(API.Config, 'products', 'get'));
+  static getProducts(): Promise<Strategy[]> {
+    return get<Strategy[]>(API.getUrl(API.Config, 'products', 'get'));
   }
 
   static getTenors(): Promise<string[]> {
@@ -123,10 +122,10 @@ export class API {
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
-      TransactTime: Date.now(),
+      TransactTime: Date.now() / 1000,
       User: currentUserId,
       Symbol: entry.symbol,
-      Strategy: entry.product,
+      Strategy: entry.strategy,
       Tenor: entry.tenor,
       Side: side,
       Quantity: quantity,
@@ -148,12 +147,15 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
 
-  static async cancelOrder(orderId: string): Promise<OrderResponse> {
+  static async cancelOrder(orderId: string, tenor: string, symbol: String, strategy: string): Promise<OrderResponse> {
     const request = {
-      MsgType: MessageTypes.G,
+      MsgType: MessageTypes.F,
+      TransactTime: Date.now() / 1000,
       User: currentUserId,
-      TransactTime: Date.now(),
-      OrderId: orderId,
+      Symbol: symbol,
+      Strategy: strategy,
+      Tenor: tenor,
+      OrderID: orderId,
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }

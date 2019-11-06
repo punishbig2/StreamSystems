@@ -46,7 +46,7 @@ const columns: ColumnSpec[] = [{
   header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bid'} intent={'none'} small/>,
   render: ({bid, user, handlers, setBidPrice}: RowType) => (
     <Price
-      editable={user.email === bid.user || bid.price === null}
+      editable={user.email === bid.user}
       table={bid.table}
       type={EntryTypes.Bid}
       onSubmit={(value: number) => handlers.onCreateOrder(bid, value)}
@@ -74,7 +74,7 @@ const columns: ColumnSpec[] = [{
   ),
   render: ({offer, user, handlers, setOfferPrice}: RowType) => (
     <Price
-      editable={user.email === offer.user || offer.price === null}
+      editable={user.email === offer.user}
       table={offer.table}
       type={EntryTypes.Ask}
       onSubmit={(value: number) => handlers.onCreateOrder(offer, value)}

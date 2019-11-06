@@ -19,17 +19,17 @@ import {wMessageToAction} from 'utils/wMessageToAction';
 
 type ActionType = Action<TileActions>;
 
-export const cancelOrder = (id: string, orderId: string): AsyncAction<any, ActionType> => {
+export const cancelOrder = (id: string, orderId: string, tenor: string, symbol: string, strategy: string): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.cancelOrder(orderId);
-    // FIXME: parse the result
+    const result = await API.cancelOrder(orderId, tenor, symbol, strategy);
     if (result.Status === 'Success') {
-      console.log('order created');
+      return createAction($$(id, TileActions.OrderCanceled, {
+        order: {OrderID: result.OrderID},
+      }));
     } else {
-      console.log('error');
+      return createAction($$(id, TileActions.OrderNotCanceled));
     }
-    return createAction($$(id, TileActions.OrderCreated));
-  }, createAction($$(id, TileActions.CreateOrder)));
+  }, createAction($$(id, TileActions.CancelOrder)));
 };
 
 export const createOrder = (id: string, entry: TOBEntry, side: Sides, quantity: number): AsyncAction<any, ActionType> => {
@@ -37,11 +37,13 @@ export const createOrder = (id: string, entry: TOBEntry, side: Sides, quantity: 
     const result = await API.createOrder(entry, side, quantity);
     // FIXME: parse the result
     if (result.Status === 'Success') {
-      console.log('order created');
+      return createAction($$(id, TileActions.OrderCreated), {
+        order: {OrderID: result.OrderID},
+        key: $$(entry.tenor, side),
+      });
     } else {
-      console.log('error');
+      return createAction($$(id, TileActions.OrderNotCreated));
     }
-    return createAction($$(id, TileActions.OrderCreated));
   }, createAction($$(id, TileActions.CreateOrder)));
 };
 

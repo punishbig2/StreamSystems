@@ -60,7 +60,7 @@ const renameWorkspace = (state: WorkareaState, {name, id}: IWorkspace): Workarea
     MsgType: MessageTypes.W,
     TransactTime: Date.now(),
     Symbol: tile.symbol as string,
-    Strategy: tile.product as string,
+    Strategy: tile.strategy as string,
     User: user.email,
     Tenor: tenor,
     NoMDEntries: 0,

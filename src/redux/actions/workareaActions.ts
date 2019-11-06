@@ -1,5 +1,5 @@
 import {API} from 'API';
-import {Product} from 'interfaces/product';
+import {Strategy} from 'interfaces/strategy';
 import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
@@ -39,7 +39,7 @@ export const createOrder = (order: Order): AsyncAction<WorkareaActions> => {
 export const initialize = (): AsyncAction<WorkareaActions> => {
   const handler = async (): Promise<AnyAction> => {
     const symbols: string[] = await API.getSymbols();
-    const products: Product[] = await API.getProducts();
+    const products: Strategy[] = await API.getProducts();
     const tenors: string[] = await API.getTenors();
     // When all have responded ...
     return createAction(WorkareaActions.Initialized, {symbols, products, tenors});

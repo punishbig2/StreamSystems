@@ -17,7 +17,7 @@ import React, {useReducer} from 'react';
 interface Props {
   toggleOCO: () => void;
   symbol: string;
-  product: string;
+  strategy: string;
   oco: boolean;
   table: TOBTable;
   user: User;
@@ -47,7 +47,7 @@ const Run: React.FC<Props> = (props: Props) => {
     <Layout>
       <TitleBar>
         <Item>{props.symbol}</Item>
-        <Item>{props.product}</Item>
+        <Item>{props.strategy}</Item>
         <Item>
           <Checkbox checked={props.oco} onChange={onChange} label={'OCO'} style={{display: 'none'}} inline/>
         </Item>

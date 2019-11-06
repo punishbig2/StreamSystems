@@ -5,13 +5,13 @@ import shortid from 'shortid';
 export class Tile implements ITile {
   public id: string;
   public type: TileTypes;
-  public product: string;
+  public strategy: string;
   public symbol: string;
 
   constructor(type: TileTypes) {
     this.id = `tile-${shortid()}-${type}`;
     this.type = type;
-    this.product = '';
+    this.strategy = '';
     this.symbol = '';
   }
 }

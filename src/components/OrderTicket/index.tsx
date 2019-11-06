@@ -52,7 +52,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
             <Cell width={100} align={'center'}>
               <TitleEntry>{order.symbol}</TitleEntry>
               <TitleEntry>{order.tenor}</TitleEntry>
-              <TitleEntry>{order.product}</TitleEntry>
+              <TitleEntry>{order.strategy}</TitleEntry>
             </Cell>
           </Row>
           <Row>

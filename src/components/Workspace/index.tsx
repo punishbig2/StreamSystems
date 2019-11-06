@@ -4,7 +4,7 @@ import {TOBTile} from 'components/TOBTile';
 import {Toolbar} from 'components/Toolbar';
 import {Content} from 'components/Workspace/content';
 import {Tile} from 'components/Workspace/tile';
-import {Product} from 'interfaces/product';
+import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
 import strings from 'locales';
 import React, {ReactElement} from 'react';
@@ -31,7 +31,7 @@ interface OwnProps {
   id: string;
   // Global row
   symbols: string[],
-  products: Product[],
+  products: Strategy[],
   tenors: string[],
   // FIXME: should be filled from the authentication process
   user: User;
@@ -44,9 +44,10 @@ const addTile = (id: string, type: TileTypes): Action<string> => {
     connected: false,
     oco: false,
     symbol: '',
-    product: '',
+    strategy: '',
     rows: {},
     status: TileStatus.None,
+    orders: {},
   };
   injectNamedReducer(tile.id, createTileReducer, initialState);
   // Build-up the action

@@ -15,3 +15,7 @@ export interface CreateOrder {
   Quantity: number,
   Price: number,
 }
+
+export interface Order {
+  OrderID: string;
+}

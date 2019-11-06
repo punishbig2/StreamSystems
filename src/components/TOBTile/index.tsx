@@ -5,8 +5,8 @@ import {Run} from 'components/Run';
 import {Table, TOBHandlers} from 'components/Table';
 import {TOBTileTitle} from 'components/TOBTile/title';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/order';
-import {Product} from 'interfaces/product';
+import {Order, Sides} from 'interfaces/order';
+import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -26,37 +26,37 @@ import {TileState} from 'redux/stateDefs/tileState';
 import {injectNamedReducer} from 'redux/store';
 import {$$} from 'utils/stringPaster';
 
-const emptyOffer = (tenor: string, symbol: string, product: string, user: string): TOBEntry => {
-  return {firm: '', type: EntryTypes.Ask, tenor, symbol, product, user, price: null, size: null, quantity: 10};
+const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string): TOBEntry => {
+  return {firm: '', type: EntryTypes.Ask, tenor, symbol, strategy, user, price: null, size: null, quantity: 10};
 };
 
-const emptyBid = (tenor: string, symbol: string, product: string, user: string): TOBEntry => {
-  return {firm: '', type: EntryTypes.Bid, tenor, symbol, product, user, price: null, size: null, quantity: 10};
+const emptyBid = (tenor: string, symbol: string, strategy: string, user: string): TOBEntry => {
+  return {firm: '', type: EntryTypes.Bid, tenor, symbol, strategy, user, price: null, size: null, quantity: 10};
 };
 
 interface OwnProps {
   id: string;
   tenors: string[],
-  products: Product[];
+  products: Strategy[];
   symbols: string[];
   user: User;
   path: MosaicBranch[];
   onClose: () => void;
 }
 
-export const subscribe = (symbol: string, product: string, tenor: string): SignalRAction<TileActions> => {
-  return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, product, tenor]);
+export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<TileActions> => {
+  return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, strategy, tenor]);
 };
 
 interface DispatchProps {
-  subscribe: (symbol: string, product: string, tenor: string) => void;
-  getSnapshot: (symbol: string, product: string, tenor: string) => void;
+  subscribe: (symbol: string, strategy: string, tenor: string) => void;
+  getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
   initialize: (rows: { [tenor: string]: TOBRow }) => void;
-  setProduct: (value: string) => void;
+  setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
   createOrder: (entry: TOBEntry, side: Sides, quantity: number) => void;
-  cancelOrder: (orderId: string) => void;
+  cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => void;
 }
 
 // FIXME: this could probably be extracted to a generic function
@@ -73,13 +73,13 @@ const mapStateToProps: MapStateToProps<TileState, OwnProps, ApplicationState> =
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TileActions.Initialize), rows)),
-  subscribe: (symbol: string, product: string, tenor: string) => dispatch(subscribe(symbol, product, tenor)),
-  setProduct: (value: string) => dispatch(createAction($$(id, TileActions.SetProduct), value)),
+  subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
+  setStrategy: (value: string) => dispatch(createAction($$(id, TileActions.SetStrategy), value)),
   createOrder: (order: TOBEntry, side: Sides, quantity: number) => dispatch(createOrder(id, order, side, quantity)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
-  cancelOrder: (orderId: string) => dispatch(cancelOrder(id, orderId)),
-  getSnapshot: (symbol: string, product: string, tenor: string) => dispatch(getSnapshot(symbol, product, tenor)),
+  cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => dispatch(cancelOrder(id, orderId, tenor, symbol, strategy)),
+  getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(symbol, strategy, tenor)),
 });
 
 const withRedux: (ignored: any) => any = connect<TileState, DispatchProps, OwnProps, ApplicationState>(
@@ -90,8 +90,8 @@ const withRedux: (ignored: any) => any = connect<TileState, DispatchProps, OwnPr
 type Props = OwnProps & DispatchProps & TileState;
 
 const initializeMe = (props: Props) => {
-  const {symbol, product, connected, tenors, user} = props;
-  if (!connected || symbol === '' || product === '')
+  const {symbol, strategy, connected, tenors, user} = props;
+  if (!connected || symbol === '' || strategy === '')
     return;
   const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
     object[item.id] = item;
@@ -118,13 +118,13 @@ const initializeMe = (props: Props) => {
     //
     // Ideally, we should implement the ability to stop
     if (connected) {
-      const id: string = $$(tenor, symbol, product);
+      const id: string = $$(tenor, symbol, strategy);
       const row: TOBRow = {
         tenor: tenor,
         id: $$('__ROW', id),
-        bid: emptyBid(tenor, symbol, product, user.email),
+        bid: emptyBid(tenor, symbol, strategy, user.email),
         darkPool: '',
-        offer: emptyOffer(tenor, symbol, product, user.email),
+        offer: emptyOffer(tenor, symbol, strategy, user.email),
         dob: undefined,
         mid: null,
         spread: null,
@@ -140,9 +140,9 @@ const initializeMe = (props: Props) => {
   });
   rows.forEach((row: TOBRow) => {
     // Get snapshot W
-    props.getSnapshot(symbol, product, row.tenor);
+    props.getSnapshot(symbol, strategy, row.tenor);
     // Listen to websocket incoming messages
-    props.subscribe(symbol, product, row.tenor);
+    props.subscribe(symbol, strategy, row.tenor);
     // Inject a new reducer
     injectNamedReducer(row.id, createRowReducer, {row});
   });
@@ -155,14 +155,14 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
   const [currentTenor, setCurrentTenor] = useState<{ tenor: string, table: TOBTable } | null>(null);
   const [runTable, setRunTable] = useState<TOBTable | null>(null);
   // Extract properties to manage them better
-  const {symbols, symbol, products, product, tenors, connected, user} = props;
-  const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setProduct(value);
+  const {symbols, symbol, products, strategy, tenors, connected, user} = props;
+  const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setStrategy(value);
   const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
   // SubscribeForMarketData all the tenors for the given pair
   useEffect(() => {
     initializeMe(props);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbol, product, tenors, connected]);
+  }, [symbol, strategy, tenors, connected]);
 
   const handlers: TOBHandlers = {
     onCreateOrder: (entry: TOBEntry, price: number) => {
@@ -188,10 +188,8 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       setRunTable(table);
     },
     onRefBidsButtonClicked: () => {
-      props.cancelOrder('');
     },
     onRefOffersButtonClicked: () => {
-      props.cancelOrder('');
     },
     onOfferCanceled: (offer: TOBEntry) => {
       console.log(offer);
@@ -200,7 +198,14 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
       console.log(bid);
     },
     onCancelOrder: (entry: TOBEntry) => {
-      console.log(entry);
+      const key: string = $$(entry.tenor, entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell);
+      const order: Order = props.orders[key];
+      if (!order) {
+        console.log('Warning: order not found');
+        return;
+      }
+      // Execute cancellation
+      props.cancelOrder(order.OrderID, entry.tenor, entry.symbol, entry.strategy);
     },
   };
 
@@ -230,7 +235,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
   const toolbar: ReactElement = (
       <TOBTileTitle
         symbol={symbol}
-        product={product}
+        strategy={strategy}
         symbols={symbols}
         products={products}
         setProduct={setProduct}
@@ -245,7 +250,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
     return (
       <Run
         symbol={symbol}
-        product={product}
+        strategy={strategy}
         toggleOCO={props.toggleOCO}
         oco={props.oco}
         table={runTable}
@@ -269,8 +274,8 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
         missing[keys.length + i] = {
           tenor: tenor,
           id: `${tenor}.${i}`,
-          offer: emptyOffer(tenor, symbol, product, user.email),
-          bid: emptyBid(tenor, symbol, product, user.email),
+          offer: emptyOffer(tenor, symbol, strategy, user.email),
+          bid: emptyBid(tenor, symbol, strategy, user.email),
           spread: null,
           mid: null,
         };

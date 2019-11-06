@@ -2,7 +2,7 @@ import {EntryTypes} from 'interfaces/mdEntry';
 
 export interface TOBEntry {
   tenor: string;
-  product: string,
+  strategy: string,
   symbol: string;
   price: number | null;
   size: number | null;

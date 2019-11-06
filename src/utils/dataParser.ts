@@ -5,6 +5,9 @@ import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {$$} from 'utils/stringPaster';
 
+// Synchronous request methods
+const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
 const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
   const reducer = (table: TOBTable, row: TOBRow, index: number): TOBTable => {
     table[index] = row;
@@ -16,9 +19,9 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
       tenor: message.Tenor,
       bid: {
         tenor: message.Tenor,
-        product: message.Strategy,
+        strategy: message.Strategy,
         symbol: message.Symbol,
-        user: entry.MDUserId || entry.MDEntryOriginator,
+        user: entry.MDUserId || entry.MDEntryOriginator || currentUserId,
         size: Number(entry.MDEntrySize),
         price: Number(entry.MDEntryPx),
         firm: entry.MDFirm,
@@ -26,9 +29,9 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
       },
       offer: {
         tenor: message.Tenor,
-        product: message.Strategy,
+        strategy: message.Strategy,
         symbol: message.Symbol,
-        user: entry.MDUserId || entry.MDEntryOriginator,
+        user: entry.MDUserId || entry.MDEntryOriginator || currentUserId,
         size: other[index] ? Number(other[index].MDEntrySize) : null,
         price: other[index] ? Number(other[index].MDEntryPx) : null,
         firm: entry.MDFirm,
@@ -52,9 +55,9 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
 const convertEntry = (message: Message) => (original: MDEntry): TOBEntry => {
   return {
     tenor: message.Tenor,
-    product: message.Strategy,
+    strategy: message.Strategy,
     symbol: message.Symbol,
-    user: original ? (original.MDUserId || original.MDEntryOriginator) : '',
+    user: original ? (original.MDUserId || original.MDEntryOriginator) : currentUserId,
     size: original ? Number(original.MDEntrySize) : null,
     quantity: original ? Number(original.MDEntrySize) : undefined,
     price: original ? Number(original.MDEntryPx) : null,
