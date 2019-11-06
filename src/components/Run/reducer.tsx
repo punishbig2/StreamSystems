@@ -39,7 +39,7 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
     if (table === null)
       return null;
     const key: string | undefined = Object.keys(table)
-      .find((key) => key.startsWith($$('__ROW', tenor)))
+      .find((key) => key.startsWith(tenor));
     ;
     if (key === undefined)
       return null;
@@ -68,8 +68,6 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
   const last: string | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
   const computed: Computed = computeRow(type, last, seed, data.value);
   switch (type) {
-    case 'SET_TABLE':
-      return {...state, table: data};
     case Changes.Mid:
     case Changes.Spread:
     case Changes.Offer:

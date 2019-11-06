@@ -37,10 +37,10 @@ const Run: React.FC<Props> = (props: Props) => {
     props.toggleOCO();
   };
   const handlers: RunHandlers = {
-    onBidChanged: (tenor: string, value: number) => dispatch({type: Changes.Bid, data: {tenor, value}}),
-    onOfferChanged: (tenor: string, value: number) => dispatch({type: Changes.Offer, data: {tenor, value}}),
-    onMidChanged: (tenor: string, value: number) => dispatch({type: Changes.Mid, data: {tenor, value}}),
-    onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread, data: {tenor, value}}),
+    onBidChanged: (tenor: string, value: number) => dispatch({type: Changes.Bid as string, data: {tenor, value}}),
+    onOfferChanged: (tenor: string, value: number) => dispatch({type: Changes.Offer as string, data: {tenor, value}}),
+    onMidChanged: (tenor: string, value: number) => dispatch({type: Changes.Mid as string, data: {tenor, value}}),
+    onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread as string, data: {tenor, value}}),
   };
   useEffect(() => {
     const promises: Promise<TOBRow>[] = tenors
