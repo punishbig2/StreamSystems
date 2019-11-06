@@ -1,4 +1,3 @@
-import {CancelInvocationMessage} from '@microsoft/signalr';
 import {Order} from 'interfaces/order';
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';

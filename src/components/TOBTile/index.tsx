@@ -27,11 +27,11 @@ import {injectNamedReducer} from 'redux/store';
 import {$$} from 'utils/stringPaster';
 
 const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string): TOBEntry => {
-  return {firm: '', type: EntryTypes.Ask, tenor, symbol, strategy, user, price: null, size: null, quantity: 10};
+  return {firm: '', type: EntryTypes.Ask, tenor, symbol, strategy, user, price: null, quantity: 10};
 };
 
 const emptyBid = (tenor: string, symbol: string, strategy: string, user: string): TOBEntry => {
-  return {firm: '', type: EntryTypes.Bid, tenor, symbol, strategy, user, price: null, size: null, quantity: 10};
+  return {firm: '', type: EntryTypes.Bid, tenor, symbol, strategy, user, price: null, quantity: 10};
 };
 
 interface OwnProps {
@@ -165,9 +165,9 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
   }, [symbol, strategy, tenors, connected]);
 
   const handlers: TOBHandlers = {
-    onCreateOrder: (entry: TOBEntry, price: number) => {
+    onCreateOrder: (entry: TOBEntry, price: number, type: EntryTypes) => {
       if (entry.quantity) {
-        props.createOrder({...entry, price}, entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell, entry.quantity);
+        props.createOrder({...entry, price}, type === EntryTypes.Bid ? Sides.Buy : Sides.Sell, entry.quantity);
       }
     },
     onTenorSelected: (tenor: string, table: TOBTable) => {
@@ -190,12 +190,6 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
     onRefBidsButtonClicked: () => {
     },
     onRefOffersButtonClicked: () => {
-    },
-    onOfferCanceled: (offer: TOBEntry) => {
-      console.log(offer);
-    },
-    onBidCanceled: (bid: TOBEntry) => {
-      console.log(bid);
     },
     onCancelOrder: (entry: TOBEntry) => {
       const key: string = $$(entry.tenor, entry.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell);

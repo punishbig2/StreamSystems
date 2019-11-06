@@ -35,7 +35,6 @@ const columns: ColumnSpec[] = [{
       value={bid.quantity ? bid.quantity : 10}
       type={EntryTypes.Bid}
       onChange={setBidQuantity}
-      onButtonClicked={() => handlers.onBidCanceled(bid)}
       cancelable={user.email === bid.user}
       onCancel={() => handlers.onCancelOrder(bid)}
       firm={user.isBroker ? bid.firm : undefined}/>
@@ -49,7 +48,7 @@ const columns: ColumnSpec[] = [{
       editable={user.email === bid.user}
       table={bid.table}
       type={EntryTypes.Bid}
-      onSubmit={(value: number) => handlers.onCreateOrder(bid, value)}
+      onSubmit={(value: number) => handlers.onCreateOrder(bid, value, EntryTypes.Bid)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
       onChange={setBidPrice}
       value={bid.price}/>
@@ -77,7 +76,7 @@ const columns: ColumnSpec[] = [{
       editable={user.email === offer.user}
       table={offer.table}
       type={EntryTypes.Ask}
-      onSubmit={(value: number) => handlers.onCreateOrder(offer, value)}
+      onSubmit={(value: number) => handlers.onCreateOrder(offer, value, EntryTypes.Ask)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Ask, offer)}
       onChange={setOfferPrice}
       value={offer.price}/>
@@ -93,7 +92,6 @@ const columns: ColumnSpec[] = [{
       value={offer.quantity ? offer.quantity : 10}
       type={EntryTypes.Ask}
       onChange={setOfferQuantity}
-      onButtonClicked={() => handlers.onOfferCanceled(offer)}
       cancelable={user.email === offer.user}
       onCancel={() => handlers.onCancelOrder(offer)}
       firm={user.isBroker ? offer.firm : undefined}/>

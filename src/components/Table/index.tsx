@@ -15,9 +15,7 @@ export interface TOBHandlers {
   onRunButtonClicked: (rows: TOBTable) => void;
   onRefBidsButtonClicked: () => void;
   onRefOffersButtonClicked: () => void;
-  onBidCanceled: (entry: TOBEntry) => void;
-  onOfferCanceled: (entry: TOBEntry) => void;
-  onCreateOrder: (entry: TOBEntry, value: number) => void;
+  onCreateOrder: (entry: TOBEntry, value: number, type: EntryTypes) => void;
   onCancelOrder: (entry: TOBEntry) => void;
 }
 

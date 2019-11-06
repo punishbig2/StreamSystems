@@ -120,6 +120,7 @@ export const Price: React.FC<Props> = (props: Props) => {
       return props.onDoubleClick();
     }
   };
+
   const onSubmit = () => {
     if (props.onSubmit) {
       props.onSubmit(Number(getValue()));

@@ -17,11 +17,11 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const {rows} = props;
   if (!rows)
     return null;
-  const children = rows.map(({price, size}: TOBEntry, index: number) => {
+  const children = rows.map(({price, quantity}: TOBEntry, index: number) => {
     const elements: ReactNode[] = [<MiniPrice key={1}>{price}</MiniPrice>];
     const sizeElement = (
       <MiniPrice key={2}>
-        <Quantity value={size} type={props.type as EntryTypes} onChange={() => null} onButtonClicked={() => null}/>
+        <Quantity value={quantity} type={props.type as EntryTypes} onChange={() => null}/>
       </MiniPrice>
     );
     if (props.type === EntryTypes.Bid)

@@ -7,7 +7,6 @@ interface SizeProps {
   type: EntryTypes;
   value: number | null;
   firm?: string;
-  onButtonClicked: () => void;
   onChange: (value: number) => void;
   cancelable?: boolean;
   onCancel?: () => void;

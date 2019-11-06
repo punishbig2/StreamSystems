@@ -19,7 +19,7 @@ interface Props {
 
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const {order} = props;
-  const [quantity, setQuantity] = useState<number | undefined>(order.quantity);
+  const [quantity, setQuantity] = useState<number | null>(order.quantity);
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   useEffect(() => {
     if (input === null)
@@ -61,11 +61,11 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           </Row>
           <Row>
             <Cell><span className={'title'}>Qty.</span></Cell>
-            <Cell><input value={quantity} onChange={updateQuantity} autoFocus={true} ref={setInput}/></Cell>
+            <Cell><input value={quantity || ''} onChange={updateQuantity} autoFocus={true} ref={setInput}/></Cell>
           </Row>
           <Row>
             <Cell><span className={'title'}>Vol.</span></Cell>
-            <Cell><span>{order.size}</span></Cell>
+            <Cell><span>{}</span></Cell>
           </Row>
         </MiniTable>
         <DialogButtons>
