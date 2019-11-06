@@ -67,7 +67,6 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
   };
   const last: string | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
   const computed: Computed = computeRow(type, last, seed, data.value);
-  console.log(type);
   switch (type) {
     case 'SET_TABLE':
       return {...state, table: data};

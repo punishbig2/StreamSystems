@@ -123,14 +123,14 @@ export class API {
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
-      TransactTime: Math.round(Date.now() / 1000),
+      TransactTime: (Math.round(Date.now() / 1000)).toString(),
       User: currentUserId,
       Symbol: entry.symbol,
       Strategy: entry.strategy,
       Tenor: entry.tenor,
       Side: side,
-      Quantity: quantity,
-      Price: entry.price,
+      Quantity: quantity.toString(),
+      Price: entry.price.toString(),
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
   }
@@ -143,7 +143,7 @@ export class API {
     const request = {
       MsgType: MessageTypes.F,
       User: currentUserId,
-      TransactTime: Date.now(),
+      TransactTime: Math.round(Date.now() / 1000).toString(),
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
@@ -151,7 +151,7 @@ export class API {
   static async cancelOrder(orderId: string, tenor: string, symbol: String, strategy: string): Promise<OrderResponse> {
     const request = {
       MsgType: MessageTypes.F,
-      TransactTime: Math.round(Date.now() / 1000),
+      TransactTime: Math.round(Date.now() / 1000).toString(),
       User: currentUserId,
       Symbol: symbol,
       Strategy: strategy,

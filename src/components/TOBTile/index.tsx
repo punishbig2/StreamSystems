@@ -24,7 +24,7 @@ import {createRowReducer} from 'redux/reducers/rowReducer';
 import {SignalRAction} from 'redux/signalRAction';
 import {TileState} from 'redux/stateDefs/tileState';
 import {injectNamedReducer} from 'redux/store';
-import {emptyBid, emptyOffer} from 'utils/dataGenerators';
+import {compareTenors, emptyBid, emptyOffer} from 'utils/dataGenerators';
 import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
@@ -93,20 +93,7 @@ const initializeMe = (props: Props) => {
     // Return the accumulator
     return object;
   };
-  const tenorToNumber = (value: string) => {
-    // FIXME: probably search the number boundary
-    const multiplier: number = Number(value.substr(0, 1));
-    const unit: string = value.substr(1);
-    switch (unit) {
-      case 'W':
-        return multiplier;
-      case 'M':
-        return 5 * multiplier;
-      case 'Y':
-        return 60 * multiplier;
-    }
-    return 0;
-  };
+
   const rows: TOBRow[] = tenors.map((tenor: string) => {
     // This is here because javascript is super stupid and `connected' can change
     // while we're subscribing combinations.
@@ -128,11 +115,7 @@ const initializeMe = (props: Props) => {
       return row;
     }
     return {} as TOBRow;
-  }).sort((a: TOBRow, b: TOBRow) => {
-    const at: string = a.tenor;
-    const bt: string = b.tenor;
-    return tenorToNumber(at) - tenorToNumber(bt);
-  });
+  }).sort(compareTenors);
   rows.forEach((row: TOBRow) => {
     // Get snapshot W
     props.getSnapshot(symbol, strategy, row.tenor);

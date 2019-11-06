@@ -15,7 +15,7 @@ import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import strings from 'locales';
 import React, {useEffect, useReducer} from 'react';
-import {emptyBid, emptyOffer} from 'utils/dataGenerators';
+import {compareTenors, emptyBid, emptyOffer} from 'utils/dataGenerators';
 import {toTOBRow} from 'utils/dataParser';
 
 interface Props {
@@ -43,35 +43,48 @@ const Run: React.FC<Props> = (props: Props) => {
     onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread, data: {tenor, value}}),
   };
   useEffect(() => {
-    const internalTable: TOBTable = {};
-    const promises: Promise<void>[] = tenors.map(async (tenor: string) => {
-      const entry = await API.getSnapshot(symbol, strategy, tenor);
-      if (entry) {
-        internalTable[tenor] = toTOBRow(entry);
-      } else {
-        internalTable[tenor] = {
-          id: tenor,
-          tenor: tenor,
-          bid: emptyBid(tenor, symbol, strategy, ''),
-          offer: emptyOffer(tenor, symbol, strategy, ''),
-          mid: null,
-          spread: null,
-        };
-      }
-    });
+    const promises: Promise<TOBRow>[] = tenors
+      .map(async (tenor: string) => {
+        const entry = await API.getSnapshot(symbol, strategy, tenor);
+        if (entry) {
+          return toTOBRow(entry);
+        } else {
+          return {
+            id: tenor,
+            tenor: tenor,
+            bid: emptyBid(tenor, symbol, strategy, ''),
+            offer: emptyOffer(tenor, symbol, strategy, ''),
+            mid: null,
+            spread: null,
+          };
+        }
+      });
     Promise.all(promises)
-      .then(() => {
-        dispatch({type: 'SET_TABLE', data: internalTable});
+      .then((rows: TOBRow[]) => {
+        const table = rows
+          .sort(compareTenors)
+          .reduce((table: TOBTable, row: TOBRow) => {
+            table[row.tenor] = row;
+            return table;
+          }, {});
+        dispatch({type: 'SET_TABLE', data: table});
       });
   }, [symbol, strategy, tenors]);
   const onSubmit = () => {
     if (state.table === null)
       return;
-    const entries = Object.values(state.table);
+    console.log(Object.values(state.table));
+    const entries = Object.values(state.table)
+      .filter(({bid, offer}) => {
+        return bid.price !== null && offer.price !== null;
+      });
+    console.log(entries);
     if (entries.length === 0)
       return;
     props.onSubmit(entries);
   };
+  if (state.table === null)
+    return (<div>Loading...</div>);
   return (
     <Layout>
       <TitleBar>
