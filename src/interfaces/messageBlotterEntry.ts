@@ -1,4 +1,4 @@
-import {Sides} from 'interfaces/order';
+import {EntryTypes} from 'interfaces/mdEntry';
 
 export interface MessageBlotterEntry {
   Account: string;
@@ -14,7 +14,7 @@ export interface MessageBlotterEntry {
   OrdStatus: number;
   OrdType: number;
   Price: number;
-  Side: Sides;
+  Side: string;
   Symbol: string;
   TransactTime: Date;
   ExecType: number;

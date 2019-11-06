@@ -1,4 +1,5 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import {EntryTypes} from 'interfaces/mdEntry';
 import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {Sides} from 'interfaces/order';
 import React from 'react';
@@ -22,14 +23,14 @@ const columns: ColumnSpec[] = [{
     console.log(data);
     return (
       <Time>{moment(data.TransactTime, 'YYYYMMDD-hh:mm:ss').format('MM-DD-YYYY HH:mm P')}</Time>
-    )
+    );
   },
   weight: 2,
 }, {
   name: 'side',
   header: () => <div>Side</div>,
   render: ({Side}: MessageBlotterEntry) => (
-    <div>{Side === Sides.Buy ? 'Buy' : 'Sell'}</div>
+    <Normal>{Side === '1' ? 'Buy' : 'Sell'}</Normal>
   ),
   weight: 1,
 }, {
