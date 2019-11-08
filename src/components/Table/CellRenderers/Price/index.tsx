@@ -62,7 +62,8 @@ export interface Props {
   onDoubleClick?: () => void;
   onChange: (value: number) => void;
   onSubmit?: (value: number) => void;
-  black?: boolean;
+  color: 'red' | 'blue' | 'green' | 'black' | 'gray',
+  tabIndex?: number;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -131,11 +132,12 @@ export const Price: React.FC<Props> = (props: Props) => {
     <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
       <Direction direction={arrow}/>
       <TableInput
+        tabIndex={props.tabIndex}
         value={getValue()}
         onChange={onChange}
         readOnly={!props.editable}
-        className={[props.priceType, props.black ? 'black' : undefined].join(' ')}
         onDoubleClick={onDoubleClick}
+        color={props.color}
         onSubmit={onSubmit}/>
       {/* The floating object */}
       {getTooltip()}

@@ -4,7 +4,6 @@ import {functionMap} from 'components/Run/fucntionMap';
 import {State} from 'components/Run/state';
 import {TOBRow} from 'interfaces/tobRow';
 import {Action} from 'redux/action';
-import {$$} from 'utils/stringPaster';
 
 type Calculator = (v1: number, v2: number) => number;
 const computeRow = (type: string, last: string | undefined, data: Computed, v1: number): Computed => {
@@ -35,6 +34,27 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
   const {history, table} = state;
   if (type === 'SET_TABLE')
     return {...state, table: data};
+  else if (type === 'OfferQuantityChanged') {
+    if (table !== null) {
+      return {
+        ...state,
+        table: {
+          ...table,
+          [data.tenor]: {...table[data.tenor], offer: {...table[data.tenor].offer, quantity: data.value}},
+        },
+      };
+    }
+  } else if (type === 'BidQuantityChanged') {
+    if (table !== null) {
+      return {
+        ...state,
+        table: {
+          ...table,
+          [data.tenor]: {...table[data.tenor], bid: {...table[data.tenor].bid, quantity: data.value}},
+        },
+      };
+    }
+  }
   const findRow = (tenor: string): TOBRow | null => {
     if (table === null)
       return null;

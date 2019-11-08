@@ -1,4 +1,4 @@
-export enum WorkspaceAction {
-  AddTile,
-  UpdateTree,
+export enum WorkspaceActions {
+  AddWindow = 'WorkspaceActions.AddWindow',
+  UpdateGeometry = 'WorkspaceActions.UpdateGeometry',
 }

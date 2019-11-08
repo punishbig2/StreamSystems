@@ -1,39 +1,21 @@
+import {Layout} from 'components/Table/Cell/layout';
 import {User} from 'interfaces/user';
 import React from 'react';
-import styled from 'styled-components';
 
 interface CellProps {
   render: React.FC<any>,
   width: number;
   handlers: any;
   user?: User;
-
   // Allow other properties
   [key: string]: any;
 }
 
-const CellLayout = styled.div`
-  width: ${(props: { width: number }) => props.width}%;
-  padding: 0;
-  margin: 0;
-  &:not(:last-child) {
-    border-right: 1px solid ${({theme}) => theme.tableBorderColor};
-  }
-  display: inline-block;
-  vertical-align: middle;
-  box-sizing: border-box;
-  line-height: ${({theme}) => theme.tableRowSize}px;
-  height: ${({theme}) => theme.tableRowSize}px;
-  font-size: ${({theme}) => theme.tableFontSize}px;
-  font-family: ${({theme}) => theme.tableFontFamily};
-  font-weight: ${({theme}) => theme.tableFontWeight};
-`;
-
 export const Cell: React.FC<CellProps> = (props: CellProps) => {
   const {render, width, handlers, user, ...data} = props;
   return (
-    <CellLayout width={width}>
+    <Layout width={width}>
       {render({...data, user, handlers})}
-    </CellLayout>
+    </Layout>
   );
 };

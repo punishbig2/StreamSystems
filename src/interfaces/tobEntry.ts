@@ -5,7 +5,7 @@ export interface TOBEntry {
   strategy: string,
   symbol: string;
   price: number | null;
-  quantity: number;
+  quantity: number | null;
   table?: TOBEntry[];
   user: string;
   firm: string;

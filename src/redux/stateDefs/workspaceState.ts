@@ -1,8 +1,5 @@
-import {ITile} from 'interfaces/tile';
-import {MosaicNode} from 'react-mosaic-component';
+import {Window} from 'interfaces/window';
 
-export type Node = MosaicNode<string> | string | null;
 export interface WorkspaceState {
-  tiles: {[id: string]: ITile};
-  tree: Node,
+  windows: {[id: string]: Window};
 }

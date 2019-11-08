@@ -1,4 +1,4 @@
-export enum TileTypes {
+export enum WindowTypes {
   TOB = 1,
   MessageBlotter = 2,
   Empty = 3,

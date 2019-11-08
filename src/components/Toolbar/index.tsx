@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Toolbar = styled.div`
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 8px;
   right: 8px;

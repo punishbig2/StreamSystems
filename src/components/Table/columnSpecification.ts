@@ -2,7 +2,9 @@ import {ReactElement} from 'react';
 
 export interface ColumnSpec {
   name: string;
-  header: (props: any) => ReactElement;
+  sortable?: boolean;
+  filterable?: boolean;
+  header: (props: any) => ReactElement | string | null;
   render: (props: any) => ReactElement;
   span?: number;
   weight: number;

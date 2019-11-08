@@ -25,7 +25,7 @@ import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Dynamic reducer creators
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
-import {createTileReducer} from 'redux/reducers/tileReducer';
+import {createWindowReducer} from 'redux/reducers/tileReducer';
 // Special object helper for connection management
 import {ConnectionManager} from 'redux/signalR/connectionManager';
 // State shapes
@@ -33,7 +33,7 @@ import {ApplicationState} from 'redux/applicationState';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 // Websocket action parsers/converters
-import {wMessageToAction} from 'utils/wMessageToAction';
+import {toWMessageAction} from 'utils/toWMessageAction';
 
 const getObjectFromStorage = <T>(key: string): T => {
   const item: string | null = localStorage.getItem(key);
@@ -119,7 +119,7 @@ const createDynamicReducers = (base: any, creator: ReducerCreator, nest: ((state
 const workarea: WorkareaState = initialState.workarea;
 // FIXME: prettify this
 createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: WorkspaceState) => {
-  createDynamicReducers(state.tiles, createTileReducer, null);
+  createDynamicReducers(state.windows, createWindowReducer, null);
 });
 
 const DummyAction: AnyAction = {type: undefined};
@@ -168,10 +168,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
     const onUpdateMarketData = (data: Message) => {
-      wMessageToAction(data, dispatch);
+      dispatch(toWMessageAction<A>(data));
     };
     const onUpdateMessageBlotter = (data: MessageBlotterEntry) => {
-      dispatch(createAction<any, A>(MessageBlotterActions.Update, data))
+      dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);

@@ -6,6 +6,7 @@ import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {EntryTypes} from 'interfaces/mdEntry';
+import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -20,6 +21,28 @@ interface RowHandlers {
 
 type RowType = TOBRow & { handlers: TOBHandlers } & { user: User } & { table: TOBTable } & RowHandlers;
 
+interface QWProps {
+  entry: TOBEntry;
+  type: EntryTypes;
+  onChange: (value: number) => void;
+  user: User;
+  onCancel: (entry: TOBEntry) => void;
+}
+
+const QuantityWrapper: React.FC<QWProps> = (props: QWProps) => {
+  const {entry, user} = props;
+  return (
+    <Quantity
+      value={entry.quantity}
+      type={props.type}
+      onChange={props.onChange}
+      cancelable={user.email === entry.user && entry.price !== null && entry.quantity !== null}
+      onCancel={() => props.onCancel(entry)}
+      firm={user.isBroker ? entry.firm : undefined}
+      color={'blue'}/>
+  );
+};
+
 const columns: ColumnSpec[] = [{
   name: 'tenor',
   header: () => <div/>,
@@ -30,19 +53,16 @@ const columns: ColumnSpec[] = [{
 }, {
   name: 'bid-quantity',
   header: () => <div/>,
-  render: ({bid, user, handlers, setBidQuantity}: RowType) => (
-    <Quantity
-      value={bid.quantity ? bid.quantity : 10}
-      type={EntryTypes.Bid}
-      onChange={setBidQuantity}
-      cancelable={user.email === bid.user}
-      onCancel={() => handlers.onCancelOrder(bid)}
-      firm={user.isBroker ? bid.firm : undefined}/>
-  ),
+  render: ({bid, user, handlers, setBidQuantity}: RowType) => {
+    return (
+      <QuantityWrapper entry={bid} type={EntryTypes.Bid} onChange={setBidQuantity} onCancel={handlers.onCancelOrder}
+                       user={user}/>
+    );
+  },
   weight: 2,
 }, {
   name: 'bid',
-  header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bid'} intent={'none'} small/>,
+  header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bids'} intent={'none'} small/>,
   render: ({bid, user, handlers, setBidPrice}: RowType) => (
     <Price
       editable={user.email === bid.user}
@@ -51,7 +71,8 @@ const columns: ColumnSpec[] = [{
       onSubmit={(value: number) => handlers.onCreateOrder(bid, value, EntryTypes.Bid)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
       onChange={setBidPrice}
-      value={bid.price}/>
+      value={bid.price}
+      color={user.email === bid.user ? 'red' : 'black'}/>
   ),
   weight: 3,
 }, {
@@ -63,13 +84,15 @@ const columns: ColumnSpec[] = [{
       priceType={PriceTypes.DarkPool}
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
-      value={null}/>
+      value={null}
+      tabIndex={-1}
+      color={'gray'}/>
   ),
   weight: 3,
 }, {
   name: 'offer',
   header: ({handlers}: RowType) => (
-    <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Ofr'} intent={'none'} small/>
+    <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Offers'} intent={'none'} small/>
   ),
   render: ({offer, user, handlers, setOfferPrice}: RowType) => (
     <Price
@@ -79,22 +102,19 @@ const columns: ColumnSpec[] = [{
       onSubmit={(value: number) => handlers.onCreateOrder(offer, value, EntryTypes.Ask)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Ask, offer)}
       onChange={setOfferPrice}
-      value={offer.price}/>
+      value={offer.price}
+      color={user.email === offer.user ? 'red' : 'black'}/>
   ),
   weight: 3,
 }, {
   name: 'offer-quantity',
   header: ({handlers, table}: RowType) => (
-    <Button onClick={() => handlers.onRunButtonClicked(table)} text={'Run'} intent={'none'} small/>
+    <Button onClick={() => handlers.onRunButtonClicked()} text={'Run'} intent={'none'} small/>
   ),
   render: ({offer, user, handlers, setOfferQuantity}: RowType) => (
-    <Quantity
-      value={offer.quantity ? offer.quantity : 10}
-      type={EntryTypes.Ask}
-      onChange={setOfferQuantity}
-      cancelable={user.email === offer.user}
-      onCancel={() => handlers.onCancelOrder(offer)}
-      firm={user.isBroker ? offer.firm : undefined}/>
+    <QuantityWrapper entry={offer} type={EntryTypes.Ask} onChange={setOfferQuantity} onCancel={handlers.onCancelOrder}
+                     user={user}/>
+
   ),
   weight: 2,
 }];

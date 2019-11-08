@@ -4,7 +4,7 @@ export const Layout = styled.input`
   padding: 0 8px;
   min-width: 0;
   width: 100%;
-  text-align: ${({aligned}: { aligned?: 'center' | 'right' | 'left' }) => aligned ? aligned : 'right'};
+  text-align: center;
   line-height: ${({theme}) => theme.tableRowSize}px;
   height: ${({theme}) => theme.tableRowSize}px;
   border: none;
@@ -17,14 +17,20 @@ export const Layout = styled.input`
     outline-offset: 0;
     z-index: 1;
   }
-  &:not(.black):not(:read-only) {
-    color: crimson;
+  &.red {
+    color: ${({theme}) => theme.textColorRed};
   }
-  &.normal {
-    color: black;
+  &.black {
+    color: ${({theme}) => theme.textColorBlack};
   }
-  &.dark-pool {
-    color: #a0a0a0;
+  &.gray {
+    color: ${({theme}) => theme.textColorGray};
+  }
+  &.blue {
+    color: ${({theme}) => theme.textColorBlue};
+  }
+  &.green {
+    color: ${({theme}) => theme.textColorGreen};
   }
   &:focus {
     cursor: initial;

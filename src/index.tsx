@@ -1,7 +1,6 @@
+import FXOptionsUI from 'main';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import FXOptionsUI from 'main';
-import './index.css';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(<FXOptionsUI/>, document.getElementById('root'));

@@ -2,10 +2,10 @@ import {Order} from 'interfaces/order';
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TileActions} from 'redux/constants/tileConstants';
-import {TileState, TileStatus} from 'redux/stateDefs/tileState';
+import {WindowState, TileStatus} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
 
-const genesisState: TileState = {
+const genesisState: WindowState = {
   connected: false,
   oco: false,
   symbol: '',
@@ -30,8 +30,8 @@ const removeOrder = (orders: { [key: string]: Order }, order: Order) => {
   return orders;
 };
 
-export const createTileReducer = (id: string, initialState: TileState = genesisState) => {
-  return (state: TileState = initialState, {type, data}: AnyAction) => {
+export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
+  return (state: WindowState = initialState, {type, data}: AnyAction) => {
     switch (type) {
       case $$(id, TileActions.Initialize):
         return {...state, rows: data};
@@ -59,6 +59,9 @@ export const createTileReducer = (id: string, initialState: TileState = genesisS
         return {...state, status: TileStatus.OrderNotCanceled};
       case $$(id, TileActions.AllOrdersCanceled):
         return {...state, orders: {}};
+      case $$(id, TileActions.SnapshotReceived):
+        console.log(data);
+        return state;
       default:
         return state;
     }

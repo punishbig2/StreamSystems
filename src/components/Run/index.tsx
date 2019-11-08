@@ -1,5 +1,4 @@
 import {Button, Checkbox} from '@blueprintjs/core';
-import {API} from 'API';
 import runColumns from 'columns/run';
 import {DialogButtons} from 'components/PullRight';
 import {Changes} from 'components/Run/enumerator';
@@ -8,15 +7,14 @@ import {Item} from 'components/Run/item';
 import {Layout} from 'components/Run/layout';
 import {reducer} from 'components/Run/reducer';
 import {Table} from 'components/Table';
-import {TitleBar} from 'components/TileTitleBar';
 import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import strings from 'locales';
 import React, {useEffect, useReducer} from 'react';
+import {toRowId} from 'utils';
 import {compareTenors, emptyBid, emptyOffer} from 'utils/dataGenerators';
-import {toTOBRow} from 'utils/dataParser';
 
 interface Props {
   toggleOCO: () => void;
@@ -41,42 +39,30 @@ const Run: React.FC<Props> = (props: Props) => {
     onOfferChanged: (tenor: string, value: number) => dispatch({type: Changes.Offer as string, data: {tenor, value}}),
     onMidChanged: (tenor: string, value: number) => dispatch({type: Changes.Mid as string, data: {tenor, value}}),
     onSpreadChanged: (tenor: string, value: number) => dispatch({type: Changes.Spread as string, data: {tenor, value}}),
+    onOfferQtyChanged: (tenor: string, value: number) => dispatch({type: 'OfferQuantityChanged', data: {tenor, value}}),
+    onBidQtyChanged: (tenor: string, value: number) => dispatch({type: 'BidQuantityChanged', data: {tenor, value}}),
   };
-  const {user} = props;
   useEffect(() => {
-    const promises: Promise<TOBRow>[] = tenors
-      .map(async (tenor: string) => {
-        const entry = await API.getSnapshot(symbol, strategy, tenor);
-        const empty = {
-          id: tenor,
+    const rows: TOBRow[] = tenors
+      .map((tenor: string) => {
+        return {
+          id: toRowId(tenor, symbol, strategy),
           tenor: tenor,
           bid: emptyBid(tenor, symbol, strategy, ''),
           offer: emptyOffer(tenor, symbol, strategy, ''),
           mid: null,
           spread: null,
         };
-        if (entry) {
-          const nonEmpty = toTOBRow(entry);
-          if (nonEmpty.bid.user === user.email) {
-            empty.bid = nonEmpty.bid;
-          }
-          if (nonEmpty.offer.user === user.email) {
-            empty.offer = nonEmpty.offer;
-          }
-        }
-        return empty;
       });
-    Promise.all(promises)
-      .then((rows: TOBRow[]) => {
-        const table = rows
-          .sort(compareTenors)
-          .reduce((table: TOBTable, row: TOBRow) => {
-            table[row.tenor] = row;
-            return table;
-          }, {});
-        dispatch({type: 'SET_TABLE', data: table});
-      });
+    const table = rows
+      .sort(compareTenors)
+      .reduce((table: TOBTable, row: TOBRow) => {
+        table[row.tenor] = row;
+        return table;
+      }, {});
+    dispatch({type: 'SET_TABLE', data: table});
   }, [symbol, strategy, tenors]);
+  console.log('rendering run window');
   const onSubmit = () => {
     if (state.table === null)
       return;
@@ -92,15 +78,14 @@ const Run: React.FC<Props> = (props: Props) => {
     return (<div>Loading...</div>);
   return (
     <Layout>
-      <TitleBar>
+      <div className={'window-title-bar'}>
         <Item>{props.symbol}</Item>
         <Item>{props.strategy}</Item>
         <Item>
           <Checkbox checked={props.oco} onChange={onChange} label={'OCO'} style={{display: 'none'}} inline/>
         </Item>
-      </TitleBar>
-      <Table<RunHandlers> columns={runColumns} rows={state.table || {}} handlers={handlers} user={props.user}
-                          prefix={'run'}/>
+      </div>
+      <Table<RunHandlers> columns={runColumns} rows={state.table || {}} handlers={handlers} user={props.user}/>
       <DialogButtons>
         <Button text={strings.Submit} intent={'primary'} onClick={onSubmit}/>
         <Button text={strings.Close} intent={'none'} onClick={props.onClose}/>

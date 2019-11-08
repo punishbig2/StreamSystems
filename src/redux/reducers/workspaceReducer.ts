@@ -1,33 +1,31 @@
-import {ITile} from 'interfaces/tile';
-import {createBalancedTreeFromLeaves, getLeaves, MosaicNode} from 'react-mosaic-component';
+import {Window} from 'interfaces/window';
 import {AnyAction} from 'redux';
-import {WorkspaceAction} from 'redux/constants/workspaceConstants';
-import {WorkspaceState, Node} from 'redux/stateDefs/workspaceState';
+import {WorkspaceActions} from 'redux/constants/workspaceConstants';
+import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {$$} from 'utils/stringPaster';
 
 const genesisState: WorkspaceState = {
-  tiles: {},
-  tree: null,
+  windows: {},
 };
 
-const createTile = (tile: ITile, state: WorkspaceState): WorkspaceState => {
-  const originalTree: Node = state.tree;
-  const leaves: string[] = getLeaves<string>(originalTree);
-  // Create a new tree based on the old one
-  const tree: string | MosaicNode<string> | null = createBalancedTreeFromLeaves([...leaves, tile.id]);
-  // Create a new tiles object
-  const tiles: { [id: string]: ITile } = {...state.tiles, [tile.id]: tile};
+const addWindow = (window: Window, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = state.windows;
   // Return the new state
-  return {tree, tiles};
+  return {...windows, [window.id]: window};
+};
+
+const moveWindow = ({id, geometry}: { id: string, geometry: ClientRect }, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = state.windows;
+  return {...windows, [id]: {...windows[id], geometry}};
 };
 
 export const createWorkspaceReducer = (id: string, initialState: WorkspaceState = genesisState) => {
   return (state: WorkspaceState = initialState, {type, data}: AnyAction): WorkspaceState => {
     switch (type) {
-      case $$(id, WorkspaceAction.AddTile):
-        return {...state, ...createTile(data, state)};
-      case $$(id, WorkspaceAction.UpdateTree):
-        return {...state, tree: data};
+      case $$(id, WorkspaceActions.AddWindow):
+        return {...state, windows: addWindow(data, state)};
+      case $$(id, WorkspaceActions.UpdateGeometry):
+        return {...state, windows: moveWindow(data, state)};
       default:
         return state;
     }

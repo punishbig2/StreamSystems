@@ -1,14 +1,15 @@
-import React from 'react';
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import {Layout} from 'components/Table/Row/layout';
 import {User} from 'interfaces/user';
-import {connect, MapStateToProps} from 'react-redux';
+import React from 'react';
+import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {RowActions} from 'redux/constants/rowConstants';
+import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {RowState} from 'redux/stateDefs/rowState';
-import styled from 'styled-components';
 import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
@@ -25,23 +26,6 @@ interface DispatchProps {
   setBidPrice: (value: number) => void;
 }
 
-const RowLayout = styled.div`
-  &:not(:last-child) {
-    border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
-  }
-`;
-// FIXME: this could probably be extracted to a generic function
-const mapStateToProps: MapStateToProps<RowState, OwnProps, ApplicationState> =
-  (state: ApplicationState, ownProps: OwnProps): RowState => {
-    const generalizedState = state as any;
-    if (generalizedState.hasOwnProperty(ownProps.id)) {
-      // Forcing typescript to listen to me >(
-      return generalizedState[ownProps.id] as RowState;
-    } else {
-      return {} as RowState;
-    }
-  };
-
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
   setOfferPrice: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
   setOfferQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
@@ -50,7 +34,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
 });
 
 const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(
-  mapStateToProps,
+  dynamicStateMapper<RowState, ApplicationState>(),
   mapDispatchToProps,
 );
 
@@ -59,7 +43,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
   // Compute the total weight of the columns
   const total = columns.reduce((total, {weight}) => total + weight, 0);
   return (
-    <RowLayout>
+    <Layout id={row.id}>
       {columns.map((column) => {
         const width = 100 * column.weight / total;
         const name = column.name;
@@ -77,7 +61,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
             {...row}/>
         );
       })}
-    </RowLayout>
+    </Layout>
   );
 });
 

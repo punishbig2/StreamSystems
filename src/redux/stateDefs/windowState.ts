@@ -11,7 +11,7 @@ export enum TileStatus {
   OrderNotCanceled,
 }
 
-export interface TileState {
+export interface WindowState {
   rows: { [tenor: string]: TOBRow },
   orders: { [tenor: string]: Order },
   strategy: string;
@@ -20,3 +20,13 @@ export interface TileState {
   oco: boolean;
   status: TileStatus,
 }
+
+export const DefaultWindowState: WindowState = {
+  connected: false,
+  oco: false,
+  symbol: '',
+  strategy: '',
+  rows: {},
+  status: TileStatus.None,
+  orders: {},
+};

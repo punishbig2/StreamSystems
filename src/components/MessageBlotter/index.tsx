@@ -1,17 +1,15 @@
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {Table} from 'components/Table';
-import {TitleBar, WindowTitle} from 'components/TileTitleBar';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useEffect} from 'react';
-import {MosaicBranch, MosaicWindow} from 'react-mosaic-component';
+import React, {useEffect} from 'react';
 import columns from 'columns/messageBlotter';
-import strings from 'locales';
 import {connect} from 'react-redux';
 import {subscribe, unsubscribe} from 'redux/actions/messageBlotter';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
+import strings from 'locales';
 
 interface DispatchProps {
   subscribe: (email: string) => SignalRAction<SignalRActions>;
@@ -19,8 +17,6 @@ interface DispatchProps {
 }
 
 interface OwnProps {
-  path: MosaicBranch[],
-  onClose: () => void;
   user: User;
 }
 
@@ -48,17 +44,14 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       props.unsubscribe(user.email);
     };
   }, [connected, props, user.email]);
-  const toolbar: ReactElement = (
-    <TitleBar>
-      <WindowTitle>{strings.Messages}</WindowTitle>
-      <DefaultWindowButtons onClose={props.onClose}/>
-    </TitleBar>
-  );
-  console.log(props.entries);
   return (
-    <MosaicWindow<string> title={''} path={props.path} toolbarControls={toolbar}>
+    <React.Fragment>
+      <div className={'window-title-bar'}>
+        <h1>{strings.Messages}</h1>
+        <DefaultWindowButtons onClose={() => null}/>
+      </div>
       <Table columns={columns} rows={props.entries}/>
-    </MosaicWindow>
+    </React.Fragment>
   );
 });
 

@@ -10,6 +10,7 @@ interface SizeProps {
   onChange: (value: number) => void;
   cancelable?: boolean;
   onCancel?: () => void;
+  color: 'red' | 'blue' | 'green' | 'black' | 'gray'
 }
 
 export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
@@ -21,7 +22,7 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
     return value.toString();
   };
   const children: ReactNode[] = [
-    <TableInput key={1} value={getValue()} aligned={'center'}
+    <TableInput key={1} value={getValue()} color={props.color}
                 onChange={(value: string) => props.onChange(Number(value))}/>,
   ];
   if (props.cancelable)

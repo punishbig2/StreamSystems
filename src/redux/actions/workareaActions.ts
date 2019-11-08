@@ -4,7 +4,7 @@ import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
-import {TileTypes, WorkareaActions} from 'redux/constants/workareaConstants';
+import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import shortid from 'shortid';
@@ -19,7 +19,7 @@ export const addWorkspaces = (): AnyAction => {
   return createAction(WorkareaActions.AddWorkspace, {id, name: 'Untitled'});
 };
 
-export const addTile = (type: TileTypes, id: string): Action<WorkareaActions> => {
+export const addWindow = (type: WindowTypes, id: string): Action<WorkareaActions> => {
   // Make the other reducer add this ...
   return createAction(WorkareaActions.AddTile, {type, id});
 };

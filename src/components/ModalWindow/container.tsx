@@ -11,8 +11,8 @@ export const Container = styled.div`
   width: 100%;
   background-color: ${({theme}) => theme.modalDimBackground};
   text-align: center;
-  z-index: ${Number.MAX_SAFE_INTEGER};
   &.hidden {
     visibility: hidden;
   }
+  z-index: 3;
 `;

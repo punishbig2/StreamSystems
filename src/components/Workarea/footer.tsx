@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const Footer = styled.div`
-  position: fixed;
+  position: absolute;
   display: flex;
   align-items: center;
   line-height: ${({theme}) => theme.footerSize}px;

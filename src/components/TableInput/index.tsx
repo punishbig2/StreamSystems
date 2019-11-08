@@ -2,18 +2,18 @@ import {Layout} from 'components/TableInput/layout';
 import React, {ReactElement, useEffect, useState} from 'react';
 
 interface Props {
-  className?: string;
-  value: string;
+  value: string | number | null;
   onChange?: (value: string) => void;
-  aligned?: 'left' | 'right' | 'center';
   onDoubleClick?: (event: React.MouseEvent) => void;
   onSubmit?: (value: string) => void;
   readOnly?: boolean;
+  color: 'red' | 'blue' | 'green' | 'black' | 'gray';
+  tabIndex?: number;
 }
 
 const TableInput = <T extends any = string>(props: Props): ReactElement => {
   const {onChange, onSubmit, value, ...otherProps} = props;
-  const [internalValue, setInternalValue] = useState<string | undefined>(value);
+  const [internalValue, setInternalValue] = useState<string | number | undefined | null>(value);
   const onInternalChange = (event: React.FormEvent<HTMLInputElement>) => {
     const target: HTMLInputElement = event.currentTarget;
     // Call the method with the appropriate value
@@ -23,7 +23,7 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
   };
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && onSubmit && internalValue) {
-      onSubmit(internalValue);
+      onSubmit(internalValue.toString());
     }
   };
   useEffect(() => {
@@ -36,7 +36,7 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
       return;
     const timer = setTimeout(() => {
       if (internalValue) {
-        onChange(internalValue);
+        onChange(internalValue.toString());
       }
     }, 250);
     return () => clearTimeout(timer);
@@ -47,7 +47,9 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
       {...otherProps}
       onChange={onInternalChange}
       onKeyPress={onKeyPress}
-      value={internalValue || ''}/>
+      className={props.color}
+      value={internalValue || ''}
+      tabIndex={props.tabIndex}/>
   );
 };
 

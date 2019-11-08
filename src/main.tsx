@@ -5,11 +5,17 @@ import 'fonts/montserrat/font.css';
 import 'main.css';
 
 import React from 'react';
-import 'react-mosaic-component/react-mosaic-component.css';
 import {Provider} from 'react-redux';
 import {store} from 'redux/store';
 import {ThemeProvider} from 'styled-components';
 import {theme} from 'theme';
+
+Object.defineProperty(MouseEvent.prototype, 'ignore', {
+  value: function () {
+    this.preventDefault();
+    this.stopImmediatePropagation();
+  },
+});
 
 const FXOptionsUI: React.FC = () => {
   return (

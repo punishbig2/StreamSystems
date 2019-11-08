@@ -1,4 +1,3 @@
-import {Layout} from 'components/DefaultWindowButtons/layout';
 import React from 'react';
 
 interface Props {
@@ -7,8 +6,10 @@ interface Props {
 
 export const DefaultWindowButtons: React.FC<Props> = (props: Props) => {
   return (
-    <Layout>
-      <button onClick={props.onClose}><i className={'fa fa-window-close'}/></button>
-    </Layout>
+    <div className={'buttons'}>
+      <button onClick={props.onClose}><i className={'fa fa-window-minimize'}/></button>
+      <button onClick={props.onClose}><i className={'fa fa-window-maximize'}/></button>
+      <button onClick={props.onClose}><i className={'fa fa-times'}/></button>
+    </div>
   );
 };

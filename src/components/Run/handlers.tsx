@@ -6,4 +6,6 @@ export interface RunHandlers {
   onOfferChanged: ChangeFn<number>,
   onMidChanged: ChangeFn<number>,
   onSpreadChanged: ChangeFn<number>,
+  onOfferQtyChanged: ChangeFn<number>,
+  onBidQtyChanged: ChangeFn<number>,
 }

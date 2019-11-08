@@ -6,7 +6,7 @@ import {Workspace} from 'components/Workspace';
 import React, {ReactElement, useEffect, useState} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {
-  addTile,
+  addWindow,
   addWorkspaces,
   closeWorkspace,
   initialize,
@@ -25,7 +25,7 @@ interface DispatchProps {
   setWorkspace: typeof setWorkspaces;
   renameWorkspace: typeof renameWorkspace;
   closeWorkspace: typeof closeWorkspace;
-  addTile: typeof addTile;
+  addWindow: typeof addWindow;
   initialize: typeof initialize;
 }
 
@@ -39,7 +39,7 @@ const mapDispatchToProps: DispatchProps = {
   setWorkspace: setWorkspaces,
   renameWorkspace: renameWorkspace,
   closeWorkspace: closeWorkspace,
-  addTile: addTile,
+  addWindow: addWindow,
   initialize: initialize,
 };
 

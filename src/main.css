@@ -1,5 +1,7 @@
 * {
   font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html, body, #root {
@@ -31,9 +33,6 @@ html, body, #root {
 
 .mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-window-body,
 .mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-preview .mosaic-window-body {
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
 }
 
 .mosaic.mosaic-blueprint-theme .mosaic-window .mosaic-window-body,
@@ -68,4 +67,138 @@ html, body, #root {
   text-transform: uppercase;
   font-size: small;
   font-weight: 600;
+}
+
+.workspace {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1;
+  background-color: lightgray;
+}
+
+.window-title-bar {
+  pointer-events: none;
+  align-items: center;
+  width: 100%;
+  padding: 0 0 0 8px;
+  z-index: 2;
+}
+
+.window-title-bar h1 {
+  font-size: 14px;
+  margin: 0;
+  line-height: 28px;
+  display: inline-block;
+}
+
+.window-title-bar .buttons {
+  float: right;
+  pointer-events: initial;
+  margin: 0 8px 0 auto;
+}
+
+.window-title-bar .buttons button {
+  border: none;
+  background: none;
+  width: 28px;
+  height: 28px;
+}
+
+.window-title-bar select {
+  display: inline-block;
+  pointer-events: initial;
+  font-weight: 600;
+  background: none;
+  border: none;
+  padding: 2px 12px;
+}
+
+.window-title-bar select:hover,
+.window-title-bar select:focus {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.workspace {
+  position: absolute;
+  top: 48px;
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  bottom: 36px;
+  height: auto;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+}
+
+.workspace .window-element {
+  z-index: 0;
+}
+
+.workspace .window-element.container {
+  position: absolute;
+  box-sizing: border-box;
+  z-index: 0;
+}
+
+.workspace .window-element.container .content {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  background-color: white;
+  z-index: 0;
+}
+
+.workspace .window-element.container.grabbed {
+  box-shadow: 0 4px 16px -3px rgba(0, 0, 0, 0.5);
+  z-index: 3;
+}
+
+.workspace .window-element.container .content:hover {
+  cursor: grab;
+}
+
+.workspace .window-element.container.grabbed .content {
+  border-color: transparent;
+  cursor: grabbing;
+}
+
+.workspace .window-element.container .resize-handle:hover {
+  background-color: rgba(0, 44, 88, 0.15);
+}
+
+.workspace .window-element.container .resize-handle.horizontal {
+  position: absolute;
+  top: 0;
+  width: 7px;
+  height: 100%;
+  cursor: col-resize;
+}
+
+.workspace .window-element.container .resize-handle.horizontal.right {
+  right: -2px;
+}
+
+.workspace .window-element.container .resize-handle.horizontal-resize-handle.left {
+  left: -2px;
+}
+
+.workspace .window-element.container .resize-handle.vertical {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 7px;
+  cursor: row-resize;
+}
+
+.workspace .window-element.container .resize-handle.vertical.bottom {
+  bottom: -2px;
+}
+
+.workspace .window-element.container .resize-handle.vertical.top {
+  top: -2px;
 }

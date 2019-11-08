@@ -1,17 +1,36 @@
-import styled from 'styled-components';
+import {ColumnLayout} from 'components/Table/Column/layout';
+import {SortIndicator} from 'components/Table/Column/SortIndicator';
+import {SortDirection} from 'components/Table/index';
+import React, {ReactElement} from 'react';
 
-export const Column = styled.div`
-  display: inline-block;
-  border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
-  border-top: 1px solid transparent;
-  vertical-align: middle;
-  box-sizing: border-box;
-  text-align: center;
-  text-transform: uppercase;
-  width: ${(props: {width: number}) => props.width}%;
-  line-height: ${({theme}) => theme.tableHeaderHeight}px;
-  height: ${({theme}) => theme.tableHeaderHeight}px;
-  font-size: ${({theme}) => theme.tableFontSize}px;
-  font-family: ${({theme}) => theme.tableFontFamily};
-  font-weight: ${({theme}) => theme.tableFontWeight + 100};
-`;
+interface OwnProps {
+  sortable?: boolean;
+  filterable?: boolean;
+  width: number;
+  sortDirection?: SortDirection;
+  onSorted: () => void;
+}
+
+type Props = React.PropsWithChildren<OwnProps>;
+
+const Column: React.FC<Props> = (props: Props): ReactElement => {
+  const getSortIndicator = (): ReactElement | null => {
+    if (props.sortable) {
+      if (props.sortDirection === undefined) {
+        return <SortIndicator direction={SortDirection.None} onClick={props.onSorted}/>;
+      } else {
+        return <SortIndicator direction={props.sortDirection} onClick={props.onSorted}/>;
+      }
+    } else {
+      return null;
+    }
+  };
+  return (
+    <ColumnLayout width={props.width}>
+      <div>{props.children}</div>
+      {getSortIndicator()}
+    </ColumnLayout>
+  );
+};
+
+export {Column};

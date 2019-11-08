@@ -8,7 +8,7 @@ import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {TileActions} from 'redux/constants/tileConstants';
 import {$$} from 'utils/stringPaster';
-import {wMessageToAction} from 'utils/wMessageToAction';
+import {toWMessageAction} from 'utils/toWMessageAction';
 
 /*const miniEntry = (row: TOBEntry) => {
   if (row.type === EntryTypes.Ask) {
@@ -60,12 +60,15 @@ export const createOrder = (id: string, entry: TOBEntry, side: Sides, symbol: st
   }, createAction($$(id, TileActions.CreateOrder)));
 };
 
-export const getSnapshot = (symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
-  return new AsyncAction<any, ActionType>(async (dispatch: any): Promise<ActionType> => {
+export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
+  return new AsyncAction<any, ActionType>(async () => {
     const message: Message | null = await API.getSnapshot(symbol, strategy, tenor);
     if (message !== null) {
-      wMessageToAction(message, dispatch);
+      // Dispatch the "standardized" action + another action to capture the value and
+      // update some internal data
+      return [toWMessageAction(message), createAction($$(id, TileActions.SnapshotReceived), message)];
+    } else {
+      return createAction($$(id, TileActions.ErrorGettingSnapshot));
     }
-    return createAction(TileActions.SnapshotReceived, message);
-  }, createAction(TileActions.GettingSnapshot));
+  }, createAction($$(id, TileActions.GettingSnapshot)));
 };

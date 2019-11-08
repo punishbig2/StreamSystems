@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const SizeLayout = styled.div`
-  display: flex;
   line-height: ${({theme}) => theme.tableRowSize}px;
   text-align: center;
   box-sizing: border-box;
@@ -9,15 +8,20 @@ export const SizeLayout = styled.div`
   div {
     text-align: center;
     box-sizing: border-box;
-    color: ${({theme}) => theme.tableXColor};
+    color: ${({theme}) => theme.textColorBlue};
     line-height: ${({theme}) => theme.tableRowSize}px;
     height: ${({theme}) => theme.tableRowSize}px; 
+    display: inline-block;
     vertical-align: top;
+    margin: 0 4px;
     &.times {
       color: ${({theme}) => theme.tableCellRed};
       line-height: ${({theme}) => theme.tableRowSize - 2}px;
       width: ${({theme}) => theme.tableRowSize - 2}px;
       padding: 1px 0;
+      &:not(.clickable) {
+        color: transparent;
+      }
       &.clickable:hover {
         &::after {
           background-color: ${({theme}) => theme.tableHoverColor};
@@ -38,6 +42,7 @@ export const SizeLayout = styled.div`
     }
   }
   input {
+    width: calc(100% - 30px);
     text-overflow: ellipsis;
     overflow: hidden;
   }

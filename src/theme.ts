@@ -13,7 +13,11 @@ export const theme = {
   tableFontWeight: 500,
   tableFontFamily: '"Roboto", sans-serif',
   tableBorderColor: '#a5a5a5',
-  tableXColor: '#4071af',
+  textColorBlue: '#4071af',
+  textColorBlack: '#333333',
+  textColorRed: '#f02327',
+  textColorGray: '#a0a0a0',
+  textColorGreen: '#10a060',
   tableHoverColor: 'rgba(0, 0, 0, 0.05)',
   // Layout
   headerSize: 48,
