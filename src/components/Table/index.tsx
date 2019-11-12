@@ -34,14 +34,28 @@ const compare = (v1: any, v2: any) => {
 
 export const Table: (props: Props) => (React.ReactElement | null) = (props: Props): ReactElement | null => {
   const {rows, columns} = props;
+  const [filters, setFilters] = useState<{ [key: string]: string | undefined }>({});
   const [sortBy, setSortBy] = useState<SortInfo | undefined>();
   if (!rows)
     return null; // FIXME: show "No data in this table message"
   const entries: [string, any][] = Object.entries(rows);
   const propertyMapper = ([key, row]: [string, any]) => ({id: key, key, columns, row});
+  const applyFilters = (props: any) => {
+    const entries: [string, string | undefined][] = Object.entries(filters);
+    return entries.every(([name, keyword]: [string, string | undefined]) => {
+      const {row} = props;
+      if (!row[name])
+        return false;
+      if (keyword === undefined)
+        return true;
+      const value: string = row[name].toLowerCase();
+      return value.includes(keyword.toLowerCase());
+    });
+  };
   // Map each entry to properties
   const rowProps: { [key: string]: any }[] = entries
-    .map(propertyMapper);
+    .map(propertyMapper)
+    .filter(applyFilters);
   if (sortBy) {
     const column: string = sortBy.column;
     const sortFn = (direction: SortDirection) => {
@@ -51,15 +65,24 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
         return ({row: row1}: any, {row: row2}: any) => compare(row2[column], row1[column]);
       }
     };
-    rowProps.sort(sortFn(sortBy.direction));
+    rowProps
+      .sort(sortFn(sortBy.direction));
   }
   const style = {
     maxHeight: '100%',
     height: (rowProps.length + 1) * theme.tableRowSize + theme.tableHeaderHeight,
   };
+  const addFilter = (column: string, keyword: string) => {
+    const clean: string = keyword.trim();
+    if (clean.length === 0) {
+      setFilters({...filters, [column]: undefined});
+    } else {
+      setFilters({...filters, [column]: clean});
+    }
+  };
   return (
     <div className={'table'} style={style}>
-      <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy}/>
+      <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter}/>
       <div className={'tbody'}>
         {props.renderRow && rowProps.map(props.renderRow)}
       </div>

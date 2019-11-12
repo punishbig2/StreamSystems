@@ -10,6 +10,7 @@ interface OwnProps {
   sortDirection?: SortDirection;
   onSorted: () => void;
   width: number;
+  onFiltered: (keyword: string) => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -29,7 +30,8 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
   const getFilterEditor = (): ReactElement | null => {
     if (!props.filterable)
       return null;
-    return <input className={'filter'} placeholder={strings.Filter}/>;
+    return <input className={'filter'} placeholder={strings.Filter}
+                  onChange={({target: {value}}) => props.onFiltered(value)}/>;
   };
   const classes: string = ['th', props.sortable && 'sortable'].join(' ');
   const rowHeight: string = `${theme.tableHeaderHeight}px`;

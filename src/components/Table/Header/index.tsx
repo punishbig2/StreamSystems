@@ -8,6 +8,7 @@ interface HeaderProps {
   columns: ColumnSpec[];
   sortBy?: SortInfo;
   setSortBy: (sortInfo: SortInfo) => void;
+  addFilter: (column: string, value: string) => void;
 }
 
 export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends unknown>(props: HeaderProps) => {
@@ -38,6 +39,7 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends
               filterable={column.filterable}
               onSorted={onSorted}
               sortDirection={sortDirection}
+              onFiltered={(keyword: string) => props.addFilter(column.name, keyword)}
               width={100 * column.weight / total}>
         {column.header(props)}
       </Column>

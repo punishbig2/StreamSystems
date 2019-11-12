@@ -187,6 +187,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           break;
         case ExecTypes.Canceled:
           const type: string = $$(toRowId(data.Tenor, data.Symbol, data.Strategy), RowActions.Remove);
+          console.log(type);
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           dispatch(createAction<any, A>(type, data.Side));
           break;
