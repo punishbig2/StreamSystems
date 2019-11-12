@@ -1,6 +1,7 @@
 import {HubConnection} from '@microsoft/signalr';
 import {Message} from 'interfaces/md';
 import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 import {
   Action, AnyAction,
@@ -27,7 +28,7 @@ import workareaReducer from 'redux/reducers/workareaReducer';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {createWindowReducer} from 'redux/reducers/tileReducer';
 // Special object helper for connection management
-import {ConnectionManager} from 'redux/signalR/connectionManager';
+import {SignalRManager} from 'redux/signalR/signalRManager';
 // State shapes
 import {ApplicationState} from 'redux/applicationState';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
@@ -46,12 +47,34 @@ enum PersistedKeys {
   Workarea = 'workarea',
 }
 
+const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
+const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+const initialState: ApplicationState = {
+  auth: {
+    user: {email: urlParameters.get('user') || 'ashar@anttechnologies.com', isBroker: false},
+  },
+  workarea: {
+    symbols: [],
+    products: [],
+    tenors: [],
+    workspaces: {},
+    activeWorkspace: null,
+    // Merge with the saved value
+    ...savedWorkarea,
+  },
+  messageBlotter: {
+    connected: false,
+    entries: {},
+  },
+};
+
 const dynamicReducers: { [name: string]: Reducer } = {};
 // Build the reducer from the fixed and dynamic reducers
 export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationState, Action> => {
   return combineReducers<any, Action>({
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
+    auth: (state: { user: User } = initialState.auth) => state,
     // Dynamically generated reducers
     ...dynamicReducers,
   });
@@ -59,8 +82,11 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationStat
 
 type NamedReducerCreator = (name: string, initialState: any) => Reducer;
 export const injectNamedReducer = (name: string, createNamedReducer: NamedReducerCreator, initialState: any = {}) => {
-  if (dynamicReducers.hasOwnProperty(name))
-    console.log('creating the reducer more than once seems to me like a bug');
+  if (dynamicReducers.hasOwnProperty(name)) {
+    console.warn('creating the reducer more than once seems to me like a bug: `' + name + '\'');
+    // Simple don't do it because it already exists
+    return;
+  }
   dynamicReducers[name] = createNamedReducer(name, initialState);
   const finalReducer: Reducer = createReducer(dynamicReducers);
   // Replace the reducer
@@ -71,26 +97,6 @@ export const removeNamedReducer = <T>(name: string) => {
   delete dynamicReducers[name];
   // Replace the reducer
   store.replaceReducer(createReducer(dynamicReducers));
-};
-
-const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
-const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
-const initialState: ApplicationState = {
-  workarea: {
-    symbols: [],
-    products: [],
-    tenors: [],
-    workspaces: {},
-    activeWorkspace: null,
-    user: {email: currentUserId},
-    // Merge with the saved value
-    ...savedWorkarea,
-  },
-  messageBlotter: {
-    connected: false,
-    entries: {},
-  },
 };
 
 type ReducerCreator = (key: string, state: any) => Reducer;
@@ -132,7 +138,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     // We have created the store
     const $dispatch: Dispatch<A> = store.dispatch;
     // Extract the "api"
-    const connectionManager: ConnectionManager<A> = new ConnectionManager<A>();
+    const connectionManager: SignalRManager<A> = new SignalRManager<A>();
     // Create a new custom dispatch function
     const dispatch: Dispatch<A> = <T extends A>(action: A): T => {
       if (action instanceof AsyncAction) {
@@ -141,9 +147,9 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         // Return an ignored action
         return {type: 'IGNORE'} as T;
       } else if (action instanceof SignalRAction) {
-        if (connection === null) {
-          throw Error('this should never happen, connection MUST be defined if SignalRActions are dispatched');
-        } else {
+        // FIXME: we should schedule lost actions instead of discarding them
+        // If connection is `null' we just ignore this for now
+        if (connection !== null) {
           // noinspection JSIgnoredPromiseFromCall
           action.handle(connection);
         }

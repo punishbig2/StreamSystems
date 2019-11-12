@@ -25,10 +25,12 @@ interface DirectionProps {
 
 const DirectionLayout = styled.div`
   position: absolute;
+  display: none;
   width: 16px;
-  left: 16px;
+  left: 4px;
   top: 0;
   bottom: 0;
+  pointer-events: none;
   i.fa-long-arrow-alt-up {
     color: seagreen;;
   }
@@ -70,6 +72,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   const [arrow, setArrow] = useState<Arrows>(Arrows.None);
   const [lastValue, setLastValue] = useState<number | null>(null);
   const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
+  const [modified, setModified] = useState<boolean>(false);
   const {value, table} = props;
   useEffect(() => {
     if (state.startedShowingTooltip) {
@@ -81,7 +84,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   }, [state.startedShowingTooltip]);
   useEffect(() => {
-    if (value === null)
+    if (value === null || modified)
       return;
     if (lastValue === null) {
       setArrow(Arrows.None);
@@ -90,7 +93,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     } else if (value > lastValue) {
       setArrow(Arrows.Up);
     }
-  }, [lastValue, value]);
+  }, [lastValue, modified, value]);
   useEffect(() => {
     setLastValue(value);
   }, [value]);
@@ -106,7 +109,12 @@ export const Price: React.FC<Props> = (props: Props) => {
     return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table} id={id}/>}/>;
   };
   // FIXME: debounce this if possible
-  const onChange = (value: string) => props.onChange(Number(value));
+  const onChange = (value: string) => {
+    // Whether the input was edited or not
+    setModified(true);
+    // Call the onChange proxy function
+    props.onChange(Number(value));
+  };
   const getValue = (): string => ((value !== undefined && value !== null) && value.toString()) || '';
   const onDoubleClick = (event: React.MouseEvent) => {
     if (props.onDoubleClick) {

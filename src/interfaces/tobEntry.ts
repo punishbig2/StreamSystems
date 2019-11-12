@@ -1,6 +1,7 @@
 import {EntryTypes} from 'interfaces/mdEntry';
 
 export interface TOBEntry {
+  orderId?: string;
   tenor: string;
   strategy: string,
   symbol: string;
@@ -8,6 +9,6 @@ export interface TOBEntry {
   quantity: number | null;
   table?: TOBEntry[];
   user: string;
-  firm: string;
+  firm?: string;
   type: EntryTypes;
 }

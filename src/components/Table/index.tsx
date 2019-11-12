@@ -1,56 +1,69 @@
-import {Body} from 'components/Table/Body';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
-import {Layout} from 'components/Table/layout';
-import {Row} from 'components/Table/Row';
-import {EntryTypes} from 'interfaces/mdEntry';
 import {SortInfo} from 'interfaces/sortInfo';
-import {TOBEntry} from 'interfaces/tobEntry';
-import {TOBTable} from 'interfaces/tobTable';
-import {User} from 'interfaces/user';
+import moment, {Moment} from 'moment';
 import React, {ReactElement, useState} from 'react';
+import {theme} from 'theme';
 
 export enum SortDirection {
   Descending, Ascending, None
 }
 
-export interface TOBHandlers {
-  onTenorSelected: (tenor: string, table: TOBTable) => void;
-  onDoubleClick: (type: EntryTypes, data: any) => void;
-  onRunButtonClicked: () => void;
-  onRefBidsButtonClicked: () => void;
-  onRefOffersButtonClicked: () => void;
-  onCreateOrder: (entry: TOBEntry, value: number, type: EntryTypes) => void;
-  onCancelOrder: (entry: TOBEntry) => void;
-}
-
-interface Props<T> {
-  handlers?: T;
-  rows?: { [id: string]: any };
+interface Props {
   columns: ColumnSpec[];
-  user?: User;
+  rows?: { [id: string]: any };
+  renderRow: (props: any) => ReactElement | null;
 }
 
-export const Table: <T>(props: Props<T>) => (React.ReactElement | null) =
-  <T extends unknown>(props: Props<T>): ReactElement | null => {
-    const [sortBy, setSortBy] = useState<SortInfo | undefined>();
-    const {rows, columns, handlers} = props;
-    if (!rows)
-      return null;
-    const keys: string[] = Object.keys(rows);
-    const mapRow = (key: string) => {
-      const {user} = props;
-      const id: string = key;
-      const row: any = rows[key];
-      // Build the row object
-      return <Row {...{id, key, handlers, user, columns, row}}/>;
+const DateFormat: string = 'MM-DD-YYYY hh:mm p';
+const compare = (v1: any, v2: any) => {
+  const date: Moment = moment(v1, DateFormat);
+  if (v1 === undefined)
+    return 1;
+  if (v2 === undefined)
+    return -1;
+  if (!isNaN(Number(v1))) {
+    return Number(v1) - Number(v2);
+  } else if (date.isValid()) {
+    const second: Moment = moment(v2, DateFormat);
+    return date.unix() - second.unix();
+  } else {
+    return v1.localeCompare(v2);
+  }
+};
+
+export const Table: (props: Props) => (React.ReactElement | null) = (props: Props): ReactElement | null => {
+  const {rows, columns} = props;
+  const [sortBy, setSortBy] = useState<SortInfo | undefined>();
+  if (!rows)
+    return null; // FIXME: show "No data in this table message"
+  const entries: [string, any][] = Object.entries(rows);
+  const propertyMapper = ([key, row]: [string, any]) => ({id: key, key, columns, row});
+  // Map each entry to properties
+  const rowProps: { [key: string]: any }[] = entries
+    .map(propertyMapper);
+  if (sortBy) {
+    const column: string = sortBy.column;
+    const sortFn = (direction: SortDirection) => {
+      if (direction === SortDirection.Ascending) {
+        return ({row: row1}: any, {row: row2}: any) => compare(row1[column], row2[column]);
+      } else {
+        return ({row: row1}: any, {row: row2}: any) => compare(row2[column], row1[column]);
+      }
     };
-    return (
-      <Layout>
-        <Header<T> columns={columns} handlers={props.handlers} table={rows} setSortBy={setSortBy} sortBy={sortBy}/>
-        <Body>
-          {keys.map(mapRow)}
-        </Body>
-      </Layout>
-    );
+    rowProps.sort(sortFn(sortBy.direction));
+  }
+  const style = {
+    maxHeight: '100%',
+    height: (rowProps.length + 1) * theme.tableRowSize + theme.tableHeaderHeight,
   };
+  return (
+    <div className={'table'} style={style}>
+      <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy}/>
+      <div className={'tbody'}>
+        {props.renderRow && rowProps.map(props.renderRow)}
+      </div>
+    </div>
+  );
+};
+

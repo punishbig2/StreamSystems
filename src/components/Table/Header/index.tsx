@@ -3,26 +3,18 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {SortDirection} from 'components/Table/index';
 import {SortInfo} from 'interfaces/sortInfo';
 import React from 'react';
-import styled from 'styled-components';
 
-interface HeaderProps<T> {
+interface HeaderProps {
   columns: ColumnSpec[];
-  handlers?: T;
-  table: any;
   sortBy?: SortInfo;
   setSortBy: (sortInfo: SortInfo) => void;
 }
 
-const HeaderLayout = styled.div``;
-
-export const Header: <T extends unknown>(props: HeaderProps<T>) => any = <T extends unknown>(props: HeaderProps<T>) => {
+export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends unknown>(props: HeaderProps) => {
   const {columns, sortBy} = props;
-  const total = columns.reduce((total, {weight}) => total + weight, 0);
-  const columnMapper = (column: ColumnSpec) => {
+  const columnMapper = (total: number) => (column: ColumnSpec) => {
     const handleSorting = (): [SortDirection, () => void] => {
-      if (!sortBy || sortBy.column !== column.name)
-        return [SortDirection.None, () => null];
-      const {direction} = sortBy;
+      const {direction} = (sortBy && sortBy.column === column.name) ? sortBy : {direction: SortDirection.None};
       const onSorted = () => {
         switch (direction) {
           case SortDirection.Ascending:
@@ -42,18 +34,21 @@ export const Header: <T extends unknown>(props: HeaderProps<T>) => any = <T exte
     const [sortDirection, onSorted] = handleSorting();
     return (
       <Column key={column.name}
-              width={100 * column.weight / total}
               sortable={column.sortable}
               filterable={column.filterable}
               onSorted={onSorted}
-              sortDirection={sortDirection}>
+              sortDirection={sortDirection}
+              width={100 * column.weight / total}>
         {column.header(props)}
       </Column>
     );
   };
+  const total = columns.reduce((total: number, {weight}: ColumnSpec) => total + weight, 0);
   return (
-    <HeaderLayout>
-      {columns.map(columnMapper)}
-    </HeaderLayout>
+    <div className={'thead'}>
+      <div className={'tr'}>
+        {columns.map(columnMapper(total))}
+      </div>
+    </div>
   );
 };

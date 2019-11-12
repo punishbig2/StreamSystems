@@ -3,11 +3,9 @@ import styled from 'styled-components';
 export const SizeLayout = styled.div`
   line-height: ${({theme}) => theme.tableRowSize}px;
   text-align: center;
-  box-sizing: border-box;
   white-space: nowrap;
   div {
     text-align: center;
-    box-sizing: border-box;
     color: ${({theme}) => theme.textColorBlue};
     line-height: ${({theme}) => theme.tableRowSize}px;
     height: ${({theme}) => theme.tableRowSize}px; 

@@ -1,26 +1,25 @@
-import {HTMLSelect} from '@blueprintjs/core';
 import {MessageBlotter} from 'components/MessageBlotter';
 import {TOBTile} from 'components/TOBTile';
 import {Toolbar} from 'components/Toolbar';
 import {WindowManager} from 'components/WindowManager';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
-import {Window} from 'interfaces/window';
 import strings from 'locales';
-import React, {ReactElement, useEffect, useReducer} from 'react';
+import React, {ReactElement} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
-import {Action} from 'redux/action';
-import {createAction} from 'redux/actionCreator';
-import {addWindow, moveWindow} from 'redux/actions/workspaceActions';
+import {addWindow, moveWindow, removeWindow} from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 
+import {store} from 'redux/store';
+
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
   updateGeometry: (id: string, geometry: ClientRect) => void;
+  removeWindow: (id: string) => void;
 }
 
 interface OwnProps {
@@ -29,65 +28,35 @@ interface OwnProps {
   symbols: string[],
   products: Strategy[],
   tenors: string[],
-  // FIXME: should be filled from the authentication process
-  user: User;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
   addWindow: (type: WindowTypes) => dispatch(addWindow(id, type)),
   updateGeometry: (windowId: string, geometry: ClientRect) => dispatch(moveWindow(id, windowId, geometry)),
+  removeWindow: (windowId: string) => dispatch(removeWindow(id, windowId)),
 });
 
 const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, OwnProps, ApplicationState>(
-  dynamicStateMapper<WorkspaceState, ApplicationState>(),
+  dynamicStateMapper<WorkspaceState, OwnProps, ApplicationState>(),
   mapDispatchToProps,
 );
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
 
-const SetElements: string = 'SetElements';
-
-type TilesMap = { [id: string]: ReactElement };
-
-interface CacheState {
-  renderedWindows: TilesMap;
-}
-
-const reducer = (state: CacheState, {type, data}: Action<string>): CacheState => {
-  if (type === SetElements) {
-    return {...state, renderedWindows: data};
-  } else {
-    return state;
-  }
-};
-
-const createTile = (tile: Window, symbols: string[], products: Strategy[], tenors: string[], user: User) => {
-  switch (tile.type) {
+const createWindow = (id: string, type: WindowTypes, symbols: string[], products: Strategy[], tenors: string[], user: User) => {
+  switch (type) {
     case WindowTypes.TOB:
-      return <TOBTile id={tile.id} symbols={symbols} products={products} tenors={tenors} user={user}/>;
+      return <TOBTile id={id} symbols={symbols} products={products} tenors={tenors} user={user}/>;
     case WindowTypes.MessageBlotter:
-      return <MessageBlotter user={user}/>;
+      return <MessageBlotter/>;
     default:
-      throw new Error(`invalid tile type ${tile.type}`);
+      throw new Error(`invalid tile type ${type}`);
   }
 };
 
 const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
-  const [state, dispatch] = useReducer<typeof reducer>(reducer, {renderedWindows: {}});
-  const {windows, symbols, products, tenors, user} = props;
-  useEffect(() => {
-    if (!windows)
-      return;
-    const entries: [string, Window][] = Object.entries(windows);
-    const items: TilesMap = entries.reduce((items: TilesMap, [key, tile]: [string, Window]): TilesMap => {
-      // Make this seekable via the id
-      items[key] = createTile(tile, symbols, products, tenors, user);
-      // Return the accumulator
-      return items;
-    }, {});
-    // When we're done
-    dispatch(createAction(SetElements, items));
-  }, [windows, symbols, products, tenors, user]);
+  const {symbols, products, tenors} = props;
+  const {auth: {user}} = store.getState();
 
   const addWindow = ({target: {value}}: { target: HTMLSelectElement }) => {
     switch (value) {
@@ -105,20 +74,26 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
     }
   };
 
-  const renderWindow = (window: Window): ReactElement => {
-    return state.renderedWindows[window.id];
+  const renderContent = (id: string, type: WindowTypes): ReactElement | null => {
+    if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
+      return null;
+    return createWindow(id, type, symbols, products, tenors, user);
   };
 
   return (
     <React.Fragment>
       <Toolbar>
-        <HTMLSelect value={-1} onChange={addWindow}>
+        <select value={-1} onChange={addWindow}>
           <option value={-1} disabled>{strings.AddNewWindow}</option>
           <option value={1}>TOB Window</option>
           <option value={2}>Message Blotter</option>
-        </HTMLSelect>
+        </select>
       </Toolbar>
-      <WindowManager windows={props.windows} renderWindow={renderWindow} onGeometryChange={props.updateGeometry}/>
+      <WindowManager
+        windows={props.windows}
+        renderContent={renderContent}
+        onGeometryChange={props.updateGeometry}
+        onWindowClosed={props.removeWindow}/>
     </React.Fragment>
   );
 });

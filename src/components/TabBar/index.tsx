@@ -5,11 +5,13 @@ import {TabLabel} from 'components/TabLabel';
 import React, {ReactElement} from 'react';
 import styled from 'styled-components';
 
-const NewWorkspaceButton = styled.div`
+const NewWorkspaceButton = styled.button`
   padding: 0 12px;
   margin: 0 12px;
   background-color: ${({theme}) => theme.primaryColor};
   color: white;
+  line-height: ${({theme}) => theme.footerSize}px;
+  border: none;
   span:first-child {
     margin: 0 8px 0 0;
   }

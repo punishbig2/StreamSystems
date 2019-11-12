@@ -1,4 +1,3 @@
-import {Button} from '@blueprintjs/core';
 import {ModalContent} from 'components/ModalContent';
 import {ModalTitle} from 'components/ModalTitle';
 import {Cell} from 'components/OrderTicket/cell';
@@ -69,8 +68,8 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           </Row>
         </MiniTable>
         <DialogButtons>
-          <Button onClick={props.onCancel} text={strings.Cancel} intent={'none'}/>
-          <Button type={'submit'} text={strings.Submit} intent={'primary'} disabled={!quantity || quantity <= 0}/>
+          <button type={'submit'} onClick={props.onCancel}>{strings.Cancel}</button>
+          <button type={'submit'} disabled={!quantity || quantity <= 0}>{strings.Submit}</button>
         </DialogButtons>
       </form>
     </ModalContent>

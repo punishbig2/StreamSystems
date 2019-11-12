@@ -18,7 +18,7 @@ enum SignalRMessageTypes {
   Close = 7,
 }
 
-export class ConnectionManager<A extends Action = AnyAction> {
+export class SignalRManager<A extends Action = AnyAction> {
   connection: HubConnection;
   onConnectedListener: ((connection: HubConnection) => void) | null = null;
   onDisconnectedListener: (() => void) | null = null;
@@ -27,7 +27,7 @@ export class ConnectionManager<A extends Action = AnyAction> {
   reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
-    this.connection = ConnectionManager.createConnection();
+    this.connection = SignalRManager.createConnection();
   }
 
   static createConnection = () => new HubConnectionBuilder()
@@ -104,7 +104,7 @@ export class ConnectionManager<A extends Action = AnyAction> {
       connection.off('updateMessageBlotter');
       connection.off('updateMarketData');
       // Restart connection
-      this.connection = ConnectionManager.createConnection();
+      this.connection = SignalRManager.createConnection();
       this.reconnectDelay *= 2;
       // Connect
       this.connect();

@@ -10,14 +10,6 @@ import {TileActions} from 'redux/constants/tileConstants';
 import {$$} from 'utils/stringPaster';
 import {toWMessageAction} from 'utils/toWMessageAction';
 
-/*const miniEntry = (row: TOBEntry) => {
-  if (row.type === EntryTypes.Ask) {
-    return {offer: row};
-  } else {
-    return {bid: row};
-  }
-};*/
-
 type ActionType = Action<TileActions>;
 
 export const cancelOrder = (id: string, orderId: string, tenor: string, symbol: string, strategy: string): AsyncAction<any, ActionType> => {
@@ -33,9 +25,9 @@ export const cancelOrder = (id: string, orderId: string, tenor: string, symbol: 
   }, createAction($$(id, TileActions.CancelOrder)));
 };
 
-export const cancelAll = (id: string, type: EntryTypes): AsyncAction<any, ActionType> => {
+export const cancelAll = (id: string, symbol: string, strategy: string, side: Sides): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.cancelAll(type);
+    const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: parse the result
     if (result.Status === 'Success') {
       return createAction($$(id, TileActions.AllOrdersCanceled));
@@ -72,3 +64,4 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
     }
   }, createAction($$(id, TileActions.GettingSnapshot)));
 };
+

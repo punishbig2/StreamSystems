@@ -1,7 +1,5 @@
-import {Button} from '@blueprintjs/core';
-
-import '@blueprintjs/core/lib/css/blueprint.css';
 import {DialogButtons} from 'components/PullRight';
+import strings from 'locales';
 import React, {ReactElement} from 'react';
 import styled from 'styled-components';
 
@@ -30,8 +28,8 @@ export const Question: React.FC<QuestionProps> = (props: QuestionProps): ReactEl
       <Title>{props.title}</Title>
       <Paragraph>{props.content}</Paragraph>
       <DialogButtons>
-        <Button intent={'success'} text={'Yes'} onClick={props.onYes}/>
-        <Button intent={'none'} text={'No'} onClick={props.onNo}/>
+        <button className={'success'} onClick={props.onYes}>{strings.Yes}</button>
+        <button onClick={props.onNo}>{strings.No}</button>
       </DialogButtons>
     </Container>
   );

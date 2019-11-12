@@ -1,5 +1,5 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {ExecTypes, MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
@@ -17,20 +17,38 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
 // FIXME: make this configurable
 const DISPLAY_DATE_FORMAT: string = 'MM-DD-YYYY hh:mm a';
 
+const TransTypes: { [key: string]: string } = {
+  [ExecTypes.New]: 'New',
+  [ExecTypes.Canceled]: 'Cancel',
+  [ExecTypes.Filled]: 'Filled',
+};
+
 const columns: ColumnSpec[] = [{
-  name: 'time',
+  name: 'ExecTransType',
+  header: () => <div>Type</div>,
+  filterable: true,
+  sortable: true,
+  render: (data: MessageBlotterEntry) => {
+    if (TransTypes[data.ExecType]) {
+      return (<Normal>{TransTypes[data.ExecType]}</Normal>);
+    } else {
+      return (<Normal style={{color: 'crimson'}}>{data.ExecType}</Normal>);
+    }
+  },
+  weight: 1,
+}, {
+  name: 'TransactTime',
   header: () => <div>Time (EST)</div>,
   filterable: true,
   sortable: true,
   render: (data: MessageBlotterEntry) => {
-    console.log(data);
     return (
       <Time>{moment(data.TransactTime, INCOMING_DATE_FORMAT).format(DISPLAY_DATE_FORMAT)}</Time>
     );
   },
   weight: 2,
 }, {
-  name: 'side',
+  name: 'Side',
   filterable: true,
   sortable: true,
   header: () => <div>Side</div>,
@@ -39,7 +57,7 @@ const columns: ColumnSpec[] = [{
   ),
   weight: 1,
 }, {
-  name: 'quantity',
+  name: 'OrderQty',
   filterable: true,
   sortable: true,
   header: () => <div>Qty.</div>,
@@ -48,7 +66,7 @@ const columns: ColumnSpec[] = [{
   ),
   weight: 1,
 }, {
-  name: 'currency',
+  name: 'Symbol',
   filterable: true,
   sortable: true,
   header: () => <div>Currency</div>,
@@ -66,48 +84,30 @@ const columns: ColumnSpec[] = [{
   ),
   weight: 1,
 }, {
-  name: 'tenor',
+  name: 'Tenor',
   filterable: true,
   sortable: true,
   header: () => <div>Tenor</div>,
-  render: () => (
-    <Normal/>
+  render: ({Tenor}: MessageBlotterEntry) => (
+    <Normal>{Tenor}</Normal>
   ),
   weight: 1,
 }, {
-  name: 'strategy',
+  name: 'Strategy',
   filterable: true,
   sortable: true,
   header: () => <div>Strategy</div>,
-  render: () => (
-    <Normal/>
+  render: ({Strategy}: MessageBlotterEntry) => (
+    <Normal>{Strategy}</Normal>
   ),
   weight: 1,
 }, {
-  name: 'level',
+  name: 'Price',
   filterable: true,
   sortable: true,
   header: () => <div>Level</div>,
   render: ({Price}: MessageBlotterEntry) => (
     <Normal>{Price}</Normal>
-  ),
-  weight: 1,
-}, {
-  name: 'buyer',
-  filterable: true,
-  sortable: true,
-  header: () => <div>Buyer</div>,
-  render: () => (
-    <Normal/>
-  ),
-  weight: 1,
-}, {
-  name: 'seller',
-  filterable: true,
-  sortable: true,
-  header: () => 'Seller',
-  render: () => (
-    <Normal/>
   ),
   weight: 1,
 }];

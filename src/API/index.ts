@@ -5,6 +5,7 @@ import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 enum Method {
   Get = 'GET',
@@ -86,11 +87,7 @@ const {Api} = config;
 const post = <T>(url: string, data: any): Promise<T> => request(url, Method.Post, data);
 const get = <T>(url: string): Promise<T> => request(url, Method.Get);
 
-type Endpoints = 'symbols' | 'products' | 'tenors' | 'order'
-
-// Synchronous request methods
-const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
+type Endpoints = 'symbols' | 'products' | 'tenors' | 'order' | 'messages' | 'all';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
@@ -120,13 +117,15 @@ export class API {
   }
 
   static async createOrder(entry: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number): Promise<OrderResponse> {
-    if (entry.price === null)
-      throw new Error('price MUST be specified');
+    const currentUser = getAuthenticatedUser();
+    if (entry.price === null || entry.quantity === null) {
+      throw new Error('price and quantity MUST be specified');
+    }
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
-      User: currentUserId,
+      User: currentUser.email,
       Symbol: symbol,
       Strategy: strategy,
       Tenor: entry.tenor,
@@ -141,20 +140,25 @@ export class API {
     return {} as OrderResponse;
   }
 
-  static async cancelAll(type: EntryTypes): Promise<OrderResponse> {
+  static async cancelAll(symbol: string, strategy: string, side: Sides): Promise<OrderResponse> {
+    const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
-      User: currentUserId,
+      User: currentUser.email,
       TransactTime: getCurrentTime(),
+      Side: side,
+      Strategy: strategy,
+      Symbol: symbol,
     };
-    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
+    return post<OrderResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
   }
 
   static async cancelOrder(orderId: string, tenor: string, symbol: String, strategy: string): Promise<OrderResponse> {
+    const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
-      User: currentUserId,
+      User: currentUser.email,
       Symbol: symbol,
       Strategy: strategy,
       Tenor: tenor,
@@ -169,5 +173,9 @@ export class API {
     const url: string = API.getRawUrl(API.MarketData, `snapshot?symbol=${symbol}&strategy=${strategy}&tenor=${tenor}`);
     // Execute the query
     return get<Message | null>(url);
+  }
+
+  static async getMessagesSnapshot(): Promise<any> {
+    return get<any>(API.getUrl(API.Oms, 'messages', 'get'));
   }
 }

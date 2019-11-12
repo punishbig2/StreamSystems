@@ -1,4 +1,3 @@
-import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 
 export enum TileStatus {
@@ -13,7 +12,6 @@ export enum TileStatus {
 
 export interface WindowState {
   rows: { [tenor: string]: TOBRow },
-  orders: { [tenor: string]: Order },
   strategy: string;
   symbol: string;
   connected: boolean;
@@ -28,5 +26,4 @@ export const DefaultWindowState: WindowState = {
   strategy: '',
   rows: {},
   status: TileStatus.None,
-  orders: {},
 };

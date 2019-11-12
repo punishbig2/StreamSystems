@@ -1,14 +1,15 @@
-import {ColumnLayout} from 'components/Table/Column/layout';
 import {SortIndicator} from 'components/Table/Column/SortIndicator';
 import {SortDirection} from 'components/Table/index';
-import React, {ReactElement} from 'react';
+import React, {CSSProperties, ReactElement} from 'react';
+import strings from 'locales';
+import {theme} from 'theme';
 
 interface OwnProps {
   sortable?: boolean;
   filterable?: boolean;
-  width: number;
   sortDirection?: SortDirection;
   onSorted: () => void;
+  width: number;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -25,11 +26,23 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
       return null;
     }
   };
+  const getFilterEditor = (): ReactElement | null => {
+    if (!props.filterable)
+      return null;
+    return <input className={'filter'} placeholder={strings.Filter}/>;
+  };
+  const classes: string = ['th', props.sortable && 'sortable'].join(' ');
+  const rowHeight: string = `${theme.tableHeaderHeight}px`;
+  const style: CSSProperties = {width: `${props.width}%`};
+  const labelStyle: CSSProperties = {lineHeight: rowHeight, height: rowHeight};
   return (
-    <ColumnLayout width={props.width}>
-      <div>{props.children}</div>
-      {getSortIndicator()}
-    </ColumnLayout>
+    <div className={classes} style={style}>
+      <div className={'column'} style={labelStyle}>
+        <div className={'label'}>{props.children}</div>
+        {getSortIndicator()}
+      </div>
+      {getFilterEditor()}
+    </div>
   );
 };
 

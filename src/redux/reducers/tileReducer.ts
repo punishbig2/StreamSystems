@@ -12,22 +12,6 @@ const genesisState: WindowState = {
   strategy: '',
   rows: {},
   status: TileStatus.None,
-  orders: {},
-};
-
-const insertOrder = (orders: { [key: string]: Order }, key: string, order: Order) => {
-  return {...orders, [key]: order};
-};
-
-const removeOrder = (orders: { [key: string]: Order }, order: Order) => {
-  const entries = Object.entries(orders);
-  const entry = entries.find(([, value]: [string, Order]) => value.OrderID === order.OrderID);
-  if (entry) {
-    const copy = {...orders};
-    delete copy[entry[0]];
-    return copy;
-  }
-  return orders;
 };
 
 export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
@@ -48,19 +32,18 @@ export const createWindowReducer = (id: string, initialState: WindowState = gene
       case $$(id, TileActions.CreateOrder):
         return {...state, status: TileStatus.CreatingOrder};
       case $$(id, TileActions.OrderCreated):
-        return {...state, status: TileStatus.OrderCreated, orders: insertOrder(state.orders, data.key, data.order)};
+        return {...state, status: TileStatus.OrderCreated};
       case $$(id, TileActions.OrderNotCreated):
         return {...state, status: TileStatus.OrderNotCreated};
       case $$(id, TileActions.CancelOrder):
         return {...state, status: TileStatus.CancelingOrder};
       case $$(id, TileActions.OrderCanceled):
-        return {...state, status: TileStatus.OrderCanceled, orders: removeOrder(state.orders, data.order)};
+        return {...state, status: TileStatus.OrderCanceled};
       case $$(id, TileActions.OrderNotCanceled):
         return {...state, status: TileStatus.OrderNotCanceled};
       case $$(id, TileActions.AllOrdersCanceled):
         return {...state, orders: {}};
       case $$(id, TileActions.SnapshotReceived):
-        console.log(data);
         return state;
       default:
         return state;

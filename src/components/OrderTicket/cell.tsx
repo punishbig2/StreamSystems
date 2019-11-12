@@ -14,7 +14,6 @@ export const Cell = styled.div`
   text-align: ${({align}: Props): string => align ? align : 'initial'};
   line-height: ${({theme}) => theme.orderTicketRowHeight}px;
   height: ${({theme}) => theme.orderTicketRowHeight}px;
-  box-sizing: border-box;
   font-size: ${({theme}) => theme.mediumFontSize}px;
   &:not(:only-child):last-child {
     border-left: 1px solid ${({theme}) => theme.tableBorderColor};
@@ -22,7 +21,6 @@ export const Cell = styled.div`
   }
   input {
     display: block;
-    box-sizing: border-box;
     width: 100%;
     line-height: inherit;
     border: none;

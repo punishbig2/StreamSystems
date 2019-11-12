@@ -10,4 +10,5 @@ export interface TOBRow {
   mid: number | null;
   spread: number | null;
   dob?: TOBTable;
+  modified?: boolean;
 }

@@ -1,5 +1,4 @@
 import {Strategy} from 'interfaces/strategy';
-import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 
 export interface WorkareaState {
@@ -8,5 +7,4 @@ export interface WorkareaState {
   products: Strategy[];
   activeWorkspace: string | null;
   workspaces: {[id: string]: IWorkspace},
-  user: User;
 }

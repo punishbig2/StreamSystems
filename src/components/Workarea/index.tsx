@@ -72,13 +72,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
     if (active === null)
       return null;
     return (
-      <Workspace
-        id={active}
-        user={props.user}
-        // Data
-        symbols={symbols}
-        products={products}
-        tenors={tenors}/>
+      <Workspace id={active} symbols={symbols} products={products} tenors={tenors}/>
     );
   };
 

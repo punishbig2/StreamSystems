@@ -14,4 +14,10 @@ export default {
   Mid: 'Mid',
   Spread: 'Spread',
   Close: 'Close',
+  RefOffrs: 'Ref. Offrs',
+  RefBids: 'Ref. Bids',
+  Run: 'Run',
+  Yes: 'Yes',
+  No: 'No',
+  Filter: 'Filter',
 }

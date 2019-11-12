@@ -4,7 +4,6 @@ export const Layout = styled.div`
   cursor: default;
   font-size: ${({theme}) => theme.mediumFontSize}px;
   font-weight: ${({theme}) => theme.mediumFontWeight};
-  box-sizing: border-box;
   &:not(:last-child) {
     color: #888;
     margin: -1px 0 0 0;

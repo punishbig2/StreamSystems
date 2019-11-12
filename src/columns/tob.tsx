@@ -1,15 +1,15 @@
-import {Button} from '@blueprintjs/core';
-import {TOBHandlers} from 'components/Table';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import {TOBHandlers} from 'components/TOBTile/handlers';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
+import strings from 'locales';
 import React from 'react';
 
 interface RowHandlers {
@@ -43,17 +43,17 @@ const QuantityWrapper: React.FC<QWProps> = (props: QWProps) => {
   );
 };
 
-const columns: ColumnSpec[] = [{
+const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
   header: () => <div/>,
-  render: ({tenor, handlers, dob}: RowType) => (
+  render: ({tenor, dob}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor, dob as TOBTable)}/>
   ),
   weight: 1,
 }, {
   name: 'bid-quantity',
   header: () => <div/>,
-  render: ({bid, user, handlers, setBidQuantity}: RowType) => {
+  render: ({bid, user, setBidQuantity}: RowType) => {
     return (
       <QuantityWrapper entry={bid} type={EntryTypes.Bid} onChange={setBidQuantity} onCancel={handlers.onCancelOrder}
                        user={user}/>
@@ -62,8 +62,8 @@ const columns: ColumnSpec[] = [{
   weight: 2,
 }, {
   name: 'bid',
-  header: ({handlers}) => <Button onClick={handlers.onRefBidsButtonClicked} text={'Ref. Bids'} intent={'none'} small/>,
-  render: ({bid, user, handlers, setBidPrice}: RowType) => (
+  header: () => <button onClick={handlers.onRefBidsButtonClicked}>{strings.RefBids}</button>,
+  render: ({bid, user, setBidPrice}: RowType) => (
     <Price
       editable={user.email === bid.user}
       table={bid.table}
@@ -91,10 +91,10 @@ const columns: ColumnSpec[] = [{
   weight: 3,
 }, {
   name: 'offer',
-  header: ({handlers}: RowType) => (
-    <Button onClick={handlers.onRefOffersButtonClicked} text={'Ref. Offers'} intent={'none'} small/>
+  header: () => (
+    <button onClick={handlers.onRefOffersButtonClicked}>{strings.RefOffrs}</button>
   ),
-  render: ({offer, user, handlers, setOfferPrice}: RowType) => (
+  render: ({offer, user, setOfferPrice}: RowType) => (
     <Price
       editable={user.email === offer.user}
       table={offer.table}
@@ -108,10 +108,10 @@ const columns: ColumnSpec[] = [{
   weight: 3,
 }, {
   name: 'offer-quantity',
-  header: ({handlers, table}: RowType) => (
-    <Button onClick={() => handlers.onRunButtonClicked()} text={'Run'} intent={'none'} small/>
+  header: () => (
+    <button onClick={handlers.onRunButtonClicked}>{strings.Run}</button>
   ),
-  render: ({offer, user, handlers, setOfferQuantity}: RowType) => (
+  render: ({offer, user, setOfferQuantity}: RowType) => (
     <QuantityWrapper entry={offer} type={EntryTypes.Ask} onChange={setOfferQuantity} onCancel={handlers.onCancelOrder}
                      user={user}/>
 

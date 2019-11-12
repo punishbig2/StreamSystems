@@ -18,8 +18,11 @@ export interface CreateOrder {
 }
 
 export interface Order {
-  OrderID: string;
+  id: string;
   type: EntryTypes;
   quantity: number;
   price: number;
+  symbol: string;
+  strategy: string;
+  tenor: string;
 }

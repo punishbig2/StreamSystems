@@ -3,12 +3,11 @@ import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
-// Synchronous request methods
-const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
-const currentUserId: string = urlParameters.get('user') || 'ashar@anttechnologies.com';
 const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
+  const user = getAuthenticatedUser();
   const reducer = (table: TOBTable, row: TOBRow, index: number): TOBTable => {
     table[index] = row;
     return table;
@@ -21,7 +20,7 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
         tenor: message.Tenor,
         strategy: message.Strategy,
         symbol: message.Symbol,
-        user: entry.MDUserId || entry.MDEntryOriginator || currentUserId,
+        user: entry.MDUserId || entry.MDEntryOriginator || user.email,
         quantity: Number(entry.MDEntrySize),
         price: Number(entry.MDEntryPx),
         firm: entry.MDFirm,
@@ -31,7 +30,7 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
         tenor: message.Tenor,
         strategy: message.Strategy,
         symbol: message.Symbol,
-        user: other[index] ? (other[index].MDUserId || other[index].MDEntryOriginator || currentUserId) : currentUserId,
+        user: other[index] ? (other[index].MDUserId || other[index].MDEntryOriginator || user.email) : user.email,
         quantity: other[index] ? Number(other[index].MDEntrySize) : null,
         price: other[index] ? Number(other[index].MDEntryPx) : null,
         firm: entry.MDFirm,
@@ -53,11 +52,12 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
 };
 
 const convertEntry = (message: Message) => (original: MDEntry): TOBEntry => {
+  const user = getAuthenticatedUser();
   return {
     tenor: message.Tenor,
     strategy: message.Strategy,
     symbol: message.Symbol,
-    user: original ? (original.MDUserId || original.MDEntryOriginator) : currentUserId,
+    user: original ? (original.MDUserId || original.MDEntryOriginator) : user.email,
     quantity: original ? Number(original.MDEntrySize) : null,
     price: original ? Number(original.MDEntryPx) : null,
     firm: original ? original.MDFirm : '',

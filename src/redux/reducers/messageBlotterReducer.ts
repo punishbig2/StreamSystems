@@ -1,3 +1,4 @@
+import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {Action} from 'redux/action';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
@@ -8,9 +9,9 @@ const initialState: MessageBlotterState = {
   connected: false,
 };
 
-const print = (obj: any) => {
-  console.log(obj);
-  return obj;
+const entryReducer = (entries: { [id: string]: MessageBlotterEntry }, entry: MessageBlotterEntry) => {
+  entries[entry.ExecID] = entry;
+  return entries;
 };
 
 type ActionType = MessageBlotterActions | SignalRActions;
@@ -21,7 +22,9 @@ export default (state: MessageBlotterState = initialState, {type, data}: Action<
     case SignalRActions.Disconnected:
       return {...state, connected: false};
     case MessageBlotterActions.Update:
-      return print({...state, entries: {...state.entries, [data.ExecID]: data}});
+      return {...state, entries: {...state.entries, [data.ExecID]: data}};
+    case MessageBlotterActions.Initialize:
+      return {...state, entries: data.reduce(entryReducer, {})};
     default:
       return state;
   }

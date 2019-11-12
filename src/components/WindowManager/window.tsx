@@ -1,9 +1,13 @@
+import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {useObjectGrabber} from 'hooks/objectGrabber';
 import React, {CSSProperties, ReactElement, useRef} from 'react';
 
 interface OwnProps {
   onGeometryChange: (geometry: ClientRect) => void;
   geometry?: ClientRect;
+  area: ClientRect;
+  forbidden: ClientRect[];
+  onClose: () => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -19,48 +23,60 @@ const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined =>
   };
 };
 
-const newDOMRect = (x: number, y: number, width: number, height: number): DOMRect => {
-  return new DOMRect(x < 1 ? 1 : x, y < 1 ? 1 : y, width, height);
+const resize = (x: number, y: number, width: number, height: number, r: ClientRect): DOMRect => {
+  const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
+  const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
+  // Create the new rectangle confined to the r rectangle
+  return new DOMRect(left, top, width, height);
 };
 
-const onMove = (update: (geometry: ClientRect) => void) =>
+const move = (x: number, y: number, width: number, height: number, r: ClientRect): DOMRect => {
+  const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
+  const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
+  // Create the new rectangle confined to the r rectangle
+  return new DOMRect(left, top, width, height);
+};
+
+const onMove = (area: ClientRect, update: (geometry: ClientRect) => void) =>
   (r: ClientRect, x: number, y: number) => {
-    update(newDOMRect(r.left + x, r.top + y, r.width, r.height));
+    update(move(r.left + x, r.top + y, r.width, r.height, area));
   };
 
-const onResize = (update: (geometry: ClientRect) => void, side: 'top' | 'bottom' | 'left' | 'right') =>
-  (r: ClientRect, x: number, y: number) => {
-    switch (side) {
-      case 'top':
-        update(newDOMRect(r.left, r.top + y, r.width, r.height - y));
-        break;
-      case 'bottom':
-        update(newDOMRect(r.left, r.top, r.width, r.height + y));
-        break;
-      case 'left':
-        update(newDOMRect(r.left + x, r.top, r.width - x, r.height));
-        break;
-      case 'right':
-        update(newDOMRect(r.left, r.top, r.width + x, r.height));
-        break;
-    }
-  };
+type WindowSide = 'top' | 'bottom' | 'left' | 'right';
+const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side: WindowSide) => {
+  switch (side) {
+    case 'top':
+      return (r: ClientRect, x: number, y: number) => update(resize(r.left, r.top + y, r.width, r.height - y, area));
+    case 'bottom':
+      return (r: ClientRect, x: number, y: number) => update(resize(r.left, r.top, r.width, r.height + y, area));
+    case 'left':
+      return (r: ClientRect, x: number, y: number) => update(resize(r.left + x, r.top, r.width - x, r.height, area));
+    case 'right':
+      return (r: ClientRect, x: number, y: number) => update(resize(r.left, r.top, r.width + x, r.height, area));
+  }
+};
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
-  const {onGeometryChange} = props;
+  const {onGeometryChange, area} = props;
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
   // Moving object, the handle is the whole window
-  const [isGrabbed, setMoveHandle] = useObjectGrabber(container, onMove(onGeometryChange));
+  const [isGrabbed, setMoveHandle] = useObjectGrabber(container, onMove(area, onGeometryChange));
   // These installs all the resize handles
-  const [, setBottomResizeHandle] = useObjectGrabber(container, onResize(onGeometryChange, 'bottom'));
-  const [, setTopResizeHandle] = useObjectGrabber(container, onResize(onGeometryChange, 'top'));
-  const [, setRightResizeHandle] = useObjectGrabber(container, onResize(onGeometryChange, 'right'));
-  const [, setLeftResizeHandle] = useObjectGrabber(container, onResize(onGeometryChange, 'left'));
+  const [, setBottomResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'bottom'));
+  const [, setTopResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'top'));
+  const [, setRightResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'right'));
+  const [, setLeftResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'left'));
   // Compute the style
   const style: CSSProperties | undefined = toStyle(props.geometry);
+  const classes: string = ['window-element', isGrabbed ? 'grabbed' : null]
+    .join(' ')
+    .trim();
   return (
-    <div className={'window-element container' + (isGrabbed ? ' grabbed' : '')} ref={container} style={style}>
-      <div className={'content'} ref={setMoveHandle}>{props.children}</div>
+    <div className={classes} ref={container} style={style}>
+      <DefaultWindowButtons onClose={props.onClose}/>
+      <div className={'content'} ref={setMoveHandle}>
+        {props.children}
+      </div>
       <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>
       <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>
       <div className={'vertical resize-handle bottom'} ref={setBottomResizeHandle}/>

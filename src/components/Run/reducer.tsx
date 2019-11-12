@@ -32,15 +32,15 @@ const computeRow = (type: string, last: string | undefined, data: Computed, v1: 
 
 export const reducer = (state: State, {type, data}: Action<string>): State => {
   const {history, table} = state;
-  if (type === 'SET_TABLE')
+  if (type === 'SET_TABLE') {
     return {...state, table: data};
-  else if (type === 'OfferQuantityChanged') {
+  } else if (type === 'OfferQuantityChanged') {
     if (table !== null) {
       return {
         ...state,
         table: {
           ...table,
-          [data.tenor]: {...table[data.tenor], offer: {...table[data.tenor].offer, quantity: data.value}},
+          [data.id]: {...table[data.id], offer: {...table[data.id].offer, quantity: data.value}},
         },
       };
     }
@@ -50,21 +50,21 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
         ...state,
         table: {
           ...table,
-          [data.tenor]: {...table[data.tenor], bid: {...table[data.tenor].bid, quantity: data.value}},
+          [data.id]: {...table[data.id], bid: {...table[data.id].bid, quantity: data.value}},
         },
       };
     }
   }
-  const findRow = (tenor: string): TOBRow | null => {
+  const findRow = (id: string): TOBRow | null => {
     if (table === null)
       return null;
     const key: string | undefined = Object.keys(table)
-      .find((key) => key.startsWith(tenor));
+      .find((key) => key.indexOf(id) !== -1);
     if (key === undefined)
       return null;
     return {...table[key]};
   };
-  const row: TOBRow | null = findRow(data.tenor);
+  const row: TOBRow | null = findRow(data.id);
   if (!row)
     return state;
   const {bid, offer} = row;
@@ -95,12 +95,13 @@ export const reducer = (state: State, {type, data}: Action<string>): State => {
         ...state,
         table: {
           ...table,
-          [row.tenor]: {
+          [row.id]: {
             ...row,
             spread: computed.spread,
             mid: computed.mid,
             offer: {...row.offer, price: computed.offer},
             bid: {...row.bid, price: computed.bid},
+            modified: true,
           },
         },
         history: updateHistory(type, history),

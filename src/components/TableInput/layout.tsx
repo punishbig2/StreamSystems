@@ -14,7 +14,7 @@ export const Layout = styled.input`
   font-weight: ${({theme}) => theme.tableFontWeight};
   &:focus {
     outline: 2px solid ${({theme}) => theme.primaryColor};
-    outline-offset: 0;
+    outline-offset: -2px;
     z-index: 1;
   }
   &.red {

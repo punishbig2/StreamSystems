@@ -8,6 +8,14 @@ const genesisState: WorkspaceState = {
   windows: {},
 };
 
+const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = {...state.windows};
+  // Remove it from the copy
+  delete windows[id];
+  // Return the new state
+  return windows;
+};
+
 const addWindow = (window: Window, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   // Return the new state
@@ -26,6 +34,8 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
         return {...state, windows: addWindow(data, state)};
       case $$(id, WorkspaceActions.UpdateGeometry):
         return {...state, windows: moveWindow(data, state)};
+      case $$(id, WorkspaceActions.RemoveWindow):
+        return {...state, windows: removeWindow(data, state)};
       default:
         return state;
     }

@@ -5,13 +5,24 @@ import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {createWindowReducer} from 'redux/reducers/tileReducer';
 import {DefaultWindowState} from 'redux/stateDefs/windowState';
-import {injectNamedReducer} from 'redux/store';
+import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {$$} from 'utils/stringPaster';
+
+export const removeWindow = (id: string, windowId: string): Action<string> => {
+  // Side effects
+  removeNamedReducer(id);
+  // Remove the window from the list
+  return createAction($$(id, WorkspaceActions.RemoveWindow), windowId);
+};
 
 export const addWindow = (id: string, type: WindowTypes): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
   // This will create a custom window reducer
-  injectNamedReducer(window.id, createWindowReducer, DefaultWindowState);
+  if (type === WindowTypes.TOB) {
+    injectNamedReducer(window.id, createWindowReducer, DefaultWindowState);
+  } else {
+    console.log('we don\'t create custom reducers for these');
+  }
   // Build-up the action
   // FIXME: centralize action name generators
   return createAction($$(id, WorkspaceActions.AddWindow), window);
