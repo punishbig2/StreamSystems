@@ -183,6 +183,7 @@ export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElemen
           return false;
         return order.strategy === entry.strategy;
       });
+      console.log(order);
       if (!order || !order.orderId) {
         console.warn('order not found, or found order is invalid (has no id?)');
       } else {

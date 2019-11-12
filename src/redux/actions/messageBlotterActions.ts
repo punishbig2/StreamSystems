@@ -15,9 +15,16 @@ export const getSnapshot = (): AsyncAction<any, any> => {
   return new AsyncAction<any, any>(async () => {
     const user: User = getAuthenticatedUser();
     const snapshot: MessageBlotterEntry[] = await API.getMessagesSnapshot();
-    const filtered: MessageBlotterEntry[] = snapshot.filter((entry: MessageBlotterEntry) => {
-      return entry.Username === user.email;
-    });
+    const filtered: MessageBlotterEntry[] = snapshot
+      .filter((entry: MessageBlotterEntry, index: number, snapshot: MessageBlotterEntry[]) => {
+        if (entry.Username !== user.email)
+          return false;
+        return snapshot.some((other: MessageBlotterEntry) => {
+          if (other.ExecType !== ExecTypes.Canceled || other.Username !== entry.Username)
+            return false;
+          return other.OrderID !== entry.OrderID;
+        });
+      });
     // Return the initialization action
     return [
       createAction(MessageBlotterActions.Initialize, snapshot),

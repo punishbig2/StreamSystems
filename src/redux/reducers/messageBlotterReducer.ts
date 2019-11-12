@@ -22,6 +22,7 @@ export default (state: MessageBlotterState = initialState, {type, data}: Action<
     case SignalRActions.Disconnected:
       return {...state, connected: false};
     case MessageBlotterActions.Update:
+      console.log('added: ', data.ExecID);
       return {...state, entries: {...state.entries, [data.ExecID]: data}};
     case MessageBlotterActions.Initialize:
       return {...state, entries: data.reduce(entryReducer, {})};

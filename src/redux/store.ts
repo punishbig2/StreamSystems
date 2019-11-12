@@ -1,10 +1,11 @@
 import {HubConnection} from '@microsoft/signalr';
 import {Message} from 'interfaces/md';
-import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {ExecTypes, MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 import {
-  Action, AnyAction,
+  Action,
+  AnyAction,
   combineReducers,
   createStore,
   DeepPartial,
@@ -15,24 +16,27 @@ import {
   StoreEnhancerStoreCreator,
 } from 'redux';
 import {createAction} from 'redux/actionCreator';
+// State shapes
+import {ApplicationState} from 'redux/applicationState';
 // Special action types
 import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
-import {SignalRAction} from 'redux/signalRAction';
+import {RowActions} from 'redux/constants/rowConstants';
 // Action enumerators
 import {SignalRActions} from 'redux/constants/signalRConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
+import {createWindowReducer} from 'redux/reducers/tileReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Dynamic reducer creators
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
-import {createWindowReducer} from 'redux/reducers/tileReducer';
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
-// State shapes
-import {ApplicationState} from 'redux/applicationState';
+import {SignalRAction} from 'redux/signalRAction';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {toRowId} from 'utils';
+import {$$} from 'utils/stringPaster';
 // Websocket action parsers/converters
 import {toWMessageAction} from 'utils/toWMessageAction';
 
@@ -177,7 +181,16 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(toWMessageAction<A>(data));
     };
     const onUpdateMessageBlotter = (data: MessageBlotterEntry) => {
-      dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+      switch (data.ExecType) {
+        case ExecTypes.New:
+          dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+          break;
+        case ExecTypes.Canceled:
+          const type: string = $$(toRowId(data.Tenor, data.Symbol, data.Strategy), RowActions.Remove);
+          dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+          dispatch(createAction<any, A>(type, data.Side));
+          break;
+      }
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);

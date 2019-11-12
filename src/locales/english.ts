@@ -1,5 +1,5 @@
 export default {
-  AddNewWindow: 'Add New Window',
+  AddNewWindow: 'Add Update Window',
   CloseWorkspace: {
     title: 'Closing Workspace',
     content: 'You are about to close and destroy the contents of a workspace, this cannot be undone. Are you sure?',
@@ -14,7 +14,7 @@ export default {
   Mid: 'Mid',
   Spread: 'Spread',
   Close: 'Close',
-  RefOffrs: 'Ref. Offrs',
+  RefOffrs: 'Ref. Ofrs',
   RefBids: 'Ref. Bids',
   Run: 'Run',
   Yes: 'Yes',

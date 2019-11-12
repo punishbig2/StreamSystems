@@ -63,13 +63,15 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
             return empty;
           }
         };
+        const bid: TOBEntry = getEntry(EntryTypes.Bid);
+        const offer: TOBEntry = getEntry(EntryTypes.Ask);
         return {
           id: $$(toRunId(symbol, strategy), tenor),
           tenor: tenor,
-          bid: getEntry(EntryTypes.Bid),
-          offer: getEntry(EntryTypes.Ask),
-          mid: null,
-          spread: null,
+          bid: bid,
+          offer: offer,
+          mid: bid.price !== null && offer.price !== null ? (bid.price + offer.price) / 2 : null,
+          spread: bid.price !== null && offer.price !== null ? offer.price - bid.price : null,
         };
       });
     const table = rows
@@ -115,7 +117,7 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
     onBidQtyChanged: (id: string, value: number) => dispatch({type: 'BidQuantityChanged', data: {id, value}}),
   });
   return (
-    <div>
+    <div className={'run-window'}>
       <div className={'modal-title-bar'}>
         <div className={'half'}>
           <div className={'item'}>{props.symbol}</div>
