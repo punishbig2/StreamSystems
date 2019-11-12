@@ -22,7 +22,7 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
     return value.toString();
   };
   const children: ReactNode[] = [
-    <TableInput key={1} value={getValue()} color={props.color}
+    <TableInput key={1} value={getValue()} color={props.color} tabIndex={-1}
                 onChange={(value: string) => props.onChange(Number(value))}/>,
   ];
   if (props.cancelable)
