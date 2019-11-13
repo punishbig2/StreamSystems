@@ -27,11 +27,22 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
       return null;
     }
   };
+  /*
+    added:  1f8f614f-7024-4b29-a2ab-e42ed403017c
+    added:  86eaca78-0cf8-4852-b011-ce50f2bf1b16
+   */
   const getFilterEditor = (): ReactElement | null => {
     if (!props.filterable)
       return null;
-    return <input className={'filter'} placeholder={strings.Filter}
-                  onChange={({target: {value}}) => props.onFiltered(value)}/>;
+    let timer: number = setTimeout(() => null, 0);
+    const onChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+      clearTimeout(timer);
+      // Reset the timer
+      timer = setTimeout(() => {
+        props.onFiltered(value);
+      }, 300);
+    };
+    return <input className={'filter'} placeholder={strings.Filter} onChange={onChange}/>;
   };
   const classes: string = ['th', props.sortable && 'sortable'].join(' ');
   const rowHeight: string = `${theme.tableHeaderHeight}px`;

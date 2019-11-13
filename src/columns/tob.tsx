@@ -3,7 +3,7 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {TOBHandlers} from 'components/TOBTile/handlers';
+import {TOBHandlers} from 'components/TOB/handlers';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';

@@ -1,13 +1,20 @@
 import {API} from 'API';
+import {ExecTypes, MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
 import {Strategy} from 'interfaces/strategy';
+import {User} from 'interfaces/user';
 import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
+import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
+import {RunActions} from 'redux/constants/runConstants';
 import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import shortid from 'shortid';
+import {toRunId} from 'utils';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {$$} from 'utils/stringPaster';
 
 export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
 export const addWorkspaces = (): AnyAction => {
@@ -35,14 +42,38 @@ export const createOrder = (order: Order): AsyncAction<WorkareaActions> => {
   };
   return new AsyncAction(handler, createAction(WorkareaActions.CreatingOrder));
 };*/
+const getOrders = (snapshot: MessageBlotterEntry[]): MessageBlotterEntry[] => {
+  const user: User = getAuthenticatedUser();
+  return snapshot
+    .filter((entry: MessageBlotterEntry) => {
+      return entry.Username === user.email && entry.ExecType !== ExecTypes.Canceled;
+    })
+    .filter((entry: MessageBlotterEntry) => {
+      return !snapshot.find((other: MessageBlotterEntry) => {
+        return other.OrderID === entry.OrderID && other.ExecType === ExecTypes.Canceled;
+      });
+    });
+};
 
-export const initialize = (): AsyncAction<WorkareaActions> => {
-  const handler = async (): Promise<AnyAction> => {
+export const initialize = (): AsyncAction<AnyAction> => {
+  const handler = async (): Promise<AnyAction[]> => {
     const symbols: string[] = await API.getSymbols();
     const products: Strategy[] = await API.getProducts();
     const tenors: string[] = await API.getTenors();
-    // When all have responded ...
-    return createAction(WorkareaActions.Initialized, {symbols, products, tenors});
+    const messages: MessageBlotterEntry[] = await API.getMessagesSnapshot();
+    const orders: MessageBlotterEntry[] = getOrders(messages);
+    // Map entries to actions
+    const orderToActionMapper = (entry: MessageBlotterEntry): Action => {
+      return createAction($$(toRunId(entry.Symbol, entry.Strategy), RunActions.UpdateOrders), entry);
+    };
+    // Build a set of update actions
+    const actions: Action[] = orders.map(orderToActionMapper);
+    // Return the initialization action
+    return [
+      createAction(WorkareaActions.Initialized, {symbols, products, tenors, messages}),
+      createAction(MessageBlotterActions.Initialize, messages),
+      ...actions,
+    ];
   };
   return new AsyncAction(handler, createAction(WorkareaActions.Initializing));
 };

@@ -10,5 +10,5 @@ export const MiniPrice = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
   text-align: center;
-  line-height: 30px;
+  font-family: 'Roboto', sans-serif;
 `;

@@ -1,28 +1,32 @@
 import styled from 'styled-components';
 
 export const SizeLayout = styled.div`
+  display: flex;
+  align-items: center;
   line-height: ${({theme}) => theme.tableRowSize}px;
-  text-align: center;
   white-space: nowrap;
   div {
+    display: flex;
+    align-items: center;
     text-align: center;
     color: ${({theme}) => theme.textColorBlue};
+    width: ${({theme}) => theme.tableRowSize}px;
     line-height: ${({theme}) => theme.tableRowSize}px;
     height: ${({theme}) => theme.tableRowSize}px; 
-    display: inline-block;
-    vertical-align: top;
-    margin: 0 4px;
     &.times {
+      top: 0;
+      left: 0;
       color: ${({theme}) => theme.tableCellRed};
-      line-height: ${({theme}) => theme.tableRowSize - 2}px;
-      width: ${({theme}) => theme.tableRowSize - 2}px;
-      padding: 1px 0;
+      height: ${({theme}) => theme.tableRowSize}px;
+      width: ${({theme}) => theme.tableRowSize}px;
+      line-height: ${({theme}) => theme.tableRowSize}px;
       &:not(.clickable) {
         color: transparent;
       }
       &.clickable:hover {
         &::after {
-          background-color: ${({theme}) => theme.tableHoverColor};
+          background-color: ${({theme}) => theme.tableCellRed};
+          color: white;
         }
         cursor: default;
       }
@@ -30,18 +34,21 @@ export const SizeLayout = styled.div`
         transform: translateY(1px);
       }
       &::after {
-        display: inline-block;
+        text-align: center;
+        font-size: 20px;
         content: '\u00D7';
-        border-radius: 100px;
-        line-height: 22px;
-        width: 22px;
-        height: 22px;
+        border-radius: 8px;
+        line-height: 16px;
+        width: 16px;
+        height: 16px;
+        margin: auto;
       }
     }
   }
   input {
-    width: calc(100% - 30px);
+    flex: 1;
     text-overflow: ellipsis;
     overflow: hidden;
+    text-align: center;
   }
 `;

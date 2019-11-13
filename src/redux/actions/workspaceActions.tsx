@@ -10,7 +10,7 @@ import {$$} from 'utils/stringPaster';
 
 export const removeWindow = (id: string, windowId: string): Action<string> => {
   // Side effects
-  removeNamedReducer(id);
+  removeNamedReducer(windowId);
   // Remove the window from the list
   return createAction($$(id, WorkspaceActions.RemoveWindow), windowId);
 };

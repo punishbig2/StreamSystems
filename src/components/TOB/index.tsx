@@ -3,9 +3,9 @@ import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
 import {Table} from 'components/Table';
-import {TOBHandlers} from 'components/TOBTile/handlers';
-import {Row} from 'components/TOBTile/row';
-import {TOBTileTitle} from 'components/TOBTile/title';
+import {TOBHandlers} from 'components/TOB/handlers';
+import {Row} from 'components/TOB/row';
+import {TOBTileTitle} from 'components/TOB/title';
 import {TenorType} from 'interfaces/md';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order, Sides} from 'interfaces/order';
@@ -104,7 +104,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
   }).sort(compareTenors);
 };
 
-export const TOBTile: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
+export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const {symbols, symbol, products, strategy, tenors, connected, subscribe, getSnapshot, initialize, rows} = props;
   const {email} = props.user;
   // Internal stuff

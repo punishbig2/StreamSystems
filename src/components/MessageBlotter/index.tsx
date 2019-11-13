@@ -4,7 +4,7 @@ import React, {useEffect} from 'react';
 import columns from 'columns/messageBlotter';
 import {connect} from 'react-redux';
 import {Action} from 'redux/action';
-import {subscribe, unsubscribe, getSnapshot} from 'redux/actions/messageBlotterActions';
+import {subscribe, unsubscribe} from 'redux/actions/messageBlotterActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
@@ -15,7 +15,6 @@ import {getAuthenticatedUser} from 'utils/getCurrentUser';
 interface DispatchProps {
   subscribe: (email: string) => SignalRAction<SignalRActions>;
   unsubscribe: (email: string) => SignalRAction<SignalRActions>;
-  initialize: () => Action;
 }
 
 interface OwnProps {
@@ -28,7 +27,6 @@ const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterSta
 const mapDispatchToProps: DispatchProps = {
     subscribe: (email: string) => subscribe(email),
     unsubscribe: (email: string) => unsubscribe(email),
-    initialize: getSnapshot,
   }
 ;
 
@@ -50,9 +48,6 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       };
     }
   }, [connected, subscribe, unsubscribe, email]);
-  useEffect(() => {
-    props.initialize();
-  }, []);
   const renderRow = (props: any) => {
     return <Row {...props}/>;
   };

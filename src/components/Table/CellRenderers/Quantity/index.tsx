@@ -11,11 +11,23 @@ interface SizeProps {
   cancelable?: boolean;
   onCancel?: () => void;
   color: 'red' | 'blue' | 'green' | 'black' | 'gray'
+  hasCancelButton?: boolean;
 }
 
-export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
+const defaultProps: SizeProps = {
+  type: EntryTypes.Invalid,
+  value: null,
+  onChange: () => null,
+  cancelable: false,
+  onCancel: () => null,
+  color: 'black',
+  hasCancelButton: true,
+};
+
+export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) => {
   const {value} = props;
   const classes: string[] = ['times'];
+  console.log(props.hasCancelButton);
   const getValue = (): string => {
     if (value === null)
       return '';
@@ -25,18 +37,20 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
     <TableInput key={1} value={getValue()} color={props.color} tabIndex={-1}
                 onChange={(value: string) => props.onChange(Number(value))}/>,
   ];
-  if (props.cancelable)
-    classes.push('clickable');
-  const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;
-  if (props.type === EntryTypes.Bid) {
-    if (props.firm) {
-      children.push(<div>{props.firm}</div>);
-    }
-    children.push(button);
-  } else {
-    children.unshift(button);
-    if (props.firm) {
-      children.push(<div>{props.firm}</div>);
+  if (props.hasCancelButton !== false) {
+    if (props.cancelable)
+      classes.push('clickable');
+    const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;
+    if (props.type === EntryTypes.Bid) {
+      if (props.firm) {
+        children.push(<div>{props.firm}</div>);
+      }
+      children.push(button);
+    } else {
+      children.unshift(button);
+      if (props.firm) {
+        children.push(<div>{props.firm}</div>);
+      }
     }
   }
   return (
@@ -45,3 +59,4 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps) => {
     </SizeLayout>
   );
 };
+

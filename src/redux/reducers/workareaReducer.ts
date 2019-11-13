@@ -1,7 +1,7 @@
 import {IWorkspace} from 'interfaces/workspace';
 import {Action} from 'redux/action';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
-import {WorkareaState} from 'redux/stateDefs/workareaState';
+import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
 
 const initialState: WorkareaState = {
   workspaces: {},
@@ -9,6 +9,8 @@ const initialState: WorkareaState = {
   symbols: [],
   tenors: [],
   products: [],
+  messages: [],
+  status: WorkareaStatus.Starting,
 };
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
@@ -52,9 +54,9 @@ export default (state: WorkareaState = initialState, {type, data}: Action<Workar
     case WorkareaActions.SetupTOBTile:
       return state; // setupTOBTile(state, row);
     case WorkareaActions.Initializing:
-      return state;
+      return {...state, status: WorkareaStatus.Initializing};
     case WorkareaActions.Initialized:
-      return {...state, ...data};
+      return {...state, ...data, status: WorkareaStatus.Ready};
     default:
       return state;
   }

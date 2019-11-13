@@ -1,5 +1,5 @@
 import {MessageBlotter} from 'components/MessageBlotter';
-import {TOBTile} from 'components/TOBTile';
+import {TOB} from 'components/TOB';
 import {Toolbar} from 'components/Toolbar';
 import {WindowManager} from 'components/WindowManager';
 import {Strategy} from 'interfaces/strategy';
@@ -46,7 +46,7 @@ type Props = OwnProps & DispatchProps & WorkspaceState;
 const createWindow = (id: string, type: WindowTypes, symbols: string[], products: Strategy[], tenors: string[], user: User) => {
   switch (type) {
     case WindowTypes.TOB:
-      return <TOBTile id={id} symbols={symbols} products={products} tenors={tenors} user={user}/>;
+      return <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user}/>;
     case WindowTypes.MessageBlotter:
       return <MessageBlotter/>;
     default:

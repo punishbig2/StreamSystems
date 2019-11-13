@@ -1,8 +1,9 @@
 import {ModalWindow} from 'components/ModalWindow';
 import {Question} from 'components/QuestionBox';
-import {Footer} from 'components/Workarea/footer';
 import {TabBar} from 'components/TabBar';
+import {Footer} from 'components/Workarea/footer';
 import {Workspace} from 'components/Workspace';
+import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {
@@ -13,9 +14,8 @@ import {
   renameWorkspace,
   setWorkspaces,
 } from 'redux/actions/workareaActions';
-import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {ApplicationState} from 'redux/applicationState';
-import strings from 'locales';
+import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
 
 interface OwnProps {
 }
@@ -48,7 +48,7 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
   mapDispatchToProps,
 );
 
-const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
+const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const {symbols, products, tenors, initialize} = props;
   const {workspaces} = props;
@@ -59,6 +59,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   useEffect((): void => {
     initialize();
   }, [initialize]);
+
   const renderCloseQuestion = () => <Question {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>;
   const cancelCloseWorkspace = () => setSelectedToClose(null);
   const closeWorkspace = () => {
@@ -66,8 +67,6 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
     // Close the modal window
     setSelectedToClose(null);
   };
-  if (symbols.length === 0)
-    return <div/>;
   const getActiveWorkspace = (): ReactElement | null => {
     if (active === null)
       return null;
@@ -75,22 +74,37 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
       <Workspace id={active} symbols={symbols} products={products} tenors={tenors}/>
     );
   };
-
-  return (
-    <React.Fragment>
-      {getActiveWorkspace()}
-      <Footer>
-        <TabBar
-          entries={workspaces}
-          addTab={props.addWorkspace}
-          setActiveTab={props.setWorkspace}
-          onTabClosed={setSelectedToClose}
-          onTabRenamed={props.renameWorkspace}
-          active={props.activeWorkspace}/>
-      </Footer>
-      <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
-    </React.Fragment>
-  );
+  switch (props.status) {
+    case WorkareaStatus.Starting:
+      // Should never happen
+      return null;
+    case WorkareaStatus.Initializing:
+      return (
+        <div className={'loading-window'}>
+          <div className={'spinner'}/>
+          <h3>Loading, please wait...</h3>
+        </div>
+      );
+    case WorkareaStatus.Ready:
+      return (
+        <React.Fragment>
+          {getActiveWorkspace()}
+          <Footer>
+            <TabBar
+              entries={workspaces}
+              addTab={props.addWorkspace}
+              setActiveTab={props.setWorkspace}
+              onTabClosed={setSelectedToClose}
+              onTabRenamed={props.renameWorkspace}
+              active={props.activeWorkspace}/>
+          </Footer>
+          <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
+        </React.Fragment>
+      );
+    default:
+      // Should never happen
+      return null;
+  }
 });
 
 export {Workarea};
