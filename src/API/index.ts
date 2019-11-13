@@ -5,6 +5,7 @@ import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
+import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 enum Method {
@@ -116,22 +117,22 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(entry: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number): Promise<OrderResponse> {
+  static async createOrder(entry: TOBEntry): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
-    if (entry.price === null || entry.quantity === null) {
+    if (entry.price === null || entry.quantity === null)
       throw new Error('price and quantity MUST be specified');
-    }
+    const {price, quantity} = entry;
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
       User: currentUser.email,
-      Symbol: symbol,
-      Strategy: strategy,
+      Symbol: entry.symbol,
+      Strategy: entry.strategy,
       Tenor: entry.tenor,
-      Side: side,
+      Side: getSideFromType(entry.type),
       Quantity: quantity.toString(),
-      Price: entry.price.toString(),
+      Price: price.toString(),
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
   }

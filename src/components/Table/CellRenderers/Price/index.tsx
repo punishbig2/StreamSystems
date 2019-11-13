@@ -65,6 +65,7 @@ export interface Props {
   onChange: (value: number) => void;
   onSubmit?: (value: number) => void;
   color: 'red' | 'blue' | 'green' | 'black' | 'gray',
+  onBlur?: () => void;
   tabIndex?: number;
 }
 
@@ -142,11 +143,12 @@ export const Price: React.FC<Props> = (props: Props) => {
       <TableInput
         tabIndex={props.tabIndex}
         value={getValue()}
+        onDoubleClick={onDoubleClick}
+        onBlur={props.onBlur}
+        onSubmit={onSubmit}
         onChange={onChange}
         readOnly={!props.editable}
-        onDoubleClick={onDoubleClick}
-        color={props.color}
-        onSubmit={onSubmit}/>
+        color={props.color}/>
       {/* The floating object */}
       {getTooltip()}
     </PriceLayout>

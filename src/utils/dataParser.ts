@@ -34,7 +34,7 @@ const reshape = (message: Message, bids: MDEntry[], offers: MDEntry[]): TOBTable
         quantity: other[index] ? Number(other[index].MDEntrySize) : null,
         price: other[index] ? Number(other[index].MDEntryPx) : null,
         firm: entry.MDFirm,
-        type: EntryTypes.Ask,
+        type: EntryTypes.Offer,
       },
       mid: null,
       spread: null,
@@ -61,14 +61,14 @@ const convertEntry = (message: Message) => (original: MDEntry): TOBEntry => {
     quantity: original ? Number(original.MDEntrySize) : null,
     price: original ? Number(original.MDEntryPx) : null,
     firm: original ? original.MDFirm : '',
-    type: original ? original.MDEntryType : EntryTypes.Ask,
+    type: original ? original.MDEntryType : EntryTypes.Offer,
   };
 };
 
 export const toTOBRow = (message: any): TOBRow => {
   const entries: MDEntry[] = message.Entries;
   const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
-  const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ask);
+  const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Offer);
   // Sort all
   offers.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));
   bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));

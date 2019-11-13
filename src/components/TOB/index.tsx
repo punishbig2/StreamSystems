@@ -8,7 +8,7 @@ import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
 import {TenorType} from 'interfaces/md';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {Order, Sides} from 'interfaces/order';
+import {Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
@@ -50,7 +50,7 @@ interface DispatchProps {
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (entry: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number) => void;
+  createOrder: (entry: TOBEntry) => void;
   cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
 }
@@ -59,7 +59,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TileActions.Initialize), rows)),
   subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
   setStrategy: (value: string) => dispatch(createAction($$(id, TileActions.SetStrategy), value)),
-  createOrder: (order: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number) => dispatch(createOrder(id, order, side, symbol, strategy, quantity)),
+  createOrder: (order: TOBEntry) => dispatch(createOrder(id, order)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
   cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => dispatch(cancelOrder(id, orderId, tenor, symbol, strategy)),
@@ -139,14 +139,10 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       array.forEach(({tenor}: TOBRow) => subscribe(symbol, strategy, tenor));
     }
   }, [connected, rows, strategy, subscribe, symbol]);
-
   const handlers: TOBHandlers = {
     onCreateOrder: (entry: TOBEntry, price: number, type: EntryTypes) => {
       if (entry.quantity) {
-        props.createOrder({
-          ...entry,
-          price,
-        }, type === EntryTypes.Bid ? Sides.Buy : Sides.Sell, symbol, strategy, entry.quantity);
+        props.createOrder({...entry, price, type});
       }
     },
     onTenorSelected: (tenor: string, table: TOBTable) => {
@@ -157,7 +153,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
     },
     onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
-      if (entry.type === EntryTypes.Ask) {
+      if (entry.type === EntryTypes.Offer) {
         setOrderTicket(entry);
       } else {
         setOrderTicket(entry);
@@ -172,6 +168,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefOffersButtonClicked: () => {
       props.cancelAll(symbol, strategy, Sides.Sell);
     },
+    onPriceBlur: (entry: TOBEntry) => {
+      if (entry.quantity !== null)
+        return;
+      props.createOrder({...entry, quantity: 10});
+    },
     onCancelOrder: (entry: TOBEntry) => {
       const {orders} = props;
       const order: TOBEntry | undefined = orders.find((order: TOBEntry) => {
@@ -183,7 +184,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
           return false;
         return order.strategy === entry.strategy;
       });
-      console.log(order);
       if (!order || !order.orderId) {
         console.warn('order not found, or found order is invalid (has no id?)');
       } else {
@@ -197,7 +197,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       return <div/>;
     const createOrder = (quantity: number) => {
       if (orderTicket !== null) {
-        props.createOrder(orderTicket, orderTicket.type === EntryTypes.Bid ? Sides.Buy : Sides.Sell, symbol, strategy, quantity);
+        props.createOrder({...orderTicket, quantity});
         // Remove the internal order ticket
         setOrderTicket(null);
       } else {
@@ -209,8 +209,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
 
   const bulkCreateOrders = (entries: TOBRow[]) => {
     entries.forEach(({bid, offer}: TOBRow) => {
-      props.createOrder(bid, Sides.Buy, symbol, strategy, bid.quantity as number);
-      props.createOrder(offer, Sides.Sell, symbol, strategy, offer.quantity as number);
+      console.log(offer, bid);
+      if (offer.quantity !== null && offer.price !== null)
+        props.createOrder(offer);
+      if (bid.quantity !== null && bid.price !== null)
+        props.createOrder(bid);
     });
     setRunWindowVisible(false);
   };

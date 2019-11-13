@@ -16,7 +16,7 @@ const orderFromMDEntry = (entry: MessageBlotterEntry): TOBEntry => {
     orderId: entry.OrderID,
     price: Number(entry.Price),
     quantity: Number(entry.OrderQty),
-    type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Ask,
+    type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Offer,
     symbol: entry.Symbol,
     strategy: entry.Strategy,
     tenor: entry.Tenor,

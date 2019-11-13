@@ -8,6 +8,7 @@ interface Props {
   onSubmit?: (value: string) => void;
   readOnly?: boolean;
   color: 'red' | 'blue' | 'green' | 'black' | 'gray';
+  onBlur?: () => void;
   tabIndex?: number;
 }
 
@@ -45,6 +46,7 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <Layout
       {...otherProps}
+      onBlur={props.onBlur}
       onChange={onInternalChange}
       onKeyPress={onKeyPress}
       className={props.color}

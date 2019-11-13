@@ -1,6 +1,6 @@
 export enum EntryTypes {
   Invalid = '',
-  Ask = '1',
+  Offer = '1',
   Bid = '0',
   DarkPool = '2',
 }

@@ -72,7 +72,8 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
       onChange={setBidPrice}
       value={bid.price}
-      color={user.email === bid.user ? 'red' : 'black'}/>
+      color={user.email === bid.user ? 'red' : 'black'}
+      onBlur={() => handlers.onPriceBlur(bid)}/>
   ),
   weight: 3,
 }, {
@@ -98,12 +99,13 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
     <Price
       editable={user.email === offer.user}
       table={offer.table}
-      type={EntryTypes.Ask}
-      onSubmit={(value: number) => handlers.onCreateOrder(offer, value, EntryTypes.Ask)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Ask, offer)}
+      type={EntryTypes.Offer}
+      onSubmit={(value: number) => handlers.onCreateOrder(offer, value, EntryTypes.Offer)}
+      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, offer)}
       onChange={setOfferPrice}
       value={offer.price}
-      color={user.email === offer.user ? 'red' : 'black'}/>
+      color={user.email === offer.user ? 'red' : 'black'}
+      onBlur={() => handlers.onPriceBlur(offer)}/>
   ),
   weight: 3,
 }, {
@@ -112,7 +114,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
     <button onClick={handlers.onRunButtonClicked}>{strings.Run}</button>
   ),
   render: ({offer, user, setOfferQuantity}: RowType) => (
-    <QuantityWrapper entry={offer} type={EntryTypes.Ask} onChange={setOfferQuantity} onCancel={handlers.onCancelOrder}
+    <QuantityWrapper entry={offer} type={EntryTypes.Offer} onChange={setOfferQuantity} onCancel={handlers.onCancelOrder}
                      user={user}/>
 
   ),

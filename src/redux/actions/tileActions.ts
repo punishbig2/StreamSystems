@@ -7,6 +7,7 @@ import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {TileActions} from 'redux/constants/tileConstants';
+import {getSideFromType} from 'utils';
 import {$$} from 'utils/stringPaster';
 import {toWMessageAction} from 'utils/toWMessageAction';
 
@@ -37,14 +38,14 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   }, createAction($$(id, TileActions.CancelAllOrders)));
 };
 
-export const createOrder = (id: string, entry: TOBEntry, side: Sides, symbol: string, strategy: string, quantity: number): AsyncAction<any, ActionType> => {
+export const createOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.createOrder(entry, side, symbol, strategy, quantity);
+    const result = await API.createOrder(entry);
     // FIXME: parse the result
     if (result.Status === 'Success') {
       return createAction($$(id, TileActions.OrderCreated), {
         order: {OrderID: result.OrderID},
-        key: $$(entry.tenor, side),
+        key: $$(entry.tenor, getSideFromType(entry.type)),
       });
     } else {
       return createAction($$(id, TileActions.OrderNotCreated));

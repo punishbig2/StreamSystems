@@ -18,7 +18,7 @@ import {createRunReducer} from 'redux/reducers/runReducer';
 import {RunState} from 'redux/stateDefs/runState';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {toRunId} from 'utils';
-import {compareTenors, emptyBid} from 'utils/dataGenerators';
+import {compareTenors, emptyEntry} from 'utils/dataGenerators';
 import {$$} from 'utils/stringPaster';
 
 interface DispatchProps {
@@ -48,12 +48,13 @@ const matchOrder = (order: TOBEntry, symbol: string, strategy: string, tenor: st
 
 const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
   const [state, dispatch] = useReducer(reducer, {table: null, history: []});
-  const {id, symbol, strategy, tenors, orders} = props;
+  const {id, symbol, strategy, tenors, orders, user} = props;
+  const {email} = user;
   useEffect(() => {
     const rows: TOBRow[] = tenors
       .map((tenor: string) => {
         const getEntry = (type: EntryTypes) => {
-          const empty: TOBEntry = emptyBid(tenor, symbol, strategy, '', 10);
+          const empty: TOBEntry = emptyEntry(tenor, symbol, strategy, email, 10, type);
           if (orders) {
             const entry = orders.find((order) => {
               return matchOrder(order, symbol, strategy, tenor, type);
@@ -64,7 +65,7 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
           }
         };
         const bid: TOBEntry = getEntry(EntryTypes.Bid);
-        const offer: TOBEntry = getEntry(EntryTypes.Ask);
+        const offer: TOBEntry = getEntry(EntryTypes.Offer);
         return {
           id: $$(toRunId(symbol, strategy), tenor),
           tenor: tenor,
@@ -81,7 +82,7 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
         return table;
       }, {});
     dispatch({type: 'SET_TABLE', data: table});
-  }, [symbol, strategy, tenors, orders]);
+  }, [symbol, strategy, tenors, orders, email]);
   useEffect(() => {
     injectNamedReducer(id, createRunReducer, {orders: []});
     return () => {
