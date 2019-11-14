@@ -9,7 +9,6 @@ import React, {ReactNode} from 'react';
 interface Props {
   type?: EntryTypes;
   rows?: TOBEntry[];
-  id: string,
 }
 
 export const MiniDOB: React.FC<Props> = (props: Props) => {

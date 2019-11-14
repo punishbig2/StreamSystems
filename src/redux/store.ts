@@ -51,11 +51,35 @@ enum PersistedKeys {
   Workarea = 'workarea',
 }
 
+const AvailableUsers: User[] = [{
+  email: 'iharob.alasimi@vascarsolutions.com',
+  firm: 'DBCO',
+  isBroker: false,
+}, {
+  email: 'asharnisar@yahoo.com',
+  firm: 'CITI',
+  isBroker: false,
+}, {
+  email: 'eric.greenspan@connectivityinabox.com',
+  firm: 'CITI',
+  isBroker: false,
+}, {
+  email: 'ashar@anttechnologies.com',
+  firm: 'DBCO',
+  isBroker: false,
+}];
+
+const {location} = window;
+
 const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
-const urlParameters: URLSearchParams = new URLSearchParams(window.location.search);
+const urlParameters: URLSearchParams = new URLSearchParams(location.search);
+const email: string | null = urlParameters.get('user');
+const currentUser: User | undefined = AvailableUsers.find((user: User): boolean => user.email === email);
+if (!currentUser)
+  throw new Error('user not found...');
 const initialState: ApplicationState = {
   auth: {
-    user: {email: urlParameters.get('user') || 'ashar@anttechnologies.com', isBroker: false},
+    user: currentUser,
   },
   workarea: {
     symbols: [],
@@ -68,7 +92,7 @@ const initialState: ApplicationState = {
   },
   messageBlotter: {
     connected: false,
-    entries: {},
+    entries: [],
   },
 };
 
@@ -178,7 +202,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
     const onUpdateMarketData = (data: Message) => {
-      console.log(data);
       dispatch(toWMessageAction<A>(data));
     };
     const onUpdateMessageBlotter = (data: MessageBlotterEntry) => {
@@ -221,12 +244,18 @@ store.subscribe(() => {
     activeWorkspace: workarea.activeWorkspace,
     workspaces: workspaces,
   };
+  const filter = (name: string, value: any): string | undefined => {
+    if (name.startsWith('__'))
+      return undefined;
+    return value;
+  };
+
   // Save the global attributes
-  localStorage.setItem(PersistedKeys.Workarea, JSON.stringify(persistedObject));
+  localStorage.setItem(PersistedKeys.Workarea, JSON.stringify(persistedObject, filter));
   // Save the dynamic keys
   for (const [key, object] of Object.entries(entries)) {
     if (key.startsWith('__'))
       continue;
-    localStorage.setItem(key, JSON.stringify(object));
+    localStorage.setItem(key, JSON.stringify(object, filter));
   }
 });

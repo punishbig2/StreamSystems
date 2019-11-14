@@ -1,6 +1,5 @@
 import {API} from 'API';
 import {Message} from 'interfaces/md';
-import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {Action} from 'redux/action';

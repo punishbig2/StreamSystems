@@ -3,7 +3,6 @@ import {Table} from 'components/Table';
 import React, {useEffect} from 'react';
 import columns from 'columns/messageBlotter';
 import {connect} from 'react-redux';
-import {Action} from 'redux/action';
 import {subscribe, unsubscribe} from 'redux/actions/messageBlotterActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
@@ -37,7 +36,7 @@ const withRedux = connect<MessageBlotterState, DispatchProps, OwnProps, Applicat
 
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const {connected, subscribe, unsubscribe} = props;
+  const {connected, subscribe, unsubscribe, entries} = props;
   // Get the user directly from the store
   const {email} = getAuthenticatedUser();
   useEffect(() => {
@@ -57,7 +56,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
         <h1>{strings.Messages}</h1>
       </div>
       <div className={'window-content'}>
-        <Table columns={columns} rows={props.entries} renderRow={renderRow}/>
+        <Table columns={columns} rows={entries} renderRow={renderRow}/>
       </div>
     </React.Fragment>
   );

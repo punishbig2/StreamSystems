@@ -1,12 +1,18 @@
 import config from 'config';
 import {Message, MessageTypes} from 'interfaces/md';
-import {EntryTypes} from 'interfaces/mdEntry';
 import {CreateOrder, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
+
+const toQuery = (obj: { [key: string]: string }): string => {
+  const entries: [string, string][] = Object.entries(obj);
+  return '?' + entries
+    .map(([key, value]: [string, string]) => `${key}=${value}`)
+    .join('&');
+};
 
 enum Method {
   Get = 'GET',
@@ -168,10 +174,18 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
 
+  static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<Message | null> {
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot' + toQuery({symbol, strategy, tenor}));
+    // Execute the query
+    return get<Message | null>(url);
+  }
+
   static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<Message | null> {
     if (!symbol || !strategy || !tenor)
       return null;
-    const url: string = API.getRawUrl(API.MarketData, `snapshot?symbol=${symbol}&strategy=${strategy}&tenor=${tenor}`);
+    const url: string = API.getRawUrl(API.MarketData, 'snapshot' + toQuery({symbol, strategy, tenor}));
     // Execute the query
     return get<Message | null>(url);
   }

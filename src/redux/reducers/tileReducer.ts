@@ -1,4 +1,3 @@
-import {Order} from 'interfaces/order';
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TileActions} from 'redux/constants/tileConstants';
@@ -50,3 +49,4 @@ export const createWindowReducer = (id: string, initialState: WindowState = gene
     }
   };
 };
+

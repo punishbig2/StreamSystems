@@ -63,18 +63,24 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'bid',
   header: () => <button onClick={handlers.onRefBidsButtonClicked}>{strings.RefBids}</button>,
-  render: ({bid, user, setBidPrice}: RowType) => (
-    <Price
-      editable={user.email === bid.user}
-      table={bid.table}
-      type={EntryTypes.Bid}
-      onSubmit={(value: number) => handlers.onCreateOrder(bid, value, EntryTypes.Bid)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
-      onChange={setBidPrice}
-      value={bid.price}
-      color={user.email === bid.user ? 'red' : 'black'}
-      onBlur={() => handlers.onPriceBlur(bid)}/>
-  ),
+  render: ({bid, user, setBidPrice}: RowType) => {
+    if (bid.price === null && user.email !== bid.user) {
+      // It should pause here ...
+      console.log(user, bid);
+    }
+    return (
+      <Price
+        editable={user.email === bid.user}
+        table={bid.table}
+        type={EntryTypes.Bid}
+        onSubmit={(value: number) => handlers.onCreateOrder(bid, value, EntryTypes.Bid)}
+        onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
+        onChange={setBidPrice}
+        value={bid.price}
+        color={user.email === bid.user ? 'red' : 'black'}
+        onBlur={() => handlers.onPriceBlur(bid)}/>
+    )
+  },
   weight: 3,
 }, {
   name: 'dark-pool',

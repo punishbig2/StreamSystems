@@ -106,8 +106,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   const getTooltip = () => {
     if ((state.visible === false) || (table === undefined) || (table.length === 0))
       return null;
-    const id: string = `${value}.xxx`;
-    return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table} id={id}/>}/>;
+    return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table}/>}/>;
   };
   // FIXME: debounce this if possible
   const onChange = (value: string) => {

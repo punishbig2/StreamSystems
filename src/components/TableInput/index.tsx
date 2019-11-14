@@ -1,5 +1,5 @@
 import {Layout} from 'components/TableInput/layout';
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {ReactElement} from 'react';
 
 interface Props {
   value: string | number | null;
@@ -14,35 +14,24 @@ interface Props {
 
 const TableInput = <T extends any = string>(props: Props): ReactElement => {
   const {onChange, onSubmit, value, ...otherProps} = props;
-  const [internalValue, setInternalValue] = useState<string | number | undefined | null>(value);
   const onInternalChange = (event: React.FormEvent<HTMLInputElement>) => {
     const target: HTMLInputElement = event.currentTarget;
-    // Call the method with the appropriate value
-    if (props.onChange !== undefined) {
-      setInternalValue(target.value);
+    if (onChange !== undefined) {
+      onChange(target.value);
     }
   };
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && onSubmit && internalValue) {
-      onSubmit(internalValue.toString());
+    if (value === null || onSubmit === undefined)
+      return;
+    if (event.key === 'Enter') {
+      onSubmit(value.toString());
     }
   };
-  useEffect(() => {
-    setInternalValue(value);
-  }, [value]);
-  useEffect(() => {
-    if (internalValue === value)
-      return;
-    if (!onChange)
-      return;
-    const timer = setTimeout(() => {
-      if (internalValue) {
-        onChange(internalValue.toString());
-      }
-    }, 250);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [internalValue]);
+  const getValue = (): string => {
+    if (value === null)
+      return '';
+    return value.toString();
+  };
   return (
     <Layout
       {...otherProps}
@@ -50,7 +39,7 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
       onChange={onInternalChange}
       onKeyPress={onKeyPress}
       className={props.color}
-      value={internalValue || ''}
+      value={getValue()}
       tabIndex={props.tabIndex}/>
   );
 };

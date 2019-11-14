@@ -116,7 +116,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
 
   useEffect(() => {
-    if (!connected || symbol === '' || strategy === '')
+    if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
     const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
       object[item.id] = item;
@@ -169,7 +169,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       props.cancelAll(symbol, strategy, Sides.Sell);
     },
     onPriceBlur: (entry: TOBEntry) => {
-      if (entry.quantity !== null)
+      if (entry.quantity !== null || entry.price === null)
         return;
       props.createOrder({...entry, quantity: 10});
     },

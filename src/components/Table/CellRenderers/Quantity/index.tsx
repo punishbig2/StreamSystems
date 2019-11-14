@@ -27,7 +27,6 @@ const defaultProps: SizeProps = {
 export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) => {
   const {value} = props;
   const classes: string[] = ['times'];
-  console.log(props.hasCancelButton);
   const getValue = (): string => {
     if (value === null)
       return '';

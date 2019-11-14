@@ -5,7 +5,7 @@ import {SignalRActions} from 'redux/constants/signalRConstants';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
 
 const initialState: MessageBlotterState = {
-  entries: {},
+  entries: [],
   connected: false,
 };
 
@@ -22,7 +22,7 @@ export default (state: MessageBlotterState = initialState, {type, data}: Action<
     case SignalRActions.Disconnected:
       return {...state, connected: false};
     case MessageBlotterActions.Update:
-      return {...state, entries: {...state.entries, [data.ExecID]: data}};
+      return {...state, entries: [data, ...state.entries]};
     case MessageBlotterActions.Initialize:
       return {...state, entries: data.reduce(entryReducer, {})};
     default:
