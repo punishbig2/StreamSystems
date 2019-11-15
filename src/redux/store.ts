@@ -26,7 +26,7 @@ import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
-import {createWindowReducer} from 'redux/reducers/tileReducer';
+import {createWindowReducer} from 'redux/reducers/tobReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Dynamic reducer creators
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
@@ -210,13 +210,13 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
         case ExecTypes.Canceled:
-          const type: string = $$(toRowId(data.Tenor, data.Symbol, data.Strategy), RowActions.Remove);
+          // const type: string = $$(toRowId(data.Tenor, data.Symbol, data.Strategy), RowActions.Remove);
           // Dispatch an action to update any message blotter present
           // in the workspace
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           // Dispatch an action to update any row and remove the entry
           // if applicable
-          dispatch(createAction<any, A>(type, data.Side));
+          // dispatch(createAction<any, A>(type, data.Side));
           break;
       }
     };

@@ -55,6 +55,10 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
             </Cell>
           </Row>
           <Row>
+            <Cell><span className={'title'}>Price</span></Cell>
+            <Cell><span>{order.price}</span></Cell>
+          </Row>
+          <Row>
             <Cell><span className={'title'}>Side</span></Cell>
             <Cell><span>{order.type === EntryTypes.Bid ? 'Sell' : 'Buy'}</span></Cell>
           </Row>

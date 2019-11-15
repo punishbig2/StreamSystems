@@ -5,16 +5,16 @@ import {TOBEntry} from 'interfaces/tobEntry';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
-import {TileActions} from 'redux/constants/tileConstants';
+import {TileActions} from 'redux/constants/tobConstants';
 import {getSideFromType} from 'utils';
 import {$$} from 'utils/stringPaster';
 import {toWMessageAction} from 'utils/toWMessageAction';
 
 type ActionType = Action<TileActions>;
 
-export const cancelOrder = (id: string, orderId: string, tenor: string, symbol: string, strategy: string): AsyncAction<any, ActionType> => {
+export const cancelOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.cancelOrder(orderId, tenor, symbol, strategy);
+    const result = await API.cancelOrder(entry);
     if (result.Status === 'Success') {
       return createAction($$(id, TileActions.OrderCanceled, {
         order: {OrderID: result.OrderID},
@@ -37,6 +37,17 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   }, createAction($$(id, TileActions.CancelAllOrders)));
 };
 
+export const updateOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
+  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+    const result = await API.updateOrder(entry);
+    if (result.Status === 'Success') {
+      return createAction($$(id, TileActions.OrderUpdated));
+    } else {
+      return createAction($$(id, TileActions.OrderNotUpdated));
+    }
+  }, createAction($$(id, TileActions.UpdatingOrder)));
+};
+
 export const createOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.createOrder(entry);
@@ -54,7 +65,7 @@ export const createOrder = (id: string, entry: TOBEntry): AsyncAction<any, Actio
 
 export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async () => {
-    const message: Message | null = await API.getSnapshot(symbol, strategy, tenor);
+    const message: Message | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     if (message !== null) {
       // Dispatch the "standardized" action + another action to capture the value and
       // update some internal data

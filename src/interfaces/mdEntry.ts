@@ -19,4 +19,5 @@ export interface MDEntry {
   MDFirm: string;
   MDFirmType: FirmTypes;
   MDMkt: string;
+  OrderID: string;
 }

@@ -65,15 +65,13 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   header: () => <button onClick={handlers.onRefBidsButtonClicked}>{strings.RefBids}</button>,
   render: ({bid, user, setBidPrice}: RowType) => {
     if (bid.price === null && user.email !== bid.user) {
-      // It should pause here ...
-      console.log(user, bid);
     }
     return (
       <Price
         editable={user.email === bid.user}
         table={bid.table}
         type={EntryTypes.Bid}
-        onSubmit={(value: number) => handlers.onCreateOrder(bid, value, EntryTypes.Bid)}
+        onSubmit={() => handlers.onUpdateOrder(bid)}
         onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
         onChange={setBidPrice}
         value={bid.price}
@@ -106,7 +104,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
       editable={user.email === offer.user}
       table={offer.table}
       type={EntryTypes.Offer}
-      onSubmit={(value: number) => handlers.onCreateOrder(offer, value, EntryTypes.Offer)}
+      onSubmit={() => handlers.onUpdateOrder(offer)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, offer)}
       onChange={setOfferPrice}
       value={offer.price}

@@ -15,4 +15,7 @@ export enum TileActions {
   CancelAllOrders = 'TileActions.CancelAllOrders',
   AllOrdersNotCanceled = 'TileActions.AllOrdersNotCanceled',
   AllOrdersCanceled = 'TileActions.AllOrdersCanceled',
+  UpdatingOrder = 'TileActions.UpdatingOrder',
+  OrderUpdated = 'TileActions.OrderUpdated',
+  OrderNotUpdated = 'TileActions.OrderNotUpdated',
 }

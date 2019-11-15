@@ -18,10 +18,10 @@ import React, {ReactElement, useEffect, useState} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {cancelAll, cancelOrder, createOrder, getSnapshot} from 'redux/actions/tileActions';
+import {cancelAll, cancelOrder, createOrder, getSnapshot, updateOrder} from 'redux/actions/tobActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
-import {TileActions} from 'redux/constants/tileConstants';
+import {TileActions} from 'redux/constants/tobConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {SignalRAction} from 'redux/signalRAction';
 import {RunState} from 'redux/stateDefs/runState';
@@ -51,8 +51,9 @@ interface DispatchProps {
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
   createOrder: (entry: TOBEntry) => void;
-  cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => void;
+  cancelOrder: (entry: TOBEntry) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
+  updateOrder: (entry: TOBEntry) => void;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
@@ -62,9 +63,10 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   createOrder: (order: TOBEntry) => dispatch(createOrder(id, order)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TileActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TileActions.ToggleOCO))),
-  cancelOrder: (orderId: string, tenor: string, symbol: string, strategy: string) => dispatch(cancelOrder(id, orderId, tenor, symbol, strategy)),
+  cancelOrder: (entry: TOBEntry) => dispatch(cancelOrder(id, entry)),
   getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(id, symbol, strategy, tenor)),
   cancelAll: (symbol: string, strategy: string, side: Sides) => dispatch(cancelAll(id, symbol, strategy, side)),
+  updateOrder: (entry: TOBEntry) => dispatch(updateOrder(id, entry)),
 });
 
 const nextSlice = (applicationState: ApplicationState, props: OwnProps): WindowState & RunState => {
@@ -114,7 +116,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Extract properties to manage them better
   const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setStrategy(value);
   const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
-
   useEffect(() => {
     if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
@@ -128,8 +129,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     rows.forEach(({tenor}: TOBRow) => getSnapshot(symbol, strategy, tenor));
     // Initialize with base table
     initialize(rows.reduce(reducer, {}));
-  }, [symbol, strategy, tenors, connected, getSnapshot, initialize, email]);
-
+  }, [symbol, strategy, tenors, getSnapshot, initialize, email]);
   useEffect(() => {
     if (!rows || !connected)
       return;
@@ -140,10 +140,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     }
   }, [connected, rows, strategy, subscribe, symbol]);
   const handlers: TOBHandlers = {
-    onCreateOrder: (entry: TOBEntry, price: number, type: EntryTypes) => {
-      if (entry.quantity) {
-        props.createOrder({...entry, price, type});
-      }
+    onUpdateOrder: (entry: TOBEntry) => {
+      props.updateOrder(entry);
     },
     onTenorSelected: (tenor: string, table: TOBTable) => {
       if (currentTenor === null) {
@@ -174,21 +172,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       props.createOrder({...entry, quantity: 10});
     },
     onCancelOrder: (entry: TOBEntry) => {
-      const {orders} = props;
-      const order: TOBEntry | undefined = orders.find((order: TOBEntry) => {
-        if (order.tenor !== entry.tenor)
-          return false;
-        if (order.symbol !== entry.symbol)
-          return false;
-        if (order.type !== entry.type)
-          return false;
-        return order.strategy === entry.strategy;
-      });
-      if (!order || !order.orderId) {
-        console.warn('order not found, or found order is invalid (has no id?)');
-      } else {
-        props.cancelOrder(order.orderId, entry.tenor, entry.symbol, entry.strategy);
-      }
+      props.cancelOrder(entry);
     },
   };
 
@@ -209,7 +193,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
 
   const bulkCreateOrders = (entries: TOBRow[]) => {
     entries.forEach(({bid, offer}: TOBRow) => {
-      console.log(offer, bid);
       if (offer.quantity !== null && offer.price !== null)
         props.createOrder(offer);
       if (bid.quantity !== null && bid.price !== null)
@@ -231,7 +214,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       onSubmit={bulkCreateOrders}/>
   );
 
-  const getData = (object: { tenor: string, table: TOBTable } | null): TOBTable | undefined => {
+  const getData = (object: { tenor: string, table: TOBTable } | null): TOBTable => {
     const {rows} = props;
     if (!object) {
       return rows;

@@ -1,6 +1,6 @@
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';
-import {TileActions} from 'redux/constants/tileConstants';
+import {TileActions} from 'redux/constants/tobConstants';
 import {WindowState, TileStatus} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
 

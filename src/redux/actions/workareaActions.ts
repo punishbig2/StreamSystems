@@ -15,6 +15,7 @@ import shortid from 'shortid';
 import {toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
+import moment, {Moment} from 'moment';
 
 export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
 export const addWorkspaces = (): AnyAction => {
@@ -44,8 +45,12 @@ export const createOrder = (order: Order): AsyncAction<WorkareaActions> => {
 };*/
 const getOrders = (snapshot: MessageBlotterEntry[]): MessageBlotterEntry[] => {
   const user: User = getAuthenticatedUser();
+  const now: Moment = moment();
   return snapshot
     .filter((entry: MessageBlotterEntry) => {
+      const date: Moment = moment(entry.TransactTime, 'YYYYMMDD-HH:mm:ss');
+      if (date.dayOfYear() !== now.dayOfYear())
+        return false;
       return entry.Username === user.email && entry.ExecType !== ExecTypes.Canceled;
     })
     .filter((entry: MessageBlotterEntry) => {
@@ -71,6 +76,7 @@ export const initialize = (): AsyncAction<AnyAction> => {
     // Return the initialization action
     return [
       createAction(WorkareaActions.Initialized, {symbols, products, tenors, messages}),
+      // If there are anu Message Blotter windows update them
       createAction(MessageBlotterActions.Initialize, messages),
       ...actions,
     ];

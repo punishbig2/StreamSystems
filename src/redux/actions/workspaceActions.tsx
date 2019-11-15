@@ -3,7 +3,7 @@ import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {createWindowReducer} from 'redux/reducers/tileReducer';
+import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {DefaultWindowState} from 'redux/stateDefs/windowState';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {$$} from 'utils/stringPaster';

@@ -57,15 +57,16 @@ const convertEntry = (message: Message) => (original: MDEntry): TOBEntry => {
     tenor: message.Tenor,
     strategy: message.Strategy,
     symbol: message.Symbol,
-    user: original ? (original.MDUserId || original.MDEntryOriginator) : user.email,
-    quantity: original ? Number(original.MDEntrySize) : null,
-    price: original ? Number(original.MDEntryPx) : null,
-    firm: original ? original.MDFirm : '',
-    type: original ? original.MDEntryType : EntryTypes.Offer,
+    user: original.MDEntryOriginator || user.email,
+    quantity: original.MDEntrySize ? Number(original.MDEntrySize) : null,
+    price: original.MDEntryPx !== '0' ? Number(original.MDEntryPx) : null,
+    firm: original.MDFirm,
+    type: original.MDEntryType,
+    orderId: original.OrderID,
   };
 };
 
-export const toTOBRow = (message: any): TOBRow => {
+export const toTOBRow = (message: Message): TOBRow => {
   const entries: MDEntry[] = message.Entries;
   const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
   const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Offer);

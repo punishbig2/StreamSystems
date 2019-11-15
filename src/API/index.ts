@@ -1,6 +1,6 @@
 import config from 'config';
 import {Message, MessageTypes} from 'interfaces/md';
-import {CreateOrder, Sides} from 'interfaces/order';
+import {CreateOrder, Sides, UpdateOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
 import {TOBEntry} from 'interfaces/tobEntry';
@@ -144,7 +144,23 @@ export class API {
   }
 
   static async updateOrder(entry: TOBEntry): Promise<OrderResponse> {
-    return {} as OrderResponse;
+    const currentUser = getAuthenticatedUser();
+    if (entry.price === null || entry.quantity === null || !entry.orderId)
+      throw new Error('price, quantity and order id MUST be specified');
+    const {price, quantity} = entry;
+    // Build a create order request
+    const request: UpdateOrder = {
+      MsgType: MessageTypes.G,
+      TransactTime: getCurrentTime(),
+      User: currentUser.email,
+      Quantity: quantity.toString(),
+      Price: price.toString(),
+      OrderID: entry.orderId,
+      Symbol: entry.symbol,
+      Strategy: entry.strategy,
+      Tenor: entry.tenor,
+    };
+    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
   }
 
   static async cancelAll(symbol: string, strategy: string, side: Sides): Promise<OrderResponse> {
@@ -160,16 +176,16 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
   }
 
-  static async cancelOrder(orderId: string, tenor: string, symbol: String, strategy: string): Promise<OrderResponse> {
+  static async cancelOrder(entry: TOBEntry): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
       User: currentUser.email,
-      Symbol: symbol,
-      Strategy: strategy,
-      Tenor: tenor,
-      OrderID: orderId,
+      Symbol: entry.symbol,
+      Strategy: entry.strategy,
+      Tenor: entry.tenor,
+      OrderID: entry.orderId,
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }

@@ -1,5 +1,4 @@
 import {MessageTypes} from 'interfaces/md';
-import {EntryTypes} from 'interfaces/mdEntry';
 
 export enum Sides {
   Buy = 'BUY', Sell = 'SELL',
@@ -17,12 +16,14 @@ export interface CreateOrder {
   Price: string,
 }
 
-export interface Order {
-  id: string;
-  type: EntryTypes;
-  quantity: number;
-  price: number;
-  symbol: string;
-  strategy: string;
-  tenor: string;
+export interface UpdateOrder {
+  MsgType: MessageTypes;
+  TransactTime: string;
+  User: string;
+  OrderID: string;
+  Quantity: string;
+  Price: string;
+  Symbol: string,
+  Strategy: string,
+  Tenor: string,
 }

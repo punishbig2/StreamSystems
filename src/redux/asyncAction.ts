@@ -22,7 +22,7 @@ export class AsyncAction<T, A extends Action = AnyAction> implements Action<T> {
       }
     } catch (error) {
       // FIXME: handle errors correctly
-      console.log(error);
+      console.log(`error: ${error}`);
     }
   };
 }
