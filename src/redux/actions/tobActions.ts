@@ -1,28 +1,64 @@
 import {API} from 'API';
-import {Message} from 'interfaces/md';
+import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {TOBEntry} from 'interfaces/tobEntry';
+import {User} from 'interfaces/user';
+import {ArrowDirection, W} from 'interfaces/w';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
-import {TileActions} from 'redux/constants/tobConstants';
+import {SignalRActions} from 'redux/constants/signalRConstants';
+import {TOBActions} from 'redux/constants/tobConstants';
+import {SignalRAction} from 'redux/signalRAction';
 import {getSideFromType} from 'utils';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
-import {toWMessageAction} from 'utils/toWMessageAction';
 
-type ActionType = Action<TileActions>;
+type ActionType = Action<TOBActions>;
 
 export const cancelOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelOrder(entry);
     if (result.Status === 'Success') {
-      return createAction($$(id, TileActions.OrderCanceled, {
+      return createAction($$(id, TOBActions.OrderCanceled, {
         order: {OrderID: result.OrderID},
       }));
     } else {
-      return createAction($$(id, TileActions.OrderNotCanceled));
+      return createAction($$(id, TOBActions.OrderNotCanceled));
     }
-  }, createAction($$(id, TileActions.CancelOrder)));
+  }, createAction($$(id, TOBActions.CancelOrder)));
+};
+
+interface OrderMessage {
+  OrderID: string;
+  Price: string;
+  Tenor: string;
+  Symbol: string;
+  Strategy: string;
+  Side: '1' | '2';
+  OrderQty: string;
+}
+
+export const getRunOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, any> => {
+  const user: User = getAuthenticatedUser();
+  return new AsyncAction<any, any>(async (): Promise<ActionType> => {
+    const entries: OrderMessage[] = await API.getRunOrders(user.email, symbol, strategy);
+    entries
+      .map((entry: OrderMessage): TOBEntry => ({
+        orderId: entry.OrderID,
+        tenor: entry.Tenor,
+        strategy: entry.Strategy,
+        symbol: entry.Symbol,
+        price: Number(entry.Price),
+        quantity: Number(entry.OrderQty),
+        user: user.email,
+        type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Offer,
+        arrowDirection: ArrowDirection.None,
+      }))
+      .forEach(emitUpdateOrderEvent);
+    return createAction('');
+  }, createAction(''));
 };
 
 export const cancelAll = (id: string, symbol: string, strategy: string, side: Sides): AsyncAction<any, ActionType> => {
@@ -30,22 +66,31 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: parse the result
     if (result.Status === 'Success') {
-      return createAction($$(id, TileActions.AllOrdersCanceled));
+      return createAction($$(id, TOBActions.AllOrdersCanceled));
     } else {
-      return createAction($$(id, TileActions.AllOrdersNotCanceled));
+      return createAction($$(id, TOBActions.AllOrdersNotCanceled));
     }
-  }, createAction($$(id, TileActions.CancelAllOrders)));
+  }, createAction($$(id, TOBActions.CancelAllOrders)));
+};
+
+export const fetchOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, ActionType> => {
+  const user: User = getAuthenticatedUser();
+  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+    const result = await API.getRunOrders(user.email, symbol, strategy);
+    console.log(result);
+    return createAction(TOBActions.OrdersFetched, result);
+  }, createAction($$(id, TOBActions.FetchingOrders)));
 };
 
 export const updateOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.updateOrder(entry);
     if (result.Status === 'Success') {
-      return createAction($$(id, TileActions.OrderUpdated));
+      return createAction($$(id, TOBActions.OrderUpdated));
     } else {
-      return createAction($$(id, TileActions.OrderNotUpdated));
+      return createAction($$(id, TOBActions.OrderNotUpdated));
     }
-  }, createAction($$(id, TileActions.UpdatingOrder)));
+  }, createAction($$(id, TOBActions.UpdatingOrder)));
 };
 
 export const createOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
@@ -53,26 +98,35 @@ export const createOrder = (id: string, entry: TOBEntry): AsyncAction<any, Actio
     const result = await API.createOrder(entry);
     // FIXME: parse the result
     if (result.Status === 'Success') {
-      return createAction($$(id, TileActions.OrderCreated), {
+      return createAction($$(id, TOBActions.OrderCreated), {
         order: {OrderID: result.OrderID},
         key: $$(entry.tenor, getSideFromType(entry.type)),
       });
     } else {
-      return createAction($$(id, TileActions.OrderNotCreated));
+      return createAction($$(id, TOBActions.OrderNotCreated));
     }
-  }, createAction($$(id, TileActions.CreateOrder)));
+  }, createAction($$(id, TOBActions.CreateOrder)));
 };
 
 export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async () => {
-    const message: Message | null = await API.getTOBSnapshot(symbol, strategy, tenor);
-    if (message !== null) {
+    const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
+    const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
+    if (tob !== null && w !== null) {
       // Dispatch the "standardized" action + another action to capture the value and
       // update some internal data
-      return [toWMessageAction(message), createAction($$(id, TileActions.SnapshotReceived), message)];
+      return [
+        handlers.W(tob),
+        handlers.W(w),
+        createAction($$(id, TOBActions.SnapshotReceived), tob),
+      ];
     } else {
-      return createAction($$(id, TileActions.ErrorGettingSnapshot));
+      return createAction($$(id, TOBActions.ErrorGettingSnapshot));
     }
-  }, createAction($$(id, TileActions.GettingSnapshot)));
+  }, createAction($$(id, TOBActions.GettingSnapshot)));
+};
+
+export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<TOBActions> => {
+  return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, strategy, tenor]);
 };
 

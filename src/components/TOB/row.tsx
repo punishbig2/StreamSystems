@@ -11,12 +11,14 @@ import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {createRowReducer} from 'redux/reducers/rowReducer';
 import {RowState} from 'redux/stateDefs/rowState';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
+import {percentage} from 'utils';
 import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
   id: string;
   columns: ColumnSpec[];
   user?: User;
+  weight: number;
 }
 
 interface DispatchProps {
@@ -41,7 +43,6 @@ const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnPro
 const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
   const {id, columns, row, user} = props;
   // Compute the total weight of the createColumns
-  const total = columns.reduce((total: number, {weight}: ColumnSpec) => total + weight, 0);
   useEffect(() => {
     injectNamedReducer(id, createRowReducer, {row});
     return () => {
@@ -57,10 +58,10 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
   return (
     <div className={'tr'}>
       {columns.map((column) => {
-        const width = 100 * column.weight / total;
-        const name = column.name;
+        const name: string = column.name;
+        const width: string = percentage(column.weight, props.weight);
         return (
-          <Cell key={name} width={width} user={user} render={column.render} {...row} {...functions}/>
+          <Cell key={name} user={user} render={column.render} width={width} {...row} {...functions}/>
         );
       })}
     </div>

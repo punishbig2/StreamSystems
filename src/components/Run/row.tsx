@@ -4,23 +4,23 @@ import {TOBRow} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import React from 'react';
 import {RowState} from 'redux/stateDefs/rowState';
+import {percentage} from 'utils';
 
 interface OwnProps {
   id: string;
   columns: ColumnSpec[];
   user?: User;
   fixedRow?: TOBRow;
+  weight: number;
 }
 
 const Row = (props: OwnProps & RowState) => {
   const {columns, row, fixedRow, user} = props;
-  // Compute the total weight of the createColumns
-  const total = columns.reduce((total: number, {weight}: ColumnSpec) => total + weight, 0);
   return (
     <div className={'tr'}>
       {columns.map((column) => {
-        const width = 100 * column.weight / total;
-        const name = column.name;
+        const width: string = percentage(column.weight, props.weight);
+        const name: string = column.name;
         return (
           <Cell key={name} width={width} user={user} render={column.render} {...(fixedRow || row)}/>
         );

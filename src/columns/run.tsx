@@ -4,8 +4,9 @@ import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TableInput} from 'components/TableInput';
 import {TOBRow} from 'interfaces/tobRow';
-import React from 'react';
+import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
+import React from 'react';
 
 const columns = (handlers: RunHandlers): ColumnSpec[] => [{
   name: 'tenor',
@@ -26,16 +27,16 @@ const columns = (handlers: RunHandlers): ColumnSpec[] => [{
   name: 'bid-price',
   header: () => <div>{strings.Bid}</div>,
   render: ({id, bid}: TOBRow) => (
-    <Price value={bid.price} color={'black'} onChange={(price: number) => handlers.onBidChanged(id, price)}
-           editable={true}/>
+    <Price value={bid.price} color={'black'} onValidChange={(price: number) => handlers.onBidChanged(id, price)}
+           editable={true} arrow={ArrowDirection.None}/>
   ),
   weight: 4,
 }, {
   name: 'offer-price',
   header: () => <div>{strings.Offer}</div>,
   render: ({id, offer}: TOBRow) => (
-    <Price value={offer.price} color={'black'} onChange={(price: number) => handlers.onOfferChanged(id, price)}
-           editable={true}/>
+    <Price value={offer.price} color={'black'} onValidChange={(price: number) => handlers.onOfferChanged(id, price)}
+           editable={true} arrow={ArrowDirection.None}/>
   ),
   weight: 4,
 }, {
@@ -50,16 +51,16 @@ const columns = (handlers: RunHandlers): ColumnSpec[] => [{
   name: 'mid',
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: TOBRow) => (
-    <Price value={mid} color={'blue'} onChange={(value: number) => handlers.onMidChanged(id, value)}
-           editable={true}/>
+    <Price value={mid} color={'blue'} onValidChange={(value: number) => handlers.onMidChanged(id, value)}
+           editable={true} arrow={ArrowDirection.None}/>
   ),
   weight: 4,
 }, {
   name: 'spread',
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: TOBRow) => (
-    <Price value={spread} color={'green'} onChange={(value: number) => handlers.onSpreadChanged(id, value)}
-           editable={true}></Price>
+    <Price value={spread} color={'green'} onValidChange={(value: number) => handlers.onSpreadChanged(id, value)}
+           editable={true} arrow={ArrowDirection.None}/>
   ),
   weight: 4,
 }];

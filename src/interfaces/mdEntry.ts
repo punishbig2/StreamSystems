@@ -1,3 +1,5 @@
+import {ArrowDirection} from 'interfaces/w';
+
 export enum EntryTypes {
   Invalid = '',
   Offer = '1',
@@ -20,4 +22,5 @@ export interface MDEntry {
   MDFirmType: FirmTypes;
   MDMkt: string;
   OrderID: string;
+  TickDirection: ArrowDirection;
 }

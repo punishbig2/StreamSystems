@@ -1,6 +1,6 @@
 import {HubConnection} from '@microsoft/signalr';
-import {Message} from 'interfaces/md';
-import {ExecTypes, MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {W} from 'interfaces/w';
+import {Message} from 'interfaces/message';
 import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 import {
@@ -21,7 +21,6 @@ import {ApplicationState} from 'redux/applicationState';
 // Special action types
 import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
-import {RowActions} from 'redux/constants/rowConstants';
 // Action enumerators
 import {SignalRActions} from 'redux/constants/signalRConstants';
 // Reducers
@@ -35,10 +34,8 @@ import {SignalRManager} from 'redux/signalR/signalRManager';
 import {SignalRAction} from 'redux/signalRAction';
 import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
-import {toRowId} from 'utils';
-import {$$} from 'utils/stringPaster';
 // Websocket action parsers/converters
-import {toWMessageAction} from 'utils/toWMessageAction';
+import {handlers} from 'utils/messageHandler';
 
 const getObjectFromStorage = <T>(key: string): T => {
   const item: string | null = localStorage.getItem(key);
@@ -201,13 +198,14 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       // Dispatch an action to notify disconnection
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
-    const onUpdateMarketData = (data: Message) => {
-      dispatch(toWMessageAction<A>(data));
+    const onUpdateMarketData = (data: W) => {
+      // This is the default market data handler
+      dispatch(handlers.W<A>(data));
     };
-    const onUpdateMessageBlotter = (data: MessageBlotterEntry) => {
-      switch (data.ExecType) {
+    const onUpdateMessageBlotter = (data: Message) => {
+      dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+      /*switch (data.ExecType) {
         case ExecTypes.New:
-          dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
         case ExecTypes.Canceled:
           // const type: string = $$(toRowId(data.Tenor, data.Symbol, data.Strategy), RowActions.Remove);
@@ -218,7 +216,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           // if applicable
           // dispatch(createAction<any, A>(type, data.Side));
           break;
-      }
+      }*/
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);

@@ -1,6 +1,6 @@
-import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {Message} from 'interfaces/message';
 
 export interface MessageBlotterState {
-  entries: MessageBlotterEntry[];
+  entries: Message[];
   connected: boolean;
 }

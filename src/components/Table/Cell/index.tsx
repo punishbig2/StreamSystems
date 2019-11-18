@@ -1,11 +1,10 @@
 import {User} from 'interfaces/user';
-import React from 'react';
-import {theme} from 'theme';
+import React, {CSSProperties} from 'react';
 
 interface CellProps {
   render: React.FC<any>,
-  width: number;
   user?: User;
+  width: string;
 
   // Allow other properties
   [key: string]: any;
@@ -13,10 +12,9 @@ interface CellProps {
 
 export const Cell: React.FC<CellProps> = (props: CellProps) => {
   const {render, width, handlers, user, ...data} = props;
-  const rowHeight: string = `${theme.tableRowSize}px`;
-  const style = {width: `${width}%`, lineHeight: rowHeight, height: rowHeight};
+  const style: CSSProperties = {width};
   return (
-    <div style={style} className={'td'}>
+    <div className={'td'} style={style}>
       {render({...data, user})}
     </div>
   );

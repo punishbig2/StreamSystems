@@ -47,9 +47,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       };
     }
   }, [connected, subscribe, unsubscribe, email]);
-  const renderRow = (props: any) => {
-    return <Row {...props}/>;
-  };
+  const renderRow = (props: any) => <Row {...props}/>;
   return (
     <React.Fragment>
       <div className={'window-title-bar'}>

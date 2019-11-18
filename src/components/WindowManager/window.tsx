@@ -1,5 +1,5 @@
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
-import {useObjectGrabber} from 'hooks/objectGrabber';
+import {useObjectGrabber} from 'hooks/useObjectGrabber';
 import React, {CSSProperties, ReactElement, useRef} from 'react';
 
 interface OwnProps {

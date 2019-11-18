@@ -3,4 +3,6 @@ export interface Computed {
   mid: number | null;
   offer: number | null;
   bid: number | null;
+  // Typescript is stupid
+  [key: string]: any;
 }

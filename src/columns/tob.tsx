@@ -9,6 +9,7 @@ import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
+import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
 
@@ -46,8 +47,8 @@ const QuantityWrapper: React.FC<QWProps> = (props: QWProps) => {
 const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
   header: () => <div/>,
-  render: ({tenor, dob}: RowType) => (
-    <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor, dob as TOBTable)}/>
+  render: ({tenor}: RowType) => (
+    <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor)}/>
   ),
   weight: 1,
 }, {
@@ -69,15 +70,16 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
     return (
       <Price
         editable={user.email === bid.user}
-        table={bid.table}
+        table={[]}
+        arrow={bid.arrowDirection}
         type={EntryTypes.Bid}
         onSubmit={() => handlers.onUpdateOrder(bid)}
         onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
-        onChange={setBidPrice}
+        onValidChange={setBidPrice}
         value={bid.price}
         color={user.email === bid.user ? 'red' : 'black'}
         onBlur={() => handlers.onPriceBlur(bid)}/>
-    )
+    );
   },
   weight: 3,
 }, {
@@ -86,6 +88,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   render: () => (
     <Price
       editable={false}
+      arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
@@ -102,11 +105,12 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   render: ({offer, user, setOfferPrice}: RowType) => (
     <Price
       editable={user.email === offer.user}
-      table={offer.table}
+      table={[]}
+      arrow={offer.arrowDirection}
       type={EntryTypes.Offer}
       onSubmit={() => handlers.onUpdateOrder(offer)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, offer)}
-      onChange={setOfferPrice}
+      onValidChange={setOfferPrice}
       value={offer.price}
       color={user.email === offer.user ? 'red' : 'black'}
       onBlur={() => handlers.onPriceBlur(offer)}/>

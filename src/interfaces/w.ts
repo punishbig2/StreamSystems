@@ -8,7 +8,13 @@ export type TenorType = string;
 export type StrategyType = string;
 export type SymbolType = string;
 
-export interface Message {
+export enum ArrowDirection {
+  None = '0',
+  Up = '1',
+  Down = '2',
+}
+
+export interface W {
   MsgType: MessageTypes;
   TransactTime: number;
   User: string;
@@ -17,4 +23,6 @@ export interface Message {
   Tenor: TenorType;
   NoMDEntries: number;
   Entries: MDEntry[];
+  "9712": string;
+  "9702": string;
 }

@@ -3,6 +3,7 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
+import {ArrowDirection} from 'interfaces/w';
 import {createAction} from 'redux/actionCreator';
 import {Point} from 'structures/point';
 import {PriceLayout} from 'components/Table/CellRenderers/Price/layout';
@@ -10,17 +11,11 @@ import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {State} from 'components/Table/CellRenderers/Price/state';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
-import React, {ReactElement, useEffect, useReducer, useState} from 'react';
+import React, {ReactElement, useEffect, useReducer} from 'react';
 import styled from 'styled-components';
 
-enum Arrows {
-  None = 'none',
-  Up = 'up',
-  Down = 'down',
-}
-
 interface DirectionProps {
-  direction: Arrows;
+  direction: ArrowDirection;
 }
 
 const DirectionLayout = styled.div`
@@ -40,9 +35,14 @@ const DirectionLayout = styled.div`
 `;
 
 const Direction = (props: DirectionProps): ReactElement => {
+  const arrows: { [key: string]: string } = {
+    [ArrowDirection.None]: 'none',
+    [ArrowDirection.Up]: 'up',
+    [ArrowDirection.Down]: 'down',
+  };
   return (
     <DirectionLayout>
-      <i className={`fa fa-long-arrow-alt-${props.direction}`}/>
+      <i className={`fa fa-long-arrow-alt-${arrows[props.direction]}`}/>
     </DirectionLayout>
   );
 };
@@ -62,18 +62,19 @@ export interface Props {
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onChange: (value: number) => void;
+  onChange?: (value: string) => void;
+  onValidChange?: (value: number) => void;
   onSubmit?: (value: number) => void;
   color: 'red' | 'blue' | 'green' | 'black' | 'gray',
   onBlur?: () => void;
   tabIndex?: number;
+  arrow: ArrowDirection;
 }
 
+const decimalPoint: string = '.';
+
 export const Price: React.FC<Props> = (props: Props) => {
-  const [arrow, setArrow] = useState<Arrows>(Arrows.None);
-  const [lastValue, setLastValue] = useState<number | null>(null);
   const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
-  const [modified, setModified] = useState<boolean>(false);
   const {value, table} = props;
   useEffect(() => {
     if (state.startedShowingTooltip) {
@@ -84,20 +85,6 @@ export const Price: React.FC<Props> = (props: Props) => {
       };
     }
   }, [state.startedShowingTooltip]);
-  useEffect(() => {
-    if (value === null || modified)
-      return;
-    if (lastValue === null) {
-      setArrow(Arrows.None);
-    } else if (value < lastValue) {
-      setArrow(Arrows.Down);
-    } else if (value > lastValue) {
-      setArrow(Arrows.Up);
-    }
-  }, [lastValue, modified, value]);
-  useEffect(() => {
-    setLastValue(value);
-  }, [value]);
   const showTooltip = () => dispatch(createAction(PriceRendererActions.StartShowingTooltip));
   const hideTooltip = () => dispatch(createAction(PriceRendererActions.HideTooltip));
   const onMouseMove = (event: React.MouseEvent) => dispatch(
@@ -110,14 +97,28 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
   // FIXME: debounce this if possible
   const onChange = (value: string) => {
-    // Whether the input was edited or not
-    setModified(true);
-    // Call the onChange proxy function
-    props.onChange(Number(value));
+    const trimmed: string = value.trim();
+    const numeric: number = Number(trimmed);
+    if (trimmed.length === 0) {
+      if (props.onChange) {
+        props.onChange('');
+      }
+    } else if (isNaN(numeric)) {
+      if (trimmed.endsWith(decimalPoint)) {
+        if (props.onChange) {
+          props.onChange(value);
+        }
+      }
+    } else {
+      if (props.onChange)
+        props.onChange(value);
+      if (props.onValidChange)
+        props.onValidChange(numeric);
+    }
   };
   const getValue = (): string => ((value !== undefined && value !== null) && value.toString()) || '';
   const onDoubleClick = (event: React.MouseEvent) => {
-    if (props.onDoubleClick) {
+    if (props.onDoubleClick && !props.editable) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
       // Stop the event
       event.stopPropagation();
@@ -138,7 +139,7 @@ export const Price: React.FC<Props> = (props: Props) => {
 
   return (
     <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
-      <Direction direction={arrow}/>
+      <Direction direction={props.arrow}/>
       <TableInput
         tabIndex={props.tabIndex}
         value={getValue()}

@@ -1,6 +1,6 @@
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';
-import {TileActions} from 'redux/constants/tobConstants';
+import {TOBActions} from 'redux/constants/tobConstants';
 import {WindowState, TileStatus} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
 
@@ -16,33 +16,36 @@ const genesisState: WindowState = {
 export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
   return (state: WindowState = initialState, {type, data}: AnyAction) => {
     switch (type) {
-      case $$(id, TileActions.Initialize):
+      case $$(id, TOBActions.Initialize):
         return {...state, rows: data};
-      case $$(id, TileActions.SetStrategy):
+      case $$(id, TOBActions.SetStrategy):
         return {...state, strategy: data};
-      case $$(id, TileActions.SetSymbol):
+      case $$(id, TOBActions.SetSymbol):
         return {...state, symbol: data};
       case SignalRActions.Connected:
         return {...state, connected: true};
       case SignalRActions.Disconnected:
         return {...state, connected: false};
-      case $$(id, TileActions.ToggleOCO):
+      case $$(id, TOBActions.ToggleOCO):
         return {...state, oco: !state.oco};
-      case $$(id, TileActions.CreateOrder):
+      case $$(id, TOBActions.CreateOrder):
         return {...state, status: TileStatus.CreatingOrder};
-      case $$(id, TileActions.OrderCreated):
+      case $$(id, TOBActions.OrderCreated):
         return {...state, status: TileStatus.OrderCreated};
-      case $$(id, TileActions.OrderNotCreated):
+      case $$(id, TOBActions.OrderNotCreated):
         return {...state, status: TileStatus.OrderNotCreated};
-      case $$(id, TileActions.CancelOrder):
+      case $$(id, TOBActions.CancelOrder):
         return {...state, status: TileStatus.CancelingOrder};
-      case $$(id, TileActions.OrderCanceled):
+      case $$(id, TOBActions.OrderCanceled):
         return {...state, status: TileStatus.OrderCanceled};
-      case $$(id, TileActions.OrderNotCanceled):
+      case $$(id, TOBActions.OrderNotCanceled):
         return {...state, status: TileStatus.OrderNotCanceled};
-      case $$(id, TileActions.AllOrdersCanceled):
+      case $$(id, TOBActions.AllOrdersCanceled):
         return {...state, orders: {}};
-      case $$(id, TileActions.SnapshotReceived):
+      case $$(id, TOBActions.SnapshotReceived):
+        return state;
+      case $$(id, TOBActions.UpdateDOB):
+        console.log(data);
         return state;
       default:
         return state;

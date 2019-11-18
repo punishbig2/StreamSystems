@@ -1,3 +1,4 @@
+import {Scrollable} from 'components/Scrollable';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
 import {SortInfo} from 'interfaces/sortInfo';
@@ -39,7 +40,8 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   if (!rows)
     return null; // FIXME: show "No data in this table message"
   const entries: [string, any][] = Object.entries(rows);
-  const propertyMapper = ([key, row]: [string, any]) => ({id: key, key, columns, row});
+  const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.weight, 0);
+  const propertyMapper = ([key, row]: [string, any]) => ({id: key, weight: total, key, columns, row});
   const applyFilters = (props: any) => {
     const entries: [string, string | undefined][] = Object.entries(filters);
     return entries.every(([name, keyword]: [string, string | undefined]) => {
@@ -65,6 +67,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
         return ({row: row1}: any, {row: row2}: any) => compare(row2[column], row1[column]);
       }
     };
+    // FIXME: this is crazy ...
     rowProps
       .sort(sortFn(sortBy.direction));
   }
@@ -82,10 +85,10 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   };
   return (
     <div className={'table'} style={style}>
-      <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter}/>
-      <div className={'tbody'}>
+      <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
+      <Scrollable className={'tbody'}>
         {props.renderRow && rowProps.map(props.renderRow)}
-      </div>
+      </Scrollable>
     </div>
   );
 };

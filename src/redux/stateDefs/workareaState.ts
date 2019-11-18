@@ -1,4 +1,4 @@
-import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {Message} from 'interfaces/message';
 import {Strategy} from 'interfaces/strategy';
 import {IWorkspace} from 'interfaces/workspace';
 
@@ -12,6 +12,6 @@ export interface WorkareaState {
   products: Strategy[];
   activeWorkspace: string | null;
   workspaces: {[id: string]: IWorkspace},
-  messages: MessageBlotterEntry[];
+  messages: Message[];
   status: WorkareaStatus;
 }

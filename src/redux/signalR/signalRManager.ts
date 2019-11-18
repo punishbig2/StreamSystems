@@ -1,7 +1,7 @@
 import {HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
 import config from 'config';
-import {Message} from 'interfaces/md';
-import {MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {W} from 'interfaces/w';
+import {Message} from 'interfaces/message';
 import {Action, AnyAction} from 'redux';
 
 const ApiConfig = config.Api;
@@ -22,8 +22,8 @@ export class SignalRManager<A extends Action = AnyAction> {
   connection: HubConnection;
   onConnectedListener: ((connection: HubConnection) => void) | null = null;
   onDisconnectedListener: (() => void) | null = null;
-  onUpdateMarketDataListener: ((data: Message) => void) | null = null;
-  onUpdateMessageBlotterListener: ((data: MessageBlotterEntry) => void) | null = null;
+  onUpdateMarketDataListener: ((data: W) => void) | null = null;
+  onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
@@ -62,7 +62,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   onUpdateMessageBlotter = (message: string): void => {
-    const data: MessageBlotterEntry = JSON.parse(message);
+    const data: Message = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
       this.onUpdateMessageBlotterListener(data);
@@ -70,7 +70,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   onUpdateMarket = (message: string): void => {
-    const data: Message = JSON.parse(message);
+    const data: W = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       this.onUpdateMarketDataListener(data);
@@ -81,7 +81,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.onConnectedListener = fn;
   };
 
-  setOnUpdateMarketDataListener = (fn: (data: Message) => void) => {
+  setOnUpdateMarketDataListener = (fn: (data: W) => void) => {
     this.onUpdateMarketDataListener = fn;
   };
 

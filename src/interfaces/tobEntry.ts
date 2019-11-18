@@ -1,4 +1,5 @@
 import {EntryTypes} from 'interfaces/mdEntry';
+import {ArrowDirection} from 'interfaces/w';
 
 export interface TOBEntry {
   orderId?: string;
@@ -7,8 +8,8 @@ export interface TOBEntry {
   symbol: string;
   price: number | null;
   quantity: number | null;
-  table?: TOBEntry[];
   user: string;
   firm?: string;
   type: EntryTypes;
+  arrowDirection: ArrowDirection;
 }

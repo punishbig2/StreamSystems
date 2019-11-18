@@ -4,10 +4,12 @@ export const Footer = styled.div`
   position: absolute;
   display: flex;
   align-items: center;
+  background-color: white;
+  border-top: 1px solid ${({theme}) => theme.tableBorderColor};
   line-height: ${({theme}) => theme.footerSize}px;
-  height: ${({theme}) => theme.footerSize}px;
-  bottom: 0;
-  padding: 0 8px;
   left: 0;
   right: 0;
+  bottom: 0;
+  height: ${({theme}) => theme.footerSize}px;
+  padding: 0 8px;
 `;

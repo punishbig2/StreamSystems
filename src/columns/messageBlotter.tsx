@@ -1,5 +1,5 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {ExecTypes, MessageBlotterEntry} from 'interfaces/messageBlotterEntry';
+import {ExecTypes, Message} from 'interfaces/message';
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
@@ -21,6 +21,7 @@ const TransTypes: { [key: string]: string } = {
   [ExecTypes.New]: 'New',
   [ExecTypes.Canceled]: 'Cancel',
   [ExecTypes.Filled]: 'Filled',
+  [ExecTypes.Replace]: 'Replace',
 };
 
 const columns: ColumnSpec[] = [{
@@ -28,7 +29,7 @@ const columns: ColumnSpec[] = [{
   header: () => <div>Type</div>,
   filterable: true,
   sortable: true,
-  render: (data: MessageBlotterEntry) => {
+  render: (data: Message) => {
     if (TransTypes[data.ExecType]) {
       return (<Normal>{TransTypes[data.ExecType]}</Normal>);
     } else {
@@ -41,7 +42,7 @@ const columns: ColumnSpec[] = [{
   header: () => <div>Time (EST)</div>,
   filterable: true,
   sortable: true,
-  render: (data: MessageBlotterEntry) => {
+  render: (data: Message) => {
     return (
       <Time>{moment(data.TransactTime, INCOMING_DATE_FORMAT).format(DISPLAY_DATE_FORMAT)}</Time>
     );
@@ -52,7 +53,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   header: () => <div>Side</div>,
-  render: ({Side}: MessageBlotterEntry) => (
+  render: ({Side}: Message) => (
     <Normal>{Side === '1' ? 'Buy' : 'Sell'}</Normal>
   ),
   weight: 1,
@@ -61,7 +62,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   header: () => <div>Qty.</div>,
-  render: ({OrderQty}: MessageBlotterEntry) => (
+  render: ({OrderQty}: Message) => (
     <Normal>{OrderQty}</Normal>
   ),
   weight: 1,
@@ -70,7 +71,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   header: () => <div>Currency</div>,
-  render: ({Symbol}: MessageBlotterEntry) => (
+  render: ({Symbol}: Message) => (
     <Normal>{Symbol}</Normal>
   ),
   weight: 1,
@@ -88,7 +89,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   header: () => <div>Tenor</div>,
-  render: ({Tenor}: MessageBlotterEntry) => (
+  render: ({Tenor}: Message) => (
     <Normal>{Tenor}</Normal>
   ),
   weight: 1,
@@ -97,7 +98,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   header: () => <div>Strategy</div>,
-  render: ({Strategy}: MessageBlotterEntry) => (
+  render: ({Strategy}: Message) => (
     <Normal>{Strategy}</Normal>
   ),
   weight: 1,
@@ -106,7 +107,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   header: () => <div>Level</div>,
-  render: ({Price}: MessageBlotterEntry) => (
+  render: ({Price}: Message) => (
     <Normal>{Price}</Normal>
   ),
   weight: 1,

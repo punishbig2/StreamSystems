@@ -1,6 +1,7 @@
+import {RunActions} from 'components/Run/enumerator';
 import {TOBTable} from 'interfaces/tobTable';
 
 export interface State {
-  history: string[];
-  table: TOBTable | null;
+  history: RunActions[];
+  table: TOBTable;
 }

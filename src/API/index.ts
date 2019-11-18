@@ -1,5 +1,6 @@
 import config from 'config';
-import {Message, MessageTypes} from 'interfaces/md';
+import {W, MessageTypes} from 'interfaces/w';
+import {Message} from 'interfaces/message';
 import {CreateOrder, Sides, UpdateOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
@@ -94,7 +95,7 @@ const {Api} = config;
 const post = <T>(url: string, data: any): Promise<T> => request(url, Method.Post, data);
 const get = <T>(url: string): Promise<T> => request(url, Method.Get);
 
-type Endpoints = 'symbols' | 'products' | 'tenors' | 'order' | 'messages' | 'all';
+type Endpoints = 'symbols' | 'products' | 'tenors' | 'order' | 'messages' | 'all' | 'runorders' | 'UserGroupSymbol';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
@@ -163,7 +164,7 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
   }
 
-  static async cancelAll(symbol: string, strategy: string, side: Sides): Promise<OrderResponse> {
+  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
@@ -190,23 +191,35 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
 
-  static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<Message | null> {
+  static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
     const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot' + toQuery({symbol, strategy, tenor}));
     // Execute the query
-    return get<Message | null>(url);
+    return get<W | null>(url);
   }
 
-  static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<Message | null> {
+  static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
     const url: string = API.getRawUrl(API.MarketData, 'snapshot' + toQuery({symbol, strategy, tenor}));
     // Execute the query
-    return get<Message | null>(url);
+    return get<W | null>(url);
   }
 
-  static async getMessagesSnapshot(): Promise<any> {
-    return get<any>(API.getUrl(API.Oms, 'messages', 'get'));
+  static async getMessagesSnapshot(): Promise<Message[]> {
+    try {
+      return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get'));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<any[]> {
+    return get<any[]>(API.getUrl(API.Oms, 'runorders', 'get') + toQuery({useremail, symbol, strategy}));
+  }
+
+  static async getUserGroupSymbol(useremail: string): Promise<any[]> {
+    return get<any[]>(API.getUrl(API.Oms, 'UserGroupSymbol', 'get') + toQuery({useremail}));
   }
 }

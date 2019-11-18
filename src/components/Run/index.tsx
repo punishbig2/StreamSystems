@@ -1,6 +1,6 @@
 import createColumns from 'columns/run';
 import {DialogButtons} from 'components/PullRight';
-import {Changes} from 'components/Run/enumerator';
+import {RunActions} from 'components/Run/enumerator';
 import {reducer} from 'components/Run/reducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
@@ -12,11 +12,11 @@ import {User} from 'interfaces/user';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useReducer} from 'react';
 import {connect} from 'react-redux';
+import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
+import {TOBActions} from 'redux/constants/tobConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
-import {createRunReducer} from 'redux/reducers/runReducer';
 import {RunState} from 'redux/stateDefs/runState';
-import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {toRunId} from 'utils';
 import {compareTenors, emptyEntry} from 'utils/dataGenerators';
 import {$$} from 'utils/stringPaster';
@@ -46,10 +46,7 @@ const matchOrder = (order: TOBEntry, symbol: string, strategy: string, tenor: st
   return order.tenor === tenor && order.symbol === symbol && order.strategy === strategy && order.type === type;
 };
 
-const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
-  const [state, dispatch] = useReducer(reducer, {table: null, history: []});
-  const {id, symbol, strategy, tenors, orders, user} = props;
-  const {email} = user;
+const useInitializer = (tenors: string[], symbol: string, strategy: string, email: string, orders: any[], onReady: (table: any) => void) => {
   useEffect(() => {
     const rows: TOBRow[] = tenors
       .map((tenor: string) => {
@@ -81,14 +78,55 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
         table[row.id] = row;
         return table;
       }, {});
-    dispatch({type: 'SET_TABLE', data: table});
+    onReady(table);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, strategy, tenors, orders, email]);
+};
+
+const useOrderListener = (tenors: string[], symbol: string, strategy: string, update: (entry: TOBEntry) => void) => {
   useEffect(() => {
-    injectNamedReducer(id, createRunReducer, {orders: []});
-    return () => {
-      removeNamedReducer(id);
+    const listener = (event: Event) => {
+      const customEvent: CustomEvent<TOBEntry> = event as CustomEvent<TOBEntry>;
+      update(customEvent.detail);
     };
-  }, [id]);
+    const cleaners: (() => void)[] = tenors.map((tenor) => {
+      const name: string = $$(tenor, symbol, strategy, TOBActions.UpdateOrders);
+      document.addEventListener(name, listener);
+      return () => {
+        document.removeEventListener(name, listener);
+      };
+    });
+    return () => cleaners.forEach((fn) => fn());
+  }, [tenors, symbol, strategy, update]);
+};
+
+const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
+  const [state, dispatch] = useReducer(reducer, {table: {}, history: []});
+  const {symbol, strategy, tenors, orders, user} = props;
+  const {email} = user;
+
+  const setTable = (table: TOBTable) => dispatch(createAction(RunActions.SetTable, table));
+  // Updates a single side of the table
+  const updateSide = (entry: TOBEntry) => {
+    const id: string = $$(toRunId(entry.symbol, entry.strategy), entry.tenor);
+    switch (entry.type) {
+      case EntryTypes.Invalid:
+        break;
+      case EntryTypes.Offer:
+        dispatch(createAction(RunActions.UpdateOffer, {id, entry}));
+        break;
+      case EntryTypes.Bid:
+        dispatch(createAction(RunActions.UpdateBid, {id, entry}));
+        break;
+      case EntryTypes.DarkPool:
+        break;
+    }
+  };
+
+  // Use hooks
+  useOrderListener(tenors, symbol, strategy, updateSide);
+  useInitializer(tenors, symbol, strategy, email, orders, setTable);
+
   const onSubmit = () => {
     if (state.table === null)
       return;
@@ -101,22 +139,27 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
       return;
     props.onSubmit(entries);
   };
-  if (state.table === null)
+
+  if (state.table === {})
     return (<div>Loading...</div>);
+
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;
     return (
       <Row {...props} user={props.user} row={row} fixedRow={row.modified ? row : undefined}/>
     );
   };
+
+  // This builds the set of columns of the run table with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number) => dispatch({type: Changes.Bid as string, data: {id, value}}),
-    onOfferChanged: (id: string, value: number) => dispatch({type: Changes.Offer as string, data: {id, value}}),
-    onMidChanged: (id: string, value: number) => dispatch({type: Changes.Mid as string, data: {id, value}}),
-    onSpreadChanged: (id: string, value: number) => dispatch({type: Changes.Spread as string, data: {id, value}}),
-    onOfferQtyChanged: (id: string, value: number) => dispatch({type: 'OfferQuantityChanged', data: {id, value}}),
-    onBidQtyChanged: (id: string, value: number) => dispatch({type: 'BidQuantityChanged', data: {id, value}}),
+    onBidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Bid, {id, value})),
+    onOfferChanged: (id: string, value: number) => dispatch(createAction(RunActions.Offer, {id, value})),
+    onMidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Mid, {id, value})),
+    onSpreadChanged: (id: string, value: number) => dispatch(createAction(RunActions.Spread, {id, value})),
+    onOfferQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfferQtyChanged, {id, value})),
+    onBidQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
   });
+
   return (
     <div className={'run-window'}>
       <div className={'modal-title-bar'}>

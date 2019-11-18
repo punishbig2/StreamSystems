@@ -2,11 +2,13 @@ import styled from 'styled-components';
 
 export const Toolbar = styled.div`
   position: absolute;
+  background-color: white;
   top: 0;
-  left: 8px;
-  right: 8px;
-  line-height: ${({theme}) => theme.headerSize}px;
+  right: 0;
+  left: 0;
   height: ${({theme}) => theme.headerSize}px;
+  line-height: ${({theme}) => theme.headerSize}px;
+  border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
   padding: 0 16px;
   * {
     line-height: normal;

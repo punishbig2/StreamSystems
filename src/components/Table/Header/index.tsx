@@ -3,17 +3,19 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {SortDirection} from 'components/Table/index';
 import {SortInfo} from 'interfaces/sortInfo';
 import React from 'react';
+import {percentage} from 'utils';
 
 interface HeaderProps {
   columns: ColumnSpec[];
   sortBy?: SortInfo;
   setSortBy: (sortInfo: SortInfo) => void;
+  weight: number;
   addFilter: (column: string, value: string) => void;
 }
 
 export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends unknown>(props: HeaderProps) => {
   const {columns, sortBy} = props;
-  const columnMapper = (total: number) => (column: ColumnSpec) => {
+  const columnMapper = (weight: number) => (column: ColumnSpec) => {
     const handleSorting = (): [SortDirection, () => void] => {
       const {direction} = (sortBy && sortBy.column === column.name) ? sortBy : {direction: SortDirection.None};
       const onSorted = () => {
@@ -40,16 +42,15 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends
               onSorted={onSorted}
               sortDirection={sortDirection}
               onFiltered={(keyword: string) => props.addFilter(column.name, keyword)}
-              width={100 * column.weight / total}>
+              width={percentage(column.weight, weight)}>
         {column.header(props)}
       </Column>
     );
   };
-  const total = columns.reduce((total: number, {weight}: ColumnSpec) => total + weight, 0);
   return (
     <div className={'thead'}>
       <div className={'tr'}>
-        {columns.map(columnMapper(total))}
+        {columns.map(columnMapper(props.weight))}
       </div>
     </div>
   );

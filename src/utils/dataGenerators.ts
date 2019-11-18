@@ -1,9 +1,10 @@
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
+import {ArrowDirection} from 'interfaces/w';
 
 export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: EntryTypes): TOBEntry => {
-  return {type: type, tenor, symbol, strategy, user, price: null, quantity};
+  return {type: type, tenor, symbol, strategy, user, price: null, quantity, arrowDirection: ArrowDirection.None};
 };
 export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): TOBEntry => {
   return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Offer);

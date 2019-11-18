@@ -20,7 +20,7 @@ export enum ExecTypes {
   OrderStatus = 'I',
 }
 
-export interface MessageBlotterEntry {
+export interface Message {
   Account: string;
   AvgPx: string;
   ClOrdID: string;

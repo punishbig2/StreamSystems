@@ -12,12 +12,14 @@ const createObjectGrabber = (object: HTMLDivElement, onMove: MoveFn, setGrabbed:
     offset.x = event.clientX;
     offset.y = event.clientY;
     // Oh and don't forget to swallow this event completely
-    event.stopImmediatePropagation();
+    event.stopPropagation();
     event.preventDefault();
   };
   const onGrab = (event: MouseEvent) => {
     if (event.target !== object)
       return;
+    event.stopPropagation();
+    event.preventDefault();
     // Update offset
     offset.x = event.clientX;
     offset.y = event.clientY;

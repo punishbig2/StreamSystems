@@ -2,12 +2,18 @@ $table-border-color: rgba(0, 0, 0, 0.25);
 $title-bar-height: 28px;
 $title-bar-button-size: 20px;
 $table-header-height: 40px;
+$window-border-size: 2px;
 
 * {
   font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
+}
+
+:not(button):not(select) {
+  background-color: transparent;
+  color: #444;
 }
 
 html, body, #root {
@@ -59,15 +65,16 @@ button {
 
 .workspace {
   position: absolute;
+
   top: 48px;
-  border-top: 1px solid rgba(0, 0, 0, 0.25);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  bottom: 36px;
-  height: auto;
   left: 0;
+  bottom: 36px;
   width: 100%;
-  z-index: 0;
+
   background-color: #e8e8e8;
+  overflow: hidden;
+
+  z-index: 0;
 
   .window-element {
     position: absolute;
@@ -143,11 +150,11 @@ button {
         cursor: col-resize;
 
         &.right {
-          right: -2px;
+          right: -$window-border-size;
         }
 
         &.left {
-          left: -2px;
+          left: -$window-border-size;
         }
       }
 
@@ -159,11 +166,11 @@ button {
         cursor: row-resize;
 
         &.bottom {
-          bottom: -2px;
+          bottom: -$window-border-size;
         }
 
         &.top {
-          top: -2px;
+          top: -$window-border-size;
         }
       }
     }
@@ -171,7 +178,7 @@ button {
     .content {
       width: 100%;
       height: 100%;
-      border: 2px solid rgba(0, 0, 0, 0.25);
+      border: $window-border-size solid rgba(0, 0, 0, 0.25);
       background-color: white;
       z-index: 0;
 
@@ -217,13 +224,11 @@ button {
       }
 
       .window-content {
-        pointer-events: bounding-box;
         position: absolute;
         left: 2px;
         top: 28px;
         right: 2px;
         bottom: 3px;
-        overflow: auto;
         padding: 8px;
       }
     }
@@ -241,41 +246,45 @@ button {
   .thead {
     width: 100%;
     z-index: 0;
-    overflow-y: scroll;
+    line-height: 30px;
   }
 
   .tbody {
     flex: 1;
-    overflow: auto;
     z-index: 1;
-    overflow-y: scroll;
   }
 
   .tbody .tr,
   .thead .tr {
     width: 100%;
+    height: 24px;
+    line-height: 24px;
+    white-space: nowrap;
   }
 
   .thead .tr {
     border-bottom: 2px solid $table-border-color;
+    height: auto;
+    line-height: 32px;
   }
 
   .thead .tr .th,
   .tbody .tr .td {
     display: inline-block;
     width: auto;
-    vertical-align: middle;
+    vertical-align: top;
+    line-height: inherit;
+    height: inherit;
     cursor: text;
   }
 
   .thead .tr .th {
-    display: inline-block;
     text-transform: uppercase;
     font-size: 13px;
     font-weight: 600;
     text-align: center;
     margin: 0;
-    overflow: hidden;
+
     background-color: rgba(0, 0, 0, 0.05);
     border-top: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
@@ -291,6 +300,8 @@ button {
       line-height: 2.5;
       padding: 0 8px;
       outline-offset: -2px;
+      background-color: white;
+      text-align: center;
 
       &:focus {
         outline: 2px solid dodgerblue;
@@ -353,8 +364,8 @@ button {
 
   .tbody .tr .td {
     text-align: center;
-    border-left: 1px solid $table-border-color;
     border-bottom: 1px solid $table-border-color;
+    border-left: 1px solid $table-border-color;
     pointer-events: initial;
   }
 
@@ -415,4 +426,24 @@ button {
   h3 {
     font-weight: 500;
   }
+}
+
+.scrollbar-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  pointer-events: all;
+  cursor: default;
+}
+
+.scrollbar-slider {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  height: 30px;
+  right: 2px;
+  background-color: #444;
+  border-radius: 12px;
 }

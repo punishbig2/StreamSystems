@@ -22,15 +22,11 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const content: ReactElement | null = renderContent(id, type);
     const geometry: ClientRect | undefined = window.geometry;
     // Geometries of sibling windows
-    const forbidden: ClientRect[] = entries
-      .filter(([key, window]: [string, Window]) => key !== id || window === undefined)
-      .map(([, window]: [string, Window]) => window.geometry) as ClientRect[]
-    ;
     const updateGeometry = (g: ClientRect) => props.onGeometryChange(id, g);
     const area: ClientRect = element ? new DOMRect(0, 0, element.offsetWidth, element.offsetHeight) : BodyRectangle;
     const onClose = () => props.onWindowClosed(id);
     return (
-      <WindowElement geometry={geometry} onGeometryChange={updateGeometry} key={id} forbidden={forbidden} area={area}
+      <WindowElement geometry={geometry} onGeometryChange={updateGeometry} key={id} forbidden={[]} area={area}
                      onClose={onClose}>
         {content}
       </WindowElement>

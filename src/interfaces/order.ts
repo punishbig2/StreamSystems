@@ -1,4 +1,4 @@
-import {MessageTypes} from 'interfaces/md';
+import {MessageTypes} from 'interfaces/w';
 
 export enum Sides {
   Buy = 'BUY', Sell = 'SELL',
