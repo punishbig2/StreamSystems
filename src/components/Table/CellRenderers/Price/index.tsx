@@ -20,7 +20,6 @@ interface DirectionProps {
 
 const DirectionLayout = styled.div`
   position: absolute;
-  display: none;
   width: 16px;
   left: 4px;
   top: 0;
@@ -40,11 +39,10 @@ const Direction = (props: DirectionProps): ReactElement => {
     [ArrowDirection.Up]: 'up',
     [ArrowDirection.Down]: 'down',
   };
-  if (props.direction !== ArrowDirection.None)
-    console.log(`fa-long-arrow-alt-${arrows[props.direction]}`);
+  const icon = props.direction ? `fa fa-long-arrow-alt-${arrows[props.direction]}` : undefined;
   return (
     <DirectionLayout>
-      <i className={`fa fa-long-arrow-alt-${arrows[props.direction]}`}/>
+      <i className={icon}/>
     </DirectionLayout>
   );
 };

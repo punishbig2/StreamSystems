@@ -5,15 +5,16 @@ export enum WindowTypes {
 }
 
 export enum WorkareaActions {
-  Initialized = 'Initialized',
-  Initializing = 'Initializing',
-  SetWorkspace = 'SetWorkspace',
-  AddWorkspace = 'AddWorkspace',
-  AddTile = 'AddTile',
-  CloseWorkspace = 'CloseWorkspace',
-  RenameWorkspace = 'RenameWorkspace',
-  SetupTOBTile = 'SetupTOBTile',
-  CreatingOrder = 'CreatingOrder',
-  OrderCreated = 'OrderCreated',
-  OrderCreationFailed = 'OrderCreationFailed',
+  Initialized = 'WorkareaActions.Initialized',
+  Initializing = 'WorkareaActions.Initializing',
+  SetWorkspace = 'WorkareaActions.SetWorkspace',
+  AddWorkspace = 'WorkareaActions.AddWorkspace',
+  AddTile = 'WorkareaActions.AddTile',
+  CloseWorkspace = 'WorkareaActions.CloseWorkspace',
+  RenameWorkspace = 'WorkareaActions.RenameWorkspace',
+  SetupTOBTile = 'WorkareaActions.SetupTOBTile',
+  CreatingOrder = 'WorkareaActions.CreatingOrder',
+  OrderCreated = 'WorkareaActions.OrderCreated',
+  OrderCreationFailed = 'WorkareaActions.OrderCreationFailed',
+  NoAction = 'WorkareaActions.NoAction',
 }

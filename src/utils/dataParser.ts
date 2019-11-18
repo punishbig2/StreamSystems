@@ -71,6 +71,8 @@ export const transformer = (w: W) => (entry: MDEntry): TOBEntry => {
 const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
   const e1: MDEntry = entries[0];
   const e2: MDEntry = entries[1];
+  if (e1 === undefined || e2 === undefined)
+    return [{} as MDEntry, {} as MDEntry];
   if (e1.MDEntryType === EntryTypes.Bid) {
     return [e1, e2];
   } else {

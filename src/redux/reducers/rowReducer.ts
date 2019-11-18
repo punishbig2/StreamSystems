@@ -20,6 +20,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
           throw new Error('unknown side, cannot process removal!!!');
         }
       case $$(id, RowActions.Update):
+        console.log(data);
         return {...state, row: data};
       case $$(id, RowActions.SetOfferPrice):
         return {...state, row: {...row, offer: {...row.offer, price: data}}};

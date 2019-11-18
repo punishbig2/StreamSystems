@@ -7,6 +7,7 @@ import {Action} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {RowActions} from 'redux/constants/rowConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
+import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {toRowId} from 'utils';
 import {extractDepth, toTOBRow, transformer} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
@@ -51,11 +52,34 @@ export const handlers = {
       // Dispatch the action now
       return createAction(type, toTOBRow(w));
     } else {
-      propagateOrders(w);
-      propagateDepth(w);
+      try {
+      } catch (exception) {
+        console.log(exception);
+      }
+      // WTF?
       // FIXME: we probably don't need the complexities of redux for these
       //        things
-      return createAction('');
+      if (!w.Entries) {
+        const fixed: W = {...w, Entries: []};
+        // Build a per-row action to update a single individual and specific row
+        // in a specific table
+        const type: string = $$(toRowId(Tenor, Symbol, Strategy), RowActions.Update);
+        // Dispatch the action now
+        try {
+          propagateOrders(fixed);
+          propagateDepth(fixed);
+          // Emit this action because there's no other W message in this case so this
+          // is equivalent to the case where `W[9712] === TOB'
+          return createAction(type, toTOBRow(fixed));
+        } catch (exception) {
+          console.log(exception);
+          return createAction(WorkareaActions.NoAction);
+        }
+      } else {
+        propagateOrders(w);
+        propagateDepth(w);
+      }
+      return createAction(WorkareaActions.NoAction);
     }
   },
 };
