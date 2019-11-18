@@ -22,11 +22,24 @@ interface RowHandlers {
 
 type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowHandlers;
 
-const getMiniDOBByType = (depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): TOBEntry[] => {
+const getMiniDOBByType = (depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): TOBEntry[] | undefined => {
   if (depths === undefined || depths[tenor] === undefined)
-    return [];
+    return undefined;
   const items: TOBRow[] = Object.values(depths[tenor]);
-  return items.map((item) => type === EntryTypes.Bid ? item.bid : item.offer);
+  const offers: TOBEntry[] = items.map((item) => item.offer);
+  const bids: TOBEntry[] = items.map((item) => item.bid);
+  switch (type) {
+    case EntryTypes.Invalid:
+      break;
+    case EntryTypes.Offer:
+      return offers.filter((entry) => entry.price !== null);
+    case EntryTypes.Bid:
+      return bids.filter((entry) => entry.price !== null);
+    case EntryTypes.DarkPool:
+      break;
+  }
+  // Return the interesting items
+  return undefined;
 };
 
 interface QWProps {
