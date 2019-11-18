@@ -41,7 +41,7 @@ const Direction = (props: DirectionProps): ReactElement => {
     [ArrowDirection.Down]: 'down',
   };
   if (props.direction !== ArrowDirection.None)
-    console.log(props);
+    console.log(`fa-long-arrow-alt-${arrows[props.direction]}`);
   return (
     <DirectionLayout>
       <i className={`fa fa-long-arrow-alt-${arrows[props.direction]}`}/>

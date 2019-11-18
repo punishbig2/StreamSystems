@@ -54,7 +54,6 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   }, [connected, subscribe, unsubscribe, email]);
   const renderRow = (props: any) => <Row {...props}/>;
   const renderMessage = () => {
-    console.log(props.lastEntry);
     if (!props.lastEntry)
       return null;
     return (

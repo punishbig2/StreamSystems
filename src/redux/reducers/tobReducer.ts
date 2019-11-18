@@ -45,7 +45,6 @@ export const createWindowReducer = (id: string, initialState: WindowState = gene
       case $$(id, TOBActions.SnapshotReceived):
         return state;
       case $$(id, TOBActions.UpdateDOB):
-        console.log(data);
         return state;
       default:
         return state;

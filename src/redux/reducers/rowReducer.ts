@@ -22,7 +22,6 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.Update):
         return {...state, row: data};
       case $$(id, RowActions.SetOfferPrice):
-        console.log(data);
         return {...state, row: {...row, offer: {...row.offer, price: data}}};
       case $$(id, RowActions.SetOfferQuantity):
         return {...state, row: {...row, offer: {...row.offer, quantity: data}}};

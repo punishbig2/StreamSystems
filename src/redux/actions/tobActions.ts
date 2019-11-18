@@ -73,15 +73,6 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   }, createAction($$(id, TOBActions.CancelAllOrders)));
 };
 
-export const fetchOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, ActionType> => {
-  const user: User = getAuthenticatedUser();
-  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.getRunOrders(user.email, symbol, strategy);
-    console.log(result);
-    return createAction(TOBActions.OrdersFetched, result);
-  }, createAction($$(id, TOBActions.FetchingOrders)));
-};
-
 export const updateOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.updateOrder(entry);
