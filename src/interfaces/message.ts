@@ -43,3 +43,4 @@ export interface Message {
   LeavesQty: string;
   Username: string;
 }
+

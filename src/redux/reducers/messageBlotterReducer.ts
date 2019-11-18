@@ -1,3 +1,4 @@
+import {ExecTypes} from 'interfaces/message';
 import {Action} from 'redux/action';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
@@ -17,7 +18,9 @@ export default (state: MessageBlotterState = initialState, {type, data}: Action<
     case SignalRActions.Disconnected:
       return {...state, connected: false};
     case MessageBlotterActions.Update:
-      return {...state, entries: [data, ...state.entries], lastEntry: data};
+      if (data.ExecType === ExecTypes.PartiallyFilled || data.ExecType === ExecTypes.Filled)
+        return {...state, entries: [data, ...state.entries], lastEntry: data};
+      return {...state, entries: [data, ...state.entries]};
     case MessageBlotterActions.ClearLastEntry:
       return {...state, lastEntry: null};
     case MessageBlotterActions.Initialize:
