@@ -20,7 +20,14 @@ interface RowHandlers {
   setBidPrice: (value: string) => void;
 }
 
-type RowType = TOBRow & { handlers: TOBHandlers } & { user: User } & { table: TOBTable } & RowHandlers;
+type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowHandlers;
+
+const getMiniDOBByType = (depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): TOBEntry[] => {
+  if (depths === undefined || depths[tenor] === undefined)
+    return [];
+  const items: TOBRow[] = Object.values(depths[tenor]);
+  return items.map((item) => type === EntryTypes.Bid ? item.bid : item.offer);
+};
 
 interface QWProps {
   entry: TOBEntry;
@@ -64,10 +71,10 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'bid',
   header: () => <button onClick={handlers.onRefBidsButtonClicked}>{strings.RefBids}</button>,
-  render: ({bid, user, setBidPrice}: RowType) => (
+  render: ({bid, depths, user, setBidPrice}: RowType) => (
     <Price
       editable={user.email === bid.user}
-      table={[]}
+      table={getMiniDOBByType(depths, bid.tenor, EntryTypes.Bid)}
       arrow={bid.arrowDirection}
       type={EntryTypes.Bid}
       onSubmit={() => handlers.onUpdateOrder(bid)}
@@ -98,10 +105,10 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   header: () => (
     <button onClick={handlers.onRefOffersButtonClicked}>{strings.RefOffrs}</button>
   ),
-  render: ({offer, user, setOfferPrice}: RowType) => (
+  render: ({offer, depths, user, setOfferPrice}: RowType) => (
     <Price
       editable={user.email === offer.user}
-      table={[]}
+      table={getMiniDOBByType(depths, offer.tenor, EntryTypes.Offer)}
       arrow={offer.arrowDirection}
       type={EntryTypes.Offer}
       onSubmit={() => handlers.onUpdateOrder(offer)}

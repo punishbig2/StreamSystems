@@ -203,7 +203,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       onSubmit={bulkCreateOrders}/>
   );
   const user = {email};
-  const renderRow: (props: any) => ReactElement = (props: any): ReactElement => <Row {...props} user={user}/>;
+  const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
+    return (
+      <Row {...props} user={user} depths={state.depths}/>
+    );
+  };
   const getDepthTable = (): ReactElement | null => {
     const currentDepth: TOBTable | undefined = state.tenor !== null ? state.depths[state.tenor] : undefined;
     if (!currentDepth)

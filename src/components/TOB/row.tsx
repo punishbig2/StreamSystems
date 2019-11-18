@@ -17,8 +17,9 @@ import {$$} from 'utils/stringPaster';
 interface OwnProps {
   id: string;
   columns: ColumnSpec[];
-  user?: User;
   weight: number;
+
+  [key: string]: any;
 }
 
 interface DispatchProps {
@@ -41,7 +42,7 @@ const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnPro
 );
 
 const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
-  const {id, columns, row, user} = props;
+  const {id, columns, row, ...extra} = props;
   // Compute the total weight of the createColumns
   useEffect(() => {
     injectNamedReducer(id, createRowReducer, {row});
@@ -61,7 +62,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);
         return (
-          <Cell key={name} user={user} render={column.render} width={width} {...row} {...functions}/>
+          <Cell key={name} render={column.render} width={width} {...extra} {...row} {...functions}/>
         );
       })}
     </div>
