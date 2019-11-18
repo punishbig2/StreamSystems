@@ -22,17 +22,17 @@ interface OwnProps {
 }
 
 interface DispatchProps {
-  setOfferQuantity: (value: number) => void;
-  setOfferPrice: (value: number) => void;
-  setBidQuantity: (value: number) => void;
-  setBidPrice: (value: number) => void;
+  setOfferQuantity: (value: string) => void;
+  setOfferPrice: (value: string) => void;
+  setBidQuantity: (value: string) => void;
+  setBidPrice: (value: string) => void;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  setOfferPrice: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
-  setOfferQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
-  setBidPrice: (value: number) => dispatch(createAction($$(id, RowActions.SetBidPrice), value)),
-  setBidQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+  setOfferPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
+  setOfferQuantity: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
+  setBidPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetBidPrice), value)),
+  setBidQuantity: (value: string) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
 });
 
 const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(

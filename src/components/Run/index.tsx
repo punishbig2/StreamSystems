@@ -51,7 +51,7 @@ const useInitializer = (tenors: string[], symbol: string, strategy: string, emai
     const rows: TOBRow[] = tenors
       .map((tenor: string) => {
         const getEntry = (type: EntryTypes) => {
-          const empty: TOBEntry = emptyEntry(tenor, symbol, strategy, email, 10, type);
+          const empty: TOBEntry = emptyEntry(tenor, symbol, strategy, email, '10', type);
           if (orders) {
             const entry = orders.find((order) => {
               return matchOrder(order, symbol, strategy, tenor, type);
@@ -68,8 +68,8 @@ const useInitializer = (tenors: string[], symbol: string, strategy: string, emai
           tenor: tenor,
           bid: bid,
           offer: offer,
-          mid: bid.price !== null && offer.price !== null ? (bid.price + offer.price) / 2 : null,
-          spread: bid.price !== null && offer.price !== null ? offer.price - bid.price : null,
+          mid: bid.price !== null && offer.price !== null ? (Number(bid.price) + Number(offer.price)) / 2 : null,
+          spread: bid.price !== null && offer.price !== null ? Number(offer.price) - Number(bid.price) : null,
         };
       });
     const table = rows
@@ -152,12 +152,12 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
 
   // This builds the set of columns of the run table with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Bid, {id, value})),
-    onOfferChanged: (id: string, value: number) => dispatch(createAction(RunActions.Offer, {id, value})),
-    onMidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Mid, {id, value})),
-    onSpreadChanged: (id: string, value: number) => dispatch(createAction(RunActions.Spread, {id, value})),
-    onOfferQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfferQtyChanged, {id, value})),
-    onBidQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
+    onBidChanged: (id: string, value: string) => dispatch(createAction(RunActions.Bid, {id, value})),
+    onOfferChanged: (id: string, value: string) => dispatch(createAction(RunActions.Offer, {id, value})),
+    onMidChanged: (id: string, value: string) => dispatch(createAction(RunActions.Mid, {id, value})),
+    onSpreadChanged: (id: string, value: string) => dispatch(createAction(RunActions.Spread, {id, value})),
+    onOfferQtyChanged: (id: string, value: string) => dispatch(createAction(RunActions.OfferQtyChanged, {id, value})),
+    onBidQtyChanged: (id: string, value: string) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
   });
 
   return (

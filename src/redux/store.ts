@@ -90,6 +90,7 @@ const initialState: ApplicationState = {
   messageBlotter: {
     connected: false,
     entries: [],
+    lastEntry: null,
   },
 };
 
@@ -204,19 +205,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
     const onUpdateMessageBlotter = (data: Message) => {
       dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
-      /*switch (data.ExecType) {
-        case ExecTypes.New:
-          break;
-        case ExecTypes.Canceled:
-          // const type: string = $$(toRowId(data.Tenor, data.Symbol, data.Strategy), RowActions.Remove);
-          // Dispatch an action to update any message blotter present
-          // in the workspace
-          dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
-          // Dispatch an action to update any row and remove the entry
-          // if applicable
-          // dispatch(createAction<any, A>(type, data.Side));
-          break;
-      }*/
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);

@@ -2,10 +2,10 @@ import {TOBEntry} from 'interfaces/tobEntry';
 
 type ChangeFn<T = TOBEntry> = (tenor: string, value: T) => void;
 export interface RunHandlers {
-  onBidChanged: ChangeFn<number>,
-  onOfferChanged: ChangeFn<number>,
-  onMidChanged: ChangeFn<number>,
-  onSpreadChanged: ChangeFn<number>,
-  onOfferQtyChanged: ChangeFn<number>,
-  onBidQtyChanged: ChangeFn<number>,
+  onBidChanged: ChangeFn<string>,
+  onOfferChanged: ChangeFn<string>,
+  onMidChanged: ChangeFn<string>,
+  onSpreadChanged: ChangeFn<string>,
+  onOfferQtyChanged: ChangeFn<string>,
+  onBidQtyChanged: ChangeFn<string>,
 }

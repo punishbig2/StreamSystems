@@ -14,10 +14,10 @@ import strings from 'locales';
 import React from 'react';
 
 interface RowHandlers {
-  setOfferQuantity: (value: number) => void;
-  setOfferPrice: (value: number) => void;
-  setBidQuantity: (value: number) => void;
-  setBidPrice: (value: number) => void;
+  setOfferQuantity: (value: string) => void;
+  setOfferPrice: (value: string) => void;
+  setBidQuantity: (value: string) => void;
+  setBidPrice: (value: string) => void;
 }
 
 type RowType = TOBRow & { handlers: TOBHandlers } & { user: User } & { table: TOBTable } & RowHandlers;
@@ -25,7 +25,7 @@ type RowType = TOBRow & { handlers: TOBHandlers } & { user: User } & { table: TO
 interface QWProps {
   entry: TOBEntry;
   type: EntryTypes;
-  onChange: (value: number) => void;
+  onChange: (value: string) => void;
   user: User;
   onCancel: (entry: TOBEntry) => void;
 }
@@ -64,23 +64,19 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'bid',
   header: () => <button onClick={handlers.onRefBidsButtonClicked}>{strings.RefBids}</button>,
-  render: ({bid, user, setBidPrice}: RowType) => {
-    if (bid.price === null && user.email !== bid.user) {
-    }
-    return (
-      <Price
-        editable={user.email === bid.user}
-        table={[]}
-        arrow={bid.arrowDirection}
-        type={EntryTypes.Bid}
-        onSubmit={() => handlers.onUpdateOrder(bid)}
-        onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
-        onValidChange={setBidPrice}
-        value={bid.price}
-        color={user.email === bid.user ? 'red' : 'black'}
-        onBlur={() => handlers.onPriceBlur(bid)}/>
-    );
-  },
+  render: ({bid, user, setBidPrice}: RowType) => (
+    <Price
+      editable={user.email === bid.user}
+      table={[]}
+      arrow={bid.arrowDirection}
+      type={EntryTypes.Bid}
+      onSubmit={() => handlers.onUpdateOrder(bid)}
+      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
+      onChange={setBidPrice}
+      value={bid.price}
+      color={user.email === bid.user ? 'red' : 'black'}
+      onBlur={() => handlers.onPriceBlur(bid)}/>
+  ),
   weight: 3,
 }, {
   name: 'dark-pool',
@@ -110,7 +106,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
       type={EntryTypes.Offer}
       onSubmit={() => handlers.onUpdateOrder(offer)}
       onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, offer)}
-      onValidChange={setOfferPrice}
+      onChange={setOfferPrice}
       value={offer.price}
       color={user.email === offer.user ? 'red' : 'black'}
       onBlur={() => handlers.onPriceBlur(offer)}/>
@@ -122,7 +118,10 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
     <button onClick={handlers.onRunButtonClicked}>{strings.Run}</button>
   ),
   render: ({offer, user, setOfferQuantity}: RowType) => (
-    <QuantityWrapper entry={offer} type={EntryTypes.Offer} onChange={setOfferQuantity} onCancel={handlers.onCancelOrder}
+    <QuantityWrapper entry={offer}
+                     type={EntryTypes.Offer}
+                     onChange={setOfferQuantity}
+                     onCancel={handlers.onCancelOrder}
                      user={user}/>
 
   ),

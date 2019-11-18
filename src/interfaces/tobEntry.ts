@@ -6,8 +6,8 @@ export interface TOBEntry {
   tenor: string;
   strategy: string,
   symbol: string;
-  price: number | null;
-  quantity: number | null;
+  price: string | null;
+  quantity: string | null;
   user: string;
   firm?: string;
   type: EntryTypes;

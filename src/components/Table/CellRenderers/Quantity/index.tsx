@@ -5,9 +5,9 @@ import React, {ReactNode} from 'react';
 
 interface SizeProps {
   type: EntryTypes;
-  value: number | null;
+  value: string | number | null;
   firm?: string;
-  onChange: (value: number) => void;
+  onChange: (value: string) => void;
   cancelable?: boolean;
   onCancel?: () => void;
   color: 'red' | 'blue' | 'green' | 'black' | 'gray'
@@ -34,7 +34,7 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
   };
   const children: ReactNode[] = [
     <TableInput key={1} value={getValue()} color={props.color} tabIndex={-1}
-                onChange={(value: string) => props.onChange(Number(value))}/>,
+                onChange={(value: string) => props.onChange(value)}/>,
   ];
   if (props.hasCancelButton !== false) {
     if (props.cancelable)

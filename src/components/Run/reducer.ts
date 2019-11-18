@@ -61,8 +61,8 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   const seed: Computed = {
     spread: row.spread,
     mid: row.mid,
-    offer: offer.price,
-    bid: bid.price,
+    offer: Number(offer.price),
+    bid: Number(bid.price),
     // Overwrite the one that will be replaced
     [type]: data.value,
   };
@@ -81,8 +81,8 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
             ...row,
             spread: computed.spread,
             mid: computed.mid,
-            offer: {...row.offer, price: computed.offer},
-            bid: {...row.bid, price: computed.bid},
+            offer: {...row.offer, price: computed.offer as string | null},
+            bid: {...row.bid, price: computed.bid as string | null},
             modified: true,
           },
         },
@@ -97,7 +97,7 @@ const withSpreadAndMid = (row: TOBRow) => {
   const {offer, bid} = row;
   if (offer.price !== null && bid.price !== null) {
     return {
-      ...row, spread: offer.price - bid.price, mid: (offer.price + bid.price) / 2,
+      ...row, spread: Number(offer.price) - Number(bid.price), mid: (Number(offer.price) + Number(bid.price)) / 2,
     };
   }
   return row;

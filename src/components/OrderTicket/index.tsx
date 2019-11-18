@@ -18,7 +18,7 @@ interface Props {
 
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const {order} = props;
-  const [quantity, setQuantity] = useState<number | null>(order.quantity);
+  const [quantity, setQuantity] = useState<number | null>(Number(order.quantity));
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   useEffect(() => {
     if (input === null)

@@ -154,7 +154,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onPriceBlur: (entry: TOBEntry) => {
       if (entry.quantity !== null || entry.price === null)
         return;
-      createOrder({...entry, quantity: 10});
+      createOrder({...entry, quantity: '10'});
     },
     onCancelOrder: (entry: TOBEntry) => {
       cancelOrder(entry);

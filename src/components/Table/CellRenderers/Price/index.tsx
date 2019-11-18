@@ -55,15 +55,14 @@ const initialState: State = {
 };
 
 export interface Props {
-  value: number | null;
+  value: string | number | null;
   editable: boolean;
   table?: TOBEntry[];
   type?: EntryTypes;
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onChange?: (value: string) => void;
-  onValidChange?: (value: number) => void;
+  onChange: (value: string) => void;
   onSubmit?: (value: number) => void;
   color: 'red' | 'blue' | 'green' | 'black' | 'gray',
   onBlur?: () => void;
@@ -71,20 +70,9 @@ export interface Props {
   arrow: ArrowDirection;
 }
 
-const decimalPoint: string = '.';
-
 export const Price: React.FC<Props> = (props: Props) => {
   const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
   const {value, table} = props;
-  useEffect(() => {
-    if (state.startedShowingTooltip) {
-      const timer = setTimeout(() => dispatch(createAction(PriceRendererActions.ShowTooltip)), 500);
-      return () => {
-        dispatch(createAction(PriceRendererActions.StopShowingTooltip));
-        clearTimeout(timer);
-      };
-    }
-  }, [state.startedShowingTooltip]);
   const showTooltip = () => dispatch(createAction(PriceRendererActions.StartShowingTooltip));
   const hideTooltip = () => dispatch(createAction(PriceRendererActions.HideTooltip));
   const onMouseMove = (event: React.MouseEvent) => dispatch(
@@ -95,28 +83,26 @@ export const Price: React.FC<Props> = (props: Props) => {
       return null;
     return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table}/>}/>;
   };
-  // FIXME: debounce this if possible
+  useEffect(() => {
+    if (state.startedShowingTooltip) {
+      const timer = setTimeout(() => dispatch(createAction(PriceRendererActions.ShowTooltip)), 500);
+      return () => {
+        dispatch(createAction(PriceRendererActions.StopShowingTooltip));
+        clearTimeout(timer);
+      };
+    }
+  }, [state.startedShowingTooltip]);
+
   const onChange = (value: string) => {
     const trimmed: string = value.trim();
-    const numeric: number = Number(trimmed);
+    const numeric: number = Number(`${trimmed}0`);
     if (trimmed.length === 0) {
-      if (props.onChange) {
-        props.onChange('');
-      }
-    } else if (isNaN(numeric)) {
-      if (trimmed.endsWith(decimalPoint)) {
-        if (props.onChange) {
-          props.onChange(value);
-        }
-      }
-    } else {
-      if (props.onChange)
-        props.onChange(value);
-      if (props.onValidChange)
-        props.onValidChange(numeric);
+      props.onChange('');
+    } else if (!isNaN(numeric)) {
+      props.onChange(trimmed);
     }
   };
-  const getValue = (): string => ((value !== undefined && value !== null) && value.toString()) || '';
+
   const onDoubleClick = (event: React.MouseEvent) => {
     if (props.onDoubleClick && !props.editable) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
@@ -133,16 +119,20 @@ export const Price: React.FC<Props> = (props: Props) => {
 
   const onSubmit = () => {
     if (props.onSubmit) {
-      props.onSubmit(Number(getValue()));
+      const numeric: number = Number(state.value);
+      if (isNaN(numeric))
+        return;
+      props.onSubmit(numeric);
     }
   };
 
+  const normalizedValue: string = value ? value.toString() : '';
   return (
     <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
       <Direction direction={props.arrow}/>
       <TableInput
         tabIndex={props.tabIndex}
-        value={getValue()}
+        value={normalizedValue}
         onDoubleClick={onDoubleClick}
         onBlur={props.onBlur}
         onSubmit={onSubmit}
