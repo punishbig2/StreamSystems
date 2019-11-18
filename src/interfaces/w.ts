@@ -10,8 +10,8 @@ export type SymbolType = string;
 
 export enum ArrowDirection {
   None = '0',
-  Up = '1',
-  Down = '2',
+  Up = '2',
+  Down = '1',
 }
 
 export interface W {

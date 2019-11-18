@@ -1,17 +1,17 @@
 import {PriceRendererActions} from 'components/Table/CellRenderers/Price/constants';
+import {PriceLayout} from 'components/Table/CellRenderers/Price/layout';
+import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
+import {reducer} from 'components/Table/CellRenderers/Price/reducer';
+import {State} from 'components/Table/CellRenderers/Price/state';
+import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {ArrowDirection} from 'interfaces/w';
+import React, {ReactElement, useEffect, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {Point} from 'structures/point';
-import {PriceLayout} from 'components/Table/CellRenderers/Price/layout';
-import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
-import {reducer} from 'components/Table/CellRenderers/Price/reducer';
-import {State} from 'components/Table/CellRenderers/Price/state';
-import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
-import React, {ReactElement, useEffect, useReducer} from 'react';
 import styled from 'styled-components';
 
 interface DirectionProps {
@@ -40,6 +40,8 @@ const Direction = (props: DirectionProps): ReactElement => {
     [ArrowDirection.Up]: 'up',
     [ArrowDirection.Down]: 'down',
   };
+  if (props.direction !== ArrowDirection.None)
+    console.log(props);
   return (
     <DirectionLayout>
       <i className={`fa fa-long-arrow-alt-${arrows[props.direction]}`}/>

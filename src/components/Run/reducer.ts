@@ -25,10 +25,10 @@ const computeRow = (type: string, last: string | undefined, data: Computed, v1: 
     }
   };
   return {
-    spread: findCalculator(RunActions.Spread, type, last)(v1, v2),
-    mid: findCalculator(RunActions.Mid, type, last)(v1, v2),
-    offer: findCalculator(RunActions.Offer, type, last)(v1, v2),
-    bid: findCalculator(RunActions.Bid, type, last)(v1, v2),
+    spread: findCalculator(RunActions.Spread, type, last)(Number(v1), Number(v2)),
+    mid: findCalculator(RunActions.Mid, type, last)(Number(v1), Number(v2)),
+    offer: findCalculator(RunActions.Offer, type, last)(Number(v1), Number(v2)),
+    bid: findCalculator(RunActions.Bid, type, last)(Number(v1), Number(v2)),
   };
 };
 
@@ -97,7 +97,9 @@ const withSpreadAndMid = (row: TOBRow) => {
   const {offer, bid} = row;
   if (offer.price !== null && bid.price !== null) {
     return {
-      ...row, spread: Number(offer.price) - Number(bid.price), mid: (Number(offer.price) + Number(bid.price)) / 2,
+      ...row,
+      spread: Number(offer.price) - Number(bid.price),
+      mid: (Number(offer.price) + Number(bid.price)) / 2,
     };
   }
   return row;

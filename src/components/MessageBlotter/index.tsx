@@ -60,7 +60,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     return (
       <div className={'message-detail'}>
         {columns.map((column: ColumnSpec) => (
-          <div className={'message-entry'}>
+          <div className={'message-entry'} key={column.name}>
             <span className={'message-entry-label'}>{column.header({})}</span>
             <span className={'message-entry-value'}>{column.render(props.lastEntry)}</span>
           </div>

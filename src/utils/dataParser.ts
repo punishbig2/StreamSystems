@@ -54,6 +54,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
 
 export const transformer = (w: W) => (entry: MDEntry): TOBEntry => {
   const user = getAuthenticatedUser();
+  console.log(entry.TickDirection);
   return {
     tenor: w.Tenor,
     strategy: w.Strategy,

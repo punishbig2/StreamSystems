@@ -45,6 +45,7 @@ export const handlers = {
     const {Tenor, Symbol, Strategy} = w;
     // Is this TOB?
     if (w['9712'] === 'TOB') {
+      console.log(w);
       // Build a per-row action to update a single individual and specific row
       // in a specific table
       const type: string = $$(toRowId(Tenor, Symbol, Strategy), RowActions.Update);
