@@ -71,7 +71,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
       arrow={bid.arrowDirection}
       type={EntryTypes.Bid}
       onSubmit={() => handlers.onUpdateOrder(bid)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, bid)}
+      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, bid)}
       onChange={setBidPrice}
       value={bid.price}
       color={user.email === bid.user ? 'red' : 'black'}
@@ -105,7 +105,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
       arrow={offer.arrowDirection}
       type={EntryTypes.Offer}
       onSubmit={() => handlers.onUpdateOrder(offer)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, offer)}
+      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, offer)}
       onChange={setOfferPrice}
       value={offer.price}
       color={user.email === offer.user ? 'red' : 'black'}

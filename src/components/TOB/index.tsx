@@ -140,7 +140,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
     },
     onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
-      setOrderTicket(entry);
+      console.log(entry);
+      setOrderTicket({...entry, type});
     },
     onRunButtonClicked: () => {
       showRunWindow();
@@ -165,8 +166,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     if (state.orderTicket === null)
       return <div/>;
     const createOrder = (quantity: number) => {
-      if (state.orderTicket !== null) {
-        props.createOrder({...state.orderTicket, quantity});
+      const {orderTicket} = state;
+      if (orderTicket !== null) {
+        props.createOrder({...orderTicket, quantity});
         // Remove the internal order ticket
         setOrderTicket(null);
       } else {
