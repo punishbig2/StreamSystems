@@ -19,7 +19,7 @@ export const theme = {
   textColorGray: '#a0a0a0',
   textColorGreen: '#10a060',
   tableHoverColor: 'rgba(0, 0, 0, 0.05)',
-  // Layout
+  // Input
   headerSize: 48,
   footerSize: 36,
   // Fonts

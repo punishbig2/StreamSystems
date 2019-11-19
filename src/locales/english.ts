@@ -20,4 +20,9 @@ export default {
   Yes: 'Yes',
   No: 'No',
   Filter: 'Filter',
+  DarkPool: 'Dark Pool',
+  BidSz: 'Bid Sz',
+  OfrSz: 'Ofr Sz',
+  BidPx: 'Bid Vol',
+  OfrPx: 'Ofr Vol',
 }

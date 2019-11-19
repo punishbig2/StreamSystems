@@ -1,105 +1,84 @@
-import {PriceRendererActions} from 'components/Table/CellRenderers/Price/constants';
+import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
+import {Direction} from 'components/Table/CellRenderers/Price/direction';
 import {PriceLayout} from 'components/Table/CellRenderers/Price/layout';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
-import {State} from 'components/Table/CellRenderers/Price/state';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {ArrowDirection} from 'interfaces/w';
-import React, {ReactElement, useEffect, useReducer} from 'react';
+import React, {ReactText, useEffect, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
-import {Point} from 'structures/point';
-import styled from 'styled-components';
-
-interface DirectionProps {
-  direction: ArrowDirection;
-}
-
-const DirectionLayout = styled.div`
-  position: absolute;
-  width: 16px;
-  left: 4px;
-  top: 0;
-  bottom: 0;
-  pointer-events: none;
-  i.fa-long-arrow-alt-up {
-    color: seagreen;;
-  }
-  i.fa-long-arrow-alt-down {
-    color: crimson;;
-  }
-`;
-
-const Direction = (props: DirectionProps): ReactElement => {
-  const arrows: { [key: string]: string } = {
-    [ArrowDirection.None]: 'none',
-    [ArrowDirection.Up]: 'up',
-    [ArrowDirection.Down]: 'down',
-  };
-  const icon = props.direction ? `fa fa-long-arrow-alt-${arrows[props.direction]}` : undefined;
-  return (
-    <DirectionLayout>
-      <i className={icon}/>
-    </DirectionLayout>
-  );
-};
-
-const initialState: State = {
-  x: 0,
-  y: 0,
-  startedShowingTooltip: false,
-  visible: false,
-};
 
 export interface Props {
-  value: string | number | null;
+  value: number | null;
   editable: boolean;
-  table?: TOBEntry[];
+  depth?: TOBEntry[];
   type?: EntryTypes;
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
   onChange: (value: string) => void;
   onSubmit?: (value: number) => void;
-  color: 'red' | 'blue' | 'green' | 'black' | 'gray',
   onBlur?: () => void;
   tabIndex?: number;
   arrow: ArrowDirection;
+  initialStatus?: EntryStatus;
+  className?: string;
 }
 
+const valueToString = (value: number | null): string => value === null ? '' : value.toString();
 export const Price: React.FC<Props> = (props: Props) => {
-  const [state, dispatch] = useReducer<typeof reducer>(reducer, initialState);
-  const {value, table} = props;
-  const showTooltip = () => dispatch(createAction(PriceRendererActions.StartShowingTooltip));
-  const hideTooltip = () => dispatch(createAction(PriceRendererActions.HideTooltip));
-  const onMouseMove = (event: React.MouseEvent) => dispatch(
-    createAction(PriceRendererActions.MoveTooltip, Point.fromEvent(event)),
-  );
-  const getTooltip = () => {
-    if ((state.visible === false) || (table === undefined) || (table.length === 0))
-      return null;
-    return <Tooltip x={state.x} y={state.y} render={() => <MiniDOB {...props} rows={table}/>}/>;
-  };
+  const {initialStatus, depth} = props;
+  const [state, dispatch] = useReducer<typeof reducer>(reducer, {
+    tooltipX: 0,
+    tooltipY: 0,
+    startedShowingTooltip: false,
+    visible: false,
+    status: initialStatus || EntryStatus.None,
+    value: valueToString(props.value),
+  });
+
   useEffect(() => {
-    if (state.startedShowingTooltip) {
-      const timer = setTimeout(() => dispatch(createAction(PriceRendererActions.ShowTooltip)), 500);
-      return () => {
-        dispatch(createAction(PriceRendererActions.StopShowingTooltip));
-        clearTimeout(timer);
-      };
-    }
+    dispatch(createAction(PriceActions.SetStatus, initialStatus));
+  }, [initialStatus]);
+
+  const showTooltip = () => dispatch(createAction(PriceActions.StartShowingTooltip));
+  const toPoint = (event: React.MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY});
+  const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
+  const onMouseMove = (event: React.MouseEvent) => dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
+  const setValue = (value: string, status: EntryStatus) => {
+    dispatch(createAction(PriceActions.SetValue, {value, status}));
+  };
+
+  const getTooltip = () => {
+    if (!state.visible || !depth || depth.length === 0)
+      return null;
+    return <Tooltip x={state.tooltipX} y={state.tooltipY} render={() => <MiniDOB {...props} rows={depth}/>}/>;
+  };
+
+  useEffect(() => {
+    if (!state.startedShowingTooltip)
+      return;
+    const timer = setTimeout(() => dispatch(createAction(PriceActions.ShowTooltip)), 500);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [state.startedShowingTooltip]);
+
+  useEffect(() => {
+    setValue(valueToString(props.value), EntryStatus.PreFilled & ~EntryStatus.Edited);
+  }, [props.value, props.initialStatus, state.status]);
 
   const onChange = (value: string) => {
     const trimmed: string = value.trim();
     const numeric: number = Number(`${trimmed}0`);
     if (trimmed.length === 0) {
-      props.onChange('');
+      setValue('', EntryStatus.Edited & ~EntryStatus.PreFilled);
     } else if (!isNaN(numeric)) {
-      props.onChange(trimmed);
+      setValue(trimmed, EntryStatus.Edited & ~EntryStatus.PreFilled);
     }
   };
 
@@ -126,19 +105,39 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const normalizedValue: string = value ? value.toString() : '';
+  const finalValue: string = ((): string => {
+    const {value} = state;
+    if (value === null)
+      return '';
+    return value.toString();
+  })();
+
+  const getClass = (status: EntryStatus, className?: string): string => {
+    const classes: string[] = className ? [className] : [];
+    if (status & EntryStatus.Owned)
+      classes.push('owned');
+    if (status & EntryStatus.Active)
+      classes.push('active');
+    if (status & EntryStatus.PreFilled)
+      classes.push('pre-filled');
+    if (status & EntryStatus.Edited)
+      classes.push('edited');
+    if (status & EntryStatus.Cancelled)
+      classes.push('cancelled');
+    return classes.join(' ');
+  };
+
   return (
     <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
       <Direction direction={props.arrow}/>
       <TableInput
         tabIndex={props.tabIndex}
-        value={normalizedValue}
+        value={finalValue}
         onDoubleClick={onDoubleClick}
         onBlur={props.onBlur}
         onSubmit={onSubmit}
         onChange={onChange}
-        readOnly={!props.editable}
-        color={props.color}/>
+        className={getClass(state.status, props.className)}/>
       {/* The floating object */}
       {getTooltip()}
     </PriceLayout>

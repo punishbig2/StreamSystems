@@ -149,13 +149,13 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefBidsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Buy);
     },
-    onRefOffersButtonClicked: () => {
+    onRefOfrsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Sell);
     },
     onPriceBlur: (entry: TOBEntry) => {
       if (entry.quantity !== null || entry.price === null)
         return;
-      createOrder({...entry, quantity: '10'});
+      createOrder({...entry, quantity: 10});
     },
     onCancelOrder: (entry: TOBEntry) => {
       cancelOrder(entry);

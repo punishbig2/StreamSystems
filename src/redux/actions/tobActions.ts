@@ -1,7 +1,7 @@
 import {API} from 'API';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {User} from 'interfaces/user';
 import {ArrowDirection, W} from 'interfaces/w';
 import {Action} from 'redux/action';
@@ -40,6 +40,13 @@ interface OrderMessage {
   OrderQty: string;
 }
 
+/**
+ * Get cancelled orders for the runs window
+ *
+ * @param id the id of the window, this generates a function that is unique for the creator window
+ * @param symbol the symbol to get the orders for
+ * @param strategy the strategy to get the orders for
+ */
 export const getRunOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, any> => {
   const user: User = getAuthenticatedUser();
   return new AsyncAction<any, any>(async (): Promise<ActionType> => {
@@ -50,11 +57,12 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
         tenor: entry.Tenor,
         strategy: entry.Strategy,
         symbol: entry.Symbol,
-        price: entry.Price,
-        quantity: entry.OrderQty,
+        price: Number(entry.Price),
+        quantity: Number(entry.OrderQty),
         user: user.email,
         type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Offer,
         arrowDirection: ArrowDirection.None,
+        status: EntryStatus.Cancelled,
       }))
       .forEach(emitUpdateOrderEvent);
     return createAction('');

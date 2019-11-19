@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const Layout = styled.input`
+export const Input = styled.input`
   padding: 0 8px;
   min-width: 0;
   width: 100%;
@@ -16,21 +16,6 @@ export const Layout = styled.input`
     outline: 2px solid ${({theme}) => theme.primaryColor};
     outline-offset: -2px;
     z-index: 1;
-  }
-  &.red {
-    color: ${({theme}) => theme.textColorRed};
-  }
-  &.black {
-    color: ${({theme}) => theme.textColorBlack};
-  }
-  &.gray {
-    color: ${({theme}) => theme.textColorGray};
-  }
-  &.blue {
-    color: ${({theme}) => theme.textColorBlue};
-  }
-  &.green {
-    color: ${({theme}) => theme.textColorGreen};
   }
   &:focus {
     cursor: initial;

@@ -1,7 +1,8 @@
 $table-border-color: rgba(0, 0, 0, 0.25);
 $title-bar-height: 28px;
 $title-bar-button-size: 20px;
-$table-header-height: 40px;
+$table-header-height: 54px;
+$table-row-height: 28px;
 $window-border-size: 2px;
 
 * {
@@ -83,6 +84,8 @@ button {
   .window-element {
     position: absolute;
     z-index: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
 
     &:hover {
       cursor: grab;
@@ -234,6 +237,7 @@ button {
         right: 2px;
         bottom: 3px;
         padding: 8px;
+        pointer-events: none;
       }
     }
   }
@@ -269,7 +273,7 @@ button {
   .thead .tr {
     border-bottom: 2px solid $table-border-color;
     height: auto;
-    line-height: 32px;
+    line-height: $table-row-height;
   }
 
   .thead .tr .th,
@@ -283,6 +287,7 @@ button {
   }
 
   .thead .tr .th {
+    pointer-events: initial;
     text-transform: uppercase;
     font-size: 13px;
     font-weight: 600;
@@ -313,21 +318,51 @@ button {
     }
 
     .column {
-      button {
-        pointer-events: initial;
-        cursor: default;
-      }
-
       .label, .sort-indicator {
         display: inline-block;
       }
 
       .label {
         text-align: center;
-        line-height: normal;
+        width: 100%;
+
+        .runs-quantity-input {
+          display: block;
+          background-color: white;
+          border: none;
+          padding: 0;
+          height: $table-row-height;
+          width: 100%;
+          text-align: center;
+          font-family: 'Roboto', sans-serif;
+          font-weight: 600;
+
+          &:focus {
+            outline: 2px solid dodgerblue;
+          }
+        }
+
+        .dual-header {
+          line-height: $table-header-height;
+          height: $table-header-height;
+
+          .first, .second {
+            line-height: $table-header-height / 2;
+            height: $table-header-height / 2;
+            width: 100%;
+
+            button {
+              pointer-events: initial;
+              cursor: default;
+              line-height: 1;
+            }
+          }
+        }
+
       }
 
       &.sortable {
+        border: 1px solid red;
         text-align: right;
 
         .label {
@@ -466,5 +501,24 @@ button {
     .message-entry-value {
       text-align: right;
     }
+  }
+}
+
+$text-color-red: #f02327;
+input {
+  &.owned {
+    color: $text-color-red;
+  }
+
+  &.cancelled {
+    color: #a0a0a0;
+  }
+
+  &.mid, &.tob-size {
+    color: #4071af;
+  }
+
+  &.spread {
+    color: #10a060;
   }
 }

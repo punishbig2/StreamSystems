@@ -58,15 +58,15 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
   const {symbols, products, tenors} = props;
   const {auth: {user}} = store.getState();
 
-  const addWindow = ({target: {value}}: { target: HTMLSelectElement }) => {
-    switch (value) {
-      case '1':
+  const addWindow = (type: WindowTypes) => {
+    switch (type) {
+      case WindowTypes.TOB:
         props.addWindow(WindowTypes.TOB);
         break;
-      case '2':
+      case WindowTypes.MessageBlotter:
         props.addWindow(WindowTypes.MessageBlotter);
         break;
-      case '3':
+      case WindowTypes.Empty:
         props.addWindow(WindowTypes.Empty);
         break;
       default:
@@ -83,11 +83,8 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
   return (
     <React.Fragment>
       <Toolbar>
-        <select value={-1} onChange={addWindow}>
-          <option value={-1} disabled>{strings.AddNewWindow}</option>
-          <option value={1}>TOB Window</option>
-          <option value={2}>Message Blotter</option>
-        </select>
+        <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
+        <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
       </Toolbar>
       <WindowManager
         windows={props.windows}

@@ -5,13 +5,13 @@ import React, {ReactNode} from 'react';
 
 interface SizeProps {
   type: EntryTypes;
-  value: string | number | null;
+  value: number | null;
   firm?: string;
   onChange: (value: string) => void;
   cancelable?: boolean;
   onCancel?: () => void;
-  color: 'red' | 'blue' | 'green' | 'black' | 'gray'
   hasCancelButton?: boolean;
+  className?: string;
 }
 
 const defaultProps: SizeProps = {
@@ -20,7 +20,6 @@ const defaultProps: SizeProps = {
   onChange: () => null,
   cancelable: false,
   onCancel: () => null,
-  color: 'black',
   hasCancelButton: true,
 };
 
@@ -33,10 +32,11 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
     return value.toString();
   };
   const children: ReactNode[] = [
-    <TableInput key={1} value={getValue()} color={props.color} tabIndex={-1}
+    <TableInput key={1} value={getValue()} tabIndex={-1} className={props.className}
                 onChange={(value: string) => props.onChange(value)}/>,
   ];
-  if (props.hasCancelButton !== false) {
+  if (props.hasCancelButton === false) {
+  } else {
     if (props.cancelable)
       classes.push('clickable');
     const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;

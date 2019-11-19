@@ -6,7 +6,7 @@ export interface TOBHandlers {
   onDoubleClick: (type: EntryTypes, data: any) => void;
   onRunButtonClicked: () => void;
   onRefBidsButtonClicked: () => void;
-  onRefOffersButtonClicked: () => void;
+  onRefOfrsButtonClicked: () => void;
   onPriceBlur: (entry: TOBEntry) => void;
   onUpdateOrder: (entry: TOBEntry) => void;
   onCancelOrder: (entry: TOBEntry) => void;

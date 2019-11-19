@@ -43,7 +43,7 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
     const rows: TOBRow[] = buildRows(tenors, symbol, strategy, email);
     // For each row, get a snapshot
     rows.forEach(({tenor}: TOBRow) => fns.getSnapshot(symbol, strategy, tenor));
-    // Initialize with base table
+    // Initialize with base depth
     fns.initialize(rows.reduce(reducer, {}));
     // Get run-orders too
     fns.getRunOrders(symbol, strategy);

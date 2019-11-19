@@ -1,19 +1,23 @@
-import {PriceRendererActions} from 'components/Table/CellRenderers/Price/constants';
+import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {State} from 'components/Table/CellRenderers/Price/state';
 import {Action} from 'redux/action';
 
-export const reducer = (state: State, {type, data}: Action<PriceRendererActions>) => {
+export const reducer = (state: State, {type, data}: Action<PriceActions>): State => {
   switch (type) {
-    case PriceRendererActions.ShowTooltip:
+    case PriceActions.ShowTooltip:
       return {...state, visible: true, startedShowingTooltip: false};
-    case PriceRendererActions.HideTooltip:
+    case PriceActions.HideTooltip:
       return {...state, visible: false, startedShowingTooltip: false};
-    case PriceRendererActions.MoveTooltip:
+    case PriceActions.MoveTooltip:
       return {...state, ...data};
-    case PriceRendererActions.StartShowingTooltip:
+    case PriceActions.StartShowingTooltip:
       return {...state, startedShowingTooltip: true};
-    case PriceRendererActions.StopShowingTooltip:
+    case PriceActions.StopShowingTooltip:
       return {...state, startedShowingTooltip: false};
+    case PriceActions.SetStatus:
+      return {...state, status: data};
+    case PriceActions.SetValue:
+      return {...state, value: data.value, status: state.status | data.status};
     default:
       return state;
   }

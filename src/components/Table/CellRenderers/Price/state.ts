@@ -1,6 +1,10 @@
+import {EntryStatus} from 'interfaces/tobEntry';
+
 export interface State {
-  x: number;
-  y: number;
+  tooltipX: number;
+  tooltipY: number;
   startedShowingTooltip: boolean;
   visible: boolean;
+  status: EntryStatus;
+  value: string | null;
 }

@@ -1,7 +1,8 @@
 import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
+import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
@@ -52,19 +53,30 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
   }
 };
 
+const getNumber = (value: string | null | undefined): number | null => {
+  if (!value)
+    return null;
+  const numeric: number = Number(value);
+  if (numeric === 0)
+    return null;
+  return numeric;
+};
+
 export const transformer = (w: W) => (entry: MDEntry): TOBEntry => {
-  const user = getAuthenticatedUser();
+  const user: User = getAuthenticatedUser();
+  const ownership: EntryStatus = user.email === entry.MDEntryOriginator ? EntryStatus.Owned : EntryStatus.NotOwned;
   return {
     tenor: w.Tenor,
     strategy: w.Strategy,
     symbol: w.Symbol,
     user: entry.MDEntryOriginator || user.email,
-    quantity: entry.MDEntrySize ? entry.MDEntrySize : null,
-    price: entry.MDEntryPx !== '0' ? entry.MDEntryPx : null,
+    quantity: getNumber(entry.MDEntrySize),
+    price: getNumber(entry.MDEntryPx),
     firm: entry.MDFirm,
     type: entry.MDEntryType,
     orderId: entry.OrderID,
     arrowDirection: entry.TickDirection,
+    status: EntryStatus.Active | ownership,
   };
 };
 

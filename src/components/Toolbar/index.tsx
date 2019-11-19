@@ -10,7 +10,10 @@ export const Toolbar = styled.div`
   line-height: ${({theme}) => theme.headerSize}px;
   border-bottom: 1px solid ${({theme}) => theme.tableBorderColor};
   padding: 0 16px;
-  * {
+  button {
     line-height: normal;
+    &:nth-child(n + 2) {
+      margin: 0 0 0 12px;
+    }
   }
 `;

@@ -51,7 +51,7 @@ const useInitializer = (tenors: string[], symbol: string, strategy: string, emai
     const rows: TOBRow[] = tenors
       .map((tenor: string) => {
         const getEntry = (type: EntryTypes) => {
-          const empty: TOBEntry = emptyEntry(tenor, symbol, strategy, email, '10', type);
+          const empty: TOBEntry = emptyEntry(tenor, symbol, strategy, email, 10, type);
           if (orders) {
             const entry = orders.find((order) => {
               return matchOrder(order, symbol, strategy, tenor, type);
@@ -106,7 +106,7 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
   const {email} = user;
 
   const setTable = (table: TOBTable) => dispatch(createAction(RunActions.SetTable, table));
-  // Updates a single side of the table
+  // Updates a single side of the depth
   const updateSide = (entry: TOBEntry) => {
     const id: string = $$(toRunId(entry.symbol, entry.strategy), entry.tenor);
     switch (entry.type) {
@@ -146,11 +146,11 @@ const Run: React.FC<OwnProps> = withRedux((props: OwnProps & RunState) => {
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;
     return (
-      <Row {...props} user={props.user} row={row} fixedRow={row.modified ? row : undefined}/>
+      <Row {...props} user={props.user} row={row} defaultBidQty={10} defaultOfrQty={10}/>
     );
   };
 
-  // This builds the set of columns of the run table with it's callbacks
+  // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
     onBidChanged: (id: string, value: string) => dispatch(createAction(RunActions.Bid, {id, value})),
     onOfferChanged: (id: string, value: string) => dispatch(createAction(RunActions.Offer, {id, value})),

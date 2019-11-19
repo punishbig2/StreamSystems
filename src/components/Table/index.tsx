@@ -38,7 +38,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   const [filters, setFilters] = useState<{ [key: string]: string | undefined }>({});
   const [sortBy, setSortBy] = useState<SortInfo | undefined>();
   if (!rows)
-    return null; // FIXME: show "No data in this table message"
+    return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
   const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.weight, 0);
   const propertyMapper = ([key, row]: [string, any]) => ({id: key, weight: total, key, columns, row});

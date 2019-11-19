@@ -6,8 +6,4 @@ export class Point {
     this.x = x;
     this.y = y;
   }
-
-  public static fromEvent = (event: React.MouseEvent | MouseEvent): Point => {
-    return new Point(event.clientX, event.clientY);
-  };
 }

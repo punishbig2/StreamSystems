@@ -1,7 +1,9 @@
-export enum PriceRendererActions {
-  ShowTooltip = 'PriceRenderer.ShowTooltip',
-  HideTooltip = 'PriceRenderer.HideTooltip',
-  StartShowingTooltip = 'PriceRenderer.StartShowingTooltip',
-  StopShowingTooltip = 'PriceRenderer.StopShowingTooltip',
-  MoveTooltip = 'PriceRenderer.MoveTooltip',
+export enum PriceActions {
+  ShowTooltip,
+  HideTooltip,
+  StartShowingTooltip,
+  StopShowingTooltip,
+  MoveTooltip,
+  SetStatus,
+  SetValue,
 }
