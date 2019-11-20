@@ -413,7 +413,9 @@ button {
       position: relative;
 
       &.flash {
-        animation: flash 0.5s infinite;
+        input {
+          animation: flash 0.5s infinite;
+        }
       }
 
       input {
