@@ -23,6 +23,11 @@ export class AsyncAction<T, A extends Action = AnyAction> implements Action<T> {
     } catch (error) {
       // FIXME: handle errors correctly
       console.log(`error: ${error}`);
+      if (error !== undefined) {
+        if (error.hasOwnProperty('stack')) {
+          console.log(error.stack);
+        }
+      }
     }
   };
 }

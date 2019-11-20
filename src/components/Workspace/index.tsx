@@ -4,7 +4,6 @@ import {Toolbar} from 'components/Toolbar';
 import {WindowManager} from 'components/WindowManager';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
-import strings from 'locales';
 import React, {ReactElement} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';

@@ -3,6 +3,8 @@ export enum PriceActions {
   HideTooltip,
   StartShowingTooltip,
   StopShowingTooltip,
+  Flash,
+  Unflash,
   MoveTooltip,
   SetStatus,
   SetValue,

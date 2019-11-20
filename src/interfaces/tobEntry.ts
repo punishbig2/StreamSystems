@@ -10,6 +10,7 @@ export enum EntryStatus {
   PriceEdited = 1 << 4,
   Owned = 1 << 6,
   NotOwned = 1 << 7,
+  HaveOtherOrders = 1 << 8,
 }
 
 export interface TOBEntry {

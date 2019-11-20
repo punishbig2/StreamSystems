@@ -2,8 +2,10 @@ $table-border-color: rgba(0, 0, 0, 0.25);
 $title-bar-height: 28px;
 $title-bar-button-size: 20px;
 $table-header-height: 54px;
-$table-row-height: 28px;
+$table-row-height: 24px;
 $window-border-size: 2px;
+$text-color-blue: #4071af;
+$text-color-red: #f02327;
 
 * {
   font-family: 'Montserrat', sans-serif;
@@ -265,8 +267,8 @@ button {
   .tbody .tr,
   .thead .tr {
     width: 100%;
-    height: 24px;
-    line-height: 24px;
+    height: $table-row-height;
+    line-height: $table-row-height;
     white-space: nowrap;
   }
 
@@ -385,7 +387,7 @@ button {
         }
 
         .fa.none {
-          opacity: 0.25;
+          opacity: 0.05;
         }
 
         &:hover {
@@ -406,6 +408,93 @@ button {
     border-bottom: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
     pointer-events: initial;
+
+    .price-layout {
+      position: relative;
+
+      &.flash {
+        animation: flash 0.5s infinite;
+      }
+
+      input {
+        &.owned {
+          color: $text-color-red;
+        }
+
+        &.cancelled {
+          color: #a0a0a0;
+        }
+
+        &.mid, &.tob-size {
+          color: $text-color-blue;
+        }
+
+        &.spread {
+          color: #10a060;
+        }
+      }
+    }
+
+    .size-layout {
+      display: flex;
+      align-items: center;
+      line-height: $table-row-height;
+      white-space: nowrap;
+
+      div {
+        color: $text-color-blue;
+        width: $table-row-height;
+        line-height: $table-row-height;
+        height: 100%;
+
+        &.times {
+          top: 0;
+          left: 0;
+          color: $text-color-red;
+          height: $table-row-height;
+          width: $table-row-height;
+          line-height: $table-row-height;
+
+          &:not(.clickable) {
+            color: transparent;
+          }
+
+          &.clickable:hover {
+            &::after {
+              cursor: pointer;
+              background-color: $text-color-red;
+              color: white;
+            }
+
+            cursor: default;
+          }
+
+          &.clickable:active {
+            transform: translateY(1px);
+          }
+
+          &::after {
+            display: block;
+            transition: background-color 0.2s;
+            text-align: center;
+            font-size: 22px;
+            content: '\d7';
+            border-radius: 8px;
+            line-height: 18px;
+            width: 16px;
+            height: 16px;
+            margin: ($table-row-height - 16px) / 2 auto;
+          }
+        }
+      }
+
+      input {
+        flex: 1;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-align: center;
+      }
+    }
   }
 
   .tbody .tr .td:last-child {
@@ -504,21 +593,16 @@ button {
   }
 }
 
-$text-color-red: #f02327;
-input {
-  &.owned {
-    color: $text-color-red;
+@keyframes flash {
+  0% {
+    opacity: 1;
   }
-
-  &.cancelled {
-    color: #a0a0a0;
+  50% {
+    opacity: 0.25;
   }
-
-  &.mid, &.tob-size {
-    color: #4071af;
-  }
-
-  &.spread {
-    color: #10a060;
+  100% {
+    opacity: 1;
   }
 }
+
+

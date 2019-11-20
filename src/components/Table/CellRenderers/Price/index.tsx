@@ -1,6 +1,6 @@
+import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
-import {PriceLayout} from 'components/Table/CellRenderers/Price/layout';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
@@ -21,7 +21,7 @@ export interface Props {
   onDoubleClick?: () => void;
   onChange: (value: number) => void;
   onSubmit?: (value: number) => void;
-  onBlur?: () => void;
+  onBlur?: (value: number) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
   status: EntryStatus;
@@ -59,6 +59,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     tooltipY: 0,
     startedShowingTooltip: false,
     visible: false,
+    flash: false,
     status: props.status || EntryStatus.None,
     value: valueToString(props.value),
   });
@@ -69,6 +70,8 @@ export const Price: React.FC<Props> = (props: Props) => {
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
   const onMouseMove = (event: React.MouseEvent) => dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
   const setStatus = useCallback((status: EntryStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
+  const flash = () => dispatch(createAction(PriceActions.Flash));
+  const unflash = () => dispatch(createAction(PriceActions.Unflash));
   const setValue = (value: string, status: EntryStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
   };
@@ -83,7 +86,18 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    setValue(valueToString(props.value), EntryStatus.PreFilled & ~EntryStatus.PriceEdited);
+    if (!state.flash)
+      return;
+    const timer = setTimeout(unflash, 2000);
+    return () => clearTimeout(timer);
+  }, [state.flash]);
+
+  useEffect(() => {
+    flash();
+  }, [props.arrow]);
+
+  useEffect(() => {
+    setValue(valueToString(props.value), EntryStatus.None & ~EntryStatus.PriceEdited);
   }, [props.value, props.status]);
 
   const onChange = (value: string) => {
@@ -142,19 +156,33 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const onBlur = () => {
+    if (state.value === '')
+      return;
     const value: string | null = state.value;
     if (value === null)
       return;
-    if (props.onBlur)
-      props.onBlur();
     const numeric: number = Number(value);
+    // If it's non-numeric also ignore this
     if (isNaN(numeric))
       return;
+    // It passed all validations, so emit the event
     props.onChange(numeric);
   };
 
+  const showChevron =
+    (state.status & EntryStatus.HaveOtherOrders) !== 0 &&
+    (state.status & EntryStatus.Owned) === 0 &&
+    (state.value !== '');
+  const getClassName = () => {
+    const classes = ['price-layout'];
+    if (state.flash)
+      classes.push('flash');
+    return classes.join(' ');
+  };
   return (
-    <PriceLayout onMouseEnter={showTooltip} onMouseLeave={hideTooltip} onMouseMove={onMouseMove}>
+    <div className={getClassName()} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
+         onMouseMove={onMouseMove}>
+      {showChevron ? <Chevron/> : null}
       <Direction direction={props.arrow}/>
       <TableInput
         tabIndex={props.tabIndex}
@@ -166,7 +194,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         className={getClass(state.status, props.className)}/>
       {/* The floating object */}
       {getTooltip()}
-    </PriceLayout>
+    </div>
   );
 };
 

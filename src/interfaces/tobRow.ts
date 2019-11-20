@@ -8,5 +8,4 @@ export interface TOBRow {
   ofr: TOBEntry;
   mid: number | null;
   spread: number | null;
-  modified?: boolean;
 }

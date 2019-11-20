@@ -3,55 +3,11 @@ import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
-import {W} from 'interfaces/w';
+import {ArrowDirection, W} from 'interfaces/w';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
-const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
-  const user = getAuthenticatedUser();
-  const reducer = (table: TOBTable, row: TOBRow, index: number): TOBTable => {
-    const key: string = $$('__DOB_KEY', index, w.Tenor, w.Symbol, w.Strategy);
-    table[key] = row;
-    return table;
-  };
-  const mapper = (key1: string, key2: string) => (other: MDEntry[]) => (entry: MDEntry, index: number): any => {
-    return {
-      id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
-      tenor: w.Tenor,
-      [key1]: {
-        tenor: w.Tenor,
-        strategy: w.Strategy,
-        symbol: w.Symbol,
-        user: entry.MDUserId || entry.MDEntryOriginator || user.email,
-        quantity: Number(entry.MDEntrySize),
-        price: Number(entry.MDEntryPx),
-        firm: entry.MDFirm,
-        type: EntryTypes.Bid,
-      },
-      [key2]: {
-        tenor: w.Tenor,
-        strategy: w.Strategy,
-        symbol: w.Symbol,
-        user: other[index] ? (other[index].MDUserId || other[index].MDEntryOriginator || user.email) : user.email,
-        quantity: other[index] ? Number(other[index].MDEntrySize) : null,
-        price: other[index] ? Number(other[index].MDEntryPx) : null,
-        firm: entry.MDFirm,
-        type: EntryTypes.Ofr,
-      },
-      mid: null,
-      spread: null,
-    };
-  };
-  if (bids.length > offers.length) {
-    return bids
-      .map(mapper('bid', 'ofr')(offers))
-      .reduce(reducer, {});
-  } else {
-    return offers
-      .map(mapper('ofr', 'bid')(bids))
-      .reduce(reducer, {});
-  }
-};
+type E = 'bid' | 'ofr';
 
 const getNumber = (value: string | null | undefined): number | null => {
   if (!value)
@@ -62,26 +18,89 @@ const getNumber = (value: string | null | undefined): number | null => {
   return numeric;
 };
 
-export const transformer = (w: W) => (entry: MDEntry): TOBEntry => {
+export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryTypes): TOBEntry => {
   const user: User = getAuthenticatedUser();
-  const ownership: EntryStatus = user.email === entry.MDEntryOriginator ? EntryStatus.Owned : EntryStatus.NotOwned;
-  const price: number | null = getNumber(entry.MDEntryPx);
-  const quantity: number | null = getNumber(entry.MDEntrySize);
-  return {
-    tenor: w.Tenor,
-    strategy: w.Strategy,
-    symbol: w.Symbol,
-    user: entry.MDEntryOriginator || user.email,
-    quantity: quantity,
-    __quantity: quantity,
-    price: price,
-    __price: price,
-    firm: entry.MDFirm,
-    type: entry.MDEntryType,
-    orderId: entry.OrderID,
-    arrowDirection: entry.TickDirection,
-    status: EntryStatus.Active | ownership,
+  if (entry) {
+    const ownership: EntryStatus = user.email === entry.MDEntryOriginator ? EntryStatus.Owned : EntryStatus.NotOwned;
+    const price: number | null = getNumber(entry.MDEntryPx);
+    const quantity: number | null = getNumber(entry.MDEntrySize);
+    return {
+      tenor: w.Tenor,
+      strategy: w.Strategy,
+      symbol: w.Symbol,
+      status: EntryStatus.Active | EntryStatus.PreFilled | ownership,
+      user: entry.MDEntryOriginator,
+      // Quantity and modifiable quantity
+      quantity: quantity,
+      __quantity: quantity,
+      // Price and modifiable price
+      price: price,
+      __price: price,
+      firm: entry.MDFirm,
+      type: entry.MDEntryType,
+      orderId: entry.OrderID,
+      arrowDirection: entry.TickDirection,
+    };
+  } else {
+    return {
+      tenor: w.Tenor,
+      strategy: w.Strategy,
+      symbol: w.Symbol,
+      user: user.email,
+      // Quantity and modifiable quantity
+      quantity: null,
+      __quantity: null,
+      // Price and modifiable price
+      price: null,
+      __price: null,
+      type: fallbackType,
+      arrowDirection: ArrowDirection.None,
+      status: EntryStatus.Active | EntryStatus.Owned,
+    };
+  }
+};
+
+const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
+  const reducer = (table: TOBTable, row: TOBRow, index: number): TOBTable => {
+    const key: string = $$('__DOB_KEY', index, w.Tenor, w.Symbol, w.Strategy);
+    table[key] = row;
+    return table;
   };
+  const createMapper = (key1: E, key2: E) => (other: MDEntry[]) => (entry: MDEntry, index: number): TOBRow => {
+    const transform = mdEntryToTOBEntry(w);
+    if (key1 === 'ofr' && key2 === 'bid') {
+      return {
+        id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
+        tenor: w.Tenor,
+        ofr: transform(entry, EntryTypes.Ofr),
+        bid: transform(other[index], EntryTypes.Bid),
+        mid: null,
+        spread: null,
+      };
+    } else if (key1 === 'bid' && key2 === 'ofr') {
+      return {
+        id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
+        tenor: w.Tenor,
+        bid: transform(entry, EntryTypes.Bid),
+        ofr: transform(other[index], EntryTypes.Ofr),
+        mid: null,
+        spread: null,
+      };
+    } else {
+      throw new Error('I cannot understand this combination');
+    }
+  };
+  if (bids.length > offers.length) {
+    const mapperSelector = createMapper('bid', 'ofr');
+    return bids
+      .map(mapperSelector(offers))
+      .reduce(reducer, {});
+  } else {
+    const mapperSelector = createMapper('ofr', 'bid');
+    return offers
+      .map(mapperSelector(bids))
+      .reduce(reducer, {});
+  }
 };
 
 const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
@@ -98,16 +117,14 @@ const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
 
 export const toTOBRow = (w: W): TOBRow => {
   const [bid, ofr]: [MDEntry, MDEntry] = reorder(w.Entries);
-  const transform = transformer(w);
+  const transform = mdEntryToTOBEntry(w);
   return {
     id: '',
     tenor: w.Tenor,
-    bid: transform(bid),
-    ofr: transform(ofr),
-    darkPool: '',
+    bid: transform(bid, EntryTypes.Bid),
+    ofr: transform(ofr, EntryTypes.Ofr),
     mid: null,
     spread: null,
-    modified: false,
   };
 };
 

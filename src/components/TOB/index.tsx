@@ -14,7 +14,7 @@ import {VisibilitySelector} from 'components/visibilitySelector';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -140,7 +140,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
     },
     onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
-      console.log(entry);
       setOrderTicket({...entry, type});
     },
     onRunButtonClicked: () => {
@@ -152,10 +151,18 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefOfrsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Sell);
     },
-    onPriceBlur: (entry: TOBEntry) => {
-      if (entry.quantity !== null || entry.price === null)
-        return;
-      createOrder({...entry, quantity: 10});
+    onPriceChange: (entry: TOBEntry) => {
+      if ((entry.status & EntryStatus.Owned) === 0) {
+        if (entry.quantity === null) {
+          createOrder({...entry, quantity: 10});
+        } else {
+          createOrder(entry);
+        }
+      } else {
+        if (entry.quantity !== null || entry.price === null)
+          return;
+        createOrder({...entry, quantity: 10});
+      }
     },
     onCancelOrder: (entry: TOBEntry) => {
       cancelOrder(entry);

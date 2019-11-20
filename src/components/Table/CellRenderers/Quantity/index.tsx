@@ -1,4 +1,3 @@
-import {SizeLayout} from 'components/Table/CellRenderers/Quantity/layout';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
@@ -53,9 +52,9 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
     }
   }
   return (
-    <SizeLayout>
+    <div className={'size-layout'}>
       {children}
-    </SizeLayout>
+    </div>
   );
 };
 

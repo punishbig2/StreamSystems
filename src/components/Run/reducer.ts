@@ -96,7 +96,6 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
               // Update the status and set it as edited/modified
               status: type === 'bid' ? bid.status | EntryStatus.PriceEdited : bid.status,
             },
-            modified: true,
           },
         },
         history: updateHistory(type, history),

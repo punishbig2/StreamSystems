@@ -10,10 +10,10 @@ export const emptyEntry = (tenor: string, symbol: string, strategy: string, user
     symbol,
     strategy,
     user,
-    price: null,
     __price: null,
-    quantity,
+    price: null,
     __quantity: quantity,
+    quantity: quantity,
     arrowDirection: ArrowDirection.None,
     status: EntryStatus.None,
   };
@@ -46,3 +46,4 @@ export const compareTenors = (a: TOBRow, b: TOBRow) => {
   const bt: string = b.tenor;
   return tenorToNumber(at) - tenorToNumber(bt);
 };
+

@@ -1,4 +1,4 @@
-import {MDEntry} from 'interfaces/mdEntry';
+import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -9,7 +9,7 @@ import {RowActions} from 'redux/constants/rowConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {toRowId} from 'utils';
-import {extractDepth, toTOBRow, transformer} from 'utils/dataParser';
+import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
@@ -21,12 +21,12 @@ export const emitUpdateOrderEvent = (order: TOBEntry) => {
 };
 
 const propagateOrders = (w: W) => {
-  const transform: (entry: MDEntry) => TOBEntry = transformer(w);
+  const transform: (entry: MDEntry, fallbackType: EntryTypes) => TOBEntry = mdEntryToTOBEntry(w);
   const user: User = getAuthenticatedUser();
   const entries: MDEntry[] = w.Entries;
   entries
     .filter((entry: MDEntry) => entry.MDEntryOriginator === user.email)
-    .map((entry: MDEntry) => transform(entry))
+    .map((entry: MDEntry) => transform(entry, EntryTypes.Invalid))
     .forEach(emitUpdateOrderEvent);
 };
 
@@ -83,3 +83,4 @@ export const handlers = {
     }
   },
 };
+

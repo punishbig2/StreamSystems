@@ -46,7 +46,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   header: () => <DualTableHeader label={strings.BidPx}
                                  action={{fn: handlers.onRefBidsButtonClicked, label: strings.RefBids}}/>,
   render: ({bid, depths}: RowType) => (
-    <TOBPrice depths={depths} entry={bid} onBlur={handlers.onPriceBlur} onDoubleClick={handlers.onDoubleClick}
+    <TOBPrice depths={depths} entry={bid} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
@@ -69,7 +69,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   header: () => <DualTableHeader label={strings.OfrPx}
                                  action={{fn: handlers.onRefOfrsButtonClicked, label: strings.RefBids}}/>,
   render: ({ofr, depths}: RowType) => (
-    <TOBPrice depths={depths} entry={ofr} onBlur={handlers.onPriceBlur} onDoubleClick={handlers.onDoubleClick}
+    <TOBPrice depths={depths} entry={ofr} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
