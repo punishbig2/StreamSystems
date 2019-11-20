@@ -5,7 +5,7 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   onDoubleClick?: (event: React.MouseEvent) => void;
-  onSubmit?: (value: string) => void;
+  onReturnPressed?: () => void;
   readOnly?: boolean;
   onBlur?: () => void;
   className?: string;
@@ -13,24 +13,17 @@ interface Props {
 }
 
 const TableInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onSubmit, value, ...otherProps} = props;
+  const {onReturnPressed, ...otherProps} = props;
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (value === null || onSubmit === undefined)
+    if (onReturnPressed === undefined)
       return;
     if (event.key === 'Enter') {
-      onSubmit(value.toString());
+      onReturnPressed();
     }
   };
   const onChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => props.onChange(value);
   return (
-    <Input
-      {...otherProps}
-      onBlur={props.onBlur}
-      onChange={onChange}
-      onKeyPress={onKeyPress}
-      className={props.className}
-      value={value}
-      tabIndex={props.tabIndex}/>
+    <Input {...otherProps} onKeyPress={onKeyPress} onChange={onChange}/>
   );
 };
 

@@ -24,13 +24,13 @@ interface OwnProps {
 
 interface DispatchProps {
   setOfferQuantity: (value: string) => void;
-  setOfferPrice: (value: string) => void;
+  setOfrPrice: (value: string) => void;
   setBidQuantity: (value: string) => void;
   setBidPrice: (value: string) => void;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  setOfferPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
+  setOfrPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
   setOfferQuantity: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
   setBidPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetBidPrice), value)),
   setBidQuantity: (value: string) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
@@ -51,7 +51,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     };
   }, [id, row]);
   const functions: DispatchProps = {
-    setOfferPrice: props.setOfferPrice,
+    setOfrPrice: props.setOfrPrice,
     setOfferQuantity: props.setOfferQuantity,
     setBidPrice: props.setBidPrice,
     setBidQuantity: props.setBidQuantity,

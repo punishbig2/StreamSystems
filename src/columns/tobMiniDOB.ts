@@ -8,12 +8,12 @@ export const getMiniDOBByType = (depths: Depths, tenor: string, type: EntryTypes
   if (depths === undefined || depths[tenor] === undefined)
     return undefined;
   const items: TOBRow[] = Object.values(depths[tenor]);
-  const offers: TOBEntry[] = items.map((item) => item.offer);
+  const offers: TOBEntry[] = items.map((item) => item.ofr);
   const bids: TOBEntry[] = items.map((item) => item.bid);
   switch (type) {
     case EntryTypes.Invalid:
       break;
-    case EntryTypes.Offer:
+    case EntryTypes.Ofr:
       return offers.filter((entry) => entry.price !== null);
     case EntryTypes.Bid:
       return bids.filter((entry) => entry.price !== null);

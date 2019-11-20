@@ -5,7 +5,7 @@ export interface TOBRow {
   tenor: string;
   bid: TOBEntry;
   darkPool?: string;
-  offer: TOBEntry;
+  ofr: TOBEntry;
   mid: number | null;
   spread: number | null;
   modified?: boolean;

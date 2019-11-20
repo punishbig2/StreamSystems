@@ -22,7 +22,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
       id: toRowId(tenor, symbol, strategy),
       bid: emptyBid(tenor, symbol, strategy, email),
       darkPool: '',
-      offer: emptyOffer(tenor, symbol, strategy, email),
+      ofr: emptyOffer(tenor, symbol, strategy, email),
       mid: null,
       spread: null,
     };

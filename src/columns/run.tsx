@@ -3,6 +3,7 @@ import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TableInput} from 'components/TableInput';
+import {EntryStatus} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
@@ -27,47 +28,47 @@ const columns = (handlers: RunHandlers): ColumnSpec[] => [{
   header: () => <input className={'runs-quantity-input'} defaultValue={'10'}/>,
   render: ({id, bid, defaultBidQty}: RowType) => (
     <TableInput value={toQuantity(bid.quantity, defaultBidQty)}
-                onChange={(value: string) => handlers.onBidQtyChanged(id, value)}/>
+                onChange={(value: string) => handlers.onBidQtyChanged(id, Number(value))}/>
   ),
   weight: 3,
 }, {
   name: 'bid-price',
   header: () => <div>{strings.Bid}</div>,
   render: ({id, bid}: RowType) => (
-    <Price value={bid.price} onChange={(price: string) => handlers.onBidChanged(id, price)}
-           editable={true} arrow={ArrowDirection.None} initialStatus={bid.status}/>
+    <Price value={bid.price} onChange={(price: number) => handlers.onBidChanged(id, price)}
+           arrow={ArrowDirection.None} status={bid.status}/>
   ),
   weight: 4,
 }, {
-  name: 'offer-price',
-  header: () => <div>{strings.Offer}</div>,
-  render: ({id, offer}: RowType) => (
-    <Price value={offer.price} onChange={(price: string) => handlers.onOfferChanged(id, price)}
-           editable={true} arrow={ArrowDirection.None} initialStatus={offer.status}/>
+  name: 'ofr-price',
+  header: () => <div>{strings.Ofr}</div>,
+  render: ({id, ofr}: RowType) => (
+    <Price value={ofr.price} onChange={(price: number) => handlers.onOfferChanged(id, price)}
+           arrow={ArrowDirection.None} status={ofr.status}/>
   ),
   weight: 4,
 }, {
-  name: 'offer-quantity',
+  name: 'ofr-quantity',
   header: () => <input className={'runs-quantity-input'} defaultValue={'10'}/>,
-  render: ({id, offer, defaultOfrQty}: RowType) => (
-    <TableInput value={toQuantity(offer.quantity, defaultOfrQty)}
-                onChange={(value: string) => handlers.onOfferQtyChanged(id, value)}/>
+  render: ({id, ofr, defaultOfrQty}: RowType) => (
+    <TableInput value={toQuantity(ofr.quantity, defaultOfrQty)}
+                onChange={(value: string) => handlers.onOfferQtyChanged(id, Number(value))}/>
   ),
   weight: 3,
 }, {
   name: 'mid',
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
-    <Price value={mid} onChange={(value: string) => handlers.onMidChanged(id, value)}
-           className={'mid'} editable={true} arrow={ArrowDirection.None}/>
+    <Price value={mid} onChange={(value: number) => handlers.onMidChanged(id, value)}
+           className={'mid'} arrow={ArrowDirection.None} status={EntryStatus.None}/>
   ),
   weight: 4,
 }, {
   name: 'spread',
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => (
-    <Price value={spread} onChange={(value: string) => handlers.onSpreadChanged(id, value)}
-           className={'spread'} editable={true} arrow={ArrowDirection.None}/>
+    <Price value={spread} onChange={(value: number) => handlers.onSpreadChanged(id, value)}
+           className={'spread'} arrow={ArrowDirection.None} status={EntryStatus.None}/>
   ),
   weight: 4,
 }];

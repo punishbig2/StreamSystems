@@ -9,7 +9,6 @@ export default {
   OrderEntry: 'Order Entry',
   Messages: 'Messages',
   Bid: 'Bid',
-  Offer: 'Offer',
   Ofr: 'Ofr',
   Mid: 'Mid',
   Spread: 'Spread',

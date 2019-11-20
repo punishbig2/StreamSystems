@@ -1,4 +1,5 @@
 import {getMiniDOBByType} from 'columns/tobMiniDOB';
+import {TOBPrice} from 'columns/tobPrice';
 import {TOBQty as Qty} from 'columns/tobQty';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {Price} from 'components/Table/CellRenderers/Price';
@@ -7,6 +8,7 @@ import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBHandlers} from 'components/TOB/handlers';
 import {EntryTypes} from 'interfaces/mdEntry';
+import {EntryStatus} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -16,7 +18,7 @@ import React from 'react';
 
 interface RowHandlers {
   setOfferQuantity: (value: string) => void;
-  setOfferPrice: (value: string) => void;
+  setOfrPrice: (value: string) => void;
   setBidQuantity: (value: string) => void;
   setBidPrice: (value: string) => void;
 }
@@ -43,18 +45,9 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'bid-vol',
   header: () => <DualTableHeader label={strings.BidPx}
                                  action={{fn: handlers.onRefBidsButtonClicked, label: strings.RefBids}}/>,
-  render: ({bid, depths, user, setBidPrice}: RowType) => (
-    <Price
-      editable={user.email === bid.user}
-      depth={getMiniDOBByType(depths, bid.tenor, EntryTypes.Bid)}
-      arrow={bid.arrowDirection}
-      type={EntryTypes.Bid}
-      onSubmit={() => handlers.onUpdateOrder(bid)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Offer, bid)}
-      onChange={setBidPrice}
-      value={bid.price}
-      initialStatus={bid.status}
-      onBlur={() => handlers.onPriceBlur(bid)}/>
+  render: ({bid, depths}: RowType) => (
+    <TOBPrice depths={depths} entry={bid} onBlur={handlers.onPriceBlur} onDoubleClick={handlers.onDoubleClick}
+              onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
 }, {
@@ -62,37 +55,29 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   header: () => <DualTableHeader label={strings.DarkPool}/>,
   render: () => (
     <Price
-      editable={false}
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
       value={null}
+      status={EntryStatus.None}
       tabIndex={-1}/>
   ),
   weight: 3,
 }, {
-  name: 'offer-vol',
+  name: 'ofr-vol',
   header: () => <DualTableHeader label={strings.OfrPx}
                                  action={{fn: handlers.onRefOfrsButtonClicked, label: strings.RefBids}}/>,
-  render: ({offer, depths, user, setOfferPrice}: RowType) => (
-    <Price
-      editable={user.email === offer.user}
-      depth={getMiniDOBByType(depths, offer.tenor, EntryTypes.Offer)}
-      arrow={offer.arrowDirection}
-      type={EntryTypes.Offer}
-      onSubmit={() => handlers.onUpdateOrder(offer)}
-      onDoubleClick={() => handlers.onDoubleClick(EntryTypes.Bid, offer)}
-      onChange={setOfferPrice}
-      value={offer.price}
-      onBlur={() => handlers.onPriceBlur(offer)}/>
+  render: ({ofr, depths}: RowType) => (
+    <TOBPrice depths={depths} entry={ofr} onBlur={handlers.onPriceBlur} onDoubleClick={handlers.onDoubleClick}
+              onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
 }, {
-  name: 'offer-quantity',
+  name: 'ofr-quantity',
   header: () => <DualTableHeader label={'Ofr Sz'} action={{fn: handlers.onRunButtonClicked, label: strings.Run}}/>,
-  render: ({offer, user, setOfferQuantity}: RowType) => (
-    <Qty entry={offer} onCancel={handlers.onCancelOrder} onChange={setOfferQuantity} user={user}/>
+  render: ({ofr, user, setOfferQuantity}: RowType) => (
+    <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfferQuantity} user={user}/>
   ),
   weight: 2,
 }];

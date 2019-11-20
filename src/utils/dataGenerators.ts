@@ -11,13 +11,15 @@ export const emptyEntry = (tenor: string, symbol: string, strategy: string, user
     strategy,
     user,
     price: null,
+    __price: null,
     quantity,
+    __quantity: quantity,
     arrowDirection: ArrowDirection.None,
     status: EntryStatus.None,
   };
 };
 export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): TOBEntry => {
-  return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Offer);
+  return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Ofr);
 };
 
 export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): TOBEntry => {

@@ -36,7 +36,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
         quantity: other[index] ? Number(other[index].MDEntrySize) : null,
         price: other[index] ? Number(other[index].MDEntryPx) : null,
         firm: entry.MDFirm,
-        type: EntryTypes.Offer,
+        type: EntryTypes.Ofr,
       },
       mid: null,
       spread: null,
@@ -44,11 +44,11 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
   };
   if (bids.length > offers.length) {
     return bids
-      .map(mapper('bid', 'offer')(offers))
+      .map(mapper('bid', 'ofr')(offers))
       .reduce(reducer, {});
   } else {
     return offers
-      .map(mapper('offer', 'bid')(bids))
+      .map(mapper('ofr', 'bid')(bids))
       .reduce(reducer, {});
   }
 };
@@ -65,13 +65,17 @@ const getNumber = (value: string | null | undefined): number | null => {
 export const transformer = (w: W) => (entry: MDEntry): TOBEntry => {
   const user: User = getAuthenticatedUser();
   const ownership: EntryStatus = user.email === entry.MDEntryOriginator ? EntryStatus.Owned : EntryStatus.NotOwned;
+  const price: number | null = getNumber(entry.MDEntryPx);
+  const quantity: number | null = getNumber(entry.MDEntrySize);
   return {
     tenor: w.Tenor,
     strategy: w.Strategy,
     symbol: w.Symbol,
     user: entry.MDEntryOriginator || user.email,
-    quantity: getNumber(entry.MDEntrySize),
-    price: getNumber(entry.MDEntryPx),
+    quantity: quantity,
+    __quantity: quantity,
+    price: price,
+    __price: price,
     firm: entry.MDFirm,
     type: entry.MDEntryType,
     orderId: entry.OrderID,
@@ -93,13 +97,13 @@ const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
 };
 
 export const toTOBRow = (w: W): TOBRow => {
-  const [bid, offer]: [MDEntry, MDEntry] = reorder(w.Entries);
+  const [bid, ofr]: [MDEntry, MDEntry] = reorder(w.Entries);
   const transform = transformer(w);
   return {
     id: '',
     tenor: w.Tenor,
     bid: transform(bid),
-    offer: transform(offer),
+    ofr: transform(ofr),
     darkPool: '',
     mid: null,
     spread: null,
@@ -110,7 +114,7 @@ export const toTOBRow = (w: W): TOBRow => {
 export const extractDepth = (w: W): TOBTable => {
   const entries: MDEntry[] = w.Entries;
   const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
-  const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Offer);
+  const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ofr);
   // Change the shape of this thing
   return reshape(w, bids, offers);
 };

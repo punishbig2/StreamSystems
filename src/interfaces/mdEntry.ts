@@ -2,7 +2,7 @@ import {ArrowDirection} from 'interfaces/w';
 
 export enum EntryTypes {
   Invalid = '',
-  Offer = '1',
+  Ofr = '1',
   Bid = '0',
   DarkPool = '2',
 }

@@ -1,51 +1,51 @@
 import {RunActions} from 'components/Run/enumerator';
 
 const spreadMidBid = (mid: number, bid: number): number => 2 * (mid - bid);
-const spreadMidOffer = (mid: number, offer: number): number => 2 * (offer - mid);
-const spreadBidOffer = (bid: number, offer: number): number => offer - bid;
+const spreadMidOffer = (mid: number, ofr: number): number => 2 * (ofr - mid);
+const spreadBidOffer = (bid: number, ofr: number): number => ofr - bid;
 
 const midSpreadBid = (spread: number, bid: number): number => (spread + 2 * bid) / 2;
-const midSpreadOffer = (spread: number, offer: number): number => (2 * offer - spread) / 2;
-const midBidOffer = (bid: number, offer: number): number => (offer + bid) / 2;
+const midSpreadOffer = (spread: number, ofr: number): number => (2 * ofr - spread) / 2;
+const midBidOffer = (bid: number, ofr: number): number => (ofr + bid) / 2;
 
 const offerSpreadMid = (spread: number, mid: number) => mid + spread / 2;
 const offerSpreadBid = (spread: number, bid: number) => bid + spread;
 const offerBidMid = (bid: number, mid: number) => 2 * mid - bid;
 
 const bidSpreadMid = (spread: number, mid: number) => mid - spread / 2;
-const bidSpreadOffer = (spread: number, offer: number) => offer - spread;
-const bidOfferMid = (offer: number, mid: number) => 2 * mid - offer;
+const bidSpreadOffer = (spread: number, ofr: number) => ofr - spread;
+const bidOfferMid = (ofr: number, mid: number) => 2 * mid - ofr;
 
 export const functionMap: { [k1: string]: { [k2: string]: { [k3: string]: (v1: number, v2: number) => number } } } = {
   [RunActions.Spread]: {
     [RunActions.Mid]: {
       [RunActions.Bid]: (mid: number, bid: number) => spreadMidBid(mid, bid),
-      [RunActions.Offer]: (mid: number, offer: number) => spreadMidOffer(mid, offer),
+      [RunActions.Ofr]: (mid: number, ofr: number) => spreadMidOffer(mid, ofr),
     },
     [RunActions.Bid]: {
       [RunActions.Mid]: (bid: number, mid: number) => spreadMidBid(mid, bid),
-      [RunActions.Offer]: (bid: number, offer: number) => spreadBidOffer(bid, offer),
+      [RunActions.Ofr]: (bid: number, ofr: number) => spreadBidOffer(bid, ofr),
     },
-    [RunActions.Offer]: {
-      [RunActions.Mid]: (offer: number, mid: number) => spreadMidOffer(mid, offer),
-      [RunActions.Bid]: (offer: number, bid: number) => spreadBidOffer(bid, offer),
+    [RunActions.Ofr]: {
+      [RunActions.Mid]: (ofr: number, mid: number) => spreadMidOffer(mid, ofr),
+      [RunActions.Bid]: (ofr: number, bid: number) => spreadBidOffer(bid, ofr),
     },
   },
   [RunActions.Mid]: {
     [RunActions.Spread]: {
       [RunActions.Bid]: (spread: number, bid: number) => midSpreadBid(spread, bid),
-      [RunActions.Offer]: (spread: number, offer: number) => midSpreadOffer(spread, offer),
+      [RunActions.Ofr]: (spread: number, ofr: number) => midSpreadOffer(spread, ofr),
     },
     [RunActions.Bid]: {
       [RunActions.Spread]: (bid: number, spread: number) => midSpreadBid(spread, bid),
-      [RunActions.Offer]: (bid: number, offer: number) => midBidOffer(bid, offer),
+      [RunActions.Ofr]: (bid: number, ofr: number) => midBidOffer(bid, ofr),
     },
-    [RunActions.Offer]: {
-      [RunActions.Spread]: (offer: number, spread: number) => midSpreadOffer(spread, offer),
-      [RunActions.Bid]: (offer: number, bid: number) => midBidOffer(bid, offer),
+    [RunActions.Ofr]: {
+      [RunActions.Spread]: (ofr: number, spread: number) => midSpreadOffer(spread, ofr),
+      [RunActions.Bid]: (ofr: number, bid: number) => midBidOffer(bid, ofr),
     },
   },
-  [RunActions.Offer]: {
+  [RunActions.Ofr]: {
     [RunActions.Spread]: {
       [RunActions.Mid]: (spread: number, mid: number) => offerSpreadMid(spread, mid),
       [RunActions.Bid]: (spread: number, bid: number) => offerSpreadBid(spread, bid),
@@ -62,15 +62,15 @@ export const functionMap: { [k1: string]: { [k2: string]: { [k3: string]: (v1: n
   [RunActions.Bid]: {
     [RunActions.Spread]: {
       [RunActions.Mid]: (spread: number, mid: number) => bidSpreadMid(spread, mid),
-      [RunActions.Offer]: (spread: number, offer: number) => bidSpreadOffer(spread, offer),
+      [RunActions.Ofr]: (spread: number, ofr: number) => bidSpreadOffer(spread, ofr),
     },
     [RunActions.Mid]: {
       [RunActions.Spread]: (mid: number, spread: number) => bidSpreadMid(spread, mid),
-      [RunActions.Offer]: (mid: number, offer: number) => bidOfferMid(offer, mid),
+      [RunActions.Ofr]: (mid: number, ofr: number) => bidOfferMid(ofr, mid),
     },
-    [RunActions.Offer]: {
-      [RunActions.Spread]: (offer: number, spread: number) => bidSpreadOffer(spread, offer),
-      [RunActions.Mid]: (offer: number, mid: number) => bidOfferMid(offer, mid),
+    [RunActions.Ofr]: {
+      [RunActions.Spread]: (ofr: number, spread: number) => bidSpreadOffer(spread, ofr),
+      [RunActions.Mid]: (ofr: number, mid: number) => bidOfferMid(ofr, mid),
     },
   },
 };

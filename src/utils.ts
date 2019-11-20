@@ -15,7 +15,7 @@ export const getSideFromType = (type: EntryTypes): Sides => {
   switch (type) {
     case EntryTypes.Bid:
       return Sides.Buy;
-    case EntryTypes.Offer:
+    case EntryTypes.Ofr:
       return Sides.Sell;
     default:
       throw new Error('wrong type, it has no sensible side');

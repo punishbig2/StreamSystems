@@ -2,6 +2,7 @@ import {Computed} from 'components/Run/computed';
 import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {State} from 'components/Run/state';
+import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
@@ -27,7 +28,7 @@ const computeRow = (type: string, last: string | undefined, data: Computed, v1: 
   return {
     spread: findCalculator(RunActions.Spread, type, last)(Number(v1), Number(v2)),
     mid: findCalculator(RunActions.Mid, type, last)(Number(v1), Number(v2)),
-    offer: findCalculator(RunActions.Offer, type, last)(Number(v1), Number(v2)),
+    ofr: findCalculator(RunActions.Ofr, type, last)(Number(v1), Number(v2)),
     bid: findCalculator(RunActions.Bid, type, last)(Number(v1), Number(v2)),
   };
 };
@@ -56,12 +57,12 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   // Find the interesting row
   const row: TOBRow = finder.find(data.id);
   // Extract the two sides
-  const {bid, offer} = row;
+  const {bid, ofr} = row;
   // Original values
   const seed: Computed = {
     spread: row.spread,
     mid: row.mid,
-    offer: Number(offer.price),
+    ofr: Number(ofr.price),
     bid: Number(bid.price),
     // Overwrite the one that will be replaced
     [type]: data.value,
@@ -71,7 +72,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   switch (type) {
     case RunActions.Mid:
     case RunActions.Spread:
-    case RunActions.Offer:
+    case RunActions.Ofr:
     case RunActions.Bid:
       return {
         ...state,
@@ -81,8 +82,20 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
             ...row,
             spread: computed.spread,
             mid: computed.mid,
-            offer: {...row.offer, price: computed.offer},
-            bid: {...row.bid, price: computed.bid},
+            ofr: {
+              ...ofr,
+              // Update the price
+              __price: computed.ofr,
+              // Update the status and set it as edited/modified
+              status: type === 'ofr' ? ofr.status | EntryStatus.PriceEdited : ofr.status,
+            },
+            bid: {
+              ...bid,
+              // Update the price
+              __price: computed.bid,
+              // Update the status and set it as edited/modified
+              status: type === 'bid' ? bid.status | EntryStatus.PriceEdited : bid.status,
+            },
             modified: true,
           },
         },
@@ -93,43 +106,68 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   }
 };
 
-const withSpreadAndMid = (row: TOBRow) => {
-  const {offer, bid} = row;
-  if (offer.price !== null && bid.price !== null) {
+const fillSpreadAndMid = (row: TOBRow) => {
+  const {ofr, bid} = row;
+  if ((ofr && ofr.price !== null) && (bid && bid.price !== null)) {
     return {
       ...row,
-      spread: Number(offer.price) - Number(bid.price),
-      mid: (Number(offer.price) + Number(bid.price)) / 2,
+      spread: Number(ofr.price) - Number(bid.price),
+      mid: (Number(ofr.price) + Number(bid.price)) / 2,
     };
   }
   return row;
 };
 
-export const reducer = (state: State, {type, data}: Action<RunActions>): State => {
+const updateEntry = (state: State, data: { id: string, entry: TOBEntry }, key: 'ofr' | 'bid'): State => {
   const {table} = state;
+  // Extract the target row
+  const row: TOBRow = table[data.id];
+  return {
+    ...state,
+    table: {
+      ...table,
+      [data.id]: fillSpreadAndMid({
+        ...row,
+        [key]: data.entry,
+      }),
+    },
+  };
+};
+
+const updateQty = (state: State, data: { id: string, value: number | null }, key: 'ofr' | 'bid'): State => {
+  const {table} = state;
+  // Extract the target row
+  const row: TOBRow = table[data.id];
+  // Extract the target entry
+  const entry: TOBEntry = row[key];
+  return {
+    ...state,
+    table: {
+      ...table,
+      [data.id]: {
+        ...row,
+        [key]: {
+          ...entry,
+          __quantity: data.value,
+          status: entry.status | EntryStatus.PriceEdited,
+        },
+      },
+    },
+  };
+};
+
+export const reducer = (state: State, {type, data}: Action<RunActions>): State => {
   switch (type) {
     case RunActions.UpdateBid:
-      return {...state, table: {...table, [data.id]: withSpreadAndMid({...table[data.id], bid: data.entry})}};
+      return updateEntry(state, data, 'bid');
     case RunActions.UpdateOffer:
-      return {...state, table: {...table, [data.id]: withSpreadAndMid({...table[data.id], offer: data.entry})}};
+      return updateEntry(state, data, 'ofr');
     case RunActions.SetTable:
       return {...state, table: data};
     case RunActions.OfferQtyChanged:
-      return {
-        ...state,
-        table: {
-          ...table,
-          [data.id]: {...table[data.id], offer: {...table[data.id].offer, quantity: data.value}},
-        },
-      };
+      return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:
-      return {
-        ...state,
-        table: {
-          ...table,
-          [data.id]: {...table[data.id], bid: {...table[data.id].bid, quantity: data.value}},
-        },
-      };
+      return updateQty(state, data, 'bid');
     default:
       return next(state, {type, data});
   }

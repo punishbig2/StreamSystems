@@ -180,14 +180,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                         onSubmit={createOrder}/>;
   };
 
-  const bulkCreateOrders = (entries: TOBRow[]) => {
-    entries.forEach(({bid, offer}: TOBRow) => {
-      if (offer.quantity !== null && offer.price !== null)
-        props.createOrder(offer);
-      if (bid.quantity !== null && bid.price !== null)
-        props.createOrder(bid);
-    });
+  const bulkCreateOrders = (entries: TOBEntry[]) => {
+    // Close the runs wundow
     hideRunWindow();
+    // Create the orders
+    entries.forEach((entry: TOBEntry) => props.createOrder(entry));
   };
 
   const runWindow = (): ReactElement => (

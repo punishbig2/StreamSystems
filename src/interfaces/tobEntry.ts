@@ -6,9 +6,10 @@ export enum EntryStatus {
   Active = 1 << 1,
   Cancelled = 1 << 2,
   PreFilled = 1 << 3,
-  Edited = 1 << 4,
-  Owned = 1 << 5,
-  NotOwned = 1 << 6,
+  QuantityEdited = 1 << 5,
+  PriceEdited = 1 << 4,
+  Owned = 1 << 6,
+  NotOwned = 1 << 7,
 }
 
 export interface TOBEntry {
@@ -23,4 +24,7 @@ export interface TOBEntry {
   type: EntryTypes;
   arrowDirection: ArrowDirection;
   status: EntryStatus;
+  // PriceEdited values
+  __quantity: number | null;
+  __price: number | null;
 }

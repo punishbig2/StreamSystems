@@ -60,9 +60,11 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
         price: Number(entry.Price),
         quantity: Number(entry.OrderQty),
         user: user.email,
-        type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Offer,
+        type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Ofr,
         arrowDirection: ArrowDirection.None,
         status: EntryStatus.Cancelled,
+        __price: Number(entry.Price),
+        __quantity: Number(entry.OrderQty),
       }))
       .forEach(emitUpdateOrderEvent);
     return createAction('');

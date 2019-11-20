@@ -13,7 +13,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
     switch (type) {
       case $$(id, RowActions.Remove):
         if (data === '2') {
-          return {...state, row: {...row, offer: {...row.offer, price: null, quantity: null}}};
+          return {...state, row: {...row, ofr: {...row.ofr, price: null, quantity: null}}};
         } else if (data === '1') {
           return {...state, row: {...row, bid: {...row.bid, price: null, quantity: null}}};
         } else {
@@ -22,13 +22,13 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.Update):
         return {...state, row: data};
       case $$(id, RowActions.SetOfferPrice):
-        return {...state, row: {...row, offer: {...row.offer, price: data}}};
+        return {...state, row: {...row, ofr: {...row.ofr, __price: data}}};
       case $$(id, RowActions.SetOfferQuantity):
-        return {...state, row: {...row, offer: {...row.offer, quantity: data}}};
+        return {...state, row: {...row, ofr: {...row.ofr, __quantity: data}}};
       case $$(id, RowActions.SetBidPrice):
-        return {...state, row: {...row, bid: {...row.bid, price: data}}};
+        return {...state, row: {...row, bid: {...row.bid, __price: data}}};
       case $$(id, RowActions.SetBidQuantity):
-        return {...state, row: {...row, bid: {...row.bid, quantity: data}}};
+        return {...state, row: {...row, bid: {...row.bid, __quantity: data}}};
       default:
         return state;
     }

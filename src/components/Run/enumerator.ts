@@ -1,7 +1,7 @@
 export enum RunActions {
   Mid = 'mid',
   Spread = 'spread',
-  Offer = 'offer',
+  Ofr = 'ofr',
   Bid = 'bid',
   // Other
   SetTable = 'Run.SetTable',

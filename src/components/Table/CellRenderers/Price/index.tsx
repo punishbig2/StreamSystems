@@ -9,49 +9,72 @@ import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {ArrowDirection} from 'interfaces/w';
-import React, {ReactText, useEffect, useReducer} from 'react';
+import React, {useCallback, useEffect, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
 
 export interface Props {
   value: number | null;
-  editable: boolean;
   depth?: TOBEntry[];
   type?: EntryTypes;
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onChange: (value: string) => void;
+  onChange: (value: number) => void;
   onSubmit?: (value: number) => void;
   onBlur?: () => void;
   tabIndex?: number;
   arrow: ArrowDirection;
-  initialStatus?: EntryStatus;
+  status: EntryStatus;
   className?: string;
 }
 
-const valueToString = (value: number | null): string => value === null ? '' : value.toString();
+const valueToString = (value: number | null): string => {
+  if (value === null)
+    return '';
+  if (typeof value.toFixed !== 'function') {
+    return '';
+  }
+  return value.toFixed(3);
+};
+
+const useTooltip = (started: boolean, activated: () => void) => {
+  useEffect(() => {
+    if (!started)
+      return;
+    const timer = setTimeout(activated, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [activated, started]);
+};
+
+const useStatusUpdater = (status: EntryStatus, update: (status: EntryStatus) => void) => {
+  useEffect(() => update(status), [status, update]);
+};
+
 export const Price: React.FC<Props> = (props: Props) => {
-  const {initialStatus, depth} = props;
+  const {depth} = props;
   const [state, dispatch] = useReducer<typeof reducer>(reducer, {
     tooltipX: 0,
     tooltipY: 0,
     startedShowingTooltip: false,
     visible: false,
-    status: initialStatus || EntryStatus.None,
+    status: props.status || EntryStatus.None,
     value: valueToString(props.value),
   });
 
-  useEffect(() => {
-    dispatch(createAction(PriceActions.SetStatus, initialStatus));
-  }, [initialStatus]);
-
+  const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
   const showTooltip = () => dispatch(createAction(PriceActions.StartShowingTooltip));
   const toPoint = (event: React.MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY});
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
   const onMouseMove = (event: React.MouseEvent) => dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
+  const setStatus = useCallback((status: EntryStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
   const setValue = (value: string, status: EntryStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
   };
+
+  useTooltip(state.startedShowingTooltip, setTooltipVisible);
+  useStatusUpdater(props.status, setStatus);
 
   const getTooltip = () => {
     if (!state.visible || !depth || depth.length === 0)
@@ -60,30 +83,21 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!state.startedShowingTooltip)
-      return;
-    const timer = setTimeout(() => dispatch(createAction(PriceActions.ShowTooltip)), 500);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [state.startedShowingTooltip]);
-
-  useEffect(() => {
-    setValue(valueToString(props.value), EntryStatus.PreFilled & ~EntryStatus.Edited);
-  }, [props.value, props.initialStatus, state.status]);
+    setValue(valueToString(props.value), EntryStatus.PreFilled & ~EntryStatus.PriceEdited);
+  }, [props.value, props.status]);
 
   const onChange = (value: string) => {
     const trimmed: string = value.trim();
     const numeric: number = Number(`${trimmed}0`);
     if (trimmed.length === 0) {
-      setValue('', EntryStatus.Edited & ~EntryStatus.PreFilled);
+      setValue('', EntryStatus.PriceEdited & ~EntryStatus.PreFilled);
     } else if (!isNaN(numeric)) {
-      setValue(trimmed, EntryStatus.Edited & ~EntryStatus.PreFilled);
+      setValue(trimmed, EntryStatus.PriceEdited & ~EntryStatus.PreFilled);
     }
   };
 
   const onDoubleClick = (event: React.MouseEvent) => {
-    if (props.onDoubleClick && !props.editable) {
+    if (props.onDoubleClick && ((state.status & EntryStatus.Owned) === 0)) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
       // Stop the event
       event.stopPropagation();
@@ -120,11 +134,23 @@ export const Price: React.FC<Props> = (props: Props) => {
       classes.push('active');
     if (status & EntryStatus.PreFilled)
       classes.push('pre-filled');
-    if (status & EntryStatus.Edited)
+    if (status & EntryStatus.PriceEdited)
       classes.push('edited');
     if (status & EntryStatus.Cancelled)
       classes.push('cancelled');
     return classes.join(' ');
+  };
+
+  const onBlur = () => {
+    const value: string | null = state.value;
+    if (value === null)
+      return;
+    if (props.onBlur)
+      props.onBlur();
+    const numeric: number = Number(value);
+    if (isNaN(numeric))
+      return;
+    props.onChange(numeric);
   };
 
   return (
@@ -134,8 +160,8 @@ export const Price: React.FC<Props> = (props: Props) => {
         tabIndex={props.tabIndex}
         value={finalValue}
         onDoubleClick={onDoubleClick}
-        onBlur={props.onBlur}
-        onSubmit={onSubmit}
+        onBlur={onBlur}
+        onReturnPressed={onSubmit}
         onChange={onChange}
         className={getClass(state.status, props.className)}/>
       {/* The floating object */}
