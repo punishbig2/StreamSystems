@@ -6,6 +6,7 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {TableInput} from 'components/TableInput';
+import {usePrevious} from 'hooks/usePrevious';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {ArrowDirection} from 'interfaces/w';
@@ -63,6 +64,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     status: props.status || EntryStatus.None,
     value: valueToString(props.value),
   });
+  const oldValue: number | null | undefined = usePrevious<number | null>(props.value);
 
   const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
   const showTooltip = () => dispatch(createAction(PriceActions.StartShowingTooltip));
@@ -93,8 +95,12 @@ export const Price: React.FC<Props> = (props: Props) => {
   }, [state.flash]);
 
   useEffect(() => {
-    flash();
-  }, [props.arrow]);
+    if (oldValue === null || oldValue === undefined)
+      return;
+    if (oldValue !== props.value) {
+      flash();
+    }
+  }, [oldValue, props.value]);
 
   useEffect(() => {
     setValue(valueToString(props.value), EntryStatus.None & ~EntryStatus.PriceEdited);
@@ -164,6 +170,8 @@ export const Price: React.FC<Props> = (props: Props) => {
     const numeric: number = Number(value);
     // If it's non-numeric also ignore this
     if (isNaN(numeric))
+      return;
+    if (numeric === props.value)
       return;
     // It passed all validations, so emit the event
     props.onChange(numeric);
