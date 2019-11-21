@@ -135,13 +135,6 @@ export const Price: React.FC<Props> = (props: Props) => {
     (state.status & EntryStatus.HaveOtherOrders) !== 0 &&
     (state.status & EntryStatus.Owned) === 0 &&
     (state.value !== '');
-  if (showChevron) {
-    console.log('owned      : ', (state.status & EntryStatus.Owned) !== 0 ? 'yes' : 'no');
-    console.log('have orders: ', (state.status & EntryStatus.HaveOtherOrders) !== 0 ? 'yes' : 'no');
-    console.log('value      : ', state.value);
-    console.log('---');
-  }
-
   return (
     <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
          onMouseMove={onMouseMove}>

@@ -1,5 +1,6 @@
 import {EntryTypes} from 'interfaces/mdEntry';
 import {TOBEntry} from 'interfaces/tobEntry';
+import {AggregatedSz} from 'components/TOB/reducer';
 
 export interface TOBHandlers {
   onTenorSelected: (tenor: string) => void;
@@ -11,4 +12,5 @@ export interface TOBHandlers {
   onQuantityChange: (entry: TOBEntry, newQuantity: number) => void;
   onUpdateOrder: (entry: TOBEntry) => void;
   onCancelOrder: (entry: TOBEntry) => void;
+  aggregatedSz?: AggregatedSz;
 }

@@ -177,6 +177,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         createOrder({...entry, quantity: newQuantity - entry.quantity});
       }
     },
+    aggregatedSz: state.aggregatedSz,
   };
 
   const renderOrderTicket = () => {

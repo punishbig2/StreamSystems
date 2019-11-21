@@ -6,9 +6,10 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBHandlers} from 'components/TOB/handlers';
+import {AggregatedSz} from 'components/TOB/reducer';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -17,6 +18,18 @@ import strings from 'locales';
 import React from 'react';
 
 type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowFunctions;
+
+const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, entry: TOBEntry, index: 'ofr' | 'bid'): number | null => {
+  if (aggregatedSz) {
+    const price: number | null = entry.price;
+    const key: string | null = price === null ? null : price.toFixed(3);
+    if (aggregatedSz[entry.tenor] && key !== null)
+      return aggregatedSz[entry.tenor][index][key];
+    return entry.quantity;
+  } else {
+    return entry.quantity;
+  }
+};
 
 const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
@@ -28,10 +41,13 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'bid-size',
   header: () => <DualTableHeader label={strings.BidSz}/>,
-  render: ({bid, user, setBidQuantity}: RowType) => (
-    <Qty entry={bid} onCancel={handlers.onCancelOrder} onChange={setBidQuantity}
-         onSubmit={handlers.onQuantityChange} user={user}/>
-  ),
+  render: ({bid, user, setBidQuantity}: RowType) => {
+    const entry: TOBEntry = {...bid, quantity: getAggregatedSize(handlers.aggregatedSz, bid, 'bid')};
+    return (
+      <Qty entry={entry} onCancel={handlers.onCancelOrder} onChange={setBidQuantity}
+           onSubmit={handlers.onQuantityChange} user={user}/>
+    );
+  },
   weight: 2,
 }, {
   name: 'bid-vol',
@@ -68,10 +84,13 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'ofr-quantity',
   header: () => <DualTableHeader label={strings.OfrSz} action={{fn: handlers.onRunButtonClicked, label: strings.Run}}/>,
-  render: ({ofr, user, setOfrQuantity}: RowType) => (
-    <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfrQuantity} onSubmit={handlers.onQuantityChange}
-         user={user}/>
-  ),
+  render: ({ofr, user, setOfrQuantity}: RowType) => {
+    const entry: TOBEntry = {...ofr, quantity: getAggregatedSize(handlers.aggregatedSz, ofr, 'ofr')};
+    return (
+      <Qty entry={entry} onCancel={handlers.onCancelOrder} onChange={setOfrQuantity}
+           onSubmit={handlers.onQuantityChange} user={user}/>
+    );
+  },
   weight: 2,
 }];
 

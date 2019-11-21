@@ -67,6 +67,7 @@ export const handlers = {
         // Dispatch the action now
         try {
           propagateOrders(fixed);
+          // propagateAggregatedSizes(w);
           propagateDepth(fixed);
           // Emit this action because there's no other W message in this case so this
           // is equivalent to the case where `W[9712] === TOB'
@@ -77,6 +78,7 @@ export const handlers = {
         }
       } else {
         propagateOrders(w);
+        // propagateAggregatedSizes(w);
         propagateDepth(w);
       }
       return createAction(WorkareaActions.NoAction);
