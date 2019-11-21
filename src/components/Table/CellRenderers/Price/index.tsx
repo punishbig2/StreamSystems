@@ -1,17 +1,24 @@
 import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
+import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
+import {useStatusUpdater} from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
+import {useTooltip} from 'components/Table/CellRenderers/Price/hooks/useTooltop';
+import {useValueComparator} from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
+import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
+import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
+import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {TableInput} from 'components/TableInput';
-import {usePrevious} from 'hooks/usePrevious';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {ArrowDirection} from 'interfaces/w';
-import React, {useCallback, useEffect, useReducer} from 'react';
+import React, {useCallback, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
+import {priceFormatter} from 'utils/priceFormatter';
 
 export interface Props {
   value: number | null;
@@ -29,30 +36,6 @@ export interface Props {
   className?: string;
 }
 
-const valueToString = (value: number | null): string => {
-  if (value === null)
-    return '';
-  if (typeof value.toFixed !== 'function') {
-    return '';
-  }
-  return value.toFixed(3);
-};
-
-const useTooltip = (started: boolean, activated: () => void) => {
-  useEffect(() => {
-    if (!started)
-      return;
-    const timer = setTimeout(activated, 500);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [activated, started]);
-};
-
-const useStatusUpdater = (status: EntryStatus, update: (status: EntryStatus) => void) => {
-  useEffect(() => update(status), [status, update]);
-};
-
 export const Price: React.FC<Props> = (props: Props) => {
   const {depth} = props;
   const [state, dispatch] = useReducer<typeof reducer>(reducer, {
@@ -62,49 +45,33 @@ export const Price: React.FC<Props> = (props: Props) => {
     visible: false,
     flash: false,
     status: props.status || EntryStatus.None,
-    value: valueToString(props.value),
+    value: priceFormatter(props.value),
   });
-  const oldValue: number | null | undefined = usePrevious<number | null>(props.value);
 
   const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
+  const setStatus = useCallback((status: EntryStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
+  const setValue = useCallback((value: string, status: EntryStatus) => {
+    dispatch(createAction(PriceActions.SetValue, {value, status}));
+  }, []);
+
   const showTooltip = () => dispatch(createAction(PriceActions.StartShowingTooltip));
   const toPoint = (event: React.MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY});
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
   const onMouseMove = (event: React.MouseEvent) => dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
-  const setStatus = useCallback((status: EntryStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
-  const flash = () => dispatch(createAction(PriceActions.Flash));
-  const unflash = () => dispatch(createAction(PriceActions.Unflash));
-  const setValue = (value: string, status: EntryStatus) => {
-    dispatch(createAction(PriceActions.SetValue, {value, status}));
-  };
+  const startFlashing = () => dispatch(createAction(PriceActions.Flash));
+  const stopFlashing = () => dispatch(createAction(PriceActions.Unflash));
 
   useTooltip(state.startedShowingTooltip, setTooltipVisible);
   useStatusUpdater(props.status, setStatus);
+  useFlasher(state.flash, stopFlashing);
+  useValueComparator(props.value, state.value, startFlashing);
+  useValueListener(props.value, setValue);
 
   const getTooltip = () => {
     if (!state.visible || !depth || depth.length === 0)
       return null;
     return <Tooltip x={state.tooltipX} y={state.tooltipY} render={() => <MiniDOB {...props} rows={depth}/>}/>;
   };
-
-  useEffect(() => {
-    if (!state.flash)
-      return;
-    const timer = setTimeout(unflash, 2000);
-    return () => clearTimeout(timer);
-  }, [state.flash]);
-
-  useEffect(() => {
-    if (oldValue === null || oldValue === undefined)
-      return;
-    if (oldValue !== props.value) {
-      flash();
-    }
-  }, [oldValue, props.value]);
-
-  useEffect(() => {
-    setValue(valueToString(props.value), EntryStatus.None & ~EntryStatus.PriceEdited);
-  }, [props.value, props.status]);
 
   const onChange = (value: string) => {
     const trimmed: string = value.trim();
@@ -146,21 +113,6 @@ export const Price: React.FC<Props> = (props: Props) => {
     return value.toString();
   })();
 
-  const getClass = (status: EntryStatus, className?: string): string => {
-    const classes: string[] = className ? [className] : [];
-    if (status & EntryStatus.Owned)
-      classes.push('owned');
-    if (status & EntryStatus.Active)
-      classes.push('active');
-    if (status & EntryStatus.PreFilled)
-      classes.push('pre-filled');
-    if (status & EntryStatus.PriceEdited)
-      classes.push('edited');
-    if (status & EntryStatus.Cancelled)
-      classes.push('cancelled');
-    return classes.join(' ');
-  };
-
   const onBlur = () => {
     if (state.value === '')
       return;
@@ -173,6 +125,8 @@ export const Price: React.FC<Props> = (props: Props) => {
       return;
     if (numeric === props.value)
       return;
+    // Update the internal value
+    setValue(priceFormatter(numeric), state.status);
     // It passed all validations, so emit the event
     props.onChange(numeric);
   };
@@ -181,14 +135,9 @@ export const Price: React.FC<Props> = (props: Props) => {
     (state.status & EntryStatus.HaveOtherOrders) !== 0 &&
     (state.status & EntryStatus.Owned) === 0 &&
     (state.value !== '');
-  const getClassName = () => {
-    const classes = ['price-layout'];
-    if (state.flash)
-      classes.push('flash');
-    return classes.join(' ');
-  };
+
   return (
-    <div className={getClassName()} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
+    <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
          onMouseMove={onMouseMove}>
       {showChevron ? <Chevron/> : null}
       <Direction direction={props.arrow}/>
@@ -199,7 +148,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         onBlur={onBlur}
         onReturnPressed={onSubmit}
         onChange={onChange}
-        className={getClass(state.status, props.className)}/>
+        className={getInputClass(state.status, props.className)}/>
       {/* The floating object */}
       {getTooltip()}
     </div>

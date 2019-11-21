@@ -8,5 +8,7 @@ export enum RunActions {
   OfferQtyChanged = 'Run.OfferQuantityChanged',
   BidQtyChanged = 'Run.BidQuantityChanged',
   UpdateBid = 'Run.UpdateBid',
+  UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',
   UpdateOffer = 'Run.UpdateOffer',
+  UpdateDefaultBidQty = 'Run.UpdateDefaultBidQty',
 }

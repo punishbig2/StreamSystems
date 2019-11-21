@@ -30,11 +30,11 @@ interface OwnProps {
 }
 
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
-  const [state, dispatch] = useReducer(reducer, {table: {}, history: []});
+  const [state, dispatch] = useReducer(reducer, {orders: {}, history: [], defaultBidQty: 10, defaultOfrQty: 10});
   const {symbol, strategy, tenors, user} = props;
   const {email} = user;
 
-  const setTable = (table: TOBTable) => dispatch(createAction(RunActions.SetTable, table));
+  const setTable = (orders: TOBTable) => dispatch(createAction(RunActions.SetTable, orders));
   // Updates a single side of the depth
   const updateSide = (entry: TOBEntry) => {
     const id: string = $$(toRunId(entry.symbol, entry.strategy), entry.tenor);
@@ -52,48 +52,53 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     }
   };
 
-  // Use hooks
   useOrderListener(tenors, symbol, strategy, updateSide);
   useInitializer(tenors, symbol, strategy, email, setTable);
 
   const onSubmit = () => {
-    if (state.table === null)
+    if (state.orders === null)
       return;
     const eligible: EntryStatus = EntryStatus.PriceEdited | EntryStatus.Cancelled;
-    const rows: TOBRow[] = Object.values(state.table);
+    const rows: TOBRow[] = Object.values(state.orders);
     const entries: TOBEntry[] = [
       ...rows.map((value: TOBRow) => value.bid),
       ...rows.map((value: TOBRow) => value.ofr),
     ];
     const selected: TOBEntry[] = entries
       .filter((entry: TOBEntry) => (entry.status & eligible) !== 0)
-      .map((entry: TOBEntry) => {
-        return {...entry, price: entry.__price, quantity: entry.__quantity};
-      })
     ;
     if (selected.length === 0)
       return;
     props.onSubmit(selected);
   };
 
-  if (state.table === {})
+  if (state.orders === {})
     return (<div>Loading...</div>);
 
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;
     return (
-      <Row {...props} user={props.user} row={row} defaultBidQty={10} defaultOfrQty={10}/>
+      <Row {...props} user={props.user} row={row} defaultBidQty={state.defaultBidQty}
+           defaultOfrQty={state.defaultOfrQty}/>
     );
   };
 
-  // This builds the set of columns of the run depth with it's callbacks
+  // This builds the set of createColumns of the run depth with it's callbacks
   const columns = createColumns({
     onBidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Bid, {id, value})),
-    onOfferChanged: (id: string, value: number) => dispatch(createAction(RunActions.Ofr, {id, value})),
+    onOfrChanged: (id: string, value: number) => dispatch(createAction(RunActions.Ofr, {id, value})),
     onMidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Mid, {id, value})),
     onSpreadChanged: (id: string, value: number) => dispatch(createAction(RunActions.Spread, {id, value})),
-    onOfferQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfferQtyChanged, {id, value})),
+    onOfrQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfferQtyChanged, {id, value})),
     onBidQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
+    defaultBidQty: {
+      value: state.defaultBidQty,
+      onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),
+    },
+    defaultOfrQty: {
+      value: state.defaultOfrQty,
+      onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultOfrQty, value)),
+    },
   });
 
   return (
@@ -109,7 +114,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
           </label>
         </div>
       </div>
-      <Table columns={columns} rows={state.table} renderRow={renderRow}/>
+      <Table columns={columns} rows={state.orders} renderRow={renderRow}/>
       <DialogButtons>
         <button type={'submit'} onClick={onSubmit}>{strings.Submit}</button>
         <button onClick={props.onClose}>{strings.Close}</button>

@@ -444,7 +444,6 @@ button {
       white-space: nowrap;
 
       div {
-        color: $text-color-blue;
         width: $table-row-height;
         line-height: $table-row-height;
         height: 100%;
@@ -459,6 +458,7 @@ button {
 
           &:not(.clickable) {
             color: transparent;
+            pointer-events: none;
           }
 
           &.clickable:hover {
@@ -491,6 +491,7 @@ button {
 
       input {
         flex: 1;
+        color: $text-color-blue;
         text-overflow: ellipsis;
         overflow: hidden;
         text-align: center;

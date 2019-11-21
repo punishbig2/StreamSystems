@@ -8,6 +8,7 @@ export interface TOBHandlers {
   onRefBidsButtonClicked: () => void;
   onRefOfrsButtonClicked: () => void;
   onPriceChange: (entry: TOBEntry) => void;
+  onQuantityChange: (entry: TOBEntry, newQuantity: number) => void;
   onUpdateOrder: (entry: TOBEntry) => void;
   onCancelOrder: (entry: TOBEntry) => void;
 }

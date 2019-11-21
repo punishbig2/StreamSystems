@@ -1,6 +1,6 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {User} from 'interfaces/user';
+import {RowFunctions} from 'components/TOB/rowFunctions';
 import React, {useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
@@ -22,18 +22,11 @@ interface OwnProps {
   [key: string]: any;
 }
 
-interface DispatchProps {
-  setOfferQuantity: (value: string) => void;
-  setOfrPrice: (value: string) => void;
-  setBidQuantity: (value: string) => void;
-  setBidPrice: (value: string) => void;
-}
+type DispatchProps = RowFunctions;
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  setOfrPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferPrice), value)),
-  setOfferQuantity: (value: string) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
-  setBidPrice: (value: string) => dispatch(createAction($$(id, RowActions.SetBidPrice), value)),
-  setBidQuantity: (value: string) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+  setOfrQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
+  setBidQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
 });
 
 const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(
@@ -51,9 +44,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     };
   }, [id, row]);
   const functions: DispatchProps = {
-    setOfrPrice: props.setOfrPrice,
-    setOfferQuantity: props.setOfferQuantity,
-    setBidPrice: props.setBidPrice,
+    setOfrQuantity: props.setOfrQuantity,
     setBidQuantity: props.setBidQuantity,
   };
   return (

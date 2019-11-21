@@ -33,13 +33,13 @@ const computeRow = (type: string, last: string | undefined, data: Computed, v1: 
   };
 };
 
-const rowFinder = (table: TOBTable) => ({
+const rowFinder = (orders: TOBTable) => ({
   find: (id: string): TOBRow => {
-    const key: string | undefined = Object.keys(table)
+    const key: string | undefined = Object.keys(orders)
       .find((key) => key.indexOf(id) !== -1);
     if (key === undefined)
       throw new Error(`row \`${id}' not found`);
-    return {...table[key]};
+    return {...orders[key]};
   },
 });
 
@@ -52,8 +52,8 @@ const updateHistory = (next: RunActions, original: RunActions[]): RunActions[] =
 };
 
 const next = (state: State, {type, data}: Action<RunActions>): State => {
-  const {history, table} = state;
-  const finder = rowFinder(table);
+  const {history, orders} = state;
+  const finder = rowFinder(orders);
   // Find the interesting row
   const row: TOBRow = finder.find(data.id);
   // Extract the two sides
@@ -76,8 +76,8 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
     case RunActions.Bid:
       return {
         ...state,
-        table: {
-          ...table,
+        orders: {
+          ...orders,
           [row.id]: {
             ...row,
             spread: computed.spread,
@@ -85,14 +85,14 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
             ofr: {
               ...ofr,
               // Update the price
-              __price: computed.ofr,
+              price: computed.ofr,
               // Update the status and set it as edited/modified
               status: type === 'ofr' ? ofr.status | EntryStatus.PriceEdited : ofr.status,
             },
             bid: {
               ...bid,
               // Update the price
-              __price: computed.bid,
+              price: computed.bid,
               // Update the status and set it as edited/modified
               status: type === 'bid' ? bid.status | EntryStatus.PriceEdited : bid.status,
             },
@@ -118,13 +118,13 @@ const fillSpreadAndMid = (row: TOBRow) => {
 };
 
 const updateEntry = (state: State, data: { id: string, entry: TOBEntry }, key: 'ofr' | 'bid'): State => {
-  const {table} = state;
+  const {orders} = state;
   // Extract the target row
-  const row: TOBRow = table[data.id];
+  const row: TOBRow = orders[data.id];
   return {
     ...state,
-    table: {
-      ...table,
+    orders: {
+      ...orders,
       [data.id]: fillSpreadAndMid({
         ...row,
         [key]: data.entry,
@@ -134,15 +134,15 @@ const updateEntry = (state: State, data: { id: string, entry: TOBEntry }, key: '
 };
 
 const updateQty = (state: State, data: { id: string, value: number | null }, key: 'ofr' | 'bid'): State => {
-  const {table} = state;
+  const {orders} = state;
   // Extract the target row
-  const row: TOBRow = table[data.id];
+  const row: TOBRow = orders[data.id];
   // Extract the target entry
   const entry: TOBEntry = row[key];
   return {
     ...state,
-    table: {
-      ...table,
+    orders: {
+      ...orders,
       [data.id]: {
         ...row,
         [key]: {
@@ -157,12 +157,16 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
 
 export const reducer = (state: State, {type, data}: Action<RunActions>): State => {
   switch (type) {
+    case RunActions.UpdateDefaultBidQty:
+      return {...state, defaultBidQty: data};
+    case RunActions.UpdateDefaultOfrQty:
+      return {...state, defaultOfrQty: data};
     case RunActions.UpdateBid:
       return updateEntry(state, data, 'bid');
     case RunActions.UpdateOffer:
       return updateEntry(state, data, 'ofr');
     case RunActions.SetTable:
-      return {...state, table: data};
+      return {...state, orders: data};
     case RunActions.OfferQtyChanged:
       return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:

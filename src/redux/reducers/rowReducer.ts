@@ -22,13 +22,13 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.Update):
         return {...state, row: data};
       case $$(id, RowActions.SetOfferPrice):
-        return {...state, row: {...row, ofr: {...row.ofr, __price: data}}};
+        return {...state, row: {...row, ofr: {...row.ofr, price: data}}};
       case $$(id, RowActions.SetOfferQuantity):
-        return {...state, row: {...row, ofr: {...row.ofr, __quantity: data}}};
+        return {...state, row: {...row, ofr: {...row.ofr, quantity: data}}};
       case $$(id, RowActions.SetBidPrice):
-        return {...state, row: {...row, bid: {...row.bid, __price: data}}};
+        return {...state, row: {...row, bid: {...row.bid, price: data}}};
       case $$(id, RowActions.SetBidQuantity):
-        return {...state, row: {...row, bid: {...row.bid, __quantity: data}}};
+        return {...state, row: {...row, bid: {...row.bid, quantity: data}}};
       default:
         return state;
     }

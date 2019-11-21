@@ -19,8 +19,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
     const elements: ReactNode[] = [<MiniPrice key={1}>{price}</MiniPrice>];
     const sizeElement = (
       <MiniPrice key={2}>
-        <Quantity value={quantity} type={props.type as EntryTypes} onChange={() => null}
-                  hasCancelButton={false}/>
+        <Quantity value={quantity} type={props.type as EntryTypes} onChange={() => null}/>
       </MiniPrice>
     );
     if (props.type === EntryTypes.Bid)

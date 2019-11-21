@@ -7,5 +7,5 @@ export interface State {
   startedShowingTooltip: boolean;
   visible: boolean;
   status: EntryStatus;
-  value: string | null;
+  value: string;
 }

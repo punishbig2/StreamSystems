@@ -63,8 +63,6 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
         type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Ofr,
         arrowDirection: ArrowDirection.None,
         status: EntryStatus.Cancelled,
-        __price: Number(entry.Price),
-        __quantity: Number(entry.OrderQty),
       }))
       .forEach(emitUpdateOrderEvent);
     return createAction('');

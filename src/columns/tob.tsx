@@ -1,4 +1,3 @@
-import {getMiniDOBByType} from 'columns/tobMiniDOB';
 import {TOBPrice} from 'columns/tobPrice';
 import {TOBQty as Qty} from 'columns/tobQty';
 import {DualTableHeader} from 'components/dualTableHeader';
@@ -7,6 +6,7 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBHandlers} from 'components/TOB/handlers';
+import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {EntryStatus} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
@@ -16,14 +16,7 @@ import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
 
-interface RowHandlers {
-  setOfferQuantity: (value: string) => void;
-  setOfrPrice: (value: string) => void;
-  setBidQuantity: (value: string) => void;
-  setBidPrice: (value: string) => void;
-}
-
-type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowHandlers;
+type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowFunctions;
 
 const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
@@ -35,11 +28,10 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'bid-size',
   header: () => <DualTableHeader label={strings.BidSz}/>,
-  render: ({bid, user, setBidQuantity}: RowType) => {
-    return (
-      <Qty entry={bid} onCancel={handlers.onCancelOrder} onChange={setBidQuantity} user={user}/>
-    );
-  },
+  render: ({bid, user, setBidQuantity}: RowType) => (
+    <Qty entry={bid} onCancel={handlers.onCancelOrder} onChange={setBidQuantity}
+         onSubmit={handlers.onQuantityChange} user={user}/>
+  ),
   weight: 2,
 }, {
   name: 'bid-vol',
@@ -76,8 +68,9 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'ofr-quantity',
   header: () => <DualTableHeader label={'Ofr Sz'} action={{fn: handlers.onRunButtonClicked, label: strings.Run}}/>,
-  render: ({ofr, user, setOfferQuantity}: RowType) => (
-    <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfferQuantity} user={user}/>
+  render: ({ofr, user, setOfrQuantity}: RowType) => (
+    <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfrQuantity} onSubmit={handlers.onQuantityChange}
+         user={user}/>
   ),
   weight: 2,
 }];

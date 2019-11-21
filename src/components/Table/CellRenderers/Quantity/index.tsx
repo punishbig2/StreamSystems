@@ -9,7 +9,7 @@ interface SizeProps {
   onChange: (value: string) => void;
   cancelable?: boolean;
   onCancel?: () => void;
-  hasCancelButton?: boolean;
+  onBlur?: () => void;
   className?: string;
 }
 
@@ -19,7 +19,6 @@ const defaultProps: SizeProps = {
   onChange: () => null,
   cancelable: false,
   onCancel: () => null,
-  hasCancelButton: true,
 };
 
 export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) => {
@@ -32,23 +31,20 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
   };
   const children: ReactNode[] = [
     <TableInput key={1} value={getValue()} tabIndex={-1} className={props.className}
-                onChange={(value: string) => props.onChange(value)}/>,
+                onChange={(value: string) => props.onChange(value)} onBlur={props.onBlur}/>,
   ];
-  if (props.hasCancelButton === false) {
+  if (props.cancelable)
+    classes.push('clickable');
+  const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;
+  if (props.type === EntryTypes.Bid) {
+    if (props.firm) {
+      children.push(<div>{props.firm}</div>);
+    }
+    children.push(button);
   } else {
-    if (props.cancelable)
-      classes.push('clickable');
-    const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;
-    if (props.type === EntryTypes.Bid) {
-      if (props.firm) {
-        children.push(<div>{props.firm}</div>);
-      }
-      children.push(button);
-    } else {
-      children.unshift(button);
-      if (props.firm) {
-        children.push(<div>{props.firm}</div>);
-      }
+    children.unshift(button);
+    if (props.firm) {
+      children.push(<div>{props.firm}</div>);
     }
   }
   return (

@@ -30,12 +30,8 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryT
       symbol: w.Symbol,
       status: EntryStatus.Active | EntryStatus.PreFilled | ownership,
       user: entry.MDEntryOriginator,
-      // Quantity and modifiable quantity
       quantity: quantity,
-      __quantity: quantity,
-      // Price and modifiable price
       price: price,
-      __price: price,
       firm: entry.MDFirm,
       type: entry.MDEntryType,
       orderId: entry.OrderID,
@@ -47,12 +43,8 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryT
       strategy: w.Strategy,
       symbol: w.Symbol,
       user: user.email,
-      // Quantity and modifiable quantity
       quantity: null,
-      __quantity: null,
-      // Price and modifiable price
       price: null,
-      __price: null,
       type: fallbackType,
       arrowDirection: ArrowDirection.None,
       status: EntryStatus.Active | EntryStatus.Owned,

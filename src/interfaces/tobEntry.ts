@@ -25,7 +25,4 @@ export interface TOBEntry {
   type: EntryTypes;
   arrowDirection: ArrowDirection;
   status: EntryStatus;
-  // PriceEdited values
-  __quantity: number | null;
-  __price: number | null;
 }

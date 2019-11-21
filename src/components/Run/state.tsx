@@ -3,5 +3,7 @@ import {TOBTable} from 'interfaces/tobTable';
 
 export interface State {
   history: RunActions[];
-  table: TOBTable;
+  orders: TOBTable;
+  defaultOfrQty: number;
+  defaultBidQty: number;
 }
