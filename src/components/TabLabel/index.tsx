@@ -1,24 +1,4 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
-import styled from 'styled-components';
-
-/*const Layout = styled.div`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  input {
-    font-size: ${({theme}) => theme.mediumFontSize}px;
-    font-weight: ${({theme}) => theme.mediumFontWeight};
-    padding: 0 8px;
-    display: block;
-    flex: 1;
-    height: 100%;
-    border: none;
-    &:read-only {
-      outline: none;
-      cursor: default;
-    }
-  }
-`;*/
 
 interface Props {
   label: string,

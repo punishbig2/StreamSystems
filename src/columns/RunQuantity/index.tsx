@@ -28,7 +28,6 @@ const reducer = (state: State, value: number): State => {
 export const RunQuantity: React.FC<Props> = (props: Props) => {
   const [state, dispatch] = useReducer(reducer, {value: toQuantity(props.value, props.defaultValue)});
   useEffect(() => {
-    console.log(props.defaultValue);
     if (props.defaultValue === undefined || props.defaultValue === null)
       return;
     dispatch(props.defaultValue);

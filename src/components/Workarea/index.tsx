@@ -1,7 +1,6 @@
 import {ModalWindow} from 'components/ModalWindow';
 import {Question} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
-import {Footer} from 'components/Workarea/footer';
 import {Workspace} from 'components/Workspace';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';

@@ -4,9 +4,7 @@ import {EntryTypes} from 'interfaces/mdEntry';
 import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
-import {User} from 'interfaces/user';
 import React from 'react';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 interface Props {
   entry: TOBEntry;
@@ -17,12 +15,11 @@ interface Props {
 }
 
 function doIHaveOrdersForThisEntry(depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): EntryStatus {
-  const user: User = getAuthenticatedUser();
   const entry: TOBTable | undefined = depths[tenor];
   if (!entry)
     return EntryStatus.None;
   const isEntryMineAndValid = (entry: TOBEntry): boolean => {
-    if (entry.user !== user.email)
+    if ((entry.status & EntryStatus.Owned) === 0 || (entry.status & EntryStatus.PreFilled) === 0)
       return false;
     return (entry.status & EntryStatus.Cancelled) === 0;
   };
