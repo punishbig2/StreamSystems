@@ -36,7 +36,7 @@ const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnPro
 
 const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
   const {id, columns, row, ...extra} = props;
-  // Compute the total weight of the createColumns
+  // Compute the total weight of the columns
   useEffect(() => {
     injectNamedReducer(id, createRowReducer, {row});
     return () => {

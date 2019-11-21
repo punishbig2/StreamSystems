@@ -1,4 +1,5 @@
-import createColumns from 'columns/tob';
+import createTOBColumns from 'columns/tob';
+import createDOBColumns from 'columns/dob';
 import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
@@ -225,7 +226,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     const currentDepth: TOBTable | undefined = state.tenor !== null ? state.depths[state.tenor] : undefined;
     if (!currentDepth)
       return null;
-    return <Table columns={createColumns(handlers)} rows={currentDepth} renderRow={renderRow}/>;
+    return <Table columns={createDOBColumns(handlers)} rows={currentDepth} renderRow={renderRow}/>;
   };
   return (
     <React.Fragment>
@@ -233,7 +234,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     setSymbol={setSymbol} onClose={props.onClose}/>
       <div className={'window-content'}>
         <VisibilitySelector visible={state.tenor === null}>
-          <Table columns={createColumns(handlers)} rows={rows} renderRow={renderRow}/>
+          <Table columns={createTOBColumns(handlers)} rows={rows} renderRow={renderRow}/>
         </VisibilitySelector>
         {getDepthTable()}
       </div>

@@ -89,7 +89,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
       return (
         <React.Fragment>
           {getActiveWorkspace()}
-          <Footer>
+          <div className={'footer'}>
             <TabBar
               entries={workspaces}
               addTab={props.addWorkspace}
@@ -97,7 +97,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
               onTabClosed={setSelectedToClose}
               onTabRenamed={props.renameWorkspace}
               active={props.activeWorkspace}/>
-          </Footer>
+          </div>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
         </React.Fragment>
       );

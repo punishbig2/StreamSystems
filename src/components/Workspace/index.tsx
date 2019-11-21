@@ -1,6 +1,5 @@
 import {MessageBlotter} from 'components/MessageBlotter';
 import {TOB} from 'components/TOB';
-import {Toolbar} from 'components/Toolbar';
 import {WindowManager} from 'components/WindowManager';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
@@ -81,10 +80,10 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
 
   return (
     <React.Fragment>
-      <Toolbar>
+      <div className={'toolbar'}>
         <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
         <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
-      </Toolbar>
+      </div>
       <WindowManager
         windows={props.windows}
         renderContent={renderContent}

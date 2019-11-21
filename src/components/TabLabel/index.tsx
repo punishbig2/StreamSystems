@@ -1,23 +1,10 @@
 import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 import styled from 'styled-components';
 
-const Layout = styled.div`
+/*const Layout = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
-  button {
-    border: none;
-    background: none;
-    margin: 0 0 0 8px;
-    transition: all 0.25s;
-    width: 22px;
-    height: 22px;
-    border-radius: 11px;
-    &:hover {
-      background-color: crimson;
-      color: white;
-    }
-  }
   input {
     font-size: ${({theme}) => theme.mediumFontSize}px;
     font-weight: ${({theme}) => theme.mediumFontWeight};
@@ -31,7 +18,7 @@ const Layout = styled.div`
       cursor: default;
     }
   }
-`;
+`;*/
 
 interface Props {
   label: string,
@@ -63,7 +50,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
   const onDoubleClick = () => setEditable(true);
   return (
-    <Layout>
+    <div className={'tab-label'}>
       <input value={value}
              readOnly={!editable}
              onChange={onChange}
@@ -71,6 +58,6 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
              onDoubleClick={onDoubleClick}
              onKeyDown={onKeyDown}/>
       <button onClick={props.onClosed}><i className={'fa fa-times'}/></button>
-    </Layout>
+    </div>
   );
 };

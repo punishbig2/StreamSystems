@@ -3,7 +3,14 @@ $title-bar-height: 28px;
 $title-bar-button-size: 20px;
 $table-header-height: 54px;
 $table-row-height: 24px;
+
 $window-border-size: 2px;
+$window-toolbar-size: 48px;
+$window-footer-size: 36px;
+
+$primary-color: #407af0;
+$primary-dark-color: #2058c0;
+
 $text-color-blue: #4071af;
 $text-color-red: #f02327;
 
@@ -67,6 +74,115 @@ button {
       display: none;
       text-align: right;
     }
+  }
+}
+
+.toolbar {
+  position: absolute;
+  background-color: white;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: $window-toolbar-size;
+  line-height: $window-toolbar-size;
+  border-bottom: 1px solid $table-border-color;
+  padding: 0 16px;
+
+  button {
+    line-height: 2;
+    border: none;
+    background-color: $primary-color;
+    color: white;
+    border-radius: 100px;
+
+    &:before {
+      content: '\f055';
+      font-family: 'Font Awesome 5 Free Solid', sans-serif;
+      padding: 0 10px 0 0;
+    }
+
+    &:nth-child(n + 2) {
+      margin: 0 0 0 12px;
+    }
+  }
+}
+
+.footer {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-top: 1px solid $table-border-color;
+  line-height: $window-footer-size;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: $window-footer-size;
+  padding: 0 8px;
+
+  .tab-layout {
+    display: flex;
+    width: 100%;
+
+    .tab-label {
+      display: flex;
+      align-items: center;
+      height: 100%;
+
+      input {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 0 8px;
+        display: block;
+        flex: 1;
+        height: 100%;
+        border: none;
+
+        &:read-only {
+          outline: none;
+          cursor: default;
+        }
+      }
+
+      button {
+        border: none;
+        background: none;
+        margin: 0 0 0 8px;
+        transition: all 0.25s;
+        padding: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: 11px;
+
+        &:hover {
+          background-color: crimson;
+          i {
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  button {
+    &.new-workspace {
+      padding: 0 12px;
+      margin: 0 12px;
+      background-color: $primary-color;
+      color: white;
+      line-height: $window-footer-size;
+      border: none;
+
+      span:first-child {
+        margin: 0 8px 0 0;
+      }
+
+      span, i {
+        color: inherit;
+      }
+    }
+
+
   }
 }
 
@@ -315,13 +431,20 @@ button {
       text-align: center;
 
       &:focus {
-        outline: 2px solid dodgerblue;
+        outline: 2px solid $primary-color;
+      }
+    }
+
+    &.sortable {
+      .label {
+        margin: 0 -26px 0 0;
       }
     }
 
     .column {
       .label, .sort-indicator {
         display: inline-block;
+        vertical-align: middle;
       }
 
       .label {
@@ -340,7 +463,7 @@ button {
           font-weight: 600;
 
           &:focus {
-            outline: 2px solid dodgerblue;
+            outline: 2px solid $primary-color;
           }
         }
 
@@ -360,24 +483,14 @@ button {
             }
           }
         }
-
-      }
-
-      &.sortable {
-        border: 1px solid red;
-        text-align: right;
-
-        .label {
-          width: 100%;
-        }
       }
 
       .sort-indicator {
         height: 22px;
         width: 22px;
+        line-height: 22px;
         border-radius: 11px;
         margin: 0 4px 0 0;
-        line-height: 22px;
         cursor: pointer;
         text-align: center;
         pointer-events: initial;
@@ -387,7 +500,7 @@ button {
         }
 
         .fa.none {
-          opacity: 0.05;
+          opacity: 0.5;
         }
 
         &:hover {
@@ -548,7 +661,7 @@ button {
       border-top-color: transparent;
       border-right-color: transparent;
       border-left-color: transparent;
-      border-bottom-color: dodgerblue;
+      border-bottom-color: $primary-color;
       animation: spin 1.25s linear infinite;
     }
   }

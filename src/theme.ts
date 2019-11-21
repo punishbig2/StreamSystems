@@ -1,6 +1,6 @@
 export const theme = {
-  primaryColor: '#2150f0',
-  primaryDarkColor: '#0120d0',
+  primaryColor: '#407af0',
+  primaryDarkColor: '#2058c0',
   foregroundColor: '#333',
   backgroundColor: '#fff',
   tableHeaderHeight: 40,

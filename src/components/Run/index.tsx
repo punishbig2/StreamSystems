@@ -83,7 +83,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     );
   };
 
-  // This builds the set of createColumns of the run depth with it's callbacks
+  // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
     onBidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Bid, {id, value})),
     onOfrChanged: (id: string, value: number) => dispatch(createAction(RunActions.Ofr, {id, value})),

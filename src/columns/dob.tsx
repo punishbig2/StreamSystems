@@ -1,6 +1,5 @@
 import {TOBPrice} from 'columns/tobPrice';
 import {TOBQty as Qty} from 'columns/tobQty';
-import {DualTableHeader} from 'components/dualTableHeader';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
@@ -20,14 +19,14 @@ type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: str
 
 const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
-  header: () => <DualTableHeader label={''}/>,
+  header: () => '',
   render: ({tenor}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor)}/>
   ),
   weight: 1,
 }, {
   name: 'bid-size',
-  header: () => <DualTableHeader label={strings.BidSz}/>,
+  header: () => strings.BidSz,
   render: ({bid, user, setBidQuantity}: RowType) => (
     <Qty entry={bid} onCancel={handlers.onCancelOrder} onChange={setBidQuantity}
          onSubmit={handlers.onQuantityChange} user={user}/>
@@ -35,8 +34,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   weight: 2,
 }, {
   name: 'bid-vol',
-  header: () => <DualTableHeader label={strings.BidPx}
-                                 action={{fn: handlers.onRefBidsButtonClicked, label: strings.RefBids}}/>,
+  header: () => strings.BidPx,
   render: ({bid, depths}: RowType) => (
     <TOBPrice depths={depths} entry={bid} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
@@ -44,7 +42,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   weight: 3,
 }, {
   name: 'dark-pool',
-  header: () => <DualTableHeader label={strings.DarkPool}/>,
+  header: () => strings.DarkPool,
   render: () => (
     <Price
       arrow={ArrowDirection.None}
@@ -58,8 +56,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   weight: 3,
 }, {
   name: 'ofr-vol',
-  header: () => <DualTableHeader label={strings.OfrPx}
-                                 action={{fn: handlers.onRefOfrsButtonClicked, label: strings.RefBids}}/>,
+  header: () => strings.OfrPx,
   render: ({ofr, depths}: RowType) => (
     <TOBPrice depths={depths} entry={ofr} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
@@ -67,7 +64,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   weight: 3,
 }, {
   name: 'ofr-quantity',
-  header: () => <DualTableHeader label={strings.OfrSz} action={{fn: handlers.onRunButtonClicked, label: strings.Run}}/>,
+  header: () => strings.OfrSz,
   render: ({ofr, user, setOfrQuantity}: RowType) => (
     <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfrQuantity} onSubmit={handlers.onQuantityChange}
          user={user}/>

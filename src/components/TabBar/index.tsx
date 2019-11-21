@@ -1,24 +1,7 @@
 import {Tab} from 'components/Tab';
-import {Layout} from 'components/TabBar/layout';
 import {TabLabel} from 'components/TabLabel';
 
 import React, {ReactElement} from 'react';
-import styled from 'styled-components';
-
-const NewWorkspaceButton = styled.button`
-  padding: 0 12px;
-  margin: 0 12px;
-  background-color: ${({theme}) => theme.primaryColor};
-  color: white;
-  line-height: ${({theme}) => theme.footerSize}px;
-  border: none;
-  span:first-child {
-    margin: 0 8px 0 0;
-  }
-  span, i {
-    color: inherit;
-  }
-`;
 
 interface Entry {
   name: string;
@@ -62,17 +45,17 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   });
   // Add WorkspaceActions label
   const addWorkspaceLabel: ReactElement = (
-    <NewWorkspaceButton>
+    <button className={'new-workspace'}>
       <span><i className={'fa fa-plus-circle'}/></span><span>New Workspace</span>
-    </NewWorkspaceButton>
+    </button>
   );
   // Render the bar
   return (
-    <Layout>
+    <div className={'tab-layout'}>
       {tabs}
       {/* Add button */}
       <Tab id={''} onClick={props.addTab} active={false} label={addWorkspaceLabel}/>
-    </Layout>
+    </div>
   );
 };
 
