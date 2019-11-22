@@ -1,5 +1,5 @@
 import {EntryTypes} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {AggregatedSz} from 'components/TOB/reducer';
 
 export interface TOBHandlers {
@@ -8,9 +8,9 @@ export interface TOBHandlers {
   onRunButtonClicked: () => void;
   onRefBidsButtonClicked: () => void;
   onRefOfrsButtonClicked: () => void;
-  onPriceChange: (entry: TOBEntry) => void;
-  onQuantityChange: (entry: TOBEntry, newQuantity: number) => void;
-  onUpdateOrder: (entry: TOBEntry) => void;
-  onCancelOrder: (entry: TOBEntry) => void;
+  onPriceChange: (entry: Order) => void;
+  onQuantityChange: (entry: Order, newQuantity: number) => void;
+  onUpdateOrder: (entry: Order) => void;
+  onCancelOrder: (entry: Order) => void;
   aggregatedSz?: AggregatedSz;
 }

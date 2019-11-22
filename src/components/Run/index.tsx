@@ -7,7 +7,7 @@ import {reducer} from 'components/Run/reducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -26,7 +26,7 @@ interface OwnProps {
   tenors: string[],
   user: User;
   onClose: () => void;
-  onSubmit: (entries: TOBEntry[]) => void;
+  onSubmit: (entries: Order[]) => void;
 }
 
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
@@ -36,7 +36,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
 
   const setTable = (orders: TOBTable) => dispatch(createAction(RunActions.SetTable, orders));
   // Updates a single side of the depth
-  const updateSide = (entry: TOBEntry) => {
+  const updateSide = (entry: Order) => {
     const id: string = $$(toRunId(entry.symbol, entry.strategy), entry.tenor);
     switch (entry.type) {
       case EntryTypes.Invalid:
@@ -60,12 +60,12 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       return;
     const eligible: EntryStatus = EntryStatus.PriceEdited | EntryStatus.Cancelled;
     const rows: TOBRow[] = Object.values(state.orders);
-    const entries: TOBEntry[] = [
+    const entries: Order[] = [
       ...rows.map((value: TOBRow) => value.bid),
       ...rows.map((value: TOBRow) => value.ofr),
     ];
-    const selected: TOBEntry[] = entries
-      .filter((entry: TOBEntry) => (entry.status & eligible) !== 0)
+    const selected: Order[] = entries
+      .filter((entry: Order) => (entry.status & eligible) !== 0)
     ;
     if (selected.length === 0)
       return;
@@ -89,8 +89,8 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     onOfrChanged: (id: string, value: number) => dispatch(createAction(RunActions.Ofr, {id, value})),
     onMidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Mid, {id, value})),
     onSpreadChanged: (id: string, value: number) => dispatch(createAction(RunActions.Spread, {id, value})),
-    onOfrQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfferQtyChanged, {id, value})),
     onBidQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
+    onOfrQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfrQtyChanged, {id, value})),
     defaultBidQty: {
       value: state.defaultBidQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),

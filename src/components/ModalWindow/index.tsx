@@ -1,5 +1,3 @@
-import {Container} from 'components/ModalWindow/container';
-import {Window} from 'components/ModalWindow/window';
 import React, {ReactElement} from 'react';
 import ReactDOM from 'react-dom';
 
@@ -11,11 +9,11 @@ interface Props {
 const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
   const className = props.visible ? 'visible' : 'hidden';
   return ReactDOM.createPortal(
-    <Container className={className}>
-      <Window className={className}>
+    <div className={['modal-window-container', className].join(' ')}>
+      <div className={['modal-window', className].join(' ')}>
         {props.render(props)}
-      </Window>
-    </Container>
+      </div>
+    </div>
     , document.body);
 };
 

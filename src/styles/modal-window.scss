@@ -1,0 +1,77 @@
+.modal-window-container {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  height: 100%;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  text-align: center;
+
+  &.hidden {
+    visibility: hidden;
+  }
+
+  z-index: 3;
+
+  .modal-window {
+    display: inline-block;
+    background-color: white;
+    text-align: initial;
+    line-height: normal;
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.175);
+
+    h1 {
+      margin: 0;
+    }
+
+    transition: transform 0.25s;
+
+    &.visible {
+      transform: translateY(-6vh);
+    }
+
+    &.hidden {
+      transform: translateY(100%);
+    }
+
+    .modal-title-bar {
+      margin: 0 0 8px 0;
+
+      .half {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 24px;
+        width: 50%;
+
+        .item {
+          display: inline-block;
+          vertical-align: middle;
+          margin: 0;
+          font-weight: 600;
+          line-height: normal;
+
+          &:not(:first-child) {
+            margin: 0 0 0 8px;
+          }
+        }
+
+        label, input[type="checkbox"] {
+          display: inline-block;
+          vertical-align: middle;
+          line-height: normal;
+          font-weight: 600;
+        }
+
+        &:last-child {
+          display: none;
+          text-align: right;
+        }
+      }
+    }
+  }
+}

@@ -1,10 +1,10 @@
 import {HeaderQty} from 'columns/HeaderQty';
 import {RunQuantity} from 'columns/RunQuantity';
-import {RunHandlers} from 'components/Run/handlers';
+import {RunColumnData} from 'components/Run/columnData';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
@@ -12,7 +12,7 @@ import React from 'react';
 
 type RowType = TOBRow & { defaultBidQty: number, defaultOfrQty: number };
 
-const columns = (handlers: RunHandlers): ColumnSpec[] => [{
+const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   name: 'tenor',
   header: () => <div/>,
   render: ({tenor}: RowType) => (

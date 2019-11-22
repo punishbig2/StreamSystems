@@ -9,4 +9,6 @@ export interface Window {
   type: WindowTypes;
   geometry?: ClientRect;
   status: WindowStatus;
+  minimized: boolean;
+  title: string;
 }

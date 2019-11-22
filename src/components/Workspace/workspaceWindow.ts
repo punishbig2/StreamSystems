@@ -9,12 +9,16 @@ export class WorkspaceWindow implements Window {
   public symbol: string;
   public geometry: ClientRect = new DOMRect(0, 0, 600, 450);
   public status: WindowStatus = WindowStatus.None;
+  public minimized: boolean;
+  public title: string;
 
   constructor(type: WindowTypes) {
     this.id = `tile-${shortid()}-${type}`;
     this.type = type;
     this.strategy = '';
     this.symbol = '';
+    this.minimized = false;
+    this.title = 'Untitled';
   }
 
 }

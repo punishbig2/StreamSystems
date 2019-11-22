@@ -1,4 +1,4 @@
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus} from 'interfaces/order';
 import {useEffect} from 'react';
 
 export const useStatusUpdater = (status: EntryStatus, update: (status: EntryStatus) => void) => {

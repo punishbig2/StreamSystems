@@ -7,7 +7,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBHandlers} from 'components/TOB/handlers';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -27,8 +27,8 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'bid-size',
   header: () => strings.BidSz,
-  render: ({bid, user, setBidQuantity}: RowType) => (
-    <Qty entry={bid} onCancel={handlers.onCancelOrder} onChange={setBidQuantity}
+  render: ({bid, user, setBidQty}: RowType) => (
+    <Qty entry={bid} onCancel={handlers.onCancelOrder} onChange={setBidQty}
          onSubmit={handlers.onQuantityChange} user={user}/>
   ),
   weight: 2,
@@ -65,8 +65,8 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
 }, {
   name: 'ofr-quantity',
   header: () => strings.OfrSz,
-  render: ({ofr, user, setOfrQuantity}: RowType) => (
-    <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfrQuantity} onSubmit={handlers.onQuantityChange}
+  render: ({ofr, user, setOfrQty}: RowType) => (
+    <Qty entry={ofr} onCancel={handlers.onCancelOrder} onChange={setOfrQty} onSubmit={handlers.onQuantityChange}
          user={user}/>
   ),
   weight: 2,

@@ -1,5 +1,5 @@
 import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -18,7 +18,7 @@ const getNumber = (value: string | null | undefined): number | null => {
   return numeric;
 };
 
-export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryTypes): TOBEntry => {
+export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryTypes): Order => {
   const user: User = getAuthenticatedUser();
   if (entry) {
     const ownership: EntryStatus = user.email === entry.MDEntryOriginator ? EntryStatus.Owned : EntryStatus.NotOwned;

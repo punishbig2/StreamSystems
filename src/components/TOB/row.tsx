@@ -25,8 +25,8 @@ interface OwnProps {
 type DispatchProps = RowFunctions;
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  setOfrQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
-  setBidQuantity: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+  setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
+  setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
 });
 
 const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(
@@ -44,8 +44,8 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     };
   }, [id, row]);
   const functions: DispatchProps = {
-    setOfrQuantity: props.setOfrQuantity,
-    setBidQuantity: props.setBidQuantity,
+    setOfrQty: props.setOfrQty,
+    setBidQty: props.setBidQty,
   };
   return (
     <div className={'tr'}>

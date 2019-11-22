@@ -1,4 +1,4 @@
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 
@@ -14,7 +14,7 @@ export type AggregatedSz = {
 export interface State {
   depths: { [key: string]: TOBTable };
   tenor: string | null;
-  orderTicket: TOBEntry | null;
+  orderTicket: Order | null;
   runWindowVisible: boolean;
   aggregatedSz?: AggregatedSz;
 }
@@ -34,9 +34,9 @@ const collapse = (depth: any): Aggregation | undefined => {
   if (!depth)
     return undefined;
   const values: TOBRow[] = Object.values(depth);
-  const bids: TOBEntry[] = values.map((value: TOBRow) => value.bid);
-  const ofrs: TOBEntry[] = values.map((value: TOBRow) => value.ofr);
-  const groupByPrice = (group: Group, entry: TOBEntry): Group => {
+  const bids: Order[] = values.map((value: TOBRow) => value.bid);
+  const ofrs: Order[] = values.map((value: TOBRow) => value.ofr);
+  const groupByPrice = (group: Group, entry: Order): Group => {
     const price: number | null = entry.price;
     if (price === null)
       return group;

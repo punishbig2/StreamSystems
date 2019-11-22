@@ -7,9 +7,11 @@ export const useValueComparator = (propsValue: number | null, stateValue: string
     if (oldValue === null || oldValue === undefined)
       return;
     const numeric: number = Number(stateValue);
-    if (propsValue === numeric)
+    if (propsValue === null)
       return;
-    if (oldValue !== propsValue) {
+    if (propsValue.toFixed(3) === numeric.toFixed(3))
+      return;
+    if (oldValue.toFixed(3) !== propsValue.toFixed(3)) {
       startFlashing();
     }
   }, [oldValue, propsValue, stateValue, startFlashing]);

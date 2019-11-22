@@ -25,7 +25,7 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
   const {value} = props;
   const classes: string[] = ['times'];
   const getValue = (): string => {
-    if (value === null)
+    if (value === null || value === undefined)
       return '';
     return value.toString();
   };

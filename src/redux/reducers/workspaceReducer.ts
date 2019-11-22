@@ -8,6 +8,16 @@ const genesisState: WorkspaceState = {
   windows: {},
 };
 
+const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = {...state.windows};
+  return {...windows, [id]: {...windows[id], minimized: true}};
+};
+
+const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = {...state.windows};
+  return {...windows, [id]: {...windows[id], minimized: false}};
+};
+
 const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = {...state.windows};
   // Remove it from the copy
@@ -30,12 +40,16 @@ const moveWindow = ({id, geometry}: { id: string, geometry: ClientRect }, state:
 export const createWorkspaceReducer = (id: string, initialState: WorkspaceState = genesisState) => {
   return (state: WorkspaceState = initialState, {type, data}: AnyAction): WorkspaceState => {
     switch (type) {
+      case $$(id, WorkspaceActions.MinimizeWindow):
+        return {...state, windows: minimizeWindow(data, state)};
       case $$(id, WorkspaceActions.AddWindow):
         return {...state, windows: addWindow(data, state)};
       case $$(id, WorkspaceActions.UpdateGeometry):
         return {...state, windows: moveWindow(data, state)};
       case $$(id, WorkspaceActions.RemoveWindow):
         return {...state, windows: removeWindow(data, state)};
+      case $$(id, WorkspaceActions.RestoreWindow):
+        return {...state, windows: restoreWindow(data, state)};
       default:
         return state;
     }

@@ -4,7 +4,7 @@ import {Message} from 'interfaces/message';
 import {CreateOrder, Sides, UpdateOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
@@ -124,7 +124,7 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(entry: TOBEntry): Promise<OrderResponse> {
+  static async createOrder(entry: Order): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     if (entry.price === null || entry.quantity === null)
       throw new Error('price and quantity MUST be specified');
@@ -144,7 +144,7 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
   }
 
-  static async updateOrder(entry: TOBEntry): Promise<OrderResponse> {
+  static async updateOrder(entry: Order): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     if (entry.price === null || entry.quantity === null || !entry.orderId)
       throw new Error('price, quantity and order id MUST be specified');
@@ -177,7 +177,7 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
   }
 
-  static async cancelOrder(entry: TOBEntry): Promise<OrderResponse> {
+  static async cancelOrder(entry: Order): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,

@@ -5,7 +5,7 @@ export enum RunActions {
   Bid = 'bid',
   // Other
   SetTable = 'Run.SetTable',
-  OfferQtyChanged = 'Run.OfferQuantityChanged',
+  OfrQtyChanged = 'Run.OfferQuantityChanged',
   BidQtyChanged = 'Run.BidQuantityChanged',
   UpdateBid = 'Run.UpdateBid',
   UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',

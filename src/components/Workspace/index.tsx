@@ -6,7 +6,14 @@ import {User} from 'interfaces/user';
 import React, {ReactElement} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
-import {addWindow, moveWindow, removeWindow} from 'redux/actions/workspaceActions';
+import {
+  addWindow,
+  minimizeWindow,
+  moveWindow,
+  removeWindow,
+  restoreWindow,
+  setWindowTitle,
+} from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
@@ -18,6 +25,9 @@ interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
   updateGeometry: (id: string, geometry: ClientRect) => void;
   removeWindow: (id: string) => void;
+  minimizeWindow: (id: string) => void;
+  restoreWindow: (id: string) => void;
+  setWindowTitle: (id: string, title: string) => void;
 }
 
 interface OwnProps {
@@ -32,6 +42,9 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   addWindow: (type: WindowTypes) => dispatch(addWindow(id, type)),
   updateGeometry: (windowId: string, geometry: ClientRect) => dispatch(moveWindow(id, windowId, geometry)),
   removeWindow: (windowId: string) => dispatch(removeWindow(id, windowId)),
+  minimizeWindow: (windowId: string) => dispatch(minimizeWindow(id, windowId)),
+  restoreWindow: (windowId: string) => dispatch(restoreWindow(id, windowId)),
+  setWindowTitle: (windowId: string, title: string) => dispatch(setWindowTitle(id, windowId, title)),
 });
 
 const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, OwnProps, ApplicationState>(
@@ -87,8 +100,11 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
       <WindowManager
         windows={props.windows}
         renderContent={renderContent}
+        onSetWindowTitle={props.setWindowTitle}
         onGeometryChange={props.updateGeometry}
-        onWindowClosed={props.removeWindow}/>
+        onWindowClosed={props.removeWindow}
+        onWindowMinimized={props.minimizeWindow}
+        onWindowRestored={props.restoreWindow}/>
     </React.Fragment>
   );
 });

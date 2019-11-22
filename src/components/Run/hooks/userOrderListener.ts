@@ -1,12 +1,12 @@
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {useEffect} from 'react';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {$$} from 'utils/stringPaster';
 
-export const useOrderListener = (tenors: string[], symbol: string, strategy: string, update: (entry: TOBEntry) => void) => {
+export const useOrderListener = (tenors: string[], symbol: string, strategy: string, update: (entry: Order) => void) => {
   useEffect(() => {
     const listener = (event: Event) => {
-      const customEvent: CustomEvent<TOBEntry> = event as CustomEvent<TOBEntry>;
+      const customEvent: CustomEvent<Order> = event as CustomEvent<Order>;
       update(customEvent.detail);
     };
     const cleaners: (() => void)[] = tenors.map((tenor) => {

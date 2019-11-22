@@ -15,6 +15,14 @@ export const removeWindow = (id: string, windowId: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.RemoveWindow), windowId);
 };
 
+export const minimizeWindow = (id: string, windowId: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.MinimizeWindow), windowId);
+};
+
+export const restoreWindow = (id: string, windowId: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.RestoreWindow), windowId);
+};
+
 export const addWindow = (id: string, type: WindowTypes): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
   // This will create a custom window reducer
@@ -30,4 +38,8 @@ export const addWindow = (id: string, type: WindowTypes): Action<string> => {
 
 export const moveWindow = (id: string, windowId: string, geometry: ClientRect): Action<string> => {
   return createAction($$(id, WorkspaceActions.UpdateGeometry), {id: windowId, geometry});
+};
+
+export const setWindowTitle = (id: string, windowId: string, title: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowId, title});
 };

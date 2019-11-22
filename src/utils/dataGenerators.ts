@@ -1,9 +1,9 @@
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 
-export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: EntryTypes): TOBEntry => {
+export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: EntryTypes): Order => {
   return {
     type: type,
     tenor,
@@ -16,11 +16,11 @@ export const emptyEntry = (tenor: string, symbol: string, strategy: string, user
     status: EntryStatus.None,
   };
 };
-export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): TOBEntry => {
+export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
   return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Ofr);
 };
 
-export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): TOBEntry => {
+export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
   return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Bid);
 };
 

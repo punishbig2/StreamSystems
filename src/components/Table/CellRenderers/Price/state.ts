@@ -1,4 +1,4 @@
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus} from 'interfaces/order';
 
 export interface State {
   tooltipX: number;

@@ -1,13 +1,13 @@
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 
 export interface QtyHeader {
   value: number;
   onChange: (value: number) => void;
 }
 
-type ChangeFn<T = TOBEntry> = (tenor: string, value: T) => void;
+type ChangeFn<T = Order> = (tenor: string, value: T) => void;
 
-export interface RunHandlers {
+export interface RunColumnData {
   onBidChanged: ChangeFn<number>,
   onOfrChanged: ChangeFn<number>,
   onMidChanged: ChangeFn<number>,

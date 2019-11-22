@@ -13,7 +13,7 @@ export default {
   Mid: 'Mid',
   Spread: 'Spread',
   Close: 'Close',
-  RefOffrs: 'Ref. Ofrs',
+  RefOfrs: 'Ref. Ofrs',
   RefBids: 'Ref. Bids',
   Run: 'Run',
   Yes: 'Yes',

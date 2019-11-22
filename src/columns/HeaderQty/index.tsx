@@ -1,4 +1,4 @@
-import {QtyHeader} from 'components/Run/handlers';
+import {QtyHeader} from 'components/Run/columnData';
 import React from 'react';
 
 export const HeaderQty: React.FC<QtyHeader> = (props: QtyHeader) => {

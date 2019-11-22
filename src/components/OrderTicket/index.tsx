@@ -6,12 +6,12 @@ import {Row} from 'components/OrderTicket/row';
 import {TitleEntry} from 'components/OrderTicket/titleEntry';
 import {DialogButtons} from 'components/PullRight';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';
 
 interface Props {
-  order: TOBEntry;
+  order: Order;
   onSubmit: (value: number) => void;
   onCancel: () => void;
 }

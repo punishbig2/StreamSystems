@@ -1,7 +1,8 @@
 import React from 'react';
 
+export type HeaderAction = {fn: () => void, label: string};
 interface Props {
-  action?: { fn: () => void, label: string };
+  action?: HeaderAction;
   label: string;
 }
 

@@ -1,13 +1,13 @@
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {User} from 'interfaces/user';
 import React, {useEffect, useState} from 'react';
 
 interface Props {
-  entry: TOBEntry;
+  entry: Order;
   user: User;
-  onCancel: (entry: TOBEntry) => void;
-  onSubmit: (entry: TOBEntry, newQuantity: number) => void;
+  onCancel: (entry: Order) => void;
+  onSubmit: (entry: Order, newQuantity: number) => void;
   onChange: (value: number) => void;
 }
 
@@ -23,7 +23,11 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     }
   };
   const onChange = (value: string) => setValue(Number(value));
-  const onCancel = () => props.onCancel(entry);
+  const cancellable =
+    ((entry.status & EntryStatus.Owned) !== 0) ||
+    ((entry.status & EntryStatus.HaveOtherOrders) !== 0)
+  ;
+  const onCancel = () => cancellable ? props.onCancel(entry) : null;
   return (
     <Quantity
       value={value}
@@ -31,7 +35,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       onChange={onChange}
       onCancel={onCancel}
       onBlur={onBlur}
-      cancelable={user.email === entry.user && entry.price !== null && entry.quantity !== null}
+      cancelable={cancellable}
       className={'tob-size'}
       firm={user.isBroker ? entry.firm : undefined}/>
   );

@@ -32,8 +32,16 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       return;
     dispatch(props.defaultValue);
   }, [props.defaultValue]);
+  useEffect(() => {
+    if (props.value === null)
+      return;
+    dispatch(props.value);
+  }, [props.value]);
+  const onChange = (value: string) => {
+    props.onChange(props.id, Number(value));
+  };
   return (
-    <TableInput value={state.value} onChange={(value: string) => props.onChange(props.id, Number(value))}/>
+    <TableInput value={state.value} onChange={onChange}/>
   );
 };
 

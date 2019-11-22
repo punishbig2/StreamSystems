@@ -1,5 +1,5 @@
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 
 export interface RunState {
-  orders: TOBEntry[];
+  orders: Order[];
 }

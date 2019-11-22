@@ -1,4 +1,4 @@
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus} from 'interfaces/order';
 
 export const getInputClass = (status: EntryStatus, className?: string): string => {
   const classes: string[] = className ? [className] : [];

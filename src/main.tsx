@@ -2,7 +2,7 @@ import {Workarea} from 'components/Workarea';
 
 import 'fonts/fontawesome/css/all.min.css';
 import 'fonts/montserrat/font.css';
-import 'main.scss';
+import 'styles/main.scss';
 
 import React from 'react';
 import {Provider} from 'react-redux';

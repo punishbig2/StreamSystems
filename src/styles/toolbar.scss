@@ -1,0 +1,29 @@
+.toolbar {
+  position: absolute;
+  background-color: white;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: $window-toolbar-size;
+  line-height: $window-toolbar-size;
+  border-bottom: 1px solid $table-border-color;
+  padding: 0 16px;
+
+  button {
+    line-height: 2;
+    border: none;
+    background-color: $primary-color;
+    color: white;
+    border-radius: 100px;
+
+    &:before {
+      content: '\f055';
+      font-family: 'Font Awesome 5 Free Solid', sans-serif;
+      padding: 0 10px 0 0;
+    }
+
+    &:nth-child(n + 2) {
+      margin: 0 0 0 12px;
+    }
+  }
+}

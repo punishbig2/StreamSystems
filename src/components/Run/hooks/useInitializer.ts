@@ -1,5 +1,5 @@
 import {EntryTypes} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {useEffect} from 'react';
@@ -14,8 +14,8 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
         const getEntry = (type: EntryTypes) => {
           return emptyEntry(tenor, symbol, strategy, email, 10, type);
         };
-        const bid: TOBEntry = getEntry(EntryTypes.Bid);
-        const ofr: TOBEntry = getEntry(EntryTypes.Ofr);
+        const bid: Order = getEntry(EntryTypes.Bid);
+        const ofr: Order = getEntry(EntryTypes.Ofr);
         return {
           id: $$(toRunId(symbol, strategy), tenor),
           tenor: tenor,

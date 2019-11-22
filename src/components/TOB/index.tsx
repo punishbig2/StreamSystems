@@ -15,7 +15,7 @@ import {VisibilitySelector} from 'components/visibilitySelector';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -56,10 +56,10 @@ interface DispatchProps {
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (entry: TOBEntry) => void;
-  cancelOrder: (entry: TOBEntry) => void;
+  createOrder: (entry: Order) => void;
+  cancelOrder: (entry: Order) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
-  updateOrder: (entry: TOBEntry) => void;
+  updateOrder: (entry: Order) => void;
   getRunOrders: (symbol: string, strategy: string) => void;
 }
 
@@ -67,13 +67,13 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TOBActions.Initialize), rows)),
   subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
   setStrategy: (value: string) => dispatch(createAction($$(id, TOBActions.SetStrategy), value)),
-  createOrder: (order: TOBEntry) => dispatch(createOrder(id, order)),
+  createOrder: (order: Order) => dispatch(createOrder(id, order)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TOBActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TOBActions.ToggleOCO))),
-  cancelOrder: (entry: TOBEntry) => dispatch(cancelOrder(id, entry)),
+  cancelOrder: (entry: Order) => dispatch(cancelOrder(id, entry)),
   getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(id, symbol, strategy, tenor)),
   cancelAll: (symbol: string, strategy: string, side: Sides) => dispatch(cancelAll(id, symbol, strategy, side)),
-  updateOrder: (entry: TOBEntry) => dispatch(updateOrder(id, entry)),
+  updateOrder: (entry: Order) => dispatch(updateOrder(id, entry)),
   getRunOrders: (symbol: string, strategy: string) => dispatch(getRunOrders(id, symbol, strategy)),
 });
 
@@ -110,7 +110,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
   // Internal temporary reducer actions
   const setCurrentTenor = (tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor));
-  const setOrderTicket = (ticket: TOBEntry | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket));
+  const setOrderTicket = (ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket));
   const insertDepth = (data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data));
   const showRunWindow = () => dispatch(createAction(ActionTypes.ShowRunWindow));
   const hideRunWindow = () => dispatch(createAction(ActionTypes.HideRunWindow));
@@ -126,7 +126,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
 
   const handlers: TOBHandlers = {
-    onUpdateOrder: (entry: TOBEntry) => {
+    onUpdateOrder: (entry: Order) => {
       updateOrder(entry);
     },
     onTenorSelected: (tenor: string) => {
@@ -140,7 +140,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         setCurrentTenor(null);
       }
     },
-    onDoubleClick: (type: EntryTypes, entry: TOBEntry) => {
+    onDoubleClick: (type: EntryTypes, entry: Order) => {
       setOrderTicket({...entry, type});
     },
     onRunButtonClicked: () => {
@@ -152,7 +152,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefOfrsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Sell);
     },
-    onPriceChange: (entry: TOBEntry) => {
+    onPriceChange: (entry: Order) => {
       if ((entry.status & EntryStatus.Owned) === 0) {
         if (entry.quantity === null) {
           createOrder({...entry, quantity: 10});
@@ -165,10 +165,10 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         createOrder({...entry, quantity: 10});
       }
     },
-    onCancelOrder: (entry: TOBEntry) => {
+    onCancelOrder: (entry: Order) => {
       cancelOrder(entry);
     },
-    onQuantityChange: (entry: TOBEntry, newQuantity: number) => {
+    onQuantityChange: (entry: Order, newQuantity: number) => {
       if (entry.quantity === null)
         return;
       if (entry.quantity > newQuantity) {
@@ -198,11 +198,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                         onSubmit={createOrder}/>;
   };
 
-  const bulkCreateOrders = (entries: TOBEntry[]) => {
+  const bulkCreateOrders = (entries: Order[]) => {
     // Close the runs wundow
     hideRunWindow();
     // Create the orders
-    entries.forEach((entry: TOBEntry) => props.createOrder(entry));
+    entries.forEach((entry: Order) => props.createOrder(entry));
   };
 
   const runWindow = (): ReactElement => (

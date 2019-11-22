@@ -1,4 +1,4 @@
-import {EntryStatus} from 'interfaces/tobEntry';
+import {EntryStatus} from 'interfaces/order';
 import {useEffect} from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
 

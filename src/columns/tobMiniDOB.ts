@@ -1,15 +1,15 @@
 import {EntryTypes} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 
 type Depths = { [key: string]: TOBTable };
-export const getMiniDOBByType = (depths: Depths, tenor: string, type: EntryTypes): TOBEntry[] | undefined => {
+export const getMiniDOBByType = (depths: Depths, tenor: string, type: EntryTypes): Order[] | undefined => {
   if (depths === undefined || depths[tenor] === undefined)
     return undefined;
   const items: TOBRow[] = Object.values(depths[tenor]);
-  const offers: TOBEntry[] = items.map((item) => item.ofr);
-  const bids: TOBEntry[] = items.map((item) => item.bid);
+  const offers: Order[] = items.map((item) => item.ofr);
+  const bids: Order[] = items.map((item) => item.bid);
   switch (type) {
     case EntryTypes.Invalid:
       break;

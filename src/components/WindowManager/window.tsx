@@ -8,6 +8,9 @@ interface OwnProps {
   area: ClientRect;
   forbidden: ClientRect[];
   onClose: () => void;
+  onMinimize: () => void;
+  onSetTitle: (title: string) => void;
+  isMinimized: boolean;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -68,12 +71,12 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   const [, setLeftResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'left'));
   // Compute the style
   const style: CSSProperties | undefined = toStyle(props.geometry);
-  const classes: string = ['window-element', isGrabbed ? 'grabbed' : null]
+  const classes: string = ['window-element', isGrabbed ? 'grabbed' : null, props.isMinimized ? 'minimized' : null]
     .join(' ')
     .trim();
   return (
     <div className={classes} ref={container} style={style}>
-      <DefaultWindowButtons onClose={props.onClose}/>
+      <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize}/>
       <div className={'content'} ref={setMoveHandle}>
         {props.children}
       </div>

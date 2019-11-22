@@ -1,11 +1,11 @@
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 
 export interface TOBRow {
   id: string;
   tenor: string;
-  bid: TOBEntry;
+  bid: Order;
   darkPool?: string;
-  ofr: TOBEntry;
+  ofr: Order;
   mid: number | null;
   spread: number | null;
 }

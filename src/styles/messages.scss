@@ -1,0 +1,16 @@
+.message-detail {
+  .message-entry {
+    width: 400px;
+
+    .message-entry-label,
+    .message-entry-value {
+      display: inline-block;
+      width: 50%;
+      padding: 4px 12px;
+    }
+
+    .message-entry-value {
+      text-align: right;
+    }
+  }
+}

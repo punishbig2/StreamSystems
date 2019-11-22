@@ -1,7 +1,7 @@
 import {API} from 'API';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {User} from 'interfaces/user';
 import {ArrowDirection, W} from 'interfaces/w';
 import {Action} from 'redux/action';
@@ -17,7 +17,7 @@ import {$$} from 'utils/stringPaster';
 
 type ActionType = Action<TOBActions>;
 
-export const cancelOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
+export const cancelOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelOrder(entry);
     if (result.Status === 'Success') {
@@ -52,7 +52,7 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
   return new AsyncAction<any, any>(async (): Promise<ActionType> => {
     const entries: OrderMessage[] = await API.getRunOrders(user.email, symbol, strategy);
     entries
-      .map((entry: OrderMessage): TOBEntry => ({
+      .map((entry: OrderMessage): Order => ({
         orderId: entry.OrderID,
         tenor: entry.Tenor,
         strategy: entry.Strategy,
@@ -81,7 +81,7 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   }, createAction($$(id, TOBActions.CancelAllOrders)));
 };
 
-export const updateOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
+export const updateOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.updateOrder(entry);
     if (result.Status === 'Success') {
@@ -92,7 +92,7 @@ export const updateOrder = (id: string, entry: TOBEntry): AsyncAction<any, Actio
   }, createAction($$(id, TOBActions.UpdatingOrder)));
 };
 
-export const createOrder = (id: string, entry: TOBEntry): AsyncAction<any, ActionType> => {
+export const createOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.createOrder(entry);
     // FIXME: parse the result

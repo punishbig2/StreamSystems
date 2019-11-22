@@ -1,5 +1,5 @@
 import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
-import {TOBEntry} from 'interfaces/tobEntry';
+import {Order} from 'interfaces/order';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
@@ -13,7 +13,7 @@ import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
-export const emitUpdateOrderEvent = (order: TOBEntry) => {
+export const emitUpdateOrderEvent = (order: Order) => {
   const type: string = $$(order.tenor, order.symbol, order.strategy, TOBActions.UpdateOrders);
   const event: Event = new CustomEvent(type, {detail: order});
   // Now emit the event so that listeners capture it
@@ -21,7 +21,7 @@ export const emitUpdateOrderEvent = (order: TOBEntry) => {
 };
 
 const propagateOrders = (w: W) => {
-  const transform: (entry: MDEntry, fallbackType: EntryTypes) => TOBEntry = mdEntryToTOBEntry(w);
+  const transform: (entry: MDEntry, fallbackType: EntryTypes) => Order = mdEntryToTOBEntry(w);
   const user: User = getAuthenticatedUser();
   const entries: MDEntry[] = w.Entries;
   entries

@@ -14,7 +14,7 @@ import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInput
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
@@ -22,7 +22,7 @@ import {priceFormatter} from 'utils/priceFormatter';
 
 export interface Props {
   value: number | null;
-  depth?: TOBEntry[];
+  depth?: Order[];
   type?: EntryTypes;
   priceType?: PriceTypes;
   // Events

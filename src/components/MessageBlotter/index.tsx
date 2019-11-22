@@ -76,7 +76,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
         <h1>{strings.Messages}</h1>
       </div>
       <div className={'window-content'}>
-        <Table columns={columns} rows={entries} renderRow={renderRow}/>
+        <Table columns={columns} rows={entries.slice(0, 30)} renderRow={renderRow}/>
       </div>
       <ModalWindow render={() => renderMessage()} visible={props.lastEntry !== null}/>
     </React.Fragment>

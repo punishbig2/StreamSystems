@@ -2,7 +2,7 @@ import {Computed} from 'components/Run/computed';
 import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {State} from 'components/Run/state';
-import {EntryStatus, TOBEntry} from 'interfaces/tobEntry';
+import {EntryStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
@@ -117,7 +117,7 @@ const fillSpreadAndMid = (row: TOBRow) => {
   return row;
 };
 
-const updateEntry = (state: State, data: { id: string, entry: TOBEntry }, key: 'ofr' | 'bid'): State => {
+const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
   const {orders} = state;
   // Extract the target row
   const row: TOBRow = orders[data.id];
@@ -138,7 +138,7 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
   // Extract the target row
   const row: TOBRow = orders[data.id];
   // Extract the target entry
-  const entry: TOBEntry = row[key];
+  const entry: Order = row[key];
   return {
     ...state,
     orders: {
@@ -147,8 +147,8 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
         ...row,
         [key]: {
           ...entry,
-          __quantity: data.value,
-          status: entry.status | EntryStatus.PriceEdited,
+          quantity: data.value,
+          status: entry.status | EntryStatus.QuantityEdited,
         },
       },
     },
@@ -167,7 +167,7 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
       return updateEntry(state, data, 'ofr');
     case RunActions.SetTable:
       return {...state, orders: data};
-    case RunActions.OfferQtyChanged:
+    case RunActions.OfrQtyChanged:
       return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:
       return updateQty(state, data, 'bid');

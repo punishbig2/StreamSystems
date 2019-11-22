@@ -1,0 +1,40 @@
+.loading-window {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+
+  .spinner {
+    position: relative;
+    width: 128px;
+    height: 128px;
+
+    &:after, &:before {
+      position: absolute;
+      content: '';
+      border: 16px solid rgba(0, 0, 0, 0.075);
+      border-radius: 64px;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    &:before {
+      border-top-color: transparent;
+      border-right-color: transparent;
+      border-left-color: transparent;
+      border-bottom-color: $primary-color;
+      animation: spin 1.25s linear infinite;
+    }
+  }
+
+  h3 {
+    font-weight: 500;
+  }
+}
