@@ -1,5 +1,5 @@
-import createTOBColumns from 'columns/tob';
 import createDOBColumns from 'columns/dob';
+import createTOBColumns from 'columns/tob';
 import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
@@ -13,9 +13,8 @@ import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
 import {VisibilitySelector} from 'components/visibilitySelector';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/order';
+import {EntryStatus, Order, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {EntryStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -166,7 +165,13 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
     },
     onCancelOrder: (entry: Order) => {
-      cancelOrder(entry);
+      const rows: TOBRow[] = Object.values(state.depths[entry.tenor]);
+      rows.forEach((row: TOBRow) => {
+        const targetEntry: Order = entry.type === EntryTypes.Bid ? row.bid : row.ofr;
+        if ((targetEntry.status & EntryStatus.Owned) !== 0) {
+          cancelOrder(targetEntry);
+        }
+      });
     },
     onQuantityChange: (entry: Order, newQuantity: number) => {
       if (entry.quantity === null)
