@@ -22,5 +22,6 @@ export enum TOBActions {
   OrdersFetched = 'TOBActions.OrdersFetched',
   OrdersNotFetched = 'TOBActions.OrdersNotFetched',
   UpdateDOB = 'TOBActions.UpdateDOB',
-  UpdateOrders = 'TOBActions.UpdateOrders',
+  UpdateOrder = 'TOBActions.UpdateOrder',
+  DeleteOrder = 'TOBActions.DeleteOrder',
 }

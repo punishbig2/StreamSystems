@@ -117,6 +117,24 @@ const fillSpreadAndMid = (row: TOBRow) => {
   return row;
 };
 
+const clearIfMatches = (order: Order, id: string): Order => {
+  if (order.orderId === id) {
+    return {...order, status: order.status | (EntryStatus.Cancelled & ~EntryStatus.Active)};
+  } else {
+    return order;
+  }
+};
+
+const removeOrder = (state: State, id: string) => {
+  const orders: TOBTable = {...state.orders};
+  const rows: [string, TOBRow][] = Object.entries(orders);
+  const entries = rows.map(([index, row]: [string, TOBRow]) => {
+    const {bid, ofr} = row;
+    return [index, {...row, bid: clearIfMatches(bid, id), ofr: clearIfMatches(ofr, id)}];
+  });
+  return {...state, orders: Object.fromEntries(entries)};
+};
+
 const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
   const {orders} = state;
   // Extract the target row
@@ -157,6 +175,8 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
 
 export const reducer = (state: State, {type, data}: Action<RunActions>): State => {
   switch (type) {
+    case RunActions.RemoveOrder:
+      return removeOrder(state, data);
     case RunActions.UpdateDefaultBidQty:
       return {...state, defaultBidQty: data};
     case RunActions.UpdateDefaultOfrQty:

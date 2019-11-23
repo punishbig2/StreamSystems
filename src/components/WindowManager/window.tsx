@@ -1,6 +1,7 @@
+import {on} from 'cluster';
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {useObjectGrabber} from 'hooks/useObjectGrabber';
-import React, {CSSProperties, ReactElement, useRef} from 'react';
+import React, {CSSProperties, ReactElement, useCallback, useMemo, useRef} from 'react';
 
 interface OwnProps {
   onGeometryChange: (geometry: ClientRect) => void;
@@ -46,6 +47,7 @@ const onMove = (area: ClientRect, update: (geometry: ClientRect) => void) =>
   };
 
 type WindowSide = 'top' | 'bottom' | 'left' | 'right';
+type ResizeFn = (r: ClientRect, x: number, y: number) => void;
 const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side: WindowSide) => {
   switch (side) {
     case 'top':
@@ -61,14 +63,20 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   const {onGeometryChange, area} = props;
+  // Create a reference to the window container
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
+  // Callbacks
+  const createResizeCallback = useCallback((side: WindowSide) => {
+    return onResize(area, onGeometryChange, side);
+  }, [area, onGeometryChange]);
+  const moveCallback = useCallback(onMove(area, onGeometryChange), [area, onGeometryChange]);
   // Moving object, the handle is the whole window
-  const [isGrabbed, setMoveHandle] = useObjectGrabber(container, onMove(area, onGeometryChange));
+  const [isGrabbed, setMoveHandle] = useObjectGrabber(container, moveCallback);
   // These installs all the resize handles
-  const [, setBottomResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'bottom'));
-  const [, setTopResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'top'));
-  const [, setRightResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'right'));
-  const [, setLeftResizeHandle] = useObjectGrabber(container, onResize(area, onGeometryChange, 'left'));
+  const [, setBottomResizeHandle] = useObjectGrabber(container, createResizeCallback('bottom'));
+  const [, setTopResizeHandle] = useObjectGrabber(container, createResizeCallback('top'));
+  const [, setRightResizeHandle] = useObjectGrabber(container, createResizeCallback('right'));
+  const [, setLeftResizeHandle] = useObjectGrabber(container, createResizeCallback('left'));
   // Compute the style
   const style: CSSProperties | undefined = toStyle(props.geometry);
   const classes: string = ['window-element', isGrabbed ? 'grabbed' : null, props.isMinimized ? 'minimized' : null]

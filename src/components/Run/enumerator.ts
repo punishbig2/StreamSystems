@@ -11,4 +11,5 @@ export enum RunActions {
   UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',
   UpdateOffer = 'Run.UpdateOffer',
   UpdateDefaultBidQty = 'Run.UpdateDefaultBidQty',
+  RemoveOrder = 'Run.RemoveOrder',
 }

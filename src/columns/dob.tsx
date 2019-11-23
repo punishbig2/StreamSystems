@@ -19,7 +19,7 @@ type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: str
 
 const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
-  header: () => '',
+  header: () => '-',
   render: ({tenor}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor)}/>
   ),

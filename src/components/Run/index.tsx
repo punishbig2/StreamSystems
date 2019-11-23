@@ -36,7 +36,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
 
   const setTable = (orders: TOBTable) => dispatch(createAction(RunActions.SetTable, orders));
   // Updates a single side of the depth
-  const updateSide = (entry: Order) => {
+  const onUpdate = (entry: Order) => {
     const id: string = $$(toRunId(entry.symbol, entry.strategy), entry.tenor);
     switch (entry.type) {
       case EntryTypes.Invalid:
@@ -52,7 +52,9 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     }
   };
 
-  useOrderListener(tenors, symbol, strategy, updateSide);
+  const onDelete = (id: string) => dispatch(createAction(RunActions.RemoveOrder, id));
+
+  useOrderListener(tenors, symbol, strategy, {onUpdate, onDelete});
   useInitializer(tenors, symbol, strategy, email, setTable);
 
   const onSubmit = () => {

@@ -14,7 +14,7 @@ import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
 export const emitUpdateOrderEvent = (order: Order) => {
-  const type: string = $$(order.tenor, order.symbol, order.strategy, TOBActions.UpdateOrders);
+  const type: string = $$(order.tenor, order.symbol, order.strategy, TOBActions.UpdateOrder);
   const event: Event = new CustomEvent(type, {detail: order});
   // Now emit the event so that listeners capture it
   document.dispatchEvent(event);

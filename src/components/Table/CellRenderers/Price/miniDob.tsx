@@ -5,6 +5,7 @@ import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import React, {ReactNode} from 'react';
+import {priceFormatter} from 'utils/priceFormatter';
 
 interface Props {
   type?: EntryTypes;
@@ -16,7 +17,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   if (!rows)
     return null;
   const children = rows.map(({price, quantity}: Order, index: number) => {
-    const elements: ReactNode[] = [<MiniPrice key={1}>{Number(price).toFixed(3)}</MiniPrice>];
+    const elements: ReactNode[] = [<MiniPrice key={1}>{priceFormatter(Number(price))}</MiniPrice>];
     const sizeElement = (
       <MiniPrice key={2}>
         <Quantity value={quantity} type={props.type as EntryTypes} onChange={() => null}/>

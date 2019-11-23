@@ -24,8 +24,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   };
   const onChange = (value: string) => setValue(Number(value));
   const cancellable =
-    ((entry.status & EntryStatus.Owned) !== 0) ||
-    ((entry.status & EntryStatus.HaveOtherOrders) !== 0)
+    (((entry.status & EntryStatus.Owned) !== 0) ||
+      ((entry.status & EntryStatus.HaveOtherOrders) !== 0)) && (entry.price !== null)
   ;
   const onCancel = () => cancellable ? props.onCancel(entry) : null;
   return (

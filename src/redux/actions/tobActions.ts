@@ -21,6 +21,12 @@ export const cancelOrder = (id: string, entry: Order): AsyncAction<any, ActionTy
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelOrder(entry);
     if (result.Status === 'Success') {
+      const type: string = $$(entry.tenor, entry.symbol, entry.strategy, TOBActions.DeleteOrder);
+      const event: Event = new CustomEvent(type, {detail: result.OrderID});
+      // Emit the event
+      document.dispatchEvent(event);
+      // Return the action
+      // FIXME: we should do this with events too
       return createAction($$(id, TOBActions.OrderCanceled, {
         order: {OrderID: result.OrderID},
       }));

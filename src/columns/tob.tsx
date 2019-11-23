@@ -1,5 +1,5 @@
 import {TOBPrice} from 'columns/tobPrice';
-import {TOBQty as TOBQty} from 'columns/tobQty';
+import {TOBQty} from 'columns/tobQty';
 import {DualTableHeader, HeaderAction} from 'components/dualTableHeader';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';

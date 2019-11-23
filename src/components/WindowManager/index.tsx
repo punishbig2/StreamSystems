@@ -14,6 +14,7 @@ interface Props {
 }
 
 const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
+const empty: any[] = [];
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const {renderContent} = props;
@@ -38,8 +39,15 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const onClose = () => props.onWindowClosed(id);
     const onSetTitle = (title: string) => props.onSetWindowTitle(id, title);
     return (
-      <WindowElement geometry={geometry} onGeometryChange={updateGeometry} key={id} forbidden={[]} area={area}
-                     onClose={onClose} onMinimize={onMinimize} onSetTitle={onSetTitle} isMinimized={window.minimized}>
+      <WindowElement geometry={geometry}
+                     onGeometryChange={updateGeometry}
+                     key={id}
+                     forbidden={empty}
+                     area={area}
+                     onClose={onClose}
+                     onMinimize={onMinimize}
+                     onSetTitle={onSetTitle}
+                     isMinimized={window.minimized}>
         {content}
       </WindowElement>
     );

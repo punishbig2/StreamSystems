@@ -3,19 +3,33 @@ import {useEffect} from 'react';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {$$} from 'utils/stringPaster';
 
-export const useOrderListener = (tenors: string[], symbol: string, strategy: string, update: (entry: Order) => void) => {
+export interface Functions {
+  onDelete: (id: string) => void;
+  onUpdate: (entry: Order) => void;
+}
+
+export const useOrderListener = (tenors: string[], symbol: string, strategy: string, fns: Functions) => {
   useEffect(() => {
-    const listener = (event: Event) => {
+    const onUpdate = (event: Event) => {
       const customEvent: CustomEvent<Order> = event as CustomEvent<Order>;
-      update(customEvent.detail);
+      // Do update the order
+      fns.onUpdate(customEvent.detail);
+    };
+    const onDelete = (event: Event) => {
+      const customEvent: CustomEvent<string> = event as CustomEvent<string>;
+      // Do delete the order
+      fns.onDelete(customEvent.detail);
     };
     const cleaners: (() => void)[] = tenors.map((tenor) => {
-      const name: string = $$(tenor, symbol, strategy, TOBActions.UpdateOrders);
-      document.addEventListener(name, listener);
+      const uid: string = $$(tenor, symbol, strategy);
+      // Install the event listener
+      document.addEventListener($$(uid, TOBActions.UpdateOrder), onUpdate);
+      document.addEventListener($$(uid, TOBActions.DeleteOrder), onDelete);
       return () => {
-        document.removeEventListener(name, listener);
+        document.removeEventListener($$(uid, TOBActions.UpdateOrder), onUpdate);
+        document.removeEventListener($$(uid, TOBActions.DeleteOrder), onDelete);
       };
     });
     return () => cleaners.forEach((fn) => fn());
-  }, [tenors, symbol, strategy, update]);
+  }, [tenors, symbol, strategy, fns]);
 };
