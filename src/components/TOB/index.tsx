@@ -164,14 +164,18 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         createOrder({...entry, quantity: 10});
       }
     },
-    onCancelOrder: (entry: Order) => {
-      const rows: TOBRow[] = Object.values(state.depths[entry.tenor]);
-      rows.forEach((row: TOBRow) => {
-        const targetEntry: Order = entry.type === EntryTypes.Bid ? row.bid : row.ofr;
-        if ((targetEntry.status & EntryStatus.Owned) !== 0) {
-          cancelOrder(targetEntry);
-        }
-      });
+    onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
+      if (cancelRelated) {
+        const rows: TOBRow[] = Object.values(state.depths[order.tenor]);
+        rows.forEach((row: TOBRow) => {
+          const targetEntry: Order = order.type === EntryTypes.Bid ? row.bid : row.ofr;
+          if ((targetEntry.status & EntryStatus.Owned) !== 0) {
+            cancelOrder(targetEntry);
+          }
+        });
+      } else {
+        cancelOrder(order);
+      }
     },
     onQuantityChange: (entry: Order, newQuantity: number) => {
       if (entry.quantity === null)

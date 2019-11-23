@@ -46,13 +46,6 @@ interface OrderMessage {
   OrderQty: string;
 }
 
-/**
- * Get cancelled orders for the runs window
- *
- * @param id the id of the window, this generates a function that is unique for the creator window
- * @param symbol the symbol to get the orders for
- * @param strategy the strategy to get the orders for
- */
 export const getRunOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, any> => {
   const user: User = getAuthenticatedUser();
   return new AsyncAction<any, any>(async (): Promise<ActionType> => {

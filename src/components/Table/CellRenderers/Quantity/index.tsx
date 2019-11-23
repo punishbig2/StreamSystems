@@ -35,7 +35,11 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
   ];
   if (props.cancelable)
     classes.push('clickable');
-  const button = <div key={2} className={classes.join(' ')} onClick={props.onCancel}/>;
+  const button = (
+    <div key={2} className={classes.join(' ')} onClick={props.onCancel}>
+      <i/>
+    </div>
+  );
   if (props.type === EntryTypes.Bid) {
     if (props.firm) {
       children.push(<div>{props.firm}</div>);

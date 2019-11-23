@@ -216,35 +216,66 @@
           width: $table-row-height;
           line-height: $table-row-height;
 
-          &:not(.clickable) {
-            color: transparent;
-            pointer-events: none;
+          i {
+            display: inline-block;
           }
 
-          &.clickable:hover {
-            &::after {
-              cursor: pointer;
-              background-color: $text-color-red;
-              color: white;
+          &:not(.clickable) {
+            i {
+              color: transparent;
+              pointer-events: none;
+            }
+          }
+
+          $red-x-size: 16px;
+
+          &.clickable {
+            i {
+              position: relative;
+              transition: all 0.25s;
+              line-height: 15px;
+              border-radius: 8px;
+              margin: ($table-row-height - $red-x-size) / 2 0;
+              width: $red-x-size;
+              height: $red-x-size;
+
+              $x-tick-length: 5 * $red-x-size / 8;
+              &:after, &:before {
+                content: '';
+                position: absolute;
+                left: ($red-x-size - $x-tick-length) / 2;
+                top: $red-x-size / 2 - 1px;
+                width: $x-tick-length;
+                border-top: 2px solid $text-color-red;
+                transition: border-color 0.25s;
+              }
+
+              &:after {
+                transform: rotate(45deg);
+              }
+
+              &:before {
+                transform: rotate(-45deg);
+              }
             }
 
-            cursor: default;
-          }
+            &:hover {
+              i {
+                cursor: pointer;
+                background-color: $text-color-red;
+                color: white;
 
-          &.clickable:active {
-            transform: translateY(1px);
-          }
+                &:after, &:before {
+                  border-color: white;
+                }
+              }
 
-          &::after {
-            display: block;
-            transition: background-color 0.2s;
-            font-family: 'Font Awesome 5 Free Solid', sans-serif;
-            content: '\f00d';
-            border-radius: 9px;
-            line-height: 16px;
-            width: 16px;
-            height: 16px;
-            margin: ($table-row-height - 16px) / 2 auto;
+              cursor: default;
+            }
+
+            &:active {
+              transform: translateY(1px);
+            }
           }
         }
       }

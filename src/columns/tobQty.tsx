@@ -6,7 +6,7 @@ import React, {useEffect, useState} from 'react';
 interface Props {
   entry: Order;
   user: User;
-  onCancel: (entry: Order) => void;
+  onCancel: (entry: Order, cancelRelated: boolean) => void;
   onSubmit: (entry: Order, newQuantity: number) => void;
   onChange: (value: number) => void;
 }
@@ -27,7 +27,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     (((entry.status & EntryStatus.Owned) !== 0) ||
       ((entry.status & EntryStatus.HaveOtherOrders) !== 0)) && (entry.price !== null)
   ;
-  const onCancel = () => cancellable ? props.onCancel(entry) : null;
+  const onCancel = () => cancellable ? props.onCancel(entry, true) : null;
   return (
     <Quantity
       value={value}

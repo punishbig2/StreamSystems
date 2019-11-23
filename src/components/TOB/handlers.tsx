@@ -11,6 +11,6 @@ export interface TOBHandlers {
   onPriceChange: (entry: Order) => void;
   onQuantityChange: (entry: Order, newQuantity: number) => void;
   onUpdateOrder: (entry: Order) => void;
-  onCancelOrder: (entry: Order) => void;
+  onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
   aggregatedSz?: AggregatedSz;
 }
