@@ -1,6 +1,6 @@
-import {Scrollable} from 'components/Scrollable';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
+import {VirtuallyScrollableArea} from 'components/VirtuallyScrollableArea';
 import {SortInfo} from 'interfaces/sortInfo';
 import moment, {Moment} from 'moment';
 import React, {ReactElement, useState} from 'react';
@@ -86,9 +86,9 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   return (
     <div className={'table'} style={style}>
       <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
-      <Scrollable className={'tbody'}>
+      <VirtuallyScrollableArea itemCount={rowProps.length} className={'tbody'}>
         {props.renderRow && rowProps.map(props.renderRow)}
-      </Scrollable>
+      </VirtuallyScrollableArea>
     </div>
   );
 };

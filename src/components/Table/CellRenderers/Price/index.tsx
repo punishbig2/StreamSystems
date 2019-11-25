@@ -14,7 +14,7 @@ import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInput
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
@@ -32,7 +32,7 @@ export interface Props {
   onBlur?: (value: number) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
-  status: EntryStatus;
+  status: OrderStatus;
   className?: string;
 }
 
@@ -44,13 +44,13 @@ export const Price: React.FC<Props> = (props: Props) => {
     startedShowingTooltip: false,
     visible: false,
     flash: false,
-    status: props.status || EntryStatus.None,
+    status: props.status || OrderStatus.None,
     value: priceFormatter(props.value),
   });
 
   const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
-  const setStatus = useCallback((status: EntryStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
-  const setValue = useCallback((value: string, status: EntryStatus) => {
+  const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
+  const setValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
   }, []);
 
@@ -77,14 +77,14 @@ export const Price: React.FC<Props> = (props: Props) => {
     const trimmed: string = value.trim();
     const numeric: number = Number(`${trimmed}0`);
     if (trimmed.length === 0) {
-      setValue('', EntryStatus.PriceEdited & ~EntryStatus.PreFilled);
+      setValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
     } else if (!isNaN(numeric)) {
-      setValue(trimmed, EntryStatus.PriceEdited & ~EntryStatus.PreFilled);
+      setValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
     }
   };
 
   const onDoubleClick = (event: React.MouseEvent) => {
-    if (props.onDoubleClick && ((state.status & EntryStatus.Owned) === 0)) {
+    if (props.onDoubleClick && ((state.status & OrderStatus.Owned) === 0)) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
       // Stop the event
       event.stopPropagation();
@@ -132,8 +132,8 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const showChevron =
-    (state.status & EntryStatus.HaveOtherOrders) !== 0 &&
-    (state.status & EntryStatus.Owned) === 0 &&
+    (state.status & OrderStatus.HaveOtherOrders) !== 0 &&
+    (state.status & OrderStatus.Owned) === 0 &&
     (state.value !== '');
   return (
     <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}

@@ -1,4 +1,3 @@
-import {Input} from 'components/TableInput/input';
 import React, {ReactElement} from 'react';
 
 interface Props {
@@ -23,7 +22,7 @@ const TableInput = <T extends any = string>(props: Props): ReactElement => {
   };
   const onChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => props.onChange(value);
   return (
-    <Input {...otherProps} onKeyPress={onKeyPress} onChange={onChange}/>
+    <input {...otherProps} onKeyPress={onKeyPress} onChange={onChange}/>
   );
 };
 

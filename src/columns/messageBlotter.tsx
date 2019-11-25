@@ -3,6 +3,7 @@ import {ExecTypes, Message} from 'interfaces/message';
 import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
+import {priceFormatter} from 'utils/priceFormatter';
 
 const Normal = styled.div`
   text-align: center;
@@ -108,7 +109,7 @@ const columns: ColumnSpec[] = [{
   sortable: true,
   header: () => <div>Level</div>,
   render: ({Price}: Message) => (
-    <Normal>{Price}</Normal>
+    <Normal>{priceFormatter(Number(Price))}</Normal>
   ),
   weight: 1,
 }];

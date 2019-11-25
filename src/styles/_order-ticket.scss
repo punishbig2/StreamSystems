@@ -1,0 +1,96 @@
+.order-ticket {
+  min-width: 300px;
+  .title-chain {
+    border-bottom: 1px solid $table-border-color;
+    padding: 2px 8px;
+
+    .item {
+      display: inline-block;
+      border-radius: 2px;
+      color: $primary-color;
+      padding: 2px 0;
+      font-size: 13px;
+      font-weight: 600;
+
+      &:not(:last-child) {
+        &:after {
+          content: '\f105';
+          font-family: 'Font Awesome 5 Free Solid', sans-serif;
+          margin: 0 8px;
+          color: #a1a1a1;
+        }
+      }
+
+      &:nth-child(n + 2) {
+      }
+    }
+  }
+
+  .row {
+    margin: 8px 0;
+
+    .label, .value {
+      display: inline-block;
+      width: 50%;
+      vertical-align: middle;
+      line-height: 2;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .value {
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+
+      input {
+        display: block;
+        width: 100%;
+        border: 1px solid $table-border-color;
+        line-height: inherit;
+        font-size: inherit;
+        font-family: inherit;
+        font-weight: inherit;
+        text-align: center;
+
+        &:focus {
+          outline: 2px solid $primary-color;
+        }
+      }
+
+      .buttons {
+        margin: -1px 0 0 0;
+        button {
+          display: inline-block;
+          vertical-align: top;
+          line-height: 1.75;
+          width: 33%;
+          border: 1px solid darken($table-border-color, 5%);
+          background: linear-gradient(
+                          to bottom,
+                          lighten($table-border-color, 8%),
+                          lighten($table-border-color, 3%)
+          );
+          transition: color 0.25s;
+          &:hover {
+            color: $primary-color;
+          }
+          &:nth-child(2) {
+            width: 34%;
+            border-left: none;
+            border-right: none;
+          }
+          &:first-child {
+            border-bottom-left-radius: 3px;
+          }
+          &:last-child {
+            border-bottom-right-radius: 3px;
+          }
+        }
+      }
+
+      span, input {
+        padding: 0 8px;
+      }
+    }
+  }
+}

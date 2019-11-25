@@ -1,16 +1,16 @@
-import {EntryStatus} from 'interfaces/order';
+import {OrderStatus} from 'interfaces/order';
 
-export const getInputClass = (status: EntryStatus, className?: string): string => {
+export const getInputClass = (status: OrderStatus, className?: string): string => {
   const classes: string[] = className ? [className] : [];
-  if (status & EntryStatus.Owned)
+  if (status & OrderStatus.Owned)
     classes.push('owned');
-  if (status & EntryStatus.Active)
+  if (status & OrderStatus.Active)
     classes.push('active');
-  if (status & EntryStatus.PreFilled)
+  if (status & OrderStatus.PreFilled)
     classes.push('pre-filled');
-  if (status & EntryStatus.PriceEdited)
+  if (status & OrderStatus.PriceEdited)
     classes.push('edited');
-  if (status & EntryStatus.Cancelled)
+  if (status & OrderStatus.Cancelled)
     classes.push('cancelled');
   return classes.join(' ');
 };

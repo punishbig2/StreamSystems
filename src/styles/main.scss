@@ -1,19 +1,4 @@
-$table-border-color: rgba(0, 0, 0, 0.25);
-$title-bar-height: 28px;
-$title-bar-button-size: 20px;
-$table-header-height: 54px;
-$table-row-height: 24px;
-
-$window-border-size: 2px;
-$window-toolbar-size: 48px;
-$window-footer-size: 36px;
-
-$primary-color: #407af0;
-$primary-dark-color: #2058c0;
-
-$text-color-blue: #4071af;
-$text-color-red: #f02327;
-
+@import 'variables';
 @import 'global';
 @import 'loading-window';
 @import 'modal-window';
@@ -24,6 +9,9 @@ $text-color-red: #f02327;
 @import 'workspace';
 @import 'scrollbar';
 @import 'messages';
+@import 'order-ticket';
+@import 'dialog-buttons';
+@import 'mini-dob';
 
 .run-window {
   max-width: 640px;

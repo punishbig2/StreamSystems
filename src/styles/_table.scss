@@ -1,3 +1,7 @@
+$table-font-weight: 500;
+$table-font-size: 13px;
+$table-font-family: 'Roboto', sans-serif;
+
 .table {
   position: relative;
   font-size: 12px;
@@ -13,6 +17,7 @@
   }
 
   .tbody {
+    position: relative;
     flex: 1;
     z-index: 1;
   }
@@ -163,6 +168,31 @@
     }
   }
 
+  .tbody .tr .td,
+  .thead .tr .th {
+    .price-layout, .size-layout {
+      input {
+        padding: 0 8px;
+        min-width: 0;
+        width: 100%;
+        text-align: center;
+        line-height: $table-row-height;
+        height: $table-row-height;
+        border: none;
+        background: none;
+        font-size: $table-font-size;
+        font-family: $table-font-family;
+        font-weight: $table-font-weight;
+
+        &:focus {
+          outline: 2px solid $primary-color;
+          outline-offset: -2px;
+          z-index: 1;
+        }
+      }
+    }
+  }
+
   .tbody .tr .td {
     text-align: center;
     border-bottom: 1px solid $table-border-color;
@@ -179,6 +209,13 @@
       }
 
       input {
+
+        &:focus {
+          cursor: initial;
+        }
+
+        cursor: default;
+
         &.owned {
           color: $text-color-red;
         }
@@ -192,105 +229,115 @@
         }
 
         &.spread {
-          color: #10a060;
+          color: $text-color-green;
         }
-      }
-    }
-
-    .size-layout {
-      display: flex;
-      align-items: center;
-      line-height: $table-row-height;
-      white-space: nowrap;
-
-      div {
-        width: $table-row-height;
-        line-height: $table-row-height;
-        height: 100%;
-
-        &.times {
-          top: 0;
-          left: 0;
-          color: $text-color-red;
-          height: $table-row-height;
-          width: $table-row-height;
-          line-height: $table-row-height;
-
-          i {
-            display: inline-block;
-          }
-
-          &:not(.clickable) {
-            i {
-              color: transparent;
-              pointer-events: none;
-            }
-          }
-
-          $red-x-size: 16px;
-
-          &.clickable {
-            i {
-              position: relative;
-              transition: all 0.25s;
-              line-height: 15px;
-              border-radius: 8px;
-              margin: ($table-row-height - $red-x-size) / 2 0;
-              width: $red-x-size;
-              height: $red-x-size;
-
-              $x-tick-length: 5 * $red-x-size / 8;
-              &:after, &:before {
-                content: '';
-                position: absolute;
-                left: ($red-x-size - $x-tick-length) / 2;
-                top: $red-x-size / 2 - 1px;
-                width: $x-tick-length;
-                border-top: 2px solid $text-color-red;
-                transition: border-color 0.25s;
-              }
-
-              &:after {
-                transform: rotate(45deg);
-              }
-
-              &:before {
-                transform: rotate(-45deg);
-              }
-            }
-
-            &:hover {
-              i {
-                cursor: pointer;
-                background-color: $text-color-red;
-                color: white;
-
-                &:after, &:before {
-                  border-color: white;
-                }
-              }
-
-              cursor: default;
-            }
-
-            &:active {
-              transform: translateY(1px);
-            }
-          }
-        }
-      }
-
-      input {
-        flex: 1;
-        color: $text-color-blue;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        text-align: center;
       }
     }
   }
 
   .tbody .tr .td:last-child {
     border-right: 1px solid $table-border-color;
+  }
+}
+
+.size-layout {
+  display: flex;
+  align-items: center;
+  line-height: $table-row-height;
+  white-space: nowrap;
+
+  div {
+    width: $table-row-height;
+    line-height: $table-row-height;
+    height: 100%;
+
+    &.times {
+      top: 0;
+      left: 0;
+      color: $text-color-red;
+      height: $table-row-height;
+      width: $table-row-height;
+      line-height: $table-row-height;
+
+      i {
+        display: inline-block;
+      }
+
+      &:not(.clickable) {
+        i {
+          color: transparent;
+          pointer-events: none;
+        }
+      }
+
+      $red-x-size: 16px;
+
+      &.clickable {
+        i {
+          position: relative;
+          transition: all 0.25s;
+          line-height: 15px;
+          border-radius: 8px;
+          margin: ($table-row-height - $red-x-size) / 2 0;
+          width: $red-x-size;
+          height: $red-x-size;
+
+          $x-tick-length: 5 * $red-x-size / 8;
+
+          &:after, &:before {
+            content: '';
+            position: absolute;
+            left: ($red-x-size - $x-tick-length) / 2;
+            top: $red-x-size / 2 - 1px;
+            width: $x-tick-length;
+            border-top: 2px solid $text-color-red;
+            transition: border-color 0.25s;
+          }
+
+          &:after {
+            transform: rotate(45deg);
+          }
+
+          &:before {
+            transform: rotate(-45deg);
+          }
+        }
+
+        &:hover {
+          i {
+            cursor: pointer;
+            background-color: $text-color-red;
+            color: white;
+
+            &:after, &:before {
+              border-color: white;
+            }
+          }
+
+          cursor: default;
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+      }
+    }
+  }
+
+  input {
+    flex: 1;
+    color: $text-color-blue;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+    border: none;
+    font-weight: $table-font-weight;
+    font-size: $table-font-size;
+    font-family: $table-font-family;
+    padding: 0;
+
+    &:focus {
+      outline: 2px solid $primary-color;
+    }
   }
 }

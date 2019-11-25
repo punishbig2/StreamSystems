@@ -7,48 +7,48 @@ const cancelEvent = (event: Event | React.SyntheticEvent) => {
 };
 
 interface State {
-  grabbed: boolean;
-  offset: number;
-  position: number;
+  value: number;
+  grabbedAt: number | null;
 }
 
-const reducer = (state: State, {type, data}: { type: string, data: any }): State => {
+enum ScrollerActions {
+  Update, Grab, Release
+}
+
+const reducer = (state: State, {type, data}: { type: ScrollerActions, data: any }): State => {
   switch (type) {
-    case 'update':
-      return {...state, ...data};
-    case 'grab':
-      return {...state, grabbed: true, offset: data};
-    case 'ungrab':
-      return {...state, grabbed: false};
+    case ScrollerActions.Update:
+      return {...state, value: state.value + data};
+    case ScrollerActions.Grab:
+      return {...state, grabbedAt: data};
+    case ScrollerActions.Release:
+      return {...state, grabbedAt: null};
     default:
       return state;
   }
 };
 
-export const useScroller = (reference: React.MutableRefObject<HTMLDivElement | null>): number => {
-  const [state, dispatch] = useReducer(reducer, {position: 0, grabbed: false, offset: 0});
-  // Get a reference to the reference :D
-  const slider: HTMLElement | null = reference.current;
-  // Effects ...
-  const nextPosition = useCallback((value: number): number => {
-    if (slider === null)
-      return 0;
-    const parent: HTMLDivElement | null = slider.parentNode as HTMLDivElement | null;
-    if (parent === null)
-      return 0;
-    return Math.max(Math.min(value, parent.offsetHeight - slider.offsetHeight), 0);
-  }, [slider]);
+const useMoveHandler = (grabbedAt: number | null, onUpdated: (value: number) => void, onReleased: () => void) => {
   useEffect(() => {
-    if (!state.grabbed)
+    let offset: number | null = grabbedAt;
+    let timer: number = setTimeout(() => null, 0);
+    if (offset === null)
       return;
     // Capture mouse moves
     const onMove = (event: MouseEvent) => {
       // Compute movement
-      const movement: number = event.clientY - state.offset;
+      const movement: number = event.clientY - (offset as number);
       // Cancel the original event
       cancelEvent(event);
-      // Update the position
-      dispatch(createAction('update', {position: nextPosition(state.position + movement), offset: event.clientY}));
+      // Remove previous timer
+      clearTimeout(timer);
+      // Create a new timer
+      timer = setTimeout(() => {
+        // Update internally kept offset
+        offset = event.clientY;
+        // Call the updater callback
+        onUpdated(movement);
+      }, 0);
     };
     // If the mouse is released we should stop everything
     const onRelease = (event: MouseEvent) => {
@@ -58,8 +58,8 @@ export const useScroller = (reference: React.MutableRefObject<HTMLDivElement | n
       document.removeEventListener('mouseup', onRelease);
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseleave', onRelease);
-      // Unset grabbed
-      dispatch(createAction('ungrab'));
+      // Release the slider
+      onReleased();
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseleave', onRelease);
@@ -69,17 +69,58 @@ export const useScroller = (reference: React.MutableRefObject<HTMLDivElement | n
       document.removeEventListener('mouseup', onRelease);
       document.removeEventListener('mouseleave', onRelease);
     };
-  }, [nextPosition, state]);
+  }, [grabbedAt, onReleased, onUpdated]);
+};
+
+export const useScroller = (reference: React.MutableRefObject<HTMLDivElement | null>): [number, number] => {
+  const [state, dispatch] = useReducer(reducer, {value: 0, grabbedAt: null});
+  const {grabbedAt} = state;
+  // Get a reference to the reference :D
+  const slider: HTMLElement | null = reference.current;
+
+  const getMax = useCallback((): number => {
+    const getSliderHeight = () => {
+      if (slider === null)
+        return 0;
+      return slider.offsetHeight;
+    };
+
+    const getParentHeight = () => {
+      if (slider === null)
+        return 0;
+      const parent: (Node & ParentNode) | null = slider.parentNode;
+      if (parent === null)
+        return 0;
+      const element: HTMLElement = parent as HTMLElement;
+      // Return the offset height of the element
+      return element.offsetHeight;
+    };
+
+    const parentHeight: number = getParentHeight();
+    const sliderHeight: number = getSliderHeight();
+    if (parentHeight === 0 || sliderHeight === 0)
+      return 0;
+    return parentHeight - sliderHeight;
+  }, [slider]);
+
+  const onUpdated = useCallback((value: number) => dispatch(createAction(ScrollerActions.Update, value)), []);
+  const onReleased = useCallback(() => dispatch(createAction(ScrollerActions.Release)), []);
+  // Add the move effect
+  useMoveHandler(grabbedAt, onUpdated, onReleased);
+
   useEffect(() => {
     if (slider === null)
       return;
     const onGrab = (event: MouseEvent) => {
       cancelEvent(event);
       // Update internal state
-      dispatch(createAction('grab', event.clientY));
+      dispatch(createAction(ScrollerActions.Grab, event.clientY));
     };
     slider.addEventListener('mousedown', onGrab, true);
     return () => slider.removeEventListener('mousedown', onGrab, true);
   }, [slider]);
-  return state.position;
+
+  const max: number = getMax();
+  const offset: number = Math.max(Math.min(state.value, max), 0);
+  return [offset / max, offset];
 };

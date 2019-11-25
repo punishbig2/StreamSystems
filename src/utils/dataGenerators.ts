@@ -1,5 +1,5 @@
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 
@@ -13,7 +13,7 @@ export const emptyEntry = (tenor: string, symbol: string, strategy: string, user
     price: null,
     quantity: quantity,
     arrowDirection: ArrowDirection.None,
-    status: EntryStatus.None,
+    status: OrderStatus.None,
   };
 };
 export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {

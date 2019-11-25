@@ -13,12 +13,12 @@ import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
 import {VisibilitySelector} from 'components/visibilitySelector';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, Order, Sides} from 'interfaces/order';
+import {OrderStatus, Order, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useReducer} from 'react';
+import React, {ReactElement, useEffect, useReducer, useState} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
@@ -104,6 +104,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const {email} = props.user;
   // Simple reducer for the element only
   const [state, dispatch] = useReducer(reducer, initialState);
+  // Just one value without `dispatch' and stuff
+  const [tobVisible, setTobVisible] = useState<boolean>(true);
   // Extract properties to manage them better
   const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setStrategy(value);
   const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
@@ -129,12 +131,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       updateOrder(entry);
     },
     onTenorSelected: (tenor: string) => {
+      console.log(tenor);
       if (state.tenor === null) {
-        if (state.depths[tenor]) {
-          // If there's no depth ignore it so that we don't set the tenor
-          // and then need 4-click to do it again
-          setCurrentTenor(tenor);
-        }
+        setCurrentTenor(tenor);
       } else {
         setCurrentTenor(null);
       }
@@ -152,7 +151,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       cancelAll(symbol, strategy, Sides.Sell);
     },
     onPriceChange: (entry: Order) => {
-      if ((entry.status & EntryStatus.Owned) === 0) {
+      if ((entry.status & OrderStatus.Owned) === 0) {
         if (entry.quantity === null) {
           createOrder({...entry, quantity: 10});
         } else {
@@ -169,7 +168,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         const rows: TOBRow[] = Object.values(state.depths[order.tenor]);
         rows.forEach((row: TOBRow) => {
           const targetEntry: Order = order.type === EntryTypes.Bid ? row.bid : row.ofr;
-          if ((targetEntry.status & EntryStatus.Owned) !== 0) {
+          if ((targetEntry.status & OrderStatus.Owned) !== 0) {
             cancelOrder(targetEntry);
           }
         });
@@ -192,23 +191,16 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
       return <div/>;
-    const createOrder = (quantity: number) => {
-      const {orderTicket} = state;
-      if (orderTicket !== null) {
-        props.createOrder({...orderTicket, quantity});
-        // Remove the internal order ticket
-        setOrderTicket(null);
-      } else {
-        // FIXME: throw an error or something
-      }
+    const createOrder = (order: Order) => {
+      props.createOrder(order);
+      // Remove the internal order ticket
+      setOrderTicket(null);
     };
-    return <OrderTicket order={state.orderTicket}
-                        onCancel={() => setOrderTicket(null)}
-                        onSubmit={createOrder}/>;
+    return <OrderTicket order={state.orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={createOrder}/>;
   };
 
   const bulkCreateOrders = (entries: Order[]) => {
-    // Close the runs wundow
+    // Close the runs window
     hideRunWindow();
     // Create the orders
     entries.forEach((entry: Order) => props.createOrder(entry));
@@ -233,20 +225,37 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     );
   };
   const getDepthTable = (): ReactElement | null => {
-    const currentDepth: TOBTable | undefined = state.tenor !== null ? state.depths[state.tenor] : undefined;
-    if (!currentDepth)
-      return null;
-    return <Table columns={createDOBColumns(handlers)} rows={currentDepth} renderRow={renderRow}/>;
+    // @ts-ignore if this function is called `tobVisible' has to be false so for sure this will exist
+    return <Table columns={createDOBColumns(handlers)} rows={state.depths[state.tenor]} renderRow={renderRow}/>;
   };
+  // In case we lost the dob please reset this so that double
+  // clicking the tenor keeps working
+  useEffect(() => {
+    console.log(state.tenor);
+    if (state.tenor === null) {
+      setTobVisible(true);
+    } else {
+      const depth: TOBTable = state.depths[state.tenor];
+      const values: TOBRow[] = Object.values(depth);
+      if (values.length === 0) {
+        // Has the equivalent effect of hiding the depth book
+        // but it will actually set the correct state for the
+        // tenors to be double-clickable
+        setCurrentTenor(null);
+      } else {
+        setTobVisible(false);
+      }
+    }
+  }, [state.depths, state.tenor]);
   return (
     <React.Fragment>
       <TOBTileTitle symbol={symbol} strategy={strategy} symbols={symbols} products={products} setProduct={setProduct}
                     setSymbol={setSymbol} onClose={props.onClose}/>
       <div className={'window-content'}>
-        <VisibilitySelector visible={state.tenor === null}>
+        <VisibilitySelector visible={tobVisible}>
           <Table columns={createTOBColumns(handlers)} rows={rows} renderRow={renderRow}/>
         </VisibilitySelector>
-        {getDepthTable()}
+        {!tobVisible && getDepthTable()}
       </div>
       <ModalWindow render={renderOrderTicket} visible={state.orderTicket !== null}/>
       <ModalWindow render={runWindow} visible={state.runWindowVisible}/>

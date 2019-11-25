@@ -7,7 +7,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBHandlers} from 'components/TOB/handlers';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -19,7 +19,7 @@ type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: str
 
 const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'tenor',
-  header: () => '-',
+  header: () => <span>&nbsp;</span>,
   render: ({tenor}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor)}/>
   ),
@@ -50,7 +50,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
       value={null}
-      status={EntryStatus.None}
+      status={OrderStatus.None}
       tabIndex={-1}/>
   ),
   weight: 3,

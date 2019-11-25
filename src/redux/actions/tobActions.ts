@@ -1,7 +1,7 @@
 import {API} from 'API';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {User} from 'interfaces/user';
 import {ArrowDirection, W} from 'interfaces/w';
 import {Action} from 'redux/action';
@@ -61,7 +61,7 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
         user: user.email,
         type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Ofr,
         arrowDirection: ArrowDirection.None,
-        status: EntryStatus.Cancelled,
+        status: OrderStatus.Cancelled,
       }))
       .forEach(emitUpdateOrderEvent);
     return createAction('');
@@ -73,6 +73,11 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: parse the result
     if (result.Status === 'Success') {
+      const type: string = $$(symbol, strategy, side, TOBActions.DeleteOrder);
+      const event: Event = new CustomEvent(type);
+      // Emit the event
+      document.dispatchEvent(event);
+
       return createAction($$(id, TOBActions.AllOrdersCanceled));
     } else {
       return createAction($$(id, TOBActions.AllOrdersNotCanceled));

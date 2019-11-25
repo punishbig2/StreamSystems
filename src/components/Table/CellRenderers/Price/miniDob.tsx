@@ -1,7 +1,3 @@
-import {DOBContent} from 'components/Table/CellRenderers/Price/dobContent';
-import {MiniDOBRow} from 'components/Table/CellRenderers/Price/miniDOBRow';
-import {MiniPrice} from 'components/Table/CellRenderers/Price/miniPrice';
-import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import React, {ReactNode} from 'react';
@@ -17,27 +13,27 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   if (!rows)
     return null;
   const children = rows.map(({price, quantity}: Order, index: number) => {
-    const elements: ReactNode[] = [<MiniPrice key={1}>{priceFormatter(Number(price))}</MiniPrice>];
+    const elements: ReactNode[] = [<div className={'mini-price'} key={1}>{priceFormatter(price)}</div>];
     const sizeElement = (
-      <MiniPrice key={2}>
-        <Quantity value={quantity} type={props.type as EntryTypes} onChange={() => null}/>
-      </MiniPrice>
+      <div className={'mini-size'} key={2}>
+        {quantity}
+      </div>
     );
     if (props.type === EntryTypes.Bid)
       elements.unshift(sizeElement);
     else
       elements.push(sizeElement);
     return (
-      <MiniDOBRow key={index}>
+      <div className={'row'} key={index}>
         {elements}
-      </MiniDOBRow>
+      </div>
     );
   });
   return (
     <React.Fragment>
-      <DOBContent>
+      <div className={'mini-dob'}>
         {children}
-      </DOBContent>
+      </div>
     </React.Fragment>
   );
 };

@@ -73,6 +73,8 @@ export const reducer = (state: State, {type, data}: { type: ActionTypes, data: a
     case ActionTypes.SetOrderTicket:
       return {...state, orderTicket: data};
     case ActionTypes.SetCurrentTenor:
+      if (data && !state.depths[data])
+        return state;
       return {...state, tenor: data};
     default:
       return state;

@@ -1,4 +1,4 @@
-import {EntryStatus} from 'interfaces/order';
+import {OrderStatus} from 'interfaces/order';
 
 export interface State {
   tooltipX: number;
@@ -6,6 +6,6 @@ export interface State {
   flash: boolean;
   startedShowingTooltip: boolean;
   visible: boolean;
-  status: EntryStatus;
+  status: OrderStatus;
   value: string;
 }

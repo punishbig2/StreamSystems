@@ -3,11 +3,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
+  color: #444;
 }
 
 :not(button):not(select) {
   background-color: transparent;
-  color: #444;
 }
 
 button {
@@ -50,3 +50,10 @@ button {
   }
 }
 
+.tooltip {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 2px 6px 0 rgba($primary-dark-color, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}

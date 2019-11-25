@@ -2,7 +2,7 @@ import {Computed} from 'components/Run/computed';
 import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {State} from 'components/Run/state';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
@@ -87,14 +87,14 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
               // Update the price
               price: computed.ofr,
               // Update the status and set it as edited/modified
-              status: type === 'ofr' ? ofr.status | EntryStatus.PriceEdited : ofr.status,
+              status: type === 'ofr' ? ofr.status | OrderStatus.PriceEdited : ofr.status,
             },
             bid: {
               ...bid,
               // Update the price
               price: computed.bid,
               // Update the status and set it as edited/modified
-              status: type === 'bid' ? bid.status | EntryStatus.PriceEdited : bid.status,
+              status: type === 'bid' ? bid.status | OrderStatus.PriceEdited : bid.status,
             },
           },
         },
@@ -119,10 +119,20 @@ const fillSpreadAndMid = (row: TOBRow) => {
 
 const clearIfMatches = (order: Order, id: string): Order => {
   if (order.orderId === id) {
-    return {...order, status: order.status | (EntryStatus.Cancelled & ~EntryStatus.Active)};
+    return {...order, status: order.status | (OrderStatus.Cancelled & ~OrderStatus.Active)};
   } else {
     return order;
   }
+};
+
+const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
+  const orders: TOBTable = {...state.orders};
+  const rows: [string, TOBRow][] = Object.entries(orders);
+  const entries = rows.map(([index, row]: [string, TOBRow]) => {
+    const order: Order = row[key];
+    return [index, {...row, [key]: {...order, status: order.status | (OrderStatus.Cancelled & ~OrderStatus.Active)}}];
+  });
+  return {...state, orders: Object.fromEntries(entries)};
 };
 
 const removeOrder = (state: State, id: string) => {
@@ -137,15 +147,17 @@ const removeOrder = (state: State, id: string) => {
 
 const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
   const {orders} = state;
-  // Extract the target row
+  const order: Order = data.entry;
   const row: TOBRow = orders[data.id];
+  if ((row[key].status & OrderStatus.Active) !== 0 && (order.status & OrderStatus.Cancelled) !== 0)
+    return state;
   return {
     ...state,
     orders: {
       ...orders,
       [data.id]: fillSpreadAndMid({
         ...row,
-        [key]: data.entry,
+        [key]: order,
       }),
     },
   };
@@ -166,7 +178,7 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
         [key]: {
           ...entry,
           quantity: data.value,
-          status: entry.status | EntryStatus.QuantityEdited,
+          status: entry.status | OrderStatus.QuantityEdited,
         },
       },
     },
@@ -191,6 +203,10 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
       return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:
       return updateQty(state, data, 'bid');
+    case RunActions.RemoveAllBids:
+      return removeAll(state, 'bid');
+    case RunActions.RemoveAllOfrs:
+      return removeAll(state, 'ofr');
     default:
       return next(state, {type, data});
   }

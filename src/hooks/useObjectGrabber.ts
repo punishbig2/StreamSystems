@@ -6,11 +6,15 @@ type MoveFn = (x: number, y: number) => void;
 type GrabFn = (value: boolean) => void;
 const createObjectGrabber = (object: HTMLDivElement, onMove: MoveFn, setGrabbed: GrabFn) => {
   const offset: { x: number, y: number } = {x: 0, y: 0};
+  let timer: number = setTimeout(() => null, 0);
   const onMouseMove = (event: MouseEvent) => {
-    onMove(event.clientX - offset.x, event.clientY - offset.y);
-    // Update offset
-    offset.x = event.clientX;
-    offset.y = event.clientY;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      onMove(event.clientX - offset.x, event.clientY - offset.y);
+      // Update offset
+      offset.x = event.clientX;
+      offset.y = event.clientY;
+    }, 0);
     // Oh and don't forget to swallow this event completely
     event.stopPropagation();
     event.preventDefault();

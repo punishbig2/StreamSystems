@@ -1,7 +1,6 @@
-import {on} from 'cluster';
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {useObjectGrabber} from 'hooks/useObjectGrabber';
-import React, {CSSProperties, ReactElement, useCallback, useMemo, useRef} from 'react';
+import React, {CSSProperties, ReactElement, useCallback, useRef} from 'react';
 
 interface OwnProps {
   onGeometryChange: (geometry: ClientRect) => void;
@@ -47,7 +46,6 @@ const onMove = (area: ClientRect, update: (geometry: ClientRect) => void) =>
   };
 
 type WindowSide = 'top' | 'bottom' | 'left' | 'right';
-type ResizeFn = (r: ClientRect, x: number, y: number) => void;
 const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side: WindowSide) => {
   switch (side) {
     case 'top':

@@ -9,7 +9,7 @@ import {TOBHandlers} from 'components/TOB/handlers';
 import {AggregatedSz} from 'components/TOB/reducer';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -21,14 +21,14 @@ type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: str
 type Type = 'bid' | 'ofr';
 type SetQty = 'setBidQty' | 'setOfrQty';
 
-function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): EntryStatus {
+function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): OrderStatus {
   const entry: TOBTable | undefined = depths[tenor];
   if (!entry)
-    return EntryStatus.None;
+    return OrderStatus.None;
   const isEntryMineAndValid = (entry: Order): boolean => {
-    if ((entry.status & EntryStatus.Owned) === 0 || (entry.status & EntryStatus.PreFilled) === 0)
+    if ((entry.status & OrderStatus.Owned) === 0 || (entry.status & OrderStatus.PreFilled) === 0)
       return false;
-    return (entry.status & EntryStatus.Cancelled) === 0;
+    return (entry.status & OrderStatus.Cancelled) === 0;
   };
   const values: TOBRow[] = Object.values(entry);
   const isMyOfr: ({ofr}: TOBRow) => boolean = ({ofr}: TOBRow) => isEntryMineAndValid(ofr);
@@ -37,13 +37,13 @@ function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, ty
     case EntryTypes.Invalid:
       break;
     case EntryTypes.Ofr:
-      return values.find(isMyOfr) ? EntryStatus.HaveOtherOrders : EntryStatus.None;
+      return values.find(isMyOfr) ? OrderStatus.HaveOtherOrders : OrderStatus.None;
     case EntryTypes.Bid:
-      return values.find(isMyBid) ? EntryStatus.HaveOtherOrders : EntryStatus.None;
+      return values.find(isMyBid) ? OrderStatus.HaveOtherOrders : OrderStatus.None;
     case EntryTypes.DarkPool:
       break;
   }
-  return EntryStatus.None;
+  return OrderStatus.None;
 }
 
 const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, entry: Order, index: 'ofr' | 'bid'): number | null => {
@@ -65,7 +65,7 @@ const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey
     render: ({[type]: originalEntry, depths, [onChangeKey]: onChange, user}: RowType) => {
       // Replace the actually quantity with the aggregated quantity if present
       const entry: Order = {...originalEntry, quantity: getAggregatedSize(handlers.aggregatedSz, originalEntry, type)};
-      const status: EntryStatus = getChevronStatus(depths, entry.tenor, entry.type) | entry.status;
+      const status: OrderStatus = getChevronStatus(depths, entry.tenor, entry.type) | entry.status;
       // Return the input item (which in turn also has a X for cancellation)
       return (
         <TOBQty entry={{...entry, status: status}}
@@ -83,7 +83,7 @@ const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: Hea
   name: `${type}-vol`,
   header: () => <DualTableHeader label={strings.BidPx} action={action}/>,
   render: ({[type]: entry, depths}: RowType) => {
-    const status: EntryStatus = getChevronStatus(depths, entry.tenor, entry.type) | entry.status;
+    const status: OrderStatus = getChevronStatus(depths, entry.tenor, entry.type) | entry.status;
     return (
       <TOBPrice depths={depths}
                 entry={{...entry, status}}
@@ -105,7 +105,7 @@ const DarkPoolColumn: ColumnSpec = {
       onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
       onChange={() => null}
       value={null}
-      status={EntryStatus.None}
+      status={OrderStatus.None}
       tabIndex={-1}/>
   ),
   weight: 3,

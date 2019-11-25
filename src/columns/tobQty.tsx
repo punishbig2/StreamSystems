@@ -1,5 +1,5 @@
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {User} from 'interfaces/user';
 import React, {useEffect, useState} from 'react';
 
@@ -24,8 +24,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   };
   const onChange = (value: string) => setValue(Number(value));
   const cancellable =
-    (((entry.status & EntryStatus.Owned) !== 0) ||
-      ((entry.status & EntryStatus.HaveOtherOrders) !== 0)) && (entry.price !== null)
+    (((entry.status & OrderStatus.Owned) !== 0) ||
+      ((entry.status & OrderStatus.HaveOtherOrders) !== 0)) && (entry.price !== null)
   ;
   const onCancel = () => cancellable ? props.onCancel(entry, true) : null;
   return (

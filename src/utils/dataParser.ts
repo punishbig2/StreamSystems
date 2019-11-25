@@ -1,5 +1,5 @@
 import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
-import {EntryStatus, Order} from 'interfaces/order';
+import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -21,14 +21,14 @@ const getNumber = (value: string | null | undefined): number | null => {
 export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryTypes): Order => {
   const user: User = getAuthenticatedUser();
   if (entry) {
-    const ownership: EntryStatus = user.email === entry.MDEntryOriginator ? EntryStatus.Owned : EntryStatus.NotOwned;
+    const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
     const price: number | null = getNumber(entry.MDEntryPx);
     const quantity: number | null = getNumber(entry.MDEntrySize);
     return {
       tenor: w.Tenor,
       strategy: w.Strategy,
       symbol: w.Symbol,
-      status: EntryStatus.Active | EntryStatus.PreFilled | ownership,
+      status: OrderStatus.Active | OrderStatus.PreFilled | ownership,
       user: entry.MDEntryOriginator,
       quantity: quantity,
       price: price,
@@ -47,7 +47,7 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryT
       price: null,
       type: fallbackType,
       arrowDirection: ArrowDirection.None,
-      status: EntryStatus.Active | EntryStatus.Owned,
+      status: OrderStatus.Active | OrderStatus.Owned,
     };
   }
 };

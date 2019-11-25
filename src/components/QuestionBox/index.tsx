@@ -1,4 +1,3 @@
-import {DialogButtons} from 'components/PullRight';
 import strings from 'locales';
 import React, {ReactElement} from 'react';
 import styled from 'styled-components';
@@ -27,10 +26,10 @@ export const Question: React.FC<QuestionProps> = (props: QuestionProps): ReactEl
     <Container>
       <Title>{props.title}</Title>
       <Paragraph>{props.content}</Paragraph>
-      <DialogButtons>
+      <div className={'dialog-buttons'}>
+        <button className={'cancel'} onClick={props.onNo}>{strings.No}</button>
         <button className={'success'} onClick={props.onYes}>{strings.Yes}</button>
-        <button onClick={props.onNo}>{strings.No}</button>
-      </DialogButtons>
+      </div>
     </Container>
   );
 };

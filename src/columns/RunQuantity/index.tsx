@@ -1,12 +1,10 @@
-import {TableInput} from 'components/TableInput';
-import React, {useEffect, useReducer} from 'react';
+import {Quantity} from 'components/Table/CellRenderers/Quantity';
+import {Order, OrderStatus} from 'interfaces/order';
+import React, {useEffect, useState} from 'react';
 
-const toQuantity = (value: number | null, defaultValue: number | null): string => {
-  if (value === null) {
-    if (defaultValue === null)
-      return '';
-    return defaultValue.toFixed(0);
-  }
+const sizeFormatter = (value: number | null): string => {
+  if (value === null)
+    return '';
   return value.toFixed(0);
 };
 
@@ -15,33 +13,32 @@ interface Props {
   defaultValue: number;
   id: string;
   value: number | null;
+  order: Order;
 }
-
-interface State {
-  value: string;
-}
-
-const reducer = (state: State, value: number): State => {
-  return {...state, value: toQuantity(value, null)};
-};
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
-  const [state, dispatch] = useReducer(reducer, {value: toQuantity(props.value, props.defaultValue)});
+  const [value, setValue] = useState<string>(sizeFormatter(props.value));
+  const {order} = props;
   useEffect(() => {
     if (props.defaultValue === undefined || props.defaultValue === null)
       return;
-    dispatch(props.defaultValue);
-  }, [props.defaultValue]);
+    if ((order.status & OrderStatus.PreFilled) !== 0)
+      return;
+    setValue(sizeFormatter(props.defaultValue));
+  }, [order.status, props.defaultValue]);
   useEffect(() => {
     if (props.value === null)
       return;
-    dispatch(props.value);
+    setValue(sizeFormatter(props.value));
   }, [props.value]);
   const onChange = (value: string) => {
     props.onChange(props.id, Number(value));
   };
+  const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0;
   return (
-    <TableInput value={state.value} onChange={onChange}/>
+    <React.Fragment>
+      <Quantity type={order.type} value={Number(value)} onChange={onChange} cancelable={cancellable}/>
+    </React.Fragment>
   );
 };
 

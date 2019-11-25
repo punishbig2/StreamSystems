@@ -29,7 +29,7 @@ export interface UpdateOrder {
   Tenor: string,
 }
 
-export enum EntryStatus {
+export enum OrderStatus {
   None = 0,
   Active = 1 << 1 /* 2 */,
   Cancelled = 1 << 2 /* 4 */,
@@ -52,5 +52,5 @@ export interface Order {
   firm?: string;
   type: EntryTypes;
   arrowDirection: ArrowDirection;
-  status: EntryStatus;
+  status: OrderStatus;
 }

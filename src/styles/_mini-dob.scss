@@ -1,0 +1,27 @@
+.mini-dob {
+  .row {
+    display: flex;
+    align-items: center;
+    line-height: $table-row-height;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $table-border-color;
+    }
+
+    font-size: $table-font-size;
+    font-weight: $table-font-weight;
+    font-family: $table-font-family;
+
+    .mini-price, .mini-size {
+      padding: 0 4px;
+      width: 80px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      text-align: center;
+      font-family: 'Roboto', sans-serif;
+      &:first-child {
+        border-right: 1px solid $table-border-color;
+      }
+    }
+  }
+}

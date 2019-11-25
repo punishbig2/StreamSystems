@@ -1,6 +1,5 @@
 import {Row} from 'components/MessageBlotter/row';
 import {ModalWindow} from 'components/ModalWindow';
-import {DialogButtons} from 'components/PullRight';
 import {Table} from 'components/Table';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import React, {useEffect} from 'react';
@@ -64,9 +63,9 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
             <span className={'message-entry-value'}>{column.render(props.lastEntry)}</span>
           </div>
         ))}
-        <DialogButtons>
-          <button onClick={props.clearLastEntry}>Close</button>
-        </DialogButtons>
+        <div className={'dialog-buttons'}>
+          <button className={'cancel'} onClick={props.clearLastEntry}>Close</button>
+        </div>
       </div>
     );
   };
@@ -76,7 +75,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
         <h1>{strings.Messages}</h1>
       </div>
       <div className={'window-content'}>
-        <Table columns={columns} rows={entries.slice(0, 30)} renderRow={renderRow}/>
+        <Table columns={columns} rows={entries} renderRow={renderRow}/>
       </div>
       <ModalWindow render={() => renderMessage()} visible={props.lastEntry !== null}/>
     </React.Fragment>
