@@ -2,7 +2,7 @@ import {Computed} from 'components/Run/computed';
 import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {State} from 'components/Run/state';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
@@ -62,8 +62,8 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   const seed: Computed = {
     spread: row.spread,
     mid: row.mid,
-    ofr: Number(ofr.price),
-    bid: Number(bid.price),
+    ofr: ofr.price === null ? null : Number(ofr.price),
+    bid: bid.price === null ? null : Number(bid.price),
     // Overwrite the one that will be replaced
     [type]: data.value,
   };

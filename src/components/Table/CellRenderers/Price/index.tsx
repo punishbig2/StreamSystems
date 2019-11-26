@@ -14,7 +14,7 @@ import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInput
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
@@ -84,7 +84,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const onDoubleClick = (event: React.MouseEvent) => {
-    if (props.onDoubleClick && ((state.status & OrderStatus.Owned) === 0)) {
+    if (props.onDoubleClick && ((state.status & OrderStatus.Owned) === 0 || (state.status & OrderStatus.HaveOtherOrders) !== 0)) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
       // Stop the event
       event.stopPropagation();

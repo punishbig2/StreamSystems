@@ -1,5 +1,5 @@
 import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -16,6 +16,17 @@ const getNumber = (value: string | null | undefined): number | null => {
   if (numeric === 0)
     return null;
   return numeric;
+};
+
+const normalizeTickDirection = (source: string): ArrowDirection => {
+  switch (source) {
+    case '0':
+      return ArrowDirection.Up;
+    case '2':
+      return ArrowDirection.Down;
+    default:
+      return ArrowDirection.None;
+  }
 };
 
 export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryTypes): Order => {
@@ -35,7 +46,7 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryT
       firm: entry.MDFirm,
       type: entry.MDEntryType,
       orderId: entry.OrderID,
-      arrowDirection: entry.TickDirection,
+      arrowDirection: normalizeTickDirection(entry.TickDirection),
     };
   } else {
     return {

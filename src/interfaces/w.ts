@@ -9,9 +9,9 @@ export type StrategyType = string;
 export type SymbolType = string;
 
 export enum ArrowDirection {
-  None = '0',
-  Up = '2',
-  Down = '1',
+  None = '',
+  Up = '0',
+  Down = '2',
 }
 
 export interface W {
