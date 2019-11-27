@@ -1,7 +1,7 @@
-import {HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
+import {HttpTransportType, HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
 import config from 'config';
-import {W} from 'interfaces/w';
 import {Message} from 'interfaces/message';
+import {W} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
 
 const ApiConfig = config.Api;
@@ -31,7 +31,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   static createConnection = () => new HubConnectionBuilder()
-    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`)
+    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.LongPolling)
     .build()
   ;
 
@@ -109,6 +109,5 @@ export class SignalRManager<A extends Action = AnyAction> {
       // Connect
       this.connect();
     }, this.reconnectDelay);
-    console.log(error);
   };
 }
