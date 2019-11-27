@@ -210,5 +210,4 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
     default:
       return next(state, {type, data});
   }
-
 };

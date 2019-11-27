@@ -139,7 +139,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
          onMouseMove={onMouseMove}>
       {showChevron ? <Chevron/> : null}
-      <Direction direction={props.arrow}/>
+      <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
       <TableInput
         tabIndex={props.tabIndex}
         value={finalValue}
