@@ -64,6 +64,14 @@ const AvailableUsers: User[] = [{
   email: 'ashar@anttechnologies.com',
   firm: 'DBCO',
   isBroker: false,
+}, {
+  email: 'eric.hairston@arcfintech.com',
+  firm: 'ANY',
+  isBroker: false,
+}, {
+  email: 'stephen.pignalosa@arcfintech.com',
+  firm: 'ANY',
+  isBroker: false,
 }];
 
 const {location} = window;
