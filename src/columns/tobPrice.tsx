@@ -9,12 +9,17 @@ interface Props {
   entry: Order;
   depths: { [key: string]: TOBTable }
   onUpdate: (entry: Order) => void;
-  onDoubleClick: (type: EntryTypes, entry: Order) => void;
+  onDoubleClick?: (type: EntryTypes, entry: Order) => void;
   onChange: (entry: Order) => void;
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
   const {entry} = props;
+  const onDoubleClick = () => {
+    if (!!props.onDoubleClick) {
+      props.onDoubleClick(entry.type === EntryTypes.Bid ? EntryTypes.Ofr : EntryTypes.Bid, entry);
+    }
+  };
   return (
     <Price
       depth={getMiniDOBByType(props.depths, entry.tenor, entry.type)}
@@ -23,7 +28,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       status={entry.status}
       type={entry.type}
       onSubmit={() => props.onUpdate(entry)}
-      onDoubleClick={() => props.onDoubleClick(entry.type === EntryTypes.Bid ? EntryTypes.Ofr : EntryTypes.Bid, entry)}
-      onChange={(price: number) => props.onChange({...entry, price})}/>
+      onDoubleClick={onDoubleClick}
+      onChange={(price: number | null) => props.onChange({...entry, price})}/>
   );
 };

@@ -1,7 +1,6 @@
-import {HubConnection} from '@microsoft/signalr';
-import {W} from 'interfaces/w';
+import {HubConnection, HubConnectionState} from '@microsoft/signalr';
 import {Message} from 'interfaces/message';
-import {User} from 'interfaces/user';
+import {W} from 'interfaces/w';
 import {IWorkspace} from 'interfaces/workspace';
 import {
   Action,
@@ -25,6 +24,7 @@ import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
+import settings from 'redux/reducers/settingsReducer';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Dynamic reducer creators
@@ -48,44 +48,9 @@ enum PersistedKeys {
   Workarea = 'workarea',
 }
 
-const AvailableUsers: User[] = [{
-  email: 'iharob.alasimi@vascarsolutions.com',
-  firm: 'DBCO',
-  isBroker: false,
-}, {
-  email: 'asharnisar@yahoo.com',
-  firm: 'CITI',
-  isBroker: false,
-}, {
-  email: 'eric.greenspan@connectivityinabox.com',
-  firm: 'CITI',
-  isBroker: false,
-}, {
-  email: 'ashar@anttechnologies.com',
-  firm: 'DBCO',
-  isBroker: false,
-}, {
-  email: 'eric.hairston@arcfintech.com',
-  firm: 'ANY',
-  isBroker: false,
-}, {
-  email: 'stephen.pignalosa@arcfintech.com',
-  firm: 'ANY',
-  isBroker: false,
-}];
-
-const {location} = window;
-
 const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
-const urlParameters: URLSearchParams = new URLSearchParams(location.search);
-const email: string | null = urlParameters.get('user');
-const currentUser: User | undefined = AvailableUsers.find((user: User): boolean => user.email === email);
-if (!currentUser)
-  throw new Error('user not found...');
+
 const initialState: ApplicationState = {
-  auth: {
-    user: currentUser,
-  },
   workarea: {
     symbols: [],
     products: [],
@@ -100,6 +65,7 @@ const initialState: ApplicationState = {
     entries: [],
     lastEntry: null,
   },
+  settings: {},
 };
 
 const dynamicReducers: { [name: string]: Reducer } = {};
@@ -108,7 +74,7 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationStat
   return combineReducers<any, Action>({
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
-    auth: (state: { user: User } = initialState.auth) => state,
+    settings,
     // Dynamically generated reducers
     ...dynamicReducers,
   });
@@ -135,12 +101,6 @@ export const removeNamedReducer = <T>(name: string) => {
 
 type ReducerCreator = (key: string, state: any) => Reducer;
 
-/**
- * Generate dynamic reducers from saved state
- * @param base
- * @param creator
- * @param nest
- */
 const createDynamicReducers = (base: any, creator: ReducerCreator, nest: ((state: any) => void) | null) => {
   if (!base)
     return;
@@ -162,17 +122,18 @@ createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: Works
   createDynamicReducers(state.windows, createWindowReducer, null);
 });
 
+const connectionManager: SignalRManager<AnyAction> = new SignalRManager<AnyAction>();
 const DummyAction: AnyAction = {type: undefined};
 const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
   let connection: HubConnection | null = null;
   // Return a store creator
   return <S, A extends Action>(reducer: Reducer<S, A>, preloadedState?: DeepPartial<S>) => {
+    const actionQueue: SignalRAction<A>[] = [];
     // FIXME: we can load the state here actually
     const store: Store<S, A> = nextCreator(reducer, preloadedState);
     // We have created the store
     const $dispatch: Dispatch<A> = store.dispatch;
     // Extract the "api"
-    const connectionManager: SignalRManager<A> = new SignalRManager<A>();
     // Create a new custom dispatch function
     const dispatch: Dispatch<A> = <T extends A>(action: A): T => {
       if (action instanceof AsyncAction) {
@@ -184,8 +145,14 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         // FIXME: we should schedule lost actions instead of discarding them
         // If connection is `null' we just ignore this for now
         if (connection !== null) {
-          // noinspection JSIgnoredPromiseFromCall
-          action.handle(connection);
+          if (connection.state === HubConnectionState.Connected) {
+            // noinspection JSIgnoredPromiseFromCall
+            action.handle(connection);
+          } else {
+            actionQueue.push(action);
+          }
+        } else {
+          console.error('this is totally crazy, there is no connection at all');
         }
       } else {
         return $dispatch(action) as T;
@@ -200,8 +167,16 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       connection = newConnection;
       // Dispatch an action to notify successful connection
       dispatch(createAction<any, A>(SignalRActions.Connected));
+      // Dispatch all the actions from the queue
+      actionQueue.forEach((action: SignalRAction<A>) => {
+        if (connection !== null) {
+          action.handle(connection);
+        }
+      });
+      actionQueue.splice(0, actionQueue.length);
     };
-    const onDisconnected = () => {
+    const onDisconnected = (error: any) => {
+      console.log(error);
       // Update the connection reference
       connection = null;
       // Dispatch an action to notify disconnection

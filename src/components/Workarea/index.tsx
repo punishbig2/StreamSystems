@@ -1,6 +1,7 @@
 import {ModalWindow} from 'components/ModalWindow';
 import {Question} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
+import {UserNotFound} from 'components/Workarea/userNotFound';
 import {Workspace} from 'components/Workspace';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';
@@ -74,6 +75,8 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     );
   };
   switch (props.status) {
+    case WorkareaStatus.UserNotFound:
+      return <UserNotFound/>;
     case WorkareaStatus.Starting:
       // Should never happen
       return null;

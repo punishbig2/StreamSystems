@@ -1,8 +1,8 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {ExecTypes, Message} from 'interfaces/message';
+import moment from 'moment';
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import {priceFormatter} from 'utils/priceFormatter';
 
 const Normal = styled.div`
@@ -62,7 +62,7 @@ const columns: ColumnSpec[] = [{
   name: 'OrderQty',
   filterable: true,
   sortable: true,
-  header: () => <div>Qty.</div>,
+  header: () => <div>Size</div>,
   render: ({OrderQty}: Message) => (
     <Normal>{OrderQty}</Normal>
   ),

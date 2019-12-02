@@ -1,6 +1,6 @@
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {useEffect} from 'react';
 import {toRunId} from 'utils';
@@ -23,6 +23,7 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
           ofr: ofr,
           mid: bid.price !== null && ofr.price !== null ? (Number(bid.price) + Number(ofr.price)) / 2 : null,
           spread: bid.price !== null && ofr.price !== null ? Number(ofr.price) - Number(bid.price) : null,
+          status: TOBRowStatus.Normal,
         };
       });
     const table = rows
@@ -35,3 +36,4 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, strategy, tenors, email]);
 };
+

@@ -1,3 +1,4 @@
+import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 import {Action} from 'redux/action';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
@@ -41,6 +42,17 @@ const renameWorkspace = (state: WorkareaState, {name, id}: IWorkspace): Workarea
   return {...state, workspaces: {...workspaces, [id]: {...workspace, name}}};
 };
 
+const initialize = (state: WorkareaState, data: any): WorkareaState => {
+  const {users, ...rest} = data;
+  const {location} = window;
+  const urlParameters: URLSearchParams = new URLSearchParams(location.search);
+  const email: string | null = urlParameters.get('user');
+  const user: User | undefined = users.find((user: User): boolean => user.email === email);
+  if (!user)
+    return {...state, status: WorkareaStatus.UserNotFound};
+  return {...state, ...rest, user, status: WorkareaStatus.Ready};
+};
+
 export default (state: WorkareaState = initialState, {type, data}: Action<WorkareaActions>): WorkareaState => {
   switch (type) {
     case WorkareaActions.AddWorkspace:
@@ -56,7 +68,7 @@ export default (state: WorkareaState = initialState, {type, data}: Action<Workar
     case WorkareaActions.Initializing:
       return {...state, status: WorkareaStatus.Initializing};
     case WorkareaActions.Initialized:
-      return {...state, ...data, status: WorkareaStatus.Ready};
+      return initialize(state, data);
     default:
       return state;
   }

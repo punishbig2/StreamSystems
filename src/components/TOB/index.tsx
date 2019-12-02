@@ -12,8 +12,9 @@ import {ActionTypes, reducer, State} from 'components/TOB/reducer';
 import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
 import {VisibilitySelector} from 'components/visibilitySelector';
+import {Currency} from 'interfaces/currency';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {OrderStatus, Order, Sides} from 'interfaces/order';
+import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -43,7 +44,7 @@ interface OwnProps {
   id: string;
   tenors: string[],
   products: Strategy[];
-  symbols: string[];
+  symbols: Currency[];
   user: User;
   onClose?: () => void;
 }
@@ -107,8 +108,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Just one value without `dispatch' and stuff
   const [tobVisible, setTobVisible] = useState<boolean>(true);
   // Extract properties to manage them better
-  const setProduct = ({target: {value}}: { target: HTMLSelectElement }) => props.setStrategy(value);
-  const setSymbol = ({target: {value}}: { target: HTMLSelectElement }) => props.setSymbol(value);
+  const setProduct = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => {
+    props.setStrategy(value as string);
+  };
+  const setSymbol = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => {
+    props.setSymbol(value as string);
+  };
   // Internal temporary reducer actions
   const setCurrentTenor = (tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor));
   const setOrderTicket = (ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket));
@@ -131,7 +136,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       updateOrder(entry);
     },
     onTenorSelected: (tenor: string) => {
-      console.log(tenor);
       if (state.tenor === null) {
         setCurrentTenor(tenor);
       } else {
@@ -151,6 +155,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       cancelAll(symbol, strategy, Sides.Sell);
     },
     onPriceChange: (entry: Order) => {
+      // The price was cleared most likely
+      if (entry.price === null)
+        return;
       if ((entry.status & OrderStatus.Owned) === 0) {
         if (entry.quantity === null) {
           createOrder({...entry, quantity: 10});
@@ -191,12 +198,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
       return <div/>;
-    const createOrder = (order: Order) => {
-      props.createOrder(order);
+    const onSubmit = (order: Order) => {
+      createOrder(order);
       // Remove the internal order ticket
       setOrderTicket(null);
     };
-    return <OrderTicket order={state.orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={createOrder}/>;
+    return <OrderTicket order={state.orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={onSubmit}/>;
   };
 
   const bulkCreateOrders = (entries: Order[]) => {
@@ -231,7 +238,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
   useEffect(() => {
-    console.log(state.tenor);
     if (state.tenor === null) {
       setTobVisible(true);
     } else {

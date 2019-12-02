@@ -1,4 +1,4 @@
-import {TOBRow} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {TenorType} from 'interfaces/w';
 import {useEffect} from 'react';
@@ -25,6 +25,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
       ofr: emptyOffer(tenor, symbol, strategy, email),
       mid: null,
       spread: null,
+      status: TOBRowStatus.Normal,
     };
     // Return row
     return row;

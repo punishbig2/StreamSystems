@@ -3,7 +3,7 @@ import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {State} from 'components/Run/state';
 import {Order, OrderStatus} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
 
@@ -68,7 +68,13 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
     [type]: data.value,
   };
   const last: string | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
+  console.log(data);
   const computed: Computed = computeRow(type, last, seed, data.value);
+  const getRowStatus = (computed: Computed): TOBRowStatus => {
+    if (computed.bid === null || computed.ofr === null)
+      return TOBRowStatus.Normal;
+    return computed.bid > computed.ofr ? TOBRowStatus.BidGreaterThanOfrError : TOBRowStatus.Normal;
+  };
   switch (type) {
     case RunActions.Mid:
     case RunActions.Spread:
@@ -96,6 +102,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
               // Update the status and set it as edited/modified
               status: type === 'bid' ? bid.status | OrderStatus.PriceEdited : bid.status,
             },
+            status: getRowStatus(computed),
           },
         },
         history: updateHistory(type, history),
@@ -145,11 +152,20 @@ const removeOrder = (state: State, id: string) => {
   return {...state, orders: Object.fromEntries(entries)};
 };
 
+const isValidUpdate = (bid: Order, ofr: Order) => {
+  if (bid.price === null || ofr.price === null)
+    return true;
+  console.log(bid.price, ofr.price);
+  return bid.price < ofr.price;
+};
+
 const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
   const {orders} = state;
   const order: Order = data.entry;
   const row: TOBRow = orders[data.id];
   if ((row[key].status & OrderStatus.Active) !== 0 && (order.status & OrderStatus.Cancelled) !== 0)
+    return state;
+  if (!isValidUpdate(key === 'bid' ? order : row.bid, key === 'ofr' ? order : row.ofr))
     return state;
   return {
     ...state,

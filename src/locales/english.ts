@@ -13,8 +13,8 @@ export default {
   Mid: 'Mid',
   Spread: 'Spread',
   Close: 'Close',
-  RefOfrs: 'Ref. Ofrs',
-  RefBids: 'Ref. Bids',
+  RefOfrs: 'Ref Ofrs',
+  RefBids: 'Ref Bids',
   Run: 'Run',
   Yes: 'Yes',
   No: 'No',
@@ -24,4 +24,6 @@ export default {
   OfrSz: 'Ofr Sz',
   BidPx: 'Bid Vol',
   OfrPx: 'Ofr Vol',
+  Currency: 'Currency',
+  Strategy: 'Strategy',
 }

@@ -24,10 +24,23 @@ $table-font-family: 'Roboto', sans-serif;
 
   .tbody .tr,
   .thead .tr {
+    position: relative;
     width: 100%;
     height: $table-row-height;
     line-height: $table-row-height;
     white-space: nowrap;
+
+    &.error {
+      background-color: rgba($text-color-red, 0.075);
+
+      &::before {
+        position: absolute;
+        content: '\f071';
+        font-family: 'Font Awesome 5 Free Solid', sans-serif;
+        left: -0.75ex;
+        color: $text-color-red;
+      }
+    }
   }
 
   .thead .tr {
@@ -74,6 +87,24 @@ $table-font-family: 'Roboto', sans-serif;
 
       &:focus {
         outline: 2px solid $primary-color;
+      }
+    }
+
+    .dark-pool-header {
+      white-space: pre-wrap;
+
+      div {
+        display: inline-block;
+        line-height: $table-header-height / 2;
+        width: 100%;
+
+        &:first-child {
+          vertical-align: bottom;
+        }
+
+        &:last-child {
+          vertical-align: top;
+        }
       }
     }
 

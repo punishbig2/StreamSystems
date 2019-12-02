@@ -1,4 +1,4 @@
-import {HttpTransportType, HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
+import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
 import config from 'config';
 import {Message} from 'interfaces/message';
 import {W} from 'interfaces/w';
@@ -18,13 +18,23 @@ enum SignalRMessageTypes {
   Close = 7,
 }
 
+interface Transport {
+  transport: string;
+  transferFormats: string[];
+}
+
+interface NegotiationData {
+  availableTransports: { transports: Transport[] };
+  connectionId: string;
+}
+
 export class SignalRManager<A extends Action = AnyAction> {
-  connection: HubConnection;
-  onConnectedListener: ((connection: HubConnection) => void) | null = null;
-  onDisconnectedListener: (() => void) | null = null;
-  onUpdateMarketDataListener: ((data: W) => void) | null = null;
-  onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
-  reconnectDelay: number = INITIAL_RECONNECT_DELAY;
+  private connection: HubConnection | null;
+  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
+  private onDisconnectedListener: ((error: any) => void) | null = null;
+  private onUpdateMarketDataListener: ((data: W) => void) | null = null;
+  private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
+  private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
     this.connection = SignalRManager.createConnection();
@@ -32,36 +42,40 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   static createConnection = () => new HubConnectionBuilder()
     .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.LongPolling)
+    .configureLogging(LogLevel.None)
+    .withAutomaticReconnect()
     .build()
   ;
 
-  connect = () => {
+  public connect = () => {
     const {connection} = this;
-    connection.serverTimeoutInMilliseconds = 180000;
-    connection.keepAliveIntervalInMilliseconds = 8000;
-    connection.start()
-      .then(() => {
-        this.setup();
-        // Call the listener if available
-        if (this.onConnectedListener !== null)
-          this.onConnectedListener(connection);
-        this.reconnectDelay = INITIAL_RECONNECT_DELAY;
-      })
-      .catch(() => {
-        console.log('error');
-      });
+    if (connection !== null) {
+      connection.serverTimeoutInMilliseconds = 10000;
+      connection.keepAliveIntervalInMilliseconds = 8000;
+      connection.start()
+        .then(() => {
+          this.setup();
+          // Call the listener if available
+          if (this.onConnectedListener !== null)
+            this.onConnectedListener(connection);
+          this.reconnectDelay = INITIAL_RECONNECT_DELAY;
+        })
+        .catch(console.log);
+    }
   };
 
-  setup = () => {
+  private setup = () => {
     const {connection} = this;
-    // Install close handler
-    connection.onclose(this.onClose);
-    // Install update market handler
-    connection.on('updateMarketData', this.onUpdateMarket);
-    connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
+    if (connection !== null) {
+      // Install close handler
+      connection.onclose(this.onClose);
+      // Install update market handler
+      connection.on('updateMarketData', this.onUpdateMarket);
+      connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
+    }
   };
 
-  onUpdateMessageBlotter = (message: string): void => {
+  public onUpdateMessageBlotter = (message: string): void => {
     const data: Message = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
@@ -69,7 +83,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  onUpdateMarket = (message: string): void => {
+  public onUpdateMarket = (message: string): void => {
     const data: W = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
@@ -77,29 +91,29 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  setOnConnectedListener = (fn: (connection: HubConnection) => void) => {
+  public setOnConnectedListener = (fn: (connection: HubConnection) => void) => {
     this.onConnectedListener = fn;
   };
 
-  setOnUpdateMarketDataListener = (fn: (data: W) => void) => {
+  public setOnUpdateMarketDataListener = (fn: (data: W) => void) => {
     this.onUpdateMarketDataListener = fn;
   };
 
-  setOnUpdateMessageBlotter = (fn: (data: any) => void) => {
+  public setOnUpdateMessageBlotter = (fn: (data: any) => void) => {
     this.onUpdateMessageBlotterListener = fn;
   };
 
-  setOnDisconnectedListener = (fn: () => void) => {
+  public setOnDisconnectedListener = (fn: (error: any) => void) => {
     this.onDisconnectedListener = fn;
   };
 
-  onClose = (error: any) => {
-    const {connection} = this;
+  private onClose = (error: any) => {
+    // const {connection} = this;
     // Notify disconnection
     if (this.onDisconnectedListener !== null) {
-      this.onDisconnectedListener();
+      this.onDisconnectedListener(error);
     }
-    setTimeout(() => {
+    /*setTimeout(() => {
       // Stop listening to market row
       connection.off('updateMessageBlotter');
       connection.off('updateMarketData');
@@ -108,6 +122,6 @@ export class SignalRManager<A extends Action = AnyAction> {
       this.reconnectDelay *= 2;
       // Connect
       this.connect();
-    }, this.reconnectDelay);
+    }, this.reconnectDelay);*/
   };
 }

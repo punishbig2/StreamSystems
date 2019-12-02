@@ -6,9 +6,10 @@ interface Props {
   onDoubleClick?: (event: React.MouseEvent) => void;
   onReturnPressed?: () => void;
   readOnly?: boolean;
-  onBlur?: () => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   className?: string;
   tabIndex?: number;
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const TableInput = <T extends any = string>(props: Props): ReactElement => {

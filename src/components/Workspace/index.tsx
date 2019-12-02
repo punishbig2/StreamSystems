@@ -1,6 +1,7 @@
 import {MessageBlotter} from 'components/MessageBlotter';
 import {TOB} from 'components/TOB';
 import {WindowManager} from 'components/WindowManager';
+import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
 import React, {ReactElement} from 'react';
@@ -19,7 +20,7 @@ import {WindowTypes} from 'redux/constants/workareaConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 
-import {store} from 'redux/store';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
@@ -33,7 +34,7 @@ interface DispatchProps {
 interface OwnProps {
   id: string;
   // Global row
-  symbols: string[],
+  symbols: Currency[],
   products: Strategy[],
   tenors: string[],
 }
@@ -54,7 +55,7 @@ const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, 
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
 
-const createWindow = (id: string, type: WindowTypes, symbols: string[], products: Strategy[], tenors: string[], user: User) => {
+const createWindow = (id: string, type: WindowTypes, symbols: Currency[], products: Strategy[], tenors: string[], user: User) => {
   switch (type) {
     case WindowTypes.TOB:
       return <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user}/>;
@@ -67,7 +68,7 @@ const createWindow = (id: string, type: WindowTypes, symbols: string[], products
 
 const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
   const {symbols, products, tenors} = props;
-  const {auth: {user}} = store.getState();
+  const user: User = getAuthenticatedUser();
 
   const addWindow = (type: WindowTypes) => {
     switch (type) {

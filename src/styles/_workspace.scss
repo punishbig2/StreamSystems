@@ -139,27 +139,22 @@
           display: inline-block;
         }
 
-        select {
-          display: inline-block;
-          vertical-align: top;
+        .select {
           pointer-events: initial;
-          font-weight: 600;
-          background: none;
-          border: none;
-          margin: 2px 0;
-          line-height: $title-bar-height - 4;
-          height: $title-bar-height - 4;
-          border-radius: 3px;
-          color: #444;
-          background-color: white;
+          margin-right: 8px;
 
-          &:nth-child(n + 2) {
-            margin: 2px 0 2px 8px;
+          .MuiSelect-root {
+            font-size: 120%;
+            padding: 0 24px 0 8px;
+            line-height: $title-bar-height;
           }
 
-          &:hover,
+          &::after, &::before {
+            content: none;
+          }
+
           &:focus {
-            background-color: rgba(0, 0, 0, 0.05);
+            background: transparent;
           }
         }
       }
@@ -167,7 +162,7 @@
       .window-content {
         position: absolute;
         left: 2px;
-        top: 28px;
+        top: $title-bar-height;
         right: 2px;
         bottom: 3px;
         padding: 8px;

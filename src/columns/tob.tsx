@@ -9,7 +9,7 @@ import {TOBHandlers} from 'components/TOB/handlers';
 import {AggregatedSz} from 'components/TOB/reducer';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -79,6 +79,7 @@ const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey
   };
 };
 
+const isNonEmpty = (entry: Order) => entry.price !== null && entry.quantity !== null;
 const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: HeaderAction): ColumnSpec => ({
   name: `${type}-vol`,
   header: () => <DualTableHeader label={strings.BidPx} action={action}/>,
@@ -88,7 +89,7 @@ const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: Hea
       <TOBPrice depths={depths}
                 entry={{...entry, status}}
                 onChange={handlers.onPriceChange}
-                onDoubleClick={handlers.onDoubleClick}
+                onDoubleClick={isNonEmpty(entry) ? handlers.onDoubleClick : undefined}
                 onUpdate={handlers.onUpdateOrder}/>
     );
   },
@@ -97,7 +98,12 @@ const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: Hea
 
 const DarkPoolColumn: ColumnSpec = {
   name: 'dark-pool',
-  header: () => <DualTableHeader label={strings.DarkPool}/>,
+  header: () => (
+    <div className={'dark-pool-header'}>
+      <div>Dark</div>
+      <div>Pool</div>
+    </div>
+  ),
   render: () => (
     <Price
       arrow={ArrowDirection.None}

@@ -1,4 +1,4 @@
-import {TableInput} from 'components/TableInput';
+import {TableInput} from 'components/NumericInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
 

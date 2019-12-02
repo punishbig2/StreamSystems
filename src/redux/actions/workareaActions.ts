@@ -1,4 +1,5 @@
 import {API} from 'API';
+import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
 import {Strategy} from 'interfaces/strategy';
 import {AnyAction} from 'redux';
@@ -7,8 +8,8 @@ import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
-import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
+import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import shortid from 'shortid';
 
 export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
@@ -26,14 +27,23 @@ export const addWindow = (type: WindowTypes, id: string): Action<WorkareaActions
   return createAction(WorkareaActions.AddTile, {type, id});
 };
 
+const toCurrencyWeight = (value: string) => {
+  return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
+};
+
 export const initialize = (): AsyncAction<AnyAction> => {
   const handler = async (): Promise<AnyAction[]> => {
-    const symbols: string[] = await API.getSymbols();
+    const symbols: Currency[] = await API.getSymbols();
     const products: Strategy[] = await API.getProducts();
     const tenors: string[] = await API.getTenors();
     const messages: Message[] = await API.getMessagesSnapshot();
+    const users: any[] = await API.getUsers();
+    // Sort symbols
+    symbols.sort((a: Currency, b: Currency) => {
+      return toCurrencyWeight(a.name) - toCurrencyWeight(b.name);
+    });
     return [
-      createAction(WorkareaActions.Initialized, {symbols, products, tenors, messages}),
+      createAction(WorkareaActions.Initialized, {symbols, products, tenors, messages, users}),
       // If there are anu W Blotter windows update them
       createAction(MessageBlotterActions.Initialize, messages),
     ];

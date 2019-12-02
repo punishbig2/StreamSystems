@@ -4,5 +4,8 @@ export const priceFormatter = (value: number | null): string => {
   if (typeof value.toFixed !== 'function') {
     return '';
   }
-  return value.toFixed(3);
+  const initial: string = value.toFixed(3);
+  if (initial.charAt(initial.length - 1) === '0')
+    return initial.substr(0, initial.length - 1);
+  return initial;
 };

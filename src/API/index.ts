@@ -1,10 +1,11 @@
 import config from 'config';
-import {W, MessageTypes} from 'interfaces/w';
+import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
-import {CreateOrder, Sides, UpdateOrder} from 'interfaces/order';
+import {CreateOrder, Order, Sides, UpdateOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
-import {Order} from 'interfaces/order';
+import {User} from 'interfaces/user';
+import {MessageTypes, W} from 'interfaces/w';
 import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
@@ -95,25 +96,36 @@ const {Api} = config;
 const post = <T>(url: string, data: any): Promise<T> => request(url, Method.Post, data);
 const get = <T>(url: string): Promise<T> => request(url, Method.Get);
 
-type Endpoints = 'symbols' | 'products' | 'tenors' | 'order' | 'messages' | 'all' | 'runorders' | 'UserGroupSymbol';
+type Endpoints =
+  'symbols'
+  | 'products'
+  | 'tenors'
+  | 'order'
+  | 'messages'
+  | 'all'
+  | 'runorders'
+  | 'UserGroupSymbol'
+  | 'Users';
+type Verb = 'get' | 'create' | 'cancel' | 'modify';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
 export class API {
   static MarketData: string = '/api/fxopt/marketdata';
   static Oms: string = '/api/fxopt/oms';
+  static UserApi: string = '/api/UserApi';
   static Config: string = '/api/fxopt/config';
 
   static getRawUrl(section: string, rest: string): string {
     return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
   }
 
-  static getUrl(section: string, object: Endpoints, verb: 'get' | 'create' | 'cancel' | 'modify'): string {
+  static getUrl(section: string, object: Endpoints, verb: Verb): string {
     return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
   }
 
-  static getSymbols(): Promise<string[]> {
-    return get<string[]>(API.getUrl(API.Config, 'symbols', 'get'));
+  static getSymbols(): Promise<Currency[]> {
+    return get<Currency[]>(API.getUrl(API.Config, 'symbols', 'get'));
   }
 
   static getProducts(): Promise<Strategy[]> {
@@ -221,5 +233,9 @@ export class API {
 
   static async getUserGroupSymbol(useremail: string): Promise<any[]> {
     return get<any[]>(API.getUrl(API.Oms, 'UserGroupSymbol', 'get') + toQuery({useremail}));
+  }
+
+  static async getUsers(): Promise<User[]> {
+    return get<User[]>(API.getUrl(API.UserApi, 'Users', 'get'));
   }
 }

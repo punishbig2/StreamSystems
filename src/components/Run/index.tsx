@@ -65,7 +65,14 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     if (state.orders === null)
       return;
     const eligible: OrderStatus = OrderStatus.PriceEdited | OrderStatus.Cancelled;
-    const rows: TOBRow[] = Object.values(state.orders);
+    const rows: TOBRow[] = Object
+      .values(state.orders)
+      .filter((row: TOBRow) => {
+        const {bid, ofr} = row;
+        if (bid.price === null || ofr.price === null)
+          return true;
+        return bid.price < ofr.price;
+      });
     const entries: Order[] = [
       ...rows.map((value: TOBRow) => value.bid),
       ...rows.map((value: TOBRow) => value.ofr),
@@ -91,12 +98,12 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
 
   // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Bid, {id, value})),
-    onOfrChanged: (id: string, value: number) => dispatch(createAction(RunActions.Ofr, {id, value})),
-    onMidChanged: (id: string, value: number) => dispatch(createAction(RunActions.Mid, {id, value})),
-    onSpreadChanged: (id: string, value: number) => dispatch(createAction(RunActions.Spread, {id, value})),
-    onBidQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
-    onOfrQtyChanged: (id: string, value: number) => dispatch(createAction(RunActions.OfrQtyChanged, {id, value})),
+    onBidChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Bid, {id, value})),
+    onOfrChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Ofr, {id, value})),
+    onMidChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Mid, {id, value})),
+    onSpreadChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Spread, {id, value})),
+    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
+    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.OfrQtyChanged, {id, value})),
     defaultBidQty: {
       value: state.defaultBidQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),

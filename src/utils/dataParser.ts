@@ -1,6 +1,6 @@
 import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import {ArrowDirection, W} from 'interfaces/w';
@@ -79,6 +79,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
         bid: transform(other[index], EntryTypes.Bid),
         mid: null,
         spread: null,
+        status: TOBRowStatus.Normal,
       };
     } else if (key1 === 'bid' && key2 === 'ofr') {
       return {
@@ -88,6 +89,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
         ofr: transform(other[index], EntryTypes.Ofr),
         mid: null,
         spread: null,
+        status: TOBRowStatus.Normal,
       };
     } else {
       throw new Error('I cannot understand this combination');
@@ -128,6 +130,7 @@ export const toTOBRow = (w: W): TOBRow => {
     ofr: transform(ofr, EntryTypes.Ofr),
     mid: null,
     spread: null,
+    status: TOBRowStatus.Normal,
   };
 };
 

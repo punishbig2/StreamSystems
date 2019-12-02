@@ -1,3 +1,4 @@
+import {TableInput} from 'components/NumericInput';
 import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
@@ -12,7 +13,6 @@ import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
-import {TableInput} from 'components/TableInput';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
@@ -27,7 +27,7 @@ export interface Props {
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onChange: (value: number) => void;
+  onChange: (value: number | null) => void;
   onSubmit?: (value: number) => void;
   onBlur?: (value: number) => void;
   tabIndex?: number;
@@ -83,12 +83,16 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
+  const isOpenOrderTicketStatus = (status: OrderStatus): boolean => {
+    return (status & OrderStatus.Owned) === 0;
+  };
+
   const onDoubleClick = (event: React.MouseEvent) => {
-    if (props.onDoubleClick && ((state.status & OrderStatus.Owned) === 0 || (state.status & OrderStatus.HaveOtherOrders) !== 0)) {
+    // Stop the event
+    event.stopPropagation();
+    event.preventDefault();
+    if (props.onDoubleClick && isOpenOrderTicketStatus(state.status)) {
       const target: HTMLInputElement = event.target as HTMLInputElement;
-      // Stop the event
-      event.stopPropagation();
-      event.preventDefault();
       // Remove focus and selection
       target.setSelectionRange(0, 0);
       target.blur();
@@ -114,22 +118,25 @@ export const Price: React.FC<Props> = (props: Props) => {
   })();
 
   const onBlur = () => {
-    if (state.value === '')
-      return;
     const value: string | null = state.value;
-    if (value === null)
-      return;
-    const numeric: number = Number(value);
-    // If it's non-numeric also ignore this
-    if (isNaN(numeric))
-      return;
-    if (numeric === props.value)
-      return;
-    // Update the internal value
-    setValue(priceFormatter(numeric), state.status);
-    // It passed all validations, so emit the event
-    props.onChange(numeric);
+    if (value === null || value.trim() === '') {
+      props.onChange(null);
+    } else {
+      const numeric: number = Number(value);
+      // If it's non-numeric also ignore this
+      if (isNaN(numeric) || numeric === 0) {
+        props.onChange(null);
+      } else {
+        if (numeric === props.value)
+          return;
+        // Update the internal value
+        setValue(priceFormatter(numeric), state.status);
+        // It passed all validations, so emit the event
+        props.onChange(numeric);
+      }
+    }
   };
+  const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
 
   const showChevron =
     (state.status & OrderStatus.HaveOtherOrders) !== 0 &&
@@ -147,6 +154,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         onBlur={onBlur}
         onReturnPressed={onSubmit}
         onChange={onChange}
+        onFocus={onFocus}
         className={getInputClass(state.status, props.className)}/>
       {/* The floating object */}
       {getTooltip()}
