@@ -1,3 +1,4 @@
+import {RunActions} from 'components/Run/enumerator';
 import {EntryTypes} from 'interfaces/mdEntry';
 
 export interface QtyHeader {
@@ -17,4 +18,5 @@ export interface RunColumnData {
   onBidQtyChanged: ChangeFn<number>,
   defaultOfrQty: QtyHeader;
   defaultBidQty: QtyHeader;
+  focusNext: (target: HTMLInputElement, action: RunActions) => void;
 }

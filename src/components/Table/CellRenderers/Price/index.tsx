@@ -34,6 +34,7 @@ export interface Props {
   arrow: ArrowDirection;
   status: OrderStatus;
   className?: string;
+  onTabbedOut?: (input: HTMLInputElement) => void;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -155,6 +156,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         onReturnPressed={onSubmit}
         onChange={onChange}
         onFocus={onFocus}
+        onTabbedOut={props.onTabbedOut}
         className={getInputClass(state.status, props.className)}/>
       {/* The floating object */}
       {getTooltip()}

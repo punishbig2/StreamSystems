@@ -96,14 +96,44 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     );
   };
 
+  const getNthParentOf = (element: Element, count: number): Element | null => {
+    let parent: Node | null = element.parentNode;
+    for (let i = 0; i < count - 1; ++i) {
+      if (parent === null)
+        return null;
+      parent = parent.parentNode;
+    }
+    return parent as Element;
+  };
+  const skipTabIndex = (target: HTMLInputElement, n: number) => {
+    const parent: Element | null = getNthParentOf(target, 4);
+    if (parent !== null) {
+      const inputs: HTMLInputElement[] = Array.from(parent.querySelectorAll('input:not([tabindex="-1"])'));
+      const startAt: number = inputs.indexOf(target);
+      if (startAt === -1)
+        return;
+      const next: HTMLInputElement = inputs[startAt + n];
+      if (!next)
+        return;
+      // Now just focus the input
+      next.focus();
+    }
+  };
+
   // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
     onBidChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Bid, {id, value})),
     onOfrChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Ofr, {id, value})),
     onMidChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Mid, {id, value})),
     onSpreadChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Spread, {id, value})),
-    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.BidQtyChanged, {id, value})),
-    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.OfrQtyChanged, {id, value})),
+    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.BidQtyChanged, {
+      id,
+      value,
+    })),
+    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.OfrQtyChanged, {
+      id,
+      value,
+    })),
     defaultBidQty: {
       value: state.defaultBidQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),
@@ -113,6 +143,18 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       value: state.defaultOfrQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultOfrQty, value)),
       type: EntryTypes.Ofr,
+    },
+    focusNext: (target: HTMLInputElement, action: RunActions) => {
+      switch (action) {
+        case RunActions.Mid:
+        case RunActions.Bid:
+          skipTabIndex(target, 1);
+          break;
+        case RunActions.Spread:
+        case RunActions.Ofr:
+          skipTabIndex(target, 3);
+          break;
+      }
     },
   });
 

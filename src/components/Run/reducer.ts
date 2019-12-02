@@ -7,7 +7,7 @@ import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
 
-type Calculator = (v1: number, v2: number) => number;
+type Calculator = (v1: number | null, v2: number | null) => number | null;
 
 const computeRow = (type: string, last: string | undefined, data: Computed, v1: number): Computed => {
   if (!last)
@@ -26,10 +26,10 @@ const computeRow = (type: string, last: string | undefined, data: Computed, v1: 
     }
   };
   return {
-    spread: findCalculator(RunActions.Spread, type, last)(Number(v1), Number(v2)),
-    mid: findCalculator(RunActions.Mid, type, last)(Number(v1), Number(v2)),
-    ofr: findCalculator(RunActions.Ofr, type, last)(Number(v1), Number(v2)),
-    bid: findCalculator(RunActions.Bid, type, last)(Number(v1), Number(v2)),
+    spread: findCalculator(RunActions.Spread, type, last)(v1, v2),
+    mid: findCalculator(RunActions.Mid, type, last)(v1, v2),
+    ofr: findCalculator(RunActions.Ofr, type, last)(v1, v2),
+    bid: findCalculator(RunActions.Bid, type, last)(v1, v2),
   };
 };
 
@@ -68,7 +68,6 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
     [type]: data.value,
   };
   const last: string | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
-  console.log(data);
   const computed: Computed = computeRow(type, last, seed, data.value);
   const getRowStatus = (computed: Computed): TOBRowStatus => {
     if (computed.bid === null || computed.ofr === null)
@@ -91,14 +90,14 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
             ofr: {
               ...ofr,
               // Update the price
-              price: computed.ofr,
+              price: computed.ofr === null ? ofr.price : computed.ofr,
               // Update the status and set it as edited/modified
               status: type === 'ofr' ? ofr.status | OrderStatus.PriceEdited : ofr.status,
             },
             bid: {
               ...bid,
               // Update the price
-              price: computed.bid,
+              price: computed.bid === null ? bid.price : computed.bid,
               // Update the status and set it as edited/modified
               status: type === 'bid' ? bid.status | OrderStatus.PriceEdited : bid.status,
             },

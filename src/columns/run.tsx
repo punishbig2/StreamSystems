@@ -1,6 +1,7 @@
 import {HeaderQty} from 'columns/HeaderQty';
 import {RunQuantity} from 'columns/RunQuantity';
 import {RunColumnData} from 'components/Run/columnData';
+import {RunActions} from 'components/Run/enumerator';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
@@ -35,7 +36,8 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Bid}</div>,
   render: ({id, bid}: RowType) => (
     <Price value={bid.price} onChange={(price: number | null) => handlers.onBidChanged(id, price)}
-           arrow={ArrowDirection.None} status={bid.status}/>
+           arrow={ArrowDirection.None} status={bid.status}
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Bid)}/>
   ),
   weight: 4,
 }, {
@@ -43,7 +45,8 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Ofr}</div>,
   render: ({id, ofr}: RowType) => (
     <Price value={ofr.price} onChange={(price: number | null) => handlers.onOfrChanged(id, price)}
-           arrow={ArrowDirection.None} status={ofr.status}/>
+           arrow={ArrowDirection.None} status={ofr.status}
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Ofr)}/>
   ),
   weight: 4,
 }, {
@@ -62,7 +65,8 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
     <Price value={mid} onChange={(value: number | null) => handlers.onMidChanged(id, value)}
-           className={'mid'} arrow={ArrowDirection.None} status={OrderStatus.None}/>
+           className={'mid'} arrow={ArrowDirection.None} status={OrderStatus.None}
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Mid)}/>
   ),
   weight: 4,
 }, {
@@ -70,7 +74,8 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => (
     <Price value={spread} onChange={(value: number | null) => handlers.onSpreadChanged(id, value)}
-           className={'spread'} arrow={ArrowDirection.None} status={OrderStatus.None}/>
+           className={'spread'} arrow={ArrowDirection.None} status={OrderStatus.None}
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Spread)}/>
   ),
   weight: 4,
 }];
