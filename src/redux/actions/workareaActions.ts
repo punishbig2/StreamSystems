@@ -2,7 +2,7 @@ import {API} from 'API';
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
 import {Strategy} from 'interfaces/strategy';
-import {AnyAction} from 'redux';
+import {AnyAction, Dispatch} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
@@ -32,11 +32,22 @@ const toCurrencyWeight = (value: string) => {
 };
 
 export const initialize = (): AsyncAction<AnyAction> => {
-  const handler = async (): Promise<AnyAction[]> => {
+  const handler = async (dispatch?: Dispatch<AnyAction>): Promise<AnyAction[]> => {
+    if (!dispatch)
+      throw new Error('this handler must receive a dispatch function');
+    dispatch(createAction(WorkareaActions.LoadingSymbols));
     const symbols: Currency[] = await API.getSymbols();
+
+    dispatch(createAction(WorkareaActions.LoadingStrategies));
     const products: Strategy[] = await API.getProducts();
+
+    dispatch(createAction(WorkareaActions.LoadingTenors));
     const tenors: string[] = await API.getTenors();
+
+    dispatch(createAction(WorkareaActions.LoadingMessages));
     const messages: Message[] = await API.getMessagesSnapshot();
+
+    dispatch(createAction(WorkareaActions.LoadingUsersList));
     const users: any[] = await API.getUsers();
     // Sort symbols
     symbols.sort((a: Currency, b: Currency) => {

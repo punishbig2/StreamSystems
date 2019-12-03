@@ -37,6 +37,7 @@ interface OwnProps {
   symbols: Currency[],
   products: Strategy[],
   tenors: string[],
+  connected: boolean;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
@@ -97,6 +98,10 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
       <div className={'toolbar'}>
         <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
         <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
+        <div className={'connectivity-indicator'}>
+          {props.connected ? <div className={'connected'}>Connected</div> :
+            <div className={'disconnected'}>Disconnected</div>}
+        </div>
       </div>
       <WindowManager
         windows={props.windows}

@@ -23,11 +23,6 @@ interface Transport {
   transferFormats: string[];
 }
 
-interface NegotiationData {
-  availableTransports: { transports: Transport[] };
-  connectionId: string;
-}
-
 export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
@@ -37,24 +32,26 @@ export class SignalRManager<A extends Action = AnyAction> {
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
-    this.connection = SignalRManager.createConnection();
+    const connection: HubConnection = SignalRManager.createConnection();
+    connection.serverTimeoutInMilliseconds = 60000;
+    connection.keepAliveIntervalInMilliseconds = 15000;
+    // Export to class wide variable
+    this.connection = connection;
   }
 
   static createConnection = () => new HubConnectionBuilder()
-    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.LongPolling)
+    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.ServerSentEvents)
+    .withAutomaticReconnect([5, 60, 120])
     .configureLogging(LogLevel.None)
-    .withAutomaticReconnect()
     .build()
   ;
 
   public connect = () => {
     const {connection} = this;
     if (connection !== null) {
-      connection.serverTimeoutInMilliseconds = 10000;
-      connection.keepAliveIntervalInMilliseconds = 8000;
       connection.start()
         .then(() => {
-          this.setup();
+          this.setup(connection);
           // Call the listener if available
           if (this.onConnectedListener !== null)
             this.onConnectedListener(connection);
@@ -64,11 +61,16 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  private setup = () => {
-    const {connection} = this;
+  private setup = (connection: HubConnection) => {
     if (connection !== null) {
       // Install close handler
       connection.onclose(this.onClose);
+      connection.onreconnected(() => {
+        if (this.onDisconnectedListener)
+          this.onDisconnectedListener(connection);
+        if (this.onConnectedListener)
+          this.onConnectedListener(connection);
+      });
       // Install update market handler
       connection.on('updateMarketData', this.onUpdateMarket);
       connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);

@@ -28,7 +28,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'bid-size',
   header: () => strings.BidSz,
   render: ({bid, user, setBidQty}: RowType) => (
-    <Qty entry={bid} onCancel={(order: Order) => handlers.onCancelOrder(order, false)} onChange={setBidQty}
+    <Qty order={bid} onCancel={(order: Order) => handlers.onCancelOrder(order, false)} onChange={setBidQty}
          onSubmit={handlers.onQuantityChange} user={user}/>
   ),
   weight: 2,
@@ -36,7 +36,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'bid-vol',
   header: () => strings.BidPx,
   render: ({bid, depths}: RowType) => (
-    <TOBPrice depths={depths} entry={bid} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
+    <TOBPrice depths={depths} order={bid} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
@@ -58,7 +58,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'ofr-vol',
   header: () => strings.OfrPx,
   render: ({ofr, depths}: RowType) => (
-    <TOBPrice depths={depths} entry={ofr} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
+    <TOBPrice depths={depths} order={ofr} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
@@ -66,7 +66,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'ofr-quantity',
   header: () => strings.OfrSz,
   render: ({ofr, user, setOfrQty}: RowType) => (
-    <Qty entry={ofr} onCancel={(order: Order) => handlers.onCancelOrder(order, false)} onChange={setOfrQty}
+    <Qty order={ofr} onCancel={(order: Order) => handlers.onCancelOrder(order, false)} onChange={setOfrQty}
          onSubmit={handlers.onQuantityChange}
          user={user}/>
   ),

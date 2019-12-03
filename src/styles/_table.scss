@@ -201,7 +201,10 @@ $table-font-family: 'Roboto', sans-serif;
 
   .tbody .tr .td,
   .thead .tr .th {
-    .price-layout, .size-layout {
+    .price-layout,
+    .size-layout {
+      position: relative;
+
       input {
         padding: 0 8px;
         min-width: 0;
@@ -231,8 +234,6 @@ $table-font-family: 'Roboto', sans-serif;
     pointer-events: initial;
 
     .price-layout {
-      position: relative;
-
       &.flash {
         input {
           animation: flash 0.5s infinite;
@@ -277,6 +278,28 @@ $table-font-family: 'Roboto', sans-serif;
   line-height: $table-row-height;
   white-space: nowrap;
 
+  .chevron {
+    position: absolute;
+    top: 1px;
+    line-height: 12px;
+    width: 12px;
+    height: 12px;
+    vertical-align: top;
+
+    &.left {
+      left: 1px;
+    }
+
+    &.right {
+      right: 1px;
+    }
+
+    i {
+      font-size: 8px;
+      color: crimson;
+    }
+  }
+
   div {
     width: $table-row-height;
     line-height: $table-row-height;
@@ -294,46 +317,57 @@ $table-font-family: 'Roboto', sans-serif;
         display: inline-block;
       }
 
+      &.empty {
+        i {
+          &::after, &::before {
+            border: none;
+          }
+        }
+      }
+
       &:not(.clickable) {
         i {
-          color: transparent;
           pointer-events: none;
+
+          &::after, &::before {
+            border-color: lighten(black, 80%);
+          }
         }
       }
 
       $red-x-size: 16px;
 
-      &.clickable {
-        i {
-          position: relative;
-          transition: all 0.25s;
-          line-height: 15px;
-          border-radius: 8px;
-          margin: ($table-row-height - $red-x-size) / 2 0;
-          width: $red-x-size;
-          height: $red-x-size;
+      i {
+        position: relative;
+        transition: all 0.25s;
+        line-height: 15px;
+        border-radius: 8px;
+        margin: ($table-row-height - $red-x-size) / 2 0;
+        width: $red-x-size;
+        height: $red-x-size;
 
-          $x-tick-length: 5 * $red-x-size / 8;
+        $x-tick-length: 5 * $red-x-size / 8;
 
-          &:after, &:before {
-            content: '';
-            position: absolute;
-            left: ($red-x-size - $x-tick-length) / 2;
-            top: $red-x-size / 2 - 1px;
-            width: $x-tick-length;
-            border-top: 2px solid $text-color-red;
-            transition: border-color 0.25s;
-          }
-
-          &:after {
-            transform: rotate(45deg);
-          }
-
-          &:before {
-            transform: rotate(-45deg);
-          }
+        &::after, &::before {
+          content: '';
+          position: absolute;
+          left: ($red-x-size - $x-tick-length) / 2;
+          top: $red-x-size / 2 - 1px;
+          width: $x-tick-length;
+          border-top: 2px solid $text-color-red;
+          transition: border-color 0.25s;
         }
 
+        &::after {
+          transform: rotate(45deg);
+        }
+
+        &::before {
+          transform: rotate(-45deg);
+        }
+      }
+
+      &.clickable {
         &:hover {
           i {
             cursor: pointer;

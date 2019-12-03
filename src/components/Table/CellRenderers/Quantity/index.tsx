@@ -1,8 +1,9 @@
 import {TableInput} from 'components/NumericInput';
+import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {EntryTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
 
-interface SizeProps {
+interface OwnProps {
   type: EntryTypes;
   value: number | null;
   firm?: string;
@@ -11,17 +12,19 @@ interface SizeProps {
   onCancel?: () => void;
   onBlur?: () => void;
   className?: string;
+  chevron?: boolean;
 }
 
-const defaultProps: SizeProps = {
+const defaultProps: OwnProps = {
+  onChange: () => null,
+  onCancel: () => null,
   type: EntryTypes.Invalid,
   value: null,
-  onChange: () => null,
   cancelable: false,
-  onCancel: () => null,
+  chevron: false,
 };
 
-export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) => {
+export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
   const {value} = props;
   const classes: string[] = ['times'];
   const getValue = (): string => {
@@ -33,23 +36,28 @@ export const Quantity: React.FC<SizeProps> = (props: SizeProps = defaultProps) =
     <TableInput key={1} value={getValue()} tabIndex={-1} className={props.className}
                 onChange={(value: string) => props.onChange(value)} onBlur={props.onBlur}/>,
   ];
+
   if (props.cancelable)
     classes.push('clickable');
+  if (props.value === null)
+    classes.push('empty');
   const button = (
     <div key={2} className={classes.join(' ')} onClick={props.onCancel}>
       <i/>
     </div>
   );
   if (props.type === EntryTypes.Bid) {
-    if (props.firm) {
+    if (props.firm)
       children.push(<div>{props.firm}</div>);
-    }
+    if (props.chevron)
+      children.push(<Chevron side={'left'} key={3}/>);
     children.push(button);
   } else {
     children.unshift(button);
-    if (props.firm) {
+    if (props.chevron)
+      children.push(<Chevron side={'right'} key={3}/>);
+    if (props.firm)
       children.push(<div>{props.firm}</div>);
-    }
   }
   return (
     <div className={'size-layout'}>

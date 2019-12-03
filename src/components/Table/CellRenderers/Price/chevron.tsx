@@ -1,24 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
 
-const ChevronLayout = styled.div`
-  position: absolute;
-  left: 1px;
-  top: 1px;
-  width: 12px;
-  height: 12px;
-  line-height: 12px;
-  i {
-    font-size: 8px;
-    color: crimson;
-  }
-`;
+interface OwnProps {
+  side: 'left' | 'right';
+}
 
-const Chevron: React.FC = () => {
+const Chevron: React.FC<OwnProps> = (props: OwnProps) => {
   return (
-    <ChevronLayout>
+    <div className={`chevron ${props.side}`}>
       <i className={'fa fa-chevron-up'}/>
-    </ChevronLayout>
+    </div>
   );
 };
 

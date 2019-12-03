@@ -71,7 +71,7 @@ const initialState: ApplicationState = {
 const dynamicReducers: { [name: string]: Reducer } = {};
 // Build the reducer from the fixed and dynamic reducers
 export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationState, Action> => {
-  return combineReducers<any, Action>({
+  return combineReducers<any, Action<any>>({
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
     settings,

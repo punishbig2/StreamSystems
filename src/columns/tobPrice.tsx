@@ -6,29 +6,29 @@ import {TOBTable} from 'interfaces/tobTable';
 import React from 'react';
 
 interface Props {
-  entry: Order;
+  order: Order;
   depths: { [key: string]: TOBTable }
-  onUpdate: (entry: Order) => void;
-  onDoubleClick?: (type: EntryTypes, entry: Order) => void;
-  onChange: (entry: Order) => void;
+  onUpdate: (order: Order) => void;
+  onDoubleClick?: (type: EntryTypes, order: Order) => void;
+  onChange: (order: Order) => void;
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
-  const {entry} = props;
+  const {order} = props;
   const onDoubleClick = () => {
     if (!!props.onDoubleClick) {
-      props.onDoubleClick(entry.type === EntryTypes.Bid ? EntryTypes.Ofr : EntryTypes.Bid, entry);
+      props.onDoubleClick(order.type === EntryTypes.Bid ? EntryTypes.Ofr : EntryTypes.Bid, order);
     }
   };
   return (
     <Price
-      depth={getMiniDOBByType(props.depths, entry.tenor, entry.type)}
-      arrow={entry.arrowDirection}
-      value={entry.price}
-      status={entry.status}
-      type={entry.type}
-      onSubmit={() => props.onUpdate(entry)}
+      depth={getMiniDOBByType(props.depths, order.tenor, order.type)}
+      arrow={order.arrowDirection}
+      value={order.price}
+      status={order.status}
+      type={order.type}
+      onSubmit={() => props.onUpdate(order)}
       onDoubleClick={onDoubleClick}
-      onChange={(price: number | null) => props.onChange({...entry, price})}/>
+      onChange={(price: number | null) => props.onChange({...order, price})}/>
   );
 };

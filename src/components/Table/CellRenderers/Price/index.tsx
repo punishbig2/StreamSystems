@@ -1,5 +1,4 @@
 import {TableInput} from 'components/NumericInput';
-import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
 import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
@@ -139,14 +138,10 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
 
-  const showChevron =
-    (state.status & OrderStatus.HaveOtherOrders) !== 0 &&
-    (state.status & OrderStatus.Owned) === 0 &&
-    (state.value !== '');
+
   return (
     <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
          onMouseMove={onMouseMove}>
-      {showChevron ? <Chevron/> : null}
       <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
       <TableInput
         tabIndex={props.tabIndex}

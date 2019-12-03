@@ -71,7 +71,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     if (active === null)
       return null;
     return (
-      <Workspace id={active} symbols={symbols} products={products} tenors={tenors}/>
+      <Workspace id={active} symbols={symbols} products={products} tenors={tenors} connected={props.connected}/>
     );
   };
   switch (props.status) {

@@ -4,39 +4,44 @@ import {User} from 'interfaces/user';
 import React, {useEffect, useState} from 'react';
 
 interface Props {
-  entry: Order;
+  order: Order;
   user: User;
-  onCancel: (entry: Order, cancelRelated: boolean) => void;
-  onSubmit: (entry: Order, newQuantity: number) => void;
+  onCancel: (order: Order, cancelRelated: boolean) => void;
+  onSubmit: (order: Order, newQuantity: number) => void;
   onChange: (value: number) => void;
 }
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
-  const {entry, user} = props;
-  const [value, setValue] = useState<number | null>(entry.quantity);
+  const {order, user} = props;
+  const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
-    setValue(entry.quantity);
-  }, [entry]);
+    setValue(order.quantity);
+  }, [order]);
   const onBlur = () => {
     if (value !== null) {
-      props.onSubmit(entry, value);
+      props.onSubmit(order, value);
     }
   };
   const onChange = (value: string) => setValue(Number(value));
   const cancellable =
-    (((entry.status & OrderStatus.Owned) !== 0) ||
-      ((entry.status & OrderStatus.HaveOtherOrders) !== 0)) && (entry.price !== null)
+    (((order.status & OrderStatus.Owned) !== 0) ||
+      ((order.status & OrderStatus.HaveOtherOrders) !== 0)) && (order.price !== null)
   ;
-  const onCancel = () => cancellable ? props.onCancel(entry, true) : null;
+  const onCancel = () => cancellable ? props.onCancel(order, true) : null;
+  const showChevron =
+    (order.status & OrderStatus.HaveOtherOrders) !== 0 &&
+    (order.status & OrderStatus.Owned) === 0 &&
+    (order.price !== null);
   return (
     <Quantity
       value={value}
-      type={entry.type}
+      type={order.type}
       onChange={onChange}
       onCancel={onCancel}
       onBlur={onBlur}
       cancelable={cancellable}
       className={'tob-size'}
-      firm={user.isBroker ? entry.firm : undefined}/>
+      chevron={showChevron}
+      firm={user.isBroker ? order.firm : undefined}/>
   );
 };

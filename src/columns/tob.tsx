@@ -22,15 +22,15 @@ type Type = 'bid' | 'ofr';
 type SetQty = 'setBidQty' | 'setOfrQty';
 
 function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): OrderStatus {
-  const entry: TOBTable | undefined = depths[tenor];
-  if (!entry)
+  const order: TOBTable | undefined = depths[tenor];
+  if (!order)
     return OrderStatus.None;
-  const isEntryMineAndValid = (entry: Order): boolean => {
-    if ((entry.status & OrderStatus.Owned) === 0 || (entry.status & OrderStatus.PreFilled) === 0)
+  const isEntryMineAndValid = (order: Order): boolean => {
+    if ((order.status & OrderStatus.Owned) === 0 || (order.status & OrderStatus.PreFilled) === 0)
       return false;
-    return (entry.status & OrderStatus.Cancelled) === 0;
+    return (order.status & OrderStatus.Cancelled) === 0;
   };
-  const values: TOBRow[] = Object.values(entry);
+  const values: TOBRow[] = Object.values(order);
   const isMyOfr: ({ofr}: TOBRow) => boolean = ({ofr}: TOBRow) => isEntryMineAndValid(ofr);
   const isMyBid: ({bid}: TOBRow) => boolean = ({bid}: TOBRow) => isEntryMineAndValid(bid);
   switch (type) {
@@ -46,15 +46,15 @@ function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, ty
   return OrderStatus.None;
 }
 
-const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, entry: Order, index: 'ofr' | 'bid'): number | null => {
+const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order, index: 'ofr' | 'bid'): number | null => {
   if (aggregatedSz) {
-    const price: number | null = entry.price;
+    const price: number | null = order.price;
     const key: string | null = price === null ? null : price.toFixed(3);
-    if (aggregatedSz[entry.tenor] && key !== null)
-      return aggregatedSz[entry.tenor][index][key];
-    return entry.quantity;
+    if (aggregatedSz[order.tenor] && key !== null)
+      return aggregatedSz[order.tenor][index][key];
+    return order.quantity;
   } else {
-    return entry.quantity;
+    return order.quantity;
   }
 };
 
@@ -64,11 +64,11 @@ const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey
     header: () => <DualTableHeader label={label} action={action}/>,
     render: ({[type]: originalEntry, depths, [onChangeKey]: onChange, user}: RowType) => {
       // Replace the actually quantity with the aggregated quantity if present
-      const entry: Order = {...originalEntry, quantity: getAggregatedSize(handlers.aggregatedSz, originalEntry, type)};
-      const status: OrderStatus = getChevronStatus(depths, entry.tenor, entry.type) | entry.status;
+      const order: Order = {...originalEntry, quantity: getAggregatedSize(handlers.aggregatedSz, originalEntry, type)};
+      const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type) | order.status;
       // Return the input item (which in turn also has a X for cancellation)
       return (
-        <TOBQty entry={{...entry, status: status}}
+        <TOBQty order={{...order, status: status}}
                 onCancel={handlers.onCancelOrder}
                 onChange={onChange}
                 onSubmit={handlers.onQuantityChange}
@@ -79,17 +79,17 @@ const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey
   };
 };
 
-const isNonEmpty = (entry: Order) => entry.price !== null && entry.quantity !== null;
+const isNonEmpty = (order: Order) => order.price !== null && order.quantity !== null;
 const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: HeaderAction): ColumnSpec => ({
   name: `${type}-vol`,
   header: () => <DualTableHeader label={strings.BidPx} action={action}/>,
-  render: ({[type]: entry, depths}: RowType) => {
-    const status: OrderStatus = getChevronStatus(depths, entry.tenor, entry.type) | entry.status;
+  render: ({[type]: order, depths}: RowType) => {
+    const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type) | order.status;
     return (
       <TOBPrice depths={depths}
-                entry={{...entry, status}}
+                order={{...order, status}}
                 onChange={handlers.onPriceChange}
-                onDoubleClick={isNonEmpty(entry) ? handlers.onDoubleClick : undefined}
+                onDoubleClick={isNonEmpty(order) ? handlers.onDoubleClick : undefined}
                 onUpdate={handlers.onUpdateOrder}/>
     );
   },

@@ -1,7 +1,7 @@
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
-import {WindowState, TileStatus} from 'redux/stateDefs/windowState';
+import {TileStatus, WindowState} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
 
 const genesisState: WindowState = {
@@ -16,16 +16,16 @@ const genesisState: WindowState = {
 export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
   return (state: WindowState = initialState, {type, data}: AnyAction) => {
     switch (type) {
+      case SignalRActions.Connected:
+        return {...state, connected: true};
+      case SignalRActions.Disconnected:
+        return {...state, connected: false};
       case $$(id, TOBActions.Initialize):
         return {...state, rows: data};
       case $$(id, TOBActions.SetStrategy):
         return {...state, strategy: data};
       case $$(id, TOBActions.SetSymbol):
         return {...state, symbol: data};
-      case SignalRActions.Connected:
-        return {...state, connected: true};
-      case SignalRActions.Disconnected:
-        return {...state, connected: false};
       case $$(id, TOBActions.ToggleOCO):
         return {...state, oco: !state.oco};
       case $$(id, TOBActions.CreateOrder):

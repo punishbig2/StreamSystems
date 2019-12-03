@@ -1,6 +1,7 @@
 import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 import {Action} from 'redux/action';
+import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
 
@@ -12,6 +13,7 @@ const initialState: WorkareaState = {
   products: [],
   messages: [],
   status: WorkareaStatus.Starting,
+  connected: false,
 };
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
@@ -53,8 +55,12 @@ const initialize = (state: WorkareaState, data: any): WorkareaState => {
   return {...state, ...rest, user, status: WorkareaStatus.Ready};
 };
 
-export default (state: WorkareaState = initialState, {type, data}: Action<WorkareaActions>): WorkareaState => {
+export default (state: WorkareaState = initialState, {type, data}: Action): WorkareaState => {
   switch (type) {
+    case SignalRActions.Connected:
+      return {...state, connected: true};
+    case SignalRActions.Disconnected:
+      return {...state, connected: false};
     case WorkareaActions.AddWorkspace:
       return {...state, workspaces: {...state.workspaces, [data.id]: data}, activeWorkspace: data.id};
     case WorkareaActions.SetWorkspace:
@@ -69,6 +75,16 @@ export default (state: WorkareaState = initialState, {type, data}: Action<Workar
       return {...state, status: WorkareaStatus.Initializing};
     case WorkareaActions.Initialized:
       return initialize(state, data);
+    case WorkareaActions.LoadingSymbols:
+      return {...state, message: 'Loading Symbols'};
+    case WorkareaActions.LoadingStrategies:
+      return {...state, message: 'Loading Strategies'};
+    case WorkareaActions.LoadingTenors:
+      return {...state, message: 'Loading Tenors'};
+    case WorkareaActions.LoadingMessages:
+      return {...state, message: 'Loading Messages'};
+    case WorkareaActions.LoadingUsersList:
+      return {...state, message: 'Loading User Information'};
     default:
       return state;
   }

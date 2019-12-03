@@ -17,4 +17,6 @@ export interface WorkareaState {
   messages: Message[];
   user?: User;
   status: WorkareaStatus;
+  connected: boolean;
+  message?: string;
 }

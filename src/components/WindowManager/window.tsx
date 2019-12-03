@@ -1,6 +1,6 @@
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {useObjectGrabber} from 'hooks/useObjectGrabber';
-import React, {CSSProperties, ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import React, {CSSProperties, ReactElement, useCallback, useRef} from 'react';
 
 interface OwnProps {
   onGeometryChange: (geometry: ClientRect) => void;
@@ -15,14 +15,14 @@ interface OwnProps {
 
 type Props = React.PropsWithChildren<OwnProps>;
 
-const toStyle = (geometry: ClientRect | undefined, size: { width?: number, height?: number }): CSSProperties | undefined => {
+const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined => {
   if (geometry === undefined)
     return undefined;
   return {
     left: geometry.left,
     top: geometry.top,
-    width: size.width || geometry.width,
-    height: size.height || geometry.height,
+    width: geometry.width,
+    height: geometry.height,
   };
 };
 
@@ -66,8 +66,8 @@ interface Size {
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   const {onGeometryChange, area} = props;
-  const [content, setContent] = useState<HTMLDivElement | null>(null);
-  const [size, setSize] = useState<Size>({});
+  // const [content, setContent] = useState<HTMLDivElement | null>(null);
+  // const [size, setSize] = useState<Size>({});
   // Create a reference to the window container
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
   // Callbacks
@@ -121,14 +121,12 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     // Cleanup ...
     return () => observer.disconnect();
   }, [content]);*/
-  const style: CSSProperties | undefined = toStyle(props.geometry, size);
+  const style: CSSProperties | undefined = toStyle(props.geometry);
   return (
     <div className={classes} ref={container} style={style}>
       <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize}/>
       <div className={'content'} ref={setMoveHandle}>
-        <div style={{display: 'inline-block'}} ref={setContent}>
-          {props.children}
-        </div>
+        {props.children}
       </div>
       <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>
       <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>

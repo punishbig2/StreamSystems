@@ -13,8 +13,10 @@ export enum WorkareaActions {
   CloseWorkspace = 'WorkareaActions.CloseWorkspace',
   RenameWorkspace = 'WorkareaActions.RenameWorkspace',
   SetupTOBTile = 'WorkareaActions.SetupTOBTile',
-  CreatingOrder = 'WorkareaActions.CreatingOrder',
-  OrderCreated = 'WorkareaActions.OrderCreated',
-  OrderCreationFailed = 'WorkareaActions.OrderCreationFailed',
   NoAction = 'WorkareaActions.NoAction',
+  LoadingSymbols = 'WorkareaActions.LoadingSymbols',
+  LoadingStrategies = 'WorkareaActions.LoadingStrategies',
+  LoadingTenors = 'WorkareaActions.LoadingTenors',
+  LoadingMessages = 'WorkareaActions.LoadingMessages',
+  LoadingUsersList = 'WorkareaActions.LoadingUsersList',
 }

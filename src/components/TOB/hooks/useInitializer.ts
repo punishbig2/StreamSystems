@@ -32,9 +32,10 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
   }).sort(compareTenors);
 };
 
-export const useInitializer = (tenors: string[], symbol: string, strategy: string, email: string, fns: InitializerFns) => {
+export const useInitializer = (connected: boolean, tenors: string[], symbol: string, strategy: string, email: string, fns: InitializerFns) => {
   useEffect(() => {
-    if (!symbol || !strategy || symbol === '' || strategy === '')
+    console.log('initializing: ', connected);
+    if (!symbol || !strategy || symbol === '' || strategy === '' || !connected)
       return;
     const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
       object[item.id] = item;
@@ -49,7 +50,7 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
     // Get run-orders too
     fns.getRunOrders(symbol, strategy);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbol, strategy, tenors, email]);
+  }, [connected, symbol, strategy, tenors, email]);
 
 };
 

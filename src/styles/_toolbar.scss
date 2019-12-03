@@ -26,4 +26,20 @@
       margin: 0 0 0 12px;
     }
   }
+
+  .connectivity-indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding: 0 24px;
+    font-size: 13px;
+    font-weight: 600;
+    .disconnected {
+      color: $text-color-red;
+    }
+    .connected {
+      color: $text-color-green;
+    }
+  }
 }
