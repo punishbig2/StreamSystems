@@ -5,7 +5,7 @@ import {Price} from 'components/Table/CellRenderers/Price';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {TOBHandlers} from 'components/TOB/handlers';
+import {TOBData} from 'components/TOB/data';
 import {AggregatedSz} from 'components/TOB/reducer';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
@@ -17,7 +17,7 @@ import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
 
-type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowFunctions;
+type RowType = TOBRow & { handlers: TOBData, user: User, depths: { [key: string]: TOBTable } } & RowFunctions;
 type Type = 'bid' | 'ofr';
 type SetQty = 'setBidQty' | 'setOfrQty';
 
@@ -58,20 +58,20 @@ const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order,
   }
 };
 
-const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey: SetQty, action?: HeaderAction): ColumnSpec => {
+const QtyColumn = (label: string, type: Type, data: TOBData, onChangeKey: SetQty, action?: HeaderAction): ColumnSpec => {
   return {
     name: `${type}-sz`,
-    header: () => <DualTableHeader label={label} action={action}/>,
+    header: () => <DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>,
     render: ({[type]: originalEntry, depths, [onChangeKey]: onChange, user}: RowType) => {
       // Replace the actually quantity with the aggregated quantity if present
-      const order: Order = {...originalEntry, quantity: getAggregatedSize(handlers.aggregatedSz, originalEntry, type)};
+      const order: Order = {...originalEntry, quantity: getAggregatedSize(data.aggregatedSz, originalEntry, type)};
       const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type) | order.status;
       // Return the input item (which in turn also has a X for cancellation)
       return (
         <TOBQty order={{...order, status: status}}
-                onCancel={handlers.onCancelOrder}
+                onCancel={data.onCancelOrder}
                 onChange={onChange}
-                onSubmit={handlers.onQuantityChange}
+                onSubmit={data.onQuantityChange}
                 user={user}/>
       );
     },
@@ -80,10 +80,10 @@ const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey
 };
 
 const isNonEmpty = (order: Order) => order.price !== null && order.quantity !== null;
-const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: HeaderAction): ColumnSpec => {
+const VolColumn = (data: TOBData, label: string, type: Type, action: HeaderAction): ColumnSpec => {
   return ({
     name: `${type}-vol`,
-    header: () => <DualTableHeader label={label} action={action}/>,
+    header: () => <DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>,
     render: (row: RowType) => {
       const {[type]: order, depths} = row;
       const bid: Order | undefined = type === 'ofr' ? row.bid : undefined;
@@ -92,11 +92,11 @@ const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: Hea
       return (
         <TOBPrice depths={depths}
                   order={{...order, status}}
-                  onChange={handlers.onOrderModified}
+                  onChange={data.onOrderModified}
                   min={bid ? bid.price : undefined}
                   max={ofr ? ofr.price : undefined}
-                  onDoubleClick={isNonEmpty(order) ? handlers.onDoubleClick : undefined}
-                  onUpdate={handlers.onUpdateOrder}/>
+                  onDoubleClick={isNonEmpty(order) ? data.onDoubleClick : undefined}
+                  onUpdate={data.onUpdateOrder}/>
       );
     },
     weight: 3,
@@ -124,7 +124,7 @@ const DarkPoolColumn: ColumnSpec = {
   weight: 3,
 };
 
-const TenorColumn = (handlers: TOBHandlers): ColumnSpec => ({
+const TenorColumn = (handlers: TOBData): ColumnSpec => ({
   name: 'tenor',
   header: () => <DualTableHeader label={''}/>,
   render: ({tenor}: RowType) => (
@@ -133,7 +133,7 @@ const TenorColumn = (handlers: TOBHandlers): ColumnSpec => ({
   weight: 1,
 });
 
-const columns = (handlers: TOBHandlers): ColumnSpec[] => [
+const columns = (handlers: TOBData): ColumnSpec[] => [
   TenorColumn(handlers),
   QtyColumn(strings.BidSz, 'bid', handlers, 'setBidQty'),
   VolColumn(handlers, strings.BidPx, 'bid', {fn: handlers.onRefBidsButtonClicked, label: strings.RefBids}),

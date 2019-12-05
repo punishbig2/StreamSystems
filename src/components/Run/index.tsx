@@ -106,7 +106,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     }
     return parent as Element;
   };
-  const skipTabIndex = (target: HTMLInputElement, n: number) => {
+  const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number = 0) => {
     const parent: Element | null = getNthParentOf(target, 4);
     if (parent !== null) {
       const inputs: HTMLInputElement[] = Array.from(parent.querySelectorAll('input:not([tabindex="-1"])'));
@@ -114,10 +114,14 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       if (startAt === -1)
         return;
       const next: HTMLInputElement = inputs[startAt + n];
-      if (!next)
-        return;
-      // Now just focus the input
-      next.focus();
+      if (next) {
+        // Now just focus the input
+        next.focus();
+      } else {
+        if (inputs[cycle]) {
+          inputs[cycle].focus();
+        }
+      }
     }
   };
 
@@ -164,16 +168,16 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     focusNext: (target: HTMLInputElement, action: RunActions) => {
       switch (action) {
         case RunActions.Bid:
-          skipTabIndex(target, 1);
+          skipTabIndex(target, 1, 0);
           break;
         case RunActions.Spread:
-          skipTabIndex(target, 4);
+          skipTabIndex(target, 4, 3);
           break;
         case RunActions.Ofr:
-          skipTabIndex(target, 3);
+          skipTabIndex(target, 3, 0);
           break;
         case RunActions.Mid:
-          skipTabIndex(target, 4);
+          skipTabIndex(target, 4, 2);
           break;
       }
     },

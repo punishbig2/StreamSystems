@@ -4,7 +4,7 @@ import {Price} from 'components/Table/CellRenderers/Price';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {TOBHandlers} from 'components/TOB/handlers';
+import {TOBData} from 'components/TOB/data';
 import {RowFunctions} from 'components/TOB/rowFunctions';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
@@ -15,9 +15,9 @@ import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
 
-type RowType = TOBRow & { handlers: TOBHandlers, user: User, depths: { [key: string]: TOBTable } } & RowFunctions;
+type RowType = TOBRow & { handlers: TOBData, user: User, depths: { [key: string]: TOBTable } } & RowFunctions;
 
-const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
+const columns = (handlers: TOBData): ColumnSpec[] => [{
   name: 'tenor',
   header: () => <span>&nbsp;</span>,
   render: ({tenor}: RowType) => (

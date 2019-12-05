@@ -1,4 +1,4 @@
-import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
+import {HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
 import config from 'config';
 import {Message} from 'interfaces/message';
 import {W} from 'interfaces/w';
@@ -40,7 +40,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   static createConnection = () => new HubConnectionBuilder()
-    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.ServerSentEvents)
+    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`)
     .withAutomaticReconnect([5, 60, 120])
     .configureLogging(LogLevel.None)
     .build()

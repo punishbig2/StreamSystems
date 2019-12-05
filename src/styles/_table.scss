@@ -160,8 +160,11 @@ $table-font-family: 'Roboto', sans-serif;
               border-radius: 4px;
               border-bottom: 2px solid $primary-dark-color;
 
-              &:active {
+              &:not(:disabled):active {
                 transform: translateY(1px);
+              }
+              &:disabled {
+                opacity: 0.5;
               }
             }
           }

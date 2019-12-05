@@ -46,7 +46,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const canSubmit: boolean = price !== null && quantity !== null;
   const presetQty: string[] = ['30', '50', '100'];
   const presetQtyButtonMapper = (value: string) => (
-    <button type={'button'} onClick={() => setQuantity(value)}>{value}</button>
+    <button key={value} type={'button'} onClick={() => setQuantity(value)}>{value}</button>
   );
   return (
     <ModalContent>

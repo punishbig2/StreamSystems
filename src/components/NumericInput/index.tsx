@@ -18,7 +18,6 @@ interface Props {
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   const {onReturnPressed, onTabbedOut, onNavigate, ...otherProps} = props;
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    console.log(event.key);
     switch (event.key) {
       case 'Enter':
         if (onReturnPressed) {

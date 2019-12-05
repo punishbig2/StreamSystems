@@ -1,8 +1,8 @@
+import {AggregatedSz} from 'components/TOB/reducer';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {AggregatedSz} from 'components/TOB/reducer';
 
-export interface TOBHandlers {
+export interface TOBData {
   onTenorSelected: (tenor: string) => void;
   onDoubleClick: (type: EntryTypes, data: any) => void;
   onRunButtonClicked: () => void;
@@ -13,4 +13,5 @@ export interface TOBHandlers {
   onUpdateOrder: (entry: Order) => void;
   onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
   aggregatedSz?: AggregatedSz;
+  buttonsEnabled: boolean;
 }

@@ -4,7 +4,7 @@ import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
 import {Table} from 'components/Table';
-import {TOBHandlers} from 'components/TOB/handlers';
+import {TOBData} from 'components/TOB/data';
 import {useDepthEmitter} from 'components/TOB/hooks/useDepthEmitter';
 import {useInitializer} from 'components/TOB/hooks/useInitializer';
 import {useSubscriber} from 'components/TOB/hooks/useSubscriber';
@@ -136,9 +136,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   useSubscriber(rows, connected, symbol, strategy, subscribe);
   // Handler methods
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
-  console.log('rendering table...');
 
-  const handlers: TOBHandlers = {
+  const handlers: TOBData = {
     onUpdateOrder: (entry: Order) => {
       updateOrder(entry);
     },
@@ -203,6 +202,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
     },
     aggregatedSz: state.aggregatedSz,
+    buttonsEnabled: props.symbol !== '' && props.strategy !== '',
   };
 
   const renderOrderTicket = () => {

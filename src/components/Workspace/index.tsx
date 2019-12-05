@@ -4,7 +4,7 @@ import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
-import React, {ReactElement} from 'react';
+import React, {ReactElement, useEffect, useState} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {
@@ -68,8 +68,40 @@ const createWindow = (id: string, type: WindowTypes, symbols: Currency[], produc
 };
 
 const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [startShowingToolbar, setStartShowingToolbar] = useState<boolean>(false);
+  const [toolbarVisible, setToolbarVisible] = useState<boolean>(false);
   const {symbols, products, tenors} = props;
   const user: User = getAuthenticatedUser();
+
+  useEffect(() => {
+    if (container === null)
+      return;
+    const onMouseMove = (event: MouseEvent) => {
+      if (event.clientY < 48) {
+        event.stopPropagation();
+        event.preventDefault();
+        setStartShowingToolbar(true);
+      } else {
+        setStartShowingToolbar(false);
+      }
+    };
+    container.addEventListener('mousemove', onMouseMove, true);
+    return () => container.removeEventListener('mousemove', onMouseMove, true);
+  }, [container]);
+
+  useEffect(() => {
+    if (!startShowingToolbar) {
+      setToolbarVisible(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setToolbarVisible(true);
+    }, 800);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [startShowingToolbar]);
 
   const addWindow = (type: WindowTypes) => {
     switch (type) {
@@ -95,7 +127,7 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
 
   return (
     <React.Fragment>
-      <div className={'toolbar'}>
+      <div className={'toolbar' + (toolbarVisible ? ' visible' : '')}>
         <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
         <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
         <div className={'connectivity-indicator'}>
@@ -103,14 +135,16 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
             <div className={'disconnected'}>Disconnected</div>}
         </div>
       </div>
-      <WindowManager
-        windows={props.windows}
-        renderContent={renderContent}
-        onSetWindowTitle={props.setWindowTitle}
-        onGeometryChange={props.updateGeometry}
-        onWindowClosed={props.removeWindow}
-        onWindowMinimized={props.minimizeWindow}
-        onWindowRestored={props.restoreWindow}/>
+      <div ref={setContainer}>
+        <WindowManager
+          windows={props.windows}
+          renderContent={renderContent}
+          onSetWindowTitle={props.setWindowTitle}
+          onGeometryChange={props.updateGeometry}
+          onWindowClosed={props.removeWindow}
+          onWindowMinimized={props.minimizeWindow}
+          onWindowRestored={props.restoreWindow}/>
+      </div>
     </React.Fragment>
   );
 });
