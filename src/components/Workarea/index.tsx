@@ -11,6 +11,7 @@ import {
   addWorkspaces,
   closeWorkspace,
   initialize,
+  loadMessages,
   renameWorkspace,
   setWorkspaces,
 } from 'redux/actions/workareaActions';
@@ -27,6 +28,7 @@ interface DispatchProps {
   closeWorkspace: typeof closeWorkspace;
   addWindow: typeof addWindow;
   initialize: typeof initialize;
+  loadMessages: typeof loadMessages;
 }
 
 type Props = OwnProps & WorkareaState & DispatchProps;
@@ -40,6 +42,7 @@ const mapDispatchToProps: DispatchProps = {
   renameWorkspace: renameWorkspace,
   closeWorkspace: closeWorkspace,
   addWindow: addWindow,
+  loadMessages: loadMessages,
   initialize: initialize,
 };
 
@@ -51,14 +54,17 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const {symbols, products, tenors, initialize} = props;
-  const {workspaces} = props;
+  const {workspaces, lastInitializationTimestamp, loadMessages} = props;
   const {CloseWorkspace} = strings;
   // Active workspace
   const active: string | null = props.activeWorkspace;
   // componentDidMount equivalent
   useEffect((): void => {
-    initialize(props.lastInitializationTimestamp);
+    initialize();
   }, [initialize]);
+  useEffect(() => {
+    loadMessages(lastInitializationTimestamp);
+  }, [loadMessages, lastInitializationTimestamp]);
 
   const renderCloseQuestion = () => <Question {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>;
   const cancelCloseWorkspace = () => setSelectedToClose(null);

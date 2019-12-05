@@ -86,9 +86,19 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   }, createAction($$(id, TOBActions.CancelAllOrders)));
 };
 
-export const updateOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {
+export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
+  if (order.type === EntryTypes.Ofr) {
+    return createAction($$(toRowId(order.tenor, order.symbol, order.strategy), RowActions.UpdateOfr), order);
+  } else if (order.type === EntryTypes.Bid) {
+    return createAction($$(toRowId(order.tenor, order.symbol, order.strategy), RowActions.UpdateBid), order);
+  } else {
+    throw new Error('what the hell should I do?');
+  }
+};
+
+export const updateOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.updateOrder(entry);
+    const result = await API.updateOrder(order);
     if (result.Status === 'Success') {
       return createAction($$(id, TOBActions.OrderUpdated));
     } else {
@@ -97,7 +107,7 @@ export const updateOrder = (id: string, entry: Order): AsyncAction<any, ActionTy
   }, createAction($$(id, TOBActions.UpdatingOrder)));
 };
 
-export const setRowStatus = (id: string, symbol: string, strategy: string, tenor: string, status: TOBRowStatus): Action<any> => {
+export const setRowStatus = (id: string, symbol: string, strategy: string, tenor: string, status: TOBRowStatus): Action<string> => {
   return createAction($$(toRowId(tenor, symbol, strategy), RowActions.SetRowStatus), status);
 };
 

@@ -92,7 +92,7 @@ const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: Hea
       return (
         <TOBPrice depths={depths}
                   order={{...order, status}}
-                  onChange={handlers.onPriceChange}
+                  onChange={handlers.onOrderModified}
                   min={bid ? bid.price : undefined}
                   max={ofr ? ofr.price : undefined}
                   onDoubleClick={isNonEmpty(order) ? handlers.onDoubleClick : undefined}

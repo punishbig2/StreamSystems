@@ -36,7 +36,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'bid-vol',
   header: () => strings.BidPx,
   render: ({bid, depths}: RowType) => (
-    <TOBPrice depths={depths} order={bid} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
+    <TOBPrice depths={depths} order={bid} onChange={handlers.onOrderModified} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,
@@ -58,7 +58,7 @@ const columns = (handlers: TOBHandlers): ColumnSpec[] => [{
   name: 'ofr-vol',
   header: () => strings.OfrPx,
   render: ({ofr, depths}: RowType) => (
-    <TOBPrice depths={depths} order={ofr} onChange={handlers.onPriceChange} onDoubleClick={handlers.onDoubleClick}
+    <TOBPrice depths={depths} order={ofr} onChange={handlers.onOrderModified} onDoubleClick={handlers.onDoubleClick}
               onUpdate={handlers.onUpdateOrder}/>
   ),
   weight: 3,

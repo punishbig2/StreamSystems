@@ -31,7 +31,17 @@ const toCurrencyWeight = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
 };
 
-export const initialize = (lastInitializationTimestamp?: string): AsyncAction<AnyAction> => {
+export const loadMessages = (lastInitializationTimestamp?: string): AsyncAction<AnyAction> => {
+  const handler = async (): Promise<AnyAction[]> => {
+    const messages: Message[] = await API.getMessagesSnapshot(lastInitializationTimestamp);
+    return [
+      createAction(MessageBlotterActions.Initialize, messages),
+    ];
+  };
+  return new AsyncAction(handler, createAction(WorkareaActions.LoadingMessages));
+};
+
+export const initialize = (): AsyncAction<AnyAction> => {
   const handler = async (dispatch?: Dispatch<AnyAction>): Promise<AnyAction[]> => {
     if (!dispatch)
       throw new Error('this handler must receive a dispatch function');
@@ -44,9 +54,6 @@ export const initialize = (lastInitializationTimestamp?: string): AsyncAction<An
     dispatch(createAction(WorkareaActions.LoadingTenors));
     const tenors: string[] = await API.getTenors();
 
-    dispatch(createAction(WorkareaActions.LoadingMessages));
-    const messages: Message[] = await API.getMessagesSnapshot(lastInitializationTimestamp);
-
     dispatch(createAction(WorkareaActions.LoadingUsersList));
     const users: any[] = await API.getUsers();
     // Sort symbols
@@ -54,9 +61,7 @@ export const initialize = (lastInitializationTimestamp?: string): AsyncAction<An
       return toCurrencyWeight(a.name) - toCurrencyWeight(b.name);
     });
     return [
-      createAction(WorkareaActions.Initialized, {symbols, products, tenors, messages, users}),
-      // If there are anu W Blotter windows update them
-      createAction(MessageBlotterActions.Initialize, messages),
+      createAction(WorkareaActions.Initialized, {symbols, products, tenors, users}),
     ];
   };
   return new AsyncAction(handler, createAction(WorkareaActions.Initializing));

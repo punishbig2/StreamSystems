@@ -137,8 +137,11 @@ export const toTOBRow = (w: W): TOBRow => {
 export const extractDepth = (w: W): TOBTable => {
   const entries: MDEntry[] = w.Entries;
   const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
-  const offers: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ofr);
+  const ofrs: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ofr);
+  // Sort bids
+  bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));
+  ofrs.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));
   // Change the shape of this thing
-  return reshape(w, bids, offers);
+  return reshape(w, bids, ofrs);
 };
 

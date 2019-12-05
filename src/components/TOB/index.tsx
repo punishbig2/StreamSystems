@@ -32,6 +32,7 @@ import {
   setRowStatus,
   subscribe,
   updateOrder,
+  updateOrderQuantity,
 } from 'redux/actions/tobActions';
 import {ApplicationState} from 'redux/applicationState';
 import {TOBActions} from 'redux/constants/tobConstants';
@@ -57,12 +58,13 @@ interface DispatchProps {
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (entry: Order) => void;
-  cancelOrder: (entry: Order) => void;
+  createOrder: (order: Order) => void;
+  cancelOrder: (order: Order) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;
   getRunOrders: (symbol: string, strategy: string) => void;
   setRowStatus: (symbol: string, strategy: string, tenor: string, status: TOBRowStatus) => void;
+  updateOrderQuantity: (order: Order) => void;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
@@ -77,6 +79,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   cancelAll: (symbol: string, strategy: string, side: Sides) => dispatch(cancelAll(id, symbol, strategy, side)),
   updateOrder: (entry: Order) => dispatch(updateOrder(id, entry)),
   getRunOrders: (symbol: string, strategy: string) => dispatch(getRunOrders(id, symbol, strategy)),
+  updateOrderQuantity: (order: Order) => dispatch(updateOrderQuantity(id, order)),
   setRowStatus: (symbol: string, strategy: string, tenor: string, status: TOBRowStatus) =>
     dispatch(setRowStatus(id, symbol, strategy, tenor, status)),
 });
@@ -158,13 +161,13 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefOfrsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Sell);
     },
-    onPriceChange: (order: Order) => {
+    onOrderModified: (order: Order) => {
       if (order.price === InvalidPrice) {
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.BidGreaterThanOfrError);
-      } else if ((order.status & OrderStatus.Owned) === 0) {
-        if (order.quantity === null && order.price !== null) {
+      } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
+        if (order.quantity === null) {
           createOrder({...order, quantity: 10});
-        } else if (order.quantity !== null && order.price !== null) {
+        } else {
           createOrder(order);
         }
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
@@ -172,7 +175,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
         if (order.quantity !== null || order.price === null)
           return;
-        createOrder({...order, quantity: 10});
+        createOrder(order);
       }
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
@@ -188,13 +191,15 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         cancelOrder(order);
       }
     },
-    onQuantityChange: (entry: Order, newQuantity: number) => {
-      if (entry.quantity === null)
-        return;
-      if (entry.quantity > newQuantity) {
-        updateOrder({...entry, quantity: newQuantity});
-      } else if (entry.quantity < newQuantity) {
-        createOrder({...entry, quantity: newQuantity - entry.quantity});
+    onQuantityChange: (order: Order, newQuantity: number) => {
+      if (order.quantity === null) {
+        props.updateOrderQuantity({...order, quantity: newQuantity});
+      } else {
+        if (order.quantity > newQuantity) {
+          updateOrder({...order, quantity: newQuantity});
+        } else if (order.quantity < newQuantity) {
+          createOrder({...order, quantity: newQuantity - order.quantity});
+        }
       }
     },
     aggregatedSz: state.aggregatedSz,
