@@ -31,7 +31,7 @@ const toCurrencyWeight = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
 };
 
-export const initialize = (): AsyncAction<AnyAction> => {
+export const initialize = (lastInitializationTimestamp?: string): AsyncAction<AnyAction> => {
   const handler = async (dispatch?: Dispatch<AnyAction>): Promise<AnyAction[]> => {
     if (!dispatch)
       throw new Error('this handler must receive a dispatch function');
@@ -45,7 +45,7 @@ export const initialize = (): AsyncAction<AnyAction> => {
     const tenors: string[] = await API.getTenors();
 
     dispatch(createAction(WorkareaActions.LoadingMessages));
-    const messages: Message[] = await API.getMessagesSnapshot();
+    const messages: Message[] = await API.getMessagesSnapshot(lastInitializationTimestamp);
 
     dispatch(createAction(WorkareaActions.LoadingUsersList));
     const users: any[] = await API.getUsers();

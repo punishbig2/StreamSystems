@@ -50,9 +50,10 @@ const initialize = (state: WorkareaState, data: any): WorkareaState => {
   const urlParameters: URLSearchParams = new URLSearchParams(location.search);
   const email: string | null = urlParameters.get('user');
   const user: User | undefined = users.find((user: User): boolean => user.email === email);
+  const now: string = (Date.now() / 1000).toString();
   if (!user)
-    return {...state, status: WorkareaStatus.UserNotFound};
-  return {...state, ...rest, user, status: WorkareaStatus.Ready};
+    return {...state, status: WorkareaStatus.UserNotFound, lastInitializationTimestamp: now};
+  return {...state, ...rest, user, status: WorkareaStatus.Ready, lastInitializationTimestamp: now};
 };
 
 export default (state: WorkareaState = initialState, {type, data}: Action): WorkareaState => {

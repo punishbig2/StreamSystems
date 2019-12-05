@@ -35,18 +35,22 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   name: 'bid-price',
   header: () => <div>{strings.Bid}</div>,
   render: ({id, bid}: RowType) => (
-    <Price value={bid.price} onChange={(price: number | null) => handlers.onBidChanged(id, price)}
+    <Price value={bid.price}
+           onChange={(price: number | null) => handlers.onBidChanged(id, price)}
            arrow={ArrowDirection.None} status={bid.status}
-           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Bid)}/>
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Bid)}
+           onNavigate={handlers.onNavigate}/>
   ),
   weight: 4,
 }, {
   name: 'ofr-price',
   header: () => <div>{strings.Ofr}</div>,
   render: ({id, ofr}: RowType) => (
-    <Price value={ofr.price} onChange={(price: number | null) => handlers.onOfrChanged(id, price)}
+    <Price value={ofr.price}
+           onChange={(price: number | null) => handlers.onOfrChanged(id, price)}
            arrow={ArrowDirection.None} status={ofr.status}
-           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Ofr)}/>
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Ofr)}
+           onNavigate={handlers.onNavigate}/>
   ),
   weight: 4,
 }, {
@@ -64,9 +68,11 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   name: 'mid',
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
-    <Price value={mid} onChange={(value: number | null) => handlers.onMidChanged(id, value)}
+    <Price value={mid}
+           onChange={(value: number | null) => handlers.onMidChanged(id, value)}
            className={'mid'} arrow={ArrowDirection.None} status={OrderStatus.None}
-           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Mid)}/>
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Mid)}
+           onNavigate={handlers.onNavigate}/>
   ),
   weight: 4,
 }, {
@@ -74,8 +80,11 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => (
     <Price value={spread} onChange={(value: number | null) => handlers.onSpreadChanged(id, value)}
-           className={'spread'} arrow={ArrowDirection.None} status={OrderStatus.None}
-           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Spread)}/>
+           className={'spread'}
+           arrow={ArrowDirection.None}
+           status={OrderStatus.None}
+           onTabbedOut={(target: HTMLInputElement) => handlers.focusNext(target, RunActions.Spread)}
+           onNavigate={handlers.onNavigate}/>
   ),
   weight: 4,
 }];

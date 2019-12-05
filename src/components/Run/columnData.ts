@@ -1,4 +1,5 @@
 import {RunActions} from 'components/Run/enumerator';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {EntryTypes} from 'interfaces/mdEntry';
 
 export interface QtyHeader {
@@ -19,4 +20,5 @@ export interface RunColumnData {
   defaultOfrQty: QtyHeader;
   defaultBidQty: QtyHeader;
   focusNext: (target: HTMLInputElement, action: RunActions) => void;
+  onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
 }

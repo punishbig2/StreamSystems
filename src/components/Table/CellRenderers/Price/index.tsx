@@ -1,4 +1,4 @@
-import {TableInput} from 'components/NumericInput';
+import {NumericInput} from 'components/NumericInput';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
 import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
@@ -12,6 +12,7 @@ import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {InvalidPrice} from 'interfaces/tobRow';
@@ -37,6 +38,7 @@ export interface Props {
   onTabbedOut?: (input: HTMLInputElement) => void;
   min?: number | null;
   max?: number | null;
+  onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -159,7 +161,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
          onMouseMove={onMouseMove}>
       <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
-      <TableInput
+      <NumericInput
         tabIndex={props.tabIndex}
         value={finalValue}
         onDoubleClick={onDoubleClick}

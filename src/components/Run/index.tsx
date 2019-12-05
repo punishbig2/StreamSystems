@@ -1,4 +1,5 @@
 import createColumns from 'columns/run';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {RunActions} from 'components/Run/enumerator';
 import {useDeleteAllListener} from 'components/Run/hooks/useDeleteAllListener';
 import {useInitializer} from 'components/Run/hooks/useInitializer';
@@ -143,6 +144,18 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       value: state.defaultOfrQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultOfrQty, value)),
       type: EntryTypes.Ofr,
+    },
+    onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
+      switch (direction) {
+        case NavigateDirection.Up:
+          break;
+        case NavigateDirection.Left:
+          break;
+        case NavigateDirection.Down:
+          break;
+        case NavigateDirection.Right:
+          break;
+      }
     },
     focusNext: (target: HTMLInputElement, action: RunActions) => {
       switch (action) {

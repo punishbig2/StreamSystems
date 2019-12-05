@@ -120,8 +120,9 @@ export class API {
     return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
   }
 
-  static getUrl(section: string, object: Endpoints, verb: Verb): string {
-    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
+  static getUrl(section: string, object: Endpoints, verb: Verb, query?: any): string {
+    const queryString: string = query ? toQuery(query) : '';
+    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}${queryString}`;
   }
 
   static getSymbols(): Promise<Currency[]> {
@@ -219,9 +220,13 @@ export class API {
     return get<W | null>(url);
   }
 
-  static async getMessagesSnapshot(): Promise<Message[]> {
+  static async getMessagesSnapshot(lastInitializationTimestamp?: string): Promise<Message[]> {
     try {
-      return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get'));
+      if (lastInitializationTimestamp) {
+        return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get', {timestamp: lastInitializationTimestamp}));
+      } else {
+        return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get'));
+      }
     } catch (error) {
       return [];
     }

@@ -1,4 +1,4 @@
-import {TableInput} from 'components/NumericInput';
+import {NumericInput} from 'components/NumericInput';
 import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {EntryTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
@@ -33,8 +33,8 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
     return value.toString();
   };
   const children: ReactNode[] = [
-    <TableInput key={1} value={getValue()} tabIndex={-1} className={props.className}
-                onChange={(value: string) => props.onChange(value)} onBlur={props.onBlur}/>,
+    <NumericInput key={1} value={getValue()} tabIndex={-1} className={props.className}
+                  onChange={(value: string) => props.onChange(value)} onBlur={props.onBlur}/>,
   ];
 
   if (props.cancelable)

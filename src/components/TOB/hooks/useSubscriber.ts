@@ -9,8 +9,6 @@ export const useSubscriber = (
   symbol: string,
   strategy: string,
   subscribe: Subscriber,
-  getRunOrders: (symbol: string, strategy: string) => any,
-  getSnapshot: (symbol: string, strategy: string, tenor: string) => void,
 ) => {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -20,13 +18,10 @@ export const useSubscriber = (
       if (connected) {
         // Subscribe to symbol/strategy/tenor combination
         array.forEach(({tenor}: TOBRow) => {
-          getSnapshot(symbol, strategy, tenor);
           subscribe(symbol, strategy, tenor);
         });
       }
-      // Get run-orders too
-      getRunOrders(symbol, strategy);
     }, 5000);
     return () => clearTimeout(timer);
-  }, [connected, rows, strategy, symbol, subscribe, getRunOrders, getSnapshot]);
+  }, [connected, rows, strategy, symbol, subscribe]);
 };

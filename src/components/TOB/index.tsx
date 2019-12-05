@@ -128,9 +128,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol, strategy, insertDepth);
   // Initialize tile/window
-  useInitializer(tenors, symbol, strategy, email, props.initialize);
+  useInitializer(tenors, symbol, strategy, email, props.initialize, props.getSnapshot, props.getRunOrders);
   // Subscribe to signal-r
-  useSubscriber(rows, connected, symbol, strategy, subscribe, props.getRunOrders, props.getSnapshot);
+  useSubscriber(rows, connected, symbol, strategy, subscribe);
   // Handler methods
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
   console.log('rendering table...');

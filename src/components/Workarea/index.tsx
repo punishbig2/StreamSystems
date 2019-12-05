@@ -57,7 +57,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
   const active: string | null = props.activeWorkspace;
   // componentDidMount equivalent
   useEffect((): void => {
-    initialize();
+    initialize(props.lastInitializationTimestamp);
   }, [initialize]);
 
   const renderCloseQuestion = () => <Question {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>;
