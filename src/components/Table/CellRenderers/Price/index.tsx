@@ -1,4 +1,5 @@
 import {NumericInput} from 'components/NumericInput';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
 import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
@@ -12,7 +13,6 @@ import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {InvalidPrice} from 'interfaces/tobRow';
@@ -170,7 +170,8 @@ export const Price: React.FC<Props> = (props: Props) => {
         onChange={onChange}
         onFocus={onFocus}
         onTabbedOut={props.onTabbedOut}
-        className={getInputClass(state.status, props.className)}/>
+        className={getInputClass(state.status, props.className)}
+        onNavigate={props.onNavigate}/>
       {/* The floating object */}
       {getTooltip()}
     </div>

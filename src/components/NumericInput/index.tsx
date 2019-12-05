@@ -16,8 +16,9 @@ interface Props {
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onReturnPressed, onTabbedOut, ...otherProps} = props;
+  const {onReturnPressed, onTabbedOut, onNavigate, ...otherProps} = props;
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log(event.key);
     switch (event.key) {
       case 'Enter':
         if (onReturnPressed) {
@@ -32,20 +33,24 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         }
         break;
       case 'ArrowUp':
-        if (props.onNavigate)
-          props.onNavigate(event.target as HTMLInputElement, NavigateDirection.Up);
+        if (onNavigate)
+          onNavigate(event.target as HTMLInputElement, NavigateDirection.Up);
+        event.preventDefault();
         break;
       case 'ArrowLeft':
-        if (props.onNavigate)
-          props.onNavigate(event.target as HTMLInputElement, NavigateDirection.Left);
+        if (onNavigate)
+          onNavigate(event.target as HTMLInputElement, NavigateDirection.Left);
+        event.preventDefault();
         break;
       case 'ArrowDown':
-        if (props.onNavigate)
-          props.onNavigate(event.target as HTMLInputElement, NavigateDirection.Down);
+        if (onNavigate)
+          onNavigate(event.target as HTMLInputElement, NavigateDirection.Down);
+        event.preventDefault();
         break;
       case 'ArrowRight':
-        if (props.onNavigate)
-          props.onNavigate(event.target as HTMLInputElement, NavigateDirection.Right);
+        if (onNavigate)
+          onNavigate(event.target as HTMLInputElement, NavigateDirection.Right);
+        event.preventDefault();
         break;
     }
   };

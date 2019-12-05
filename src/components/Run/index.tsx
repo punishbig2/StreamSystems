@@ -148,12 +148,16 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
+          skipTabIndex(target, -4);
           break;
         case NavigateDirection.Left:
+          skipTabIndex(target, -1);
           break;
         case NavigateDirection.Down:
+          skipTabIndex(target, 4);
           break;
         case NavigateDirection.Right:
+          skipTabIndex(target, 1);
           break;
       }
     },
