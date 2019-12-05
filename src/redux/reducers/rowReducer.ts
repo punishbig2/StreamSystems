@@ -10,6 +10,7 @@ const genesisState: RowState = {
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
   return (state: RowState = initialState, {type, data}: Action<RowActions>): RowState => {
     const {row} = state;
+    const {ofr, bid} = row;
     switch (type) {
       case $$(id, RowActions.Remove):
         if (data === '2') {
@@ -22,13 +23,19 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.Update):
         return {...state, row: data};
       case $$(id, RowActions.SetOfferPrice):
-        return {...state, row: {...row, ofr: {...row.ofr, price: data}}};
+        if (bid.price > data)
+          return state;
+        return {...state, row: {...row, ofr: {...ofr, price: data}}};
       case $$(id, RowActions.SetOfferQuantity):
-        return {...state, row: {...row, ofr: {...row.ofr, quantity: data}}};
+        return {...state, row: {...row, ofr: {...ofr, quantity: data}}};
       case $$(id, RowActions.SetBidPrice):
-        return {...state, row: {...row, bid: {...row.bid, price: data}}};
+        if (ofr.price < data)
+          return state;
+        return {...state, row: {...row, bid: {...bid, price: data}}};
       case $$(id, RowActions.SetBidQuantity):
-        return {...state, row: {...row, bid: {...row.bid, quantity: data}}};
+        return {...state, row: {...row, bid: {...bid, quantity: data}}};
+      case $$(id, RowActions.SetRowStatus):
+        return {...state, row: {...row, status: data}};
       default:
         return state;
     }

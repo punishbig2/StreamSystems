@@ -146,13 +146,17 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     },
     focusNext: (target: HTMLInputElement, action: RunActions) => {
       switch (action) {
-        case RunActions.Mid:
         case RunActions.Bid:
           skipTabIndex(target, 1);
           break;
         case RunActions.Spread:
+          skipTabIndex(target, 4);
+          break;
         case RunActions.Ofr:
           skipTabIndex(target, 3);
+          break;
+        case RunActions.Mid:
+          skipTabIndex(target, 4);
           break;
       }
     },

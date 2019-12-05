@@ -33,8 +33,8 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
-    connection.serverTimeoutInMilliseconds = 60000;
-    connection.keepAliveIntervalInMilliseconds = 15000;
+    connection.serverTimeoutInMilliseconds = 3600000;
+    connection.keepAliveIntervalInMilliseconds = 5000;
     // Export to class wide variable
     this.connection = connection;
   }

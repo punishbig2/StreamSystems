@@ -5,4 +5,5 @@ export enum RowActions {
   SetOfferPrice = 'RowActions.SetOfferPrice',
   SetBidQuantity = 'RowActions.SetBidQuantity',
   SetBidPrice = 'RowActions.SetBidPrice',
+  SetRowStatus = 'RowActions.SetRowStatus',
 }

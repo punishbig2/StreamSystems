@@ -16,7 +16,7 @@ import {Currency} from 'interfaces/currency';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {TOBRow} from 'interfaces/tobRow';
+import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import React, {ReactElement, useEffect, useReducer, useState} from 'react';
@@ -29,6 +29,7 @@ import {
   createOrder,
   getRunOrders,
   getSnapshot,
+  setRowStatus,
   subscribe,
   updateOrder,
 } from 'redux/actions/tobActions';
@@ -61,6 +62,7 @@ interface DispatchProps {
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;
   getRunOrders: (symbol: string, strategy: string) => void;
+  setRowStatus: (symbol: string, strategy: string, tenor: string, status: TOBRowStatus) => void;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
@@ -75,6 +77,8 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   cancelAll: (symbol: string, strategy: string, side: Sides) => dispatch(cancelAll(id, symbol, strategy, side)),
   updateOrder: (entry: Order) => dispatch(updateOrder(id, entry)),
   getRunOrders: (symbol: string, strategy: string) => dispatch(getRunOrders(id, symbol, strategy)),
+  setRowStatus: (symbol: string, strategy: string, tenor: string, status: TOBRowStatus) =>
+    dispatch(setRowStatus(id, symbol, strategy, tenor, status)),
 });
 
 const nextSlice = (applicationState: ApplicationState, props: OwnProps): WindowState & RunState => {
@@ -124,13 +128,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol, strategy, insertDepth);
   // Initialize tile/window
-  useInitializer(connected, tenors, symbol, strategy, email, props);
+  useInitializer(tenors, symbol, strategy, email, props.initialize);
   // Subscribe to signal-r
-  useSubscriber(rows, connected, symbol, strategy, subscribe);
-  console.log('rendering me');
-
+  useSubscriber(rows, connected, symbol, strategy, subscribe, props.getRunOrders, props.getSnapshot);
   // Handler methods
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
+  console.log('rendering table...');
 
   const handlers: TOBHandlers = {
     onUpdateOrder: (entry: Order) => {
@@ -155,20 +158,21 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefOfrsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Sell);
     },
-    onPriceChange: (entry: Order) => {
-      // The price was cleared most likely
-      if (entry.price === null)
-        return;
-      if ((entry.status & OrderStatus.Owned) === 0) {
-        if (entry.quantity === null) {
-          createOrder({...entry, quantity: 10});
-        } else {
-          createOrder(entry);
+    onPriceChange: (order: Order) => {
+      if (order.price === InvalidPrice) {
+        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.BidGreaterThanOfrError);
+      } else if ((order.status & OrderStatus.Owned) === 0) {
+        if (order.quantity === null && order.price !== null) {
+          createOrder({...order, quantity: 10});
+        } else if (order.quantity !== null && order.price !== null) {
+          createOrder(order);
         }
+        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
       } else {
-        if (entry.quantity !== null || entry.price === null)
+        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
+        if (order.quantity !== null || order.price === null)
           return;
-        createOrder({...entry, quantity: 10});
+        createOrder({...order, quantity: 10});
       }
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {

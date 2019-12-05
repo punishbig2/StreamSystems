@@ -154,7 +154,6 @@ const removeOrder = (state: State, id: string) => {
 const isValidUpdate = (bid: Order, ofr: Order) => {
   if (bid.price === null || ofr.price === null)
     return true;
-  console.log(bid.price, ofr.price);
   return bid.price < ofr.price;
 };
 

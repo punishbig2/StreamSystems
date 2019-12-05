@@ -11,6 +11,8 @@ interface Props {
   onUpdate: (order: Order) => void;
   onDoubleClick?: (type: EntryTypes, order: Order) => void;
   onChange: (order: Order) => void;
+  min?: number | null;
+  max?: number | null;
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
@@ -27,6 +29,8 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       value={order.price}
       status={order.status}
       type={order.type}
+      min={props.min}
+      max={props.max}
       onSubmit={() => props.onUpdate(order)}
       onDoubleClick={onDoubleClick}
       onChange={(price: number | null) => props.onChange({...order, price})}/>

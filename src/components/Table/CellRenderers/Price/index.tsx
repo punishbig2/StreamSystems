@@ -14,6 +14,7 @@ import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInput
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {EntryTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
+import {InvalidPrice} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
@@ -34,6 +35,8 @@ export interface Props {
   status: OrderStatus;
   className?: string;
   onTabbedOut?: (input: HTMLInputElement) => void;
+  min?: number | null;
+  max?: number | null;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -132,12 +135,25 @@ export const Price: React.FC<Props> = (props: Props) => {
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);
         // It passed all validations, so emit the event
-        props.onChange(numeric);
+        if (props.min !== null && props.min !== undefined) {
+          if (props.min >= numeric) {
+            props.onChange(InvalidPrice);
+          } else {
+            props.onChange(numeric);
+          }
+        } else if (props.max !== null && props.max !== undefined) {
+          if (props.max < numeric) {
+            props.onChange(InvalidPrice);
+          } else {
+            props.onChange(numeric);
+          }
+        } else {
+          props.onChange(numeric);
+        }
       }
     }
   };
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
-
 
   return (
     <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}

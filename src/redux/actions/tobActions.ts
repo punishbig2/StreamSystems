@@ -1,16 +1,17 @@
 import {API} from 'API';
 import {EntryTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/order';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import {ArrowDirection, W} from 'interfaces/w';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
+import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {SignalRAction} from 'redux/signalRAction';
-import {getSideFromType} from 'utils';
+import {getSideFromType, toRowId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
@@ -94,6 +95,10 @@ export const updateOrder = (id: string, entry: Order): AsyncAction<any, ActionTy
       return createAction($$(id, TOBActions.OrderNotUpdated));
     }
   }, createAction($$(id, TOBActions.UpdatingOrder)));
+};
+
+export const setRowStatus = (id: string, symbol: string, strategy: string, tenor: string, status: TOBRowStatus): Action<any> => {
+  return createAction($$(toRowId(tenor, symbol, strategy), RowActions.SetRowStatus), status);
 };
 
 export const createOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {

@@ -1,6 +1,7 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {RowFunctions} from 'components/TOB/rowFunctions';
+import {TOBRowStatus} from 'interfaces/tobRow';
 import React, {useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
@@ -48,7 +49,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     setBidQty: props.setBidQty,
   };
   return (
-    <div className={'tr'}>
+    <div className={'tr' + (row.status === TOBRowStatus.BidGreaterThanOfrError ? ' error' : '')}>
       {columns.map((column) => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);

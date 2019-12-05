@@ -80,21 +80,28 @@ const QtyColumn = (label: string, type: Type, handlers: TOBHandlers, onChangeKey
 };
 
 const isNonEmpty = (order: Order) => order.price !== null && order.quantity !== null;
-const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: HeaderAction): ColumnSpec => ({
-  name: `${type}-vol`,
-  header: () => <DualTableHeader label={strings.BidPx} action={action}/>,
-  render: ({[type]: order, depths}: RowType) => {
-    const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type) | order.status;
-    return (
-      <TOBPrice depths={depths}
-                order={{...order, status}}
-                onChange={handlers.onPriceChange}
-                onDoubleClick={isNonEmpty(order) ? handlers.onDoubleClick : undefined}
-                onUpdate={handlers.onUpdateOrder}/>
-    );
-  },
-  weight: 3,
-});
+const VolColumn = (handlers: TOBHandlers, label: string, type: Type, action: HeaderAction): ColumnSpec => {
+  return ({
+    name: `${type}-vol`,
+    header: () => <DualTableHeader label={label} action={action}/>,
+    render: (row: RowType) => {
+      const {[type]: order, depths} = row;
+      const bid: Order | undefined = type === 'ofr' ? row.bid : undefined;
+      const ofr: Order | undefined = type === 'bid' ? row.ofr : undefined;
+      const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type) | order.status;
+      return (
+        <TOBPrice depths={depths}
+                  order={{...order, status}}
+                  onChange={handlers.onPriceChange}
+                  min={bid ? bid.price : undefined}
+                  max={ofr ? ofr.price : undefined}
+                  onDoubleClick={isNonEmpty(order) ? handlers.onDoubleClick : undefined}
+                  onUpdate={handlers.onUpdateOrder}/>
+      );
+    },
+    weight: 3,
+  });
+};
 
 const DarkPoolColumn: ColumnSpec = {
   name: 'dark-pool',
