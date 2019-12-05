@@ -22,6 +22,9 @@
       &:first-child {
         border-right: 1px solid $table-border-color;
       }
+      &.owned {
+        color: $text-color-red;
+      }
     }
   }
 }

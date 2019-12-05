@@ -1,5 +1,5 @@
 import {EntryTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import React, {ReactNode} from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
 
@@ -12,8 +12,18 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const {rows} = props;
   if (!rows)
     return null;
-  const children = rows.map(({price, quantity}: Order, index: number) => {
-    const elements: ReactNode[] = [<div className={'mini-price'} key={1}>{priceFormatter(price)}</div>];
+  const children = rows.map(({price, quantity, status}: Order, index: number) => {
+    const priceElement: ReactNode = (() => {
+      const classes: string[] = ['mini-price'];
+      if ((status & OrderStatus.Owned) !== 0)
+        classes.push('owned');
+      return (
+        <div className={classes.join(' ')} key={1}>
+          {priceFormatter(price)}
+        </div>
+      );
+    })();
+    const elements: ReactNode[] = [priceElement];
     const sizeElement = (
       <div className={'mini-size'} key={2}>
         {quantity}
