@@ -53,6 +53,6 @@ export const useInitializer = (
     // Initialize with base depth
     initialize(rows.reduce(reducer, {}));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbol, strategy, tenors, email, getSnapshot, getRunOrders]);
+  }, [symbol, strategy, tenors, email]);
 };
 

@@ -79,7 +79,6 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   };
   const last: string | undefined = getHistoryItem(history[data.id], type);
   const computedEntry: RunEntry = computeRow(type, last, startingEntry, data.value);
-  console.log(type, computedEntry, startingEntry);
   const getRowStatus = (computed: RunEntry): TOBRowStatus => {
     if (computed.bid === null || computed.ofr === null)
       return TOBRowStatus.Normal;
@@ -194,7 +193,7 @@ const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr
   };
   return {
     ...state,
-    history: deriveHistory(newOrders),
+    history: deriveEditHistory(newOrders),
     orders: newOrders,
   };
 };
@@ -221,7 +220,7 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
   };
 };
 
-const deriveHistory = (table: TOBTable): { [key: string]: RunActions[] } => {
+const deriveEditHistory = (table: TOBTable): { [key: string]: RunActions[] } => {
   const entries: [string, TOBRow][] = Object.entries(table);
   return entries.reduce((history: EditHistory, [key, value]: [string, TOBRow]): EditHistory => {
     const {ofr, bid} = value;
@@ -249,7 +248,7 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
     case RunActions.UpdateOffer:
       return updateEntry(state, data, 'ofr');
     case RunActions.SetTable:
-      return {...state, orders: data, history: deriveHistory(data)};
+      return {...state, orders: data, history: deriveEditHistory(data)};
     case RunActions.OfrQtyChanged:
       return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:

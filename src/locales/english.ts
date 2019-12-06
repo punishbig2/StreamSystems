@@ -26,4 +26,5 @@ export default {
   OfrPx: 'Ofr',
   Currency: 'Currency',
   Strategy: 'Strategy',
+  Monitor: 'Monitor',
 }

@@ -63,7 +63,7 @@ const createWindow = (id: string, type: WindowTypes, symbols: Currency[], produc
       return <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user}
                   setWindowTitle={setWindowTitle}/>;
     case WindowTypes.MessageBlotter:
-      return <MessageBlotter/>;
+      return <MessageBlotter id={id} setWindowTitle={setWindowTitle}/>;
     default:
       throw new Error(`invalid tile type ${type}`);
   }

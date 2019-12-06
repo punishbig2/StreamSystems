@@ -1,16 +1,16 @@
+import columns from 'columns/messageBlotter';
 import {Row} from 'components/MessageBlotter/row';
 import {ModalWindow} from 'components/ModalWindow';
 import {Table} from 'components/Table';
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import strings from 'locales';
 import React, {useEffect} from 'react';
-import columns from 'columns/messageBlotter';
 import {connect} from 'react-redux';
 import {clearLastEntry, subscribe, unsubscribe} from 'redux/actions/messageBlotterActions';
 import {ApplicationState} from 'redux/applicationState';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
-import strings from 'locales';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 interface DispatchProps {
@@ -21,6 +21,8 @@ interface DispatchProps {
 
 interface OwnProps {
   // FIXME: add filters and sorting
+  setWindowTitle: (id: string, title: string) => void;
+  id: string;
 }
 
 const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterState =
@@ -51,6 +53,9 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       };
     }
   }, [connected, subscribe, unsubscribe, email]);
+  useEffect(() => {
+    props.setWindowTitle(props.id, strings.Monitor);
+  }, [props.id, props.setWindowTitle]);
   const renderRow = (props: any) => <Row {...props}/>;
   const renderMessage = () => {
     if (!props.lastEntry)

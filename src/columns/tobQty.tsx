@@ -1,5 +1,5 @@
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {User} from 'interfaces/user';
 import React, {useEffect, useState} from 'react';
 
@@ -29,8 +29,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   ;
   const onCancel = () => cancellable ? props.onCancel(order, true) : null;
   const showChevron =
-    (order.status & OrderStatus.HaveOtherOrders) !== 0 &&
-    (order.status & OrderStatus.Owned) === 0 &&
+    ((order.status & OrderStatus.HaveOtherOrders) !== 0 || (order.status & OrderStatus.Owned) === 0) &&
     (order.price !== null);
   return (
     <Quantity
