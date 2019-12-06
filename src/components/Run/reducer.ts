@@ -1,7 +1,7 @@
 import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {RunEntry} from 'components/Run/runEntry';
-import {State} from 'components/Run/state';
+import {EditHistory, State} from 'components/Run/state';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -10,7 +10,6 @@ import {Action} from 'redux/action';
 type Calculator = (v1: number | null, v2: number | null) => number | null;
 
 const computeRow = (type: string, last: string | undefined, startingValues: RunEntry, v1: number): RunEntry => {
-  console.log(last);
   if (!last)
     return startingValues;
   // Get the last edited value
@@ -18,12 +17,24 @@ const computeRow = (type: string, last: string | undefined, startingValues: RunE
   if (type === last)
     return startingValues;
   const findCalculator = (k1: string, k2: string, k3: string): Calculator => {
-    if (k1 === k2) {
+    const l1: string = k1.charAt(0);
+    const l2: string = k2.charAt(0);
+    const l3: string = k3.charAt(0);
+    const key: string = `${l3}${l2}${l1}`;
+    if (l1 === l2) {
       return () => v1;
-    } else if (k1 === k3) {
+    } else if (l1 === l3) {
       return () => v2;
     } else {
-      return functionMap[k1][k2][k3];
+      return (v1: number | null, v2: number | null): number | null => {
+        if (v1 === null || v2 === null)
+          return null;
+        const fn: (a: number, b: number) => number = functionMap[key];
+        if (!fn) {
+          throw new Error(`${key} not defined in functions table`);
+        }
+        return fn(v2, v1);
+      };
     }
   };
   return {
@@ -58,7 +69,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   // Extract the two sides
   const {bid, ofr} = row;
   // Original values
-  const seed: RunEntry = {
+  const startingEntry: RunEntry = {
     spread: row.spread,
     mid: row.mid,
     ofr: ofr.price,
@@ -66,14 +77,20 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
     // Overwrite the one that will be replaced
     [type]: data.value,
   };
-  console.log(history);
   const last: string | undefined = getHistoryItem(history[data.id], type);
-  const computed: RunEntry = computeRow(type, last, seed, data.value);
+  const computedEntry: RunEntry = computeRow(type, last, startingEntry, data.value);
+  console.log(type, computedEntry, startingEntry);
   const getRowStatus = (computed: RunEntry): TOBRowStatus => {
     if (computed.bid === null || computed.ofr === null)
       return TOBRowStatus.Normal;
     return computed.bid > computed.ofr ? TOBRowStatus.BidGreaterThanOfrError : TOBRowStatus.Normal;
   };
+  const getOrderStatus = (orderType: 'bid' | 'ofr') => {
+    if (orderType !== type)
+      return OrderStatus.None;
+    return OrderStatus.PriceEdited;
+  };
+  const coalesce = (v1: number | null, v2: number | null) => v1 === null ? v2 : v1;
   switch (type) {
     case RunActions.Mid:
     case RunActions.Spread:
@@ -85,23 +102,23 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
           ...orders,
           [row.id]: {
             ...row,
-            spread: computed.spread,
-            mid: computed.mid,
+            spread: coalesce(computedEntry.spread, startingEntry.spread),
+            mid: coalesce(computedEntry.mid, startingEntry.mid),
             ofr: {
               ...ofr,
               // Update the price
-              price: computed.ofr,
+              price: coalesce(computedEntry.ofr, startingEntry.ofr),
               // Update the status and set it as edited/modified
-              status: OrderStatus.PriceEdited | ofr.status,
+              status: ofr.status | getOrderStatus('ofr'),
             },
             bid: {
               ...bid,
               // Update the price
-              price: computed.bid,
+              price: coalesce(computedEntry.bid, startingEntry.bid),
               // Update the status and set it as edited/modified
-              status: OrderStatus.PriceEdited | bid.status,
+              status: bid.status | getOrderStatus('bid'),
             },
-            status: getRowStatus(computed),
+            status: getRowStatus(computedEntry),
           },
         },
         history: {
@@ -168,15 +185,17 @@ const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr
     return state;
   if (!isValidUpdate(key === 'bid' ? order : row.bid, key === 'ofr' ? order : row.ofr))
     return state;
+  const newOrders = {
+    ...orders,
+    [data.id]: fillSpreadAndMid({
+      ...row,
+      [key]: order,
+    }),
+  };
   return {
     ...state,
-    orders: {
-      ...orders,
-      [data.id]: fillSpreadAndMid({
-        ...row,
-        [key]: order,
-      }),
-    },
+    history: deriveHistory(newOrders),
+    orders: newOrders,
   };
 };
 
@@ -202,6 +221,21 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
   };
 };
 
+const deriveHistory = (table: TOBTable): { [key: string]: RunActions[] } => {
+  const entries: [string, TOBRow][] = Object.entries(table);
+  return entries.reduce((history: EditHistory, [key, value]: [string, TOBRow]): EditHistory => {
+    const {ofr, bid} = value;
+    history[key] = [];
+    if (ofr.price !== null) {
+      history[key].push(RunActions.Ofr);
+    }
+    if (bid.price !== null) {
+      history[key].push(RunActions.Bid);
+    }
+    return history;
+  }, {});
+};
+
 export const reducer = (state: State, {type, data}: Action<RunActions>): State => {
   switch (type) {
     case RunActions.RemoveOrder:
@@ -215,7 +249,7 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
     case RunActions.UpdateOffer:
       return updateEntry(state, data, 'ofr');
     case RunActions.SetTable:
-      return {...state, orders: data};
+      return {...state, orders: data, history: deriveHistory(data)};
     case RunActions.OfrQtyChanged:
       return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:
@@ -228,3 +262,4 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
       return next(state, {type, data});
   }
 };
+

@@ -132,7 +132,8 @@ export const Price: React.FC<Props> = (props: Props) => {
       if (isNaN(numeric) || numeric === 0) {
         props.onChange(null);
       } else {
-        if (numeric === props.value)
+        // No change happened
+        if (priceFormatter(numeric) === priceFormatter(props.value))
           return;
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);

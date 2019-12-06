@@ -1,6 +1,7 @@
 $table-font-weight: 500;
 $table-font-size: 13px;
 $table-font-family: 'Roboto', sans-serif;
+$red-x-size: 16px;
 
 .table {
   position: relative;
@@ -338,11 +339,9 @@ $table-font-family: 'Roboto', sans-serif;
         }
       }
 
-      $red-x-size: 16px;
-
       i {
         position: relative;
-        transition: all 0.25s;
+        transition: background-color 0.25s;
         line-height: 15px;
         border-radius: 8px;
         margin: ($table-row-height - $red-x-size) / 2 0;
