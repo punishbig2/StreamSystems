@@ -26,6 +26,11 @@ const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Windo
   return windows;
 };
 
+const setWindowTitle = ({id, title}: { id: string, title: string }, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = state.windows;
+  return {...windows, [id]: {...windows[id], title}};
+};
+
 const addWindow = (window: Window, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   // Return the new state
@@ -40,6 +45,8 @@ const moveWindow = ({id, geometry}: { id: string, geometry: ClientRect }, state:
 export const createWorkspaceReducer = (id: string, initialState: WorkspaceState = genesisState) => {
   return (state: WorkspaceState = initialState, {type, data}: AnyAction): WorkspaceState => {
     switch (type) {
+      case $$(id, WorkspaceActions.SetWindowTitle):
+        return {...state, windows: setWindowTitle(data, state)};
       case $$(id, WorkspaceActions.MinimizeWindow):
         return {...state, windows: minimizeWindow(data, state)};
       case $$(id, WorkspaceActions.AddWindow):

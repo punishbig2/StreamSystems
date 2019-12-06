@@ -79,7 +79,8 @@ const columns = (handlers: RunColumnData): ColumnSpec[] => [{
   name: 'spread',
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => (
-    <Price value={spread} onChange={(value: number | null) => handlers.onSpreadChanged(id, value)}
+    <Price value={spread}
+           onChange={(value: number | null) => handlers.onSpreadChanged(id, value)}
            className={'spread'}
            arrow={ArrowDirection.None}
            status={OrderStatus.None}

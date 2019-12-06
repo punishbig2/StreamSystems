@@ -49,6 +49,7 @@ interface OwnProps {
   symbols: Currency[];
   user: User;
   onClose?: () => void;
+  setWindowTitle?: (id: string, title: string) => void;
 }
 
 interface DispatchProps {
@@ -128,6 +129,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const showRunWindow = () => dispatch(createAction(ActionTypes.ShowRunWindow));
   const hideRunWindow = () => dispatch(createAction(ActionTypes.HideRunWindow));
 
+  const {setWindowTitle} = props;
+  useEffect(() => {
+    if (setWindowTitle && !!symbol && !!strategy) {
+      setWindowTitle(props.id, `${symbol} ${strategy}`);
+    }
+  }, [props.id, symbol, strategy, setWindowTitle]);
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol, strategy, insertDepth);
   // Initialize tile/window

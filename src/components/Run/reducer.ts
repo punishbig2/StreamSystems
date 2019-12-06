@@ -1,6 +1,6 @@
-import {Computed} from 'components/Run/computed';
 import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
+import {RunEntry} from 'components/Run/runEntry';
 import {State} from 'components/Run/state';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
@@ -9,13 +9,14 @@ import {Action} from 'redux/action';
 
 type Calculator = (v1: number | null, v2: number | null) => number | null;
 
-const computeRow = (type: string, last: string | undefined, data: Computed, v1: number): Computed => {
+const computeRow = (type: string, last: string | undefined, startingValues: RunEntry, v1: number): RunEntry => {
+  console.log(last);
   if (!last)
-    return data;
+    return startingValues;
   // Get the last edited value
-  const v2: number = data[last] as number;
+  const v2: number = startingValues[last] as number;
   if (type === last)
-    return data;
+    return startingValues;
   const findCalculator = (k1: string, k2: string, k3: string): Calculator => {
     if (k1 === k2) {
       return () => v1;
@@ -33,43 +34,42 @@ const computeRow = (type: string, last: string | undefined, data: Computed, v1: 
   };
 };
 
-const rowFinder = (orders: TOBTable) => ({
-  find: (id: string): TOBRow => {
-    const key: string | undefined = Object.keys(orders)
-      .find((key) => key.indexOf(id) !== -1);
-    if (key === undefined)
-      throw new Error(`row \`${id}' not found`);
-    return {...orders[key]};
-  },
-});
-
 const updateHistory = (next: RunActions, original: RunActions[]): RunActions[] => {
-  if (original.length === 0)
+  if (!original || original.length === 0)
     return [next];
   if (original[0] === next)
     return [...original];
   return [next, ...original].slice(0, 2);
 };
 
+const getHistoryItem = (history: RunActions[], type: RunActions): RunActions | undefined => {
+  if (!history || history.length === 0)
+    return undefined;
+  if (history[0] === type)
+    return history[1];
+  return history[0];
+};
+
 const next = (state: State, {type, data}: Action<RunActions>): State => {
   const {history, orders} = state;
-  const finder = rowFinder(orders);
+  // const finder = rowFinder(orders);
   // Find the interesting row
-  const row: TOBRow = finder.find(data.id);
+  const row: TOBRow = orders[data.id];
   // Extract the two sides
   const {bid, ofr} = row;
   // Original values
-  const seed: Computed = {
+  const seed: RunEntry = {
     spread: row.spread,
     mid: row.mid,
-    ofr: ofr.price === null ? null : Number(ofr.price),
-    bid: bid.price === null ? null : Number(bid.price),
+    ofr: ofr.price,
+    bid: bid.price,
     // Overwrite the one that will be replaced
     [type]: data.value,
   };
-  const last: string | undefined = history.length > 0 ? (history[0] === type ? history[1] : history[0]) : undefined;
-  const computed: Computed = computeRow(type, last, seed, data.value);
-  const getRowStatus = (computed: Computed): TOBRowStatus => {
+  console.log(history);
+  const last: string | undefined = getHistoryItem(history[data.id], type);
+  const computed: RunEntry = computeRow(type, last, seed, data.value);
+  const getRowStatus = (computed: RunEntry): TOBRowStatus => {
     if (computed.bid === null || computed.ofr === null)
       return TOBRowStatus.Normal;
     return computed.bid > computed.ofr ? TOBRowStatus.BidGreaterThanOfrError : TOBRowStatus.Normal;
@@ -90,21 +90,24 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
             ofr: {
               ...ofr,
               // Update the price
-              price: computed.ofr === null ? ofr.price : computed.ofr,
+              price: computed.ofr,
               // Update the status and set it as edited/modified
-              status: type === 'ofr' ? ofr.status | OrderStatus.PriceEdited : ofr.status,
+              status: OrderStatus.PriceEdited | ofr.status,
             },
             bid: {
               ...bid,
               // Update the price
-              price: computed.bid === null ? bid.price : computed.bid,
+              price: computed.bid,
               // Update the status and set it as edited/modified
-              status: type === 'bid' ? bid.status | OrderStatus.PriceEdited : bid.status,
+              status: OrderStatus.PriceEdited | bid.status,
             },
             status: getRowStatus(computed),
           },
         },
-        history: updateHistory(type, history),
+        history: {
+          ...history,
+          [data.id]: updateHistory(type, history[data.id]),
+        },
       };
     default:
       return state;

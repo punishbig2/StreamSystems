@@ -11,6 +11,8 @@ interface Props {
   onWindowClosed: (id: string) => void;
   onSetWindowTitle: (id: string, title: string) => void;
   onWindowRestored: (id: string) => void;
+  onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseMove?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
@@ -18,16 +20,12 @@ const empty: any[] = [];
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const {renderContent} = props;
-  if (!props.windows)
-    return null;
-  const entries: [string, Window][] = Object
-    .entries(props.windows);
   // Get non-minimized windows
-  const windows: [string, Window][] = entries;
+  const windows: [string, Window][] = Object
+    .entries(props.windows || {});
   // Get minimized windows
   const minimized: [string, Window][] = windows
     .filter(([, window]: [string, Window]): boolean => window.minimized);
-
   const windowMapper = ([id, window]: [string, Window]): ReactElement => {
     const {type} = window;
     const content: ReactElement | null = renderContent(id, type);
@@ -63,7 +61,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   });
   return (
-    <div className={'workspace'} ref={setElement}>
+    <div className={'workspace'} onMouseLeave={props.onMouseLeave} onMouseMove={props.onMouseMove} ref={setElement}>
       {windows.map(windowMapper)}
       <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}

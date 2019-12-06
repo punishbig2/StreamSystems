@@ -1,4 +1,4 @@
-export interface Computed {
+export interface RunEntry {
   spread: number | null;
   mid: number | null;
   ofr: number | null;

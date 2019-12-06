@@ -33,7 +33,7 @@ interface OwnProps {
 export {Run};
 
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
-  const [state, dispatch] = useReducer(reducer, {orders: {}, history: [], defaultBidQty: 10, defaultOfrQty: 10});
+  const [state, dispatch] = useReducer(reducer, {orders: {}, history: {}, defaultBidQty: 10, defaultOfrQty: 10});
   const {symbol, strategy, tenors, user} = props;
   const {email} = user;
 

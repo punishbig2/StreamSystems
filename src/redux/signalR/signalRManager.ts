@@ -1,4 +1,4 @@
-import {HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
+import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
 import config from 'config';
 import {Message} from 'interfaces/message';
 import {W} from 'interfaces/w';
@@ -34,13 +34,13 @@ export class SignalRManager<A extends Action = AnyAction> {
   constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
     connection.serverTimeoutInMilliseconds = 3600000;
-    connection.keepAliveIntervalInMilliseconds = 5000;
+    connection.keepAliveIntervalInMilliseconds = 15000;
     // Export to class wide variable
     this.connection = connection;
   }
 
   static createConnection = () => new HubConnectionBuilder()
-    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`)
+    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.LongPolling)
     .withAutomaticReconnect([5, 60, 120])
     .configureLogging(LogLevel.None)
     .build()
