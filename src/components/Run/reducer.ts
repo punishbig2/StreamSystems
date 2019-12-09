@@ -85,7 +85,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
     return computed.bid > computed.ofr ? TOBRowStatus.BidGreaterThanOfrError : TOBRowStatus.Normal;
   };
   const getOrderStatus = (newValue: number | null, oldValue: number | null) => {
-    if (newValue === oldValue)
+    if (newValue === null)
       return OrderStatus.None;
     return OrderStatus.PriceEdited;
   };
