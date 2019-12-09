@@ -13,7 +13,7 @@ import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {InvalidPrice} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
@@ -24,7 +24,7 @@ import {priceFormatter} from 'utils/priceFormatter';
 export interface Props {
   value: number | null;
   depth?: Order[];
-  type?: EntryTypes;
+  type?: OrderTypes;
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;

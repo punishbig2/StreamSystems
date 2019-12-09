@@ -1,5 +1,5 @@
 import {StrategyType, SymbolType, TenorType} from 'interfaces/w';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {$$} from 'utils/stringPaster';
 
@@ -11,11 +11,11 @@ export const toRunId = (symbol: SymbolType, strategy: StrategyType): string => {
   return $$('__RUN', strategy, symbol);
 };
 
-export const getSideFromType = (type: EntryTypes): Sides => {
+export const getSideFromType = (type: OrderTypes): Sides => {
   switch (type) {
-    case EntryTypes.Bid:
+    case OrderTypes.Bid:
       return Sides.Buy;
-    case EntryTypes.Ofr:
+    case OrderTypes.Ofr:
       return Sides.Sell;
     default:
       throw new Error('wrong type, it has no sensible side');

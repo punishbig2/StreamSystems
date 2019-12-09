@@ -1,4 +1,4 @@
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -11,11 +11,11 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
   useEffect(() => {
     const rows: TOBRow[] = tenors
       .map((tenor: string) => {
-        const getEntry = (type: EntryTypes) => {
+        const getEntry = (type: OrderTypes) => {
           return emptyEntry(tenor, symbol, strategy, email, 10, type);
         };
-        const bid: Order = getEntry(EntryTypes.Bid);
-        const ofr: Order = getEntry(EntryTypes.Ofr);
+        const bid: Order = getEntry(OrderTypes.Bid);
+        const ofr: Order = getEntry(OrderTypes.Ofr);
         return {
           id: $$(toRunId(symbol, strategy), tenor),
           tenor: tenor,

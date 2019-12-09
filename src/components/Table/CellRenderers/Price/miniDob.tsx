@@ -1,10 +1,10 @@
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import React, {ReactNode} from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
 
 interface Props {
-  type?: EntryTypes;
+  type?: OrderTypes;
   rows?: Order[];
 }
 
@@ -29,7 +29,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
         {quantity}
       </div>
     );
-    if (props.type === EntryTypes.Bid)
+    if (props.type === OrderTypes.Bid)
       elements.unshift(sizeElement);
     else
       elements.push(sizeElement);

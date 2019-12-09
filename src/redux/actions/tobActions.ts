@@ -1,5 +1,5 @@
 import {API} from 'API';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
@@ -60,7 +60,7 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
         price: Number(entry.Price),
         quantity: Number(entry.OrderQty),
         user: user.email,
-        type: entry.Side === '1' ? EntryTypes.Bid : EntryTypes.Ofr,
+        type: entry.Side === '1' ? OrderTypes.Bid : OrderTypes.Ofr,
         arrowDirection: ArrowDirection.None,
         status: OrderStatus.Cancelled,
       }))
@@ -87,9 +87,9 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
 };
 
 export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
-  if (order.type === EntryTypes.Ofr) {
+  if (order.type === OrderTypes.Ofr) {
     return createAction($$(toRowId(order.tenor, order.symbol, order.strategy), RowActions.UpdateOfr), order);
-  } else if (order.type === EntryTypes.Bid) {
+  } else if (order.type === OrderTypes.Bid) {
     return createAction($$(toRowId(order.tenor, order.symbol, order.strategy), RowActions.UpdateBid), order);
   } else {
     throw new Error('what the hell should I do?');

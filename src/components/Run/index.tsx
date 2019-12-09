@@ -7,7 +7,7 @@ import {useOrderListener} from 'components/Run/hooks/userOrderListener';
 import {reducer} from 'components/Run/reducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -43,15 +43,15 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   const onUpdate = (order: Order) => {
     const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
     switch (order.type) {
-      case EntryTypes.Invalid:
+      case OrderTypes.Invalid:
         break;
-      case EntryTypes.Ofr:
+      case OrderTypes.Ofr:
         dispatch(createAction(RunActions.UpdateOffer, {id, entry: order}));
         break;
-      case EntryTypes.Bid:
+      case OrderTypes.Bid:
         dispatch(createAction(RunActions.UpdateBid, {id, entry: order}));
         break;
-      case EntryTypes.DarkPool:
+      case OrderTypes.DarkPool:
         break;
     }
   };
@@ -115,12 +115,12 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     defaultBidQty: {
       value: state.defaultBidQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),
-      type: EntryTypes.Bid,
+      type: OrderTypes.Bid,
     },
     defaultOfrQty: {
       value: state.defaultOfrQty,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultOfrQty, value)),
-      type: EntryTypes.Ofr,
+      type: OrderTypes.Ofr,
     },
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {

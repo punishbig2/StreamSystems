@@ -8,7 +8,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBData} from 'components/TOB/data';
 import {AggregatedSz} from 'components/TOB/reducer';
 import {RowFunctions} from 'components/TOB/rowFunctions';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -28,7 +28,7 @@ const getDepthStatus = (values: Order[]): OrderStatus => {
   return OrderStatus.HasDepth;
 };
 
-const getChevronStatus = (depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): OrderStatus => {
+const getChevronStatus = (depths: { [key: string]: TOBTable }, tenor: string, type: OrderTypes): OrderStatus => {
   const order: TOBTable | undefined = depths[tenor];
   if (!order)
     return OrderStatus.None;
@@ -43,13 +43,13 @@ const getChevronStatus = (depths: { [key: string]: TOBTable }, tenor: string, ty
   const isMyBid: ({bid}: TOBRow) => boolean = ({bid}: TOBRow) => isEntryMineAndValid(bid);
   const bidDepthStatus: OrderStatus = getDepthStatus(values.map(({bid}: TOBRow) => bid));
   switch (type) {
-    case EntryTypes.Invalid:
+    case OrderTypes.Invalid:
       break;
-    case EntryTypes.Ofr:
+    case OrderTypes.Ofr:
       return (values.find(isMyOfr) ? OrderStatus.HaveOrders : OrderStatus.None) | ofrDepthStatus;
-    case EntryTypes.Bid:
+    case OrderTypes.Bid:
       return (values.find(isMyBid) ? OrderStatus.HaveOrders : OrderStatus.None) | bidDepthStatus;
-    case EntryTypes.DarkPool:
+    case OrderTypes.DarkPool:
       break;
   }
   return OrderStatus.None;
@@ -124,13 +124,13 @@ const DarkPoolColumn: ColumnSpec = {
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
-      onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
+      onDoubleClick={() => console.log(OrderTypes.DarkPool, {})}
       onChange={() => null}
       value={null}
       status={OrderStatus.None}
       tabIndex={-1}/>
   ),
-  weight: 3,
+  weight: 2,
 };
 
 const TenorColumn = (handlers: TOBData): ColumnSpec => ({
@@ -148,7 +148,7 @@ const columns = (handlers: TOBData): ColumnSpec[] => [
   VolColumn(handlers, strings.BidPx, 'bid', {fn: handlers.onRefBidsButtonClicked, label: strings.RefBids}),
   DarkPoolColumn,
   VolColumn(handlers, strings.OfrPx, 'ofr', {fn: handlers.onRefOfrsButtonClicked, label: strings.RefOfrs}),
-  QtyColumn(strings.OfrSz, 'ofr', handlers, 'setOfrQty', {fn: handlers.onRunButtonClicked, label: strings.Run}),
+  QtyColumn(strings.OfrSz, 'ofr', handlers, 'setOfrQty'),
 ];
 
 export default columns;

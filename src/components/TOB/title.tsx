@@ -1,8 +1,8 @@
 import {MenuItem, Select} from '@material-ui/core';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
-import React, {ReactElement} from 'react';
 import strings from 'locales';
+import React, {ReactElement} from 'react';
 
 interface Props {
   symbols: Currency[];
@@ -10,6 +10,7 @@ interface Props {
   products: Strategy[];
   onClose?: () => void;
   strategy: string;
+  onShowRunWindow: () => void;
   setSymbol: (event: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => void;
   setProduct: (event: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => void;
 }
@@ -37,6 +38,7 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
           <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>
         ))}
       </Select>
+      <button onClick={props.onShowRunWindow}>{strings.Run}</button>
     </div>
   );
 };

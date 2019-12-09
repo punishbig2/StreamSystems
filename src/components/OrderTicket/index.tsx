@@ -1,6 +1,6 @@
 import {ModalContent} from 'components/ModalContent';
 import {ModalTitle} from 'components/ModalTitle';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';
@@ -62,7 +62,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Side</span></div>
-            <div className={'value'}><span>{order.type === EntryTypes.Bid ? 'Buy' : 'Sell'}</span></div>
+            <div className={'value'}><span>{order.type === OrderTypes.Bid ? 'Buy' : 'Sell'}</span></div>
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Vol.</span></div>

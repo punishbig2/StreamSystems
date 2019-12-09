@@ -1,4 +1,30 @@
 @import 'variables';
+
+%button {
+  pointer-events: initial;
+  cursor: default;
+  line-height: 1;
+  border: none;
+  background-color: $primary-color;
+  color: white;
+  padding: 3px 8px 1px 8px;
+  border-radius: 4px;
+  border-bottom: 2px solid $primary-dark-color;
+
+  &:not(:disabled):active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.run-window {
+  max-width: 640px;
+}
+
+
 @import 'global';
 @import 'loading-window';
 @import 'modal-window';
@@ -13,9 +39,5 @@
 @import 'dialog-buttons';
 @import 'mini-dob';
 @import 'user-not-found';
-
-.run-window {
-  max-width: 640px;
-}
 
 

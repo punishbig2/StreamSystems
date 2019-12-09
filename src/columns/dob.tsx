@@ -6,7 +6,7 @@ import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBData} from 'components/TOB/data';
 import {RowFunctions} from 'components/TOB/rowFunctions';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -36,7 +36,12 @@ const columns = (handlers: TOBData): ColumnSpec[] => [{
   name: 'bid-vol',
   header: () => strings.BidPx,
   render: ({bid, depths}: RowType) => (
-    <TOBPrice depths={depths} order={bid} onChange={handlers.onOrderModified} onDoubleClick={handlers.onDoubleClick}/>
+    <TOBPrice
+      depths={depths}
+      order={bid}
+      onChange={handlers.onOrderModified}
+      onTabbedOut={() => null}
+      onDoubleClick={handlers.onDoubleClick}/>
   ),
   weight: 3,
 }, {
@@ -46,18 +51,23 @@ const columns = (handlers: TOBData): ColumnSpec[] => [{
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
-      onDoubleClick={() => console.log(EntryTypes.DarkPool, {})}
+      onDoubleClick={() => console.log(OrderTypes.DarkPool, {})}
       onChange={() => null}
       value={null}
       status={OrderStatus.None}
       tabIndex={-1}/>
   ),
-  weight: 3,
+  weight: 2,
 }, {
   name: 'ofr-vol',
   header: () => strings.OfrPx,
   render: ({ofr, depths}: RowType) => (
-    <TOBPrice depths={depths} order={ofr} onChange={handlers.onOrderModified} onDoubleClick={handlers.onDoubleClick}/>
+    <TOBPrice
+      depths={depths}
+      order={ofr}
+      onChange={handlers.onOrderModified}
+      onTabbedOut={() => null}
+      onDoubleClick={handlers.onDoubleClick}/>
   ),
   weight: 3,
 }, {

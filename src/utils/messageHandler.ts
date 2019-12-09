@@ -1,4 +1,4 @@
-import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
+import {OrderTypes, MDEntry} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
@@ -21,12 +21,12 @@ export const emitUpdateOrderEvent = (order: Order) => {
 };
 
 const propagateOrders = (w: W) => {
-  const transform: (entry: MDEntry, fallbackType: EntryTypes) => Order = mdEntryToTOBEntry(w);
+  const transform: (entry: MDEntry, fallbackType: OrderTypes) => Order = mdEntryToTOBEntry(w);
   const user: User = getAuthenticatedUser();
   const entries: MDEntry[] = w.Entries;
   entries
     .filter((entry: MDEntry) => entry.MDEntryOriginator === user.email)
-    .map((entry: MDEntry) => transform(entry, EntryTypes.Invalid))
+    .map((entry: MDEntry) => transform(entry, OrderTypes.Invalid))
     .forEach(emitUpdateOrderEvent);
 };
 

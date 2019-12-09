@@ -1,4 +1,4 @@
-import {EntryTypes, MDEntry} from 'interfaces/mdEntry';
+import {OrderTypes, MDEntry} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -29,7 +29,7 @@ const normalizeTickDirection = (source: string): ArrowDirection => {
   }
 };
 
-export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: EntryTypes): Order => {
+export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
   const user: User = getAuthenticatedUser();
   if (entry) {
     const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
@@ -75,8 +75,8 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
       return {
         id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
         tenor: w.Tenor,
-        ofr: transform(entry, EntryTypes.Ofr),
-        bid: transform(other[index], EntryTypes.Bid),
+        ofr: transform(entry, OrderTypes.Ofr),
+        bid: transform(other[index], OrderTypes.Bid),
         mid: null,
         spread: null,
         status: TOBRowStatus.Normal,
@@ -85,8 +85,8 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
       return {
         id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
         tenor: w.Tenor,
-        bid: transform(entry, EntryTypes.Bid),
-        ofr: transform(other[index], EntryTypes.Ofr),
+        bid: transform(entry, OrderTypes.Bid),
+        ofr: transform(other[index], OrderTypes.Ofr),
         mid: null,
         spread: null,
         status: TOBRowStatus.Normal,
@@ -113,7 +113,7 @@ const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
   const e2: MDEntry = entries[1];
   if (e1 === undefined || e2 === undefined)
     return [{} as MDEntry, {} as MDEntry];
-  if (e1.MDEntryType === EntryTypes.Bid) {
+  if (e1.MDEntryType === OrderTypes.Bid) {
     return [e1, e2];
   } else {
     return [e2, e1];
@@ -126,8 +126,8 @@ export const toTOBRow = (w: W): TOBRow => {
   return {
     id: '',
     tenor: w.Tenor,
-    bid: transform(bid, EntryTypes.Bid),
-    ofr: transform(ofr, EntryTypes.Ofr),
+    bid: transform(bid, OrderTypes.Bid),
+    ofr: transform(ofr, OrderTypes.Ofr),
     mid: null,
     spread: null,
     status: TOBRowStatus.Normal,
@@ -136,8 +136,8 @@ export const toTOBRow = (w: W): TOBRow => {
 
 export const extractDepth = (w: W): TOBTable => {
   const entries: MDEntry[] = w.Entries;
-  const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Bid);
-  const ofrs: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === EntryTypes.Ofr);
+  const bids: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid);
+  const ofrs: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntryType === OrderTypes.Ofr);
   // Sort bids
   bids.sort((a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx));
   ofrs.sort((a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx));

@@ -1,6 +1,6 @@
 import {getMiniDOBByType} from 'columns/tobMiniDOB';
 import {Price} from 'components/Table/CellRenderers/Price';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {TOBTable} from 'interfaces/tobTable';
 import React from 'react';
@@ -8,18 +8,18 @@ import React from 'react';
 interface Props {
   order: Order;
   depths: { [key: string]: TOBTable }
-  onDoubleClick?: (type: EntryTypes, order: Order) => void;
+  onDoubleClick?: (type: OrderTypes, order: Order) => void;
   onChange: (order: Order) => void;
   min?: number | null;
   max?: number | null;
-  onTabbedOut?: (input: HTMLInputElement) => void;
+  onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => void;
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
   const {order} = props;
   const onDoubleClick = () => {
     if (!!props.onDoubleClick) {
-      props.onDoubleClick(order.type === EntryTypes.Bid ? EntryTypes.Ofr : EntryTypes.Bid, order);
+      props.onDoubleClick(order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid, order);
     }
   };
   return (
@@ -31,7 +31,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       type={order.type}
       min={props.min}
       max={props.max}
-      onTabbedOut={props.onTabbedOut}
+      onTabbedOut={(input: HTMLInputElement) => props.onTabbedOut(input, order.type)}
       onDoubleClick={onDoubleClick}
       onChange={(price: number | null) => props.onChange({...order, price})}/>
   );

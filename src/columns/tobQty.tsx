@@ -7,7 +7,7 @@ interface Props {
   order: Order;
   user: User;
   onCancel: (order: Order, cancelRelated: boolean) => void;
-  onSubmit: (order: Order, newQuantity: number) => void;
+  onSubmit: (order: Order, newQuantity: number, input: HTMLInputElement) => void;
   onChange: (value: number) => void;
 }
 
@@ -17,9 +17,9 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     setValue(order.quantity);
   }, [order]);
-  const onTabbedOut = () => {
+  const onTabbedOut = (input: HTMLInputElement) => {
     if (value !== null) {
-      props.onSubmit(order, value);
+      props.onSubmit(order, value, input);
     }
   };
   const onChange = (value: string | null) => {

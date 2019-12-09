@@ -1,11 +1,11 @@
 import {RunActions} from 'components/Run/enumerator';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 
 export interface QtyHeader {
   value: number;
   onChange: (value: number) => void;
-  type: EntryTypes;
+  type: OrderTypes;
 }
 
 type ChangeFn<T> = (tenor: string, value: T | null) => void;

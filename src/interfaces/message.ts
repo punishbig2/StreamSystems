@@ -38,7 +38,7 @@ export interface Message {
   Tenor: string;
   Side: string;
   Symbol: string;
-  TransactTime: Date;
+  TransactTime: string;
   ExecType: ExecTypes;
   LeavesQty: string;
   Username: string;

@@ -132,6 +132,11 @@
         height: $title-bar-height;
         z-index: 2;
 
+        button {
+          @extend %button;
+          line-height: $title-bar-height / 2;
+        }
+
         h1 {
           font-size: 14px;
           margin: 0;

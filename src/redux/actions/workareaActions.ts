@@ -27,7 +27,7 @@ export const addWindow = (type: WindowTypes, id: string): Action<WorkareaActions
   return createAction(WorkareaActions.AddTile, {type, id});
 };
 
-const toCurrencyWeight = (value: string) => {
+export const currencyToNumber = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
 };
 
@@ -58,7 +58,7 @@ export const initialize = (): AsyncAction<AnyAction> => {
     const users: any[] = await API.getUsers();
     // Sort symbols
     symbols.sort((a: Currency, b: Currency) => {
-      return toCurrencyWeight(a.name) - toCurrencyWeight(b.name);
+      return currencyToNumber(a.name) - currencyToNumber(b.name);
     });
     return [
       createAction(WorkareaActions.Initialized, {symbols, products, tenors, users}),

@@ -13,7 +13,7 @@ import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
 import {VisibilitySelector} from 'components/visibilitySelector';
 import {Currency} from 'interfaces/currency';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
 import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
@@ -149,8 +149,14 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     updateOrder(entry);
   },*/
   const data: TOBData = {
-    onTabbedOut: (input: HTMLInputElement) => {
-      skipTabIndex(input, 1, 0);
+    onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
+      switch (type) {
+        case OrderTypes.Bid:
+          skipTabIndex(input, 1, 1);
+          break;
+        case OrderTypes.Ofr:
+          skipTabIndex(input, 3, 1);
+      }
     },
     onTenorSelected: (tenor: string) => {
       if (state.tenor === null) {
@@ -159,11 +165,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         setCurrentTenor(null);
       }
     },
-    onDoubleClick: (type: EntryTypes, entry: Order) => {
+    onDoubleClick: (type: OrderTypes, entry: Order) => {
       setOrderTicket({...entry, type});
-    },
-    onRunButtonClicked: () => {
-      showRunWindow();
     },
     onRefBidsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Buy);
@@ -194,7 +197,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       if (cancelRelated) {
         const rows: TOBRow[] = Object.values(state.depths[order.tenor]);
         rows.forEach((row: TOBRow) => {
-          const targetEntry: Order = order.type === EntryTypes.Bid ? row.bid : row.ofr;
+          const targetEntry: Order = order.type === OrderTypes.Bid ? row.bid : row.ofr;
           if ((targetEntry.status & OrderStatus.Owned) !== 0) {
             cancelOrder(targetEntry);
           }
@@ -203,16 +206,28 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         cancelOrder(order);
       }
     },
-    onQuantityChange: (order: Order, newQuantity: number) => {
+    onQuantityChange: (order: Order, newQuantity: number, input: HTMLInputElement) => {
+      // FIXME: this should really be forbidden by the backend, but it's not
       if (order.quantity === null) {
         props.updateOrderQuantity({...order, quantity: newQuantity});
-      } else {
+      } else if ((order.status & OrderStatus.Owned) !== 0) {
         if (order.quantity > newQuantity) {
           updateOrder({...order, quantity: newQuantity});
         } else if (order.quantity < newQuantity) {
           createOrder({...order, quantity: newQuantity - order.quantity});
         }
+      } else {
+        const {quantity} = order;
+        // FIXME: we must reset the order quantity but this seems unsafe
+        //        because it's happening outside of react
+        input.value = quantity ? quantity.toFixed(0) : '';
+        // Artificially emit the change event
+        const event = document.createEvent('HTMLEvents');
+        event.initEvent('change', false, true);
+        // Attempt to pretend we can emit the onChange
+        input.dispatchEvent(event);
       }
+      skipTabIndex(input, 1, 0);
     },
     aggregatedSz: state.aggregatedSz,
     buttonsEnabled: props.symbol !== '' && props.strategy !== '',
@@ -279,7 +294,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   return (
     <React.Fragment>
       <TOBTileTitle symbol={symbol} strategy={strategy} symbols={symbols} products={products} setProduct={setProduct}
-                    setSymbol={setSymbol} onClose={props.onClose}/>
+                    setSymbol={setSymbol} onClose={props.onClose} onShowRunWindow={showRunWindow}/>
       <div className={'window-content'}>
         <VisibilitySelector visible={tobVisible}>
           <Table columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>

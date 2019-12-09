@@ -8,4 +8,6 @@ export interface ColumnSpec {
   render: (props: any) => ReactElement;
   span?: number;
   weight: number;
+  filterByKeyword?: (v1: any, keyword: string) => boolean;
+  difference?: (v1: any, v2: any) => number;
 }

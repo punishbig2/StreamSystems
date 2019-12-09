@@ -1,4 +1,4 @@
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {ArrowDirection, MessageTypes} from 'interfaces/w';
 
 export enum Sides {
@@ -51,7 +51,7 @@ export interface Order {
   quantity: number | null;
   user: string;
   firm?: string;
-  type: EntryTypes;
+  type: OrderTypes;
   arrowDirection: ArrowDirection;
   status: OrderStatus;
 }

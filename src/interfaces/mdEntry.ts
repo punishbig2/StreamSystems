@@ -1,6 +1,6 @@
 import {ArrowDirection} from 'interfaces/w';
 
-export enum EntryTypes {
+export enum OrderTypes {
   Invalid = '',
   Ofr = '1',
   Bid = '0',
@@ -13,7 +13,7 @@ export enum FirmTypes {
 }
 
 export interface MDEntry {
-  MDEntryType: EntryTypes;
+  MDEntryType: OrderTypes;
   MDEntryPx: string;
   MDEntrySize: string;
   MDEntryOriginator: string,

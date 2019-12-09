@@ -1,9 +1,9 @@
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 
-export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: EntryTypes): Order => {
+export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: OrderTypes): Order => {
   return {
     type: type,
     tenor,
@@ -17,14 +17,14 @@ export const emptyEntry = (tenor: string, symbol: string, strategy: string, user
   };
 };
 export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Ofr);
+  return emptyEntry(tenor, symbol, strategy, user, quantity, OrderTypes.Ofr);
 };
 
 export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, quantity, EntryTypes.Bid);
+  return emptyEntry(tenor, symbol, strategy, user, quantity, OrderTypes.Bid);
 };
 
-const tenorToNumber = (value: string) => {
+export const tenorToNumber = (value: string) => {
   // FIXME: probably search the number boundary
   const multiplier: number = Number(value.substr(0, 1));
   const unit: string = value.substr(1);

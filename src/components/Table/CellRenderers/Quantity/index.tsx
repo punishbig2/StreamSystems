@@ -1,10 +1,10 @@
 import {NumericInput} from 'components/NumericInput';
 import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
-import {EntryTypes} from 'interfaces/mdEntry';
+import {OrderTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
 
 interface OwnProps {
-  type: EntryTypes;
+  type: OrderTypes;
   value: number | null;
   firm?: string;
   onChange: (value: string | null) => void;
@@ -19,7 +19,7 @@ interface OwnProps {
 const defaultProps: OwnProps = {
   onChange: () => null,
   onCancel: () => null,
-  type: EntryTypes.Invalid,
+  type: OrderTypes.Invalid,
   value: null,
   cancelable: false,
   chevron: false,
@@ -34,7 +34,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
     return value.toString();
   };
   const children: ReactNode[] = [
-    <NumericInput key={1} value={getValue()} tabIndex={-1} className={props.className} onTabbedOut={props.onTabbedOut}
+    <NumericInput key={1} value={getValue()} className={props.className} onTabbedOut={props.onTabbedOut}
                   onChange={(value: string | null) => props.onChange(value)} onBlur={props.onBlur}/>,
   ];
 
@@ -47,7 +47,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
       <i/>
     </div>
   );
-  if (props.type === EntryTypes.Bid) {
+  if (props.type === OrderTypes.Bid) {
     if (props.firm)
       children.push(<div>{props.firm}</div>);
     if (props.chevron)
