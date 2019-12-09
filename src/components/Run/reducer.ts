@@ -84,8 +84,8 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
       return TOBRowStatus.Normal;
     return computed.bid > computed.ofr ? TOBRowStatus.BidGreaterThanOfrError : TOBRowStatus.Normal;
   };
-  const getOrderStatus = (orderType: 'bid' | 'ofr') => {
-    if (orderType !== type)
+  const getOrderStatus = (newValue: number | null, oldValue: number | null) => {
+    if (newValue === oldValue)
       return OrderStatus.None;
     return OrderStatus.PriceEdited;
   };
@@ -108,14 +108,14 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
               // Update the price
               price: coalesce(computedEntry.ofr, startingEntry.ofr),
               // Update the status and set it as edited/modified
-              status: ofr.status | getOrderStatus('ofr'),
+              status: ofr.status | getOrderStatus(computedEntry.ofr, startingEntry.ofr),
             },
             bid: {
               ...bid,
               // Update the price
               price: coalesce(computedEntry.bid, startingEntry.bid),
               // Update the status and set it as edited/modified
-              status: bid.status | getOrderStatus('bid'),
+              status: bid.status | getOrderStatus(computedEntry.bid, startingEntry.bid),
             },
             status: getRowStatus(computedEntry),
           },
