@@ -41,7 +41,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   return (
     <React.Fragment>
       <Quantity type={order.type} value={Number(value)} onChange={onChange} cancelable={cancellable}
-                onCancel={() => props.onCancel(order)}/>
+                onCancel={() => props.onCancel(order)} tabIndex={-1}/>
     </React.Fragment>
   );
 };

@@ -14,6 +14,7 @@ interface OwnProps {
   className?: string;
   chevron?: boolean;
   onTabbedOut?: (target: HTMLInputElement) => void;
+  tabIndex?: number;
 }
 
 const defaultProps: OwnProps = {
@@ -34,8 +35,13 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
     return value.toString();
   };
   const children: ReactNode[] = [
-    <NumericInput key={1} value={getValue()} className={props.className} onTabbedOut={props.onTabbedOut}
-                  onChange={(value: string | null) => props.onChange(value)} onBlur={props.onBlur}/>,
+    <NumericInput key={1}
+                  value={getValue()}
+                  className={props.className}
+                  onTabbedOut={props.onTabbedOut}
+                  onChange={(value: string | null) => props.onChange(value)}
+                  onBlur={props.onBlur}
+                  tabIndex={props.tabIndex}/>,
   ];
 
   if (props.cancelable)

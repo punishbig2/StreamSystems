@@ -33,6 +33,7 @@ const columns: ColumnSpec[] = [{
   filterable: true,
   sortable: true,
   render: (data: Message) => {
+    console.log(data.ExecType);
     if (TransTypes[data.ExecType]) {
       return (<Normal>{TransTypes[data.ExecType]}</Normal>);
     } else {

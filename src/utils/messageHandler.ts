@@ -44,6 +44,7 @@ const propagateDepth = (w: W) => {
 export const handlers = {
   W: <A extends Action>(w: W): A => {
     const {Tenor, Symbol, Strategy} = w;
+    console.log(w);
     // Is this TOB?
     if (w['9712'] === 'TOB') {
       // Build a per-row action to update a single individual and specific row
