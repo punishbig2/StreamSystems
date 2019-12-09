@@ -31,14 +31,15 @@ export interface UpdateOrder {
 
 export enum OrderStatus {
   None = 0,
-  Active = 1 << 1 /* 2 */,
-  Cancelled = 1 << 2 /* 4 */,
-  PreFilled = 1 << 3 /* 8 */,
-  PriceEdited = 1 << 4 /* 16 */,
-  QuantityEdited = 1 << 5 /* 32 */,
-  Owned = 1 << 6 /* 64 */,
-  NotOwned = 1 << 7 /* 128 */,
-  HaveOtherOrders = 1 << 8 /* 256 */,
+  Active = 1 << 1,
+  Cancelled = 1 << 2,
+  PreFilled = 1 << 3,
+  PriceEdited = 1 << 4,
+  QuantityEdited = 1 << 5,
+  Owned = 1 << 6,
+  NotOwned = 1 << 7,
+  HaveOrders = 1 << 8,
+  HasDepth = 1 << 9,
 }
 
 export interface Order {

@@ -29,8 +29,6 @@ export interface Props {
   // Events
   onDoubleClick?: () => void;
   onChange: (value: number | null) => void;
-  onSubmit?: (value: number) => void;
-  onBlur?: (value: number) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
   status: OrderStatus;
@@ -78,13 +76,18 @@ export const Price: React.FC<Props> = (props: Props) => {
     return <Tooltip x={state.tooltipX} y={state.tooltipY} render={() => <MiniDOB {...props} rows={depth}/>}/>;
   };
 
-  const onChange = (value: string) => {
-    const trimmed: string = value.trim();
-    const numeric: number = Number(`${trimmed}0`);
-    if (trimmed.length === 0) {
-      setValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
-    } else if (!isNaN(numeric)) {
-      setValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+  const onChange = (value: string | null) => {
+    if (value !== null) {
+      const trimmed: string = value.trim();
+      const numeric: number = Number(`${trimmed}0`);
+      if (trimmed.length === 0) {
+        setValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+      } else if (!isNaN(numeric)) {
+        setValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+      }
+    } else {
+      // Reset the input item
+      setValue(priceFormatter(props.value), props.status);
     }
   };
 
@@ -92,26 +95,17 @@ export const Price: React.FC<Props> = (props: Props) => {
     return (status & OrderStatus.Owned) === 0;
   };
 
-  const onDoubleClick = (event: React.MouseEvent) => {
+  const onDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {
     // Stop the event
     event.stopPropagation();
     event.preventDefault();
     if (props.onDoubleClick && isOpenOrderTicketStatus(state.status)) {
-      const target: HTMLInputElement = event.target as HTMLInputElement;
+      const target: HTMLInputElement = event.currentTarget;
       // Remove focus and selection
       target.setSelectionRange(0, 0);
       target.blur();
       // Call the callback
       return props.onDoubleClick();
-    }
-  };
-
-  const onSubmit = () => {
-    if (props.onSubmit) {
-      const numeric: number = Number(state.value);
-      if (isNaN(numeric))
-        return;
-      props.onSubmit(numeric);
     }
   };
 
@@ -122,7 +116,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     return value.toString();
   })();
 
-  const onBlur = () => {
+  const onSubmitted = () => {
     const value: string | null = state.value;
     if (value === null || value.trim() === '') {
       props.onChange(null);
@@ -156,6 +150,13 @@ export const Price: React.FC<Props> = (props: Props) => {
       }
     }
   };
+
+  const onTabbedOut = (input: HTMLInputElement) => {
+    if (props.onTabbedOut)
+      props.onTabbedOut(input);
+    onSubmitted();
+  };
+
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
 
   return (
@@ -166,11 +167,9 @@ export const Price: React.FC<Props> = (props: Props) => {
         tabIndex={props.tabIndex}
         value={finalValue}
         onDoubleClick={onDoubleClick}
-        onBlur={onBlur}
-        onReturnPressed={onSubmit}
         onChange={onChange}
         onFocus={onFocus}
-        onTabbedOut={props.onTabbedOut}
+        onTabbedOut={onTabbedOut}
         className={getInputClass(state.status, props.className)}
         onNavigate={props.onNavigate}/>
       {/* The floating object */}

@@ -96,7 +96,7 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
       return;
     const timer = setTimeout(() => {
       setToolbarState({hovering: false, visible: true});
-    }, 800);
+    }, 1500);
     const forceCancel = () => setToolbarState({hovering: false, visible: false});
     // Of the mouse is clicked then we may want to do something else
     // like grab a window so cancel the visibility trigger

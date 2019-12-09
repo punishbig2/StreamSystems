@@ -8,11 +8,11 @@ import React from 'react';
 interface Props {
   order: Order;
   depths: { [key: string]: TOBTable }
-  onUpdate: (order: Order) => void;
   onDoubleClick?: (type: EntryTypes, order: Order) => void;
   onChange: (order: Order) => void;
   min?: number | null;
   max?: number | null;
+  onTabbedOut?: (input: HTMLInputElement) => void;
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
@@ -31,7 +31,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       type={order.type}
       min={props.min}
       max={props.max}
-      onSubmit={() => props.onUpdate(order)}
+      onTabbedOut={props.onTabbedOut}
       onDoubleClick={onDoubleClick}
       onChange={(price: number | null) => props.onChange({...order, price})}/>
   );

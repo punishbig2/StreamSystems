@@ -31,7 +31,9 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       return;
     setValue(sizeFormatter(props.value));
   }, [props.value]);
-  const onChange = (value: string) => {
+  const onChange = (value: string | null) => {
+    if (value === null)
+      return;
     props.onChange(props.id, Number(value));
   };
   const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0;

@@ -17,19 +17,24 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     setValue(order.quantity);
   }, [order]);
-  const onBlur = () => {
+  const onTabbedOut = () => {
     if (value !== null) {
       props.onSubmit(order, value);
     }
   };
-  const onChange = (value: string) => setValue(Number(value));
+  const onChange = (value: string | null) => {
+    if (value === null)
+      return;
+    setValue(Number(value));
+  };
   const cancellable =
     (((order.status & OrderStatus.Owned) !== 0) ||
-      ((order.status & OrderStatus.HaveOtherOrders) !== 0)) && (order.price !== null)
+      ((order.status & OrderStatus.HaveOrders) !== 0)) && (order.price !== null)
   ;
   const onCancel = () => cancellable ? props.onCancel(order, true) : null;
   const showChevron =
-    ((order.status & OrderStatus.HaveOtherOrders) !== 0 || (order.status & OrderStatus.Owned) !== 0) &&
+    (order.status & OrderStatus.HaveOrders) !== 0 &&
+    (order.status & OrderStatus.HasDepth) !== 0 &&
     (order.price !== null);
   return (
     <Quantity
@@ -37,7 +42,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       type={order.type}
       onChange={onChange}
       onCancel={onCancel}
-      onBlur={onBlur}
+      onTabbedOut={onTabbedOut}
       cancelable={cancellable}
       className={'tob-size'}
       chevron={showChevron}

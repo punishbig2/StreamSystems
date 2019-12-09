@@ -40,7 +40,10 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   static createConnection = () => new HubConnectionBuilder()
-    .withUrl(`http://${ApiConfig.Host}/liveUpdateSignalRHub`, HttpTransportType.LongPolling)
+    .withUrl(
+      `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
+      HttpTransportType.ServerSentEvents,
+    )
     .withAutomaticReconnect([5, 60, 120])
     .configureLogging(LogLevel.None)
     .build()
@@ -72,7 +75,7 @@ export class SignalRManager<A extends Action = AnyAction> {
           this.onConnectedListener(connection);
       });
       // Install update market handler
-      connection.on('updateMarketData', this.onUpdateMarket);
+      connection.on('updateMarketData', this.onUpdateMarketData);
       connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
     }
   };
@@ -85,7 +88,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  public onUpdateMarket = (message: string): void => {
+  public onUpdateMarketData = (message: string): void => {
     const data: W = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {

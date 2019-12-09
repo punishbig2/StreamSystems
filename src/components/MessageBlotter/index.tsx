@@ -42,7 +42,7 @@ const withRedux = connect<MessageBlotterState, DispatchProps, OwnProps, Applicat
 
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const {connected, subscribe, unsubscribe, entries} = props;
+  const {connected, subscribe, unsubscribe, entries, setWindowTitle, id} = props;
   // Get the user directly from the store
   const {email} = getAuthenticatedUser();
   useEffect(() => {
@@ -54,8 +54,8 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     }
   }, [connected, subscribe, unsubscribe, email]);
   useEffect(() => {
-    props.setWindowTitle(props.id, strings.Monitor);
-  }, [props.id, props.setWindowTitle]);
+    setWindowTitle(id, strings.Monitor);
+  }, [id, setWindowTitle]);
   const renderRow = (props: any) => <Row {...props}/>;
   const renderMessage = () => {
     if (!props.lastEntry)

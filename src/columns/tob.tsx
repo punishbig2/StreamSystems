@@ -21,7 +21,14 @@ type RowType = TOBRow & { handlers: TOBData, user: User, depths: { [key: string]
 type Type = 'bid' | 'ofr';
 type SetQty = 'setBidQty' | 'setOfrQty';
 
-function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): OrderStatus {
+const getDepthStatus = (values: Order[]): OrderStatus => {
+  const filtered: Order[] = values.filter((order: Order) => order.price !== null && order.quantity !== null);
+  if (filtered.length <= 1)
+    return OrderStatus.None;
+  return OrderStatus.HasDepth;
+};
+
+const getChevronStatus = (depths: { [key: string]: TOBTable }, tenor: string, type: EntryTypes): OrderStatus => {
   const order: TOBTable | undefined = depths[tenor];
   if (!order)
     return OrderStatus.None;
@@ -32,19 +39,21 @@ function getChevronStatus(depths: { [key: string]: TOBTable }, tenor: string, ty
   };
   const values: TOBRow[] = Object.values(order);
   const isMyOfr: ({ofr}: TOBRow) => boolean = ({ofr}: TOBRow) => isEntryMineAndValid(ofr);
+  const ofrDepthStatus: OrderStatus = getDepthStatus(values.map(({ofr}: TOBRow) => ofr));
   const isMyBid: ({bid}: TOBRow) => boolean = ({bid}: TOBRow) => isEntryMineAndValid(bid);
+  const bidDepthStatus: OrderStatus = getDepthStatus(values.map(({bid}: TOBRow) => bid));
   switch (type) {
     case EntryTypes.Invalid:
       break;
     case EntryTypes.Ofr:
-      return values.find(isMyOfr) ? OrderStatus.HaveOtherOrders : OrderStatus.None;
+      return (values.find(isMyOfr) ? OrderStatus.HaveOrders : OrderStatus.None) | ofrDepthStatus;
     case EntryTypes.Bid:
-      return values.find(isMyBid) ? OrderStatus.HaveOtherOrders : OrderStatus.None;
+      return (values.find(isMyBid) ? OrderStatus.HaveOrders : OrderStatus.None) | bidDepthStatus;
     case EntryTypes.DarkPool:
       break;
   }
   return OrderStatus.None;
-}
+};
 
 const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order, index: 'ofr' | 'bid'): number | null => {
   if (aggregatedSz) {
@@ -95,8 +104,8 @@ const VolColumn = (data: TOBData, label: string, type: Type, action: HeaderActio
                   onChange={data.onOrderModified}
                   min={bid ? bid.price : undefined}
                   max={ofr ? ofr.price : undefined}
-                  onDoubleClick={isNonEmpty(order) ? data.onDoubleClick : undefined}
-                  onUpdate={data.onUpdateOrder}/>
+                  onTabbedOut={data.onTabbedOut}
+                  onDoubleClick={isNonEmpty(order) ? data.onDoubleClick : undefined}/>
       );
     },
     weight: 3,

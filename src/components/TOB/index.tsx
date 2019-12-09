@@ -40,6 +40,7 @@ import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {toRunId} from 'utils';
+import {skipTabIndex} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
@@ -144,9 +145,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Handler methods
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
 
-  const handlers: TOBData = {
-    onUpdateOrder: (entry: Order) => {
-      updateOrder(entry);
+  /*onUpdateOrder: (entry: Order) => {
+    updateOrder(entry);
+  },*/
+  const data: TOBData = {
+    onTabbedOut: (input: HTMLInputElement) => {
+      skipTabIndex(input, 1, 0);
     },
     onTenorSelected: (tenor: string) => {
       if (state.tenor === null) {
@@ -168,6 +172,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       cancelAll(symbol, strategy, Sides.Sell);
     },
     onOrderModified: (order: Order) => {
+      // FIXME: if order status has "PreFilled" then just call
+      //        `updateOrder()' instead of `createOrder()'
       if (order.price === InvalidPrice) {
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.BidGreaterThanOfrError);
       } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
@@ -250,7 +256,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   };
   const getDepthTable = (): ReactElement | null => {
     // @ts-ignore if this function is called `tobVisible' has to be false so for sure this will exist
-    return <Table columns={createDOBColumns(handlers)} rows={state.depths[state.tenor]} renderRow={renderRow}/>;
+    return <Table columns={createDOBColumns(data)} rows={state.depths[state.tenor]} renderRow={renderRow}/>;
   };
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
@@ -276,7 +282,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     setSymbol={setSymbol} onClose={props.onClose}/>
       <div className={'window-content'}>
         <VisibilitySelector visible={tobVisible}>
-          <Table columns={createTOBColumns(handlers)} rows={rows} renderRow={renderRow}/>
+          <Table columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>
         </VisibilitySelector>
         {!tobVisible && getDepthTable()}
       </div>

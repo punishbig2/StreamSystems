@@ -10,8 +10,8 @@ export interface TOBData {
   onRefOfrsButtonClicked: () => void;
   onOrderModified: (entry: Order) => void;
   onQuantityChange: (entry: Order, newQuantity: number) => void;
-  onUpdateOrder: (entry: Order) => void;
   onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
+  onTabbedOut: (input: HTMLInputElement) => void;
   aggregatedSz?: AggregatedSz;
   buttonsEnabled: boolean;
 }
