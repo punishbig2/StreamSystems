@@ -168,6 +168,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         value={finalValue}
         onDoubleClick={onDoubleClick}
         onChange={onChange}
+        onSubmitted={onSubmitted}
         onFocus={onFocus}
         onTabbedOut={onTabbedOut}
         className={getInputClass(state.status, props.className)}

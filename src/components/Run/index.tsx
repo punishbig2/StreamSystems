@@ -76,9 +76,15 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
           return true;
         return bid.price < ofr.price;
       });
+    const ownOrDefaultQty = (order: Order, defaultQty: number | null): number => {
+      console.log(order, defaultQty);
+      if ((order.status & OrderStatus.PreFilled) !== 0 || defaultQty === null)
+        return order.quantity as number; // It can never be null, no way
+      return defaultQty;
+    };
     const entries: Order[] = [
-      ...rows.map((value: TOBRow) => value.bid),
-      ...rows.map((value: TOBRow) => value.ofr),
+      ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidQty)})),
+      ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrQty)})),
     ];
     const selected: Order[] = entries
       .filter((entry: Order) => (entry.status & eligible) !== 0)

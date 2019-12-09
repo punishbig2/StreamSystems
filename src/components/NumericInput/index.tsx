@@ -12,10 +12,17 @@ interface Props {
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  onSubmitted?: () => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onFocus, ...otherProps} = props;
+  const {onTabbedOut, onNavigate, onSubmitted, onFocus, onChange, ...otherProps} = props;
+  const triggerChange = (input: HTMLInputElement) => {
+    onChange(input.value);
+    if (onSubmitted) {
+      onSubmitted();
+    }
+  };
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
@@ -32,21 +39,25 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
       case 'ArrowUp':
         if (onNavigate)
           onNavigate(input, NavigateDirection.Up);
+        triggerChange(input);
         event.preventDefault();
         break;
       case 'ArrowLeft':
         if (onNavigate)
           onNavigate(input, NavigateDirection.Left);
+        triggerChange(input);
         event.preventDefault();
         break;
       case 'ArrowDown':
         if (onNavigate)
           onNavigate(input, NavigateDirection.Down);
+        triggerChange(input);
         event.preventDefault();
         break;
       case 'ArrowRight':
         if (onNavigate)
           onNavigate(input, NavigateDirection.Right);
+        triggerChange(input);
         event.preventDefault();
         break;
       case 'Escape':
@@ -54,9 +65,9 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         break;
     }
   };
-  const onChange = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => props.onChange(value);
+  const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
-    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChange} onFocus={onFocus}/>
+    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus}/>
   );
 };
 

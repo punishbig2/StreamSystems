@@ -294,8 +294,15 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   }, [state.depths, state.tenor]);
   return (
     <React.Fragment>
-      <TOBTileTitle symbol={symbol} strategy={strategy} symbols={symbols} products={products} setProduct={setProduct}
-                    setSymbol={setSymbol} onClose={props.onClose} onShowRunWindow={showRunWindow}/>
+      <TOBTileTitle symbol={symbol}
+                    strategy={strategy}
+                    symbols={symbols}
+                    products={products}
+                    setProduct={setProduct}
+                    setSymbol={setSymbol}
+                    onClose={props.onClose}
+                    onShowRunWindow={showRunWindow}
+                    runsDisabled={!symbol || !strategy}/>
       <div className={'window-content'}>
         <VisibilitySelector visible={tobVisible}>
           <Table columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>

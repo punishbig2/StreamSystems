@@ -11,6 +11,7 @@ interface Props {
   onClose?: () => void;
   strategy: string;
   onShowRunWindow: () => void;
+  runsDisabled: boolean;
   setSymbol: (event: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => void;
   setProduct: (event: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => void;
 }
@@ -38,7 +39,7 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
           <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>
         ))}
       </Select>
-      <button onClick={props.onShowRunWindow}>{strings.Run}</button>
+      <button onClick={props.onShowRunWindow} disabled={props.runsDisabled}>{strings.Run}</button>
     </div>
   );
 };
