@@ -14,6 +14,7 @@ interface Props {
   id: string;
   value: number | null;
   order: Order;
+  onCancel: (order: Order) => void;
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
@@ -39,7 +40,8 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0;
   return (
     <React.Fragment>
-      <Quantity type={order.type} value={Number(value)} onChange={onChange} cancelable={cancellable}/>
+      <Quantity type={order.type} value={Number(value)} onChange={onChange} cancelable={cancellable}
+                onCancel={() => props.onCancel(order)}/>
     </React.Fragment>
   );
 };

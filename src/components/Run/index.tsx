@@ -29,6 +29,7 @@ interface OwnProps {
   user: User;
   onClose: () => void;
   onSubmit: (entries: Order[]) => void;
+  onCancelOrder: (order: Order) => void;
 }
 
 export {Run};
@@ -108,6 +109,9 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       id,
       value,
     })),
+    onCancelOrder: (order: Order) => {
+      props.onCancelOrder(order);
+    },
     onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.OfrQtyChanged, {
       id,
       value,

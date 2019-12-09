@@ -117,10 +117,10 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Just one value without `dispatch' and stuff
   const [tobVisible, setTobVisible] = useState<boolean>(true);
   // Extract properties to manage them better
-  const setProduct = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => {
+  const setProduct = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>) => {
     props.setStrategy(value as string);
   };
-  const setSymbol = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>, child: React.ReactNode) => {
+  const setSymbol = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>) => {
     props.setSymbol(value as string);
   };
   // Internal temporary reducer actions
@@ -261,6 +261,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       oco={props.oco}
       user={props.user}
       onClose={() => hideRunWindow()}
+      onCancelOrder={props.cancelOrder}
       onSubmit={bulkCreateOrders}/>
   );
   const user = {email};

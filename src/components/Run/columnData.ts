@@ -1,6 +1,7 @@
 import {RunActions} from 'components/Run/enumerator';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
 
 export interface QtyHeader {
   value: number;
@@ -21,4 +22,5 @@ export interface RunColumnData {
   defaultBidQty: QtyHeader;
   focusNext: (target: HTMLInputElement, action: RunActions) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  onCancelOrder: (order: Order) => void;
 }
