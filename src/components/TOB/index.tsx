@@ -178,8 +178,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       cancelAll(symbol, strategy, Sides.Sell);
     },
     onOrderModified: (order: Order) => {
-      // FIXME: if order status has "PreFilled" then just call
-      //        `updateOrder()' instead of `createOrder()'
       if (order.price === InvalidPrice) {
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.BidGreaterThanOfrError);
       } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {

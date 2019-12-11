@@ -1,4 +1,4 @@
-import {OrderTypes, MDEntry} from 'interfaces/mdEntry';
+import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -18,7 +18,7 @@ const getNumber = (value: string | null | undefined): number | null => {
   return numeric;
 };
 
-const normalizeTickDirection = (source: string): ArrowDirection => {
+const normalizeTickDirection = (source: string | undefined): ArrowDirection => {
   switch (source) {
     case '0':
       return ArrowDirection.Up;
@@ -108,11 +108,23 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
   }
 };
 
-const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
+const reorder = (w: W): [MDEntry, MDEntry] => {
+  const entries: MDEntry[] = w.Entries;
   const e1: MDEntry = entries[0];
   const e2: MDEntry = entries[1];
+  // We need the user here
   if (e1 === undefined || e2 === undefined)
-    return [{} as MDEntry, {} as MDEntry];
+    return [{
+      MDEntryType: OrderTypes.Bid,
+      MDEntryPx: '0',
+      MDEntrySize: '0',
+      MDEntryOriginator: '',
+    }, {
+      MDEntryType: OrderTypes.Ofr,
+      MDEntryPx: '0',
+      MDEntrySize: '0',
+      MDEntryOriginator: '',
+    }];
   if (e1.MDEntryType === OrderTypes.Bid) {
     return [e1, e2];
   } else {
@@ -121,7 +133,7 @@ const reorder = (entries: MDEntry[]): [MDEntry, MDEntry] => {
 };
 
 export const toTOBRow = (w: W): TOBRow => {
-  const [bid, ofr]: [MDEntry, MDEntry] = reorder(w.Entries);
+  const [bid, ofr]: [MDEntry, MDEntry] = reorder(w);
   const transform = mdEntryToTOBEntry(w);
   return {
     id: '',

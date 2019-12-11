@@ -17,10 +17,9 @@ export interface MDEntry {
   MDEntryPx: string;
   MDEntrySize: string;
   MDEntryOriginator: string,
-  MDUserId: string;
-  MDFirm: string;
-  MDFirmType: FirmTypes;
-  MDMkt: string;
-  OrderID: string;
-  TickDirection: ArrowDirection;
+  MDFirm?: string;
+  MDFirmType?: FirmTypes;
+  MDMkt?: string;
+  OrderID?: string;
+  TickDirection?: ArrowDirection;
 }

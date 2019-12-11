@@ -49,7 +49,6 @@ export const handlers = {
       // Build a per-row action to update a single individual and specific row
       // in a specific table
       const type: string = $$(toRowId(Tenor, Symbol, Strategy), RowActions.Update);
-      console.log(type);
       // Dispatch the action now
       return createAction(type, toTOBRow(w));
     } else {
@@ -61,7 +60,9 @@ export const handlers = {
       // FIXME: we probably don't need the complexities of redux for these
       //        things
       if (!w.Entries) {
-        const fixed: W = {...w, Entries: []};
+        const fixed: W = {
+          ...w, Entries: [],
+        };
         // Build a per-row action to update a single individual and specific row
         // in a specific table
         const type: string = $$(toRowId(Tenor, Symbol, Strategy), RowActions.Update);

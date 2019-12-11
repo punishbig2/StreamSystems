@@ -20,9 +20,9 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
     switch (type) {
       case $$(id, RowActions.Remove):
         if (data === '2') {
-          return {...state, row: {...row, ofr: {...row.ofr, price: null, quantity: null}}};
+          return {...state, row: {...row, ofr: {...ofr, price: null, quantity: null}}};
         } else if (data === '1') {
-          return {...state, row: {...row, bid: {...row.bid, price: null, quantity: null}}};
+          return {...state, row: {...row, bid: {...bid, price: null, quantity: null}}};
         } else {
           throw new Error('unknown side, cannot process removal!!!');
         }
