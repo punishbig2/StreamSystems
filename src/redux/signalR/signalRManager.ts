@@ -34,7 +34,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
     connection.serverTimeoutInMilliseconds = 3600000;
-    connection.keepAliveIntervalInMilliseconds = 15000;
+    connection.keepAliveIntervalInMilliseconds = 8000;
     // Export to class wide variable
     this.connection = connection;
   }
@@ -42,7 +42,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   static createConnection = () => new HubConnectionBuilder()
     .withUrl(
       `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
-      HttpTransportType.ServerSentEvents,
+      HttpTransportType.WebSockets,
     )
     .withAutomaticReconnect([5, 60, 120])
     .configureLogging(LogLevel.None)

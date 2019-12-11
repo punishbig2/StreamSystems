@@ -1,3 +1,4 @@
+import {Order} from 'interfaces/order';
 import {Action} from 'redux/action';
 import {RowActions} from 'redux/constants/rowConstants';
 import {RowState} from 'redux/stateDefs/rowState';
@@ -5,6 +6,10 @@ import {$$} from 'utils/stringPaster';
 
 const genesisState: RowState = {
   row: {},
+};
+
+const isModified = (original: Order, received: Order): boolean => {
+  return JSON.stringify(original) !== JSON.stringify(received);
 };
 
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
@@ -21,8 +26,12 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
           throw new Error('unknown side, cannot process removal!!!');
         }
       case $$(id, RowActions.UpdateOfr):
+        if (!isModified(ofr, data))
+          return state;
         return {...state, row: {...row, ofr: data}};
       case $$(id, RowActions.UpdateBid):
+        if (!isModified(bid, data))
+          return state;
         return {...state, row: {...row, bid: data}};
       case $$(id, RowActions.Update):
         return {...state, row: data};

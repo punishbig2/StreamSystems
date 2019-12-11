@@ -28,15 +28,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
     .sort(compareTenors);
 };
 
-export const useInitializer = (
-  tenors: string[],
-  symbol: string,
-  strategy: string,
-  email: string,
-  initialize: (data: TOBTable) => void,
-  getSnapshot: (symbol: string, strategy: string, tenor: string) => void,
-  getRunOrders: (symbol: string, strategy: string) => any,
-) => {
+export const useInitializer = (tenors: string[], symbol: string, strategy: string, email: string, initialize: (data: TOBTable) => void) => {
   useEffect(() => {
     if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
@@ -46,10 +38,6 @@ export const useInitializer = (
       return object;
     };
     const rows: TOBRow[] = buildRows(tenors, symbol, strategy, email);
-    rows.forEach((row: TOBRow) => {
-      getSnapshot(symbol, strategy, row.tenor);
-    });
-    getRunOrders(symbol, strategy);
     // Initialize with base depth
     initialize(rows.reduce(reducer, {}));
     // eslint-disable-next-line react-hooks/exhaustive-deps

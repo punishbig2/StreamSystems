@@ -9,19 +9,22 @@ export const useSubscriber = (
   symbol: string,
   strategy: string,
   subscribe: Subscriber,
+  getSnapshot: (symbol: string, strategy: string, tenor: string) => void,
+  getRunOrders: (symbol: string, strategy: string) => any,
 ) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!rows || !connected)
-        return;
-      const array: TOBRow[] = Object.values(rows);
-      if (connected) {
-        // Subscribe to symbol/strategy/tenor combination
-        array.forEach(({tenor}: TOBRow) => {
-          subscribe(symbol, strategy, tenor);
-        });
-      }
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [connected, rows, strategy, symbol, subscribe]);
+    if (!rows || !connected)
+      return;
+    const array: TOBRow[] = Object.values(rows);
+    if (connected) {
+      // Subscribe to symbol/strategy/tenor combination
+      array.forEach(({tenor}: TOBRow) => {
+        subscribe(symbol, strategy, tenor);
+      });
+    }
+    array.forEach((row: TOBRow) => {
+      getSnapshot(symbol, strategy, row.tenor);
+    });
+    getRunOrders(symbol, strategy);
+  }, [connected, rows, strategy, symbol, subscribe, getSnapshot, getRunOrders]);
 };
