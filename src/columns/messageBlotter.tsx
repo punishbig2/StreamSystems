@@ -130,15 +130,6 @@ const columns: ColumnSpec[] = [{
     return currencyToNumber(v1.Symbol) - currencyToNumber(v2.Symbol);
   },
 }, {
-  name: 'spot',
-  filterable: true,
-  sortable: true,
-  header: () => <div>Spot</div>,
-  render: () => (
-    <Normal/>
-  ),
-  weight: 1,
-}, {
   name: 'Tenor',
   filterable: true,
   sortable: true,

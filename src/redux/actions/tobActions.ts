@@ -111,7 +111,7 @@ export const setRowStatus = (id: string, symbol: string, strategy: string, tenor
   return createAction($$(toRowId(tenor, symbol, strategy), RowActions.SetRowStatus), status);
 };
 
-export const createOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {
+export const createOrder = (id: string, entry: Order, minQty: number): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.createOrder(entry);
     // FIXME: parse the result

@@ -19,7 +19,8 @@ import {Strategy} from 'interfaces/strategy';
 import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useEffect, useReducer, useState} from 'react';
+import {SettingsContext} from 'main';
+import React, {ReactElement, useContext, useEffect, useReducer, useState} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
@@ -39,6 +40,7 @@ import {TOBActions} from 'redux/constants/tobConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
+import {Settings} from 'settings';
 import {toRunId} from 'utils';
 import {skipTabIndex} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
@@ -60,7 +62,7 @@ interface DispatchProps {
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (order: Order) => void;
+  createOrder: (order: Order, minSize: number) => void;
   cancelOrder: (order: Order) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;
@@ -73,7 +75,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TOBActions.Initialize), rows)),
   subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
   setStrategy: (value: string) => dispatch(createAction($$(id, TOBActions.SetStrategy), value)),
-  createOrder: (order: Order) => dispatch(createOrder(id, order)),
+  createOrder: (order: Order, minSize: number) => dispatch(createOrder(id, order, minSize)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TOBActions.SetSymbol), value)),
   toggleOCO: () => dispatch(createAction($$(id, TOBActions.ToggleOCO))),
   cancelOrder: (entry: Order) => dispatch(cancelOrder(id, entry)),
@@ -111,6 +113,7 @@ const initialState: State = {
 
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const {symbols, symbol, products, strategy, tenors, connected, subscribe, rows} = props;
+  const settings = useContext<Settings>(SettingsContext);
   const {email} = props.user;
   // Simple reducer for the element only
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -181,16 +184,16 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.BidGreaterThanOfrError);
       } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
         if (order.quantity === null) {
-          createOrder({...order, quantity: 10});
+          createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
         } else {
-          createOrder(order);
+          createOrder(order, settings.minSize);
         }
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
       } else {
         props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
         if (order.quantity !== null || order.price === null)
           return;
-        createOrder(order);
+        createOrder(order, settings.minSize);
       }
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
@@ -208,13 +211,16 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     },
     onQuantityChange: (order: Order, newQuantity: number, input: HTMLInputElement) => {
       // FIXME: this should really be forbidden by the backend, but it's not
-      if (order.quantity === null) {
+      if ((order.status & OrderStatus.PreFilled) === 0) {
         props.updateOrderQuantity({...order, quantity: newQuantity});
       } else if ((order.status & OrderStatus.Owned) !== 0) {
-        if (order.quantity > newQuantity) {
+        if (order.quantity === null) {
+          // FIXME: perhaps let the user know?
+          throw new Error('this is impossible, or a backend error');
+        } else if (order.quantity > newQuantity) {
           updateOrder({...order, quantity: newQuantity});
         } else if (order.quantity < newQuantity) {
-          createOrder({...order, quantity: newQuantity - order.quantity});
+          createOrder({...order, quantity: newQuantity - order.quantity}, settings.minSize);
         }
       } else {
         const {quantity} = order;
@@ -237,7 +243,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     if (state.orderTicket === null)
       return <div/>;
     const onSubmit = (order: Order) => {
-      createOrder(order);
+      createOrder(order, settings.minSize);
       // Remove the internal order ticket
       setOrderTicket(null);
     };
@@ -248,7 +254,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     // Close the runs window
     hideRunWindow();
     // Create the orders
-    entries.forEach((entry: Order) => props.createOrder(entry));
+    entries.forEach((entry: Order) => props.createOrder(entry, settings.minSize));
   };
 
   const runWindow = (): ReactElement => (

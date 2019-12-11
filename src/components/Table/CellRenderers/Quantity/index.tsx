@@ -30,7 +30,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
   const {value} = props;
   const classes: string[] = ['times'];
   const getValue = (): string => {
-    if (value === null || value === undefined)
+    if (value === null || value === undefined || value === 0)
       return '';
     return value.toString();
   };

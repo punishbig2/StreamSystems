@@ -13,8 +13,10 @@ import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import strings from 'locales';
-import React, {ReactElement, useReducer} from 'react';
+import {SettingsContext} from 'main';
+import React, {ReactElement, useContext, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
+import {Settings} from 'settings';
 import {toRunId} from 'utils';
 import {skipTabIndex} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
@@ -32,10 +34,14 @@ interface OwnProps {
   onCancelOrder: (order: Order) => void;
 }
 
-export {Run};
-
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
-  const [state, dispatch] = useReducer(reducer, {orders: {}, history: {}, defaultBidQty: 10, defaultOfrQty: 10});
+  const settings = useContext<Settings>(SettingsContext);
+  const [state, dispatch] = useReducer(reducer, {
+    orders: {},
+    history: {},
+    defaultBidSize: settings.defaultSize,
+    defaultOfrSize: settings.defaultSize,
+  });
   const {symbol, strategy, tenors, user} = props;
   const {email} = user;
 
@@ -76,15 +82,15 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
           return true;
         return bid.price < ofr.price;
       });
-    const ownOrDefaultQty = (order: Order, defaultQty: number | null): number => {
-      console.log(order, defaultQty);
-      if ((order.status & OrderStatus.PreFilled) !== 0 || defaultQty === null)
+    const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
+      console.log(order, defaultSize);
+      if ((order.status & OrderStatus.PreFilled) !== 0 || defaultSize === null)
         return order.quantity as number; // It can never be null, no way
-      return defaultQty;
+      return defaultSize;
     };
     const entries: Order[] = [
-      ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidQty)})),
-      ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrQty)})),
+      ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidSize)})),
+      ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrSize)})),
     ];
     const selected: Order[] = entries
       .filter((entry: Order) => (entry.status & eligible) !== 0)
@@ -100,8 +106,8 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;
     return (
-      <Row {...props} user={props.user} row={row} defaultBidQty={state.defaultBidQty}
-           defaultOfrQty={state.defaultOfrQty}/>
+      <Row {...props} user={props.user} row={row} defaultBidSize={state.defaultBidSize}
+           defaultOfrSize={state.defaultOfrSize}/>
     );
   };
 
@@ -122,13 +128,13 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       id,
       value,
     })),
-    defaultBidQty: {
-      value: state.defaultBidQty,
+    defaultBidSize: {
+      value: state.defaultBidSize,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),
       type: OrderTypes.Bid,
     },
-    defaultOfrQty: {
-      value: state.defaultOfrQty,
+    defaultOfrSize: {
+      value: state.defaultOfrSize,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultOfrQty, value)),
       type: OrderTypes.Ofr,
     },
@@ -187,3 +193,5 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     </div>
   );
 };
+
+export {Run};

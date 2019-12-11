@@ -11,7 +11,7 @@ import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
 
-type RowType = TOBRow & { defaultBidQty: number, defaultOfrQty: number };
+type RowType = TOBRow & { defaultBidSize: number, defaultOfrSize: number };
 
 const columns = (data: RunColumnData): ColumnSpec[] => [{
   name: 'tenor',
@@ -22,11 +22,11 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   weight: 2,
 }, {
   name: 'bid-quantity',
-  header: () => <HeaderQty {...data.defaultBidQty}/>,
+  header: () => <HeaderQty {...data.defaultBidSize}/>,
   render: ({id, bid}: RowType) => {
-    const {defaultBidQty} = data;
+    const {defaultBidSize} = data;
     return (
-      <RunQuantity id={id} value={bid.quantity} order={bid} defaultValue={defaultBidQty.value}
+      <RunQuantity id={id} value={bid.quantity} order={bid} defaultValue={defaultBidSize.value}
                    onChange={data.onBidQtyChanged} onCancel={data.onCancelOrder}/>
     );
   },
@@ -55,11 +55,11 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   weight: 4,
 }, {
   name: 'ofr-quantity',
-  header: () => <HeaderQty {...data.defaultOfrQty}/>,
+  header: () => <HeaderQty {...data.defaultOfrSize}/>,
   render: ({id, ofr}: RowType) => {
-    const {defaultOfrQty} = data;
+    const {defaultOfrSize} = data;
     return (
-      <RunQuantity id={id} value={ofr.quantity} order={ofr} defaultValue={defaultOfrQty.value}
+      <RunQuantity id={id} value={ofr.quantity} order={ofr} defaultValue={defaultOfrSize.value}
                    onChange={data.onOfrQtyChanged} onCancel={data.onCancelOrder}/>
     );
   },

@@ -5,6 +5,6 @@ export type EditHistory = { [key: string]: RunActions[] };
 export interface State {
   history: EditHistory;
   orders: TOBTable;
-  defaultOfrQty: number;
-  defaultBidQty: number;
+  defaultOfrSize: number;
+  defaultBidSize: number;
 }

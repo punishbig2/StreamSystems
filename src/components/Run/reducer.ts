@@ -240,9 +240,9 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
     case RunActions.RemoveOrder:
       return removeOrder(state, data);
     case RunActions.UpdateDefaultBidQty:
-      return {...state, defaultBidQty: data};
+      return {...state, defaultBidSize: data};
     case RunActions.UpdateDefaultOfrQty:
-      return {...state, defaultOfrQty: data};
+      return {...state, defaultOfrSize: data};
     case RunActions.UpdateBid:
       return updateEntry(state, data, 'bid');
     case RunActions.UpdateOffer:

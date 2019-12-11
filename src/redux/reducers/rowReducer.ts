@@ -1,3 +1,4 @@
+import equal from 'fast-deep-equal';
 import {Order} from 'interfaces/order';
 import {Action} from 'redux/action';
 import {RowActions} from 'redux/constants/rowConstants';
@@ -9,7 +10,7 @@ const genesisState: RowState = {
 };
 
 const isModified = (original: Order, received: Order): boolean => {
-  return JSON.stringify(original) !== JSON.stringify(received);
+  return !equal(original, received);
 };
 
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {

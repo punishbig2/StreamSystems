@@ -32,7 +32,7 @@ $red-x-size: 16px;
     white-space: nowrap;
 
     &.error {
-      background-color: rgba($text-color-red, 0.075);
+      background-color: rgba($text-color-red, $table-tint);
 
       &::before {
         position: absolute;
@@ -68,7 +68,7 @@ $red-x-size: 16px;
     text-align: center;
     margin: 0;
 
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba($primary-color, $table-tint);
     border-top: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
 

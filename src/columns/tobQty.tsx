@@ -1,7 +1,9 @@
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import {User} from 'interfaces/user';
-import React, {useEffect, useState} from 'react';
+import {SettingsContext} from 'main';
+import React, {useContext, useEffect, useState} from 'react';
+import {Settings} from 'settings';
 
 interface Props {
   order: Order;
@@ -12,21 +14,31 @@ interface Props {
 }
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
+  const settings = useContext<Settings>(SettingsContext);
   const {order, user} = props;
   const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
     setValue(order.quantity);
   }, [order]);
+
   const onTabbedOut = (input: HTMLInputElement) => {
     if (value !== null) {
-      props.onSubmit(order, value, input);
+      if (value < settings.minSize) {
+        props.onSubmit(order, settings.minSize, input);
+      } else {
+        props.onSubmit(order, value, input);
+      }
     }
   };
+
   const onChange = (value: string | null) => {
-    if (value === null)
-      return;
-    setValue(Number(value));
+    if (value === null) {
+      setValue(order.quantity);
+    } else {
+      setValue(Number(value));
+    }
   };
+
   const cancellable =
     (((order.status & OrderStatus.Owned) !== 0) ||
       ((order.status & OrderStatus.HaveOrders) !== 0)) && (order.price !== null)

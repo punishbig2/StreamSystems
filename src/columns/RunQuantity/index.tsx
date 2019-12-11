@@ -1,6 +1,8 @@
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
-import React, {useEffect, useState} from 'react';
+import {SettingsContext} from 'main';
+import React, {useContext, useEffect, useState} from 'react';
+import {Settings} from 'settings';
 
 const sizeFormatter = (value: number | null): string => {
   if (value === null)
@@ -9,7 +11,7 @@ const sizeFormatter = (value: number | null): string => {
 };
 
 interface Props {
-  onChange: (id: string, value: number) => void;
+  onChange: (id: string, value: number | null) => void;
   defaultValue: number;
   id: string;
   value: number | null;
@@ -18,7 +20,8 @@ interface Props {
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
-  const [value, setValue] = useState<string>(sizeFormatter(props.value));
+  const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
+  const settings = useContext<Settings>(SettingsContext);
   const {order} = props;
   useEffect(() => {
     if (props.defaultValue === undefined || props.defaultValue === null)
@@ -33,15 +36,34 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     setValue(sizeFormatter(props.value));
   }, [props.value]);
   const onChange = (value: string | null) => {
-    if (value === null)
-      return;
-    props.onChange(props.id, Number(value));
+    if (value === null) {
+      setValue(sizeFormatter(order.quantity || props.defaultValue));
+    } else {
+      setValue(value);
+    }
+  };
+  const sendOnChange = () => {
+    if (value === null) {
+      props.onChange(props.id, value);
+    } else {
+      const numeric: number = Number(value);
+      if (numeric < settings.minSize) {
+        props.onChange(props.id, settings.minSize);
+      } else {
+        props.onChange(props.id, numeric);
+      }
+    }
   };
   const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0;
   return (
     <React.Fragment>
-      <Quantity type={order.type} value={Number(value)} onChange={onChange} cancelable={cancellable}
-                onCancel={() => props.onCancel(order)} tabIndex={-1}/>
+      <Quantity type={order.type}
+                value={Number(value)}
+                onChange={onChange}
+                onBlur={sendOnChange}
+                onCancel={() => props.onCancel(order)}
+                cancelable={cancellable}
+                tabIndex={-1}/>
     </React.Fragment>
   );
 };
