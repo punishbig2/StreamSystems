@@ -209,11 +209,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         cancelOrder(order);
       }
     },
-    onQuantityChange: (order: Order, newQuantity: number, input: HTMLInputElement) => {
+    onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
       // FIXME: this should really be forbidden by the backend, but it's not
       if ((order.status & OrderStatus.PreFilled) === 0) {
         props.updateOrderQuantity({...order, quantity: newQuantity});
-      } else if ((order.status & OrderStatus.Owned) !== 0) {
+      } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {
         if (order.quantity === null) {
           // FIXME: perhaps let the user know?
           throw new Error('this is impossible, or a backend error');
