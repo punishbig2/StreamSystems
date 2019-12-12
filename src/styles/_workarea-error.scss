@@ -11,8 +11,11 @@
     padding: 24px;
     font-weight: 500;
   }
-  a {
+  button {
     color: $primary-color;
+    background: none;
+    border: none;
+    text-decoration: underline;
   }
   h1 i {
     font-size: 90px;

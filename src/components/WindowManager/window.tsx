@@ -65,13 +65,12 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
 
 const adjustToContent = (element: HTMLDivElement) => {
   const {style} = element;
-  // Reduce the element size so that we can determine
-  // it's scroll size
-  style.height = '1px';
+  // Let's force scrollWidth and scrollHeight to have the minimal value
   style.width = '1px';
+  style.height = '1px';
   // Update the element with the minimal size possible
-  style.width = `${element.scrollWidth}px`;
-  style.height = `${element.scrollHeight + 6}px`;
+  style.width = element.scrollWidth + 'px';
+  style.height = (element.scrollHeight + 6) + 'px';
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
@@ -101,7 +100,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     const {current: parent} = container;
     if (parent === null)
       return;
-    const element: HTMLDivElement | null = parent.querySelector('.window-content');
+    const element: HTMLDivElement | null = parent.querySelector('.content');
     if (element === null)
       return;
     const observer = new MutationObserver(() => {
