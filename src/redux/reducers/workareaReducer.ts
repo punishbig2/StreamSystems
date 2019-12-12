@@ -86,6 +86,8 @@ export default (state: WorkareaState = initialState, {type, data}: Action): Work
       return {...state, message: 'Loading Messages'};
     case WorkareaActions.LoadingUsersList:
       return {...state, message: 'Loading User Information'};
+    case WorkareaActions.ServerUnavailable:
+      return {...state, status: WorkareaStatus.Error};
     default:
       return state;
   }

@@ -1,6 +1,10 @@
-import {Action, AnyAction, Dispatch} from 'redux';
+import {HTTPError} from 'API';
+import {Dispatch} from 'redux';
+import {Action} from 'redux/action';
+import {createAction} from 'redux/actionCreator';
+import {WorkareaActions} from 'redux/constants/workareaConstants';
 
-export class AsyncAction<T, A extends Action = AnyAction> implements Action<T> {
+export class AsyncAction<T, A extends Action = Action<any>> implements Action<T> {
   private readonly handler: (dispatch?: Dispatch<A>) => Promise<A | A[]>;
   private readonly initial: A;
   public type: any;
@@ -22,8 +26,13 @@ export class AsyncAction<T, A extends Action = AnyAction> implements Action<T> {
       }
     } catch (error) {
       // FIXME: handle errors correctly
-      console.log(`error: ${error}`);
-      if (error !== undefined) {
+      if (error instanceof HTTPError) {
+        // Tricks to convince typescipt that javascript is stupid anyway
+        const action: A = createAction<T, A>(WorkareaActions.ServerUnavailable as unknown as T);
+        // Dispatch the error action
+        dispatch(action);
+      } else if (error !== undefined) {
+        console.log(`error: `, error);
         if (error.hasOwnProperty('stack')) {
           console.log(error.stack);
         }

@@ -1,16 +1,18 @@
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {useObjectGrabber} from 'hooks/useObjectGrabber';
-import React, {CSSProperties, ReactElement, useCallback, useRef} from 'react';
+import React, {CSSProperties, ReactElement, useCallback, useEffect, useRef} from 'react';
 
 interface OwnProps {
-  onGeometryChange: (geometry: ClientRect) => void;
   geometry?: ClientRect;
   area: ClientRect;
   forbidden: ClientRect[];
+  isMinimized: boolean;
+  onGeometryChange: (geometry: ClientRect) => void;
   onClose: () => void;
   onMinimize: () => void;
   onSetTitle: (title: string) => void;
-  isMinimized: boolean;
+  onClick: () => void;
+  autoSize: boolean;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -59,15 +61,18 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
   }
 };
 
-interface Size {
-  width?: number,
-  height?: number
-}
+const adjustToContent = (element: HTMLDivElement): { width: number, height: number } => {
+  element.style.height = '1px';
+  element.style.width = '1px';
+  console.log(element.scrollWidth, element.scrollHeight);
+  // Restore it
+  element.style.width = `${element.scrollWidth}px`;
+  element.style.height = `${element.scrollHeight}px`;
+  return {width: 0, height: 0};
+};
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
-  const {onGeometryChange, area} = props;
-  // const [content, setContent] = useState<HTMLDivElement | null>(null);
-  // const [size, setSize] = useState<Size>({});
+  const {onGeometryChange, geometry, autoSize, area} = props;
   // Create a reference to the window container
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
   // Callbacks
@@ -86,44 +91,25 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   const classes: string = ['window-element', isGrabbed ? 'grabbed' : null, props.isMinimized ? 'minimized' : null]
     .join(' ')
     .trim();
-  /*useEffect(() => {
-    if (content === null)
-      return;
-    const getOptimalSize = (container: Element, offset: DOMRect): DOMRect => {
-      const children: Element[] = Array.from(container.children);
-      if (children.length === 0)
-        return container.getBoundingClientRect() as DOMRect;
-      for (const child of children) {
-        const target: DOMRect = getOptimalSize(child, offset);
-        if (offset.left > target.left)
-          offset.x = target.left;
-        if (offset.right < target.right)
-          offset.width = target.right - offset.left + 1;
-        if (offset.top > target.top)
-          offset.y = target.top;
-        if (offset.bottom < target.bottom)
-          offset.height = target.bottom - offset.top + 1;
-      }
-      return offset;
-    };
-
-    const updateSize = () => {
-      const computedRect: DOMRect = getOptimalSize(content, new DOMRect());
-      const size: Size = {width: computedRect.width, height: computedRect.height + 5};
-      // Update the thing
-      setSize(size);
-    };
-    const observer: MutationObserver = new MutationObserver(updateSize);
-    // Install the observer
-    observer.observe(content, {childList: true});
-    // Call for the first time
-    updateSize();
-    // Cleanup ...
-    return () => observer.disconnect();
-  }, [content]);*/
   const style: CSSProperties | undefined = toStyle(props.geometry);
+  useEffect(() => {
+    if (!autoSize)
+      return;
+    const {current: parent} = container;
+    if (parent === null)
+      return;
+    const element: HTMLDivElement | null = parent.querySelector('.window-content');
+    console.log(element);
+    if (element === null)
+      return;
+    const observer = new MutationObserver(() => {
+      adjustToContent(parent);
+    });
+    observer.observe(element, {childList: true, subtree: true});
+    return () => observer.disconnect();
+  }, [container, geometry, autoSize]);
   return (
-    <div className={classes} ref={container} style={style}>
+    <div className={classes} ref={container} style={style} onClickCapture={props.onClick}>
       <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize}/>
       <div className={'content'} ref={setMoveHandle}>
         {props.children}

@@ -32,7 +32,7 @@ enum ReadyState {
   Done = 4,
 }
 
-class HTTPError {
+export class HTTPError {
   private code: number;
   private message: string;
 

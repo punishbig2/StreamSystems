@@ -72,7 +72,6 @@
     "semver": "6.3.0",
     "shortid": "^2.2.15",
     "style-loader": "1.0.0",
-    "styled-components": "^4.3.2",
     "terser-webpack-plugin": "1.4.1",
     "ts-pnp": "1.1.4",
     "typescript": "3.6.3",

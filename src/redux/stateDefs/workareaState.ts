@@ -5,7 +5,7 @@ import {User} from 'interfaces/user';
 import {IWorkspace} from 'interfaces/workspace';
 
 export enum WorkareaStatus {
-  Starting, Initializing, Ready, UserNotFound
+  Starting, Initializing, Ready, UserNotFound, Error
 }
 
 export interface WorkareaState {

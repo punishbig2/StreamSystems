@@ -1,4 +1,3 @@
-import {DirectionLayout} from 'components/Table/CellRenderers/Price/directionLayout';
 import {ArrowDirection} from 'interfaces/w';
 import React, {ReactElement} from 'react';
 
@@ -14,8 +13,8 @@ export const Direction = (props: DirectionProps): ReactElement => {
   };
   const icon = props.direction ? `fa fa-long-arrow-alt-${arrows[props.direction]}` : undefined;
   return (
-    <DirectionLayout>
+    <div className={'price-direction-layout'}>
       <i className={icon}/>
-    </DirectionLayout>
+    </div>
   );
 };

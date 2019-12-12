@@ -1,5 +1,4 @@
-import {Layout} from 'components/Tab/layout';
-import * as React from 'react';
+import React from 'react';
 import {ReactElement} from 'react';
 
 interface Props {
@@ -11,9 +10,9 @@ interface Props {
 
 const Tab: React.FC<Props> = (props: Props): ReactElement => {
   return (
-    <Layout className={props.active ? 'active' : undefined} onClick={() => props.onClick(props.id)}>
+    <div className={props.active ? 'active' : undefined} onClick={() => props.onClick(props.id)}>
       {props.label}
-    </Layout>
+    </div>
   );
 };
 

@@ -5,4 +5,5 @@ export enum WorkspaceActions {
   MinimizeWindow = 'WorkspaceActions.MinimizeWindow',
   RestoreWindow = 'WorkspaceActions.RestoreWindow',
   SetWindowTitle = 'WorkspaceActions.SetWindowTitle',
+  BringToFront = 'WorkspaceActions.BringToFront',
 }

@@ -11,4 +11,6 @@ export interface Window {
   status: WindowStatus;
   minimized: boolean;
   title: string;
+  autoSize: boolean;
+  zIndex?: number;
 }

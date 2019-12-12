@@ -11,7 +11,6 @@ import {useSubscriber} from 'components/TOB/hooks/useSubscriber';
 import {ActionTypes, reducer, State} from 'components/TOB/reducer';
 import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
-import {VisibilitySelector} from 'components/visibilitySelector';
 import {Currency} from 'interfaces/currency';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
@@ -308,9 +307,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     onShowRunWindow={showRunWindow}
                     runsDisabled={!symbol || !strategy}/>
       <div className={'window-content'}>
-        <VisibilitySelector visible={tobVisible}>
-          <Table columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>
-        </VisibilitySelector>
+        {tobVisible && <Table columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>}
         {!tobVisible && getDepthTable()}
       </div>
       <ModalWindow render={renderOrderTicket} visible={state.orderTicket !== null}/>

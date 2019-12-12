@@ -11,6 +11,7 @@ export class WorkspaceWindow implements Window {
   public status: WindowStatus = WindowStatus.None;
   public minimized: boolean;
   public title: string;
+  public autoSize: boolean;
 
   constructor(type: WindowTypes) {
     this.id = `tile-${shortid()}-${type}`;
@@ -19,6 +20,7 @@ export class WorkspaceWindow implements Window {
     this.symbol = '';
     this.minimized = false;
     this.title = 'Untitled';
+    this.autoSize = true;
   }
 
 }

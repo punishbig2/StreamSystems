@@ -1,0 +1,21 @@
+.workarea-error {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  width: 600px;
+  margin: auto;
+  text-align: center;
+  p {
+    padding: 24px;
+    font-weight: 500;
+  }
+  a {
+    color: $primary-color;
+  }
+  h1 i {
+    font-size: 90px;
+    color: crimson;
+  }
+}

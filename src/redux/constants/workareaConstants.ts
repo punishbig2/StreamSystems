@@ -19,4 +19,5 @@ export enum WorkareaActions {
   LoadingTenors = 'WorkareaActions.LoadingTenors',
   LoadingMessages = 'WorkareaActions.LoadingMessages',
   LoadingUsersList = 'WorkareaActions.LoadingUsersList',
+  ServerUnavailable = 'WorkareaActions.ServerUnavailable',
 }

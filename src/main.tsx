@@ -7,9 +7,7 @@ import React from 'react';
 import {Provider} from 'react-redux';
 import {store} from 'redux/store';
 import {Settings} from 'settings';
-import {ThemeProvider} from 'styled-components';
 import 'styles/main.scss';
-import {theme} from 'theme';
 
 Object.defineProperty(MouseEvent.prototype, 'ignore', {
   value: function () {
@@ -24,13 +22,11 @@ export const SettingsContext = React.createContext<Settings>(currentSettings);
 
 const FXOptionsUI: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <SettingsContext.Provider value={currentSettings}>
-        <Provider store={store}>
-          <Workarea/>
-        </Provider>
-      </SettingsContext.Provider>
-    </ThemeProvider>
+    <SettingsContext.Provider value={currentSettings}>
+      <Provider store={store}>
+        <Workarea/>
+      </Provider>
+    </SettingsContext.Provider>
   );
 };
 

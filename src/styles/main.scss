@@ -21,7 +21,7 @@
 }
 
 .run-window {
-  max-width: 640px;
+  max-width: 540px;
 }
 
 
@@ -39,5 +39,9 @@
 @import 'dialog-buttons';
 @import 'mini-dob';
 @import 'user-not-found';
+@import 'workarea-error';
+@import 'message-blotter';
+@import 'question-box';
+@import 'cell-layouts';
 
 

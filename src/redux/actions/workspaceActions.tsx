@@ -40,6 +40,10 @@ export const moveWindow = (id: string, windowId: string, geometry: ClientRect): 
   return createAction($$(id, WorkspaceActions.UpdateGeometry), {id: windowId, geometry});
 };
 
+export const bringToFront = (id: string, windowId: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.BringToFront), {id: windowId});
+};
+
 export const setWindowTitle = (id: string, windowId: string, title: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowId, title});
 };

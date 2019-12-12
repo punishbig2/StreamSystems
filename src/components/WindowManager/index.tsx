@@ -13,6 +13,7 @@ interface Props {
   onWindowRestored: (id: string) => void;
   onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onMouseMove?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onWindowClicked: (id: string) => void;
 }
 
 const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
@@ -36,16 +37,19 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const onMinimize = () => props.onWindowMinimized(id);
     const onClose = () => props.onWindowClosed(id);
     const onSetTitle = (title: string) => props.onSetWindowTitle(id, title);
+    const onClick = () => props.onWindowClicked(id);
     return (
       <WindowElement geometry={geometry}
-                     onGeometryChange={updateGeometry}
                      key={id}
                      forbidden={empty}
                      area={area}
+                     isMinimized={window.minimized}
+                     onGeometryChange={updateGeometry}
                      onClose={onClose}
                      onMinimize={onMinimize}
                      onSetTitle={onSetTitle}
-                     isMinimized={window.minimized}>
+                     onClick={onClick}
+                     autoSize={window.autoSize}>
         {content}
       </WindowElement>
     );
@@ -71,3 +75,4 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
 };
 
 export {WindowManager};
+

@@ -2,6 +2,7 @@ import {ModalWindow} from 'components/ModalWindow';
 import {Question} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
 import {UserNotFound} from 'components/Workarea/userNotFound';
+import {WorkareaError} from 'components/Workarea/workareaError';
 import {Workspace} from 'components/Workspace';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';
@@ -81,6 +82,8 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     );
   };
   switch (props.status) {
+    case WorkareaStatus.Error:
+      return <WorkareaError/>;
     case WorkareaStatus.UserNotFound:
       return <UserNotFound/>;
     case WorkareaStatus.Starting:
@@ -90,7 +93,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
       return (
         <div className={'loading-window'}>
           <div className={'spinner'}/>
-          <h3>Loading, please wait...</h3>
+          <h2>{props.message}</h2>
         </div>
       );
     case WorkareaStatus.Ready:

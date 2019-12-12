@@ -1,6 +1,7 @@
 import React from 'react';
 
-export type HeaderAction = {fn: () => void, label: string};
+export type HeaderAction = { fn: () => void, label: string };
+
 interface Props {
   action?: HeaderAction;
   label: string;

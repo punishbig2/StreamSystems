@@ -7,9 +7,11 @@ $red-x-size: 16px;
   position: relative;
   font-size: 12px;
   min-height: 100%;
-  min-width: 500px;
+  min-width: 510px;
   display: flex;
   flex-direction: column;
+  padding: 0 7px 0 5px;
+  margin: 8px 0 0 0;
 
   .thead {
     width: 100%;

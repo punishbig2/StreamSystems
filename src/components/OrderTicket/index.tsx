@@ -1,5 +1,3 @@
-import {ModalContent} from 'components/ModalContent';
-import {ModalTitle} from 'components/ModalTitle';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import React, {ReactElement, useEffect, useState} from 'react';
@@ -49,10 +47,10 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
     <button key={value} type={'button'} onClick={() => setQuantity(value)}>{value}</button>
   );
   return (
-    <ModalContent>
-      <ModalTitle>
+    <div>
+      <div className={'modal-title'}>
         {strings.OrderEntry}
-      </ModalTitle>
+      </div>
       <form onSubmit={onSubmit}>
         <div className={'order-ticket'}>
           <div className={'title-chain'}>
@@ -85,7 +83,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           <button className={'success'} disabled={!canSubmit}>{strings.Submit}</button>
         </div>
       </form>
-    </ModalContent>
+    </div>
   );
 };
 
