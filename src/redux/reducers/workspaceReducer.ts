@@ -26,6 +26,11 @@ const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Windo
   return windows;
 };
 
+const setWindowAutoSize = ({id}: { id: string, title: string }, state: WorkspaceState): { [key: string]: Window } => {
+  const windows: { [id: string]: Window } = state.windows;
+  return {...windows, [id]: {...windows[id], autoSize: true}};
+};
+
 const setWindowTitle = ({id, title}: { id: string, title: string }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   return {...windows, [id]: {...windows[id], title}};
@@ -44,10 +49,13 @@ const isResizing = (original: Window, geometry: ClientRect): boolean => {
   return width !== geometry.width || height !== geometry.height;
 };
 
-const moveWindow = ({id, geometry}: { id: string, geometry: ClientRect }, state: WorkspaceState): { [key: string]: Window } => {
+const updateWindowGeometry = ({id, geometry}: { id: string, geometry: ClientRect }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   const original: Window = windows[id];
-  const autoSize: boolean = isResizing(original, geometry);
+  // This is only supposed to set the autosize to false if
+  // the object is resizing, if it's already false or the object
+  // is only moving, there's no need to change it
+  const autoSize: boolean = original.autoSize && !isResizing(original, geometry);
   return {...windows, [id]: {...original, geometry, autoSize}};
 };
 
@@ -74,6 +82,8 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
 export const createWorkspaceReducer = (id: string, initialState: WorkspaceState = genesisState) => {
   return (state: WorkspaceState = initialState, {type, data}: AnyAction): WorkspaceState => {
     switch (type) {
+      case $$(id, WorkspaceActions.SetWindowAutoSize):
+        return {...state, windows: setWindowAutoSize(data, state)};
       case $$(id, WorkspaceActions.SetWindowTitle):
         return {...state, windows: setWindowTitle(data, state)};
       case $$(id, WorkspaceActions.MinimizeWindow):
@@ -81,7 +91,7 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
       case $$(id, WorkspaceActions.AddWindow):
         return {...state, windows: addWindow(data, state)};
       case $$(id, WorkspaceActions.UpdateGeometry):
-        return {...state, windows: moveWindow(data, state)};
+        return {...state, windows: updateWindowGeometry(data, state)};
       case $$(id, WorkspaceActions.RemoveWindow):
         return {...state, windows: removeWindow(data, state)};
       case $$(id, WorkspaceActions.RestoreWindow):

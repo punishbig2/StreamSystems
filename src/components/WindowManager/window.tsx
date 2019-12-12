@@ -7,12 +7,14 @@ interface OwnProps {
   area: ClientRect;
   forbidden: ClientRect[];
   isMinimized: boolean;
+  autoSize: boolean;
+  // Methods/Event handlers
   onGeometryChange: (geometry: ClientRect) => void;
   onClose: () => void;
   onMinimize: () => void;
   onSetTitle: (title: string) => void;
   onClick: () => void;
-  autoSize: boolean;
+  onAdjustSize: () => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -55,9 +57,9 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
     case 'bottom':
       return (r: ClientRect, x: number, y: number) => update(resize(r.left, r.top, r.width, r.height + y, area));
     case 'left':
-      return (r: ClientRect, x: number, y: number) => update(resize(r.left + x, r.top, r.width - x, r.height, area));
+      return (r: ClientRect, x: number) => update(resize(r.left + x, r.top, r.width - x, r.height, area));
     case 'right':
-      return (r: ClientRect, x: number, y: number) => update(resize(r.left, r.top, r.width + x, r.height, area));
+      return (r: ClientRect, x: number) => update(resize(r.left, r.top, r.width + x, r.height, area));
   }
 };
 
@@ -67,7 +69,7 @@ const adjustToContent = (element: HTMLDivElement): { width: number, height: numb
   console.log(element.scrollWidth, element.scrollHeight);
   // Restore it
   element.style.width = `${element.scrollWidth}px`;
-  element.style.height = `${element.scrollHeight}px`;
+  element.style.height = `${element.scrollHeight + 6}px`;
   return {width: 0, height: 0};
 };
 
@@ -99,18 +101,26 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     if (parent === null)
       return;
     const element: HTMLDivElement | null = parent.querySelector('.window-content');
-    console.log(element);
     if (element === null)
       return;
     const observer = new MutationObserver(() => {
       adjustToContent(parent);
     });
+    // Observe changes
     observer.observe(element, {childList: true, subtree: true});
     return () => observer.disconnect();
   }, [container, geometry, autoSize]);
+  useEffect(() => {
+    if (!autoSize)
+      return;
+    const {current: parent} = container;
+    if (parent === null)
+      return;
+    adjustToContent(parent);
+  }, [container, autoSize]);
   return (
     <div className={classes} ref={container} style={style} onClickCapture={props.onClick}>
-      <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize}/>
+      <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize} onAdjustSize={props.onAdjustSize}/>
       <div className={'content'} ref={setMoveHandle}>
         {props.children}
       </div>

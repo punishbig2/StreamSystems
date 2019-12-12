@@ -47,3 +47,8 @@ export const bringToFront = (id: string, windowId: string): Action<string> => {
 export const setWindowTitle = (id: string, windowId: string, title: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowId, title});
 };
+
+export const setWindowAutoSize = (id: string, windowId: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {id: windowId});
+};
+

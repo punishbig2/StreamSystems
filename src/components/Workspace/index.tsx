@@ -15,6 +15,7 @@ import {
   removeWindow,
   restoreWindow,
   setWindowTitle,
+  setWindowAutoSize,
 } from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
@@ -31,6 +32,7 @@ interface DispatchProps {
   restoreWindow: (id: string) => void;
   setWindowTitle: (id: string, title: string) => void;
   bringToFront: (id: string) => void;
+  setWindowAutoSize: (id: string) => void;
 }
 
 interface OwnProps {
@@ -50,6 +52,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   restoreWindow: (windowId: string) => dispatch(restoreWindow(id, windowId)),
   setWindowTitle: (windowId: string, title: string) => dispatch(setWindowTitle(id, windowId, title)),
   bringToFront: (windowId: string) => dispatch(bringToFront(id, windowId)),
+  setWindowAutoSize: (windowId: string) => dispatch(setWindowAutoSize(id, windowId)),
 });
 
 const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, OwnProps, ApplicationState>(
@@ -141,10 +144,6 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
   if (toolbarState.hovering)
     toolbarClasses.push('hovering');
 
-  const onWindowClicked = (windowId: string) => {
-    props.bringToFront(windowId);
-  };
-
   return (
     <React.Fragment>
       <div className={toolbarClasses.join(' ')} onMouseLeave={onMouseLeave}>
@@ -156,13 +155,14 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
       <WindowManager
         windows={props.windows}
         renderContent={renderContent}
+        onMouseMove={onMouseMove}
         onSetWindowTitle={props.setWindowTitle}
         onGeometryChange={props.updateGeometry}
         onWindowClosed={props.removeWindow}
         onWindowMinimized={props.minimizeWindow}
         onWindowRestored={props.restoreWindow}
-        onWindowClicked={onWindowClicked}
-        onMouseMove={onMouseMove}/>
+        onWindowClicked={props.bringToFront}
+        onWindowSizeAdjusted={props.setWindowAutoSize}/>
     </React.Fragment>
   );
 });
