@@ -1,22 +1,11 @@
 import {TOBRow} from 'interfaces/tobRow';
 
-export enum TileStatus {
-  None,
-  CreatingOrder,
-  OrderCreated,
-  OrderNotCreated,
-  CancelingOrder,
-  OrderCanceled,
-  OrderNotCanceled,
-}
-
 export interface WindowState {
   rows: { [tenor: string]: TOBRow },
   strategy: string;
   symbol: string;
   connected: boolean;
   oco: boolean;
-  status: TileStatus,
 }
 
 export const DefaultWindowState: WindowState = {
@@ -25,5 +14,4 @@ export const DefaultWindowState: WindowState = {
   symbol: '',
   strategy: '',
   rows: {},
-  status: TileStatus.None,
 };

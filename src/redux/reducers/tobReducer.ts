@@ -1,7 +1,7 @@
 import {AnyAction} from 'redux';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
-import {TileStatus, WindowState} from 'redux/stateDefs/windowState';
+import {WindowState} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
 
 const genesisState: WindowState = {
@@ -10,7 +10,6 @@ const genesisState: WindowState = {
   symbol: '',
   strategy: '',
   rows: {},
-  status: TileStatus.None,
 };
 
 export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
@@ -28,18 +27,6 @@ export const createWindowReducer = (id: string, initialState: WindowState = gene
         return {...state, symbol: data};
       case $$(id, TOBActions.ToggleOCO):
         return {...state, oco: !state.oco};
-      case $$(id, TOBActions.CreateOrder):
-        return {...state, status: TileStatus.CreatingOrder};
-      case $$(id, TOBActions.OrderCreated):
-        return {...state, status: TileStatus.OrderCreated};
-      case $$(id, TOBActions.OrderNotCreated):
-        return {...state, status: TileStatus.OrderNotCreated};
-      case $$(id, TOBActions.CancelOrder):
-        return {...state, status: TileStatus.CancelingOrder};
-      case $$(id, TOBActions.OrderCanceled):
-        return {...state, status: TileStatus.OrderCanceled};
-      case $$(id, TOBActions.OrderNotCanceled):
-        return {...state, status: TileStatus.OrderNotCanceled};
       case $$(id, TOBActions.AllOrdersCanceled):
         return {...state, orders: {}};
       case $$(id, TOBActions.SnapshotReceived):

@@ -8,4 +8,10 @@ export enum RowActions {
   SetRowStatus = 'RowActions.SetRowStatus',
   UpdateOfr = 'RowActions.UpdateOfr',
   UpdateBid = 'RowActions.UpdateBid',
+  CreatingOrder = 'RowActions.CreatingOrder',
+  OrderCreated = 'RowActions.OrderCreated',
+  OrderNotCreated = 'RowActions.OrderNotCreated',
+  CancellingOrder = 'RowActions.CancellingOrder',
+  OrderCanceled = 'RowActions.OrderCanceled',
+  OrderNotCanceled = 'RowActions.OrderNotCanceled',
 }

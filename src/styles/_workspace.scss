@@ -167,10 +167,10 @@
 
       .window-content {
         position: absolute;
-        left: 2px;
-        top: $title-bar-height;
-        right: 2px;
-        bottom: 3px;
+        left: 0;
+        top: $title-bar-height + 8;
+        right: 0;
+        bottom: 0;
         pointer-events: none;
       }
     }

@@ -55,17 +55,20 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const {symbols, products, tenors, initialize} = props;
-  const {workspaces, lastInitializationTimestamp, loadMessages} = props;
+  const {workspaces, loadMessages} = props;
   const {CloseWorkspace} = strings;
   // Active workspace
   const active: string | null = props.activeWorkspace;
   // componentDidMount equivalent
   useEffect((): void => {
     initialize();
-  }, [initialize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
-    loadMessages(lastInitializationTimestamp);
-  }, [loadMessages, lastInitializationTimestamp]);
+    const now: string = (Date.now() / 1000).toFixed(0);
+    loadMessages(now);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderCloseQuestion = () => <Question {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>;
   const cancelCloseWorkspace = () => setSelectedToClose(null);

@@ -81,7 +81,7 @@ const VirtuallyScrollableArea: React.FC<Props> = (props: Props): ReactElement =>
   })();
   return (
     <div ref={setContainer} className={props.className}>
-      {children.slice(startIndex, startIndex + visibleCount)}
+      {children.slice(startIndex, startIndex + visibleCount + 1)}
       {ratio < 1 && getScrollbar(ratio)}
     </div>
   );

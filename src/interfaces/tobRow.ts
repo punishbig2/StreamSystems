@@ -3,7 +3,7 @@ import {Order} from 'interfaces/order';
 export const InvalidPrice: number = -1;
 
 export enum TOBRowStatus {
-  Normal, BidGreaterThanOfrError, IncompleteError
+  Normal, BidGreaterThanOfrError, IncompleteError, CreatingOrder
 }
 
 export interface TOBRow {

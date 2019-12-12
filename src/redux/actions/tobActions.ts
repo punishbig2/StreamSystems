@@ -1,9 +1,11 @@
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import {ArrowDirection, W} from 'interfaces/w';
+import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
@@ -18,23 +20,24 @@ import {$$} from 'utils/stringPaster';
 
 type ActionType = Action<TOBActions>;
 
-export const cancelOrder = (id: string, entry: Order): AsyncAction<any, ActionType> => {
-  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.cancelOrder(entry);
+export const cancelOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
+  const rowID: string = toRowId(order.tenor, order.symbol, order.strategy);
+  const initialAction: AnyAction = createAction($$(rowID, RowActions.CancellingOrder), order.type);
+  const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
+    const result = await API.cancelOrder(order);
     if (result.Status === 'Success') {
-      const type: string = $$(entry.tenor, entry.symbol, entry.strategy, TOBActions.DeleteOrder);
+      const type: string = $$(order.tenor, order.symbol, order.strategy, TOBActions.DeleteOrder);
       const event: Event = new CustomEvent(type, {detail: result.OrderID});
       // Emit the event
       document.dispatchEvent(event);
       // Return the action
       // FIXME: we should do this with events too
-      return createAction($$(id, TOBActions.OrderCanceled, {
-        order: {OrderID: result.OrderID},
-      }));
+      return createAction($$(rowID, RowActions.OrderCanceled));
     } else {
-      return createAction($$(id, TOBActions.OrderNotCanceled));
+      return createAction($$(rowID, RowActions.OrderNotCanceled));
     }
-  }, createAction($$(id, TOBActions.CancelOrder)));
+  };
+  return new AsyncAction<any, ActionType>(handler, initialAction);
 };
 
 interface OrderMessage {
@@ -111,19 +114,22 @@ export const setRowStatus = (id: string, symbol: string, strategy: string, tenor
   return createAction($$(toRowId(tenor, symbol, strategy), RowActions.SetRowStatus), status);
 };
 
-export const createOrder = (id: string, entry: Order, minQty: number): AsyncAction<any, ActionType> => {
-  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
-    const result = await API.createOrder(entry);
+export const createOrder = (id: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
+  const rowID: string = toRowId(order.tenor, order.symbol, order.strategy);
+  const initialAction: AnyAction = createAction($$(rowID, RowActions.CreatingOrder), order.type);
+  const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
+    const result: OrderResponse = await API.createOrder(order);
     // FIXME: parse the result
     if (result.Status === 'Success') {
-      return createAction($$(id, TOBActions.OrderCreated), {
+      return createAction($$(rowID, RowActions.OrderCreated), {
         order: {OrderID: result.OrderID},
-        key: $$(entry.tenor, getSideFromType(entry.type)),
+        key: $$(order.tenor, getSideFromType(order.type)),
       });
     } else {
-      return createAction($$(id, TOBActions.OrderNotCreated));
+      return createAction($$(rowID, RowActions.OrderNotCreated));
     }
-  }, createAction($$(id, TOBActions.CreateOrder)));
+  };
+  return new AsyncAction<any, ActionType>(handler, initialAction);
 };
 
 export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {

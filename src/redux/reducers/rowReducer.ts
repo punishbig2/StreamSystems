@@ -1,5 +1,6 @@
 import equal from 'fast-deep-equal';
-import {Order} from 'interfaces/order';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order, OrderStatus} from 'interfaces/order';
 import {Action} from 'redux/action';
 import {RowActions} from 'redux/constants/rowConstants';
 import {RowState} from 'redux/stateDefs/rowState';
@@ -26,6 +27,30 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         } else {
           throw new Error('unknown side, cannot process removal!!!');
         }
+      case $$(id, RowActions.CreatingOrder):
+        if (data === OrderTypes.Bid) {
+          return {...state, row: {...row, bid: {...bid, status: OrderStatus.BeingCreated | bid.status}}};
+        } else if (data === OrderTypes.Ofr) {
+          return {...state, row: {...row, ofr: {...ofr, status: OrderStatus.BeingCreated | ofr.status}}};
+        } else {
+          return state;
+        }
+      case $$(id, RowActions.CancellingOrder):
+        if (data === OrderTypes.Bid) {
+          return {...state, row: {...row, bid: {...bid, status: OrderStatus.BeingCancelled | bid.status}}};
+        } else if (data === OrderTypes.Ofr) {
+          return {...state, row: {...row, ofr: {...ofr, status: OrderStatus.BeingCancelled | ofr.status}}};
+        } else {
+          return state;
+        }
+      case $$(id, RowActions.OrderCanceled):
+        return state;
+      case $$(id, RowActions.OrderNotCanceled):
+        return state;
+      case $$(id, RowActions.OrderCreated):
+        return state;
+      case $$(id, RowActions.OrderNotCreated):
+        return state;
       case $$(id, RowActions.UpdateOfr):
         if (!isModified(ofr, data))
           return state;

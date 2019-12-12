@@ -159,23 +159,37 @@ export const Price: React.FC<Props> = (props: Props) => {
 
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
 
-  return (
-    <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
-         onMouseMove={onMouseMove}>
-      <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
-      <NumericInput
-        tabIndex={props.tabIndex}
-        value={finalValue}
-        onDoubleClick={onDoubleClick}
-        onChange={onChange}
-        onSubmitted={onSubmitted}
-        onFocus={onFocus}
-        onTabbedOut={onTabbedOut}
-        className={getInputClass(state.status, props.className)}
-        onNavigate={props.onNavigate}/>
-      {/* The floating object */}
-      {getTooltip()}
-    </div>
-  );
+  if ((props.status & OrderStatus.BeingCreated) !== 0) {
+    return (
+      <div className={'price-waiting-spinner'}>
+        <span>Creating&hellip;</span>
+      </div>
+    );
+  } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
+    return (
+      <div className={'price-waiting-spinner'}>
+        <span>Cancelling&hellip;</span>
+      </div>
+    );
+  } else {
+    return (
+      <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
+           onMouseMove={onMouseMove}>
+        <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
+        <NumericInput
+          tabIndex={props.tabIndex}
+          value={finalValue}
+          onDoubleClick={onDoubleClick}
+          onChange={onChange}
+          onSubmitted={onSubmitted}
+          onFocus={onFocus}
+          onTabbedOut={onTabbedOut}
+          className={getInputClass(state.status, props.className)}
+          onNavigate={props.onNavigate}/>
+        {/* The floating object */}
+        {getTooltip()}
+      </div>
+    );
+  }
 };
 

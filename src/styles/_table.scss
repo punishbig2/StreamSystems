@@ -4,36 +4,18 @@ $table-font-family: 'Roboto', sans-serif;
 $red-x-size: 16px;
 
 .table {
-  position: relative;
+  display: flex;
   font-size: 12px;
   min-height: 100%;
   min-width: 510px;
-  display: flex;
   flex-direction: column;
-  padding: 0 7px 0 5px;
-  margin: 8px 0 0 0;
+  box-sizing: content-box;
+  padding: 0 8px 8px 8px;
 
   .thead {
     width: 100%;
     z-index: 0;
     line-height: 30px;
-  }
-
-  .scroll-area {
-    flex: 1;
-    height: 100%;
-    pointer-events: all;
-    //noinspection CssInvalidPropertyValue
-    overflow-y: overlay;
-    &::-webkit-scrollbar-track {
-      background: blue;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: red;
-    }
-    &::-webkit-clear-button {
-      display: none;
-    }
   }
 
   .tbody {
@@ -242,6 +224,30 @@ $red-x-size: 16px;
     border-bottom: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
     pointer-events: initial;
+
+    .price-waiting-spinner {
+      display: inline-block;
+      vertical-align: middle;
+      position: relative;
+      padding: 0 0 0 22px;
+      font-weight: 600;
+      font-size: 11px;
+      margin: -1px 0 0 -24px;
+      &::before {
+        content: '';
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 4px 0 0;
+        width: 12px;
+        height: 12px;
+        border: 2px solid $table-border-color;
+        border-top-color: $primary-color;
+        border-left-color: $primary-color;
+        border-radius: 6px;
+        box-sizing: border-box;
+        animation: spin 1s infinite linear;
+      }
+    }
 
     .price-layout {
       &.flash {

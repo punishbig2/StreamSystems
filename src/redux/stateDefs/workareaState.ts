@@ -19,5 +19,4 @@ export interface WorkareaState {
   status: WorkareaStatus;
   connected: boolean;
   message?: string;
-  lastInitializationTimestamp?: string;
 }
