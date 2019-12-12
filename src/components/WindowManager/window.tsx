@@ -63,14 +63,15 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
   }
 };
 
-const adjustToContent = (element: HTMLDivElement): { width: number, height: number } => {
-  element.style.height = '1px';
-  element.style.width = '1px';
-  console.log(element.scrollWidth, element.scrollHeight);
-  // Restore it
-  element.style.width = `${element.scrollWidth}px`;
-  element.style.height = `${element.scrollHeight + 6}px`;
-  return {width: 0, height: 0};
+const adjustToContent = (element: HTMLDivElement) => {
+  const {style} = element;
+  // Reduce the element size so that we can determine
+  // it's scroll size
+  style.height = '1px';
+  style.width = '1px';
+  // Update the element with the minimal size possible
+  style.width = `${element.scrollWidth}px`;
+  style.height = `${element.scrollHeight + 6}px`;
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
