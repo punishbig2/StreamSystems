@@ -63,14 +63,23 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
   }
 };
 
-const adjustToContent = (element: HTMLDivElement) => {
+const pixels = (x: number): string => `${x}px`;
+const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
   const {style} = element;
   // Let's force scrollWidth and scrollHeight to have the minimal value
   style.width = '1px';
   style.height = '1px';
   // Update the element with the minimal size possible
-  style.width = element.scrollWidth + 'px';
-  style.height = (element.scrollHeight + 6) + 'px';
+  if (element.scrollWidth + element.offsetLeft < area.width) {
+    style.width = pixels(element.scrollWidth);
+  } else {
+    style.width = pixels(area.width - element.offsetLeft);
+  }
+  if (element.scrollHeight + element.offsetTop + 6 < area.height) {
+    style.height = pixels(element.scrollHeight + 6);
+  } else {
+    style.height = pixels(area.height - element.offsetTop);
+  }
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
@@ -104,20 +113,20 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     if (element === null)
       return;
     const observer = new MutationObserver(() => {
-      adjustToContent(parent);
+      adjustToContent(parent, area);
     });
     // Observe changes
     observer.observe(element, {childList: true, subtree: true});
     return () => observer.disconnect();
-  }, [container, geometry, autoSize]);
+  }, [container, geometry, autoSize, area]);
   useEffect(() => {
     if (!autoSize)
       return;
     const {current: parent} = container;
     if (parent === null)
       return;
-    adjustToContent(parent);
-  }, [container, autoSize]);
+    adjustToContent(parent, area);
+  }, [container, autoSize, area]);
   return (
     <div className={classes} ref={container} style={style} onClickCapture={props.onClick}>
       <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize} onAdjustSize={props.onAdjustSize}/>
