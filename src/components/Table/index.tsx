@@ -1,5 +1,6 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
+import {VirtuallyScrollableArea} from 'components/VirtuallyScrollableArea';
 import {SortInfo} from 'interfaces/sortInfo';
 import React, {ReactElement, useState} from 'react';
 import {theme} from 'theme';
@@ -11,6 +12,7 @@ export enum SortDirection {
 interface Props {
   columns: ColumnSpec[];
   rows?: { [id: string]: any };
+  scrollable: boolean;
   renderRow: (props: any) => ReactElement | null;
 }
 
@@ -84,14 +86,25 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       setFilters({...filters, [column]: clean});
     }
   };
+  const getBody = () => {
+    if (props.scrollable) {
+      return (
+        <VirtuallyScrollableArea className={'tbody'} itemCount={rowProps.length}>
+          {props.renderRow && rowProps.map(props.renderRow)}
+        </VirtuallyScrollableArea>
+      );
+    } else if (props.renderRow) {
+      return (
+        <div className={'tbody'}>
+          {rowProps.map(props.renderRow)}
+        </div>
+      );
+    }
+  };
   return (
     <div className={'table'} style={style}>
       <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
-      <div className={'tbody'}>
-        <div className={'scroll-area'}>
-          {props.renderRow && rowProps.map(props.renderRow)}
-        </div>
-      </div>
+      {getBody()}
     </div>
   );
 };

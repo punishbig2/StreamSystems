@@ -184,7 +184,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
           </label>
         </div>
       </div>
-      <Table columns={columns} rows={state.orders} renderRow={renderRow}/>
+      <Table scrollable={false} columns={columns} rows={state.orders} renderRow={renderRow}/>
       <div className={'dialog-buttons'}>
         <button className={'cancel'} onClick={props.onClose}>{strings.Close}</button>
         <button className={'success'} onClick={onSubmit}>{strings.Submit}</button>

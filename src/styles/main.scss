@@ -24,6 +24,13 @@
   max-width: 540px;
 }
 
+.visible {
+  display: initial;
+}
+
+.hidden {
+  display: none;
+}
 
 @import 'global';
 @import 'loading-window';

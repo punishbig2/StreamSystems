@@ -275,7 +275,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   };
   const getDepthTable = (): ReactElement | null => {
     // @ts-ignore if this function is called `tobVisible' has to be false so for sure this will exist
-    return <Table columns={createDOBColumns(data)} rows={state.depths[state.tenor]} renderRow={renderRow}/>;
+    return <Table scrollable={false} columns={createDOBColumns(data)} rows={state.depths[state.tenor]}
+                  renderRow={renderRow}/>;
   };
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
@@ -307,7 +308,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     onShowRunWindow={showRunWindow}
                     runsDisabled={!symbol || !strategy}/>
       <div className={'window-content'}>
-        {tobVisible && <Table columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>}
+        <div className={tobVisible ? 'visible' : 'hidden'}>
+          <Table scrollable={false} columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>
+        </div>
         {!tobVisible && getDepthTable()}
       </div>
       <ModalWindow render={renderOrderTicket} visible={state.orderTicket !== null}/>
