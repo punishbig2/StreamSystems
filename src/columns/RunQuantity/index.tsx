@@ -56,7 +56,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   };
   const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0;
   return (
-    <React.Fragment>
+    <>
       <Quantity type={order.type}
                 value={Number(value)}
                 onChange={onChange}
@@ -64,7 +64,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
                 onCancel={() => props.onCancel(order)}
                 cancelable={cancellable}
                 tabIndex={-1}/>
-    </React.Fragment>
+    </>
   );
 };
 

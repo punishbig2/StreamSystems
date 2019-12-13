@@ -75,7 +75,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     );
   };
   return (
-    <React.Fragment>
+    <>
       <div className={'window-title-bar'}>
         <h1>{strings.Messages}</h1>
       </div>
@@ -83,7 +83,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
         <Table scrollable={true} columns={columns} rows={entries} renderRow={renderRow}/>
       </div>
       <ModalWindow render={() => renderMessage()} visible={props.lastEntry !== null}/>
-    </React.Fragment>
+    </>
   );
 });
 

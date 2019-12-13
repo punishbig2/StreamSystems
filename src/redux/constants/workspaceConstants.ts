@@ -7,4 +7,5 @@ export enum WorkspaceActions {
   SetWindowTitle = 'WorkspaceActions.SetWindowTitle',
   BringToFront = 'WorkspaceActions.BringToFront',
   SetWindowAutoSize = 'WorkspaceActions.SetWindowAutoSize',
+  Toast = 'WorkspaceActions.Toast',
 }

@@ -22,7 +22,7 @@ const Row = (props: OwnProps & RowState) => {
     console.log(target, direction);
   };
   return (
-    <div className={'tr' + (row.status === TOBRowStatus.BidGreaterThanOfrError ? ' error' : '')}>
+    <div className={'tr' + (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')}>
       {columns.map((column) => {
         const width: string = percentage(column.weight, props.weight);
         const name: string = column.name;

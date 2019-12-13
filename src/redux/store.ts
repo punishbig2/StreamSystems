@@ -202,10 +202,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
 // Create the store
 export const store: Store = createStore(createReducer(dynamicReducers), initialState, enhancer);
 
-// Store persistence layer
-// FIXME keep references to check what changed and save that only
-store.subscribe(() => {
-  const state: ApplicationState = store.getState();
+const saveToLocalStorage = (state: ApplicationState) => {
   const {workarea, ...entries} = state;
   const workspaces: { [id: string]: IWorkspace } = workarea.workspaces;
   // FIXME: improve this with mobX (probably)
@@ -218,7 +215,6 @@ store.subscribe(() => {
       return undefined;
     return value;
   };
-
   // Save the global attributes
   localStorage.setItem(PersistedKeys.Workarea, JSON.stringify(persistedObject, filter));
   // Save the dynamic keys
@@ -227,4 +223,11 @@ store.subscribe(() => {
       continue;
     localStorage.setItem(key, JSON.stringify(object, filter));
   }
+};
+
+// Store persistence layer
+// FIXME keep references to check what changed and save that only
+store.subscribe(() => {
+  const state: ApplicationState = store.getState();
+  saveToLocalStorage(state);
 });

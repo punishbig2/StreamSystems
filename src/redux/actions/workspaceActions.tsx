@@ -48,6 +48,10 @@ export const setWindowTitle = (id: string, windowId: string, title: string): Act
   return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowId, title});
 };
 
+export const setToast = (id: string, message: string | null): Action<string> => {
+  return createAction($$(id, WorkspaceActions.Toast), message);
+};
+
 export const setWindowAutoSize = (id: string, windowId: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {id: windowId});
 };

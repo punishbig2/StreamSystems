@@ -6,6 +6,7 @@ import {$$} from 'utils/stringPaster';
 
 const genesisState: WorkspaceState = {
   windows: {},
+  toast: null,
 };
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
@@ -98,6 +99,8 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
         return {...state, windows: restoreWindow(data, state)};
       case $$(id, WorkspaceActions.BringToFront):
         return {...state, windows: bringToFront(data, state)};
+      case $$(id, WorkspaceActions.Toast):
+        return {...state, toast: data};
       default:
         return state;
     }

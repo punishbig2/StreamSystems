@@ -32,6 +32,7 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
   useEffect(() => {
     if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
+    console.log('initializing');
     const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
       object[item.id] = item;
       // Return the accumulator

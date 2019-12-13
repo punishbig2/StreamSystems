@@ -101,7 +101,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
       );
     case WorkareaStatus.Ready:
       return (
-        <React.Fragment>
+        <>
           {getActiveWorkspace()}
           <div className={'footer'}>
             <TabBar
@@ -113,7 +113,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
               active={props.activeWorkspace}/>
           </div>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
-        </React.Fragment>
+        </>
       );
     default:
       // Should never happen

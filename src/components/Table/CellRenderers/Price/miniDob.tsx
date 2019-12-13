@@ -40,10 +40,10 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
     );
   });
   return (
-    <React.Fragment>
+    <>
       <div className={'mini-dob'}>
         {children}
       </div>
-    </React.Fragment>
+    </>
   );
 };

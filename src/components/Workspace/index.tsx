@@ -3,8 +3,9 @@ import {TOB} from 'components/TOB';
 import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
+import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useEffect, useState} from 'react';
+import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {
@@ -14,8 +15,9 @@ import {
   moveWindow,
   removeWindow,
   restoreWindow,
-  setWindowTitle,
+  setToast,
   setWindowAutoSize,
+  setWindowTitle,
 } from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
@@ -33,6 +35,7 @@ interface DispatchProps {
   setWindowTitle: (id: string, title: string) => void;
   bringToFront: (id: string) => void;
   setWindowAutoSize: (id: string) => void;
+  showToast: (message: string | null) => void;
 }
 
 interface OwnProps {
@@ -53,6 +56,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   setWindowTitle: (windowId: string, title: string) => dispatch(setWindowTitle(id, windowId, title)),
   bringToFront: (windowId: string) => dispatch(bringToFront(id, windowId)),
   setWindowAutoSize: (windowId: string) => dispatch(setWindowAutoSize(id, windowId)),
+  showToast: (message: string | null) => dispatch(setToast(id, message)),
 });
 
 const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, OwnProps, ApplicationState>(
@@ -62,12 +66,18 @@ const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, 
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
 
-const createWindow = (id: string, type: WindowTypes, symbols: Currency[], products: Strategy[],
-                      tenors: string[], user: User, setWindowTitle: (id: string, title: string) => void) => {
+const createWindow = (id: string,
+                      type: WindowTypes,
+                      symbols: Currency[],
+                      products: Strategy[],
+                      tenors: string[],
+                      user: User, setWindowTitle: (id: string, title: string) => void,
+                      onRowError: (status: TOBRowStatus) => void) => {
+
   switch (type) {
     case WindowTypes.TOB:
       return <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user}
-                  setWindowTitle={setWindowTitle}/>;
+                  setWindowTitle={setWindowTitle} onRowError={onRowError}/>;
     case WindowTypes.MessageBlotter:
       return <MessageBlotter id={id} setWindowTitle={setWindowTitle}/>;
     default:
@@ -83,6 +93,7 @@ interface ToolbarState {
 const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
   const [toolbarState, setToolbarState] = useState<ToolbarState>({hovering: false, visible: false});
   const {symbols, products, tenors} = props;
+  const {showToast} = props;
   const user: User = getAuthenticatedUser();
 
   const onMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -132,10 +143,24 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
     }
   };
 
+  const onRowError = useCallback((status: TOBRowStatus) => {
+    switch (status) {
+      case TOBRowStatus.Normal:
+        break;
+      case TOBRowStatus.InvertedMarketsError:
+        showToast('Inverted Markets Not Allowed');
+        break;
+      case TOBRowStatus.IncompleteError:
+        break;
+      case TOBRowStatus.CreatingOrder:
+        break;
+    }
+  }, [showToast]);
+
   const renderContent = (id: string, type: WindowTypes): ReactElement | null => {
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
-    return createWindow(id, type, symbols, products, tenors, user, props.setWindowTitle);
+    return createWindow(id, type, symbols, products, tenors, user, props.setWindowTitle, onRowError);
   };
 
   const toolbarClasses = ['toolbar'];
@@ -145,7 +170,7 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
     toolbarClasses.push('hovering');
 
   return (
-    <React.Fragment>
+    <>
       <div className={toolbarClasses.join(' ')} onMouseLeave={onMouseLeave}>
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
@@ -153,8 +178,10 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
         </div>
       </div>
       <WindowManager
-        windows={props.windows}
+        toast={props.toast}
         renderContent={renderContent}
+        windows={props.windows}
+        onClearToast={() => props.showToast(null)}
         onMouseMove={onMouseMove}
         onSetWindowTitle={props.setWindowTitle}
         onGeometryChange={props.updateGeometry}
@@ -163,7 +190,7 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
         onWindowRestored={props.restoreWindow}
         onWindowClicked={props.bringToFront}
         onWindowSizeAdjusted={props.setWindowAutoSize}/>
-    </React.Fragment>
+    </>
   );
 });
 

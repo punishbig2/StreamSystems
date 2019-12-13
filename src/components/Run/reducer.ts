@@ -82,7 +82,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   const getRowStatus = (computed: RunEntry): TOBRowStatus => {
     if (computed.bid === null || computed.ofr === null)
       return TOBRowStatus.Normal;
-    return computed.bid > computed.ofr ? TOBRowStatus.BidGreaterThanOfrError : TOBRowStatus.Normal;
+    return computed.bid > computed.ofr ? TOBRowStatus.InvertedMarketsError : TOBRowStatus.Normal;
   };
   const getOrderStatus = (newValue: number | null, oldValue: number | null) => {
     if (newValue === null)

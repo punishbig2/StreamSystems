@@ -19,6 +19,7 @@ interface OwnProps {
   id: string;
   columns: ColumnSpec[];
   weight: number;
+  onError: (status: TOBRowStatus) => void;
 
   [key: string]: any;
 }
@@ -36,20 +37,29 @@ const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnPro
 );
 
 const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
-  const {id, columns, row, ...extra} = props;
+  const {id, columns, row, onError, ...extra} = props;
+  const {status} = row;
   // Compute the total weight of the columns
   useEffect(() => {
     injectNamedReducer(id, createRowReducer, {row});
     return () => {
       removeNamedReducer(id);
     };
-  }, [id, row]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+  useEffect(() => {
+    if (status === 0)
+      return;
+    if (status === TOBRowStatus.InvertedMarketsError) {
+      onError(status);
+    }
+  }, [onError, status]);
   const functions: DispatchProps = {
     setOfrQty: props.setOfrQty,
     setBidQty: props.setBidQty,
   };
   return (
-    <div className={'tr' + (row.status === TOBRowStatus.BidGreaterThanOfrError ? ' error' : '')}>
+    <div className={'tr' + (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')}>
       {columns.map((column) => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);

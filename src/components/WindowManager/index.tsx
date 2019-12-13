@@ -4,9 +4,10 @@ import React, {ReactElement, useState} from 'react';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 
 interface Props {
+  toast: string | null;
+  renderContent: (id: string, type: WindowTypes) => ReactElement | null;
   windows: { [id: string]: Window };
   onGeometryChange: (id: string, geometry: ClientRect) => void;
-  renderContent: (id: string, type: WindowTypes) => ReactElement | null;
   onWindowMinimized: (id: string) => void;
   onWindowClosed: (id: string) => void;
   onSetWindowTitle: (id: string, title: string) => void;
@@ -15,6 +16,7 @@ interface Props {
   onMouseMove?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onWindowClicked: (id: string) => void;
   onWindowSizeAdjusted: (id: string) => void;
+  onClearToast: () => void;
 }
 
 const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
@@ -72,6 +74,12 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       {windows.map(windowMapper)}
       <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}
+      </div>
+      <div className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(' ')}>
+        Inverted Markets Not Allowed
+        <div className={'close-button'} onClick={props.onClearToast}>
+          <i className={'fa fa-times'}/>
+        </div>
       </div>
     </div>
   );

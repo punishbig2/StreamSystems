@@ -19,7 +19,7 @@ import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import {SettingsContext} from 'main';
-import React, {ReactElement, useContext, useEffect, useReducer, useState} from 'react';
+import React, {ReactElement, useCallback, useContext, useEffect, useReducer, useState} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
@@ -52,6 +52,7 @@ interface OwnProps {
   user: User;
   onClose?: () => void;
   setWindowTitle?: (id: string, title: string) => void;
+  onRowError: (status: TOBRowStatus) => void;
 }
 
 interface DispatchProps {
@@ -178,7 +179,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     },
     onOrderModified: (order: Order) => {
       if (order.price === InvalidPrice) {
-        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.BidGreaterThanOfrError);
+        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.InvertedMarketsError);
       } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
         if (order.quantity === null) {
           createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
@@ -268,13 +269,15 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       onSubmit={bulkCreateOrders}/>
   );
   const user = {email};
+  const onRowError = useCallback((status: TOBRowStatus) => props.onRowError(status), [props.onRowError]);
   const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
     return (
-      <Row {...props} user={user} depths={state.depths}/>
+      <Row {...props} user={user} depths={state.depths} onError={onRowError}/>
     );
   };
   const getDepthTable = (): ReactElement | null => {
     // @ts-ignore if this function is called `tobVisible' has to be false so for sure this will exist
+    // and there's no way that `rows' will be undefined
     return <Table scrollable={false} columns={createDOBColumns(data)} rows={state.depths[state.tenor]}
                   renderRow={renderRow}/>;
   };
@@ -297,7 +300,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     }
   }, [state.depths, state.tenor]);
   return (
-    <React.Fragment>
+    <>
       <TOBTileTitle symbol={symbol}
                     strategy={strategy}
                     symbols={symbols}
@@ -315,7 +318,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       </div>
       <ModalWindow render={renderOrderTicket} visible={state.orderTicket !== null}/>
       <ModalWindow render={runWindow} visible={state.runWindowVisible}/>
-    </React.Fragment>
+    </>
   );
 });
 

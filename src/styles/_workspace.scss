@@ -175,4 +175,38 @@
       }
     }
   }
+
+  .toast {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    width: 400px;
+    line-height: 2em;
+    text-align: center;
+    height: 2em;
+    margin-left: -200px;
+    z-index: 1;
+    background-color: $text-color-red;
+    color: white;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 600;
+
+    .close-button {
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      font-size: 16px;
+
+      i {
+        color: white;
+      }
+
+      line-height: 22px;
+      right: 4px;
+      top: 50%;
+      margin-top: -10px;
+      cursor: pointer;
+    }
+  }
 }

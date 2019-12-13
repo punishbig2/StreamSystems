@@ -6,4 +6,5 @@ export interface ApplicationState {
   workarea: WorkareaState;
   messageBlotter: MessageBlotterState;
   settings: SettingsState;
+  [key: string]: any;
 }
