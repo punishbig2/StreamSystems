@@ -7,4 +7,5 @@ export interface State {
   orders: TOBTable;
   defaultOfrSize: number;
   defaultBidSize: number;
+  initialized: boolean;
 }

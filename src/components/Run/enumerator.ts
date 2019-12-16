@@ -9,7 +9,7 @@ export enum RunActions {
   BidQtyChanged = 'Run.BidQuantityChanged',
   UpdateBid = 'Run.UpdateBid',
   UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',
-  UpdateOffer = 'Run.UpdateOffer',
+  UpdateOfr = 'Run.UpdateOffer',
   UpdateDefaultBidQty = 'Run.UpdateDefaultBidQty',
   RemoveOrder = 'Run.RemoveOrder',
   RemoveAllOfrs = 'Run.RemoveAllOfrs',

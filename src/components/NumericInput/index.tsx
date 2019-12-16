@@ -23,6 +23,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
       onSubmitted();
     }
   };
+  const reset = () => props.onChange(null);
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
@@ -61,13 +62,13 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         event.preventDefault();
         break;
       case 'Escape':
-        props.onChange(null);
+        reset();
         break;
     }
   };
   const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
-    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus}/>
+    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus} onBlur={reset}/>
   );
 };
 

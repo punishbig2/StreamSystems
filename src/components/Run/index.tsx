@@ -14,7 +14,7 @@ import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import strings from 'locales';
 import {SettingsContext} from 'main';
-import React, {ReactElement, useContext, useReducer} from 'react';
+import React, {ReactElement, useCallback, useContext, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {Settings} from 'settings';
 import {toRunId} from 'utils';
@@ -41,6 +41,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     history: {},
     defaultBidSize: settings.defaultSize,
     defaultOfrSize: settings.defaultSize,
+    initialized: false,
   });
   const {symbol, strategy, tenors, user} = props;
   const {email} = user;
@@ -53,7 +54,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       case OrderTypes.Invalid:
         break;
       case OrderTypes.Ofr:
-        dispatch(createAction(RunActions.UpdateOffer, {id, entry: order}));
+        dispatch(createAction(RunActions.UpdateOfr, {id, entry: order}));
         break;
       case OrderTypes.Bid:
         dispatch(createAction(RunActions.UpdateBid, {id, entry: order}));
@@ -64,16 +65,17 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const onDelete = (id: string) => dispatch(createAction(RunActions.RemoveOrder, id));
+  const onDeleteOfrs = useCallback(() => dispatch(createAction(RunActions.RemoveAllOfrs)), []);
+  const onDeleteBids = useCallback(() => dispatch(createAction(RunActions.RemoveAllBids)), []);
 
   useOrderListener(tenors, symbol, strategy, {onUpdate, onDelete});
-  useDeleteAllListener(symbol, strategy, Sides.Sell, () => dispatch(createAction(RunActions.RemoveAllOfrs)));
-  useDeleteAllListener(symbol, strategy, Sides.Buy, () => dispatch(createAction(RunActions.RemoveAllBids)));
+  useDeleteAllListener(symbol, strategy, Sides.Sell, onDeleteOfrs);
+  useDeleteAllListener(symbol, strategy, Sides.Buy, onDeleteBids);
   useInitializer(tenors, symbol, strategy, email, setTable);
 
-  const onSubmit = () => {
-    if (state.orders === null)
-      return;
-    const eligible: OrderStatus = OrderStatus.PriceEdited | OrderStatus.Cancelled;
+  const getSelectedOrders = (): Order[] => {
+    if (state.orders === null || !state.initialized)
+      return [];
     const rows: TOBRow[] = Object
       .values(state.orders)
       .filter((row: TOBRow) => {
@@ -91,12 +93,21 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidSize)})),
       ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrSize)})),
     ];
-    const selected: Order[] = entries
-      .filter((entry: Order) => (entry.status & eligible) !== 0)
-    ;
-    if (selected.length === 0)
-      return;
-    props.onSubmit(selected);
+    return entries
+      .filter((order: Order) => {
+        if ((order.status & OrderStatus.PriceEdited) !== 0)
+          return true;
+        return (order.status & OrderStatus.Cancelled) !== 0;
+      });
+  };
+
+  const isSubmitEnabled = () => {
+    const selection: Order[] = getSelectedOrders();
+    return selection.length > 0;
+  };
+
+  const onSubmit = () => {
+    props.onSubmit(getSelectedOrders());
   };
 
   if (state.orders === {})
@@ -187,7 +198,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       <Table scrollable={false} columns={columns} rows={state.orders} renderRow={renderRow}/>
       <div className={'dialog-buttons'}>
         <button className={'cancel'} onClick={props.onClose}>{strings.Close}</button>
-        <button className={'success'} onClick={onSubmit}>{strings.Submit}</button>
+        <button className={'success'} onClick={onSubmit} disabled={!isSubmitEnabled()}>{strings.Submit}</button>
       </div>
     </div>
   );

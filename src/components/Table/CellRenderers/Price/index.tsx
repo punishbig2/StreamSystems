@@ -171,6 +171,12 @@ export const Price: React.FC<Props> = (props: Props) => {
         <span>Cancelling&hellip;</span>
       </div>
     );
+  } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
+    return (
+      <div className={'price-waiting-spinner'}>
+        <span>Loading&hellip;</span>
+      </div>
+    );
   } else {
     return (
       <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
@@ -179,12 +185,12 @@ export const Price: React.FC<Props> = (props: Props) => {
         <NumericInput
           tabIndex={props.tabIndex}
           value={finalValue}
+          className={getInputClass(state.status, props.className)}
           onDoubleClick={onDoubleClick}
           onChange={onChange}
           onSubmitted={onSubmitted}
           onFocus={onFocus}
           onTabbedOut={onTabbedOut}
-          className={getInputClass(state.status, props.className)}
           onNavigate={props.onNavigate}/>
         {/* The floating object */}
         {getTooltip()}

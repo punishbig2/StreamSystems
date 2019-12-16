@@ -76,7 +76,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         {minimized.map(minimizedWindowMapper)}
       </div>
       <div className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(' ')}>
-        Inverted Markets Not Allowed
+        <div className={'message'}>{props.toast}</div>
         <div className={'close-button'} onClick={props.onClearToast}>
           <i className={'fa fa-times'}/>
         </div>

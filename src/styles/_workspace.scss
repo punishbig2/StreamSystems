@@ -192,6 +192,10 @@
     font-size: 15px;
     font-weight: 600;
 
+    .message {
+      color: inherit;
+    }
+
     .close-button {
       position: absolute;
       height: 22px;

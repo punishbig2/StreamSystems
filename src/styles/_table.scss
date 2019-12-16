@@ -233,6 +233,7 @@ $red-x-size: 16px;
       font-weight: 600;
       font-size: 11px;
       margin: -1px 0 0 -24px;
+
       &::before {
         content: '';
         display: inline-block;
@@ -257,12 +258,11 @@ $red-x-size: 16px;
       }
 
       input {
+        cursor: default;
 
         &:focus {
           cursor: initial;
         }
-
-        cursor: default;
 
         &.owned {
           color: $text-color-red;
@@ -272,7 +272,7 @@ $red-x-size: 16px;
           color: #a0a0a0;
         }
 
-        &.mid, &.tob-size {
+        &.mid, &.tob-size, &:not(.owned).same-bank {
           color: $text-color-blue;
         }
 

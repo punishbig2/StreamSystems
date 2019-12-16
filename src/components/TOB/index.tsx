@@ -46,13 +46,14 @@ import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
   id: string;
+  user: User;
   tenors: string[],
   products: Strategy[];
   symbols: Currency[];
-  user: User;
-  onClose?: () => void;
-  setWindowTitle?: (id: string, title: string) => void;
+  connected: boolean;
+  setWindowTitle: (id: string, title: string) => void;
   onRowError: (status: TOBRowStatus) => void;
+  onClose?: () => void;
 }
 
 interface DispatchProps {
@@ -113,6 +114,7 @@ const initialState: State = {
 
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const {symbols, symbol, products, strategy, tenors, connected, subscribe, rows} = props;
+  const {getSnapshot, getRunOrders, onRowError} = props;
   const settings = useContext<Settings>(SettingsContext);
   const {email} = props.user;
   // Simple reducer for the element only
@@ -144,13 +146,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Initialize tile/window
   useInitializer(tenors, symbol, strategy, email, props.initialize);
   // Subscribe to signal-r
-  useSubscriber(rows, connected, symbol, strategy, subscribe, props.getSnapshot, props.getRunOrders);
+  useSubscriber(rows, connected, symbol, strategy, subscribe, getSnapshot, getRunOrders);
   // Handler methods
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
-
-  /*onUpdateOrder: (entry: Order) => {
-    updateOrder(entry);
-  },*/
   const data: TOBData = {
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
       switch (type) {
@@ -218,7 +216,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         } else if (order.quantity > newQuantity) {
           updateOrder({...order, quantity: newQuantity});
         } else if (order.quantity < newQuantity) {
-          createOrder({...order, quantity: newQuantity - order.quantity}, settings.minSize);
+          cancelOrder(order);
+          createOrder({...order, quantity: newQuantity}, settings.minSize);
         }
       } else {
         const {quantity} = order;
@@ -269,10 +268,10 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       onSubmit={bulkCreateOrders}/>
   );
   const user = {email};
-  const onRowError = useCallback((status: TOBRowStatus) => props.onRowError(status), [props.onRowError]);
+  const onRowErrorFn = useCallback((status: TOBRowStatus) => onRowError(status), [onRowError]);
   const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
     return (
-      <Row {...props} user={user} depths={state.depths} onError={onRowError}/>
+      <Row {...props} user={user} depths={state.depths} onError={onRowErrorFn}/>
     );
   };
   const getDepthTable = (): ReactElement | null => {

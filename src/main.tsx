@@ -1,3 +1,4 @@
+import whyDidYouRender from '@welldone-software/why-did-you-render';
 import {Workarea} from 'components/Workarea';
 
 import 'fonts/fontawesome/css/all.min.css';
@@ -19,6 +20,8 @@ Object.defineProperty(MouseEvent.prototype, 'ignore', {
 const defaultSettings: Settings = {minSize: 10, defaultSize: 10};
 const currentSettings: Settings = defaultSettings;
 export const SettingsContext = React.createContext<Settings>(currentSettings);
+
+whyDidYouRender(React);
 
 const FXOptionsUI: React.FC = () => {
   return (

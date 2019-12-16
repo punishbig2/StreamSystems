@@ -6,6 +6,7 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
+import {decompose} from 'utils/debug';
 
 type Calculator = (v1: number | null, v2: number | null) => number | null;
 
@@ -84,7 +85,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
       return TOBRowStatus.Normal;
     return computed.bid > computed.ofr ? TOBRowStatus.InvertedMarketsError : TOBRowStatus.Normal;
   };
-  const getOrderStatus = (newValue: number | null, oldValue: number | null) => {
+  const getOrderStatus = (newValue: number | null) => {
     if (newValue === null)
       return OrderStatus.None;
     return OrderStatus.PriceEdited;
@@ -108,14 +109,14 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
               // Update the price
               price: coalesce(computedEntry.ofr, startingEntry.ofr),
               // Update the status and set it as edited/modified
-              status: ofr.status | getOrderStatus(computedEntry.ofr, startingEntry.ofr),
+              status: ofr.status | getOrderStatus(computedEntry.of),
             },
             bid: {
               ...bid,
               // Update the price
               price: coalesce(computedEntry.bid, startingEntry.bid),
               // Update the status and set it as edited/modified
-              status: bid.status | getOrderStatus(computedEntry.bid, startingEntry.bid),
+              status: bid.status | getOrderStatus(computedEntry.bid),
             },
             status: getRowStatus(computedEntry),
           },
@@ -155,7 +156,10 @@ const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
   const rows: [string, TOBRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
     const order: Order = row[key];
-    return [index, {...row, [key]: {...order, status: order.status | (OrderStatus.Cancelled & ~OrderStatus.Active)}}];
+    console.log(decompose(order.status));
+    if (order.price !== null)
+      return [index, {...row, [key]: {...order, status: order.status | (OrderStatus.Cancelled & ~OrderStatus.Active)}}];
+    return [index, row];
   });
   return {...state, orders: Object.fromEntries(entries)};
 };
@@ -163,6 +167,7 @@ const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
 const removeOrder = (state: State, id: string) => {
   const orders: TOBTable = {...state.orders};
   const rows: [string, TOBRow][] = Object.entries(orders);
+  console.log(id, orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
     const {bid, ofr} = row;
     return [index, {...row, bid: clearIfMatches(bid, id), ofr: clearIfMatches(ofr, id)}];
@@ -176,7 +181,7 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
   return bid.price < ofr.price;
 };
 
-const updateEntry = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
+const updateOrder = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
   const {orders} = state;
   const order: Order = data.entry;
   const row: TOBRow = orders[data.id];
@@ -202,7 +207,7 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
   const {orders} = state;
   // Extract the target row
   const row: TOBRow = orders[data.id];
-  // Extract the target entry
+  // Extract the target order
   const entry: Order = row[key];
   return {
     ...state,
@@ -244,11 +249,11 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
     case RunActions.UpdateDefaultOfrQty:
       return {...state, defaultOfrSize: data};
     case RunActions.UpdateBid:
-      return updateEntry(state, data, 'bid');
-    case RunActions.UpdateOffer:
-      return updateEntry(state, data, 'ofr');
+      return updateOrder(state, data, 'bid');
+    case RunActions.UpdateOfr:
+      return updateOrder(state, data, 'ofr');
     case RunActions.SetTable:
-      return {...state, orders: data, history: deriveEditHistory(data)};
+      return {...state, orders: data, history: deriveEditHistory(data), initialized: true};
     case RunActions.OfrQtyChanged:
       return updateQty(state, data, 'ofr');
     case RunActions.BidQtyChanged:

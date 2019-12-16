@@ -11,6 +11,8 @@ export const getInputClass = (status: OrderStatus, className?: string): string =
       classes.push('pre-filled');
     if ((status & OrderStatus.Cancelled) !== 0)
       classes.push('cancelled');
+    if ((status & OrderStatus.SameBank) !== 0)
+      classes.push('same-bank');
     return classes.join(' ');
   } else {
     return '';

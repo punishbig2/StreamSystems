@@ -2,6 +2,14 @@
   .message-entry {
     width: 400px;
 
+    .message-entry-label {
+      * {
+        color: #556;
+        font-weight: 500;
+        text-align: right;
+      }
+    }
+
     .message-entry-label,
     .message-entry-value {
       display: inline-block;
@@ -10,7 +18,13 @@
     }
 
     .message-entry-value {
-      text-align: right;
+      * {
+        text-align: left;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 3px;
+      }
     }
   }
 }

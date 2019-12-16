@@ -2,7 +2,7 @@ import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {TenorType} from 'interfaces/w';
 import {useEffect} from 'react';
-import {toRowId} from 'utils';
+import {toRowID} from 'utils';
 import {compareTenors, emptyBid, emptyOffer} from 'utils/dataGenerators';
 
 const buildRows = (tenors: string[], symbol: string, strategy: string, email: string): TOBRow[] => {
@@ -14,7 +14,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
       // Ideally, we should implement the ability to stop
       const row: TOBRow = {
         tenor: tenor,
-        id: toRowId(tenor, symbol, strategy),
+        id: toRowID(tenor, symbol, strategy),
         bid: emptyBid(tenor, symbol, strategy, email),
         darkPool: '',
         ofr: emptyOffer(tenor, symbol, strategy, email),
@@ -32,7 +32,6 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
   useEffect(() => {
     if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
-    console.log('initializing');
     const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
       object[item.id] = item;
       // Return the accumulator

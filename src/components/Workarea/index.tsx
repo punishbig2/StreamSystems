@@ -77,11 +77,11 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     // Close the modal window
     setSelectedToClose(null);
   };
-  const getActiveWorkspace = (): ReactElement | null => {
+  const getActiveWorkspace = (connected: boolean): ReactElement | null => {
     if (active === null)
       return null;
     return (
-      <Workspace id={active} symbols={symbols} products={products} tenors={tenors} connected={props.connected}/>
+      <Workspace id={active} symbols={symbols} products={products} tenors={tenors} connected={connected}/>
     );
   };
   switch (props.status) {
@@ -102,7 +102,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     case WorkareaStatus.Ready:
       return (
         <>
-          {getActiveWorkspace()}
+          {getActiveWorkspace(props.connected)}
           <div className={'footer'}>
             <TabBar
               entries={workspaces}

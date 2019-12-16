@@ -14,4 +14,7 @@ export enum RowActions {
   CancellingOrder = 'RowActions.CancellingOrder',
   OrderCanceled = 'RowActions.OrderCanceled',
   OrderNotCanceled = 'RowActions.OrderNotCanceled',
+  SnapshotReceived = 'RowActions.SnapshotReceived',
+  GettingSnapshot = 'RowActions.GettingSnapshot',
+  ErrorGettingSnapshot = 'RowActions.ErrorGettingSnapshot',
 }

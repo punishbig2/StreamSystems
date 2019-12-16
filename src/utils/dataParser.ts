@@ -32,18 +32,21 @@ const normalizeTickDirection = (source: string | undefined): ArrowDirection => {
 export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
   const user: User = getAuthenticatedUser();
   if (entry) {
-    const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
     const price: number | null = getNumber(entry.MDEntryPx);
+    const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
+    const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
+    const prefilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
     const quantity: number | null = getNumber(entry.MDEntrySize);
+    const status: OrderStatus = OrderStatus.Active | ownership | prefilled | sameBank;
     return {
       tenor: w.Tenor,
       strategy: w.Strategy,
       symbol: w.Symbol,
-      status: OrderStatus.Active | OrderStatus.PreFilled | ownership,
+      status: status,
       user: entry.MDEntryOriginator,
       quantity: quantity,
       price: price,
-      firm: entry.MDFirm,
+      firm: entry.MDMkt,
       type: entry.MDEntryType,
       orderId: entry.OrderID,
       arrowDirection: normalizeTickDirection(entry.TickDirection),

@@ -2,6 +2,7 @@ import {API} from 'API';
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
 import {Strategy} from 'interfaces/strategy';
+import {IWorkspace} from 'interfaces/workspace';
 import {AnyAction, Dispatch} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
@@ -14,12 +15,14 @@ import shortid from 'shortid';
 
 export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
 export const addWorkspaces = (): AnyAction => {
-  const id = `workspace-${shortid()}`;
+  const name: string = 'Untitled';
+  const id: string = `workspace-${shortid()}`;
+  const newWorkspace: IWorkspace = {id, name};
   // Create the reducer now, after doing this we will have the reducer
   // that will work specifically with this email
-  injectNamedReducer(id, createWorkspaceReducer);
+  injectNamedReducer(id, createWorkspaceReducer, {windows: {}, toast: null});
   // Generate the action to make the reducer insert a new workspace
-  return createAction(WorkareaActions.AddWorkspace, {id, name: 'Untitled'});
+  return createAction(WorkareaActions.AddWorkspace, newWorkspace);
 };
 
 export const addWindow = (type: WindowTypes, id: string): Action<WorkareaActions> => {

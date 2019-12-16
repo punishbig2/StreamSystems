@@ -54,7 +54,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       }
     }
   };
-  const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0;
+  const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0 && (order.status & OrderStatus.Cancelled) === 0;
   return (
     <>
       <Quantity type={order.type}

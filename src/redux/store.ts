@@ -61,7 +61,6 @@ const initialState: ApplicationState = {
     ...savedWorkarea,
   },
   messageBlotter: {
-    connected: false,
     entries: [],
     lastEntry: null,
   },

@@ -13,7 +13,7 @@ import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {SignalRAction} from 'redux/signalRAction';
-import {getSideFromType, toRowId} from 'utils';
+import {getSideFromType, toRowID} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
@@ -21,7 +21,7 @@ import {$$} from 'utils/stringPaster';
 type ActionType = Action<TOBActions>;
 
 export const cancelOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
-  const rowID: string = toRowId(order.tenor, order.symbol, order.strategy);
+  const rowID: string = toRowID(order.tenor, order.symbol, order.strategy);
   const initialAction: AnyAction = createAction($$(rowID, RowActions.CancellingOrder), order.type);
   const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
     const result = await API.cancelOrder(order);
@@ -76,24 +76,24 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: parse the result
+    console.log(result);
     if (result.Status === 'Success') {
       const type: string = $$(symbol, strategy, side, TOBActions.DeleteOrder);
       const event: Event = new CustomEvent(type);
       // Emit the event
       document.dispatchEvent(event);
-
-      return createAction($$(id, TOBActions.AllOrdersCanceled));
+      return createAction('___IGNORE');
     } else {
-      return createAction($$(id, TOBActions.AllOrdersNotCanceled));
+      return createAction('___IGNORE');
     }
-  }, createAction($$(id, TOBActions.CancelAllOrders)));
+  }, createAction(TOBActions.CancelAllOrders, {side, symbol, strategy}));
 };
 
 export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
   if (order.type === OrderTypes.Ofr) {
-    return createAction($$(toRowId(order.tenor, order.symbol, order.strategy), RowActions.UpdateOfr), order);
+    return createAction($$(toRowID(order.tenor, order.symbol, order.strategy), RowActions.UpdateOfr), order);
   } else if (order.type === OrderTypes.Bid) {
-    return createAction($$(toRowId(order.tenor, order.symbol, order.strategy), RowActions.UpdateBid), order);
+    return createAction($$(toRowID(order.tenor, order.symbol, order.strategy), RowActions.UpdateBid), order);
   } else {
     throw new Error('what the hell should I do?');
   }
@@ -111,11 +111,11 @@ export const updateOrder = (id: string, order: Order): AsyncAction<any, ActionTy
 };
 
 export const setRowStatus = (id: string, symbol: string, strategy: string, tenor: string, status: TOBRowStatus): Action<string> => {
-  return createAction($$(toRowId(tenor, symbol, strategy), RowActions.SetRowStatus), status);
+  return createAction($$(toRowID(tenor, symbol, strategy), RowActions.SetRowStatus), status);
 };
 
 export const createOrder = (id: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
-  const rowID: string = toRowId(order.tenor, order.symbol, order.strategy);
+  const rowID: string = toRowID(order.tenor, order.symbol, order.strategy);
   const initialAction: AnyAction = createAction($$(rowID, RowActions.CreatingOrder), order.type);
   const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
     const result: OrderResponse = await API.createOrder(order);
@@ -133,6 +133,7 @@ export const createOrder = (id: string, order: Order, minQty: number): AsyncActi
 };
 
 export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
+  const rowID: string = toRowID(tenor, symbol, strategy);
   return new AsyncAction<any, ActionType>(async () => {
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
@@ -142,12 +143,12 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
       return [
         handlers.W(tob),
         handlers.W(w),
-        createAction($$(id, TOBActions.SnapshotReceived), tob),
+        createAction($$(rowID, RowActions.SnapshotReceived), tob),
       ];
     } else {
-      return createAction($$(id, TOBActions.ErrorGettingSnapshot));
+      return createAction($$(rowID, RowActions.ErrorGettingSnapshot));
     }
-  }, createAction($$(id, TOBActions.GettingSnapshot)));
+  }, createAction($$(rowID, RowActions.GettingSnapshot)));
 };
 
 export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<TOBActions> => {

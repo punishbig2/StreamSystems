@@ -40,8 +40,10 @@ export enum OrderStatus {
   NotOwned = 1 << 7,
   HaveOrders = 1 << 8,
   HasDepth = 1 << 9,
-  BeingCreated = 1 << 10,
-  BeingCancelled = 1 << 11,
+  SameBank = 1 << 10,
+  BeingCreated = 1 << 11,
+  BeingCancelled = 1 << 12,
+  BeingLoaded = 1 << 13,
 }
 
 export interface Order {

@@ -48,7 +48,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       return map;
     }, {});
 
-  // Map each entry to properties
+  // Map each order to properties
   const rowProps: { [key: string]: any }[] = entries
     .map(propertyMapper)
     .filter(applyFilters(filters, columnMap));

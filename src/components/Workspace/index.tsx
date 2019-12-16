@@ -71,15 +71,26 @@ const createWindow = (id: string,
                       symbols: Currency[],
                       products: Strategy[],
                       tenors: string[],
+                      connected: boolean,
                       user: User, setWindowTitle: (id: string, title: string) => void,
                       onRowError: (status: TOBRowStatus) => void) => {
 
   switch (type) {
     case WindowTypes.TOB:
-      return <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user}
-                  setWindowTitle={setWindowTitle} onRowError={onRowError}/>;
+      return (
+        <TOB id={id}
+             symbols={symbols}
+             products={products}
+             tenors={tenors}
+             user={user}
+             connected={connected}
+             setWindowTitle={setWindowTitle}
+             onRowError={onRowError}/>
+      );
     case WindowTypes.MessageBlotter:
-      return <MessageBlotter id={id} setWindowTitle={setWindowTitle}/>;
+      return (
+        <MessageBlotter id={id} setWindowTitle={setWindowTitle} connected={connected}/>
+      );
     default:
       throw new Error(`invalid tile type ${type}`);
   }
@@ -90,31 +101,36 @@ interface ToolbarState {
   visible: boolean;
 }
 
-const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
-  const [toolbarState, setToolbarState] = useState<ToolbarState>({hovering: false, visible: false});
-  const {symbols, products, tenors} = props;
+const initialToolbarState: ToolbarState = {hovering: false, visible: false};
+const invisibleToolbarHoveringState: ToolbarState = {hovering: true, visible: false};
+const toolbarVisibleState: ToolbarState = {hovering: false, visible: true};
+const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
+  const [toolbarState, setToolbarState] = useState<ToolbarState>(initialToolbarState);
+  const {symbols, products, tenors, connected, setWindowTitle} = props;
   const {showToast} = props;
   const user: User = getAuthenticatedUser();
 
   const onMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.clientY < 48) {
-      setToolbarState({hovering: true, visible: false});
+      if (toolbarState.hovering && !toolbarState.visible)
+        return;
+      setToolbarState(invisibleToolbarHoveringState);
     } else {
-      setToolbarState({hovering: false, visible: false});
+      setToolbarState(initialToolbarState);
     }
   };
 
   const onMouseLeave = () => {
-    setToolbarState({hovering: false, visible: false});
+    setToolbarState(initialToolbarState);
   };
 
   useEffect(() => {
     if (!toolbarState.hovering)
       return;
     const timer = setTimeout(() => {
-      setToolbarState({hovering: false, visible: true});
+      setToolbarState(toolbarVisibleState);
     }, 1500);
-    const forceCancel = () => setToolbarState({hovering: false, visible: false});
+    const forceCancel = () => setToolbarState(initialToolbarState);
     // Of the mouse is clicked then we may want to do something else
     // like grab a window so cancel the visibility trigger
     document.addEventListener('mousedown', forceCancel, true);
@@ -160,7 +176,7 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
   const renderContent = (id: string, type: WindowTypes): ReactElement | null => {
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
-    return createWindow(id, type, symbols, products, tenors, user, props.setWindowTitle, onRowError);
+    return createWindow(id, type, symbols, products, tenors, connected, user, setWindowTitle, onRowError);
   };
 
   const toolbarClasses = ['toolbar'];
@@ -192,6 +208,7 @@ const Workspace: React.FC<OwnProps> = withRedux((props: Props): ReactElement | n
         onWindowSizeAdjusted={props.setWindowAutoSize}/>
     </>
   );
-});
+};
 
-export {Workspace};
+const connected = withRedux(Workspace);
+export {connected as Workspace};

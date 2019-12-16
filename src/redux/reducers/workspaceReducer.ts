@@ -2,6 +2,7 @@ import {Window} from 'interfaces/window';
 import {AnyAction} from 'redux';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
 
 const genesisState: WorkspaceState = {
@@ -11,11 +12,15 @@ const genesisState: WorkspaceState = {
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = {...state.windows};
+  if (windows[id].minimized)
+    return windows;
   return {...windows, [id]: {...windows[id], minimized: true}};
 };
 
 const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = {...state.windows};
+  if (!windows[id].minimized)
+    return windows;
   return {...windows, [id]: {...windows[id], minimized: false}};
 };
 
@@ -29,11 +34,15 @@ const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Windo
 
 const setWindowAutoSize = ({id}: { id: string, title: string }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
+  if (windows[id].autoSize)
+    return windows;
   return {...windows, [id]: {...windows[id], autoSize: true}};
 };
 
 const setWindowTitle = ({id, title}: { id: string, title: string }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
+  if (windows[id].title === title)
+    return windows;
   return {...windows, [id]: {...windows[id], title}};
 };
 
@@ -47,16 +56,21 @@ const isResizing = (original: Window, geometry: ClientRect): boolean => {
   if (!original.geometry)
     return false;
   const {width, height} = original.geometry;
+  // If width or height change, then it is resizing
   return width !== geometry.width || height !== geometry.height;
 };
 
 const updateWindowGeometry = ({id, geometry}: { id: string, geometry: ClientRect }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   const original: Window = windows[id];
+  if (equal(original.geometry, geometry)) {
+    return windows;
+  }
   // This is only supposed to set the autosize to false if
   // the object is resizing, if it's already false or the object
   // is only moving, there's no need to change it
   const autoSize: boolean = original.autoSize && !isResizing(original, geometry);
+  // We know that at least the geometry changed
   return {...windows, [id]: {...original, geometry, autoSize}};
 };
 
@@ -65,7 +79,6 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
     const values: Window[] = Object.values(windows);
     return Math.max(...values.map((w: Window) => w.zIndex !== undefined ? w.zIndex : -1));
   };
-
   const entries: [string, Window][] = Object.entries(state.windows);
   const reorderedWindows = entries
     .reduce((windows: { [key: string]: Window }, [key, window]: [string, Window]) => {
@@ -76,6 +89,8 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
       // Return the new object
       return windows;
     }, {});
+  if (equal(reorderedWindows, state.windows))
+    return state.windows;
   // Nothing changed
   return {...reorderedWindows, [id]: {...state.windows[id], zIndex: getMaxZIndex(reorderedWindows)}};
 };

@@ -8,7 +8,7 @@ import {createAction} from 'redux/actionCreator';
 import {RowActions} from 'redux/constants/rowConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
-import {toRowId} from 'utils';
+import {toRowID} from 'utils';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
@@ -48,7 +48,7 @@ export const handlers = {
     if (w['9712'] === 'TOB') {
       // Build a per-row action to update a single individual and specific row
       // in a specific table
-      const type: string = $$(toRowId(Tenor, Symbol, Strategy), RowActions.Update);
+      const type: string = $$(toRowID(Tenor, Symbol, Strategy), RowActions.Update);
       // Dispatch the action now
       return createAction(type, toTOBRow(w));
     } else {
@@ -65,7 +65,7 @@ export const handlers = {
         };
         // Build a per-row action to update a single individual and specific row
         // in a specific table
-        const type: string = $$(toRowId(Tenor, Symbol, Strategy), RowActions.Update);
+        const type: string = $$(toRowID(Tenor, Symbol, Strategy), RowActions.Update);
         // Dispatch the action now
         try {
           propagateOrders(fixed);

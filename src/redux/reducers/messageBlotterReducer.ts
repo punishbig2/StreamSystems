@@ -6,17 +6,12 @@ import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
 
 const initialState: MessageBlotterState = {
   entries: [],
-  connected: false,
   lastEntry: null,
 };
 
 type ActionType = MessageBlotterActions | SignalRActions;
 export default (state: MessageBlotterState = initialState, {type, data}: Action<ActionType>) => {
   switch (type) {
-    case SignalRActions.Connected:
-      return {...state, connected: true};
-    case SignalRActions.Disconnected:
-      return {...state, connected: false};
     case MessageBlotterActions.Update:
       if (data.ExecType === ExecTypes.PartiallyFilled || data.ExecType === ExecTypes.Filled)
         return {...state, entries: [data, ...state.entries], lastEntry: data};

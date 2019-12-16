@@ -23,6 +23,7 @@ interface OwnProps {
   // FIXME: add filters and sorting
   setWindowTitle: (id: string, title: string) => void;
   id: string;
+  connected: boolean;
 }
 
 const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterState =
@@ -62,10 +63,11 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       return null;
     return (
       <div className={'message-detail'}>
+        <audio src={'/sounds/alert.wav'} autoPlay={true}/>
         {columns.map((column: ColumnSpec) => (
           <div className={'message-entry'} key={column.name}>
-            <span className={'message-entry-label'}>{column.header({})}</span>
-            <span className={'message-entry-value'}>{column.render(props.lastEntry)}</span>
+            <div className={'message-entry-label'}>{column.header({})}</div>
+            <div className={'message-entry-value'}>{column.render(props.lastEntry)}</div>
           </div>
         ))}
         <div className={'dialog-buttons'}>

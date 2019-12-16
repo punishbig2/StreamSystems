@@ -148,7 +148,7 @@ module.exports = function (webpackEnv) {
         ? 'source-map'
         : false
       : isEnvDevelopment && 'cheap-module-source-map',
-    // These are the "entry points" to our application.
+    // These are the "order points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     entry: [
       // Include an alternative client for WebpackDevServer. A client's job is to

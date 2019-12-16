@@ -1,6 +1,7 @@
 .dialog-buttons {
   text-align: right;
   margin: 32px 0 0 0;
+
   button {
     display: inline-block;
     margin: 0 0 0 8px;
@@ -14,11 +15,19 @@
     border-bottom: 2px solid rgba(0, 0, 0, 0.15);
     color: #333;
     min-width: 100px;
-    &.success {
+
+    &:disabled {
+      background-color: $table-border-color;
+      color: darken($table-border-color, 15%);
+      opacity: 0.5;
+    }
+
+    &:not(:disabled).success {
       background-color: seagreen;
       color: white;
     }
-    &.cancel {
+
+    &:not(:disabled).cancel {
       background-color: #e8e8e8;
     }
   }

@@ -10,7 +10,8 @@ export const WorkareaError: React.FC = () => {
         We had trouble communicating with the data server. There might be a problem with your connection.
       </p>
       <p>
-        Please try to reload the page <button onClick={() => location.reload()}>or click here</button>
+        Please try to reload the page
+        <button className={'link'} onClick={() => location.reload()}>or click here</button>
       </p>
     </div>
   );

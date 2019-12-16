@@ -3,7 +3,7 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Sides} from 'interfaces/order';
 import {$$} from 'utils/stringPaster';
 
-export const toRowId = (tenor: TenorType, symbol: SymbolType, strategy: StrategyType): string => {
+export const toRowID = (tenor: TenorType, symbol: SymbolType, strategy: StrategyType): string => {
   return $$('__ROW', tenor, symbol, strategy);
 };
 
