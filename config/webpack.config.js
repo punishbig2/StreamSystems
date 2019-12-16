@@ -53,7 +53,7 @@ const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
-const releaseCount = getAsString(exec('git', ['rev-list', '--count', 'HEAD']));
+const releaseCount = getAsString(exec('git', ['rev-list', '--all', '--count']));
 const branch = getAsString(exec('git', ['branch', '--show-current']));
 const releaseNumber = `${branch.trim()}-${releaseCount.trim()}`;
 
