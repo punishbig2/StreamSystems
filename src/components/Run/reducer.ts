@@ -2,11 +2,11 @@ import {RunActions} from 'components/Run/enumerator';
 import {functionMap} from 'components/Run/fucntionMap';
 import {RunEntry} from 'components/Run/runEntry';
 import {EditHistory, State} from 'components/Run/state';
+import equal from 'deep-equal';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
-import {decompose} from 'utils/debug';
 
 type Calculator = (v1: number | null, v2: number | null) => number | null;
 
@@ -85,12 +85,28 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
       return TOBRowStatus.Normal;
     return computed.bid > computed.ofr ? TOBRowStatus.InvertedMarketsError : TOBRowStatus.Normal;
   };
-  const getOrderStatus = (newValue: number | null) => {
-    if (newValue === null)
+  const getOrderStatus = (newValue: number | null, oldValue: number | null) => {
+    if (newValue === oldValue)
       return OrderStatus.None;
     return OrderStatus.PriceEdited;
   };
   const coalesce = (v1: number | null, v2: number | null) => v1 === null ? v2 : v1;
+  const newOfr: Order = {
+    ...ofr,
+    // Update the price
+    price: coalesce(computedEntry.ofr, startingEntry.ofr),
+    // Update the status and set it as edited/modified
+    status: ofr.status | getOrderStatus(computedEntry.ofr, ofr.price),
+  };
+  const newBid: Order = {
+    ...bid,
+    // Update the price
+    price: coalesce(computedEntry.bid, startingEntry.bid),
+    // Update the status and set it as edited/modified
+    status: bid.status | getOrderStatus(computedEntry.bid, bid.price),
+  };
+  if (equal(newOfr, ofr) && equal(newBid, bid))
+    return state;
   switch (type) {
     case RunActions.Mid:
     case RunActions.Spread:
@@ -104,20 +120,8 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
             ...row,
             spread: coalesce(computedEntry.spread, startingEntry.spread),
             mid: coalesce(computedEntry.mid, startingEntry.mid),
-            ofr: {
-              ...ofr,
-              // Update the price
-              price: coalesce(computedEntry.ofr, startingEntry.ofr),
-              // Update the status and set it as edited/modified
-              status: ofr.status | getOrderStatus(computedEntry.of),
-            },
-            bid: {
-              ...bid,
-              // Update the price
-              price: coalesce(computedEntry.bid, startingEntry.bid),
-              // Update the status and set it as edited/modified
-              status: bid.status | getOrderStatus(computedEntry.bid),
-            },
+            ofr: newOfr,
+            bid: newBid,
             status: getRowStatus(computedEntry),
           },
         },
@@ -131,7 +135,7 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
   }
 };
 
-const fillSpreadAndMid = (row: TOBRow) => {
+const fillSpreadAndMid = (row: TOBRow): TOBRow => {
   const {ofr, bid} = row;
   if ((ofr && ofr.price !== null) && (bid && bid.price !== null)) {
     return {
@@ -156,7 +160,6 @@ const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
   const rows: [string, TOBRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
     const order: Order = row[key];
-    console.log(decompose(order.status));
     if (order.price !== null)
       return [index, {...row, [key]: {...order, status: order.status | (OrderStatus.Cancelled & ~OrderStatus.Active)}}];
     return [index, row];
@@ -167,7 +170,6 @@ const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
 const removeOrder = (state: State, id: string) => {
   const orders: TOBTable = {...state.orders};
   const rows: [string, TOBRow][] = Object.entries(orders);
-  console.log(id, orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
     const {bid, ofr} = row;
     return [index, {...row, bid: clearIfMatches(bid, id), ofr: clearIfMatches(ofr, id)}];
@@ -189,12 +191,15 @@ const updateOrder = (state: State, data: { id: string, entry: Order }, key: 'ofr
     return state;
   if (!isValidUpdate(key === 'bid' ? order : row.bid, key === 'ofr' ? order : row.ofr))
     return state;
+  const newRow: TOBRow = fillSpreadAndMid({
+    ...row,
+    [key]: order,
+  });
+  if (equal(newRow, row))
+    return state;
   const newOrders = {
     ...orders,
-    [data.id]: fillSpreadAndMid({
-      ...row,
-      [key]: order,
-    }),
+    [data.id]: newRow,
   };
   return {
     ...state,

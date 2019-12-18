@@ -168,6 +168,30 @@
             background: transparent;
           }
         }
+
+        .status {
+          display: inline-block;
+          margin: 0 8px;
+          i {
+            font-size: 10px;
+          }
+          &.ok {
+            i, span {
+              color: $table-border-color;
+            }
+          }
+          &:not(.ok) {
+            i, span {
+              color: crimson;
+            }
+          }
+          span {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin: 0 4px;
+          }
+        }
       }
 
       .window-content {

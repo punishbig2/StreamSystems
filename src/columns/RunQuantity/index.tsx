@@ -1,3 +1,4 @@
+import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import {SettingsContext} from 'main';
@@ -11,11 +12,12 @@ const sizeFormatter = (value: number | null): string => {
 };
 
 interface Props {
-  onChange: (id: string, value: number | null) => void;
   defaultValue: number;
   id: string;
   value: number | null;
   order: Order;
+  onTabbedOut?: (input: HTMLInputElement) => void;
+  onChange: (id: string, value: number | null) => void;
   onCancel: (order: Order) => void;
 }
 
@@ -24,6 +26,8 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   const settings = useContext<Settings>(SettingsContext);
   const {order} = props;
   useEffect(() => {
+    if ((order.status & OrderStatus.QuantityEdited) !== 0)
+      return;
     if (props.defaultValue === undefined || props.defaultValue === null)
       return;
     if ((order.status & OrderStatus.PreFilled) !== 0)
@@ -59,11 +63,12 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     <>
       <Quantity type={order.type}
                 value={Number(value)}
-                onChange={onChange}
-                onBlur={sendOnChange}
-                onCancel={() => props.onCancel(order)}
                 cancelable={cancellable}
-                tabIndex={-1}/>
+                tabIndex={-1}
+                className={getInputClass(order.status, 'size')}
+                onChange={onChange}
+                onTabbedOut={sendOnChange}
+                onCancel={() => props.onCancel(order)}/>
     </>
   );
 };

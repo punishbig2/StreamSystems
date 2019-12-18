@@ -127,17 +127,19 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     onOfrChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Ofr, {id, value})),
     onMidChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Mid, {id, value})),
     onSpreadChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.Spread, {id, value})),
-    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.BidQtyChanged, {
-      id,
-      value,
-    })),
+    onBidQtyChanged: (id: string, value: number | null) => dispatch(
+      createAction(RunActions.BidQtyChanged, {
+        id,
+        value,
+      })),
     onCancelOrder: (order: Order) => {
       props.onCancelOrder(order);
     },
-    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction(RunActions.OfrQtyChanged, {
-      id,
-      value,
-    })),
+    onOfrQtyChanged: (id: string, value: number | null) => dispatch(
+      createAction(RunActions.OfrQtyChanged, {
+        id,
+        value,
+      })),
     defaultBidSize: {
       value: state.defaultBidSize,
       onChange: (value: number) => dispatch(createAction(RunActions.UpdateDefaultBidQty, value)),
@@ -164,7 +166,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
           break;
       }
     },
-    focusNext: (target: HTMLInputElement, action: RunActions) => {
+    focusNext: (target: HTMLInputElement, action?: RunActions) => {
       switch (action) {
         case RunActions.Bid:
           skipTabIndex(target, 1, 0);

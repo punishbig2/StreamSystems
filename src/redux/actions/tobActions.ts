@@ -1,6 +1,6 @@
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
@@ -126,7 +126,9 @@ export const createOrder = (id: string, order: Order, minQty: number): AsyncActi
         key: $$(order.tenor, getSideFromType(order.type)),
       });
     } else {
-      return createAction($$(rowID, RowActions.OrderNotCreated), order);
+      if (result.Response === OrderErrors.NegativePrice)
+        return createAction($$(rowID, RowActions.OrderNotCreated), {order, reason: OrderErrors.NegativePrice});
+      return createAction($$(rowID, RowActions.OrderNotCreated), {order});
     }
   };
   return new AsyncAction<any, ActionType>(handler, initialAction);
@@ -151,7 +153,11 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
   }, createAction($$(rowID, RowActions.GettingSnapshot)));
 };
 
-export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<TOBActions> => {
+export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
   return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, strategy, tenor]);
+};
+
+export const unsubscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.UnsubscribeFromMarketData, [symbol, strategy, tenor]);
 };
 

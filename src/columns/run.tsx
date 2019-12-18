@@ -26,8 +26,13 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   render: ({id, bid}: RowType) => {
     const {defaultBidSize} = data;
     return (
-      <RunQuantity id={id} value={bid.quantity} order={bid} defaultValue={defaultBidSize.value}
-                   onChange={data.onBidQtyChanged} onCancel={data.onCancelOrder}/>
+      <RunQuantity id={id}
+                   value={bid.quantity}
+                   order={bid}
+                   defaultValue={defaultBidSize.value}
+                   onTabbedOut={data.focusNext}
+                   onChange={data.onBidQtyChanged}
+                   onCancel={data.onCancelOrder}/>
     );
   },
   weight: 3,
@@ -36,8 +41,8 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Bid}</div>,
   render: ({id, bid}: RowType) => (
     <Price value={bid.price}
-           onChange={(price: number | null) => data.onBidChanged(id, price)}
            arrow={ArrowDirection.None} status={bid.status}
+           onChange={(price: number | null) => data.onBidChanged(id, price)}
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Bid)}
            onNavigate={data.onNavigate}/>
   ),
@@ -47,8 +52,8 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Ofr}</div>,
   render: ({id, ofr}: RowType) => (
     <Price value={ofr.price}
-           onChange={(price: number | null) => data.onOfrChanged(id, price)}
            arrow={ArrowDirection.None} status={ofr.status}
+           onChange={(price: number | null) => data.onOfrChanged(id, price)}
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Ofr)}
            onNavigate={data.onNavigate}/>
   ),
@@ -59,8 +64,13 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   render: ({id, ofr}: RowType) => {
     const {defaultOfrSize} = data;
     return (
-      <RunQuantity id={id} value={ofr.quantity} order={ofr} defaultValue={defaultOfrSize.value}
-                   onChange={data.onOfrQtyChanged} onCancel={data.onCancelOrder}/>
+      <RunQuantity id={id}
+                   value={ofr.quantity}
+                   order={ofr}
+                   defaultValue={defaultOfrSize.value}
+                   onTabbedOut={data.focusNext}
+                   onChange={data.onOfrQtyChanged}
+                   onCancel={data.onCancelOrder}/>
     );
   },
   weight: 3,
@@ -69,8 +79,8 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
     <Price value={mid}
-           onChange={(value: number | null) => data.onMidChanged(id, value)}
            className={'mid'} arrow={ArrowDirection.None} status={OrderStatus.None}
+           onChange={(value: number | null) => data.onMidChanged(id, value)}
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Mid)}
            onNavigate={data.onNavigate}/>
   ),
@@ -80,10 +90,10 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => (
     <Price value={spread}
-           onChange={(value: number | null) => data.onSpreadChanged(id, value)}
            className={'spread'}
            arrow={ArrowDirection.None}
            status={OrderStatus.None}
+           onChange={(value: number | null) => data.onSpreadChanged(id, value)}
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
            onNavigate={data.onNavigate}/>
   ),

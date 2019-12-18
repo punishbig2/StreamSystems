@@ -48,9 +48,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
   useEffect(() => {
-    if (status === 0)
-      return;
-    if (status === TOBRowStatus.InvertedMarketsError) {
+    if (status !== TOBRowStatus.Normal) {
       onError(status);
     }
   }, [onError, status]);
@@ -59,7 +57,7 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     setBidQty: props.setBidQty,
   };
   return (
-    <div className={'tr' + (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')}>
+    <div className={'tr' + (row.status !== TOBRowStatus.Normal ? ' error' : '')}>
       {columns.map((column) => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);

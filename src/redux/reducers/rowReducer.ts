@@ -1,5 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
+import {TOBRowStatus} from 'interfaces/tobRow';
 import {Action} from 'redux/action';
 import {RowActions} from 'redux/constants/rowConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
@@ -17,6 +18,15 @@ const isModified = (original: Order, received: Order): boolean => {
 
 const setBeingCancelled = (order: Order) => ({...order, status: OrderStatus.BeingCancelled | order.status});
 const canBeCancelled = (order: Order) => (order.status & OrderStatus.PreFilled) !== 0;
+
+const getRowStatusFromOrderError = (reason: OrderErrors) => {
+  switch (reason) {
+    case OrderErrors.NegativePrice:
+      return TOBRowStatus.NegativePrice;
+    default:
+      return TOBRowStatus.Normal;
+  }
+};
 
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
   return (state: RowState = initialState, {type, data}: Action<RowActions | TOBActions>): RowState => {
@@ -54,15 +64,24 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.OrderCreated):
         return state;
       case $$(id, RowActions.OrderNotCreated):
-        if (data.type === OrderTypes.Bid) {
+        const {order, reason} = data;
+        if (order.type === OrderTypes.Bid) {
           return {
             ...state,
-            row: {...row, bid: {...bid, status: bid.status & ~OrderStatus.BeingCreated, price: null, quantity: null}},
+            row: {
+              ...row,
+              bid: {...bid, status: bid.status & ~OrderStatus.BeingCreated, price: null, quantity: null},
+              status: getRowStatusFromOrderError(reason),
+            },
           };
         } else if (data.type === OrderTypes.Ofr) {
           return {
             ...state,
-            row: {...row, ofr: {...ofr, status: ofr.status & ~OrderStatus.BeingCreated, price: null, quantity: null}},
+            row: {
+              ...row,
+              ofr: {...ofr, status: ofr.status & ~OrderStatus.BeingCreated, price: null, quantity: null},
+              status: getRowStatusFromOrderError(reason),
+            },
           };
         } else {
           return state;

@@ -66,9 +66,16 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         break;
     }
   };
+  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (props.onBlur) {
+      props.onBlur(event);
+    } else if (props.onSubmitted) {
+      props.onSubmitted();
+    }
+  };
   const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
-    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus} onBlur={reset}/>
+    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus} onBlur={onBlur}/>
   );
 };
 

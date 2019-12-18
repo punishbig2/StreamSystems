@@ -13,6 +13,8 @@ export const getInputClass = (status: OrderStatus, className?: string): string =
       classes.push('cancelled');
     if ((status & OrderStatus.SameBank) !== 0)
       classes.push('same-bank');
+    if (className === 'size' && (status & OrderStatus.QuantityEdited) !== 0)
+      classes.push('edited');
     return classes.join(' ');
   } else {
     return '';

@@ -1,5 +1,4 @@
-import React from 'react';
-import {ReactElement} from 'react';
+import React, {ReactElement} from 'react';
 
 interface Props {
   onClick: (id: string) => void;
@@ -9,8 +8,11 @@ interface Props {
 }
 
 const Tab: React.FC<Props> = (props: Props): ReactElement => {
+  const classes: string[] = ['tab'];
+  if (props.active)
+    classes.push('active');
   return (
-    <div className={props.active ? 'active' : undefined} onClick={() => props.onClick(props.id)}>
+    <div className={classes.join(' ')} onClick={() => props.onClick(props.id)}>
       {props.label}
     </div>
   );

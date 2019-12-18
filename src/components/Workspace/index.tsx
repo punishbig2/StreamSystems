@@ -189,6 +189,9 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       case TOBRowStatus.InvertedMarketsError:
         showToast('Inverted Markets Not Allowed');
         break;
+      case TOBRowStatus.NegativePrice:
+        showToast('Negative Prices Not Allowed');
+        break;
       case TOBRowStatus.IncompleteError:
         break;
       case TOBRowStatus.CreatingOrder:

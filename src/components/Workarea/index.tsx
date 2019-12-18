@@ -58,12 +58,10 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 );
 
 const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
+  const {symbols, products, tenors, initialize, connected, activeWorkspace} = props;
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
-  const {symbols, products, tenors, initialize} = props;
   const {workspaces, loadMessages} = props;
   const {CloseWorkspace} = strings;
-  // Active workspace
-  const active: string | null = props.activeWorkspace;
   // componentDidMount equivalent
   useEffect((): void => {
     initialize();
@@ -82,13 +80,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     // Close the modal window
     setSelectedToClose(null);
   };
-  const getActiveWorkspace = (connected: boolean): ReactElement | null => {
-    if (active === null)
-      return null;
-    return (
-      <Workspace id={active} symbols={symbols} products={products} tenors={tenors} connected={connected}/>
-    );
-  };
+
   switch (props.status) {
     case WorkareaStatus.Error:
       return <WorkareaError/>;
@@ -107,12 +99,15 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     case WorkareaStatus.Ready:
       return (
         <>
-          {getActiveWorkspace(props.connected)}
+          {activeWorkspace
+            ? <Workspace id={activeWorkspace} symbols={symbols} products={products} tenors={tenors}
+                         connected={connected}/>
+            : null}
           <div className={'footer'}>
             <TabBar
               entries={workspaces}
               addTab={props.addWorkspace}
-              active={props.activeWorkspace}
+              active={activeWorkspace}
               setActiveTab={props.setWorkspace}
               onTabClosed={setSelectedToClose}
               onTabRenamed={props.renameWorkspace}

@@ -31,12 +31,14 @@ import {
   getSnapshot,
   setRowStatus,
   subscribe,
+  unsubscribe,
   updateOrder,
   updateOrderQuantity,
 } from 'redux/actions/tobActions';
 import {ApplicationState} from 'redux/applicationState';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
+import {Subscriber} from 'redux/signalRAction';
 import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {Settings} from 'settings';
@@ -57,9 +59,10 @@ interface OwnProps {
 }
 
 interface DispatchProps {
-  subscribe: (symbol: string, strategy: string, tenor: string) => void;
-  getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
   initialize: (rows: { [tenor: string]: TOBRow }) => void;
+  unsubscribe: Subscriber;
+  subscribe: Subscriber;
+  getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
@@ -75,6 +78,7 @@ interface DispatchProps {
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
   initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TOBActions.Initialize), rows)),
   subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
+  unsubscribe: (symbol: string, strategy: string, tenor: string) => dispatch(unsubscribe(symbol, strategy, tenor)),
   setStrategy: (value: string) => dispatch(createAction($$(id, TOBActions.SetStrategy), value)),
   createOrder: (order: Order, minSize: number) => dispatch(createOrder(id, order, minSize)),
   setSymbol: (value: string) => dispatch(createAction($$(id, TOBActions.SetSymbol), value)),
@@ -113,9 +117,11 @@ const initialState: State = {
 };
 
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
-  const {symbols, symbol, products, strategy, tenors, connected, subscribe, rows} = props;
-  const {getSnapshot, getRunOrders, onRowError} = props;
+  const {getSnapshot, getRunOrders, onRowError, subscribe, unsubscribe} = props;
+  const {symbols, symbol, products, strategy, tenors, connected, rows} = props;
+
   const settings = useContext<Settings>(SettingsContext);
+
   const {email} = props.user;
   // Simple reducer for the element only
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -146,7 +152,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Initialize tile/window
   useInitializer(tenors, symbol, strategy, email, props.initialize);
   // Subscribe to signal-r
-  useSubscriber(rows, connected, symbol, strategy, subscribe, getSnapshot, getRunOrders);
+  useSubscriber(rows, connected, symbol, strategy, subscribe, unsubscribe, getSnapshot, getRunOrders);
   // Handler methods
   const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
   const data: TOBData = {
@@ -304,11 +310,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     strategy={strategy}
                     symbols={symbols}
                     products={products}
+                    runsDisabled={!symbol || !strategy}
+                    connected={connected}
                     setProduct={setProduct}
                     setSymbol={setSymbol}
                     onClose={props.onClose}
-                    onShowRunWindow={showRunWindow}
-                    runsDisabled={!symbol || !strategy}/>
+                    onShowRunWindow={showRunWindow}/>
       <div className={'window-content'}>
         <div className={tobVisible ? 'visible' : 'hidden'}>
           <Table scrollable={false} columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>

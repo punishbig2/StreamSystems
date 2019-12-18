@@ -38,12 +38,23 @@ $red-x-size: 16px;
     &.error {
       background-color: rgba($text-color-red, $table-tint);
 
-      &::before {
-        position: absolute;
-        content: '\f071';
-        font-family: 'Font Awesome 5 Free Solid', sans-serif;
-        left: -0.75ex;
-        color: $text-color-red;
+      .td:first-child {
+        position: relative;
+
+        * {
+          display: none;
+        }
+
+        &::before {
+          position: absolute;
+          content: '\f071';
+          font-family: 'Font Awesome 5 Free Solid', sans-serif;
+          color: $text-color-red;
+          width: 100%;
+          left: 0;
+          top: 0;
+          height: 100%;
+        }
       }
     }
   }
@@ -270,16 +281,27 @@ $red-x-size: 16px;
           color: $text-color-red;
         }
 
-        &.cancelled {
-          color: #a0a0a0;
-        }
-
         &.mid, &:not(.owned).same-bank {
           color: $text-color-blue;
         }
 
         &.spread {
           color: $text-color-green;
+        }
+      }
+    }
+
+    .size-layout {
+      input {
+        &.edited {
+          color: green;
+        }
+      }
+    }
+    .price-layout {
+      input {
+        &.cancelled {
+          color: #a0a0a0;
         }
       }
     }

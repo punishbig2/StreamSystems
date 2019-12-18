@@ -10,7 +10,6 @@ interface OwnProps {
   onChange: (value: string | null) => void;
   cancelable?: boolean;
   onCancel?: () => void;
-  onBlur?: () => void;
   className?: string;
   chevron?: boolean;
   onTabbedOut?: (target: HTMLInputElement) => void;
@@ -40,7 +39,6 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
                   className={props.className}
                   onTabbedOut={props.onTabbedOut}
                   onChange={(value: string | null) => props.onChange(value)}
-                  onBlur={props.onBlur}
                   tabIndex={props.tabIndex}/>,
   ];
 

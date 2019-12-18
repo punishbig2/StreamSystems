@@ -50,7 +50,7 @@ enum PersistedKeys {
 
 const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
 
-const initialState: ApplicationState = {
+const preloadedState: ApplicationState = {
   workarea: {
     symbols: [],
     products: [],
@@ -59,6 +59,7 @@ const initialState: ApplicationState = {
     activeWorkspace: null,
     // Merge with the saved value
     ...savedWorkarea,
+    connected: false,
   },
   messageBlotter: {
     entries: [],
@@ -115,8 +116,9 @@ const createDynamicReducers = (base: any, creator: ReducerCreator, nest: ((state
     dynamicReducers[key] = creator(key, state);
   }
 };
-const workarea: WorkareaState = initialState.workarea;
-// FIXME: prettify this
+
+const {workarea} = preloadedState;
+// Now that there's a store ... create the dynamic reducers
 createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: WorkspaceState) => {
   createDynamicReducers(state.windows, createWindowReducer, null);
 });
@@ -158,8 +160,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       }
       return DummyAction as T;
     };
-    // FIXME: super ugly trick
-    dispatch(createAction<any, A>(SignalRActions.Disconnected));
     // Here go all the listeners
     const onConnected = (newConnection: HubConnection) => {
       // Update the connection reference
@@ -175,7 +175,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       actionQueue.splice(0, actionQueue.length);
     };
     const onDisconnected = (error: any) => {
-      console.log(error);
       // Update the connection reference
       connection = null;
       // Dispatch an action to notify disconnection
@@ -194,12 +193,13 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     connectionManager.setOnDisconnectedListener(onDisconnected);
     connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
     connectionManager.connect();
+
     // Build a new store with the modified dispatch
     return {...store, dispatch};
   };
 };
 // Create the store
-export const store: Store = createStore(createReducer(dynamicReducers), initialState, enhancer);
+export const store: Store = createStore(createReducer(dynamicReducers), preloadedState, enhancer);
 
 const saveToLocalStorage = (state: ApplicationState) => {
   const {workarea, ...entries} = state;

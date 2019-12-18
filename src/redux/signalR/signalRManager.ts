@@ -67,16 +67,17 @@ export class SignalRManager<A extends Action = AnyAction> {
   private setup = (connection: HubConnection) => {
     if (connection !== null) {
       // Install close handler
-      connection.onclose(this.onClose);
-      connection.onreconnected(() => {
-        if (this.onDisconnectedListener)
+      connection.onclose((error?: Error) => {
+        if (this.onDisconnectedListener) {
           this.onDisconnectedListener(connection);
-        if (this.onConnectedListener)
-          this.onConnectedListener(connection);
+        }
+      });
+      connection.onreconnecting((error?: Error) => {
+        console.log(error);
       });
       // Install update market handler
-      connection.on('updateMarketData', this.onUpdateMarketData);
       connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
+      connection.on('updateMarketData', this.onUpdateMarketData);
     }
   };
 
@@ -110,23 +111,5 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   public setOnDisconnectedListener = (fn: (error: any) => void) => {
     this.onDisconnectedListener = fn;
-  };
-
-  private onClose = (error: any) => {
-    // const {connection} = this;
-    // Notify disconnection
-    if (this.onDisconnectedListener !== null) {
-      this.onDisconnectedListener(error);
-    }
-    /*setTimeout(() => {
-      // Stop listening to market row
-      connection.off('updateMessageBlotter');
-      connection.off('updateMarketData');
-      // Restart connection
-      this.connection = SignalRManager.createConnection();
-      this.reconnectDelay *= 2;
-      // Connect
-      this.connect();
-    }, this.reconnectDelay);*/
   };
 }

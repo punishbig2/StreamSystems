@@ -20,7 +20,7 @@ export interface RunColumnData {
   onBidQtyChanged: ChangeFn<number>,
   defaultOfrSize: QtyHeader;
   defaultBidSize: QtyHeader;
-  focusNext: (target: HTMLInputElement, action: RunActions) => void;
+  focusNext: (target: HTMLInputElement, action?: RunActions) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onCancelOrder: (order: Order) => void;
 }

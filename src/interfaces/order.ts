@@ -17,6 +17,9 @@ export interface CreateOrder {
   Price: string,
 }
 
+export enum OrderErrors {
+  NegativePrice = 'Invalid price. Price should be positive.',
+}
 export interface UpdateOrder {
   MsgType: MessageTypes;
   TransactTime: string;

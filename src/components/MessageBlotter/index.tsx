@@ -89,6 +89,4 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     </>
   );
 });
-
-MessageBlotter.whyDidYouRender = true;
 export {MessageBlotter};
