@@ -1,5 +1,6 @@
 import {Tab} from 'components/Tab';
 import {TabLabel} from 'components/TabLabel';
+import config from 'config';
 
 import React, {ReactElement} from 'react';
 
@@ -11,12 +12,11 @@ interface Entry {
 interface Props {
   entries: { [key: string]: Entry };
   active: string | null;
-  // Methods
   addTab: () => void;
   setActiveTab: (name: string) => void;
-  // Close workspace
   onTabClosed: (id: string) => void;
   onTabRenamed: (name: string, id: string) => void;
+  onQuit: () => void;
 }
 
 const TabBar: React.FC<Props> = (props: Props): ReactElement => {
@@ -55,6 +55,10 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
       {tabs}
       {/* Add button */}
       <Tab id={''} onClick={props.addTab} active={false} label={addWorkspaceLabel}/>
+      <a className={'sign-out'} href={config.SignOutUrl}>
+        <i className={'fa fa-sign-out-alt'}/>
+        <span>Logout</span>
+      </a>
     </div>
   );
 };

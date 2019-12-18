@@ -7,29 +7,33 @@ import {Workspace} from 'components/Workspace';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
+import {AnyAction} from 'redux';
 import {
   addWindow,
   addWorkspaces,
   closeWorkspace,
   initialize,
   loadMessages,
+  quit,
   renameWorkspace,
   setWorkspaces,
 } from 'redux/actions/workareaActions';
 import {ApplicationState} from 'redux/applicationState';
+import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
 
 interface OwnProps {
 }
 
 interface DispatchProps {
-  addWorkspace: typeof addWorkspaces;
-  setWorkspace: typeof setWorkspaces;
-  renameWorkspace: typeof renameWorkspace;
-  closeWorkspace: typeof closeWorkspace;
-  addWindow: typeof addWindow;
-  initialize: typeof initialize;
-  loadMessages: typeof loadMessages;
+  addWorkspace: () => AnyAction;
+  setWorkspace: (id: string) => AnyAction;
+  renameWorkspace: (name: string, id: string) => AnyAction
+  closeWorkspace: (id: string) => AnyAction;
+  addWindow: (type: WindowTypes, id: string) => AnyAction;
+  initialize: () => AnyAction;
+  loadMessages: (timestamp?: string) => AnyAction;
+  quit: () => void;
 }
 
 type Props = OwnProps & WorkareaState & DispatchProps;
@@ -40,11 +44,12 @@ const mapStateToProps: MapStateToProps<WorkareaState, OwnProps, ApplicationState
 const mapDispatchToProps: DispatchProps = {
   addWorkspace: addWorkspaces,
   setWorkspace: setWorkspaces,
-  renameWorkspace: renameWorkspace,
-  closeWorkspace: closeWorkspace,
-  addWindow: addWindow,
-  loadMessages: loadMessages,
-  initialize: initialize,
+  renameWorkspace,
+  closeWorkspace,
+  addWindow,
+  loadMessages,
+  initialize,
+  quit,
 };
 
 const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, OwnProps, ApplicationState>(
@@ -107,10 +112,11 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
             <TabBar
               entries={workspaces}
               addTab={props.addWorkspace}
+              active={props.activeWorkspace}
               setActiveTab={props.setWorkspace}
               onTabClosed={setSelectedToClose}
               onTabRenamed={props.renameWorkspace}
-              active={props.activeWorkspace}/>
+              onQuit={props.quit}/>
           </div>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
         </>

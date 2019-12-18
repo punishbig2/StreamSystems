@@ -9,7 +9,7 @@ interface Props {
   weight: number;
 }
 
-const Row = (props: any) => {
+const Row = (props: Props) => {
   const {columns, row} = props;
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {width: percentage(column.weight, props.weight)};

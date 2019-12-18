@@ -7,10 +7,9 @@ $red-x-size: 16px;
   display: flex;
   font-size: 12px;
   min-height: 100%;
-  min-width: 510px;
   flex-direction: column;
   box-sizing: content-box;
-  padding: 0 8px 8px 8px;
+  padding: 0;
 
   .thead {
     width: 100%;
@@ -23,6 +22,8 @@ $red-x-size: 16px;
     display: flex;
     flex-direction: column;
     flex: 1;
+    pointer-events: all;
+    overflow: hidden;
     z-index: 1;
   }
 
@@ -250,7 +251,8 @@ $red-x-size: 16px;
       }
     }
 
-    .price-layout {
+    .price-layout,
+    .size-layout {
       &.flash {
         input {
           animation: flash 0.5s infinite;
@@ -272,7 +274,7 @@ $red-x-size: 16px;
           color: #a0a0a0;
         }
 
-        &.mid, &.tob-size, &:not(.owned).same-bank {
+        &.mid, &:not(.owned).same-bank {
           color: $text-color-blue;
         }
 
@@ -405,7 +407,6 @@ $red-x-size: 16px;
 
   input {
     flex: 1;
-    color: $text-color-blue;
     text-overflow: ellipsis;
     overflow: hidden;
     text-align: center;

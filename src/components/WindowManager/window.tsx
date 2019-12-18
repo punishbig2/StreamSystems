@@ -66,6 +66,10 @@ const onResize = (area: ClientRect, update: (geometry: ClientRect) => void, side
 const pixels = (x: number): string => `${x}px`;
 const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
   const {style} = element;
+  const windowContent: HTMLDivElement | null = element.querySelector('.window-content');
+  const contentStyle: any = windowContent ? windowContent.style : {};
+  if (windowContent)
+    contentStyle.minHeight = 'auto';
   // Let's force scrollWidth and scrollHeight to have the minimal value
   style.width = '1px';
   style.height = '1px';
@@ -75,11 +79,13 @@ const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
   } else {
     style.width = pixels(area.width - element.offsetLeft);
   }
-  if (element.scrollHeight + element.offsetTop + 6 < area.height) {
-    style.height = pixels(element.scrollHeight + 6);
+  if (element.scrollHeight + element.offsetTop < area.height) {
+    style.height = pixels(element.scrollHeight);
   } else {
     style.height = pixels(area.height - element.offsetTop);
   }
+  if (windowContent)
+    contentStyle.minHeight = '0';
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {

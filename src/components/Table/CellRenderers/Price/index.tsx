@@ -92,7 +92,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const isOpenOrderTicketStatus = (status: OrderStatus): boolean => {
-    return (status & OrderStatus.Owned) === 0;
+    return (status & OrderStatus.Owned) === 0 && (status & OrderStatus.SameBank) === 0;
   };
 
   const onDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {

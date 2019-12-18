@@ -151,7 +151,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
             actionQueue.push(action);
           }
         } else {
-          console.error('this is totally crazy, there is no connection at all');
+          actionQueue.push(action);
         }
       } else {
         return $dispatch(action) as T;

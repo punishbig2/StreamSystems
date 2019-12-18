@@ -54,7 +54,19 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.OrderCreated):
         return state;
       case $$(id, RowActions.OrderNotCreated):
-        return state;
+        if (data.type === OrderTypes.Bid) {
+          return {
+            ...state,
+            row: {...row, bid: {...bid, status: bid.status & ~OrderStatus.BeingCreated, price: null, quantity: null}},
+          };
+        } else if (data.type === OrderTypes.Ofr) {
+          return {
+            ...state,
+            row: {...row, ofr: {...ofr, status: ofr.status & ~OrderStatus.BeingCreated, price: null, quantity: null}},
+          };
+        } else {
+          return state;
+        }
       case $$(id, RowActions.UpdateOfr):
         if (!isModified(ofr, data))
           return state;

@@ -7,6 +7,7 @@ interface Props {
   toast: string | null;
   renderContent: (id: string, type: WindowTypes) => ReactElement | null;
   windows: { [id: string]: Window };
+  toolbarPinned: boolean;
   onGeometryChange: (id: string, geometry: ClientRect) => void;
   onWindowMinimized: (id: string) => void;
   onWindowClosed: (id: string) => void;
@@ -69,8 +70,12 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       </div>
     );
   });
+  const classes = ['workspace'];
+  if (props.toolbarPinned)
+    classes.push('toolbar-pinned');
   return (
-    <div className={'workspace'} onMouseLeave={props.onMouseLeave} onMouseMove={props.onMouseMove} ref={setElement}>
+    <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} onMouseMove={props.onMouseMove}
+         ref={setElement}>
       {windows.map(windowMapper)}
       <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}

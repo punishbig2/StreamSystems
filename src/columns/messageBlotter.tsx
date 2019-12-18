@@ -78,13 +78,15 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
       return Number(v1) - Number(v2);
     },
   }, {
-    name: 'OrderQty',
+    name: 'LastQty',
     filterable: true,
     sortable: true,
     header: () => <div>Size</div>,
-    render: ({OrderQty}: Message) => (
-      <div className={'message-blotter-cell normal'}>{OrderQty}</div>
-    ),
+    render: ({LastShares}: Message) => {
+      return (
+        <div className={'message-blotter-cell normal'}>{LastShares}</div>
+      );
+    },
     weight: 1,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const value: number = Number(v1.OrderQty);

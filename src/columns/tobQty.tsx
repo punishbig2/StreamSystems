@@ -1,3 +1,4 @@
+import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import {User} from 'interfaces/user';
@@ -63,7 +64,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       onCancel={onCancel}
       onTabbedOut={onTabbedOut}
       cancelable={cancellable}
-      className={'tob-size'}
+      className={getInputClass(order.status, 'size')}
       chevron={showChevron}
       firm={user.isBroker ? order.firm : undefined}/>
   );

@@ -74,4 +74,20 @@
       }
     }
   }
+
+  .sign-out {
+    display: block;
+    margin: 0 12px 0 auto;
+    color: crimson;
+    text-decoration: none;
+    span, i {
+      color: inherit;
+    }
+    span {
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 0 0 0 4px;
+      font-size: 15px;
+    }
+  }
 }

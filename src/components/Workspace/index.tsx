@@ -5,9 +5,11 @@ import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useCallback, useEffect, useState} from 'react';
+import React, {ReactElement, useCallback, useEffect, useReducer} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
+import {Action} from 'redux/action';
+import {createAction} from 'redux/actionCreator';
 import {
   addWindow,
   bringToFront,
@@ -78,14 +80,8 @@ const createWindow = (id: string,
   switch (type) {
     case WindowTypes.TOB:
       return (
-        <TOB id={id}
-             symbols={symbols}
-             products={products}
-             tenors={tenors}
-             user={user}
-             connected={connected}
-             setWindowTitle={setWindowTitle}
-             onRowError={onRowError}/>
+        <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user} connected={connected}
+             setWindowTitle={setWindowTitle} onRowError={onRowError}/>
       );
     case WindowTypes.MessageBlotter:
       return (
@@ -96,16 +92,43 @@ const createWindow = (id: string,
   }
 };
 
+enum ToolbarAction {
+  TryShow, Show, Hide, TogglePin
+}
+
 interface ToolbarState {
+  pinned: boolean;
   hovering: boolean;
   visible: boolean;
 }
 
-const initialToolbarState: ToolbarState = {hovering: false, visible: false};
-const invisibleToolbarHoveringState: ToolbarState = {hovering: true, visible: false};
-const toolbarVisibleState: ToolbarState = {hovering: false, visible: true};
+const reducer = (state: ToolbarState, action: Action<ToolbarAction>): ToolbarState => {
+  switch (action.type) {
+    case ToolbarAction.TryShow:
+      return {...state, hovering: true};
+    case ToolbarAction.Show:
+      return {...state, visible: true, hovering: false};
+    case ToolbarAction.Hide:
+      return {...state, visible: false, hovering: false};
+    case ToolbarAction.TogglePin:
+      return {...state, pinned: !state.pinned};
+  }
+};
+
+const initialToolbarState: ToolbarState = {hovering: false, visible: false, pinned: false};
+
+const objectToCssClass = (object: any, base: string) => {
+  const classes: string[] = [base];
+  for (const key of Object.getOwnPropertyNames(object)) {
+    if (object[key]) {
+      classes.push(key);
+    }
+  }
+  return classes.join(' ');
+};
+
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
-  const [toolbarState, setToolbarState] = useState<ToolbarState>(initialToolbarState);
+  const [toolbarState, dispatch] = useReducer(reducer, initialToolbarState);
   const {symbols, products, tenors, connected, setWindowTitle} = props;
   const {showToast} = props;
   const user: User = getAuthenticatedUser();
@@ -114,23 +137,23 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     if (event.clientY < 48) {
       if (toolbarState.hovering && !toolbarState.visible)
         return;
-      setToolbarState(invisibleToolbarHoveringState);
+      dispatch(createAction<ToolbarAction>(ToolbarAction.TryShow));
     } else {
-      setToolbarState(initialToolbarState);
+      dispatch(createAction<ToolbarAction>(ToolbarAction.Hide));
     }
   };
 
   const onMouseLeave = () => {
-    setToolbarState(initialToolbarState);
+    dispatch(createAction<ToolbarAction>(ToolbarAction.Hide));
   };
 
   useEffect(() => {
     if (!toolbarState.hovering)
       return;
     const timer = setTimeout(() => {
-      setToolbarState(toolbarVisibleState);
+      dispatch(createAction<ToolbarAction>(ToolbarAction.Show));
     }, 1500);
-    const forceCancel = () => setToolbarState(initialToolbarState);
+    const forceCancel = () => dispatch(createAction<ToolbarAction>(ToolbarAction.Hide));
     // Of the mouse is clicked then we may want to do something else
     // like grab a window so cancel the visibility trigger
     document.addEventListener('mousedown', forceCancel, true);
@@ -179,24 +202,22 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     return createWindow(id, type, symbols, products, tenors, connected, user, setWindowTitle, onRowError);
   };
 
-  const toolbarClasses = ['toolbar'];
-  if (toolbarState.visible)
-    toolbarClasses.push('visible');
-  if (toolbarState.hovering)
-    toolbarClasses.push('hovering');
-
   return (
     <>
-      <div className={toolbarClasses.join(' ')} onMouseLeave={onMouseLeave}>
+      <div className={objectToCssClass(toolbarState, 'toolbar')} onMouseLeave={onMouseLeave}>
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
+          <div className={'pin'} onClick={() => dispatch(createAction<ToolbarAction>(ToolbarAction.TogglePin))}>
+            <i className={'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')}/>
+          </div>
         </div>
       </div>
       <WindowManager
         toast={props.toast}
         renderContent={renderContent}
         windows={props.windows}
+        toolbarPinned={toolbarState.pinned}
         onClearToast={() => props.showToast(null)}
         onMouseMove={onMouseMove}
         onSetWindowTitle={props.setWindowTitle}

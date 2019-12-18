@@ -54,7 +54,7 @@ const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
 const releaseCount = getAsString(exec('git', ['rev-list', 'HEAD', '--count']));
-const branch = getAsString(exec('git', ['branch', '--show-current']));
+const branch = getAsString(exec('git', ['symbolic-ref', '--short', 'HEAD']));
 const releaseNumber = `${branch.trim()}-${releaseCount.trim()}`;
 
 // This is the production and development configuration.

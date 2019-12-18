@@ -223,7 +223,7 @@ export class API {
   static async getMessagesSnapshot(lastInitializationTimestamp?: string): Promise<Message[]> {
     try {
       if (lastInitializationTimestamp) {
-        return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get', {timestamp: lastInitializationTimestamp}));
+        return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get')); // , {timestamp: lastInitializationTimestamp}));
       } else {
         return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get'));
       }

@@ -6,6 +6,7 @@
   z-index: 1;
   pointer-events: none;
 
+  &.pinned,
   &.visible {
     pointer-events: all;
 
@@ -14,9 +15,16 @@
     }
   }
 
+  &.pinned {
+    .content {
+      box-shadow: none;
+      border-bottom: 1px solid $table-border-color;
+    }
+  }
+
   .content {
-    transform: translateY(-$window-toolbar-size);
     transition: transform 0.15s linear;
+    transform: translateY(-$window-toolbar-size);
     background-color: white;
     box-shadow: 0 0 10px -2px rgba(0, 0, 0, 0.45);
     padding: 0 16px;
@@ -38,6 +46,19 @@
 
       &:nth-child(n + 2) {
         margin: 0 0 0 12px;
+      }
+    }
+
+    .pin {
+      float: right;
+      display: inline-block;
+      width: $window-toolbar-size;
+      text-align: center;
+      opacity: 0.5;
+      transition: opacity 0.4s;
+      cursor: pointer;
+      &:hover {
+        opacity: 1;
       }
     }
   }

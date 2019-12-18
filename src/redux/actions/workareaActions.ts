@@ -81,3 +81,6 @@ export const closeWorkspace = (id: string): Action<WorkareaActions> => {
   return createAction(WorkareaActions.CloseWorkspace, id);
 };
 
+export const quit = () => {
+
+};

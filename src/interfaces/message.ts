@@ -29,6 +29,7 @@ export interface Message {
   ExecID: string;
   ExecTransType: string;
   LastShares: string;
+  LastQty: string;
   OrderID: string;
   OrderQty: string;
   OrdStatus: ExecTypes;

@@ -57,7 +57,8 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   useEffect(() => {
     setWindowTitle(id, strings.Monitor);
   }, [id, setWindowTitle]);
-  const renderRow = (props: any) => <Row {...props}/>;
+  const renderRow = (props: any) => <Row key={props.key} columns={props.columns} row={props.row}
+                                         weight={props.weight}/>;
   const renderMessage = () => {
     if (!props.lastEntry)
       return null;
@@ -89,4 +90,5 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   );
 });
 
+MessageBlotter.whyDidYouRender = true;
 export {MessageBlotter};

@@ -126,7 +126,7 @@ export const createOrder = (id: string, order: Order, minQty: number): AsyncActi
         key: $$(order.tenor, getSideFromType(order.type)),
       });
     } else {
-      return createAction($$(rowID, RowActions.OrderNotCreated));
+      return createAction($$(rowID, RowActions.OrderNotCreated), order);
     }
   };
   return new AsyncAction<any, ActionType>(handler, initialAction);
