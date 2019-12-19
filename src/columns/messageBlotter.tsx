@@ -78,14 +78,18 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
       return Number(v1) - Number(v2);
     },
   }, {
-    name: 'LastQty',
+    name: 'Size',
     filterable: true,
     sortable: true,
     header: () => <div>Size</div>,
-    render: ({LastShares}: Message) => {
-      return (
-        <div className={'message-blotter-cell normal'}>{LastShares}</div>
-      );
+    render: (message: Message) => {
+      switch (message.ExecType) {
+        case ExecTypes.PartiallyFilled:
+        case ExecTypes.Filled:
+          return <div className={'message-blotter-cell normal'}>{message.LastShares}</div>;
+        default:
+          return <div className={'message-blotter-cell normal'}>{message.OrderQty}</div>;
+      }
     },
     weight: 1,
     filterByKeyword: (v1: Message, keyword: string): boolean => {

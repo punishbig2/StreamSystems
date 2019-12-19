@@ -278,7 +278,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
 
   const onRowErrorFn = useCallback((status: TOBRowStatus) => onRowError(status), [onRowError]);
   const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
-    console.log(props);
     return (
       <Row {...props} user={user} depths={state.depths} onError={onRowErrorFn}/>
     );
