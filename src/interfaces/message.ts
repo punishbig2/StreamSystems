@@ -43,5 +43,6 @@ export interface Message {
   ExecType: ExecTypes;
   LeavesQty: string;
   Username: string;
+  MDMkt: string;
 }
 
