@@ -19,13 +19,16 @@
       overflow: hidden;
       text-align: center;
       font-family: 'Roboto', sans-serif;
+
       &:first-child {
         border-right: 1px solid $table-border-color;
       }
+
       &.owned {
         color: $text-color-red;
       }
-      &.same-bank {
+
+      &:not(.owned).same-bank {
         color: $text-color-blue;
       }
     }

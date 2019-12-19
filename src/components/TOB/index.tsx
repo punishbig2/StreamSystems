@@ -278,6 +278,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
 
   const onRowErrorFn = useCallback((status: TOBRowStatus) => onRowError(status), [onRowError]);
   const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
+    console.log(props);
     return (
       <Row {...props} user={user} depths={state.depths} onError={onRowErrorFn}/>
     );
@@ -285,9 +286,10 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const getDepthTable = (): ReactElement | null => {
     if (state.tenor === null)
       return null;
+    const rows: TOBTable = {...state.depths[state.tenor]};
     return <Table scrollable={false}
                   columns={createTOBColumns(data, true)}
-                  rows={state.depths[state.tenor]}
+                  rows={rows}
                   renderRow={renderRow}/>;
   };
   // In case we lost the dob please reset this so that double

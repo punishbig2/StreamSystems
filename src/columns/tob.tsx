@@ -67,7 +67,7 @@ const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order,
   }
 };
 
-const QtyColumn = (label: string, type: Type, data: TOBData, onChangeKey: SetQty, action?: HeaderAction): ColumnSpec => {
+const QtyColumn = (label: string, type: Type, data: TOBData, onChangeKey: SetQty, depth: boolean, action?: HeaderAction): ColumnSpec => {
   return {
     name: `${type}-sz`,
     header: () => <DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>,
@@ -78,10 +78,11 @@ const QtyColumn = (label: string, type: Type, data: TOBData, onChangeKey: SetQty
       // Return the input item (which in turn also has a X for cancellation)
       return (
         <TOBQty order={{...order, status: status}}
+                user={user}
+                isDepth={depth}
                 onCancel={data.onCancelOrder}
                 onChange={onChange}
-                onSubmit={data.onQuantityChange}
-                user={user}/>
+                onSubmit={data.onQuantityChange}/>
       );
     },
     weight: 2,
@@ -144,11 +145,17 @@ const TenorColumn = (handlers: TOBData): ColumnSpec => ({
 
 const columns = (handlers: TOBData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(handlers),
-  QtyColumn(strings.BidSz, 'bid', handlers, 'setBidQty'),
-  VolColumn(handlers, strings.BidPx, 'bid', !depth ? {fn: handlers.onRefBidsButtonClicked, label: strings.RefBids} : undefined),
+  QtyColumn(strings.BidSz, 'bid', handlers, 'setBidQty', depth),
+  VolColumn(handlers, strings.BidPx, 'bid', !depth ? {
+    fn: handlers.onRefBidsButtonClicked,
+    label: strings.RefBids,
+  } : undefined),
   DarkPoolColumn,
-  VolColumn(handlers, strings.OfrPx, 'ofr', !depth ? {fn: handlers.onRefOfrsButtonClicked, label: strings.RefOfrs} : undefined),
-  QtyColumn(strings.OfrSz, 'ofr', handlers, 'setOfrQty'),
+  VolColumn(handlers, strings.OfrPx, 'ofr', !depth ? {
+    fn: handlers.onRefOfrsButtonClicked,
+    label: strings.RefOfrs,
+  } : undefined),
+  QtyColumn(strings.OfrSz, 'ofr', handlers, 'setOfrQty', depth),
 ];
 
 export default columns;

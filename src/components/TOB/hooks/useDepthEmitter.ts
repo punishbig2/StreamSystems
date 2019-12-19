@@ -9,7 +9,6 @@ export const useDepthEmitter = (tenors: string[], symbol: string, strategy: stri
       return;
     const handler = (event: Event) => {
       const customEvent: CustomEvent = event as CustomEvent;
-      console.log(customEvent.detail);
       // Dispatch an action for our reducer
       callback(customEvent.detail);
     };

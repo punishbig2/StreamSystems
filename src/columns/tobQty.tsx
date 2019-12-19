@@ -9,6 +9,7 @@ import {Settings} from 'settings';
 interface Props {
   order: Order;
   user: User;
+  isDepth: boolean;
   onCancel: (order: Order, cancelRelated: boolean) => void;
   onSubmit: (order: Order, newQuantity: number | null, input: HTMLInputElement) => void;
   onChange: (value: number) => void;
@@ -47,12 +48,14 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const cancellable =
-    (((order.status & OrderStatus.Owned) !== 0) ||
-      ((order.status & OrderStatus.HaveOrders) !== 0)) && (order.price !== null)
-  ;
+  const canCancel = (status: OrderStatus) => {
+    if (props.isDepth)
+      return ((status & OrderStatus.Owned) !== 0) || ((status & OrderStatus.SameBank) !== 0);
+    return (((status & OrderStatus.Owned) !== 0) || ((status & OrderStatus.HaveOrders) !== 0));
+  };
+  const cancellable = canCancel(order.status) && (order.price !== null);
   const onCancel = () => cancellable ? props.onCancel(order, true) : null;
-  const showChevron =
+  const showChevron = !props.isDepth &&
     (order.status & OrderStatus.HaveOrders) !== 0 &&
     (order.status & OrderStatus.HasDepth) !== 0 &&
     (order.price !== null);
