@@ -17,7 +17,8 @@ const isModified = (original: Order, received: Order): boolean => {
 };
 
 const setBeingCancelled = (order: Order) => ({...order, status: OrderStatus.BeingCancelled | order.status});
-const canBeCancelled = (order: Order) => (order.status & OrderStatus.PreFilled) !== 0;
+const canBeCancelled = (order: Order) => (order.status & OrderStatus.PreFilled) !== 0
+  && ((order.status & OrderStatus.Owned) !== 0 || (order.status & OrderStatus.SameBank) !== 0);
 
 const getRowStatusFromOrderError = (reason: OrderErrors) => {
   switch (reason) {
