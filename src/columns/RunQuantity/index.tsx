@@ -46,7 +46,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       setValue(value);
     }
   };
-  const sendOnChange = () => {
+  const sendOnChange = (input: HTMLInputElement) => {
     if (value === null) {
       props.onChange(props.id, value);
     } else {
@@ -56,6 +56,9 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       } else {
         props.onChange(props.id, numeric);
       }
+    }
+    if (props.onTabbedOut) {
+      props.onTabbedOut(input);
     }
   };
   const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0 && (order.status & OrderStatus.Cancelled) === 0;

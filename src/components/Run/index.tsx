@@ -18,7 +18,7 @@ import React, {ReactElement, useCallback, useContext, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {Settings} from 'settings';
 import {toRunId} from 'utils';
-import {skipTabIndex} from 'utils/skipTab';
+import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
@@ -85,20 +85,24 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
         return bid.price < ofr.price;
       });
     const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
-      if ((order.status & OrderStatus.PreFilled) !== 0 || defaultSize === null)
+      if (order.tenor === '5Y')
+        console.log(order.status & OrderStatus.QuantityEdited);
+      if ((order.status & OrderStatus.QuantityEdited) !== 0 || (order.status & OrderStatus.PreFilled) !== 0)
         return order.quantity as number; // It can never be null, no way
-      return defaultSize;
+      return defaultSize as number;
     };
     const entries: Order[] = [
       ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidSize)})),
       ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrSize)})),
     ];
-    return entries
+    const filtered: Order[] = entries
       .filter((order: Order) => {
         if ((order.status & OrderStatus.PriceEdited) !== 0)
           return true;
         return (order.status & OrderStatus.Cancelled) !== 0;
       });
+    console.log(filtered);
+    return filtered;
   };
 
   const isSubmitEnabled = () => {
@@ -179,6 +183,9 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
           break;
         case RunActions.Mid:
           skipTabIndex(target, 4, 2);
+          break;
+        default:
+          skipTabIndexAll(target, 1, 0);
           break;
       }
     },

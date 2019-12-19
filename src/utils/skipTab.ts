@@ -27,3 +27,22 @@ export const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number 
   }
 };
 
+export const skipTabIndexAll = (target: HTMLInputElement, n: number, cycle: number = 0) => {
+  const parent: Element | null = getNthParentOf(target, 4);
+  if (parent !== null) {
+    const inputs: HTMLInputElement[] = Array.from(parent.querySelectorAll('input'));
+    const startAt: number = inputs.indexOf(target);
+    if (startAt === -1)
+      return;
+    const next: HTMLInputElement = inputs[startAt + n];
+    if (next) {
+      // Now just focus the input
+      next.focus();
+    } else {
+      if (inputs[cycle]) {
+        inputs[cycle].focus();
+      }
+    }
+  }
+};
+

@@ -105,13 +105,14 @@ const next = (state: State, {type, data}: Action<RunActions>): State => {
     // Update the status and set it as edited/modified
     status: bid.status | getOrderStatus(computedEntry.bid, bid.price),
   };
-  if (equal(newOfr, ofr) && equal(newBid, bid))
-    return state;
   switch (type) {
-    case RunActions.Mid:
-    case RunActions.Spread:
     case RunActions.Ofr:
     case RunActions.Bid:
+      if (equal(newOfr, ofr) && equal(newBid, bid))
+        return state;
+    // eslint-disable-next-line no-fallthrough
+    case RunActions.Mid:
+    case RunActions.Spread:
       return {
         ...state,
         orders: {
@@ -213,7 +214,7 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
   // Extract the target row
   const row: TOBRow = orders[data.id];
   // Extract the target order
-  const entry: Order = row[key];
+  const order: Order = row[key];
   return {
     ...state,
     orders: {
@@ -221,9 +222,9 @@ const updateQty = (state: State, data: { id: string, value: number | null }, key
       [data.id]: {
         ...row,
         [key]: {
-          ...entry,
+          ...order,
           quantity: data.value,
-          status: entry.status | OrderStatus.QuantityEdited,
+          status: order.status | OrderStatus.QuantityEdited,
         },
       },
     },
