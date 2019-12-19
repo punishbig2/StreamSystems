@@ -1,68 +1,20 @@
 import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
-import {ArrowDirection, W} from 'interfaces/w';
+import {W} from 'interfaces/w';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
 type E = 'bid' | 'ofr';
 
-const getNumber = (value: string | null | undefined): number | null => {
-  if (!value)
-    return null;
-  const numeric: number = Number(value);
-  if (numeric === 0)
-    return null;
-  return numeric;
-};
-
-const normalizeTickDirection = (source: string | undefined): ArrowDirection => {
-  switch (source) {
-    case '0':
-      return ArrowDirection.Up;
-    case '2':
-      return ArrowDirection.Down;
-    default:
-      return ArrowDirection.None;
-  }
-};
-
 export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
   const user: User = getAuthenticatedUser();
   if (entry) {
-    const price: number | null = getNumber(entry.MDEntryPx);
-    const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
-    const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
-    const prefilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
-    const quantity: number | null = getNumber(entry.MDEntrySize);
-    const status: OrderStatus = OrderStatus.Active | ownership | prefilled | sameBank;
-    return {
-      tenor: w.Tenor,
-      strategy: w.Strategy,
-      symbol: w.Symbol,
-      status: status,
-      user: entry.MDEntryOriginator,
-      quantity: quantity,
-      price: price,
-      firm: entry.MDMkt,
-      type: entry.MDEntryType,
-      orderId: entry.OrderID,
-      arrowDirection: normalizeTickDirection(entry.TickDirection),
-    };
+    return Order.fromWAndMDEntry(w, entry, user);
   } else {
-    return {
-      tenor: w.Tenor,
-      strategy: w.Strategy,
-      symbol: w.Symbol,
-      user: user.email,
-      quantity: null,
-      price: null,
-      type: fallbackType,
-      arrowDirection: ArrowDirection.None,
-      status: OrderStatus.Active | OrderStatus.Owned,
-    };
+    return new Order(w.Tenor, w.Symbol, w.Strategy, user.email, null, fallbackType);
   }
 };
 

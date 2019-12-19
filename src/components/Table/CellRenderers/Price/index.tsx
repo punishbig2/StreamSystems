@@ -152,9 +152,9 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const onTabbedOut = (input: HTMLInputElement) => {
-    if (props.onTabbedOut)
+    if (props.onTabbedOut) {
       props.onTabbedOut(input);
-    onSubmitted();
+    }
   };
 
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();

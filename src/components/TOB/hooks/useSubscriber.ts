@@ -20,7 +20,7 @@ export const useSubscriber = (
     if (connected && array.length !== 0) {
       // Get all of the snapshots
       array.forEach((row: TOBRow) => {
-        getSnapshot(symbol, strategy, row.tenor)
+        getSnapshot(symbol, strategy, row.tenor);
       });
       // Subscribe to symbol/strategy/tenor combination
       array.forEach(({tenor}: TOBRow) => subscribe(symbol, strategy, tenor));
@@ -35,3 +35,4 @@ export const useSubscriber = (
     }
   }, [connected, rows, strategy, symbol, subscribe, unsubscribe, getSnapshot, getRunOrders]);
 };
+

@@ -1,10 +1,10 @@
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
+import {Order, OrderErrors, OrderMessage, Sides} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
-import {ArrowDirection, W} from 'interfaces/w';
+import {W} from 'interfaces/w';
 import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
@@ -21,12 +21,12 @@ import {$$} from 'utils/stringPaster';
 type ActionType = Action<TOBActions>;
 
 export const cancelOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
-  const rowID: string = toRowID(order.tenor, order.symbol, order.strategy);
+  const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction($$(rowID, RowActions.CancellingOrder), order.type);
   const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
     const result = await API.cancelOrder(order);
     if (result.Status === 'Success') {
-      const type: string = $$(order.tenor, order.symbol, order.strategy, TOBActions.DeleteOrder);
+      const type: string = $$(order.uid(), TOBActions.DeleteOrder);
       const event: Event = new CustomEvent(type, {detail: result.OrderID});
       // Emit the event
       document.dispatchEvent(event);
@@ -40,33 +40,12 @@ export const cancelOrder = (id: string, order: Order): AsyncAction<any, ActionTy
   return new AsyncAction<any, ActionType>(handler, initialAction);
 };
 
-interface OrderMessage {
-  OrderID: string;
-  Price: string;
-  Tenor: string;
-  Symbol: string;
-  Strategy: string;
-  Side: '1' | '2';
-  OrderQty: string;
-}
-
 export const getRunOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, any> => {
   const user: User = getAuthenticatedUser();
   return new AsyncAction<any, any>(async (): Promise<ActionType> => {
     const entries: OrderMessage[] = await API.getRunOrders(user.email, symbol, strategy);
     entries
-      .map((entry: OrderMessage): Order => ({
-        orderId: entry.OrderID,
-        tenor: entry.Tenor,
-        strategy: entry.Strategy,
-        symbol: entry.Symbol,
-        price: Number(entry.Price),
-        quantity: Number(entry.OrderQty),
-        user: user.email,
-        type: entry.Side === '1' ? OrderTypes.Bid : OrderTypes.Ofr,
-        arrowDirection: ArrowDirection.None,
-        status: OrderStatus.Cancelled,
-      }))
+      .map((entry: OrderMessage): Order => Order.fromOrderMessage(entry, user.email))
       .forEach(emitUpdateOrderEvent);
     return createAction('');
   }, createAction(''));
@@ -91,9 +70,9 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
 
 export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
   if (order.type === OrderTypes.Ofr) {
-    return createAction($$(toRowID(order.tenor, order.symbol, order.strategy), RowActions.UpdateOfr), order);
+    return createAction($$(toRowID(order), RowActions.UpdateOfr), order);
   } else if (order.type === OrderTypes.Bid) {
-    return createAction($$(toRowID(order.tenor, order.symbol, order.strategy), RowActions.UpdateBid), order);
+    return createAction($$(toRowID(order), RowActions.UpdateBid), order);
   } else {
     throw new Error('what the hell should I do?');
   }
@@ -110,12 +89,12 @@ export const updateOrder = (id: string, order: Order): AsyncAction<any, ActionTy
   }, createAction($$(id, TOBActions.UpdatingOrder)));
 };
 
-export const setRowStatus = (id: string, symbol: string, strategy: string, tenor: string, status: TOBRowStatus): Action<string> => {
-  return createAction($$(toRowID(tenor, symbol, strategy), RowActions.SetRowStatus), status);
+export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Action<string> => {
+  return createAction($$(order, RowActions.SetRowStatus), status);
 };
 
 export const createOrder = (id: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
-  const rowID: string = toRowID(order.tenor, order.symbol, order.strategy);
+  const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction($$(rowID, RowActions.CreatingOrder), order.type);
   const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
     const result: OrderResponse = await API.createOrder(order);
@@ -135,7 +114,7 @@ export const createOrder = (id: string, order: Order, minQty: number): AsyncActi
 };
 
 export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
-  const rowID: string = toRowID(tenor, symbol, strategy);
+  const rowID: string = $$('__ROW', tenor, symbol, strategy);
   return new AsyncAction<any, ActionType>(async () => {
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);

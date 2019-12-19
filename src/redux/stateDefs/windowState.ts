@@ -1,3 +1,4 @@
+import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 
 export interface WindowState {
@@ -5,6 +6,7 @@ export interface WindowState {
   strategy: string;
   symbol: string;
   oco: boolean;
+  orders: Order[];
 }
 
 export const DefaultWindowState: WindowState = {
@@ -12,4 +14,5 @@ export const DefaultWindowState: WindowState = {
   symbol: '',
   strategy: '',
   rows: {},
+  orders: [],
 };

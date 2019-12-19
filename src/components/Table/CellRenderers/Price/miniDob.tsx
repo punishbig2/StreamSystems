@@ -1,5 +1,6 @@
+import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import React, {ReactNode} from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
 
@@ -14,11 +15,8 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
     return null;
   const children = rows.map(({price, quantity, status}: Order, index: number) => {
     const priceElement: ReactNode = (() => {
-      const classes: string[] = ['mini-price'];
-      if ((status & OrderStatus.Owned) !== 0)
-        classes.push('owned');
       return (
-        <div className={classes.join(' ')} key={1}>
+        <div className={getInputClass(status, 'mini-price')} key={1}>
           {priceFormatter(price)}
         </div>
       );

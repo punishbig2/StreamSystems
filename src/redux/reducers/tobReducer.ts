@@ -1,14 +1,9 @@
 import {AnyAction} from 'redux';
 import {TOBActions} from 'redux/constants/tobConstants';
-import {WindowState} from 'redux/stateDefs/windowState';
+import {DefaultWindowState, WindowState} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
 
-const genesisState: WindowState = {
-  oco: false,
-  symbol: '',
-  strategy: '',
-  rows: {},
-};
+const genesisState: WindowState = DefaultWindowState;
 
 export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
   return (state: WindowState = initialState, {type, data}: AnyAction) => {

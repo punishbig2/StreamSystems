@@ -195,6 +195,7 @@
       }
 
       .window-content {
+        position: relative;
         flex: 1 0;
         min-width: 500px;
         pointer-events: none;

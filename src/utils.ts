@@ -1,11 +1,12 @@
-import {StrategyType, SymbolType, TenorType} from 'interfaces/w';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/order';
+import {Order, Sides} from 'interfaces/order';
+import {StrategyType, SymbolType} from 'interfaces/w';
 import {$$} from 'utils/stringPaster';
 
-export const toRowID = (tenor: TenorType, symbol: SymbolType, strategy: StrategyType): string => {
+export const toRowID = (order: Order) => $$('__ROW', order.uid());
+/*export const toRowID = (tenor: TenorType, symbol: SymbolType, strategy: StrategyType): string => {
   return $$('__ROW', tenor, symbol, strategy);
-};
+};*/
 
 export const toRunId = (symbol: SymbolType, strategy: StrategyType): string => {
   return $$('__RUN', strategy, symbol);

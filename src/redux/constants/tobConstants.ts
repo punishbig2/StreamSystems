@@ -10,4 +10,5 @@ export enum TOBActions {
   UpdateDOB = 'TOBActions.UpdateDOB',
   UpdateOrder = 'TOBActions.UpdateOrder',
   DeleteOrder = 'TOBActions.DeleteOrder',
+  RunOrdersUpdated = 'TOBActions.RunOrdersUpdated',
 }

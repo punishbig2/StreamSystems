@@ -8,13 +8,12 @@ import {createAction} from 'redux/actionCreator';
 import {RowActions} from 'redux/constants/rowConstants';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
-import {toRowID} from 'utils';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 
 export const emitUpdateOrderEvent = (order: Order) => {
-  const type: string = $$(order.tenor, order.symbol, order.strategy, TOBActions.UpdateOrder);
+  const type: string = $$(order.uid(), TOBActions.UpdateOrder);
   const event: Event = new CustomEvent(type, {detail: order});
   // Now emit the event so that listeners capture it
   document.dispatchEvent(event);
@@ -44,11 +43,11 @@ const propagateDepth = (w: W) => {
 export const handlers = {
   W: <A extends Action>(w: W): A => {
     const {Tenor, Symbol, Strategy} = w;
+    const type: string = $$('__ROW', Tenor, Symbol, Strategy, RowActions.Update);
     // Is this TOB?
     if (w['9712'] === 'TOB') {
       // Build a per-row action to update a single individual and specific row
       // in a specific table
-      const type: string = $$(toRowID(Tenor, Symbol, Strategy), RowActions.Update);
       // Dispatch the action now
       return createAction(type, toTOBRow(w));
     } else {
@@ -63,9 +62,6 @@ export const handlers = {
         const fixed: W = {
           ...w, Entries: [],
         };
-        // Build a per-row action to update a single individual and specific row
-        // in a specific table
-        const type: string = $$(toRowID(Tenor, Symbol, Strategy), RowActions.Update);
         // Dispatch the action now
         try {
           propagateOrders(fixed);

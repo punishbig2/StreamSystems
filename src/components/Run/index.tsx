@@ -45,7 +45,6 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   });
   const {symbol, strategy, tenors, user} = props;
   const {email} = user;
-
   const setTable = (orders: TOBTable) => dispatch(createAction(RunActions.SetTable, orders));
   // Updates a single side of the depth
   const onUpdate = (order: Order) => {
@@ -85,8 +84,6 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
         return bid.price < ofr.price;
       });
     const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
-      if (order.tenor === '5Y')
-        console.log(order.status & OrderStatus.QuantityEdited);
       if ((order.status & OrderStatus.QuantityEdited) !== 0 || (order.status & OrderStatus.PreFilled) !== 0)
         return order.quantity as number; // It can never be null, no way
       return defaultSize as number;
@@ -95,14 +92,12 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidSize)})),
       ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrSize)})),
     ];
-    const filtered: Order[] = entries
+    return entries
       .filter((order: Order) => {
         if ((order.status & OrderStatus.PriceEdited) !== 0)
           return true;
         return (order.status & OrderStatus.Cancelled) !== 0;
       });
-    console.log(filtered);
-    return filtered;
   };
 
   const isSubmitEnabled = () => {

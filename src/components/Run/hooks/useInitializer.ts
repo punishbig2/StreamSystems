@@ -4,7 +4,7 @@ import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {useEffect} from 'react';
 import {toRunId} from 'utils';
-import {compareTenors, emptyEntry} from 'utils/dataGenerators';
+import {compareTenors} from 'utils/dataGenerators';
 import {$$} from 'utils/stringPaster';
 
 export const useInitializer = (tenors: string[], symbol: string, strategy: string, email: string, onReady: (table: any) => void) => {
@@ -12,7 +12,7 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
     const rows: TOBRow[] = tenors
       .map((tenor: string) => {
         const getEntry = (type: OrderTypes) => {
-          return emptyEntry(tenor, symbol, strategy, email, 10, type);
+          return new Order(tenor, symbol, strategy, email, 10, type);
         };
         const bid: Order = getEntry(OrderTypes.Bid);
         const ofr: Order = getEntry(OrderTypes.Ofr);

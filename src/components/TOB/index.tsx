@@ -19,7 +19,7 @@ import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
 import {SettingsContext} from 'main';
-import React, {ReactElement, useCallback, useContext, useEffect, useReducer, useState} from 'react';
+import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
@@ -71,7 +71,7 @@ interface DispatchProps {
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;
   getRunOrders: (symbol: string, strategy: string) => void;
-  setRowStatus: (symbol: string, strategy: string, tenor: string, status: TOBRowStatus) => void;
+  setRowStatus: (order: Order, status: TOBRowStatus) => void;
   updateOrderQuantity: (order: Order) => void;
 }
 
@@ -89,8 +89,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
   updateOrder: (entry: Order) => dispatch(updateOrder(id, entry)),
   getRunOrders: (symbol: string, strategy: string) => dispatch(getRunOrders(id, symbol, strategy)),
   updateOrderQuantity: (order: Order) => dispatch(updateOrderQuantity(id, order)),
-  setRowStatus: (symbol: string, strategy: string, tenor: string, status: TOBRowStatus) =>
-    dispatch(setRowStatus(id, symbol, strategy, tenor, status)),
+  setRowStatus: (order: Order, status: TOBRowStatus) => dispatch(setRowStatus(id, order, status)),
 });
 
 const nextSlice = (applicationState: ApplicationState, props: OwnProps): WindowState & RunState => {
@@ -117,8 +116,9 @@ const initialState: State = {
 };
 
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
-  const {getSnapshot, getRunOrders, onRowError, subscribe, unsubscribe} = props;
-  const {symbols, symbol, products, strategy, tenors, connected, rows} = props;
+  const {oco, user, toggleOCO} = props; /* Run window stuff */
+  const {getSnapshot, getRunOrders, onRowError, updateOrderQuantity, subscribe, unsubscribe} = props; /* Functions/Methods */
+  const {symbols, symbol, products, strategy, tenors, connected, rows} = props; /* Actual properties */
 
   const settings = useContext<Settings>(SettingsContext);
 
@@ -126,7 +126,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Simple reducer for the element only
   const [state, dispatch] = useReducer(reducer, initialState);
   // Just one value without `dispatch' and stuff
-  const [tobVisible, setTobVisible] = useState<boolean>(true);
   // Extract properties to manage them better
   const setProduct = ({target: {value}}: React.ChangeEvent<{ name?: string, value: unknown }>) => {
     props.setStrategy(value as string);
@@ -135,11 +134,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     props.setSymbol(value as string);
   };
   // Internal temporary reducer actions
-  const setCurrentTenor = (tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor));
-  const setOrderTicket = (ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket));
-  const insertDepth = (data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data));
-  const showRunWindow = () => dispatch(createAction(ActionTypes.ShowRunWindow));
-  const hideRunWindow = () => dispatch(createAction(ActionTypes.HideRunWindow));
+  const setCurrentTenor = useCallback((tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)), [dispatch]);
+  const setOrderTicket = useCallback((ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket)), [dispatch]);
+  const insertDepth = useCallback((data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)), [dispatch]);
+  const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), [dispatch]);
+  const hideRunWindow = useCallback(() => dispatch(createAction(ActionTypes.HideRunWindow)), [dispatch]);
 
   const {setWindowTitle} = props;
   useEffect(() => {
@@ -154,8 +153,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Subscribe to signal-r
   useSubscriber(rows, connected, symbol, strategy, subscribe, unsubscribe, getSnapshot, getRunOrders);
   // Handler methods
-  const {updateOrder, cancelAll, cancelOrder, createOrder} = props;
-  const data: TOBData = {
+  const {updateOrder, setRowStatus, cancelAll, cancelOrder, createOrder} = props;
+  const data: TOBData = useMemo(() => ({
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
       switch (type) {
         case OrderTypes.Bid:
@@ -163,6 +162,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
           break;
         case OrderTypes.Ofr:
           skipTabIndex(input, 3, 1);
+          break;
       }
     },
     onTenorSelected: (tenor: string) => {
@@ -183,16 +183,16 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     },
     onOrderModified: (order: Order) => {
       if (order.price === InvalidPrice) {
-        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.InvertedMarketsError);
+        setRowStatus(order, TOBRowStatus.InvertedMarketsError);
       } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
         if (order.quantity === null) {
           createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
         } else {
           createOrder(order, settings.minSize);
         }
-        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
+        setRowStatus(order, TOBRowStatus.Normal);
       } else {
-        props.setRowStatus(order.symbol, order.strategy, order.tenor, TOBRowStatus.Normal);
+        setRowStatus(order, TOBRowStatus.Normal);
         if (order.quantity !== null || order.price === null)
           return;
         createOrder(order, settings.minSize);
@@ -212,9 +212,10 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
     },
     onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
+      console.trace();
       // FIXME: this should really be forbidden by the backend, but it's not
       if ((order.status & OrderStatus.PreFilled) === 0) {
-        props.updateOrderQuantity({...order, quantity: newQuantity});
+        updateOrderQuantity({...order, quantity: newQuantity});
       } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {
         if (order.quantity === null) {
           // FIXME: perhaps let the user know?
@@ -239,8 +240,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       skipTabIndex(input, 1, 0);
     },
     aggregatedSz: state.aggregatedSz,
-    buttonsEnabled: props.symbol !== '' && props.strategy !== '',
-  };
+    buttonsEnabled: symbol !== '' && strategy !== '',
+  }), [cancelAll, cancelOrder, createOrder, setCurrentTenor, setOrderTicket, setRowStatus, settings.defaultSize, settings.minSize, state.aggregatedSz, state.depths, state.tenor, strategy, symbol, updateOrder, updateOrderQuantity]);
 
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
@@ -253,27 +254,29 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     return <OrderTicket order={state.orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={onSubmit}/>;
   };
 
-  const bulkCreateOrders = (entries: Order[]) => {
+  const bulkCreateOrders = useCallback((entries: Order[]) => {
     // Close the runs window
     hideRunWindow();
     // Create the orders
-    entries.forEach((entry: Order) => props.createOrder(entry, settings.minSize));
-  };
+    entries.forEach((entry: Order) => createOrder(entry, settings.minSize));
+  }, [hideRunWindow, createOrder, settings.minSize]);
 
-  const runWindow = (): ReactElement => (
+  const runID = useMemo(() => toRunId(symbol, strategy), [symbol, strategy]);
+
+  const runWindow = (
     <Run
-      id={toRunId(symbol, strategy)}
+      id={runID}
       symbol={symbol}
       strategy={strategy}
       tenors={tenors}
-      toggleOCO={props.toggleOCO}
-      oco={props.oco}
-      user={props.user}
-      onClose={() => hideRunWindow()}
-      onCancelOrder={props.cancelOrder}
+      toggleOCO={toggleOCO}
+      oco={oco}
+      user={user}
+      onClose={hideRunWindow}
+      onCancelOrder={cancelOrder}
       onSubmit={bulkCreateOrders}/>
   );
-  const user = {email};
+
   const onRowErrorFn = useCallback((status: TOBRowStatus) => onRowError(status), [onRowError]);
   const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
     return (
@@ -281,16 +284,17 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     );
   };
   const getDepthTable = (): ReactElement | null => {
-    // @ts-ignore if this function is called `tobVisible' has to be false so for sure this will exist
-    // and there's no way that `rows' will be undefined
-    return <Table scrollable={false} columns={createDOBColumns(data)} rows={state.depths[state.tenor]}
+    if (state.tenor === null)
+      return null;
+    return <Table scrollable={false}
+                  columns={createDOBColumns(data)} rows={state.depths[state.tenor]}
                   renderRow={renderRow}/>;
   };
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
   useEffect(() => {
     if (state.tenor === null) {
-      setTobVisible(true);
+      return;
     } else {
       const depth: TOBTable = state.depths[state.tenor];
       const values: TOBRow[] = Object.values(depth);
@@ -299,11 +303,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         // but it will actually set the correct state for the
         // tenors to be double-clickable
         setCurrentTenor(null);
-      } else {
-        setTobVisible(false);
       }
     }
-  }, [state.depths, state.tenor]);
+  }, [setCurrentTenor, state.depths, state.tenor]);
   return (
     <>
       <TOBTileTitle symbol={symbol}
@@ -317,13 +319,15 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     onClose={props.onClose}
                     onShowRunWindow={showRunWindow}/>
       <div className={'window-content'}>
-        <div className={tobVisible ? 'visible' : 'hidden'}>
+        <div className={state.tenor === null ? 'visible' : 'invisible'}>
           <Table scrollable={false} columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>
         </div>
-        {!tobVisible && getDepthTable()}
+        <div className={'depth-table'}>
+          {getDepthTable()}
+        </div>
       </div>
       <ModalWindow render={renderOrderTicket} visible={state.orderTicket !== null}/>
-      <ModalWindow render={runWindow} visible={state.runWindowVisible}/>
+      <ModalWindow render={() => runWindow} visible={state.runWindowVisible}/>
     </>
   );
 });

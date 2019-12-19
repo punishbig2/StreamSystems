@@ -32,6 +32,18 @@
   display: none;
 }
 
+.invisible {
+  visibility: hidden;
+}
+
+.depth-table {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  bottom: 8px;
+}
+
 @import 'global';
 @import 'loading-window';
 @import 'modal-window';

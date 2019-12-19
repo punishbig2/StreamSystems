@@ -178,9 +178,13 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     filterable: true,
     sortable: true,
     header: () => <div>CPTY</div>,
-    render: ({MDMkt}: Message) => (
-      <div className={'message-blotter-cell normal'}>{MDMkt}</div>
-    ),
+    render: ({MDMkt, ExecType}: Message) => {
+      if ((ExecType !== ExecTypes.Filled) && (ExecType !== ExecTypes.PartiallyFilled))
+        return <div/>;
+      return (
+        <div className={'message-blotter-cell normal'}>{MDMkt}</div>
+      )
+    },
     weight: 1,
     filterByKeyword: ({MDMkt}: Message, keyword: string): boolean => {
       return MDMkt.includes(keyword);

@@ -1,9 +1,11 @@
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {TenorType} from 'interfaces/w';
 import {useEffect} from 'react';
 import {toRowID} from 'utils';
-import {compareTenors, emptyBid, emptyOffer} from 'utils/dataGenerators';
+import {compareTenors} from 'utils/dataGenerators';
 
 const buildRows = (tenors: string[], symbol: string, strategy: string, email: string): TOBRow[] => {
   return tenors
@@ -12,12 +14,15 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
       // while we're subscribing combinations.
       //
       // Ideally, we should implement the ability to stop
+      const bid: Order = new Order(tenor, symbol, strategy, email, null, OrderTypes.Bid);
+      const ofr: Order = new Order(tenor, symbol, strategy, email, null, OrderTypes.Ofr);
+
       const row: TOBRow = {
         tenor: tenor,
-        id: toRowID(tenor, symbol, strategy),
-        bid: emptyBid(tenor, symbol, strategy, email),
+        id: toRowID(bid),
+        bid: bid,
         darkPool: '',
-        ofr: emptyOffer(tenor, symbol, strategy, email),
+        ofr: ofr,
         mid: null,
         spread: null,
         status: TOBRowStatus.Normal,

@@ -14,6 +14,7 @@ interface Props {
   rows?: { [id: string]: any };
   scrollable: boolean;
   renderRow: (props: any) => ReactElement | null;
+  className?: string;
 }
 
 type Filters = { [key: string]: string | undefined };
@@ -101,8 +102,11 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       );
     }
   };
+  const classes: string[] = ['table'];
+  if (props.className)
+    classes.push(props.className);
   return (
-    <div className={'table'} style={style}>
+    <div className={classes.join(' ')} style={style}>
       <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
       {getBody()}
     </div>
