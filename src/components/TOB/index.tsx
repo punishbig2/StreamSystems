@@ -1,4 +1,3 @@
-import createDOBColumns from 'columns/dob';
 import createTOBColumns from 'columns/tob';
 import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
@@ -287,7 +286,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     if (state.tenor === null)
       return null;
     return <Table scrollable={false}
-                  columns={createDOBColumns(data)} rows={state.depths[state.tenor]}
+                  columns={createTOBColumns(data, true)}
+                  rows={state.depths[state.tenor]}
                   renderRow={renderRow}/>;
   };
   // In case we lost the dob please reset this so that double

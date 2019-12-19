@@ -17,7 +17,7 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {InvalidPrice} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
-import React, {useCallback, useReducer} from 'react';
+import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {priceFormatter} from 'utils/priceFormatter';
 
@@ -51,16 +51,22 @@ export const Price: React.FC<Props> = (props: Props) => {
     value: priceFormatter(props.value),
   });
 
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
   const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
   const setValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
   }, []);
 
-  const showTooltip = () => dispatch(createAction(PriceActions.StartShowingTooltip));
-  const toPoint = (event: React.MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY});
+  const showTooltip = (event: React.MouseEvent<HTMLDivElement>) => {
+    dispatch(createAction(PriceActions.StartShowingTooltip));
+    dispatch(createAction(PriceActions.MoveTooltip, toPoint(event.nativeEvent)));
+  };
+  const toPoint = useCallback((event: MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY}), []);
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
-  const onMouseMove = (event: React.MouseEvent) => dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
+  const onMouseMove = useCallback((event: MouseEvent) => {
+    dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
+  }, [dispatch, toPoint]);
   const startFlashing = () => dispatch(createAction(PriceActions.Flash));
   const stopFlashing = () => dispatch(createAction(PriceActions.Unflash));
 
@@ -69,6 +75,17 @@ export const Price: React.FC<Props> = (props: Props) => {
   useFlasher(state.flash, stopFlashing);
   useValueComparator(props.value, state.value, startFlashing);
   useValueListener(props.value, setValue);
+
+  // Avoid having more than a single move event listener because
+  // that would of course be expensive
+  useEffect(() => {
+    if (!state.visible || ref === null)
+      return;
+    ref.addEventListener('mousemove', onMouseMove);
+    return () => {
+      ref.removeEventListener('mousemove', onMouseMove);
+    };
+  }, [state.visible, ref, onMouseMove]);
 
   const getTooltip = () => {
     if (!state.visible || !depth || depth.length === 0)
@@ -179,8 +196,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     );
   } else {
     return (
-      <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
-           onMouseMove={onMouseMove}>
+      <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
         <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
         <NumericInput
           tabIndex={props.tabIndex}

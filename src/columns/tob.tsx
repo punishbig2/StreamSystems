@@ -89,7 +89,7 @@ const QtyColumn = (label: string, type: Type, data: TOBData, onChangeKey: SetQty
 };
 
 const isNonEmpty = (order: Order) => order.price !== null && order.quantity !== null;
-const VolColumn = (data: TOBData, label: string, type: Type, action: HeaderAction): ColumnSpec => {
+const VolColumn = (data: TOBData, label: string, type: Type, action?: HeaderAction): ColumnSpec => {
   return ({
     name: `${type}-vol`,
     header: () => <DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>,
@@ -142,12 +142,12 @@ const TenorColumn = (handlers: TOBData): ColumnSpec => ({
   weight: 1,
 });
 
-const columns = (handlers: TOBData): ColumnSpec[] => [
+const columns = (handlers: TOBData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(handlers),
   QtyColumn(strings.BidSz, 'bid', handlers, 'setBidQty'),
-  VolColumn(handlers, strings.BidPx, 'bid', {fn: handlers.onRefBidsButtonClicked, label: strings.RefBids}),
+  VolColumn(handlers, strings.BidPx, 'bid', !depth ? {fn: handlers.onRefBidsButtonClicked, label: strings.RefBids} : undefined),
   DarkPoolColumn,
-  VolColumn(handlers, strings.OfrPx, 'ofr', {fn: handlers.onRefOfrsButtonClicked, label: strings.RefOfrs}),
+  VolColumn(handlers, strings.OfrPx, 'ofr', !depth ? {fn: handlers.onRefOfrsButtonClicked, label: strings.RefOfrs} : undefined),
   QtyColumn(strings.OfrSz, 'ofr', handlers, 'setOfrQty'),
 ];
 
