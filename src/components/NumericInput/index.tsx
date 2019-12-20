@@ -12,7 +12,7 @@ interface Props {
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onSubmitted?: () => void;
+  onSubmitted?: (input: HTMLInputElement) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
@@ -20,7 +20,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   const triggerChange = (input: HTMLInputElement) => {
     onChange(input.value);
     if (onSubmitted) {
-      onSubmitted();
+      onSubmitted(input);
     }
   };
   const reset = () => props.onChange(null);
@@ -70,7 +70,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
     if (props.onBlur) {
       props.onBlur(event);
     } else if (props.onSubmitted) {
-      props.onSubmitted();
+      props.onSubmitted(event.currentTarget);
     }
   };
   const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);

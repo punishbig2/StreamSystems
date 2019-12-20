@@ -1,9 +1,11 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
-import {VirtuallyScrollableArea} from 'components/VirtuallyScrollableArea';
+import {Child} from 'components/Table/listChildItem';
+import {CustomScrollbarsVirtualList} from 'components/Table/virtualScrollbars';
 import {SortInfo} from 'interfaces/sortInfo';
-import React, {ReactElement, useState} from 'react';
-import {theme} from 'theme';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {FixedSizeList} from 'react-window';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export enum SortDirection {
   Descending, Ascending, None
@@ -34,10 +36,21 @@ const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
 };
 
 export const Table: (props: Props) => (React.ReactElement | null) = (props: Props): ReactElement | null => {
-
   const {rows, columns} = props;
+  const [height, setHeight] = useState<number>(0);
+  const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<SortInfo | undefined>();
+  useEffect(() => {
+    if (!ref || !rows)
+      return;
+    setHeight(ref.offsetHeight);
+    const observer: ResizeObserver = new ResizeObserver(() => {
+      setHeight(ref.offsetHeight);
+    });
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref, rows]);
   if (!rows)
     return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
@@ -48,7 +61,6 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       map[column.name] = column;
       return map;
     }, {});
-
   // Map each order to properties
   const rowProps: { [key: string]: any }[] = entries
     .map(propertyMapper)
@@ -75,10 +87,6 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       rowProps.sort(sortFn(sortBy.direction));
     }
   }
-  const style = {
-    maxHeight: '100%',
-    height: (rowProps.length + 1) * theme.tableRowSize + theme.tableHeaderHeight,
-  };
   const addFilter = (column: string, keyword: string) => {
     const clean: string = keyword.trim();
     if (clean.length === 0) {
@@ -87,12 +95,20 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       setFilters({...filters, [column]: clean});
     }
   };
+
   const getBody = () => {
+    const itemKey = (index: number) => rowProps[index].id;
     if (props.scrollable) {
       return (
-        <VirtuallyScrollableArea className={'tbody'} itemCount={rowProps.length}>
-          {props.renderRow && rowProps.map(props.renderRow)}
-        </VirtuallyScrollableArea>
+        <FixedSizeList
+          itemCount={rowProps.length}
+          itemKey={itemKey}
+          height={height}
+          width={'100%'}
+          itemSize={24}
+          outerElementType={CustomScrollbarsVirtualList}>
+          {Child(props, rowProps)}
+        </FixedSizeList>
       );
     } else if (props.renderRow) {
       return (
@@ -106,7 +122,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   if (props.className)
     classes.push(props.className);
   return (
-    <div className={classes.join(' ')} style={style}>
+    <div ref={setRef} className={classes.join(' ')}>
       <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
       {getBody()}
     </div>

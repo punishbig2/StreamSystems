@@ -1,3 +1,4 @@
+import {PriceErrors} from 'components/Table/CellRenderers/Price';
 import {AggregatedSz} from 'components/TOB/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
@@ -11,6 +12,7 @@ export interface TOBData {
   onQuantityChange: (entry: Order, newQuantity: number | null, input: HTMLInputElement) => void;
   onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
   onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => void;
+  onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => void;
   aggregatedSz?: AggregatedSz;
   buttonsEnabled: boolean;
 }

@@ -15,11 +15,15 @@ import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInput
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
-import {InvalidPrice} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {priceFormatter} from 'utils/priceFormatter';
+
+export enum PriceErrors {
+  GreaterThanMax,
+  LessThanMin,
+}
 
 export interface Props {
   value: number | null;
@@ -37,6 +41,7 @@ export interface Props {
   min?: number | null;
   max?: number | null;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  onError?: (error: PriceErrors, input: HTMLInputElement) => void;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -133,7 +138,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     return value.toString();
   })();
 
-  const onSubmitted = () => {
+  const onSubmitted = (input: HTMLInputElement) => {
     const value: string | null = state.value;
     if (value === null || value.trim() === '') {
       props.onChange(null);
@@ -148,16 +153,15 @@ export const Price: React.FC<Props> = (props: Props) => {
           return;
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);
-        // It passed all validations, so emit the event
         if (props.min !== null && props.min !== undefined) {
-          if (props.min >= numeric) {
-            props.onChange(InvalidPrice);
+          if (props.min >= numeric && typeof props.onError === 'function') {
+            props.onError(PriceErrors.LessThanMin, input);
           } else {
             props.onChange(numeric);
           }
         } else if (props.max !== null && props.max !== undefined) {
-          if (props.max < numeric) {
-            props.onChange(InvalidPrice);
+          if (props.max <= numeric && typeof props.onError === 'function') {
+            props.onError(PriceErrors.GreaterThanMax, input);
           } else {
             props.onChange(numeric);
           }

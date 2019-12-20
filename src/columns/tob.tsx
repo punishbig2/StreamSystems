@@ -89,6 +89,14 @@ const QtyColumn = (label: string, type: Type, data: TOBData, onChangeKey: SetQty
   };
 };
 
+const getPriceIfApplies = (order: Order | undefined): number | undefined => {
+  if (order === undefined)
+    return undefined;
+  if ((order.status & OrderStatus.SameBank) !== 0)
+    return order.price as number;
+  return undefined;
+};
+
 const isNonEmpty = (order: Order) => order.price !== null && order.quantity !== null;
 const VolColumn = (data: TOBData, label: string, type: Type, action?: HeaderAction): ColumnSpec => {
   return ({
@@ -103,10 +111,11 @@ const VolColumn = (data: TOBData, label: string, type: Type, action?: HeaderActi
         <TOBPrice depths={depths}
                   order={{...order, status}}
                   onChange={data.onOrderModified}
-                  min={bid ? bid.price : undefined}
-                  max={ofr ? ofr.price : undefined}
+                  min={getPriceIfApplies(bid)}
+                  max={getPriceIfApplies(ofr)}
                   onTabbedOut={data.onTabbedOut}
-                  onDoubleClick={isNonEmpty(order) ? data.onDoubleClick : undefined}/>
+                  onDoubleClick={isNonEmpty(order) ? data.onDoubleClick : undefined}
+                  onError={data.onOrderError}/>
       );
     },
     weight: 3,

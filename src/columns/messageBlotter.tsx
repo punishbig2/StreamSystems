@@ -182,9 +182,11 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     filterable: true,
     sortable: true,
     header: () => <div>CPTY</div>,
-    render: ({MDMkt, ExecType}: Message) => {
+    render: (message: Message) => {
+      const {MDMkt, ExecType} = message;
       if ((ExecType !== ExecTypes.Filled) && (ExecType !== ExecTypes.PartiallyFilled))
         return <div/>;
+      console.log(message);
       return (
         <div className={'message-blotter-cell normal'}>{MDMkt}</div>
       );

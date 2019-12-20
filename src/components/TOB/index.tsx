@@ -3,6 +3,7 @@ import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
 import {Table} from 'components/Table';
+import {PriceErrors} from 'components/Table/CellRenderers/Price';
 import {TOBData} from 'components/TOB/data';
 import {useDepthEmitter} from 'components/TOB/hooks/useDepthEmitter';
 import {useInitializer} from 'components/TOB/hooks/useInitializer';
@@ -180,9 +181,14 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     onRefOfrsButtonClicked: () => {
       cancelAll(symbol, strategy, Sides.Sell);
     },
+    onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => {
+      if (error === PriceErrors.GreaterThanMax || error === PriceErrors.LessThanMin) {
+        setRowStatus(order, TOBRowStatus.InvertedMarketsError);
+        input.focus();
+      }
+    },
     onOrderModified: (order: Order) => {
       if (order.price === InvalidPrice) {
-        setRowStatus(order, TOBRowStatus.InvertedMarketsError);
       } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
         if (order.quantity === null) {
           createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
