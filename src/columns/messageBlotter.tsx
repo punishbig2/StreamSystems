@@ -187,7 +187,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
         return <div/>;
       return (
         <div className={'message-blotter-cell normal'}>{MDMkt}</div>
-      )
+      );
     },
     weight: 1,
     filterByKeyword: ({MDMkt}: Message, keyword: string): boolean => {

@@ -90,7 +90,7 @@ export const updateOrder = (id: string, order: Order): AsyncAction<any, ActionTy
 };
 
 export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Action<string> => {
-  return createAction($$(order, RowActions.SetRowStatus), status);
+  return createAction($$(toRowID(order), RowActions.SetRowStatus), status);
 };
 
 export const createOrder = (id: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
