@@ -11,6 +11,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
   TransTypes: { [key: string]: string } = {
     [ExecTypes.New]: 'New',
     [ExecTypes.Canceled]: 'Cancel',
+    [ExecTypes.PartiallyFilled]: 'Partially Filled',
     [ExecTypes.Filled]: 'Filled',
     [ExecTypes.Replace]: 'Replace',
   }, columns: ColumnSpec[] = [{
@@ -19,6 +20,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     filterable: true,
     sortable: true,
     render: (data: Message) => {
+      console.log(`*${data.OrdStatus}* -> *${ExecTypes.Filled}*`);
       if (TransTypes[data.OrdStatus]) {
         return (<div className={'message-blotter-cell normal'}>{TransTypes[data.OrdStatus]}</div>);
       } else {
