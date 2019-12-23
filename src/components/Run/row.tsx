@@ -19,7 +19,6 @@ interface OwnProps {
 const Row = (props: OwnProps & RowState) => {
   const {columns, row, fixedRow, user} = props;
   const onNavigate = (target: HTMLInputElement, direction: NavigateDirection) => {
-    console.log(target, direction);
   };
   return (
     <div className={'tr' + (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')}>

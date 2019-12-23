@@ -1,5 +1,7 @@
 import {HubConnection, HubConnectionState} from '@microsoft/signalr';
+import {API} from 'API';
 import {ExecTypes, Message} from 'interfaces/message';
+import {Sides} from 'interfaces/order';
 import {W} from 'interfaces/w';
 import {IWorkspace} from 'interfaces/workspace';
 import {
@@ -51,6 +53,7 @@ enum PersistedKeys {
   Workarea = 'workarea',
 }
 
+const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
 
 const preloadedState: ApplicationState = {
@@ -189,8 +192,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
     const onUpdateMessageBlotter = (data: Message) => {
       switch (data.ExecType) {
-        case ExecTypes.PartiallyFilled:
         case ExecTypes.Filled:
+          API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
+        // eslint-disable-next-line no-fallthrough
+        case ExecTypes.PartiallyFilled:
           const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
           // Set last execution
           dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));

@@ -166,7 +166,6 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     sortable: true,
     header: () => <div>Level</div>,
     render: ({ExecType, LastPx, Price}: Message) => {
-
       if (ExecType === ExecTypes.PartiallyFilled || ExecType === ExecTypes.Filled) {
         return (
           <div className={'message-blotter-cell normal'}>{priceFormatter(Number(LastPx))}</div>

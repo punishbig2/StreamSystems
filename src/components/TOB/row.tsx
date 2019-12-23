@@ -55,6 +55,9 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     if (status === TOBRowStatus.Normal) {
       return;
     } else if (status === TOBRowStatus.Executed) {
+      const {ofr, bid} = row;
+      if (ofr.price === null && bid.price === null)
+        return;
       const timer = setTimeout(() => {
         resetStatus();
       }, 5000);
@@ -74,7 +77,6 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
   } else if (status !== TOBRowStatus.Normal) {
     classes.push('error');
   }
-  console.log(status);
   return (
     <div className={classes.join(' ')}>
       {columns.map((column) => {
