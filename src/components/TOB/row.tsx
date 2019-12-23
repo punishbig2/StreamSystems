@@ -51,7 +51,14 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, displayOnly]);
   useEffect(() => {
-    if (status !== TOBRowStatus.Normal) {
+    if (status === TOBRowStatus.Normal) {
+      return;
+    } else if (status === TOBRowStatus.Executed) {
+      const timer = setTimeout(() => {
+        props.resetStatus();
+      }, 5000);
+      return () => clearTimeout(timer);
+    } else {
       onError(status);
     }
   }, [onError, status]);

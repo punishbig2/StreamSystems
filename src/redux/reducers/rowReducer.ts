@@ -137,6 +137,8 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
             bid: {...bid, status: OrderStatus.BeingLoaded | bid.status},
           },
         };
+      case $$(id, RowActions.Executed):
+        return {...state, row: {...row, status: TOBRowStatus.Executed}};
       case $$(id, RowActions.ErrorGettingSnapshot):
       // TODO: show the error somehow?
       // eslint-disable-next-line no-fallthrough

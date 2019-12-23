@@ -20,6 +20,7 @@ import {ApplicationState} from 'redux/applicationState';
 // Special action types
 import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
+import {RowActions} from 'redux/constants/rowConstants';
 // Action enumerators
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
@@ -37,6 +38,7 @@ import {WorkareaState} from 'redux/stateDefs/workareaState';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 // Websocket action parsers/converters
 import {handlers} from 'utils/messageHandler';
+import {$$} from 'utils/stringPaster';
 
 const getObjectFromStorage = <T>(key: string): T => {
   const item: string | null = localStorage.getItem(key);
@@ -189,8 +191,11 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       switch (data.ExecType) {
         case ExecTypes.PartiallyFilled:
         case ExecTypes.Filled:
-          console.log('executing');
+          const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
+          // Set last execution
           dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
+          // Now try to highlight the related row
+          dispatch(createAction<any, A>(type));
           break;
         default:
           break;

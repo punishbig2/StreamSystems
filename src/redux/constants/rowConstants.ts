@@ -17,4 +17,5 @@ export enum RowActions {
   SnapshotReceived = 'RowActions.SnapshotReceived',
   GettingSnapshot = 'RowActions.GettingSnapshot',
   ErrorGettingSnapshot = 'RowActions.ErrorGettingSnapshot',
+  Executed = 'RowActions.Executed',
 }
