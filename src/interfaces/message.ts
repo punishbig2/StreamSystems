@@ -32,7 +32,6 @@ export interface Message {
   LastQty: string;
   OrderID: string;
   OrderQty: string;
-  OrdStatus: ExecTypes;
   OrdType: string;
   Price: string;
   LastPx: string;
@@ -41,7 +40,7 @@ export interface Message {
   Side: string;
   Symbol: string;
   TransactTime: string;
-  ExecType: ExecTypes;
+  OrderStatus: ExecTypes;
   LeavesQty: string;
   Username: string;
   MDMkt: string;
