@@ -35,6 +35,7 @@ export interface Message {
   OrdStatus: ExecTypes;
   OrdType: string;
   Price: string;
+  LastPx: string;
   Strategy: string;
   Tenor: string;
   Side: string;

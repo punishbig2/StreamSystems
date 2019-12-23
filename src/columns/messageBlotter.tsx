@@ -165,9 +165,18 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     filterable: true,
     sortable: true,
     header: () => <div>Level</div>,
-    render: ({Price}: Message) => (
-      <div className={'message-blotter-cell normal'}>{priceFormatter(Number(Price))}</div>
-    ),
+    render: ({ExecType, LastPx, Price}: Message) => {
+
+      if (ExecType === ExecTypes.PartiallyFilled || ExecType === ExecTypes.Filled) {
+        return (
+          <div className={'message-blotter-cell normal'}>{priceFormatter(Number(LastPx))}</div>
+        );
+      } else {
+        return (
+          <div className={'message-blotter-cell normal'}>{priceFormatter(Number(Price))}</div>
+        )
+      }
+    },
     weight: 1,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const value: number = Number(v1.Price);
