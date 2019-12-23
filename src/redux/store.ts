@@ -193,7 +193,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     const onUpdateMessageBlotter = (data: Message) => {
       switch (data.ExecType) {
         case ExecTypes.Filled:
-          API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
+          if (Number(data.LeavesQty) === 0) {
+            // FIXME: we should in theory not need to check this
+            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
+          }
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
           const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);

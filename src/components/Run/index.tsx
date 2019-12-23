@@ -94,14 +94,12 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
       ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, state.defaultBidSize)})),
       ...rows.map(({ofr}: TOBRow) => ({...ofr, quantity: ownOrDefaultQty(ofr, state.defaultOfrSize)})),
     ];
-    const selected: Order[] = entries
+    return entries
       .filter((order: Order) => {
         if ((order.status & OrderStatus.PriceEdited) !== 0)
           return true;
         return (order.status & OrderStatus.Cancelled) !== 0;
       });
-    console.log(selected);
-    return selected;
   };
 
   const isSubmitEnabled = () => {

@@ -55,7 +55,6 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: parse the result
-    console.log(result);
     if (result.Status === 'Success') {
       const type: string = $$(symbol, strategy, side, TOBActions.DeleteOrder);
       const event: Event = new CustomEvent(type);
