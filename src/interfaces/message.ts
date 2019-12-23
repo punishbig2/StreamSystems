@@ -44,5 +44,6 @@ export interface Message {
   LeavesQty: string;
   Username: string;
   MDMkt: string;
+  ExecBroker: string;
 }
 

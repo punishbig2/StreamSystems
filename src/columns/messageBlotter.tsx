@@ -194,11 +194,11 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
       );
     },
     weight: 1,
-    filterByKeyword: ({MDMkt}: Message, keyword: string): boolean => {
-      return MDMkt.includes(keyword);
+    filterByKeyword: ({ExecBroker}: Message, keyword: string): boolean => {
+      return ExecBroker.includes(keyword);
     },
-    difference: ({MDMkt}: Message, v2: Message) => {
-      return MDMkt.localeCompare(v2.MDMkt);
+    difference: ({ExecBroker}: Message, v2: Message) => {
+      return ExecBroker.localeCompare(v2.MDMkt);
     },
   }];
 
