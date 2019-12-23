@@ -19,18 +19,18 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     filterable: true,
     sortable: true,
     render: (data: Message) => {
-      if (TransTypes[data.OrderStatus]) {
-        return (<div className={'message-blotter-cell normal'}>{TransTypes[data.OrderStatus]}</div>);
+      if (TransTypes[data.OrdStatus]) {
+        return (<div className={'message-blotter-cell normal'}>{TransTypes[data.OrdStatus]}</div>);
       } else {
-        return (<div className={'message-blotter-cell normal red'}>{data.OrderStatus}</div>);
+        return (<div className={'message-blotter-cell normal red'}>{data.OrdStatus}</div>);
       }
     },
     weight: 1,
     difference: (v1: Message, v2: Message): number => {
-      return Number(v1.OrderStatus) - Number(v2.OrderStatus);
+      return Number(v1.OrdStatus) - Number(v2.OrdStatus);
     },
     filterByKeyword: (v1: Message, keyword: string): boolean => {
-      const original: string = TransTypes[v1.OrderStatus];
+      const original: string = TransTypes[v1.OrdStatus];
       if (!original)
         return false;
       const value = original.toLowerCase();
@@ -83,7 +83,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     sortable: true,
     header: () => <div>Size</div>,
     render: (message: Message) => {
-      switch (message.OrderStatus) {
+      switch (message.OrdStatus) {
         case ExecTypes.PartiallyFilled:
         case ExecTypes.Filled:
           return <div className={'message-blotter-cell normal'}>{message.LastShares}</div>;
@@ -165,8 +165,8 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     filterable: true,
     sortable: true,
     header: () => <div>Level</div>,
-    render: ({OrderStatus, LastPx, Price}: Message) => {
-      if (OrderStatus === ExecTypes.PartiallyFilled || OrderStatus === ExecTypes.Filled) {
+    render: ({OrdStatus, LastPx, Price}: Message) => {
+      if (OrdStatus === ExecTypes.PartiallyFilled || OrdStatus === ExecTypes.Filled) {
         return (
           <div className={'message-blotter-cell normal'}>{priceFormatter(Number(LastPx))}</div>
         );
@@ -193,8 +193,8 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     sortable: true,
     header: () => <div>CPTY</div>,
     render: (message: Message) => {
-      const {ExecBroker, OrderStatus} = message;
-      if ((OrderStatus !== ExecTypes.Filled) && (OrderStatus !== ExecTypes.PartiallyFilled))
+      const {ExecBroker, OrdStatus} = message;
+      if ((OrdStatus !== ExecTypes.Filled) && (OrdStatus !== ExecTypes.PartiallyFilled))
         return <div/>;
       return (
         <div className={'message-blotter-cell normal'}>{ExecBroker}</div>

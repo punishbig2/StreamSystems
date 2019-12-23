@@ -40,7 +40,8 @@ export interface Message {
   Side: string;
   Symbol: string;
   TransactTime: string;
-  OrderStatus: ExecTypes;
+  OrdStatus: ExecTypes;
+  ExecType: ExecTypes;
   LeavesQty: string;
   Username: string;
   MDMkt: string;

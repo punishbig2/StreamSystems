@@ -191,7 +191,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(handlers.W<A>(data));
     };
     const onUpdateMessageBlotter = (data: Message) => {
-      switch (data.OrderStatus) {
+      switch (data.OrdStatus) {
         case ExecTypes.Filled:
           API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
         // eslint-disable-next-line no-fallthrough
