@@ -30,6 +30,7 @@ type DispatchProps = RowFunctions;
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
   setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
   setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+  resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus))),
 });
 
 const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(
@@ -38,7 +39,7 @@ const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnPro
 );
 
 const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
-  const {id, columns, row, onError, displayOnly, ...extra} = props;
+  const {id, columns, row, onError, displayOnly, resetStatus, ...extra} = props;
   const {status} = row;
   // Compute the total weight of the columns
   useEffect(() => {
@@ -55,19 +56,27 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
       return;
     } else if (status === TOBRowStatus.Executed) {
       const timer = setTimeout(() => {
-        props.resetStatus();
+        resetStatus();
       }, 5000);
       return () => clearTimeout(timer);
     } else {
       onError(status);
     }
-  }, [onError, status]);
+  }, [onError, resetStatus, status]);
   const functions: DispatchProps = {
     setOfrQty: props.setOfrQty,
     setBidQty: props.setBidQty,
+    resetStatus: props.resetStatus,
   };
+  const classes: string[] = ['tr'];
+  if (status === TOBRowStatus.Executed) {
+    classes.push('executed');
+  } else if (status !== TOBRowStatus.Normal) {
+    classes.push('error');
+  }
+  console.log(status);
   return (
-    <div className={'tr' + (row.status !== TOBRowStatus.Normal ? ' error' : '')}>
+    <div className={classes.join(' ')}>
       {columns.map((column) => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);

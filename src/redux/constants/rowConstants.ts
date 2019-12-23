@@ -18,4 +18,5 @@ export enum RowActions {
   GettingSnapshot = 'RowActions.GettingSnapshot',
   ErrorGettingSnapshot = 'RowActions.ErrorGettingSnapshot',
   Executed = 'RowActions.Executed',
+  ResetStatus = 'RowActions.ResetStatus',
 }

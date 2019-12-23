@@ -34,6 +34,23 @@ $red-x-size: 16px;
     line-height: $table-row-height;
     white-space: nowrap;
 
+    @keyframes blink {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    &.executed {
+      background-color: #f8f8f8;
+      animation: blink 0.5s infinite linear;
+    }
+
     &.error {
       background-color: rgba($text-color-red, $table-tint);
 

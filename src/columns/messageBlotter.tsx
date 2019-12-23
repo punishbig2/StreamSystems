@@ -188,7 +188,6 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
       const {ExecBroker, ExecType} = message;
       if ((ExecType !== ExecTypes.Filled) && (ExecType !== ExecTypes.PartiallyFilled))
         return <div/>;
-      console.log(message);
       return (
         <div className={'message-blotter-cell normal'}>{ExecBroker}</div>
       );

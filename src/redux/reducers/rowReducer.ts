@@ -20,12 +20,12 @@ const setBeingCancelled = (order: Order) => ({...order, status: OrderStatus.Bein
 const canBeCancelled = (order: Order) => (order.status & OrderStatus.PreFilled) !== 0
   && ((order.status & OrderStatus.Owned) !== 0 || (order.status & OrderStatus.SameBank) !== 0);
 
-const getRowStatusFromOrderError = (reason: OrderErrors) => {
+const getRowStatusFromOrderError = (reason: OrderErrors, status: TOBRowStatus) => {
   switch (reason) {
     case OrderErrors.NegativePrice:
       return TOBRowStatus.NegativePrice;
     default:
-      return TOBRowStatus.Normal;
+      return status;
   }
 };
 
@@ -72,7 +72,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
             row: {
               ...row,
               bid: {...bid, status: bid.status & ~OrderStatus.BeingCreated, price: null, quantity: null},
-              status: getRowStatusFromOrderError(reason),
+              status: getRowStatusFromOrderError(reason, row.status),
             },
           };
         } else if (data.type === OrderTypes.Ofr) {
@@ -81,7 +81,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
             row: {
               ...row,
               ofr: {...ofr, status: ofr.status & ~OrderStatus.BeingCreated, price: null, quantity: null},
-              status: getRowStatusFromOrderError(reason),
+              status: getRowStatusFromOrderError(reason, row.status),
             },
           };
         } else {
@@ -96,7 +96,10 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
           return state;
         return {...state, row: {...row, bid: data}};
       case $$(id, RowActions.Update):
-        return {...state, row: data};
+        // WARNING: preserving status across updates can be a problem but it seems
+        //          that after it's set the first time it should remain as is unless
+        //          explicitly changed
+        return {...state, row: {...data, status: row.status}};
       case $$(id, RowActions.SetOfferPrice):
         if (bid.price > data)
           return state;
@@ -139,6 +142,8 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         };
       case $$(id, RowActions.Executed):
         return {...state, row: {...row, status: TOBRowStatus.Executed}};
+      case $$(id, RowActions.ResetStatus):
+        return {...state, row: {...row, status: TOBRowStatus.Normal}};
       case $$(id, RowActions.ErrorGettingSnapshot):
       // TODO: show the error somehow?
       // eslint-disable-next-line no-fallthrough
