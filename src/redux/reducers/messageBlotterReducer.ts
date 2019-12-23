@@ -6,7 +6,6 @@ import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
 
 const initialState: MessageBlotterState = {
   entries: [],
-  lastEntry: null,
 };
 
 type ActionType = MessageBlotterActions | SignalRActions;
@@ -16,8 +15,6 @@ export default (state: MessageBlotterState = initialState, {type, data}: Action<
       if (data.ExecType === ExecTypes.PartiallyFilled || data.ExecType === ExecTypes.Filled)
         return {...state, entries: [data, ...state.entries], lastEntry: data};
       return {...state, entries: [data, ...state.entries]};
-    case MessageBlotterActions.ClearLastEntry:
-      return {...state, lastEntry: null};
     case MessageBlotterActions.Initialize:
       return {...state, entries: data};
     default:

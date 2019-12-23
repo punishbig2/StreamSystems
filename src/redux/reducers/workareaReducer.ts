@@ -14,6 +14,7 @@ const initialState: WorkareaState = {
   messages: [],
   status: WorkareaStatus.Starting,
   connected: false,
+  lastExecution: null,
 };
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
@@ -87,6 +88,10 @@ export default (state: WorkareaState = initialState, {type, data}: Action): Work
       return {...state, message: 'Loading User Information'};
     case WorkareaActions.ServerUnavailable:
       return {...state, status: WorkareaStatus.Error};
+    case WorkareaActions.SetLastExecution:
+      return {...state, lastExecution: data};
+    case WorkareaActions.ClearLastExecution:
+      return {...state, lastExecution: null};
     default:
       return state;
   }

@@ -1,22 +1,13 @@
 import columns from 'columns/messageBlotter';
 import {Row} from 'components/MessageBlotter/row';
-import {ModalWindow} from 'components/ModalWindow';
 import {Table} from 'components/Table';
-import {ColumnSpec} from 'components/Table/columnSpecification';
 import strings from 'locales';
 import React, {useEffect} from 'react';
 import {connect} from 'react-redux';
-import {clearLastEntry, subscribe, unsubscribe} from 'redux/actions/messageBlotterActions';
 import {ApplicationState} from 'redux/applicationState';
-import {SignalRActions} from 'redux/constants/signalRConstants';
-import {SignalRAction} from 'redux/signalRAction';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 interface DispatchProps {
-  clearLastEntry: () => void;
-  subscribe: (email: string) => SignalRAction<SignalRActions>;
-  unsubscribe: (email: string) => SignalRAction<SignalRActions>;
 }
 
 interface OwnProps {
@@ -30,9 +21,6 @@ const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterSta
   ({messageBlotter}: ApplicationState): MessageBlotterState => messageBlotter;
 
 const mapDispatchToProps: DispatchProps = {
-    clearLastEntry: () => clearLastEntry(),
-    subscribe: (email: string) => subscribe(email),
-    unsubscribe: (email: string) => unsubscribe(email),
   }
 ;
 
@@ -43,40 +31,12 @@ const withRedux = connect<MessageBlotterState, DispatchProps, OwnProps, Applicat
 
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const {connected, subscribe, unsubscribe, entries, setWindowTitle, id} = props;
-  // Get the user directly from the store
-  const {email} = getAuthenticatedUser();
-  useEffect(() => {
-    if (connected) {
-      subscribe(email);
-      return () => {
-        unsubscribe(email);
-      };
-    }
-  }, [connected, subscribe, unsubscribe, email]);
+  const {entries, setWindowTitle, id} = props;
   useEffect(() => {
     setWindowTitle(id, strings.Monitor);
   }, [id, setWindowTitle]);
   const renderRow = (props: any) => <Row key={props.key} columns={props.columns} row={props.row}
                                          weight={props.weight}/>;
-  const renderMessage = () => {
-    if (!props.lastEntry)
-      return null;
-    return (
-      <div className={'message-detail'}>
-        <audio src={'/sounds/alert.wav'} autoPlay={true}/>
-        {columns.map((column: ColumnSpec) => (
-          <div className={'message-entry'} key={column.name}>
-            <div className={'message-entry-label'}>{column.header({})}</div>
-            <div className={'message-entry-value'}>{column.render(props.lastEntry)}</div>
-          </div>
-        ))}
-        <div className={'dialog-buttons'}>
-          <button className={'cancel'} onClick={props.clearLastEntry}>Close</button>
-        </div>
-      </div>
-    );
-  };
   return (
     <>
       <div className={'window-title-bar'}>
@@ -85,7 +45,6 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       <div className={'window-content'}>
         <Table scrollable={true} columns={columns} rows={entries} renderRow={renderRow}/>
       </div>
-      <ModalWindow render={() => renderMessage()} visible={props.lastEntry !== null}/>
     </>
   );
 });

@@ -1,5 +1,5 @@
 import {HubConnection, HubConnectionState} from '@microsoft/signalr';
-import {Message} from 'interfaces/message';
+import {ExecTypes, Message} from 'interfaces/message';
 import {W} from 'interfaces/w';
 import {IWorkspace} from 'interfaces/workspace';
 import {
@@ -22,6 +22,7 @@ import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 // Action enumerators
 import {SignalRActions} from 'redux/constants/signalRConstants';
+import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
 import settings from 'redux/reducers/settingsReducer';
@@ -60,10 +61,10 @@ const preloadedState: ApplicationState = {
     // Merge with the saved value
     ...savedWorkarea,
     connected: false,
+    lastExecution: null,
   },
   messageBlotter: {
     entries: [],
-    lastEntry: null,
   },
   settings: {},
 };
@@ -185,6 +186,15 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(handlers.W<A>(data));
     };
     const onUpdateMessageBlotter = (data: Message) => {
+      switch (data.ExecType) {
+        case ExecTypes.PartiallyFilled:
+        case ExecTypes.Filled:
+          console.log('executing');
+          dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
+          break;
+        default:
+          break;
+      }
       dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
     };
     // Setup the connection manager now

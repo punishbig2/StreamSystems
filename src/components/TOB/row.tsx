@@ -20,6 +20,7 @@ interface OwnProps {
   columns: ColumnSpec[];
   weight: number;
   onError: (status: TOBRowStatus) => void;
+  displayOnly: boolean;
 
   [key: string]: any;
 }
@@ -37,16 +38,18 @@ const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnPro
 );
 
 const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
-  const {id, columns, row, onError, ...extra} = props;
+  const {id, columns, row, onError, displayOnly, ...extra} = props;
   const {status} = row;
   // Compute the total weight of the columns
   useEffect(() => {
+    if (displayOnly)
+      return;
     injectNamedReducer(id, createRowReducer, {row});
     return () => {
       removeNamedReducer(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, displayOnly]);
   useEffect(() => {
     if (status !== TOBRowStatus.Normal) {
       onError(status);

@@ -87,6 +87,8 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
         case ExecTypes.PartiallyFilled:
         case ExecTypes.Filled:
           return <div className={'message-blotter-cell normal'}>{message.LastShares}</div>;
+        case ExecTypes.Canceled:
+          return <div className={'message-blotter-cell normal'}>{message.LeavesQty}</div>;
         default:
           return <div className={'message-blotter-cell normal'}>{message.OrderQty}</div>;
       }

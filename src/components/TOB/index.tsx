@@ -283,9 +283,14 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   );
 
   const onRowErrorFn = useCallback((status: TOBRowStatus) => onRowError(status), [onRowError]);
-  const renderRow: (props: any) => ReactElement = (props: any): ReactElement => {
+  const renderRow = (props: any): ReactElement => {
     return (
-      <Row {...props} user={user} depths={state.depths} onError={onRowErrorFn}/>
+      <Row {...props} user={user} depths={state.depths} onError={onRowErrorFn} displayOnly={false}/>
+    );
+  };
+  const renderDOBRow = (props: TOBRow): ReactElement => {
+    return (
+      <Row {...props} user={user} depths={[]} onError={onRowErrorFn} displayOnly={true}/>
     );
   };
   const getDepthTable = (): ReactElement | null => {
@@ -295,7 +300,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     return <Table scrollable={false}
                   columns={createTOBColumns(data, true)}
                   rows={rows}
-                  renderRow={renderRow}/>;
+                  renderRow={renderDOBRow}/>;
   };
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working

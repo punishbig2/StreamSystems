@@ -28,7 +28,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
     const transform = mdEntryToTOBEntry(w);
     if (key1 === 'ofr' && key2 === 'bid') {
       return {
-        id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
+        id: $$('__DOB', index, w.Tenor, w.Symbol, w.Strategy),
         tenor: w.Tenor,
         ofr: transform(entry, OrderTypes.Ofr),
         bid: transform(other[index], OrderTypes.Bid),
@@ -38,7 +38,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
       };
     } else if (key1 === 'bid' && key2 === 'ofr') {
       return {
-        id: $$('__DOB', w.Tenor, w.Symbol, w.Strategy),
+        id: $$('__DOB', index, w.Tenor, w.Symbol, w.Strategy),
         tenor: w.Tenor,
         bid: transform(entry, OrderTypes.Bid),
         ofr: transform(other[index], OrderTypes.Ofr),

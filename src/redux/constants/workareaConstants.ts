@@ -20,4 +20,6 @@ export enum WorkareaActions {
   LoadingMessages = 'WorkareaActions.LoadingMessages',
   LoadingUsersList = 'WorkareaActions.LoadingUsersList',
   ServerUnavailable = 'WorkareaActions.ServerUnavailable',
+  SetLastExecution = 'WorkareaActions.SetLastExecution',
+  ClearLastExecution = 'WorkareaActions.ClearLastExecution',
 }

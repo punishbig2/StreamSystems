@@ -44,6 +44,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   useEffect(() => {
     if (!ref || !rows)
       return;
+    console.log('rows changed');
     setHeight(ref.offsetHeight);
     const observer: ResizeObserver = new ResizeObserver(() => {
       setHeight(ref.offsetHeight);

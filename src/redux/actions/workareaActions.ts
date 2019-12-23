@@ -8,13 +8,16 @@ import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
+import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
+import {SignalRAction} from 'redux/signalRAction';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import shortid from 'shortid';
 
-export const setWorkspaces = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
-export const addWorkspaces = (): AnyAction => {
+export const clearLastExecution = () => createAction(WorkareaActions.ClearLastExecution);
+export const setWorkspace = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
+export const addWorkspace = (): AnyAction => {
   const name: string = 'Untitled';
   const id: string = `workspace-${shortid()}`;
   const newWorkspace: IWorkspace = {id, name};
@@ -82,5 +85,13 @@ export const closeWorkspace = (id: string): Action<WorkareaActions> => {
 };
 
 export const quit = () => {
-
 };
+
+export const subscribeToMessages = (email: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.SubscribeForMBMsg, [email]);
+};
+
+export const unsubscribeFromMessages = (email: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.UnsubscribeForMBMsg, [email]);
+};
+

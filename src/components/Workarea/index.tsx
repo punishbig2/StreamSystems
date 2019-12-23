@@ -1,6 +1,8 @@
+import columns from 'columns/messageBlotter';
 import {ModalWindow} from 'components/ModalWindow';
 import {Question} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
+import {ColumnSpec} from 'components/Table/columnSpecification';
 import {UserNotFound} from 'components/Workarea/userNotFound';
 import {WorkareaError} from 'components/Workarea/workareaError';
 import {Workspace} from 'components/Workspace';
@@ -10,13 +12,16 @@ import {connect, MapStateToProps} from 'react-redux';
 import {AnyAction} from 'redux';
 import {
   addWindow,
-  addWorkspaces,
+  addWorkspace,
+  clearLastExecution,
   closeWorkspace,
   initialize,
   loadMessages,
   quit,
   renameWorkspace,
-  setWorkspaces,
+  setWorkspace,
+  subscribeToMessages,
+  unsubscribeFromMessages,
 } from 'redux/actions/workareaActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
@@ -34,6 +39,9 @@ interface DispatchProps {
   initialize: () => AnyAction;
   loadMessages: (timestamp?: string) => AnyAction;
   quit: () => void;
+  clearLastExecution: () => void;
+  unsubscribeFromMessages: (email: string) => void;
+  subscribeToMessages: (email: string) => void;
 }
 
 type Props = OwnProps & WorkareaState & DispatchProps;
@@ -42,14 +50,17 @@ const mapStateToProps: MapStateToProps<WorkareaState, OwnProps, ApplicationState
   ({workarea}: ApplicationState): WorkareaState => workarea;
 
 const mapDispatchToProps: DispatchProps = {
-  addWorkspace: addWorkspaces,
-  setWorkspace: setWorkspaces,
+  addWorkspace,
+  setWorkspace,
+  clearLastExecution,
   renameWorkspace,
   closeWorkspace,
   addWindow,
   loadMessages,
   initialize,
   quit,
+  unsubscribeFromMessages,
+  subscribeToMessages,
 };
 
 const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, OwnProps, ApplicationState>(
@@ -58,15 +69,27 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 );
 
 const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
-  const {symbols, products, tenors, initialize, connected, activeWorkspace} = props;
+  const {symbols, products, tenors, initialize, connected, user, activeWorkspace} = props;
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const {workspaces, loadMessages} = props;
   const {CloseWorkspace} = strings;
+  const {subscribeToMessages, unsubscribeFromMessages} = props;
+
+  useEffect(() => {
+    if (!user)
+      return;
+    subscribeToMessages(user.email);
+    return () => {
+      unsubscribeFromMessages(user.email);
+    };
+  }, [subscribeToMessages, unsubscribeFromMessages, connected, user]);
+
   // componentDidMount equivalent
   useEffect((): void => {
     initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
     const now: string = (Date.now() / 1000).toFixed(0);
     loadMessages(now);
@@ -79,6 +102,25 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     props.closeWorkspace(selectedToClose as string);
     // Close the modal window
     setSelectedToClose(null);
+  };
+
+  const renderMessage = () => {
+    if (!props.lastExecution)
+      return null;
+    return (
+      <div className={'message-detail'}>
+        <audio src={'/sounds/alert.wav'} autoPlay={true}/>
+        {columns.map((column: ColumnSpec) => (
+          <div className={'message-entry'} key={column.name}>
+            <div className={'message-entry-label'}>{column.header({})}</div>
+            <div className={'message-entry-value'}>{column.render(props.lastExecution)}</div>
+          </div>
+        ))}
+        <div className={'dialog-buttons'}>
+          <button className={'cancel'} onClick={props.clearLastExecution}>Close</button>
+        </div>
+      </div>
+    );
   };
 
   switch (props.status) {
@@ -114,6 +156,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
               onQuit={props.quit}/>
           </div>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
+          <ModalWindow render={() => renderMessage()} visible={props.lastExecution !== null}/>
         </>
       );
     default:
