@@ -15,24 +15,22 @@ export const useSubscriber = (
   getSnapshot: GetSnapshot,
   getRunOrders: GetOrders,
 ) => {
+  const array: TOBRow[] = Object.values(rows);
+  const count: number = array.length;
   useEffect(() => {
-    const array: TOBRow[] = Object.values(rows);
-    if (connected && array.length !== 0) {
+    if (connected) {
       // Get all of the snapshots
-      array.forEach((row: TOBRow) => {
-        getSnapshot(symbol, strategy, row.tenor);
+      const destroy = array.map(({tenor}: TOBRow) => {
+        getSnapshot(symbol, strategy, tenor);
+        subscribe(symbol, strategy, tenor);
+        return () => unsubscribe(symbol, strategy, tenor);
       });
-      // Subscribe to symbol/strategy/tenor combination
-      array.forEach(({tenor}: TOBRow) => subscribe(symbol, strategy, tenor));
       // Get the canceled orders for the run window
       getRunOrders(symbol, strategy);
       // Unsubscribe all
-      return () => {
-        array.forEach(({tenor}: TOBRow) => {
-          unsubscribe(symbol, strategy, tenor);
-        });
-      };
+      return () => destroy.forEach((fn: () => void) => fn());
     }
-  }, [connected, rows, strategy, symbol, subscribe, unsubscribe, getSnapshot, getRunOrders]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, count]);
 };
 

@@ -10,4 +10,5 @@ export interface ColumnSpec {
   weight: number;
   filterByKeyword?: (v1: any, keyword: string) => boolean;
   difference?: (v1: any, v2: any) => number;
+  template: string;
 }

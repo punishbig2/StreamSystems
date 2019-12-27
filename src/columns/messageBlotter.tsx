@@ -16,11 +16,11 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     [ExecTypes.Replace]: 'Replace',
   }, columns: ColumnSpec[] = [{
     name: 'ExecTransType',
+    template: 'Example Transaction',
     header: () => <div>Type</div>,
     filterable: true,
     sortable: true,
     render: (data: Message) => {
-      console.log(`*${data.OrdStatus}* -> *${ExecTypes.Filled}*`);
       if (TransTypes[data.OrdStatus]) {
         return (<div className={'message-blotter-cell normal'}>{TransTypes[data.OrdStatus]}</div>);
       } else {
@@ -40,6 +40,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'TransactTime',
+    template: 'MM/DD/YYYY 00:00:00',
     header: () => <div>Time (EST)</div>,
     filterable: true,
     sortable: true,
@@ -65,6 +66,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'Side',
+    template: 'SELL',
     filterable: true,
     sortable: true,
     header: () => <div>Side</div>,
@@ -81,6 +83,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'Size',
+    template: '999999',
     filterable: true,
     sortable: true,
     header: () => <div>Size</div>,
@@ -108,6 +111,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'Symbol',
+    template: 'WWWWWW',
     filterable: true,
     sortable: true,
     header: () => <div>Currency</div>,
@@ -129,6 +133,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'Tenor',
+    template: 'WW',
     filterable: true,
     sortable: true,
     header: () => <div>Tenor</div>,
@@ -146,6 +151,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'Strategy',
+    template: 'WWWWWW',
     filterable: true,
     sortable: true,
     header: () => <div>Strategy</div>,
@@ -164,6 +170,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'Price',
+    template: '999999.99',
     filterable: true,
     sortable: true,
     header: () => <div>Level</div>,
@@ -191,6 +198,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     },
   }, {
     name: 'CPTY',
+    template: 'WWWWWW',
     filterable: true,
     sortable: true,
     header: () => <div>CPTY</div>,

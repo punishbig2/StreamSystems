@@ -42,7 +42,8 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends
               onSorted={onSorted}
               sortDirection={sortDirection}
               onFiltered={(keyword: string) => props.addFilter(column.name, keyword)}
-              width={percentage(column.weight, weight)}>
+              width={percentage(column.weight, weight)}
+              template={column.template}>
         {column.header(props)}
       </Column>
     );

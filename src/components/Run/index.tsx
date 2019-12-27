@@ -11,13 +11,13 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
-import {User} from 'interfaces/user';
 import strings from 'locales';
 import {SettingsContext} from 'main';
 import React, {ReactElement, useCallback, useContext, useReducer} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {Settings} from 'settings';
 import {toRunId} from 'utils';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
 
@@ -28,7 +28,6 @@ interface OwnProps {
   strategy: string;
   oco: boolean;
   tenors: string[],
-  user: User;
   onClose: () => void;
   onSubmit: (entries: Order[]) => void;
   onCancelOrder: (order: Order) => void;
@@ -43,8 +42,8 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     defaultOfrSize: settings.defaultSize,
     initialized: false,
   });
-  const {symbol, strategy, tenors, user} = props;
-  const {email} = user;
+  const {symbol, strategy, tenors} = props;
+  const {email} = getAuthenticatedUser();
   const setTable = (orders: TOBTable) => dispatch(createAction(RunActions.SetTable, orders));
   // Updates a single side of the depth
   const onUpdate = (order: Order) => {

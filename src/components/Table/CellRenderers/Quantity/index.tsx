@@ -6,7 +6,6 @@ import React, {ReactNode} from 'react';
 interface OwnProps {
   type: OrderTypes;
   value: number | null;
-  firm?: string;
   onChange: (value: string | null) => void;
   cancelable?: boolean;
   onCancel?: () => void;
@@ -52,8 +51,6 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
     </div>
   );
   if (props.type === OrderTypes.Bid) {
-    if (props.firm)
-      children.push(<div>{props.firm}</div>);
     if (props.chevron)
       children.push(<Chevron side={'left'} key={3}/>);
     children.push(button);
@@ -61,8 +58,6 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
     children.unshift(button);
     if (props.chevron)
       children.push(<Chevron side={'right'} key={3}/>);
-    if (props.firm)
-      children.push(<div>{props.firm}</div>);
   }
   return (
     <div className={'size-layout'}>

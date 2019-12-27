@@ -12,18 +12,20 @@ import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {SignalRAction} from 'redux/signalRAction';
+import {ToolbarState} from 'redux/stateDefs/workspaceState';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import shortid from 'shortid';
 
 export const clearLastExecution = () => createAction(WorkareaActions.ClearLastExecution);
 export const setWorkspace = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
 export const addWorkspace = (): AnyAction => {
+  const initialToolbarState: ToolbarState = {visible: false, hovering: false, pinned: false};
   const name: string = 'Untitled';
   const id: string = `workspace-${shortid()}`;
   const newWorkspace: IWorkspace = {id, name};
   // Create the reducer now, after doing this we will have the reducer
   // that will work specifically with this email
-  injectNamedReducer(id, createWorkspaceReducer, {windows: {}, toast: null});
+  injectNamedReducer(id, createWorkspaceReducer, {windows: {}, toast: null, toolbarState: initialToolbarState});
   // Generate the action to make the reducer insert a new workspace
   return createAction(WorkareaActions.AddWorkspace, newWorkspace);
 };

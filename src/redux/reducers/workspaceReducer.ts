@@ -1,13 +1,18 @@
 import {Window} from 'interfaces/window';
 import {AnyAction} from 'redux';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {ToolbarState, WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
 
 const genesisState: WorkspaceState = {
   windows: {},
   toast: null,
+  toolbarState: {
+    pinned: false,
+    hovering: false,
+    visible: false,
+  },
 };
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
@@ -95,6 +100,21 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
   return {...reorderedWindows, [id]: {...state.windows[id], zIndex: getMaxZIndex(reorderedWindows)}};
 };
 
+const toolbarReducer = (state: ToolbarState, {type}: AnyAction): ToolbarState => {
+  switch (type) {
+    case  WorkspaceActions.ToolbarTryShow:
+      return {...state, hovering: true};
+    case  WorkspaceActions.ToolbarShow:
+      return {...state, visible: true, hovering: false};
+    case  WorkspaceActions.ToolbarHide:
+      return {...state, visible: false, hovering: false};
+    case  WorkspaceActions.ToolbarTogglePin:
+      return {...state, pinned: !state.pinned};
+    default:
+      return state;
+  }
+};
+
 export const createWorkspaceReducer = (id: string, initialState: WorkspaceState = genesisState) => {
   return (state: WorkspaceState = initialState, {type, data}: AnyAction): WorkspaceState => {
     switch (type) {
@@ -116,6 +136,26 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
         return {...state, windows: bringToFront(data, state)};
       case $$(id, WorkspaceActions.Toast):
         return {...state, toast: data};
+      case $$(id, WorkspaceActions.ToolbarTryShow):
+        return {
+          ...state,
+          toolbarState: toolbarReducer(state.toolbarState, {type: WorkspaceActions.ToolbarTryShow, data}),
+        };
+      case $$(id, WorkspaceActions.ToolbarShow):
+        return {
+          ...state,
+          toolbarState: toolbarReducer(state.toolbarState, {type: WorkspaceActions.ToolbarShow, data}),
+        };
+      case $$(id, WorkspaceActions.ToolbarHide):
+        return {
+          ...state,
+          toolbarState: toolbarReducer(state.toolbarState, {type: WorkspaceActions.ToolbarHide, data}),
+        };
+      case $$(id, WorkspaceActions.ToolbarTogglePin):
+        return {
+          ...state,
+          toolbarState: toolbarReducer(state.toolbarState, {type: WorkspaceActions.ToolbarTogglePin, data}),
+        };
       default:
         return state;
     }

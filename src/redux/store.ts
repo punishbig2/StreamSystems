@@ -197,7 +197,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
           const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
-          // Set last execution
+          // Set last execution to trigger the popup
           dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
           // Now try to highlight the related row
           dispatch(createAction<any, A>(type));

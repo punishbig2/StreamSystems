@@ -25,20 +25,24 @@ interface OwnProps {
   [key: string]: any;
 }
 
-type DispatchProps = RowFunctions;
+const cache: { [key: string]: RowFunctions } = {};
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): RowFunctions => {
+  if (!cache[id]) {
+    cache[id] = {
+      setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
+      setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+      resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus))),
+    };
+  }
+  return cache[id];
+};
 
-const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
-  setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
-  resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus))),
-});
-
-const withRedux: (ignored: any) => any = connect<RowState, DispatchProps, OwnProps, ApplicationState>(
+const withRedux: (ignored: any) => any = connect<RowState, RowFunctions, OwnProps, ApplicationState>(
   dynamicStateMapper<RowState, OwnProps, ApplicationState>(),
   mapDispatchToProps,
 );
 
-const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
+const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
   const {id, columns, row, onError, displayOnly, resetStatus, ...extra} = props;
   const {status} = row;
   // Compute the total weight of the columns
@@ -65,8 +69,8 @@ const Row = withRedux((props: OwnProps & RowState & DispatchProps) => {
     } else {
       onError(status);
     }
-  }, [onError, resetStatus, status]);
-  const functions: DispatchProps = {
+  }, [onError, resetStatus, row, status]);
+  const functions: RowFunctions = {
     setOfrQty: props.setOfrQty,
     setBidQty: props.setBidQty,
     resetStatus: props.resetStatus,

@@ -3,7 +3,7 @@ import {AggregatedSz} from 'components/TOB/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 
-export interface TOBData {
+export interface TOBColumnData {
   onTenorSelected: (tenor: string) => void;
   onDoubleClick: (type: OrderTypes, data: any) => void;
   onRefBidsButtonClicked: () => void;

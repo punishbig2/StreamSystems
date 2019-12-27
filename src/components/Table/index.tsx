@@ -1,11 +1,8 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
-import {Child} from 'components/Table/listChildItem';
-import {CustomScrollbarsVirtualList} from 'components/Table/virtualScrollbars';
+import {VirtualScroll} from 'components/VirtualScroll';
 import {SortInfo} from 'interfaces/sortInfo';
-import React, {ReactElement, useEffect, useState} from 'react';
-import {FixedSizeList} from 'react-window';
-import ResizeObserver from 'resize-observer-polyfill';
+import React, {CSSProperties, ReactElement, useState} from 'react';
 
 export enum SortDirection {
   Descending, Ascending, None
@@ -37,20 +34,8 @@ const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
 
 export const Table: (props: Props) => (React.ReactElement | null) = (props: Props): ReactElement | null => {
   const {rows, columns} = props;
-  const [height, setHeight] = useState<number>(0);
-  const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<SortInfo | undefined>();
-  useEffect(() => {
-    if (!ref || !rows)
-      return;
-    setHeight(ref.offsetHeight);
-    const observer: ResizeObserver = new ResizeObserver(() => {
-      setHeight(ref.offsetHeight);
-    });
-    observer.observe(ref);
-    return () => observer.disconnect();
-  }, [ref, rows]);
   if (!rows)
     return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
@@ -96,19 +81,24 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
     }
   };
 
+  const getStyle = (): CSSProperties => {
+    const {columns} = props;
+    const reducer = (value: number, column: ColumnSpec): number => {
+      const {template} = column;
+      return value + 0.95 * template.length;
+    };
+    const minWidth: string = columns.reduce(reducer, 0) + 'em';
+    return {
+      minWidth,
+    };
+  };
+
   const getBody = () => {
-    const itemKey = (index: number) => rowProps[index].id;
     if (props.scrollable) {
       return (
-        <FixedSizeList
-          itemCount={rowProps.length}
-          itemKey={itemKey}
-          height={height}
-          width={'100%'}
-          itemSize={24}
-          outerElementType={CustomScrollbarsVirtualList}>
-          {Child(props, rowProps)}
-        </FixedSizeList>
+        <VirtualScroll itemSize={24} className={'tbody'}>
+          {rowProps.map(props.renderRow)}
+        </VirtualScroll>
       );
     } else if (props.renderRow) {
       return (
@@ -122,7 +112,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   if (props.className)
     classes.push(props.className);
   return (
-    <div ref={setRef} className={classes.join(' ')}>
+    <div className={classes.join(' ')} style={getStyle()}>
       <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
       {getBody()}
     </div>

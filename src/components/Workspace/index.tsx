@@ -5,11 +5,9 @@ import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useCallback, useEffect, useReducer} from 'react';
+import React, {ReactElement, useCallback, useEffect} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
-import {Action} from 'redux/action';
-import {createAction} from 'redux/actionCreator';
 import {
   addWindow,
   bringToFront,
@@ -20,6 +18,10 @@ import {
   setToast,
   setWindowAutoSize,
   setWindowTitle,
+  toolbarHide,
+  toolbarShow,
+  toolbarTogglePin,
+  toolbarTryShow,
 } from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
@@ -38,6 +40,10 @@ interface DispatchProps {
   bringToFront: (id: string) => void;
   setWindowAutoSize: (id: string) => void;
   showToast: (message: string | null) => void;
+  toolbarTryShow: () => void;
+  toolbarHide: () => void;
+  toolbarShow: () => void;
+  toolbarTogglePin: () => void;
 }
 
 interface OwnProps {
@@ -49,17 +55,27 @@ interface OwnProps {
   connected: boolean;
 }
 
-const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => ({
-  addWindow: (type: WindowTypes) => dispatch(addWindow(id, type)),
-  updateGeometry: (windowId: string, geometry: ClientRect) => dispatch(moveWindow(id, windowId, geometry)),
-  removeWindow: (windowId: string) => dispatch(removeWindow(id, windowId)),
-  minimizeWindow: (windowId: string) => dispatch(minimizeWindow(id, windowId)),
-  restoreWindow: (windowId: string) => dispatch(restoreWindow(id, windowId)),
-  setWindowTitle: (windowId: string, title: string) => dispatch(setWindowTitle(id, windowId, title)),
-  bringToFront: (windowId: string) => dispatch(bringToFront(id, windowId)),
-  setWindowAutoSize: (windowId: string) => dispatch(setWindowAutoSize(id, windowId)),
-  showToast: (message: string | null) => dispatch(setToast(id, message)),
-});
+const cache: { [key: string]: DispatchProps } = {};
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => {
+  if (!cache[id]) {
+    cache[id] = {
+      addWindow: (type: WindowTypes) => dispatch(addWindow(id, type)),
+      updateGeometry: (windowId: string, geometry: ClientRect) => dispatch(moveWindow(id, windowId, geometry)),
+      removeWindow: (windowId: string) => dispatch(removeWindow(id, windowId)),
+      minimizeWindow: (windowId: string) => dispatch(minimizeWindow(id, windowId)),
+      restoreWindow: (windowId: string) => dispatch(restoreWindow(id, windowId)),
+      setWindowTitle: (windowId: string, title: string) => dispatch(setWindowTitle(id, windowId, title)),
+      bringToFront: (windowId: string) => dispatch(bringToFront(id, windowId)),
+      setWindowAutoSize: (windowId: string) => dispatch(setWindowAutoSize(id, windowId)),
+      showToast: (message: string | null) => dispatch(setToast(id, message)),
+      toolbarShow: () => dispatch(toolbarShow(id)),
+      toolbarTryShow: () => dispatch(toolbarTryShow(id)),
+      toolbarHide: () => dispatch(toolbarHide(id)),
+      toolbarTogglePin: () => dispatch(toolbarTogglePin(id)),
+    };
+  }
+  return cache[id];
+};
 
 const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, OwnProps, ApplicationState>(
   dynamicStateMapper<WorkspaceState, OwnProps, ApplicationState>(),
@@ -92,31 +108,6 @@ const createWindow = (id: string,
   }
 };
 
-enum ToolbarAction {
-  TryShow, Show, Hide, TogglePin
-}
-
-interface ToolbarState {
-  pinned: boolean;
-  hovering: boolean;
-  visible: boolean;
-}
-
-const reducer = (state: ToolbarState, action: Action<ToolbarAction>): ToolbarState => {
-  switch (action.type) {
-    case ToolbarAction.TryShow:
-      return {...state, hovering: true};
-    case ToolbarAction.Show:
-      return {...state, visible: true, hovering: false};
-    case ToolbarAction.Hide:
-      return {...state, visible: false, hovering: false};
-    case ToolbarAction.TogglePin:
-      return {...state, pinned: !state.pinned};
-  }
-};
-
-const initialToolbarState: ToolbarState = {hovering: false, visible: false, pinned: false};
-
 const objectToCssClass = (object: any, base: string) => {
   const classes: string[] = [base];
   for (const key of Object.getOwnPropertyNames(object)) {
@@ -128,43 +119,44 @@ const objectToCssClass = (object: any, base: string) => {
 };
 
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
-  const [toolbarState, dispatch] = useReducer(reducer, initialToolbarState);
-  const {symbols, products, tenors, connected, setWindowTitle} = props;
-  const {showToast} = props;
+  const {toolbarState} = props;
+  const {symbols, products, tenors, connected} = props;
+  const {showToast, setWindowTitle} = props;
+  const {toolbarTryShow, toolbarShow, toolbarHide, toolbarTogglePin} = props;
+
   const user: User = getAuthenticatedUser();
 
   const onMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.clientY < 48) {
       if (toolbarState.hovering && !toolbarState.visible)
         return;
-      dispatch(createAction<ToolbarAction>(ToolbarAction.TryShow));
+      toolbarTryShow();
     } else {
-      dispatch(createAction<ToolbarAction>(ToolbarAction.Hide));
+      toolbarHide();
     }
   };
 
   const onMouseLeave = () => {
-    dispatch(createAction<ToolbarAction>(ToolbarAction.Hide));
+    props.toolbarHide();
   };
 
   useEffect(() => {
     if (!toolbarState.hovering)
       return;
     const timer = setTimeout(() => {
-      dispatch(createAction<ToolbarAction>(ToolbarAction.Show));
+      toolbarShow();
     }, 1500);
-    const forceCancel = () => dispatch(createAction<ToolbarAction>(ToolbarAction.Hide));
     // Of the mouse is clicked then we may want to do something else
     // like grab a window so cancel the visibility trigger
-    document.addEventListener('mousedown', forceCancel, true);
+    document.addEventListener('mousedown', toolbarHide, true);
     // Also cancel if the mouse goes out of the page
-    document.addEventListener('mouseleave', forceCancel, true);
+    document.addEventListener('mouseleave', toolbarHide, true);
     return () => {
-      document.removeEventListener('mouseleave', forceCancel, true);
-      document.removeEventListener('mousedown', forceCancel, true);
+      document.removeEventListener('mouseleave', toolbarHide, true);
+      document.removeEventListener('mousedown', toolbarHide, true);
       clearTimeout(timer);
     };
-  }, [toolbarState.hovering]);
+  }, [toolbarHide, toolbarShow, toolbarState.hovering]);
 
   const addWindow = (type: WindowTypes) => {
     switch (type) {
@@ -211,7 +203,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
-          <div className={'pin'} onClick={() => dispatch(createAction<ToolbarAction>(ToolbarAction.TogglePin))}>
+          <div className={'pin'} onClick={toolbarTogglePin}>
             <i className={'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')}/>
           </div>
         </div>

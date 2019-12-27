@@ -5,7 +5,7 @@ import {RunActions} from 'components/Run/enumerator';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {OrderStatus} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
@@ -13,68 +13,59 @@ import React from 'react';
 
 type RowType = TOBRow & { defaultBidSize: number, defaultOfrSize: number };
 
-const columns = (data: RunColumnData): ColumnSpec[] => [{
+const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+  return {
+    name: `${type}-price`,
+    header: () => <div>{strings.Bid}</div>,
+    render: (row: RowType) => {
+      const order: Order = row[type];
+      return (
+        <Price value={order.price}
+               arrow={ArrowDirection.None}
+               status={order.status}
+               onChange={(price: number | null) => data.onBidChanged(row.id, price)}
+               onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Bid)}
+               onNavigate={data.onNavigate}/>
+      );
+    },
+    template: '999999.99',
+    weight: 4,
+  };
+};
+
+const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+  return {
+    name: `${type}-quantity`,
+    header: () => <HeaderQty {...data.defaultBidSize}/>,
+    render: (row: RowType) => {
+      const {defaultBidSize} = data;
+      const order: Order = row[type];
+      return (
+        <RunQuantity id={row.id}
+                     value={order.quantity}
+                     order={order}
+                     defaultValue={defaultBidSize.value}
+                     onTabbedOut={data.focusNext}
+                     onChange={data.onBidQtyChanged}
+                     onCancel={data.onCancelOrder}/>
+      );
+    },
+    template: '999999',
+    weight: 3,
+  };
+};
+
+const TenorColumn: ColumnSpec = {
   name: 'tenor',
   header: () => <span>&nbsp;</span>,
   render: ({tenor}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={() => null}/>
   ),
+  template: 'WW',
   weight: 2,
-}, {
-  name: 'bid-quantity',
-  header: () => <HeaderQty {...data.defaultBidSize}/>,
-  render: ({id, bid}: RowType) => {
-    const {defaultBidSize} = data;
-    return (
-      <RunQuantity id={id}
-                   value={bid.quantity}
-                   order={bid}
-                   defaultValue={defaultBidSize.value}
-                   onTabbedOut={data.focusNext}
-                   onChange={data.onBidQtyChanged}
-                   onCancel={data.onCancelOrder}/>
-    );
-  },
-  weight: 3,
-}, {
-  name: 'bid-price',
-  header: () => <div>{strings.Bid}</div>,
-  render: ({id, bid}: RowType) => (
-    <Price value={bid.price}
-           arrow={ArrowDirection.None} status={bid.status}
-           onChange={(price: number | null) => data.onBidChanged(id, price)}
-           onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Bid)}
-           onNavigate={data.onNavigate}/>
-  ),
-  weight: 4,
-}, {
-  name: 'ofr-price',
-  header: () => <div>{strings.Ofr}</div>,
-  render: ({id, ofr}: RowType) => (
-    <Price value={ofr.price}
-           arrow={ArrowDirection.None} status={ofr.status}
-           onChange={(price: number | null) => data.onOfrChanged(id, price)}
-           onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Ofr)}
-           onNavigate={data.onNavigate}/>
-  ),
-  weight: 4,
-}, {
-  name: 'ofr-quantity',
-  header: () => <HeaderQty {...data.defaultOfrSize}/>,
-  render: ({id, ofr}: RowType) => {
-    const {defaultOfrSize} = data;
-    return (
-      <RunQuantity id={id}
-                   value={ofr.quantity}
-                   order={ofr}
-                   defaultValue={defaultOfrSize.value}
-                   onTabbedOut={data.focusNext}
-                   onChange={data.onOfrQtyChanged}
-                   onCancel={data.onCancelOrder}/>
-    );
-  },
-  weight: 3,
-}, {
+};
+
+const MidCol = (data: RunColumnData) => ({
   name: 'mid',
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
@@ -84,8 +75,11 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Mid)}
            onNavigate={data.onNavigate}/>
   ),
+  template: '999999.99',
   weight: 4,
-}, {
+});
+
+const SpreadCol = (data: RunColumnData) => ({
   name: 'spread',
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => (
@@ -97,7 +91,19 @@ const columns = (data: RunColumnData): ColumnSpec[] => [{
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
            onNavigate={data.onNavigate}/>
   ),
+  template: '999999.99',
   weight: 4,
-}];
+});
+
+const columns = (data: RunColumnData): ColumnSpec[] => [
+  TenorColumn,
+  RunQtyCol(data, 'bid'),
+  RunPxCol(data, 'bid'),
+  RunPxCol(data, 'ofr'),
+  RunQtyCol(data, 'ofr'),
+  MidCol(data),
+  SpreadCol(data),
+];
 
 export default columns;
+

@@ -1,14 +1,12 @@
 import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
-import {User} from 'interfaces/user';
 import {SettingsContext} from 'main';
 import React, {useContext, useEffect, useState} from 'react';
 import {Settings} from 'settings';
 
 interface Props {
   order: Order;
-  user: User;
   isDepth: boolean;
   onCancel: (order: Order, cancelRelated: boolean) => void;
   onSubmit: (order: Order, newQuantity: number | null, input: HTMLInputElement) => void;
@@ -17,7 +15,7 @@ interface Props {
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
   const settings = useContext<Settings>(SettingsContext);
-  const {order, user} = props;
+  const {order} = props;
   const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
     setValue(order.quantity);
@@ -68,7 +66,6 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       onTabbedOut={onTabbedOut}
       cancelable={cancellable}
       className={getInputClass(order.status, 'size')}
-      chevron={showChevron}
-      firm={user.isBroker ? order.firm : undefined}/>
+      chevron={showChevron}/>
   );
 };

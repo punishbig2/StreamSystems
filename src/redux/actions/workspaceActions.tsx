@@ -56,3 +56,8 @@ export const setWindowAutoSize = (id: string, windowId: string): Action<string> 
   return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {id: windowId});
 };
 
+
+export const toolbarShow = (id: string) => createAction($$(id, WorkspaceActions.ToolbarShow));
+export const toolbarTryShow = (id: string) => createAction($$(id, WorkspaceActions.ToolbarTryShow));
+export const toolbarHide = (id: string) => createAction($$(id, WorkspaceActions.ToolbarHide));
+export const toolbarTogglePin = (id: string) => createAction($$(id, WorkspaceActions.ToolbarTogglePin));

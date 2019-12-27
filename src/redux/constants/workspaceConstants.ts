@@ -8,4 +8,8 @@ export enum WorkspaceActions {
   BringToFront = 'WorkspaceActions.BringToFront',
   SetWindowAutoSize = 'WorkspaceActions.SetWindowAutoSize',
   Toast = 'WorkspaceActions.Toast',
+  ToolbarTryShow = 'WorkspaceActions.ToolbarTryShow',
+  ToolbarShow = 'WorkspaceActions.ToolbarShow',
+  ToolbarHide = 'WorkspaceActions.ToolbarHide',
+  ToolbarTogglePin = 'WorkspaceActions.ToolbarTogglePin',
 }
