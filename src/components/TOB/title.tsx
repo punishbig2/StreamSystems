@@ -27,14 +27,20 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
   };
   return (
     <div className={'window-title-bar'}>
-      <Select value={symbol} className={'select'} autoWidth={true} onChange={setSymbol}
+      <Select value={symbol}
+              className={'select'}
+              autoWidth={true}
+              onChange={setSymbol}
               renderValue={renderValue(strings.Currency)}
               displayEmpty={true}>
         {symbols.map((item: Currency) => (
           <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>
         ))}
       </Select>
-      <Select value={strategy} className={'select'} autoWidth={true} onChange={setProduct}
+      <Select value={strategy}
+              className={'select'}
+              autoWidth={true}
+              onChange={setProduct}
               renderValue={renderValue(strings.Strategy)}
               displayEmpty={true}>
         {products.map((item: Strategy) => (

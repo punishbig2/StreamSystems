@@ -12,6 +12,7 @@ export interface WorkareaState {
   symbols: Currency[];
   tenors: string[];
   products: Strategy[];
+  banks: string[];
   activeWorkspace: string | null;
   workspaces: { [id: string]: IWorkspace },
   messages: Message[];

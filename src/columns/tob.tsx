@@ -84,7 +84,7 @@ const QtyColumn = (label: string, type: Type, data: TOBColumnData, onChangeKey: 
       );
     },
     template: '999999',
-    weight: 2,
+    weight: 5,
   };
 };
 
@@ -118,7 +118,7 @@ const VolColumn = (data: TOBColumnData, label: string, type: Type, action?: Head
       );
     },
     template: '999999.999',
-    weight: 3,
+    weight: 7,
   });
 };
 
@@ -141,22 +141,36 @@ const DarkPoolColumn: ColumnSpec = {
       tabIndex={-1}/>
   ),
   template: '999999.99',
-  weight: 2,
+  weight: 5,
 };
 
-const TenorColumn = (handlers: TOBColumnData): ColumnSpec => ({
+const TenorColumn = (data: TOBColumnData): ColumnSpec => ({
   name: 'tenor',
   header: () => <DualTableHeader label={''}/>,
   render: ({tenor}: RowType) => (
-    <Tenor tenor={tenor} onTenorSelected={(tenor: string) => handlers.onTenorSelected(tenor)}/>
+    <Tenor tenor={tenor} onTenorSelected={(tenor: string) => data.onTenorSelected(tenor)}/>
   ),
   template: 'WW',
-  weight: 1,
+  weight: 2,
+});
+
+const FirmColumn = (data: TOBColumnData, type: 'ofr' | 'bid'): ColumnSpec => ({
+  name: `${type}-firm`,
+  header: () => <DualTableHeader label={''}/>,
+  render: (row: RowType) => {
+    const {[type]: {firm}} = row;
+    return (
+      <div className={'firm'}>{firm}</div>
+    );
+  },
+  template: '_BANK_',
+  weight: 3,
 });
 
 const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(data),
   QtyColumn(strings.BidSz, 'bid', data, 'setBidQty', depth),
+  ...(data.isBroker ? [FirmColumn(data, 'bid')] : []),
   VolColumn(data, strings.BidPx, 'bid', !depth ? {
     fn: data.onRefBidsButtonClicked,
     label: strings.RefBids,
@@ -166,6 +180,7 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
     fn: data.onRefOfrsButtonClicked,
     label: strings.RefOfrs,
   } : undefined),
+  ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
   QtyColumn(strings.OfrSz, 'ofr', data, 'setOfrQty', depth),
 ];
 

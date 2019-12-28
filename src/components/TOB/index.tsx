@@ -3,24 +3,19 @@ import {ModalWindow} from 'components/ModalWindow';
 import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
 import {Table} from 'components/Table';
-import {PriceErrors} from 'components/Table/CellRenderers/Price';
+import {createColumnData} from 'components/TOB/createColumnData';
 import {TOBColumnData} from 'components/TOB/data';
 import {useDepthEmitter} from 'components/TOB/hooks/useDepthEmitter';
 import {useInitializer} from 'components/TOB/hooks/useInitializer';
 import {useSubscriber} from 'components/TOB/hooks/useSubscriber';
+import {DispatchProps, OwnProps, Props} from 'components/TOB/props';
 import {ActionTypes, reducer, State} from 'components/TOB/reducer';
 import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
-import {usePrevious} from 'hooks/usePrevious';
-import {Currency} from 'interfaces/currency';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {Order, Sides} from 'interfaces/order';
 import {SelectEventData} from 'interfaces/selectEventData';
-import {Strategy} from 'interfaces/strategy';
-import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
-import {User} from 'interfaces/user';
-import {TenorType} from 'interfaces/w';
 import {SettingsContext} from 'main';
 import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
 import {connect} from 'react-redux';
@@ -41,42 +36,11 @@ import {
 import {ApplicationState} from 'redux/applicationState';
 import {TOBActions} from 'redux/constants/tobConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
-import {Subscriber} from 'redux/signalRAction';
 import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {Settings} from 'settings';
 import {toRunId} from 'utils';
-import {skipTabIndex} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
-
-interface OwnProps {
-  id: string;
-  user: User;
-  tenors: string[],
-  products: Strategy[];
-  symbols: Currency[];
-  connected: boolean;
-  setWindowTitle: (id: string, title: string) => void;
-  onRowError: (status: TOBRowStatus) => void;
-  onClose?: () => void;
-}
-
-interface DispatchProps {
-  initialize: (rows: { [tenor: string]: TOBRow }) => void;
-  unsubscribe: Subscriber;
-  subscribe: Subscriber;
-  getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
-  setStrategy: (value: string) => void;
-  setSymbol: (value: string) => void;
-  toggleOCO: () => void;
-  createOrder: (order: Order, minSize: number) => void;
-  cancelOrder: (order: Order) => void;
-  cancelAll: (symbol: string, strategy: string, side: Sides) => void;
-  updateOrder: (entry: Order) => void;
-  getRunOrders: (symbol: string, strategy: string) => void;
-  setRowStatus: (order: Order, status: TOBRowStatus) => void;
-  updateOrderQuantity: (order: Order) => void;
-}
 
 const cache: { [key: string]: DispatchProps } = {};
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => {
@@ -115,7 +79,6 @@ const withRedux = connect<WindowState & RunState, DispatchProps, OwnProps, Appli
   mapDispatchToProps,
 );
 
-type Props = OwnProps & DispatchProps & WindowState & RunState;
 
 const initialState: State = {
   depths: {},
@@ -124,128 +87,19 @@ const initialState: State = {
   runWindowVisible: false,
 };
 
-type Fn1 = (tenor: TenorType | null) => void;
-type Fn2 = (order: Order) => void;
-const createColumnData = (state: State, setCurrentTenor: Fn1, setOrderTicket: Fn2, props: Props, settings: Settings) => {
-  const {symbol, strategy} = props;
-  // Dispatch properties
-  const {cancelAll, cancelOrder, setRowStatus, createOrder, updateOrder, updateOrderQuantity} = props;
-  return {
-    onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
-      switch (type) {
-        case OrderTypes.Bid:
-          skipTabIndex(input, 1, 1);
-          break;
-        case OrderTypes.Ofr:
-          skipTabIndex(input, 3, 1);
-          break;
-      }
-    },
-    onTenorSelected: (tenor: string) => {
-      if (state.tenor === null) {
-        setCurrentTenor(tenor);
-      } else {
-        setCurrentTenor(null);
-      }
-    },
-    onDoubleClick: (type: OrderTypes, entry: Order) => {
-      setOrderTicket({...entry, type});
-    },
-    onRefBidsButtonClicked: () => {
-      cancelAll(symbol, strategy, Sides.Buy);
-    },
-    onRefOfrsButtonClicked: () => {
-      cancelAll(symbol, strategy, Sides.Sell);
-    },
-    onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => {
-      if (error === PriceErrors.GreaterThanMax || error === PriceErrors.LessThanMin) {
-        setRowStatus(order, TOBRowStatus.InvertedMarketsError);
-        input.focus();
-      }
-    },
-    onOrderModified: (order: Order) => {
-      if (order.price === InvalidPrice) {
-      } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
-        if (order.quantity === null) {
-          createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
-        } else {
-          createOrder(order, settings.minSize);
-        }
-        setRowStatus(order, TOBRowStatus.Normal);
-      } else {
-        setRowStatus(order, TOBRowStatus.Normal);
-        if (order.quantity !== null || order.price === null)
-          return;
-        createOrder(order, settings.minSize);
-      }
-    },
-    onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
-      if (cancelRelated) {
-        const rows: TOBRow[] = Object.values(state.depths[order.tenor]);
-        rows.forEach((row: TOBRow) => {
-          const targetEntry: Order = order.type === OrderTypes.Bid ? row.bid : row.ofr;
-          if ((targetEntry.status & OrderStatus.Owned) !== 0) {
-            cancelOrder(targetEntry);
-          }
-        });
-      } else {
-        cancelOrder(order);
-      }
-    },
-    onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
-      console.trace();
-      if ((order.status & OrderStatus.PreFilled) === 0) {
-        updateOrderQuantity({...order, quantity: newQuantity});
-      } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {
-        if (order.quantity === null) {
-          // FIXME: perhaps let the user know?
-          throw new Error('this is impossible, or a backend error');
-        } else if (order.quantity > newQuantity) {
-          updateOrder({...order, quantity: newQuantity});
-        } else if (order.quantity < newQuantity) {
-          cancelOrder(order);
-          createOrder({...order, quantity: newQuantity}, settings.minSize);
-        }
-      } else {
-        const {quantity} = order;
-        // FIXME: we must reset the order quantity but this seems unsafe
-        //        because it's happening outside of react
-        input.value = quantity ? quantity.toFixed(0) : '';
-        // Artificially emit the change event
-        const event = document.createEvent('HTMLEvents');
-        event.initEvent('change', false, true);
-        // Attempt to pretend we can emit the onChange
-        input.dispatchEvent(event);
-      }
-      skipTabIndex(input, 1, 0);
-    },
-    aggregatedSz: state.aggregatedSz,
-    buttonsEnabled: symbol !== '' && strategy !== '',
-  };
-};
-
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const {oco, toggleOCO} = props;
   const {getSnapshot, getRunOrders, onRowError, subscribe, unsubscribe} = props;
   const {symbols, symbol, products, strategy, tenors, connected, rows} = props;
-
   const settings = useContext<Settings>(SettingsContext);
-  const previous = usePrevious<any>(props.subscribe);
-  if (previous !== props.subscribe) {
-    console.log('what the fuck?');
-  }
-
   const {email} = props.user;
-  // Simple reducer for the element only
   const [state, dispatch] = useReducer(reducer, initialState);
-  // Just one value without `dispatch' and stuff
-  // Extract properties to manage them better
+
   const setProduct = ({target: {value}}: React.ChangeEvent<SelectEventData>) => {
-    console.log(value);
     props.setStrategy(value as string);
   };
+
   const setSymbol = ({target: {value}}: React.ChangeEvent<SelectEventData>) => {
-    console.log(value);
     props.setSymbol(value as string);
   };
 
@@ -270,7 +124,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   useSubscriber(rows, connected, symbol, strategy, subscribe, unsubscribe, getSnapshot, getRunOrders);
   // Handler methods
   const {cancelOrder, createOrder} = props;
-  const data: TOBColumnData = createColumnData(state, setCurrentTenor, setOrderTicket, props, settings);
+  const data: TOBColumnData = createColumnData(state, props, setCurrentTenor, setOrderTicket, settings);
 
   const renderOrderTicket = () => {
     if (state.orderTicket === null)

@@ -12,6 +12,7 @@ const initialState: WorkareaState = {
   tenors: [],
   products: [],
   messages: [],
+  banks: [],
   status: WorkareaStatus.Starting,
   connected: false,
   lastExecution: null,

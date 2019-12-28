@@ -15,4 +15,5 @@ export interface TOBColumnData {
   onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => void;
   aggregatedSz?: AggregatedSz;
   buttonsEnabled: boolean;
+  isBroker: boolean;
 }

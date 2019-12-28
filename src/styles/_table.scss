@@ -25,6 +25,7 @@ $red-x-size: 16px;
     .tbody-scrollable-content {
       height: 100%;
       pointer-events: initial;
+      //noinspection CssInvalidPropertyValue
       overflow-y: overlay;
     }
   }
@@ -255,6 +256,11 @@ $red-x-size: 16px;
     border-bottom: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
     pointer-events: initial;
+
+    .firm {
+      color: $text-color-green;
+      font-weight: 600;
+    }
 
     .price-waiting-spinner {
       display: inline-block;

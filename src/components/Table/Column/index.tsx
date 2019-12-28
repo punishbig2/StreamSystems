@@ -10,7 +10,6 @@ interface OwnProps {
   onSorted: () => void;
   width: string;
   onFiltered: (keyword: string) => void;
-  template: string;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;

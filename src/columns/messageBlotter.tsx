@@ -14,9 +14,10 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     [ExecTypes.PartiallyFilled]: 'Partially Filled',
     [ExecTypes.Filled]: 'Filled',
     [ExecTypes.Replace]: 'Replace',
+    [ExecTypes.PendingCancel]: 'Pending Cancel',
   }, columns: ColumnSpec[] = [{
     name: 'ExecTransType',
-    template: 'Example Transaction',
+    template: 'Long String to Fit the content',
     header: () => <div>Type</div>,
     filterable: true,
     sortable: true,
@@ -27,7 +28,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
         return (<div className={'message-blotter-cell normal red'}>{data.OrdStatus}</div>);
       }
     },
-    weight: 1,
+    weight: 3,
     difference: (v1: Message, v2: Message): number => {
       return Number(v1.OrdStatus) - Number(v2.OrdStatus);
     },
@@ -51,7 +52,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
         </div>
       );
     },
-    weight: 2,
+    weight: 4,
     difference: (v1: Message, v2: Message): number => {
       const m1: Moment = moment(v1.TransactTime, INCOMING_DATE_FORMAT);
       const m2: Moment = moment(v2.TransactTime, INCOMING_DATE_FORMAT);
@@ -73,7 +74,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     render: ({Side}: Message) => (
       <div className={'message-blotter-cell normal'}>{Side === '1' ? 'Buy' : 'Sell'}</div>
     ),
-    weight: 1,
+    weight: 2,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const value: string = v1.Side === '1' ? 'buy' : 'sell';
       return value.includes(keyword);
@@ -98,7 +99,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
           return <div className={'message-blotter-cell normal'}>{message.OrderQty}</div>;
       }
     },
-    weight: 1,
+    weight: 2,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const value: number = Number(v1.OrderQty);
       const numeric: number = Number(keyword);
@@ -118,7 +119,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     render: ({Symbol}: Message) => (
       <div className={'message-blotter-cell normal'}>{Symbol}</div>
     ),
-    weight: 1,
+    weight: 2,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const original: string = v1.Symbol;
       if (!original)
@@ -140,7 +141,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     render: ({Tenor}: Message) => (
       <div className={'message-blotter-cell normal'}>{Tenor}</div>
     ),
-    weight: 1,
+    weight: 2,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const original: string = v1.Tenor;
       const value = original.toLowerCase();
@@ -158,7 +159,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
     render: ({Strategy}: Message) => (
       <div className={'message-blotter-cell normal'}>{Strategy}</div>
     ),
-    weight: 1,
+    weight: 2,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const original: string = v1.Strategy;
       const value = original.toLowerCase();
@@ -185,7 +186,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
         )
       }
     },
-    weight: 1,
+    weight: 2,
     filterByKeyword: (v1: Message, keyword: string): boolean => {
       const value: number = Number(v1.Price);
       const numeric: number = Number(keyword);
@@ -210,7 +211,7 @@ const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss', DISPLAY_DATE_FORMAT: s
         <div className={'message-blotter-cell normal'}>{ExecBroker}</div>
       );
     },
-    weight: 1,
+    weight: 2,
     filterByKeyword: ({ExecBroker}: Message, keyword: string): boolean => {
       return ExecBroker.includes(keyword);
     },

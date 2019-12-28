@@ -1,5 +1,4 @@
 import React, {Children, useEffect, useRef, useState} from 'react';
-import Scrollbars from 'react-custom-scrollbars';
 
 interface Props {
   className: string;

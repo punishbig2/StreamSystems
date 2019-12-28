@@ -61,6 +61,7 @@ const preloadedState: ApplicationState = {
     symbols: [],
     products: [],
     tenors: [],
+    banks: [],
     workspaces: {},
     activeWorkspace: null,
     // Merge with the saved value
@@ -180,7 +181,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       });
       actionQueue.splice(0, actionQueue.length);
     };
-    const onDisconnected = (error: any) => {
+    const onDisconnected = () => {
       // Update the connection reference
       connection = null;
       // Dispatch an action to notify disconnection

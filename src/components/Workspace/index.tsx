@@ -1,3 +1,4 @@
+import {MenuItem, Select} from '@material-ui/core';
 import {MessageBlotter} from 'components/MessageBlotter';
 import {TOB} from 'components/TOB';
 import {WindowManager} from 'components/WindowManager';
@@ -53,6 +54,7 @@ interface OwnProps {
   products: Strategy[],
   tenors: string[],
   connected: boolean;
+  banks: string[];
 }
 
 const cache: { [key: string]: DispatchProps } = {};
@@ -197,12 +199,31 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     return createWindow(id, type, symbols, products, tenors, connected, user, setWindowTitle, onRowError);
   };
 
+  const getBrokerButtons = () => {
+    const {banks} = props;
+    const user: User = getAuthenticatedUser();
+    if (user.isbroker) {
+      const renderValue = (value: unknown): React.ReactNode => {
+        return value as string;
+      };
+      return (
+        <div className={'broker-buttons'}>
+          <Select value={'STRM'} autoWidth={true} renderValue={renderValue}>
+            <MenuItem key={'STRM'} value={'STRM'}/>
+            {banks.map((bank: string) => <MenuItem key={bank} value={bank}/>)}
+          </Select>
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       <div className={objectToCssClass(toolbarState, 'toolbar')} onMouseLeave={onMouseLeave}>
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
+          {getBrokerButtons()}
           <div className={'pin'} onClick={toolbarTogglePin}>
             <i className={'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')}/>
           </div>

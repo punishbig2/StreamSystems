@@ -105,16 +105,20 @@ type Endpoints =
   | 'all'
   | 'runorders'
   | 'UserGroupSymbol'
-  | 'Users';
-type Verb = 'get' | 'create' | 'cancel' | 'modify';
+  | 'Users'
+  | 'firms'
+  | 'allextended';
+type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
 export class API {
-  static MarketData: string = '/api/fxopt/marketdata';
-  static Oms: string = '/api/fxopt/oms';
+  static FxOpt: string = '/api/fxopt';
+  static MarketData: string = `${API.FxOpt}/marketdata`;
+  static Oms: string = `${API.FxOpt}/oms`;
   static UserApi: string = '/api/UserApi';
-  static Config: string = '/api/fxopt/config';
+  static Config: string = `${API.FxOpt}/config`;
+  static DarkPool: string = `${API.FxOpt}/darkpool`;
 
   static getRawUrl(section: string, rest: string): string {
     return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
@@ -187,7 +191,7 @@ export class API {
       Strategy: strategy,
       Symbol: symbol,
     };
-    return post<OrderResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
+    return post<OrderResponse>(API.getUrl(API.Oms, 'allextended', 'cxl'), request);
   }
 
   static async cancelOrder(entry: Order): Promise<OrderResponse> {
@@ -242,5 +246,37 @@ export class API {
 
   static async getUsers(): Promise<User[]> {
     return get<User[]>(API.getUrl(API.UserApi, 'Users', 'get'));
+  }
+
+  static async getBanks(): Promise<string[]> {
+    return get<string[]>(API.getUrl(API.Config, 'firms', 'get'));
+  }
+
+  static async createDarkPoolOrder(request: any): Promise<any> {
+    return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'create'), request);
+  }
+
+  static async modifyDarkPoolOrder(request: any): Promise<any> {
+    return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'modify'), request);
+  }
+
+  static async cancelDarkPoolOrder(request: any): Promise<any> {
+    return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'cancel'), request);
+  }
+
+  static async cxlAllExtendedDarkPoolOrder(request: any): Promise<any> {
+    return post<OrderResponse>(API.getUrl(API.DarkPool, 'allextended', 'cxl'), request);
+  }
+
+  static async cancelAllDarkPoolOrder(request: any): Promise<any> {
+    return post<OrderResponse>(API.getUrl(API.DarkPool, 'all', 'cancel'), request);
+  }
+
+  static async getDarkPoolMessages(request: any): Promise<any> {
+    return get<OrderResponse>(API.getUrl(API.DarkPool, 'messages', 'get'));
+  }
+
+  static async getDarkPoolRunOrders(request: any): Promise<any> {
+    return get<OrderResponse>(API.getUrl(API.DarkPool, 'runorders', 'get'));
   }
 }

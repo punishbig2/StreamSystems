@@ -69,7 +69,7 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 );
 
 const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | null => {
-  const {symbols, products, tenors, initialize, connected, user, activeWorkspace} = props;
+  const {symbols, products, tenors, banks, initialize, connected, user, activeWorkspace} = props;
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const {workspaces, loadMessages} = props;
   const {CloseWorkspace} = strings;
@@ -142,7 +142,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
       return (
         <>
           {activeWorkspace
-            ? <Workspace id={activeWorkspace} symbols={symbols} products={products} tenors={tenors}
+            ? <Workspace id={activeWorkspace} symbols={symbols} products={products} tenors={tenors} banks={banks}
                          connected={connected}/>
             : null}
           <div className={'footer'}>

@@ -23,6 +23,9 @@
   }
 
   .content {
+    display: flex;
+    align-items: center;
+
     transition: transform 0.15s linear;
     transform: translateY(-$window-toolbar-size);
     background-color: white;
@@ -50,8 +53,6 @@
     }
 
     .pin {
-      float: right;
-      display: inline-block;
       width: $window-toolbar-size;
       text-align: center;
       opacity: 0.5;
@@ -59,6 +60,28 @@
       cursor: pointer;
       &:hover {
         opacity: 1;
+      }
+    }
+
+    .broker-buttons {
+      margin: 0 0 0 auto;
+
+      .MuiInputBase-root {
+        &::after, &::before {
+          border: none;
+        }
+
+        .MuiSelect-root {
+          padding-right: 32px;
+          padding-left: 16px;
+          background-color: $primary-color;
+          color: white;
+          border-radius: 24px;
+        }
+
+        .MuiSvgIcon-root {
+          fill: white;
+        }
       }
     }
   }
