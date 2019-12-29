@@ -37,9 +37,10 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
 };
 
 const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+  const defaultSize = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
   return {
     name: `${type}-quantity`,
-    header: () => <HeaderQty {...data.defaultBidSize}/>,
+    header: () => <HeaderQty {...defaultSize}/>,
     render: (row: RowType) => {
       const {defaultBidSize} = data;
       const order: Order = row[type];
