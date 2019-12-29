@@ -50,7 +50,10 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
     },
     onOrderModified: (order: Order) => {
       if (order.price === InvalidPrice) {
-      } else if ((order.status & OrderStatus.Owned) === 0 && order.price !== null) {
+        // This is empty for now
+      } else if (order.price !== null) {
+        if ((order.status & OrderStatus.Owned) !== 0)
+          cancelOrder(order);
         if (order.quantity === null) {
           createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
         } else {
@@ -58,10 +61,7 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
         }
         setRowStatus(order, TOBRowStatus.Normal);
       } else {
-        setRowStatus(order, TOBRowStatus.Normal);
-        if (order.quantity !== null || order.price === null)
-          return;
-        createOrder(order, settings.minSize);
+        console.log('ignore this action');
       }
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {

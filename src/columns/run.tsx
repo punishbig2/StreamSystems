@@ -14,17 +14,20 @@ import React from 'react';
 type RowType = TOBRow & { defaultBidSize: number, defaultOfrSize: number };
 
 const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+  const onChange: (tenor: string, value: (number | null)) => void = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
+  const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
+  const actionType: RunActions = type === 'bid' ? RunActions.Bid : RunActions.Ofr;
   return {
     name: `${type}-price`,
-    header: () => <div>{strings.Bid}</div>,
+    header: () => <div>{label}</div>,
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
         <Price value={order.price}
                arrow={ArrowDirection.None}
                status={order.status}
-               onChange={(price: number | null) => data.onBidChanged(row.id, price)}
-               onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Bid)}
+               onChange={(price: number | null) => onChange(row.id, price)}
+               onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
                onNavigate={data.onNavigate}/>
       );
     },
