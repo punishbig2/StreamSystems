@@ -2,7 +2,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
 import {VirtualScroll} from 'components/VirtualScroll';
 import {SortInfo} from 'interfaces/sortInfo';
-import React, {CSSProperties, ReactElement, useState} from 'react';
+import React, {CSSProperties, ReactElement, useEffect, useState} from 'react';
 
 export enum SortDirection {
   Descending, Ascending, None
@@ -35,12 +35,18 @@ const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
 export const Table: (props: Props) => (React.ReactElement | null) = (props: Props): ReactElement | null => {
   const {rows, columns} = props;
   const [filters, setFilters] = useState<Filters>({});
-  const [sortBy, setSortBy] = useState<SortInfo | undefined>();
+  const [sortBy, setSortBy] = useState<{ [key: string]: SortInfo }>({});
+
+  useEffect(() => {
+    console.log(sortBy);
+  }, [sortBy]);
+
   if (!rows)
     return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
   const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.weight, 0);
   const propertyMapper = ([key, row]: [string, any]) => ({id: key, weight: total, key, columns, row});
+
   const columnMap: ColumnMap = columns.reduce(
     (map: ColumnMap, column: ColumnSpec): ColumnMap => {
       map[column.name] = column;
@@ -50,28 +56,39 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   const rowProps: { [key: string]: any }[] = entries
     .map(propertyMapper)
     .filter(applyFilters(filters, columnMap));
-  if (sortBy) {
-    const column: ColumnSpec = columnMap[sortBy.column];
-    if (column) {
-      const sortFn = (direction: SortDirection) => {
-        if (direction === SortDirection.Ascending) {
-          return ({row: row1}: any, {row: row2}: any) => {
-            if (!column.difference)
-              return 0;
-            return column.difference(row1, row2);
+  const getSortFn = () => {
+    const sortColumns = Object.values(sortBy);
+    if (sortColumns.length > 0) {
+      const combineSortFns = (combined: (x: any, y: any) => number, info: SortInfo) => {
+        const column: ColumnSpec = columnMap[info.column];
+        if (column) {
+          const sortFn = (direction: SortDirection) => {
+            if (direction === SortDirection.Ascending) {
+              return ({row: row1}: any, {row: row2}: any) => {
+                if (!column.difference)
+                  return 0;
+                return column.difference(row1, row2);
+              };
+            } else {
+              return ({row: row1}: any, {row: row2}: any) => {
+                if (!column.difference)
+                  return 0;
+                return column.difference(row2, row1);
+              };
+            }
           };
+          return (x: any, y: any) => combined(x, y) + sortFn(info.direction)(x, y);
         } else {
-          return ({row: row1}: any, {row: row2}: any) => {
-            if (!column.difference)
-              return 0;
-            return column.difference(row2, row1);
-          };
+          // FIXME: is this an error?
+          return combined;
         }
       };
-      // FIXME: this is crazy ...
-      rowProps.sort(sortFn(sortBy.direction));
+      return sortColumns.reduce(combineSortFns, (): number => 0);
+    } else {
+      return undefined;
     }
-  }
+  };
+
   const addFilter = (column: string, keyword: string) => {
     const clean: string = keyword.trim();
     if (clean.length === 0) {
@@ -113,28 +130,44 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
     };
   };
 
-  const getBody = () => {
+  const addSortColumn = (info: SortInfo) => {
+    const {column, direction} = info;
+    if (direction === SortDirection.None) {
+      const copy: { [key: string]: SortInfo } = {...sortBy};
+      delete copy[column];
+      setSortBy(copy);
+    } else {
+      setSortBy({...sortBy, [column]: info});
+    }
+  };
+
+  const getBody = (rowProps: any) => {
+    const rows = rowProps;
+    const sortFn = getSortFn();
+    if (sortFn !== undefined)
+      rows.sort(sortFn);
     if (props.scrollable) {
       return (
         <VirtualScroll itemSize={24} className={'tbody'}>
-          {rowProps.map(props.renderRow)}
+          {rows.map(props.renderRow)}
         </VirtualScroll>
       );
     } else if (props.renderRow) {
       return (
         <div className={'tbody'}>
-          {rowProps.map(props.renderRow)}
+          {rows.map(props.renderRow)}
         </div>
       );
     }
   };
+
   const classes: string[] = ['table'];
   if (props.className)
     classes.push(props.className);
   return (
     <div className={classes.join(' ')} style={getStyle()}>
-      <Header columns={columns} setSortBy={setSortBy} sortBy={sortBy} addFilter={addFilter} weight={total}/>
-      {getBody()}
+      <Header columns={columns} addSortColumn={addSortColumn} sortBy={sortBy} addFilter={addFilter} weight={total}/>
+      {getBody(rowProps)}
     </div>
   );
 };

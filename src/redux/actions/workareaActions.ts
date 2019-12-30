@@ -1,6 +1,6 @@
 import {API} from 'API';
 import {Currency} from 'interfaces/currency';
-import {Message} from 'interfaces/message';
+import {ExecTypes, Message} from 'interfaces/message';
 import {Strategy} from 'interfaces/strategy';
 import {IWorkspace} from 'interfaces/workspace';
 import {AnyAction, Dispatch} from 'redux';
@@ -49,7 +49,9 @@ export const loadMessages = (lastInitializationTimestamp?: string): AsyncAction<
   const handler = async (): Promise<AnyAction[]> => {
     const messages: Message[] = await API.getMessagesSnapshot(lastInitializationTimestamp);
     return [
-      createAction(MessageBlotterActions.Initialize, messages),
+      createAction(MessageBlotterActions.Initialize, messages.filter(({OrdStatus}: Message) => {
+        return OrdStatus !== ExecTypes.PendingCancel;
+      })),
     ];
   };
   return new AsyncAction(handler, createAction(WorkareaActions.LoadingMessages));

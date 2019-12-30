@@ -192,20 +192,23 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
     const onUpdateMessageBlotter = (data: Message) => {
       switch (data.OrdStatus) {
+        case ExecTypes.PendingCancel:
+          break;
         case ExecTypes.Filled:
           API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
           const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
-          // Set last execution to trigger the popup
+          // FIXME: to improve performance we should try to find a way to do this
+          //        in a single dispatch
           dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
-          // Now try to highlight the related row
           dispatch(createAction<any, A>(type));
+          dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
         default:
+          dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
       }
-      dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);
