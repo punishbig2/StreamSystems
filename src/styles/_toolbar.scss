@@ -75,11 +75,13 @@
         }
 
         .MuiSelect-root {
-          padding-right: 32px;
+          padding-right: 24px;
           padding-left: 16px;
           background-color: $primary-color;
           color: white;
           border-radius: 24px;
+          font-size: 14px;
+          font-weight: 500;
         }
 
         .MuiSvgIcon-root {

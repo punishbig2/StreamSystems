@@ -16,4 +16,6 @@ export interface TOBColumnData {
   aggregatedSz?: AggregatedSz;
   buttonsEnabled: boolean;
   isBroker: boolean;
+  onDarkPoolPriceChanged: (price: number) => void;
+  onDarkPoolDoubleClicked: () => void;
 }

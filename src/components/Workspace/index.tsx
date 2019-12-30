@@ -12,6 +12,7 @@ import {Dispatch} from 'redux';
 import {
   addWindow,
   bringToFront,
+  loadMarkets,
   minimizeWindow,
   moveWindow,
   removeWindow,
@@ -45,6 +46,7 @@ interface DispatchProps {
   toolbarHide: () => void;
   toolbarShow: () => void;
   toolbarTogglePin: () => void;
+  loadMarkets: () => void;
 }
 
 interface OwnProps {
@@ -74,6 +76,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       toolbarTryShow: () => dispatch(toolbarTryShow(id)),
       toolbarHide: () => dispatch(toolbarHide(id)),
       toolbarTogglePin: () => dispatch(toolbarTogglePin(id)),
+      loadMarkets: () => dispatch(loadMarkets(id)),
     };
   }
   return cache[id];
@@ -123,8 +126,8 @@ const objectToCssClass = (object: any, base: string) => {
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const {toolbarState} = props;
   const {symbols, products, tenors, connected} = props;
-  const {showToast, setWindowTitle} = props;
   const {toolbarTryShow, toolbarShow, toolbarHide, toolbarTogglePin} = props;
+  const {showToast, setWindowTitle, loadMarkets} = props;
 
   const user: User = getAuthenticatedUser();
 
@@ -141,6 +144,10 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const onMouseLeave = () => {
     props.toolbarHide();
   };
+
+  useEffect(() => {
+    loadMarkets();
+  }, [loadMarkets]);
 
   useEffect(() => {
     if (!toolbarState.hovering)
@@ -200,17 +207,17 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   };
 
   const getBrokerButtons = () => {
-    const {banks} = props;
     const user: User = getAuthenticatedUser();
     if (user.isbroker) {
+      const {markets} = props;
       const renderValue = (value: unknown): React.ReactNode => {
         return value as string;
       };
       return (
         <div className={'broker-buttons'}>
           <Select value={'STRM'} autoWidth={true} renderValue={renderValue}>
-            <MenuItem key={'STRM'} value={'STRM'}/>
-            {banks.map((bank: string) => <MenuItem key={bank} value={bank}/>)}
+            <MenuItem key={'STRM'} value={'STRM'}>STRM</MenuItem>
+            {markets.map((market: string) => <MenuItem key={market} value={market}>{market}</MenuItem>)}
           </Select>
         </div>
       );

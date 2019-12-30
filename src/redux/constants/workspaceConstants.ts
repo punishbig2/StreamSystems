@@ -12,4 +12,6 @@ export enum WorkspaceActions {
   ToolbarShow = 'WorkspaceActions.ToolbarShow',
   ToolbarHide = 'WorkspaceActions.ToolbarHide',
   ToolbarTogglePin = 'WorkspaceActions.ToolbarTogglePin',
+  LoadingMarkets = 'WorkspaceActions.LoadingMarkets',
+  UpdateMarkets = 'WorkspaceActions.UpdateMarkets',
 }

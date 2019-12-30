@@ -14,6 +14,7 @@
   .tab-layout {
     display: flex;
     width: 100%;
+    align-items: center;
 
     .tab {
       &.active {
@@ -84,9 +85,23 @@
     }
   }
 
+  .settings-button {
+    display: block;
+    margin: 0 32px 0 auto;
+    line-height: initial;
+    height: 28px;
+    border: 2px solid $primary-color;
+    border-radius: 14px;
+    background: none;
+    color: $primary-color;
+    i {
+      color: inherit;
+    }
+  }
+
   .sign-out {
     display: block;
-    margin: 0 12px 0 auto;
+    margin: 0 12px 0 0;
     color: crimson;
     text-decoration: none;
 

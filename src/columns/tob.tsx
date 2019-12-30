@@ -122,7 +122,7 @@ const VolColumn = (data: TOBColumnData, label: string, type: Type, action?: Head
   });
 };
 
-const DarkPoolColumn: ColumnSpec = {
+const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
   name: 'dark-pool',
   header: () => (
     <div className={'dark-pool-header'}>
@@ -134,15 +134,15 @@ const DarkPoolColumn: ColumnSpec = {
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
-      onDoubleClick={() => console.log(OrderTypes.DarkPool, {})}
-      onChange={() => null}
+      onDoubleClick={data.onDarkPoolDoubleClicked}
+      onChange={(value: number | null) => value ? data.onDarkPoolPriceChanged(Number(value)) : undefined}
       value={null}
       status={OrderStatus.None}
       tabIndex={-1}/>
   ),
   template: '999999.99',
   weight: 5,
-};
+});
 
 const TenorColumn = (data: TOBColumnData): ColumnSpec => ({
   name: 'tenor',
@@ -163,7 +163,7 @@ const FirmColumn = (data: TOBColumnData, type: 'ofr' | 'bid'): ColumnSpec => ({
       <div className={'firm'}>{firm}</div>
     );
   },
-  template: '_BANK_',
+  template: ' BANK ',
   weight: 3,
 });
 
@@ -175,7 +175,7 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
     fn: data.onRefBidsButtonClicked,
     label: strings.RefBids,
   } : undefined),
-  DarkPoolColumn,
+  DarkPoolColumn(data),
   VolColumn(data, strings.OfrPx, 'ofr', !depth ? {
     fn: data.onRefOfrsButtonClicked,
     label: strings.RefOfrs,

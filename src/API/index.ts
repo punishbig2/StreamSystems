@@ -11,7 +11,7 @@ import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
-  return '?' + entries
+  return entries
     .map(([key, value]: [string, string]) => `${key}=${value}`)
     .join('&');
 };
@@ -94,7 +94,7 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Prom
 const {Api} = config;
 
 const post = <T>(url: string, data: any): Promise<T> => request(url, Method.Post, data);
-const get = <T>(url: string): Promise<T> => request(url, Method.Get);
+const get = <T>(url: string, args?: any): Promise<T> => request(url, Method.Get, args);
 
 type Endpoints =
   'symbols'
@@ -106,7 +106,7 @@ type Endpoints =
   | 'runorders'
   | 'UserGroupSymbol'
   | 'Users'
-  | 'firms'
+  | 'markets'
   | 'allextended';
 type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl';
 
@@ -120,13 +120,16 @@ export class API {
   static Config: string = `${API.FxOpt}/config`;
   static DarkPool: string = `${API.FxOpt}/darkpool`;
 
-  static getRawUrl(section: string, rest: string): string {
-    return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
+  static getRawUrl(section: string, rest: string, args?: any): string {
+    if (args === undefined)
+      return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
+    return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toQuery(args)}`;
   }
 
-  static getUrl(section: string, object: Endpoints, verb: Verb, query?: any): string {
-    const queryString: string = query ? toQuery(query) : '';
-    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}${queryString}`;
+  static getUrl(section: string, object: Endpoints, verb: Verb, args?: any): string {
+    if (args === undefined)
+      return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
+    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}?${toQuery(args)}`;
   }
 
   static getSymbols(): Promise<Currency[]> {
@@ -211,7 +214,7 @@ export class API {
   static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
-    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot' + toQuery({symbol, strategy, tenor}));
+    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', {symbol, strategy, tenor});
     // Execute the query
     return get<W | null>(url);
   }
@@ -219,7 +222,7 @@ export class API {
   static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
-    const url: string = API.getRawUrl(API.MarketData, 'snapshot' + toQuery({symbol, strategy, tenor}));
+    const url: string = API.getRawUrl(API.MarketData, 'snapshot', {symbol, strategy, tenor});
     // Execute the query
     return get<W | null>(url);
   }
@@ -237,11 +240,11 @@ export class API {
   }
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<any[]> {
-    return get<any[]>(API.getUrl(API.Oms, 'runorders', 'get') + toQuery({useremail, symbol, strategy}));
+    return get<any[]>(API.getUrl(API.Oms, 'runorders', 'get'), {useremail, symbol, strategy});
   }
 
   static async getUserGroupSymbol(useremail: string): Promise<any[]> {
-    return get<any[]>(API.getUrl(API.Oms, 'UserGroupSymbol', 'get') + toQuery({useremail}));
+    return get<any[]>(API.getUrl(API.Oms, 'UserGroupSymbol', 'get'), {useremail});
   }
 
   static async getUsers(): Promise<User[]> {
@@ -249,7 +252,7 @@ export class API {
   }
 
   static async getBanks(): Promise<string[]> {
-    return get<string[]>(API.getUrl(API.Config, 'firms', 'get'));
+    return get<string[]>(API.getUrl(API.Config, 'markets', 'get'));
   }
 
   static async createDarkPoolOrder(request: any): Promise<any> {

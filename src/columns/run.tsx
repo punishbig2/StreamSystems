@@ -1,5 +1,5 @@
-import {HeaderQty} from 'columns/HeaderQty';
-import {RunQuantity} from 'columns/RunQuantity';
+import {HeaderQty} from 'components/HeaderQty';
+import {RunQuantity} from 'components/RunQuantity';
 import {RunColumnData} from 'components/Run/columnData';
 import {RunActions} from 'components/Run/enumerator';
 import {Price} from 'components/Table/CellRenderers/Price';

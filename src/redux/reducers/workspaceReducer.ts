@@ -13,6 +13,7 @@ const genesisState: WorkspaceState = {
     hovering: false,
     visible: false,
   },
+  markets: [],
 };
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
@@ -156,6 +157,8 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
           ...state,
           toolbarState: toolbarReducer(state.toolbarState, {type: WorkspaceActions.ToolbarTogglePin, data}),
         };
+      case $$(id, WorkspaceActions.UpdateMarkets):
+        return {...state, markets: data};
       default:
         return state;
     }

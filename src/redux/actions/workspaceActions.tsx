@@ -1,6 +1,8 @@
+import {API} from 'API';
 import {WorkspaceWindow} from 'components/Workspace/workspaceWindow';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
+import {AsyncAction} from 'redux/asyncAction';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
@@ -56,8 +58,17 @@ export const setWindowAutoSize = (id: string, windowId: string): Action<string> 
   return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {id: windowId});
 };
 
-
 export const toolbarShow = (id: string) => createAction($$(id, WorkspaceActions.ToolbarShow));
 export const toolbarTryShow = (id: string) => createAction($$(id, WorkspaceActions.ToolbarTryShow));
 export const toolbarHide = (id: string) => createAction($$(id, WorkspaceActions.ToolbarHide));
 export const toolbarTogglePin = (id: string) => createAction($$(id, WorkspaceActions.ToolbarTogglePin));
+
+export const loadMarkets = (id: string) =>
+  new AsyncAction<any, any>(
+    async (): Promise<any> => {
+      const markets: string[] = await API.getBanks();
+      // Dispatch the action
+      return createAction($$(id, WorkspaceActions.UpdateMarkets), markets);
+    }, createAction($$(id, WorkspaceActions.LoadingMarkets)),
+  );
+

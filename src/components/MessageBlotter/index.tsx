@@ -1,11 +1,14 @@
-import columns from 'columns/messageBlotter';
+import messageBlotterColumns from 'columns/messageBlotter';
 import {Row} from 'components/MessageBlotter/row';
 import {Table} from 'components/Table';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {User} from 'interfaces/user';
 import strings from 'locales';
 import React, {useEffect} from 'react';
 import {connect} from 'react-redux';
 import {ApplicationState} from 'redux/applicationState';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 interface DispatchProps {
 }
@@ -35,8 +38,14 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   useEffect(() => {
     setWindowTitle(id, strings.Monitor);
   }, [id, setWindowTitle]);
-  const renderRow = (props: any) => <Row key={props.key} columns={props.columns} row={props.row}
-                                         weight={props.weight}/>;
+  const renderRow = (props: any) => (
+    <Row key={props.key}
+         columns={props.columns}
+         row={props.row}
+         weight={props.weight}/>
+  );
+  const user: User = getAuthenticatedUser();
+  const columns: ColumnSpec[] = user.isbroker ? messageBlotterColumns.broker : messageBlotterColumns.normal;
   return (
     <>
       <div className={'window-title-bar'}>

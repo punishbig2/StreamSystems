@@ -83,11 +83,31 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
 
   const getStyle = (): CSSProperties => {
     const {columns} = props;
+    // Create an element to use it as a placeholder and measure
+    // the size of the column using the template of the column
+    // specification
+    const el = document.createElement('div');
+
+    const {body} = document;
+    const {style} = el;
+    // FIXME: ideally we should be able to read variables from the .scss file
+    style.display = 'inline-block';
+    style.fontFamily = '"Roboto", sans-serif';
+    style.fontSize = '15px';
+    style.fontWeight = '500';
+    style.padding = '12px';
+    // Temporarily add the element to the document so that it's measurable
+    body.appendChild(el);
+    // Sums the widths of individual elements
     const reducer = (value: number, column: ColumnSpec): number => {
       const {template} = column;
-      return value + 0.95 * template.length;
+      el.innerHTML = template;
+      if (column.sortable)
+        return value + el.offsetWidth + 24;
+      return value + el.offsetWidth;
     };
-    const minWidth: string = columns.reduce(reducer, 0) + 'em';
+    const minWidth: string = columns.reduce(reducer, 0) + 'px';
+    body.removeChild(el);
     return {
       minWidth,
     };

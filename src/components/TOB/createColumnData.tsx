@@ -104,6 +104,12 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
       }
       skipTabIndex(input, 1, 0);
     },
+    onDarkPoolDoubleClicked: () => {
+      console.log('dark pool double clicked');
+    },
+    onDarkPoolPriceChanged: (price: number) => {
+      console.log(`dark pool price set: ${price}`);
+    },
     aggregatedSz: state.aggregatedSz,
     buttonsEnabled: symbol !== '' && strategy !== '',
     isBroker: user.isbroker,

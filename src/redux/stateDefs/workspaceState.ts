@@ -10,4 +10,5 @@ export interface WorkspaceState {
   windows: {[id: string]: Window};
   toast: string | null;
   toolbarState: ToolbarState;
+  markets: string[];
 }

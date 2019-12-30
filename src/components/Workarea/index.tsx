@@ -1,4 +1,4 @@
-import columns from 'columns/messageBlotter';
+import messageBlotterColumns from 'columns/messageBlotter';
 import {ModalWindow} from 'components/ModalWindow';
 import {Question} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
@@ -107,6 +107,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
   const renderMessage = () => {
     if (!props.lastExecution)
       return null;
+    const columns: ColumnSpec[] = messageBlotterColumns.normal;
     return (
       <div className={'message-detail'}>
         <audio src={'/sounds/alert.wav'} autoPlay={true}/>

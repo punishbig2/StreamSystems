@@ -4,7 +4,7 @@ import {currencyToNumber} from 'redux/actions/workareaActions';
 
 export default {
   name: 'Symbol',
-  template: 'WWWWWW',
+  template: 'Symbol',
   filterable: true,
   sortable: true,
   header: () => <div>Currency</div>,

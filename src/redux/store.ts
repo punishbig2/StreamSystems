@@ -61,7 +61,6 @@ const preloadedState: ApplicationState = {
     symbols: [],
     products: [],
     tenors: [],
-    banks: [],
     workspaces: {},
     activeWorkspace: null,
     // Merge with the saved value
