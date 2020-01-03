@@ -1,6 +1,6 @@
 import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
 import config from 'config';
-import {Message} from 'interfaces/message';
+import {Message, DarkPoolMessage} from 'interfaces/message';
 import {W} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
 
@@ -18,16 +18,12 @@ enum SignalRMessageTypes {
   Close = 7,
 }
 
-interface Transport {
-  transport: string;
-  transferFormats: string[];
-}
-
 export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onUpdateMarketDataListener: ((data: W) => void) | null = null;
+  private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
@@ -78,10 +74,11 @@ export class SignalRManager<A extends Action = AnyAction> {
       // Install update market handler
       connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
       connection.on('updateMarketData', this.onUpdateMarketData);
+      connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
     }
   };
 
-  public onUpdateMessageBlotter = (message: string): void => {
+  private onUpdateMessageBlotter = (message: string): void => {
     const data: Message = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
@@ -89,12 +86,20 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  public onUpdateMarketData = (message: string): void => {
+  private onUpdateMarketData = (message: string): void => {
     const data: W = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       this.onUpdateMarketDataListener(data);
     }
+  };
+
+  private onUpdateDarkPoolPx = (message: string) => {
+    console.log(message);
+  };
+
+  public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
+    this.onUpdateDarkPoolPxListener = fn;
   };
 
   public setOnConnectedListener = (fn: (connection: HubConnection) => void) => {

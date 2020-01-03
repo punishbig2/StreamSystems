@@ -1,6 +1,6 @@
 import {HubConnection, HubConnectionState} from '@microsoft/signalr';
 import {API} from 'API';
-import {ExecTypes, Message} from 'interfaces/message';
+import {ExecTypes, Message, DarkPoolMessage} from 'interfaces/message';
 import {Sides} from 'interfaces/order';
 import {W} from 'interfaces/w';
 import {IWorkspace} from 'interfaces/workspace';
@@ -190,6 +190,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       // This is the default market data handler
       dispatch(handlers.W<A>(data));
     };
+
+    const onUpdateDarkPoolPx = (message: DarkPoolMessage) => {
+    };
+
     const onUpdateMessageBlotter = (data: Message) => {
       switch (data.OrdStatus) {
         case ExecTypes.PendingCancel:
@@ -215,6 +219,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
     connectionManager.setOnDisconnectedListener(onDisconnected);
     connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
+    connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
     connectionManager.connect();
 
     // Build a new store with the modified dispatch

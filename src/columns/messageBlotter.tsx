@@ -5,7 +5,6 @@ import priceColumn from 'columns/messageBlotterColumns/priceColumn';
 import {sellerColumn} from 'columns/messageBlotterColumns/sellerColumn';
 import sideColumn from 'columns/messageBlotterColumns/sideColumn';
 import sizeColumn from 'columns/messageBlotterColumns/sizeColumn';
-import {spotColumn} from 'columns/messageBlotterColumns/spotColumn';
 import strategyColumn from 'columns/messageBlotterColumns/strategyColumn';
 import symbolColumn from 'columns/messageBlotterColumns/symbolColumn';
 import tenorColumn from 'columns/messageBlotterColumns/tenorColumn';
@@ -29,7 +28,6 @@ const columns: { [key: string]: ColumnSpec[] } = {
     transactTypeColumn,
     sizeColumn,
     symbolColumn,
-    spotColumn,
     tenorColumn,
     strategyColumn,
     priceColumn,

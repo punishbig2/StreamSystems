@@ -29,6 +29,15 @@ const getRowStatusFromOrderError = (reason: OrderErrors, status: TOBRowStatus) =
   }
 };
 
+const onOrderCreated = (state: RowState, {order}: any) => {
+  const {row} = state;
+  if (order.type === OrderTypes.Bid) {
+    return {...state, row: {...row, bid: {...order}}};
+  } else {
+    return {...state, row: {...row, ofr: {...order}}};
+  }
+};
+
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
   return (state: RowState = initialState, {type, data}: Action<RowActions | TOBActions>): RowState => {
     const {row} = state;
@@ -63,7 +72,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.OrderNotCanceled):
         return state;
       case $$(id, RowActions.OrderCreated):
-        return state;
+        return onOrderCreated(state, data);
       case $$(id, RowActions.OrderNotCreated):
         const {order, reason} = data;
         if (order.type === OrderTypes.Bid) {

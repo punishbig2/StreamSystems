@@ -32,6 +32,9 @@ import {
   unsubscribe,
   updateOrder,
   updateOrderQuantity,
+  publishDarkPoolPrice,
+  subscribeDarkPool,
+  getDarkPoolSnapshot,
 } from 'redux/actions/tobActions';
 import {ApplicationState} from 'redux/applicationState';
 import {TOBActions} from 'redux/constants/tobConstants';
@@ -48,6 +51,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
     cache[id] = {
       initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TOBActions.Initialize), rows)),
       subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
+      subscribeDarkPool: (symbol: string, strategy: string, tenor: string) => dispatch(subscribeDarkPool(symbol, strategy, tenor)),
       unsubscribe: (symbol: string, strategy: string, tenor: string) => dispatch(unsubscribe(symbol, strategy, tenor)),
       setStrategy: (value: string) => dispatch(createAction($$(id, TOBActions.SetStrategy), value)),
       createOrder: (order: Order, minSize: number) => dispatch(createOrder(id, order, minSize)),
@@ -55,11 +59,14 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       toggleOCO: () => dispatch(createAction($$(id, TOBActions.ToggleOCO))),
       cancelOrder: (entry: Order) => dispatch(cancelOrder(id, entry)),
       getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(id, symbol, strategy, tenor)),
+      getDarkPoolSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getDarkPoolSnapshot(id, symbol, strategy, tenor)),
       cancelAll: (symbol: string, strategy: string, side: Sides) => dispatch(cancelAll(id, symbol, strategy, side)),
       updateOrder: (entry: Order) => dispatch(updateOrder(id, entry)),
       getRunOrders: (symbol: string, strategy: string) => dispatch(getRunOrders(id, symbol, strategy)),
       updateOrderQuantity: (order: Order) => dispatch(updateOrderQuantity(id, order)),
       setRowStatus: (order: Order, status: TOBRowStatus) => dispatch(setRowStatus(id, order, status)),
+      publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) =>
+        dispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
     };
   }
   return cache[id];
@@ -79,7 +86,6 @@ const withRedux = connect<WindowState & RunState, DispatchProps, OwnProps, Appli
   mapDispatchToProps,
 );
 
-
 const initialState: State = {
   depths: {},
   tenor: null,
@@ -90,6 +96,7 @@ const initialState: State = {
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const {oco, toggleOCO} = props;
   const {getSnapshot, getRunOrders, onRowError, subscribe, unsubscribe} = props;
+  const {getDarkPoolSnapshot, subscribeDarkPool} = props;
   const {symbols, symbol, products, strategy, tenors, connected, rows} = props;
   const settings = useContext<Settings>(SettingsContext);
   const {email} = props.user;
@@ -121,11 +128,21 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Initialize tile/window
   useInitializer(tenors, symbol, strategy, email, props.initialize);
   // Subscribe to signal-r
-  useSubscriber(rows, connected, symbol, strategy, subscribe, unsubscribe, getSnapshot, getRunOrders);
+  useSubscriber(
+    rows,
+    connected,
+    symbol,
+    strategy,
+    subscribe,
+    subscribeDarkPool,
+    unsubscribe,
+    getSnapshot,
+    getDarkPoolSnapshot,
+    getRunOrders,
+  );
   // Handler methods
   const {cancelOrder, createOrder} = props;
   const data: TOBColumnData = createColumnData(state, props, setCurrentTenor, setOrderTicket, settings);
-
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
       return <div/>;

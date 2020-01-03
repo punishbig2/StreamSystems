@@ -11,8 +11,10 @@ export const useSubscriber = (
   symbol: string,
   strategy: string,
   subscribe: Subscriber,
+  subscribeDarkPool: Subscriber,
   unsubscribe: Subscriber,
   getSnapshot: GetSnapshot,
+  getDarkPoolSnapshot: GetSnapshot,
   getRunOrders: GetOrders,
 ) => {
   const array: TOBRow[] = Object.values(rows);
@@ -22,7 +24,9 @@ export const useSubscriber = (
       // Get all of the snapshots
       const destroy = array.map(({tenor}: TOBRow) => {
         getSnapshot(symbol, strategy, tenor);
+        getDarkPoolSnapshot(symbol, strategy, tenor);
         subscribe(symbol, strategy, tenor);
+        subscribeDarkPool(symbol, strategy, tenor);
         return () => unsubscribe(symbol, strategy, tenor);
       });
       // Get the canceled orders for the run window

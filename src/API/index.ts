@@ -107,8 +107,11 @@ type Endpoints =
   | 'UserGroupSymbol'
   | 'Users'
   | 'markets'
-  | 'allextended';
-type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl';
+  | 'allextended'
+  | 'price'
+  ;
+
+type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
@@ -211,6 +214,22 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
   }
 
+  static async getDarkPoolSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.DarkPool, 'snapshot', {symbol, strategy, tenor});
+    // Execute the query
+    return get<W | null>(url);
+  }
+
+  static async getDarkPoolTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.DarkPool, 'tobsnapshot', {symbol, strategy, tenor});
+    // Execute the query
+    return get<W | null>(url);
+  }
+
   static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
@@ -281,5 +300,16 @@ export class API {
 
   static async getDarkPoolRunOrders(request: any): Promise<any> {
     return get<OrderResponse>(API.getUrl(API.DarkPool, 'runorders', 'get'));
+  }
+
+  static async publishDarkPoolPrice(user: string, symbol: string, strategy: string, tenor: string, price: number): Promise<any> {
+    const data = {
+      User: user,
+      Symbol: symbol,
+      Strategy: strategy,
+      Tenor: tenor,
+      DarkPrice: price,
+    };
+    return post<any>(API.getUrl(API.DarkPool, 'price', 'publish'), data);
   }
 }

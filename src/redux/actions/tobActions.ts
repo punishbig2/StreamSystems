@@ -1,6 +1,6 @@
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderErrors, OrderMessage, Sides} from 'interfaces/order';
+import {Order, OrderErrors, OrderMessage, Sides, OrderStatus} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
@@ -67,6 +67,14 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   }, createAction(TOBActions.CancelAllOrders, {side, symbol, strategy}));
 };
 
+export const publishDarkPoolPrice = (id: string, symbol: string, strategy: string, tenor: string, price: number) => {
+  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+    const user: User = getAuthenticatedUser();
+    API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, price);
+    return createAction('___IGNORE');
+  }, createAction('___IGNORE'));
+};
+
 export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
   if (order.type === OrderTypes.Ofr) {
     return createAction($$(toRowID(order), RowActions.UpdateOfr), order);
@@ -100,7 +108,11 @@ export const createOrder = (id: string, order: Order, minQty: number): AsyncActi
     // FIXME: parse the result
     if (result.Status === 'Success') {
       return createAction($$(rowID, RowActions.OrderCreated), {
-        order: {OrderID: result.OrderID},
+        order: {
+          ...order,
+          orderId: result.OrderID,
+          status: OrderStatus.PreFilled | OrderStatus.Owned | OrderStatus.Active,
+        },
         key: $$(order.tenor, getSideFromType(order.type)),
       });
     } else {
@@ -110,6 +122,23 @@ export const createOrder = (id: string, order: Order, minQty: number): AsyncActi
     }
   };
   return new AsyncAction<any, ActionType>(handler, initialAction);
+};
+
+export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
+  const rowID: string = $$('__ROW', tenor, symbol, strategy);
+  return new AsyncAction<any, ActionType>(async () => {
+    const tob: W | null = await API.getDarkPoolTOBSnapshot(symbol, strategy, tenor);
+    const w: W | null = await API.getDarkPoolSnapshot(symbol, strategy, tenor);
+    if (tob !== null && w !== null) {
+      console.log(w);
+      console.log(tob);
+      // Dispatch the "standardized" action + another action to capture the value and
+      // update some internal data
+      return [];
+    } else {
+      return createAction($$(rowID, RowActions.ErrorGettingSnapshot));
+    }
+  }, createAction($$(rowID, RowActions.GettingSnapshot)));
 };
 
 export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
@@ -129,6 +158,10 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
       return createAction($$(rowID, RowActions.ErrorGettingSnapshot));
     }
   }, createAction($$(rowID, RowActions.GettingSnapshot)));
+};
+
+export const subscribeDarkPool = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.SubscribeForDarkPoolPx, [symbol, strategy, tenor]);
 };
 
 export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {

@@ -130,12 +130,12 @@ const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
       <div>Pool</div>
     </div>
   ),
-  render: () => (
+  render: (row: RowType) => (
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
       onDoubleClick={data.onDarkPoolDoubleClicked}
-      onChange={(value: number | null) => value ? data.onDarkPoolPriceChanged(Number(value)) : undefined}
+      onChange={(value: number | null) => value ? data.onDarkPoolPriceChanged(row.tenor, Number(value)) : undefined}
       value={null}
       status={OrderStatus.None}
       tabIndex={-1}/>

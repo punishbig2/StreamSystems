@@ -23,7 +23,9 @@ export interface DispatchProps {
   initialize: (rows: { [tenor: string]: TOBRow }) => void;
   unsubscribe: Subscriber;
   subscribe: Subscriber;
+  subscribeDarkPool: Subscriber;
   getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
+  getDarkPoolSnapshot: (symbol: string, strategy: string, tenor: string) => void;
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
@@ -34,6 +36,7 @@ export interface DispatchProps {
   getRunOrders: (symbol: string, strategy: string) => void;
   setRowStatus: (order: Order, status: TOBRowStatus) => void;
   updateOrderQuantity: (order: Order) => void;
+  publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => void;
 }
 
 export type Props = OwnProps & DispatchProps & WindowState & RunState;

@@ -4,6 +4,8 @@ export enum SignalRActions {
   UnsubscribeFromMarketData = 'UnsubscribeForMarketData',
   SubscribeForMBMsg = 'SubscribeForMBMsg',
   UnsubscribeForMBMsg = 'UnsubscribeForMBMsg',
+  SubscribeForDarkPoolPx = 'SubscribeForDarkPoolPx',
+  UnsubscribeForDarkPoolPx = 'UnsubscribeForDarkPoolPx',
   // Internal
   Disconnected = 'SignalR.Disconnected',
   Connected = 'SignalR.Connected',

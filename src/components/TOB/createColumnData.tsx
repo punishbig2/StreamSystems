@@ -15,6 +15,7 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
   const {symbol, strategy, user} = props;
   // Dispatch properties
   const {cancelAll, cancelOrder, setRowStatus, createOrder, updateOrder, updateOrderQuantity} = props;
+  const {publishDarkPoolPrice} = props;
   return {
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
       switch (type) {
@@ -107,8 +108,8 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
     onDarkPoolDoubleClicked: () => {
       console.log('dark pool double clicked');
     },
-    onDarkPoolPriceChanged: (price: number) => {
-      console.log(`dark pool price set: ${price}`);
+    onDarkPoolPriceChanged: (tenor: string, price: number) => {
+      publishDarkPoolPrice(symbol, strategy, tenor, price);
     },
     aggregatedSz: state.aggregatedSz,
     buttonsEnabled: symbol !== '' && strategy !== '',

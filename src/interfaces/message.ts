@@ -46,5 +46,13 @@ export interface Message {
   Username: string;
   MDMkt: string;
   ExecBroker: string;
+  ExDestination?: string;
 }
 
+export interface DarkPoolMessage {
+  User: string;
+  Symbol: string;
+  Strategy: string;
+  Tenor: string;
+  DarkPrice: number;
+}

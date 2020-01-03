@@ -20,4 +20,5 @@ export interface MDEntry {
   MDMkt?: string;
   OrderID?: string;
   TickDirection?: ArrowDirection;
+  ExDestination?: string;
 }
