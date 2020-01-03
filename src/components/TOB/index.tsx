@@ -12,7 +12,7 @@ import {DispatchProps, OwnProps, Props} from 'components/TOB/props';
 import {ActionTypes, reducer, State} from 'components/TOB/reducer';
 import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
-import {Order, Sides} from 'interfaces/order';
+import {Order, Sides, OrderStatus} from 'interfaces/order';
 import {SelectEventData} from 'interfaces/selectEventData';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -158,7 +158,12 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     // Close the runs window
     hideRunWindow();
     // Create the orders
-    entries.forEach((entry: Order) => createOrder(entry, settings.minSize));
+    entries.forEach((order: Order) => {
+      if ((order.status & OrderStatus.PreFilled) !== 0 || (order.status & OrderStatus.Active) !== 0) {
+        cancelOrder(order);
+      }
+      createOrder(order, settings.minSize)
+    });
   }, [hideRunWindow, createOrder, settings.minSize]);
 
   const runID = useMemo(() => toRunId(symbol, strategy), [symbol, strategy]);
