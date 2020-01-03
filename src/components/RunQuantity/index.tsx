@@ -30,7 +30,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       return;
     if (props.defaultValue === undefined || props.defaultValue === null)
       return;
-    if ((order.status & OrderStatus.PreFilled) !== 0)
+    if ((order.status & OrderStatus.PreFilled) !== 0 && ((order.status & OrderStatus.Cancelled) === 0))
       return;
     setValue(sizeFormatter(props.defaultValue));
   }, [order.status, props.defaultValue]);

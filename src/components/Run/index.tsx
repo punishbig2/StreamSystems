@@ -85,7 +85,8 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
         return bid.price < ofr.price;
       });
     const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
-      if ((order.status & OrderStatus.QuantityEdited) !== 0 || (order.status & OrderStatus.PreFilled) !== 0)
+      if (((order.status & OrderStatus.QuantityEdited) !== 0 || (order.status & OrderStatus.PreFilled) !== 0) &&
+        ((order.status & OrderStatus.Cancelled) === 0))
         return order.quantity as number; // It can never be null, no way
       return defaultSize as number;
     };

@@ -1,6 +1,6 @@
 import {HeaderQty} from 'components/HeaderQty';
 import {RunQuantity} from 'components/RunQuantity';
-import {RunColumnData} from 'components/Run/columnData';
+import {RunColumnData, QtyHeader} from 'components/Run/columnData';
 import {RunActions} from 'components/Run/enumerator';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
@@ -42,13 +42,13 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
     name: `${type}-quantity`,
     header: () => <HeaderQty {...defaultSize}/>,
     render: (row: RowType) => {
-      const {defaultBidSize} = data;
+      const defaultSize: QtyHeader = (type === 'bid') ? data.defaultBidSize : data.defaultOfrSize;
       const order: Order = row[type];
       return (
         <RunQuantity id={row.id}
                      value={order.quantity}
                      order={order}
-                     defaultValue={defaultBidSize.value}
+                     defaultValue={defaultSize.value}
                      onTabbedOut={data.focusNext}
                      onChange={data.onBidQtyChanged}
                      onCancel={data.onCancelOrder}/>
