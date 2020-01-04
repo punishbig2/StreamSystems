@@ -3,7 +3,6 @@ import {API} from 'API';
 import {ExecTypes, Message, DarkPoolMessage} from 'interfaces/message';
 import {Sides} from 'interfaces/order';
 import {W} from 'interfaces/w';
-import {IWorkspace} from 'interfaces/workspace';
 import {
   Action,
   AnyAction,
@@ -16,6 +15,7 @@ import {
   StoreEnhancer,
   StoreEnhancerStoreCreator,
 } from 'redux';
+import {Window} from 'interfaces/window';
 import {createAction} from 'redux/actionCreator';
 // State shapes
 import {ApplicationState} from 'redux/applicationState';
@@ -29,50 +29,22 @@ import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
 import settings from 'redux/reducers/settingsReducer';
-import {createWindowReducer} from 'redux/reducers/tobReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Dynamic reducer creators
-import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {SignalRAction} from 'redux/signalRAction';
-import {WorkareaState} from 'redux/stateDefs/workareaState';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 // Websocket action parsers/converters
 import {handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
-
-const getObjectFromStorage = <T>(key: string): T => {
-  const item: string | null = localStorage.getItem(key);
-  if (item === null)
-    return {} as T;
-  return JSON.parse(item);
-};
-
-enum PersistedKeys {
-  Workarea = 'workarea',
-}
+import {FXOptionsDB} from 'fx-options-db';
+import {IWorkspace} from 'interfaces/workspace';
+import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
+import {defaultWorkspaceState, ToolbarState} from 'redux/stateDefs/workspaceState';
+import {createWindowReducer} from 'redux/reducers/tobReducer';
+import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
-const savedWorkarea: WorkareaState = getObjectFromStorage<any>(PersistedKeys.Workarea);
-
-const preloadedState: ApplicationState = {
-  workarea: {
-    symbols: [],
-    products: [],
-    tenors: [],
-    workspaces: {},
-    activeWorkspace: null,
-    // Merge with the saved value
-    ...savedWorkarea,
-    connected: false,
-    lastExecution: null,
-  },
-  messageBlotter: {
-    entries: [],
-  },
-  settings: {},
-};
 
 const dynamicReducers: { [name: string]: Reducer } = {};
 // Build the reducer from the fixed and dynamic reducers
@@ -84,6 +56,38 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationStat
     // Dynamically generated reducers
     ...dynamicReducers,
   });
+};
+
+const hydrate = async (dispatch: Dispatch<any>) => {
+  const workspaces: { [id: string]: IWorkspace } = await FXOptionsDB.getWorkspacesList();
+  const ids = Object.keys(workspaces);
+  const promises = ids.map(async (workspaceID: string) => {
+    const workspace: IWorkspace = workspaces[workspaceID];
+    const toolbarState: ToolbarState = await FXOptionsDB.getToolbarState(workspaceID);
+    injectNamedReducer(workspaceID, createWorkspaceReducer, {
+      ...defaultWorkspaceState,
+      toolbarState: {
+        ...defaultWorkspaceState.toolbarState,
+        ...toolbarState,
+      },
+    });
+    dispatch(createAction<any, any>(WorkareaActions.AddWorkspace, workspace));
+
+    const tiles: string[] = await FXOptionsDB.getWindowsList(workspaceID);
+    const promises = tiles.map(async (windowID: string) => {
+      const window: Window | undefined = await FXOptionsDB.getWindow(windowID);
+      if (window !== undefined) {
+        injectNamedReducer(windowID, createWindowReducer, {
+          rows: [],
+          strategy: window.strategy,
+          symbol: window.symbol,
+        });
+        dispatch(createAction<any, any>($$(workspaceID, WorkspaceActions.AddWindow), window));
+      }
+    });
+    return Promise.all(promises);
+  });
+  return Promise.all(promises);
 };
 
 type NamedReducerCreator = (name: string, initialState: any) => Reducer;
@@ -105,32 +109,8 @@ export const removeNamedReducer = <T>(name: string) => {
   store.replaceReducer(createReducer(dynamicReducers));
 };
 
-type ReducerCreator = (key: string, state: any) => Reducer;
-
-const createDynamicReducers = (base: any, creator: ReducerCreator, nest: ((state: any) => void) | null) => {
-  if (!base)
-    return;
-  // Install workspaces
-  const keys = Object.keys(base);
-  for (const key of keys) {
-    const state: any = getObjectFromStorage<any>(key);
-    // Nest to the next level if needed
-    if (nest !== null) {
-      nest(state);
-    }
-    // Add the reducer to the list
-    dynamicReducers[key] = creator(key, state);
-  }
-};
-
-const {workarea} = preloadedState;
-// Now that there's a store ... create the dynamic reducers
-createDynamicReducers(workarea.workspaces, createWorkspaceReducer, (state: WorkspaceState) => {
-  createDynamicReducers(state.windows, createWindowReducer, null);
-});
-
 const connectionManager: SignalRManager<AnyAction> = new SignalRManager<AnyAction>();
-const DummyAction: AnyAction = {type: undefined};
+export const DummyAction: AnyAction = {type: '---not-valid---'};
 const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
   let connection: HubConnection | null = null;
   // Return a store creator
@@ -144,23 +124,20 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     // Create a new custom dispatch function
     const dispatch: Dispatch<A> = <T extends A>(action: A): T => {
       if (action instanceof AsyncAction) {
-        // noinspection JSIgnoredPromiseFromCall
         action.handle($dispatch);
-        // Return an ignored action
-        return {type: 'IGNORE'} as T;
+        return DummyAction as T;
       } else if (action instanceof SignalRAction) {
-        // FIXME: we should schedule lost actions instead of discarding them
-        // If connection is `null' we just ignore this for now
-        if (connection !== null) {
-          if (connection.state === HubConnectionState.Connected) {
-            // noinspection JSIgnoredPromiseFromCall
-            action.handle(connection);
+        setTimeout(() => {
+          if (connection !== null) {
+            if (connection.state === HubConnectionState.Connected) {
+              action.handle(connection);
+            } else {
+              actionQueue.push(action);
+            }
           } else {
             actionQueue.push(action);
           }
-        } else {
-          actionQueue.push(action);
-        }
+        }, 0);
       } else {
         return $dispatch(action) as T;
       }
@@ -187,7 +164,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
     const onUpdateMarketData = (data: W) => {
-      // This is the default market data handler
       dispatch(handlers.W<A>(data));
     };
 
@@ -222,39 +198,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
     connectionManager.connect();
 
+    hydrate(dispatch);
     // Build a new store with the modified dispatch
     return {...store, dispatch};
   };
 };
 // Create the store
-export const store: Store = createStore(createReducer(dynamicReducers), preloadedState, enhancer);
-
-const saveToLocalStorage = (state: ApplicationState) => {
-  const {workarea, ...entries} = state;
-  const workspaces: { [id: string]: IWorkspace } = workarea.workspaces;
-  // FIXME: improve this with mobX (probably)
-  const persistedObject: any = {
-    activeWorkspace: workarea.activeWorkspace,
-    workspaces: workspaces,
-  };
-  const filter = (name: string, value: any): string | undefined => {
-    if (name.startsWith('__'))
-      return undefined;
-    return value;
-  };
-  // Save the global attributes
-  localStorage.setItem(PersistedKeys.Workarea, JSON.stringify(persistedObject, filter));
-  // Save the dynamic keys
-  for (const [key, object] of Object.entries(entries)) {
-    if (key.startsWith('__'))
-      continue;
-    localStorage.setItem(key, JSON.stringify(object, filter));
-  }
-};
-
-// Store persistence layer
-// FIXME keep references to check what changed and save that only
-store.subscribe(() => {
-  const state: ApplicationState = store.getState();
-  saveToLocalStorage(state);
-});
+export const store: Store = createStore(createReducer(dynamicReducers), {}, enhancer);

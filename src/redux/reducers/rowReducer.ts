@@ -3,10 +3,10 @@ import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {Action} from 'redux/action';
 import {RowActions} from 'redux/constants/rowConstants';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 const genesisState: RowState = {
   row: {},

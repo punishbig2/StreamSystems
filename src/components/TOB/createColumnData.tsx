@@ -1,5 +1,4 @@
 import {PriceErrors} from 'components/Table/CellRenderers/Price';
-import {Props} from 'components/TOB/props';
 import {State} from 'components/TOB/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
@@ -11,11 +10,17 @@ import {skipTabIndex} from 'utils/skipTab';
 type Fn1 = (tenor: TenorType | null) => void;
 type Fn2 = (order: Order) => void;
 
-export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn1, setOrderTicket: Fn2, settings: Settings) => {
-  const {symbol, strategy, user} = props;
+export const createColumnData = (
+  fns: any,
+  state: State,
+  symbol: string,
+  strategy: string,
+  user: any,
+  setCurrentTenor: Fn1,
+  setOrderTicket: Fn2,
+  settings: Settings,
+) => {
   // Dispatch properties
-  const {cancelAll, cancelOrder, setRowStatus, createOrder, updateOrder, updateOrderQuantity} = props;
-  const {publishDarkPoolPrice} = props;
   return {
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
       switch (type) {
@@ -38,14 +43,14 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
       setOrderTicket({...entry, type});
     },
     onRefBidsButtonClicked: () => {
-      cancelAll(symbol, strategy, Sides.Buy);
+      fns.cancelAll(symbol, strategy, Sides.Buy);
     },
     onRefOfrsButtonClicked: () => {
-      cancelAll(symbol, strategy, Sides.Sell);
+      fns.cancelAll(symbol, strategy, Sides.Sell);
     },
     onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => {
       if (error === PriceErrors.GreaterThanMax || error === PriceErrors.LessThanMin) {
-        setRowStatus(order, TOBRowStatus.InvertedMarketsError);
+        fns.setRowStatus(order, TOBRowStatus.InvertedMarketsError);
         input.focus();
       }
     },
@@ -54,13 +59,13 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
         // This is empty for now
       } else if (order.price !== null) {
         if ((order.status & OrderStatus.Owned) !== 0)
-          cancelOrder(order);
+          fns.cancelOrder(order);
         if (order.quantity === null) {
-          createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
+          fns.createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
         } else {
-          createOrder(order, settings.minSize);
+          fns.createOrder(order, settings.minSize);
         }
-        setRowStatus(order, TOBRowStatus.Normal);
+        fns.setRowStatus(order, TOBRowStatus.Normal);
       } else {
         console.log('ignore this action');
       }
@@ -71,26 +76,26 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
         rows.forEach((row: TOBRow) => {
           const targetEntry: Order = order.type === OrderTypes.Bid ? row.bid : row.ofr;
           if ((targetEntry.status & OrderStatus.Owned) !== 0) {
-            cancelOrder(targetEntry);
+            fns.cancelOrder(targetEntry);
           }
         });
       } else {
-        cancelOrder(order);
+        fns.cancelOrder(order);
       }
     },
     onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
       console.trace();
       if ((order.status & OrderStatus.PreFilled) === 0) {
-        updateOrderQuantity({...order, quantity: newQuantity});
+        fns.updateOrderQuantity({...order, quantity: newQuantity});
       } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {
         if (order.quantity === null) {
           // FIXME: perhaps let the user know?
           throw new Error('this is impossible, or a backend error');
         } else if (order.quantity > newQuantity) {
-          updateOrder({...order, quantity: newQuantity});
+          fns.updateOrder({...order, quantity: newQuantity});
         } else if (order.quantity < newQuantity) {
-          cancelOrder(order);
-          createOrder({...order, quantity: newQuantity}, settings.minSize);
+          fns.cancelOrder(order);
+          fns.createOrder({...order, quantity: newQuantity}, settings.minSize);
         }
       } else {
         const {quantity} = order;
@@ -109,7 +114,7 @@ export const createColumnData = (state: State, props: Props, setCurrentTenor: Fn
       console.log('dark pool double clicked');
     },
     onDarkPoolPriceChanged: (tenor: string, price: number) => {
-      publishDarkPoolPrice(symbol, strategy, tenor, price);
+      fns.publishDarkPoolPrice(symbol, strategy, tenor, price);
     },
     aggregatedSz: state.aggregatedSz,
     buttonsEnabled: symbol !== '' && strategy !== '',

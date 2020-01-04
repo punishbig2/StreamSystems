@@ -55,7 +55,6 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
       {tabs}
       {/* Add button */}
       <Tab id={''} onClick={props.addTab} active={false} label={addWorkspaceLabel}/>
-      <button className={'settings-button'}><i className={'fa fa-cog'}/> Settings</button>
       <a className={'sign-out'} href={config.SignOutUrl}>
         <i className={'fa fa-sign-out-alt'}/>
         <span>Logout</span>

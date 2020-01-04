@@ -11,12 +11,14 @@ import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {SignalRAction} from 'redux/signalRAction';
 import {getSideFromType, toRowID} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
+import {DummyAction} from 'redux/store';
+import {FXOptionsDB} from 'fx-options-db';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 type ActionType = Action<TOBActions>;
 
@@ -60,9 +62,9 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
       const event: Event = new CustomEvent(type);
       // Emit the event
       document.dispatchEvent(event);
-      return createAction('___IGNORE');
+      return DummyAction;
     } else {
-      return createAction('___IGNORE');
+      return DummyAction;
     }
   }, createAction(TOBActions.CancelAllOrders, {side, symbol, strategy}));
 };
@@ -71,8 +73,8 @@ export const publishDarkPoolPrice = (id: string, symbol: string, strategy: strin
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const user: User = getAuthenticatedUser();
     API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, price);
-    return createAction('___IGNORE');
-  }, createAction('___IGNORE'));
+    return DummyAction;
+  }, DummyAction)
 };
 
 export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
@@ -147,8 +149,6 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
     if (tob !== null && w !== null) {
-      // Dispatch the "standardized" action + another action to capture the value and
-      // update some internal data
       return [
         handlers.W(tob),
         handlers.W(w),
@@ -172,3 +172,16 @@ export const unsubscribe = (symbol: string, strategy: string, tenor: string): Si
   return new SignalRAction(SignalRActions.UnsubscribeFromMarketData, [symbol, strategy, tenor]);
 };
 
+export const setStrategy = (tileID: string, strategy: string) => {
+  return new AsyncAction<any, ActionType>(async () => {
+    FXOptionsDB.setWindowStrategy(tileID, strategy);
+    return createAction($$(tileID, TOBActions.SetStrategy), strategy);
+  }, DummyAction);
+};
+
+export const setSymbol = (tileID: string, symbol: string) => {
+  return new AsyncAction<any, ActionType>(async () => {
+    FXOptionsDB.setWindowSymbol(tileID, symbol);
+    return createAction($$(tileID, TOBActions.SetSymbol), symbol);
+  }, DummyAction);
+};

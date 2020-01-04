@@ -2,7 +2,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
 import {VirtualScroll} from 'components/VirtualScroll';
 import {SortInfo} from 'interfaces/sortInfo';
-import React, {CSSProperties, ReactElement, useEffect, useState} from 'react';
+import React, {CSSProperties, ReactElement, useEffect, useState, useCallback, useMemo} from 'react';
 
 export enum SortDirection {
   Descending, Ascending, None
@@ -36,6 +36,36 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   const {rows, columns} = props;
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<{ [key: string]: SortInfo }>({});
+  const style = useMemo((): CSSProperties => {
+    // Create an element to use it as a placeholder and measure
+    // the size of the column using the template of the column
+    // specification
+    const el = document.createElement('div');
+
+    const {body} = document;
+    const {style} = el;
+    // FIXME: ideally we should be able to read variables from the .scss file
+    style.display = 'inline-block';
+    style.fontFamily = '"Roboto", sans-serif';
+    style.fontSize = '15px';
+    style.fontWeight = '500';
+    style.padding = '12px';
+    // Temporarily add the element to the document so that it's measurable
+    body.appendChild(el);
+    // Sums the widths of individual elements
+    const reducer = (value: number, column: ColumnSpec): number => {
+      const {template} = column;
+      el.innerHTML = template;
+      if (column.sortable)
+        return value + el.offsetWidth + 24;
+      return value + el.offsetWidth;
+    };
+    const minWidth: string = columns.reduce(reducer, 0) + 'px';
+    body.removeChild(el);
+    return {
+      minWidth,
+    };
+  }, [columns]);
 
   useEffect(() => {
     console.log(sortBy);
@@ -98,37 +128,6 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
     }
   };
 
-  const getStyle = (): CSSProperties => {
-    const {columns} = props;
-    // Create an element to use it as a placeholder and measure
-    // the size of the column using the template of the column
-    // specification
-    const el = document.createElement('div');
-
-    const {body} = document;
-    const {style} = el;
-    // FIXME: ideally we should be able to read variables from the .scss file
-    style.display = 'inline-block';
-    style.fontFamily = '"Roboto", sans-serif';
-    style.fontSize = '15px';
-    style.fontWeight = '500';
-    style.padding = '12px';
-    // Temporarily add the element to the document so that it's measurable
-    body.appendChild(el);
-    // Sums the widths of individual elements
-    const reducer = (value: number, column: ColumnSpec): number => {
-      const {template} = column;
-      el.innerHTML = template;
-      if (column.sortable)
-        return value + el.offsetWidth + 24;
-      return value + el.offsetWidth;
-    };
-    const minWidth: string = columns.reduce(reducer, 0) + 'px';
-    body.removeChild(el);
-    return {
-      minWidth,
-    };
-  };
 
   const addSortColumn = (info: SortInfo) => {
     const {column, direction} = info;
@@ -165,7 +164,7 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
   if (props.className)
     classes.push(props.className);
   return (
-    <div className={classes.join(' ')} style={getStyle()}>
+    <div className={classes.join(' ')} style={style}>
       <Header columns={columns} addSortColumn={addSortColumn} sortBy={sortBy} addFilter={addFilter} weight={total}/>
       {getBody(rowProps)}
     </div>

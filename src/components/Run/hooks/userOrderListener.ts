@@ -1,7 +1,7 @@
 import {Order} from 'interfaces/order';
 import {useEffect} from 'react';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {$$} from 'utils/stringPaster';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 export interface Functions {
   onDelete: (id: string) => void;

@@ -12,16 +12,10 @@ import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {SignalRAction} from 'redux/signalRAction';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import shortid from 'shortid';
-
-const defaultWorkspaceState: WorkspaceState = {
-  windows: {},
-  toast: null,
-  toolbarState: {visible: false, hovering: false, pinned: false},
-  markets: [],
-};
+import {FXOptionsDB} from 'fx-options-db';
 
 export const clearLastExecution = () => createAction(WorkareaActions.ClearLastExecution);
 export const setWorkspace = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
@@ -29,6 +23,7 @@ export const addWorkspace = (): AnyAction => {
   const name: string = 'Untitled';
   const id: string = `workspace-${shortid()}`;
   const newWorkspace: IWorkspace = {id, name};
+  FXOptionsDB.addWorkspace(newWorkspace);
   // Create the reducer now, after doing this we will have the reducer
   // that will work specifically with this email
   injectNamedReducer(id, createWorkspaceReducer, defaultWorkspaceState);
@@ -88,6 +83,7 @@ export const renameWorkspace = (name: string, id: string): Action<WorkareaAction
 };
 
 export const closeWorkspace = (id: string): Action<WorkareaActions> => {
+  FXOptionsDB.removeWorkspace(id);
   // Remove the reducer
   removeNamedReducer(id);
   // Now dispatch the action

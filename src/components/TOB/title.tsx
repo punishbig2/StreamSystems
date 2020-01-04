@@ -12,25 +12,31 @@ interface Props {
   strategy: string;
   runsDisabled: boolean;
   connected: boolean;
-  setSymbol: (event: React.ChangeEvent<SelectEventData>, child: React.ReactNode) => void;
-  setProduct: (event: React.ChangeEvent<SelectEventData>, child: React.ReactNode) => void;
+  setSymbol: (value: string) => void;
+  setStrategy: (value: string) => void;
   onClose?: () => void;
   onShowRunWindow: () => void;
 }
 
 export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
-  const {symbols, symbol, products, strategy, setSymbol, setProduct} = props;
+  const {symbols, symbol, products, strategy, setSymbol, setStrategy} = props;
   const renderValue = (placeholder: string) => (value: unknown): React.ReactNode => {
     if (!value)
       return placeholder;
     return value as string;
   };
+  const selectChangeHandler = (fn: (v: string) => void) =>
+    (event: React.ChangeEvent<SelectEventData>) => {
+      const {target} = event;
+      // Call the callback :D
+      fn(target.value as string);
+    };
   return (
     <div className={'window-title-bar'}>
       <Select value={symbol}
               className={'select'}
               autoWidth={true}
-              onChange={setSymbol}
+              onChange={selectChangeHandler(setSymbol)}
               renderValue={renderValue(strings.Currency)}
               displayEmpty={true}>
         {symbols.map((item: Currency) => (
@@ -40,7 +46,7 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
       <Select value={strategy}
               className={'select'}
               autoWidth={true}
-              onChange={setProduct}
+              onChange={selectChangeHandler(setStrategy)}
               renderValue={renderValue(strings.Strategy)}
               displayEmpty={true}>
         {products.map((item: Strategy) => (

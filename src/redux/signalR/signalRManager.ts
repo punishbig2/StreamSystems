@@ -82,7 +82,10 @@ export class SignalRManager<A extends Action = AnyAction> {
     const data: Message = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
-      this.onUpdateMessageBlotterListener(data);
+      const fn: (message: Message) => void = this.onUpdateMessageBlotterListener;
+      setTimeout(() => {
+        fn(data);
+      }, 0);
     }
   };
 
@@ -90,7 +93,10 @@ export class SignalRManager<A extends Action = AnyAction> {
     const data: W = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
-      this.onUpdateMarketDataListener(data);
+      const fn: (data: W) => void = this.onUpdateMarketDataListener;
+      setTimeout(() => {
+        fn(data);
+      }, 0);
     }
   };
 

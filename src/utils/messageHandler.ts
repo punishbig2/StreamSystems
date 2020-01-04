@@ -6,11 +6,11 @@ import {W} from 'interfaces/w';
 import {Action} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {RowActions} from 'redux/constants/rowConstants';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 export const emitUpdateOrderEvent = (order: Order) => {
   const type: string = $$(order.uid(), TOBActions.UpdateOrder);

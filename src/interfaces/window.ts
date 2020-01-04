@@ -13,4 +13,6 @@ export interface Window {
   title: string;
   autoSize: boolean;
   zIndex?: number;
+  symbol?: string;
+  strategy?: string;
 }

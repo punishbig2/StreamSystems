@@ -23,10 +23,8 @@ import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
   id: string;
-  toggleOCO: () => void;
   symbol: string;
   strategy: string;
-  oco: boolean;
   tenors: string[],
   onClose: () => void;
   onSubmit: (entries: Order[]) => void;
@@ -194,11 +192,6 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
         <div className={'half'}>
           <div className={'item'}>{props.symbol}</div>
           <div className={'item'}>{props.strategy}</div>
-        </div>
-        <div className={'half'}>
-          <label>
-            <input type={'checkbox'} checked={props.oco} onChange={props.toggleOCO}/><span>OCO</span>
-          </label>
         </div>
       </div>
       <Table scrollable={false} columns={columns} rows={state.orders} renderRow={renderRow}/>

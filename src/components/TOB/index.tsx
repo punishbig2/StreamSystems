@@ -19,58 +19,30 @@ import {TOBTable} from 'interfaces/tobTable';
 import {SettingsContext} from 'main';
 import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
 import {connect} from 'react-redux';
-import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {
-  cancelAll,
-  cancelOrder,
-  createOrder,
-  getRunOrders,
-  getSnapshot,
-  setRowStatus,
-  subscribe,
-  unsubscribe,
-  updateOrder,
-  updateOrderQuantity,
-  publishDarkPoolPrice,
-  subscribeDarkPool,
-  getDarkPoolSnapshot,
-} from 'redux/actions/tobActions';
 import {ApplicationState} from 'redux/applicationState';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {Settings} from 'settings';
 import {toRunId} from 'utils';
 import {$$} from 'utils/stringPaster';
-
-const cache: { [key: string]: DispatchProps } = {};
-const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => {
-  if (!cache[id]) {
-    cache[id] = {
-      initialize: (rows: { [tenor: string]: TOBRow }) => dispatch(createAction($$(id, TOBActions.Initialize), rows)),
-      subscribe: (symbol: string, strategy: string, tenor: string) => dispatch(subscribe(symbol, strategy, tenor)),
-      subscribeDarkPool: (symbol: string, strategy: string, tenor: string) => dispatch(subscribeDarkPool(symbol, strategy, tenor)),
-      unsubscribe: (symbol: string, strategy: string, tenor: string) => dispatch(unsubscribe(symbol, strategy, tenor)),
-      setStrategy: (value: string) => dispatch(createAction($$(id, TOBActions.SetStrategy), value)),
-      createOrder: (order: Order, minSize: number) => dispatch(createOrder(id, order, minSize)),
-      setSymbol: (value: string) => dispatch(createAction($$(id, TOBActions.SetSymbol), value)),
-      toggleOCO: () => dispatch(createAction($$(id, TOBActions.ToggleOCO))),
-      cancelOrder: (entry: Order) => dispatch(cancelOrder(id, entry)),
-      getSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getSnapshot(id, symbol, strategy, tenor)),
-      getDarkPoolSnapshot: (symbol: string, strategy: string, tenor: string) => dispatch(getDarkPoolSnapshot(id, symbol, strategy, tenor)),
-      cancelAll: (symbol: string, strategy: string, side: Sides) => dispatch(cancelAll(id, symbol, strategy, side)),
-      updateOrder: (entry: Order) => dispatch(updateOrder(id, entry)),
-      getRunOrders: (symbol: string, strategy: string) => dispatch(getRunOrders(id, symbol, strategy)),
-      updateOrderQuantity: (order: Order) => dispatch(updateOrderQuantity(id, order)),
-      setRowStatus: (order: Order, status: TOBRowStatus) => dispatch(setRowStatus(id, order, status)),
-      publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) =>
-        dispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
-    };
-  }
-  return cache[id];
-};
+import {
+  subscribe,
+  subscribeDarkPool,
+  unsubscribe,
+  getSnapshot,
+  getDarkPoolSnapshot,
+  cancelAll,
+  updateOrder,
+  getRunOrders,
+  updateOrderQuantity,
+  setRowStatus,
+  publishDarkPoolPrice,
+  createOrder,
+  cancelOrder, setStrategy, setSymbol,
+} from 'redux/actions/tobActions';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 const nextSlice = (applicationState: ApplicationState, props: OwnProps): WindowState & RunState => {
   const generic: { [key: string]: any } = applicationState;
@@ -83,7 +55,6 @@ const nextSlice = (applicationState: ApplicationState, props: OwnProps): WindowS
 
 const withRedux = connect<WindowState & RunState, DispatchProps, OwnProps, ApplicationState>(
   dynamicStateMapper<WindowState & RunState, OwnProps, ApplicationState>(nextSlice),
-  mapDispatchToProps,
 );
 
 const initialState: State = {
@@ -94,28 +65,39 @@ const initialState: State = {
 };
 
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
-  const {oco, toggleOCO} = props;
-  const {getSnapshot, getRunOrders, onRowError, subscribe, unsubscribe} = props;
-  const {getDarkPoolSnapshot, subscribeDarkPool} = props;
-  const {symbols, symbol, products, strategy, tenors, connected, rows} = props;
+  const {id, dispatch: reduxDispatch} = props;
+  const {onRowError} = props;
+  const {symbols, symbol, products, strategy, tenors, connected, rows, user} = props;
   const settings = useContext<Settings>(SettingsContext);
   const {email} = props.user;
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const setProduct = ({target: {value}}: React.ChangeEvent<SelectEventData>) => {
-    props.setStrategy(value as string);
-  };
+  const actions = useMemo(() => ({
+    initialize: (rows: { [tenor: string]: TOBRow }) => reduxDispatch(createAction($$(id, TOBActions.Initialize), rows)),
+    subscribe: (symbol: string, strategy: string, tenor: string) => reduxDispatch(subscribe(symbol, strategy, tenor)),
+    subscribeDarkPool: (symbol: string, strategy: string, tenor: string) => reduxDispatch(subscribeDarkPool(symbol, strategy, tenor)),
+    unsubscribe: (symbol: string, strategy: string, tenor: string) => reduxDispatch(unsubscribe(symbol, strategy, tenor)),
+    createOrder: (order: Order, minSize: number) => reduxDispatch(createOrder(id, order, minSize)),
+    setStrategy: (value: string) => reduxDispatch(setStrategy(id, value)),
+    setSymbol: (value: string) => reduxDispatch(setSymbol(id, value)),
+    cancelOrder: (order: Order) => reduxDispatch(cancelOrder(id, order)),
+    getSnapshot: (symbol: string, strategy: string, tenor: string) => reduxDispatch(getSnapshot(id, symbol, strategy, tenor)),
+    getDarkPoolSnapshot: (symbol: string, strategy: string, tenor: string) => reduxDispatch(getDarkPoolSnapshot(id, symbol, strategy, tenor)),
+    getRunOrders: (symbol: string, strategy: string) => reduxDispatch(getRunOrders(id, symbol, strategy)),
+    cancelAll: (symbol: string, strategy: string, side: Sides) => reduxDispatch(cancelAll(id, symbol, strategy, side)),
+    updateOrder: (entry: Order) => reduxDispatch(updateOrder(id, entry)),
+    updateOrderQuantity: (order: Order) => reduxDispatch(updateOrderQuantity(id, order)),
+    setRowStatus: (order: Order, status: TOBRowStatus) => reduxDispatch(setRowStatus(id, order, status)),
+    publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
+  }), []);
 
-  const setSymbol = ({target: {value}}: React.ChangeEvent<SelectEventData>) => {
-    props.setSymbol(value as string);
-  };
 
   // Internal temporary reducer actions
-  const setCurrentTenor = useCallback((tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)), [dispatch]);
-  const setOrderTicket = useCallback((ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket)), [dispatch]);
-  const insertDepth = useCallback((data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)), [dispatch]);
-  const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), [dispatch]);
-  const hideRunWindow = useCallback(() => dispatch(createAction(ActionTypes.HideRunWindow)), [dispatch]);
+  const setCurrentTenor = (tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor));
+  const setOrderTicket = (ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket));
+  const insertDepth = (data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data));
+  const showRunWindow = () => dispatch(createAction(ActionTypes.ShowRunWindow));
+  const hideRunWindow = () => dispatch(createAction(ActionTypes.HideRunWindow));
 
   const {setWindowTitle} = props;
   useEffect(() => {
@@ -126,28 +108,29 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol, strategy, insertDepth);
   // Initialize tile/window
-  useInitializer(tenors, symbol, strategy, email, props.initialize);
+  useInitializer(tenors, symbol, strategy, email, actions.initialize);
   // Subscribe to signal-r
   useSubscriber(
     rows,
     connected,
     symbol,
     strategy,
-    subscribe,
-    subscribeDarkPool,
-    unsubscribe,
-    getSnapshot,
-    getDarkPoolSnapshot,
-    getRunOrders,
+    actions.subscribe,
+    actions.subscribeDarkPool,
+    actions.unsubscribe,
+    actions.getSnapshot,
+    actions.getDarkPoolSnapshot,
+    actions.getRunOrders,
   );
   // Handler methods
-  const {cancelOrder, createOrder} = props;
-  const data: TOBColumnData = createColumnData(state, props, setCurrentTenor, setOrderTicket, settings);
+  const data: TOBColumnData = useMemo(() => {
+    return createColumnData(actions, state, symbol, strategy, user, setCurrentTenor, setOrderTicket, settings);
+  }, [actions, symbol, strategy, state, props, settings]);
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
       return <div/>;
     const onSubmit = (order: Order) => {
-      createOrder(order, settings.minSize);
+      actions.createOrder(order, settings.minSize);
       // Remove the internal order ticket
       setOrderTicket(null);
     };
@@ -160,11 +143,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     // Create the orders
     entries.forEach((order: Order) => {
       if ((order.status & OrderStatus.PreFilled) !== 0 || (order.status & OrderStatus.Active) !== 0) {
-        cancelOrder(order);
+        actions.cancelOrder(order);
       }
-      createOrder(order, settings.minSize)
+      actions.createOrder(order, settings.minSize);
     });
-  }, [hideRunWindow, createOrder, settings.minSize]);
+  }, [actions, settings.minSize]);
 
   const runID = useMemo(() => toRunId(symbol, strategy), [symbol, strategy]);
 
@@ -174,10 +157,8 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       symbol={symbol}
       strategy={strategy}
       tenors={tenors}
-      toggleOCO={toggleOCO}
-      oco={oco}
       onClose={hideRunWindow}
-      onCancelOrder={cancelOrder}
+      onCancelOrder={actions.cancelOrder}
       onSubmit={bulkCreateOrders}/>
   );
 
@@ -192,12 +173,14 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       <Row {...props} depths={[]} onError={onRowErrorFn} displayOnly={true}/>
     );
   };
+  const dobColumns = useMemo(() => createTOBColumns(data, true), [data]);
+  const tobColumns = useMemo(() => createTOBColumns(data, false), [data]);
   const getDepthTable = (): ReactElement | null => {
     if (state.tenor === null)
       return null;
     const rows: TOBTable = {...state.depths[state.tenor]};
     return <Table scrollable={false}
-                  columns={createTOBColumns(data, true)}
+                  columns={dobColumns}
                   rows={rows}
                   renderRow={renderDOBRow}/>;
   };
@@ -225,13 +208,13 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
                     products={products}
                     runsDisabled={!symbol || !strategy}
                     connected={connected}
-                    setProduct={setProduct}
-                    setSymbol={setSymbol}
+                    setStrategy={(value: string) => actions.setStrategy(value)}
+                    setSymbol={(value: string) => actions.setSymbol(value)}
                     onClose={props.onClose}
                     onShowRunWindow={showRunWindow}/>
       <div className={'window-content'}>
         <div className={state.tenor === null ? 'visible' : 'invisible'}>
-          <Table scrollable={false} columns={createTOBColumns(data)} rows={rows} renderRow={renderRow}/>
+          <Table scrollable={false} columns={tobColumns} rows={rows} renderRow={renderRow}/>
         </div>
         <div className={'depth-table'}>
           {getDepthTable()}
@@ -243,4 +226,3 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   );
 });
 
-TOB.whyDidYouRender = true;

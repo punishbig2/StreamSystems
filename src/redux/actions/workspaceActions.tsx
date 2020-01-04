@@ -7,25 +7,26 @@ import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {DefaultWindowState} from 'redux/stateDefs/windowState';
-import {injectNamedReducer, removeNamedReducer} from 'redux/store';
+import {injectNamedReducer, removeNamedReducer, DummyAction} from 'redux/store';
 import {$$} from 'utils/stringPaster';
+import {FXOptionsDB} from 'fx-options-db';
 
-export const removeWindow = (id: string, windowId: string): Action<string> => {
+export const removeWindow = (id: string, windowID: string): Action<string> => {
   // Side effects
-  removeNamedReducer(windowId);
+  removeNamedReducer(windowID);
   // Remove the window from the list
-  return createAction($$(id, WorkspaceActions.RemoveWindow), windowId);
+  return createAction($$(id, WorkspaceActions.RemoveWindow), windowID);
 };
 
-export const minimizeWindow = (id: string, windowId: string): Action<string> => {
-  return createAction($$(id, WorkspaceActions.MinimizeWindow), windowId);
+export const minimizeWindow = (id: string, windowID: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.MinimizeWindow), windowID);
 };
 
-export const restoreWindow = (id: string, windowId: string): Action<string> => {
-  return createAction($$(id, WorkspaceActions.RestoreWindow), windowId);
+export const restoreWindow = (id: string, windowID: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.RestoreWindow), windowID);
 };
 
-export const addWindow = (id: string, type: WindowTypes): Action<string> => {
+export const addWindow = (workspaceID: string, type: WindowTypes): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
   // This will create a custom window reducer
   if (type === WindowTypes.TOB) {
@@ -33,35 +34,45 @@ export const addWindow = (id: string, type: WindowTypes): Action<string> => {
   } else {
     console.log('we don\'t create custom reducers for these');
   }
+  FXOptionsDB.addWindow(workspaceID, window);
   // Build-up the action
-  // FIXME: centralize action name generators
-  return createAction($$(id, WorkspaceActions.AddWindow), window);
+  return createAction($$(workspaceID, WorkspaceActions.AddWindow), window);
 };
 
-export const moveWindow = (id: string, windowId: string, geometry: ClientRect): Action<string> => {
-  return createAction($$(id, WorkspaceActions.UpdateGeometry), {id: windowId, geometry});
+export const moveWindow = (id: string, windowID: string, geometry: ClientRect): AsyncAction<any> => {
+  return new AsyncAction(async () => {
+    // FIXME: we should do this when the mouse is released instead to avoid writing too
+    //        often to the database
+    FXOptionsDB.setWindowGeometry(windowID, geometry);
+    return createAction($$(id, WorkspaceActions.UpdateGeometry), {id: windowID, geometry});
+  }, DummyAction);
 };
 
-export const bringToFront = (id: string, windowId: string): Action<string> => {
-  return createAction($$(id, WorkspaceActions.BringToFront), {id: windowId});
+export const bringToFront = (id: string, windowID: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.BringToFront), {id: windowID});
 };
 
-export const setWindowTitle = (id: string, windowId: string, title: string): Action<string> => {
-  return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowId, title});
+export const setWindowTitle = (id: string, windowID: string, title: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowID, title});
 };
 
 export const setToast = (id: string, message: string | null): Action<string> => {
   return createAction($$(id, WorkspaceActions.Toast), message);
 };
 
-export const setWindowAutoSize = (id: string, windowId: string): Action<string> => {
-  return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {id: windowId});
+export const setWindowAutoSize = (id: string, windowID: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {id: windowID});
 };
 
 export const toolbarShow = (id: string) => createAction($$(id, WorkspaceActions.ToolbarShow));
 export const toolbarTryShow = (id: string) => createAction($$(id, WorkspaceActions.ToolbarTryShow));
 export const toolbarHide = (id: string) => createAction($$(id, WorkspaceActions.ToolbarHide));
-export const toolbarTogglePin = (id: string) => createAction($$(id, WorkspaceActions.ToolbarTogglePin));
+export const toolbarTogglePin = (id: string) => {
+  return new AsyncAction(async () => {
+    FXOptionsDB.togglePinToolbar(id);
+    return createAction($$(id, WorkspaceActions.ToolbarTogglePin));
+  }, DummyAction);
+};
 
 export const loadMarkets = (id: string) =>
   new AsyncAction<any, any>(

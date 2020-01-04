@@ -4,6 +4,7 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {ToolbarState, WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
+import {FXOptionsDB} from 'fx-options-db';
 
 const genesisState: WorkspaceState = {
   windows: {},
@@ -52,7 +53,7 @@ const setWindowTitle = ({id, title}: { id: string, title: string }, state: Works
   return {...windows, [id]: {...windows[id], title}};
 };
 
-const addWindow = (window: Window, state: WorkspaceState): { [key: string]: Window } => {
+const addWindow = (workspaceID: string, window: Window, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   // Return the new state
   return {...windows, [window.id]: window};
@@ -126,7 +127,7 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
       case $$(id, WorkspaceActions.MinimizeWindow):
         return {...state, windows: minimizeWindow(data, state)};
       case $$(id, WorkspaceActions.AddWindow):
-        return {...state, windows: addWindow(data, state)};
+        return {...state, windows: addWindow(id, data, state)};
       case $$(id, WorkspaceActions.UpdateGeometry):
         return {...state, windows: updateWindowGeometry(data, state)};
       case $$(id, WorkspaceActions.RemoveWindow):

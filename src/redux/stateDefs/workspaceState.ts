@@ -12,3 +12,10 @@ export interface WorkspaceState {
   toolbarState: ToolbarState;
   markets: string[];
 }
+
+export const defaultWorkspaceState: WorkspaceState = {
+  windows: {},
+  toast: null,
+  toolbarState: {visible: false, hovering: false, pinned: false},
+  markets: [],
+};

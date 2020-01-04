@@ -6,6 +6,7 @@ import {User} from 'interfaces/user';
 import {Subscriber} from 'redux/signalRAction';
 import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
+import {DispatchProp} from 'react-redux';
 
 export interface OwnProps {
   id: string;
@@ -39,4 +40,4 @@ export interface DispatchProps {
   publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => void;
 }
 
-export type Props = OwnProps & DispatchProps & WindowState & RunState;
+export type Props = OwnProps & WindowState & RunState & DispatchProp;

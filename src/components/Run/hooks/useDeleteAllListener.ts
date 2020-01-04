@@ -1,7 +1,7 @@
 import {Sides} from 'interfaces/order';
 import {useEffect} from 'react';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {$$} from 'utils/stringPaster';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 export const useDeleteAllListener = (symbol: string, strategy: string, side: Sides, onDeleteAll: () => void) => {
   useEffect(() => {

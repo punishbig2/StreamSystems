@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
-import {TOBActions} from 'redux/constants/tobConstants';
 import {$$} from 'utils/stringPaster';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 export const useDepthEmitter = (tenors: string[], symbol: string, strategy: string, callback: (data: any) => void) => {
   // Listen to changes in depth books
