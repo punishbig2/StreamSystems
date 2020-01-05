@@ -29,14 +29,8 @@
       margin: 0;
     }
 
-    transition: transform 0.25s;
-
     &.visible {
       transform: translateY(-6vh);
-    }
-
-    &.hidden {
-      transform: translateY(100%);
     }
 
     .modal-title-bar {
