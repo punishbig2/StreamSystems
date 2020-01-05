@@ -1,14 +1,39 @@
-import {RunActions} from 'components/Run/enumerator';
+import equal from 'deep-equal';
 import {functionMap} from 'components/Run/fucntionMap';
 import {RunEntry} from 'components/Run/runEntry';
-import {EditHistory, State} from 'components/Run/state';
-import equal from 'deep-equal';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
+import {EditHistory, RunState} from 'redux/stateDefs/runState';
 
 type Calculator = (v1: number | null, v2: number | null) => number | null;
+
+const initialState: RunState = {
+  orders: {},
+  history: {},
+  defaultBidSize: 10,
+  defaultOfrSize: 10,
+  initialized: false,
+};
+
+export enum RunActions {
+  Mid = 'mid',
+  Spread = 'spread',
+  Ofr = 'ofr',
+  Bid = 'bid',
+  // Other
+  SetTable = 'Run.SetTable',
+  OfrQtyChanged = 'Run.OfferQuantityChanged',
+  BidQtyChanged = 'Run.BidQuantityChanged',
+  UpdateBid = 'Run.UpdateBid',
+  UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',
+  UpdateOfr = 'Run.UpdateOffer',
+  UpdateDefaultBidQty = 'Run.UpdateDefaultBidQty',
+  RemoveOrder = 'Run.RemoveOrder',
+  RemoveAllOfrs = 'Run.RemoveAllOfrs',
+  RemoveAllBids = 'Run.RemoveAllBids',
+}
 
 const computeRow = (type: string, last: string | undefined, startingValues: RunEntry, v1: number): RunEntry => {
   if (!last)
@@ -62,7 +87,7 @@ const getHistoryItem = (history: RunActions[], type: RunActions): RunActions | u
   return history[0];
 };
 
-const next = (state: State, {type, data}: Action<RunActions>): State => {
+const next = (state: RunState, {type, data}: Action<RunActions>): RunState => {
   const {history, orders} = state;
   // const finder = rowFinder(orders);
   // Find the interesting row
@@ -156,7 +181,7 @@ const clearIfMatches = (order: Order, id: string): Order => {
   }
 };
 
-const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
+const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
   const orders: TOBTable = {...state.orders};
   const rows: [string, TOBRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
@@ -168,7 +193,7 @@ const removeAll = (state: State, key: 'bid' | 'ofr'): State => {
   return {...state, orders: Object.fromEntries(entries)};
 };
 
-const removeOrder = (state: State, id: string) => {
+const removeOrder = (state: RunState, id: string) => {
   const orders: TOBTable = {...state.orders};
   const rows: [string, TOBRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
@@ -184,9 +209,9 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
   return bid.price < ofr.price;
 };
 
-const updateOrder = (state: State, data: { id: string, entry: Order }, key: 'ofr' | 'bid'): State => {
+const updateOrder = (state: RunState, data: { id: string, order: Order }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
-  const order: Order = data.entry;
+  const {order} = data;
   const row: TOBRow = orders[data.id];
   if ((row[key].status & OrderStatus.Active) !== 0 && (order.status & OrderStatus.Cancelled) !== 0)
     return state;
@@ -209,7 +234,7 @@ const updateOrder = (state: State, data: { id: string, entry: Order }, key: 'ofr
   };
 };
 
-const updateQty = (state: State, data: { id: string, value: number | null }, key: 'ofr' | 'bid'): State => {
+const updateQty = (state: RunState, data: { id: string, value: number | null }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
   // Extract the target row
   const row: TOBRow = orders[data.id];
@@ -246,7 +271,7 @@ const deriveEditHistory = (table: TOBTable): { [key: string]: RunActions[] } => 
   }, {});
 };
 
-export const reducer = (state: State, {type, data}: Action<RunActions>): State => {
+export default (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
   switch (type) {
     case RunActions.RemoveOrder:
       return removeOrder(state, data);
@@ -265,11 +290,17 @@ export const reducer = (state: State, {type, data}: Action<RunActions>): State =
     case RunActions.BidQtyChanged:
       return updateQty(state, data, 'bid');
     case RunActions.RemoveAllBids:
+      console.log('removing all');
       return removeAll(state, 'bid');
     case RunActions.RemoveAllOfrs:
       return removeAll(state, 'ofr');
-    default:
+    case RunActions.Bid:
+    case RunActions.Ofr:
+    case RunActions.Mid:
+    case RunActions.Spread:
       return next(state, {type, data});
+    default:
+      return state;
   }
 };
 

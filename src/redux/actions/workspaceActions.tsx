@@ -11,11 +11,10 @@ import {injectNamedReducer, removeNamedReducer, DummyAction} from 'redux/store';
 import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
 
-export const removeWindow = (id: string, windowID: string): Action<string> => {
-  // Side effects
+export const removeWindow = (workspaceID: string, windowID: string): Action<string> => {
+  FXOptionsDB.removeWindow(workspaceID, windowID);
   removeNamedReducer(windowID);
-  // Remove the window from the list
-  return createAction($$(id, WorkspaceActions.RemoveWindow), windowID);
+  return createAction($$(workspaceID, WorkspaceActions.RemoveWindow), windowID);
 };
 
 export const minimizeWindow = (id: string, windowID: string): Action<string> => {
@@ -28,14 +27,12 @@ export const restoreWindow = (id: string, windowID: string): Action<string> => {
 
 export const addWindow = (workspaceID: string, type: WindowTypes): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
-  // This will create a custom window reducer
   if (type === WindowTypes.TOB) {
     injectNamedReducer(window.id, createWindowReducer, DefaultWindowState);
   } else {
     console.log('we don\'t create custom reducers for these');
   }
   FXOptionsDB.addWindow(workspaceID, window);
-  // Build-up the action
   return createAction($$(workspaceID, WorkspaceActions.AddWindow), window);
 };
 

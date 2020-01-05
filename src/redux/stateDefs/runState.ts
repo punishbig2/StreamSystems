@@ -1,5 +1,11 @@
-import {Order} from 'interfaces/order';
+import {TOBTable} from 'interfaces/tobTable';
+import {RunActions} from 'redux/reducers/runReducer';
 
+export type EditHistory = { [key: string]: RunActions[] };
 export interface RunState {
-  orders: Order[];
+  history: EditHistory;
+  orders: TOBTable;
+  defaultOfrSize: number;
+  defaultBidSize: number;
+  initialized: boolean;
 }

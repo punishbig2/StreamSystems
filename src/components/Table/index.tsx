@@ -2,7 +2,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Header} from 'components/Table/Header';
 import {VirtualScroll} from 'components/VirtualScroll';
 import {SortInfo} from 'interfaces/sortInfo';
-import React, {CSSProperties, ReactElement, useEffect, useState, useCallback, useMemo} from 'react';
+import React, {CSSProperties, ReactElement, useState, useMemo} from 'react';
 
 export enum SortDirection {
   Descending, Ascending, None
@@ -66,11 +66,6 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
       minWidth,
     };
   }, [columns]);
-
-  useEffect(() => {
-    console.log(sortBy);
-  }, [sortBy]);
-
   if (!rows)
     return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);

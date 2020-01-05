@@ -28,8 +28,9 @@ import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
-import settings from 'redux/reducers/settingsReducer';
+import settingsReducer from 'redux/reducers/settingsReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
+import runReducer from 'redux/reducers/runReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
@@ -52,7 +53,8 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationStat
   return combineReducers<any, Action<any>>({
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
-    settings,
+    settings: settingsReducer,
+    run: runReducer,
     // Dynamically generated reducers
     ...dynamicReducers,
   });

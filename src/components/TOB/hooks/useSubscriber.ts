@@ -34,6 +34,7 @@ export const useSubscriber = (
       // Unsubscribe all
       return () => destroy.forEach((fn: () => void) => fn());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connected, symbol, strategy, count]);
 };
 

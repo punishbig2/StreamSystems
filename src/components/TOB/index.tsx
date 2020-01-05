@@ -13,7 +13,6 @@ import {ActionTypes, reducer, State} from 'components/TOB/reducer';
 import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
 import {Order, Sides, OrderStatus} from 'interfaces/order';
-import {SelectEventData} from 'interfaces/selectEventData';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {SettingsContext} from 'main';
@@ -40,7 +39,9 @@ import {
   setRowStatus,
   publishDarkPoolPrice,
   createOrder,
-  cancelOrder, setStrategy, setSymbol,
+  cancelOrder,
+  setStrategy,
+  setSymbol,
 } from 'redux/actions/tobActions';
 import {TOBActions} from 'redux/reducers/tobReducer';
 
@@ -89,15 +90,15 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     updateOrderQuantity: (order: Order) => reduxDispatch(updateOrderQuantity(id, order)),
     setRowStatus: (order: Order, status: TOBRowStatus) => reduxDispatch(setRowStatus(id, order, status)),
     publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
-  }), []);
+  }), [id, reduxDispatch]);
 
 
   // Internal temporary reducer actions
-  const setCurrentTenor = (tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor));
-  const setOrderTicket = (ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket));
-  const insertDepth = (data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data));
-  const showRunWindow = () => dispatch(createAction(ActionTypes.ShowRunWindow));
-  const hideRunWindow = () => dispatch(createAction(ActionTypes.HideRunWindow));
+  const setCurrentTenor = useCallback((tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)), []);
+  const setOrderTicket = useCallback((ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket)), []);
+  const insertDepth = useCallback((data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)), []);
+  const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
+  const hideRunWindow = useCallback(() => dispatch(createAction(ActionTypes.HideRunWindow)), []);
 
   const {setWindowTitle} = props;
   useEffect(() => {
@@ -125,7 +126,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   // Handler methods
   const data: TOBColumnData = useMemo(() => {
     return createColumnData(actions, state, symbol, strategy, user, setCurrentTenor, setOrderTicket, settings);
-  }, [actions, symbol, strategy, state, props, settings]);
+  }, [actions, symbol, strategy, state, settings, setCurrentTenor, setOrderTicket, user]);
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
       return <div/>;
@@ -147,7 +148,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       }
       actions.createOrder(order, settings.minSize);
     });
-  }, [actions, settings.minSize]);
+  }, [actions, hideRunWindow, settings.minSize]);
 
   const runID = useMemo(() => toRunId(symbol, strategy), [symbol, strategy]);
 

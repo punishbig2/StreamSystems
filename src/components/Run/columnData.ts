@@ -1,7 +1,7 @@
-import {RunActions} from 'components/Run/enumerator';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
+import {RunActions} from 'redux/reducers/runReducer';
 
 export interface QtyHeader {
   value: number;

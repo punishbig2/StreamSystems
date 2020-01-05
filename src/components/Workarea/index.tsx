@@ -37,7 +37,7 @@ interface DispatchProps {
   closeWorkspace: (id: string) => AnyAction;
   addWindow: (type: WindowTypes, id: string) => AnyAction;
   initialize: () => AnyAction;
-  loadMessages: (timestamp?: string) => AnyAction;
+  loadMessages: (useremail: string) => AnyAction;
   quit: () => void;
   clearLastExecution: () => void;
   unsubscribeFromMessages: (email: string) => void;
@@ -84,17 +84,15 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     };
   }, [subscribeToMessages, unsubscribeFromMessages, connected, user]);
 
-  // componentDidMount equivalent
-  useEffect((): void => {
-    initialize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useEffect(() => {
-    const now: string = (Date.now() / 1000).toFixed(0);
-    loadMessages(now);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    initialize();
+  }, [initialize]);
+
+  useEffect((): void => {
+    if (user) {
+      loadMessages(user.email);
+    }
+  }, [user, loadMessages]);
 
   const renderCloseQuestion = () => <Question {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>;
   const cancelCloseWorkspace = () => setSelectedToClose(null);

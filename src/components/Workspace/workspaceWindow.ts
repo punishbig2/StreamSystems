@@ -14,7 +14,7 @@ export class WorkspaceWindow implements Window {
   public autoSize: boolean;
 
   constructor(type: WindowTypes) {
-    this.id = `tile-${shortid()}-${type}`;
+    this.id = `wn-${shortid()}-${type}`;
     this.type = type;
     this.strategy = '';
     this.symbol = '';

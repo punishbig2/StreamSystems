@@ -246,24 +246,16 @@ export class API {
     return get<W | null>(url);
   }
 
-  static async getMessagesSnapshot(lastInitializationTimestamp?: string): Promise<Message[]> {
-    try {
-      if (lastInitializationTimestamp) {
-        return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get')); // , {timestamp: lastInitializationTimestamp}));
-      } else {
-        return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get'));
-      }
-    } catch (error) {
-      return [];
-    }
+  static async getMessagesSnapshot(useremail: string): Promise<Message[]> {
+    return await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get', {useremail}));
   }
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<any[]> {
-    return get<any[]>(API.getUrl(API.Oms, 'runorders', 'get'), {useremail, symbol, strategy});
+    return get<any[]>(API.getUrl(API.Oms, 'runorders', 'get', {useremail, symbol, strategy}));
   }
 
   static async getUserGroupSymbol(useremail: string): Promise<any[]> {
-    return get<any[]>(API.getUrl(API.Oms, 'UserGroupSymbol', 'get'), {useremail});
+    return get<any[]>(API.getUrl(API.Oms, 'UserGroupSymbol', 'get', {useremail}));
   }
 
   static async getUsers(): Promise<User[]> {

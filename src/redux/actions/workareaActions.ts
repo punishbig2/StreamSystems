@@ -21,7 +21,7 @@ export const clearLastExecution = () => createAction(WorkareaActions.ClearLastEx
 export const setWorkspace = (id: string): AnyAction => createAction(WorkareaActions.SetWorkspace, id);
 export const addWorkspace = (): AnyAction => {
   const name: string = 'Untitled';
-  const id: string = `workspace-${shortid()}`;
+  const id: string = `ws-${shortid()}`;
   const newWorkspace: IWorkspace = {id, name};
   FXOptionsDB.addWorkspace(newWorkspace);
   // Create the reducer now, after doing this we will have the reducer
@@ -40,9 +40,9 @@ export const currencyToNumber = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
 };
 
-export const loadMessages = (lastInitializationTimestamp?: string): AsyncAction<AnyAction> => {
+export const loadMessages = (useremail: string): AsyncAction<AnyAction> => {
   const handler = async (): Promise<AnyAction[]> => {
-    const messages: Message[] = await API.getMessagesSnapshot(lastInitializationTimestamp);
+    const messages: Message[] = await API.getMessagesSnapshot(useremail);
     return [
       createAction(MessageBlotterActions.Initialize, messages.filter(({OrdStatus}: Message) => {
         return OrdStatus !== ExecTypes.PendingCancel;

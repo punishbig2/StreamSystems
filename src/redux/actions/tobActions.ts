@@ -19,6 +19,7 @@ import {$$} from 'utils/stringPaster';
 import {DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
 import {TOBActions} from 'redux/reducers/tobReducer';
+import {RunActions} from 'redux/reducers/runReducer';
 
 type ActionType = Action<TOBActions>;
 
@@ -56,13 +57,18 @@ export const getRunOrders = (id: string, symbol: string, strategy: string): Asyn
 export const cancelAll = (id: string, symbol: string, strategy: string, side: Sides): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelAll(symbol, strategy, side);
-    // FIXME: parse the result
-    if (result.Status === 'Success') {
+    // FIXME: if the 'Status' is failure we should show an error
+    //        but currently the value is misleading
+    if (result.Status === 'Success' || result.Status === 'Failure') {
       const type: string = $$(symbol, strategy, side, TOBActions.DeleteOrder);
       const event: Event = new CustomEvent(type);
       // Emit the event
       document.dispatchEvent(event);
-      return DummyAction;
+      if (side === Sides.Sell) {
+        return createAction<RunActions, any>(RunActions.RemoveAllOfrs);
+      } else {
+        return createAction<RunActions, any>(RunActions.RemoveAllBids);
+      }
     } else {
       return DummyAction;
     }

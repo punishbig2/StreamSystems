@@ -1,7 +1,6 @@
 import {HeaderQty} from 'components/HeaderQty';
 import {RunQuantity} from 'components/RunQuantity';
 import {RunColumnData, QtyHeader} from 'components/Run/columnData';
-import {RunActions} from 'components/Run/enumerator';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
@@ -10,6 +9,7 @@ import {TOBRow} from 'interfaces/tobRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
+import {RunActions} from 'redux/reducers/runReducer';
 
 type RowType = TOBRow & { defaultBidSize: number, defaultOfrSize: number };
 

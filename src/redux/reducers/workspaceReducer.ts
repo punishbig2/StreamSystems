@@ -4,7 +4,6 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {ToolbarState, WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
-import {FXOptionsDB} from 'fx-options-db';
 
 const genesisState: WorkspaceState = {
   windows: {},

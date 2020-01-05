@@ -1,4 +1,3 @@
-import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 
 export interface WindowState {
