@@ -89,7 +89,6 @@ const withRedux = connect(mapStateToProps, mapDispatchToProps);
 type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
-  const settings = useContext<Settings>(SettingsContext);
   const {symbol, strategy, tenors} = props;
   const {email} = getAuthenticatedUser();
   const setTable = (orders: TOBTable) => props.setTable(orders);
@@ -172,12 +171,12 @@ const Run: React.FC<Props> = (props: Props) => {
 
   // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number | null) => setBidPrice(id, value),
-    onOfrChanged: (id: string, value: number | null) => setOfrPrice(id, value),
-    onMidChanged: (id: string, value: number | null) => setMid(id, value),
-    onSpreadChanged: (id: string, value: number | null) => setSpread(id, value),
-    onBidQtyChanged: (id: string, value: number | null) => setBidQty(id, value),
-    onOfrQtyChanged: (id: string, value: number | null) => setBidQty(id, value),
+    onBidChanged: (id: string, value: number | null) => props.setBidPrice(id, value),
+    onOfrChanged: (id: string, value: number | null) => props.setOfrPrice(id, value),
+    onMidChanged: (id: string, value: number | null) => props.setMid(id, value),
+    onSpreadChanged: (id: string, value: number | null) => props.setSpread(id, value),
+    onBidQtyChanged: (id: string, value: number | null) => props.setBidQty(id, value),
+    onOfrQtyChanged: (id: string, value: number | null) => props.setBidQty(id, value),
     onCancelOrder: (order: Order) => props.onCancelOrder(order),
     defaultBidSize: {
       value: props.defaultBidSize,

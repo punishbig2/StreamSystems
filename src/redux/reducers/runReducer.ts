@@ -298,6 +298,7 @@ export default (state: RunState = initialState, {type, data}: Action<RunActions>
     case RunActions.Ofr:
     case RunActions.Mid:
     case RunActions.Spread:
+      console.log('action here');
       return next(state, {type, data});
     default:
       return state;

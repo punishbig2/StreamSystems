@@ -74,7 +74,9 @@ const MidCol = (data: RunColumnData) => ({
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
     <Price value={mid}
-           className={'mid'} arrow={ArrowDirection.None} status={OrderStatus.None}
+           className={'mid'}
+           arrow={ArrowDirection.None}
+           status={OrderStatus.None}
            onChange={(value: number | null) => data.onMidChanged(id, value)}
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Mid)}
            onNavigate={data.onNavigate}/>
@@ -86,15 +88,17 @@ const MidCol = (data: RunColumnData) => ({
 const SpreadCol = (data: RunColumnData) => ({
   name: 'spread',
   header: () => <div>{strings.Spread}</div>,
-  render: ({id, spread}: RowType) => (
-    <Price value={spread}
-           className={'spread'}
-           arrow={ArrowDirection.None}
-           status={OrderStatus.None}
-           onChange={(value: number | null) => data.onSpreadChanged(id, value)}
-           onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
-           onNavigate={data.onNavigate}/>
-  ),
+  render: ({id, spread}: RowType) => {
+    return (
+      <Price value={spread}
+             className={'spread'}
+             arrow={ArrowDirection.None}
+             status={OrderStatus.None}
+             onChange={(value: number | null) => data.onSpreadChanged(id, value)}
+             onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
+             onNavigate={data.onNavigate}/>
+    );
+  },
   template: '999999.99',
   weight: 4,
 });

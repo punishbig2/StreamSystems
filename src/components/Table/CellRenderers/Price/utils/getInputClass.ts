@@ -1,7 +1,7 @@
 import {OrderStatus} from 'interfaces/order';
 
 export const getInputClass = (status: OrderStatus, className?: string): string => {
-  const classes: string[] = className ? [className] : [];
+  const classes: string[] = className !== undefined ? [className] : [];
   if ((status & OrderStatus.PriceEdited) === 0) {
     if ((status & OrderStatus.Owned) !== 0)
       classes.push('owned');
@@ -15,8 +15,6 @@ export const getInputClass = (status: OrderStatus, className?: string): string =
       classes.push('same-bank');
     if (className === 'size' && (status & OrderStatus.QuantityEdited) !== 0)
       classes.push('edited');
-    return classes.join(' ');
-  } else {
-    return '';
   }
+  return classes.join(' ');
 };
