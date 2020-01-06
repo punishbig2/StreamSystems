@@ -96,7 +96,6 @@ type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
   const settings = useContext(SettingsContext);
-  console.log(settings);
   const {symbol, strategy, tenors, id} = props;
   const {email} = getAuthenticatedUser();
   const setTable = (orders: TOBTable) => props.setTable(orders);

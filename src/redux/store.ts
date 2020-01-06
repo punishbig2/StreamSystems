@@ -43,7 +43,8 @@ import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {defaultWorkspaceState, ToolbarState} from 'redux/stateDefs/workspaceState';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {manualToRowID} from 'utils';
+import {manualToRowID, toRunId} from 'utils';
+import {RunActions} from 'redux/reducers/runReducer';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
@@ -178,7 +179,18 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         case ExecTypes.PendingCancel:
           break;
         case ExecTypes.Filled:
-          API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
+          API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side])
+            .then(() => {
+              const runID = toRunId(data.Symbol, data.Strategy);
+              switch (SidesMap[data.Side]) {
+                case Sides.Buy:
+                  dispatch(createAction<any, A>($$(runID, RunActions.RemoveAllBids)));
+                  break;
+                case Sides.Sell:
+                  dispatch(createAction<any, A>($$(runID, RunActions.RemoveAllOfrs)));
+                  break;
+              }
+            });
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
           const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
