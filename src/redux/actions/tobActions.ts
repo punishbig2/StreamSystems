@@ -65,7 +65,7 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
       if (side === Sides.Sell) {
         return createAction($$(runID, RunActions.RemoveAllOfrs));
       } else {
-        return createAction($$(runID, RunActions.RemoveAllOfrs));
+        return createAction($$(runID, RunActions.RemoveAllBids));
       }
     } else {
       return DummyAction;
