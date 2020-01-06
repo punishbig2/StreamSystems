@@ -141,7 +141,7 @@ const Run: React.FC<Props> = (props: Props) => {
     ];
     return entries
       .filter((order: Order) => {
-        if ((order.status & OrderStatus.PriceEdited) !== 0)
+        if ((order.status & OrderStatus.PriceEdited) !== 0 || (order.status & OrderStatus.QuantityEdited) !== 0)
           return true;
         return (order.status & OrderStatus.Cancelled) !== 0;
       });

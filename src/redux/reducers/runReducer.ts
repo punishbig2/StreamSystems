@@ -87,7 +87,7 @@ const getHistoryItem = (history: RunActions[], type: RunActions): RunActions | u
   return history[0];
 };
 
-const next = (state: RunState, {type, data}: Action<RunActions>): RunState => {
+const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): RunState => {
   const {history, orders} = state;
   // const finder = rowFinder(orders);
   // Find the interesting row
@@ -130,10 +130,13 @@ const next = (state: RunState, {type, data}: Action<RunActions>): RunState => {
     // Update the status and set it as edited/modified
     status: bid.status | getOrderStatus(computedEntry.bid, bid.price),
   };
+  const isQuantityEdited = (order: Order) => (order.status & OrderStatus.QuantityEdited) !== 0;
+  const quantitiesChanged: boolean = isQuantityEdited(bid) || isQuantityEdited(ofr);
+  const ordersChanged: boolean = !equal(newOfr, ofr) || !equal(newBid, bid);
   switch (type) {
     case RunActions.Ofr:
     case RunActions.Bid:
-      if (equal(newOfr, ofr) && equal(newBid, bid))
+      if (!ordersChanged && !quantitiesChanged)
         return state;
     // eslint-disable-next-line no-fallthrough
     case RunActions.Mid:
@@ -298,7 +301,7 @@ export default (state: RunState = initialState, {type, data}: Action<RunActions>
     case RunActions.Ofr:
     case RunActions.Mid:
     case RunActions.Spread:
-      return next(state, {type, data});
+      return valueChangeReducer(state, {type, data});
     default:
       return state;
   }
