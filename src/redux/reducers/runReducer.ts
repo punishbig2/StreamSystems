@@ -297,10 +297,8 @@ export default (id: string, initialState: RunState = genesisState) => {
       case $$(id, RunActions.BidQtyChanged):
         return updateQty(state, data, 'bid');
       case $$(id, RunActions.RemoveAllBids):
-        console.log('removing all');
         return removeAll(state, 'bid');
       case $$(id, RunActions.RemoveAllOfrs):
-        console.log('removing all');
         return removeAll(state, 'ofr');
       case $$(id, RunActions.Bid):
         return valueChangeReducer(state, {type: RunActions.Bid, data});
