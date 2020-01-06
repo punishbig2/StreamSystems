@@ -9,7 +9,7 @@ export interface QtyHeader {
   type: OrderTypes;
 }
 
-type ChangeFn<T> = (tenor: string, value: T | null) => void;
+type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => void;
 
 export interface RunColumnData {
   onBidChanged: ChangeFn<number>,

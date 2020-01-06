@@ -32,7 +32,7 @@ export interface Props {
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onChange: (value: number | null) => void;
+  onChange: (value: number | null, changed: boolean) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
   status: OrderStatus;
@@ -42,6 +42,7 @@ export interface Props {
   max?: number | null;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onError?: (error: PriceErrors, input: HTMLInputElement) => void;
+  animated?: boolean;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -72,7 +73,11 @@ export const Price: React.FC<Props> = (props: Props) => {
   const onMouseMove = useCallback((event: MouseEvent) => {
     dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
   }, [dispatch, toPoint]);
-  const startFlashing = () => dispatch(createAction(PriceActions.Flash));
+  const startFlashing = () => {
+    if (!props.animated)
+      return;
+    dispatch(createAction(PriceActions.Flash));
+  };
   const stopFlashing = () => dispatch(createAction(PriceActions.Unflash));
 
   useTooltip(state.startedShowingTooltip, setTooltipVisible);
@@ -141,32 +146,30 @@ export const Price: React.FC<Props> = (props: Props) => {
   const onSubmitted = (input: HTMLInputElement) => {
     const value: string | null = state.value;
     if (value === null || value.trim() === '') {
-      props.onChange(null);
+      props.onChange(null, false);
     } else {
       const numeric: number = Number(value);
       // If it's non-numeric also ignore this
       if (isNaN(numeric) || numeric === 0) {
-        props.onChange(null);
+        props.onChange(null, false);
       } else {
-        // No change happened
-        if (priceFormatter(numeric) === priceFormatter(props.value))
-          return;
+        const changed: boolean = priceFormatter(numeric) !== priceFormatter(props.value);
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);
         if (props.min !== null && props.min !== undefined) {
           if (props.min >= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.LessThanMin, input);
           } else {
-            props.onChange(numeric);
+            props.onChange(numeric, changed);
           }
         } else if (props.max !== null && props.max !== undefined) {
           if (props.max <= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.GreaterThanMax, input);
           } else {
-            props.onChange(numeric);
+            props.onChange(numeric, changed);
           }
         } else {
-          props.onChange(numeric);
+          props.onChange(numeric, changed);
         }
       }
     }
@@ -219,3 +222,6 @@ export const Price: React.FC<Props> = (props: Props) => {
   }
 };
 
+Price.defaultProps = {
+  animated: true,
+};

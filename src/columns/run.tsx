@@ -14,7 +14,7 @@ import {RunActions} from 'redux/reducers/runReducer';
 type RowType = TOBRow & { defaultBidSize: number, defaultOfrSize: number };
 
 const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
-  const onChange: (tenor: string, value: (number | null)) => void = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
+  const onChange = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
   const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
   const actionType: RunActions = type === 'bid' ? RunActions.Bid : RunActions.Ofr;
   return {
@@ -26,9 +26,10 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
         <Price value={order.price}
                arrow={ArrowDirection.None}
                status={order.status}
-               onChange={(price: number | null) => onChange(row.id, price)}
+               onChange={(price: number | null, changed: boolean) => onChange(row.id, price, changed)}
                onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
-               onNavigate={data.onNavigate}/>
+               onNavigate={data.onNavigate}
+               animated={false}/>
       );
     },
     template: '999999.99',
@@ -77,9 +78,10 @@ const MidCol = (data: RunColumnData) => ({
            className={'mid'}
            arrow={ArrowDirection.None}
            status={OrderStatus.None}
-           onChange={(value: number | null) => data.onMidChanged(id, value)}
+           onChange={(value: number | null, changed: boolean) => data.onMidChanged(id, value, changed)}
            onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Mid)}
-           onNavigate={data.onNavigate}/>
+           onNavigate={data.onNavigate}
+           animated={false}/>
   ),
   template: '999999.99',
   weight: 4,
@@ -94,9 +96,10 @@ const SpreadCol = (data: RunColumnData) => ({
              className={'spread'}
              arrow={ArrowDirection.None}
              status={OrderStatus.None}
-             onChange={(value: number | null) => data.onSpreadChanged(id, value)}
+             onChange={(value: number | null, changed: boolean) => data.onSpreadChanged(id, value, changed)}
              onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
-             onNavigate={data.onNavigate}/>
+             onNavigate={data.onNavigate}
+             animated={false}/>
     );
   },
   template: '999999.99',

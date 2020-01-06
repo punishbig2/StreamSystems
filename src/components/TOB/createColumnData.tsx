@@ -84,7 +84,6 @@ export const createColumnData = (
       }
     },
     onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
-      console.trace();
       if ((order.status & OrderStatus.PreFilled) === 0) {
         fns.updateOrderQuantity({...order, quantity: newQuantity});
       } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {

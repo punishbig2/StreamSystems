@@ -24,6 +24,11 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
     }
   };
   const onError = (error: PriceErrors, input: HTMLInputElement) => props.onError(order, error, input);
+  const onChange = (price: number | null, changed: boolean) => {
+    if (!changed)
+      return;
+    props.onChange({...order, price});
+  };
   return (
     <Price
       depth={getMiniDOBByType(props.depths, order.tenor, order.type)}
@@ -36,6 +41,6 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       onError={onError}
       onTabbedOut={(input: HTMLInputElement) => props.onTabbedOut(input, order.type)}
       onDoubleClick={onDoubleClick}
-      onChange={(price: number | null) => props.onChange({...order, price})}/>
+      onChange={onChange}/>
   );
 };

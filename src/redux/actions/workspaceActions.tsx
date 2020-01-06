@@ -27,11 +27,8 @@ export const restoreWindow = (id: string, windowID: string): Action<string> => {
 
 export const addWindow = (workspaceID: string, type: WindowTypes): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
-  if (type === WindowTypes.TOB) {
+  if (type === WindowTypes.TOB)
     injectNamedReducer(window.id, createWindowReducer, DefaultWindowState);
-  } else {
-    console.log('we don\'t create custom reducers for these');
-  }
   FXOptionsDB.addWindow(workspaceID, window);
   return createAction($$(workspaceID, WorkspaceActions.AddWindow), window);
 };

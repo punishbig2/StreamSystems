@@ -17,7 +17,7 @@ interface Props {
   value: number | null;
   order: Order;
   onTabbedOut?: (input: HTMLInputElement) => void;
-  onChange: (id: string, value: number | null) => void;
+  onChange: (id: string, value: number | null, changed: boolean) => void;
   onCancel: (order: Order) => void;
 }
 
@@ -48,13 +48,13 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   };
   const sendOnChange = (input: HTMLInputElement) => {
     if (value === null) {
-      props.onChange(props.id, value);
+      props.onChange(props.id, value, true);
     } else {
       const numeric: number = Number(value);
       if (numeric < settings.minSize) {
-        props.onChange(props.id, settings.minSize);
+        props.onChange(props.id, settings.minSize, true);
       } else {
-        props.onChange(props.id, numeric);
+        props.onChange(props.id, numeric, true);
       }
     }
     if (props.onTabbedOut) {
