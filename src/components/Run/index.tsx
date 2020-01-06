@@ -10,7 +10,7 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import strings from 'locales';
-import React, {ReactElement, useEffect} from 'react';
+import React, {ReactElement, useEffect, useContext} from 'react';
 import {toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
@@ -36,6 +36,7 @@ import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {Dispatch} from 'redux';
+import {SettingsContext} from 'main';
 
 interface OwnProps {
   id: string;
@@ -94,6 +95,8 @@ const withRedux = connect(
 type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
+  const settings = useContext(SettingsContext);
+  console.log(settings);
   const {symbol, strategy, tenors, id} = props;
   const {email} = getAuthenticatedUser();
   const setTable = (orders: TOBTable) => props.setTable(orders);
@@ -142,9 +145,10 @@ const Run: React.FC<Props> = (props: Props) => {
     const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
       const quantityEdited = (order.status & OrderStatus.QuantityEdited) !== 0;
       const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
-      // const cancelled = (order.status & OrderStatus.Cancelled) !== 0;
       if (quantityEdited || preFilled)
-        return order.quantity as number; // It can never be null, no way
+        return order.quantity as number;
+      if (defaultSize === undefined)
+        return settings.defaultSize;
       return defaultSize as number;
     };
     const entries: Order[] = [
@@ -174,7 +178,10 @@ const Run: React.FC<Props> = (props: Props) => {
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;
     return (
-      <Row {...props} user={props.user} row={row} defaultBidSize={props.defaultBidSize}
+      <Row {...props}
+           user={props.user}
+           row={row}
+           defaultBidSize={props.defaultBidSize}
            defaultOfrSize={props.defaultOfrSize}/>
     );
   };
