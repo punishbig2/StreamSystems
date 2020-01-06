@@ -23,12 +23,16 @@ export const createColumnData = (
   // Dispatch properties
   return {
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
+      console.log(input, type);
       switch (type) {
         case OrderTypes.Bid:
-          skipTabIndex(input, 1, 1);
+          skipTabIndex(input, 2, 1);
           break;
         case OrderTypes.Ofr:
           skipTabIndex(input, 3, 1);
+          break;
+        case OrderTypes.DarkPool:
+          skipTabIndex(input, 1, 1);
           break;
       }
     },

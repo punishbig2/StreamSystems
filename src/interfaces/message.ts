@@ -1,3 +1,5 @@
+import {SymbolType, StrategyType, TenorType} from 'interfaces/w';
+
 export enum ExecTypes {
   New = '0',
   PartiallyFilled = '1',
@@ -51,8 +53,8 @@ export interface Message {
 
 export interface DarkPoolMessage {
   User: string;
-  Symbol: string;
-  Strategy: string;
-  Tenor: string;
+  Symbol: SymbolType;
+  Strategy: StrategyType;
+  Tenor: TenorType;
   DarkPrice: number;
 }

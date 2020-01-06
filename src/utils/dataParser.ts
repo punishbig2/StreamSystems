@@ -34,6 +34,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
         bid: transform(other[index], OrderTypes.Bid),
         mid: null,
         spread: null,
+        darkPrice: null,
         status: TOBRowStatus.Normal,
       };
     } else if (key1 === 'bid' && key2 === 'ofr') {
@@ -44,6 +45,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
         ofr: transform(other[index], OrderTypes.Ofr),
         mid: null,
         spread: null,
+        darkPrice: null,
         status: TOBRowStatus.Normal,
       };
     } else {
@@ -97,6 +99,7 @@ export const toTOBRow = (w: W): TOBRow => {
     ofr: transform(ofr, OrderTypes.Ofr),
     mid: null,
     spread: null,
+    darkPrice: null,
     status: TOBRowStatus.Normal,
   };
 };

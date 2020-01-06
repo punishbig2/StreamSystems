@@ -101,7 +101,9 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   private onUpdateDarkPoolPx = (message: string) => {
-    console.log(message);
+    if (this.onUpdateDarkPoolPxListener) {
+      this.onUpdateDarkPoolPxListener(JSON.parse(message));
+    }
   };
 
   public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {

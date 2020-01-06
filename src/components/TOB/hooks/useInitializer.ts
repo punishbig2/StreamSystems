@@ -24,6 +24,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
         darkPool: '',
         ofr: ofr,
         mid: null,
+        darkPrice: null,
         spread: null,
         status: TOBRowStatus.Normal,
       };

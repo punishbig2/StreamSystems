@@ -43,6 +43,7 @@ export interface Props {
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onError?: (error: PriceErrors, input: HTMLInputElement) => void;
   animated?: boolean;
+  readOnly?: boolean;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -206,6 +207,7 @@ export const Price: React.FC<Props> = (props: Props) => {
       <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
         <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
         <NumericInput
+          readOnly={props.readOnly}
           tabIndex={props.tabIndex}
           value={finalValue}
           className={getInputClass(state.status, props.className)}
@@ -224,4 +226,5 @@ export const Price: React.FC<Props> = (props: Props) => {
 
 Price.defaultProps = {
   animated: true,
+  readOnly: false,
 };

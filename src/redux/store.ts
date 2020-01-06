@@ -43,6 +43,7 @@ import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {defaultWorkspaceState, ToolbarState} from 'redux/stateDefs/workspaceState';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
+import {manualToRowID} from 'utils';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
@@ -168,6 +169,8 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
 
     const onUpdateDarkPoolPx = (message: DarkPoolMessage) => {
+      const rowID = manualToRowID(message.Tenor, message.Symbol, message.Strategy);
+      dispatch(createAction<any, A>($$(rowID, RowActions.UpdateDarkPrice), message.DarkPrice));
     };
 
     const onUpdateMessageBlotter = (data: Message) => {

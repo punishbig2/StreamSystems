@@ -19,4 +19,5 @@ export enum RowActions {
   ErrorGettingSnapshot = 'RowActions.ErrorGettingSnapshot',
   Executed = 'RowActions.Executed',
   ResetStatus = 'RowActions.ResetStatus',
+  UpdateDarkPrice = 'RowActions.UpdateDarkPrice',
 }

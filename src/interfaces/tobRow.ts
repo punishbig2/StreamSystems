@@ -13,6 +13,7 @@ export interface TOBRow {
   darkPool?: string;
   ofr: Order;
   mid: number | null;
+  darkPrice: number | null;
   spread: number | null;
   status: TOBRowStatus,
 }

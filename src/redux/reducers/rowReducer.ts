@@ -43,6 +43,8 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
     const {row} = state;
     const {ofr, bid} = row;
     switch (type) {
+      case $$(id, RowActions.UpdateDarkPrice):
+        return {...state, row: {...row, darkPrice: data}};
       case $$(id, RowActions.Remove):
         if (data === '2') {
           return {...state, row: {...row, ofr: {...ofr, price: null, quantity: null}}};
