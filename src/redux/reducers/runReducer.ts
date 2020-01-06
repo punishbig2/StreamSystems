@@ -34,6 +34,7 @@ export enum RunActions {
   RemoveOrder = 'Run.RemoveOrder',
   RemoveAllOfrs = 'Run.RemoveAllOfrs',
   RemoveAllBids = 'Run.RemoveAllBids',
+  SetDefaultSize = 'Run.SetDefaultSize',
 }
 
 const computeRow = (type: string, last: string | undefined, startingValues: RunEntry, v1: number): RunEntry => {
@@ -280,6 +281,8 @@ const deriveEditHistory = (table: TOBTable): { [key: string]: RunActions[] } => 
 export default (id: string, initialState: RunState = genesisState) => {
   return (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
     switch (type) {
+      case $$(id, RunActions.SetDefaultSize):
+        return {...state, defaultBidSize: data, defaultOfrSize: data};
       case $$(id, RunActions.RemoveOrder):
         return removeOrder(state, data);
       case $$(id, RunActions.UpdateDefaultBidQty):

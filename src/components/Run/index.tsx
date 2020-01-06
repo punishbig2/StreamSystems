@@ -31,6 +31,7 @@ import {
   setOfrQty,
   setBidDefaultQty,
   setOfrDefaultQty,
+  setDefaultSize,
 } from 'redux/actions/runActions';
 import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
@@ -49,6 +50,7 @@ interface OwnProps {
 }
 
 interface DispatchProps {
+  setDefaultSize: (value: number) => Action<RunActions>;
   updateOfr: (value: any) => Action<RunActions>;
   updateBid: (value: any) => Action<RunActions>;
   removeOrder: (id: string) => Action<RunActions>;
@@ -65,6 +67,7 @@ interface DispatchProps {
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
   const actions: { [key: string]: any } = {
+    setDefaultSize: setDefaultSize(id),
     updateOfr: updateOfr(id),
     updateBid: updateBid(id),
     removeOrder: removeOrder(id),
@@ -82,7 +85,9 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
   return entries.reduce((obj, [name, value]) => {
     return {
       ...obj,
-      [name]: (...args: any[]) => dispatch(value(...args)),
+      [name]: (...args: any[]) => {
+        dispatch(value(...args));
+      },
     };
   }, {}) as DispatchProps;
 };
@@ -95,10 +100,12 @@ const withRedux = connect(
 type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
-  const settings = useContext(SettingsContext);
+  const {defaultSize} = useContext(SettingsContext);
   const {symbol, strategy, tenors, id} = props;
   const {email} = getAuthenticatedUser();
+  const {setDefaultSize} = props;
   const setTable = (orders: TOBTable) => props.setTable(orders);
+
   // Updates a single side of the depth
   const onUpdate = (order: Order) => {
     const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
@@ -118,10 +125,12 @@ const Run: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     injectNamedReducer(id, reducer);
+    // Set default size
+    setDefaultSize(defaultSize);
     return () => {
       removeNamedReducer(id);
     };
-  }, [id]);
+  }, [id, setDefaultSize, defaultSize]);
 
   const onDelete = (id: string) => props.removeOrder(id);
 
@@ -141,14 +150,17 @@ const Run: React.FC<Props> = (props: Props) => {
           return true;
         return bid.price < ofr.price;
       });
-    const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
+    const ownOrDefaultQty = (order: Order, fallback: number | null): number => {
       const quantityEdited = (order.status & OrderStatus.QuantityEdited) !== 0;
+      const canceled = (order.status & OrderStatus.Cancelled) !== 0;
       const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
-      if (quantityEdited || preFilled)
+      if (quantityEdited || (preFilled && !canceled))
         return order.quantity as number;
-      if (defaultSize === undefined)
-        return settings.defaultSize;
-      return defaultSize as number;
+      if (canceled && fallback !== defaultSize)
+        return fallback as number;
+      if (fallback === undefined || fallback === null)
+        return defaultSize;
+      return fallback as number;
     };
     const entries: Order[] = [
       ...rows.map(({bid}: TOBRow) => ({...bid, quantity: ownOrDefaultQty(bid, props.defaultBidSize)})),
