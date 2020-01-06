@@ -12,7 +12,7 @@ import {AsyncAction} from 'redux/asyncAction';
 import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
-import {getSideFromType, toRowID} from 'utils';
+import {getSideFromType, toRowID, toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
@@ -60,14 +60,12 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
     // FIXME: if the 'Status' is failure we should show an error
     //        but currently the value is misleading
     if (result.Status === 'Success' || result.Status === 'Failure') {
-      const type: string = $$(symbol, strategy, side, TOBActions.DeleteOrder);
-      const event: Event = new CustomEvent(type);
+      const runID: string =  toRunId(symbol, strategy);
       // Emit the event
-      document.dispatchEvent(event);
       if (side === Sides.Sell) {
-        return createAction<RunActions, any>(RunActions.RemoveAllOfrs);
+        return createAction($$(runID, RunActions.RemoveAllOfrs));
       } else {
-        return createAction<RunActions, any>(RunActions.RemoveAllBids);
+        return createAction($$(runID, RunActions.RemoveAllOfrs));
       }
     } else {
       return DummyAction;

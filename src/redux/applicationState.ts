@@ -6,7 +6,7 @@ import {RunState} from 'redux/stateDefs/runState';
 export interface ApplicationState {
   workarea: WorkareaState;
   messageBlotter: MessageBlotterState;
-  run: RunState;
+  run: {[key: string]: RunState};
   settings: SettingsState;
   [key: string]: any;
 }

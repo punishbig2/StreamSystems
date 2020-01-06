@@ -6,10 +6,11 @@ import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
 import {EditHistory, RunState} from 'redux/stateDefs/runState';
+import {$$} from 'utils/stringPaster';
 
 type Calculator = (v1: number | null, v2: number | null) => number | null;
 
-const initialState: RunState = {
+const genesisState: RunState = {
   orders: {},
   history: {},
   defaultBidSize: 10,
@@ -276,36 +277,42 @@ const deriveEditHistory = (table: TOBTable): { [key: string]: RunActions[] } => 
   }, {});
 };
 
-export default (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
-  switch (type) {
-    case RunActions.RemoveOrder:
-      return removeOrder(state, data);
-    case RunActions.UpdateDefaultBidQty:
-      return {...state, defaultBidSize: data};
-    case RunActions.UpdateDefaultOfrQty:
-      return {...state, defaultOfrSize: data};
-    case RunActions.UpdateBid:
-      return updateOrder(state, data, 'bid');
-    case RunActions.UpdateOfr:
-      return updateOrder(state, data, 'ofr');
-    case RunActions.SetTable:
-      return {...state, orders: data, history: deriveEditHistory(data), initialized: true};
-    case RunActions.OfrQtyChanged:
-      return updateQty(state, data, 'ofr');
-    case RunActions.BidQtyChanged:
-      return updateQty(state, data, 'bid');
-    case RunActions.RemoveAllBids:
-      console.log('removing all');
-      return removeAll(state, 'bid');
-    case RunActions.RemoveAllOfrs:
-      return removeAll(state, 'ofr');
-    case RunActions.Bid:
-    case RunActions.Ofr:
-    case RunActions.Mid:
-    case RunActions.Spread:
-      return valueChangeReducer(state, {type, data});
-    default:
-      return state;
-  }
+export default (id: string, initialState: RunState = genesisState) => {
+  return (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
+    switch (type) {
+      case $$(id, RunActions.RemoveOrder):
+        return removeOrder(state, data);
+      case $$(id, RunActions.UpdateDefaultBidQty):
+        return {...state, defaultBidSize: data};
+      case $$(id, RunActions.UpdateDefaultOfrQty):
+        return {...state, defaultOfrSize: data};
+      case $$(id, RunActions.UpdateBid):
+        return updateOrder(state, data, 'bid');
+      case $$(id, RunActions.UpdateOfr):
+        return updateOrder(state, data, 'ofr');
+      case $$(id, RunActions.SetTable):
+        return {...state, orders: data, history: deriveEditHistory(data), initialized: true};
+      case $$(id, RunActions.OfrQtyChanged):
+        return updateQty(state, data, 'ofr');
+      case $$(id, RunActions.BidQtyChanged):
+        return updateQty(state, data, 'bid');
+      case $$(id, RunActions.RemoveAllBids):
+        console.log('removing all');
+        return removeAll(state, 'bid');
+      case $$(id, RunActions.RemoveAllOfrs):
+        console.log('removing all');
+        return removeAll(state, 'ofr');
+      case $$(id, RunActions.Bid):
+        return valueChangeReducer(state, {type: RunActions.Bid, data});
+      case $$(id, RunActions.Ofr):
+        return valueChangeReducer(state, {type: RunActions.Ofr, data});
+      case $$(id, RunActions.Mid):
+        return valueChangeReducer(state, {type: RunActions.Mid, data});
+      case $$(id, RunActions.Spread):
+        return valueChangeReducer(state, {type: RunActions.Spread, data});
+      default:
+        return state;
+    }
+  };
 };
 

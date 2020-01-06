@@ -1,29 +1,26 @@
 import createColumns from 'columns/run';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {useDeleteAllListener} from 'components/Run/hooks/useDeleteAllListener';
 import {useInitializer} from 'components/Run/hooks/useInitializer';
 import {useOrderListener} from 'components/Run/hooks/userOrderListener';
-import {RunActions} from 'redux/reducers/runReducer';
+import reducer, {RunActions} from 'redux/reducers/runReducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import strings from 'locales';
-import React, {ReactElement, useCallback} from 'react';
+import React, {ReactElement, useEffect} from 'react';
 import {toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
-import {MapStateToProps, connect} from 'react-redux';
+import {connect} from 'react-redux';
 import {ApplicationState} from 'redux/applicationState';
 import {RunState} from 'redux/stateDefs/runState';
 import {
   updateOfr,
   updateBid,
-  removeAllOfrs,
-  removeAllBids,
   removeOrder,
   setTable,
   setOfrPrice,
@@ -36,6 +33,9 @@ import {
   setOfrDefaultQty,
 } from 'redux/actions/runActions';
 import {Action} from 'redux/action';
+import {dynamicStateMapper} from 'redux/dynamicStateMapper';
+import {injectNamedReducer, removeNamedReducer} from 'redux/store';
+import {Dispatch} from 'redux';
 
 interface OwnProps {
   id: string;
@@ -49,9 +49,7 @@ interface OwnProps {
 
 interface DispatchProps {
   updateOfr: (value: any) => Action<RunActions>;
-  removeAllOfrs: () => Action<RunActions>;
   updateBid: (value: any) => Action<RunActions>;
-  removeAllBids: () => Action<RunActions>;
   removeOrder: (id: string) => Action<RunActions>;
   setTable: (order: TOBTable) => Action<RunActions>;
   setBidPrice: (id: string, value: number | null) => Action<RunActions>;
@@ -64,30 +62,39 @@ interface DispatchProps {
   setOfrDefaultQty: (value: number) => Action<RunActions>;
 }
 
-const mapStateToProps: MapStateToProps<RunState, OwnProps, ApplicationState> = ({run}: ApplicationState) => run;
-const mapDispatchToProps = ({
-  updateOfr,
-  removeAllOfrs,
-  updateBid,
-  removeAllBids,
-  removeOrder,
-  setTable,
-  setOfrPrice,
-  setBidPrice,
-  setMid,
-  setSpread,
-  setBidQty,
-  setOfrQty,
-  setBidDefaultQty,
-  setOfrDefaultQty,
-});
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
+  const actions: { [key: string]: any } = {
+    updateOfr: updateOfr(id),
+    updateBid: updateBid(id),
+    removeOrder: removeOrder(id),
+    setTable: setTable(id),
+    setOfrPrice: setOfrPrice(id),
+    setBidPrice: setBidPrice(id),
+    setMid: setMid(id),
+    setSpread: setSpread(id),
+    setBidQty: setBidQty(id),
+    setOfrQty: setOfrQty(id),
+    setBidDefaultQty: setBidDefaultQty(id),
+    setOfrDefaultQty: setOfrDefaultQty(id),
+  };
+  const entries: [string, any][] = Object.entries(actions);
+  return entries.reduce((obj, [name, value]) => {
+    return {
+      ...obj,
+      [name]: (...args: any[]) => dispatch(value(...args)),
+    };
+  }, {}) as DispatchProps;
+};
 
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
+const withRedux = connect(
+  dynamicStateMapper<RunState, OwnProps, ApplicationState>(),
+  mapDispatchToProps,
+);
 
 type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
-  const {symbol, strategy, tenors} = props;
+  const {symbol, strategy, tenors, id} = props;
   const {email} = getAuthenticatedUser();
   const setTable = (orders: TOBTable) => props.setTable(orders);
   // Updates a single side of the depth
@@ -107,13 +114,16 @@ const Run: React.FC<Props> = (props: Props) => {
     }
   };
 
+  useEffect(() => {
+    injectNamedReducer(id, reducer);
+    return () => {
+      removeNamedReducer(id);
+    };
+  }, [id]);
+
   const onDelete = (id: string) => props.removeOrder(id);
-  const onDeleteOfrs = useCallback(() => props.removeAllOfrs, [props.removeAllOfrs]);
-  const onDeleteBids = useCallback(() => props.removeAllBids, [props.removeAllBids]);
 
   useOrderListener(tenors, symbol, strategy, {onUpdate, onDelete});
-  useDeleteAllListener(symbol, strategy, Sides.Sell, onDeleteOfrs);
-  useDeleteAllListener(symbol, strategy, Sides.Buy, onDeleteBids);
   useInitializer(tenors, symbol, strategy, email, setTable);
 
   const getSelectedOrders = (): Order[] => {
@@ -130,8 +140,10 @@ const Run: React.FC<Props> = (props: Props) => {
         return bid.price < ofr.price;
       });
     const ownOrDefaultQty = (order: Order, defaultSize: number | null): number => {
-      if (((order.status & OrderStatus.QuantityEdited) !== 0 || (order.status & OrderStatus.PreFilled) !== 0) &&
-        ((order.status & OrderStatus.Cancelled) === 0))
+      const quantityEdited = (order.status & OrderStatus.QuantityEdited) !== 0;
+      const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
+      // const cancelled = (order.status & OrderStatus.Cancelled) !== 0;
+      if (quantityEdited || preFilled)
         return order.quantity as number; // It can never be null, no way
       return defaultSize as number;
     };

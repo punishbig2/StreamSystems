@@ -30,7 +30,6 @@ import {WorkareaActions} from 'redux/constants/workareaConstants';
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
 import settingsReducer from 'redux/reducers/settingsReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
-import runReducer from 'redux/reducers/runReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
@@ -54,7 +53,6 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationStat
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
     settings: settingsReducer,
-    run: runReducer,
     // Dynamically generated reducers
     ...dynamicReducers,
   });
