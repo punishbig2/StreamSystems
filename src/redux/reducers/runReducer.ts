@@ -216,6 +216,8 @@ const updateOrder = (state: RunState, data: { id: string, order: Order }, key: '
   const {orders} = state;
   const {order} = data;
   const row: TOBRow = orders[data.id];
+  if (row === undefined)
+    return state;
   if ((row[key].status & OrderStatus.Active) !== 0 && (order.status & OrderStatus.Cancelled) !== 0)
     return state;
   if (!isValidUpdate(key === 'bid' ? order : row.bid, key === 'ofr' ? order : row.ofr))
