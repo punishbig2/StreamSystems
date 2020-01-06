@@ -7,9 +7,8 @@ import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
-import {RowActions} from 'redux/constants/rowConstants';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
-import {createRowReducer} from 'redux/reducers/rowReducer';
+import {createRowReducer, RowActions} from 'redux/reducers/rowReducer';
 import {RowState} from 'redux/stateDefs/rowState';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {percentage} from 'utils';
@@ -25,12 +24,13 @@ interface OwnProps {
   [key: string]: any;
 }
 
+//setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
+//setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
+
 const cache: { [key: string]: RowFunctions } = {};
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): RowFunctions => {
   if (!cache[id]) {
     cache[id] = {
-      setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
-      setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
       resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus))),
     };
   }
@@ -71,8 +71,8 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     }
   }, [onError, resetStatus, row, status]);
   const functions: RowFunctions = {
-    setOfrQty: props.setOfrQty,
-    setBidQty: props.setBidQty,
+    /*setOfrQty: props.setOfrQty,
+    setBidQty: props.setBidQty,*/
     resetStatus: props.resetStatus,
   };
   const classes: string[] = ['tr'];

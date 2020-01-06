@@ -22,7 +22,6 @@ import {ApplicationState} from 'redux/applicationState';
 // Special action types
 import {AsyncAction} from 'redux/asyncAction';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
-import {RowActions} from 'redux/constants/rowConstants';
 // Action enumerators
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
@@ -45,6 +44,7 @@ import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {manualToRowID, toRunId} from 'utils';
 import {RunActions} from 'redux/reducers/runReducer';
+import {RowActions} from 'redux/reducers/rowReducer';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 

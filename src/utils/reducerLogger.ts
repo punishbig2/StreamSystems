@@ -1,5 +1,5 @@
 import {Action} from 'redux/action';
-import {RowActions} from 'redux/constants/rowConstants';
+import {RowActions} from 'redux/reducers/rowReducer';
 
 type R<S> = (state: S, {type, data}: Action<RowActions>) => S;
 export const logReducer = <S>(reduce: R<S>, initialState: any) => {

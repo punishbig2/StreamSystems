@@ -1,7 +1,7 @@
 import {getMiniDOBByType} from 'columns/tobMiniDOB';
 import {Price, PriceErrors} from 'components/Table/CellRenderers/Price';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {TOBTable} from 'interfaces/tobTable';
 import React from 'react';
 
@@ -25,7 +25,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
   };
   const onError = (error: PriceErrors, input: HTMLInputElement) => props.onError(order, error, input);
   const onChange = (price: number | null, changed: boolean) => {
-    if (!changed)
+    if (!changed && (order.status & OrderStatus.QuantityEdited) === 0)
       return;
     props.onChange({...order, price});
   };

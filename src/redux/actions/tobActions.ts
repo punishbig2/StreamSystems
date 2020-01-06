@@ -9,7 +9,6 @@ import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
-import {RowActions} from 'redux/constants/rowConstants';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
 import {getSideFromType, toRowID, toRunId} from 'utils';
@@ -20,6 +19,7 @@ import {DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
 import {TOBActions} from 'redux/reducers/tobReducer';
 import {RunActions} from 'redux/reducers/runReducer';
+import {RowActions} from 'redux/reducers/rowReducer';
 
 type ActionType = Action<TOBActions>;
 

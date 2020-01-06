@@ -18,7 +18,6 @@ import React from 'react';
 
 type RowType = TOBRow & { handlers: TOBColumnData, depths: { [key: string]: TOBTable } } & RowFunctions;
 type Type = 'bid' | 'ofr';
-type SetQty = 'setBidQty' | 'setOfrQty';
 
 const getDepthStatus = (values: Order[]): OrderStatus => {
   const filtered: Order[] = values.filter((order: Order) => order.price !== null && order.quantity !== null);
@@ -66,22 +65,31 @@ const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order,
   }
 };
 
-const QtyColumn = (label: string, type: Type, data: TOBColumnData, onChangeKey: SetQty, depth: boolean, action?: HeaderAction): ColumnSpec => {
+const QtyColumn = (label: string, type: Type, data: TOBColumnData, depth: boolean, action?: HeaderAction): ColumnSpec => {
   return {
     name: `${type}-sz`,
     header: () => <DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>,
-    render: ({[type]: originalEntry, depths, [onChangeKey]: onChange}: RowType) => {
-      // Replace the actually quantity with the aggregated quantity if present
-      const order: Order = {...originalEntry, quantity: getAggregatedSize(data.aggregatedSz, originalEntry, type)};
+    render: ({[type]: originalOrder, depths}: RowType) => {
+      const quantity = depth ? originalOrder.quantity : getAggregatedSize(data.aggregatedSz, originalOrder, type);
+      const order: Order = {...originalOrder, quantity};
       const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type) | order.status;
-      // Return the input item (which in turn also has a X for cancellation)
-      return (
-        <TOBQty order={{...order, status: status}}
-                isDepth={depth}
-                onCancel={data.onCancelOrder}
-                onChange={onChange}
-                onSubmit={data.onQuantityChange}/>
-      );
+      if (order.status !== status) {
+        return (
+          <TOBQty order={{...order, status: status}}
+                  isDepth={depth}
+                  value={order.quantity}
+                  onCancel={data.onCancelOrder}
+                  onSubmit={data.onQuantityChange}/>
+        );
+      } else {
+        return (
+          <TOBQty order={order}
+                  isDepth={depth}
+                  value={order.quantity}
+                  onCancel={data.onCancelOrder}
+                  onSubmit={data.onQuantityChange}/>
+        );
+      }
     },
     template: '999999',
     weight: 5,
@@ -170,7 +178,7 @@ const FirmColumn = (data: TOBColumnData, type: 'ofr' | 'bid'): ColumnSpec => ({
 
 const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(data),
-  QtyColumn(strings.BidSz, 'bid', data, 'setBidQty', depth),
+  QtyColumn(strings.BidSz, 'bid', data, depth),
   ...(data.isBroker ? [FirmColumn(data, 'bid')] : []),
   VolColumn(data, strings.BidPx, 'bid', !depth ? {
     fn: data.onRefBidsButtonClicked,
@@ -182,7 +190,7 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
     label: strings.RefOfrs,
   } : undefined),
   ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
-  QtyColumn(strings.OfrSz, 'ofr', data, 'setOfrQty', depth),
+  QtyColumn(strings.OfrSz, 'ofr', data, depth),
 ];
 
 export default columns;

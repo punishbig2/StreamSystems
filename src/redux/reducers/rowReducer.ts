@@ -2,7 +2,6 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {Action} from 'redux/action';
-import {RowActions} from 'redux/constants/rowConstants';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
@@ -21,11 +20,10 @@ const canBeCancelled = (order: Order) => (order.status & OrderStatus.PreFilled) 
   && ((order.status & OrderStatus.Owned) !== 0 || (order.status & OrderStatus.SameBank) !== 0);
 
 const getRowStatusFromOrderError = (reason: OrderErrors, status: TOBRowStatus) => {
-  switch (reason) {
-    case OrderErrors.NegativePrice:
-      return TOBRowStatus.NegativePrice;
-    default:
-      return status;
+  if (reason === OrderErrors.NegativePrice) {
+    return TOBRowStatus.NegativePrice;
+  } else {
+    return status;
   }
 };
 
@@ -36,6 +34,34 @@ const onOrderCreated = (state: RowState, {order}: any) => {
   } else {
     return {...state, row: {...row, ofr: {...order}}};
   }
+};
+
+export enum RowActions {
+  Update = 'RowActions.Update',
+  Remove = 'RowActions.Remove',
+  SetOfferPrice = 'RowActions.SetOfferPrice',
+  SetBidPrice = 'RowActions.SetBidPrice',
+  SetRowStatus = 'RowActions.SetRowStatus',
+  UpdateOfr = 'RowActions.UpdateOfr',
+  UpdateBid = 'RowActions.UpdateBid',
+  CreatingOrder = 'RowActions.CreatingOrder',
+  OrderCreated = 'RowActions.OrderCreated',
+  OrderNotCreated = 'RowActions.OrderNotCreated',
+  CancellingOrder = 'RowActions.CancellingOrder',
+  OrderCanceled = 'RowActions.OrderCanceled',
+  OrderNotCanceled = 'RowActions.OrderNotCanceled',
+  SnapshotReceived = 'RowActions.SnapshotReceived',
+  GettingSnapshot = 'RowActions.GettingSnapshot',
+  ErrorGettingSnapshot = 'RowActions.ErrorGettingSnapshot',
+  Executed = 'RowActions.Executed',
+  ResetStatus = 'RowActions.ResetStatus',
+  UpdateDarkPrice = 'RowActions.UpdateDarkPrice',
+}
+
+const getStatus = (o1: Order, o2: Order): OrderStatus => {
+  return o1.status
+    | (o2.quantity !== o1.quantity ? OrderStatus.QuantityEdited : 0)
+    | (o2.price !== o1.price ? OrderStatus.PriceEdited : 0);
 };
 
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
@@ -101,11 +127,11 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.UpdateOfr):
         if (!isModified(ofr, data))
           return state;
-        return {...state, row: {...row, ofr: data}};
+        return {...state, row: {...row, ofr: {...data, status: getStatus(ofr, data)}}};
       case $$(id, RowActions.UpdateBid):
         if (!isModified(bid, data))
           return state;
-        return {...state, row: {...row, bid: data}};
+        return {...state, row: {...row, bid: {...data, status: getStatus(bid, data)}}};
       case $$(id, RowActions.Update):
         // WARNING: preserving status across updates can be a problem but it seems
         //          that after it's set the first time it should remain as is unless
@@ -115,14 +141,10 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         if (bid.price > data)
           return state;
         return {...state, row: {...row, ofr: {...ofr, price: data}}};
-      case $$(id, RowActions.SetOfferQuantity):
-        return {...state, row: {...row, ofr: {...ofr, quantity: data}}};
       case $$(id, RowActions.SetBidPrice):
         if (ofr.price < data)
           return state;
         return {...state, row: {...row, bid: {...bid, price: data}}};
-      case $$(id, RowActions.SetBidQuantity):
-        return {...state, row: {...row, bid: {...bid, quantity: data}}};
       case $$(id, RowActions.SetRowStatus):
         return {...state, row: {...row, status: data}};
       case TOBActions.CancelAllOrders:

@@ -88,7 +88,8 @@ export const createColumnData = (
       }
     },
     onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
-      if ((order.status & OrderStatus.PreFilled) === 0) {
+      fns.updateOrderQuantity({...order, quantity: newQuantity});
+      /*if ((order.status & OrderStatus.PreFilled) === 0) {
         fns.updateOrderQuantity({...order, quantity: newQuantity});
       } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {
         if (order.quantity === null) {
@@ -110,7 +111,7 @@ export const createColumnData = (
         event.initEvent('change', false, true);
         // Attempt to pretend we can emit the onChange
         input.dispatchEvent(event);
-      }
+      }*/
       skipTabIndex(input, 1, 0);
     },
     onDarkPoolDoubleClicked: () => {

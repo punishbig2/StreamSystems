@@ -5,12 +5,12 @@ import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
 import {Action} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {RowActions} from 'redux/constants/rowConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 import {TOBActions} from 'redux/reducers/tobReducer';
+import {RowActions} from 'redux/reducers/rowReducer';
 
 export const emitUpdateOrderEvent = (order: Order) => {
   const type: string = $$(order.uid(), TOBActions.UpdateOrder);

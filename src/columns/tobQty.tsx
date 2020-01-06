@@ -10,7 +10,7 @@ interface Props {
   isDepth: boolean;
   onCancel: (order: Order, cancelRelated: boolean) => void;
   onSubmit: (order: Order, newQuantity: number | null, input: HTMLInputElement) => void;
-  onChange: (value: number) => void;
+  value: number | null;
 }
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
@@ -18,8 +18,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   const {order} = props;
   const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
-    setValue(order.quantity);
-  }, [order]);
+    setValue(props.value);
+  }, [props.value]);
 
   const onTabbedOut = (input: HTMLInputElement) => {
     if (value === 0) {
