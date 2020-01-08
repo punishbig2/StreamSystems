@@ -40,6 +40,8 @@ const propagateDepth = (w: W) => {
   document.dispatchEvent(event);
 };
 
+// FIXME: we probably don't need the complexities of redux for these
+//        things
 export const handlers = {
   W: <A extends Action>(w: W): A => {
     const {Tenor, Symbol, Strategy} = w;
@@ -51,13 +53,6 @@ export const handlers = {
       // Dispatch the action now
       return createAction(type, toTOBRow(w));
     } else {
-      try {
-      } catch (exception) {
-        console.log(exception);
-      }
-      // WTF?
-      // FIXME: we probably don't need the complexities of redux for these
-      //        things
       if (!w.Entries) {
         const fixed: W = {
           ...w, Entries: [],
@@ -69,9 +64,8 @@ export const handlers = {
           propagateDepth(fixed);
           // Emit this action because there's no other W message in this case so this
           // is equivalent to the case where `W[9712] === TOB'
-          return createAction(type, toTOBRow(fixed));
+          return createAction(WorkareaActions.NoAction);
         } catch (exception) {
-          console.log(exception);
           return createAction(WorkareaActions.NoAction);
         }
       } else {
