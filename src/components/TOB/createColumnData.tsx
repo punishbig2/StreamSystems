@@ -64,6 +64,16 @@ export const createColumnData = (
       } else if (order.price !== null) {
         if ((order.status & OrderStatus.Owned) !== 0)
           fns.cancelOrder(order);
+        else if ((order.status & OrderStatus.HaveOrders) !== 0) {
+          const {depths} = state;
+          const mine: Order | undefined = Object.values(depths[order.tenor])
+            .map((row: TOBRow) => order.type === OrderTypes.Bid ? row.bid : row.ofr)
+            .find((item: Order) => item.user === user.email)
+          ;
+          if (mine) {
+            fns.cancelOrder(mine);
+          }
+        }
         if (order.quantity === null) {
           fns.createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
         } else {
@@ -89,29 +99,6 @@ export const createColumnData = (
     },
     onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
       fns.updateOrderQuantity({...order, quantity: newQuantity});
-      /*if ((order.status & OrderStatus.PreFilled) === 0) {
-        fns.updateOrderQuantity({...order, quantity: newQuantity});
-      } else if ((order.status & OrderStatus.Owned) !== 0 && newQuantity !== null) {
-        if (order.quantity === null) {
-          // FIXME: perhaps let the user know?
-          throw new Error('this is impossible, or a backend error');
-        } else if (order.quantity > newQuantity) {
-          fns.updateOrder({...order, quantity: newQuantity});
-        } else if (order.quantity < newQuantity) {
-          fns.cancelOrder(order);
-          fns.createOrder({...order, quantity: newQuantity}, settings.minSize);
-        }
-      } else {
-        const {quantity} = order;
-        // FIXME: we must reset the order quantity but this seems unsafe
-        //        because it's happening outside of react
-        input.value = quantity ? quantity.toFixed(0) : '';
-        // Artificially emit the change event
-        const event = document.createEvent('HTMLEvents');
-        event.initEvent('change', false, true);
-        // Attempt to pretend we can emit the onChange
-        input.dispatchEvent(event);
-      }*/
       skipTabIndex(input, 1, 0);
     },
     onDarkPoolDoubleClicked: () => {
