@@ -138,17 +138,25 @@ const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
       <div>Pool</div>
     </div>
   ),
-  render: (row: RowType) => (
-    <Price
-      arrow={ArrowDirection.None}
-      priceType={PriceTypes.DarkPool}
-      onDoubleClick={data.onDarkPoolDoubleClicked}
-      onChange={(value: number | null) => value ? data.onDarkPoolPriceChanged(row.tenor, Number(value)) : undefined}
-      onTabbedOut={(input: HTMLInputElement) => data.onTabbedOut(input, OrderTypes.DarkPool)}
-      value={row.darkPrice}
-      readOnly={!data.isBroker}
-      status={OrderStatus.None}/>
-  ),
+  render: (row: RowType) => {
+    const onDoubleClicked = !data.isBroker ? () => data.onDarkPoolDoubleClicked(row.tenor, row.darkPrice) : undefined;
+    const onChange = (value: number | null) => {
+      if (!data.isBroker)
+        return undefined;
+      return value ? data.onDarkPoolPriceChanged(row.tenor, Number(value)) : undefined;
+    };
+    return (
+      <Price
+        arrow={ArrowDirection.None}
+        priceType={PriceTypes.DarkPool}
+        onDoubleClick={onDoubleClicked}
+        onChange={onChange}
+        onTabbedOut={(input: HTMLInputElement) => data.onTabbedOut(input, OrderTypes.DarkPool)}
+        value={row.darkPrice}
+        readOnly={!data.isBroker}
+        status={OrderStatus.None}/>
+    );
+  },
   template: '999999.99',
   weight: 5,
 });

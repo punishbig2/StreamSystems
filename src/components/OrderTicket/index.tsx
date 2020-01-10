@@ -2,6 +2,7 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';
+import {PresetQtyButton} from 'components/presetQtyButton';
 
 interface Props {
   order: Order;
@@ -43,9 +44,6 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   };
   const canSubmit: boolean = price !== null && quantity !== null;
   const presetQty: string[] = ['30', '50', '100'];
-  const presetQtyButtonMapper = (value: string) => (
-    <button key={value} type={'button'} onClick={() => setQuantity(value)}>{value}</button>
-  );
   return (
     <div>
       <div className={'modal-title'}>
@@ -60,20 +58,20 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Side</span></div>
-            <div className={'value'}><span>{order.type === OrderTypes.Bid ? 'Buy' : 'Sell'}</span></div>
+            <div className={'internalValue'}><span>{order.type === OrderTypes.Bid ? 'Buy' : 'Sell'}</span></div>
           </div>
           <div className={'row'}>
-            <div className={'label'}><span>Vol.</span></div>
-            <div className={'value'}><input value={price} onChange={updatePrice}/></div>
+            <div className={'label'}><span>Vol</span></div>
+            <div className={'internalValue'}><input value={price} onChange={updatePrice}/></div>
           </div>
           <div className={'row'}>
-            <div className={'label'}><span>Qty.</span></div>
-            <div className={'value'}>
+            <div className={'label'}><span>Qty</span></div>
+            <div className={'internalValue'}>
               <div className={'editor'}>
                 <input value={quantity} onChange={updateQuantity} autoFocus={true} ref={setInput}/>
               </div>
               <div className={'buttons'}>
-                {presetQty.map(presetQtyButtonMapper)}
+                {presetQty.map((value: string) => <PresetQtyButton key={value} value={value} setValue={setQuantity}/>)}
               </div>
             </div>
           </div>

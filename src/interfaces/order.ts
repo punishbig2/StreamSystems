@@ -17,6 +17,11 @@ export interface CreateOrder {
   Side: Sides,
   Quantity: string,
   Price: string,
+  MDMkt?: string;
+}
+
+export type DarkPoolOrder = CreateOrder & {
+  ExecInst?: string;
 }
 
 export enum OrderErrors {
@@ -52,20 +57,6 @@ export enum OrderStatus {
   BeingLoaded = 1 << 13,
 }
 
-export interface IOrder {
-  orderId?: string;
-  tenor: string;
-  strategy: string,
-  symbol: string;
-  price: number | null;
-  quantity: number | null;
-  user: string;
-  firm?: string;
-  type: OrderTypes;
-  arrowDirection: ArrowDirection;
-  status: OrderStatus;
-}
-
 export interface OrderMessage {
   OrderID: string;
   Price: string;
@@ -96,7 +87,7 @@ const normalizeTickDirection = (source: string | undefined): ArrowDirection => {
   }
 };
 
-export class Order implements IOrder {
+export class Order {
   public arrowDirection: ArrowDirection;
   public firm: string | undefined;
   public orderId: string | undefined;
@@ -108,6 +99,7 @@ export class Order implements IOrder {
   public tenor: string;
   public type: OrderTypes;
   public user: string;
+  public timestamp: string = (Date.now()).toString();
 
   constructor(tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: OrderTypes) {
     this.type = type;

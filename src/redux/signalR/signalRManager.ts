@@ -83,9 +83,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
       const fn: (message: Message) => void = this.onUpdateMessageBlotterListener;
-      setTimeout(() => {
-        fn(data);
-      }, 0);
+      fn(data);
     }
   };
 

@@ -1,5 +1,5 @@
 .order-ticket {
-  min-width: 300px;
+  min-width: 400px;
   .title-chain {
     border-bottom: 1px solid $table-border-color;
     padding: 2px 8px;
@@ -57,14 +57,32 @@
         }
       }
 
+      .MuiInput-root {
+        width: 100%;
+        display: block;
+        .MuiSelect-root {
+          padding: 0 10px;
+          line-height: 3;
+          font-size: 14px;
+          .invalid {
+            opacity: 0.5;
+          }
+        }
+      }
+
       .buttons {
+        display: flex;
         margin: -1px 0 0 0;
         button {
-          display: inline-block;
-          vertical-align: top;
+          flex: 1;
+          padding: 0;
           line-height: 1.75;
-          width: 33%;
           border: 1px solid darken($table-border-color, 5%);
+          border-left-color: transparent;
+          border-top-color: transparent;
+          &:first-child {
+            border-left-color: darken($table-border-color, 5%);
+          }
           background: linear-gradient(
                           to bottom,
                           lighten($table-border-color, 8%),
@@ -76,8 +94,6 @@
           }
           &:nth-child(2) {
             width: 34%;
-            border-left: none;
-            border-right: none;
           }
           &:first-child {
             border-bottom-left-radius: 3px;

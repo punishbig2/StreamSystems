@@ -21,7 +21,7 @@ export class AsyncAction<T, A extends Action = Action<any>> implements Action<T>
       const final: A | A[] = await this.handler(dispatch);
       if (final instanceof Array) {
         final.forEach(dispatch);
-      } else {
+      } else if (final !== null) {
         dispatch(final);
       }
     } catch (error) {

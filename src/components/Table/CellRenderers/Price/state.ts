@@ -7,5 +7,5 @@ export interface State {
   startedShowingTooltip: boolean;
   visible: boolean;
   status: OrderStatus;
-  value: string;
+  internalValue: string;
 }

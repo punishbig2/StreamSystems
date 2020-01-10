@@ -17,5 +17,5 @@ export interface TOBColumnData {
   buttonsEnabled: boolean;
   isBroker: boolean;
   onDarkPoolPriceChanged: (tenor: string, price: number) => void;
-  onDarkPoolDoubleClicked: () => void;
+  onDarkPoolDoubleClicked: (tenor: string, price: number | null) => void;
 }

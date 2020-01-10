@@ -1,7 +1,7 @@
 import config from 'config';
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
-import {CreateOrder, Order, Sides, UpdateOrder} from 'interfaces/order';
+import {CreateOrder, Order, Sides, UpdateOrder, DarkPoolOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
@@ -147,20 +147,22 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(entry: Order): Promise<OrderResponse> {
+  static async createOrder(order: Order, minQty: number): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
-    if (entry.price === null || entry.quantity === null)
+    if (order.price === null || order.quantity === null)
       throw new Error('price and quantity MUST be specified');
-    const {price, quantity} = entry;
+    if (order.quantity < minQty)
+      order.quantity = minQty;
+    const {price, quantity} = order;
     // Build a create order request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
       User: currentUser.email,
-      Symbol: entry.symbol,
-      Strategy: entry.strategy,
-      Tenor: entry.tenor,
-      Side: getSideFromType(entry.type),
+      Symbol: order.symbol,
+      Strategy: order.strategy,
+      Tenor: order.tenor,
+      Side: getSideFromType(order.type),
       Quantity: quantity.toString(),
       Price: price.toString(),
     };
@@ -266,7 +268,7 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'markets', 'get'));
   }
 
-  static async createDarkPoolOrder(request: any): Promise<any> {
+  static async createDarkPoolOrder(request: DarkPoolOrder): Promise<any> {
     return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'create'), request);
   }
 

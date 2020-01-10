@@ -1,6 +1,6 @@
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderErrors, OrderMessage, Sides, OrderStatus} from 'interfaces/order';
+import {Order, OrderErrors, OrderMessage, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
@@ -58,7 +58,7 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: if the 'Status' is failure we should show an error
-    //        but currently the value is misleading
+    //        but currently the internalValue is misleading
     if (result.Status === 'Success' || result.Status === 'Failure') {
       const runID: string =  toRunId(symbol, strategy);
       // Emit the event
@@ -106,12 +106,20 @@ export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Ac
   return createAction($$(toRowID(order), RowActions.SetRowStatus), status);
 };
 
+export const createDarkPoolOrder = (order: DarkPoolOrder): AsyncAction<any, ActionType> => {
+  return new AsyncAction<any, ActionType>(async () => {
+    console.log(order);
+    const result: any = await API.createDarkPoolOrder(order);
+    console.log(result);
+    return DummyAction;
+  }, DummyAction);
+};
+
 export const createOrder = (id: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction($$(rowID, RowActions.CreatingOrder), order.type);
   const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
-    const result: OrderResponse = await API.createOrder(order);
-    // FIXME: parse the result
+    const result: OrderResponse = await API.createOrder(order, minQty);
     if (result.Status === 'Success') {
       return createAction($$(rowID, RowActions.OrderCreated), {
         order: {
@@ -136,9 +144,7 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
     const tob: W | null = await API.getDarkPoolTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getDarkPoolSnapshot(symbol, strategy, tenor);
     if (tob !== null && w !== null) {
-      console.log(w);
-      console.log(tob);
-      // Dispatch the "standardized" action + another action to capture the value and
+      // Dispatch the "standardized" action + another action to capture the internalValue and
       // update some internal data
       return [];
     } else {
@@ -153,9 +159,11 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
     if (tob !== null && w !== null) {
+      const tobAction = handlers.W(tob);
+      const wAction = handlers.W(w);
       return [
-        handlers.W(tob),
-        handlers.W(w),
+        ...(tobAction ? [tobAction] : []),
+        ...(wAction ? [wAction] : []),
         createAction($$(rowID, RowActions.SnapshotReceived), tob),
       ];
     } else {
@@ -189,3 +197,4 @@ export const setSymbol = (tileID: string, symbol: string) => {
     return createAction($$(tileID, TOBActions.SetSymbol), symbol);
   }, DummyAction);
 };
+

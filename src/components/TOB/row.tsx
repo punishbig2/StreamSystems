@@ -24,9 +24,6 @@ interface OwnProps {
   [key: string]: any;
 }
 
-//setOfrQty: (value: number) => dispatch(createAction($$(id, RowActions.SetOfferQuantity), value)),
-//setBidQty: (value: number) => dispatch(createAction($$(id, RowActions.SetBidQuantity), value)),
-
 const cache: { [key: string]: RowFunctions } = {};
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): RowFunctions => {
   if (!cache[id]) {
@@ -45,7 +42,6 @@ const withRedux: (ignored: any) => any = connect<RowState, RowFunctions, OwnProp
 const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
   const {id, columns, row, onError, displayOnly, resetStatus, ...extra} = props;
   const {status} = row;
-  // Compute the total weight of the columns
   useEffect(() => {
     if (displayOnly)
       return;
@@ -53,8 +49,7 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     return () => {
       removeNamedReducer(id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, displayOnly]);
+  }, [id, row, displayOnly]);
   useEffect(() => {
     if (status === TOBRowStatus.Normal) {
       return;
@@ -71,8 +66,6 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     }
   }, [onError, resetStatus, row, status]);
   const functions: RowFunctions = {
-    /*setOfrQty: props.setOfrQty,
-    setBidQty: props.setBidQty,*/
     resetStatus: props.resetStatus,
   };
   const classes: string[] = ['tr'];

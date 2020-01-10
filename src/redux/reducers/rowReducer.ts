@@ -27,14 +27,20 @@ const getRowStatusFromOrderError = (reason: OrderErrors, status: TOBRowStatus) =
   }
 };
 
-const onOrderCreated = (state: RowState, {order}: any) => {
+/*const onOrderCreated = (state: RowState, {order}: any) => {
   const {row} = state;
   if (order.type === OrderTypes.Bid) {
+    const {bid} = row;
+    if (bid.price > order.price)
+      return state;
     return {...state, row: {...row, bid: {...order}}};
   } else {
+    const {ofr} = row;
+    if (ofr.price < order.price)
+      return state;
     return {...state, row: {...row, ofr: {...order}}};
   }
-};
+};*/
 
 export enum RowActions {
   Update = 'RowActions.Update',
@@ -100,7 +106,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
       case $$(id, RowActions.OrderNotCanceled):
         return state;
       case $$(id, RowActions.OrderCreated):
-        return onOrderCreated(state, data);
+        return state; // onOrderCreated(state, data);
       case $$(id, RowActions.OrderNotCreated):
         const {order, reason} = data;
         if (order.type === OrderTypes.Bid) {

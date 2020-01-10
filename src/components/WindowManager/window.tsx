@@ -70,7 +70,7 @@ const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
   const contentStyle: any = windowContent ? windowContent.style : {};
   if (windowContent)
     contentStyle.minHeight = 'auto';
-  // Let's force scrollWidth and scrollHeight to have the minimal value
+  // Let's force scrollWidth and scrollHeight to have the minimal internalValue
   style.width = '1px';
   style.height = '1px';
   // Update the element with the minimal size possible

@@ -31,9 +31,11 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
   };
   return (
     <Price
+      uid={`${order.uid()}${order.type}`}
       depth={getMiniDOBByType(props.depths, order.tenor, order.type)}
       arrow={order.arrowDirection}
       value={order.price}
+      timestamp={order.timestamp}
       status={order.status}
       type={order.type}
       min={props.min}

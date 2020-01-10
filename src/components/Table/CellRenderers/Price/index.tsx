@@ -6,7 +6,6 @@ import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher'
 import {useStatusUpdater} from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
 import {useTooltip} from 'components/Table/CellRenderers/Price/hooks/useTooltop';
 import {useValueComparator} from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
-import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
@@ -19,6 +18,7 @@ import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {priceFormatter} from 'utils/priceFormatter';
+import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -44,10 +44,17 @@ export interface Props {
   onError?: (error: PriceErrors, input: HTMLInputElement) => void;
   animated?: boolean;
   readOnly?: boolean;
+  uid?: string;
+  timestamp?: string;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
-  const {depth} = props;
+  const {depth, timestamp, value} = props;
+  if (value === undefined) {
+    console.trace('exception');
+    throw new Error('value is not optional');
+  }
+
   const [state, dispatch] = useReducer<typeof reducer>(reducer, {
     tooltipX: 0,
     tooltipY: 0,
@@ -55,7 +62,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     visible: false,
     flash: false,
     status: props.status || OrderStatus.None,
-    value: priceFormatter(props.value),
+    internalValue: priceFormatter(value),
   });
 
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
@@ -84,8 +91,15 @@ export const Price: React.FC<Props> = (props: Props) => {
   useTooltip(state.startedShowingTooltip, setTooltipVisible);
   useStatusUpdater(props.status, setStatus);
   useFlasher(state.flash, stopFlashing);
-  useValueComparator(props.value, state.value, startFlashing);
-  useValueListener(props.value, setValue);
+  useValueComparator(value, state.internalValue, startFlashing);
+  useValueListener(value, timestamp, setValue);
+  useEffect(() => {
+    if (props.uid) {
+      if (!props.uid.startsWith('run')) {
+        console.log(`${props.uid} ---> ${value}`);
+      }
+    }
+  }, [value, props.uid]);
 
   // Avoid having more than a single move event listener because
   // that would of course be expensive
@@ -115,7 +129,7 @@ export const Price: React.FC<Props> = (props: Props) => {
       }
     } else {
       // Reset the input item
-      setValue(priceFormatter(props.value), props.status);
+      setValue(priceFormatter(value), props.status);
     }
   };
 
@@ -137,24 +151,24 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const finalValue: string = ((): string => {
-    const {value} = state;
-    if (value === null)
+  const finalValue = (): string => {
+    const {internalValue} = state;
+    if (internalValue === null)
       return '';
-    return value.toString();
-  })();
+    return internalValue.toString();
+  };
 
   const onSubmitted = (input: HTMLInputElement) => {
-    const value: string | null = state.value;
-    if (value === null || value.trim() === '') {
+    const internalValue: string | null = state.internalValue;
+    if (internalValue === null || internalValue.trim() === '') {
       props.onChange(null, false);
     } else {
-      const numeric: number = Number(value);
+      const numeric: number = Number(internalValue);
       // If it's non-numeric also ignore this
       if (isNaN(numeric) || numeric === 0) {
         props.onChange(null, false);
       } else {
-        const changed: boolean = priceFormatter(numeric) !== priceFormatter(props.value);
+        const changed: boolean = priceFormatter(numeric) !== priceFormatter(value);
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);
         if (props.min !== null && props.min !== undefined) {
@@ -205,11 +219,11 @@ export const Price: React.FC<Props> = (props: Props) => {
   } else {
     return (
       <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
-        <Direction direction={props.value === null ? ArrowDirection.None : props.arrow}/>
+        <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
         <NumericInput
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
-          value={finalValue}
+          value={finalValue()}
           className={getInputClass(state.status, props.className)}
           onDoubleClick={onDoubleClick}
           onChange={onChange}

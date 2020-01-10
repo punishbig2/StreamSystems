@@ -23,13 +23,15 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
-        <Price value={order.price}
-               arrow={ArrowDirection.None}
-               status={order.status}
-               onChange={(price: number | null, changed: boolean) => onChange(row.id, price, changed)}
-               onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
-               onNavigate={data.onNavigate}
-               animated={false}/>
+        <Price
+          uid={`run-${order.uid()}${order.type}`}
+          value={order.price}
+          arrow={ArrowDirection.None}
+          status={order.status}
+          onChange={(price: number | null, changed: boolean) => onChange(row.id, price, changed)}
+          onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
+          onNavigate={data.onNavigate}
+          animated={false}/>
       );
     },
     template: '999999.99',
@@ -74,14 +76,16 @@ const MidCol = (data: RunColumnData) => ({
   name: 'mid',
   header: () => <div>{strings.Mid}</div>,
   render: ({id, mid}: RowType) => (
-    <Price value={mid}
-           className={'mid'}
-           arrow={ArrowDirection.None}
-           status={OrderStatus.None}
-           onChange={(value: number | null, changed: boolean) => data.onMidChanged(id, value, changed)}
-           onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Mid)}
-           onNavigate={data.onNavigate}
-           animated={false}/>
+    <Price
+      uid={`run-${id}-mid`}
+      value={mid}
+      className={'mid'}
+      arrow={ArrowDirection.None}
+      status={OrderStatus.None}
+      onChange={(value: number | null, changed: boolean) => data.onMidChanged(id, value, changed)}
+      onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Mid)}
+      onNavigate={data.onNavigate}
+      animated={false}/>
   ),
   template: '999999.99',
   weight: 4,
@@ -92,14 +96,16 @@ const SpreadCol = (data: RunColumnData) => ({
   header: () => <div>{strings.Spread}</div>,
   render: ({id, spread}: RowType) => {
     return (
-      <Price value={spread}
-             className={'spread'}
-             arrow={ArrowDirection.None}
-             status={OrderStatus.None}
-             onChange={(value: number | null, changed: boolean) => data.onSpreadChanged(id, value, changed)}
-             onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
-             onNavigate={data.onNavigate}
-             animated={false}/>
+      <Price
+        uid={`run-${id}-spread`}
+        value={spread}
+        className={'spread'}
+        arrow={ArrowDirection.None}
+        status={OrderStatus.None}
+        onChange={(value: number | null, changed: boolean) => data.onSpreadChanged(id, value, changed)}
+        onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, RunActions.Spread)}
+        onNavigate={data.onNavigate}
+        animated={false}/>
     );
   },
   template: '999999.99',

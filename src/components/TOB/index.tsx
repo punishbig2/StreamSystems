@@ -12,7 +12,7 @@ import {DispatchProps, OwnProps, Props} from 'components/TOB/props';
 import {ActionTypes, reducer, State} from 'components/TOB/reducer';
 import {Row} from 'components/TOB/row';
 import {TOBTileTitle} from 'components/TOB/title';
-import {Order, Sides, OrderStatus} from 'interfaces/order';
+import {Order, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {SettingsContext} from 'main';
@@ -38,12 +38,15 @@ import {
   updateOrderQuantity,
   setRowStatus,
   publishDarkPoolPrice,
+  createDarkPoolOrder,
   createOrder,
   cancelOrder,
   setStrategy,
   setSymbol,
 } from 'redux/actions/tobActions';
 import {TOBActions} from 'redux/reducers/tobReducer';
+import {DarkPoolTicket, DarkPoolTicketData} from 'components/DarkPoolTicket';
+import {priceFormatter} from 'utils/priceFormatter';
 
 const nextSlice = (applicationState: ApplicationState, props: OwnProps): WindowState & RunState => {
   const generic: { [key: string]: any } = applicationState;
@@ -63,6 +66,7 @@ const initialState: State = {
   tenor: null,
   orderTicket: null,
   runWindowVisible: false,
+  darkPoolTicket: null,
 };
 
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
@@ -90,12 +94,16 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     updateOrderQuantity: (order: Order) => reduxDispatch(updateOrderQuantity(id, order)),
     setRowStatus: (order: Order, status: TOBRowStatus) => reduxDispatch(setRowStatus(id, order, status)),
     publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
+    onDarkPoolDoubleClicked: (tenor: string, price: number) => setDarkPoolTicket({tenor, price}),
+    createDarkPoolOrder: (order: DarkPoolOrder) => reduxDispatch(createDarkPoolOrder(order)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [id, reduxDispatch]);
 
 
   // Internal temporary reducer actions
   const setCurrentTenor = useCallback((tenor: string | null) => dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)), []);
   const setOrderTicket = useCallback((ticket: Order | null) => dispatch(createAction(ActionTypes.SetOrderTicket, ticket)), []);
+  const setDarkPoolTicket = useCallback((price: DarkPoolTicketData | null) => dispatch(createAction(ActionTypes.SetDarkPoolTicket, price)), []);
   const insertDepth = useCallback((data: any) => dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)), []);
   const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
   const hideRunWindow = useCallback(() => dispatch(createAction(ActionTypes.HideRunWindow)), []);
@@ -127,6 +135,27 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const data: TOBColumnData = useMemo(() => {
     return createColumnData(actions, state, symbol, strategy, user, setCurrentTenor, setOrderTicket, settings);
   }, [actions, symbol, strategy, state, settings, setCurrentTenor, setOrderTicket, user]);
+  const renderDarkPoolTicket = () => {
+    if (state.darkPoolTicket === null)
+      return <div/>;
+    const onSubmit = (order: DarkPoolOrder) => {
+      actions.createDarkPoolOrder(order);
+      setDarkPoolTicket(null);
+    };
+    const ticket: DarkPoolTicketData = state.darkPoolTicket;
+    console.log(ticket);
+    return (
+      <DarkPoolTicket
+        onSubmit={onSubmit}
+        onCancel={() => setDarkPoolTicket(null)}
+        price={priceFormatter(ticket.price)}
+        quantity={'10'}
+        tenor={ticket.tenor}
+        strategy={strategy}
+        symbol={symbol}
+        user={user.email}/>
+    );
+  };
   const renderOrderTicket = () => {
     if (state.orderTicket === null)
       return <div/>;
@@ -222,6 +251,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
         </div>
       </div>
       <ModalWindow render={renderOrderTicket} visible={state.orderTicket !== null}/>
+      <ModalWindow render={renderDarkPoolTicket} visible={state.darkPoolTicket !== null}/>
       <ModalWindow render={() => runWindow} visible={state.runWindowVisible}/>
     </>
   );

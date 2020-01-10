@@ -1,6 +1,7 @@
 import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
+import {DarkPoolTicketData} from 'components/DarkPoolTicket';
 
 interface Aggregation {
   bid: { [price: string]: number };
@@ -17,6 +18,7 @@ export interface State {
   orderTicket: Order | null;
   runWindowVisible: boolean;
   aggregatedSz?: AggregatedSz;
+  darkPoolTicket: DarkPoolTicketData | null;
 }
 
 export enum ActionTypes {
@@ -25,6 +27,7 @@ export enum ActionTypes {
   ShowRunWindow,
   HideRunWindow,
   SetOrderTicket,
+  SetDarkPoolTicket,
 }
 
 type Group = { [key: string]: number };
@@ -42,8 +45,7 @@ const collapse = (depth: any): Aggregation | undefined => {
       return group;
     const key: string = price.toFixed(3);
     if (group[key]) {
-      const total: number = coalesce(entry.quantity, 0) + group[key];
-      group[key] = total;
+      group[key] = coalesce(entry.quantity, 0) + group[key];
     } else {
       group[key] = coalesce(entry.quantity, 0);
     }
@@ -76,6 +78,8 @@ export const reducer = (state: State, {type, data}: { type: ActionTypes, data: a
       if (data && !state.depths[data])
         return state;
       return {...state, tenor: data};
+    case ActionTypes.SetDarkPoolTicket:
+      return {...state, darkPoolTicket: data};
     default:
       return state;
   }

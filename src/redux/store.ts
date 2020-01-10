@@ -166,7 +166,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
     const onUpdateMarketData = (data: W) => {
-      dispatch(handlers.W<A>(data));
+      const action: A | null = handlers.W<A>(data);
+      if (action !== null) {
+        dispatch(action);
+      }
     };
 
     const onUpdateDarkPoolPx = (message: DarkPoolMessage) => {

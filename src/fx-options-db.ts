@@ -38,7 +38,7 @@ export const FXOptionsDB = {
     const tx: IDBTransaction = await createTransaction(storeName, 'readwrite');
     return new Promise((resolve: (data: any) => void, reject: () => void) => {
       const store: IDBObjectStore = tx.objectStore(storeName);
-      // Finally save the value to the custom store
+      // Finally save the internalValue to the custom store
       const reader: IDBRequest = store.get(rootKey);
       reader.onsuccess = ({target: {result}}: any) => {
         const getWriter = () => {

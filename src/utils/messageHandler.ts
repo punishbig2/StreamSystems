@@ -5,12 +5,13 @@ import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
 import {Action} from 'redux';
 import {createAction} from 'redux/actionCreator';
-import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
 import {TOBActions} from 'redux/reducers/tobReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
+
+import equal from 'deep-equal';
 
 export const emitUpdateOrderEvent = (order: Order) => {
   const type: string = $$(order.uid(), TOBActions.UpdateOrder);
@@ -40,19 +41,30 @@ const propagateDepth = (w: W) => {
   document.dispatchEvent(event);
 };
 
+let lastTOBW = {};
+let lastW = {};
 // FIXME: we probably don't need the complexities of redux for these
 //        things
 export const handlers = {
-  W: <A extends Action>(w: W): A => {
+  W: <A extends Action>(w: W): A | null => {
     const {Tenor, Symbol, Strategy} = w;
     const type: string = $$('__ROW', Tenor, Symbol, Strategy, RowActions.Update);
     // Is this TOB?
     if (w['9712'] === 'TOB') {
+      // FIXME: because the backend is sending multiple copies of identical Ws I do this to
+      //        "collapse" them into a single one and void unnecessary refreshes to the UI
+      if (equal(lastTOBW, w))
+        return null;
+      lastTOBW = w;
       // Build a per-row action to update a single individual and specific row
       // in a specific table
       // Dispatch the action now
-      return createAction(type, toTOBRow(w));
+      return createAction(type, toTOBRow(w)) as A;
     } else {
+      // FIXME: because the backend is sending multiple copies of identical Ws I do this to
+      //        "collapse" them into a single one and void unnecessary refreshes to the UI
+      if (equal(lastW, w))
+        return null;
       if (!w.Entries) {
         const fixed: W = {
           ...w, Entries: [],
@@ -64,16 +76,16 @@ export const handlers = {
           propagateDepth(fixed);
           // Emit this action because there's no other W message in this case so this
           // is equivalent to the case where `W[9712] === TOB'
-          return createAction(WorkareaActions.NoAction);
+          return null;
         } catch (exception) {
-          return createAction(WorkareaActions.NoAction);
+          return null;
         }
       } else {
         propagateOrders(w);
         // propagateAggregatedSizes(w);
         propagateDepth(w);
       }
-      return createAction(WorkareaActions.NoAction);
+      return null;
     }
   },
 };

@@ -23,7 +23,6 @@ export const createColumnData = (
   // Dispatch properties
   return {
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
-      console.log(input, type);
       switch (type) {
         case OrderTypes.Bid:
           skipTabIndex(input, 2, 1);
@@ -62,10 +61,11 @@ export const createColumnData = (
       if (order.price === InvalidPrice) {
         // This is empty for now
       } else if (order.price !== null) {
-        if ((order.status & OrderStatus.Owned) !== 0)
+        if ((order.status & OrderStatus.Owned) !== 0) {
           fns.cancelOrder(order);
-        else if ((order.status & OrderStatus.HaveOrders) !== 0) {
+        } else if ((order.status & OrderStatus.HaveOrders) !== 0) {
           const {depths} = state;
+          // Find my own order and cancel it
           const mine: Order | undefined = Object.values(depths[order.tenor])
             .map((row: TOBRow) => order.type === OrderTypes.Bid ? row.bid : row.ofr)
             .find((item: Order) => item.user === user.email)
@@ -101,8 +101,10 @@ export const createColumnData = (
       fns.updateOrderQuantity({...order, quantity: newQuantity});
       skipTabIndex(input, 1, 0);
     },
-    onDarkPoolDoubleClicked: () => {
-      console.log('dark pool double clicked');
+    onDarkPoolDoubleClicked: (tenor: string, price: number | null) => {
+      if (price !== null) {
+        fns.onDarkPoolDoubleClicked(tenor, price);
+      }
     },
     onDarkPoolPriceChanged: (tenor: string, price: number) => {
       fns.publishDarkPoolPrice(symbol, strategy, tenor, price);

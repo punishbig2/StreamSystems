@@ -40,7 +40,7 @@ export enum RunActions {
 const computeRow = (type: string, last: string | undefined, startingValues: RunEntry, v1: number): RunEntry => {
   if (!last)
     return startingValues;
-  // Get the last edited value
+  // Get the last edited internalValue
   const v2: number = startingValues[last] as number;
   if (type === last)
     return startingValues;

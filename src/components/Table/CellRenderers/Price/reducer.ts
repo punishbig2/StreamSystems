@@ -17,7 +17,7 @@ export const reducer = (state: State, {type, data}: Action<PriceActions>): State
     case PriceActions.SetStatus:
       return {...state, status: data};
     case PriceActions.SetValue:
-      return {...state, value: data.value, status: state.status | data.status};
+      return {...state, internalValue: data.value, status: state.status | data.status};
     case PriceActions.Flash:
       return {...state, flash: true};
     case PriceActions.Unflash:
