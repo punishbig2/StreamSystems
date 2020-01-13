@@ -24,7 +24,6 @@ export interface DarkPoolTicketData {
 const None = '';
 
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
-  console.log(props.price);
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   const [price, setPrice] = useState<string>(props.price || '');
   const [quantity, setQuantity] = useState<string>(props.quantity);
@@ -78,12 +77,13 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Side</span></div>
-            <div className={'internalValue'}>
+            <div className={'value'}>
               <Select
                 value={side}
                 displayEmpty={true}
                 renderValue={renderSide}
-                onChange={stringSelectSetter((value: string) => setSide(value))}>
+                onChange={stringSelectSetter((value: string) => setSide(value))}
+                variant={'outlined'}>
                 <MenuItem value={'BUY'}>Buy</MenuItem>
                 <MenuItem value={'SELL'}>Sell</MenuItem>
               </Select>
@@ -91,11 +91,11 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Vol</span></div>
-            <div className={'internalValue'}><input value={price} onChange={updatePrice}/></div>
+            <div className={'value'}><input value={price} onChange={updatePrice}/></div>
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Qty</span></div>
-            <div className={'internalValue'}>
+            <div className={'value'}>
               <div className={'editor'}>
                 <input value={quantity} onChange={updateQuantity} autoFocus={true} ref={setInput}/>
               </div>
@@ -106,9 +106,9 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Inst</span></div>
-            <div className={'internalValue'}>
+            <div className={'value'}>
               <Select value={inst} onChange={stringSelectSetter((value: string) => setInst(value))} displayEmpty={true}
-                      renderValue={(value: any) => !value ? 'None' : instLabels[value as string]}>
+                      renderValue={(value: any) => !value ? 'None' : instLabels[value as string]} variant={'outlined'}>
                 <MenuItem value={'G'}>AON</MenuItem>
                 <MenuItem value={'D'}><sup>1</sup>/<sub>2</sub>&nbsp; AOD</MenuItem>
               </Select>

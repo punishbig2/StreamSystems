@@ -22,8 +22,8 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
           bid: bid,
           ofr: ofr,
           mid: bid.price !== null && ofr.price !== null ? (Number(bid.price) + Number(ofr.price)) / 2 : null,
-          darkPrice: null,
           spread: bid.price !== null && ofr.price !== null ? Number(ofr.price) - Number(bid.price) : null,
+          darkPrice: null,
           status: TOBRowStatus.Normal,
         };
       });

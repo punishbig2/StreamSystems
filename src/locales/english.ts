@@ -7,7 +7,7 @@ export default {
   Submit: 'Submit',
   Cancel: 'Cancel',
   OrderEntry: 'Order Entry',
-  Messages: 'Messages',
+  Messages: 'Blotter',
   Bid: 'Bid',
   Ofr: 'Ofr',
   Mid: 'Mid',
@@ -26,5 +26,5 @@ export default {
   OfrPx: 'Ofr',
   Currency: 'Currency',
   Strategy: 'Strategy',
-  Monitor: 'Monitor',
+  Monitor: 'Blotter',
 }

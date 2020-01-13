@@ -21,7 +21,7 @@ import {TOBActions} from 'redux/reducers/tobReducer';
 import {RunActions} from 'redux/reducers/runReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 
-type ActionType = Action<TOBActions>;
+type ActionType = Action<TOBActions | string>;
 
 export const cancelOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
   const rowID: string = toRowID(order);
@@ -108,9 +108,10 @@ export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Ac
 
 export const createDarkPoolOrder = (order: DarkPoolOrder): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async () => {
-    console.log(order);
     const result: any = await API.createDarkPoolOrder(order);
-    console.log(result);
+    if (result.Status === 'Success') {
+      console.log('darkpool order created');
+    }
     return DummyAction;
   }, DummyAction);
 };
@@ -144,9 +145,18 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
     const tob: W | null = await API.getDarkPoolTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getDarkPoolSnapshot(symbol, strategy, tenor);
     if (tob !== null && w !== null) {
+      const a1: Action<string> | null = handlers.W<ActionType>(tob, true);
+      const a2: Action<string> | null = handlers.W<ActionType>(w, true);
+      if (a1 !== null) {
+        const {bid, ofr} = a1.data;
+        if (bid.price !== null && ofr.price !== null) {
+          bid.status = bid.status | OrderStatus.FullDarkPool;
+          ofr.status = ofr.status | OrderStatus.FullDarkPool;
+        }
+      }
       // Dispatch the "standardized" action + another action to capture the internalValue and
       // update some internal data
-      return [];
+      return [...(a1 ? [a1] : []), ...(a2 ? [a2] : [])];
     } else {
       return createAction($$(rowID, RowActions.ErrorGettingSnapshot));
     }
@@ -159,11 +169,11 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
     if (tob !== null && w !== null) {
-      const tobAction = handlers.W(tob);
-      const wAction = handlers.W(w);
+      const a1 = handlers.W(tob, false);
+      const a2 = handlers.W(w, false);
       return [
-        ...(tobAction ? [tobAction] : []),
-        ...(wAction ? [wAction] : []),
+        ...(a1 ? [a1] : []),
+        ...(a2 ? [a2] : []),
         createAction($$(rowID, RowActions.SnapshotReceived), tob),
       ];
     } else {

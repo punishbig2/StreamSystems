@@ -2,7 +2,7 @@ import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {TOBTable} from 'interfaces/tobTable';
 import {User} from 'interfaces/user';
-import {W} from 'interfaces/w';
+import {W, DarkPool} from 'interfaces/w';
 import {Action} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
@@ -46,7 +46,7 @@ let lastW = {};
 // FIXME: we probably don't need the complexities of redux for these
 //        things
 export const handlers = {
-  W: <A extends Action>(w: W): A | null => {
+  W: <A extends Action>(w: W, isDarkPool: boolean = false): A | null => {
     const {Tenor, Symbol, Strategy} = w;
     const type: string = $$('__ROW', Tenor, Symbol, Strategy, RowActions.Update);
     // Is this TOB?
@@ -56,16 +56,23 @@ export const handlers = {
       if (equal(lastTOBW, w))
         return null;
       lastTOBW = w;
-      // Build a per-row action to update a single individual and specific row
-      // in a specific table
-      // Dispatch the action now
-      return createAction(type, toTOBRow(w)) as A;
+      if (isDarkPool || w.ExDestination === DarkPool) {
+        return createAction($$(type, DarkPool), toTOBRow(w)) as A;
+      } else {
+        return createAction(type, toTOBRow(w)) as A;
+      }
     } else {
       // FIXME: because the backend is sending multiple copies of identical Ws I do this to
       //        "collapse" them into a single one and void unnecessary refreshes to the UI
       if (equal(lastW, w))
         return null;
-      if (!w.Entries) {
+      if (isDarkPool || w.ExDestination === DarkPool) {
+        const type: string = $$(w.Tenor, w.Symbol, w.Strategy, 'update-dark-pool-depth');
+        const event: Event = new CustomEvent(type, {detail: extractDepth(w)});
+        // Now emit the event so that listeners capture it
+        document.dispatchEvent(event);
+        return null;
+      } else if (!w.Entries) {
         const fixed: W = {
           ...w, Entries: [],
         };

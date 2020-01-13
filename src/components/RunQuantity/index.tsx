@@ -1,4 +1,4 @@
-import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
+import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import {SettingsContext} from 'main';
@@ -68,7 +68,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
                 value={Number(value)}
                 cancelable={cancellable}
                 tabIndex={-1}
-                className={getInputClass(order.status, 'size')}
+                className={getOrderStatusClass(order.status, 'sizeColumn.tsx')}
                 onChange={onChange}
                 onTabbedOut={sendOnChange}
                 onCancel={() => props.onCancel(order)}/>

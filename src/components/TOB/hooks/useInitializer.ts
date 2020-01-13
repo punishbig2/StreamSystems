@@ -21,11 +21,10 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
         tenor: tenor,
         id: toRowID(bid),
         bid: bid,
-        darkPool: '',
         ofr: ofr,
         mid: null,
-        darkPrice: null,
         spread: null,
+        darkPrice: null,
         status: TOBRowStatus.Normal,
       };
       // Return row

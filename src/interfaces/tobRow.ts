@@ -6,14 +6,17 @@ export enum TOBRowStatus {
   Normal, InvertedMarketsError, IncompleteError, CreatingOrder, NegativePrice, Executed
 }
 
-export interface TOBRow {
+interface TOBRowBase {
   id: string;
   tenor: string;
   bid: Order;
-  darkPool?: string;
   ofr: Order;
   mid: number | null;
-  darkPrice: number | null;
   spread: number | null;
   status: TOBRowStatus,
 }
+
+export type TOBRow = TOBRowBase & {
+  darkPool?: TOBRowBase;
+  darkPrice: number | null;
+};

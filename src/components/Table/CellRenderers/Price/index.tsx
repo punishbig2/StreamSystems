@@ -6,14 +6,13 @@ import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher'
 import {useStatusUpdater} from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
 import {useTooltip} from 'components/Table/CellRenderers/Price/hooks/useTooltop';
 import {useValueComparator} from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
-import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
-import {getInputClass} from 'components/Table/CellRenderers/Price/utils/getInputClass';
+import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus} from 'interfaces/order';
+import {OrderStatus} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useEffect, useReducer, useState} from 'react';
 import {createAction} from 'redux/actionCreator';
@@ -27,7 +26,6 @@ export enum PriceErrors {
 
 export interface Props {
   value: number | null;
-  depth?: Order[];
   type?: OrderTypes;
   priceType?: PriceTypes;
   // Events
@@ -46,10 +44,11 @@ export interface Props {
   readOnly?: boolean;
   uid?: string;
   timestamp?: string;
+  tooltip?: React.FC<any>;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
-  const {depth, timestamp, value} = props;
+  const {timestamp, value} = props;
   if (value === undefined) {
     console.trace('exception');
     throw new Error('value is not optional');
@@ -93,14 +92,6 @@ export const Price: React.FC<Props> = (props: Props) => {
   useFlasher(state.flash, stopFlashing);
   useValueComparator(value, state.internalValue, startFlashing);
   useValueListener(value, timestamp, setValue);
-  useEffect(() => {
-    if (props.uid) {
-      if (!props.uid.startsWith('run')) {
-        console.log(`${props.uid} ---> ${value}`);
-      }
-    }
-  }, [value, props.uid]);
-
   // Avoid having more than a single move event listener because
   // that would of course be expensive
   useEffect(() => {
@@ -113,9 +104,9 @@ export const Price: React.FC<Props> = (props: Props) => {
   }, [state.visible, ref, onMouseMove]);
 
   const getTooltip = () => {
-    if (!state.visible || !depth || depth.length === 0)
+    if (!state.visible || !props.tooltip)
       return null;
-    return <Tooltip x={state.tooltipX} y={state.tooltipY} render={() => <MiniDOB {...props} rows={depth}/>}/>;
+    return <Tooltip x={state.tooltipX} y={state.tooltipY} render={props.tooltip}/>;
   };
 
   const onChange = (value: string | null) => {
@@ -134,6 +125,8 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const isOpenOrderTicketStatus = (status: OrderStatus): boolean => {
+    if ((status & OrderStatus.DarkPool) !== 0)
+      return true;
     return (status & OrderStatus.Owned) === 0 && (status & OrderStatus.SameBank) === 0;
   };
 
@@ -224,7 +217,7 @@ export const Price: React.FC<Props> = (props: Props) => {
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
           value={finalValue()}
-          className={getInputClass(state.status, props.className)}
+          className={getOrderStatusClass(state.status, props.className)}
           onDoubleClick={onDoubleClick}
           onChange={onChange}
           onSubmitted={onSubmitted}

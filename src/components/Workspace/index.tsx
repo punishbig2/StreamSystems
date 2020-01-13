@@ -229,7 +229,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       <div className={objectToCssClass(toolbarState, 'toolbar')} onMouseLeave={onMouseLeave}>
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
-          <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Monitor</button>
+          <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Blotter</button>
           {getBrokerButtons()}
           <div className={'pin'} onClick={toolbarTogglePin}>
             <i className={'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')}/>

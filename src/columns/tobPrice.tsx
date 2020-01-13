@@ -4,6 +4,7 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBTable} from 'interfaces/tobTable';
 import React from 'react';
+import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 
 interface Props {
   order: Order;
@@ -32,7 +33,6 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
   return (
     <Price
       uid={`${order.uid()}${order.type}`}
-      depth={getMiniDOBByType(props.depths, order.tenor, order.type)}
       arrow={order.arrowDirection}
       value={order.price}
       timestamp={order.timestamp}
@@ -43,6 +43,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       onError={onError}
       onTabbedOut={(input: HTMLInputElement) => props.onTabbedOut(input, order.type)}
       onDoubleClick={onDoubleClick}
-      onChange={onChange}/>
+      onChange={onChange}
+      tooltip={() => <MiniDOB {...props} rows={getMiniDOBByType(props.depths, order.tenor, order.type)}/>}/>
   );
 };

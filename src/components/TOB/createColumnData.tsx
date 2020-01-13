@@ -112,5 +112,7 @@ export const createColumnData = (
     aggregatedSz: state.aggregatedSz,
     buttonsEnabled: symbol !== '' && strategy !== '',
     isBroker: user.isbroker,
+    strategy: strategy,
+    symbol: symbol,
   };
 };

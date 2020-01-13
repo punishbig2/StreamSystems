@@ -143,7 +143,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       setDarkPoolTicket(null);
     };
     const ticket: DarkPoolTicketData = state.darkPoolTicket;
-    console.log(ticket);
     return (
       <DarkPoolTicket
         onSubmit={onSubmit}

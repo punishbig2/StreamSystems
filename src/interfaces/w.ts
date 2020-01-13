@@ -14,6 +14,8 @@ export enum ArrowDirection {
   Down = '2',
 }
 
+export const DarkPool: string = 'DP';
+
 export interface W {
   MsgType: MessageTypes;
   TransactTime: number;
@@ -23,6 +25,7 @@ export interface W {
   Tenor: TenorType;
   NoMDEntries: number;
   Entries: MDEntry[];
+  ExDestination: 'DP' | undefined;
   "9712": string;
   "9702": string;
 }

@@ -57,12 +57,28 @@
         }
       }
 
-      .MuiInput-root {
+      .MuiInputBase-root {
+        color: #444;
+        &:hover, &.Mui-focused {
+          .MuiOutlinedInput-notchedOutline {
+            border-color: $primary-color;
+          }
+        }
+
+        .MuiOutlinedInput-notchedOutline {
+          border-color: $table-border-color;
+        }
+      }
+
+      .MuiOutlinedInput-root {
+        border-radius: 0;
+      }
+
+      .MuiInputBase-root {
         width: 100%;
-        display: block;
         .MuiSelect-root {
           padding: 0 10px;
-          line-height: 3;
+          line-height: 2.25;
           font-size: 14px;
           .invalid {
             opacity: 0.5;

@@ -55,6 +55,8 @@ export enum OrderStatus {
   BeingCreated = 1 << 11,
   BeingCancelled = 1 << 12,
   BeingLoaded = 1 << 13,
+  DarkPool = 1 << 14,
+  FullDarkPool = 1 << 15,
 }
 
 export interface OrderMessage {
@@ -133,6 +135,7 @@ export class Order {
     const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
     const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
     const prefilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
+    const cancelled: OrderStatus = price !== null && !entry.MDEntrySize ? OrderStatus.Cancelled : OrderStatus.None;
     const order: Order = new Order(
       w.Tenor,
       w.Symbol,
@@ -145,7 +148,7 @@ export class Order {
     order.price = getNumber(entry.MDEntryPx);
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;
-    order.status = OrderStatus.Active | ownership | prefilled | sameBank;
+    order.status = OrderStatus.Active | ownership | prefilled | sameBank | cancelled;
     order.arrowDirection = normalizeTickDirection(entry.TickDirection);
     // Now return the built order
     return order;

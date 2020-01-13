@@ -93,6 +93,16 @@ $red-x-size: 16px;
     line-height: inherit;
     height: inherit;
     cursor: text;
+    border-top: 1px solid $table-border-color;
+    border-left: 1px solid $table-border-color;
+
+    &:last-child {
+      border-right: 1px solid $table-border-color;
+    }
+  }
+
+  .tbody .tr:last-child {
+    border-bottom: 1px solid $table-border-color;
   }
 
   .thead .tr .th {
@@ -104,12 +114,6 @@ $red-x-size: 16px;
     margin: 0;
 
     background-color: rgba($primary-color, $table-tint);
-    border-top: 1px solid $table-border-color;
-    border-left: 1px solid $table-border-color;
-
-    &:last-child {
-      border-right: 1px solid $table-border-color;
-    }
 
     input.filter {
       width: 100%;
@@ -253,9 +257,17 @@ $red-x-size: 16px;
 
   .tbody .tr .td {
     text-align: center;
-    border-bottom: 1px solid $table-border-color;
-    border-left: 1px solid $table-border-color;
     pointer-events: initial;
+
+    .dp-table-cell {
+      font-weight: $table-font-weight;
+      font-size: $table-font-size;
+      font-family: $table-font-family;
+      line-height: $table-font-size;
+      &.owned {
+        color: $text-color-red;
+      }
+    }
 
     .firm {
       color: $text-color-green;
@@ -289,6 +301,11 @@ $red-x-size: 16px;
 
     .price-layout,
     .size-layout {
+      display: flex;
+      align-items: center;
+      line-height: $table-row-height;
+      white-space: nowrap;
+
       &.flash {
         input {
           animation: flash 0.5s infinite;
@@ -297,6 +314,11 @@ $red-x-size: 16px;
 
       input {
         cursor: default;
+
+        box-sizing: border-box;
+        &.dark-pool {
+          background-color: yellow;
+        }
 
         &:focus {
           cursor: initial;
@@ -320,17 +342,9 @@ $red-x-size: 16px;
       }
     }
   }
-
-  .tbody .tr .td:last-child {
-    border-right: 1px solid $table-border-color;
-  }
 }
 
 .size-layout {
-  display: flex;
-  align-items: center;
-  line-height: $table-row-height;
-  white-space: nowrap;
 
   .chevron {
     position: absolute;

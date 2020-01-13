@@ -1,6 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
-import {TOBRowStatus} from 'interfaces/tobRow';
+import {TOBRowStatus, TOBRow} from 'interfaces/tobRow';
 import {Action} from 'redux/action';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
@@ -27,23 +27,9 @@ const getRowStatusFromOrderError = (reason: OrderErrors, status: TOBRowStatus) =
   }
 };
 
-/*const onOrderCreated = (state: RowState, {order}: any) => {
-  const {row} = state;
-  if (order.type === OrderTypes.Bid) {
-    const {bid} = row;
-    if (bid.price > order.price)
-      return state;
-    return {...state, row: {...row, bid: {...order}}};
-  } else {
-    const {ofr} = row;
-    if (ofr.price < order.price)
-      return state;
-    return {...state, row: {...row, ofr: {...order}}};
-  }
-};*/
-
 export enum RowActions {
   Update = 'RowActions.Update',
+  UpdateDP = 'RowActions.Update.DP',
   Remove = 'RowActions.Remove',
   SetOfferPrice = 'RowActions.SetOfferPrice',
   SetBidPrice = 'RowActions.SetBidPrice',
@@ -51,23 +37,40 @@ export enum RowActions {
   UpdateOfr = 'RowActions.UpdateOfr',
   UpdateBid = 'RowActions.UpdateBid',
   CreatingOrder = 'RowActions.CreatingOrder',
-  OrderCreated = 'RowActions.OrderCreated',
-  OrderNotCreated = 'RowActions.OrderNotCreated',
   CancellingOrder = 'RowActions.CancellingOrder',
-  OrderCanceled = 'RowActions.OrderCanceled',
-  OrderNotCanceled = 'RowActions.OrderNotCanceled',
   SnapshotReceived = 'RowActions.SnapshotReceived',
   GettingSnapshot = 'RowActions.GettingSnapshot',
   ErrorGettingSnapshot = 'RowActions.ErrorGettingSnapshot',
   Executed = 'RowActions.Executed',
   ResetStatus = 'RowActions.ResetStatus',
   UpdateDarkPrice = 'RowActions.UpdateDarkPrice',
+  OrderNotCreated = 'RowActions.OrderNotCreated',
+  // These actions are not being used currently
+  OrderCreated = 'RowActions.OrderCreated',
+  OrderCanceled = 'RowActions.OrderCanceled',
+  OrderNotCanceled = 'RowActions.OrderNotCanceled',
 }
 
 const getStatus = (o1: Order, o2: Order): OrderStatus => {
   return o1.status
     | (o2.quantity !== o1.quantity ? OrderStatus.QuantityEdited : 0)
     | (o2.price !== o1.price ? OrderStatus.PriceEdited : 0);
+};
+
+const handleDarkPoolUpdate = (state: RowState, dpRow: TOBRow): RowState => {
+  const {bid, ofr} = dpRow;
+  const {row} = state;
+  return {
+    ...state,
+    row: {
+      ...row,
+      darkPool: {
+        ...dpRow,
+        ofr: {...ofr, status: ofr.status | OrderStatus.DarkPool},
+        bid: {...bid, status: bid.status | OrderStatus.DarkPool},
+      },
+    },
+  };
 };
 
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
@@ -101,12 +104,6 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         } else {
           return state;
         }
-      case $$(id, RowActions.OrderCanceled):
-        return state;
-      case $$(id, RowActions.OrderNotCanceled):
-        return state;
-      case $$(id, RowActions.OrderCreated):
-        return state; // onOrderCreated(state, data);
       case $$(id, RowActions.OrderNotCreated):
         const {order, reason} = data;
         if (order.type === OrderTypes.Bid) {
@@ -138,11 +135,13 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         if (!isModified(bid, data))
           return state;
         return {...state, row: {...row, bid: {...data, status: getStatus(bid, data)}}};
+      case $$(id, RowActions.UpdateDP):
+        return handleDarkPoolUpdate(state, data);
       case $$(id, RowActions.Update):
         // WARNING: preserving status across updates can be a problem but it seems
         //          that after it's set the first time it should remain as is unless
         //          explicitly changed
-        return {...state, row: {...data, status: row.status}};
+        return {...state, row: {...row, ...data}};
       case $$(id, RowActions.SetOfferPrice):
         if (bid.price > data)
           return state;
