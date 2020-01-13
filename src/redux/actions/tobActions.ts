@@ -149,7 +149,7 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
       const a2: Action<string> | null = handlers.W<ActionType>(w, true);
       if (a1 !== null) {
         const {bid, ofr} = a1.data;
-        if (bid.price !== null && ofr.price !== null) {
+        if (bid.quantity !== null && ofr.quantity !== null) {
           bid.status = bid.status | OrderStatus.FullDarkPool;
           ofr.status = ofr.status | OrderStatus.FullDarkPool;
         }

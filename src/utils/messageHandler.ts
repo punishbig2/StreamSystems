@@ -49,6 +49,8 @@ export const handlers = {
   W: <A extends Action>(w: W, isDarkPool: boolean = false): A | null => {
     const {Tenor, Symbol, Strategy} = w;
     const type: string = $$('__ROW', Tenor, Symbol, Strategy, RowActions.Update);
+    if (w.ExDestination === DarkPool)
+      console.log(w);
     // Is this TOB?
     if (w['9712'] === 'TOB') {
       // FIXME: because the backend is sending multiple copies of identical Ws I do this to
