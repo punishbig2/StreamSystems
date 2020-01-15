@@ -157,7 +157,7 @@ export class API {
       order.quantity = minQty;
     const {price, quantity} = order;
     // Build a create order request
-    if (personality === STRM)
+    if (currentUser.isbroker && personality === STRM)
       throw new Error('brokers cannot create orders without a personality');
     const MDMkt: string | undefined = currentUser.isbroker ? personality : undefined;
     const request: CreateOrder = {
