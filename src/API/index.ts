@@ -8,6 +8,7 @@ import {User} from 'interfaces/user';
 import {MessageTypes, W} from 'interfaces/w';
 import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {STRM} from 'redux/stateDefs/workspaceState';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -106,12 +107,13 @@ type Endpoints =
   | 'runorders'
   | 'UserGroupSymbol'
   | 'Users'
+  | 'UserJson'
   | 'markets'
   | 'allextended'
   | 'price'
   ;
 
-type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish';
+type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
@@ -147,7 +149,7 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(order: Order, minQty: number): Promise<OrderResponse> {
+  static async createOrder(order: Order, personality: string, minQty: number): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     if (order.price === null || order.quantity === null)
       throw new Error('price and quantity MUST be specified');
@@ -155,6 +157,9 @@ export class API {
       order.quantity = minQty;
     const {price, quantity} = order;
     // Build a create order request
+    if (personality === STRM)
+      throw new Error('brokers cannot create orders without a personality');
+    const MDMkt: string | undefined = currentUser.isbroker ? personality : undefined;
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
@@ -165,6 +170,7 @@ export class API {
       Side: getSideFromType(order.type),
       Quantity: quantity.toString(),
       Price: price.toString(),
+      MDMkt,
     };
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
   }
@@ -306,4 +312,22 @@ export class API {
     };
     return post<any>(API.getUrl(API.DarkPool, 'price', 'publish'), data);
   }
+
+  static async getUserProfile(email: string) {
+    return get<any>(API.getUrl(API.UserApi, 'UserJson', 'get'));
+  }
+
+  static async saveUserProfile(data: any) {
+    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save'), data);
+  }
+
+  static async brokerRefAll() {
+    const currentUser = getAuthenticatedUser();
+    const request = {
+      MsgType: MessageTypes.F,
+      User: currentUser.email,
+      TransactTime: getCurrentTime(),
+    };
+    return post<OrderResponse>(API.getUrl(API.Oms, 'allextended', 'cxl'), request);
+  };
 }

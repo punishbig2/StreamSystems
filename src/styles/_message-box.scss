@@ -1,0 +1,37 @@
+.message-box {
+  width: 400px;
+
+  .box-title {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    .icon {
+      &.bad {
+        color: crimson;
+      }
+      &.neutral {
+        color: royalblue;
+      }
+      i {
+        font-size: 36px;
+        color: inherit;
+      }
+    }
+    .text {
+      h1 {
+        font-size: 18px;
+        text-transform: uppercase;
+        padding: 0 8px;
+        margin: 0;
+      }
+    }
+  }
+
+  p {
+    min-height: 5em;
+    opacity: 0.75;
+    font-weight: 500;
+    padding: 16px 8px 0 8px;
+    margin: 0 0 0 42px;
+  }
+}

@@ -27,4 +27,8 @@ export default {
   Currency: 'Currency',
   Strategy: 'Strategy',
   Monitor: 'Blotter',
+  UserProfile: 'User Profile',
+  Save: 'Save',
+  TimezoneUnset: 'Timezone not defined',
+  CCYGroupUnset: 'Currency group not defined',
 }

@@ -14,9 +14,8 @@ import {TOBTable} from 'interfaces/tobTable';
 type Props = RowType & TOBColumnData;
 
 const DarkPoolColumnComponent = (props: Props) => {
-  const {darkPool, darkPrice} = props;
+  const {isBroker, tenor, symbol, strategy, personality, darkPool, darkPrice} = props;
   const {onDarkPoolDoubleClicked, onDarkPoolPriceChanged, onTabbedOut} = props;
-  const {isBroker, tenor, symbol, strategy} = props;
   const [data, setData] = useState<TOBTable | null>(null);
 
   const order: Order | null = useMemo((): Order | null => {
@@ -43,10 +42,10 @@ const DarkPoolColumnComponent = (props: Props) => {
   }, [tenor, symbol, strategy]);
 
   const doubleClickHandler = useCallback(() => {
-    if (isBroker)
+    if (isBroker && personality === 'STRM')
       return;
     onDarkPoolDoubleClicked(tenor, price);
-  }, [isBroker, price, tenor, onDarkPoolDoubleClicked]);
+  }, [isBroker, personality, onDarkPoolDoubleClicked, tenor, price]);
 
   const changeHandler = useCallback((value: number | null) => {
     if (!isBroker || value === null)

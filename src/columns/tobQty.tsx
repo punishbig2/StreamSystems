@@ -1,9 +1,9 @@
-import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Quantity} from 'components/Table/CellRenderers/Quantity';
-import {Order, OrderStatus} from 'interfaces/order';
-import {SettingsContext} from 'main';
-import React, {useContext, useEffect, useState} from 'react';
-import {Settings} from 'settings';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { Quantity } from 'components/Table/CellRenderers/Quantity';
+import { Order, OrderStatus } from 'interfaces/order';
+import { SettingsContext } from 'main';
+import React, { useContext, useEffect, useState } from 'react';
+import { Settings } from 'settings';
 
 interface Props {
   order: Order;
@@ -15,7 +15,7 @@ interface Props {
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
   const settings = useContext<Settings>(SettingsContext);
-  const {order} = props;
+  const { order } = props;
   const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
     setValue(props.value);
@@ -46,12 +46,17 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const canCancel = (status: OrderStatus) => {
+  const canCancel = (order: Order) => {
+    const status: OrderStatus = order.status;
+    if (order.price === null || order.quantity === null)
+      return false;
+    if ((status & OrderStatus.Cancelled) !== 0)
+      return false;
     if (props.isDepth)
       return ((status & OrderStatus.Owned) !== 0) || ((status & OrderStatus.SameBank) !== 0);
     return (((status & OrderStatus.Owned) !== 0) || ((status & OrderStatus.HaveOrders) !== 0));
   };
-  const cancellable = canCancel(order.status) && (order.price !== null);
+  const cancellable = canCancel(order);
   const onCancel = () => cancellable ? props.onCancel(order, true) : null;
   const showChevron = !props.isDepth &&
     (order.status & OrderStatus.HaveOrders) !== 0 &&
@@ -64,8 +69,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       onChange={onChange}
       onCancel={onCancel}
       onTabbedOut={onTabbedOut}
-      cancelable={cancellable}
-      className={getOrderStatusClass(order.status, 'sizeColumn.tsx')}
-      chevron={showChevron}/>
+      cancellable={cancellable}
+      className={getOrderStatusClass(order.status, 'size')}
+      chevron={showChevron} />
   );
 };

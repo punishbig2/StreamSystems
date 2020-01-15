@@ -72,6 +72,7 @@ const hydrate = async (dispatch: Dispatch<any>) => {
         ...defaultWorkspaceState.toolbarState,
         ...toolbarState,
       },
+      personality: await FXOptionsDB.getPersonality(workspaceID),
     });
     dispatch(createAction<any, any>(WorkareaActions.AddWorkspace, workspace));
 

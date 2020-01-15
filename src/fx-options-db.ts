@@ -1,6 +1,6 @@
 import {IWorkspace} from 'interfaces/workspace';
 import {Window} from 'interfaces/window';
-import {ToolbarState} from 'redux/stateDefs/workspaceState';
+import {ToolbarState, STRM} from 'redux/stateDefs/workspaceState';
 
 const createTransaction = async (storeName: string, mode: IDBTransactionMode): Promise<IDBTransaction> => {
   return new Promise<IDBTransaction>((resolve: (tx: IDBTransaction) => void, reject: () => void) => {
@@ -128,6 +128,17 @@ export const FXOptionsDB = {
   },
   getWindow: async (windowID: string): Promise<Window | undefined> => {
     return FXOptionsDB.getObject('windows', windowID);
+  },
+  setPersonality: async (workspaceID: string, personality: string) => {
+    FXOptionsDB.put('workspaces', workspaceID, 'personality', personality);
+  },
+  getPersonality: async (workspaceID: string): Promise<string> => {
+    const workspace: any | undefined = await FXOptionsDB.getObject('workspaces', workspaceID);
+    if (workspace === undefined)
+      return STRM;
+    if (!workspace.personality)
+      return STRM;
+    return workspace.personality;
   },
   togglePinToolbar: async (workspaceID: string) => {
     const workspace: any | undefined = await FXOptionsDB.getObject('workspaces', workspaceID);

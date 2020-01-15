@@ -77,3 +77,30 @@ export const loadMarkets = (id: string) =>
     }, createAction($$(id, WorkspaceActions.LoadingMarkets)),
   );
 
+export const setPersonality = (id: string, personality: string) => {
+  return new AsyncAction(async () => {
+    await FXOptionsDB.setPersonality(id, personality);
+    return createAction(WorkspaceActions.SetPersonality, personality);
+  }, createAction($$(id, WorkspaceActions.SetPersonality), personality));
+};
+
+export const showUserProfileModal = (id: string): Action<WorkspaceActions> => {
+  return createAction($$(id, WorkspaceActions.SetUserProfileModalVisible), true);
+};
+
+export const closeUserProfileModal = (id: string): Action<WorkspaceActions> => {
+  return createAction($$(id, WorkspaceActions.SetUserProfileModalVisible), false);
+};
+
+export const closeErrorModal = (id: string): Action<WorkspaceActions> => {
+  return createAction($$(id, WorkspaceActions.CloseErrorModal));
+};
+
+export const refAll = (id: string) => {
+  return new AsyncAction(async () => {
+    const result: any = await API.brokerRefAll();
+    if (result.Status === 'Failure')
+      return createAction($$(id, WorkspaceActions.ShowError), result.Response);
+    return DummyAction;
+  }, DummyAction);
+};

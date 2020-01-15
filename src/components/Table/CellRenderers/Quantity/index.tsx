@@ -7,7 +7,7 @@ interface OwnProps {
   type: OrderTypes;
   value: number | null;
   onChange: (value: string | null) => void;
-  cancelable?: boolean;
+  cancellable?: boolean;
   onCancel?: () => void;
   className?: string;
   chevron?: boolean;
@@ -20,7 +20,7 @@ const defaultProps: OwnProps = {
   onCancel: () => null,
   type: OrderTypes.Invalid,
   value: null,
-  cancelable: false,
+  cancellable: false,
   chevron: false,
 };
 
@@ -41,7 +41,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
                   tabIndex={props.tabIndex}/>,
   ];
 
-  if (props.cancelable)
+  if (props.cancellable)
     classes.push('clickable');
   if (props.value === null)
     classes.push('empty');
@@ -60,7 +60,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
       children.push(<Chevron side={'right'} key={3}/>);
   }
   return (
-    <div className={'size-layout'}>
+    <div className={['size-layout', props.className].join(' ')}>
       {children}
     </div>
   );

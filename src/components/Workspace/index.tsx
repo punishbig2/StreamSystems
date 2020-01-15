@@ -6,7 +6,7 @@ import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
-import React, {ReactElement, useCallback, useEffect} from 'react';
+import React, {ReactElement, useCallback, useEffect, ReactNode} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
 import {
@@ -24,6 +24,11 @@ import {
   toolbarShow,
   toolbarTogglePin,
   toolbarTryShow,
+  setPersonality,
+  showUserProfileModal,
+  closeUserProfileModal,
+  closeErrorModal,
+  refAll,
 } from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
@@ -31,6 +36,10 @@ import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {SelectEventData} from 'interfaces/selectEventData';
+import {ModalWindow} from 'components/ModalWindow';
+import {UserProfileForm} from 'components/Workspace/UserProfileForm';
+import {ErrorBox} from 'components/ErrorBox';
 
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
@@ -47,6 +56,11 @@ interface DispatchProps {
   toolbarShow: () => void;
   toolbarTogglePin: () => void;
   loadMarkets: () => void;
+  setPersonality: (personality: string) => void;
+  showUserProfileModal: () => void;
+  closeUserProfileModal: () => void;
+  refAll: () => void;
+  closeErrorModal: () => void;
 }
 
 interface OwnProps {
@@ -77,6 +91,11 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       toolbarHide: () => dispatch(toolbarHide(id)),
       toolbarTogglePin: () => dispatch(toolbarTogglePin(id)),
       loadMarkets: () => dispatch(loadMarkets(id)),
+      setPersonality: (personality: string) => dispatch(setPersonality(id, personality)),
+      showUserProfileModal: () => dispatch(showUserProfileModal(id)),
+      closeUserProfileModal: () => dispatch(closeUserProfileModal(id)),
+      refAll: () => dispatch(refAll(id)),
+      closeErrorModal: () => dispatch(closeErrorModal(id)),
     };
   }
   return cache[id];
@@ -96,17 +115,18 @@ const createWindow = (id: string,
                       tenors: string[],
                       connected: boolean,
                       user: User, setWindowTitle: (id: string, title: string) => void,
-                      onRowError: (status: TOBRowStatus) => void) => {
+                      onRowError: (status: TOBRowStatus) => void,
+                      personality: string) => {
 
   switch (type) {
     case WindowTypes.TOB:
       return (
         <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user} connected={connected}
-             setWindowTitle={setWindowTitle} onRowError={onRowError}/>
+             setWindowTitle={setWindowTitle} onRowError={onRowError} personality={personality}/>
       );
     case WindowTypes.MessageBlotter:
       return (
-        <MessageBlotter id={id} setWindowTitle={setWindowTitle} connected={connected}/>
+        <MessageBlotter id={id} setWindowTitle={setWindowTitle} connected={connected} personality={personality}/>
       );
     default:
       throw new Error(`invalid tile type ${type}`);
@@ -201,26 +221,37 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   }, [showToast]);
 
   const renderContent = (id: string, type: WindowTypes): ReactElement | null => {
+    const {personality} = props;
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
-    return createWindow(id, type, symbols, products, tenors, connected, user, setWindowTitle, onRowError);
+    return createWindow(id, type, symbols, products, tenors, connected, user, setWindowTitle, onRowError, personality);
   };
 
-  const getBrokerButtons = () => {
+  const onPersonalityChange = ({target}: React.ChangeEvent<SelectEventData>) => {
+    props.setPersonality(target.value as string);
+  };
+
+  const getBrokerButtons = (): ReactNode => {
     const user: User = getAuthenticatedUser();
     if (user.isbroker) {
       const {markets} = props;
       const renderValue = (value: unknown): React.ReactNode => {
         return value as string;
       };
+      if (markets.length === 0)
+        return null;
       return (
         <div className={'broker-buttons'}>
-          <Select value={'STRM'} autoWidth={true} renderValue={renderValue}>
+          <Select value={props.personality} autoWidth={true} renderValue={renderValue} onChange={onPersonalityChange}>
             <MenuItem key={'STRM'} value={'STRM'}>STRM</MenuItem>
             {markets.map((market: string) => <MenuItem key={market} value={market}>{market}</MenuItem>)}
           </Select>
+          <button onClick={props.refAll}><i className={'fa fa-eraser'}/> Ref. ALL</button>
+          <button onClick={props.showUserProfileModal}><i className={'fa fa-user'}/> User Prof</button>
         </div>
       );
+    } else {
+      return null;
     }
   };
 
@@ -228,8 +259,9 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     <>
       <div className={objectToCssClass(toolbarState, 'toolbar')} onMouseLeave={onMouseLeave}>
         <div className={'content'}>
-          <button onClick={() => addWindow(WindowTypes.TOB)}>Add POD</button>
-          <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>Add Blotter</button>
+          <button onClick={() => addWindow(WindowTypes.TOB)}><i className={'fa fa-plus'}/> Add POD</button>
+          <button onClick={() => addWindow(WindowTypes.MessageBlotter)}><i className={'fa fa-eye'}/> Add Blotter
+          </button>
           {getBrokerButtons()}
           <div className={'pin'} onClick={toolbarTogglePin}>
             <i className={'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')}/>
@@ -250,6 +282,12 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         onWindowRestored={props.restoreWindow}
         onWindowClicked={props.bringToFront}
         onWindowSizeAdjusted={props.setWindowAutoSize}/>
+      <ModalWindow render={() => <UserProfileForm onCancel={props.closeUserProfileModal}/>}
+                   visible={props.isUserProfileModalVisible}/>
+      <ModalWindow
+        render={() => <ErrorBox title={'Oops, there was an error'} message={props.errorMessage as string}
+                                onClose={props.closeErrorModal}/>}
+        visible={props.errorMessage !== null}/>
     </>
   );
 };

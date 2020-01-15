@@ -72,7 +72,7 @@ const initialState: State = {
 export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement => {
   const {id, dispatch: reduxDispatch} = props;
   const {onRowError} = props;
-  const {symbols, symbol, products, strategy, tenors, connected, rows, user} = props;
+  const {symbols, symbol, products, strategy, tenors, connected, rows, user, personality} = props;
   const settings = useContext<Settings>(SettingsContext);
   const {email} = props.user;
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -82,7 +82,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     subscribe: (symbol: string, strategy: string, tenor: string) => reduxDispatch(subscribe(symbol, strategy, tenor)),
     subscribeDarkPool: (symbol: string, strategy: string, tenor: string) => reduxDispatch(subscribeDarkPool(symbol, strategy, tenor)),
     unsubscribe: (symbol: string, strategy: string, tenor: string) => reduxDispatch(unsubscribe(symbol, strategy, tenor)),
-    createOrder: (order: Order, minSize: number) => reduxDispatch(createOrder(id, order, minSize)),
+    createOrder: (order: Order, personality: string, minSize: number) => reduxDispatch(createOrder(id, personality, order, minSize)),
     setStrategy: (value: string) => reduxDispatch(setStrategy(id, value)),
     setSymbol: (value: string) => reduxDispatch(setSymbol(id, value)),
     cancelOrder: (order: Order) => reduxDispatch(cancelOrder(id, order)),
@@ -95,7 +95,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     setRowStatus: (order: Order, status: TOBRowStatus) => reduxDispatch(setRowStatus(id, order, status)),
     publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
     onDarkPoolDoubleClicked: (tenor: string, price: number) => setDarkPoolTicket({tenor, price}),
-    createDarkPoolOrder: (order: DarkPoolOrder) => reduxDispatch(createDarkPoolOrder(order)),
+    createDarkPoolOrder: (order: DarkPoolOrder, personality: string) => reduxDispatch(createDarkPoolOrder(order, personality)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [id, reduxDispatch]);
 
@@ -133,13 +133,23 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   );
   // Handler methods
   const data: TOBColumnData = useMemo(() => {
-    return createColumnData(actions, state, symbol, strategy, user, setCurrentTenor, setOrderTicket, settings);
-  }, [actions, symbol, strategy, state, settings, setCurrentTenor, setOrderTicket, user]);
+    return createColumnData(
+      actions,
+      state,
+      symbol,
+      strategy,
+      user,
+      setCurrentTenor,
+      setOrderTicket,
+      settings,
+      personality,
+    );
+  }, [actions, symbol, strategy, state, settings, setCurrentTenor, setOrderTicket, user, personality]);
   const renderDarkPoolTicket = () => {
     if (state.darkPoolTicket === null)
       return <div/>;
     const onSubmit = (order: DarkPoolOrder) => {
-      actions.createDarkPoolOrder(order);
+      actions.createDarkPoolOrder(order, personality);
       setDarkPoolTicket(null);
     };
     const ticket: DarkPoolTicketData = state.darkPoolTicket;
@@ -159,7 +169,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     if (state.orderTicket === null)
       return <div/>;
     const onSubmit = (order: Order) => {
-      actions.createOrder(order, settings.minSize);
+      actions.createOrder(order, personality, settings.minSize);
       // Remove the internal order ticket
       setOrderTicket(null);
     };
@@ -174,9 +184,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
       if ((order.status & OrderStatus.PreFilled) !== 0 || (order.status & OrderStatus.Active) !== 0) {
         actions.cancelOrder(order);
       }
-      actions.createOrder(order, settings.minSize);
+      actions.createOrder(order, personality, settings.minSize);
     });
-  }, [actions, hideRunWindow, settings.minSize]);
+  }, [actions, hideRunWindow, settings.minSize, personality]);
 
   const runID = useMemo(() => toRunId(symbol, strategy), [symbol, strategy]);
 

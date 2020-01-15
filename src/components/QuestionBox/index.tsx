@@ -1,22 +1,26 @@
 import strings from 'locales';
 import React, {ReactElement} from 'react';
+import {MessageBox} from 'components/MessageBox';
 
-interface QuestionProps {
+interface Props {
   title: string;
   content: string;
   onNo: () => void;
   onYes: () => void;
 }
 
-export const Question: React.FC<QuestionProps> = (props: QuestionProps): ReactElement => {
-  return (
-    <div className={'question-box'}>
-      <h1>{props.title}</h1>
-      <p>{props.content}</p>
-      <div className={'dialog-buttons'}>
+export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
+  const renderButtons = () => {
+    return (
+      <>
         <button className={'cancel'} onClick={props.onNo}>{strings.No}</button>
         <button className={'success'} onClick={props.onYes}>{strings.Yes}</button>
-      </div>
-    </div>
+      </>
+    );
+  };
+
+  return (
+    <MessageBox icon={'question-circle'} color={'neutral'} title={props.title} message={props.content}
+                buttons={renderButtons}/>
   );
 };

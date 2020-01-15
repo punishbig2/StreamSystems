@@ -232,6 +232,7 @@ $red-x-size: 16px;
     .price-layout,
     .size-layout {
       position: relative;
+      display: flex;
 
       input {
         padding: 0 8px;
@@ -368,6 +369,16 @@ $red-x-size: 16px;
     }
   }
 
+  &.cancelled {
+    .times {
+      i {
+        &::after, &::before {
+          content: none;
+        }
+      }
+    }
+  }
+
   div {
     width: $table-row-height;
     line-height: $table-row-height;
@@ -394,6 +405,7 @@ $red-x-size: 16px;
       }
 
       &:not(.clickable) {
+
         i {
           pointer-events: none;
 

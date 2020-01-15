@@ -4,6 +4,7 @@ import {Select, MenuItem} from '@material-ui/core';
 import {PresetQtyButton} from 'components/presetQtyButton';
 import {DarkPoolOrder, Sides} from 'interfaces/order';
 import {MessageTypes} from 'interfaces/w';
+import {SelectEventData} from 'interfaces/selectEventData';
 
 interface OwnProps {
   tenor: string;
@@ -59,7 +60,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const canSubmit: boolean = !isNaN(Number(price)) && !isNaN(Number(quantity)) && side !== '';
   const renderSide = (value: any) => !value ? <span className={'invalid'}>Side</span> : sideLabels[value as string];
   const stringSelectSetter = (fn: (value: string) => void) =>
-    (event: any) => {
+    (event: React.ChangeEvent<SelectEventData>) => {
       const {value} = event.target;
       fn(value as string);
     };
@@ -91,7 +92,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Vol</span></div>
-            <div className={'value'}><input value={price} onChange={updatePrice}/></div>
+            <div className={'value'}><input value={price} onChange={updatePrice} readOnly/></div>
           </div>
           <div className={'row'}>
             <div className={'label'}><span>Qty</span></div>
@@ -115,7 +116,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
             </div>
           </div>
         </div>
-        <div className={'dialog-buttons'}>
+        <div className={'modal-buttons'}>
           <button type={'button'} className={'cancel'} onClick={props.onCancel}>{strings.Cancel}</button>
           <button className={'success'} disabled={!canSubmit}>{strings.Submit}</button>
         </div>

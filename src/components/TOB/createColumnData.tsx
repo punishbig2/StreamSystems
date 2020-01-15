@@ -19,6 +19,7 @@ export const createColumnData = (
   setCurrentTenor: Fn1,
   setOrderTicket: Fn2,
   settings: Settings,
+  personality: string,
 ) => {
   // Dispatch properties
   return {
@@ -75,9 +76,9 @@ export const createColumnData = (
           }
         }
         if (order.quantity === null) {
-          fns.createOrder({...order, quantity: settings.defaultSize}, settings.minSize);
+          fns.createOrder({...order, quantity: settings.defaultSize}, personality, settings.minSize);
         } else {
-          fns.createOrder(order, settings.minSize);
+          fns.createOrder(order, personality, settings.minSize);
         }
         fns.setRowStatus(order, TOBRowStatus.Normal);
       } else {
@@ -114,5 +115,6 @@ export const createColumnData = (
     isBroker: user.isbroker,
     strategy: strategy,
     symbol: symbol,
+    personality: personality,
   };
 };

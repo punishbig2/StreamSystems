@@ -106,21 +106,24 @@ export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Ac
   return createAction($$(toRowID(order), RowActions.SetRowStatus), status);
 };
 
-export const createDarkPoolOrder = (order: DarkPoolOrder): AsyncAction<any, ActionType> => {
+export const createDarkPoolOrder = (order: DarkPoolOrder, personality: string): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async () => {
-    const result: any = await API.createDarkPoolOrder(order);
-    if (result.Status === 'Success') {
-      console.log('darkpool order created');
+    // Ideally no one will be able to create an order as 'STRM' because the ui forbids it
+    if (personality === 'STRM')
+      return DummyAction;
+    const result: any = await API.createDarkPoolOrder({...order, MDMkt: personality});
+    if (result.Status !== 'Success') {
+      console.warn('error creating an order for the dark pool', result);
     }
     return DummyAction;
   }, DummyAction);
 };
 
-export const createOrder = (id: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
+export const createOrder = (id: string, personality: string, order: Order, minQty: number): AsyncAction<any, ActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction($$(rowID, RowActions.CreatingOrder), order.type);
   const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
-    const result: OrderResponse = await API.createOrder(order, minQty);
+    const result: OrderResponse = await API.createOrder(order, personality, minQty);
     if (result.Status === 'Success') {
       return createAction($$(rowID, RowActions.OrderCreated), {
         order: {
@@ -168,9 +171,9 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
   return new AsyncAction<any, ActionType>(async () => {
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
-    if (tob !== null && w !== null) {
+    if (tob !== null) {
       const a1 = handlers.W(tob, false);
-      const a2 = handlers.W(w, false);
+      const a2 = w ? handlers.W(w, false) : undefined;
       return [
         ...(a1 ? [a1] : []),
         ...(a2 ? [a2] : []),

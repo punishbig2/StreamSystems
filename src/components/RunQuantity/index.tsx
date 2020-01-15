@@ -66,7 +66,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     <>
       <Quantity type={order.type}
                 value={Number(value)}
-                cancelable={cancellable}
+                cancellable={cancellable}
                 tabIndex={-1}
                 className={getOrderStatusClass(order.status, 'sizeColumn.tsx')}
                 onChange={onChange}

@@ -18,6 +18,7 @@ export interface OwnProps {
   setWindowTitle: (id: string, title: string) => void;
   onRowError: (status: TOBRowStatus) => void;
   onClose?: () => void;
+  personality: string;
 }
 
 export interface DispatchProps {
@@ -30,7 +31,7 @@ export interface DispatchProps {
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (order: Order, minSize: number) => void;
+  createOrder: (order: Order, personality: string, minSize: number) => void;
   cancelOrder: (order: Order) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;

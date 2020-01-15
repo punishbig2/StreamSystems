@@ -17,6 +17,7 @@ export interface WorkareaState {
   workspaces: { [id: string]: IWorkspace },
   messages: Message[];
   user?: User;
+  originalUser?: User;
   status: WorkareaStatus;
   connected: boolean;
   message?: string;

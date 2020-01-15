@@ -1,7 +1,7 @@
 import {Window} from 'interfaces/window';
 import {AnyAction} from 'redux';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {ToolbarState, WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {ToolbarState, WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
 
@@ -13,7 +13,10 @@ const genesisState: WorkspaceState = {
     hovering: false,
     visible: false,
   },
+  isUserProfileModalVisible: false,
   markets: [],
+  errorMessage: null,
+  personality: STRM,
 };
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
@@ -159,6 +162,14 @@ export const createWorkspaceReducer = (id: string, initialState: WorkspaceState 
         };
       case $$(id, WorkspaceActions.UpdateMarkets):
         return {...state, markets: data};
+      case $$(id, WorkspaceActions.SetPersonality):
+        return {...state, personality: data};
+      case $$(id, WorkspaceActions.SetUserProfileModalVisible):
+        return {...state, isUserProfileModalVisible: data};
+      case $$(id, WorkspaceActions.ShowError):
+        return {...state, errorMessage: data};
+      case $$(id, WorkspaceActions.CloseErrorModal):
+        return {...state, errorMessage: null};
       default:
         return state;
     }

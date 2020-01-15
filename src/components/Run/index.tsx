@@ -262,7 +262,7 @@ const Run: React.FC<Props> = (props: Props) => {
         </div>
       </div>
       <Table scrollable={false} columns={columns} rows={props.orders} renderRow={renderRow}/>
-      <div className={'dialog-buttons'}>
+      <div className={'modal-buttons'}>
         <button className={'cancel'} onClick={props.onClose}>{strings.Close}</button>
         <button className={'success'} onClick={onSubmit} disabled={!isSubmitEnabled()}>{strings.Submit}</button>
       </div>

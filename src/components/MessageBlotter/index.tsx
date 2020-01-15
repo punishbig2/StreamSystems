@@ -17,6 +17,7 @@ interface OwnProps {
   // FIXME: add filters and sorting
   setWindowTitle: (id: string, title: string) => void;
   id: string;
+  personality: string;
   connected: boolean;
 }
 

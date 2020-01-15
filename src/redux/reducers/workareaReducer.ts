@@ -54,7 +54,7 @@ const initialize = (state: WorkareaState, data: any): WorkareaState => {
   const user: User | undefined = users.find((user: User): boolean => user.email === email);
   if (!user)
     return {...state, status: WorkareaStatus.UserNotFound};
-  return {...state, ...rest, user, status: WorkareaStatus.Ready};
+  return {...state, ...rest, user: user, originalUser: user, status: WorkareaStatus.Ready};
 };
 
 export default (state: WorkareaState = initialState, {type, data}: Action): WorkareaState => {
@@ -72,7 +72,7 @@ export default (state: WorkareaState = initialState, {type, data}: Action): Work
     case WorkareaActions.RenameWorkspace:
       return renameWorkspace(state, data);
     case WorkareaActions.SetupTOBTile:
-      return state; // setupTOBTile(state, row);
+      return state;
     case WorkareaActions.Initializing:
       return {...state, status: WorkareaStatus.Initializing};
     case WorkareaActions.Initialized:

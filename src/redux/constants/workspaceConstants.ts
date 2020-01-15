@@ -14,4 +14,8 @@ export enum WorkspaceActions {
   ToolbarTogglePin = 'WorkspaceActions.ToolbarTogglePin',
   LoadingMarkets = 'WorkspaceActions.LoadingMarkets',
   UpdateMarkets = 'WorkspaceActions.UpdateMarkets',
+  SetPersonality = 'WorkspaceActions.SetPersonality',
+  SetUserProfileModalVisible = 'WorkspaceActions.SetUserProfileModalVisible',
+  ShowError = 'WorkspaceActions.ShowError',
+  CloseErrorModal = 'WorkspaceActions.CloseErrorModal',
 }

@@ -45,7 +45,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const canSubmit: boolean = price !== null && quantity !== null;
   const presetQty: string[] = ['30', '50', '100'];
   return (
-    <div>
+    <>
       <div className={'modal-title'}>
         {strings.OrderEntry}
       </div>
@@ -76,12 +76,12 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
             </div>
           </div>
         </div>
-        <div className={'dialog-buttons'}>
+        <div className={'modal-buttons'}>
           <button type={'button'} className={'cancel'} onClick={props.onCancel}>{strings.Cancel}</button>
           <button className={'success'} disabled={!canSubmit}>{strings.Submit}</button>
         </div>
       </form>
-    </div>
+    </>
   );
 };
 

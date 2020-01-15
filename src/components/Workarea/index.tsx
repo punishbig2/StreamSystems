@@ -1,6 +1,6 @@
 import messageBlotterColumns from 'columns/messageBlotter';
 import {ModalWindow} from 'components/ModalWindow';
-import {Question} from 'components/QuestionBox';
+import {QuestionBox} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {UserNotFound} from 'components/Workarea/userNotFound';
@@ -94,7 +94,8 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
     }
   }, [user, loadMessages]);
 
-  const renderCloseQuestion = () => <Question {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>;
+  const renderCloseQuestion = () => <QuestionBox {...CloseWorkspace} onYes={closeWorkspace}
+                                                 onNo={cancelCloseWorkspace}/>;
   const cancelCloseWorkspace = () => setSelectedToClose(null);
   const closeWorkspace = () => {
     props.closeWorkspace(selectedToClose as string);
@@ -115,7 +116,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
             <div className={'message-entry-value'}>{column.render(props.lastExecution)}</div>
           </div>
         ))}
-        <div className={'dialog-buttons'}>
+        <div className={'modal-buttons'}>
           <button className={'cancel'} onClick={props.clearLastExecution}>Close</button>
         </div>
       </div>

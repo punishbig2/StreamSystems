@@ -6,11 +6,16 @@ export interface ToolbarState {
   visible: boolean;
 }
 
+export const STRM: string = 'STRM';
+
 export interface WorkspaceState {
   windows: {[id: string]: Window};
   toast: string | null;
   toolbarState: ToolbarState;
   markets: string[];
+  isUserProfileModalVisible: boolean;
+  personality: string;
+  errorMessage: string | null;
 }
 
 export const defaultWorkspaceState: WorkspaceState = {
@@ -18,4 +23,7 @@ export const defaultWorkspaceState: WorkspaceState = {
   toast: null,
   toolbarState: {visible: false, hovering: false, pinned: false},
   markets: [],
+  isUserProfileModalVisible: false,
+  personality: STRM,
+  errorMessage: null,
 };
