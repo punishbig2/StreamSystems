@@ -105,9 +105,9 @@ export const createColumnData = (
     onCancelDarkPoolOrder: (order: Order) => {
       fns.cancelDarkPoolOrder(order);
     },
-    onDarkPoolDoubleClicked: (tenor: string, price: number | null) => {
+    onDarkPoolDoubleClicked: (tenor: string, price: number | null, currentOrder: Order | null) => {
       if (price !== null) {
-        fns.onDarkPoolDoubleClicked(tenor, price);
+        fns.onDarkPoolDoubleClicked(tenor, price, currentOrder);
       }
     },
     onDarkPoolPriceChanged: (tenor: string, price: number) => {

@@ -42,7 +42,8 @@ import {
   createOrder,
   cancelOrder,
   setStrategy,
-  setSymbol, cancelDarkPoolOrder,
+  setSymbol,
+  cancelDarkPoolOrder,
 } from 'redux/actions/tobActions';
 import {TOBActions} from 'redux/reducers/tobReducer';
 import {DarkPoolTicket, DarkPoolTicketData} from 'components/DarkPoolTicket';
@@ -94,7 +95,11 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     updateOrderQuantity: (order: Order) => reduxDispatch(updateOrderQuantity(id, order)),
     setRowStatus: (order: Order, status: TOBRowStatus) => reduxDispatch(setRowStatus(id, order, status)),
     publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
-    onDarkPoolDoubleClicked: (tenor: string, price: number) => setDarkPoolTicket({tenor, price}),
+    onDarkPoolDoubleClicked: (tenor: string, price: number, currentOrder: Order | null) => setDarkPoolTicket({
+      tenor,
+      price,
+      currentOrder,
+    }),
     createDarkPoolOrder: (order: DarkPoolOrder, personality: string) => reduxDispatch(createDarkPoolOrder(order, personality)),
     cancelDarkPoolOrder: (order: Order) => reduxDispatch(cancelDarkPoolOrder(id, order)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,15 +154,17 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
   const renderDarkPoolTicket = () => {
     if (state.darkPoolTicket === null)
       return <div/>;
+    const ticket: DarkPoolTicketData = state.darkPoolTicket;
     const onSubmit = (order: DarkPoolOrder) => {
-      const myOrder = ((): Order | null => {
-        return null;
-      })();
-      console.log(myOrder);
+      if (ticket.currentOrder !== null) {
+        const order: Order = ticket.currentOrder;
+        if ((order.status & OrderStatus.Owned) !== 0) {
+          actions.cancelDarkPoolOrder(ticket.currentOrder);
+        }
+      }
       actions.createDarkPoolOrder(order, personality);
       setDarkPoolTicket(null);
     };
-    const ticket: DarkPoolTicketData = state.darkPoolTicket;
     return (
       <DarkPoolTicket
         onSubmit={onSubmit}

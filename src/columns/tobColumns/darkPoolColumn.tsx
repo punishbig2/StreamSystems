@@ -42,10 +42,10 @@ const DarkPoolColumnComponent = (props: Props) => {
     };
   }, [tenor, symbol, strategy]);
 
-  const doubleClickHandler = useCallback(() => {
+  const doubleClickHandler = useCallback((currentOrder: Order | null) => {
     if (isBroker && personality === 'STRM')
       return;
-    onDarkPoolDoubleClicked(tenor, price);
+    onDarkPoolDoubleClicked(tenor, price, currentOrder);
   }, [isBroker, personality, onDarkPoolDoubleClicked, tenor, price]);
 
   const changeHandler = useCallback((value: number | null) => {
@@ -99,7 +99,7 @@ const DarkPoolColumnComponent = (props: Props) => {
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
-      onDoubleClick={doubleClickHandler}
+      onDoubleClick={() => doubleClickHandler(order)}
       onChange={changeHandler}
       onTabbedOut={tabbedOutHandler}
       value={price}
