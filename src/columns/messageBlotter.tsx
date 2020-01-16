@@ -23,6 +23,7 @@ const columns: { [key: string]: ColumnSpec[] } = {
     strategyColumn,
     priceColumn,
     cptyColumn,
+    poolColumn,
   ],
   broker: [
     transactTypeColumn,

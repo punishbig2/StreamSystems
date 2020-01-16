@@ -93,6 +93,8 @@ const DarkPoolColumnComponent = (props: Props) => {
       return <DarkPoolTooltip onCancelOrder={props.onCancelDarkPoolOrder} data={table}/>;
     };
   };
+  const rows: TOBRow[] = data ? Object.values(data) : [];
+  const full: OrderStatus = rows.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None;
   return (
     <Price
       arrow={ArrowDirection.None}
@@ -103,7 +105,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       value={price}
       tooltip={renderTooltip(myOrder)}
       readOnly={!props.isBroker}
-      status={finalOrder !== null ? finalOrder.status | OrderStatus.DarkPool : OrderStatus.None}/>
+      status={finalOrder !== null ? finalOrder.status | OrderStatus.DarkPool | full : OrderStatus.None}/>
   );
 };
 
@@ -119,3 +121,4 @@ export const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
   template: '999999.99',
   weight: 5,
 });
+

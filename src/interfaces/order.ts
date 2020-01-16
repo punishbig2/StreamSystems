@@ -56,6 +56,7 @@ export enum OrderStatus {
   BeingCancelled = 1 << 12,
   BeingLoaded = 1 << 13,
   DarkPool = 1 << 14,
+  FullDarkPool = 1 << 15,
 }
 
 export interface OrderMessage {

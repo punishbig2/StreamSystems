@@ -150,6 +150,9 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     if (state.darkPoolTicket === null)
       return <div/>;
     const onSubmit = (order: DarkPoolOrder) => {
+      const myOrder: Order = (() => {
+
+      })();
       actions.createDarkPoolOrder(order, personality);
       setDarkPoolTicket(null);
     };
