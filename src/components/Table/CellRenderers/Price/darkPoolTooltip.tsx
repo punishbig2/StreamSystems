@@ -5,15 +5,16 @@ import columns from 'columns/darkPoolDepth';
 import {percentage} from 'utils';
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import {Order} from 'interfaces/order';
 
 interface OwnProps {
   data: TOBTable | null;
+  onCancelOrder: (order: Order) => void;
 }
 
 export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any): ReactElement => {
     const {columns, row} = props;
-    console.log(row);
     return (
       <div className={'tr'} key={row.id}>
         {columns.map((column: ColumnSpec) => {
@@ -29,6 +30,6 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   if (props.data === null)
     return null;
   return (
-    <Table hideHeaders={true} columns={columns} scrollable={false} renderRow={renderRow} rows={props.data}/>
+    <Table columns={columns(props.onCancelOrder)} scrollable={false} renderRow={renderRow} rows={props.data}/>
   );
 };

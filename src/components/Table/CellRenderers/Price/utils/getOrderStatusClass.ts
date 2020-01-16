@@ -3,7 +3,7 @@ import {OrderStatus} from 'interfaces/order';
 export const getOrderStatusClass = (status: OrderStatus, className?: string): string => {
   const classes: string[] = className !== undefined ? [className] : [];
   if ((status & OrderStatus.PriceEdited) === 0) {
-    if ((status & OrderStatus.FullDarkPool) !== 0)
+    if ((status & OrderStatus.DarkPool) !== 0)
       classes.push('dark-pool');
     if ((status & OrderStatus.Owned) !== 0)
       classes.push('owned');

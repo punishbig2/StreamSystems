@@ -10,6 +10,7 @@ import React, {useCallback, useMemo, useEffect, useState} from 'react';
 import {DarkPoolTooltip} from 'components/Table/CellRenderers/Price/darkPoolTooltip';
 import {$$} from 'utils/stringPaster';
 import {TOBTable} from 'interfaces/tobTable';
+import {TOBRow} from 'interfaces/tobRow';
 
 type Props = RowType & TOBColumnData;
 
@@ -59,6 +60,39 @@ const DarkPoolColumnComponent = (props: Props) => {
     onTabbedOut(input, OrderTypes.DarkPool);
   }, [onTabbedOut]);
 
+  const findMyOrder = (table: any): Order | null => {
+    if (!table)
+      return null;
+    const values: TOBRow[] = Object.values(table);
+    const row: TOBRow | undefined = values.find(({ofr, bid}: TOBRow): boolean => {
+      if ((ofr.status & OrderStatus.Owned) !== 0)
+        return true;
+      return (bid.status & OrderStatus.Owned) !== 0;
+    });
+    if (row === undefined)
+      return null;
+    const {ofr, bid} = row;
+    if ((ofr.status & OrderStatus.Owned) !== 0)
+      return ofr;
+    return bid;
+  };
+
+  const myOrder: Order | null = findMyOrder(data);
+  const finalOrder: Order | null = myOrder ? myOrder : order;
+  const renderTooltip = (order: Order | null) => {
+    if (order === null)
+      return undefined;
+    return () => {
+      const table: TOBTable = {
+        [order.uid()]: {
+          id: order.uid(),
+          ofr: order.type === OrderTypes.Ofr ? order : undefined,
+          bid: order.type === OrderTypes.Bid ? order : undefined,
+        } as TOBRow,
+      };
+      return <DarkPoolTooltip onCancelOrder={props.onCancelDarkPoolOrder} data={table}/>;
+    };
+  };
   return (
     <Price
       arrow={ArrowDirection.None}
@@ -67,9 +101,9 @@ const DarkPoolColumnComponent = (props: Props) => {
       onChange={changeHandler}
       onTabbedOut={tabbedOutHandler}
       value={price}
-      tooltip={() => <DarkPoolTooltip data={data}/>}
+      tooltip={renderTooltip(myOrder)}
       readOnly={!props.isBroker}
-      status={order !== null ? order.status : OrderStatus.None}/>
+      status={finalOrder !== null ? finalOrder.status | OrderStatus.DarkPool : OrderStatus.None}/>
   );
 };
 

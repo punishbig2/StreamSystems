@@ -4,7 +4,7 @@ import {Order, OrderErrors, OrderMessage, Sides, OrderStatus, DarkPoolOrder} fro
 import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
-import {W} from 'interfaces/w';
+import {W, DarkPool} from 'interfaces/w';
 import {AnyAction} from 'redux';
 import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
@@ -22,6 +22,26 @@ import {RunActions} from 'redux/reducers/runReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 
 type ActionType = Action<TOBActions | string>;
+export const cancelDarkPoolOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
+  const rowID: string = toRowID(order);
+  const initialAction: AnyAction = createAction($$(rowID, RowActions.CancellingOrder, DarkPool), order.type);
+  const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
+    const result = await API.cancelDarkPoolOrder(order);
+    if (result.Status === 'Success') {
+      const type: string = $$(order.uid(), TOBActions.DeleteOrder, DarkPool);
+      const event: Event = new CustomEvent(type, {detail: result.OrderID});
+      // Emit the event
+      document.dispatchEvent(event);
+      // Return the action
+      // FIXME: we should do this with events too
+      return createAction($$(rowID, RowActions.OrderCanceled, DarkPool));
+    } else {
+      return createAction($$(rowID, RowActions.OrderNotCanceled, DarkPool));
+    }
+  };
+  return new AsyncAction<any, ActionType>(handler, initialAction);
+};
+
 
 export const cancelOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
   const rowID: string = toRowID(order);
@@ -108,9 +128,6 @@ export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Ac
 
 export const createDarkPoolOrder = (order: DarkPoolOrder, personality: string): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async () => {
-    // Ideally no one will be able to create an order as 'STRM' because the ui forbids it
-    if (personality === 'STRM')
-      return DummyAction;
     const result: any = await API.createDarkPoolOrder({...order, MDMkt: personality});
     if (result.Status !== 'Success') {
       console.warn('error creating an order for the dark pool', result);
@@ -152,10 +169,8 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
       const a2: Action<string> | null = handlers.W<ActionType>(w, true);
       if (a1 !== null) {
         const {bid, ofr} = a1.data;
-        if (bid.quantity !== null && ofr.quantity !== null) {
-          bid.status = bid.status | OrderStatus.FullDarkPool;
-          ofr.status = ofr.status | OrderStatus.FullDarkPool;
-        }
+        bid.status = bid.status | OrderStatus.DarkPool;
+        ofr.status = ofr.status | OrderStatus.DarkPool;
       }
       // Dispatch the "standardized" action + another action to capture the internalValue and
       // update some internal data

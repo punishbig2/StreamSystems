@@ -99,6 +99,45 @@ $red-x-size: 16px;
     &:last-child {
       border-right: 1px solid $table-border-color;
     }
+
+    .buy, .sell {
+      font-weight: $table-font-weight;
+      font-size: $table-font-size;
+      font-family: $table-font-family;
+    }
+
+    .buy {
+      color: green;
+    }
+
+    .sell {
+      color: red;
+    }
+
+    .ref {
+      padding: 0;
+      margin: auto;
+      text-align: center;
+      line-height: $table-row-height;
+
+      i {
+        color: $text-color-red;
+        width: $red-x-size;
+        height: $red-x-size;
+        cursor: pointer;
+        border-radius: $red-x-size / 2;
+        line-height: $red-x-size;
+
+        &:hover {
+          background-color: $text-color-red;
+          color: white;
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+      }
+    }
   }
 
   .tbody .tr:last-child {
@@ -317,7 +356,8 @@ $red-x-size: 16px;
         cursor: default;
 
         box-sizing: border-box;
-        &.dark-pool {
+
+        &.owned.dark-pool {
           background-color: yellow;
         }
 

@@ -158,7 +158,7 @@ export class API {
     const {price, quantity} = order;
     // Build a create order request
     if (currentUser.isbroker && personality === STRM)
-      throw new Error('brokers cannot create orders without a personality');
+      throw new Error('brokers cannot create orders when in streaming mode');
     const MDMkt: string | undefined = currentUser.isbroker ? personality : undefined;
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
@@ -275,6 +275,12 @@ export class API {
   }
 
   static async createDarkPoolOrder(request: DarkPoolOrder): Promise<any> {
+    const user: User = getAuthenticatedUser();
+    if (user.isbroker && request.MDMkt === 'STRM') {
+      throw new Error('brokers cannot create orders when in streaming mode');
+    } else if (!user.isbroker) {
+      request.MDMkt = user.firm;
+    }
     return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'create'), request);
   }
 
@@ -282,7 +288,17 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'modify'), request);
   }
 
-  static async cancelDarkPoolOrder(request: any): Promise<any> {
+  static async cancelDarkPoolOrder(entry: Order): Promise<any> {
+    const currentUser = getAuthenticatedUser();
+    const request = {
+      MsgType: MessageTypes.F,
+      TransactTime: getCurrentTime(),
+      User: currentUser.email,
+      Symbol: entry.symbol,
+      Strategy: entry.strategy,
+      Tenor: entry.tenor,
+      OrderID: entry.orderId,
+    };
     return post<OrderResponse>(API.getUrl(API.DarkPool, 'order', 'cancel'), request);
   }
 

@@ -14,7 +14,6 @@ interface Props {
   scrollable: boolean;
   renderRow: (props: any) => ReactElement | null;
   className?: string;
-  hideHeaders?: boolean;
 }
 
 type Filters = { [key: string]: string | undefined };
@@ -156,8 +155,6 @@ export const Table: (props: Props) => (React.ReactElement | null) = (props: Prop
     }
   };
   const getHeaders = () => {
-    if (props.hideHeaders)
-      return null;
     return (
       <Header columns={columns} addSortColumn={addSortColumn} sortBy={sortBy} addFilter={addFilter} weight={total}/>
     );

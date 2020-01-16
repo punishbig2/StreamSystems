@@ -102,6 +102,9 @@ export const createColumnData = (
       fns.updateOrderQuantity({...order, quantity: newQuantity});
       skipTabIndex(input, 1, 0);
     },
+    onCancelDarkPoolOrder: (order: Order) => {
+      fns.cancelDarkPoolOrder(order);
+    },
     onDarkPoolDoubleClicked: (tenor: string, price: number | null) => {
       if (price !== null) {
         fns.onDarkPoolDoubleClicked(tenor, price);

@@ -42,7 +42,7 @@ import {
   createOrder,
   cancelOrder,
   setStrategy,
-  setSymbol,
+  setSymbol, cancelDarkPoolOrder,
 } from 'redux/actions/tobActions';
 import {TOBActions} from 'redux/reducers/tobReducer';
 import {DarkPoolTicket, DarkPoolTicketData} from 'components/DarkPoolTicket';
@@ -96,6 +96,7 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
     onDarkPoolDoubleClicked: (tenor: string, price: number) => setDarkPoolTicket({tenor, price}),
     createDarkPoolOrder: (order: DarkPoolOrder, personality: string) => reduxDispatch(createDarkPoolOrder(order, personality)),
+    cancelDarkPoolOrder: (order: Order) => reduxDispatch(cancelDarkPoolOrder(id, order)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [id, reduxDispatch]);
 
