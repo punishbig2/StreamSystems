@@ -13,11 +13,11 @@ const getValue = (message: Message): number => {
   }
 };
 
-export default {
+export default (filterAndSort: boolean) => ({
   name: 'Size',
   template: '999999',
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   header: () => <div>Size</div>,
   render: (message: Message) => <div className={'message-blotter-cell normal'}>{getValue(message)}</div>,
   weight: 2,
@@ -31,4 +31,4 @@ export default {
   difference: (v1: Message, v2: Message) => {
     return getValue(v1) - getValue(v2);
   },
-};
+});

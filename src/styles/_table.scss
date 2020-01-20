@@ -85,6 +85,26 @@ $red-x-size: 16px;
     line-height: $table-row-height;
   }
 
+  .tbody .tr {
+    &.busted {
+      .td * {
+        text-decoration: line-through;
+      }
+    }
+
+    &.my-bank-fill {
+      .td * {
+        color: $text-color-blue;
+      }
+    }
+
+    &.my-fill {
+      .td * {
+        color: $text-color-red;
+      }
+    }
+  }
+
   .thead .tr .th,
   .tbody .tr .td {
     display: inline-block;
@@ -112,6 +132,10 @@ $red-x-size: 16px;
 
     .sell {
       color: red;
+    }
+
+    .message-blotter-cell {
+      font-weight: 600;
     }
 
     .ref {

@@ -1,4 +1,3 @@
-import {ColumnSpec} from 'components/Table/columnSpecification';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {ExecTypes, Message} from 'interfaces/message';
 import React from 'react';
@@ -9,7 +8,7 @@ const getSeller = (message: Message): string | null => {
   return null;
 };
 
-export const sellerColumn: ColumnSpec = {
+export const sellerColumn = (filterAndSort: boolean) => ({
   name: 'seller',
   difference: (m1: Message, m2: Message) => {
     const s1: string | null = getSeller(m1);
@@ -32,8 +31,8 @@ export const sellerColumn: ColumnSpec = {
   render: (message: Message) => {
     return <div>{getSeller(message)}</div>;
   },
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   template: 'SELLER',
   weight: 2,
-};
+});

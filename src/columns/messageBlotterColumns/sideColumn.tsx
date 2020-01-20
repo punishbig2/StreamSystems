@@ -1,11 +1,11 @@
 import {Message} from 'interfaces/message';
 import React from 'react';
 
-export default {
+export default (filterAndSort: boolean) => ({
   name: 'Side',
   template: 'SELL',
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   header: () => <div>Side</div>,
   render: ({Side}: Message) => (
     <div className={'message-blotter-cell normal'}>{Side === '1' ? 'Buy' : 'Sell'}</div>
@@ -18,4 +18,4 @@ export default {
   difference: (v1: Message, v2: Message): number => {
     return Number(v1) - Number(v2);
   },
-};
+});

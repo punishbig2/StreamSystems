@@ -1,5 +1,6 @@
 import {MenuItem, Select} from '@material-ui/core';
 import {MessageBlotter} from 'components/MessageBlotter';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import {TOB} from 'components/TOB';
 import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
@@ -121,12 +122,23 @@ const createWindow = (id: string,
   switch (type) {
     case WindowTypes.TOB:
       return (
-        <TOB id={id} symbols={symbols} products={products} tenors={tenors} user={user} connected={connected}
-             setWindowTitle={setWindowTitle} onRowError={onRowError} personality={personality}/>
+        <TOB id={id}
+             symbols={symbols}
+             products={products}
+             tenors={tenors}
+             user={user}
+             connected={connected}
+             setWindowTitle={setWindowTitle}
+             onRowError={onRowError}
+             personality={personality}/>
       );
     case WindowTypes.MessageBlotter:
       return (
-        <MessageBlotter id={id} setWindowTitle={setWindowTitle} connected={connected} personality={personality}/>
+        <MessageBlotter id={id}
+                        setWindowTitle={setWindowTitle}
+                        connected={connected}
+                        personality={personality}
+                        blotterType={BlotterTypes.Regular}/>
       );
     default:
       throw new Error(`invalid tile type ${type}`);
@@ -273,6 +285,8 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         renderContent={renderContent}
         windows={props.windows}
         toolbarPinned={toolbarState.pinned}
+        connected={connected}
+        personality={props.personality}
         onClearToast={() => props.showToast(null)}
         onMouseMove={onMouseMove}
         onSetWindowTitle={props.setWindowTitle}

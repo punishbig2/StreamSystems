@@ -2,11 +2,11 @@ import {ExecTypes, Message} from 'interfaces/message';
 import React from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
 
-export default {
+export default (filterAndSort: boolean) => ({
   name: 'Price',
   template: '999999.99',
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   header: () => <div>Level</div>,
   render: ({OrdStatus, LastPx, Price}: Message) => {
     if (OrdStatus === ExecTypes.PartiallyFilled || OrdStatus === ExecTypes.Filled) {
@@ -30,4 +30,4 @@ export default {
   difference: (v1: Message, v2: Message) => {
     return Number(v1.Price) - Number(v2.Price);
   },
-};
+});

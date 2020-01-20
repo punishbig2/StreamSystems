@@ -1,11 +1,11 @@
 import {Message} from 'interfaces/message';
 import React from 'react';
 
-export default {
+export default (filterAndSort: boolean) => ({
   name: 'Strategy',
   template: 'WWWWWW',
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   header: () => <div>Strategy</div>,
   render: ({Strategy}: Message) => (
     <div className={'message-blotter-cell normal'}>{Strategy}</div>
@@ -20,4 +20,4 @@ export default {
     const s1: string = v1.Strategy;
     return s1.localeCompare(v2.Strategy);
   },
-};
+});

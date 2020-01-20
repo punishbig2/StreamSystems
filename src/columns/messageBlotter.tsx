@@ -11,31 +11,35 @@ import tenorColumn from 'columns/messageBlotterColumns/tenorColumn';
 import transactTimeColumn from 'columns/messageBlotterColumns/transactTimeColumn';
 import transactTypeColumn from 'columns/messageBlotterColumns/transactTypeColumn';
 import {ColumnSpec} from 'components/Table/columnSpecification';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 
-const columns: { [key: string]: ColumnSpec[] } = {
-  normal: [
-    transactTypeColumn,
-    transactTimeColumn,
-    sideColumn,
-    sizeColumn,
-    symbolColumn,
-    tenorColumn,
-    strategyColumn,
-    priceColumn,
-    cptyColumn,
-    poolColumn,
-  ],
-  broker: [
-    transactTypeColumn,
-    sizeColumn,
-    symbolColumn,
-    tenorColumn,
-    strategyColumn,
-    priceColumn,
-    buyerColumn,
-    sellerColumn,
-    poolColumn,
-  ],
+const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: BlotterTypes) => {
+  const filterAndSort: boolean = type !== BlotterTypes.Fills;
+  return {
+    normal: [
+      ...(type === BlotterTypes.Fills ? [] : [transactTypeColumn(filterAndSort)]),
+      transactTimeColumn(filterAndSort),
+      sideColumn(filterAndSort),
+      sizeColumn(filterAndSort),
+      symbolColumn(filterAndSort),
+      tenorColumn(filterAndSort),
+      strategyColumn(filterAndSort),
+      priceColumn(filterAndSort),
+      cptyColumn(filterAndSort),
+      poolColumn(filterAndSort),
+    ],
+    broker: [
+      ...(type === BlotterTypes.Fills ? [] : [transactTypeColumn(filterAndSort)]),
+      sizeColumn(filterAndSort),
+      symbolColumn(filterAndSort),
+      tenorColumn(filterAndSort),
+      strategyColumn(filterAndSort),
+      priceColumn(filterAndSort),
+      buyerColumn(filterAndSort),
+      sellerColumn(filterAndSort),
+      poolColumn(filterAndSort),
+    ],
+  };
 };
 
 export default columns;

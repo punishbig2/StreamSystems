@@ -9,6 +9,7 @@ import {Workspace} from 'components/Workspace';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import {AnyAction} from 'redux';
 import {
   addWindow,
@@ -106,7 +107,7 @@ const Workarea: React.FC<OwnProps> = withRedux((props: Props): ReactElement | nu
   const renderMessage = () => {
     if (!props.lastExecution)
       return null;
-    const columns: ColumnSpec[] = messageBlotterColumns.normal;
+    const columns: ColumnSpec[] = messageBlotterColumns(BlotterTypes.Regular).normal;
     return (
       <div className={'message-detail'}>
         <audio src={'/sounds/alert.wav'} autoPlay={true}/>

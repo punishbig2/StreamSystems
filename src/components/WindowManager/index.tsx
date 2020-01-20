@@ -2,12 +2,17 @@ import {WindowElement} from 'components/WindowManager/window';
 import {Window} from 'interfaces/window';
 import React, {ReactElement, useState} from 'react';
 import {WindowTypes} from 'redux/constants/workareaConstants';
+import {MessageBlotter} from 'components/MessageBlotter';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
+import getStyles from 'styles';
 
 interface Props {
   toast: string | null;
   renderContent: (id: string, type: WindowTypes) => ReactElement | null;
   windows: { [id: string]: Window };
   toolbarPinned: boolean;
+  connected: boolean;
+  personality: string;
   onGeometryChange: (id: string, geometry: ClientRect) => void;
   onWindowMinimized: (id: string) => void;
   onWindowClosed: (id: string) => void;
@@ -31,13 +36,13 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   // Get minimized windows
   const minimized: [string, Window][] = windows
     .filter(([, window]: [string, Window]): boolean => window.minimized);
+  const area: ClientRect = element ? new DOMRect(0, 0, element.offsetWidth, element.offsetHeight) : BodyRectangle;
   const windowMapper = ([id, window]: [string, Window]): ReactElement => {
     const {type} = window;
     const content: ReactElement | null = renderContent(id, type);
     const geometry: ClientRect | undefined = window.geometry;
     // Geometries of sibling windows
     const updateGeometry = (g: ClientRect) => props.onGeometryChange(id, g);
-    const area: ClientRect = element ? new DOMRect(0, 0, element.offsetWidth, element.offsetHeight) : BodyRectangle;
     const onMinimize = () => props.onWindowMinimized(id);
     const onClose = () => props.onWindowClosed(id);
     const onSetTitle = (title: string) => props.onSetWindowTitle(id, title);
@@ -73,10 +78,32 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const classes = ['workspace'];
   if (props.toolbarPinned)
     classes.push('toolbar-pinned');
+  const styles = getStyles();
+  // Compute the ideal height
+  const blotterHeight: number = styles.windowToolbarHeight + styles.tableHeaderHeight + 4 * styles.tableRowHeight;
   return (
-    <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} onMouseMove={props.onMouseMove}
+    <div className={classes.join(' ')}
+         onMouseLeave={props.onMouseLeave}
+         onMouseMove={props.onMouseMove}
          ref={setElement}>
       {windows.map(windowMapper)}
+      <WindowElement geometry={new DOMRect(0, area.height - blotterHeight, 0, blotterHeight)}
+                     forbidden={empty}
+                     area={area}
+                     isMinimized={false}
+                     autoSize={true}
+                     onGeometryChange={() => null}
+                     onClose={() => null}
+                     onMinimize={() => null}
+                     onSetTitle={() => null}
+                     onClick={() => null}
+                     onAdjustSize={() => null}>
+        <MessageBlotter id={'fills-blotter'}
+                        setWindowTitle={() => null}
+                        connected={props.connected}
+                        personality={props.personality}
+                        blotterType={BlotterTypes.Fills}/>
+      </WindowElement>
       <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}
       </div>

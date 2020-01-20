@@ -10,12 +10,12 @@ const TransTypes: { [key: string]: string } = {
   [ExecTypes.PendingCancel]: 'Pending Cancel',
 };
 
-export default {
+export default (filterAndSort: boolean) => ({
   name: 'ExecTransType',
   template: 'Long String to Fit the content',
   header: () => <div>Type</div>,
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   render: (data: Message) => {
     if (TransTypes[data.OrdStatus]) {
       return (<div className={'message-blotter-cell normal'}>{TransTypes[data.OrdStatus]}</div>);
@@ -34,4 +34,5 @@ export default {
     const value = original.toLowerCase();
     return value.includes(keyword);
   },
-};
+});
+

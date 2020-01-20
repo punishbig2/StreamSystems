@@ -1,7 +1,7 @@
-import {ColumnSpec} from 'components/Table/columnSpecification';
 import React from 'react';
+import {Message} from 'interfaces/message';
 
-export const poolColumn: ColumnSpec = {
+export const poolColumn = (filterAndSort: boolean) => ({
   name: 'pool',
   difference: function (p1: any, p2: any) {
     return 0;
@@ -10,9 +10,9 @@ export const poolColumn: ColumnSpec = {
     return false;
   },
   header: () => <div>Pool</div>,
-  render: () => <div/>,
-  filterable: true,
-  sortable: true,
+  render: ({ExDestination}: Message) => <div>{ExDestination}</div>,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   template: 'POOL',
   weight: 1,
-};
+});

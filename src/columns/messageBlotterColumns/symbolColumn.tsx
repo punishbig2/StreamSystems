@@ -2,11 +2,11 @@ import {Message} from 'interfaces/message';
 import React from 'react';
 import {currencyToNumber} from 'redux/actions/workareaActions';
 
-export default {
+export default (filterAndSort: boolean) => ({
   name: 'Symbol',
   template: 'Symbol',
-  filterable: true,
-  sortable: true,
+  filterable: filterAndSort,
+  sortable: filterAndSort,
   header: () => <div>Currency</div>,
   render: ({Symbol}: Message) => (
     <div className={'message-blotter-cell normal'}>{Symbol}</div>
@@ -24,4 +24,4 @@ export default {
       return 0;
     return currencyToNumber(v1.Symbol) - currencyToNumber(v2.Symbol);
   },
-};
+});
