@@ -35,7 +35,6 @@ import {
   cancelAll,
   updateOrder,
   getRunOrders,
-  updateOrderQuantity,
   setRowStatus,
   publishDarkPoolPrice,
   createDarkPoolOrder,
@@ -92,7 +91,6 @@ export const TOB: React.FC<OwnProps> = withRedux((props: Props): ReactElement =>
     getRunOrders: (symbol: string, strategy: string) => reduxDispatch(getRunOrders(id, symbol, strategy)),
     cancelAll: (symbol: string, strategy: string, side: Sides) => reduxDispatch(cancelAll(id, symbol, strategy, side)),
     updateOrder: (entry: Order) => reduxDispatch(updateOrder(id, entry)),
-    updateOrderQuantity: (order: Order) => reduxDispatch(updateOrderQuantity(id, order)),
     setRowStatus: (order: Order, status: TOBRowStatus) => reduxDispatch(setRowStatus(id, order, status)),
     publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => reduxDispatch(publishDarkPoolPrice(id, symbol, strategy, tenor, price)),
     onDarkPoolDoubleClicked: (tenor: string, price: number, currentOrder: Order | null) => setDarkPoolTicket({

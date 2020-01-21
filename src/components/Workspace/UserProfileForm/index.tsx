@@ -1,4 +1,4 @@
-import {FormControl, FormLabel, Select, MenuItem, Input} from '@material-ui/core';
+import {FormControl, FormLabel, Select, MenuItem, Input, Checkbox, FormControlLabel} from '@material-ui/core';
 import React, {useReducer, Reducer, FormEvent, useEffect, useCallback, ReactNode} from 'react';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {User, UserTypes, UserProfile, CurrencyGroups} from 'interfaces/user';
@@ -58,6 +58,7 @@ export const UserProfileForm: React.FC<Props> = (props: Props) => {
     timezone: '',
     colorScheme: 'default',
     ccyGroup: CurrencyGroups.Invalid,
+    oco: true,
   });
 
   const onSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
@@ -68,6 +69,7 @@ export const UserProfileForm: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     API.getUserProfile(user.email)
       .then((profile: any) => {
+        console.log(profile);
       })
     ;
   }, [user.email]);
@@ -88,7 +90,7 @@ export const UserProfileForm: React.FC<Props> = (props: Props) => {
         <Grid container direction={'column'}>
 
           <Grid item container spacing={2} direction={'row'}>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'user-type'}>User Type</FormLabel>
                 <Select id={'user-type'} onChange={onChange} name={'userType'} value={state.userType}>
@@ -98,10 +100,20 @@ export const UserProfileForm: React.FC<Props> = (props: Props) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'mpid'}>MPID</FormLabel>
                 <Input id={'mpid'} onChange={onChange} name={'mpid'} value={state.mpid}/>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl margin={'normal'}>
+                <FormLabel htmlFor={'oco'}>OCO</FormLabel>
+                <FormControlLabel control={
+                  <Checkbox id={'oco'} value={state.oco} name={'oco'}
+                            onChange={onChange}/>
+                } label={'Enabled'}>
+                </FormControlLabel>
               </FormControl>
             </Grid>
           </Grid>

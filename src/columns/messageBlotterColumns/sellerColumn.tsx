@@ -29,7 +29,7 @@ export const sellerColumn = (filterAndSort: boolean) => ({
     return <div>Seller</div>;
   },
   render: (message: Message) => {
-    return <div>{getSeller(message)}</div>;
+    return <div className={'message-blotter-cell'}>{getSeller(message)}</div>;
   },
   filterable: filterAndSort,
   sortable: filterAndSort,

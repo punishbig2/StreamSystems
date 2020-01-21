@@ -1,5 +1,5 @@
-$table-font-weight: 500;
-$table-font-size: 15px;
+$table-font-weight: 400;
+$table-font-size: 14px;
 $table-font-family: 'Roboto', sans-serif;
 $red-x-size: 16px;
 
@@ -135,7 +135,9 @@ $red-x-size: 16px;
     }
 
     .message-blotter-cell {
-      font-weight: 600;
+      font-weight: $table-font-weight;
+      font-size: $table-font-size;
+      font-family: $table-font-family;
     }
 
     .ref {
@@ -310,6 +312,10 @@ $red-x-size: 16px;
         font-family: $table-font-family;
         font-weight: $table-font-weight;
 
+        &.dark-pool-base {
+          font-weight: 900;
+        }
+
         &:focus {
           outline: 2px solid $primary-color;
           outline-offset: -2px;
@@ -327,7 +333,7 @@ $red-x-size: 16px;
       font-weight: $table-font-weight;
       font-size: $table-font-size;
       font-family: $table-font-family;
-      line-height: $table-font-size;
+      line-height: $table-row-height;
       &.owned {
         color: $text-color-red;
       }

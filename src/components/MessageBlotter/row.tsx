@@ -16,7 +16,6 @@ interface Props {
 
 const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes): string => {
   const classes: string[] = [baseClassName];
-  console.log(rowType);
   switch (rowType) {
     case BlotterRowTypes.Normal:
       classes.push('normal');

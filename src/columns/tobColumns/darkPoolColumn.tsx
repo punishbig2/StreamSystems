@@ -102,6 +102,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       onDoubleClick={() => doubleClickHandler(order)}
       onChange={changeHandler}
       onTabbedOut={tabbedOutHandler}
+      className={'dark-pool-base'}
       value={price}
       tooltip={renderTooltip(myOrder)}
       readOnly={!props.isBroker}

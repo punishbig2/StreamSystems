@@ -1,18 +1,14 @@
 import equal from 'deep-equal';
-import {functionMap} from 'components/Run/fucntionMap';
 import {RunEntry} from 'components/Run/runEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
-import {EditHistory, RunState} from 'redux/stateDefs/runState';
+import {RunState} from 'redux/stateDefs/runState';
 import {$$} from 'utils/stringPaster';
-
-type Calculator = (v1: number | null, v2: number | null) => number | null;
 
 const genesisState: RunState = {
   orders: {},
-  history: {},
   defaultBidSize: 10,
   defaultOfrSize: 10,
   initialized: false,
@@ -37,60 +33,52 @@ export enum RunActions {
   SetDefaultSize = 'Run.SetDefaultSize',
 }
 
-const computeRow = (type: string, last: string | undefined, startingValues: RunEntry, v1: number): RunEntry => {
-  if (!last)
-    return startingValues;
-  // Get the last edited internalValue
-  const v2: number = startingValues[last] as number;
-  if (type === last)
-    return startingValues;
-  const findCalculator = (k1: string, k2: string, k3: string): Calculator => {
-    const l1: string = k1.charAt(0);
-    const l2: string = k2.charAt(0);
-    const l3: string = k3.charAt(0);
-    const key: string = `${l3}${l2}${l1}`;
-    if (l1 === l2) {
-      return () => v1;
-    } else if (l1 === l3) {
-      return () => v2;
-    } else {
-      return (v1: number | null, v2: number | null): number | null => {
-        if (v1 === null || v2 === null)
-          return null;
-        const fn: (a: number, b: number) => number = functionMap[key];
-        if (!fn) {
-          throw new Error(`${key} not defined in functions table`);
-        }
-        return fn(v2, v1);
+const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
+  switch (type) {
+    case RunActions.Mid:
+      if (initial.ofr === null)
+        return initial;
+      console.log('calculating?');
+      return {
+        spread: 2 * (initial.ofr - v1),
+        mid: v1,
+        bid: 2 * v1 - initial.ofr,
+        ofr: initial.ofr,
       };
-    }
-  };
-  return {
-    spread: findCalculator(RunActions.Spread, type, last)(v1, v2),
-    mid: findCalculator(RunActions.Mid, type, last)(v1, v2),
-    ofr: findCalculator(RunActions.Ofr, type, last)(v1, v2),
-    bid: findCalculator(RunActions.Bid, type, last)(v1, v2),
-  };
-};
-
-const updateHistory = (next: RunActions, original: RunActions[]): RunActions[] => {
-  if (!original || original.length === 0)
-    return [next];
-  if (original[0] === next)
-    return [...original];
-  return [next, ...original].slice(0, 2);
-};
-
-const getHistoryItem = (history: RunActions[], type: RunActions): RunActions | undefined => {
-  if (!history || history.length === 0)
-    return undefined;
-  if (history[0] === type)
-    return history[1];
-  return history[0];
+    case RunActions.Spread:
+      if (initial.mid === null)
+        return initial;
+      return {
+        spread: v1,
+        mid: initial.mid,
+        bid: (2 * initial.mid - v1) / 2,
+        ofr: (2 * initial.mid + v1) / 2,
+      };
+    case RunActions.Ofr:
+      if (initial.bid === null)
+        return initial;
+      return {
+        spread: v1 - initial.bid,
+        mid: (v1 + initial.bid) / 2,
+        bid: initial.bid,
+        ofr: v1,
+      };
+    case RunActions.Bid:
+      if (initial.ofr === null)
+        return initial;
+      return {
+        spread: initial.ofr - v1,
+        mid: (v1 + initial.ofr) / 2,
+        bid: v1,
+        ofr: initial.ofr,
+      };
+    default:
+      return initial;
+  }
 };
 
 const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): RunState => {
-  const {history, orders} = state;
+  const {orders} = state;
   // const finder = rowFinder(orders);
   // Find the interesting row
   const row: TOBRow = orders[data.id];
@@ -105,8 +93,7 @@ const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): 
     // Overwrite the one that will be replaced
     [type]: data.value,
   };
-  const last: string | undefined = getHistoryItem(history[data.id], type);
-  const computedEntry: RunEntry = computeRow(type, last, startingEntry, data.value);
+  const computedEntry: RunEntry = computeRow(type, startingEntry, data.value);
   const getRowStatus = (computed: RunEntry): TOBRowStatus => {
     if (computed.bid === null || computed.ofr === null)
       return TOBRowStatus.Normal;
@@ -155,10 +142,6 @@ const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): 
             bid: newBid,
             status: getRowStatus(computedEntry),
           },
-        },
-        history: {
-          ...history,
-          [data.id]: updateHistory(type, history[data.id]),
         },
       };
     default:
@@ -236,7 +219,6 @@ const updateOrder = (state: RunState, data: { id: string, order: Order }, key: '
   };
   return {
     ...state,
-    history: deriveEditHistory(newOrders),
     orders: newOrders,
   };
 };
@@ -263,21 +245,6 @@ const updateQty = (state: RunState, data: { id: string, value: number | null }, 
   };
 };
 
-const deriveEditHistory = (table: TOBTable): { [key: string]: RunActions[] } => {
-  const entries: [string, TOBRow][] = Object.entries(table);
-  return entries.reduce((history: EditHistory, [key, value]: [string, TOBRow]): EditHistory => {
-    const {ofr, bid} = value;
-    history[key] = [];
-    if (ofr.price !== null) {
-      history[key].push(RunActions.Ofr);
-    }
-    if (bid.price !== null) {
-      history[key].push(RunActions.Bid);
-    }
-    return history;
-  }, {});
-};
-
 export default (id: string, initialState: RunState = genesisState) => {
   return (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
     switch (type) {
@@ -294,7 +261,7 @@ export default (id: string, initialState: RunState = genesisState) => {
       case $$(id, RunActions.UpdateOfr):
         return updateOrder(state, data, 'ofr');
       case $$(id, RunActions.SetTable):
-        return {...state, orders: data, history: deriveEditHistory(data), initialized: true};
+        return {...state, orders: data};
       case $$(id, RunActions.OfrQtyChanged):
         return updateQty(state, data, 'ofr');
       case $$(id, RunActions.BidQtyChanged):

@@ -9,6 +9,7 @@ interface Props {
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   className?: string;
   tabIndex?: number;
+  onCancelEdit?: () => void;
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
@@ -16,14 +17,13 @@ interface Props {
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onSubmitted, onFocus, onChange, ...otherProps} = props;
+  const {onTabbedOut, onNavigate, onSubmitted, onFocus, onChange, onCancelEdit, ...otherProps} = props;
   const triggerChange = (input: HTMLInputElement) => {
     onChange(input.value);
     if (onSubmitted) {
       onSubmitted(input);
     }
   };
-  const reset = () => props.onChange(null);
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
@@ -33,7 +33,9 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
           event.preventDefault();
           if (event.shiftKey)
             return;
-          // Tabbed out event
+          onChange(input.value);
+          if (onSubmitted)
+            onSubmitted(input);
           onTabbedOut(input);
         }
         break;
@@ -62,20 +64,15 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         event.preventDefault();
         break;
       case 'Escape':
-        reset();
+        if (onCancelEdit) {
+          onCancelEdit();
+        }
         break;
-    }
-  };
-  const onBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-    if (props.onBlur) {
-      props.onBlur(event);
-    } else if (props.onSubmitted) {
-      props.onSubmitted(event.currentTarget);
     }
   };
   const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
-    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus} onBlur={onBlur}/>
+    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus}/>
   );
 };
 

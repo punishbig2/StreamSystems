@@ -25,4 +25,5 @@ export interface UserProfile {
   timezone: string;
   colorScheme: string;
   ccyGroup: CurrencyGroups;
+  oco: boolean;
 }

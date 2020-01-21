@@ -1,5 +1,4 @@
 import {API} from 'API';
-import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderErrors, OrderMessage, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
 import {OrderResponse} from 'interfaces/orderResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
@@ -101,7 +100,7 @@ export const publishDarkPoolPrice = (id: string, symbol: string, strategy: strin
   }, DummyAction)
 };
 
-export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
+/*export const updateOrderQuantity = (id: string, order: Order): Action<string> => {
   if (order.type === OrderTypes.Ofr) {
     return createAction($$(toRowID(order), RowActions.UpdateOfr), order);
   } else if (order.type === OrderTypes.Bid) {
@@ -109,7 +108,7 @@ export const updateOrderQuantity = (id: string, order: Order): Action<string> =>
   } else {
     throw new Error('what the hell should I do?');
   }
-};
+};*/
 
 export const updateOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {

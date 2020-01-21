@@ -99,7 +99,11 @@ export const createColumnData = (
       }
     },
     onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
-      fns.updateOrderQuantity({...order, quantity: newQuantity});
+      if (order.price !== null && (order.status & OrderStatus.Cancelled) === 0) {
+        fns.cancelOrder(order);
+        fns.createOrder({...order, quantity: newQuantity});
+      }
+      // fns.updateOrderQuantity({...order, quantity: newQuantity});
       skipTabIndex(input, 1, 0);
     },
     onCancelDarkPoolOrder: (order: Order) => {

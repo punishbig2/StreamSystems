@@ -6,6 +6,7 @@ export interface State {
   flash: boolean;
   startedShowingTooltip: boolean;
   visible: boolean;
+  initialStatus: OrderStatus;
   status: OrderStatus;
   internalValue: string;
 }

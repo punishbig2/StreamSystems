@@ -18,6 +18,8 @@ export const reducer = (state: State, {type, data}: Action<PriceActions>): State
       return {...state, status: data};
     case PriceActions.SetValue:
       return {...state, internalValue: data.value, status: state.status | data.status};
+    case PriceActions.ResetValue:
+      return {...state, internalValue: data.value, status: data.status};
     case PriceActions.Flash:
       return {...state, flash: true};
     case PriceActions.Unflash:

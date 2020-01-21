@@ -60,6 +60,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     startedShowingTooltip: false,
     visible: false,
     flash: false,
+    initialStatus: props.status,
     status: props.status || OrderStatus.None,
     internalValue: priceFormatter(value),
   });
@@ -69,6 +70,9 @@ export const Price: React.FC<Props> = (props: Props) => {
   const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
   const setValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
+  }, []);
+  const resetValue = useCallback((value: string, status: OrderStatus) => {
+    dispatch(createAction(PriceActions.ResetValue, {value, status}));
   }, []);
 
   const showTooltip = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -161,7 +165,11 @@ export const Price: React.FC<Props> = (props: Props) => {
       if (isNaN(numeric) || numeric === 0) {
         props.onChange(null, false);
       } else {
-        const changed: boolean = priceFormatter(numeric) !== priceFormatter(value);
+        const changed: boolean = (() => {
+          if ((props.status & OrderStatus.Owned) === 0)
+            return true;
+          return priceFormatter(numeric) !== priceFormatter(value);
+        })();
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);
         if (props.min !== null && props.min !== undefined) {
@@ -190,6 +198,9 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
+  const onCancelEdit = () => {
+    resetValue(priceFormatter(props.value), props.status & ~OrderStatus.PriceEdited);
+  };
 
   if ((props.status & OrderStatus.BeingCreated) !== 0) {
     return (
@@ -218,6 +229,8 @@ export const Price: React.FC<Props> = (props: Props) => {
           tabIndex={props.tabIndex}
           value={finalValue()}
           className={getOrderStatusClass(state.status, props.className)}
+          onCancelEdit={onCancelEdit}
+          onBlur={onCancelEdit}
           onDoubleClick={onDoubleClick}
           onChange={onChange}
           onSubmitted={onSubmitted}
