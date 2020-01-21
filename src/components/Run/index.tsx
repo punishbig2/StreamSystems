@@ -138,7 +138,7 @@ const Run: React.FC<Props> = (props: Props) => {
   useInitializer(tenors, symbol, strategy, email, setTable);
 
   const getSelectedOrders = (): Order[] => {
-    if (props.orders === null || !props.initialized)
+    if (!props.orders)
       return [];
     const rows: TOBRow[] = Object
       .values(props.orders)
