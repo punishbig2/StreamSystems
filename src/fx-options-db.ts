@@ -34,6 +34,11 @@ export const FXOptionsDB = {
       req.onerror = reject;
     });
   },
+  del: async (storeName: string, rootKey: string) => {
+    const tx: IDBTransaction = await createTransaction(storeName, 'readwrite');
+    const store: IDBObjectStore = tx.objectStore(storeName);
+    return store.delete(rootKey);
+  },
   put: async (storeName: string, rootKey: string, key: string | null, value: any, replace: boolean = false) => {
     const tx: IDBTransaction = await createTransaction(storeName, 'readwrite');
     return new Promise((resolve: (data: any) => void, reject: () => void) => {
@@ -96,10 +101,11 @@ export const FXOptionsDB = {
     const index: number = windows.indexOf(windowID);
     if (index === -1)
       throw Error(`no window with id \`${windowID} was found' in workspace ${workspaceID}`);
+    console.log('before', windows);
     windows.splice(index, 1);
-    // const windows = await FXOptionsDB.getObject('windows')
-    // await FXOptionsDB.del('windows', windowID);
-    return FXOptionsDB.put('workspaces', workspaceID, 'windows', windows);
+    console.log('after', windows);
+    await FXOptionsDB.del('windows', windowID);
+    return FXOptionsDB.put('workspaces', workspaceID, 'windows', windows, true);
   },
   addWorkspace: async (workspace: any) => {
     return FXOptionsDB.put('workarea', 'workspaces', null, [workspace]);
@@ -110,6 +116,12 @@ export const FXOptionsDB = {
     if (index === -1)
       throw new Error('invalid workspace, cannot delete it');
     workspaces.splice(index, 1);
+    const windows: string[] = await FXOptionsDB.getWindowsList(workspaceID);
+    const promises: Promise<any>[] = windows.map(async (windowID: string) => {
+      return FXOptionsDB.removeWindow(workspaceID, windowID);
+    });
+    await Promise.all(promises);
+    await FXOptionsDB.del('workspaces', workspaceID);
     return FXOptionsDB.put('workarea', 'workspaces', null, workspaces, true);
   },
   getWorkspacesList: async () => {
