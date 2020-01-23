@@ -1,7 +1,7 @@
-import { MDEntry, OrderTypes } from "interfaces/mdEntry";
-import { User } from "interfaces/user";
-import { ArrowDirection, MessageTypes, W } from "interfaces/w";
-import { $$ } from "utils/stringPaster";
+import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
+import {User} from 'interfaces/user';
+import {ArrowDirection, MessageTypes, W} from 'interfaces/w';
+import {$$} from 'utils/stringPaster';
 
 export enum Sides {
   Buy = "BUY",
@@ -57,7 +57,8 @@ export enum OrderStatus {
   BeingCancelled = 1 << 12,
   BeingLoaded = 1 << 13,
   DarkPool = 1 << 14,
-  FullDarkPool = 1 << 15
+  FullDarkPool = 1 << 15,
+  OwnedByBroker = 1 << 16,
 }
 
 export interface OrderMessage {
@@ -155,12 +156,13 @@ export class Order {
         : OrderStatus.NotOwned;
     const sameBank: OrderStatus =
       user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
-    const prefilled: OrderStatus =
+    const preFilled: OrderStatus =
       price !== null ? OrderStatus.PreFilled : OrderStatus.None;
     const cancelled: OrderStatus =
       price !== null && !entry.MDEntrySize
         ? OrderStatus.Cancelled
         : OrderStatus.None;
+    const isOwnerBroker: OrderStatus = user.isbroker ? OrderStatus.OwnedByBroker : OrderStatus.None;
     const order: Order = new Order(
       w.Tenor,
       w.Symbol,
@@ -174,7 +176,7 @@ export class Order {
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;
     order.status =
-      OrderStatus.Active | ownership | prefilled | sameBank | cancelled;
+      OrderStatus.Active | ownership | preFilled | sameBank | cancelled | isOwnerBroker;
     order.arrowDirection = normalizeTickDirection(entry.TickDirection);
     // Now return the built order
     return order;

@@ -1,16 +1,20 @@
-import { TOBColumnData } from "components/TOB/data";
-import { HeaderAction, DualTableHeader } from "components/dualTableHeader";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { Order, OrderStatus } from "interfaces/order";
-import { TOBPrice } from "columns/tobPrice";
-import React from "react";
-import { getChevronStatus, Type, RowType } from "columns/tobColumns/common";
-import { STRM } from "redux/stateDefs/workspaceState";
+import {TOBColumnData} from 'components/TOB/data';
+import {HeaderAction, DualTableHeader} from 'components/dualTableHeader';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {Order, OrderStatus} from 'interfaces/order';
+import {TOBPrice} from 'columns/tobPrice';
+import React from 'react';
+import {getChevronStatus, Type, RowType} from 'columns/tobColumns/common';
+import {STRM} from 'redux/stateDefs/workspaceState';
 
 const getPriceIfApplies = (order: Order | undefined): number | undefined => {
   if (order === undefined) return undefined;
   if ((order.status & OrderStatus.SameBank) !== 0) return order.price as number;
   return undefined;
+};
+
+const getBankMatchesPersonalityStatus = (order: Order, personality: string) => {
+  return order.firm === personality ? OrderStatus.SameBank : OrderStatus.None;
 };
 
 const isNonEmpty = (order: Order) =>
@@ -35,12 +39,14 @@ export const PriceColumn = (
       const { [type]: order, depths } = row;
       const bid: Order | undefined = type === "ofr" ? row.bid : undefined;
       const ofr: Order | undefined = type === "bid" ? row.ofr : undefined;
-      const status: OrderStatus =
-        getChevronStatus(depths, order.tenor, order.type) | order.status;
+      const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
+        | getBankMatchesPersonalityStatus(order, data.personality)
+        | order.status
+      ;
       return (
         <TOBPrice
           depths={depths}
-          order={{ ...order, status }}
+          order={{...order, status}}
           min={getPriceIfApplies(bid)}
           max={getPriceIfApplies(ofr)}
           readOnly={data.isBroker && data.personality === STRM}

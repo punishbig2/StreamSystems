@@ -337,7 +337,8 @@ $red-x-size: 16px;
       font-size: $table-font-size;
       font-family: $table-font-family;
       line-height: $table-row-height;
-      &.owned {
+
+      &:not(.owned-by-broker).owned {
         color: $text-color-red;
       }
     }
@@ -398,12 +399,13 @@ $red-x-size: 16px;
           cursor: initial;
         }
 
-        &.owned {
+        &:not(.owned-by-broker).owned {
           color: $text-color-red;
         }
 
         &.mid,
-        &:not(.owned).same-bank {
+        &:not(.owned).same-bank,
+        &.owned-by-broker.same-bank {
           color: $text-color-blue;
         }
 
