@@ -6,6 +6,7 @@ import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TenorType} from 'interfaces/w';
 import {Settings} from 'settings';
 import {skipTabIndex} from 'utils/skipTab';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 
 type Fn1 = (tenor: TenorType | null) => void;
 type Fn2 = (order: Order) => void;
@@ -28,10 +29,10 @@ export const createColumnData = (
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
       switch (type) {
         case OrderTypes.Bid:
-          skipTabIndex(input, 2, 1);
+          skipTabIndex(input, 1, 1);
           break;
         case OrderTypes.Ofr:
-          skipTabIndex(input, 3, 1);
+          skipTabIndex(input, 1, 1);
           break;
         case OrderTypes.DarkPool:
           skipTabIndex(input, 1, 1);
@@ -142,6 +143,22 @@ export const createColumnData = (
     },
     onDarkPoolPriceChanged: (tenor: string, price: number) => {
       fns.publishDarkPoolPrice(symbol, strategy, tenor, price);
+    },
+    onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
+      switch (direction) {
+        case NavigateDirection.Up:
+          skipTabIndex(target, -3, 1);
+          break;
+        case NavigateDirection.Left:
+          skipTabIndex(target, -1, 1);
+          break;
+        case NavigateDirection.Down:
+          skipTabIndex(target, 3, 1);
+          break;
+        case NavigateDirection.Right:
+          skipTabIndex(target, 1, 1);
+          break;
+      }
     },
     aggregatedSz: state.aggregatedSz,
     buttonsEnabled: symbol !== "" && strategy !== "",

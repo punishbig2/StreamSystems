@@ -3,6 +3,7 @@ import React, {ReactElement} from 'react';
 
 interface Props {
   value: string;
+  type: 'price' | 'size',
   onChange: (value: string | null) => void;
   onDoubleClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
   readOnly?: boolean;
@@ -26,12 +27,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
     onCancelEdit,
     ...otherProps
   } = props;
-  const triggerChange = (input: HTMLInputElement) => {
-    onChange(input.value);
-    if (onSubmitted) {
-      onSubmitted(input);
-    }
-  };
+
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
@@ -82,6 +78,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <input
       {...otherProps}
+      data-input-type={props.type}
       onKeyDown={onKeyPress}
       onChange={onChangeWrapper}
       onFocus={onFocus}

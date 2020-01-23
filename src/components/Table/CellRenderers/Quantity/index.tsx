@@ -37,6 +37,7 @@ export const Quantity: React.FC<OwnProps> = (
     <NumericInput
       key={1}
       value={getValue()}
+      type={'size'}
       className={props.className}
       onTabbedOut={props.onTabbedOut}
       onChange={(value: string | null) => props.onChange(value)}

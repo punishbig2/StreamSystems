@@ -73,6 +73,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     <Quantity
       value={value}
       type={order.type}
+      tabIndex={-1}
       onChange={onChange}
       onCancel={onCancel}
       onTabbedOut={onTabbedOut}

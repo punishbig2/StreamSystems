@@ -1,7 +1,8 @@
-import { PriceErrors } from "components/Table/CellRenderers/Price";
-import { AggregatedSz } from "components/TOB/reducer";
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
+import {PriceErrors} from 'components/Table/CellRenderers/Price';
+import {AggregatedSz} from 'components/TOB/reducer';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 
 export interface TOBColumnData {
   onTenorSelected: (tenor: string) => void;
@@ -30,6 +31,7 @@ export interface TOBColumnData {
     price: number | null,
     currentOrder: Order | null
   ) => void;
+  onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onCancelDarkPoolOrder: (order: Order) => void;
   personality: string;
   symbol: string;

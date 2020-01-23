@@ -262,6 +262,7 @@ export const Price: React.FC<Props> = (props: Props) => {
           onFocus={onFocus}
           onTabbedOut={onTabbedOut}
           onNavigate={props.onNavigate}
+          type={'price'}
         />
         {/* The floating object */}
         {getTooltip()}

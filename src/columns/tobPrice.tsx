@@ -1,10 +1,11 @@
-import { getMiniDOBByType } from "columns/tobMiniDOB";
-import { Price, PriceErrors } from "components/Table/CellRenderers/Price";
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order, OrderStatus } from "interfaces/order";
-import { TOBTable } from "interfaces/tobTable";
-import React from "react";
-import { MiniDOB } from "components/Table/CellRenderers/Price/miniDob";
+import {getMiniDOBByType} from 'columns/tobMiniDOB';
+import {Price, PriceErrors} from 'components/Table/CellRenderers/Price';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order, OrderStatus} from 'interfaces/order';
+import {TOBTable} from 'interfaces/tobTable';
+import React from 'react';
+import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 
 interface Props {
   order: Order;
@@ -16,6 +17,7 @@ interface Props {
   onChange: (order: Order) => void;
   onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => void;
   onError: (order: Order, error: PriceErrors, input: HTMLInputElement) => void;
+  onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
@@ -56,6 +58,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
         props.onTabbedOut(input, order.type)
       }
       onDoubleClick={onDoubleClick}
+      onNavigate={props.onNavigate}
       onChange={onChange}
     />
   );

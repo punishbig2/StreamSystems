@@ -7,7 +7,6 @@ import {useEffect} from 'react';
 import {toRowID} from 'utils';
 import {compareTenors} from 'utils/dataGenerators';
 import {FXOptionsDB} from 'fx-options-db';
-import {dark} from '@material-ui/core/styles/createPalette';
 
 const buildRows = async (
   tenors: string[],
@@ -41,7 +40,6 @@ const buildRows = async (
 
       const rowID: string = toRowID(bid);
       const darkPrice: number | null | undefined = await FXOptionsDB.getDarkPool(rowID);
-      console.log(rowID, darkPrice);
       const row: TOBRow = {
         tenor: tenor,
         id: toRowID(bid),

@@ -125,9 +125,6 @@ const DarkPoolColumnComponent = (props: Props) => {
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
-      onDoubleClick={() => doubleClickHandler(order)}
-      onChange={changeHandler}
-      onTabbedOut={tabbedOutHandler}
       className={"dark-pool-base"}
       value={price}
       tooltip={renderTooltip(myOrder)}
@@ -137,6 +134,10 @@ const DarkPoolColumnComponent = (props: Props) => {
           ? finalOrder.status | OrderStatus.DarkPool | full
           : OrderStatus.None
       }
+      onDoubleClick={() => doubleClickHandler(order)}
+      onChange={changeHandler}
+      onTabbedOut={tabbedOutHandler}
+      onNavigate={props.onNavigate}
     />
   );
 };

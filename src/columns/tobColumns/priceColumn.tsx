@@ -48,6 +48,7 @@ export const PriceColumn = (
           onTabbedOut={data.onTabbedOut}
           onDoubleClick={isNonEmpty(order) ? data.onDoubleClick : undefined}
           onError={data.onOrderError}
+          onNavigate={data.onNavigate}
         />
       );
     },
