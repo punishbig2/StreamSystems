@@ -9,11 +9,13 @@
   text-align: center;
   font-size: 16px;
   font-weight: 500;
+
   p {
     padding: 24px;
     font-weight: inherit;
     font-size: inherit;
   }
+
   button {
     color: $primary-color;
     background: none;
@@ -26,6 +28,7 @@
     margin: 0 0 0 1ex;
     cursor: pointer;
   }
+
   h1 i {
     font-size: 90px;
     color: crimson;

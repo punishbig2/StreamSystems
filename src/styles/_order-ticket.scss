@@ -1,5 +1,6 @@
 .order-ticket {
   min-width: 400px;
+
   .title-chain {
     border-bottom: 1px solid $table-border-color;
     padding: 2px 8px;
@@ -79,10 +80,12 @@
 
       .MuiInputBase-root {
         width: 100%;
+
         .MuiSelect-root {
           padding: 0 10px;
           line-height: 2.25;
           font-size: 14px;
+
           .invalid {
             opacity: 0.5;
           }
@@ -92,6 +95,7 @@
       .buttons {
         display: flex;
         margin: -1px 0 0 0;
+
         button {
           flex: 1;
           padding: 0;
@@ -99,24 +103,30 @@
           border: 1px solid darken($table-border-color, 5%);
           border-left-color: transparent;
           border-top-color: transparent;
+
           &:first-child {
             border-left-color: darken($table-border-color, 5%);
           }
+
           background: linear-gradient(
-            to bottom,
-            lighten($table-border-color, 8%),
-            lighten($table-border-color, 3%)
+                          to bottom,
+                          lighten($table-border-color, 8%),
+                          lighten($table-border-color, 3%)
           );
           transition: color 0.25s;
+
           &:hover {
             color: $primary-color;
           }
+
           &:nth-child(2) {
             width: 34%;
           }
+
           &:first-child {
             border-bottom-left-radius: 3px;
           }
+
           &:last-child {
             border-bottom-right-radius: 3px;
           }

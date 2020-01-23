@@ -1,13 +1,13 @@
-import { usePrevious } from "hooks/usePrevious";
-import { useEffect } from "react";
+import {usePrevious} from 'hooks/usePrevious';
+import {useEffect} from 'react';
 
 export const useValueComparator = (
   propsValue: number | null,
   stateValue: string,
-  startFlashing: () => void
+  startFlashing: () => void,
 ) => {
   const oldValue: number | null | undefined = usePrevious<number | null>(
-    propsValue
+    propsValue,
   );
   useEffect(() => {
     if (oldValue === null || oldValue === undefined) return;

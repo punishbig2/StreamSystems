@@ -1,31 +1,31 @@
-import { ExecTypes, Message } from "interfaces/message";
-import React from "react";
+import {ExecTypes, Message} from 'interfaces/message';
+import React from 'react';
 
 const TransTypes: { [key: string]: string } = {
-  [ExecTypes.New]: "New",
-  [ExecTypes.Canceled]: "Cancel",
-  [ExecTypes.PartiallyFilled]: "Partially Filled",
-  [ExecTypes.Filled]: "Filled",
-  [ExecTypes.Replace]: "Replace",
-  [ExecTypes.PendingCancel]: "Pending Cancel"
+  [ExecTypes.New]: 'New',
+  [ExecTypes.Canceled]: 'Cancel',
+  [ExecTypes.PartiallyFilled]: 'Partially Filled',
+  [ExecTypes.Filled]: 'Filled',
+  [ExecTypes.Replace]: 'Replace',
+  [ExecTypes.PendingCancel]: 'Pending Cancel',
 };
 
 export default (sortable: boolean) => ({
-  name: "ExecTransType",
-  template: "Long String to Fit the content",
+  name: 'ExecTransType',
+  template: 'Long String to Fit the content',
   header: () => <div>Type</div>,
   filterable: true,
   sortable: sortable,
   render: (data: Message) => {
     if (TransTypes[data.OrdStatus]) {
       return (
-        <div className={"message-blotter-cell normal"}>
+        <div className={'message-blotter-cell normal'}>
           {TransTypes[data.OrdStatus]}
         </div>
       );
     } else {
       return (
-        <div className={"message-blotter-cell normal red"}>
+        <div className={'message-blotter-cell normal red'}>
           {data.OrdStatus}
         </div>
       );
@@ -40,5 +40,5 @@ export default (sortable: boolean) => ({
     if (!original) return false;
     const value = original.toLowerCase();
     return value.includes(keyword);
-  }
+  },
 });

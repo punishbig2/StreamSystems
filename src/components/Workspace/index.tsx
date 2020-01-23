@@ -1,15 +1,15 @@
-import { MenuItem, Select } from "@material-ui/core";
-import { MessageBlotter } from "components/MessageBlotter";
-import { BlotterTypes } from "redux/constants/messageBlotterConstants";
-import { TOB } from "components/TOB";
-import { WindowManager } from "components/WindowManager";
-import { Currency } from "interfaces/currency";
-import { Strategy } from "interfaces/strategy";
-import { TOBRowStatus } from "interfaces/tobRow";
-import { User } from "interfaces/user";
-import React, { ReactElement, useCallback, useEffect, ReactNode } from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
+import {MenuItem, Select} from '@material-ui/core';
+import {MessageBlotter} from 'components/MessageBlotter';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
+import {TOB} from 'components/TOB';
+import {WindowManager} from 'components/WindowManager';
+import {Currency} from 'interfaces/currency';
+import {Strategy} from 'interfaces/strategy';
+import {TOBRowStatus} from 'interfaces/tobRow';
+import {User} from 'interfaces/user';
+import React, {ReactElement, useCallback, useEffect, ReactNode} from 'react';
+import {connect} from 'react-redux';
+import {Dispatch} from 'redux';
 import {
   addWindow,
   bringToFront,
@@ -29,18 +29,18 @@ import {
   showUserProfileModal,
   closeUserProfileModal,
   closeErrorModal,
-  refAll
-} from "redux/actions/workspaceActions";
-import { ApplicationState } from "redux/applicationState";
-import { WindowTypes } from "redux/constants/workareaConstants";
-import { dynamicStateMapper } from "redux/dynamicStateMapper";
-import { WorkspaceState, STRM } from "redux/stateDefs/workspaceState";
+  refAll,
+} from 'redux/actions/workspaceActions';
+import {ApplicationState} from 'redux/applicationState';
+import {WindowTypes} from 'redux/constants/workareaConstants';
+import {dynamicStateMapper} from 'redux/dynamicStateMapper';
+import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 
-import { getAuthenticatedUser } from "utils/getCurrentUser";
-import { SelectEventData } from "interfaces/selectEventData";
-import { ModalWindow } from "components/ModalWindow";
-import { UserProfileForm } from "components/Workspace/UserProfileForm";
-import { ErrorBox } from "components/ErrorBox";
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {SelectEventData} from 'interfaces/selectEventData';
+import {ModalWindow} from 'components/ModalWindow';
+import {UserProfileForm} from 'components/Workspace/UserProfileForm';
+import {ErrorBox} from 'components/ErrorBox';
 
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
@@ -77,7 +77,7 @@ interface OwnProps {
 const cache: { [key: string]: DispatchProps } = {};
 const mapDispatchToProps = (
   dispatch: Dispatch,
-  { id }: OwnProps
+  {id}: OwnProps,
 ): DispatchProps => {
   if (!cache[id]) {
     cache[id] = {
@@ -85,7 +85,7 @@ const mapDispatchToProps = (
       updateGeometry: (
         windowId: string,
         geometry: ClientRect,
-        resized: boolean
+        resized: boolean,
       ) => dispatch(moveWindow(id, windowId, geometry, resized)),
       removeWindow: (windowId: string) => dispatch(removeWindow(id, windowId)),
       minimizeWindow: (windowId: string) =>
@@ -108,20 +108,18 @@ const mapDispatchToProps = (
       showUserProfileModal: () => dispatch(showUserProfileModal(id)),
       closeUserProfileModal: () => dispatch(closeUserProfileModal(id)),
       refAll: () => dispatch(refAll(id)),
-      closeErrorModal: () => dispatch(closeErrorModal(id))
+      closeErrorModal: () => dispatch(closeErrorModal(id)),
     };
   }
   return cache[id];
 };
 
-const withRedux: (ignored: any) => any = connect<
-  WorkspaceState,
+const withRedux: (ignored: any) => any = connect<WorkspaceState,
   DispatchProps,
   OwnProps,
-  ApplicationState
->(
+  ApplicationState>(
   dynamicStateMapper<WorkspaceState, OwnProps, ApplicationState>(),
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
@@ -136,7 +134,7 @@ const createWindow = (
   user: User,
   setWindowTitle: (id: string, title: string) => void,
   onRowError: (status: TOBRowStatus) => void,
-  personality: string
+  personality: string,
 ) => {
   switch (type) {
     case WindowTypes.TOB:
@@ -175,14 +173,14 @@ const objectToCssClass = (object: any, base: string) => {
       classes.push(key);
     }
   }
-  return classes.join(" ");
+  return classes.join(' ');
 };
 
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
-  const { toolbarState } = props;
-  const { symbols, products, tenors, connected } = props;
-  const { toolbarTryShow, toolbarShow, toolbarHide, toolbarTogglePin } = props;
-  const { showToast, setWindowTitle, loadMarkets } = props;
+  const {toolbarState} = props;
+  const {symbols, products, tenors, connected} = props;
+  const {toolbarTryShow, toolbarShow, toolbarHide, toolbarTogglePin} = props;
+  const {showToast, setWindowTitle, loadMarkets} = props;
 
   const user: User = getAuthenticatedUser();
 
@@ -210,12 +208,12 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     }, 1500);
     // Of the mouse is clicked then we may want to do something else
     // like grab a window so cancel the visibility trigger
-    document.addEventListener("mousedown", toolbarHide, true);
+    document.addEventListener('mousedown', toolbarHide, true);
     // Also cancel if the mouse goes out of the page
-    document.addEventListener("mouseleave", toolbarHide, true);
+    document.addEventListener('mouseleave', toolbarHide, true);
     return () => {
-      document.removeEventListener("mouseleave", toolbarHide, true);
-      document.removeEventListener("mousedown", toolbarHide, true);
+      document.removeEventListener('mouseleave', toolbarHide, true);
+      document.removeEventListener('mousedown', toolbarHide, true);
       clearTimeout(timer);
     };
   }, [toolbarHide, toolbarShow, toolbarState.hovering]);
@@ -242,10 +240,10 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         case TOBRowStatus.Normal:
           break;
         case TOBRowStatus.InvertedMarketsError:
-          showToast("Inverted Markets Not Allowed");
+          showToast('Inverted Markets Not Allowed');
           break;
         case TOBRowStatus.NegativePrice:
-          showToast("Negative Prices Not Allowed");
+          showToast('Negative Prices Not Allowed');
           break;
         case TOBRowStatus.IncompleteError:
           break;
@@ -253,14 +251,14 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
           break;
       }
     },
-    [showToast]
+    [showToast],
   );
 
   const renderContent = (
     id: string,
-    type: WindowTypes
+    type: WindowTypes,
   ): ReactElement | null => {
-    const { personality } = props;
+    const {personality} = props;
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
     return createWindow(
@@ -273,26 +271,26 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       user,
       setWindowTitle,
       onRowError,
-      personality
+      personality,
     );
   };
 
   const onPersonalityChange = ({
-    target
-  }: React.ChangeEvent<SelectEventData>) => {
+                                 target,
+                               }: React.ChangeEvent<SelectEventData>) => {
     props.setPersonality(target.value as string);
   };
 
   const getBrokerButtons = (): ReactNode => {
     const user: User = getAuthenticatedUser();
     if (user.isbroker) {
-      const { markets } = props;
+      const {markets} = props;
       const renderValue = (value: unknown): React.ReactNode => {
         return value as string;
       };
       if (markets.length === 0) return null;
       return (
-        <div className={"broker-buttons"}>
+        <div className={'broker-buttons'}>
           <Select
             value={props.personality}
             autoWidth={true}
@@ -309,10 +307,10 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
             ))}
           </Select>
           <button onClick={props.refAll}>
-            <i className={"fa fa-eraser"} /> Ref ALL
+            <i className={'fa fa-eraser'}/> Ref ALL
           </button>
           <button onClick={props.showUserProfileModal}>
-            <i className={"fa fa-user"} /> User Prof
+            <i className={'fa fa-user'}/> User Prof
           </button>
         </div>
       );
@@ -324,21 +322,21 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   return (
     <>
       <div
-        className={objectToCssClass(toolbarState, "toolbar")}
+        className={objectToCssClass(toolbarState, 'toolbar')}
         onMouseLeave={onMouseLeave}
       >
-        <div className={"content"}>
+        <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>
-            <i className={"fa fa-plus"} /> Add POD
+            <i className={'fa fa-plus'}/> Add POD
           </button>
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>
-            <i className={"fa fa-eye"} /> Add Blotter
+            <i className={'fa fa-eye'}/> Add Blotter
           </button>
           {getBrokerButtons()}
-          <div className={"pin"} onClick={toolbarTogglePin}>
+          <div className={'pin'} onClick={toolbarTogglePin}>
             <i
               className={
-                "fa " + (toolbarState.pinned ? "fa-lock" : "fa-unlock")
+                'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')
               }
             />
           </div>
@@ -363,14 +361,14 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       />
       <ModalWindow
         render={() => (
-          <UserProfileForm onCancel={props.closeUserProfileModal} />
+          <UserProfileForm onCancel={props.closeUserProfileModal}/>
         )}
         visible={props.isUserProfileModalVisible}
       />
       <ModalWindow
         render={() => (
           <ErrorBox
-            title={"Oops, there was an error"}
+            title={'Oops, there was an error'}
             message={props.errorMessage as string}
             onClose={props.closeErrorModal}
           />
@@ -382,4 +380,4 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
 };
 
 const connected = withRedux(Workspace);
-export { connected as Workspace };
+export {connected as Workspace};

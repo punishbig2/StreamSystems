@@ -1,7 +1,7 @@
-import { Order } from "interfaces/order";
-import { useEffect } from "react";
-import { $$ } from "utils/stringPaster";
-import { TOBActions } from "redux/reducers/tobReducer";
+import {Order} from 'interfaces/order';
+import {useEffect} from 'react';
+import {$$} from 'utils/stringPaster';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 export interface Functions {
   onDelete: (id: string) => void;
@@ -12,7 +12,7 @@ export const useOrderListener = (
   tenors: string[],
   symbol: string,
   strategy: string,
-  fns: Functions
+  fns: Functions,
 ) => {
   useEffect(() => {
     const onUpdate = (event: Event) => {

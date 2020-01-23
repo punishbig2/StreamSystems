@@ -1,6 +1,6 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { ExecTypes, Message } from "interfaces/message";
-import React from "react";
+import {OrderTypes} from 'interfaces/mdEntry';
+import {ExecTypes, Message} from 'interfaces/message';
+import React from 'react';
 
 const getSeller = (message: Message): string | null => {
   if (
@@ -12,7 +12,7 @@ const getSeller = (message: Message): string | null => {
 };
 
 export const sellerColumn = (sortable: boolean) => ({
-  name: "seller",
+  name: 'seller',
   difference: (m1: Message, m2: Message) => {
     const s1: string | null = getSeller(m1);
     const s2: string | null = getSeller(m2);
@@ -29,10 +29,10 @@ export const sellerColumn = (sortable: boolean) => ({
     return <div>Seller</div>;
   },
   render: (message: Message) => {
-    return <div className={"message-blotter-cell"}>{getSeller(message)}</div>;
+    return <div className={'message-blotter-cell'}>{getSeller(message)}</div>;
   },
   filterable: true,
   sortable: sortable,
-  template: "SELLER",
-  weight: 2
+  template: 'SELLER',
+  weight: 2,
 });

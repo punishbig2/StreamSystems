@@ -47,7 +47,7 @@ export const createColumnData = (
       }
     },
     onDoubleClick: (type: OrderTypes, entry: Order) => {
-      setOrderTicket({ ...entry, type });
+      setOrderTicket({...entry, type});
     },
     onRefBidsButtonClicked: () => {
       fns.cancelAll(symbol, strategy, Sides.Buy);
@@ -58,7 +58,7 @@ export const createColumnData = (
     onOrderError: (
       order: Order,
       error: PriceErrors,
-      input: HTMLInputElement
+      input: HTMLInputElement,
     ) => {
       if (
         error === PriceErrors.GreaterThanMax ||
@@ -75,11 +75,11 @@ export const createColumnData = (
         if ((order.status & OrderStatus.Owned) !== 0) {
           fns.cancelOrder(order);
         } else if ((order.status & OrderStatus.HaveOrders) !== 0) {
-          const { depths } = state;
+          const {depths} = state;
           // Find my own order and cancel it
           const mine: Order | undefined = Object.values(depths[order.tenor])
             .map((row: TOBRow) =>
-              order.type === OrderTypes.Bid ? row.bid : row.ofr
+              order.type === OrderTypes.Bid ? row.bid : row.ofr,
             )
             .find((item: Order) => item.user === user.email);
           if (mine) {
@@ -97,7 +97,7 @@ export const createColumnData = (
         }
         fns.setRowStatus(order, TOBRowStatus.Normal);
       } else {
-        console.log("ignore this action");
+        console.log('ignore this action');
       }
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
@@ -117,16 +117,15 @@ export const createColumnData = (
     onQuantityChange: (
       order: Order,
       newQuantity: number | null,
-      input: HTMLInputElement
+      personality: string,
+      minSize: number,
+      input: HTMLInputElement,
     ) => {
-      if (
-        order.price !== null &&
-        (order.status & OrderStatus.Cancelled) === 0
-      ) {
+      if (order.price !== null && (order.status & OrderStatus.Cancelled) === 0) {
         fns.cancelOrder(order);
-        fns.createOrder({ ...order, quantity: newQuantity });
+        fns.createOrder({...order, quantity: newQuantity}, personality, minSize);
       }
-      // fns.updateOrderQuantity({...order, quantity: newQuantity});
+      fns.updateOrder({...order, quantity: newQuantity});
       skipTabIndex(input, 1, 0);
     },
     onCancelDarkPoolOrder: (order: Order) => {
@@ -135,7 +134,7 @@ export const createColumnData = (
     onDarkPoolDoubleClicked: (
       tenor: string,
       price: number | null,
-      currentOrder: Order | null
+      currentOrder: Order | null,
     ) => {
       if (price !== null) {
         fns.onDarkPoolDoubleClicked(tenor, price, currentOrder);
@@ -161,7 +160,7 @@ export const createColumnData = (
       }
     },
     aggregatedSz: state.aggregatedSz,
-    buttonsEnabled: symbol !== "" && strategy !== "",
+    buttonsEnabled: symbol !== '' && strategy !== '',
     isBroker: user.isbroker,
     strategy: strategy,
     symbol: symbol,

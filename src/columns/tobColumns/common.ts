@@ -1,19 +1,19 @@
-import { TOBTable } from "interfaces/tobTable";
-import { OrderTypes } from "interfaces/mdEntry";
-import { OrderStatus, Order } from "interfaces/order";
-import { TOBRow } from "interfaces/tobRow";
-import { TOBColumnData } from "components/TOB/data";
-import { RowFunctions } from "components/TOB/rowFunctions";
+import {TOBTable} from 'interfaces/tobTable';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {OrderStatus, Order} from 'interfaces/order';
+import {TOBRow} from 'interfaces/tobRow';
+import {TOBColumnData} from 'components/TOB/data';
+import {RowFunctions} from 'components/TOB/rowFunctions';
 
 export type RowType = TOBRow & {
   handlers: TOBColumnData;
   depths: { [key: string]: TOBTable };
 } & RowFunctions;
-export type Type = "bid" | "ofr";
+export type Type = 'bid' | 'ofr';
 
 const getDepthStatus = (values: Order[]): OrderStatus => {
   const filtered: Order[] = values.filter(
-    (order: Order) => order.price !== null && order.quantity !== null
+    (order: Order) => order.price !== null && order.quantity !== null,
   );
   if (filtered.length <= 1) return OrderStatus.None;
   return OrderStatus.HasDepth;
@@ -22,7 +22,7 @@ const getDepthStatus = (values: Order[]): OrderStatus => {
 export const getChevronStatus = (
   depths: { [key: string]: TOBTable },
   tenor: string,
-  type: OrderTypes
+  type: OrderTypes,
 ): OrderStatus => {
   const order: TOBTable | undefined = depths[tenor];
   if (!order) return OrderStatus.None;
@@ -35,15 +35,15 @@ export const getChevronStatus = (
     return (order.status & OrderStatus.Cancelled) === 0;
   };
   const values: TOBRow[] = Object.values(order);
-  const isMyOfr: ({ ofr }: TOBRow) => boolean = ({ ofr }: TOBRow) =>
+  const isMyOfr: ({ofr}: TOBRow) => boolean = ({ofr}: TOBRow) =>
     isEntryMineAndValid(ofr);
   const ofrDepthStatus: OrderStatus = getDepthStatus(
-    values.map(({ ofr }: TOBRow) => ofr)
+    values.map(({ofr}: TOBRow) => ofr),
   );
-  const isMyBid: ({ bid }: TOBRow) => boolean = ({ bid }: TOBRow) =>
+  const isMyBid: ({bid}: TOBRow) => boolean = ({bid}: TOBRow) =>
     isEntryMineAndValid(bid);
   const bidDepthStatus: OrderStatus = getDepthStatus(
-    values.map(({ bid }: TOBRow) => bid)
+    values.map(({bid}: TOBRow) => bid),
   );
   switch (type) {
     case OrderTypes.Invalid:
@@ -62,4 +62,7 @@ export const getChevronStatus = (
       break;
   }
   return OrderStatus.None;
+};
+export const getBankMatchesPersonalityStatus = (order: Order, personality: string) => {
+  return order.firm === personality ? OrderStatus.SameBank : OrderStatus.None;
 };

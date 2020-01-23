@@ -1,5 +1,5 @@
-import { ExecTypes, Message } from "interfaces/message";
-import React from "react";
+import {ExecTypes, Message} from 'interfaces/message';
+import React from 'react';
 
 const getValue = (message: Message): number => {
   switch (message.OrdStatus) {
@@ -14,13 +14,13 @@ const getValue = (message: Message): number => {
 };
 
 export default (sortable: boolean) => ({
-  name: "Size",
-  template: "999999",
+  name: 'Size',
+  template: '999999',
   filterable: true,
   sortable: sortable,
   header: () => <div>Size</div>,
   render: (message: Message) => (
-    <div className={"message-blotter-cell normal"}>{getValue(message)}</div>
+    <div className={'message-blotter-cell normal'}>{getValue(message)}</div>
   ),
   weight: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
@@ -31,5 +31,5 @@ export default (sortable: boolean) => ({
   },
   difference: (v1: Message, v2: Message) => {
     return getValue(v1) - getValue(v2);
-  }
+  },
 });

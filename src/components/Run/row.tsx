@@ -1,11 +1,11 @@
-import { Cell } from "components/Table/Cell";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { User } from "interfaces/user";
-import React from "react";
-import { RowState } from "redux/stateDefs/rowState";
-import { percentage } from "utils";
+import {Cell} from 'components/Table/Cell';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {User} from 'interfaces/user';
+import React from 'react';
+import {RowState} from 'redux/stateDefs/rowState';
+import {percentage} from 'utils';
 
 interface OwnProps {
   id: string;
@@ -17,16 +17,17 @@ interface OwnProps {
 }
 
 const Row = (props: OwnProps & RowState) => {
-  const { columns, row, fixedRow, user } = props;
+  const {columns, row, fixedRow, user} = props;
   const onNavigate = (
     target: HTMLInputElement,
-    direction: NavigateDirection
-  ) => {};
+    direction: NavigateDirection,
+  ) => {
+  };
   return (
     <div
       className={
-        "tr" +
-        (row.status === TOBRowStatus.InvertedMarketsError ? " error" : "")
+        'tr' +
+        (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')
       }
     >
       {columns.map(column => {
@@ -47,4 +48,4 @@ const Row = (props: OwnProps & RowState) => {
   );
 };
 
-export { Row };
+export {Row};

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import {useEffect} from 'react';
 
 export const useTooltip = (started: boolean, activated: () => void) => {
   useEffect(() => {

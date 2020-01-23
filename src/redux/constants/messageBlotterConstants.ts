@@ -1,6 +1,6 @@
 export enum MessageBlotterActions {
-  Initialize = "MessageBlotterActions.Initialize",
-  Update = "MessageBlotterActions.Update"
+  Initialize = 'MessageBlotterActions.Initialize',
+  Update = 'MessageBlotterActions.Update'
 }
 
 export enum BlotterTypes {

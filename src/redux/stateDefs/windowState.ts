@@ -11,6 +11,6 @@ export interface WindowState {
 
 export const DefaultWindowState: WindowState = {
   symbol: InvalidCurrency,
-  strategy: "",
-  rows: {}
+  strategy: '',
+  rows: {},
 };

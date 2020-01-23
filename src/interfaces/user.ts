@@ -1,13 +1,13 @@
 export enum UserTypes {
-  Broker = "BROKER",
-  Bank = "BANK",
-  MarketMaker = "MARKET_MAKER"
+  Broker = 'BROKER',
+  Bank = 'BANK',
+  MarketMaker = 'MARKET_MAKER'
 }
 
 export enum CurrencyGroups {
-  Invalid = "",
-  G10 = "G10",
-  Asia = "Asia"
+  Invalid = '',
+  G10 = 'G10',
+  Asia = 'Asia'
 }
 
 export interface User {

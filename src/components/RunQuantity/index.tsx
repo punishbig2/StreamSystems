@@ -4,7 +4,7 @@ import {Order, OrderStatus} from 'interfaces/order';
 import React, {useEffect, useState} from 'react';
 
 const sizeFormatter = (value: number | null): string => {
-  if (value === null) return "";
+  if (value === null) return '';
   return value.toFixed(0);
 };
 
@@ -21,7 +21,7 @@ interface Props {
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
-  const { order } = props;
+  const {order} = props;
   useEffect(() => {
     if ((order.status & OrderStatus.QuantityEdited) !== 0) return;
     if (props.defaultValue === undefined || props.defaultValue === null) return;
@@ -68,7 +68,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
         value={Number(value)}
         cancellable={cancellable}
         tabIndex={-1}
-        className={getOrderStatusClass(order.status, "sizeColumn.tsx")}
+        className={getOrderStatusClass(order.status, 'sizeColumn.tsx')}
         onChange={onChange}
         onTabbedOut={sendOnChange}
         onCancel={() => props.onCancel(order)}

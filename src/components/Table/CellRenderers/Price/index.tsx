@@ -48,9 +48,9 @@ export interface Props {
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
-  const { timestamp, value } = props;
+  const {timestamp, value} = props;
   if (value === undefined)
-    throw new Error("value is not optional");
+    throw new Error('value is not optional');
   const [state, dispatch] = useReducer<typeof reducer>(reducer, {
     tooltipX: 0,
     tooltipY: 0,
@@ -59,45 +59,45 @@ export const Price: React.FC<Props> = (props: Props) => {
     flash: false,
     initialStatus: props.status,
     status: props.status || OrderStatus.None,
-    internalValue: priceFormatter(value)
+    internalValue: priceFormatter(value),
   });
 
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
   const setTooltipVisible = useCallback(
     () => dispatch(createAction(PriceActions.ShowTooltip)),
-    []
+    [],
   );
   const setStatus = useCallback(
     (status: OrderStatus) =>
       dispatch(createAction(PriceActions.SetStatus, status)),
-    []
+    [],
   );
   const setValue = useCallback((value: string, status: OrderStatus) => {
-    dispatch(createAction(PriceActions.SetValue, { value, status }));
+    dispatch(createAction(PriceActions.SetValue, {value, status}));
   }, []);
   const resetValue = useCallback((value: string, status: OrderStatus) => {
-    dispatch(createAction(PriceActions.ResetValue, { value, status }));
+    dispatch(createAction(PriceActions.ResetValue, {value, status}));
   }, []);
 
   const showTooltip = (event: React.MouseEvent<HTMLDivElement>) => {
     dispatch(createAction(PriceActions.StartShowingTooltip));
     dispatch(
-      createAction(PriceActions.MoveTooltip, toPoint(event.nativeEvent))
+      createAction(PriceActions.MoveTooltip, toPoint(event.nativeEvent)),
     );
   };
   const toPoint = useCallback(
     (event: MouseEvent) => ({
       tooltipX: event.clientX,
-      tooltipY: event.clientY
+      tooltipY: event.clientY,
     }),
-    []
+    [],
   );
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
   const onMouseMove = useCallback(
     (event: MouseEvent) => {
       dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
     },
-    [dispatch, toPoint]
+    [dispatch, toPoint],
   );
   const startFlashing = () => {
     if (!props.animated) return;
@@ -114,16 +114,16 @@ export const Price: React.FC<Props> = (props: Props) => {
   // that would of course be expensive
   useEffect(() => {
     if (!state.visible || ref === null) return;
-    ref.addEventListener("mousemove", onMouseMove);
+    ref.addEventListener('mousemove', onMouseMove);
     return () => {
-      ref.removeEventListener("mousemove", onMouseMove);
+      ref.removeEventListener('mousemove', onMouseMove);
     };
   }, [state.visible, ref, onMouseMove]);
 
   const getTooltip = () => {
     if (!state.visible || !props.tooltip) return null;
     return (
-      <Tooltip x={state.tooltipX} y={state.tooltipY} render={props.tooltip} />
+      <Tooltip x={state.tooltipX} y={state.tooltipY} render={props.tooltip}/>
     );
   };
 
@@ -132,7 +132,7 @@ export const Price: React.FC<Props> = (props: Props) => {
       const trimmed: string = value.trim();
       const numeric: number = Number(`${trimmed}0`);
       if (trimmed.length === 0) {
-        setValue("", OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+        setValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
       } else if (!isNaN(numeric)) {
         setValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
       }
@@ -165,14 +165,14 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const finalValue = (): string => {
-    const { internalValue } = state;
-    if (internalValue === null) return "";
+    const {internalValue} = state;
+    if (internalValue === null) return '';
     return internalValue.toString();
   };
 
   const onSubmitted = (input: HTMLInputElement) => {
     const internalValue: string | null = state.internalValue;
-    if (internalValue === null || internalValue.trim() === "") {
+    if (internalValue === null || internalValue.trim() === '') {
       props.onChange(null, false);
     } else {
       const numeric: number = Number(internalValue);
@@ -187,13 +187,13 @@ export const Price: React.FC<Props> = (props: Props) => {
         // Update the internal value
         setValue(priceFormatter(numeric), state.status);
         if (props.min !== null && props.min !== undefined) {
-          if (props.min >= numeric && typeof props.onError === "function") {
+          if (props.min >= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.LessThanMin, input);
           } else {
             props.onChange(numeric, changed);
           }
         } else if (props.max !== null && props.max !== undefined) {
-          if (props.max <= numeric && typeof props.onError === "function") {
+          if (props.max <= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.GreaterThanMax, input);
           } else {
             props.onChange(numeric, changed);
@@ -211,30 +211,30 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const onFocus = ({ target }: React.FocusEvent<HTMLInputElement>) =>
+  const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) =>
     target.select();
   const onCancelEdit = () => {
     resetValue(
       priceFormatter(props.value),
-      props.status & ~OrderStatus.PriceEdited
+      props.status & ~OrderStatus.PriceEdited,
     );
   };
 
   if ((props.status & OrderStatus.BeingCreated) !== 0) {
     return (
-      <div className={"price-waiting-spinner"}>
+      <div className={'price-waiting-spinner'}>
         <span>Creating&hellip;</span>
       </div>
     );
   } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
     return (
-      <div className={"price-waiting-spinner"}>
+      <div className={'price-waiting-spinner'}>
         <span>Cancelling&hellip;</span>
       </div>
     );
   } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
     return (
-      <div className={"price-waiting-spinner"}>
+      <div className={'price-waiting-spinner'}>
         <span>Loading&hellip;</span>
       </div>
     );
@@ -273,5 +273,5 @@ export const Price: React.FC<Props> = (props: Props) => {
 
 Price.defaultProps = {
   animated: true,
-  readOnly: false
+  readOnly: false,
 };

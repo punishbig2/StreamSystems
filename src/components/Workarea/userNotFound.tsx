@@ -1,11 +1,11 @@
-import React, { ReactElement } from "react";
+import React, {ReactElement} from 'react';
 
 const location = window.location;
 export const UserNotFound: React.FC = (): ReactElement => {
   return (
-    <div className={"workarea-error"}>
+    <div className={'workarea-error'}>
       <h1>
-        <i className={"fa fa-exclamation-triangle"} />
+        <i className={'fa fa-exclamation-triangle'}/>
       </h1>
       <h1>Oops, there was an error while loading</h1>
       <p>
@@ -13,7 +13,7 @@ export const UserNotFound: React.FC = (): ReactElement => {
       </p>
       <p>
         Please try to reload the page
-        <button className={"link"} onClick={() => location.reload()}>
+        <button className={'link'} onClick={() => location.reload()}>
           or click here
         </button>
       </p>

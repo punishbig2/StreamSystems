@@ -51,7 +51,7 @@ import {Currency} from 'interfaces/currency';
 
 const nextSlice = (
   applicationState: ApplicationState,
-  props: OwnProps
+  props: OwnProps,
 ): WindowState & RunState => {
   const generic: { [key: string]: any } = applicationState;
   if (generic.hasOwnProperty(props.id)) {
@@ -65,15 +65,13 @@ const nextSlice = (
   return {} as WindowState & RunState;
 };
 
-const withRedux = connect<
-  WindowState & RunState,
+const withRedux = connect<WindowState & RunState,
   DispatchProps,
   OwnProps,
-  ApplicationState
->(
+  ApplicationState>(
   dynamicStateMapper<WindowState & RunState, OwnProps, ApplicationState>(
-    nextSlice
-  )
+    nextSlice,
+  ),
 );
 
 const initialState: State = {
@@ -81,13 +79,13 @@ const initialState: State = {
   tenor: null,
   orderTicket: null,
   runWindowVisible: false,
-  darkPoolTicket: null
+  darkPoolTicket: null,
 };
 
 export const TOB: React.FC<OwnProps> = withRedux(
   (props: Props): ReactElement => {
-    const { id, dispatch: reduxDispatch } = props;
-    const { onRowError } = props;
+    const {id, dispatch: reduxDispatch} = props;
+    const {onRowError} = props;
     const {
       symbols,
       symbol,
@@ -97,10 +95,10 @@ export const TOB: React.FC<OwnProps> = withRedux(
       connected,
       rows,
       user,
-      personality
+      personality,
     } = props;
     const settings = useContext<Settings>(SettingsContext);
-    const { email } = props.user;
+    const {email} = props.user;
     const [state, dispatch] = useReducer(reducer, initialState);
 
     const actions = useMemo(
@@ -123,75 +121,75 @@ export const TOB: React.FC<OwnProps> = withRedux(
         getDarkPoolSnapshot: (
           symbol: string,
           strategy: string,
-          tenor: string
+          tenor: string,
         ) => reduxDispatch(getDarkPoolSnapshot(id, symbol, strategy, tenor)),
         getRunOrders: (symbol: string, strategy: string) =>
           reduxDispatch(getRunOrders(id, symbol, strategy)),
         cancelAll: (symbol: string, strategy: string, side: Sides) =>
           reduxDispatch(cancelAll(id, symbol, strategy, side)),
-        updateOrder: (entry: Order) => reduxDispatch(updateOrder(id, entry)),
+        updateOrder: (order: Order) => reduxDispatch(updateOrder(id, order)),
         setRowStatus: (order: Order, status: TOBRowStatus) =>
           reduxDispatch(setRowStatus(id, order, status)),
         publishDarkPoolPrice: (
           symbol: string,
           strategy: string,
           tenor: string,
-          price: number
+          price: number,
         ) =>
           reduxDispatch(
-            publishDarkPoolPrice(id, symbol, strategy, tenor, price)
+            publishDarkPoolPrice(id, symbol, strategy, tenor, price),
           ),
         onDarkPoolDoubleClicked: (
           tenor: string,
           price: number,
-          currentOrder: Order | null
+          currentOrder: Order | null,
         ) =>
           setDarkPoolTicket({
             tenor,
             price,
-            currentOrder
+            currentOrder,
           }),
         createDarkPoolOrder: (order: DarkPoolOrder, personality: string) =>
           reduxDispatch(createDarkPoolOrder(order, personality)),
         cancelDarkPoolOrder: (order: Order) =>
-          reduxDispatch(cancelDarkPoolOrder(id, order))
+          reduxDispatch(cancelDarkPoolOrder(id, order)),
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }),
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [id, reduxDispatch]
+      [id, reduxDispatch],
     );
 
     // Internal temporary reducer actions
     const setCurrentTenor = useCallback(
       (tenor: string | null) =>
         dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)),
-      []
+      [],
     );
     const setOrderTicket = useCallback(
       (ticket: Order | null) =>
         dispatch(createAction(ActionTypes.SetOrderTicket, ticket)),
-      []
+      [],
     );
     const setDarkPoolTicket = useCallback(
       (price: DarkPoolTicketData | null) =>
         dispatch(createAction(ActionTypes.SetDarkPoolTicket, price)),
-      []
+      [],
     );
     const insertDepth = useCallback(
       (data: any) =>
         dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
-      []
+      [],
     );
     const showRunWindow = useCallback(
       () => dispatch(createAction(ActionTypes.ShowRunWindow)),
-      []
+      [],
     );
     const hideRunWindow = useCallback(
       () => dispatch(createAction(ActionTypes.HideRunWindow)),
-      []
+      [],
     );
 
-    const { setWindowTitle } = props;
+    const {setWindowTitle} = props;
     useEffect(() => {
       if (setWindowTitle && !!symbol && !!strategy) {
         setWindowTitle(props.id, `${symbol} ${strategy}`);
@@ -212,7 +210,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
       actions.unsubscribe,
       actions.getSnapshot,
       actions.getDarkPoolSnapshot,
-      actions.getRunOrders
+      actions.getRunOrders,
     );
     // Handler methods
     const data: TOBColumnData = useMemo(() => {
@@ -238,10 +236,10 @@ export const TOB: React.FC<OwnProps> = withRedux(
       setCurrentTenor,
       setOrderTicket,
       user,
-      personality
+      personality,
     ]);
     const renderDarkPoolTicket = () => {
-      if (state.darkPoolTicket === null) return <div />;
+      if (state.darkPoolTicket === null) return <div/>;
       const ticket: DarkPoolTicketData = state.darkPoolTicket;
       const onSubmit = (order: DarkPoolOrder) => {
         if (ticket.currentOrder !== null) {
@@ -268,7 +266,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
       );
     };
     const renderOrderTicket = () => {
-      if (state.orderTicket === null) return <div />;
+      if (state.orderTicket === null) return <div/>;
       const onSubmit = (order: Order) => {
         actions.createOrder(order, personality, symbol.minqty);
         // Remove the internal order ticket
@@ -318,7 +316,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
 
     const onRowErrorFn = useCallback(
       (status: TOBRowStatus) => onRowError(status),
-      [onRowError]
+      [onRowError],
     );
     const renderRow = (props: any): ReactElement => {
       return (
@@ -332,14 +330,14 @@ export const TOB: React.FC<OwnProps> = withRedux(
     };
     const renderDOBRow = (props: TOBRow): ReactElement => {
       return (
-        <Row {...props} depths={[]} onError={onRowErrorFn} displayOnly={true} />
+        <Row {...props} depths={[]} onError={onRowErrorFn} displayOnly={true}/>
       );
     };
     const dobColumns = useMemo(() => createTOBColumns(data, true), [data]);
     const tobColumns = useMemo(() => createTOBColumns(data, false), [data]);
     const getDepthTable = (): ReactElement | null => {
       if (state.tenor === null) return null;
-      const rows: TOBTable = { ...state.depths[state.tenor] };
+      const rows: TOBTable = {...state.depths[state.tenor]};
       return (
         <Table
           scrollable={false}
@@ -379,8 +377,8 @@ export const TOB: React.FC<OwnProps> = withRedux(
           onClose={props.onClose}
           onShowRunWindow={showRunWindow}
         />
-        <div className={"window-content"}>
-          <div className={state.tenor === null ? "visible" : "invisible"}>
+        <div className={'window-content'}>
+          <div className={state.tenor === null ? 'visible' : 'invisible'}>
             <Table
               scrollable={!props.autoSize}
               columns={tobColumns}
@@ -388,7 +386,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
               renderRow={renderRow}
             />
           </div>
-          <div className={"depth-table"}>{getDepthTable()}</div>
+          <div className={'depth-table'}>{getDepthTable()}</div>
         </div>
         <ModalWindow
           render={renderOrderTicket}
@@ -404,6 +402,6 @@ export const TOB: React.FC<OwnProps> = withRedux(
         />
       </>
     );
-  }
+  },
 );
 

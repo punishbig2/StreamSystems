@@ -31,8 +31,8 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
-      case "Tab":
-      case "Enter":
+      case 'Tab':
+      case 'Enter':
         if (onTabbedOut) {
           event.preventDefault();
           if (event.shiftKey) return;
@@ -41,31 +41,31 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
           onTabbedOut(input);
         }
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         if (onNavigate) onNavigate(input, NavigateDirection.Up);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
-      case "ArrowLeft":
+      case 'ArrowLeft':
         if (onNavigate) onNavigate(input, NavigateDirection.Left);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
-      case "ArrowDown":
+      case 'ArrowDown':
         if (onNavigate) onNavigate(input, NavigateDirection.Down);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
-      case "ArrowRight":
+      case 'ArrowRight':
         if (onNavigate) onNavigate(input, NavigateDirection.Right);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
-      case "Escape":
+      case 'Escape':
         if (onCancelEdit) {
           onCancelEdit();
         }
@@ -73,8 +73,8 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
     }
   };
   const onChangeWrapper = ({
-    target: { value }
-  }: React.ChangeEvent<HTMLInputElement>) => onChange(value);
+                             target: {value},
+                           }: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
     <input
       {...otherProps}
@@ -86,4 +86,4 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   );
 };
 
-export { NumericInput };
+export {NumericInput};

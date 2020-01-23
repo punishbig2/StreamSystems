@@ -21,12 +21,12 @@ interface Props {
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
-  const { order } = props;
+  const {order} = props;
   const onDoubleClick = () => {
     if (!!props.onDoubleClick) {
       props.onDoubleClick(
         order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid,
-        order
+        order,
       );
     }
   };
@@ -34,7 +34,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
     props.onError(order, error, input);
   const onChange = (price: number | null, changed: boolean) => {
     if (!changed && (order.status & OrderStatus.QuantityEdited) === 0) return;
-    props.onChange({ ...order, price });
+    props.onChange({...order, price});
   };
   return (
     <Price

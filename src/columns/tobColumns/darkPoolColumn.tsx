@@ -23,18 +23,18 @@ const DarkPoolColumnComponent = (props: Props) => {
     strategy,
     personality,
     darkPool,
-    darkPrice
+    darkPrice,
   } = props;
   const {
     onDarkPoolDoubleClicked,
     onDarkPoolPriceChanged,
-    onTabbedOut
+    onTabbedOut,
   } = props;
   const [data, setData] = useState<TOBTable | null>(null);
 
   const order: Order | null = useMemo((): Order | null => {
     if (!darkPool) return null;
-    const { bid, ofr } = darkPool;
+    const {bid, ofr} = darkPool;
     if (bid.price === null) return ofr;
     return bid;
   }, [darkPool]);
@@ -45,14 +45,14 @@ const DarkPoolColumnComponent = (props: Props) => {
         return order.price;
       return darkPrice;
     },
-    [order, darkPrice]
+    [order, darkPrice],
   );
   useEffect(() => {
     if (!tenor || !symbol || !strategy) return;
     const update = (event: any) => {
       setData(event.detail);
     };
-    const type: string = $$(tenor, symbol, strategy, "update-dark-pool-depth");
+    const type: string = $$(tenor, symbol, strategy, 'update-dark-pool-depth');
     document.addEventListener(type, update);
     return () => {
       document.removeEventListener(type, update);
@@ -64,7 +64,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       if (isBroker && personality === STRM) return;
       onDarkPoolDoubleClicked(tenor, price, currentOrder);
     },
-    [isBroker, personality, onDarkPoolDoubleClicked, tenor, price]
+    [isBroker, personality, onDarkPoolDoubleClicked, tenor, price],
   );
 
   const changeHandler = useCallback(
@@ -72,7 +72,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       if (!isBroker || value === null) return undefined;
       onDarkPoolPriceChanged(tenor, Number(value));
     },
-    [isBroker, tenor, onDarkPoolPriceChanged]
+    [isBroker, tenor, onDarkPoolPriceChanged],
   );
 
   const tabbedOutHandler = useCallback(
@@ -80,20 +80,20 @@ const DarkPoolColumnComponent = (props: Props) => {
       if (input.readOnly) return;
       onTabbedOut(input, OrderTypes.DarkPool);
     },
-    [onTabbedOut]
+    [onTabbedOut],
   );
 
   const findMyOrder = (table: any): Order | null => {
     if (!table) return null;
     const values: TOBRow[] = Object.values(table);
     const row: TOBRow | undefined = values.find(
-      ({ ofr, bid }: TOBRow): boolean => {
+      ({ofr, bid}: TOBRow): boolean => {
         if ((ofr.status & OrderStatus.Owned) !== 0) return true;
         return (bid.status & OrderStatus.Owned) !== 0;
-      }
+      },
     );
     if (row === undefined) return null;
-    const { ofr, bid } = row;
+    const {ofr, bid} = row;
     if ((ofr.status & OrderStatus.Owned) !== 0) return ofr;
     return bid;
   };
@@ -107,8 +107,8 @@ const DarkPoolColumnComponent = (props: Props) => {
         [order.uid()]: {
           id: order.uid(),
           ofr: order.type === OrderTypes.Ofr ? order : undefined,
-          bid: order.type === OrderTypes.Bid ? order : undefined
-        } as TOBRow
+          bid: order.type === OrderTypes.Bid ? order : undefined,
+        } as TOBRow,
       };
       return (
         <DarkPoolTooltip
@@ -125,7 +125,7 @@ const DarkPoolColumnComponent = (props: Props) => {
     <Price
       arrow={ArrowDirection.None}
       priceType={PriceTypes.DarkPool}
-      className={"dark-pool-base"}
+      className={'dark-pool-base'}
       value={price}
       tooltip={renderTooltip(myOrder)}
       readOnly={!props.isBroker}
@@ -143,14 +143,14 @@ const DarkPoolColumnComponent = (props: Props) => {
 };
 
 export const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
-  name: "dark-pool",
+  name: 'dark-pool',
   header: () => (
-    <div className={"dark-pool-header"}>
+    <div className={'dark-pool-header'}>
       <div>Dark</div>
       <div>Pool</div>
     </div>
   ),
   render: (row: RowType) => <DarkPoolColumnComponent {...data} {...row} />,
-  template: "999999.99",
-  weight: 5
+  template: '999999.99',
+  weight: 5,
 });

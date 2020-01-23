@@ -4,8 +4,8 @@ import {ArrowDirection, MessageTypes, W} from 'interfaces/w';
 import {$$} from 'utils/stringPaster';
 
 export enum Sides {
-  Buy = "BUY",
-  Sell = "SELL"
+  Buy = 'BUY',
+  Sell = 'SELL'
 }
 
 export interface CreateOrder {
@@ -26,7 +26,7 @@ export type DarkPoolOrder = CreateOrder & {
 };
 
 export enum OrderErrors {
-  NegativePrice = "Invalid price. Price should be positive."
+  NegativePrice = 'Invalid price. Price should be positive.'
 }
 
 export interface UpdateOrder {
@@ -67,7 +67,7 @@ export interface OrderMessage {
   Tenor: string;
   Symbol: string;
   Strategy: string;
-  Side: "1" | "2";
+  Side: '1' | '2';
   OrderQty: string;
 }
 
@@ -80,9 +80,9 @@ const getNumber = (value: string | null | undefined): number | null => {
 
 const normalizeTickDirection = (source: string | undefined): ArrowDirection => {
   switch (source) {
-    case "0":
+    case '0':
       return ArrowDirection.Up;
-    case "2":
+    case '2':
       return ArrowDirection.Down;
     default:
       return ArrowDirection.None;
@@ -109,7 +109,7 @@ export class Order {
     strategy: string,
     user: string,
     quantity: number | null,
-    type: OrderTypes
+    type: OrderTypes,
   ) {
     this.type = type;
     this.tenor = tenor;
@@ -128,17 +128,17 @@ export class Order {
 
   public static fromOrderMessage = (
     entry: OrderMessage,
-    email: string
+    email: string,
   ): Order => {
     const type: OrderTypes =
-      entry.Side === "1" ? OrderTypes.Bid : OrderTypes.Ofr;
+      entry.Side === '1' ? OrderTypes.Bid : OrderTypes.Ofr;
     const order: Order = new Order(
       entry.Tenor,
       entry.Symbol,
       entry.Strategy,
       email,
       Number(entry.OrderQty),
-      type
+      type,
     );
     // Update the price
     order.price = Number(entry.Price);
@@ -169,7 +169,7 @@ export class Order {
       w.Strategy,
       entry.MDEntryOriginator,
       getNumber(entry.MDEntrySize),
-      entry.MDEntryType
+      entry.MDEntryType,
     );
     // Update fields not in the constructor
     order.price = getNumber(entry.MDEntryPx);

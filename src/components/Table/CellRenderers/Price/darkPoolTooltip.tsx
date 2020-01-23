@@ -1,11 +1,11 @@
-import React, { ReactElement } from "react";
-import { TOBTable } from "interfaces/tobTable";
-import { Table } from "components/Table/index";
-import columns from "columns/darkPoolDepth";
-import { percentage } from "utils";
-import { Cell } from "components/Table/Cell";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { Order } from "interfaces/order";
+import React, {ReactElement} from 'react';
+import {TOBTable} from 'interfaces/tobTable';
+import {Table} from 'components/Table/index';
+import columns from 'columns/darkPoolDepth';
+import {percentage} from 'utils';
+import {Cell} from 'components/Table/Cell';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {Order} from 'interfaces/order';
 
 interface OwnProps {
   data: TOBTable | null;
@@ -14,9 +14,9 @@ interface OwnProps {
 
 export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any): ReactElement => {
-    const { columns, row } = props;
+    const {columns, row} = props;
     return (
-      <div className={"tr"} key={row.id}>
+      <div className={'tr'} key={row.id}>
         {columns.map((column: ColumnSpec) => {
           const name: string = column.name;
           const width: string = percentage(column.weight, props.weight);

@@ -1,8 +1,8 @@
-import { Tab } from "components/Tab";
-import { TabLabel } from "components/TabLabel";
-import config from "config";
+import {Tab} from 'components/Tab';
+import {TabLabel} from 'components/TabLabel';
+import config from 'config';
 
-import React, { ReactElement } from "react";
+import React, {ReactElement} from 'react';
 
 interface Entry {
   name: string;
@@ -37,7 +37,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
     const onClick = () => props.setActiveTab(id);
     const onRenamed = (name: string) => props.onTabRenamed(name, id);
     const label = (
-      <TabLabel label={object.name} onRenamed={onRenamed} onClosed={onClosed} />
+      <TabLabel label={object.name} onRenamed={onRenamed} onClosed={onClosed}/>
     );
     return (
       <Tab
@@ -51,30 +51,30 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   });
   // Add WorkspaceActions label
   const addWorkspaceLabel: ReactElement = (
-    <button className={"new-workspace"}>
+    <button className={'new-workspace'}>
       <span>
-        <i className={"fa fa-plus-circle"} />
+        <i className={'fa fa-plus-circle'}/>
       </span>
       <span>New Workspace</span>
     </button>
   );
   // Render the bar
   return (
-    <div className={"tab-layout"}>
+    <div className={'tab-layout'}>
       {tabs}
       {/* Add button */}
       <Tab
-        id={""}
+        id={''}
         onClick={props.addTab}
         active={false}
         label={addWorkspaceLabel}
       />
-      <a className={"sign-out"} href={config.SignOutUrl}>
-        <i className={"fa fa-sign-out-alt"} />
+      <a className={'sign-out'} href={config.SignOutUrl}>
+        <i className={'fa fa-sign-out-alt'}/>
         <span>Logout</span>
       </a>
     </div>
   );
 };
 
-export { TabBar };
+export {TabBar};

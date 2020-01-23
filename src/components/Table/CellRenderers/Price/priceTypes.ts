@@ -1,3 +1,3 @@
 export enum PriceTypes {
-  DarkPool = "dark-pool"
+  DarkPool = 'dark-pool'
 }

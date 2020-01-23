@@ -1,10 +1,10 @@
-import { WindowElement } from "components/WindowManager/window";
-import { Window } from "interfaces/window";
-import React, { ReactElement, useState, useMemo, useEffect } from "react";
-import { WindowTypes } from "redux/constants/workareaConstants";
-import { MessageBlotter } from "components/MessageBlotter";
-import { BlotterTypes } from "redux/constants/messageBlotterConstants";
-import getStyles from "styles";
+import {WindowElement} from 'components/WindowManager/window';
+import {Window} from 'interfaces/window';
+import React, {ReactElement, useState, useMemo, useEffect} from 'react';
+import {WindowTypes} from 'redux/constants/workareaConstants';
+import {MessageBlotter} from 'components/MessageBlotter';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
+import getStyles from 'styles';
 
 interface Props {
   toast: string | null;
@@ -16,7 +16,7 @@ interface Props {
   onGeometryChange: (
     id: string,
     geometry: ClientRect,
-    resized: boolean
+    resized: boolean,
   ) => void;
   onWindowMinimized: (id: string) => void;
   onWindowClosed: (id: string) => void;
@@ -35,7 +35,7 @@ const Callbacks: {
 const getCallback = (
   id: string,
   name: string,
-  fallback: (...args: any[]) => any
+  fallback: (...args: any[]) => any,
 ): ((...args: any[]) => any) => {
   if (Callbacks[id] === undefined) Callbacks[id] = {};
   if (Callbacks[id][name] === undefined) Callbacks[id][name] = fallback;
@@ -54,18 +54,18 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       styles.windowToolbarHeight +
       styles.tableHeaderHeight +
       4 * styles.tableRowHeight,
-    [styles]
+    [styles],
   );
   const fixedBlotterGeometry: DOMRect = useMemo(
     () => new DOMRect(0, area.height - blotterHeight, 0, blotterHeight),
-    [blotterHeight, area]
+    [blotterHeight, area],
   );
-  const { renderContent } = props;
+  const {renderContent} = props;
   // Get non-minimized windows
   const windows: [string, Window][] = Object.entries(props.windows || {});
   // Get minimized windows
   const minimized: [string, Window][] = windows.filter(
-    ([, window]: [string, Window]): boolean => window.minimized
+    ([, window]: [string, Window]): boolean => window.minimized,
   );
   useEffect(() => {
     if (element === null) return;
@@ -81,32 +81,32 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     // Update the element's area
   }, [element]);
   const windowMapper = ([id, window]: [string, Window]): ReactElement => {
-    const { type } = window;
+    const {type} = window;
     const content: ReactElement | null = renderContent(id, type);
     const geometry: ClientRect | undefined = window.geometry;
     // Geometries of sibling windows
     const updateGeometry = getCallback(
       id,
-      "geometry-changed",
+      'geometry-changed',
       (geometry: ClientRect, resized: boolean) =>
-        props.onGeometryChange(id, geometry, resized)
+        props.onGeometryChange(id, geometry, resized),
     );
-    const onSetTitle = getCallback(id, "set-title", (title: string) =>
-      props.onSetWindowTitle(id, title)
+    const onSetTitle = getCallback(id, 'set-title', (title: string) =>
+      props.onSetWindowTitle(id, title),
     );
-    const onMinimize = getCallback(id, "on-window-minimized", () =>
-      props.onWindowMinimized(id)
+    const onMinimize = getCallback(id, 'on-window-minimized', () =>
+      props.onWindowMinimized(id),
     );
-    const onClose = getCallback(id, "on-window-closed", () =>
-      props.onWindowClosed(id)
+    const onClose = getCallback(id, 'on-window-closed', () =>
+      props.onWindowClosed(id),
     );
-    const onClick = getCallback(id, "on-click", () =>
-      props.onWindowClicked(id)
+    const onClick = getCallback(id, 'on-click', () =>
+      props.onWindowClicked(id),
     );
     const onWindowSizeAdjusted = getCallback(
       id,
-      "on-window-size-adjusted",
-      () => props.onWindowSizeAdjusted(id)
+      'on-window-size-adjusted',
+      () => props.onWindowSizeAdjusted(id),
     );
     const childProps: any = content ? content.props : {};
     return (
@@ -126,9 +126,9 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       >
         {content
           ? React.cloneElement(content, {
-              ...childProps,
-              autoSize: window.autoSize
-            })
+            ...childProps,
+            autoSize: window.autoSize,
+          })
           : null}
       </WindowElement>
     );
@@ -137,7 +137,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const onRestore = (id: string) => props.onWindowRestored(id);
     return (
       <div
-        className={"window-button"}
+        className={'window-button'}
         onClick={() => onRestore(window.id)}
         key={window.id}
       >
@@ -145,11 +145,11 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       </div>
     );
   };
-  const classes = ["workspace"];
-  if (props.toolbarPinned) classes.push("toolbar-pinned");
+  const classes = ['workspace'];
+  if (props.toolbarPinned) classes.push('toolbar-pinned');
   return (
     <div
-      className={classes.join(" ")}
+      className={classes.join(' ')}
       onMouseLeave={props.onMouseLeave}
       onMouseMove={props.onMouseMove}
       ref={setElement}
@@ -169,28 +169,28 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         onAdjustSize={() => null}
       >
         <MessageBlotter
-          id={"fills-blotter"}
+          id={'fills-blotter'}
           setWindowTitle={() => null}
           connected={props.connected}
           personality={props.personality}
           blotterType={BlotterTypes.Fills}
         />
       </WindowElement>
-      <div className={"minimized-window-buttons"}>
+      <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}
       </div>
       <div
-        className={["toast", props.toast !== null ? "visible" : "hidden"].join(
-          " "
+        className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(
+          ' ',
         )}
       >
-        <div className={"message"}>{props.toast}</div>
-        <div className={"close-button"} onClick={props.onClearToast}>
-          <i className={"fa fa-times"} />
+        <div className={'message'}>{props.toast}</div>
+        <div className={'close-button'} onClick={props.onClearToast}>
+          <i className={'fa fa-times'}/>
         </div>
       </div>
     </div>
   );
 };
 
-export { WindowManager };
+export {WindowManager};

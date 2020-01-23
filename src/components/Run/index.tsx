@@ -66,7 +66,7 @@ interface DispatchProps {
   setOfrDefaultQty: (value: number) => Action<RunActions>;
 }
 
-const mapDispatchToProps = (dispatch: Dispatch, { id }: OwnProps) => {
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
   const actions: { [key: string]: any } = {
     setDefaultSize: setDefaultSize(id),
     updateOfr: updateOfr(id),
@@ -80,7 +80,7 @@ const mapDispatchToProps = (dispatch: Dispatch, { id }: OwnProps) => {
     setBidQty: setBidQty(id),
     setOfrQty: setOfrQty(id),
     setBidDefaultQty: setBidDefaultQty(id),
-    setOfrDefaultQty: setOfrDefaultQty(id)
+    setOfrDefaultQty: setOfrDefaultQty(id),
   };
   const entries: [string, any][] = Object.entries(actions);
   return entries.reduce((obj, [name, value]) => {
@@ -88,22 +88,22 @@ const mapDispatchToProps = (dispatch: Dispatch, { id }: OwnProps) => {
       ...obj,
       [name]: (...args: any[]) => {
         dispatch(value(...args));
-      }
+      },
     };
   }, {}) as DispatchProps;
 };
 
 const withRedux = connect(
   dynamicStateMapper<RunState, OwnProps, ApplicationState>(),
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
-  const { symbol, strategy, tenors, id } = props;
-  const { email } = getAuthenticatedUser();
-  const { setDefaultSize } = props;
+  const {symbol, strategy, tenors, id} = props;
+  const {email} = getAuthenticatedUser();
+  const {setDefaultSize} = props;
   const setTable = (orders: TOBTable) => props.setTable(orders);
 
   // Updates a single side of the depth
@@ -113,10 +113,10 @@ const Run: React.FC<Props> = (props: Props) => {
       case OrderTypes.Invalid:
         break;
       case OrderTypes.Ofr:
-        props.updateOfr({ id, order });
+        props.updateOfr({id, order});
         break;
       case OrderTypes.Bid:
-        props.updateBid({ id, order });
+        props.updateBid({id, order});
         break;
       case OrderTypes.DarkPool:
         break;
@@ -134,13 +134,13 @@ const Run: React.FC<Props> = (props: Props) => {
 
   const onDelete = (id: string) => props.removeOrder(id);
 
-  useOrderListener(tenors, symbol, strategy, { onUpdate, onDelete });
+  useOrderListener(tenors, symbol, strategy, {onUpdate, onDelete});
   useInitializer(tenors, symbol, strategy, email, props.defaultSize, setTable);
 
   const getSelectedOrders = (): Order[] => {
     if (!props.orders) return [];
     const rows: TOBRow[] = Object.values(props.orders).filter((row: TOBRow) => {
-      const { bid, ofr } = row;
+      const {bid, ofr} = row;
       if (bid.price === null && ofr.price === null) return false;
       if (bid.price === null || ofr.price === null) return true;
       return bid.price < ofr.price;
@@ -156,14 +156,14 @@ const Run: React.FC<Props> = (props: Props) => {
       return fallback as number;
     };
     const entries: Order[] = [
-      ...rows.map(({ bid }: TOBRow) => ({
+      ...rows.map(({bid}: TOBRow) => ({
         ...bid,
         quantity: ownOrDefaultQty(bid, props.defaultSize),
       })),
-      ...rows.map(({ ofr }: TOBRow) => ({
+      ...rows.map(({ofr}: TOBRow) => ({
         ...ofr,
         quantity: ownOrDefaultQty(ofr, props.defaultSize),
-      }))
+      })),
     ];
     return entries.filter((order: Order) => {
       if (
@@ -187,7 +187,7 @@ const Run: React.FC<Props> = (props: Props) => {
   if (props.orders === {}) return <div>Loading...</div>;
 
   const renderRow = (props: any): ReactElement | null => {
-    const { row } = props;
+    const {row} = props;
     return (
       <Row
         {...props}
@@ -211,17 +211,17 @@ const Run: React.FC<Props> = (props: Props) => {
     onBidQtyChanged: (id: string, value: number | null) =>
       props.setBidQty(id, value),
     onOfrQtyChanged: (id: string, value: number | null) =>
-      props.setBidQty(id, value),
+      props.setOfrQty(id, value),
     onCancelOrder: (order: Order) => props.onCancelOrder(order),
     defaultBidSize: {
       value: props.defaultSize,
       onChange: props.setBidDefaultQty,
-      type: OrderTypes.Bid
+      type: OrderTypes.Bid,
     },
     defaultOfrSize: {
       value: props.defaultSize,
       onChange: props.setOfrDefaultQty,
-      type: OrderTypes.Ofr
+      type: OrderTypes.Ofr,
     },
     defaultSize: props.defaultSize,
     minSize: props.minSize,
@@ -259,15 +259,15 @@ const Run: React.FC<Props> = (props: Props) => {
           skipTabIndexAll(target, 1, 0);
           break;
       }
-    }
+    },
   });
 
   return (
-    <div className={"run-window"}>
-      <div className={"modal-title-bar"}>
-        <div className={"half"}>
-          <div className={"item"}>{props.symbol}</div>
-          <div className={"item"}>{props.strategy}</div>
+    <div className={'run-window'}>
+      <div className={'modal-title-bar'}>
+        <div className={'half'}>
+          <div className={'item'}>{props.symbol}</div>
+          <div className={'item'}>{props.strategy}</div>
         </div>
       </div>
       <Table
@@ -276,12 +276,12 @@ const Run: React.FC<Props> = (props: Props) => {
         rows={props.orders}
         renderRow={renderRow}
       />
-      <div className={"modal-buttons"}>
-        <button className={"cancel"} onClick={props.onClose}>
+      <div className={'modal-buttons'}>
+        <button className={'cancel'} onClick={props.onClose}>
           {strings.Close}
         </button>
         <button
-          className={"success"}
+          className={'success'}
           onClick={onSubmit}
           disabled={!isSubmitEnabled()}
         >
@@ -293,4 +293,4 @@ const Run: React.FC<Props> = (props: Props) => {
 };
 
 const run = withRedux(Run);
-export { run as Run };
+export {run as Run};

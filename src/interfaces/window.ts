@@ -1,4 +1,4 @@
-import { WindowTypes } from "redux/constants/workareaConstants";
+import {WindowTypes} from 'redux/constants/workareaConstants';
 
 export enum WindowStatus {
   None,

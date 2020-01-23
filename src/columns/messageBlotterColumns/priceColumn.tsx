@@ -1,26 +1,26 @@
-import { ExecTypes, Message } from "interfaces/message";
-import React from "react";
-import { priceFormatter } from "utils/priceFormatter";
+import {ExecTypes, Message} from 'interfaces/message';
+import React from 'react';
+import {priceFormatter} from 'utils/priceFormatter';
 
 export default (sortable: boolean) => ({
-  name: "Price",
-  template: "999999.99",
+  name: 'Price',
+  template: '999999.99',
   filterable: true,
   sortable: sortable,
   header: () => <div>Level</div>,
-  render: ({ OrdStatus, LastPx, Price }: Message) => {
+  render: ({OrdStatus, LastPx, Price}: Message) => {
     if (
       OrdStatus === ExecTypes.PartiallyFilled ||
       OrdStatus === ExecTypes.Filled
     ) {
       return (
-        <div className={"message-blotter-cell normal"}>
+        <div className={'message-blotter-cell normal'}>
           {priceFormatter(Number(LastPx))}
         </div>
       );
     } else {
       return (
-        <div className={"message-blotter-cell normal"}>
+        <div className={'message-blotter-cell normal'}>
           {priceFormatter(Number(Price))}
         </div>
       );
@@ -35,5 +35,5 @@ export default (sortable: boolean) => ({
   },
   difference: (v1: Message, v2: Message) => {
     return Number(v1.Price) - Number(v2.Price);
-  }
+  },
 });

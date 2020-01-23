@@ -1,6 +1,6 @@
-import strings from "locales";
-import React, { ReactElement } from "react";
-import { MessageBox } from "components/MessageBox";
+import strings from 'locales';
+import React, {ReactElement} from 'react';
+import {MessageBox} from 'components/MessageBox';
 
 interface Props {
   title: string;
@@ -13,10 +13,10 @@ export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
   const renderButtons = () => {
     return (
       <>
-        <button className={"cancel"} onClick={props.onNo}>
+        <button className={'cancel'} onClick={props.onNo}>
           {strings.No}
         </button>
-        <button className={"success"} onClick={props.onYes}>
+        <button className={'success'} onClick={props.onYes}>
           {strings.Yes}
         </button>
       </>
@@ -25,8 +25,8 @@ export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
 
   return (
     <MessageBox
-      icon={"question-circle"}
-      color={"neutral"}
+      icon={'question-circle'}
+      color={'neutral'}
       title={props.title}
       message={props.content}
       buttons={renderButtons}

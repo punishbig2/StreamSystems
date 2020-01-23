@@ -7,16 +7,16 @@ const getNthParentOf = (element: Element, count: number): Element | null => {
   return parent as Element;
 };
 
-export const skipTabIndex = (
-  target: HTMLInputElement,
-  n: number,
-  cycle: number = 0
-) => {
+export const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number = 0) => {
   const parent: Element | null = getNthParentOf(target, 4);
   if (parent !== null) {
+    const tabindex: any = target.getAttribute('tabindex');
+    // Force it to work
+    target.removeAttribute('tabindex');
     const inputs: HTMLInputElement[] = Array.from(
-      parent.querySelectorAll('input:not([tabindex="-1"])')
+      parent.querySelectorAll('input:not([tabindex="-1"])'),
     );
+    target.setAttribute('tabindex', tabindex);
     const startAt: number = inputs.indexOf(target);
     if (startAt === -1) return;
     const next: HTMLInputElement = inputs[startAt + n];
@@ -34,12 +34,12 @@ export const skipTabIndex = (
 export const skipTabIndexAll = (
   target: HTMLInputElement,
   n: number,
-  cycle: number = 0
+  cycle: number = 0,
 ) => {
   const parent: Element | null = getNthParentOf(target, 4);
   if (parent !== null) {
     const inputs: HTMLInputElement[] = Array.from(
-      parent.querySelectorAll("input")
+      parent.querySelectorAll('input'),
     );
     const startAt: number = inputs.indexOf(target);
     if (startAt === -1) return;

@@ -13,14 +13,16 @@ export interface TOBColumnData {
   onQuantityChange: (
     entry: Order,
     newQuantity: number | null,
-    input: HTMLInputElement
+    personality: string,
+    minSize: number,
+    input: HTMLInputElement,
   ) => void;
   onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
   onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => void;
   onOrderError: (
     order: Order,
     error: PriceErrors,
-    input: HTMLInputElement
+    input: HTMLInputElement,
   ) => void;
   aggregatedSz?: AggregatedSz;
   buttonsEnabled: boolean;
@@ -29,7 +31,7 @@ export interface TOBColumnData {
   onDarkPoolDoubleClicked: (
     tenor: string,
     price: number | null,
-    currentOrder: Order | null
+    currentOrder: Order | null,
   ) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onCancelDarkPoolOrder: (order: Order) => void;

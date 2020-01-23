@@ -1,11 +1,11 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
-import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { TOBTable } from "interfaces/tobTable";
-import { useEffect } from "react";
-import { toRunId } from "utils";
-import { compareTenors } from "utils/dataGenerators";
-import { $$ } from "utils/stringPaster";
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
+import {useEffect} from 'react';
+import {toRunId} from 'utils';
+import {compareTenors} from 'utils/dataGenerators';
+import {$$} from 'utils/stringPaster';
 
 export const useInitializer = (
   tenors: string[],
@@ -13,7 +13,7 @@ export const useInitializer = (
   strategy: string,
   email: string,
   defaultSize: number,
-  onReady: (table: any) => void
+  onReady: (table: any) => void,
 ) => {
   useEffect(() => {
     const rows: TOBRow[] = tenors.map((tenor: string) => {
@@ -36,7 +36,7 @@ export const useInitializer = (
             ? Number(ofr.price) - Number(bid.price)
             : null,
         darkPrice: null,
-        status: TOBRowStatus.Normal
+        status: TOBRowStatus.Normal,
       };
     });
     const table = rows

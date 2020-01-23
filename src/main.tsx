@@ -10,11 +10,11 @@ import {store} from 'redux/store';
 import {Settings} from 'settings';
 import 'styles/main.scss';
 
-Object.defineProperty(MouseEvent.prototype, "ignore", {
-  value: function() {
+Object.defineProperty(MouseEvent.prototype, 'ignore', {
+  value: function () {
     this.preventDefault();
     this.stopImmediatePropagation();
-  }
+  },
 });
 
 const defaultSettings: Settings = {};
@@ -27,7 +27,7 @@ const FXOptionsUI: React.FC = () => {
   return (
     <SettingsContext.Provider value={currentSettings}>
       <Provider store={store}>
-        <Workarea />
+        <Workarea/>
       </Provider>
     </SettingsContext.Provider>
   );

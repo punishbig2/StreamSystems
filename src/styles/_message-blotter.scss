@@ -1,11 +1,13 @@
 .message-blotter-cell {
   text-align: center;
   font-weight: 500;
+
   &.normal {
     &.red {
       color: crimson;
     }
   }
+
   &.time {
   }
 }

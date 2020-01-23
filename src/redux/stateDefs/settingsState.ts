@@ -1,1 +1,2 @@
-export interface SettingsState {}
+export interface SettingsState {
+}

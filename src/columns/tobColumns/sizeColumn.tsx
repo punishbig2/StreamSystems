@@ -1,16 +1,16 @@
-import { Type, RowType, getChevronStatus } from "columns/tobColumns/common";
-import { TOBColumnData } from "components/TOB/data";
-import { HeaderAction, DualTableHeader } from "components/dualTableHeader";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { Order, OrderStatus } from "interfaces/order";
-import { TOBQty } from "columns/tobQty";
-import React from "react";
-import { AggregatedSz } from "components/TOB/reducer";
+import {Type, RowType, getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/tobColumns/common';
+import {TOBColumnData} from 'components/TOB/data';
+import {HeaderAction, DualTableHeader} from 'components/dualTableHeader';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {Order, OrderStatus} from 'interfaces/order';
+import {TOBQty} from 'columns/tobQty';
+import React from 'react';
+import {AggregatedSz} from 'components/TOB/reducer';
 
 const getAggregatedSize = (
   aggregatedSz: AggregatedSz | undefined,
   order: Order,
-  index: "ofr" | "bid"
+  index: 'ofr' | 'bid',
 ): number | null => {
   if (aggregatedSz) {
     const price: number | null = order.price;
@@ -28,7 +28,7 @@ export const SizeColumn = (
   type: Type,
   data: TOBColumnData,
   depth: boolean,
-  action?: HeaderAction
+  action?: HeaderAction,
 ): ColumnSpec => {
   return {
     name: `${type}-sz`,
@@ -39,24 +39,25 @@ export const SizeColumn = (
         disabled={!data.buttonsEnabled}
       />
     ),
-    render: ({ [type]: originalOrder, depths }: RowType) => {
+    render: ({[type]: originalOrder, depths}: RowType) => {
       const quantity = depth
         ? originalOrder.quantity
         : getAggregatedSize(data.aggregatedSz, originalOrder, type);
-      const order: Order = { ...originalOrder, quantity };
-      const status: OrderStatus =
-        getChevronStatus(depths, order.tenor, order.type) |
-        originalOrder.status;
+      const order: Order = {...originalOrder, quantity};
+      const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
+        | getBankMatchesPersonalityStatus(order, data.personality)
+        | originalOrder.status;
       if (order.status !== status) {
         return (
           <TOBQty
-            order={{ ...order, status: status }}
+            order={{...order, status: status}}
             isDepth={depth}
             value={order.quantity}
             defaultSize={data.defaultSize}
             minSize={data.minSize}
             onCancel={data.onCancelOrder}
             onSubmit={data.onQuantityChange}
+            personality={data.personality}
           />
         );
       } else {
@@ -69,11 +70,12 @@ export const SizeColumn = (
             minSize={data.minSize}
             onCancel={data.onCancelOrder}
             onSubmit={data.onQuantityChange}
+            personality={data.personality}
           />
         );
       }
     },
-    template: "999999",
-    weight: 5
+    template: '999999',
+    weight: 5,
   };
 };

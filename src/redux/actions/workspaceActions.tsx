@@ -1,23 +1,19 @@
-import { API } from "API";
-import { WorkspaceWindow } from "components/Workspace/workspaceWindow";
-import { Action } from "redux/action";
-import { createAction } from "redux/actionCreator";
-import { AsyncAction } from "redux/asyncAction";
-import { WindowTypes } from "redux/constants/workareaConstants";
-import { WorkspaceActions } from "redux/constants/workspaceConstants";
-import { createWindowReducer } from "redux/reducers/tobReducer";
-import { DefaultWindowState } from "redux/stateDefs/windowState";
-import {
-  injectNamedReducer,
-  removeNamedReducer,
-  DummyAction
-} from "redux/store";
-import { $$ } from "utils/stringPaster";
-import { FXOptionsDB } from "fx-options-db";
+import {API} from 'API';
+import {WorkspaceWindow} from 'components/Workspace/workspaceWindow';
+import {Action} from 'redux/action';
+import {createAction} from 'redux/actionCreator';
+import {AsyncAction} from 'redux/asyncAction';
+import {WindowTypes} from 'redux/constants/workareaConstants';
+import {WorkspaceActions} from 'redux/constants/workspaceConstants';
+import {createWindowReducer} from 'redux/reducers/tobReducer';
+import {DefaultWindowState} from 'redux/stateDefs/windowState';
+import {injectNamedReducer, removeNamedReducer, DummyAction} from 'redux/store';
+import {$$} from 'utils/stringPaster';
+import {FXOptionsDB} from 'fx-options-db';
 
 export const removeWindow = (
   workspaceID: string,
-  windowID: string
+  windowID: string,
 ): Action<string> => {
   FXOptionsDB.removeWindow(workspaceID, windowID);
   removeNamedReducer(windowID);
@@ -26,7 +22,7 @@ export const removeWindow = (
 
 export const minimizeWindow = (
   id: string,
-  windowID: string
+  windowID: string,
 ): Action<string> => {
   return createAction($$(id, WorkspaceActions.MinimizeWindow), windowID);
 };
@@ -37,7 +33,7 @@ export const restoreWindow = (id: string, windowID: string): Action<string> => {
 
 export const addWindow = (
   workspaceID: string,
-  type: WindowTypes
+  type: WindowTypes,
 ): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
   if (type === WindowTypes.TOB)
@@ -50,7 +46,7 @@ export const moveWindow = (
   id: string,
   windowID: string,
   geometry: ClientRect,
-  resized: boolean
+  resized: boolean,
 ): AsyncAction<any> => {
   return new AsyncAction(async () => {
     // FIXME: we should do this when the mouse is released instead to avoid writing too
@@ -58,39 +54,39 @@ export const moveWindow = (
     FXOptionsDB.setWindowGeometry(windowID, geometry);
     return createAction($$(id, WorkspaceActions.UpdateGeometry), {
       id: windowID,
-      ...{ geometry, resized }
+      ...{geometry, resized},
     });
   }, DummyAction);
 };
 
 export const bringToFront = (id: string, windowID: string): Action<string> => {
-  return createAction($$(id, WorkspaceActions.BringToFront), { id: windowID });
+  return createAction($$(id, WorkspaceActions.BringToFront), {id: windowID});
 };
 
 export const setWindowTitle = (
   id: string,
   windowID: string,
-  title: string
+  title: string,
 ): Action<string> => {
   return createAction($$(id, WorkspaceActions.SetWindowTitle), {
     id: windowID,
-    title
+    title,
   });
 };
 
 export const setToast = (
   id: string,
-  message: string | null
+  message: string | null,
 ): Action<string> => {
   return createAction($$(id, WorkspaceActions.Toast), message);
 };
 
 export const setWindowAutoSize = (
   id: string,
-  windowID: string
+  windowID: string,
 ): Action<string> => {
   return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {
-    id: windowID
+    id: windowID,
   });
 };
 
@@ -124,14 +120,14 @@ export const setPersonality = (id: string, personality: string) => {
 export const showUserProfileModal = (id: string): Action<WorkspaceActions> => {
   return createAction(
     $$(id, WorkspaceActions.SetUserProfileModalVisible),
-    true
+    true,
   );
 };
 
 export const closeUserProfileModal = (id: string): Action<WorkspaceActions> => {
   return createAction(
     $$(id, WorkspaceActions.SetUserProfileModalVisible),
-    false
+    false,
   );
 };
 
@@ -142,7 +138,7 @@ export const closeErrorModal = (id: string): Action<WorkspaceActions> => {
 export const refAll = (id: string) => {
   return new AsyncAction(async () => {
     const result: any = await API.brokerRefAll();
-    if (result.Status === "Failure")
+    if (result.Status === 'Failure')
       return createAction($$(id, WorkspaceActions.ShowError), result.Response);
     return DummyAction;
   }, DummyAction);

@@ -1,12 +1,12 @@
-import { Currency } from "interfaces/currency";
-import { Order, Sides } from "interfaces/order";
-import { Strategy } from "interfaces/strategy";
-import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { User } from "interfaces/user";
-import { Subscriber } from "redux/signalRAction";
-import { RunState } from "redux/stateDefs/runState";
-import { WindowState } from "redux/stateDefs/windowState";
-import { DispatchProp } from "react-redux";
+import {Currency} from 'interfaces/currency';
+import {Order, Sides} from 'interfaces/order';
+import {Strategy} from 'interfaces/strategy';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {User} from 'interfaces/user';
+import {Subscriber} from 'redux/signalRAction';
+import {RunState} from 'redux/stateDefs/runState';
+import {WindowState} from 'redux/stateDefs/windowState';
+import {DispatchProp} from 'react-redux';
 
 export interface OwnProps {
   id: string;
@@ -31,7 +31,7 @@ export interface DispatchProps {
   getDarkPoolSnapshot: (
     symbol: string,
     strategy: string,
-    tenor: string
+    tenor: string,
   ) => void;
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
@@ -47,7 +47,7 @@ export interface DispatchProps {
     symbol: string,
     strategy: string,
     tenor: string,
-    price: number
+    price: number,
   ) => void;
 }
 

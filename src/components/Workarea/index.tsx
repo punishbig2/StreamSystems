@@ -1,16 +1,16 @@
-import messageBlotterColumns from "columns/messageBlotter";
-import { ModalWindow } from "components/ModalWindow";
-import { QuestionBox } from "components/QuestionBox";
-import { TabBar } from "components/TabBar";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { UserNotFound } from "components/Workarea/userNotFound";
-import { WorkareaError } from "components/Workarea/workareaError";
-import { Workspace } from "components/Workspace";
-import strings from "locales";
-import React, { ReactElement, useEffect, useState } from "react";
-import { connect, MapStateToProps } from "react-redux";
-import { BlotterTypes } from "redux/constants/messageBlotterConstants";
-import { AnyAction } from "redux";
+import messageBlotterColumns from 'columns/messageBlotter';
+import {ModalWindow} from 'components/ModalWindow';
+import {QuestionBox} from 'components/QuestionBox';
+import {TabBar} from 'components/TabBar';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {UserNotFound} from 'components/Workarea/userNotFound';
+import {WorkareaError} from 'components/Workarea/workareaError';
+import {Workspace} from 'components/Workspace';
+import strings from 'locales';
+import React, {ReactElement, useEffect, useState} from 'react';
+import {connect, MapStateToProps} from 'react-redux';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
+import {AnyAction} from 'redux';
 import {
   addWindow,
   addWorkspace,
@@ -22,13 +22,14 @@ import {
   renameWorkspace,
   setWorkspace,
   subscribeToMessages,
-  unsubscribeFromMessages
-} from "redux/actions/workareaActions";
-import { ApplicationState } from "redux/applicationState";
-import { WindowTypes } from "redux/constants/workareaConstants";
-import { WorkareaState, WorkareaStatus } from "redux/stateDefs/workareaState";
+  unsubscribeFromMessages,
+} from 'redux/actions/workareaActions';
+import {ApplicationState} from 'redux/applicationState';
+import {WindowTypes} from 'redux/constants/workareaConstants';
+import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
 
-interface OwnProps {}
+interface OwnProps {
+}
 
 interface DispatchProps {
   addWorkspace: () => AnyAction;
@@ -46,11 +47,9 @@ interface DispatchProps {
 
 type Props = OwnProps & WorkareaState & DispatchProps;
 
-const mapStateToProps: MapStateToProps<
-  WorkareaState,
+const mapStateToProps: MapStateToProps<WorkareaState,
   OwnProps,
-  ApplicationState
-> = ({ workarea }: ApplicationState): WorkareaState => workarea;
+  ApplicationState> = ({workarea}: ApplicationState): WorkareaState => workarea;
 
 const mapDispatchToProps: DispatchProps = {
   addWorkspace,
@@ -63,17 +62,15 @@ const mapDispatchToProps: DispatchProps = {
   initialize,
   quit,
   unsubscribeFromMessages,
-  subscribeToMessages
+  subscribeToMessages,
 };
 
-const withRedux: (ignored: any) => any = connect<
-  WorkareaState,
+const withRedux: (ignored: any) => any = connect<WorkareaState,
   DispatchProps,
   OwnProps,
-  ApplicationState
->(
+  ApplicationState>(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 const Workarea: React.FC<OwnProps> = withRedux(
@@ -86,12 +83,12 @@ const Workarea: React.FC<OwnProps> = withRedux(
       initialize,
       connected,
       user,
-      activeWorkspace
+      activeWorkspace,
     } = props;
     const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
-    const { workspaces, loadMessages } = props;
-    const { CloseWorkspace } = strings;
-    const { subscribeToMessages, unsubscribeFromMessages } = props;
+    const {workspaces, loadMessages} = props;
+    const {CloseWorkspace} = strings;
+    const {subscribeToMessages, unsubscribeFromMessages} = props;
 
     useEffect(() => {
       if (!user) return;
@@ -130,18 +127,18 @@ const Workarea: React.FC<OwnProps> = withRedux(
       const columns: ColumnSpec[] = messageBlotterColumns(BlotterTypes.Regular)
         .normal;
       return (
-        <div className={"message-detail"}>
-          <audio src={"/sounds/alert.wav"} autoPlay={true} />
+        <div className={'message-detail'}>
+          <audio src={'/sounds/alert.wav'} autoPlay={true}/>
           {columns.map((column: ColumnSpec) => (
-            <div className={"message-entry"} key={column.name}>
-              <div className={"message-entry-label"}>{column.header({})}</div>
-              <div className={"message-entry-value"}>
+            <div className={'message-entry'} key={column.name}>
+              <div className={'message-entry-label'}>{column.header({})}</div>
+              <div className={'message-entry-value'}>
                 {column.render(props.lastExecution)}
               </div>
             </div>
           ))}
-          <div className={"modal-buttons"}>
-            <button className={"cancel"} onClick={props.clearLastExecution}>
+          <div className={'modal-buttons'}>
+            <button className={'cancel'} onClick={props.clearLastExecution}>
               Close
             </button>
           </div>
@@ -151,16 +148,16 @@ const Workarea: React.FC<OwnProps> = withRedux(
 
     switch (props.status) {
       case WorkareaStatus.Error:
-        return <WorkareaError />;
+        return <WorkareaError/>;
       case WorkareaStatus.UserNotFound:
-        return <UserNotFound />;
+        return <UserNotFound/>;
       case WorkareaStatus.Starting:
         // Should never happen
         return null;
       case WorkareaStatus.Initializing:
         return (
-          <div className={"loading-window"}>
-            <div className={"spinner"} />
+          <div className={'loading-window'}>
+            <div className={'spinner'}/>
             <h2>{props.message}</h2>
           </div>
         );
@@ -177,7 +174,7 @@ const Workarea: React.FC<OwnProps> = withRedux(
                 connected={connected}
               />
             ) : null}
-            <div className={"footer"}>
+            <div className={'footer'}>
               <TabBar
                 entries={workspaces}
                 addTab={props.addWorkspace}
@@ -202,7 +199,7 @@ const Workarea: React.FC<OwnProps> = withRedux(
         // Should never happen
         return null;
     }
-  }
+  },
 );
 
-export { Workarea };
+export {Workarea};

@@ -1,10 +1,10 @@
-import { MDEntry } from "interfaces/mdEntry";
+import {MDEntry} from 'interfaces/mdEntry';
 
 export enum MessageTypes {
-  W = "W",
-  D = "D",
-  G = "G",
-  F = "F"
+  W = 'W',
+  D = 'D',
+  G = 'G',
+  F = 'F'
 }
 
 export type TenorType = string;
@@ -12,12 +12,12 @@ export type StrategyType = string;
 export type SymbolType = string;
 
 export enum ArrowDirection {
-  None = "",
-  Up = "0",
-  Down = "2"
+  None = '',
+  Up = '0',
+  Down = '2'
 }
 
-export const DarkPool: string = "DP";
+export const DarkPool: string = 'DP';
 
 export interface W {
   MsgType: MessageTypes;
@@ -28,7 +28,7 @@ export interface W {
   Tenor: TenorType;
   NoMDEntries: number;
   Entries: MDEntry[];
-  ExDestination: "DP" | undefined;
-  "9712": string;
-  "9702": string;
+  ExDestination: 'DP' | undefined;
+  '9712': string;
+  '9702': string;
 }

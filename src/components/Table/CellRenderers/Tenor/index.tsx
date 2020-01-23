@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface TenorProps {
   tenor: string;
@@ -8,7 +8,7 @@ interface TenorProps {
 export const Tenor: React.FC<TenorProps> = (props: TenorProps) => {
   return (
     <div
-      className={"tenor-layout"}
+      className={'tenor-layout'}
       onDoubleClickCapture={() => props.onTenorSelected(props.tenor)}
     >
       {props.tenor}

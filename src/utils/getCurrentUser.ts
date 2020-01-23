@@ -1,9 +1,9 @@
-import { User } from "interfaces/user";
-import { store } from "redux/store";
+import {User} from 'interfaces/user';
+import {store} from 'redux/store';
 
 export const getAuthenticatedUser = (): User => {
   const {
-    workarea: { user }
+    workarea: {user},
   } = store.getState();
   return user;
 };

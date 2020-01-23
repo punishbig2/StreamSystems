@@ -1,6 +1,6 @@
-import { Window, WindowStatus } from "interfaces/window";
-import { WindowTypes } from "redux/constants/workareaConstants";
-import shortid from "shortid";
+import {Window, WindowStatus} from 'interfaces/window';
+import {WindowTypes} from 'redux/constants/workareaConstants';
+import shortid from 'shortid';
 
 export class WorkspaceWindow implements Window {
   public id: string;
@@ -16,10 +16,10 @@ export class WorkspaceWindow implements Window {
   constructor(type: WindowTypes) {
     this.id = `wn-${shortid()}-${type}`;
     this.type = type;
-    this.strategy = "";
-    this.symbol = "";
+    this.strategy = '';
+    this.symbol = '';
     this.minimized = false;
-    this.title = "Untitled";
+    this.title = 'Untitled';
     this.autoSize = true;
   }
 }

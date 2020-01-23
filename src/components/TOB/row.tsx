@@ -1,18 +1,18 @@
-import { Cell } from "components/Table/Cell";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { RowFunctions } from "components/TOB/rowFunctions";
-import { TOBRowStatus } from "interfaces/tobRow";
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { createAction } from "redux/actionCreator";
-import { ApplicationState } from "redux/applicationState";
-import { dynamicStateMapper } from "redux/dynamicStateMapper";
-import { createRowReducer, RowActions } from "redux/reducers/rowReducer";
-import { RowState } from "redux/stateDefs/rowState";
-import { injectNamedReducer, removeNamedReducer } from "redux/store";
-import { percentage } from "utils";
-import { $$ } from "utils/stringPaster";
+import {Cell} from 'components/Table/Cell';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {RowFunctions} from 'components/TOB/rowFunctions';
+import {TOBRowStatus} from 'interfaces/tobRow';
+import React, {useEffect} from 'react';
+import {connect} from 'react-redux';
+import {Dispatch} from 'redux';
+import {createAction} from 'redux/actionCreator';
+import {ApplicationState} from 'redux/applicationState';
+import {dynamicStateMapper} from 'redux/dynamicStateMapper';
+import {createRowReducer, RowActions} from 'redux/reducers/rowReducer';
+import {RowState} from 'redux/stateDefs/rowState';
+import {injectNamedReducer, removeNamedReducer} from 'redux/store';
+import {percentage} from 'utils';
+import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
   id: string;
@@ -27,24 +27,22 @@ interface OwnProps {
 const cache: { [key: string]: RowFunctions } = {};
 const mapDispatchToProps = (
   dispatch: Dispatch,
-  { id }: OwnProps
+  {id}: OwnProps,
 ): RowFunctions => {
   if (!cache[id]) {
     cache[id] = {
-      resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus)))
+      resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus))),
     };
   }
   return cache[id];
 };
 
-const withRedux: (ignored: any) => any = connect<
-  RowState,
+const withRedux: (ignored: any) => any = connect<RowState,
   RowFunctions,
   OwnProps,
-  ApplicationState
->(
+  ApplicationState>(
   dynamicStateMapper<RowState, OwnProps, ApplicationState>(),
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
@@ -57,10 +55,10 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     resetStatus,
     ...extra
   } = props;
-  const { status } = row;
+  const {status} = row;
   useEffect(() => {
     if (displayOnly) return;
-    injectNamedReducer(id, createRowReducer, { row });
+    injectNamedReducer(id, createRowReducer, {row});
     return () => {
       removeNamedReducer(id);
     };
@@ -69,7 +67,7 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     if (status === TOBRowStatus.Normal) {
       return;
     } else if (status === TOBRowStatus.Executed) {
-      const { ofr, bid } = row;
+      const {ofr, bid} = row;
       if (ofr.price === null && bid.price === null) return;
       const timer = setTimeout(() => {
         resetStatus();
@@ -80,16 +78,16 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     }
   }, [onError, resetStatus, row, status]);
   const functions: RowFunctions = {
-    resetStatus: props.resetStatus
+    resetStatus: props.resetStatus,
   };
-  const classes: string[] = ["tr"];
+  const classes: string[] = ['tr'];
   if (status === TOBRowStatus.Executed) {
-    classes.push("executed");
+    classes.push('executed');
   } else if (status !== TOBRowStatus.Normal) {
-    classes.push("error");
+    classes.push('error');
   }
   return (
-    <div className={classes.join(" ")}>
+    <div className={classes.join(' ')}>
       {columns.map(column => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);
@@ -108,4 +106,4 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
   );
 });
 
-export { Row };
+export {Row};

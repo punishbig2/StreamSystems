@@ -10,15 +10,18 @@ interface Props {
   onSubmit: (
     order: Order,
     newQuantity: number | null,
-    input: HTMLInputElement
+    personality: string,
+    minSize: number,
+    input: HTMLInputElement,
   ) => void;
   value: number | null;
   minSize: number;
   defaultSize: number;
+  personality: string;
 }
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
-  const { order } = props;
+  const {order} = props;
   const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
     setValue(props.value);
@@ -26,11 +29,11 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
 
   const onTabbedOut = (input: HTMLInputElement) => {
     if (value === 0) {
-      props.onSubmit(order, null, input);
+      props.onSubmit(order, null, props.personality, props.minSize, input);
     } else if (value !== null && value < props.minSize) {
-      props.onSubmit(order, props.minSize, input);
+      props.onSubmit(order, props.minSize, props.personality, props.minSize, input);
     } else {
-      props.onSubmit(order, value, input);
+      props.onSubmit(order, value, props.personality, props.minSize, input);
     }
   };
 
@@ -78,7 +81,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       onCancel={onCancel}
       onTabbedOut={onTabbedOut}
       cancellable={cancellable}
-      className={getOrderStatusClass(order.status, "size")}
+      className={getOrderStatusClass(order.status, 'size')}
       chevron={showChevron}
     />
   );

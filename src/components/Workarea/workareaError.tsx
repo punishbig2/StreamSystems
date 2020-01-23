@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
 const location = window.location;
 export const WorkareaError: React.FC = () => {
   return (
-    <div className={"workarea-error"}>
+    <div className={'workarea-error'}>
       <h1>
-        <i className={"fa fa-exclamation-triangle"} />
+        <i className={'fa fa-exclamation-triangle'}/>
       </h1>
       <h1>Oops, there was an error while loading</h1>
       <p>
@@ -14,7 +14,7 @@ export const WorkareaError: React.FC = () => {
       </p>
       <p>
         Please try to reload the page
-        <button className={"link"} onClick={() => location.reload()}>
+        <button className={'link'} onClick={() => location.reload()}>
           or click here
         </button>
       </p>

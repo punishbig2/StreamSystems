@@ -1,21 +1,21 @@
-import { TOBColumnData } from "components/TOB/data";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { DualTableHeader } from "components/dualTableHeader";
-import { RowType } from "columns/tobColumns/common";
-import React from "react";
+import {TOBColumnData} from 'components/TOB/data';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {DualTableHeader} from 'components/dualTableHeader';
+import {RowType} from 'columns/tobColumns/common';
+import React from 'react';
 
 export const FirmColumn = (
   data: TOBColumnData,
-  type: "ofr" | "bid"
+  type: 'ofr' | 'bid',
 ): ColumnSpec => ({
   name: `${type}-firm`,
-  header: () => <DualTableHeader label={""} />,
+  header: () => <DualTableHeader label={''}/>,
   render: (row: RowType) => {
     const {
-      [type]: { firm }
+      [type]: {firm},
     } = row;
-    return <div className={"firm"}>{firm}</div>;
+    return <div className={'firm'}>{firm}</div>;
   },
-  template: " BANK ",
-  weight: 3
+  template: ' BANK ',
+  weight: 3,
 });

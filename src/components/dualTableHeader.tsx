@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export type HeaderAction = { fn: () => void; label: string };
 
@@ -9,11 +9,11 @@ interface Props {
 }
 
 export const DualTableHeader = (props: Props) => {
-  const { action } = props;
+  const {action} = props;
   return (
-    <div className={"dual-header"}>
-      <div className={"first"}>{props.label}</div>
-      <div className={"second"}>
+    <div className={'dual-header'}>
+      <div className={'first'}>{props.label}</div>
+      <div className={'second'}>
         {action ? (
           <button onClick={action.fn} disabled={props.disabled}>
             {action.label}

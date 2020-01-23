@@ -1,18 +1,18 @@
-import React from "react";
-import { Message } from "interfaces/message";
+import React from 'react';
+import {Message} from 'interfaces/message';
 
 export const poolColumn = (sortable: boolean) => ({
-  name: "pool",
-  difference: function(p1: any, p2: any) {
+  name: 'pool',
+  difference: function (p1: any, p2: any) {
     return 0;
   },
-  filterByKeyword: function(p1: any, p2: string) {
+  filterByKeyword: function (p1: any, p2: string) {
     return false;
   },
   header: () => <div>Pool</div>,
-  render: ({ ExDestination }: Message) => <div>{ExDestination}</div>,
+  render: ({ExDestination}: Message) => <div>{ExDestination}&nbsp;</div>,
   filterable: true,
   sortable: sortable,
-  template: "POOL_AND_SORT",
-  weight: 1
+  template: 'MAKE_IT_WIDE',
+  weight: 1,
 });

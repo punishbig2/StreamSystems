@@ -1,9 +1,9 @@
-import { Column } from "components/Table/Column";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { SortDirection } from "components/Table/index";
-import { SortInfo } from "interfaces/sortInfo";
-import React from "react";
-import { percentage } from "utils";
+import {Column} from 'components/Table/Column';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {SortDirection} from 'components/Table/index';
+import {SortInfo} from 'interfaces/sortInfo';
+import React from 'react';
+import {percentage} from 'utils';
 
 interface HeaderProps {
   columns: ColumnSpec[];
@@ -13,17 +13,15 @@ interface HeaderProps {
   addFilter: (column: string, value: string) => void;
 }
 
-export const Header: <T extends unknown>(props: HeaderProps) => any = <
-  T extends unknown
->(
-  props: HeaderProps
+export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends unknown>(
+  props: HeaderProps,
 ) => {
-  const { columns, sortBy } = props;
+  const {columns, sortBy} = props;
   const sortColumns: SortInfo[] = Object.values(sortBy);
   const columnMapper = (weight: number) => (column: ColumnSpec) => {
     const handleSorting = (): [SortDirection, () => void] => {
       const sortInfo: SortInfo | undefined = sortColumns.find(
-        (info: SortInfo) => info.column === column.name
+        (info: SortInfo) => info.column === column.name,
       );
       const direction = sortInfo ? sortInfo.direction : SortDirection.None;
       const onSorted = () => {
@@ -31,19 +29,19 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <
           case SortDirection.Ascending:
             props.addSortColumn({
               column: column.name,
-              direction: SortDirection.Descending
+              direction: SortDirection.Descending,
             });
             break;
           case SortDirection.Descending:
             props.addSortColumn({
               column: column.name,
-              direction: SortDirection.None
+              direction: SortDirection.None,
             });
             break;
           case SortDirection.None:
             props.addSortColumn({
               column: column.name,
-              direction: SortDirection.Ascending
+              direction: SortDirection.Ascending,
             });
             break;
         }
@@ -67,8 +65,8 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <
     );
   };
   return (
-    <div className={"thead"}>
-      <div className={"tr"}>{columns.map(columnMapper(props.weight))}</div>
+    <div className={'thead'}>
+      <div className={'tr'}>{columns.map(columnMapper(props.weight))}</div>
     </div>
   );
 };

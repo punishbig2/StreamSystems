@@ -1,7 +1,7 @@
 export interface OrderResponse {
-  MsgType: "D" | "F" | "G";
+  MsgType: 'D' | 'F' | 'G';
   TransactTime: number;
   OrderID: number;
-  Status: "Success" | "Failure";
+  Status: 'Success' | 'Failure';
   Response: string;
 }

@@ -1,3 +1,3 @@
 export enum SettingsActions {
-  LoadSettings = "SettingsActions.Load"
+  LoadSettings = 'SettingsActions.Load'
 }

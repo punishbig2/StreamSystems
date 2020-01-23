@@ -1,15 +1,15 @@
-import { ArrowDirection } from "interfaces/w";
+import {ArrowDirection} from 'interfaces/w';
 
 export enum OrderTypes {
-  Invalid = "",
-  Ofr = "1",
-  Bid = "0",
-  DarkPool = "2"
+  Invalid = '',
+  Ofr = '1',
+  Bid = '0',
+  DarkPool = '2'
 }
 
 export enum FirmTypes {
-  Bank = "BANK",
-  Broker = "BROKER"
+  Bank = 'BANK',
+  Broker = 'BROKER'
 }
 
 export interface MDEntry {

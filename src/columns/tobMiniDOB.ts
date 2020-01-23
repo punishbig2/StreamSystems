@@ -1,13 +1,13 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
-import { TOBRow } from "interfaces/tobRow";
-import { TOBTable } from "interfaces/tobTable";
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
+import {TOBRow} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
 
 type Depths = { [key: string]: TOBTable };
 export const getMiniDOBByType = (
   depths: Depths,
   tenor: string,
-  type: OrderTypes
+  type: OrderTypes,
 ): Order[] | undefined => {
   if (depths === undefined || depths[tenor] === undefined) return undefined;
   const items: TOBRow[] = Object.values(depths[tenor]);

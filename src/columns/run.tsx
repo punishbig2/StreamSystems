@@ -1,23 +1,23 @@
-import { HeaderQty } from "components/HeaderQty";
-import { RunQuantity } from "components/RunQuantity";
-import { RunColumnData, QtyHeader } from "components/Run/columnData";
-import { Price } from "components/Table/CellRenderers/Price";
-import { Tenor } from "components/Table/CellRenderers/Tenor";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { Order, OrderStatus } from "interfaces/order";
-import { TOBRow } from "interfaces/tobRow";
-import { ArrowDirection } from "interfaces/w";
-import strings from "locales";
-import React from "react";
-import { RunActions } from "redux/reducers/runReducer";
+import {HeaderQty} from 'components/HeaderQty';
+import {RunQuantity} from 'components/RunQuantity';
+import {RunColumnData, QtyHeader} from 'components/Run/columnData';
+import {Price} from 'components/Table/CellRenderers/Price';
+import {Tenor} from 'components/Table/CellRenderers/Tenor';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {Order, OrderStatus} from 'interfaces/order';
+import {TOBRow} from 'interfaces/tobRow';
+import {ArrowDirection} from 'interfaces/w';
+import strings from 'locales';
+import React from 'react';
+import {RunActions} from 'redux/reducers/runReducer';
 
 type RowType = TOBRow & { defaultBidSize: number; defaultOfrSize: number };
 
-const RunPxCol = (data: RunColumnData, type: "bid" | "ofr"): ColumnSpec => {
-  const onChange = type === "bid" ? data.onBidChanged : data.onOfrChanged;
-  const label: string = type === "bid" ? strings.Bid : strings.Ofr;
+const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+  const onChange = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
+  const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
   const actionType: RunActions =
-    type === "bid" ? RunActions.Bid : RunActions.Ofr;
+    type === 'bid' ? RunActions.Bid : RunActions.Ofr;
   return {
     name: `${type}-price`,
     header: () => <div>{label}</div>,
@@ -40,19 +40,19 @@ const RunPxCol = (data: RunColumnData, type: "bid" | "ofr"): ColumnSpec => {
         />
       );
     },
-    template: "999999.99",
-    weight: 4
+    template: '999999.99',
+    weight: 4,
   };
 };
 
-const RunQtyCol = (data: RunColumnData, type: "bid" | "ofr"): ColumnSpec => {
+const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const defaultSize =
-    type === "bid" ? data.defaultBidSize : data.defaultOfrSize;
+    type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
   return {
     name: `${type}-quantity`,
     header: () => <HeaderQty {...defaultSize} />,
     render: (row: RowType) => {
-      const defaultSize: QtyHeader = type === "bid" ? data.defaultBidSize : data.defaultOfrSize;
+      const defaultSize: QtyHeader = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
       const order: Order = row[type];
       return (
         <RunQuantity
@@ -67,29 +67,29 @@ const RunQtyCol = (data: RunColumnData, type: "bid" | "ofr"): ColumnSpec => {
         />
       );
     },
-    template: "999999",
-    weight: 3
+    template: '999999',
+    weight: 3,
   };
 };
 
 const TenorColumn: ColumnSpec = {
-  name: "tenor",
+  name: 'tenor',
   header: () => <span>&nbsp;</span>,
-  render: ({ tenor }: RowType) => (
-    <Tenor tenor={tenor} onTenorSelected={() => null} />
+  render: ({tenor}: RowType) => (
+    <Tenor tenor={tenor} onTenorSelected={() => null}/>
   ),
-  template: "WW",
-  weight: 2
+  template: 'WW',
+  weight: 2,
 };
 
 const MidCol = (data: RunColumnData) => ({
-  name: "mid",
+  name: 'mid',
   header: () => <div>{strings.Mid}</div>,
-  render: ({ id, mid }: RowType) => (
+  render: ({id, mid}: RowType) => (
     <Price
       uid={`run-${id}-mid`}
       value={mid}
-      className={"mid"}
+      className={'mid'}
       arrow={ArrowDirection.None}
       status={OrderStatus.None}
       onChange={(value: number | null, changed: boolean) =>
@@ -102,19 +102,19 @@ const MidCol = (data: RunColumnData) => ({
       animated={false}
     />
   ),
-  template: "999999.99",
-  weight: 4
+  template: '999999.99',
+  weight: 4,
 });
 
 const SpreadCol = (data: RunColumnData) => ({
-  name: "spread",
+  name: 'spread',
   header: () => <div>{strings.Spread}</div>,
-  render: ({ id, spread }: RowType) => {
+  render: ({id, spread}: RowType) => {
     return (
       <Price
         uid={`run-${id}-spread`}
         value={spread}
-        className={"spread"}
+        className={'spread'}
         arrow={ArrowDirection.None}
         status={OrderStatus.None}
         onChange={(value: number | null, changed: boolean) =>
@@ -128,18 +128,18 @@ const SpreadCol = (data: RunColumnData) => ({
       />
     );
   },
-  template: "999999.99",
-  weight: 4
+  template: '999999.99',
+  weight: 4,
 });
 
 const columns = (data: RunColumnData): ColumnSpec[] => [
   TenorColumn,
-  RunQtyCol(data, "bid"),
-  RunPxCol(data, "bid"),
-  RunPxCol(data, "ofr"),
-  RunQtyCol(data, "ofr"),
+  RunQtyCol(data, 'bid'),
+  RunPxCol(data, 'bid'),
+  RunPxCol(data, 'ofr'),
+  RunQtyCol(data, 'ofr'),
   MidCol(data),
-  SpreadCol(data)
+  SpreadCol(data),
 ];
 
 export default columns;

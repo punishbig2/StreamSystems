@@ -1,8 +1,8 @@
-import { Currency } from "interfaces/currency";
-import { Message } from "interfaces/message";
-import { Strategy } from "interfaces/strategy";
-import { User } from "interfaces/user";
-import { IWorkspace } from "interfaces/workspace";
+import {Currency} from 'interfaces/currency';
+import {Message} from 'interfaces/message';
+import {Strategy} from 'interfaces/strategy';
+import {User} from 'interfaces/user';
+import {IWorkspace} from 'interfaces/workspace';
 
 export enum WorkareaStatus {
   Starting,

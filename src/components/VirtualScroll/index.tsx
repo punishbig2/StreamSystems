@@ -1,4 +1,4 @@
-import React, { Children, useEffect, useRef, useState } from "react";
+import React, {Children, useEffect, useRef, useState} from 'react';
 
 interface Props {
   className: string;
@@ -6,15 +6,13 @@ interface Props {
 }
 
 export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
-  props: React.PropsWithChildren<Props>
+  props: React.PropsWithChildren<Props>,
 ) => {
-  const { itemSize } = props;
+  const {itemSize} = props;
   const [offset, setOffset] = useState<number>(0);
   const [visibleCount, setVisibleCount] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
-  const reference: React.MutableRefObject<HTMLDivElement | null> = useRef<
-    HTMLDivElement
-  >(null);
+  const reference: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
 
   const array = Children.toArray(props.children);
   useEffect(() => {
@@ -33,25 +31,23 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
     const observer = new ResizeObserver(
       (entries: readonly ResizeObserverEntry[]) => {
         if (entries.length !== 1) return;
-        const { contentRect } = entries[0];
+        const {contentRect} = entries[0];
         if (contentRect.height !== observable.offsetHeight) {
           console.log(contentRect.height, observable.offsetHeight);
           const child: HTMLDivElement | null = element.querySelector(
-            ".tbody-scrollable-content"
+            '.tbody-scrollable-content',
           );
           if (child !== null) {
-            const { style } = child;
-            style.height = "0";
+            const {style} = child;
+            style.height = '0';
           }
           setHeight(element.offsetHeight);
           if (child !== null) {
-            const { style } = child;
+            const {style} = child;
             style.height = `${element.offsetHeight}px`;
           }
-        } else {
-          console.log("it did not change");
         }
-      }
+      },
     );
     // Start with the initial size
     setHeight(element.offsetHeight);
@@ -63,7 +59,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
     setVisibleCount(height / itemSize);
   }, [height, itemSize]);
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    const { currentTarget } = event;
+    const {currentTarget} = event;
     const offset: number = Math.round(currentTarget.scrollTop / itemSize);
     // Clear old timeout
     setOffset(offset);
@@ -74,19 +70,19 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
   return (
     <div className={props.className} ref={reference}>
       <div
-        className={"tbody-scrollable-content"}
-        style={{ height }}
+        className={'tbody-scrollable-content'}
+        style={{height}}
         onScroll={onScroll}
       >
         <div
-          className={"tbody-fill-area pre"}
-          style={{ height: Math.max(preHeight, 0) }}
+          className={'tbody-fill-area pre'}
+          style={{height: Math.max(preHeight, 0)}}
         />
         {offset > 0 ? array[offset - 1] : null}
         {array.slice(offset, offset + visibleCount + 1)}
         <div
-          className={"tbody-fill-area post"}
-          style={{ height: Math.max(postHeight, 0) }}
+          className={'tbody-fill-area post'}
+          style={{height: Math.max(postHeight, 0)}}
         />
       </div>
     </div>

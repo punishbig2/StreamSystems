@@ -1,4 +1,4 @@
-import React, { ChangeEvent, KeyboardEvent, useState } from "react";
+import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
 
 interface Props {
   label: string;
@@ -13,16 +13,16 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
     setValue(props.label);
     setEditable(false);
   };
-  const onChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+  const onChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => {
     setValue(value);
   };
   const onBlur = () => cancel();
-  const onKeyDown = ({ key }: KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = ({key}: KeyboardEvent<HTMLInputElement>) => {
     switch (key) {
-      case "Escape":
+      case 'Escape':
         cancel();
         break;
-      case "Enter":
+      case 'Enter':
         props.onRenamed(value);
         setEditable(false);
         break;
@@ -30,7 +30,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
   const onDoubleClick = () => setEditable(true);
   return (
-    <div className={"tab-label"}>
+    <div className={'tab-label'}>
       <input
         value={value}
         readOnly={!editable}
@@ -40,7 +40,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
         onKeyDown={onKeyDown}
       />
       <button onClick={props.onClosed}>
-        <i className={"fa fa-times"} />
+        <i className={'fa fa-times'}/>
       </button>
     </div>
   );

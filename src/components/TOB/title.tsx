@@ -1,9 +1,9 @@
-import { MenuItem, Select } from "@material-ui/core";
-import { Currency } from "interfaces/currency";
-import { SelectEventData } from "interfaces/selectEventData";
-import { Strategy } from "interfaces/strategy";
-import strings from "locales";
-import React, { ReactElement } from "react";
+import {MenuItem, Select} from '@material-ui/core';
+import {Currency} from 'interfaces/currency';
+import {SelectEventData} from 'interfaces/selectEventData';
+import {Strategy} from 'interfaces/strategy';
+import strings from 'locales';
+import React, {ReactElement} from 'react';
 
 interface Props {
   symbols: Currency[];
@@ -19,25 +19,25 @@ interface Props {
 }
 
 export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
-  const { symbols, symbol, products, strategy, setSymbol, setStrategy } = props;
+  const {symbols, symbol, products, strategy, setSymbol, setStrategy} = props;
   const renderValue = (placeholder: string) => (
-    value: unknown
+    value: unknown,
   ): React.ReactNode => {
     if (!value) return placeholder;
     return value as string;
   };
   const selectChangeHandler = (fn: (v: string) => void) => (
-    event: React.ChangeEvent<SelectEventData>
+    event: React.ChangeEvent<SelectEventData>,
   ) => {
-    const { target } = event;
+    const {target} = event;
     // Call the callback :D
     fn(target.value as string);
   };
   return (
-    <div className={"window-title-bar"}>
+    <div className={'window-title-bar'}>
       <Select
         value={symbol}
-        className={"select"}
+        className={'select'}
         autoWidth={true}
         onChange={selectChangeHandler(setSymbol)}
         renderValue={renderValue(strings.Currency)}
@@ -51,7 +51,7 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
       </Select>
       <Select
         value={strategy}
-        className={"select"}
+        className={'select'}
         autoWidth={true}
         onChange={selectChangeHandler(setStrategy)}
         renderValue={renderValue(strings.Strategy)}

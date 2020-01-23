@@ -1,19 +1,20 @@
-import messageBlotterColumns from "columns/messageBlotter";
-import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
-import { Table } from "components/Table";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { User } from "interfaces/user";
-import strings from "locales";
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { ApplicationState } from "redux/applicationState";
-import { MessageBlotterState } from "redux/stateDefs/messageBlotterState";
-import { getAuthenticatedUser } from "utils/getCurrentUser";
-import { BlotterTypes } from "redux/constants/messageBlotterConstants";
-import { Message, ExecTypes } from "interfaces/message";
-import { OrderTypes } from "interfaces/mdEntry";
+import messageBlotterColumns from 'columns/messageBlotter';
+import {Row, BlotterRowTypes} from 'components/MessageBlotter/row';
+import {Table} from 'components/Table';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {User} from 'interfaces/user';
+import strings from 'locales';
+import React, {useEffect} from 'react';
+import {connect} from 'react-redux';
+import {ApplicationState} from 'redux/applicationState';
+import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
+import {Message, ExecTypes} from 'interfaces/message';
+import {OrderTypes} from 'interfaces/mdEntry';
 
-interface DispatchProps {}
+interface DispatchProps {
+}
 
 interface OwnProps {
   // FIXME: add filters and sorting
@@ -25,26 +26,24 @@ interface OwnProps {
 }
 
 const mapStateToProps: ({
-  messageBlotter
-}: ApplicationState) => MessageBlotterState = ({
-  messageBlotter
-}: ApplicationState): MessageBlotterState => messageBlotter;
+                          messageBlotter,
+                        }: ApplicationState) => MessageBlotterState = ({
+                                                                         messageBlotter,
+                                                                       }: ApplicationState): MessageBlotterState => messageBlotter;
 
 const mapDispatchToProps: DispatchProps = {};
 
-const withRedux = connect<
-  MessageBlotterState,
+const withRedux = connect<MessageBlotterState,
   DispatchProps,
   OwnProps,
-  ApplicationState
->(
+  ApplicationState>(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 );
 
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const { entries, setWindowTitle, id } = props;
+  const {entries, setWindowTitle, id} = props;
 
   useEffect(() => {
     setWindowTitle(id, strings.Monitor);
@@ -98,7 +97,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
 
   const user: User = getAuthenticatedUser();
   const columnsMap: { [key: string]: ColumnSpec[] } = messageBlotterColumns(
-    props.blotterType
+    props.blotterType,
   );
   const columns: ColumnSpec[] = user.isbroker
     ? columnsMap.broker
@@ -115,10 +114,10 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   };
   return (
     <>
-      <div className={"window-title-bar"}>
+      <div className={'window-title-bar'}>
         <h1>{strings.Messages}</h1>
       </div>
-      <div className={"window-content"}>
+      <div className={'window-content'}>
         <Table
           scrollable={true}
           columns={columns}
@@ -130,4 +129,4 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   );
 });
 
-export { MessageBlotter };
+export {MessageBlotter};

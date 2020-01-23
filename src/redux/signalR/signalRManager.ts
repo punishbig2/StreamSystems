@@ -1,13 +1,8 @@
-import {
-  HttpTransportType,
-  HubConnection,
-  HubConnectionBuilder,
-  LogLevel
-} from "@microsoft/signalr";
-import config from "config";
-import { Message, DarkPoolMessage } from "interfaces/message";
-import { W } from "interfaces/w";
-import { Action, AnyAction } from "redux";
+import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
+import config from 'config';
+import {Message, DarkPoolMessage} from 'interfaces/message';
+import {W} from 'interfaces/w';
+import {Action, AnyAction} from 'redux';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -50,14 +45,14 @@ export class SignalRManager<A extends Action = AnyAction> {
     new HubConnectionBuilder()
       .withUrl(
         `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
-        HttpTransportType.WebSockets
+        HttpTransportType.WebSockets,
       )
       .withAutomaticReconnect([5, 60, 120])
       .configureLogging(LogLevel.None)
       .build();
 
   public connect = () => {
-    const { connection } = this;
+    const {connection} = this;
     if (connection !== null) {
       connection
         .start()
@@ -84,9 +79,9 @@ export class SignalRManager<A extends Action = AnyAction> {
         console.log(error);
       });
       // Install update market handler
-      connection.on("updateMessageBlotter", this.onUpdateMessageBlotter);
-      connection.on("updateMarketData", this.onUpdateMarketData);
-      connection.on("updateDarkPoolPx", this.onUpdateDarkPoolPx);
+      connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
+      connection.on('updateMarketData', this.onUpdateMarketData);
+      connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
     }
   };
 
@@ -118,7 +113,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   public setOnUpdateDarkPoolPxListener = (
-    fn: (data: DarkPoolMessage) => void
+    fn: (data: DarkPoolMessage) => void,
   ) => {
     this.onUpdateDarkPoolPxListener = fn;
   };

@@ -1,21 +1,21 @@
-import { Message } from "interfaces/message";
-import moment, { Moment } from "moment";
-import React from "react";
+import {Message} from 'interfaces/message';
+import moment, {Moment} from 'moment';
+import React from 'react';
 
-const INCOMING_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
-const DISPLAY_DATE_FORMAT: string = "MM-DD-YYYY hh:mm a";
+const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
+const DISPLAY_DATE_FORMAT: string = 'MM-DD-YYYY hh:mm a';
 
 export default (sortable: boolean) => ({
-  name: "TransactTime",
-  template: "MM/DD/YYYY 00:00:00",
+  name: 'TransactTime',
+  template: 'MM/DD/YYYY 00:00:00 pm',
   header: () => <div>Time (EST)</div>,
   filterable: true,
   sortable: sortable,
   render: (data: Message) => {
     return (
-      <div className={"message-blotter-cell time"}>
+      <div className={'message-blotter-cell time'}>
         {moment(data.TransactTime, INCOMING_DATE_FORMAT).format(
-          DISPLAY_DATE_FORMAT
+          DISPLAY_DATE_FORMAT,
         )}
       </div>
     );
@@ -31,5 +31,5 @@ export default (sortable: boolean) => ({
     if (!original) return false;
     const value: string = origin.toLowerCase();
     return value.includes(keyword);
-  }
+  },
 });

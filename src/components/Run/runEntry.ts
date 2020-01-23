@@ -3,6 +3,7 @@ export interface RunEntry {
   mid: number | null;
   ofr: number | null;
   bid: number | null;
+
   // Typescript is stupid
   [key: string]: any;
 }
