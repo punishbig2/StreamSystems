@@ -1,5 +1,5 @@
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import React, { ReactElement } from "react";
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import React, {ReactElement} from 'react';
 
 interface Props {
   value: string;
@@ -47,22 +47,26 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         break;
       case "ArrowUp":
         if (onNavigate) onNavigate(input, NavigateDirection.Up);
-        triggerChange(input);
+        if (onCancelEdit)
+          onCancelEdit();
         event.preventDefault();
         break;
       case "ArrowLeft":
         if (onNavigate) onNavigate(input, NavigateDirection.Left);
-        triggerChange(input);
+        if (onCancelEdit)
+          onCancelEdit();
         event.preventDefault();
         break;
       case "ArrowDown":
         if (onNavigate) onNavigate(input, NavigateDirection.Down);
-        triggerChange(input);
+        if (onCancelEdit)
+          onCancelEdit();
         event.preventDefault();
         break;
       case "ArrowRight":
         if (onNavigate) onNavigate(input, NavigateDirection.Right);
-        triggerChange(input);
+        if (onCancelEdit)
+          onCancelEdit();
         event.preventDefault();
         break;
       case "Escape":

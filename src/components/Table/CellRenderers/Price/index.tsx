@@ -1,23 +1,23 @@
-import { NumericInput } from "components/NumericInput";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { PriceActions } from "components/Table/CellRenderers/Price/constants";
-import { Direction } from "components/Table/CellRenderers/Price/direction";
-import { useFlasher } from "components/Table/CellRenderers/Price/hooks/useFlasher";
-import { useStatusUpdater } from "components/Table/CellRenderers/Price/hooks/useStatusUpdater";
-import { useTooltip } from "components/Table/CellRenderers/Price/hooks/useTooltop";
-import { useValueComparator } from "components/Table/CellRenderers/Price/hooks/useValueComparator";
-import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
-import { reducer } from "components/Table/CellRenderers/Price/reducer";
-import { Tooltip } from "components/Table/CellRenderers/Price/tooltip";
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { getLayoutClass } from "components/Table/CellRenderers/Price/utils/getLayoutClass";
-import { OrderTypes } from "interfaces/mdEntry";
-import { OrderStatus } from "interfaces/order";
-import { ArrowDirection } from "interfaces/w";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
-import { createAction } from "redux/actionCreator";
-import { priceFormatter } from "utils/priceFormatter";
-import { useValueListener } from "components/Table/CellRenderers/Price/hooks/useValueListener";
+import {NumericInput} from 'components/NumericInput';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
+import {Direction} from 'components/Table/CellRenderers/Price/direction';
+import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
+import {useStatusUpdater} from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
+import {useTooltip} from 'components/Table/CellRenderers/Price/hooks/useTooltop';
+import {useValueComparator} from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
+import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
+import {reducer} from 'components/Table/CellRenderers/Price/reducer';
+import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
+import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {OrderStatus} from 'interfaces/order';
+import {ArrowDirection} from 'interfaces/w';
+import React, {useCallback, useEffect, useReducer, useState} from 'react';
+import {createAction} from 'redux/actionCreator';
+import {priceFormatter} from 'utils/priceFormatter';
+import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -49,11 +49,8 @@ export interface Props {
 
 export const Price: React.FC<Props> = (props: Props) => {
   const { timestamp, value } = props;
-  if (value === undefined) {
-    console.trace("exception");
+  if (value === undefined)
     throw new Error("value is not optional");
-  }
-
   const [state, dispatch] = useReducer<typeof reducer>(reducer, {
     tooltipX: 0,
     tooltipY: 0,

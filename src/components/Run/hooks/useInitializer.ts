@@ -12,12 +12,13 @@ export const useInitializer = (
   symbol: string,
   strategy: string,
   email: string,
+  defaultSize: number,
   onReady: (table: any) => void
 ) => {
   useEffect(() => {
     const rows: TOBRow[] = tenors.map((tenor: string) => {
       const getEntry = (type: OrderTypes) => {
-        return new Order(tenor, symbol, strategy, email, 10, type);
+        return new Order(tenor, symbol, strategy, email, defaultSize, type);
       };
       const bid: Order = getEntry(OrderTypes.Bid);
       const ofr: Order = getEntry(OrderTypes.Ofr);
@@ -46,5 +47,5 @@ export const useInitializer = (
       }, {});
     onReady(table);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbol, strategy, tenors, email]);
+  }, [symbol, strategy, tenors, email, defaultSize]);
 };

@@ -1,13 +1,16 @@
-import { TOBRow } from "interfaces/tobRow";
+import {TOBRow} from 'interfaces/tobRow';
+import {Currency} from 'interfaces/currency';
+
+export const InvalidCurrency = {name: '', minqty: 0, defaultqty: 0};
 
 export interface WindowState {
   rows: { [tenor: string]: TOBRow };
   strategy: string;
-  symbol: string;
+  symbol: Currency;
 }
 
 export const DefaultWindowState: WindowState = {
-  symbol: "",
+  symbol: InvalidCurrency,
   strategy: "",
   rows: {}
 };

@@ -1,6 +1,7 @@
-import { IWorkspace } from "interfaces/workspace";
-import { Window } from "interfaces/window";
-import { ToolbarState, STRM } from "redux/stateDefs/workspaceState";
+import {IWorkspace} from 'interfaces/workspace';
+import {Window} from 'interfaces/window';
+import {ToolbarState, STRM} from 'redux/stateDefs/workspaceState';
+import {Currency} from 'interfaces/currency';
 
 const createTransaction = async (
   storeName: string,
@@ -8,14 +9,27 @@ const createTransaction = async (
 ): Promise<IDBTransaction> => {
   return new Promise<IDBTransaction>(
     (resolve: (tx: IDBTransaction) => void, reject: () => void) => {
-      const request: any = indexedDB.open("fx-options");
+      const request: any = indexedDB.open('fx-options', 2);
       request.onupgradeneeded = ({ target: { result } }: any) => {
         const db: IDBDatabase = result;
         if (!db) return;
         // Create all stores
-        db.createObjectStore("workarea");
-        db.createObjectStore("workspaces");
-        db.createObjectStore("windows");
+        try {
+          db.createObjectStore('workarea');
+        } catch {
+        }
+        try {
+          db.createObjectStore("workspaces");
+        } catch {
+        }
+        try {
+          db.createObjectStore("windows");
+        } catch {
+        }
+        try {
+          db.createObjectStore('dark-pool');
+        } catch {
+        }
       };
       request.onsuccess = ({ target: { result } }: any) => {
         const db: IDBDatabase = result;
@@ -89,29 +103,24 @@ export const FXOptionsDB = {
       };
     });
   },
-  setWindowDP: async (
-    windowID: string,
-    tenor: string,
+  saveDarkPool: async (
+    rowID: string,
     value: number | null
   ) => {
-    return FXOptionsDB.put("windows", windowID, "dark-pool", {
-      [tenor]: value
-    });
+    return FXOptionsDB.put('dark-pool', rowID, 'price', value);
   },
-  getWindowDP: async (
-    windowID: string,
-    tenor: string
+  getDarkPool: async (
+    rowID: string,
   ): Promise<number | null> => {
-    const object: any = FXOptionsDB.getObject("windows", windowID);
-    const dp: any = object["dark-pool"];
-    if (!dp) return null;
-    if (!object[tenor]) return null;
-    return object[tenor] as number;
+    const object: any = await FXOptionsDB.getObject('dark-pool', rowID);
+    if (object === undefined)
+      return null;
+    return object.price;
   },
   setWindowStrategy: async (windowID: string, strategy: string) => {
     return FXOptionsDB.put("windows", windowID, "strategy", strategy);
   },
-  setWindowSymbol: async (windowID: string, symbol: string) => {
+  setWindowSymbol: async (windowID: string, symbol: Currency) => {
     return FXOptionsDB.put("windows", windowID, "symbol", symbol);
   },
   setWindowGeometry: async (windowID: string, geometry: ClientRect) => {

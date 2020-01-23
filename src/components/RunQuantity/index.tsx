@@ -1,9 +1,7 @@
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { Quantity } from "components/Table/CellRenderers/Quantity";
-import { Order, OrderStatus } from "interfaces/order";
-import { SettingsContext } from "main";
-import React, { useContext, useEffect, useState } from "react";
-import { Settings } from "settings";
+import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import {Quantity} from 'components/Table/CellRenderers/Quantity';
+import {Order, OrderStatus} from 'interfaces/order';
+import React, {useEffect, useState} from 'react';
 
 const sizeFormatter = (value: number | null): string => {
   if (value === null) return "";
@@ -18,11 +16,11 @@ interface Props {
   onTabbedOut?: (input: HTMLInputElement) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
   onCancel: (order: Order) => void;
+  minSize: number;
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
-  const settings = useContext<Settings>(SettingsContext);
   const { order } = props;
   useEffect(() => {
     if ((order.status & OrderStatus.QuantityEdited) !== 0) return;
@@ -50,8 +48,8 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       props.onChange(props.id, value, true);
     } else {
       const numeric: number = Number(value);
-      if (numeric < settings.minSize) {
-        props.onChange(props.id, settings.minSize, true);
+      if (numeric < props.minSize) {
+        props.onChange(props.id, props.minSize, true);
       } else {
         props.onChange(props.id, numeric, true);
       }

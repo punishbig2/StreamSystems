@@ -1,20 +1,23 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
-import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { TOBTable } from "interfaces/tobTable";
-import { TenorType } from "interfaces/w";
-import { useEffect } from "react";
-import { toRowID } from "utils";
-import { compareTenors } from "utils/dataGenerators";
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
+import {TenorType} from 'interfaces/w';
+import {useEffect} from 'react';
+import {toRowID} from 'utils';
+import {compareTenors} from 'utils/dataGenerators';
+import {FXOptionsDB} from 'fx-options-db';
+import {dark} from '@material-ui/core/styles/createPalette';
 
-const buildRows = (
+const buildRows = async (
   tenors: string[],
   symbol: string,
   strategy: string,
   email: string
-): TOBRow[] => {
-  return tenors
-    .map((tenor: TenorType) => {
+): Promise<TOBRow[]> => {
+  const rows: TOBRow[] = await Promise.all(
+    tenors
+      .map(async (tenor: TenorType) => {
       // This is here because javascript is super stupid and `connected' can change
       // while we're subscribing combinations.
       //
@@ -36,6 +39,9 @@ const buildRows = (
         OrderTypes.Ofr
       );
 
+      const rowID: string = toRowID(bid);
+      const darkPrice: number | null | undefined = await FXOptionsDB.getDarkPool(rowID);
+      console.log(rowID, darkPrice);
       const row: TOBRow = {
         tenor: tenor,
         id: toRowID(bid),
@@ -43,13 +49,15 @@ const buildRows = (
         ofr: ofr,
         mid: null,
         spread: null,
-        darkPrice: null,
+        darkPrice: darkPrice === undefined ? null : darkPrice,
         status: TOBRowStatus.Normal
       };
       // Return row
       return row;
     })
-    .sort(compareTenors);
+  );
+  rows.sort(compareTenors);
+  return rows;
 };
 
 export const useInitializer = (
@@ -66,9 +74,12 @@ export const useInitializer = (
       // Return the accumulator
       return object;
     };
-    const rows: TOBRow[] = buildRows(tenors, symbol, strategy, email);
+    buildRows(tenors, symbol, strategy, email)
+      .then((rows: TOBRow[]) => {
+        initialize(rows.reduce(reducer, {}));
+      });
     // Initialize with base depth
-    initialize(rows.reduce(reducer, {}));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, strategy, tenors, email]);
 };
+

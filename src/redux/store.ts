@@ -206,6 +206,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         message.Symbol,
         message.Strategy
       );
+      FXOptionsDB.saveDarkPool(rowID, message.DarkPrice);
       dispatch(
         createAction<any, A>(
           $$(rowID, RowActions.UpdateDarkPrice),

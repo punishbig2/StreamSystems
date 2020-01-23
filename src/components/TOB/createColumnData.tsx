@@ -1,11 +1,11 @@
-import { PriceErrors } from "components/Table/CellRenderers/Price";
-import { State } from "components/TOB/reducer";
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order, OrderStatus, Sides } from "interfaces/order";
-import { InvalidPrice, TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { TenorType } from "interfaces/w";
-import { Settings } from "settings";
-import { skipTabIndex } from "utils/skipTab";
+import {PriceErrors} from 'components/Table/CellRenderers/Price';
+import {State} from 'components/TOB/reducer';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TenorType} from 'interfaces/w';
+import {Settings} from 'settings';
+import {skipTabIndex} from 'utils/skipTab';
 
 type Fn1 = (tenor: TenorType | null) => void;
 type Fn2 = (order: Order) => void;
@@ -19,7 +19,9 @@ export const createColumnData = (
   setCurrentTenor: Fn1,
   setOrderTicket: Fn2,
   settings: Settings,
-  personality: string
+  personality: string,
+  defaultSize: number,
+  minSize: number,
 ) => {
   // Dispatch properties
   return {
@@ -85,12 +87,12 @@ export const createColumnData = (
         }
         if (order.quantity === null) {
           fns.createOrder(
-            { ...order, quantity: settings.defaultSize },
+            {...order, quantity: defaultSize},
             personality,
-            settings.minSize
+            minSize,
           );
         } else {
-          fns.createOrder(order, personality, settings.minSize);
+          fns.createOrder(order, personality, minSize);
         }
         fns.setRowStatus(order, TOBRowStatus.Normal);
       } else {
@@ -146,6 +148,8 @@ export const createColumnData = (
     isBroker: user.isbroker,
     strategy: strategy,
     symbol: symbol,
-    personality: personality
+    personality: personality,
+    defaultSize: defaultSize,
+    minSize: minSize,
   };
 };

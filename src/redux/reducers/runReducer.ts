@@ -1,17 +1,17 @@
-import equal from "deep-equal";
-import { RunEntry } from "components/Run/runEntry";
-import { Order, OrderStatus } from "interfaces/order";
-import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { TOBTable } from "interfaces/tobTable";
-import { Action } from "redux/action";
-import { RunState } from "redux/stateDefs/runState";
-import { $$ } from "utils/stringPaster";
+import equal from 'deep-equal';
+import {RunEntry} from 'components/Run/runEntry';
+import {Order, OrderStatus} from 'interfaces/order';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
+import {Action} from 'redux/action';
+import {RunState} from 'redux/stateDefs/runState';
+import {$$} from 'utils/stringPaster';
 
 const genesisState: RunState = {
   orders: {},
-  defaultBidSize: 10,
-  defaultOfrSize: 10,
-  initialized: false
+  initialized: false,
+  defaultOfrSize: 0,
+  defaultBidSize: 0,
 };
 
 export enum RunActions {
@@ -36,13 +36,12 @@ export enum RunActions {
 const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
   switch (type) {
     case RunActions.Mid:
-      if (initial.ofr === null) return initial;
-      console.log("calculating?");
+      if (initial.spread === null) return initial;
       return {
-        spread: 2 * (initial.ofr - v1),
+        spread: initial.spread,
         mid: v1,
-        bid: 2 * v1 - initial.ofr,
-        ofr: initial.ofr
+        bid: (2 * v1 - initial.spread) / 2,
+        ofr: (2 * v1 + initial.spread) / 2,
       };
     case RunActions.Spread:
       if (initial.mid === null) return initial;
@@ -282,7 +281,7 @@ export default (id: string, initialState: RunState = genesisState) => {
   ): RunState => {
     switch (type) {
       case $$(id, RunActions.SetDefaultSize):
-        return { ...state, defaultBidSize: data, defaultOfrSize: data };
+        return { ...state, defaultOfrSize: data, defaultBidSize: data };
       case $$(id, RunActions.RemoveOrder):
         return removeOrder(state, data);
       case $$(id, RunActions.UpdateDefaultBidQty):

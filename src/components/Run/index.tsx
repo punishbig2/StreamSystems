@@ -1,23 +1,23 @@
-import createColumns from "columns/run";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { useInitializer } from "components/Run/hooks/useInitializer";
-import { useOrderListener } from "components/Run/hooks/userOrderListener";
-import reducer, { RunActions } from "redux/reducers/runReducer";
-import { Row } from "components/Run/row";
-import { Table } from "components/Table";
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order, OrderStatus } from "interfaces/order";
-import { TOBRow } from "interfaces/tobRow";
-import { TOBTable } from "interfaces/tobTable";
-import strings from "locales";
-import React, { ReactElement, useEffect, useContext } from "react";
-import { toRunId } from "utils";
-import { getAuthenticatedUser } from "utils/getCurrentUser";
-import { skipTabIndex, skipTabIndexAll } from "utils/skipTab";
-import { $$ } from "utils/stringPaster";
-import { connect } from "react-redux";
-import { ApplicationState } from "redux/applicationState";
-import { RunState } from "redux/stateDefs/runState";
+import createColumns from 'columns/run';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {useInitializer} from 'components/Run/hooks/useInitializer';
+import {useOrderListener} from 'components/Run/hooks/userOrderListener';
+import reducer, {RunActions} from 'redux/reducers/runReducer';
+import {Row} from 'components/Run/row';
+import {Table} from 'components/Table';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Order, OrderStatus} from 'interfaces/order';
+import {TOBRow} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
+import strings from 'locales';
+import React, {ReactElement, useEffect} from 'react';
+import {toRunId} from 'utils';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
+import {$$} from 'utils/stringPaster';
+import {connect} from 'react-redux';
+import {ApplicationState} from 'redux/applicationState';
+import {RunState} from 'redux/stateDefs/runState';
 import {
   updateOfr,
   updateBid,
@@ -31,13 +31,12 @@ import {
   setOfrQty,
   setBidDefaultQty,
   setOfrDefaultQty,
-  setDefaultSize
-} from "redux/actions/runActions";
-import { Action } from "redux/action";
-import { dynamicStateMapper } from "redux/dynamicStateMapper";
-import { injectNamedReducer, removeNamedReducer } from "redux/store";
-import { Dispatch } from "redux";
-import { SettingsContext } from "main";
+  setDefaultSize,
+} from 'redux/actions/runActions';
+import {Action} from 'redux/action';
+import {dynamicStateMapper} from 'redux/dynamicStateMapper';
+import {injectNamedReducer, removeNamedReducer} from 'redux/store';
+import {Dispatch} from 'redux';
 
 interface OwnProps {
   id: string;
@@ -47,6 +46,8 @@ interface OwnProps {
   onClose: () => void;
   onSubmit: (entries: Order[]) => void;
   onCancelOrder: (order: Order) => void;
+  minSize: number;
+  defaultSize: number;
 }
 
 interface DispatchProps {
@@ -100,7 +101,6 @@ const withRedux = connect(
 type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
-  const { defaultSize } = useContext(SettingsContext);
   const { symbol, strategy, tenors, id } = props;
   const { email } = getAuthenticatedUser();
   const { setDefaultSize } = props;
@@ -126,16 +126,16 @@ const Run: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     injectNamedReducer(id, reducer);
     // Set default size
-    setDefaultSize(defaultSize);
+    setDefaultSize(props.defaultSize);
     return () => {
       removeNamedReducer(id);
     };
-  }, [id, setDefaultSize, defaultSize]);
+  }, [id, setDefaultSize, props.defaultSize]);
 
   const onDelete = (id: string) => props.removeOrder(id);
 
   useOrderListener(tenors, symbol, strategy, { onUpdate, onDelete });
-  useInitializer(tenors, symbol, strategy, email, setTable);
+  useInitializer(tenors, symbol, strategy, email, props.defaultSize, setTable);
 
   const getSelectedOrders = (): Order[] => {
     if (!props.orders) return [];
@@ -151,18 +151,18 @@ const Run: React.FC<Props> = (props: Props) => {
       const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
       if (quantityEdited || (preFilled && !canceled))
         return order.quantity as number;
-      if (canceled && fallback !== defaultSize) return fallback as number;
-      if (fallback === undefined || fallback === null) return defaultSize;
+      if (canceled && fallback !== props.defaultSize) return fallback as number;
+      if (fallback === undefined || fallback === null) return props.defaultSize;
       return fallback as number;
     };
     const entries: Order[] = [
       ...rows.map(({ bid }: TOBRow) => ({
         ...bid,
-        quantity: ownOrDefaultQty(bid, props.defaultBidSize)
+        quantity: ownOrDefaultQty(bid, props.defaultSize),
       })),
       ...rows.map(({ ofr }: TOBRow) => ({
         ...ofr,
-        quantity: ownOrDefaultQty(ofr, props.defaultOfrSize)
+        quantity: ownOrDefaultQty(ofr, props.defaultSize),
       }))
     ];
     return entries.filter((order: Order) => {
@@ -214,15 +214,17 @@ const Run: React.FC<Props> = (props: Props) => {
       props.setBidQty(id, value),
     onCancelOrder: (order: Order) => props.onCancelOrder(order),
     defaultBidSize: {
-      value: props.defaultBidSize,
+      value: props.defaultSize,
       onChange: props.setBidDefaultQty,
       type: OrderTypes.Bid
     },
     defaultOfrSize: {
-      value: props.defaultOfrSize,
+      value: props.defaultSize,
       onChange: props.setOfrDefaultQty,
       type: OrderTypes.Ofr
     },
+    defaultSize: props.defaultSize,
+    minSize: props.minSize,
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:

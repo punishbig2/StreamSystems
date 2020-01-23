@@ -1,38 +1,31 @@
-import createTOBColumns from "columns/tob";
-import { ModalWindow } from "components/ModalWindow";
-import { OrderTicket } from "components/OrderTicket";
-import { Run } from "components/Run";
-import { Table } from "components/Table";
-import { createColumnData } from "components/TOB/createColumnData";
-import { TOBColumnData } from "components/TOB/data";
-import { useDepthEmitter } from "components/TOB/hooks/useDepthEmitter";
-import { useInitializer } from "components/TOB/hooks/useInitializer";
-import { useSubscriber } from "components/TOB/hooks/useSubscriber";
-import { DispatchProps, OwnProps, Props } from "components/TOB/props";
-import { ActionTypes, reducer, State } from "components/TOB/reducer";
-import { Row } from "components/TOB/row";
-import { TOBTileTitle } from "components/TOB/title";
-import { Order, Sides, OrderStatus, DarkPoolOrder } from "interfaces/order";
-import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
-import { TOBTable } from "interfaces/tobTable";
-import { SettingsContext } from "main";
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer
-} from "react";
-import { connect } from "react-redux";
-import { createAction } from "redux/actionCreator";
-import { ApplicationState } from "redux/applicationState";
-import { dynamicStateMapper } from "redux/dynamicStateMapper";
-import { RunState } from "redux/stateDefs/runState";
-import { WindowState } from "redux/stateDefs/windowState";
-import { Settings } from "settings";
-import { toRunId } from "utils";
-import { $$ } from "utils/stringPaster";
+import createTOBColumns from 'columns/tob';
+import {ModalWindow} from 'components/ModalWindow';
+import {OrderTicket} from 'components/OrderTicket';
+import {Run} from 'components/Run';
+import {Table} from 'components/Table';
+import {createColumnData} from 'components/TOB/createColumnData';
+import {TOBColumnData} from 'components/TOB/data';
+import {useDepthEmitter} from 'components/TOB/hooks/useDepthEmitter';
+import {useInitializer} from 'components/TOB/hooks/useInitializer';
+import {useSubscriber} from 'components/TOB/hooks/useSubscriber';
+import {DispatchProps, OwnProps, Props} from 'components/TOB/props';
+import {ActionTypes, reducer, State} from 'components/TOB/reducer';
+import {Row} from 'components/TOB/row';
+import {TOBTileTitle} from 'components/TOB/title';
+import {Order, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
+import {SettingsContext} from 'main';
+import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
+import {connect} from 'react-redux';
+import {createAction} from 'redux/actionCreator';
+import {ApplicationState} from 'redux/applicationState';
+import {dynamicStateMapper} from 'redux/dynamicStateMapper';
+import {RunState} from 'redux/stateDefs/runState';
+import {WindowState} from 'redux/stateDefs/windowState';
+import {Settings} from 'settings';
+import {toRunId} from 'utils';
+import {$$} from 'utils/stringPaster';
 import {
   subscribe,
   subscribeDarkPool,
@@ -49,11 +42,12 @@ import {
   cancelOrder,
   setStrategy,
   setSymbol,
-  cancelDarkPoolOrder
-} from "redux/actions/tobActions";
-import { TOBActions } from "redux/reducers/tobReducer";
-import { DarkPoolTicket, DarkPoolTicketData } from "components/DarkPoolTicket";
-import { priceFormatter } from "utils/priceFormatter";
+  cancelDarkPoolOrder,
+} from 'redux/actions/tobActions';
+import {TOBActions} from 'redux/reducers/tobReducer';
+import {DarkPoolTicket, DarkPoolTicketData} from 'components/DarkPoolTicket';
+import {priceFormatter} from 'utils/priceFormatter';
+import {Currency} from 'interfaces/currency';
 
 const nextSlice = (
   applicationState: ApplicationState,
@@ -62,9 +56,10 @@ const nextSlice = (
   const generic: { [key: string]: any } = applicationState;
   if (generic.hasOwnProperty(props.id)) {
     const localState: WindowState = generic[props.id];
+    const {symbol} = localState;
     return {
       ...localState,
-      ...generic[toRunId(localState.symbol, localState.strategy)]
+      ...generic[toRunId(symbol.name, localState.strategy)],
     };
   }
   return {} as WindowState & RunState;
@@ -121,7 +116,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
         createOrder: (order: Order, personality: string, minSize: number) =>
           reduxDispatch(createOrder(id, personality, order, minSize)),
         setStrategy: (value: string) => reduxDispatch(setStrategy(id, value)),
-        setSymbol: (value: string) => reduxDispatch(setSymbol(id, value)),
+        setSymbol: (value: string) => reduxDispatch(setSymbol(id, symbols.find((s: Currency) => s.name === value))),
         cancelOrder: (order: Order) => reduxDispatch(cancelOrder(id, order)),
         getSnapshot: (symbol: string, strategy: string, tenor: string) =>
           reduxDispatch(getSnapshot(id, symbol, strategy, tenor)),
@@ -203,14 +198,14 @@ export const TOB: React.FC<OwnProps> = withRedux(
       }
     }, [props.id, symbol, strategy, setWindowTitle]);
     // Create depths for each tenor
-    useDepthEmitter(tenors, symbol, strategy, insertDepth);
+    useDepthEmitter(tenors, symbol.name, strategy, insertDepth);
     // Initialize tile/window
-    useInitializer(tenors, symbol, strategy, email, actions.initialize);
+    useInitializer(tenors, symbol.name, strategy, email, actions.initialize);
     // Subscribe to signal-r
     useSubscriber(
       rows,
       connected,
-      symbol,
+      symbol.name,
       strategy,
       actions.subscribe,
       actions.subscribeDarkPool,
@@ -224,13 +219,15 @@ export const TOB: React.FC<OwnProps> = withRedux(
       return createColumnData(
         actions,
         state,
-        symbol,
+        symbol.name,
         strategy,
         user,
         setCurrentTenor,
         setOrderTicket,
         settings,
-        personality
+        personality,
+        symbol.defaultqty,
+        symbol.minqty,
       );
     }, [
       actions,
@@ -256,15 +253,16 @@ export const TOB: React.FC<OwnProps> = withRedux(
         actions.createDarkPoolOrder(order, personality);
         setDarkPoolTicket(null);
       };
+      const {defaultSize} = data;
       return (
         <DarkPoolTicket
           onSubmit={onSubmit}
           onCancel={() => setDarkPoolTicket(null)}
           price={priceFormatter(ticket.price)}
-          quantity={"10"}
+          quantity={defaultSize.toString()}
           tenor={ticket.tenor}
           strategy={strategy}
-          symbol={symbol}
+          symbol={symbol.name}
           user={user.email}
         />
       );
@@ -272,7 +270,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
     const renderOrderTicket = () => {
       if (state.orderTicket === null) return <div />;
       const onSubmit = (order: Order) => {
-        actions.createOrder(order, personality, settings.minSize);
+        actions.createOrder(order, personality, symbol.minqty);
         // Remove the internal order ticket
         setOrderTicket(null);
       };
@@ -297,23 +295,24 @@ export const TOB: React.FC<OwnProps> = withRedux(
           ) {
             actions.cancelOrder(order);
           }
-          actions.createOrder(order, personality, settings.minSize);
+          actions.createOrder(order, personality, symbol.minqty);
         });
       },
-      [actions, hideRunWindow, settings.minSize, personality]
+      [actions, hideRunWindow, symbol, personality],
     );
 
-    const runID = useMemo(() => toRunId(symbol, strategy), [symbol, strategy]);
-
+    const runID = useMemo(() => toRunId(symbol.name, strategy), [symbol, strategy]);
     const runWindow = (
       <Run
         id={runID}
-        symbol={symbol}
+        symbol={symbol.name}
         strategy={strategy}
         tenors={tenors}
         onClose={hideRunWindow}
         onCancelOrder={actions.cancelOrder}
         onSubmit={bulkCreateOrders}
+        defaultSize={symbol.defaultqty}
+        minSize={symbol.minqty}
       />
     );
 
@@ -369,7 +368,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
     return (
       <>
         <TOBTileTitle
-          symbol={symbol}
+          symbol={symbol.name}
           strategy={strategy}
           symbols={symbols}
           products={products}
@@ -407,3 +406,4 @@ export const TOB: React.FC<OwnProps> = withRedux(
     );
   }
 );
+

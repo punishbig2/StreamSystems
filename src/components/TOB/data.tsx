@@ -34,4 +34,6 @@ export interface TOBColumnData {
   personality: string;
   symbol: string;
   strategy: string;
+  defaultSize: number;
+  minSize: number;
 }

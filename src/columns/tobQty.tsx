@@ -1,9 +1,7 @@
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { Quantity } from "components/Table/CellRenderers/Quantity";
-import { Order, OrderStatus } from "interfaces/order";
-import { SettingsContext } from "main";
-import React, { useContext, useEffect, useState } from "react";
-import { Settings } from "settings";
+import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import {Quantity} from 'components/Table/CellRenderers/Quantity';
+import {Order, OrderStatus} from 'interfaces/order';
+import React, {useEffect, useState} from 'react';
 
 interface Props {
   order: Order;
@@ -15,10 +13,11 @@ interface Props {
     input: HTMLInputElement
   ) => void;
   value: number | null;
+  minSize: number;
+  defaultSize: number;
 }
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
-  const settings = useContext<Settings>(SettingsContext);
   const { order } = props;
   const [value, setValue] = useState<number | null>(order.quantity);
   useEffect(() => {
@@ -28,8 +27,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   const onTabbedOut = (input: HTMLInputElement) => {
     if (value === 0) {
       props.onSubmit(order, null, input);
-    } else if (value !== null && value < settings.minSize) {
-      props.onSubmit(order, settings.minSize, input);
+    } else if (value !== null && value < props.minSize) {
+      props.onSubmit(order, props.minSize, input);
     } else {
       props.onSubmit(order, value, input);
     }

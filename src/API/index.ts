@@ -173,12 +173,12 @@ export class API {
   static async createOrder(
     order: Order,
     personality: string,
-    minQty: number
+    minSize: number
   ): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     if (order.price === null || order.quantity === null)
       throw new Error("price and quantity MUST be specified");
-    if (order.quantity < minQty) order.quantity = minQty;
+    if (order.quantity < minSize) order.quantity = minSize;
     const { price, quantity } = order;
     // Build a create order request
     if (currentUser.isbroker && personality === STRM)

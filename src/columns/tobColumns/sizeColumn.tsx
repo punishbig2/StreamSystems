@@ -53,6 +53,8 @@ export const SizeColumn = (
             order={{ ...order, status: status }}
             isDepth={depth}
             value={order.quantity}
+            defaultSize={data.defaultSize}
+            minSize={data.minSize}
             onCancel={data.onCancelOrder}
             onSubmit={data.onQuantityChange}
           />
@@ -63,6 +65,8 @@ export const SizeColumn = (
             order={order}
             isDepth={depth}
             value={order.quantity}
+            defaultSize={data.defaultSize}
+            minSize={data.minSize}
             onCancel={data.onCancelOrder}
             onSubmit={data.onQuantityChange}
           />

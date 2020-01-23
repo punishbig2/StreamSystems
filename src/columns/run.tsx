@@ -52,8 +52,7 @@ const RunQtyCol = (data: RunColumnData, type: "bid" | "ofr"): ColumnSpec => {
     name: `${type}-quantity`,
     header: () => <HeaderQty {...defaultSize} />,
     render: (row: RowType) => {
-      const defaultSize: QtyHeader =
-        type === "bid" ? data.defaultBidSize : data.defaultOfrSize;
+      const defaultSize: QtyHeader = type === "bid" ? data.defaultBidSize : data.defaultOfrSize;
       const order: Order = row[type];
       return (
         <RunQuantity
@@ -64,6 +63,7 @@ const RunQtyCol = (data: RunColumnData, type: "bid" | "ofr"): ColumnSpec => {
           onTabbedOut={data.focusNext}
           onChange={data.onBidQtyChanged}
           onCancel={data.onCancelOrder}
+          minSize={data.minSize}
         />
       );
     },

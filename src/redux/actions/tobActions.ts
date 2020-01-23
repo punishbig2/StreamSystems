@@ -26,6 +26,7 @@ import { FXOptionsDB } from "fx-options-db";
 import { TOBActions } from "redux/reducers/tobReducer";
 import { RunActions } from "redux/reducers/runReducer";
 import { RowActions } from "redux/reducers/rowReducer";
+import {Currency} from 'interfaces/currency';
 
 type ActionType = Action<TOBActions | string>;
 export const cancelDarkPoolOrder = (
@@ -192,7 +193,7 @@ export const createOrder = (
   id: string,
   personality: string,
   order: Order,
-  minQty: number
+  minSize: number
 ): AsyncAction<any, ActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
@@ -203,7 +204,7 @@ export const createOrder = (
     const result: OrderResponse = await API.createOrder(
       order,
       personality,
-      minQty
+      minSize
     );
     if (result.Status === "Success") {
       return createAction($$(rowID, RowActions.OrderCreated), {
@@ -324,7 +325,9 @@ export const setStrategy = (tileID: string, strategy: string) => {
   }, DummyAction);
 };
 
-export const setSymbol = (tileID: string, symbol: string) => {
+export const setSymbol = (tileID: string, symbol: Currency | undefined) => {
+  if (symbol === undefined)
+    return DummyAction;
   return new AsyncAction<any, ActionType>(async () => {
     FXOptionsDB.setWindowSymbol(tileID, symbol);
     return createAction($$(tileID, TOBActions.SetSymbol), symbol);

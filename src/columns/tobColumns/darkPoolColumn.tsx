@@ -1,17 +1,17 @@
-import { TOBColumnData } from "components/TOB/data";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { RowType } from "columns/tobColumns/common";
-import { Order, OrderStatus } from "interfaces/order";
-import { OrderTypes } from "interfaces/mdEntry";
-import { Price } from "components/Table/CellRenderers/Price";
-import { ArrowDirection } from "interfaces/w";
-import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
-import React, { useCallback, useMemo, useEffect, useState } from "react";
-import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
-import { $$ } from "utils/stringPaster";
-import { TOBTable } from "interfaces/tobTable";
-import { TOBRow } from "interfaces/tobRow";
-import { STRM } from "redux/stateDefs/workspaceState";
+import {TOBColumnData} from 'components/TOB/data';
+import {ColumnSpec} from 'components/Table/columnSpecification';
+import {RowType} from 'columns/tobColumns/common';
+import {Order, OrderStatus} from 'interfaces/order';
+import {OrderTypes} from 'interfaces/mdEntry';
+import {Price} from 'components/Table/CellRenderers/Price';
+import {ArrowDirection} from 'interfaces/w';
+import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
+import React, {useCallback, useMemo, useEffect, useState} from 'react';
+import {DarkPoolTooltip} from 'components/Table/CellRenderers/Price/darkPoolTooltip';
+import {$$} from 'utils/stringPaster';
+import {TOBTable} from 'interfaces/tobTable';
+import {TOBRow} from 'interfaces/tobRow';
+import {STRM} from 'redux/stateDefs/workspaceState';
 
 type Props = RowType & TOBColumnData;
 
@@ -40,7 +40,11 @@ const DarkPoolColumnComponent = (props: Props) => {
   }, [darkPool]);
 
   const price: number | null = useMemo(
-    () => (order ? order.price : darkPrice),
+    () => {
+      if (order)
+        return order.price;
+      return darkPrice;
+    },
     [order, darkPrice]
   );
   useEffect(() => {
