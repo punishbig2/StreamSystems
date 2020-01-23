@@ -1,3 +1,6 @@
 export enum NavigateDirection {
-  Up, Left, Down, Right
+  Up,
+  Left,
+  Down,
+  Right
 }

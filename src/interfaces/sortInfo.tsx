@@ -1,4 +1,4 @@
-import {SortDirection} from 'components/Table';
+import { SortDirection } from "components/Table";
 
 export interface SortInfo {
   direction: SortDirection;

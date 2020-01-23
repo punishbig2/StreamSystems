@@ -1,15 +1,15 @@
-import {Message} from 'interfaces/message';
-import React from 'react';
-import {tenorToNumber} from 'utils/dataGenerators';
+import { Message } from "interfaces/message";
+import React from "react";
+import { tenorToNumber } from "utils/dataGenerators";
 
-export default (filterAndSort: boolean) => ({
-  name: 'Tenor',
-  template: 'WW',
-  filterable: filterAndSort,
-  sortable: filterAndSort,
+export default (sortable: boolean) => ({
+  name: "Tenor",
+  template: "WW",
+  filterable: true,
+  sortable: sortable,
   header: () => <div>Tenor</div>,
-  render: ({Tenor}: Message) => (
-    <div className={'message-blotter-cell normal'}>{Tenor}</div>
+  render: ({ Tenor }: Message) => (
+    <div className={"message-blotter-cell normal"}>{Tenor}</div>
   ),
   weight: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
@@ -19,5 +19,5 @@ export default (filterAndSort: boolean) => ({
   },
   difference: (v1: Message, v2: Message): number => {
     return tenorToNumber(v1.Tenor) - tenorToNumber(v2.Tenor);
-  },
+  }
 });

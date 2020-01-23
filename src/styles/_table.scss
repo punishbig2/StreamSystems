@@ -1,6 +1,6 @@
 $table-font-weight: 400;
 $table-font-size: 14px;
-$table-font-family: 'Roboto', sans-serif;
+$table-font-family: "Roboto", sans-serif;
 $red-x-size: 16px;
 
 .table {
@@ -67,8 +67,8 @@ $red-x-size: 16px;
 
         &::before {
           position: absolute;
-          content: '\f071';
-          font-family: 'Font Awesome 5 Free Solid', sans-serif;
+          content: "\f071";
+          font-family: "Font Awesome 5 Free Solid", sans-serif;
           color: $text-color-red;
           width: 100%;
           left: 0;
@@ -120,7 +120,8 @@ $red-x-size: 16px;
       border-right: 1px solid $table-border-color;
     }
 
-    .buy, .sell {
+    .buy,
+    .sell {
       font-weight: $table-font-weight;
       font-size: $table-font-size;
       font-family: $table-font-family;
@@ -220,7 +221,8 @@ $red-x-size: 16px;
     }
 
     .column {
-      .label, .sort-indicator {
+      .label,
+      .sort-indicator {
         display: inline-block;
         vertical-align: middle;
       }
@@ -237,7 +239,7 @@ $red-x-size: 16px;
           height: $table-row-height;
           width: 100%;
           text-align: center;
-          font-family: 'Roboto', sans-serif;
+          font-family: "Roboto", sans-serif;
           font-weight: 600;
 
           &:focus {
@@ -249,7 +251,8 @@ $red-x-size: 16px;
           line-height: $table-header-height;
           height: $table-header-height;
 
-          .first, .second {
+          .first,
+          .second {
             line-height: $table-header-height / 2;
             height: $table-header-height / 2;
             width: 100%;
@@ -354,7 +357,7 @@ $red-x-size: 16px;
       margin: -1px 0 0 -24px;
 
       &::before {
-        content: '';
+        content: "";
         display: inline-block;
         vertical-align: middle;
         margin: 0 4px 0 0;
@@ -399,7 +402,8 @@ $red-x-size: 16px;
           color: $text-color-red;
         }
 
-        &.mid, &:not(.owned).same-bank {
+        &.mid,
+        &:not(.owned).same-bank {
           color: $text-color-blue;
         }
 
@@ -416,7 +420,6 @@ $red-x-size: 16px;
 }
 
 .size-layout {
-
   .chevron {
     position: absolute;
     top: 1px;
@@ -442,7 +445,8 @@ $red-x-size: 16px;
   &.cancelled {
     .times {
       i {
-        &::after, &::before {
+        &::after,
+        &::before {
           content: none;
         }
       }
@@ -468,18 +472,19 @@ $red-x-size: 16px;
 
       &.empty {
         i {
-          &::after, &::before {
+          &::after,
+          &::before {
             border: none;
           }
         }
       }
 
       &:not(.clickable) {
-
         i {
           pointer-events: none;
 
-          &::after, &::before {
+          &::after,
+          &::before {
             border-color: lighten(black, 80%);
           }
         }
@@ -496,8 +501,9 @@ $red-x-size: 16px;
 
         $x-tick-length: 5 * $red-x-size / 8;
 
-        &::after, &::before {
-          content: '';
+        &::after,
+        &::before {
+          content: "";
           position: absolute;
           left: ($red-x-size - $x-tick-length) / 2;
           top: $red-x-size / 2 - 1px;
@@ -522,7 +528,8 @@ $red-x-size: 16px;
             background-color: $text-color-red;
             color: white;
 
-            &:after, &:before {
+            &:after,
+            &:before {
               border-color: white;
             }
           }

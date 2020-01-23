@@ -1,9 +1,14 @@
-import {Order} from 'interfaces/order';
+import { Order } from "interfaces/order";
 
 export const InvalidPrice: number = -1;
 
 export enum TOBRowStatus {
-  Normal, InvertedMarketsError, IncompleteError, CreatingOrder, NegativePrice, Executed
+  Normal,
+  InvertedMarketsError,
+  IncompleteError,
+  CreatingOrder,
+  NegativePrice,
+  Executed
 }
 
 interface TOBRowBase {
@@ -13,7 +18,7 @@ interface TOBRowBase {
   ofr: Order;
   mid: number | null;
   spread: number | null;
-  status: TOBRowStatus,
+  status: TOBRowStatus;
 }
 
 export type TOBRow = TOBRowBase & {

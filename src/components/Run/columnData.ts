@@ -1,7 +1,7 @@
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {RunActions} from 'redux/reducers/runReducer';
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import { OrderTypes } from "interfaces/mdEntry";
+import { Order } from "interfaces/order";
+import { RunActions } from "redux/reducers/runReducer";
 
 export interface QtyHeader {
   value: number;
@@ -12,12 +12,12 @@ export interface QtyHeader {
 type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => void;
 
 export interface RunColumnData {
-  onBidChanged: ChangeFn<number>,
-  onOfrChanged: ChangeFn<number>,
-  onMidChanged: ChangeFn<number>,
-  onSpreadChanged: ChangeFn<number>,
-  onOfrQtyChanged: ChangeFn<number>,
-  onBidQtyChanged: ChangeFn<number>,
+  onBidChanged: ChangeFn<number>;
+  onOfrChanged: ChangeFn<number>;
+  onMidChanged: ChangeFn<number>;
+  onSpreadChanged: ChangeFn<number>;
+  onOfrQtyChanged: ChangeFn<number>;
+  onBidQtyChanged: ChangeFn<number>;
   defaultOfrSize: QtyHeader;
   defaultBidSize: QtyHeader;
   focusNext: (target: HTMLInputElement, action?: RunActions) => void;

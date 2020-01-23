@@ -1,13 +1,12 @@
-import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Quantity} from 'components/Table/CellRenderers/Quantity';
-import {Order, OrderStatus} from 'interfaces/order';
-import {SettingsContext} from 'main';
-import React, {useContext, useEffect, useState} from 'react';
-import {Settings} from 'settings';
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { Quantity } from "components/Table/CellRenderers/Quantity";
+import { Order, OrderStatus } from "interfaces/order";
+import { SettingsContext } from "main";
+import React, { useContext, useEffect, useState } from "react";
+import { Settings } from "settings";
 
 const sizeFormatter = (value: number | null): string => {
-  if (value === null)
-    return '';
+  if (value === null) return "";
   return value.toFixed(0);
 };
 
@@ -24,19 +23,19 @@ interface Props {
 export const RunQuantity: React.FC<Props> = (props: Props) => {
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
   const settings = useContext<Settings>(SettingsContext);
-  const {order} = props;
+  const { order } = props;
   useEffect(() => {
-    if ((order.status & OrderStatus.QuantityEdited) !== 0)
-      return;
-    if (props.defaultValue === undefined || props.defaultValue === null)
-      return;
-    if ((order.status & OrderStatus.PreFilled) !== 0 && ((order.status & OrderStatus.Cancelled) === 0))
+    if ((order.status & OrderStatus.QuantityEdited) !== 0) return;
+    if (props.defaultValue === undefined || props.defaultValue === null) return;
+    if (
+      (order.status & OrderStatus.PreFilled) !== 0 &&
+      (order.status & OrderStatus.Cancelled) === 0
+    )
       return;
     setValue(sizeFormatter(props.defaultValue));
   }, [order.status, props.defaultValue]);
   useEffect(() => {
-    if (props.value === null)
-      return;
+    if (props.value === null) return;
     setValue(sizeFormatter(props.value));
   }, [props.value]);
   const onChange = (value: string | null) => {
@@ -61,18 +60,21 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       props.onTabbedOut(input);
     }
   };
-  const cancellable: boolean = (order.status & OrderStatus.Owned) !== 0 && (order.status & OrderStatus.Cancelled) === 0;
+  const cancellable: boolean =
+    (order.status & OrderStatus.Owned) !== 0 &&
+    (order.status & OrderStatus.Cancelled) === 0;
   return (
     <>
-      <Quantity type={order.type}
-                value={Number(value)}
-                cancellable={cancellable}
-                tabIndex={-1}
-                className={getOrderStatusClass(order.status, 'sizeColumn.tsx')}
-                onChange={onChange}
-                onTabbedOut={sendOnChange}
-                onCancel={() => props.onCancel(order)}/>
+      <Quantity
+        type={order.type}
+        value={Number(value)}
+        cancellable={cancellable}
+        tabIndex={-1}
+        className={getOrderStatusClass(order.status, "sizeColumn.tsx")}
+        onChange={onChange}
+        onTabbedOut={sendOnChange}
+        onCancel={() => props.onCancel(order)}
+      />
     </>
   );
 };
-

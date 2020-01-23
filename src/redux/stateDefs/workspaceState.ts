@@ -1,4 +1,4 @@
-import {Window} from 'interfaces/window';
+import { Window } from "interfaces/window";
 
 export interface ToolbarState {
   pinned: boolean;
@@ -6,10 +6,10 @@ export interface ToolbarState {
   visible: boolean;
 }
 
-export const STRM: string = 'STRM';
+export const STRM: string = "None";
 
 export interface WorkspaceState {
-  windows: {[id: string]: Window};
+  windows: { [id: string]: Window };
   toast: string | null;
   toolbarState: ToolbarState;
   markets: string[];
@@ -21,9 +21,9 @@ export interface WorkspaceState {
 export const defaultWorkspaceState: WorkspaceState = {
   windows: {},
   toast: null,
-  toolbarState: {visible: false, hovering: false, pinned: false},
+  toolbarState: { visible: false, hovering: false, pinned: false },
   markets: [],
   isUserProfileModalVisible: false,
   personality: STRM,
-  errorMessage: null,
+  errorMessage: null
 };

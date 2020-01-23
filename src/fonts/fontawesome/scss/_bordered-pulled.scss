@@ -2,9 +2,9 @@
 // -------------------------
 
 .#{$fa-css-prefix}-border {
-  border: solid .08em $fa-border-color;
-  border-radius: .1em;
-  padding: .2em .25em .15em;
+  border: solid 0.08em $fa-border-color;
+  border-radius: 0.1em;
+  padding: 0.2em 0.25em 0.15em;
 }
 
 .#{$fa-css-prefix}-pull-left {
@@ -21,10 +21,10 @@
 .fal,
 .fab {
   &.#{$fa-css-prefix}-pull-left {
-    margin-right: .3em;
+    margin-right: 0.3em;
   }
 
   &.#{$fa-css-prefix}-pull-right {
-    margin-left: .3em;
+    margin-left: 0.3em;
   }
 }

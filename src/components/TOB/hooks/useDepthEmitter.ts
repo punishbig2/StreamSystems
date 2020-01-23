@@ -1,18 +1,23 @@
-import {useEffect} from 'react';
-import {$$} from 'utils/stringPaster';
-import {TOBActions} from 'redux/reducers/tobReducer';
+import { useEffect } from "react";
+import { $$ } from "utils/stringPaster";
+import { TOBActions } from "redux/reducers/tobReducer";
 
-export const useDepthEmitter = (tenors: string[], symbol: string, strategy: string, callback: (data: any) => void) => {
+export const useDepthEmitter = (
+  tenors: string[],
+  symbol: string,
+  strategy: string,
+  callback: (data: any) => void
+) => {
   // Listen to changes in depth books
   useEffect(() => {
-    if (!tenors || !symbol || !strategy)
-      return;
+    if (!tenors || !symbol || !strategy) return;
     const handler = (event: Event) => {
       const customEvent: CustomEvent = event as CustomEvent;
       // Dispatch an action for our reducer
       callback(customEvent.detail);
     };
-    const getName = (tenor: string) => $$(tenor, symbol, strategy, TOBActions.UpdateDOB);
+    const getName = (tenor: string) =>
+      $$(tenor, symbol, strategy, TOBActions.UpdateDOB);
     tenors.forEach((tenor: string) => {
       document.addEventListener(getName(tenor), handler);
     });
@@ -23,4 +28,3 @@ export const useDepthEmitter = (tenors: string[], symbol: string, strategy: stri
     };
   }, [tenors, symbol, strategy, callback]);
 };
-

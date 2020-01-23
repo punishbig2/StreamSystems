@@ -69,7 +69,8 @@
       margin: 0 0 0 auto;
 
       .MuiInputBase-root {
-        &::after, &::before {
+        &::after,
+        &::before {
           border: none;
         }
 

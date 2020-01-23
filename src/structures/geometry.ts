@@ -1,4 +1,4 @@
-import {CSSProperties} from 'react';
+import { CSSProperties } from "react";
 
 export class Geometry {
   public x: number;
@@ -6,7 +6,12 @@ export class Geometry {
   public height: number;
   public width: number;
 
-  public constructor(x: number = 0, y: number = 0, width: number = 360, height: number = 360) {
+  public constructor(
+    x: number = 0,
+    y: number = 0,
+    width: number = 360,
+    height: number = 360
+  ) {
     this.x = x;
     this.width = width;
     this.y = y;
@@ -29,13 +34,19 @@ export class Geometry {
       top: this.y,
       height: this.height,
       left: this.x,
-      width: this.width,
+      width: this.width
     };
   };
 
-  public moveTo = (x: number, y: number): Geometry => new Geometry(this.x + x, this.y + y, this.width, this.height);
+  public moveTo = (x: number, y: number): Geometry =>
+    new Geometry(this.x + x, this.y + y, this.width, this.height);
 
   public resize(amountX: number, amountY: number): Geometry {
-    return new Geometry(this.x, this.y, this.width + amountX, this.height + amountY);
+    return new Geometry(
+      this.x,
+      this.y,
+      this.width + amountX,
+      this.height + amountY
+    );
   }
 }

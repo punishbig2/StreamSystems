@@ -1,4 +1,4 @@
-import {TOBTable} from 'interfaces/tobTable';
+import { TOBTable } from "interfaces/tobTable";
 
 export interface RunState {
   orders: TOBTable;

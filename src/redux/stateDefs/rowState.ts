@@ -1,3 +1,3 @@
 export interface RowState {
-  row: {[key: string]: any};
+  row: { [key: string]: any };
 }

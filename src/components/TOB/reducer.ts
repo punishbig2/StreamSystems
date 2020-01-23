@@ -1,7 +1,7 @@
-import {Order} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
-import {DarkPoolTicketData} from 'components/DarkPoolTicket';
+import { Order } from "interfaces/order";
+import { TOBRow } from "interfaces/tobRow";
+import { TOBTable } from "interfaces/tobTable";
+import { DarkPoolTicketData } from "components/DarkPoolTicket";
 
 interface Aggregation {
   bid: { [price: string]: number };
@@ -9,7 +9,7 @@ interface Aggregation {
 }
 
 export type AggregatedSz = {
-  [key: string]: Aggregation
+  [key: string]: Aggregation;
 };
 
 export interface State {
@@ -27,22 +27,21 @@ export enum ActionTypes {
   ShowRunWindow,
   HideRunWindow,
   SetOrderTicket,
-  SetDarkPoolTicket,
+  SetDarkPoolTicket
 }
 
 type Group = { [key: string]: number };
 
-const coalesce = (value: number | null, fallback: number): number => value === null ? fallback : value;
+const coalesce = (value: number | null, fallback: number): number =>
+  value === null ? fallback : value;
 const collapse = (depth: any): Aggregation | undefined => {
-  if (!depth)
-    return undefined;
+  if (!depth) return undefined;
   const values: TOBRow[] = Object.values(depth);
   const bids: Order[] = values.map((value: TOBRow) => value.bid);
   const ofrs: Order[] = values.map((value: TOBRow) => value.ofr);
   const groupByPrice = (group: Group, entry: Order): Group => {
     const price: number | null = entry.price;
-    if (price === null)
-      return group;
+    if (price === null) return group;
     const key: string = price.toFixed(3);
     if (group[key]) {
       group[key] = coalesce(entry.quantity, 0) + group[key];
@@ -53,33 +52,35 @@ const collapse = (depth: any): Aggregation | undefined => {
   };
   return {
     bid: bids.reduce(groupByPrice, {}),
-    ofr: ofrs.reduce(groupByPrice, {}),
+    ofr: ofrs.reduce(groupByPrice, {})
   };
 };
 
-export const reducer = (state: State, {type, data}: { type: ActionTypes, data: any }): State => {
+export const reducer = (
+  state: State,
+  { type, data }: { type: ActionTypes; data: any }
+): State => {
   switch (type) {
     case ActionTypes.InsertDepth:
       return {
         ...state,
-        depths: {...state.depths, [data.tenor]: data.depth},
+        depths: { ...state.depths, [data.tenor]: data.depth },
         aggregatedSz: {
           ...state.aggregatedSz,
-          [data.tenor]: collapse(data.depth),
-        },
+          [data.tenor]: collapse(data.depth)
+        }
       };
     case ActionTypes.ShowRunWindow:
-      return {...state, runWindowVisible: true};
+      return { ...state, runWindowVisible: true };
     case ActionTypes.HideRunWindow:
-      return {...state, runWindowVisible: false};
+      return { ...state, runWindowVisible: false };
     case ActionTypes.SetOrderTicket:
-      return {...state, orderTicket: data};
+      return { ...state, orderTicket: data };
     case ActionTypes.SetCurrentTenor:
-      if (data && !state.depths[data])
-        return state;
-      return {...state, tenor: data};
+      if (data && !state.depths[data]) return state;
+      return { ...state, tenor: data };
     case ActionTypes.SetDarkPoolTicket:
-      return {...state, darkPoolTicket: data};
+      return { ...state, darkPoolTicket: data };
     default:
       return state;
   }

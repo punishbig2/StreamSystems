@@ -1,20 +1,22 @@
-import {Message} from 'interfaces/message';
-import moment, {Moment} from 'moment';
-import React from 'react';
+import { Message } from "interfaces/message";
+import moment, { Moment } from "moment";
+import React from "react";
 
-const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
-const DISPLAY_DATE_FORMAT: string = 'MM-DD-YYYY hh:mm a';
+const INCOMING_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
+const DISPLAY_DATE_FORMAT: string = "MM-DD-YYYY hh:mm a";
 
-export default (filterAndSort: boolean) => ({
-  name: 'TransactTime',
-  template: 'MM/DD/YYYY 00:00:00',
+export default (sortable: boolean) => ({
+  name: "TransactTime",
+  template: "MM/DD/YYYY 00:00:00",
   header: () => <div>Time (EST)</div>,
-  filterable: filterAndSort,
-  sortable: filterAndSort,
+  filterable: true,
+  sortable: sortable,
   render: (data: Message) => {
     return (
-      <div className={'message-blotter-cell time'}>
-        {moment(data.TransactTime, INCOMING_DATE_FORMAT).format(DISPLAY_DATE_FORMAT)}
+      <div className={"message-blotter-cell time"}>
+        {moment(data.TransactTime, INCOMING_DATE_FORMAT).format(
+          DISPLAY_DATE_FORMAT
+        )}
       </div>
     );
   },
@@ -26,9 +28,8 @@ export default (filterAndSort: boolean) => ({
   },
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.TransactTime;
-    if (!original)
-      return false;
+    if (!original) return false;
     const value: string = origin.toLowerCase();
     return value.includes(keyword);
-  },
+  }
 });

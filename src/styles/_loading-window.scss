@@ -14,9 +14,10 @@
     width: 128px;
     height: 128px;
 
-    &:after, &:before {
+    &:after,
+    &:before {
       position: absolute;
-      content: '';
+      content: "";
       border: 16px solid rgba(0, 0, 0, 0.075);
       border-radius: 64px;
       top: 0;

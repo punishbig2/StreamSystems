@@ -1,11 +1,11 @@
-import {PriceErrors} from 'components/Table/CellRenderers/Price';
-import {State} from 'components/TOB/reducer';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
-import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {TenorType} from 'interfaces/w';
-import {Settings} from 'settings';
-import {skipTabIndex} from 'utils/skipTab';
+import { PriceErrors } from "components/Table/CellRenderers/Price";
+import { State } from "components/TOB/reducer";
+import { OrderTypes } from "interfaces/mdEntry";
+import { Order, OrderStatus, Sides } from "interfaces/order";
+import { InvalidPrice, TOBRow, TOBRowStatus } from "interfaces/tobRow";
+import { TenorType } from "interfaces/w";
+import { Settings } from "settings";
+import { skipTabIndex } from "utils/skipTab";
 
 type Fn1 = (tenor: TenorType | null) => void;
 type Fn2 = (order: Order) => void;
@@ -19,7 +19,7 @@ export const createColumnData = (
   setCurrentTenor: Fn1,
   setOrderTicket: Fn2,
   settings: Settings,
-  personality: string,
+  personality: string
 ) => {
   // Dispatch properties
   return {
@@ -44,7 +44,7 @@ export const createColumnData = (
       }
     },
     onDoubleClick: (type: OrderTypes, entry: Order) => {
-      setOrderTicket({...entry, type});
+      setOrderTicket({ ...entry, type });
     },
     onRefBidsButtonClicked: () => {
       fns.cancelAll(symbol, strategy, Sides.Buy);
@@ -52,8 +52,15 @@ export const createColumnData = (
     onRefOfrsButtonClicked: () => {
       fns.cancelAll(symbol, strategy, Sides.Sell);
     },
-    onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => {
-      if (error === PriceErrors.GreaterThanMax || error === PriceErrors.LessThanMin) {
+    onOrderError: (
+      order: Order,
+      error: PriceErrors,
+      input: HTMLInputElement
+    ) => {
+      if (
+        error === PriceErrors.GreaterThanMax ||
+        error === PriceErrors.LessThanMin
+      ) {
         fns.setRowStatus(order, TOBRowStatus.InvertedMarketsError);
         input.focus();
       }
@@ -65,31 +72,37 @@ export const createColumnData = (
         if ((order.status & OrderStatus.Owned) !== 0) {
           fns.cancelOrder(order);
         } else if ((order.status & OrderStatus.HaveOrders) !== 0) {
-          const {depths} = state;
+          const { depths } = state;
           // Find my own order and cancel it
           const mine: Order | undefined = Object.values(depths[order.tenor])
-            .map((row: TOBRow) => order.type === OrderTypes.Bid ? row.bid : row.ofr)
-            .find((item: Order) => item.user === user.email)
-          ;
+            .map((row: TOBRow) =>
+              order.type === OrderTypes.Bid ? row.bid : row.ofr
+            )
+            .find((item: Order) => item.user === user.email);
           if (mine) {
             fns.cancelOrder(mine);
           }
         }
         if (order.quantity === null) {
-          fns.createOrder({...order, quantity: settings.defaultSize}, personality, settings.minSize);
+          fns.createOrder(
+            { ...order, quantity: settings.defaultSize },
+            personality,
+            settings.minSize
+          );
         } else {
           fns.createOrder(order, personality, settings.minSize);
         }
         fns.setRowStatus(order, TOBRowStatus.Normal);
       } else {
-        console.log('ignore this action');
+        console.log("ignore this action");
       }
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
       if (cancelRelated) {
         const rows: TOBRow[] = Object.values(state.depths[order.tenor]);
         rows.forEach((row: TOBRow) => {
-          const targetEntry: Order = order.type === OrderTypes.Bid ? row.bid : row.ofr;
+          const targetEntry: Order =
+            order.type === OrderTypes.Bid ? row.bid : row.ofr;
           if ((targetEntry.status & OrderStatus.Owned) !== 0) {
             fns.cancelOrder(targetEntry);
           }
@@ -98,10 +111,17 @@ export const createColumnData = (
         fns.cancelOrder(order);
       }
     },
-    onQuantityChange: (order: Order, newQuantity: number | null, input: HTMLInputElement) => {
-      if (order.price !== null && (order.status & OrderStatus.Cancelled) === 0) {
+    onQuantityChange: (
+      order: Order,
+      newQuantity: number | null,
+      input: HTMLInputElement
+    ) => {
+      if (
+        order.price !== null &&
+        (order.status & OrderStatus.Cancelled) === 0
+      ) {
         fns.cancelOrder(order);
-        fns.createOrder({...order, quantity: newQuantity});
+        fns.createOrder({ ...order, quantity: newQuantity });
       }
       // fns.updateOrderQuantity({...order, quantity: newQuantity});
       skipTabIndex(input, 1, 0);
@@ -109,7 +129,11 @@ export const createColumnData = (
     onCancelDarkPoolOrder: (order: Order) => {
       fns.cancelDarkPoolOrder(order);
     },
-    onDarkPoolDoubleClicked: (tenor: string, price: number | null, currentOrder: Order | null) => {
+    onDarkPoolDoubleClicked: (
+      tenor: string,
+      price: number | null,
+      currentOrder: Order | null
+    ) => {
       if (price !== null) {
         fns.onDarkPoolDoubleClicked(tenor, price, currentOrder);
       }
@@ -118,10 +142,10 @@ export const createColumnData = (
       fns.publishDarkPoolPrice(symbol, strategy, tenor, price);
     },
     aggregatedSz: state.aggregatedSz,
-    buttonsEnabled: symbol !== '' && strategy !== '',
+    buttonsEnabled: symbol !== "" && strategy !== "",
     isBroker: user.isbroker,
     strategy: strategy,
     symbol: symbol,
-    personality: personality,
+    personality: personality
   };
 };

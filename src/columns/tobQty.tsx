@@ -1,15 +1,19 @@
-import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import { Quantity } from 'components/Table/CellRenderers/Quantity';
-import { Order, OrderStatus } from 'interfaces/order';
-import { SettingsContext } from 'main';
-import React, { useContext, useEffect, useState } from 'react';
-import { Settings } from 'settings';
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { Quantity } from "components/Table/CellRenderers/Quantity";
+import { Order, OrderStatus } from "interfaces/order";
+import { SettingsContext } from "main";
+import React, { useContext, useEffect, useState } from "react";
+import { Settings } from "settings";
 
 interface Props {
   order: Order;
   isDepth: boolean;
   onCancel: (order: Order, cancelRelated: boolean) => void;
-  onSubmit: (order: Order, newQuantity: number | null, input: HTMLInputElement) => void;
+  onSubmit: (
+    order: Order,
+    newQuantity: number | null,
+    input: HTMLInputElement
+  ) => void;
   value: number | null;
 }
 
@@ -40,28 +44,32 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       }
     } else {
       const numeric: number = Number(value);
-      if (isNaN(numeric))
-        return;
+      if (isNaN(numeric)) return;
       setValue(numeric);
     }
   };
 
   const canCancel = (order: Order) => {
     const status: OrderStatus = order.status;
-    if (order.price === null || order.quantity === null)
-      return false;
-    if ((status & OrderStatus.Cancelled) !== 0)
-      return false;
+    if (order.price === null || order.quantity === null) return false;
+    if ((status & OrderStatus.Cancelled) !== 0) return false;
     if (props.isDepth)
-      return ((status & OrderStatus.Owned) !== 0) || ((status & OrderStatus.SameBank) !== 0);
-    return (((status & OrderStatus.Owned) !== 0) || ((status & OrderStatus.HaveOrders) !== 0));
+      return (
+        (status & OrderStatus.Owned) !== 0 ||
+        (status & OrderStatus.SameBank) !== 0
+      );
+    return (
+      (status & OrderStatus.Owned) !== 0 ||
+      (status & OrderStatus.HaveOrders) !== 0
+    );
   };
   const cancellable = canCancel(order);
-  const onCancel = () => cancellable ? props.onCancel(order, true) : null;
-  const showChevron = !props.isDepth &&
+  const onCancel = () => (cancellable ? props.onCancel(order, true) : null);
+  const showChevron =
+    !props.isDepth &&
     (order.status & OrderStatus.HaveOrders) !== 0 &&
     (order.status & OrderStatus.HasDepth) !== 0 &&
-    (order.price !== null);
+    order.price !== null;
   return (
     <Quantity
       value={value}
@@ -70,7 +78,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       onCancel={onCancel}
       onTabbedOut={onTabbedOut}
       cancellable={cancellable}
-      className={getOrderStatusClass(order.status, 'size')}
-      chevron={showChevron} />
+      className={getOrderStatusClass(order.status, "size")}
+      chevron={showChevron}
+    />
   );
 };

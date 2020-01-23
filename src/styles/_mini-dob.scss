@@ -12,13 +12,14 @@
     font-weight: $table-font-weight;
     font-family: $table-font-family;
 
-    .mini-price, .mini-size {
+    .mini-price,
+    .mini-size {
       padding: 0 4px;
       width: 80px;
       text-overflow: ellipsis;
       overflow: hidden;
       text-align: center;
-      font-family: 'Roboto', sans-serif;
+      font-family: "Roboto", sans-serif;
 
       &:first-child {
         border-right: 1px solid $table-border-color;

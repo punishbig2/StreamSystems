@@ -1,16 +1,17 @@
-import {getMiniDOBByType} from 'columns/tobMiniDOB';
-import {Price, PriceErrors} from 'components/Table/CellRenderers/Price';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus} from 'interfaces/order';
-import {TOBTable} from 'interfaces/tobTable';
-import React from 'react';
-import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
+import { getMiniDOBByType } from "columns/tobMiniDOB";
+import { Price, PriceErrors } from "components/Table/CellRenderers/Price";
+import { OrderTypes } from "interfaces/mdEntry";
+import { Order, OrderStatus } from "interfaces/order";
+import { TOBTable } from "interfaces/tobTable";
+import React from "react";
+import { MiniDOB } from "components/Table/CellRenderers/Price/miniDob";
 
 interface Props {
   order: Order;
-  depths: { [key: string]: TOBTable }
+  depths: { [key: string]: TOBTable };
   min?: number | null;
   max?: number | null;
+  readOnly?: boolean;
   onDoubleClick?: (type: OrderTypes, order: Order) => void;
   onChange: (order: Order) => void;
   onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => void;
@@ -18,17 +19,20 @@ interface Props {
 }
 
 export const TOBPrice: React.FC<Props> = (props: Props) => {
-  const {order} = props;
+  const { order } = props;
   const onDoubleClick = () => {
     if (!!props.onDoubleClick) {
-      props.onDoubleClick(order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid, order);
+      props.onDoubleClick(
+        order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid,
+        order
+      );
     }
   };
-  const onError = (error: PriceErrors, input: HTMLInputElement) => props.onError(order, error, input);
+  const onError = (error: PriceErrors, input: HTMLInputElement) =>
+    props.onError(order, error, input);
   const onChange = (price: number | null, changed: boolean) => {
-    if (!changed && (order.status & OrderStatus.QuantityEdited) === 0)
-      return;
-    props.onChange({...order, price});
+    if (!changed && (order.status & OrderStatus.QuantityEdited) === 0) return;
+    props.onChange({ ...order, price });
   };
   return (
     <Price
@@ -40,10 +44,19 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       type={order.type}
       min={props.min}
       max={props.max}
+      readOnly={props.readOnly}
+      tooltip={() => (
+        <MiniDOB
+          {...props}
+          rows={getMiniDOBByType(props.depths, order.tenor, order.type)}
+        />
+      )}
       onError={onError}
-      onTabbedOut={(input: HTMLInputElement) => props.onTabbedOut(input, order.type)}
+      onTabbedOut={(input: HTMLInputElement) =>
+        props.onTabbedOut(input, order.type)
+      }
       onDoubleClick={onDoubleClick}
       onChange={onChange}
-      tooltip={() => <MiniDOB {...props} rows={getMiniDOBByType(props.depths, order.tenor, order.type)}/>}/>
+    />
   );
 };

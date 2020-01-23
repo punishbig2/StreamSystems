@@ -1,21 +1,19 @@
-import messageBlotterColumns from 'columns/messageBlotter';
-import {Row, BlotterRowTypes} from 'components/MessageBlotter/row';
-import {Table} from 'components/Table';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {User} from 'interfaces/user';
-import strings from 'locales';
-import React, {useEffect} from 'react';
-import {connect} from 'react-redux';
-import {ApplicationState} from 'redux/applicationState';
-import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
-import {Message, ExecTypes} from 'interfaces/message';
-import {OrderTypes} from 'interfaces/mdEntry';
+import messageBlotterColumns from "columns/messageBlotter";
+import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
+import { Table } from "components/Table";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { User } from "interfaces/user";
+import strings from "locales";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import { ApplicationState } from "redux/applicationState";
+import { MessageBlotterState } from "redux/stateDefs/messageBlotterState";
+import { getAuthenticatedUser } from "utils/getCurrentUser";
+import { BlotterTypes } from "redux/constants/messageBlotterConstants";
+import { Message, ExecTypes } from "interfaces/message";
+import { OrderTypes } from "interfaces/mdEntry";
 
-interface DispatchProps {
-}
-
+interface DispatchProps {}
 
 interface OwnProps {
   // FIXME: add filters and sorting
@@ -26,32 +24,42 @@ interface OwnProps {
   blotterType: BlotterTypes;
 }
 
-const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterState =
-  ({messageBlotter}: ApplicationState): MessageBlotterState => messageBlotter;
+const mapStateToProps: ({
+  messageBlotter
+}: ApplicationState) => MessageBlotterState = ({
+  messageBlotter
+}: ApplicationState): MessageBlotterState => messageBlotter;
 
-const mapDispatchToProps: DispatchProps = {
-  }
-;
+const mapDispatchToProps: DispatchProps = {};
 
-const withRedux = connect<MessageBlotterState, DispatchProps, OwnProps, ApplicationState>(
+const withRedux = connect<
+  MessageBlotterState,
+  DispatchProps,
+  OwnProps,
+  ApplicationState
+>(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 );
 
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const {entries, setWindowTitle, id} = props;
+  const { entries, setWindowTitle, id } = props;
 
   useEffect(() => {
     setWindowTitle(id, strings.Monitor);
   }, [id, setWindowTitle]);
 
   const isExecution = (message: Message): boolean => {
-    return message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled;
+    return (
+      message.OrdStatus === ExecTypes.Filled ||
+      message.OrdStatus === ExecTypes.PartiallyFilled
+    );
   };
 
   const isMyBankExecution = (message: Message): boolean => {
-    const targetUser: string = message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
+    const targetUser: string =
+      message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
     return targetUser === user.firm;
   };
 
@@ -67,8 +75,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     const message: Message = props.row;
     const rowType = ((): BlotterRowTypes => {
       if (!isExecution(message)) {
-        if (isBusted(message))
-          return BlotterRowTypes.Busted;
+        if (isBusted(message)) return BlotterRowTypes.Busted;
         return BlotterRowTypes.Normal;
       }
       if (isMyExecution(message)) {
@@ -79,14 +86,24 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       return BlotterRowTypes.Normal;
     })();
     return (
-      <Row key={props.key} columns={props.columns} row={message} weight={props.weight} type={rowType}/>
+      <Row
+        key={props.key}
+        columns={props.columns}
+        row={message}
+        weight={props.weight}
+        type={rowType}
+      />
     );
   };
 
   const user: User = getAuthenticatedUser();
-  const columnsMap: { [key: string]: ColumnSpec[] } = messageBlotterColumns(props.blotterType);
-  const columns: ColumnSpec[] = user.isbroker ? columnsMap.broker : columnsMap.normal;
-  const baseFilter = ((message: Message): boolean => {
+  const columnsMap: { [key: string]: ColumnSpec[] } = messageBlotterColumns(
+    props.blotterType
+  );
+  const columns: ColumnSpec[] = user.isbroker
+    ? columnsMap.broker
+    : columnsMap.normal;
+  const baseFilter = (message: Message): boolean => {
     if (props.blotterType === BlotterTypes.Fills) {
       return isExecution(message);
     } else {
@@ -95,18 +112,22 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       }
       return true;
     }
-  });
+  };
   return (
     <>
-      <div className={'window-title-bar'}>
+      <div className={"window-title-bar"}>
         <h1>{strings.Messages}</h1>
       </div>
-      <div className={'window-content'}>
-        <Table scrollable={true} columns={columns} rows={entries.filter(baseFilter)} renderRow={renderRow}/>
+      <div className={"window-content"}>
+        <Table
+          scrollable={true}
+          columns={columns}
+          rows={entries.filter(baseFilter)}
+          renderRow={renderRow}
+        />
       </div>
     </>
   );
 });
 
-export {MessageBlotter};
-
+export { MessageBlotter };

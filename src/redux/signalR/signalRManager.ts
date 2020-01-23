@@ -1,8 +1,13 @@
-import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
-import config from 'config';
-import {Message, DarkPoolMessage} from 'interfaces/message';
-import {W} from 'interfaces/w';
-import {Action, AnyAction} from 'redux';
+import {
+  HttpTransportType,
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel
+} from "@microsoft/signalr";
+import config from "config";
+import { Message, DarkPoolMessage } from "interfaces/message";
+import { W } from "interfaces/w";
+import { Action, AnyAction } from "redux";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -15,16 +20,22 @@ enum SignalRMessageTypes {
   StreamInvocation = 4,
   CancelInvocation = 5,
   Ping = 6,
-  Close = 7,
+  Close = 7
 }
 
 export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
-  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
+  private onConnectedListener:
+    | ((connection: HubConnection) => void)
+    | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onUpdateMarketDataListener: ((data: W) => void) | null = null;
-  private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
-  private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
+  private onUpdateDarkPoolPxListener:
+    | ((data: DarkPoolMessage) => void)
+    | null = null;
+  private onUpdateMessageBlotterListener:
+    | ((data: Message) => void)
+    | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
@@ -35,20 +46,21 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.connection = connection;
   }
 
-  static createConnection = () => new HubConnectionBuilder()
-    .withUrl(
-      `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
-      HttpTransportType.WebSockets,
-    )
-    .withAutomaticReconnect([5, 60, 120])
-    .configureLogging(LogLevel.None)
-    .build()
-  ;
+  static createConnection = () =>
+    new HubConnectionBuilder()
+      .withUrl(
+        `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
+        HttpTransportType.WebSockets
+      )
+      .withAutomaticReconnect([5, 60, 120])
+      .configureLogging(LogLevel.None)
+      .build();
 
   public connect = () => {
-    const {connection} = this;
+    const { connection } = this;
     if (connection !== null) {
-      connection.start()
+      connection
+        .start()
         .then(() => {
           this.setup(connection);
           // Call the listener if available
@@ -72,9 +84,9 @@ export class SignalRManager<A extends Action = AnyAction> {
         console.log(error);
       });
       // Install update market handler
-      connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
-      connection.on('updateMarketData', this.onUpdateMarketData);
-      connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
+      connection.on("updateMessageBlotter", this.onUpdateMessageBlotter);
+      connection.on("updateMarketData", this.onUpdateMarketData);
+      connection.on("updateDarkPoolPx", this.onUpdateDarkPoolPx);
     }
   };
 
@@ -82,7 +94,8 @@ export class SignalRManager<A extends Action = AnyAction> {
     const data: Message = JSON.parse(message);
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
-      const fn: (message: Message) => void = this.onUpdateMessageBlotterListener;
+      const fn: (message: Message) => void = this
+        .onUpdateMessageBlotterListener;
       fn(data);
     }
   };
@@ -104,7 +117,9 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
+  public setOnUpdateDarkPoolPxListener = (
+    fn: (data: DarkPoolMessage) => void
+  ) => {
     this.onUpdateDarkPoolPxListener = fn;
   };
 

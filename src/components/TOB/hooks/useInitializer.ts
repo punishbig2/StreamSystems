@@ -1,21 +1,40 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
-import {TenorType} from 'interfaces/w';
-import {useEffect} from 'react';
-import {toRowID} from 'utils';
-import {compareTenors} from 'utils/dataGenerators';
+import { OrderTypes } from "interfaces/mdEntry";
+import { Order } from "interfaces/order";
+import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
+import { TOBTable } from "interfaces/tobTable";
+import { TenorType } from "interfaces/w";
+import { useEffect } from "react";
+import { toRowID } from "utils";
+import { compareTenors } from "utils/dataGenerators";
 
-const buildRows = (tenors: string[], symbol: string, strategy: string, email: string): TOBRow[] => {
+const buildRows = (
+  tenors: string[],
+  symbol: string,
+  strategy: string,
+  email: string
+): TOBRow[] => {
   return tenors
     .map((tenor: TenorType) => {
       // This is here because javascript is super stupid and `connected' can change
       // while we're subscribing combinations.
       //
       // Ideally, we should implement the ability to stop
-      const bid: Order = new Order(tenor, symbol, strategy, email, null, OrderTypes.Bid);
-      const ofr: Order = new Order(tenor, symbol, strategy, email, null, OrderTypes.Ofr);
+      const bid: Order = new Order(
+        tenor,
+        symbol,
+        strategy,
+        email,
+        null,
+        OrderTypes.Bid
+      );
+      const ofr: Order = new Order(
+        tenor,
+        symbol,
+        strategy,
+        email,
+        null,
+        OrderTypes.Ofr
+      );
 
       const row: TOBRow = {
         tenor: tenor,
@@ -25,7 +44,7 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
         mid: null,
         spread: null,
         darkPrice: null,
-        status: TOBRowStatus.Normal,
+        status: TOBRowStatus.Normal
       };
       // Return row
       return row;
@@ -33,10 +52,15 @@ const buildRows = (tenors: string[], symbol: string, strategy: string, email: st
     .sort(compareTenors);
 };
 
-export const useInitializer = (tenors: string[], symbol: string, strategy: string, email: string, initialize: (data: TOBTable) => void) => {
+export const useInitializer = (
+  tenors: string[],
+  symbol: string,
+  strategy: string,
+  email: string,
+  initialize: (data: TOBTable) => void
+) => {
   useEffect(() => {
-    if (!symbol || !strategy || symbol === '' || strategy === '')
-      return;
+    if (!symbol || !strategy || symbol === "" || strategy === "") return;
     const reducer = (object: TOBTable, item: TOBRow): TOBTable => {
       object[item.id] = item;
       // Return the accumulator
@@ -48,4 +72,3 @@ export const useInitializer = (tenors: string[], symbol: string, strategy: strin
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, strategy, tenors, email]);
 };
-

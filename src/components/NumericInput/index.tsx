@@ -1,5 +1,5 @@
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import React, {ReactElement} from 'react';
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import React, { ReactElement } from "react";
 
 interface Props {
   value: string;
@@ -17,7 +17,15 @@ interface Props {
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onSubmitted, onFocus, onChange, onCancelEdit, ...otherProps} = props;
+  const {
+    onTabbedOut,
+    onNavigate,
+    onSubmitted,
+    onFocus,
+    onChange,
+    onCancelEdit,
+    ...otherProps
+  } = props;
   const triggerChange = (input: HTMLInputElement) => {
     onChange(input.value);
     if (onSubmitted) {
@@ -27,54 +35,54 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
-      case 'Tab':
-      case 'Enter':
+      case "Tab":
+      case "Enter":
         if (onTabbedOut) {
           event.preventDefault();
-          if (event.shiftKey)
-            return;
+          if (event.shiftKey) return;
           onChange(input.value);
-          if (onSubmitted)
-            onSubmitted(input);
+          if (onSubmitted) onSubmitted(input);
           onTabbedOut(input);
         }
         break;
-      case 'ArrowUp':
-        if (onNavigate)
-          onNavigate(input, NavigateDirection.Up);
+      case "ArrowUp":
+        if (onNavigate) onNavigate(input, NavigateDirection.Up);
         triggerChange(input);
         event.preventDefault();
         break;
-      case 'ArrowLeft':
-        if (onNavigate)
-          onNavigate(input, NavigateDirection.Left);
+      case "ArrowLeft":
+        if (onNavigate) onNavigate(input, NavigateDirection.Left);
         triggerChange(input);
         event.preventDefault();
         break;
-      case 'ArrowDown':
-        if (onNavigate)
-          onNavigate(input, NavigateDirection.Down);
+      case "ArrowDown":
+        if (onNavigate) onNavigate(input, NavigateDirection.Down);
         triggerChange(input);
         event.preventDefault();
         break;
-      case 'ArrowRight':
-        if (onNavigate)
-          onNavigate(input, NavigateDirection.Right);
+      case "ArrowRight":
+        if (onNavigate) onNavigate(input, NavigateDirection.Right);
         triggerChange(input);
         event.preventDefault();
         break;
-      case 'Escape':
+      case "Escape":
         if (onCancelEdit) {
           onCancelEdit();
         }
         break;
     }
   };
-  const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
+  const onChangeWrapper = ({
+    target: { value }
+  }: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
-    <input {...otherProps} onKeyDown={onKeyPress} onChange={onChangeWrapper} onFocus={onFocus}/>
+    <input
+      {...otherProps}
+      onKeyDown={onKeyPress}
+      onChange={onChangeWrapper}
+      onFocus={onFocus}
+    />
   );
 };
 
-export {NumericInput};
-
+export { NumericInput };

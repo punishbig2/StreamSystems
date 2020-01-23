@@ -1,23 +1,24 @@
-import {Currency} from 'interfaces/currency';
-import {Order, Sides} from 'interfaces/order';
-import {Strategy} from 'interfaces/strategy';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {User} from 'interfaces/user';
-import {Subscriber} from 'redux/signalRAction';
-import {RunState} from 'redux/stateDefs/runState';
-import {WindowState} from 'redux/stateDefs/windowState';
-import {DispatchProp} from 'react-redux';
+import { Currency } from "interfaces/currency";
+import { Order, Sides } from "interfaces/order";
+import { Strategy } from "interfaces/strategy";
+import { TOBRow, TOBRowStatus } from "interfaces/tobRow";
+import { User } from "interfaces/user";
+import { Subscriber } from "redux/signalRAction";
+import { RunState } from "redux/stateDefs/runState";
+import { WindowState } from "redux/stateDefs/windowState";
+import { DispatchProp } from "react-redux";
 
 export interface OwnProps {
   id: string;
   user: User;
-  tenors: string[],
+  tenors: string[];
   products: Strategy[];
   symbols: Currency[];
   connected: boolean;
   setWindowTitle: (id: string, title: string) => void;
   onRowError: (status: TOBRowStatus) => void;
   onClose?: () => void;
+  autoSize?: boolean;
   personality: string;
 }
 
@@ -27,7 +28,11 @@ export interface DispatchProps {
   subscribe: Subscriber;
   subscribeDarkPool: Subscriber;
   getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
-  getDarkPoolSnapshot: (symbol: string, strategy: string, tenor: string) => void;
+  getDarkPoolSnapshot: (
+    symbol: string,
+    strategy: string,
+    tenor: string
+  ) => void;
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
@@ -38,7 +43,12 @@ export interface DispatchProps {
   getRunOrders: (symbol: string, strategy: string) => void;
   setRowStatus: (order: Order, status: TOBRowStatus) => void;
   updateOrderQuantity: (order: Order) => void;
-  publishDarkPoolPrice: (symbol: string, strategy: string, tenor: string, price: number) => void;
+  publishDarkPoolPrice: (
+    symbol: string,
+    strategy: string,
+    tenor: string,
+    price: number
+  ) => void;
 }
 
 export type Props = OwnProps & WindowState & RunState & DispatchProp;

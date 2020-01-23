@@ -14,8 +14,8 @@
 
       &:not(:last-child) {
         &:after {
-          content: '\f105';
-          font-family: 'Font Awesome 5 Free Solid', sans-serif;
+          content: "\f105";
+          font-family: "Font Awesome 5 Free Solid", sans-serif;
           margin: 0 8px;
           color: #a1a1a1;
         }
@@ -29,7 +29,8 @@
   .row {
     margin: 8px 0;
 
-    .label, .value {
+    .label,
+    .value {
       display: inline-block;
       width: 50%;
       vertical-align: middle;
@@ -40,7 +41,7 @@
 
     .value {
       font-weight: 600;
-      font-family: 'Roboto', sans-serif;
+      font-family: "Roboto", sans-serif;
 
       input {
         display: block;
@@ -59,7 +60,9 @@
 
       .MuiInputBase-root {
         color: #444;
-        &:hover, &.Mui-focused {
+
+        &:hover,
+        &.Mui-focused {
           .MuiOutlinedInput-notchedOutline {
             border-color: $primary-color;
           }
@@ -100,9 +103,9 @@
             border-left-color: darken($table-border-color, 5%);
           }
           background: linear-gradient(
-                          to bottom,
-                          lighten($table-border-color, 8%),
-                          lighten($table-border-color, 3%)
+            to bottom,
+            lighten($table-border-color, 8%),
+            lighten($table-border-color, 3%)
           );
           transition: color 0.25s;
           &:hover {
@@ -120,7 +123,8 @@
         }
       }
 
-      span, input {
+      span,
+      input {
         padding: 0 8px;
       }
     }

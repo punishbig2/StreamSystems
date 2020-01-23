@@ -1,6 +1,9 @@
-import {OrderStatus} from 'interfaces/order';
-import {useEffect} from 'react';
+import { OrderStatus } from "interfaces/order";
+import { useEffect } from "react";
 
-export const useStatusUpdater = (status: OrderStatus, update: (status: OrderStatus) => void) => {
+export const useStatusUpdater = (
+  status: OrderStatus,
+  update: (status: OrderStatus) => void
+) => {
   useEffect(() => update(status), [status, update]);
 };

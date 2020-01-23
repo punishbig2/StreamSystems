@@ -8,5 +8,5 @@ export enum PriceActions {
   MoveTooltip,
   SetStatus,
   SetValue,
-  ResetValue,
+  ResetValue
 }

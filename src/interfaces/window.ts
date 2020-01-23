@@ -1,7 +1,9 @@
-import {WindowTypes} from 'redux/constants/workareaConstants';
+import { WindowTypes } from "redux/constants/workareaConstants";
 
 export enum WindowStatus {
-  None, Docked, Minimized
+  None,
+  Docked,
+  Minimized
 }
 
 export interface Window {
