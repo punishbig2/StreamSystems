@@ -19,6 +19,15 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
   const actionType: RunActions =
     type === 'bid' ? RunActions.Bid : RunActions.Ofr;
+  const onPriceChange = (row: RowType) =>
+    (price: number | null, changed: boolean) => {
+      const order: Order = row[type];
+      if (price === null) {
+        onChange(row.id, order.price, false);
+      } else {
+        onChange(row.id, price, changed);
+      }
+    };
   return {
     name: `${type}-price`,
     header: () => <DualTableHeader label={label}/>,
@@ -31,12 +40,8 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           status={order.status}
           value={order.price}
           animated={false}
-          onChange={(price: number | null, changed: boolean) =>
-            onChange(row.id, price, changed)
-          }
-          onTabbedOut={(target: HTMLInputElement) =>
-            data.focusNext(target, actionType)
-          }
+          onChange={onPriceChange(row)}
+          onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
           onNavigate={data.onNavigate}/>
       );
     },
@@ -59,11 +64,10 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           value={order.quantity}
           order={order}
           defaultValue={defaultSize.value}
+          minSize={data.minSize}
           onTabbedOut={data.focusNext}
           onChange={onChange}
-          onCancel={data.onCancelOrder}
-          minSize={data.minSize}
-        />
+          onActivateOrder={data.onActivateOrder}/>
       );
     },
     template: '999999',

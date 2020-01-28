@@ -6,6 +6,8 @@ import {TOBTable} from 'interfaces/tobTable';
 import {Action} from 'redux/action';
 import {RunState} from 'redux/stateDefs/runState';
 import {$$} from 'utils/stringPaster';
+import {priceFormatter} from 'utils/priceFormatter';
+import {OrderTypes} from 'interfaces/mdEntry';
 
 const genesisState: RunState = {
   orders: {},
@@ -33,6 +35,7 @@ export enum RunActions {
   RemoveAllBids = 'Run.RemoveAllBids',
   SetDefaultSize = 'Run.SetDefaultSize',
   ActivateRow = 'Run.ActivateRow',
+  ActivateOrder = 'Run.ActivateOrder',
 }
 
 const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
@@ -74,10 +77,7 @@ const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
   }
 };
 
-const valueChangeReducer = (
-  state: RunState,
-  {type, data}: Action<RunActions>,
-): RunState => {
+const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): RunState => {
   const {orders} = state;
   // const finder = rowFinder(orders);
   // Find the interesting row
@@ -101,35 +101,34 @@ const valueChangeReducer = (
       ? TOBRowStatus.InvertedMarketsError
       : TOBRowStatus.Normal;
   };
-  const getOrderStatus = (newValue: number | null, oldValue: number | null) => {
-    if (newValue === oldValue) return OrderStatus.None;
-    return OrderStatus.PriceEdited;
+  const getOrderStatus = (status: OrderStatus, newValue: number | null, oldValue: number | null) => {
+    if (priceFormatter(newValue) === priceFormatter(oldValue))
+      return OrderStatus.None;
+    return (status | OrderStatus.PriceEdited) & ~OrderStatus.Owned & ~OrderStatus.SameBank;
   };
-  const coalesce = (v1: number | null, v2: number | null) =>
-    v1 === null ? v2 : v1;
+  const coalesce = (v1: number | null, v2: number | null) => v1 === null ? v2 : v1;
   const newOfr: Order = {
     ...ofr,
     // Update the price
     price: coalesce(computedEntry.ofr, startingEntry.ofr),
     // Update the status and set it as edited/modified
-    status: ofr.status | getOrderStatus(computedEntry.ofr, ofr.price),
+    status: type === RunActions.Ofr ? getOrderStatus(ofr.status, computedEntry.ofr, ofr.price) : ofr.status,
   };
   const newBid: Order = {
     ...bid,
     // Update the price
     price: coalesce(computedEntry.bid, startingEntry.bid),
     // Update the status and set it as edited/modified
-    status: bid.status | getOrderStatus(computedEntry.bid, bid.price),
+    status: type === RunActions.Bid ? getOrderStatus(bid.status, computedEntry.bid, bid.price) : bid.status,
   };
-  const isQuantityEdited = (order: Order) =>
-    (order.status & OrderStatus.QuantityEdited) !== 0;
-  const quantitiesChanged: boolean =
-    isQuantityEdited(bid) || isQuantityEdited(ofr);
+  const isQuantityEdited = (order: Order) => (order.status & OrderStatus.QuantityEdited) !== 0;
+  const quantitiesChanged: boolean = isQuantityEdited(bid) || isQuantityEdited(ofr);
   const ordersChanged: boolean = !equal(newOfr, ofr) || !equal(newBid, bid);
   switch (type) {
     case RunActions.Ofr:
     case RunActions.Bid:
-      if (!ordersChanged && !quantitiesChanged) return state;
+      if (!ordersChanged && !quantitiesChanged)
+        return state;
     // eslint-disable-next-line no-fallthrough
     case RunActions.Mid:
     case RunActions.Spread:
@@ -214,24 +213,47 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
   return bid.price < ofr.price;
 };
 
-const activateRow = (state: RunState, rowID: string): RunState => {
+const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
+  const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
+  return (status & OrderStatus.Cancelled) !== 0 ? (status | edited) & ~OrderStatus.Cancelled : status;
+};
+
+const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
   const row: TOBRow = orders[rowID];
   if (row === undefined)
     return state;
-  const {bid, ofr} = row;
-  const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
-  const updateStatusIfAllowed = (status: OrderStatus): OrderStatus => {
-    return (status & OrderStatus.Cancelled) !== 0 ? (status | edited) & ~OrderStatus.Cancelled : status;
-  };
+  const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
+  const {[key]: order} = row;
   return {
     ...state,
     orders: {
       ...orders,
       [rowID]: {
         ...row,
-        bid: {...bid, status: updateStatusIfAllowed(bid.status)},
-        ofr: {...ofr, status: updateStatusIfAllowed(ofr.status)},
+        [key]: {
+          ...order,
+          status: activateOrderIfPossible(order.status),
+        },
+      },
+    },
+  };
+};
+
+const activateRow = (state: RunState, rowID: string): RunState => {
+  const {orders} = state;
+  const row: TOBRow = orders[rowID];
+  if (row === undefined)
+    return state;
+  const {bid, ofr} = row;
+  return {
+    ...state,
+    orders: {
+      ...orders,
+      [rowID]: {
+        ...row,
+        bid: {...bid, status: activateOrderIfPossible(bid.status)},
+        ofr: {...ofr, status: activateOrderIfPossible(ofr.status)},
       },
     },
   };
@@ -243,30 +265,23 @@ const updateOrder = (state: RunState, data: { id: string; order: Order }, key: '
   const row: TOBRow = orders[data.id];
   if (row === undefined)
     return state;
-  if (
-    (row[key].status & OrderStatus.Active) !== 0 &&
-    (order.status & OrderStatus.Cancelled) !== 0
-  )
+  if ((row[key].status & OrderStatus.Active) !== 0 && (order.status & OrderStatus.Cancelled) !== 0)
     return state;
-  if (
-    !isValidUpdate(
-      key === 'bid' ? order : row.bid,
-      key === 'ofr' ? order : row.ofr,
-    )
-  )
+  if (!isValidUpdate(key === 'bid' ? order : row.bid, key === 'ofr' ? order : row.ofr))
     return state;
   const newRow: TOBRow = fillSpreadAndMid({
     ...row,
     [key]: order,
   });
-  if (equal(newRow, row)) return state;
+  if (equal(newRow, row))
+    return state;
   const newOrders = {
     ...orders,
     [data.id]: newRow,
   };
   return {
     ...state,
-    originalOrders: newOrders,
+    originalOrders: orders,
     orders: newOrders,
   };
 };
@@ -331,6 +346,8 @@ export default (id: string, initialState: RunState = genesisState) => {
         return valueChangeReducer(state, {type: RunActions.Spread, data});
       case $$(id, RunActions.ActivateRow):
         return activateRow(state, data);
+      case $$(id, RunActions.ActivateOrder):
+        return activateOrder(state, data);
       default:
         return state;
     }

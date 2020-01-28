@@ -307,7 +307,6 @@ export const TOB: React.FC<OwnProps> = withRedux(
         strategy={strategy}
         tenors={tenors}
         onClose={hideRunWindow}
-        onCancelOrder={actions.cancelOrder}
         onSubmit={bulkCreateOrders}
         defaultSize={symbol.defaultqty}
         minSize={symbol.minqty}

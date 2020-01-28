@@ -2,6 +2,7 @@ import {RunActions} from 'redux/reducers/runReducer';
 import {createAction} from 'redux/actionCreator';
 import {TOBTable} from 'interfaces/tobTable';
 import {$$} from 'utils/stringPaster';
+import {OrderTypes} from 'interfaces/mdEntry';
 
 export const updateOfr = (runID: string) => (ofr: any) =>
   createAction($$(runID, RunActions.UpdateOfr), ofr);
@@ -41,5 +42,9 @@ export const setOfrDefaultQty = (runID: string) => (value: number) =>
 
 export const setDefaultSize = (runID: string) => (value: number) =>
   createAction($$(runID, RunActions.SetDefaultSize), value);
+
 export const activateRow = (runID: string) => (rowID: string) =>
   createAction($$(runID, RunActions.ActivateRow), rowID);
+
+export const onActivateOrder = (runID: string) => (rowID: string, type: OrderTypes) =>
+  createAction($$(runID, RunActions.ActivateOrder), {rowID, type});

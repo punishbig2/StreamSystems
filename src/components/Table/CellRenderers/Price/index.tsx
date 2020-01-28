@@ -143,11 +143,9 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const isOpenOrderTicketStatus = (status: OrderStatus): boolean => {
-    if ((status & OrderStatus.DarkPool) !== 0) return true;
-    return (
-      (status & OrderStatus.Owned) === 0 &&
-      (status & OrderStatus.SameBank) === 0
-    );
+    if ((status & OrderStatus.DarkPool) !== 0)
+      return true;
+    return ((status & OrderStatus.Owned) === 0 && (status & OrderStatus.SameBank) === 0);
   };
 
   const onDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {

@@ -321,6 +321,18 @@ $red-x-size: 16px;
       position: relative;
       display: flex;
 
+      .plus-sign {
+        i {
+          color: $text-color-grey;
+        }
+        &.active {
+          cursor: pointer;
+          i {
+            color: $text-color-green;
+          }
+        }
+      }
+
       input {
         padding: 0 8px;
         min-width: 0;

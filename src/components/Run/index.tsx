@@ -33,6 +33,7 @@ import {
   setOfrDefaultQty,
   setDefaultSize,
   activateRow,
+  onActivateOrder,
 } from 'redux/actions/runActions';
 import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
@@ -46,7 +47,6 @@ interface OwnProps {
   tenors: string[];
   onClose: () => void;
   onSubmit: (entries: Order[]) => void;
-  onCancelOrder: (order: Order) => void;
   minSize: number;
   defaultSize: number;
 }
@@ -66,6 +66,7 @@ interface DispatchProps {
   setBidDefaultQty: (value: number) => Action<RunActions>;
   setOfrDefaultQty: (value: number) => Action<RunActions>;
   activateRow: (id: string) => Action<RunActions>;
+  onActivateOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
@@ -84,6 +85,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
     setBidDefaultQty: setBidDefaultQty(id),
     setOfrDefaultQty: setOfrDefaultQty(id),
     activateRow: activateRow(id),
+    onActivateOrder: onActivateOrder(id),
   };
   const entries: [string, any][] = Object.entries(actions);
   return entries.reduce((obj, [name, value]) => {
@@ -213,18 +215,13 @@ const Run: React.FC<Props> = (props: Props) => {
 
   // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number | null) =>
-      props.setBidPrice(id, value),
-    onOfrChanged: (id: string, value: number | null) =>
-      props.setOfrPrice(id, value),
+    onBidChanged: (id: string, value: number | null) => props.setBidPrice(id, value),
+    onOfrChanged: (id: string, value: number | null) => props.setOfrPrice(id, value),
     onMidChanged: (id: string, value: number | null) => props.setMid(id, value),
-    onSpreadChanged: (id: string, value: number | null) =>
-      props.setSpread(id, value),
-    onBidQtyChanged: (id: string, value: number | null) =>
-      props.setBidQty(id, value),
-    onOfrQtyChanged: (id: string, value: number | null) =>
-      props.setOfrQty(id, value),
-    onCancelOrder: (order: Order) => props.onCancelOrder(order),
+    onSpreadChanged: (id: string, value: number | null) => props.setSpread(id, value),
+    onBidQtyChanged: (id: string, value: number | null) => props.setBidQty(id, value),
+    onOfrQtyChanged: (id: string, value: number | null) => props.setOfrQty(id, value),
+    onActivateOrder: (id: string, orderType: OrderTypes) => props.onActivateOrder(id, orderType),
     defaultBidSize: {
       value: props.defaultBidSize || props.defaultSize,
       onChange: props.setBidDefaultQty,

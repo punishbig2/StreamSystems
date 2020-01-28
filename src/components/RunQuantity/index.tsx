@@ -1,18 +1,19 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {Order, OrderStatus} from 'interfaces/order';
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, ReactNode} from 'react';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
+import {OrderTypes} from 'interfaces/mdEntry';
 
 interface Props {
   defaultValue: number;
   id: string;
   value: number | null;
   order: Order;
+  minSize: number;
+  onActivateOrder: (id: string, orderType: OrderTypes) => void;
   onTabbedOut?: (input: HTMLInputElement) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
-  onCancel: (order: Order) => void;
-  minSize: number;
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
@@ -85,25 +86,47 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     setValue(null);
   };
 
+  const greyStatus: boolean = (order.status & OrderStatus.Cancelled) !== 0
+    && (order.status & OrderStatus.PriceEdited) === 0
+    && (order.status & OrderStatus.QuantityEdited) === 0;
+
   const getValue = () => {
-    return getValueHelper((order.status & OrderStatus.Cancelled) !== 0
-      && (order.status & OrderStatus.PriceEdited) === 0
-      && (order.status & OrderStatus.QuantityEdited) === 0,
-    );
+    return getValueHelper(greyStatus);
   };
+
+  const onActivateOrder = () => {
+    if (!greyStatus)
+      return;
+    props.onActivateOrder(props.id, order.type);
+  };
+  const plusSign = (
+    <div className={'plus-sign' + (greyStatus ? ' active' : '')} onClick={onActivateOrder} key={1}>
+      <i className={'fa fa-plus-circle'}/>
+    </div>
+  );
+
+  const items: ReactNode[] = [
+    <NumericInput
+      key={0}
+      tabIndex={-1}
+      className={getOrderStatusClass(order.status, 'size')}
+      placeholder={sizeFormatter(props.value)}
+      type={'size'}
+      value={getValue()}
+      onChange={onChangeWrapper}
+      onTabbedOut={onTabbedOut}
+      onBlur={reset}/>,
+  ];
+
+  if (order.type === OrderTypes.Bid) {
+    items.push(plusSign);
+  } else {
+    items.unshift(plusSign);
+  }
 
   return (
     <div className={'size-layout'}>
-      <NumericInput
-        tabIndex={-1}
-        className={getOrderStatusClass(order.status, 'size')}
-        placeholder={sizeFormatter(props.value)}
-        type={'size'}
-        value={getValue()}
-        onChange={onChangeWrapper}
-        onTabbedOut={onTabbedOut}
-        onBlur={reset}
-      />
+      {items}
     </div>
   );
 };
