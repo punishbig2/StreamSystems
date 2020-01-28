@@ -10,6 +10,7 @@ interface Props {
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   className?: string;
   tabIndex?: number;
+  placeholder?: string;
   onCancelEdit?: () => void;
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onTabbedOut?: (target: HTMLInputElement) => void;
@@ -79,6 +80,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
     <input
       {...otherProps}
       data-input-type={props.type}
+      placeholder={props.placeholder}
       onKeyDown={onKeyPress}
       onChange={onChangeWrapper}
       onFocus={onFocus}

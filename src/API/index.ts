@@ -46,11 +46,7 @@ export class HTTPError {
 // Special type to exclude 1 type from a set of types
 type NotOfType<T> = T extends string ? never : T;
 // Generic request builder
-const request = <T>(
-  url: string,
-  method: Method,
-  data?: NotOfType<string>,
-): Promise<T> => {
+const request = <T>(url: string, method: Method, data?: NotOfType<string>): Promise<T> => {
   // This should be accessible from outside the executor/promise to allow cancellation
   const xhr = new XMLHttpRequest();
   // Executor
@@ -139,17 +135,10 @@ export class API {
     return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toQuery(args)}`;
   }
 
-  static getUrl(
-    section: string,
-    object: Endpoints,
-    verb: Verb,
-    args?: any,
-  ): string {
+  static getUrl(section: string, object: Endpoints, verb: Verb, args?: any): string {
     if (args === undefined)
       return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
-    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}?${toQuery(
-      args,
-    )}`;
+    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}?${toQuery(args)}`;
   }
 
   static getSymbols(): Promise<Currency[]> {
@@ -423,7 +412,7 @@ export class API {
   }
 
   static async saveUserProfile(data: any) {
-    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save'), data);
+    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', data), null);
   }
 
   static async brokerRefAll() {

@@ -1,33 +1,19 @@
-import {FormControl, FormLabel, Select, MenuItem, Input, Checkbox, FormControlLabel} from '@material-ui/core';
-import React, {useReducer, Reducer, FormEvent, useEffect, useCallback, ReactNode} from 'react';
+import React, {useReducer, Reducer, FormEvent, useEffect, useCallback, useState, ReactNode} from 'react';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {User, UserTypes, UserProfile, CurrencyGroups} from 'interfaces/user';
 import {Action} from 'redux/action';
-import strings from 'locales';
-import Grid from '@material-ui/core/Grid';
 import {API} from 'API';
-import {SelectEventData} from 'interfaces/selectEventData';
 import {createAction} from 'redux/actionCreator';
-import timezones, {TimezoneInfo} from 'data/timezones';
-
-const renderTimezone = (value: unknown): ReactNode => {
-  if (value === '')
-    return <span className={'disabled-item'}>{strings.TimezoneUnset}</span>;
-  return value as string;
-};
-
-const renderCCYGroup = (value: unknown): ReactNode => {
-  if (value === '')
-    return <span className={'disabled-item'}>{strings.CCYGroupUnset}</span>;
-  return value as string;
-};
+import {UserProfileForm} from 'components/Workspace/UserProfileForm/form';
+import {ErrorBox} from 'components/ErrorBox';
+import {MessageBox} from 'components/MessageBox';
 
 interface OwnState {
 }
 
 enum ActionTypes {
   UpdateUserProfile,
-  SetFieldValue
+  SetFieldValue,
 }
 
 interface Props {
@@ -50,11 +36,16 @@ const reducer: Reducer<State, Action<ActionTypes>> = (
   }
 };
 
-export const UserProfileForm: React.FC<Props> = (props: Props) => {
+enum ModalTypes {
+  Form, Success, Error,
+}
+
+export const UserProfileModal: React.FC<Props> = (props: Props) => {
   const user: User = getAuthenticatedUser();
-  const [state, dispatch] = useReducer<Reducer<State, Action<ActionTypes>>>(
-    reducer,
-    {
+  const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null);
+  const [currentModal, setCurrentModal] = useState<ModalTypes>(ModalTypes.Form);
+  const [profile, dispatch] = useReducer<Reducer<State, Action<ActionTypes>>>(
+    reducer, {
       userType: user.isbroker ? UserTypes.Broker : UserTypes.Bank,
       mpid: '',
       fontSize: '14px',
@@ -67,208 +58,90 @@ export const UserProfileForm: React.FC<Props> = (props: Props) => {
     },
   );
 
+  const onClose = () => {
+    props.onCancel();
+    // Reset the profile in case it has changed
+    dispatch(createAction<ActionTypes>(ActionTypes.UpdateUserProfile, originalProfile));
+    setCurrentModal(ModalTypes.Form);
+  };
+
   const onSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
+    async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      API.saveUserProfile({...state, useremail: user.email});
+      const object: any = JSON.stringify(profile);
+      try {
+        await API.saveUserProfile({
+          username: user.email,
+          workspace: object,
+        });
+        setCurrentModal(ModalTypes.Success);
+        // Update the internal static version
+        setOriginalProfile(profile);
+      } catch {
+        setCurrentModal(ModalTypes.Error);
+      }
     },
-    [state, user.email],
+    [profile, user.email],
   );
 
-  useEffect(() => {
-    API.getUserProfile(user.email).then((profile: any) => {
-      console.log(profile);
-    });
+  const loadProfile = useCallback(() => {
+    API.getUserProfile(user.email)
+      .then((data: any) => {
+        const profile: UserProfile = JSON.parse(data[0].workspace);
+        dispatch(createAction<ActionTypes>(ActionTypes.UpdateUserProfile, profile));
+        // Initialize the original profile
+        setOriginalProfile(profile);
+      });
   }, [user.email]);
 
-  const onChange = ({target}: React.ChangeEvent<SelectEventData>) => {
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const onChange = ({target}: React.ChangeEvent<any>) => {
+    const {name} = target;
+
+    const value: any = (() => {
+      if (target.type === 'checkbox') {
+        return target.checked;
+      } else {
+        return target.value;
+      }
+    })();
     dispatch(
       createAction<ActionTypes>(ActionTypes.SetFieldValue, {
-        name: target.name,
-        value: target.value,
+        name: name,
+        value: value,
       }),
     );
   };
 
-  return (
-    <>
-      <div className={'modal-title'}>{strings.UserProfile}</div>
-      <form
-        className={'user-profile-form'}
-        name={'user-profile'}
-        onSubmit={onSubmit}
-        autoComplete={'off'}
-        noValidate
-      >
-        <Grid container direction={'column'}>
-          <Grid item container spacing={2} direction={'row'}>
-            <Grid item xs={4}>
-              <FormControl margin={'normal'} fullWidth>
-                <FormLabel htmlFor={'user-type'}>User Type</FormLabel>
-                <Select
-                  id={'user-type'}
-                  onChange={onChange}
-                  name={'userType'}
-                  value={state.userType}
-                >
-                  <MenuItem value={UserTypes.Bank}>Bank</MenuItem>
-                  <MenuItem value={UserTypes.Broker}>Broker</MenuItem>
-                  <MenuItem value={UserTypes.MarketMaker}>
-                    Market Maker
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-              <FormControl margin={'normal'} fullWidth>
-                <FormLabel htmlFor={'mpid'}>MPID</FormLabel>
-                <Input
-                  id={'mpid'}
-                  onChange={onChange}
-                  name={'mpid'}
-                  value={state.mpid}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-              <FormControl margin={'normal'}>
-                <FormLabel htmlFor={'oco'}>OCO</FormLabel>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      id={'oco'}
-                      value={state.oco}
-                      name={'oco'}
-                      onChange={onChange}
-                    />
-                  }
-                  label={'Enabled'}
-                ></FormControlLabel>
-              </FormControl>
-            </Grid>
-          </Grid>
-
-          <Grid item container spacing={2} direction={'row'}>
-            <Grid item xs={6}>
-              <FormControl margin={'normal'} fullWidth>
-                <FormLabel htmlFor={'font'}>Font</FormLabel>
-                <Select
-                  id={'font'}
-                  onChange={onChange}
-                  name={'font'}
-                  value={state.font}
-                >
-                  <MenuItem value={'default'}>Default</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={2}>
-              <FormControl margin={'normal'} fullWidth>
-                <FormLabel htmlFor={'font-size'}>Font Size</FormLabel>
-                <Select
-                  id={'font-size'}
-                  onChange={onChange}
-                  name={'fontSize'}
-                  value={state.fontSize}
-                >
-                  <MenuItem value={'12px'}>12px</MenuItem>
-                  <MenuItem value={'13px'}>13px</MenuItem>
-                  <MenuItem value={'14px'}>14px</MenuItem>
-                  <MenuItem value={'15px'}>15px</MenuItem>
-                  <MenuItem value={'16px'}>16px</MenuItem>
-                  <MenuItem value={'17px'}>17px</MenuItem>
-                  <MenuItem value={'18px'}>18px</MenuItem>
-                  <MenuItem value={'19px'}>19px</MenuItem>
-                  <MenuItem value={'20px'}>20px</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-              <FormControl margin={'normal'} fullWidth>
-                <FormLabel htmlFor={'exec-sound'}>Exec Sound</FormLabel>
-                <Select
-                  id={'exec-sound'}
-                  onChange={onChange}
-                  name={'execSound'}
-                  value={state.execSound}
-                >
-                  <MenuItem value={'default'}>Default</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-
-          <Grid item>
-            <FormControl margin={'normal'} fullWidth>
-              <FormLabel htmlFor={'ccy-group'}>CCY Group</FormLabel>
-              <Select
-                id={'ccy-group'}
-                onChange={onChange}
-                name={'ccyGroup'}
-                value={state.ccyGroup}
-                displayEmpty={true}
-                renderValue={renderCCYGroup}
-              >
-                <MenuItem value={CurrencyGroups.G10}>
-                  {CurrencyGroups.G10}
-                </MenuItem>
-                <MenuItem value={CurrencyGroups.Asia}>
-                  {CurrencyGroups.Asia}
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item>
-            <FormControl margin={'normal'} fullWidth>
-              <FormLabel htmlFor={'time-zone'}>Time Zone</FormLabel>
-              <Select
-                id={'time-zone'}
-                onChange={onChange}
-                name={'timezone'}
-                value={state.timezone}
-                displayEmpty
-                renderValue={renderTimezone}
-              >
-                {timezones.map((zone: TimezoneInfo) => (
-                  <MenuItem key={zone.text} value={zone.text}>
-                    {zone.text}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item>
-            <FormControl fullWidth>
-              <FormLabel>Workspace</FormLabel>
-              <h4 className={'no-content'}>No content</h4>
-            </FormControl>
-          </Grid>
-
-          <Grid item>
-            <FormControl fullWidth margin={'normal'}>
-              <FormLabel htmlFor={'color-scheme'}>Color Scheme</FormLabel>
-              <Select
-                id={'color-scheme'}
-                onChange={onChange}
-                name={'colorScheme'}
-                value={state.colorScheme}
-              >
-                <MenuItem value={'default'}>Default</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-        <div className={'modal-buttons'}>
-          <button className={'cancel'} onClick={props.onCancel} type={'button'}>
-            {strings.Cancel}
-          </button>
-          <button className={'success'} type={'submit'}>
-            {strings.Save}
-          </button>
-        </div>
-      </form>
-    </>
+  const closeButton = (): ReactNode => (
+    <button className={'cancel'} onClick={onClose}>Close</button>
   );
+
+  switch (currentModal) {
+    case ModalTypes.Form:
+      return <UserProfileForm profile={profile}
+                              original={originalProfile}
+                              onChange={onChange}
+                              onSubmit={onSubmit}
+                              onCancel={onClose}/>;
+    case ModalTypes.Success:
+      return (
+        <MessageBox title={'Looks Good'}
+                    message={'Looks like your settings were saved successfully, great!'}
+                    icon={'check-circle'}
+                    color={'good'}
+                    buttons={closeButton}/>
+      );
+    case ModalTypes.Error:
+      return (
+        <ErrorBox message={'Something went wrong, we are sorry. This is quite unexpected.'}
+                  onClose={onClose}
+                  title={'Oops, an error happened'}/>
+      );
+    default:
+      return null;
+  }
 };

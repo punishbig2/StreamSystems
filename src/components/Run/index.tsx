@@ -141,8 +141,10 @@ const Run: React.FC<Props> = (props: Props) => {
     if (!props.orders) return [];
     const rows: TOBRow[] = Object.values(props.orders).filter((row: TOBRow) => {
       const {bid, ofr} = row;
-      if (bid.price === null && ofr.price === null) return false;
-      if (bid.price === null || ofr.price === null) return true;
+      if (bid.price === null && ofr.price === null)
+        return false;
+      if (bid.price === null || ofr.price === null)
+        return true;
       return bid.price < ofr.price;
     });
     const ownOrDefaultQty = (order: Order, fallback: number | null): number => {
@@ -151,8 +153,10 @@ const Run: React.FC<Props> = (props: Props) => {
       const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
       if (quantityEdited || (preFilled && !canceled))
         return order.quantity as number;
-      if (canceled && fallback !== props.defaultSize) return fallback as number;
-      if (fallback === undefined || fallback === null) return props.defaultSize;
+      if (canceled && fallback !== props.defaultSize)
+        return fallback as number;
+      if (fallback === undefined || fallback === null)
+        return props.defaultSize;
       return fallback as number;
     };
     const entries: Order[] = [
@@ -166,12 +170,7 @@ const Run: React.FC<Props> = (props: Props) => {
       })),
     ];
     return entries.filter((order: Order) => {
-      if (
-        (order.status & OrderStatus.PriceEdited) !== 0 ||
-        (order.status & OrderStatus.QuantityEdited) !== 0
-      )
-        return true;
-      return (order.status & OrderStatus.Cancelled) !== 0;
+      return (order.status & OrderStatus.PriceEdited) !== 0 || (order.status & OrderStatus.QuantityEdited) !== 0;
     });
   };
 

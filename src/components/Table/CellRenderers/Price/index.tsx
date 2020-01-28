@@ -164,14 +164,19 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const finalValue = (): string => {
+  const finalValue = (status: OrderStatus): string => {
     const {internalValue} = state;
-    if (internalValue === null) return '';
-    return internalValue.toString();
+    if (internalValue === null)
+      return '';
+    if ((status & OrderStatus.Cancelled) !== 0 && (status & OrderStatus.PriceEdited) === 0)
+      return '';
+    return internalValue;
   };
 
   const onSubmitted = (input: HTMLInputElement) => {
     const internalValue: string | null = state.internalValue;
+    if ((state.status & OrderStatus.Cancelled) !== 0 && (state.status & OrderStatus.PriceEdited) === 0)
+      return;
     if (internalValue === null || internalValue.trim() === '') {
       props.onChange(null, false);
     } else {
@@ -211,13 +216,20 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) =>
-    target.select();
+  const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
   const onCancelEdit = () => {
     resetValue(
       priceFormatter(props.value),
       props.status & ~OrderStatus.PriceEdited,
     );
+  };
+
+  const getPlaceholder = (status: OrderStatus, value: number | null) => {
+    if ((status & OrderStatus.Cancelled) !== 0) {
+      return priceFormatter(value);
+    } else {
+      return '';
+    }
   };
 
   if ((props.status & OrderStatus.BeingCreated) !== 0) {
@@ -244,16 +256,14 @@ export const Price: React.FC<Props> = (props: Props) => {
         className={getLayoutClass(state.flash)}
         onMouseEnter={showTooltip}
         onMouseLeave={hideTooltip}
-        ref={setRef}
-      >
-        <Direction
-          direction={value === null ? ArrowDirection.None : props.arrow}
-        />
+        ref={setRef}>
+        <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
         <NumericInput
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
-          value={finalValue()}
+          value={finalValue(state.status)}
           className={getOrderStatusClass(state.status, props.className)}
+          placeholder={getPlaceholder(state.status, props.value)}
           onCancelEdit={onCancelEdit}
           onBlur={onCancelEdit}
           onDoubleClick={onDoubleClick}
@@ -262,8 +272,7 @@ export const Price: React.FC<Props> = (props: Props) => {
           onFocus={onFocus}
           onTabbedOut={onTabbedOut}
           onNavigate={props.onNavigate}
-          type={'price'}
-        />
+          type={'price'}/>
         {/* The floating object */}
         {getTooltip()}
       </div>

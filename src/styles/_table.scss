@@ -316,6 +316,10 @@ $red-x-size: 16px;
         font-family: $table-font-family;
         font-weight: $table-font-weight;
 
+        &::placeholder {
+          color: #aaa;
+        }
+
         &.dark-pool-base {
           font-weight: 900;
         }

@@ -3,7 +3,7 @@ import React, {ReactElement, ReactNode} from 'react';
 interface Props {
   title: string;
   message: string;
-  icon: 'exclamation-triangle' | 'question-circle';
+  icon: 'exclamation-triangle' | 'question-circle' | 'check-circle';
   buttons: () => ReactNode;
   color: 'good' | 'bad' | 'neutral';
 }

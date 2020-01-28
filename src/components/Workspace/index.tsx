@@ -39,7 +39,7 @@ import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {SelectEventData} from 'interfaces/selectEventData';
 import {ModalWindow} from 'components/ModalWindow';
-import {UserProfileForm} from 'components/Workspace/UserProfileForm';
+import {UserProfileModal} from 'components/Workspace/UserProfileForm';
 import {ErrorBox} from 'components/ErrorBox';
 
 interface DispatchProps {
@@ -361,7 +361,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       />
       <ModalWindow
         render={() => (
-          <UserProfileForm onCancel={props.closeUserProfileModal}/>
+          <UserProfileModal onCancel={props.closeUserProfileModal}/>
         )}
         visible={props.isUserProfileModalVisible}
       />
