@@ -168,7 +168,9 @@ export const Price: React.FC<Props> = (props: Props) => {
     const {internalValue} = state;
     if (internalValue === null)
       return '';
-    if ((status & OrderStatus.Cancelled) !== 0 && (status & OrderStatus.PriceEdited) === 0)
+    if ((status & OrderStatus.Cancelled) !== 0
+      && (status & OrderStatus.PriceEdited) === 0
+      && (status & OrderStatus.QuantityEdited) === 0)
       return '';
     return internalValue;
   };
@@ -225,11 +227,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const getPlaceholder = (status: OrderStatus, value: number | null) => {
-    if ((status & OrderStatus.Cancelled) !== 0) {
-      return priceFormatter(value);
-    } else {
-      return '';
-    }
+    return priceFormatter(value);
   };
 
   if ((props.status & OrderStatus.BeingCreated) !== 0) {

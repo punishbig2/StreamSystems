@@ -1,6 +1,6 @@
 import {HeaderQty} from 'components/HeaderQty';
 import {RunQuantity} from 'components/RunQuantity';
-import {RunColumnData, QtyHeader} from 'components/Run/columnData';
+import {RunColumnData} from 'components/Run/columnData';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
@@ -27,18 +27,17 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
       return (
         <Price
           uid={`run-${order.uid()}${order.type}`}
-          value={order.price}
           arrow={ArrowDirection.None}
           status={order.status}
+          value={order.price}
+          animated={false}
           onChange={(price: number | null, changed: boolean) =>
             onChange(row.id, price, changed)
           }
           onTabbedOut={(target: HTMLInputElement) =>
             data.focusNext(target, actionType)
           }
-          onNavigate={data.onNavigate}
-          animated={false}
-        />
+          onNavigate={data.onNavigate}/>
       );
     },
     template: '999999.99',

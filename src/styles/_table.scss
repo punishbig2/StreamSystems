@@ -361,8 +361,10 @@ $red-x-size: 16px;
       font-family: $table-font-family;
       line-height: $table-row-height;
 
-      &:not(.owned-by-broker).owned {
-        color: $text-color-red;
+      &:not(.edited) {
+        &:not(.owned-by-broker).owned {
+          color: $text-color-red;
+        }
       }
     }
 
@@ -414,28 +416,29 @@ $red-x-size: 16px;
 
         box-sizing: border-box;
 
-        &.dark-pool {
-          background-color: yellow;
-        }
+        &:not(.edited) {
+          &.dark-pool {
+            background-color: yellow;
+          }
 
-        &:focus {
-          cursor: initial;
-        }
+          &:focus {
+            cursor: initial;
+          }
 
-        &:not(.owned-by-broker).owned {
-          color: $text-color-red;
-        }
+          &:not(.owned-by-broker).owned {
+            color: $text-color-red;
+          }
 
-        &.mid,
-        &:not(.owned).same-bank,
-        &.owned-by-broker.same-bank {
-          color: $text-color-blue;
-        }
+          &.mid,
+          &:not(.owned).same-bank,
+          &.owned-by-broker.same-bank {
+            color: $text-color-blue;
+          }
 
-        &.spread {
-          color: $text-color-green;
+          &.spread {
+            color: $text-color-green;
+          }
         }
-
       }
     }
   }

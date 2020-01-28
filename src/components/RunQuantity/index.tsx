@@ -1,6 +1,6 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {Order, OrderStatus} from 'interfaces/order';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 
@@ -16,8 +16,9 @@ interface Props {
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
+  const [edited, setEdited] = useState<boolean>(false);
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
-  const {order} = props;
+  const {order, defaultValue, onChange, id, minSize} = props;
 
   useEffect(() => {
     if ((order.status & OrderStatus.QuantityEdited) !== 0) return;
@@ -36,46 +37,59 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     setValue(sizeFormatter(props.value));
   }, [props.value]);
 
-  useEffect(() => {
-    if (props.defaultValue === null)
-      return;
-    setValue(sizeFormatter(props.defaultValue));
-  }, [props.defaultValue]);
-
-  const onChange = (value: string | null) => {
+  const onChangeWrapper = (value: string | null) => {
     if (value === null) {
-      setValue(sizeFormatter(order.quantity || props.defaultValue));
+      setValue(sizeFormatter(order.quantity || defaultValue));
     } else {
+      setEdited(true);
       setValue(value);
     }
   };
 
-  const sendOnChange = (input: HTMLInputElement) => {
+  const sendOnChange = useCallback((value: number | null) => {
     if (value === null) {
-      props.onChange(props.id, value, true);
+      onChange(id, value, true);
     } else {
       const numeric: number = Number(value);
-      if (numeric < props.minSize) {
-        props.onChange(props.id, props.minSize, true);
+      if (numeric < minSize) {
+        onChange(id, minSize, true);
       } else {
-        props.onChange(props.id, numeric, true);
+        onChange(id, numeric, true);
       }
     }
+  }, [onChange, id, minSize]);
+
+  const onTabbedOut = (input: HTMLInputElement) => {
+    sendOnChange(Number(value));
     if (props.onTabbedOut) {
       props.onTabbedOut(input);
     }
   };
 
+  useEffect(() => {
+    if (defaultValue === null || edited)
+      return;
+    sendOnChange(defaultValue);
+    // eslint-disable-next-line
+  }, [defaultValue, edited]);
+
   const getValueHelper = (forceEmpty: boolean) => {
-    if ((order.status & OrderStatus.QuantityEdited) === 0 && forceEmpty)
+    if (!edited && forceEmpty)
       return '';
     if (value !== null)
       return value;
     return sizeFormatter(props.value);
   };
 
+  const reset = () => {
+    setValue(null);
+  };
+
   const getValue = () => {
-    return getValueHelper((order.status & OrderStatus.Cancelled) !== 0);
+    return getValueHelper((order.status & OrderStatus.Cancelled) !== 0
+      && (order.status & OrderStatus.PriceEdited) === 0
+      && (order.status & OrderStatus.QuantityEdited) === 0,
+    );
   };
 
   return (
@@ -83,11 +97,13 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       <NumericInput
         tabIndex={-1}
         className={getOrderStatusClass(order.status, 'size')}
-        onChange={onChange}
-        onTabbedOut={sendOnChange}
         placeholder={sizeFormatter(props.value)}
         type={'size'}
-        value={getValue()}/>
+        value={getValue()}
+        onChange={onChangeWrapper}
+        onTabbedOut={onTabbedOut}
+        onBlur={reset}
+      />
     </div>
   );
 };
