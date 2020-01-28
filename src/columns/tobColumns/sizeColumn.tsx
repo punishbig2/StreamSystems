@@ -1,6 +1,6 @@
 import {Type, RowType, getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/tobColumns/common';
 import {TOBColumnData} from 'components/TOB/data';
-import {HeaderAction, DualTableHeader} from 'components/dualTableHeader';
+import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBQty} from 'columns/tobQty';
@@ -23,22 +23,10 @@ const getAggregatedSize = (
   }
 };
 
-export const SizeColumn = (
-  label: string,
-  type: Type,
-  data: TOBColumnData,
-  depth: boolean,
-  action?: HeaderAction,
-): ColumnSpec => {
+export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth: boolean): ColumnSpec => {
   return {
     name: `${type}-sz`,
-    header: () => (
-      <DualTableHeader
-        label={label}
-        action={action}
-        disabled={!data.buttonsEnabled}
-      />
-    ),
+    header: () => (<DualTableHeader label={label} disabled={!data.buttonsEnabled}/>),
     render: ({[type]: originalOrder, depths}: RowType) => {
       const quantity = depth
         ? originalOrder.quantity

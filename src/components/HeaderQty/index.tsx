@@ -1,11 +1,22 @@
 import {QtyHeader} from 'components/Run/columnData';
-import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import React from 'react';
+import {DualTableHeader} from 'components/dualTableHeader';
+
+import strings from 'locales';
+import {NumericInput} from 'components/NumericInput';
+import {sizeFormatter} from 'utils/sizeFormatter';
 
 export const HeaderQty: React.FC<QtyHeader> = (props: QtyHeader) => {
   const onChange = (value: string | null) => {
-    if (value === null) return;
     props.onChange(Number(value));
   };
-  return <Quantity type={props.type} value={props.value} onChange={onChange}/>;
+  return (
+    <DualTableHeader label={strings.Size} action={
+      () => (
+        <div className={'header-size'}>
+          <NumericInput type={'size'} value={sizeFormatter(props.value)} onChange={onChange}/>
+        </div>
+      )
+    }/>
+  );
 };

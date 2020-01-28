@@ -21,6 +21,7 @@ export default {
   No: 'No',
   Filter: 'Filter',
   DarkPool: 'Dark Pool',
+  Size: 'Size',
   BidSz: 'Size',
   OfrSz: 'Size',
   BidPx: 'Bid',

@@ -1,10 +1,8 @@
-import React from 'react';
-
-export type HeaderAction = { fn: () => void; label: string };
+import React, {ReactNode} from 'react';
 
 interface Props {
-  action?: HeaderAction;
-  label: string;
+  action?: (() => ReactNode);
+  label: string | (() => ReactNode);
   disabled?: boolean;
 }
 
@@ -14,13 +12,7 @@ export const DualTableHeader = (props: Props) => {
     <div className={'dual-header'}>
       <div className={'first'}>{props.label}</div>
       <div className={'second'}>
-        {action ? (
-          <button onClick={action.fn} disabled={props.disabled}>
-            {action.label}
-          </button>
-        ) : (
-          <div>&nbsp;</div>
-        )}
+        {action ? action() : <div>&nbsp;</div>}
       </div>
     </div>
   );

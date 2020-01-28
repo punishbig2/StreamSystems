@@ -10,6 +10,7 @@ import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
 import {RunActions} from 'redux/reducers/runReducer';
+import {DualTableHeader} from 'components/dualTableHeader';
 
 type RowType = TOBRow & { defaultBidSize: number; defaultOfrSize: number };
 
@@ -20,7 +21,7 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
     type === 'bid' ? RunActions.Bid : RunActions.Ofr;
   return {
     name: `${type}-price`,
-    header: () => <div>{label}</div>,
+    header: () => <DualTableHeader label={label}/>,
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
@@ -46,13 +47,12 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
 };
 
 const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
-  const defaultSize =
-    type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
+  const defaultSize = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
+  const onChange = type === 'bid' ? data.onBidQtyChanged : data.onOfrQtyChanged;
   return {
     name: `${type}-quantity`,
-    header: () => <HeaderQty {...defaultSize} />,
+    header: () => <HeaderQty onChange={defaultSize.onChange} value={defaultSize.value} type={defaultSize.type}/>,
     render: (row: RowType) => {
-      const defaultSize: QtyHeader = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
       const order: Order = row[type];
       return (
         <RunQuantity
@@ -61,7 +61,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           order={order}
           defaultValue={defaultSize.value}
           onTabbedOut={data.focusNext}
-          onChange={data.onBidQtyChanged}
+          onChange={onChange}
           onCancel={data.onCancelOrder}
           minSize={data.minSize}
         />
@@ -74,7 +74,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
 
 const TenorColumn: ColumnSpec = {
   name: 'tenor',
-  header: () => <span>&nbsp;</span>,
+  header: () => <DualTableHeader label={''}/>,
   render: ({tenor}: RowType) => (
     <Tenor tenor={tenor} onTenorSelected={() => null}/>
   ),
@@ -84,7 +84,7 @@ const TenorColumn: ColumnSpec = {
 
 const MidCol = (data: RunColumnData) => ({
   name: 'mid',
-  header: () => <div>{strings.Mid}</div>,
+  header: () => <DualTableHeader label={strings.Mid}/>,
   render: ({id, mid}: RowType) => (
     <Price
       uid={`run-${id}-mid`}
@@ -108,7 +108,7 @@ const MidCol = (data: RunColumnData) => ({
 
 const SpreadCol = (data: RunColumnData) => ({
   name: 'spread',
-  header: () => <div>{strings.Spread}</div>,
+  header: () => <DualTableHeader label={strings.Spread}/>,
   render: ({id, spread}: RowType) => {
     return (
       <Price

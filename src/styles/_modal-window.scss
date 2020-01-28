@@ -35,6 +35,7 @@
 
     .modal-title-bar {
       margin: 0 0 8px 0;
+      height: 24px;
 
       .half {
         display: inline-block;
@@ -49,8 +50,12 @@
           font-weight: 600;
           line-height: normal;
 
-          &:not(:first-child) {
-            margin: 0 0 0 8px;
+          &:not(:last-child) {
+            &::after {
+              font-family: 'Font Awesome 5 Free Solid', sans-serif;
+              content: '\f105';
+              margin: 0 8px;
+            }
           }
         }
 
@@ -63,8 +68,11 @@
         }
 
         &:last-child {
-          display: none;
           text-align: right;
+        }
+
+        &:only-child {
+          text-align: left;
         }
       }
     }

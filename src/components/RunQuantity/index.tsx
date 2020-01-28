@@ -1,12 +1,8 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import React, {useEffect, useState} from 'react';
-
-const sizeFormatter = (value: number | null): string => {
-  if (value === null) return '';
-  return value.toFixed(0);
-};
+import {NumericInput} from 'components/NumericInput';
+import {sizeFormatter} from 'utils/sizeFormatter';
 
 interface Props {
   defaultValue: number;
@@ -22,6 +18,7 @@ interface Props {
 export const RunQuantity: React.FC<Props> = (props: Props) => {
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
   const {order} = props;
+
   useEffect(() => {
     if ((order.status & OrderStatus.QuantityEdited) !== 0) return;
     if (props.defaultValue === undefined || props.defaultValue === null) return;
@@ -32,10 +29,19 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       return;
     setValue(sizeFormatter(props.defaultValue));
   }, [order.status, props.defaultValue]);
+
   useEffect(() => {
-    if (props.value === null) return;
+    if (props.value === null)
+      return;
     setValue(sizeFormatter(props.value));
   }, [props.value]);
+
+  useEffect(() => {
+    if (props.defaultValue === null)
+      return;
+    setValue(sizeFormatter(props.defaultValue));
+  }, [props.defaultValue]);
+
   const onChange = (value: string | null) => {
     if (value === null) {
       setValue(sizeFormatter(order.quantity || props.defaultValue));
@@ -43,6 +49,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       setValue(value);
     }
   };
+
   const sendOnChange = (input: HTMLInputElement) => {
     if (value === null) {
       props.onChange(props.id, value, true);
@@ -58,21 +65,29 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       props.onTabbedOut(input);
     }
   };
-  const cancellable: boolean =
-    (order.status & OrderStatus.Owned) !== 0 &&
-    (order.status & OrderStatus.Cancelled) === 0;
+
+  const getValueHelper = (forceEmpty: boolean) => {
+    if ((order.status & OrderStatus.QuantityEdited) === 0 && forceEmpty)
+      return '';
+    if (value !== null)
+      return value;
+    return sizeFormatter(props.value);
+  };
+
+  const getValue = () => {
+    return getValueHelper((order.status & OrderStatus.Cancelled) !== 0);
+  };
+
   return (
-    <>
-      <Quantity
-        type={order.type}
-        value={Number(value)}
-        cancellable={cancellable}
+    <div className={'size-layout'}>
+      <NumericInput
         tabIndex={-1}
-        className={getOrderStatusClass(order.status, 'sizeColumn.tsx')}
+        className={getOrderStatusClass(order.status, 'size')}
         onChange={onChange}
         onTabbedOut={sendOnChange}
-        onCancel={() => props.onCancel(order)}
-      />
-    </>
+        placeholder={sizeFormatter(props.value)}
+        type={'size'}
+        value={getValue()}/>
+    </div>
   );
 };

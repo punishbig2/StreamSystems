@@ -1,9 +1,9 @@
 import {TOBColumnData} from 'components/TOB/data';
-import {HeaderAction, DualTableHeader} from 'components/dualTableHeader';
+import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBPrice} from 'columns/tobPrice';
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {getChevronStatus, Type, RowType, getBankMatchesPersonalityStatus} from 'columns/tobColumns/common';
 import {STRM} from 'redux/stateDefs/workspaceState';
 import {User} from 'interfaces/user';
@@ -22,20 +22,10 @@ const canDoubleClick = (order: Order, personality: string) => {
   return order.price !== null && order.quantity !== null;
 };
 
-export const PriceColumn = (
-  data: TOBColumnData,
-  label: string,
-  type: Type,
-  action?: HeaderAction,
-): ColumnSpec => {
+export const PriceColumn = (data: TOBColumnData, label: string, type: Type, action?: () => ReactNode): ColumnSpec => {
   return {
     name: `${type}-vol`,
-    header: () => (
-      <DualTableHeader
-        label={label}
-        action={action}
-        disabled={!data.buttonsEnabled}
-      />
+    header: () => (<DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>
     ),
     render: (row: RowType) => {
       const {[type]: order, depths} = row;

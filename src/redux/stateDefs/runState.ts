@@ -5,4 +5,5 @@ export interface RunState {
   initialized: boolean;
   defaultBidSize: number;
   defaultOfrSize: number;
+  originalOrders: TOBTable;
 }

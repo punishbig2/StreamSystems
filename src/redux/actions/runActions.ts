@@ -41,3 +41,5 @@ export const setOfrDefaultQty = (runID: string) => (value: number) =>
 
 export const setDefaultSize = (runID: string) => (value: number) =>
   createAction($$(runID, RunActions.SetDefaultSize), value);
+export const activateRow = (runID: string) => (rowID: string) =>
+  createAction($$(runID, RunActions.ActivateRow), rowID);

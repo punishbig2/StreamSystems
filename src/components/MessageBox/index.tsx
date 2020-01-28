@@ -20,7 +20,9 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
         </div>
       </div>
       <p>{props.message}</p>
-      <div className={'modal-buttons'}>{props.buttons()}</div>
+      <div className={'modal-buttons'}>
+        {props.buttons()}
+      </div>
     </div>
   );
 };

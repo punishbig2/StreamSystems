@@ -32,6 +32,7 @@ import {
   setBidDefaultQty,
   setOfrDefaultQty,
   setDefaultSize,
+  activateRow,
 } from 'redux/actions/runActions';
 import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
@@ -64,6 +65,7 @@ interface DispatchProps {
   setOfrQty: (id: string, value: number | null) => Action<RunActions>;
   setBidDefaultQty: (value: number) => Action<RunActions>;
   setOfrDefaultQty: (value: number) => Action<RunActions>;
+  activateRow: (id: string) => Action<RunActions>;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
@@ -81,6 +83,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
     setOfrQty: setOfrQty(id),
     setBidDefaultQty: setBidDefaultQty(id),
     setOfrDefaultQty: setOfrDefaultQty(id),
+    activateRow: activateRow(id),
   };
   const entries: [string, any][] = Object.entries(actions);
   return entries.reduce((obj, [name, value]) => {
@@ -137,8 +140,20 @@ const Run: React.FC<Props> = (props: Props) => {
   useOrderListener(tenors, symbol, strategy, {onUpdate, onDelete});
   useInitializer(tenors, symbol, strategy, email, props.defaultSize, setTable);
 
+  const activateOrders = (row: TOBRow) => {
+    props.activateRow(row.id);
+  };
+
+  const activateCancelledOrders = () => {
+    if (!props.orders)
+      return;
+    const orders: TOBRow[] = Object.values(props.orders);
+    orders.forEach(activateOrders);
+  };
+
   const getSelectedOrders = (): Order[] => {
-    if (!props.orders) return [];
+    if (!props.orders)
+      return [];
     const rows: TOBRow[] = Object.values(props.orders).filter((row: TOBRow) => {
       const {bid, ofr} = row;
       if (bid.price === null && ofr.price === null)
@@ -188,13 +203,11 @@ const Run: React.FC<Props> = (props: Props) => {
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;
     return (
-      <Row
-        {...props}
-        user={props.user}
-        row={row}
-        defaultBidSize={props.defaultBidSize}
-        defaultOfrSize={props.defaultOfrSize}
-      />
+      <Row {...props}
+           user={props.user}
+           row={row}
+           defaultBidSize={props.defaultBidSize}
+           defaultOfrSize={props.defaultOfrSize}/>
     );
   };
 
@@ -213,12 +226,12 @@ const Run: React.FC<Props> = (props: Props) => {
       props.setOfrQty(id, value),
     onCancelOrder: (order: Order) => props.onCancelOrder(order),
     defaultBidSize: {
-      value: props.defaultSize,
+      value: props.defaultBidSize || props.defaultSize,
       onChange: props.setBidDefaultQty,
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
-      value: props.defaultSize,
+      value: props.defaultOfrSize || props.defaultSize,
       onChange: props.setOfrDefaultQty,
       type: OrderTypes.Ofr,
     },
@@ -261,6 +274,13 @@ const Run: React.FC<Props> = (props: Props) => {
     },
   });
 
+  const onClose = () => {
+    // Reset the table so that when it's opened again it's the original
+    // one loaded initially
+    props.setTable(props.originalOrders);
+    props.onClose();
+  };
+
   return (
     <div className={'run-window'}>
       <div className={'modal-title-bar'}>
@@ -269,23 +289,17 @@ const Run: React.FC<Props> = (props: Props) => {
           <div className={'item'}>{props.strategy}</div>
         </div>
       </div>
-      <Table
-        scrollable={false}
-        columns={columns}
-        rows={props.orders}
-        renderRow={renderRow}
-      />
+      <Table scrollable={false} columns={columns} rows={props.orders} renderRow={renderRow}/>
       <div className={'modal-buttons'}>
-        <button className={'cancel'} onClick={props.onClose}>
-          {strings.Close}
-        </button>
-        <button
-          className={'success'}
-          onClick={onSubmit}
-          disabled={!isSubmitEnabled()}
-        >
-          {strings.Submit}
-        </button>
+        <button className={'pull-left'} onClick={activateCancelledOrders}>Activate All</button>
+        <div className={'pull-right'}>
+          <button className={'cancel'} onClick={onClose}>
+            {strings.Close}
+          </button>
+          <button className={'success'} onClick={onSubmit} disabled={!isSubmitEnabled()}>
+            {strings.Submit}
+          </button>
+        </div>
       </div>
     </div>
   );

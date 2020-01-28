@@ -197,6 +197,24 @@ $red-x-size: 16px;
       }
     }
 
+    .header-size {
+      input {
+        display: block;
+        height: $table-header-height / 2;
+        line-height: $table-header-height / 2;
+        width: 100%;
+        text-align: center;
+        font-family: $table-font-family;
+        font-weight: $table-font-weight;
+        font-size: $table-font-size;
+        border: none;
+
+        &:focus {
+          outline: 2px solid $primary-color;
+        }
+      }
+    }
+
     .dark-pool-header {
       white-space: pre-wrap;
 
@@ -317,7 +335,7 @@ $red-x-size: 16px;
         font-weight: $table-font-weight;
 
         &::placeholder {
-          color: #aaa;
+          color: $text-color-grey;
         }
 
         &.dark-pool-base {
@@ -418,9 +436,6 @@ $red-x-size: 16px;
           color: $text-color-green;
         }
 
-        &.cancelled {
-          color: #a0a0a0;
-        }
       }
     }
   }

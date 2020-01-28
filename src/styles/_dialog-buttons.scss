@@ -1,10 +1,9 @@
 .modal-buttons {
+  display: flex;
   text-align: right;
   margin: 32px 0 0 0;
 
   button {
-    display: inline-block;
-    margin: 0 0 0 8px;
     border-radius: 3px;
     text-align: center;
     border: none;
@@ -15,6 +14,10 @@
     border-bottom: 2px solid rgba(0, 0, 0, 0.15);
     color: #333;
     min-width: 100px;
+
+    &:not(.first-child) {
+      margin: 0 0 0 8px;
+    }
 
     &:disabled {
       background-color: $table-border-color;
@@ -30,5 +33,13 @@
     &:not(:disabled).cancel {
       background-color: #e8e8e8;
     }
+
+    &.pull-left {
+      margin: 0;
+    }
+  }
+
+  .pull-right {
+    margin: 0 0 0 auto;
   }
 }

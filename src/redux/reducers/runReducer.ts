@@ -12,6 +12,7 @@ const genesisState: RunState = {
   initialized: false,
   defaultOfrSize: 0,
   defaultBidSize: 0,
+  originalOrders: {},
 };
 
 export enum RunActions {
@@ -30,7 +31,8 @@ export enum RunActions {
   RemoveOrder = 'Run.RemoveOrder',
   RemoveAllOfrs = 'Run.RemoveAllOfrs',
   RemoveAllBids = 'Run.RemoveAllBids',
-  SetDefaultSize = 'Run.SetDefaultSize'
+  SetDefaultSize = 'Run.SetDefaultSize',
+  ActivateRow = 'Run.ActivateRow',
 }
 
 const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
@@ -212,15 +214,35 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
   return bid.price < ofr.price;
 };
 
-const updateOrder = (
-  state: RunState,
-  data: { id: string; order: Order },
-  key: 'ofr' | 'bid',
-): RunState => {
+const activateRow = (state: RunState, rowID: string): RunState => {
+  const {orders} = state;
+  const row: TOBRow = orders[rowID];
+  if (row === undefined)
+    return state;
+  const {bid, ofr} = row;
+  const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
+  const updateStatusIfAllowed = (status: OrderStatus): OrderStatus => {
+    return (status & OrderStatus.Cancelled) !== 0 ? (status | edited) & ~OrderStatus.Cancelled : status;
+  };
+  return {
+    ...state,
+    orders: {
+      ...orders,
+      [rowID]: {
+        ...row,
+        bid: {...bid, status: updateStatusIfAllowed(bid.status)},
+        ofr: {...ofr, status: updateStatusIfAllowed(ofr.status)},
+      },
+    },
+  };
+};
+
+const updateOrder = (state: RunState, data: { id: string; order: Order }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
   const {order} = data;
   const row: TOBRow = orders[data.id];
-  if (row === undefined) return state;
+  if (row === undefined)
+    return state;
   if (
     (row[key].status & OrderStatus.Active) !== 0 &&
     (order.status & OrderStatus.Cancelled) !== 0
@@ -244,15 +266,12 @@ const updateOrder = (
   };
   return {
     ...state,
+    originalOrders: newOrders,
     orders: newOrders,
   };
 };
 
-const updateQty = (
-  state: RunState,
-  data: { id: string; value: number | null },
-  key: 'ofr' | 'bid',
-): RunState => {
+const updateQty = (state: RunState, data: { id: string; value: number | null }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
   // Extract the target row
   const row: TOBRow = orders[data.id];
@@ -293,7 +312,7 @@ export default (id: string, initialState: RunState = genesisState) => {
       case $$(id, RunActions.UpdateOfr):
         return updateOrder(state, data, 'ofr');
       case $$(id, RunActions.SetTable):
-        return {...state, orders: data};
+        return {...state, orders: data, originalOrders: data};
       case $$(id, RunActions.OfrQtyChanged):
         return updateQty(state, data, 'ofr');
       case $$(id, RunActions.BidQtyChanged):
@@ -310,6 +329,8 @@ export default (id: string, initialState: RunState = genesisState) => {
         return valueChangeReducer(state, {type: RunActions.Mid, data});
       case $$(id, RunActions.Spread):
         return valueChangeReducer(state, {type: RunActions.Spread, data});
+      case $$(id, RunActions.ActivateRow):
+        return activateRow(state, data);
       default:
         return state;
     }

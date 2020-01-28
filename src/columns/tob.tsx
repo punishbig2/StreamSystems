@@ -1,3 +1,4 @@
+import React, {ReactNode} from 'react';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBColumnData} from 'components/TOB/data';
 import strings from 'locales';
@@ -15,24 +16,14 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
     data,
     strings.BidPx,
     'bid',
-    !depth
-      ? {
-        fn: data.onRefBidsButtonClicked,
-        label: strings.RefBids,
-      }
-      : undefined,
+    !depth ? ((): ReactNode => <button onClick={data.onRefBidsButtonClicked}>{strings.RefBids}</button>) : undefined,
   ),
   DarkPoolColumn(data),
   PriceColumn(
     data,
     strings.OfrPx,
     'ofr',
-    !depth
-      ? {
-        fn: data.onRefOfrsButtonClicked,
-        label: strings.RefOfrs,
-      }
-      : undefined,
+    !depth ? ((): ReactNode => <button onClick={data.onRefOfrsButtonClicked}>{strings.RefOfrs}</button>) : undefined,
   ),
   ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
   SizeColumn(strings.OfrSz, 'ofr', data, depth),
