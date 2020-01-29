@@ -15,30 +15,22 @@ interface Props {
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onSubmitted?: (input: HTMLInputElement) => void;
+  onSubmitted: (input: HTMLInputElement) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {
-    onTabbedOut,
-    onNavigate,
-    onSubmitted,
-    onFocus,
-    onChange,
-    onCancelEdit,
-    ...otherProps
-  } = props;
+  const {onTabbedOut, onNavigate, onSubmitted, onFocus, onChange, onCancelEdit, ...otherProps} = props;
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
       case 'Tab':
       case 'Enter':
+        event.preventDefault();
+        if (event.shiftKey) return;
+        onChange(input.value);
+        onSubmitted(input);
         if (onTabbedOut) {
-          event.preventDefault();
-          if (event.shiftKey) return;
-          onChange(input.value);
-          if (onSubmitted) onSubmitted(input);
           onTabbedOut(input);
         }
         break;
@@ -73,9 +65,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         break;
     }
   };
-  const onChangeWrapper = ({
-                             target: {value},
-                           }: React.ChangeEvent<HTMLInputElement>) => onChange(value);
+  const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
     <input
       {...otherProps}

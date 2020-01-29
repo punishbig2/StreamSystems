@@ -7,11 +7,7 @@ import {TOBQty} from 'columns/tobQty';
 import React from 'react';
 import {AggregatedSz} from 'components/TOB/reducer';
 
-const getAggregatedSize = (
-  aggregatedSz: AggregatedSz | undefined,
-  order: Order,
-  index: 'ofr' | 'bid',
-): number | null => {
+const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order, index: 'ofr' | 'bid'): number | null => {
   if (aggregatedSz) {
     const price: number | null = order.price;
     const key: string | null = price === null ? null : price.toFixed(3);
@@ -28,40 +24,29 @@ export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth
     name: `${type}-sz`,
     header: () => (<DualTableHeader label={label} disabled={!data.buttonsEnabled}/>),
     render: ({[type]: originalOrder, depths}: RowType) => {
-      const quantity = depth
-        ? originalOrder.quantity
-        : getAggregatedSize(data.aggregatedSz, originalOrder, type);
+      const quantity = depth ? originalOrder.quantity : getAggregatedSize(data.aggregatedSz, originalOrder, type);
       const order: Order = {...originalOrder, quantity};
       const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
         | getBankMatchesPersonalityStatus(order, data.personality)
         | originalOrder.status;
-      if (order.status !== status) {
-        return (
-          <TOBQty
-            order={{...order, status: status}}
-            isDepth={depth}
-            value={order.quantity}
-            defaultSize={data.defaultSize}
-            minSize={data.minSize}
-            onCancel={data.onCancelOrder}
-            onSubmit={data.onQuantityChange}
-            personality={data.personality}
-          />
-        );
-      } else {
-        return (
-          <TOBQty
-            order={order}
-            isDepth={depth}
-            value={order.quantity}
-            defaultSize={data.defaultSize}
-            minSize={data.minSize}
-            onCancel={data.onCancelOrder}
-            onSubmit={data.onQuantityChange}
-            personality={data.personality}
-          />
-        );
-      }
+
+      const getOrder = () => {
+        if (order.status === status)
+          return order;
+        return {...order, status: status};
+      };
+
+      return (
+        <TOBQty
+          order={getOrder()}
+          isDepth={depth}
+          value={quantity}
+          defaultSize={data.defaultSize}
+          minSize={data.minSize}
+          personality={data.personality}
+          onCancel={data.onCancelOrder}
+          onSubmit={data.onQuantityChange}/>
+      );
     },
     template: '999999',
     weight: 5,

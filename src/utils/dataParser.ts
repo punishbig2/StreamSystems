@@ -126,10 +126,14 @@ export const extractDepth = (w: W): TOBTable => {
   );
   // Sort bids
   bids.sort(
-    (a: MDEntry, b: MDEntry) => Number(b.MDEntryPx) - Number(a.MDEntryPx),
+    (a: MDEntry, b: MDEntry) => {
+      return Number(b.MDEntryPx) - Number(a.MDEntryPx);
+    },
   );
   ofrs.sort(
-    (a: MDEntry, b: MDEntry) => Number(a.MDEntryPx) - Number(b.MDEntryPx),
+    (a: MDEntry, b: MDEntry) => {
+      return Number(a.MDEntryPx) - Number(b.MDEntryPx);
+    },
   );
   // Change the shape of this thing
   return reshape(w, bids, ofrs);

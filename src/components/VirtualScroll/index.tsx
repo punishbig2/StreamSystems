@@ -33,7 +33,6 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
         if (entries.length !== 1) return;
         const {contentRect} = entries[0];
         if (contentRect.height !== observable.offsetHeight) {
-          console.log(contentRect.height, observable.offsetHeight);
           const child: HTMLDivElement | null = element.querySelector(
             '.tbody-scrollable-content',
           );

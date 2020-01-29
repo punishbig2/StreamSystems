@@ -34,6 +34,7 @@ import {
   setDefaultSize,
   activateRow,
   onActivateOrder,
+  resetOrder,
 } from 'redux/actions/runActions';
 import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
@@ -67,6 +68,7 @@ interface DispatchProps {
   setOfrDefaultQty: (value: number) => Action<RunActions>;
   activateRow: (id: string) => Action<RunActions>;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
+  resetOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
@@ -86,6 +88,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
     setOfrDefaultQty: setOfrDefaultQty(id),
     activateRow: activateRow(id),
     onActivateOrder: onActivateOrder(id),
+    resetOrder: resetOrder(id),
   };
   const entries: [string, any][] = Object.entries(actions);
   return entries.reduce((obj, [name, value]) => {
@@ -222,6 +225,7 @@ const Run: React.FC<Props> = (props: Props) => {
     onBidQtyChanged: (id: string, value: number | null) => props.setBidQty(id, value),
     onOfrQtyChanged: (id: string, value: number | null) => props.setOfrQty(id, value),
     onActivateOrder: (id: string, orderType: OrderTypes) => props.onActivateOrder(id, orderType),
+    resetOrder: (id: string, orderType: OrderTypes) => props.resetOrder(id, orderType),
     defaultBidSize: {
       value: props.defaultBidSize || props.defaultSize,
       onChange: props.setBidDefaultQty,

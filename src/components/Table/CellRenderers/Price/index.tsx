@@ -63,16 +63,10 @@ export const Price: React.FC<Props> = (props: Props) => {
   });
 
   const [ref, setRef] = useState<HTMLDivElement | null>(null);
-  const setTooltipVisible = useCallback(
-    () => dispatch(createAction(PriceActions.ShowTooltip)),
-    [],
-  );
-  const setStatus = useCallback(
-    (status: OrderStatus) =>
-      dispatch(createAction(PriceActions.SetStatus, status)),
-    [],
-  );
-  const setValue = useCallback((value: string, status: OrderStatus) => {
+
+  const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
+  const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
+  const setInternalValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
   }, []);
   const resetValue = useCallback((value: string, status: OrderStatus) => {
@@ -85,13 +79,7 @@ export const Price: React.FC<Props> = (props: Props) => {
       createAction(PriceActions.MoveTooltip, toPoint(event.nativeEvent)),
     );
   };
-  const toPoint = useCallback(
-    (event: MouseEvent) => ({
-      tooltipX: event.clientX,
-      tooltipY: event.clientY,
-    }),
-    [],
-  );
+  const toPoint = useCallback((event: MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY}), []);
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
   const onMouseMove = useCallback(
     (event: MouseEvent) => {
@@ -109,7 +97,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   useStatusUpdater(props.status, setStatus);
   useFlasher(state.flash, stopFlashing);
   useValueComparator(value, state.internalValue, startFlashing);
-  useValueListener(value, timestamp, setValue);
+  useValueListener(value, timestamp, setInternalValue);
   // Avoid having more than a single move event listener because
   // that would of course be expensive
   useEffect(() => {
@@ -132,13 +120,13 @@ export const Price: React.FC<Props> = (props: Props) => {
       const trimmed: string = value.trim();
       const numeric: number = Number(`${trimmed}0`);
       if (trimmed.length === 0) {
-        setValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+        setInternalValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
       } else if (!isNaN(numeric)) {
-        setValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+        setInternalValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
       }
     } else {
       // Reset the input item
-      setValue(priceFormatter(value), props.status);
+      setInternalValue(priceFormatter(value), props.status);
     }
   };
 
@@ -164,16 +152,15 @@ export const Price: React.FC<Props> = (props: Props) => {
 
   const finalValue = (status: OrderStatus): string => {
     const {internalValue} = state;
-    if (internalValue === null)
-      return '';
-    if ((status & OrderStatus.Cancelled) !== 0
-      && (status & OrderStatus.PriceEdited) === 0
-      && (status & OrderStatus.QuantityEdited) === 0)
+    if (internalValue === null || ((status & OrderStatus.Cancelled) !== 0 && (status & OrderStatus.PriceEdited) === 0))
       return '';
     return internalValue;
   };
 
   const onSubmitted = (input: HTMLInputElement) => {
+    if ((state.status & OrderStatus.PriceEdited) === 0)
+      return;
+    // Ignore the submission if the user has not "modified" the value
     const internalValue: string | null = state.internalValue;
     if ((state.status & OrderStatus.Cancelled) !== 0 && (state.status & OrderStatus.PriceEdited) === 0)
       return;
@@ -186,11 +173,12 @@ export const Price: React.FC<Props> = (props: Props) => {
         props.onChange(null, false);
       } else {
         const changed: boolean = (() => {
-          if ((props.status & OrderStatus.Owned) === 0) return true;
+          if ((props.status & OrderStatus.Owned) === 0)
+            return true;
           return priceFormatter(numeric) !== priceFormatter(value);
         })();
         // Update the internal value
-        setValue(priceFormatter(numeric), state.status);
+        setInternalValue(priceFormatter(numeric), state.status);
         if (props.min !== null && props.min !== undefined) {
           if (props.min >= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.LessThanMin, input);
@@ -218,10 +206,7 @@ export const Price: React.FC<Props> = (props: Props) => {
 
   const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
   const onCancelEdit = () => {
-    resetValue(
-      priceFormatter(props.value),
-      props.status & ~OrderStatus.PriceEdited,
-    );
+    resetValue(priceFormatter(props.value), props.status);
   };
 
   const getPlaceholder = (status: OrderStatus, value: number | null) => {
@@ -248,11 +233,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     );
   } else {
     return (
-      <div
-        className={getLayoutClass(state.flash)}
-        onMouseEnter={showTooltip}
-        onMouseLeave={hideTooltip}
-        ref={setRef}>
+      <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
         <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
         <NumericInput
           readOnly={props.readOnly}
@@ -260,6 +241,7 @@ export const Price: React.FC<Props> = (props: Props) => {
           value={finalValue(state.status)}
           className={getOrderStatusClass(state.status, props.className)}
           placeholder={getPlaceholder(state.status, props.value)}
+          type={'price'}
           onCancelEdit={onCancelEdit}
           onBlur={onCancelEdit}
           onDoubleClick={onDoubleClick}
@@ -267,8 +249,7 @@ export const Price: React.FC<Props> = (props: Props) => {
           onSubmitted={onSubmitted}
           onFocus={onFocus}
           onTabbedOut={onTabbedOut}
-          onNavigate={props.onNavigate}
-          type={'price'}/>
+          onNavigate={props.onNavigate}/>
         {/* The floating object */}
         {getTooltip()}
       </div>

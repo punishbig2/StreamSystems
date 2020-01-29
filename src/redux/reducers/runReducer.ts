@@ -36,6 +36,7 @@ export enum RunActions {
   SetDefaultSize = 'Run.SetDefaultSize',
   ActivateRow = 'Run.ActivateRow',
   ActivateOrder = 'Run.ActivateOrder',
+  ResetOrder = 'Run.ResetOrder',
 }
 
 const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
@@ -103,7 +104,7 @@ const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): 
   };
   const getOrderStatus = (status: OrderStatus, newValue: number | null, oldValue: number | null) => {
     if (priceFormatter(newValue) === priceFormatter(oldValue))
-      return OrderStatus.None;
+      return status;
     return (status | OrderStatus.PriceEdited) & ~OrderStatus.Owned & ~OrderStatus.SameBank;
   };
   const coalesce = (v1: number | null, v2: number | null) => v1 === null ? v2 : v1;
@@ -112,14 +113,14 @@ const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): 
     // Update the price
     price: coalesce(computedEntry.ofr, startingEntry.ofr),
     // Update the status and set it as edited/modified
-    status: type === RunActions.Ofr ? getOrderStatus(ofr.status, computedEntry.ofr, ofr.price) : ofr.status,
+    status: getOrderStatus(ofr.status, computedEntry.ofr, ofr.price),
   };
   const newBid: Order = {
     ...bid,
     // Update the price
     price: coalesce(computedEntry.bid, startingEntry.bid),
     // Update the status and set it as edited/modified
-    status: type === RunActions.Bid ? getOrderStatus(bid.status, computedEntry.bid, bid.price) : bid.status,
+    status: getOrderStatus(bid.status, computedEntry.bid, bid.price),
   };
   const isQuantityEdited = (order: Order) => (order.status & OrderStatus.QuantityEdited) !== 0;
   const quantitiesChanged: boolean = isQuantityEdited(bid) || isQuantityEdited(ofr);
@@ -215,7 +216,27 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
 
 const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
-  return (status & OrderStatus.Cancelled) !== 0 ? (status | edited) & ~OrderStatus.Cancelled : status;
+  // Remove the cancelled flag and add the edited flags (both)
+  return (status | edited) & ~OrderStatus.Cancelled;
+};
+
+const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
+  const {orders} = state;
+  const row: TOBRow = orders[rowID];
+  if (row === undefined)
+    return state;
+  const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
+  const {[key]: order} = state.originalOrders[rowID];
+  return {
+    ...state,
+    orders: {
+      ...orders,
+      [rowID]: {
+        ...row,
+        [key]: order,
+      },
+    },
+  };
 };
 
 const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
@@ -301,7 +322,9 @@ const updateQty = (state: RunState, data: { id: string; value: number | null }, 
         [key]: {
           ...order,
           quantity: data.value,
-          status: order.status | OrderStatus.QuantityEdited,
+          // In this case also set `PriceEdited' bit because we want to make
+          // the value eligible for submission
+          status: order.status | OrderStatus.QuantityEdited | OrderStatus.PriceEdited,
         },
       },
     },
@@ -348,6 +371,8 @@ export default (id: string, initialState: RunState = genesisState) => {
         return activateRow(state, data);
       case $$(id, RunActions.ActivateOrder):
         return activateOrder(state, data);
+      case $$(id, RunActions.ResetOrder):
+        return resetOrder(state, data);
       default:
         return state;
     }

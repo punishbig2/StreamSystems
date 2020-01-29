@@ -8,9 +8,6 @@ export const useValueListener = (
   setValue: (value: string, status: OrderStatus) => void,
 ) => {
   useEffect(() => {
-    setValue(
-      priceFormatter(value),
-      OrderStatus.None & ~OrderStatus.PriceEdited,
-    );
+    setValue(priceFormatter(value), OrderStatus.None & ~OrderStatus.PriceEdited);
   }, [value, timestamp, setValue]);
 };

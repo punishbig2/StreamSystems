@@ -14,7 +14,7 @@ export const HeaderQty: React.FC<QtyHeader> = (props: QtyHeader) => {
     <DualTableHeader label={strings.Size} action={
       () => (
         <div className={'header-size'}>
-          <NumericInput type={'size'} value={sizeFormatter(props.value)} onChange={onChange}/>
+          <NumericInput type={'size'} value={sizeFormatter(props.value)} onChange={onChange} onSubmitted={() => null}/>
         </div>
       )
     }/>

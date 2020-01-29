@@ -58,7 +58,6 @@ export const handlers = {
       Strategy,
       RowActions.Update,
     );
-    if (w.ExDestination === DarkPool) console.log(w);
     // Is this TOB?
     if (w['9712'] === 'TOB') {
       // FIXME: because the backend is sending multiple copies of identical Ws I do this to

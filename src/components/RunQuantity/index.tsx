@@ -1,6 +1,6 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {Order, OrderStatus} from 'interfaces/order';
-import React, {useEffect, useState, useCallback, ReactNode} from 'react';
+import React, {useEffect, useState, useCallback, ReactNode, useMemo} from 'react';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 import {OrderTypes} from 'interfaces/mdEntry';
@@ -17,32 +17,25 @@ interface Props {
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
-  const [edited, setEdited] = useState<boolean>(false);
+  const [locallyModified, setLocallyModified] = useState<boolean>(false);
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
   const {order, defaultValue, onChange, id, minSize} = props;
 
-  useEffect(() => {
-    if ((order.status & OrderStatus.QuantityEdited) !== 0) return;
-    if (props.defaultValue === undefined || props.defaultValue === null) return;
-    if (
-      (order.status & OrderStatus.PreFilled) !== 0 &&
-      (order.status & OrderStatus.Cancelled) === 0
-    )
-      return;
-    setValue(sizeFormatter(props.defaultValue));
-  }, [order.status, props.defaultValue]);
+  const isModified: boolean = useMemo(() => {
+    return (order.status & OrderStatus.QuantityEdited) !== 0;
+  }, [order]);
 
   useEffect(() => {
-    if (props.value === null)
-      return;
+    setLocallyModified(false);
     setValue(sizeFormatter(props.value));
   }, [props.value]);
 
   const onChangeWrapper = (value: string | null) => {
+    if (!locallyModified)
+      setLocallyModified(true);
     if (value === null) {
       setValue(sizeFormatter(order.quantity || defaultValue));
     } else {
-      setEdited(true);
       setValue(value);
     }
   };
@@ -60,7 +53,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     }
   }, [onChange, id, minSize]);
 
-  const onTabbedOut = (input: HTMLInputElement) => {
+  const onSubmitted = (input: HTMLInputElement) => {
     sendOnChange(Number(value));
     if (props.onTabbedOut) {
       props.onTabbedOut(input);
@@ -68,14 +61,14 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    if (defaultValue === null || edited)
+    if (value !== null || defaultValue === null || isModified)
       return;
     sendOnChange(defaultValue);
     // eslint-disable-next-line
-  }, [defaultValue, edited]);
+  }, [defaultValue, isModified]);
 
   const getValueHelper = (forceEmpty: boolean) => {
-    if (!edited && forceEmpty)
+    if (forceEmpty && !locallyModified)
       return '';
     if (value !== null)
       return value;
@@ -86,21 +79,19 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     setValue(null);
   };
 
-  const greyStatus: boolean = (order.status & OrderStatus.Cancelled) !== 0
-    && (order.status & OrderStatus.PriceEdited) === 0
-    && (order.status & OrderStatus.QuantityEdited) === 0;
+  const inactive: boolean = (order.status & OrderStatus.Cancelled) !== 0 && !isModified;
 
   const getValue = () => {
-    return getValueHelper(greyStatus);
+    return getValueHelper(inactive);
   };
 
   const onActivateOrder = () => {
-    if (!greyStatus)
+    if (!inactive)
       return;
     props.onActivateOrder(props.id, order.type);
   };
   const plusSign = (
-    <div className={'plus-sign' + (greyStatus ? ' active' : '')} onClick={onActivateOrder} key={1}>
+    <div className={'plus-sign' + (inactive ? ' active' : '')} onClick={onActivateOrder} key={1}>
       <i className={'fa fa-plus-circle'}/>
     </div>
   );
@@ -114,7 +105,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       type={'size'}
       value={getValue()}
       onChange={onChangeWrapper}
-      onTabbedOut={onTabbedOut}
+      onSubmitted={onSubmitted}
       onBlur={reset}/>,
   ];
 

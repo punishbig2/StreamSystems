@@ -122,10 +122,11 @@ export const createColumnData = (
       input: HTMLInputElement,
     ) => {
       if (order.price !== null && (order.status & OrderStatus.Cancelled) === 0) {
+        const newOrder: Order = {...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited};
         fns.cancelOrder(order);
-        fns.createOrder({...order, quantity: newQuantity}, personality, minSize);
+        fns.createOrder(newOrder, personality, minSize);
       }
-      fns.updateOrder({...order, quantity: newQuantity});
+      fns.updateOrder({...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited});
       skipTabIndex(input, 1, 0);
     },
     onCancelDarkPoolOrder: (order: Order) => {

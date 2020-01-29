@@ -57,7 +57,8 @@ export const Table: (props: Props) => React.ReactElement | null = (
     const reducer = (value: number, column: ColumnSpec): number => {
       const {template} = column;
       el.innerHTML = template;
-      if (column.sortable) return value + el.offsetWidth + 24;
+      if (column.sortable)
+        return value + el.offsetWidth + 24;
       return value + el.offsetWidth;
     };
     const minWidth: string = columns.reduce(reducer, 0) + 'px';
@@ -149,7 +150,8 @@ export const Table: (props: Props) => React.ReactElement | null = (
   const getBody = (rowProps: any) => {
     const rows = rowProps;
     const sortFn = getSortFn();
-    if (sortFn !== undefined) rows.sort(sortFn);
+    if (sortFn !== undefined)
+      rows.sort(sortFn);
     if (props.scrollable) {
       return (
         <VirtualScroll itemSize={24} className={'tbody'}>

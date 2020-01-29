@@ -142,9 +142,7 @@ export const FXOptionsDB = {
       throw Error(
         `no window with id \`${windowID} was found' in workspace ${workspaceID}`,
       );
-    console.log('before', windows);
     windows.splice(index, 1);
-    console.log('after', windows);
     await FXOptionsDB.del('windows', windowID);
     return FXOptionsDB.put('workspaces', workspaceID, 'windows', windows, true);
   },

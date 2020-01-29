@@ -23,7 +23,7 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
     (price: number | null, changed: boolean) => {
       const order: Order = row[type];
       if (price === null) {
-        onChange(row.id, order.price, false);
+        data.resetOrder(row.id, order.type);
       } else {
         onChange(row.id, price, changed);
       }
@@ -127,8 +127,7 @@ const SpreadCol = (data: RunColumnData) => ({
           data.focusNext(target, RunActions.Spread)
         }
         onNavigate={data.onNavigate}
-        animated={false}
-      />
+        animated={false}/>
     );
   },
   template: '999999.99',
