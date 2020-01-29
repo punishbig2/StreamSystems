@@ -78,14 +78,25 @@ const getNumber = (value: string | null | undefined): number | null => {
   return numeric;
 };
 
-const normalizeTickDirection = (source: string | undefined): ArrowDirection => {
-  switch (source) {
-    case '0':
-      return ArrowDirection.Up;
-    case '2':
-      return ArrowDirection.Down;
-    default:
-      return ArrowDirection.None;
+const normalizeTickDirection = (source: string | undefined, orderType: OrderTypes): ArrowDirection => {
+  if (orderType === OrderTypes.Bid) {
+    switch (source) {
+      case '0':
+        return ArrowDirection.Up;
+      case '2':
+        return ArrowDirection.Down;
+      default:
+        return ArrowDirection.None;
+    }
+  } else {
+    switch (source) {
+      case '0':
+        return ArrowDirection.Down;
+      case '2':
+        return ArrowDirection.Up;
+      default:
+        return ArrowDirection.None;
+    }
   }
 };
 
@@ -154,10 +165,8 @@ export class Order {
       user.email === entry.MDEntryOriginator
         ? OrderStatus.Owned
         : OrderStatus.NotOwned;
-    const sameBank: OrderStatus =
-      user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
-    const preFilled: OrderStatus =
-      price !== null ? OrderStatus.PreFilled : OrderStatus.None;
+    const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
+    const preFilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
     const cancelled: OrderStatus =
       price !== null && !entry.MDEntrySize
         ? OrderStatus.Cancelled
@@ -175,9 +184,8 @@ export class Order {
     order.price = getNumber(entry.MDEntryPx);
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;
-    order.status =
-      OrderStatus.Active | ownership | preFilled | sameBank | cancelled | isOwnerBroker;
-    order.arrowDirection = normalizeTickDirection(entry.TickDirection);
+    order.status = OrderStatus.Active | ownership | preFilled | sameBank | cancelled | isOwnerBroker;
+    order.arrowDirection = normalizeTickDirection(entry.TickDirection, order.type);
     // Now return the built order
     return order;
   };
