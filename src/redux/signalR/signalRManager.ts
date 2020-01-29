@@ -20,17 +20,11 @@ enum SignalRMessageTypes {
 
 export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
-  private onConnectedListener:
-    | ((connection: HubConnection) => void)
-    | null = null;
+  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onUpdateMarketDataListener: ((data: W) => void) | null = null;
-  private onUpdateDarkPoolPxListener:
-    | ((data: DarkPoolMessage) => void)
-    | null = null;
-  private onUpdateMessageBlotterListener:
-    | ((data: Message) => void)
-    | null = null;
+  private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
+  private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
   constructor() {
@@ -134,3 +128,4 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.onDisconnectedListener = fn;
   };
 }
+

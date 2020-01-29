@@ -45,6 +45,7 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {manualToRowID, toRunId} from 'utils';
 import {RunActions} from 'redux/reducers/runReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
+import userProfileReducer from 'redux/reducers/userProfileReducer';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
@@ -57,6 +58,7 @@ export const createReducer = (
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
     settings: settingsReducer,
+    userProfile: userProfileReducer,
     // Dynamically generated reducers
     ...dynamicReducers,
   });
@@ -133,13 +135,19 @@ export const removeNamedReducer = <T>(name: string) => {
 
 const connectionManager: SignalRManager<AnyAction> = new SignalRManager<AnyAction>();
 export const DummyAction: AnyAction = {type: '---not-valid---'};
+
+const isOCOEnabled = (): boolean => {
+  const state: ApplicationState = store.getState();
+  if (!state)
+    return true;
+  const {profile} = state.userProfile;
+  return profile.oco;
+};
+
 const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
   let connection: HubConnection | null = null;
   // Return a store creator
-  return <S, A extends Action>(
-    reducer: Reducer<S, A>,
-    preloadedState?: DeepPartial<S>,
-  ) => {
+  return <S, A extends Action>(reducer: Reducer<S, A>, preloadedState?: DeepPartial<S>) => {
     const actionQueue: SignalRAction<A>[] = [];
     // FIXME: we can load the state here actually
     const store: Store<S, A> = nextCreator(reducer, preloadedState);
@@ -196,11 +204,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
 
     const onUpdateDarkPoolPx = (message: DarkPoolMessage) => {
-      const rowID = manualToRowID(
-        message.Tenor,
-        message.Symbol,
-        message.Strategy,
-      );
+      const rowID = manualToRowID(message.Tenor, message.Symbol, message.Strategy);
       FXOptionsDB.saveDarkPool(rowID, message.DarkPrice);
       dispatch(
         createAction<any, A>(
@@ -215,32 +219,28 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         case ExecTypes.PendingCancel:
           break;
         case ExecTypes.Filled:
-          API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]).then(
-            () => {
-              const runID = toRunId(data.Symbol, data.Strategy);
-              switch (SidesMap[data.Side]) {
-                case Sides.Buy:
-                  dispatch(
-                    createAction<any, A>($$(runID, RunActions.RemoveAllBids)),
-                  );
-                  break;
-                case Sides.Sell:
-                  dispatch(
-                    createAction<any, A>($$(runID, RunActions.RemoveAllOfrs)),
-                  );
-                  break;
-              }
-            },
-          );
+          if (isOCOEnabled()) {
+            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]).then(
+              () => {
+                const runID = toRunId(data.Symbol, data.Strategy);
+                switch (SidesMap[data.Side]) {
+                  case Sides.Buy:
+                    dispatch(
+                      createAction<any, A>($$(runID, RunActions.RemoveAllBids)),
+                    );
+                    break;
+                  case Sides.Sell:
+                    dispatch(
+                      createAction<any, A>($$(runID, RunActions.RemoveAllOfrs)),
+                    );
+                    break;
+                }
+              },
+            );
+          }
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
-          const type: string = $$(
-            '__ROW',
-            data.Tenor,
-            data.Symbol,
-            data.Strategy,
-            RowActions.Executed,
-          );
+          const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
           // FIXME: to improve performance we should try to find a way to do this
           //        in a single dispatch
           dispatch(
@@ -273,3 +273,4 @@ export const store: Store = createStore(
   {},
   enhancer,
 );
+

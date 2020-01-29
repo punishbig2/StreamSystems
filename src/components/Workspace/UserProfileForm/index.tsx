@@ -1,102 +1,68 @@
-import React, {useReducer, Reducer, FormEvent, useEffect, useCallback, useState, ReactNode} from 'react';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User, UserTypes, UserProfile, CurrencyGroups} from 'interfaces/user';
-import {Action} from 'redux/action';
-import {API} from 'API';
-import {createAction} from 'redux/actionCreator';
+import React, {useEffect, ReactNode} from 'react';
+import {UserProfileState, UserProfileModalTypes, User} from 'interfaces/user';
 import {UserProfileForm} from 'components/Workspace/UserProfileForm/form';
 import {ErrorBox} from 'components/ErrorBox';
 import {MessageBox} from 'components/MessageBox';
+import {MapStateToProps, MapDispatchToProps, connect} from 'react-redux';
+import {ApplicationState} from 'redux/applicationState';
+import {
+  loadUserProfile,
+  resetInitialProfile,
+  setCurrentModal,
+  setFieldValue,
+  saveUserProfile,
+} from 'redux/actions/userProfileActions';
+import {UserProfileAction} from 'redux/reducers/userProfileReducer';
+import {Action} from 'redux/action';
+import {AsyncAction} from 'redux/asyncAction';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
-interface OwnState {
+interface DispatchProps {
+  loadUserProfile: (useremail: string) => AsyncAction<UserProfileAction>,
+  resetInitialProfile: () => Action<UserProfileAction>;
+  setCurrentModal: (modalType: UserProfileModalTypes) => Action<UserProfileAction>;
+  setFieldValue: (name: string, value: any) => Action<UserProfileAction>;
+  saveUserProfile: (useremail: string, profile: any, lastOCO: boolean) => AsyncAction<UserProfileAction>,
 }
 
-enum ActionTypes {
-  UpdateUserProfile,
-  SetFieldValue,
-}
-
-interface Props {
+interface OwnProps {
   onCancel: () => void;
 }
 
-type State = OwnState & UserProfile;
+const mapStateToProps: MapStateToProps<UserProfileState, OwnProps, ApplicationState> =
+  ({userProfile}: ApplicationState) => userProfile;
+const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = ({
+  loadUserProfile,
+  resetInitialProfile,
+  setCurrentModal,
+  setFieldValue,
+  saveUserProfile,
+});
 
-const reducer: Reducer<State, Action<ActionTypes>> = (
-  state: State,
-  {data, type}: Action<ActionTypes>,
-): State => {
-  switch (type) {
-    case ActionTypes.SetFieldValue:
-      return {...state, [data.name]: data.value};
-    case ActionTypes.UpdateUserProfile:
-      return {...data};
-    default:
-      return state;
-  }
-};
+const withRedux = connect(mapStateToProps, mapDispatchToProps);
 
-enum ModalTypes {
-  Form, Success, Error,
-}
+type Props = OwnProps & DispatchProps & UserProfileState;
 
-export const UserProfileModal: React.FC<Props> = (props: Props) => {
+const UserProfileModal: React.FC<Props> = (props: Props) => {
+  const {loadUserProfile} = props;
   const user: User = getAuthenticatedUser();
-  const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null);
-  const [currentModal, setCurrentModal] = useState<ModalTypes>(ModalTypes.Form);
-  const [profile, dispatch] = useReducer<Reducer<State, Action<ActionTypes>>>(
-    reducer, {
-      userType: user.isbroker ? UserTypes.Broker : UserTypes.Bank,
-      mpid: '',
-      fontSize: '14px',
-      font: 'default',
-      execSound: 'default',
-      timezone: '',
-      colorScheme: 'default',
-      ccyGroup: CurrencyGroups.Invalid,
-      oco: true,
-    },
-  );
 
   const onClose = () => {
     props.onCancel();
     // Reset the profile in case it has changed
-    dispatch(createAction<ActionTypes>(ActionTypes.UpdateUserProfile, originalProfile));
-    setCurrentModal(ModalTypes.Form);
+    props.resetInitialProfile();
+    props.setCurrentModal(UserProfileModalTypes.Form);
   };
 
-  const onSubmit = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const object: any = JSON.stringify(profile);
-      try {
-        await API.saveUserProfile({
-          username: user.email,
-          workspace: object,
-        });
-        setCurrentModal(ModalTypes.Success);
-        // Update the internal static version
-        setOriginalProfile(profile);
-      } catch {
-        setCurrentModal(ModalTypes.Error);
-      }
-    },
-    [profile, user.email],
-  );
-
-  const loadProfile = useCallback(() => {
-    API.getUserProfile(user.email)
-      .then((data: any) => {
-        const profile: UserProfile = JSON.parse(data[0].workspace);
-        dispatch(createAction<ActionTypes>(ActionTypes.UpdateUserProfile, profile));
-        // Initialize the original profile
-        setOriginalProfile(profile);
-      });
-  }, [user.email]);
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const {initialProfile} = props;
+    event.preventDefault();
+    props.saveUserProfile(user.email, props.profile, initialProfile.oco);
+  };
 
   useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+    loadUserProfile(user.email);
+  }, [user.email, loadUserProfile]);
 
   const onChange = ({target}: React.ChangeEvent<any>) => {
     const {name} = target;
@@ -108,26 +74,21 @@ export const UserProfileModal: React.FC<Props> = (props: Props) => {
         return target.value;
       }
     })();
-    dispatch(
-      createAction<ActionTypes>(ActionTypes.SetFieldValue, {
-        name: name,
-        value: value,
-      }),
-    );
+    props.setFieldValue(name, value);
   };
 
   const closeButton = (): ReactNode => (
     <button className={'cancel'} onClick={onClose}>Close</button>
   );
 
-  switch (currentModal) {
-    case ModalTypes.Form:
-      return <UserProfileForm profile={profile}
-                              original={originalProfile}
+  switch (props.currentModalType) {
+    case UserProfileModalTypes.Form:
+      return <UserProfileForm profile={props.profile}
+                              original={props.initialProfile}
                               onChange={onChange}
                               onSubmit={onSubmit}
                               onCancel={onClose}/>;
-    case ModalTypes.Success:
+    case UserProfileModalTypes.Success:
       return (
         <MessageBox title={'Looks Good'}
                     message={'Looks like your settings were saved successfully, great!'}
@@ -135,7 +96,7 @@ export const UserProfileModal: React.FC<Props> = (props: Props) => {
                     color={'good'}
                     buttons={closeButton}/>
       );
-    case ModalTypes.Error:
+    case UserProfileModalTypes.Error:
       return (
         <ErrorBox message={'Something went wrong, we are sorry. This is quite unexpected.'}
                   onClose={onClose}
@@ -145,3 +106,6 @@ export const UserProfileModal: React.FC<Props> = (props: Props) => {
       return null;
   }
 };
+
+const connected = withRedux(UserProfileModal);
+export {connected as UserProfileModal};

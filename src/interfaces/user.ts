@@ -1,7 +1,8 @@
 export enum UserTypes {
   Broker = 'BROKER',
   Bank = 'BANK',
-  MarketMaker = 'MARKET_MAKER'
+  MarketMaker = 'MARKET_MAKER',
+  Unset = '',
 }
 
 export enum CurrencyGroups {
@@ -16,6 +17,14 @@ export interface User {
   isbroker: boolean;
 }
 
+export enum UserProfileStatus {
+  Loading, Error, Initial
+}
+
+export enum UserProfileModalTypes {
+  Form, Success, Error,
+}
+
 export interface UserProfile {
   userType: UserTypes;
   mpid: string;
@@ -26,4 +35,12 @@ export interface UserProfile {
   colorScheme: string;
   ccyGroup: CurrencyGroups;
   oco: boolean;
+  lastOCOUpdateTimestamp: number | null;
+}
+
+export interface UserProfileState {
+  status: UserProfileStatus;
+  currentModalType: UserProfileModalTypes;
+  profile: UserProfile,
+  initialProfile: UserProfile,
 }
