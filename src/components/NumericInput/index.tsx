@@ -15,7 +15,7 @@ interface Props {
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onSubmitted: (input: HTMLInputElement) => void;
+  onSubmitted?: (input: HTMLInputElement) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
@@ -29,7 +29,9 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         event.preventDefault();
         if (event.shiftKey) return;
         onChange(input.value);
-        onSubmitted(input);
+        if (onSubmitted) {
+          onSubmitted(input);
+        }
         if (onTabbedOut) {
           onTabbedOut(input);
         }

@@ -117,6 +117,7 @@ const Run: React.FC<Props> = (props: Props) => {
   // Updates a single side of the depth
   const onUpdate = (order: Order) => {
     const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
+    console.log(order);
     switch (order.type) {
       case OrderTypes.Invalid:
         break;
@@ -159,14 +160,15 @@ const Run: React.FC<Props> = (props: Props) => {
   const getSelectedOrders = (): Order[] => {
     if (!props.orders)
       return [];
-    const rows: TOBRow[] = Object.values(props.orders).filter((row: TOBRow) => {
-      const {bid, ofr} = row;
-      if (bid.price === null && ofr.price === null)
-        return false;
-      if (bid.price === null || ofr.price === null)
-        return true;
-      return bid.price < ofr.price;
-    });
+    const rows: TOBRow[] = Object.values(props.orders)
+      .filter((row: TOBRow) => {
+        const {bid, ofr} = row;
+        if (bid.price === null && ofr.price === null)
+          return false;
+        if (bid.price === null || ofr.price === null)
+          return true;
+        return bid.price < ofr.price;
+      });
     const ownOrDefaultQty = (order: Order, fallback: number | null): number => {
       const quantityEdited = (order.status & OrderStatus.QuantityEdited) !== 0;
       const canceled = (order.status & OrderStatus.Cancelled) !== 0;
@@ -179,7 +181,7 @@ const Run: React.FC<Props> = (props: Props) => {
         return props.defaultSize;
       return fallback as number;
     };
-    const entries: Order[] = [
+    const orders: Order[] = [
       ...rows.map(({bid}: TOBRow) => ({
         ...bid,
         quantity: ownOrDefaultQty(bid, props.defaultSize),
@@ -189,8 +191,10 @@ const Run: React.FC<Props> = (props: Props) => {
         quantity: ownOrDefaultQty(ofr, props.defaultSize),
       })),
     ];
-    return entries.filter((order: Order) => {
-      return (order.status & OrderStatus.PriceEdited) !== 0 || (order.status & OrderStatus.QuantityEdited) !== 0;
+    return orders.filter((order: Order) => {
+      if (order.price === null || order.quantity === null)
+        return false;
+      return !((order.status & OrderStatus.QuantityEdited) === 0 && (order.status & OrderStatus.PriceEdited) === 0);
     });
   };
 
@@ -279,6 +283,7 @@ const Run: React.FC<Props> = (props: Props) => {
     // Reset the table so that when it's opened again it's the original
     // one loaded initially
     props.setTable(props.originalOrders);
+    props.setDefaultSize(props.defaultSize);
     props.onClose();
   };
 

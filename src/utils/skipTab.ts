@@ -14,7 +14,7 @@ export const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number 
     // Force it to work
     target.removeAttribute('tabindex');
     const inputs: HTMLInputElement[] = Array.from(
-      parent.querySelectorAll('input:not([tabindex="-1"])'),
+      parent.querySelectorAll('input:not([tabindex="-1"]):not([readonly])'),
     );
     target.setAttribute('tabindex', tabindex);
     const startAt: number = inputs.indexOf(target);

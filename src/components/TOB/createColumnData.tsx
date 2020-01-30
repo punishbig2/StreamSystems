@@ -86,7 +86,7 @@ export const createColumnData = (
             fns.cancelOrder(mine);
           }
         }
-        if (order.quantity === null) {
+        if (order.quantity === null && (order.status & OrderStatus.Owned) === 0) {
           fns.createOrder(
             {...order, quantity: defaultSize},
             personality,
@@ -121,7 +121,9 @@ export const createColumnData = (
       minSize: number,
       input: HTMLInputElement,
     ) => {
-      if (order.price !== null && (order.status & OrderStatus.Cancelled) === 0) {
+      const shouldCancelReplace: boolean = (order.status & OrderStatus.Cancelled) === 0
+        && (order.status & OrderStatus.Owned) !== 0;
+      if (order.price !== null && shouldCancelReplace) {
         const newOrder: Order = {...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited};
         fns.cancelOrder(order);
         fns.createOrder(newOrder, personality, minSize);

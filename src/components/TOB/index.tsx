@@ -112,14 +112,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
         unsubscribe: (symbol: string, strategy: string, tenor: string) =>
           reduxDispatch(unsubscribe(symbol, strategy, tenor)),
         createOrder: (order: Order, personality: string, minSize: number) => {
-          const quantity: number | null = (() => {
-            if ((order.status & OrderStatus.QuantityEdited) === 0 && (order.status & OrderStatus.Owned) === 0) {
-              return Number(symbol.defaultqty);
-            } else {
-              return order.quantity;
-            }
-          })();
-          return reduxDispatch(createOrder(id, personality, {...order, quantity}, minSize));
+          return reduxDispatch(createOrder(id, personality, order, minSize));
         },
         setStrategy: (value: string) => reduxDispatch(setStrategy(id, value)),
         setSymbol: (value: string) => reduxDispatch(setSymbol(id, symbols.find((s: Currency) => s.name === value))),
@@ -273,6 +266,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
         />
       );
     };
+
     const renderOrderTicket = () => {
       if (state.orderTicket === null) return <div/>;
       const onSubmit = (order: Order) => {

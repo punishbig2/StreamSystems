@@ -37,6 +37,7 @@ export enum RunActions {
   ActivateRow = 'Run.ActivateRow',
   ActivateOrder = 'Run.ActivateOrder',
   ResetOrder = 'Run.ResetOrder',
+  ResetAll = 'Run.ResetAll',
 }
 
 const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
@@ -332,10 +333,7 @@ const updateQty = (state: RunState, data: { id: string; value: number | null }, 
 };
 
 export default (id: string, initialState: RunState = genesisState) => {
-  return (
-    state: RunState = initialState,
-    {type, data}: Action<RunActions>,
-  ): RunState => {
+  return (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
     switch (type) {
       case $$(id, RunActions.SetDefaultSize):
         return {...state, defaultOfrSize: data, defaultBidSize: data};
@@ -373,6 +371,8 @@ export default (id: string, initialState: RunState = genesisState) => {
         return activateOrder(state, data);
       case $$(id, RunActions.ResetOrder):
         return resetOrder(state, data);
+      case $$(id, RunActions.ResetAll):
+        return {...initialState, orders: state.originalOrders, originalOrders: state.originalOrders};
       default:
         return state;
     }
