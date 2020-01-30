@@ -216,6 +216,8 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
 };
 
 const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
+  if ((status & OrderStatus.Cancelled) === 0)
+    return status;
   const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
   // Remove the cancelled flag and add the edited flags (both)
   return (status | edited) & ~OrderStatus.Cancelled;

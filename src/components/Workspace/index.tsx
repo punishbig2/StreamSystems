@@ -281,7 +281,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     props.setPersonality(target.value as string);
   };
 
-  const getBrokerButtons = (): ReactNode => {
+  const getRightPanelButtons = (): ReactNode => {
     const user: User = getAuthenticatedUser();
     if (user.isbroker) {
       const {markets} = props;
@@ -295,8 +295,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
             value={props.personality}
             autoWidth={true}
             renderValue={renderValue}
-            onChange={onPersonalityChange}
-          >
+            onChange={onPersonalityChange}>
             <MenuItem key={STRM} value={STRM}>
               None
             </MenuItem>
@@ -321,10 +320,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
 
   return (
     <>
-      <div
-        className={objectToCssClass(toolbarState, 'toolbar')}
-        onMouseLeave={onMouseLeave}
-      >
+      <div className={objectToCssClass(toolbarState, 'toolbar')} onMouseLeave={onMouseLeave}>
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>
             <i className={'fa fa-plus'}/> Add POD
@@ -332,13 +328,9 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>
             <i className={'fa fa-eye'}/> Add Blotter
           </button>
-          {getBrokerButtons()}
+          {getRightPanelButtons()}
           <div className={'pin'} onClick={toolbarTogglePin}>
-            <i
-              className={
-                'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')
-              }
-            />
+            <i className={'fa ' + (toolbarState.pinned ? 'fa-lock' : 'fa-unlock')}/>
           </div>
         </div>
       </div>
@@ -357,14 +349,12 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         onWindowMinimized={props.minimizeWindow}
         onWindowRestored={props.restoreWindow}
         onWindowClicked={props.bringToFront}
-        onWindowSizeAdjusted={props.setWindowAutoSize}
-      />
+        onWindowSizeAdjusted={props.setWindowAutoSize}/>
       <ModalWindow
         render={() => (
           <UserProfileModal onCancel={props.closeUserProfileModal}/>
         )}
-        visible={props.isUserProfileModalVisible}
-      />
+        visible={props.isUserProfileModalVisible}/>
       <ModalWindow
         render={() => (
           <ErrorBox

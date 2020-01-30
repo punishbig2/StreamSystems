@@ -67,6 +67,8 @@ export const FXOptionsDB = {
               return store.put({[key]: value}, rootKey);
             }
           } else {
+            if (key === 'windows')
+              console.log(result);
             if (result === undefined) {
               if (key === null) {
                 return store.add(value, rootKey);
@@ -76,16 +78,11 @@ export const FXOptionsDB = {
             } else if (key === null) {
               return store.put([...value, ...result], rootKey);
             } else {
-              const appendedArray: any[] = [];
-              if (result[key] !== undefined) {
-                if (result[key] instanceof Array)
-                  appendedArray.concat(result[key]);
-                else
-                  appendedArray.push(result[key]);
-              }
+
               if (value instanceof Array) {
+                const array: any[] = result[key] === undefined ? [] : result[key];
                 return store.put(
-                  {...result, [key]: [...value, ...appendedArray]},
+                  {...result, [key]: [...value, ...array]},
                   rootKey,
                 );
               } else {
