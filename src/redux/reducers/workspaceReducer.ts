@@ -4,6 +4,7 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {ToolbarState, WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
+import {UserProfileAction} from 'redux/reducers/userProfileReducer';
 
 const genesisState: WorkspaceState = {
   windows: {},
@@ -200,6 +201,8 @@ export const createWorkspaceReducer = (
             data,
           }),
         };
+      case UserProfileAction.SetUserProfile:
+        return {...state};
       case $$(id, WorkspaceActions.UpdateMarkets):
         return {...state, markets: data};
       case $$(id, WorkspaceActions.SetPersonality):

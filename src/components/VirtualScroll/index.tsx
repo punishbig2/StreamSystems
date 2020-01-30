@@ -55,7 +55,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
     return () => observer.disconnect();
   }, [reference]);
   useEffect(() => {
-    setVisibleCount(height / itemSize);
+    setVisibleCount(Math.ceil(height / itemSize));
   }, [height, itemSize]);
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const {currentTarget} = event;
@@ -68,15 +68,8 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
   // TODO: use a scrollbar that is guaranteed to be overlay
   return (
     <div className={props.className} ref={reference}>
-      <div
-        className={'tbody-scrollable-content'}
-        style={{height}}
-        onScroll={onScroll}
-      >
-        <div
-          className={'tbody-fill-area pre'}
-          style={{height: Math.max(preHeight, 0)}}
-        />
+      <div className={'tbody-scrollable-content'} style={{height}} onScroll={onScroll}>
+        <div className={'tbody-fill-area pre'} style={{height: Math.max(preHeight, 0)}}/>
         {offset > 0 ? array[offset - 1] : null}
         {array.slice(offset, offset + visibleCount + 1)}
         <div

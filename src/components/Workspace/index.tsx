@@ -1,4 +1,4 @@
-import {MenuItem, Select} from '@material-ui/core';
+import {MenuItem, Select, FormControlLabel, Checkbox, FormControl} from '@material-ui/core';
 import {MessageBlotter} from 'components/MessageBlotter';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import {TOB} from 'components/TOB';
@@ -6,7 +6,7 @@ import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {TOBRowStatus} from 'interfaces/tobRow';
-import {User} from 'interfaces/user';
+import {User, UserProfile} from 'interfaces/user';
 import React, {ReactElement, useCallback, useEffect, ReactNode} from 'react';
 import {connect} from 'react-redux';
 import {Dispatch} from 'redux';
@@ -41,6 +41,9 @@ import {SelectEventData} from 'interfaces/selectEventData';
 import {ModalWindow} from 'components/ModalWindow';
 import {UserProfileModal} from 'components/Workspace/UserProfileForm';
 import {ErrorBox} from 'components/ErrorBox';
+import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
+import {store} from 'redux/store';
+import {saveUserProfile} from 'redux/actions/userProfileActions';
 
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
@@ -62,6 +65,7 @@ interface DispatchProps {
   closeUserProfileModal: () => void;
   refAll: () => void;
   closeErrorModal: () => void;
+  saveUserProfile: (useremail: string, newProfile: UserProfile, oldOCO: boolean) => void;
 }
 
 interface OwnProps {
@@ -75,10 +79,7 @@ interface OwnProps {
 }
 
 const cache: { [key: string]: DispatchProps } = {};
-const mapDispatchToProps = (
-  dispatch: Dispatch,
-  {id}: OwnProps,
-): DispatchProps => {
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps => {
   if (!cache[id]) {
     cache[id] = {
       addWindow: (type: WindowTypes) => dispatch(addWindow(id, type)),
@@ -109,6 +110,8 @@ const mapDispatchToProps = (
       closeUserProfileModal: () => dispatch(closeUserProfileModal(id)),
       refAll: () => dispatch(refAll(id)),
       closeErrorModal: () => dispatch(closeErrorModal(id)),
+      saveUserProfile: (useremail: string, profile: UserProfile, oldOCO: boolean) =>
+        dispatch(saveUserProfile(useremail, profile, oldOCO)),
     };
   }
   return cache[id];
@@ -148,8 +151,7 @@ const createWindow = (
           connected={connected}
           setWindowTitle={setWindowTitle}
           onRowError={onRowError}
-          personality={personality}
-        />
+          personality={personality}/>
       );
     case WindowTypes.MessageBlotter:
       return (
@@ -158,8 +160,7 @@ const createWindow = (
           setWindowTitle={setWindowTitle}
           connected={connected}
           personality={personality}
-          blotterType={BlotterTypes.Regular}
-        />
+          blotterType={BlotterTypes.Regular}/>
       );
     default:
       throw new Error(`invalid tile type ${type}`);
@@ -314,7 +315,26 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
       );
     } else {
-      return null;
+      const {userProfile: {profile}} = store.getState();
+      const onOCOChange = ({currentTarget: input}: React.ChangeEvent<HTMLInputElement>) => {
+        props.saveUserProfile(user.email, {...profile, oco: input.checked}, profile.oco);
+      };
+      return (
+        <div className={'broker-buttons'}>
+          <FormControl>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  disabled={wasModifiedToday(profile.lastOCOUpdateTimestamp, profile.timezone)}
+                  id={'oco'}
+                  checked={profile.oco}
+                  name={'oco'}
+                  onChange={onOCOChange}/>
+              }
+              label={'OCO Enabled'}/>
+          </FormControl>
+        </div>
+      );
     }
   };
 

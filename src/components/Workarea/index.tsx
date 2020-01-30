@@ -75,16 +75,7 @@ const withRedux: (ignored: any) => any = connect<WorkareaState,
 
 const Workarea: React.FC<OwnProps> = withRedux(
   (props: Props): ReactElement | null => {
-    const {
-      symbols,
-      products,
-      tenors,
-      banks,
-      initialize,
-      connected,
-      user,
-      activeWorkspace,
-    } = props;
+    const {symbols, products, tenors, banks, initialize, connected, user, activeWorkspace} = props;
     const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
     const {workspaces, loadMessages} = props;
     const {CloseWorkspace} = strings;
@@ -109,11 +100,7 @@ const Workarea: React.FC<OwnProps> = withRedux(
     }, [user, loadMessages]);
 
     const renderCloseQuestion = () => (
-      <QuestionBox
-        {...CloseWorkspace}
-        onYes={closeWorkspace}
-        onNo={cancelCloseWorkspace}
-      />
+      <QuestionBox {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>
     );
     const cancelCloseWorkspace = () => setSelectedToClose(null);
     const closeWorkspace = () => {

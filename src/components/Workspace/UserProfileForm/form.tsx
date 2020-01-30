@@ -5,7 +5,7 @@ import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Check
 import {UserTypes, CurrencyGroups, UserProfile} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
-import moment from 'moment';
+import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
 
 interface OwnProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -34,21 +34,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     if (props.original === null)
       return false;
     return deepEqual(profile, props.original);
-  };
-
-  const wasModifiedToday = (timestamp: number | null, timezone: string) => {
-    if (timestamp === null)
-      return false;
-    const tz: TimezoneInfo | undefined = timezones.find((tz: TimezoneInfo) => tz.text === timezone);
-    if (tz) {
-      const when: moment.Moment = moment
-        // Get the time from unix timestamp in seconds (hence divide by 1000)
-        .unix(Math.floor(timestamp / 1000))
-        // Add the timezone offset
-        .add(tz.offset, 'h')
-      return when.isSame(new Date(), 'd');
-    }
-    return false;
   };
 
   return (

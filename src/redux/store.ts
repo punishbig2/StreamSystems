@@ -70,7 +70,6 @@ const hydrate = async (dispatch: Dispatch<any>) => {
       id,
     );
     const name: string = await FXOptionsDB.getWorkspaceName(id);
-    console.log(name);
     injectNamedReducer(id, createWorkspaceReducer, {
       ...defaultWorkspaceState,
       toolbarState: {

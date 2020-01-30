@@ -26,7 +26,8 @@ export default (sortable: boolean) => ({
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = getValue(v1);
     const numeric: number = Number(keyword);
-    if (isNaN(numeric)) return false;
+    if (isNaN(numeric))
+      return false;
     return value === numeric;
   },
   difference: (v1: Message, v2: Message) => {

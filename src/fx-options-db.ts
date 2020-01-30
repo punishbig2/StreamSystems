@@ -67,8 +67,6 @@ export const FXOptionsDB = {
               return store.put({[key]: value}, rootKey);
             }
           } else {
-            if (key === 'windows')
-              console.log(result);
             if (result === undefined) {
               if (key === null) {
                 return store.add(value, rootKey);
@@ -180,7 +178,6 @@ export const FXOptionsDB = {
     return workspace.windows;
   },
   getWindow: async (windowID: string): Promise<Window | undefined> => {
-    console.log(windowID);
     return FXOptionsDB.getObject('windows', windowID);
   },
   setPersonality: async (workspaceID: string, personality: string) => {

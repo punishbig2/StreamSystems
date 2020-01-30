@@ -38,10 +38,7 @@ export class AsyncAction<T, A extends Action = Action<any>>
         // Dispatch the error action
         dispatch(action);
       } else if (error !== undefined) {
-        console.log(`error: `, error);
-        if (error.hasOwnProperty('stack')) {
-          console.log(error.stack);
-        }
+        console.trace('error: ', error);
       }
     }
   };

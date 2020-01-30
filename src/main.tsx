@@ -9,6 +9,7 @@ import {Provider} from 'react-redux';
 import {store} from 'redux/store';
 import {Settings} from 'settings';
 import 'styles/main.scss';
+import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
 
 Object.defineProperty(MouseEvent.prototype, 'ignore', {
   value: function () {
@@ -23,13 +24,26 @@ export const SettingsContext = React.createContext<Settings>(currentSettings);
 
 whyDidYouRender(React);
 
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#407af0',
+      dark: '#2058c0',
+    },
+    secondary: {
+      main: '#407af0',
+      dark: '#2058c0',
+    },
+  },
+});
+
 const FXOptionsUI: React.FC = () => {
   return (
-    <SettingsContext.Provider value={currentSettings}>
+    <MuiThemeProvider theme={theme}>
       <Provider store={store}>
         <Workarea/>
       </Provider>
-    </SettingsContext.Provider>
+    </MuiThemeProvider>
   );
 };
 

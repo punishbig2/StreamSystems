@@ -121,9 +121,12 @@ export const createColumnData = (
       minSize: number,
       input: HTMLInputElement,
     ) => {
-      const shouldCancelReplace: boolean = (order.status & OrderStatus.Cancelled) === 0
-        && (order.status & OrderStatus.Owned) !== 0;
-      if (order.price !== null && shouldCancelReplace) {
+      const shouldCancelReplace: boolean = order.price !== null
+        && (order.status & OrderStatus.Cancelled) === 0
+        && (order.status & OrderStatus.Owned) !== 0
+        && (order.status & OrderStatus.PriceEdited) !== 0
+      ;
+      if (shouldCancelReplace) {
         const newOrder: Order = {...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited};
         fns.cancelOrder(order);
         fns.createOrder(newOrder, personality, minSize);

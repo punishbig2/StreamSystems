@@ -70,6 +70,10 @@
     .broker-buttons {
       margin: 0 0 0 auto;
 
+      .MuiFormControl-root .MuiFormControlLabel-label {
+        line-height: inherit;
+      }
+
       .MuiInputBase-root {
         &::after,
         &::before {

@@ -76,9 +76,7 @@ export const loadMessages = (useremail: string): AsyncAction<AnyAction> => {
 };
 
 export const initialize = (): AsyncAction<AnyAction> => {
-  const handler = async (
-    dispatch?: Dispatch<AnyAction>,
-  ): Promise<AnyAction[]> => {
+  const handler = async (dispatch?: Dispatch<AnyAction>): Promise<AnyAction[]> => {
     if (!dispatch)
       throw new Error('this handler must receive a dispatch function');
     dispatch(createAction(WorkareaActions.LoadingSymbols));
@@ -97,12 +95,7 @@ export const initialize = (): AsyncAction<AnyAction> => {
       return currencyToNumber(a.name) - currencyToNumber(b.name);
     });
     return [
-      createAction(WorkareaActions.Initialized, {
-        symbols,
-        products,
-        tenors,
-        users,
-      }),
+      createAction(WorkareaActions.Initialized, {symbols, products, tenors, users}),
     ];
   };
   return new AsyncAction(handler, createAction(WorkareaActions.Initializing));

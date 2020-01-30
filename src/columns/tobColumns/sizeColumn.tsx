@@ -52,3 +52,4 @@ export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth
     weight: 5,
   };
 };
+

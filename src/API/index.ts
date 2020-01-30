@@ -402,7 +402,7 @@ export class API {
   }
 
   static async getUserProfile(email: string) {
-    return get<any>(API.getUrl(API.UserApi, 'UserJson', 'get'));
+    return get<any>(API.getUrl(API.UserApi, 'UserJson', 'get', {useremail: email}));
   }
 
   static async saveUserProfile(data: any) {
