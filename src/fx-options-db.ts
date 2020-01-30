@@ -76,9 +76,16 @@ export const FXOptionsDB = {
             } else if (key === null) {
               return store.put([...value, ...result], rootKey);
             } else {
+              const appendedArray: any[] = [];
+              if (result[key] !== undefined) {
+                if (result[key] instanceof Array)
+                  appendedArray.concat(result[key]);
+                else
+                  appendedArray.push(result[key]);
+              }
               if (value instanceof Array) {
                 return store.put(
-                  {...result, [key]: [...value, ...result[key]]},
+                  {...result, [key]: [...value, ...appendedArray]},
                   rootKey,
                 );
               } else {
@@ -176,6 +183,7 @@ export const FXOptionsDB = {
     return workspace.windows;
   },
   getWindow: async (windowID: string): Promise<Window | undefined> => {
+    console.log(windowID);
     return FXOptionsDB.getObject('windows', windowID);
   },
   setPersonality: async (workspaceID: string, personality: string) => {
