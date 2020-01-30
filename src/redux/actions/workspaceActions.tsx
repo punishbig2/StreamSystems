@@ -11,19 +11,13 @@ import {injectNamedReducer, removeNamedReducer, DummyAction} from 'redux/store';
 import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
 
-export const removeWindow = (
-  workspaceID: string,
-  windowID: string,
-): Action<string> => {
+export const removeWindow = (workspaceID: string, windowID: string): Action<string> => {
   FXOptionsDB.removeWindow(workspaceID, windowID);
   removeNamedReducer(windowID);
   return createAction($$(workspaceID, WorkspaceActions.RemoveWindow), windowID);
 };
 
-export const minimizeWindow = (
-  id: string,
-  windowID: string,
-): Action<string> => {
+export const minimizeWindow = (id: string, windowID: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.MinimizeWindow), windowID);
 };
 
@@ -31,10 +25,7 @@ export const restoreWindow = (id: string, windowID: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.RestoreWindow), windowID);
 };
 
-export const addWindow = (
-  workspaceID: string,
-  type: WindowTypes,
-): Action<string> => {
+export const addWindow = (workspaceID: string, type: WindowTypes): Action<string> => {
   const window: WorkspaceWindow = new WorkspaceWindow(type);
   if (type === WindowTypes.TOB)
     injectNamedReducer(window.id, createWindowReducer, DefaultWindowState);
@@ -42,12 +33,7 @@ export const addWindow = (
   return createAction($$(workspaceID, WorkspaceActions.AddWindow), window);
 };
 
-export const moveWindow = (
-  id: string,
-  windowID: string,
-  geometry: ClientRect,
-  resized: boolean,
-): AsyncAction<any> => {
+export const moveWindow = (id: string, windowID: string, geometry: ClientRect, resized: boolean): AsyncAction<any> => {
   return new AsyncAction(async () => {
     // FIXME: we should do this when the mouse is released instead to avoid writing too
     //        often to the database
@@ -63,28 +49,15 @@ export const bringToFront = (id: string, windowID: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.BringToFront), {id: windowID});
 };
 
-export const setWindowTitle = (
-  id: string,
-  windowID: string,
-  title: string,
-): Action<string> => {
-  return createAction($$(id, WorkspaceActions.SetWindowTitle), {
-    id: windowID,
-    title,
-  });
+export const setWindowTitle = (id: string, windowID: string, title: string): Action<string> => {
+  return createAction($$(id, WorkspaceActions.SetWindowTitle), {id: windowID, title});
 };
 
-export const setToast = (
-  id: string,
-  message: string | null,
-): Action<string> => {
+export const setToast = (id: string, message: string | null): Action<string> => {
   return createAction($$(id, WorkspaceActions.Toast), message);
 };
 
-export const setWindowAutoSize = (
-  id: string,
-  windowID: string,
-): Action<string> => {
+export const setWindowAutoSize = (id: string, windowID: string): Action<string> => {
   return createAction($$(id, WorkspaceActions.SetWindowAutoSize), {
     id: windowID,
   });
@@ -125,10 +98,7 @@ export const showUserProfileModal = (id: string): Action<WorkspaceActions> => {
 };
 
 export const closeUserProfileModal = (id: string): Action<WorkspaceActions> => {
-  return createAction(
-    $$(id, WorkspaceActions.SetUserProfileModalVisible),
-    false,
-  );
+  return createAction($$(id, WorkspaceActions.SetUserProfileModalVisible), false);
 };
 
 export const closeErrorModal = (id: string): Action<WorkspaceActions> => {
@@ -143,3 +113,4 @@ export const refAll = (id: string) => {
     return DummyAction;
   }, DummyAction);
 };
+

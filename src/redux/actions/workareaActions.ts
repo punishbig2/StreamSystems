@@ -19,8 +19,10 @@ import {FXOptionsDB} from 'fx-options-db';
 
 export const clearLastExecution = () =>
   createAction(WorkareaActions.ClearLastExecution);
+
 export const setWorkspace = (id: string): AnyAction =>
   createAction(WorkareaActions.SetWorkspace, id);
+
 export const addWorkspace = (): AnyAction => {
   const name: string = 'Untitled';
   const id: string = `ws-${shortid()}`;
@@ -33,10 +35,7 @@ export const addWorkspace = (): AnyAction => {
   return createAction(WorkareaActions.AddWorkspace, newWorkspace);
 };
 
-export const addWindow = (
-  type: WindowTypes,
-  id: string,
-): Action<WorkareaActions> => {
+export const addWindow = (type: WindowTypes, id: string): Action<WorkareaActions> => {
   // Make the other reducer add this ...
   return createAction(WorkareaActions.AddTile, {type, id});
 };
@@ -109,10 +108,8 @@ export const initialize = (): AsyncAction<AnyAction> => {
   return new AsyncAction(handler, createAction(WorkareaActions.Initializing));
 };
 
-export const renameWorkspace = (
-  name: string,
-  id: string,
-): Action<WorkareaActions> => {
+export const renameWorkspace = (name: string, id: string): Action<WorkareaActions> => {
+  FXOptionsDB.renameWorkspace(id, name);
   return createAction(WorkareaActions.RenameWorkspace, {name, id});
 };
 
@@ -127,14 +124,11 @@ export const closeWorkspace = (id: string): Action<WorkareaActions> => {
 export const quit = () => {
 };
 
-export const subscribeToMessages = (
-  email: string,
-): SignalRAction<SignalRActions> => {
+export const subscribeToMessages = (email: string): SignalRAction<SignalRActions> => {
   return new SignalRAction(SignalRActions.SubscribeForMBMsg, [email]);
 };
 
-export const unsubscribeFromMessages = (
-  email: string,
-): SignalRAction<SignalRActions> => {
+export const unsubscribeFromMessages = (email: string): SignalRAction<SignalRActions> => {
   return new SignalRAction(SignalRActions.UnsubscribeForMBMsg, [email]);
 };
+

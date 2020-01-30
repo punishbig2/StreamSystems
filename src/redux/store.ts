@@ -37,7 +37,6 @@ import {SignalRAction} from 'redux/signalRAction';
 import {handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
-import {IWorkspace} from 'interfaces/workspace';
 import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
 import {defaultWorkspaceState, ToolbarState} from 'redux/stateDefs/workspaceState';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
@@ -65,43 +64,43 @@ export const createReducer = (
 };
 
 const hydrate = async (dispatch: Dispatch<any>) => {
-  const workspaces: {
-    [id: string]: IWorkspace;
-  } = await FXOptionsDB.getWorkspacesList();
-  const ids = Object.keys(workspaces);
-  const promises = ids.map(async (workspaceID: string) => {
-    const workspace: IWorkspace = workspaces[workspaceID];
+  const workspaces: string[] = await FXOptionsDB.getWorkspacesList();
+  const promises = workspaces.map(async (id: string) => {
     const toolbarState: ToolbarState = await FXOptionsDB.getToolbarState(
-      workspaceID,
+      id,
     );
-    injectNamedReducer(workspaceID, createWorkspaceReducer, {
+    const name: string = await FXOptionsDB.getWorkspaceName(id);
+    console.log(name);
+    injectNamedReducer(id, createWorkspaceReducer, {
       ...defaultWorkspaceState,
       toolbarState: {
         ...defaultWorkspaceState.toolbarState,
         ...toolbarState,
       },
-      personality: await FXOptionsDB.getPersonality(workspaceID),
+      personality: await FXOptionsDB.getPersonality(id),
     });
-    dispatch(createAction<any, any>(WorkareaActions.AddWorkspace, workspace));
+    dispatch(createAction<any, any>(WorkareaActions.AddWorkspace, {id, name}));
 
-    const tiles: string[] = await FXOptionsDB.getWindowsList(workspaceID);
-    const promises = tiles.map(async (windowID: string) => {
-      const window: Window | undefined = await FXOptionsDB.getWindow(windowID);
-      if (window !== undefined) {
-        injectNamedReducer(windowID, createWindowReducer, {
-          rows: [],
-          strategy: window.strategy,
-          symbol: window.symbol,
-        });
-        dispatch(
-          createAction<any, any>(
-            $$(workspaceID, WorkspaceActions.AddWindow),
-            window,
-          ),
-        );
-      }
-    });
-    return Promise.all(promises);
+    const tiles: string[] | undefined = await FXOptionsDB.getWindowsList(id);
+    if (tiles) {
+      const promises = tiles.map(async (windowID: string) => {
+        const window: Window | undefined = await FXOptionsDB.getWindow(windowID);
+        if (window !== undefined) {
+          injectNamedReducer(windowID, createWindowReducer, {
+            rows: [],
+            strategy: window.strategy,
+            symbol: window.symbol,
+          });
+          dispatch(
+            createAction<any, any>(
+              $$(id, WorkspaceActions.AddWindow),
+              window,
+            ),
+          );
+        }
+      });
+      return Promise.all(promises);
+    }
   });
   return Promise.all(promises);
 };

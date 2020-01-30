@@ -1,12 +1,8 @@
-import {IWorkspace} from 'interfaces/workspace';
 import {Window} from 'interfaces/window';
 import {ToolbarState, STRM} from 'redux/stateDefs/workspaceState';
 import {Currency} from 'interfaces/currency';
 
-const createTransaction = async (
-  storeName: string,
-  mode: IDBTransactionMode,
-): Promise<IDBTransaction> => {
+const createTransaction = async (storeName: string, mode: IDBTransactionMode): Promise<IDBTransaction> => {
   return new Promise<IDBTransaction>(
     (resolve: (tx: IDBTransaction) => void, reject: () => void) => {
       const request: any = indexedDB.open('fx-options', 2);
@@ -56,13 +52,7 @@ export const FXOptionsDB = {
     const store: IDBObjectStore = tx.objectStore(storeName);
     return store.delete(rootKey);
   },
-  put: async (
-    storeName: string,
-    rootKey: string,
-    key: string | null,
-    value: any,
-    replace: boolean = false,
-  ) => {
+  put: async (storeName: string, rootKey: string, key: string | null, value: any, replace: boolean = false) => {
     const tx: IDBTransaction = await createTransaction(storeName, 'readwrite');
     return new Promise((resolve: (data: any) => void, reject: () => void) => {
       const store: IDBObjectStore = tx.objectStore(storeName);
@@ -147,31 +137,38 @@ export const FXOptionsDB = {
     return FXOptionsDB.put('workspaces', workspaceID, 'windows', windows, true);
   },
   addWorkspace: async (workspace: any) => {
-    return FXOptionsDB.put('workarea', 'workspaces', null, [workspace]);
+    await FXOptionsDB.put('workspaces', workspace.id, null, workspace, true);
+    return FXOptionsDB.put('workarea', 'workspaces', null, [workspace.id]);
+  },
+  getWorkspaceName: async (workspaceID: string): Promise<string> => {
+    const workspace: any = await FXOptionsDB.getObject('workspaces', workspaceID);
+    return workspace.name;
+  },
+  renameWorkspace: async (workspaceID: string, name: string) => {
+    return FXOptionsDB.put('workspaces', workspaceID, 'name', name);
   },
   removeWorkspace: async (workspaceID: string) => {
-    const workspaces: IWorkspace[] = [
-      ...(await FXOptionsDB.getObject('workarea', 'workspaces')),
-    ];
-    const index = workspaces.findIndex(
-      (workspace: IWorkspace) => workspace.id === workspaceID,
-    );
-    if (index === -1) throw new Error('invalid workspace, cannot delete it');
+    const workspaces: string[] = [...(await FXOptionsDB.getObject('workarea', 'workspaces'))];
+    const index = workspaces.indexOf(workspaceID);
+    if (index === -1)
+      throw new Error('invalid workspace, cannot delete it');
     workspaces.splice(index, 1);
     const windows: string[] = await FXOptionsDB.getWindowsList(workspaceID);
-    const promises: Promise<any>[] = windows.map(async (windowID: string) => {
-      return FXOptionsDB.removeWindow(workspaceID, windowID);
-    });
-    await Promise.all(promises);
+    if (windows) {
+      const promises: Promise<any>[] = windows.map(async (windowID: string) => {
+        return FXOptionsDB.removeWindow(workspaceID, windowID);
+      });
+      await Promise.all(promises);
+      await FXOptionsDB.del('workspaces', workspaceID);
+    }
     await FXOptionsDB.del('workspaces', workspaceID);
     return FXOptionsDB.put('workarea', 'workspaces', null, workspaces, true);
   },
   getWorkspacesList: async () => {
     const workspaces = await FXOptionsDB.getObject('workarea', 'workspaces');
-    if (!workspaces) return {};
-    return workspaces.reduce((obj: any, workspace: IWorkspace) => {
-      return {...obj, [workspace.id]: workspace};
-    }, {});
+    if (!workspaces)
+      return [];
+    return workspaces;
   },
   getWindowsList: async (workspaceID: string): Promise<string[]> => {
     const workspace = await FXOptionsDB.getObject('workspaces', workspaceID);
@@ -182,7 +179,7 @@ export const FXOptionsDB = {
     return FXOptionsDB.getObject('windows', windowID);
   },
   setPersonality: async (workspaceID: string, personality: string) => {
-    FXOptionsDB.put('workspaces', workspaceID, 'personality', personality);
+    return FXOptionsDB.put('workspaces', workspaceID, 'personality', personality);
   },
   getPersonality: async (workspaceID: string): Promise<string> => {
     const workspace: any | undefined = await FXOptionsDB.getObject(
@@ -211,12 +208,11 @@ export const FXOptionsDB = {
     }
   },
   getToolbarState: async (workspaceID: string): Promise<ToolbarState> => {
-    const workspace: any | undefined = await FXOptionsDB.getObject(
-      'workspaces',
-      workspaceID,
-    );
+    console.log(workspaceID);
+    const workspace: any | undefined = await FXOptionsDB.getObject('workspaces', workspaceID);
     if (workspace === undefined)
       return {pinned: false, hovering: false, visible: false};
     return workspace.toolbarState;
   },
 };
+
