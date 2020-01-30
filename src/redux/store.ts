@@ -220,23 +220,23 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           break;
         case ExecTypes.Filled:
           if (isOCOEnabled()) {
-            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]).then(
-              () => {
-                const runID = toRunId(data.Symbol, data.Strategy);
-                switch (SidesMap[data.Side]) {
-                  case Sides.Buy:
-                    dispatch(
-                      createAction<any, A>($$(runID, RunActions.RemoveAllBids)),
-                    );
-                    break;
-                  case Sides.Sell:
-                    dispatch(
-                      createAction<any, A>($$(runID, RunActions.RemoveAllOfrs)),
-                    );
-                    break;
-                }
-              },
-            );
+            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side])
+              .then(() => {
+                  const runID = toRunId(data.Symbol, data.Strategy);
+                  switch (SidesMap[data.Side]) {
+                    case Sides.Buy:
+                      dispatch(
+                        createAction<any, A>($$(runID, RunActions.RemoveAllBids)),
+                      );
+                      break;
+                    case Sides.Sell:
+                      dispatch(
+                        createAction<any, A>($$(runID, RunActions.RemoveAllOfrs)),
+                      );
+                      break;
+                  }
+                },
+              );
           }
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:

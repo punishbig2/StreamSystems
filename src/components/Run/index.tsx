@@ -117,7 +117,6 @@ const Run: React.FC<Props> = (props: Props) => {
   // Updates a single side of the depth
   const onUpdate = (order: Order) => {
     const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
-    console.log(order);
     switch (order.type) {
       case OrderTypes.Invalid:
         break;

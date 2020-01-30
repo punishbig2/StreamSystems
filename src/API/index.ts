@@ -153,11 +153,7 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(
-    order: Order,
-    personality: string,
-    minSize: number,
-  ): Promise<OrderResponse> {
+  static async createOrder(order: Order, personality: string, minSize: number): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     if (order.price === null || order.quantity === null)
       throw new Error('price and quantity MUST be specified');
@@ -166,9 +162,7 @@ export class API {
     // Build a create order request
     if (currentUser.isbroker && personality === STRM)
       throw new Error('brokers cannot create orders when in streaming mode');
-    const MDMkt: string | undefined = currentUser.isbroker
-      ? personality
-      : undefined;
+    const MDMkt: string | undefined = currentUser.isbroker ? personality : undefined;
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
