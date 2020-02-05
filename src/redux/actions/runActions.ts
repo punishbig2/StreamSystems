@@ -4,6 +4,9 @@ import {TOBTable} from 'interfaces/tobTable';
 import {$$} from 'utils/stringPaster';
 import {OrderTypes} from 'interfaces/mdEntry';
 
+export const deactivateAllOrders = (runID: string) => () =>
+  createAction($$(runID, RunActions.DeactivateAllOrders));
+
 export const updateOfr = (runID: string) => (ofr: any) =>
   createAction($$(runID, RunActions.UpdateOfr), ofr);
 

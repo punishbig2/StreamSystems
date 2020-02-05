@@ -262,8 +262,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
           tenor={ticket.tenor}
           strategy={strategy}
           symbol={symbol.name}
-          user={user.email}
-        />
+          user={user.email}/>
       );
     };
 
@@ -278,8 +277,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
         <OrderTicket
           order={state.orderTicket}
           onCancel={() => setOrderTicket(null)}
-          onSubmit={onSubmit}
-        />
+          onSubmit={onSubmit}/>
       );
     };
 
@@ -302,17 +300,20 @@ export const TOB: React.FC<OwnProps> = withRedux(
     );
 
     const runID = useMemo(() => toRunId(symbol.name, strategy), [symbol, strategy]);
-    const runWindow = (
-      <Run
-        id={runID}
-        symbol={symbol.name}
-        strategy={strategy}
-        tenors={tenors}
-        onClose={hideRunWindow}
-        onSubmit={bulkCreateOrders}
-        defaultSize={symbol.defaultqty}
-        minSize={symbol.minqty}/>
-    );
+    const runWindow = (): ReactElement | null => {
+      return (
+        <Run
+          id={runID}
+          visible={state.runWindowVisible}
+          symbol={symbol.name}
+          strategy={strategy}
+          tenors={tenors}
+          onClose={hideRunWindow}
+          onSubmit={bulkCreateOrders}
+          defaultSize={symbol.defaultqty}
+          minSize={symbol.minqty}/>
+      );
+    };
 
     const onRowErrorFn = useCallback(
       (status: TOBRowStatus) => onRowError(status),
@@ -324,8 +325,7 @@ export const TOB: React.FC<OwnProps> = withRedux(
           {...props}
           depths={state.depths}
           onError={onRowErrorFn}
-          displayOnly={false}
-        />
+          displayOnly={false}/>
       );
     };
     const renderDOBRow = (props: TOBRow): ReactElement => {
@@ -383,21 +383,18 @@ export const TOB: React.FC<OwnProps> = withRedux(
               scrollable={!props.autoSize}
               columns={tobColumns}
               rows={rows}
-              renderRow={renderRow}
-            />
+              renderRow={renderRow}/>
           </div>
           <div className={'depth-table'}>{getDepthTable()}</div>
         </div>
         <ModalWindow
           render={renderOrderTicket}
-          visible={state.orderTicket !== null}
-        />
+          visible={state.orderTicket !== null}/>
         <ModalWindow
           render={renderDarkPoolTicket}
-          visible={state.darkPoolTicket !== null}
-        />
+          visible={state.darkPoolTicket !== null}/>
         <ModalWindow
-          render={() => runWindow}
+          render={runWindow}
           visible={state.runWindowVisible}
         />
       </>

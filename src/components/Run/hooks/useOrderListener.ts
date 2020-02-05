@@ -8,12 +8,7 @@ export interface Functions {
   onUpdate: (entry: Order) => void;
 }
 
-export const useOrderListener = (
-  tenors: string[],
-  symbol: string,
-  strategy: string,
-  fns: Functions,
-) => {
+export const useOrderListener = (tenors: string[], symbol: string, strategy: string, fns: Functions) => {
   useEffect(() => {
     const onUpdate = (event: Event) => {
       const customEvent: CustomEvent<Order> = event as CustomEvent<Order>;

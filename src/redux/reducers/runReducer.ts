@@ -29,6 +29,7 @@ export enum RunActions {
   UpdateBid = 'Run.UpdateBid',
   UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',
   UpdateOfr = 'Run.UpdateOffer',
+  DeactivateAllOrders = 'Run/DeactivateAllOrders',
   UpdateDefaultBidQty = 'Run.UpdateDefaultBidQty',
   RemoveOrder = 'Run.RemoveOrder',
   RemoveAllOfrs = 'Run.RemoveAllOfrs',
@@ -220,7 +221,7 @@ const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
     return status;
   const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
   // Remove the cancelled flag and add the edited flags (both)
-  return (status | edited) & ~OrderStatus.Cancelled;
+  return (status | edited); // & ~OrderStatus.Cancelled;
 };
 
 const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
@@ -259,6 +260,27 @@ const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: Or
           ...order,
           status: activateOrderIfPossible(order.status),
         },
+      },
+    },
+  };
+};
+
+const deactivateAll = (state: RunState, rowID: string): RunState => {
+  const {orders} = state;
+  if (orders === undefined || rowID === undefined)
+    return state;
+  const row: TOBRow = orders[rowID];
+  if (row === undefined)
+    return state;
+  const {bid, ofr} = row;
+  return {
+    ...state,
+    orders: {
+      ...orders,
+      [rowID]: {
+        ...row,
+        bid: {...bid, status: bid.status & ~OrderStatus.PriceEdited & ~OrderStatus.QuantityEdited},
+        ofr: {...ofr, status: ofr.status & ~OrderStatus.PriceEdited & ~OrderStatus.QuantityEdited},
       },
     },
   };
@@ -369,6 +391,8 @@ export default (id: string, initialState: RunState = genesisState) => {
         return valueChangeReducer(state, {type: RunActions.Spread, data});
       case $$(id, RunActions.ActivateRow):
         return activateRow(state, data);
+      case $$(id, RunActions.DeactivateAllOrders):
+        return deactivateAll(state, data);
       case $$(id, RunActions.ActivateOrder):
         return activateOrder(state, data);
       case $$(id, RunActions.ResetOrder):

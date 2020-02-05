@@ -1,7 +1,7 @@
 import createColumns from 'columns/run';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {useInitializer} from 'components/Run/hooks/useInitializer';
-import {useOrderListener} from 'components/Run/hooks/userOrderListener';
+import {useOrderListener} from 'components/Run/hooks/useOrderListener';
 import reducer, {RunActions} from 'redux/reducers/runReducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
@@ -10,7 +10,7 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import strings from 'locales';
-import React, {ReactElement, useEffect} from 'react';
+import React, {ReactElement, useEffect, useCallback, useMemo} from 'react';
 import {toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
@@ -35,6 +35,7 @@ import {
   activateRow,
   onActivateOrder,
   resetOrder,
+  deactivateAllOrders,
 } from 'redux/actions/runActions';
 import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
@@ -50,6 +51,7 @@ interface OwnProps {
   onSubmit: (entries: Order[]) => void;
   minSize: number;
   defaultSize: number;
+  visible: boolean;
 }
 
 interface DispatchProps {
@@ -69,6 +71,7 @@ interface DispatchProps {
   activateRow: (id: string) => Action<RunActions>;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
   resetOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
+  deactivateAllOrders: () => Action<RunActions>;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
@@ -89,6 +92,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
     activateRow: activateRow(id),
     onActivateOrder: onActivateOrder(id),
     resetOrder: resetOrder(id),
+    deactivateAllOrders: deactivateAllOrders(id),
   };
   const entries: [string, any][] = Object.entries(actions);
   return entries.reduce((obj, [name, value]) => {
@@ -114,23 +118,6 @@ const Run: React.FC<Props> = (props: Props) => {
   const {setDefaultSize} = props;
   const setTable = (orders: TOBTable) => props.setTable(orders);
 
-  // Updates a single side of the depth
-  const onUpdate = (order: Order) => {
-    const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
-    switch (order.type) {
-      case OrderTypes.Invalid:
-        break;
-      case OrderTypes.Ofr:
-        props.updateOfr({id, order});
-        break;
-      case OrderTypes.Bid:
-        props.updateBid({id, order});
-        break;
-      case OrderTypes.DarkPool:
-        break;
-    }
-  };
-
   useEffect(() => {
     injectNamedReducer(id, reducer);
     // Set default size
@@ -140,9 +127,32 @@ const Run: React.FC<Props> = (props: Props) => {
     };
   }, [id, setDefaultSize, props.defaultSize]);
 
-  const onDelete = (id: string) => props.removeOrder(id);
+  useEffect(() => {
+    props.deactivateAllOrders();
+  }, [props.deactivateAllOrders, props.visible]);
 
-  useOrderListener(tenors, symbol, strategy, {onUpdate, onDelete});
+  const {updateOfr, updateBid} = props;
+
+  // Updates a single side of the depth
+  const onUpdate = useCallback((order: Order) => {
+    const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
+    switch (order.type) {
+      case OrderTypes.Invalid:
+        break;
+      case OrderTypes.Ofr:
+        updateOfr({id, order});
+        break;
+      case OrderTypes.Bid:
+        updateBid({id, order});
+        break;
+      case OrderTypes.DarkPool:
+        break;
+    }
+  }, [updateBid, updateOfr]);
+
+  const onDelete = useCallback((id: string) => props.removeOrder(id), [props]);
+
+  useOrderListener(tenors, symbol, strategy, useMemo(() => ({onUpdate, onDelete}), [onUpdate, onDelete]));
   useInitializer(tenors, symbol, strategy, email, props.defaultSize, setTable);
 
   const activateOrders = (row: TOBRow) => {
@@ -281,8 +291,8 @@ const Run: React.FC<Props> = (props: Props) => {
   const onClose = () => {
     // Reset the table so that when it's opened again it's the original
     // one loaded initially
-    props.setTable(props.originalOrders);
-    props.setDefaultSize(props.defaultSize);
+    // props.setTable(props.originalOrders);
+    // props.setDefaultSize(props.defaultSize);
     props.onClose();
   };
 
