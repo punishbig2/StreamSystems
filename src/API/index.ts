@@ -417,7 +417,7 @@ export class API {
       TransactTime: getCurrentTime(),
     };
     return post<OrderResponse>(
-      API.getUrl(API.Oms, 'allextended', 'cxl'),
+      API.getUrl(API.Oms, 'all', 'cancel'),
       request,
     );
   }

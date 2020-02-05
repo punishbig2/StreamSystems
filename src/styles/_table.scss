@@ -325,8 +325,10 @@ $red-x-size: 16px;
         i {
           color: $text-color-grey;
         }
+
         &.active {
           cursor: pointer;
+
           i {
             color: $text-color-green;
           }
@@ -344,14 +346,14 @@ $red-x-size: 16px;
         background: none;
         font-size: $table-font-size;
         font-family: $table-font-family;
-        font-weight: $table-font-weight;
+        font-weight: 500;
 
         &::placeholder {
           color: $text-color-grey;
         }
 
         &.dark-pool-base {
-          font-weight: 900;
+          font-weight: 500;
         }
 
         &:focus {
@@ -359,6 +361,12 @@ $red-x-size: 16px;
           outline-offset: -2px;
           z-index: 1;
         }
+      }
+    }
+
+    .price-layout {
+      input {
+        font-weight: 800;
       }
     }
   }

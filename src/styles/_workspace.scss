@@ -102,6 +102,24 @@
         }
       }
 
+      &.corner {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        height: 24px;
+        width: 24px;
+        border: 3px solid rgba(0, 44, 88, 0.15);
+        border-radius: 0;
+        border-left: none;
+        border-top: none;
+        opacity: 0;
+        &:hover {
+          background-color: transparent;
+          opacity: 1;
+          cursor: se-resize;
+        }
+      }
+
       &.vertical {
         position: absolute;
         left: 0;

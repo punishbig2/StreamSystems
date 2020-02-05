@@ -30,21 +30,17 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       return;
     const observer = new ResizeObserver(
       (entries: readonly ResizeObserverEntry[]) => {
-        if (entries.length !== 1) return;
-        const {contentRect} = entries[0];
-        if (contentRect.height !== observable.offsetHeight) {
-          const child: HTMLDivElement | null = element.querySelector(
-            '.tbody-scrollable-content',
-          );
-          if (child !== null) {
-            const {style} = child;
-            style.height = '0';
-          }
-          setHeight(element.offsetHeight);
-          if (child !== null) {
-            const {style} = child;
-            style.height = `${element.offsetHeight}px`;
-          }
+        if (entries.length !== 1)
+          return;
+        const child: HTMLDivElement | null = element.querySelector('.tbody-scrollable-content');
+        if (child !== null) {
+          const {style} = child;
+          style.height = '0';
+        }
+        setHeight(element.offsetHeight);
+        if (child !== null) {
+          const {style} = child;
+          style.height = `${element.offsetHeight}px`;
         }
       },
     );
@@ -55,7 +51,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
     return () => observer.disconnect();
   }, [reference]);
   useEffect(() => {
-    setVisibleCount(Math.ceil(height / itemSize));
+    setVisibleCount(Math.max(Math.ceil(height / itemSize), 12));
   }, [height, itemSize]);
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const {currentTarget} = event;

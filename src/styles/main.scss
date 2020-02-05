@@ -44,6 +44,10 @@
   bottom: 8px;
 }
 
+.tbody-fill-area.post {
+  border-top: 1px solid $table-border-color;
+}
+
 @import "global";
 @import "loading-window";
 @import "modal-window";
