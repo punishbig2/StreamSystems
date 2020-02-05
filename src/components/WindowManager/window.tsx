@@ -114,10 +114,37 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     if (window === null)
       return;
     const parent: HTMLElement | null = window.parentElement;
-    if (parent === null)
+    if (parent === null) {
       onGeometryChange(geometry, resized);
-    console.log(parent);
-    onGeometryChange(geometry, resized);
+    } else {
+      const elements: NodeListOf<Element> = parent.querySelectorAll('.window-element');
+      const windows: Element[] = Array.from(elements);
+      const borders: ClientRect[] = windows
+        .filter((element: Element) => {
+          if (element === window)
+            console.log('we are going to filter the window itself');
+          return element !== window;
+        })
+        .map((element: Element) => {
+          const window: HTMLDivElement = element as HTMLDivElement;
+          return new DOMRect(window.offsetLeft, window.offsetTop, window.offsetWidth, window.offsetHeight);
+        });
+      const threshold: number = 15;
+      const newGeometry: ClientRect = borders.reduce((geometry: ClientRect, border: ClientRect) => {
+        if (geometry.left < threshold)
+          geometry = new DOMRect(0, geometry.top, geometry.width, geometry.height);
+        if (geometry.top < threshold)
+          geometry = new DOMRect(geometry.left, 0, geometry.width, geometry.height);
+        if (Math.abs(border.right - geometry.left) < threshold)
+          geometry = new DOMRect(border.right, geometry.top, geometry.width, geometry.height);
+        if (Math.abs((border.top + border.height) - geometry.top) < threshold)
+          geometry = new DOMRect(geometry.left, border.top + border.height, geometry.width, geometry.height);
+        if (Math.abs(border.left - geometry.right) < threshold)
+          geometry = new DOMRect(border.left - geometry.width, geometry.top, geometry.width, geometry.height);
+        return geometry;
+      }, geometry);
+      onGeometryChange(newGeometry, resized);
+    }
   }, [container, onGeometryChange]);
   // Callbacks
   const resizeCallback = useCallback(
