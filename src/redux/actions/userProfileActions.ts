@@ -8,6 +8,8 @@ import {API} from 'API';
 export const loadUserProfile = (useremail: string): AsyncAction<Action<UserProfileAction>> => {
   return new AsyncAction(async (): Promise<Action<UserProfileAction>[]> => {
     const data: any = await API.getUserProfile(useremail);
+    if (data[0] === undefined)
+      return [];
     // Extract the actual user profile
     const profile: UserProfile = JSON.parse(data[0].workspace);
     // Initialize the original profile

@@ -8,9 +8,8 @@ import {Dispatch} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
-import {createRowReducer, RowActions} from 'redux/reducers/rowReducer';
+import {RowActions} from 'redux/reducers/rowReducer';
 import {RowState} from 'redux/stateDefs/rowState';
-import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {percentage} from 'utils';
 import {$$} from 'utils/stringPaster';
 
@@ -46,23 +45,9 @@ const withRedux: (ignored: any) => any = connect<RowState,
 );
 
 const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
-  const {
-    id,
-    columns,
-    row,
-    onError,
-    displayOnly,
-    resetStatus,
-    ...extra
-  } = props;
+  const {id, columns, row, onError, displayOnly, resetStatus, ...extra} = props;
   const {status} = row;
-  useEffect(() => {
-    if (displayOnly) return;
-    injectNamedReducer(id, createRowReducer, {row});
-    return () => {
-      removeNamedReducer(id);
-    };
-  }, [id, row, displayOnly]);
+
   useEffect(() => {
     if (status === TOBRowStatus.Normal) {
       return;
