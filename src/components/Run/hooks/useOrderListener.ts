@@ -8,8 +8,10 @@ export interface Functions {
   onUpdate: (entry: Order) => void;
 }
 
-export const useOrderListener = (tenors: string[], symbol: string, strategy: string, fns: Functions) => {
+export const useOrderListener = (tenors: string[], symbol: string, strategy: string, fns: Functions, initialized: boolean) => {
   useEffect(() => {
+    if (!initialized)
+      return;
     const onUpdate = (event: Event) => {
       const customEvent: CustomEvent<Order> = event as CustomEvent<Order>;
       // Do update the order
@@ -31,5 +33,5 @@ export const useOrderListener = (tenors: string[], symbol: string, strategy: str
       };
     });
     return () => cleaners.forEach(fn => fn());
-  }, [tenors, symbol, strategy, fns]);
+  }, [tenors, symbol, strategy, fns, initialized]);
 };

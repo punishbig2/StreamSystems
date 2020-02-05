@@ -1,16 +1,15 @@
 import createColumns from 'columns/run';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {useInitializer} from 'components/Run/hooks/useInitializer';
 import {useOrderListener} from 'components/Run/hooks/useOrderListener';
 import reducer, {RunActions} from 'redux/reducers/runReducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import strings from 'locales';
-import React, {ReactElement, useEffect, useCallback, useMemo} from 'react';
+import React, {ReactElement, useEffect, useCallback, useMemo, useState} from 'react';
 import {toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
@@ -41,6 +40,7 @@ import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {Dispatch} from 'redux';
+import {compareTenors} from 'utils/dataGenerators';
 
 interface OwnProps {
   id: string;
@@ -115,22 +115,46 @@ type Props = RunState & OwnProps & DispatchProps;
 const Run: React.FC<Props> = (props: Props) => {
   const {symbol, strategy, tenors, id} = props;
   const {email} = getAuthenticatedUser();
-  const {setDefaultSize} = props;
-  const setTable = (orders: TOBTable) => props.setTable(orders);
+  const {setDefaultSize, deactivateAllOrders, defaultSize, setTable} = props;
+  const setTableWrapper = useCallback((orders: TOBTable) => setTable(orders), [setTable]);
+  const [initialized, setInitialized] = useState<boolean>(false);
 
-  useEffect(() => {
-    injectNamedReducer(id, reducer);
-    // Set default size
-    setDefaultSize(props.defaultSize);
-    return () => {
-      removeNamedReducer(id);
-    };
-  }, [id, setDefaultSize, props.defaultSize]);
-
-  const {deactivateAllOrders} = props;
-  useEffect(() => {
+  const initialize = useCallback(() => {
+    if (initialized)
+      return;
+    const rows: TOBRow[] = tenors.map((tenor: string) => {
+      const getEntry = (type: OrderTypes) => {
+        return new Order(tenor, symbol, strategy, email, defaultSize, type);
+      };
+      const bid: Order = getEntry(OrderTypes.Bid);
+      const ofr: Order = getEntry(OrderTypes.Ofr);
+      return {
+        id: $$(toRunId(symbol, strategy), tenor),
+        tenor: tenor,
+        bid: bid,
+        ofr: ofr,
+        mid:
+          bid.price !== null && ofr.price !== null
+            ? (Number(bid.price) + Number(ofr.price)) / 2
+            : null,
+        spread:
+          bid.price !== null && ofr.price !== null
+            ? Number(ofr.price) - Number(bid.price)
+            : null,
+        darkPrice: null,
+        status: TOBRowStatus.Normal,
+      };
+    });
+    const table = rows
+      .sort(compareTenors)
+      .reduce((table: TOBTable, row: TOBRow) => {
+        table[row.id] = row;
+        return table;
+      }, {});
+    setTableWrapper(table);
+    setDefaultSize(defaultSize);
     deactivateAllOrders();
-  }, [deactivateAllOrders]);
+  }, [deactivateAllOrders, defaultSize, email, setDefaultSize, setTableWrapper, strategy, symbol, tenors, initialized]);
 
   const {updateOfr, updateBid} = props;
 
@@ -153,8 +177,17 @@ const Run: React.FC<Props> = (props: Props) => {
 
   const onDelete = useCallback((id: string) => props.removeOrder(id), [props]);
 
-  useOrderListener(tenors, symbol, strategy, useMemo(() => ({onUpdate, onDelete}), [onUpdate, onDelete]));
-  useInitializer(tenors, symbol, strategy, email, props.defaultSize, setTable);
+  useOrderListener(tenors, symbol, strategy, useMemo(() => ({onUpdate, onDelete}), [onUpdate, onDelete]), initialized);
+  useEffect(() => {
+    injectNamedReducer(id, reducer);
+    initialize();
+    // This will trigger the creation of the order listeners in
+    // the right time
+    setInitialized(true);
+    return () => {
+      removeNamedReducer(id);
+    };
+  }, [id, initialize]);
 
   const activateOrders = (row: TOBRow) => {
     props.activateRow(row.id);
@@ -266,7 +299,7 @@ const Run: React.FC<Props> = (props: Props) => {
           break;
       }
     },
-    focusNext: (target: HTMLInputElement, action?: RunActions) => {
+    focusNext: (target: HTMLInputElement, action?: string) => {
       switch (action) {
         case RunActions.Bid:
           skipTabIndex(target, 1, 0);
@@ -279,6 +312,9 @@ const Run: React.FC<Props> = (props: Props) => {
           break;
         case RunActions.Mid:
           skipTabIndex(target, 4, 2);
+          break;
+        case '1.size':
+          skipTabIndexAll(target, 4, 2);
           break;
         default:
           skipTabIndexAll(target, 1, 0);

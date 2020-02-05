@@ -97,12 +97,7 @@ export const getRunOrders = (
   }, createAction(''));
 };
 
-export const cancelAll = (
-  id: string,
-  symbol: string,
-  strategy: string,
-  side: Sides,
-): AsyncAction<any, ActionType> => {
+export const cancelAll = (id: string, symbol: string, strategy: string, side: Sides): AsyncAction<any, ActionType> => {
   return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: if the 'Status' is failure we should show an error

@@ -6,6 +6,7 @@ import {sizeFormatter} from 'utils/sizeFormatter';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {usePrevious} from 'hooks/usePrevious';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {$$} from 'utils/stringPaster';
 
 interface Props {
   defaultValue: number;
@@ -14,7 +15,7 @@ interface Props {
   order: Order;
   minSize: number;
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
-  onTabbedOut?: (input: HTMLInputElement) => void;
+  onTabbedOut?: (input: HTMLInputElement, action?: string) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
   onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
@@ -55,7 +56,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   const onSubmitted = (input: HTMLInputElement) => {
     sendOnChange(Number(value));
     if (props.onTabbedOut) {
-      props.onTabbedOut(input);
+      props.onTabbedOut(input, $$(order.type, 'size'));
     }
   };
 
