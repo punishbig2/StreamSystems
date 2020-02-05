@@ -232,12 +232,7 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
   }, createAction($$(rowID, RowActions.GettingSnapshot)));
 };
 
-export const getSnapshot = (
-  id: string,
-  symbol: string,
-  strategy: string,
-  tenor: string,
-): AsyncAction<any, ActionType> => {
+export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
   const rowID: string = $$('__ROW', tenor, symbol, strategy);
   return new AsyncAction<any, ActionType>(async () => {
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);

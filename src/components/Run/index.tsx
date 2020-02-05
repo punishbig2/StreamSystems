@@ -216,7 +216,8 @@ const Run: React.FC<Props> = (props: Props) => {
     props.onSubmit(getSelectedOrders());
   };
 
-  if (props.orders === {}) return <div>Loading...</div>;
+  if (props.orders === {})
+    return <div>Loading&hellip;</div>;
 
   const renderRow = (props: any): ReactElement | null => {
     const {row} = props;

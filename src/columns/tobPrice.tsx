@@ -48,10 +48,7 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       max={props.max}
       readOnly={props.readOnly}
       tooltip={() => (
-        <MiniDOB
-          {...props}
-          rows={getMiniDOBByType(props.depths, order.tenor, order.type)}
-        />
+        <MiniDOB {...props} rows={getMiniDOBByType(props.depths, order.tenor, order.type)}/>
       )}
       onError={onError}
       onTabbedOut={(input: HTMLInputElement) =>
