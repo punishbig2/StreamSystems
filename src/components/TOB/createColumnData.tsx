@@ -7,6 +7,7 @@ import {TenorType} from 'interfaces/w';
 import {Settings} from 'settings';
 import {skipTabIndex} from 'utils/skipTab';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {API} from 'API';
 
 type Fn1 = (tenor: TenorType | null) => void;
 type Fn2 = (order: Order) => void;
@@ -86,7 +87,7 @@ export const createColumnData = (
             fns.cancelOrder(mine);
           }
         }
-        if (order.quantity === null && (order.status & OrderStatus.Owned) === 0) {
+        if (order.quantity === null || (order.status & OrderStatus.Owned) === 0) {
           fns.createOrder(
             {...order, quantity: defaultSize},
             personality,
@@ -114,13 +115,7 @@ export const createColumnData = (
         fns.cancelOrder(order);
       }
     },
-    onQuantityChange: (
-      order: Order,
-      newQuantity: number | null,
-      personality: string,
-      minSize: number,
-      input: HTMLInputElement,
-    ) => {
+    onQuantityChange: async (order: Order, newQuantity: number | null, personality: string, minSize: number, input: HTMLInputElement) => {
       const shouldCancelReplace: boolean = order.price !== null
         && (
           ((order.status & OrderStatus.Cancelled) === 0 && (order.status & OrderStatus.Owned) !== 0)
@@ -130,10 +125,12 @@ export const createColumnData = (
       if (shouldCancelReplace) {
         const newOrder: Order = {...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited};
         fns.cancelOrder(order);
-        fns.createOrder(newOrder, personality, minSize);
+        await API.createOrder(newOrder, personality, minSize);
+        skipTabIndex(input, 1, 0);
+      } else {
+        fns.updateOrder({...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited});
+        skipTabIndex(input, 1, 0);
       }
-      fns.updateOrder({...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited});
-      skipTabIndex(input, 1, 0);
     },
     onCancelDarkPoolOrder: (order: Order) => {
       fns.cancelDarkPoolOrder(order);

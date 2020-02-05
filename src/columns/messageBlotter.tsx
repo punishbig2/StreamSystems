@@ -13,29 +13,21 @@ import transactTypeColumn from 'columns/messageBlotterColumns/transactTypeColumn
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 
-const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (
-  type: BlotterTypes,
-) => {
+const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: BlotterTypes) => {
   const sortable: boolean = type !== BlotterTypes.Fills;
   return {
-    normal: [
-      ...(type === BlotterTypes.Fills
-        ? []
-        : [transactTypeColumn(sortable)]),
+    normal: [...(type === BlotterTypes.Fills ? [] : [transactTypeColumn(sortable)]),
       transactTimeColumn(sortable),
-      sideColumn(sortable),
-      sizeColumn(sortable),
       symbolColumn(sortable),
       tenorColumn(sortable),
       strategyColumn(sortable),
       priceColumn(sortable),
+      sideColumn(sortable),
+      sizeColumn(sortable),
       cptyColumn(sortable),
       poolColumn(sortable),
     ],
-    broker: [
-      ...(type === BlotterTypes.Fills
-        ? []
-        : [transactTypeColumn(sortable)]),
+    broker: [...(type === BlotterTypes.Fills ? [] : [transactTypeColumn(sortable)]),
       sizeColumn(sortable),
       symbolColumn(sortable),
       tenorColumn(sortable),

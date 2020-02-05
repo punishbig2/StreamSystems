@@ -10,7 +10,7 @@ export const poolColumn = (sortable: boolean) => ({
     return false;
   },
   header: () => <div>Pool</div>,
-  render: ({ExDestination}: Message) => <div>{ExDestination}&nbsp;</div>,
+  render: ({ExDestination}: Message) => <div className={'message-blotter-cell normal'}>{ExDestination}&nbsp;</div>,
   filterable: true,
   sortable: sortable,
   template: 'MAKE_IT_WIDE',

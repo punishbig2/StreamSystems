@@ -4,7 +4,7 @@ import {Table} from 'components/Table';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {User} from 'interfaces/user';
 import strings from 'locales';
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {connect} from 'react-redux';
 import {ApplicationState} from 'redux/applicationState';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
@@ -99,9 +99,12 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   const columnsMap: { [key: string]: ColumnSpec[] } = messageBlotterColumns(
     props.blotterType,
   );
-  const columns: ColumnSpec[] = user.isbroker
-    ? columnsMap.broker
-    : columnsMap.normal;
+  const columns: ColumnSpec[] = useMemo(() => {
+    return user.isbroker && props.personality === 'None'
+      ? columnsMap.broker
+      : columnsMap.normal;
+  }, [columnsMap.broker, columnsMap.normal, props.personality, user.isbroker]);
+
   const baseFilter = (message: Message): boolean => {
     if (props.blotterType === BlotterTypes.Fills) {
       return isExecution(message);

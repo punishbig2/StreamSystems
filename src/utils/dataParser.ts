@@ -124,17 +124,18 @@ export const extractDepth = (w: W): TOBTable => {
   const ofrs: MDEntry[] = entries.filter(
     (entry: MDEntry) => entry.MDEntryType === OrderTypes.Ofr,
   );
+  const compareEntries = (sign: number) => (a: MDEntry, b: MDEntry) => {
+    let value: number = sign * (Number(a.MDEntryPx) - Number(b.MDEntryPx));
+    if (value !== 0)
+      return value;
+    value = Number(a.MDEntrySize) - Number(b.MDEntrySize);
+    if (value !== 0)
+      return value;
+    return 0;
+  };
   // Sort bids
-  bids.sort(
-    (a: MDEntry, b: MDEntry) => {
-      return Number(b.MDEntryPx) - Number(a.MDEntryPx);
-    },
-  );
-  ofrs.sort(
-    (a: MDEntry, b: MDEntry) => {
-      return Number(a.MDEntryPx) - Number(b.MDEntryPx);
-    },
-  );
+  bids.sort(compareEntries(-1));
+  ofrs.sort(compareEntries(1));
   // Change the shape of this thing
   return reshape(w, bids, ofrs);
 };

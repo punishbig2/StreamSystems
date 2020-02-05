@@ -213,48 +213,51 @@ export const Price: React.FC<Props> = (props: Props) => {
     return priceFormatter(value);
   };
 
-  if ((props.status & OrderStatus.BeingCreated) !== 0) {
-    return (
-      <div className={'price-waiting-spinner'}>
-        <span>Creating&hellip;</span>
-      </div>
-    );
-  } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
-    return (
-      <div className={'price-waiting-spinner'}>
-        <span>Cancelling&hellip;</span>
-      </div>
-    );
-  } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
-    return (
-      <div className={'price-waiting-spinner'}>
-        <span>Loading&hellip;</span>
-      </div>
-    );
-  } else {
-    return (
-      <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
-        <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
-        <NumericInput
-          readOnly={props.readOnly}
-          tabIndex={props.tabIndex}
-          value={finalValue(state.status)}
-          className={getOrderStatusClass(state.status, props.className)}
-          placeholder={getPlaceholder(state.status, props.value)}
-          type={'price'}
-          onCancelEdit={onCancelEdit}
-          onBlur={onCancelEdit}
-          onDoubleClick={onDoubleClick}
-          onChange={onChange}
-          onSubmitted={onSubmitted}
-          onFocus={onFocus}
-          onTabbedOut={onTabbedOut}
-          onNavigate={props.onNavigate}/>
-        {/* The floating object */}
-        {getTooltip()}
-      </div>
-    );
-  }
+  const getSpinner = () => {
+    if ((props.status & OrderStatus.BeingCreated) !== 0) {
+      return (
+        <div className={'price-waiting-spinner'}>
+          <span>Creating&hellip;</span>
+        </div>
+      );
+    } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
+      return (
+        <div className={'price-waiting-spinner'}>
+          <span>Cancelling&hellip;</span>
+        </div>
+      );
+    } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
+      return (
+        <div className={'price-waiting-spinner'}>
+          <span>Loading&hellip;</span>
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
+      <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
+      <NumericInput
+        readOnly={props.readOnly}
+        tabIndex={props.tabIndex}
+        value={finalValue(state.status)}
+        className={getOrderStatusClass(state.status, props.className)}
+        placeholder={getPlaceholder(state.status, props.value)}
+        type={'price'}
+        onCancelEdit={onCancelEdit}
+        onBlur={onCancelEdit}
+        onDoubleClick={onDoubleClick}
+        onChange={onChange}
+        onSubmitted={onSubmitted}
+        onFocus={onFocus}
+        onTabbedOut={onTabbedOut}
+        onNavigate={props.onNavigate}/>
+      {/* The floating object */}
+      {getTooltip()}
+      {getSpinner()}
+    </div>
+  );
 };
 
 Price.defaultProps = {

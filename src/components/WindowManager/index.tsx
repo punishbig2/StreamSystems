@@ -152,8 +152,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       className={classes.join(' ')}
       onMouseLeave={props.onMouseLeave}
       onMouseMove={props.onMouseMove}
-      ref={setElement}
-    >
+      ref={setElement}>
       {windows.map(windowMapper)}
       <WindowElement
         geometry={fixedBlotterGeometry}
@@ -161,29 +160,24 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         area={area}
         isMinimized={false}
         autoSize={true}
+        fixed={true}
         onGeometryChange={() => null}
         onClose={() => null}
         onMinimize={() => null}
         onSetTitle={() => null}
         onClick={() => null}
-        onAdjustSize={() => null}
-      >
+        onAdjustSize={() => null}>
         <MessageBlotter
           id={'fills-blotter'}
           setWindowTitle={() => null}
           connected={props.connected}
           personality={props.personality}
-          blotterType={BlotterTypes.Fills}
-        />
+          blotterType={BlotterTypes.Fills}/>
       </WindowElement>
       <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}
       </div>
-      <div
-        className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(
-          ' ',
-        )}
-      >
+      <div className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(' ')}>
         <div className={'message'}>{props.toast}</div>
         <div className={'close-button'} onClick={props.onClearToast}>
           <i className={'fa fa-times'}/>

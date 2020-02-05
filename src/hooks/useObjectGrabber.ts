@@ -55,7 +55,8 @@ export const useObjectGrabber = (
   const [object, setObject] = useState<HTMLDivElement | null>(null);
   useEffect(() => {
     const element: HTMLDivElement | null = container.current;
-    if (object === null || element === null) return;
+    if (object === null || element === null)
+      return;
     return createObjectGrabber(
       object,
       (x: number, y: number) => {

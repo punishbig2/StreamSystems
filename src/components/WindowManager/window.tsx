@@ -8,6 +8,7 @@ interface OwnProps {
   forbidden: ClientRect[];
   isMinimized: boolean;
   autoSize: boolean;
+  fixed?: boolean;
   // Methods/Event handlers
   onGeometryChange: (geometry: ClientRect, resized: boolean) => void;
   onClose: () => void;
@@ -97,7 +98,8 @@ const adjustToContent = (element: HTMLDivElement, area: ClientRect, setMinWidth:
   } else {
     style.height = pixels(area.height - element.offsetTop);
   }
-  if (windowContent) contentStyle.minHeight = '0';
+  if (windowContent)
+    contentStyle.minHeight = '0';
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
@@ -107,16 +109,24 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(
     null,
   );
+  const tryToSnapToSiblings = useCallback((geometry: ClientRect, resized: boolean) => {
+    const window: HTMLDivElement | null = container.current;
+    if (window === null)
+      return;
+    const parent: HTMLElement | null = window.parentElement;
+    if (parent === null)
+      onGeometryChange(geometry, resized);
+    console.log(parent);
+    onGeometryChange(geometry, resized);
+  }, [container, onGeometryChange]);
   // Callbacks
-  const resizeCallback = useCallback((side: WindowSide) => {
-      return onResize(area, minWidth, onGeometryChange, side);
+  const resizeCallback = useCallback(
+    (side: WindowSide) => {
+      return onResize(area, minWidth, tryToSnapToSiblings, side);
     },
-    [area, minWidth, onGeometryChange],
+    [area, minWidth, tryToSnapToSiblings],
   );
-  const moveCallback = useCallback(onMove(area, onGeometryChange), [
-    area,
-    onGeometryChange,
-  ]);
+  const moveCallback = useCallback(onMove(area, tryToSnapToSiblings), [area, tryToSnapToSiblings]);
   // Moving object, the handle is the whole window
   const [isGrabbed, setMoveHandle] = useObjectGrabber(container, moveCallback);
   // These installs all the resize handles
@@ -157,9 +167,17 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     adjustToContent(parent, area, setMinWidth);
   }, [container, autoSize, area]);
 
+  const getTitlebarButtons = (): ReactElement | null => {
+    if (props.fixed)
+      return null;
+    return (
+      <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize} onAdjustSize={props.onAdjustSize}/>
+    );
+  };
+
   return (
     <div className={classes} ref={container} style={style} onClickCapture={props.onClick}>
-      <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize} onAdjustSize={props.onAdjustSize}/>
+      {getTitlebarButtons()}
       <div className={'content'} ref={setMoveHandle}>
         {props.children}
       </div>
