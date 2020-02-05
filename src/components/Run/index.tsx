@@ -127,9 +127,10 @@ const Run: React.FC<Props> = (props: Props) => {
     };
   }, [id, setDefaultSize, props.defaultSize]);
 
+  const {deactivateAllOrders} = props;
   useEffect(() => {
-    props.deactivateAllOrders();
-  }, [props.deactivateAllOrders, props.visible]);
+    deactivateAllOrders();
+  }, [deactivateAllOrders]);
 
   const {updateOfr, updateBid} = props;
 
@@ -219,14 +220,11 @@ const Run: React.FC<Props> = (props: Props) => {
   if (props.orders === {})
     return <div>Loading&hellip;</div>;
 
-  const renderRow = (props: any): ReactElement | null => {
+  const renderRow = (props: any, index?: number): ReactElement | null => {
     const {row} = props;
     return (
-      <Row {...props}
-           user={props.user}
-           row={row}
-           defaultBidSize={props.defaultBidSize}
-           defaultOfrSize={props.defaultOfrSize}/>
+      <Row {...props} user={props.user} row={row} defaultBidSize={props.defaultBidSize}
+           defaultOfrSize={props.defaultOfrSize} rowNumber={index}/>
     );
   };
 
@@ -289,14 +287,6 @@ const Run: React.FC<Props> = (props: Props) => {
     },
   });
 
-  const onClose = () => {
-    // Reset the table so that when it's opened again it's the original
-    // one loaded initially
-    // props.setTable(props.originalOrders);
-    // props.setDefaultSize(props.defaultSize);
-    props.onClose();
-  };
-
   return (
     <div className={'run-window'}>
       <div className={'modal-title-bar'}>
@@ -309,7 +299,7 @@ const Run: React.FC<Props> = (props: Props) => {
       <div className={'modal-buttons'}>
         <button className={'pull-left'} onClick={activateCancelledOrders}>Activate All</button>
         <div className={'pull-right'}>
-          <button className={'cancel'} onClick={onClose}>
+          <button className={'cancel'} onClick={props.onClose}>
             {strings.Close}
           </button>
           <button className={'success'} onClick={onSubmit} disabled={!isSubmitEnabled()}>

@@ -14,34 +14,22 @@ interface OwnProps {
   fixedRow?: TOBRow;
   weight: number;
   navigation: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  rowNumber?: number;
 }
 
 const Row = (props: OwnProps & RowState) => {
   const {columns, row, fixedRow, user} = props;
-  const onNavigate = (
-    target: HTMLInputElement,
-    direction: NavigateDirection,
-  ) => {
+  const onNavigate = (target: HTMLInputElement, direction: NavigateDirection) => {
   };
   return (
-    <div
-      className={
-        'tr' +
-        (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')
-      }
-    >
-      {columns.map(column => {
+    <div className={'tr' + (row.status === TOBRowStatus.InvertedMarketsError ? ' error' : '')}
+         data-row-number={props.rowNumber}>
+      {columns.map((column: ColumnSpec, index: number) => {
         const width: string = percentage(column.weight, props.weight);
         const name: string = column.name;
         return (
-          <Cell
-            key={name}
-            width={width}
-            user={user}
-            render={column.render}
-            {...(fixedRow || row)}
-            onNavigate={onNavigate}
-          />
+          <Cell key={name} width={width} user={user} render={column.render} {...(fixedRow || row)}
+                onNavigate={onNavigate} colNumber={index}/>
         );
       })}
     </div>

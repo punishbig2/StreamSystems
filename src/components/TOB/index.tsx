@@ -319,13 +319,9 @@ export const TOB: React.FC<OwnProps> = withRedux(
       (status: TOBRowStatus) => onRowError(status),
       [onRowError],
     );
-    const renderRow = (props: any): ReactElement => {
+    const renderRow = (props: any, index?: number): ReactElement => {
       return (
-        <Row
-          {...props}
-          depths={state.depths}
-          onError={onRowErrorFn}
-          displayOnly={false}/>
+        <Row {...props} depths={state.depths} onError={onRowErrorFn} displayOnly={false} rowNumber={index}/>
       );
     };
     const renderDOBRow = (props: TOBRow): ReactElement => {

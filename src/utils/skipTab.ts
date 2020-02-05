@@ -1,4 +1,4 @@
-const getNthParentOf = (element: Element, count: number): Element | null => {
+export const getNthParentOf = (element: Element, count: number): Element | null => {
   let parent: Node | null = element.parentNode;
   for (let i = 0; i < count - 1; ++i) {
     if (parent === null) return null;

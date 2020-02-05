@@ -19,6 +19,7 @@ interface OwnProps {
   weight: number;
   onError: (status: TOBRowStatus) => void;
   displayOnly: boolean;
+  rowNumber: number;
 
   [key: string]: any;
 }
@@ -72,19 +73,12 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
     classes.push('error');
   }
   return (
-    <div className={classes.join(' ')}>
-      {columns.map(column => {
+    <div className={classes.join(' ')} data-row-number={props.rowNumber}>
+      {columns.map((column: ColumnSpec, index: number) => {
         const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);
         return (
-          <Cell
-            key={name}
-            render={column.render}
-            width={width}
-            {...extra}
-            {...row}
-            {...functions}
-          />
+          <Cell key={name} render={column.render} width={width} colNumber={index} {...extra} {...row} {...functions}/>
         );
       })}
     </div>

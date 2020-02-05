@@ -12,14 +12,19 @@ interface Props {
   tabIndex?: number;
   placeholder?: string;
   onCancelEdit?: () => void;
-  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  /*onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;*/
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onSubmitted?: (input: HTMLInputElement) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onSubmitted, onFocus, onChange, onCancelEdit, ...otherProps} = props;
+  const {onTabbedOut, onNavigate, onSubmitted, onChange, onCancelEdit, ...otherProps} = props;
+
+  const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>) => {
+    const {target} = event;
+    setTimeout(() => target.select(), 30);
+  };
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const input: HTMLInputElement = event.currentTarget;
@@ -75,7 +80,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
       placeholder={props.placeholder}
       onKeyDown={onKeyPress}
       onChange={onChangeWrapper}
-      onFocus={onFocus}
+      onFocus={onFocusWrapper}
     />
   );
 };

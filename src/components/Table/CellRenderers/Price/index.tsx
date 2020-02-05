@@ -204,7 +204,6 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const onFocus = ({target}: React.FocusEvent<HTMLInputElement>) => target.select();
   const onCancelEdit = () => {
     resetValue(priceFormatter(props.value), props.status);
   };
@@ -250,7 +249,6 @@ export const Price: React.FC<Props> = (props: Props) => {
         onDoubleClick={onDoubleClick}
         onChange={onChange}
         onSubmitted={onSubmitted}
-        onFocus={onFocus}
         onTabbedOut={onTabbedOut}
         onNavigate={props.onNavigate}/>
       {/* The floating object */}

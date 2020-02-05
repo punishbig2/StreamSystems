@@ -4,8 +4,8 @@ import {RunActions} from 'redux/reducers/runReducer';
 
 export interface QtyHeader {
   value: number;
-  onChange: (value: number | null) => void;
   type: OrderTypes;
+  onChange: (value: number | null) => void;
 }
 
 type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => void;

@@ -14,7 +14,7 @@ interface Props {
   columns: ColumnSpec[];
   rows?: { [id: string]: any };
   scrollable: boolean;
-  renderRow: (props: any) => ReactElement | null;
+  renderRow: (props: any, index?: number) => ReactElement | null;
   className?: string;
 }
 
@@ -164,13 +164,7 @@ export const Table: (props: Props) => React.ReactElement | null = (
   };
   const getHeaders = () => {
     return (
-      <Header
-        columns={columns}
-        addSortColumn={addSortColumn}
-        sortBy={sortBy}
-        addFilter={addFilter}
-        weight={total}
-      />
+      <Header columns={columns} addSortColumn={addSortColumn} sortBy={sortBy} addFilter={addFilter} weight={total}/>
     );
   };
 

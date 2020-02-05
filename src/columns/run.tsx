@@ -11,6 +11,7 @@ import strings from 'locales';
 import React from 'react';
 import {RunActions} from 'redux/reducers/runReducer';
 import {DualTableHeader} from 'components/dualTableHeader';
+import {getNthParentOf} from 'utils/skipTab';
 
 type RowType = TOBRow & { defaultBidSize: number; defaultOfrSize: number };
 
@@ -53,9 +54,33 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
 const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const defaultSize = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
   const onChange = type === 'bid' ? data.onBidQtyChanged : data.onOfrQtyChanged;
+  const tryToGoToTheRightCell = (input: HTMLInputElement) => {
+    const parent: Element | null = getNthParentOf(input, 9);
+    if (parent === null)
+      throw new Error('seriously? how can an input like this have no parent?');
+    const targetInput: HTMLInputElement | null = ((): HTMLInputElement | null => {
+      switch (type) {
+        case 'bid':
+          return parent.querySelector('.tr[data-row-number="0"] .td[data-col-number="2"] input');
+        case 'ofr':
+          return parent.querySelector('.tr[data-row-number="0"] .td[data-col-number="3"] input');
+        default:
+          return null;
+      }
+    })();
+    console.log(targetInput);
+    if (targetInput !== null) {
+      targetInput.focus();
+    }
+  };
   return {
     name: `${type}-quantity`,
-    header: () => <HeaderQty onChange={defaultSize.onChange} value={defaultSize.value} type={defaultSize.type}/>,
+    header: () => (
+      <HeaderQty onChange={defaultSize.onChange}
+                 value={defaultSize.value}
+                 type={defaultSize.type}
+                 onSubmitted={tryToGoToTheRightCell}/>
+    ),
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
