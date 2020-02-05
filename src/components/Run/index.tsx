@@ -66,8 +66,8 @@ interface DispatchProps {
   setSpread: (id: string, value: number | null) => Action<RunActions>;
   setBidQty: (id: string, value: number | null) => Action<RunActions>;
   setOfrQty: (id: string, value: number | null) => Action<RunActions>;
-  setBidDefaultQty: (value: number) => Action<RunActions>;
-  setOfrDefaultQty: (value: number) => Action<RunActions>;
+  setBidDefaultQty: (value: number | null) => Action<RunActions>;
+  setOfrDefaultQty: (value: number | null) => Action<RunActions>;
   activateRow: (id: string) => Action<RunActions>;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
   resetOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
@@ -240,12 +240,12 @@ const Run: React.FC<Props> = (props: Props) => {
     onActivateOrder: (id: string, orderType: OrderTypes) => props.onActivateOrder(id, orderType),
     resetOrder: (id: string, orderType: OrderTypes) => props.resetOrder(id, orderType),
     defaultBidSize: {
-      value: props.defaultBidSize || props.defaultSize,
+      value: props.defaultBidSize,
       onChange: props.setBidDefaultQty,
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
-      value: props.defaultOfrSize || props.defaultSize,
+      value: props.defaultOfrSize,
       onChange: props.setOfrDefaultQty,
       type: OrderTypes.Ofr,
     },
@@ -254,16 +254,16 @@ const Run: React.FC<Props> = (props: Props) => {
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
-          skipTabIndex(target, -4);
+          skipTabIndexAll(target, -6);
           break;
         case NavigateDirection.Left:
-          skipTabIndex(target, -1);
+          skipTabIndexAll(target, -1);
           break;
         case NavigateDirection.Down:
-          skipTabIndex(target, 4);
+          skipTabIndexAll(target, 6);
           break;
         case NavigateDirection.Right:
-          skipTabIndex(target, 1);
+          skipTabIndexAll(target, 1);
           break;
       }
     },

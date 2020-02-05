@@ -5,6 +5,7 @@ import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {usePrevious} from 'hooks/usePrevious';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 
 interface Props {
   defaultValue: number;
@@ -15,6 +16,7 @@ interface Props {
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
   onTabbedOut?: (input: HTMLInputElement) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
+  onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 export const RunQuantity: React.FC<Props> = (props: Props) => {
@@ -107,6 +109,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       placeholder={sizeFormatter(props.value)}
       type={'size'}
       value={getValue()}
+      onNavigate={props.onNavigate}
       onChange={onChangeWrapper}
       onSubmitted={onSubmitted}
       onBlur={reset}/>,

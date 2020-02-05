@@ -4,7 +4,7 @@ import {RunActions} from 'redux/reducers/runReducer';
 
 export interface QtyHeader {
   value: number;
-  onChange: (value: number) => void;
+  onChange: (value: number | null) => void;
   type: OrderTypes;
 }
 

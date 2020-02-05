@@ -44,6 +44,7 @@ export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth
           defaultSize={data.defaultSize}
           minSize={data.minSize}
           personality={data.personality}
+          onNavigate={data.onNavigate}
           onCancel={data.onCancelOrder}
           onSubmit={data.onQuantityChange}/>
       );

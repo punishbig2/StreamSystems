@@ -8,7 +8,10 @@ import {sizeFormatter} from 'utils/sizeFormatter';
 
 export const HeaderQty: React.FC<QtyHeader> = (props: QtyHeader) => {
   const onChange = (value: string | null) => {
-    props.onChange(Number(value));
+    if (value === '' || value === null)
+      props.onChange(null);
+    else
+      props.onChange(Number(value));
   };
   return (
     <DualTableHeader label={strings.Size} action={

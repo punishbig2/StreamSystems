@@ -2,6 +2,7 @@ import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/ge
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import React, {useState, useEffect} from 'react';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 
 interface Props {
   order: Order;
@@ -18,6 +19,7 @@ interface Props {
   minSize: number;
   defaultSize: number;
   personality: string;
+  onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 export const TOBQty: React.FC<Props> = (props: Props) => {
@@ -79,6 +81,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       cancellable={cancellable}
       className={getOrderStatusClass(order.status, 'size')}
       chevron={showChevron}
+      onNavigate={props.onNavigate}
       onChange={onChange}
       onCancel={onCancel}
       onSubmitted={onSubmitted}/>

@@ -3,6 +3,7 @@ import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
 import {OrderTypes} from 'interfaces/mdEntry';
 import React, {ReactNode} from 'react';
 import {sizeFormatter} from 'utils/sizeFormatter';
+import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 
 interface OwnProps {
   type: OrderTypes;
@@ -13,6 +14,7 @@ interface OwnProps {
   className?: string;
   chevron?: boolean;
   onSubmitted: (target: HTMLInputElement) => void;
+  onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
   tabIndex?: number;
 }
 
@@ -38,6 +40,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
       className={props.className}
       tabIndex={props.tabIndex}
       onChange={props.onChange}
+      onNavigate={props.onNavigate}
       onSubmitted={props.onSubmitted}/>,
   ];
 

@@ -5,7 +5,7 @@ import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TenorType} from 'interfaces/w';
 import {Settings} from 'settings';
-import {skipTabIndex} from 'utils/skipTab';
+import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {API} from 'API';
 
@@ -150,16 +150,16 @@ export const createColumnData = (
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
-          skipTabIndex(target, -3, 1);
+          skipTabIndexAll(target, -5, 0);
           break;
         case NavigateDirection.Left:
-          skipTabIndex(target, -1, 1);
+          skipTabIndexAll(target, -1, 0);
           break;
         case NavigateDirection.Down:
-          skipTabIndex(target, 3, 1);
+          skipTabIndexAll(target, 5, 0);
           break;
         case NavigateDirection.Right:
-          skipTabIndex(target, 1, 1);
+          skipTabIndexAll(target, 1, 0);
           break;
       }
     },

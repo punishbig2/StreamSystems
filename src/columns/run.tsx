@@ -67,6 +67,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           minSize={data.minSize}
           onTabbedOut={data.focusNext}
           onChange={onChange}
+          onNavigate={data.onNavigate}
           onActivateOrder={data.onActivateOrder}/>
       );
     },
