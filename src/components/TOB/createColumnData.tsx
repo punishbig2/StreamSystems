@@ -150,13 +150,13 @@ export const createColumnData = (
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
-          skipTabIndexAll(target, -5, 0);
+          skipTabIndexAll(target, -5, 'last-row');
           break;
         case NavigateDirection.Left:
           skipTabIndexAll(target, -1, 0);
           break;
         case NavigateDirection.Down:
-          skipTabIndexAll(target, 5, 0);
+          skipTabIndexAll(target, 5, 'first-row');
           break;
         case NavigateDirection.Right:
           skipTabIndexAll(target, 1, 0);

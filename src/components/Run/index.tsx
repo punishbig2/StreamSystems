@@ -254,13 +254,13 @@ const Run: React.FC<Props> = (props: Props) => {
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
-          skipTabIndexAll(target, -6);
+          skipTabIndexAll(target, -6, 'last-row');
           break;
         case NavigateDirection.Left:
           skipTabIndexAll(target, -1);
           break;
         case NavigateDirection.Down:
-          skipTabIndexAll(target, 6);
+          skipTabIndexAll(target, 6, 'first-row');
           break;
         case NavigateDirection.Right:
           skipTabIndexAll(target, 1);

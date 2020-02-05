@@ -31,11 +31,7 @@ export const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number 
   }
 };
 
-export const skipTabIndexAll = (
-  target: HTMLInputElement,
-  n: number,
-  cycle: number = 0,
-) => {
+export const skipTabIndexAll = (target: HTMLInputElement, n: number, cycle: number | 'first-row' | 'last-row' = 0) => {
   const parent: Element | null = getNthParentOf(target, 4);
   if (parent !== null) {
     const inputs: HTMLInputElement[] = Array.from(
@@ -48,8 +44,12 @@ export const skipTabIndexAll = (
       // Now just focus the input
       next.focus();
     } else {
-      if (inputs[cycle]) {
-        inputs[cycle].focus();
+      if (cycle === 'first-row') {
+      } else if (cycle === 'last-row') {
+      } else {
+        if (inputs[cycle]) {
+          inputs[cycle].focus();
+        }
       }
     }
   }
