@@ -1,6 +1,5 @@
 import createColumns from 'columns/run';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {useOrderListener} from 'components/Run/hooks/useOrderListener';
 import reducer, {RunActions} from 'redux/reducers/runReducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
@@ -9,7 +8,7 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 import strings from 'locales';
-import React, {ReactElement, useEffect, useCallback, useMemo, useState} from 'react';
+import React, {ReactElement, useEffect, useCallback} from 'react';
 import {toRunId} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
@@ -41,6 +40,7 @@ import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {Dispatch} from 'redux';
 import {compareTenors} from 'utils/dataGenerators';
+import {TOBActions} from 'redux/reducers/tobReducer';
 
 interface OwnProps {
   id: string;
@@ -114,14 +114,59 @@ type Props = RunState & OwnProps & DispatchProps;
 
 const Run: React.FC<Props> = (props: Props) => {
   const {symbol, strategy, tenors, id} = props;
-  const {email} = getAuthenticatedUser();
   const {setDefaultSize, deactivateAllOrders, defaultSize, setTable} = props;
   const setTableWrapper = useCallback((orders: TOBTable) => setTable(orders), [setTable]);
-  const [initialized, setInitialized] = useState<boolean>(false);
 
-  const initialize = useCallback(() => {
-    if (initialized)
-      return;
+  const {updateOfr, updateBid, removeOrder} = props;
+
+  // Updates a single side of the depth
+  const onUpdate = useCallback((order: Order) => {
+    const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
+    switch (order.type) {
+      case OrderTypes.Invalid:
+        break;
+      case OrderTypes.Ofr:
+        updateOfr({id, order});
+        break;
+      case OrderTypes.Bid:
+        updateBid({id, order});
+        break;
+      case OrderTypes.DarkPool:
+        break;
+    }
+  }, [updateBid, updateOfr]);
+
+  const onDelete = useCallback((id: string) => removeOrder(id), [removeOrder]);
+
+  let installOrderListeners: (orders: TOBTable) => (any[] | (() => void)[]);
+  installOrderListeners = useCallback((orders: TOBTable) => {
+    if (!orders)
+      return [];
+    const onUpdateWrapper = (event: Event) => {
+      const customEvent: CustomEvent<Order> = event as CustomEvent<Order>;
+      // Do update the order
+      onUpdate(customEvent.detail);
+    };
+    const onDeleteWrapper = (event: Event) => {
+      const customEvent: CustomEvent<string> = event as CustomEvent<string>;
+      // Do delete the order
+      onDelete(customEvent.detail);
+    };
+    return Object.values(orders)
+      .map((row: TOBRow) => {
+        const uid: string = $$(row.tenor, symbol, strategy);
+        // Install the event listener
+        document.addEventListener($$(uid, TOBActions.UpdateOrder), onUpdateWrapper);
+        document.addEventListener($$(uid, TOBActions.DeleteOrder), onDeleteWrapper);
+        return () => {
+          document.removeEventListener($$(uid, TOBActions.UpdateOrder), onUpdateWrapper);
+          document.removeEventListener($$(uid, TOBActions.DeleteOrder), onDeleteWrapper);
+        };
+      });
+  }, [onDelete, onUpdate, strategy, symbol]);
+
+  const initialize = useCallback((): (() => void)[] => {
+    const {email} = getAuthenticatedUser();
     const rows: TOBRow[] = tenors.map((tenor: string) => {
       const getEntry = (type: OrderTypes) => {
         return new Order(tenor, symbol, strategy, email, defaultSize, type);
@@ -154,38 +199,16 @@ const Run: React.FC<Props> = (props: Props) => {
     setTableWrapper(table);
     setDefaultSize(defaultSize);
     deactivateAllOrders();
-  }, [deactivateAllOrders, defaultSize, email, setDefaultSize, setTableWrapper, strategy, symbol, tenors, initialized]);
+    return installOrderListeners(table);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [strategy, symbol, tenors]);
 
-  const {updateOfr, updateBid} = props;
-
-  // Updates a single side of the depth
-  const onUpdate = useCallback((order: Order) => {
-    const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
-    switch (order.type) {
-      case OrderTypes.Invalid:
-        break;
-      case OrderTypes.Ofr:
-        updateOfr({id, order});
-        break;
-      case OrderTypes.Bid:
-        updateBid({id, order});
-        break;
-      case OrderTypes.DarkPool:
-        break;
-    }
-  }, [updateBid, updateOfr]);
-
-  const onDelete = useCallback((id: string) => props.removeOrder(id), [props]);
-
-  useOrderListener(tenors, symbol, strategy, useMemo(() => ({onUpdate, onDelete}), [onUpdate, onDelete]), initialized);
   useEffect(() => {
     injectNamedReducer(id, reducer);
-    initialize();
-    // This will trigger the creation of the order listeners in
-    // the right time
-    setInitialized(true);
+    const cleaners: (() => void)[] = initialize();
     return () => {
       removeNamedReducer(id);
+      cleaners.forEach(fn => fn());
     };
   }, [id, initialize]);
 

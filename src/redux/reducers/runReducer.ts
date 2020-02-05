@@ -308,6 +308,8 @@ const activateRow = (state: RunState, rowID: string): RunState => {
 const updateOrder = (state: RunState, data: { id: string; order: Order }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
   const {order} = data;
+  if (orders === undefined)
+    return state;
   const row: TOBRow = orders[data.id];
   if (row === undefined)
     return state;
@@ -327,7 +329,7 @@ const updateOrder = (state: RunState, data: { id: string; order: Order }, key: '
   };
   return {
     ...state,
-    originalOrders: orders,
+    // originalOrders: orders,
     orders: newOrders,
   };
 };
