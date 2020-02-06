@@ -21,4 +21,5 @@ export interface MDEntry {
   OrderID?: string;
   TickDirection?: ArrowDirection;
   ExDestination?: string;
+  MDEntryTime: string;
 }

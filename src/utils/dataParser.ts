@@ -79,6 +79,7 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
   const e1: MDEntry = entries[0];
   const e2: MDEntry = entries[1];
   // We need the user here
+  const now: number = Date.now();
   if (e1 === undefined || e2 === undefined)
     return [
       {
@@ -86,12 +87,14 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
         MDEntryPx: '0',
         MDEntrySize: '0',
         MDEntryOriginator: '',
+        MDEntryTime: now.toString(),
       },
       {
         MDEntryType: OrderTypes.Ofr,
         MDEntryPx: '0',
         MDEntrySize: '0',
         MDEntryOriginator: '',
+        MDEntryTime: now.toString(),
       },
     ];
   if (e1.MDEntryType === OrderTypes.Bid) {
@@ -126,6 +129,9 @@ export const extractDepth = (w: W): TOBTable => {
   );
   const compareEntries = (sign: number) => (a: MDEntry, b: MDEntry) => {
     let value: number = sign * (Number(a.MDEntryPx) - Number(b.MDEntryPx));
+    if (value !== 0)
+      return value;
+    value = Number(a.MDEntryTime) - Number(b.MDEntryTime);
     if (value !== 0)
       return value;
     value = Number(a.MDEntrySize) - Number(b.MDEntrySize);

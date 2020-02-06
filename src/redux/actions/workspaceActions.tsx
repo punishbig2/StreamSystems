@@ -105,9 +105,9 @@ export const closeErrorModal = (id: string): Action<WorkspaceActions> => {
   return createAction($$(id, WorkspaceActions.CloseErrorModal));
 };
 
-export const refAll = (id: string) => {
+export const refAll = (id: string, personality: string) => {
   return new AsyncAction(async () => {
-    const result: any = await API.brokerRefAll();
+    const result: any = await API.brokerRefAll(personality);
     if (result.Status === 'Failure')
       return createAction($$(id, WorkspaceActions.ShowError), result.Response);
     return DummyAction;

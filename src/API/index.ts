@@ -117,7 +117,7 @@ type Endpoints =
   | 'allextended'
   | 'price';
 
-type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save';
+type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save' | 'cxlall';
 
 const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
@@ -409,15 +409,16 @@ export class API {
     return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', data), null);
   }
 
-  static async brokerRefAll() {
+  static async brokerRefAll(personality: string) {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
       User: currentUser.email,
+      MDMkt: personality === 'None' ? undefined : personality,
       TransactTime: getCurrentTime(),
     };
     return post<OrderResponse>(
-      API.getUrl(API.Oms, 'all', 'cancel'),
+      API.getUrl(API.Oms, 'all', 'cxlall'),
       request,
     );
   }

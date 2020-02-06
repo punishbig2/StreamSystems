@@ -63,7 +63,7 @@ interface DispatchProps {
   setPersonality: (personality: string) => void;
   showUserProfileModal: () => void;
   closeUserProfileModal: () => void;
-  refAll: () => void;
+  refAll: (personality: string) => void;
   closeErrorModal: () => void;
   saveUserProfile: (useremail: string, newProfile: UserProfile, oldOCO: boolean) => void;
 }
@@ -108,7 +108,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
         dispatch(setPersonality(id, personality)),
       showUserProfileModal: () => dispatch(showUserProfileModal(id)),
       closeUserProfileModal: () => dispatch(closeUserProfileModal(id)),
-      refAll: () => dispatch(refAll(id)),
+      refAll: (personality: string) => dispatch(refAll(id, personality)),
       closeErrorModal: () => dispatch(closeErrorModal(id)),
       saveUserProfile: (useremail: string, profile: UserProfile, oldOCO: boolean) =>
         dispatch(saveUserProfile(useremail, profile, oldOCO)),
@@ -306,7 +306,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
               </MenuItem>
             ))}
           </Select>
-          <button onClick={props.refAll}>
+          <button onClick={() => props.refAll(props.personality)}>
             <i className={'fa fa-eraser'}/> Ref ALL
           </button>
           <button onClick={props.showUserProfileModal}>
