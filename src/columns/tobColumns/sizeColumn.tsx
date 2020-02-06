@@ -54,6 +54,8 @@ export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth
             return orders;
           }, [])
           .find((order: Order) => {
+            if (order.tenor !== topOrder.tenor)
+              return false;
             return ((order.status & OrderStatus.Owned) !== 0);
           });
         if (found !== undefined)
