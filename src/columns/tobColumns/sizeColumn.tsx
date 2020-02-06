@@ -6,6 +6,8 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {TOBQty} from 'columns/tobQty';
 import React from 'react';
 import {AggregatedSz} from 'components/TOB/reducer';
+import {TOBRow} from 'interfaces/tobRow';
+import {TOBTable} from 'interfaces/tobTable';
 
 const getAggregatedSize = (aggregatedSz: AggregatedSz | undefined, order: Order, index: 'ofr' | 'bid'): number | null => {
   if (aggregatedSz) {
@@ -36,6 +38,29 @@ export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth
         return {...order, status: status};
       };
 
+      const findMyOrder = (topOrder: Order): Order => {
+        if ((topOrder.status & OrderStatus.Owned) !== 0)
+          return topOrder;
+        const values: TOBRow[][] = Object.values(depths).map((table: TOBTable) => Object.values(table));
+        const found: Order | undefined = values.reduce((all: TOBRow[], one: TOBRow[]) => {
+            return [...all, ...one];
+          }, [])
+          .reduce((orders: Order[], row: TOBRow) => {
+            const {bid, ofr} = row;
+            if (type === 'bid' && bid)
+              return [...orders, bid];
+            else if (type === 'ofr' && ofr)
+              return [...orders, ofr];
+            return orders;
+          }, [])
+          .find((order: Order) => {
+            return ((order.status & OrderStatus.Owned) !== 0);
+          });
+        if (found !== undefined)
+          return found;
+        return topOrder;
+      };
+
       return (
         <TOBQty
           order={getOrder()}
@@ -46,7 +71,10 @@ export const SizeColumn = (label: string, type: Type, data: TOBColumnData, depth
           personality={data.personality}
           onNavigate={data.onNavigate}
           onCancel={data.onCancelOrder}
-          onSubmit={data.onQuantityChange}/>
+          onSubmit={(...args: any[]) => {
+            // @ts-ignore
+            data.onQuantityChange(findMyOrder(args[0]), ...args.slice(1));
+          }}/>
       );
     },
     template: '999999',
