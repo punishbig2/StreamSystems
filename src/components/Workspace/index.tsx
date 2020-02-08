@@ -340,7 +340,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
 
   return (
     <>
-      <div className={objectToCssClass(toolbarState, 'toolbar')} onMouseLeave={onMouseLeave}>
+      <div className={'toolbar'}>
         <div className={'content'}>
           <button onClick={() => addWindow(WindowTypes.TOB)}>
             <i className={'fa fa-plus'}/> Add POD

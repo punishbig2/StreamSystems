@@ -9,10 +9,10 @@ export const poolColumn = (sortable: boolean) => ({
   filterByKeyword: function (p1: any, p2: string) {
     return false;
   },
-  header: () => <div>Pool</div>,
+  header: () => <div>Venue</div>,
   render: ({ExDestination}: Message) => <div className={'message-blotter-cell normal'}>{ExDestination}&nbsp;</div>,
   filterable: true,
   sortable: sortable,
-  template: 'MAKE_IT_WIDE',
-  weight: 1,
+  template: 'MAKE_IT_WIDE_AND_WIDER',
+  weight: 2,
 });

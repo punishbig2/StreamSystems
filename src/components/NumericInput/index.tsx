@@ -1,5 +1,5 @@
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import React, {ReactElement} from 'react';
+import React, {ReactElement, useState} from 'react';
 
 interface Props {
   value: string;
@@ -19,11 +19,22 @@ interface Props {
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onSubmitted, onChange, onCancelEdit, ...otherProps} = props;
+  const {onTabbedOut, onNavigate, onSubmitted, onChange, onCancelEdit, onBlur, ...otherProps} = props;
+  const [selectTimer, setSelectTimer] = useState<number>(setTimeout(() => null, 0));
 
   const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>) => {
     const {target} = event;
-    setTimeout(() => target.select(), 30);
+    clearTimeout(selectTimer);
+    setSelectTimer(
+      setTimeout(() => target.select(), 30),
+    );
+  };
+
+  const onBlurWrapper = (event: React.FocusEvent<HTMLInputElement>) => {
+    clearTimeout(selectTimer);
+    if (props.onBlur) {
+      props.onBlur(event);
+    }
   };
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -80,8 +91,8 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
       placeholder={props.placeholder}
       onKeyDown={onKeyPress}
       onChange={onChangeWrapper}
-      onFocus={onFocusWrapper}
-    />
+      onBlur={onBlurWrapper}
+      onFocus={onFocusWrapper}/>
   );
 };
 

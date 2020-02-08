@@ -1,14 +1,11 @@
 .workspace {
   position: absolute;
 
-  top: 0;
+  top: $window-toolbar-size;
   left: 0;
   bottom: $window-footer-size;
   width: 100%;
 
-  &.toolbar-pinned {
-    top: $window-toolbar-size;
-  }
 
   background-color: #e8e8e8;
   overflow: hidden;

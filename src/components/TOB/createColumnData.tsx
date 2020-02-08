@@ -56,15 +56,8 @@ export const createColumnData = (
     onRefOfrsButtonClicked: () => {
       fns.cancelAll(symbol, strategy, Sides.Sell);
     },
-    onOrderError: (
-      order: Order,
-      error: PriceErrors,
-      input: HTMLInputElement,
-    ) => {
-      if (
-        error === PriceErrors.GreaterThanMax ||
-        error === PriceErrors.LessThanMin
-      ) {
+    onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => {
+      if (error === PriceErrors.GreaterThanMax || error === PriceErrors.LessThanMin) {
         fns.setRowStatus(order, TOBRowStatus.InvertedMarketsError);
         input.focus();
       }
@@ -87,15 +80,11 @@ export const createColumnData = (
             fns.cancelOrder(mine);
           }
         }
-        if (order.quantity === null || (order.status & OrderStatus.Owned) === 0) {
-          fns.createOrder(
-            {...order, quantity: defaultSize},
-            personality,
-            minSize,
-          );
-        } else {
-          fns.createOrder(order, personality, minSize);
-        }
+        fns.createOrder(
+          {...order, quantity: defaultSize},
+          personality,
+          minSize,
+        );
         fns.setRowStatus(order, TOBRowStatus.Normal);
       } else {
         console.log('ignore this action');
