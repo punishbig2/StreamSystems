@@ -1,11 +1,11 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
 import {TOBRowStatus, TOBRow} from 'interfaces/tobRow';
-import {Action} from 'redux/action';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
 import {TOBActions} from 'redux/reducers/tobReducer';
+import {FXOAction} from 'redux/fxo-action';
 
 const genesisState: RowState = {
   row: {},
@@ -83,14 +83,8 @@ const handleDarkPoolUpdate = (state: RowState, dpRow: TOBRow): RowState => {
   };
 };
 
-export const createRowReducer = (
-  id: string,
-  initialState: RowState = genesisState,
-) => {
-  return (
-    state: RowState = initialState,
-    {type, data}: Action<RowActions | TOBActions>,
-  ): RowState => {
+export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
+  return (state: RowState = initialState, {type, data}: FXOAction<RowActions | TOBActions>): RowState => {
     const {row} = state;
     const {ofr, bid} = row;
     switch (type) {

@@ -121,8 +121,6 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
       const windows: Element[] = Array.from(elements);
       const borders: ClientRect[] = windows
         .filter((element: Element) => {
-          if (element === window)
-            console.log('we are going to filter the window itself');
           return element !== window;
         })
         .map((element: Element) => {

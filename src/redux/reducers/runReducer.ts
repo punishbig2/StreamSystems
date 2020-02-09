@@ -3,11 +3,11 @@ import {RunEntry} from 'components/Run/runEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
-import {Action} from 'redux/action';
 import {RunState} from 'redux/stateDefs/runState';
 import {$$} from 'utils/stringPaster';
 import {priceFormatter} from 'utils/priceFormatter';
 import {OrderTypes} from 'interfaces/mdEntry';
+import {FXOAction} from 'redux/fxo-action';
 
 const genesisState: RunState = {
   orders: {},
@@ -80,7 +80,7 @@ const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
   }
 };
 
-const valueChangeReducer = (state: RunState, {type, data}: Action<RunActions>): RunState => {
+const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>): RunState => {
   const {orders} = state;
   // const finder = rowFinder(orders);
   // Find the interesting row
@@ -359,7 +359,7 @@ const updateQty = (state: RunState, data: { id: string; value: number | null }, 
 };
 
 export default (id: string, initialState: RunState = genesisState) => {
-  return (state: RunState = initialState, {type, data}: Action<RunActions>): RunState => {
+  return (state: RunState = initialState, {type, data}: FXOAction<RunActions>): RunState => {
     switch (type) {
       case $$(id, RunActions.SetDefaultSize):
         return {...state, defaultOfrSize: data, defaultBidSize: data};

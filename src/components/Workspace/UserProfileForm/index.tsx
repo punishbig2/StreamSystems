@@ -12,17 +12,17 @@ import {
   setFieldValue,
   saveUserProfile,
 } from 'redux/actions/userProfileActions';
-import {UserProfileAction} from 'redux/reducers/userProfileReducer';
-import {Action} from 'redux/action';
+import {UserProfileActions} from 'redux/reducers/userProfileReducer';
 import {AsyncAction} from 'redux/asyncAction';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {FXOAction} from 'redux/fxo-action';
 
 interface DispatchProps {
-  loadUserProfile: (useremail: string) => AsyncAction<UserProfileAction>,
-  resetInitialProfile: () => Action<UserProfileAction>;
-  setCurrentModal: (modalType: UserProfileModalTypes) => Action<UserProfileAction>;
-  setFieldValue: (name: string, value: any) => Action<UserProfileAction>;
-  saveUserProfile: (useremail: string, profile: any, lastOCO: boolean) => AsyncAction<UserProfileAction>,
+  loadUserProfile: (useremail: string) => AsyncAction<UserProfileActions>,
+  resetInitialProfile: () => FXOAction<UserProfileActions>;
+  setCurrentModal: (modalType: UserProfileModalTypes) => FXOAction<UserProfileActions>;
+  setFieldValue: (name: string, value: any) => FXOAction<UserProfileActions>;
+  saveUserProfile: (useremail: string, profile: any, lastOCO: boolean) => AsyncAction<UserProfileActions>,
 }
 
 interface OwnProps {

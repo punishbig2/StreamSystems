@@ -1,14 +1,10 @@
 import {HubConnection} from '@microsoft/signalr';
-import {Action} from 'redux/action';
 import {SignalRActions} from 'redux/constants/signalRConstants';
+import {FXOAction} from 'redux/fxo-action';
 
-export type Subscriber = (
-  symbol: string,
-  strategy: string,
-  tenor: string,
-) => SignalRAction<SignalRActions>;
+export type Subscriber = (symbol: string, strategy: string, tenor: string) => SignalRAction<SignalRActions>;
 
-export class SignalRAction<T> implements Action<T> {
+export class SignalRAction<T> implements FXOAction<T> {
   type: any;
   data: any;
 

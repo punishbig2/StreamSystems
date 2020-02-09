@@ -1,6 +1,7 @@
-import {AnyAction} from 'redux';
+import {Action} from 'redux';
 import {DefaultWindowState, WindowState} from 'redux/stateDefs/windowState';
 import {$$} from 'utils/stringPaster';
+import {FXOAction} from 'redux/fxo-action';
 
 const genesisState: WindowState = DefaultWindowState;
 
@@ -9,19 +10,13 @@ export enum TOBActions {
   SetStrategy = 'TOBActions.SetStrategy',
   SetSymbol = 'TOBActions.SetSymbol',
   CancelAllOrders = 'TOBActions.CancelAllOrders',
-  UpdatingOrder = 'TOBActions.UpdatingOrder',
-  OrderUpdated = 'TOBActions.OrderUpdated',
-  OrderNotUpdated = 'TOBActions.OrderNotUpdated',
   UpdateDOB = 'TOBActions.UpdateDOB',
   UpdateOrder = 'TOBActions.UpdateOrder',
   DeleteOrder = 'TOBActions.DeleteOrder'
 }
 
-export const createWindowReducer = (
-  id: string,
-  initialState: WindowState = genesisState,
-) => {
-  return (state: WindowState = initialState, {type, data}: AnyAction) => {
+export const createWindowReducer = (id: string, initialState: WindowState = genesisState) => {
+  return (state: WindowState = initialState, {type, data}: FXOAction<TOBActions>) => {
     switch (type) {
       case $$(id, TOBActions.Initialize):
         return {...state, rows: data};

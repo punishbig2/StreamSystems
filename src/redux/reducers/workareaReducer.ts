@@ -1,9 +1,11 @@
 import {User} from 'interfaces/user';
-import {IWorkspace} from 'interfaces/workspace';
-import {Action} from 'redux/action';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
+import {FXOAction} from 'redux/fxo-action';
+import {WorkspaceActions} from 'redux/constants/workspaceConstants';
+import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {workspaceReducer} from 'redux/reducers/workspaceReducer';
 
 const initialState: WorkareaState = {
   workspaces: {},
@@ -20,27 +22,25 @@ const initialState: WorkareaState = {
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
   // This is actually a copy
-  const workspaces: { [id: string]: IWorkspace } = {...state.workspaces};
+  const workspaces: { [id: string]: WorkspaceState } = {...state.workspaces};
   // Remove it from the workspaces list
   delete workspaces[id];
   // Get the new active if the old one was the deleted one
   const newActive = (): string | null => {
-    const values: IWorkspace[] = Object.values(workspaces);
-    if (values.length === 0) return null;
+    const values: WorkspaceState[] = Object.values(workspaces);
+    if (values.length === 0)
+      return null;
     return id === state.activeWorkspace ? values[0].id : state.activeWorkspace;
   };
   // Return the "new" object
   return {...state, activeWorkspace: newActive(), workspaces};
 };
 
-const renameWorkspace = (
-  state: WorkareaState,
-  {name, id}: IWorkspace,
-): WorkareaState => {
+const renameWorkspace = (state: WorkareaState, {name, id}: WorkspaceState): WorkareaState => {
   // All the workspaces
-  const workspaces: { [id: string]: IWorkspace } = state.workspaces;
+  const workspaces: { [id: string]: WorkspaceState } = state.workspaces;
   // The target workspace
-  const workspace: IWorkspace | undefined = workspaces[id];
+  const workspace: WorkspaceState | undefined = workspaces[id];
   // If we don't find a target workspace, something is really wrong
   if (workspace === undefined)
     throw new Error('cannot rename the workspace, it was not found');
@@ -69,10 +69,27 @@ const initialize = (state: WorkareaState, data: any): WorkareaState => {
   };
 };
 
-export default (
-  state: WorkareaState = initialState,
-  {type, data}: Action,
-): WorkareaState => {
+type ActionType = WorkareaActions & SignalRActions & WorkspaceActions;
+
+const nextReducer = (state: WorkareaState, action: FXOAction<ActionType>) => {
+  const values: string[] = Object.values(WorkspaceActions);
+  if (values.includes(action.type)) {
+    const workspaces: { [id: string]: WorkspaceState } = state.workspaces;
+    const id: string = action.workspaceID;
+    return {
+      ...state,
+      workspaces: {
+        ...workspaces,
+        [id]: workspaceReducer(workspaces[id], action),
+      },
+    };
+  } else {
+    return state;
+  }
+};
+
+export default (state: WorkareaState = initialState, action: FXOAction<ActionType>): WorkareaState => {
+  const {type, data} = action;
   switch (type) {
     case SignalRActions.Connected:
       return {...state, connected: true};
@@ -113,6 +130,6 @@ export default (
     case WorkareaActions.ClearLastExecution:
       return {...state, lastExecution: null};
     default:
-      return state;
+      return nextReducer(state, action);
   }
 };

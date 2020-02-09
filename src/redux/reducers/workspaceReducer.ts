@@ -1,12 +1,17 @@
 import {Window} from 'interfaces/window';
-import {AnyAction} from 'redux';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {ToolbarState, WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
+import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
-import {$$} from 'utils/stringPaster';
-import {UserProfileAction} from 'redux/reducers/userProfileReducer';
+import {UserProfileActions} from 'redux/reducers/userProfileReducer';
+import {FXOAction} from 'redux/fxo-action';
 
-const genesisState: WorkspaceState = {
+export interface WorkspaceAction {
+  workspaceID: string;
+}
+
+const initialState: WorkspaceState = {
+  id: '',
+  name: '',
   windows: {},
   toast: null,
   toolbarState: {
@@ -20,28 +25,19 @@ const genesisState: WorkspaceState = {
   personality: STRM,
 };
 
-const minimizeWindow = (
-  id: string,
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = {...state.windows};
   if (windows[id].minimized) return windows;
   return {...windows, [id]: {...windows[id], minimized: true}};
 };
 
-const restoreWindow = (
-  id: string,
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = {...state.windows};
   if (!windows[id].minimized) return windows;
   return {...windows, [id]: {...windows[id], minimized: false}};
 };
 
-const removeWindow = (
-  id: string,
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = {...state.windows};
   // Remove it from the copy
   delete windows[id];
@@ -49,42 +45,25 @@ const removeWindow = (
   return windows;
 };
 
-const setWindowAutoSize = (
-  {id}: { id: string; title: string },
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const setWindowAutoSize = ({id}: { id: string; title: string }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   if (windows[id].autoSize) return windows;
   return {...windows, [id]: {...windows[id], autoSize: true}};
 };
 
-const setWindowTitle = (
-  {id, title}: { id: string; title: string },
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const setWindowTitle = ({id, title}: { id: string; title: string }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   if (windows[id].title === title) return windows;
   return {...windows, [id]: {...windows[id], title}};
 };
 
-const addWindow = (
-  workspaceID: string,
-  window: Window,
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const addWindow = (workspaceID: string, window: Window, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   // Return the new state
   return {...windows, [window.id]: window};
 };
 
-const updateWindowGeometry = (
-  {
-    id,
-    geometry,
-    resized,
-  }: { id: string; geometry: ClientRect; resized: boolean },
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const updateWindowGeometry = ({id, geometry, resized}: { id: string; geometry: ClientRect; resized: boolean }, state: WorkspaceState): { [key: string]: Window } => {
   const windows: { [id: string]: Window } = state.windows;
   const original: Window = windows[id];
   if (equal(original.geometry, geometry)) {
@@ -94,11 +73,7 @@ const updateWindowGeometry = (
   // We know that at least the geometry changed
   return {...windows, [id]: {...original, geometry, autoSize}};
 };
-
-const bringToFront = (
-  {id}: { id: string },
-  state: WorkspaceState,
-): { [key: string]: Window } => {
+const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: string]: Window } => {
   const getMaxZIndex = (windows: { [key: string]: Window }) => {
     const values: Window[] = Object.values(windows);
     return Math.max(
@@ -124,97 +99,41 @@ const bringToFront = (
   };
 };
 
-const toolbarReducer = (
-  state: ToolbarState,
-  {type}: AnyAction,
-): ToolbarState => {
+type ActionType = FXOAction<WorkspaceActions & UserProfileActions, WorkspaceAction>;
+export const workspaceReducer = (state: WorkspaceState = initialState, action: ActionType): WorkspaceState => {
+  const {type, data, workspaceID} = action;
   switch (type) {
-    case WorkspaceActions.ToolbarTryShow:
-      return {...state, hovering: true};
-    case WorkspaceActions.ToolbarShow:
-      return {...state, visible: true, hovering: false};
-    case WorkspaceActions.ToolbarHide:
-      return {...state, visible: false, hovering: false};
-    case WorkspaceActions.ToolbarTogglePin:
-      return {...state, pinned: !state.pinned};
+    case WorkspaceActions.SetWindowAutoSize:
+      return {...state, windows: setWindowAutoSize(data, state)};
+    case WorkspaceActions.SetWindowTitle:
+      return {...state, windows: setWindowTitle(data, state)};
+    case WorkspaceActions.MinimizeWindow:
+      return {...state, windows: minimizeWindow(data, state)};
+    case WorkspaceActions.AddWindow:
+      return {...state, windows: addWindow(workspaceID, data, state)};
+    case WorkspaceActions.UpdateGeometry:
+      return {...state, windows: updateWindowGeometry(data, state)};
+    case WorkspaceActions.RemoveWindow:
+      return {...state, windows: removeWindow(data, state)};
+    case WorkspaceActions.RestoreWindow:
+      return {...state, windows: restoreWindow(data, state)};
+    case WorkspaceActions.BringToFront:
+      return {...state, windows: bringToFront(data, state)};
+    case WorkspaceActions.Toast:
+      return {...state, toast: data};
+    case UserProfileActions.SetUserProfile:
+      return {...state};
+    case WorkspaceActions.UpdateMarkets:
+      return {...state, markets: data};
+    case WorkspaceActions.SetPersonality:
+      return {...state, personality: data};
+    case WorkspaceActions.SetUserProfileModalVisible:
+      return {...state, isUserProfileModalVisible: data};
+    case WorkspaceActions.ShowError:
+      return {...state, errorMessage: data};
+    case WorkspaceActions.CloseErrorModal:
+      return {...state, errorMessage: null};
     default:
       return state;
   }
-};
-
-export const createWorkspaceReducer = (
-  id: string,
-  initialState: WorkspaceState = genesisState,
-) => {
-  return (
-    state: WorkspaceState = initialState,
-    {type, data}: AnyAction,
-  ): WorkspaceState => {
-    switch (type) {
-      case $$(id, WorkspaceActions.SetWindowAutoSize):
-        return {...state, windows: setWindowAutoSize(data, state)};
-      case $$(id, WorkspaceActions.SetWindowTitle):
-        return {...state, windows: setWindowTitle(data, state)};
-      case $$(id, WorkspaceActions.MinimizeWindow):
-        return {...state, windows: minimizeWindow(data, state)};
-      case $$(id, WorkspaceActions.AddWindow):
-        return {...state, windows: addWindow(id, data, state)};
-      case $$(id, WorkspaceActions.UpdateGeometry):
-        return {...state, windows: updateWindowGeometry(data, state)};
-      case $$(id, WorkspaceActions.RemoveWindow):
-        return {...state, windows: removeWindow(data, state)};
-      case $$(id, WorkspaceActions.RestoreWindow):
-        return {...state, windows: restoreWindow(data, state)};
-      case $$(id, WorkspaceActions.BringToFront):
-        return {...state, windows: bringToFront(data, state)};
-      case $$(id, WorkspaceActions.Toast):
-        return {...state, toast: data};
-      case $$(id, WorkspaceActions.ToolbarTryShow):
-        return {
-          ...state,
-          toolbarState: toolbarReducer(state.toolbarState, {
-            type: WorkspaceActions.ToolbarTryShow,
-            data,
-          }),
-        };
-      case $$(id, WorkspaceActions.ToolbarShow):
-        return {
-          ...state,
-          toolbarState: toolbarReducer(state.toolbarState, {
-            type: WorkspaceActions.ToolbarShow,
-            data,
-          }),
-        };
-      case $$(id, WorkspaceActions.ToolbarHide):
-        return {
-          ...state,
-          toolbarState: toolbarReducer(state.toolbarState, {
-            type: WorkspaceActions.ToolbarHide,
-            data,
-          }),
-        };
-      case $$(id, WorkspaceActions.ToolbarTogglePin):
-        return {
-          ...state,
-          toolbarState: toolbarReducer(state.toolbarState, {
-            type: WorkspaceActions.ToolbarTogglePin,
-            data,
-          }),
-        };
-      case UserProfileAction.SetUserProfile:
-        return {...state};
-      case $$(id, WorkspaceActions.UpdateMarkets):
-        return {...state, markets: data};
-      case $$(id, WorkspaceActions.SetPersonality):
-        return {...state, personality: data};
-      case $$(id, WorkspaceActions.SetUserProfileModalVisible):
-        return {...state, isUserProfileModalVisible: data};
-      case $$(id, WorkspaceActions.ShowError):
-        return {...state, errorMessage: data};
-      case $$(id, WorkspaceActions.CloseErrorModal):
-        return {...state, errorMessage: null};
-      default:
-        return state;
-    }
-  };
 };

@@ -1,12 +1,12 @@
 import {AsyncAction} from 'redux/asyncAction';
-import {UserProfileAction} from 'redux/reducers/userProfileReducer';
-import {Action} from 'redux/action';
+import {UserProfileActions} from 'redux/reducers/userProfileReducer';
 import {createAction} from 'redux/actionCreator';
 import {UserProfileModalTypes, UserProfile} from 'interfaces/user';
 import {API} from 'API';
+import {FXOAction} from 'redux/fxo-action';
 
-export const loadUserProfile = (useremail: string): AsyncAction<Action<UserProfileAction>> => {
-  return new AsyncAction(async (): Promise<Action<UserProfileAction>[]> => {
+export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserProfileActions>> => {
+  return new AsyncAction(async (): Promise<FXOAction<UserProfileActions>[]> => {
     const data: any = await API.getUserProfile(useremail);
     if (data[0] === undefined)
       return [];
@@ -14,13 +14,13 @@ export const loadUserProfile = (useremail: string): AsyncAction<Action<UserProfi
     const profile: UserProfile = JSON.parse(data[0].workspace);
     // Initialize the original profile
     return [
-      createAction<UserProfileAction>(UserProfileAction.SetUserProfile, profile),
+      createAction<UserProfileActions>(UserProfileActions.SetUserProfile, profile),
     ];
-  }, createAction<UserProfileAction>(UserProfileAction.LoadUserProfile));
+  }, createAction<UserProfileActions>(UserProfileActions.LoadUserProfile));
 };
 
-export const saveUserProfile = (useremail: string, profile: UserProfile, lastOCO: boolean): AsyncAction<Action<UserProfileAction>> => {
-  return new AsyncAction(async (): Promise<Action<UserProfileAction>[]> => {
+export const saveUserProfile = (useremail: string, profile: UserProfile, lastOCO: boolean): AsyncAction<FXOAction<UserProfileActions>> => {
+  return new AsyncAction(async (): Promise<FXOAction<UserProfileActions>[]> => {
     try {
       if (lastOCO !== profile.oco)
         profile.lastOCOUpdateTimestamp = Date.now();
@@ -28,29 +28,29 @@ export const saveUserProfile = (useremail: string, profile: UserProfile, lastOCO
       if (data === 'success') {
         // Initialize the original profile
         return [
-          createAction<UserProfileAction>(UserProfileAction.SetUserProfile, profile),
-          createAction<UserProfileAction>(UserProfileAction.SetCurrentModal, UserProfileModalTypes.Success),
+          createAction<UserProfileActions>(UserProfileActions.SetUserProfile, profile),
+          createAction<UserProfileActions>(UserProfileActions.SetCurrentModal, UserProfileModalTypes.Success),
         ];
       } else {
         return [
-          createAction<UserProfileAction>(UserProfileAction.SetUserProfileLoadingError, UserProfileModalTypes.Error),
-          createAction<UserProfileAction>(UserProfileAction.SetCurrentModal, UserProfileModalTypes.Error),
+          createAction<UserProfileActions>(UserProfileActions.SetUserProfileLoadingError, UserProfileModalTypes.Error),
+          createAction<UserProfileActions>(UserProfileActions.SetCurrentModal, UserProfileModalTypes.Error),
         ];
       }
     } catch (error) {
       return [
-        createAction<UserProfileAction>(UserProfileAction.SetUserProfileLoadingError, UserProfileModalTypes.Error),
-        createAction<UserProfileAction>(UserProfileAction.SetCurrentModal, UserProfileModalTypes.Error),
+        createAction<UserProfileActions>(UserProfileActions.SetUserProfileLoadingError, UserProfileModalTypes.Error),
+        createAction<UserProfileActions>(UserProfileActions.SetCurrentModal, UserProfileModalTypes.Error),
       ];
     }
-  }, createAction<UserProfileAction>(UserProfileAction.SavingUserProfile));
+  }, createAction<UserProfileActions>(UserProfileActions.SavingUserProfile));
 };
 
-export const resetInitialProfile = (): Action<UserProfileAction> =>
-  createAction<UserProfileAction>(UserProfileAction.ResetInitialProfile);
+export const resetInitialProfile = (): FXOAction<UserProfileActions> =>
+  createAction<UserProfileActions>(UserProfileActions.ResetInitialProfile);
 
-export const setCurrentModal = (modalType: UserProfileModalTypes): Action<UserProfileAction> =>
-  createAction<UserProfileAction>(UserProfileAction.SetCurrentModal, modalType);
+export const setCurrentModal = (modalType: UserProfileModalTypes): FXOAction<UserProfileActions> =>
+  createAction<UserProfileActions>(UserProfileActions.SetCurrentModal, modalType);
 
-export const setFieldValue = (name: string, value: any): Action<UserProfileAction> =>
-  createAction<UserProfileAction>(UserProfileAction.SetFieldValue, {name, value});
+export const setFieldValue = (name: string, value: any): FXOAction<UserProfileActions> =>
+  createAction<UserProfileActions>(UserProfileActions.SetFieldValue, {name, value});

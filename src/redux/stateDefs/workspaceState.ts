@@ -9,6 +9,8 @@ export interface ToolbarState {
 export const STRM: string = 'None';
 
 export interface WorkspaceState {
+  id: string;
+  name: string;
   windows: { [id: string]: Window };
   toast: string | null;
   toolbarState: ToolbarState;
@@ -19,6 +21,8 @@ export interface WorkspaceState {
 }
 
 export const defaultWorkspaceState: WorkspaceState = {
+  id: '',
+  name: '',
   windows: {},
   toast: null,
   toolbarState: {visible: false, hovering: false, pinned: false},

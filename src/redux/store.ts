@@ -4,8 +4,6 @@ import {ExecTypes, Message, DarkPoolMessage} from 'interfaces/message';
 import {Sides} from 'interfaces/order';
 import {W} from 'interfaces/w';
 import {
-  Action,
-  AnyAction,
   combineReducers,
   createStore,
   DeepPartial,
@@ -14,9 +12,10 @@ import {
   Store,
   StoreEnhancer,
   StoreEnhancerStoreCreator,
+  Action,
 } from 'redux';
 import {Window} from 'interfaces/window';
-import {createAction} from 'redux/actionCreator';
+import {createAction, createWorkspaceAction} from 'redux/actionCreator';
 // State shapes
 import {ApplicationState} from 'redux/applicationState';
 // Special action types
@@ -27,7 +26,6 @@ import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
-import settingsReducer from 'redux/reducers/settingsReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
@@ -37,26 +35,23 @@ import {SignalRAction} from 'redux/signalRAction';
 import {handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
-import {createWorkspaceReducer} from 'redux/reducers/workspaceReducer';
-import {defaultWorkspaceState, ToolbarState} from 'redux/stateDefs/workspaceState';
 import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {manualToRowID, toRunId} from 'utils';
 import {RunActions} from 'redux/reducers/runReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
+import {FXOAction} from 'redux/fxo-action';
+import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
-const dynamicReducers: { [name: string]: Reducer } = {};
+const dynamicReducers: { [name: string]: Reducer<any, Action> } = {};
 // Build the reducer from the fixed and dynamic reducers
-export const createReducer = (
-  dynamicReducers: {} = {},
-): Reducer<ApplicationState, Action> => {
+export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationState, Action> => {
   return combineReducers<any, Action<any>>({
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
-    settings: settingsReducer,
     userProfile: userProfileReducer,
     // Dynamically generated reducers
     ...dynamicReducers,
@@ -66,20 +61,10 @@ export const createReducer = (
 const hydrate = async (dispatch: Dispatch<any>) => {
   const workspaces: string[] = await FXOptionsDB.getWorkspacesList();
   const promises = workspaces.map(async (id: string) => {
-    const toolbarState: ToolbarState = await FXOptionsDB.getToolbarState(
-      id,
-    );
     const name: string = await FXOptionsDB.getWorkspaceName(id);
-    injectNamedReducer(id, createWorkspaceReducer, {
-      ...defaultWorkspaceState,
-      toolbarState: {
-        ...defaultWorkspaceState.toolbarState,
-        ...toolbarState,
-      },
-      personality: await FXOptionsDB.getPersonality(id),
-    });
-    dispatch(createAction<any, any>(WorkareaActions.AddWorkspace, {id, name}));
+    const personality: string = await FXOptionsDB.getPersonality(id);
 
+    dispatch(createAction<any, any>(WorkareaActions.AddWorkspace, {...defaultWorkspaceState, id, name, personality}));
     const tiles: string[] | undefined = await FXOptionsDB.getWindowsList(id);
     if (tiles) {
       const promises = tiles.map(async (windowID: string) => {
@@ -90,12 +75,7 @@ const hydrate = async (dispatch: Dispatch<any>) => {
             strategy: window.strategy,
             symbol: window.symbol,
           });
-          dispatch(
-            createAction<any, any>(
-              $$(id, WorkspaceActions.AddWindow),
-              window,
-            ),
-          );
+          dispatch(createWorkspaceAction(id, WorkspaceActions.AddWindow, window));
         }
       });
       return Promise.all(promises);
@@ -104,12 +84,8 @@ const hydrate = async (dispatch: Dispatch<any>) => {
   return Promise.all(promises);
 };
 
-type NamedReducerCreator = (name: string, initialState: any) => Reducer;
-export const injectNamedReducer = (
-  name: string,
-  createNamedReducer: NamedReducerCreator,
-  initialState: any = {},
-) => {
+type NamedReducerCreator = (name: string, initialState: any) => Reducer<any, FXOAction>;
+export const injectNamedReducer = (name: string, createNamedReducer: NamedReducerCreator, initialState: any = {}) => {
   if (dynamicReducers.hasOwnProperty(name)) {
     console.warn(
       'creating the reducer more than once seems to me like a bug: `' +
@@ -120,7 +96,7 @@ export const injectNamedReducer = (
     return;
   }
   dynamicReducers[name] = createNamedReducer(name, initialState);
-  const finalReducer: Reducer = createReducer(dynamicReducers);
+  const finalReducer: Reducer<ApplicationState, Action> = createReducer(dynamicReducers);
   // Replace the reducer
   store.replaceReducer(finalReducer);
 };
@@ -131,8 +107,8 @@ export const removeNamedReducer = <T>(name: string) => {
   store.replaceReducer(createReducer(dynamicReducers));
 };
 
-const connectionManager: SignalRManager<AnyAction> = new SignalRManager<AnyAction>();
-export const DummyAction: AnyAction = {type: '---not-valid---'};
+const connectionManager: SignalRManager<Action> = new SignalRManager<Action>();
+export const DummyAction: Action = {type: '---not-valid---'};
 
 const isOCOEnabled = (): boolean => {
   const state: ApplicationState = store.getState();

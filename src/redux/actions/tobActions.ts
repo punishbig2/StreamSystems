@@ -5,7 +5,6 @@ import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import {W, DarkPool} from 'interfaces/w';
 import {AnyAction} from 'redux';
-import {Action} from 'redux/action';
 import {createAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {SignalRActions} from 'redux/constants/signalRConstants';
@@ -21,18 +20,19 @@ import {RunActions} from 'redux/reducers/runReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 import {Currency} from 'interfaces/currency';
 import {OrderTypes} from 'interfaces/mdEntry';
+import {FXOAction} from 'redux/fxo-action';
 
-type ActionType = Action<TOBActions | string>;
+type FXOActionType = FXOAction<TOBActions | string>;
 export const cancelDarkPoolOrder = (
   id: string,
   order: Order,
-): AsyncAction<any, ActionType> => {
+): AsyncAction<any, FXOActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
     $$(rowID, RowActions.CancellingOrder, DarkPool),
     order.type,
   );
-  const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
+  const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
     const result = await API.cancelDarkPoolOrder(order);
     if (result.Status === 'Success') {
       const type: string = $$(order.uid(), TOBActions.DeleteOrder, DarkPool);
@@ -46,19 +46,19 @@ export const cancelDarkPoolOrder = (
       return createAction($$(rowID, RowActions.OrderNotCanceled, DarkPool));
     }
   };
-  return new AsyncAction<any, ActionType>(handler, initialAction);
+  return new AsyncAction<any, FXOActionType>(handler, initialAction);
 };
 
 export const cancelOrder = (
   id: string,
   order: Order,
-): AsyncAction<any, ActionType> => {
+): AsyncAction<any, FXOActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
     $$(rowID, RowActions.CancellingOrder),
     order.type,
   );
-  const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
+  const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
     const result = await API.cancelOrder(order);
     if (result.Status === 'Success') {
       const type: string = $$(order.uid(), TOBActions.DeleteOrder);
@@ -72,7 +72,7 @@ export const cancelOrder = (
       return createAction($$(rowID, RowActions.OrderNotCanceled));
     }
   };
-  return new AsyncAction<any, ActionType>(handler, initialAction);
+  return new AsyncAction<any, FXOActionType>(handler, initialAction);
 };
 
 export const getRunOrders = (
@@ -81,7 +81,7 @@ export const getRunOrders = (
   strategy: string,
 ): AsyncAction<any, any> => {
   const user: User = getAuthenticatedUser();
-  return new AsyncAction<any, any>(async (): Promise<ActionType> => {
+  return new AsyncAction<any, any>(async (): Promise<FXOActionType> => {
     const entries: OrderMessage[] = await API.getRunOrders(
       user.email,
       symbol,
@@ -97,8 +97,8 @@ export const getRunOrders = (
   }, createAction(''));
 };
 
-export const cancelAll = (id: string, symbol: string, strategy: string, side: Sides): AsyncAction<any, ActionType> => {
-  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+export const cancelAll = (id: string, symbol: string, strategy: string, side: Sides): AsyncAction<any, FXOActionType> => {
+  return new AsyncAction<any, FXOActionType>(async (): Promise<FXOActionType> => {
     const result = await API.cancelAll(symbol, strategy, side);
     // FIXME: if the 'Status' is failure we should show an error
     //        but currently the internalValue is misleading
@@ -123,14 +123,14 @@ export const publishDarkPoolPrice = (
   tenor: string,
   price: number,
 ) => {
-  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+  return new AsyncAction<any, FXOActionType>(async (): Promise<FXOActionType> => {
     const user: User = getAuthenticatedUser();
     API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, price);
     return DummyAction;
   }, DummyAction);
 };
 
-export const updateOrder = (id: string, order: Order): Action<string> => {
+export const updateOrder = (id: string, order: Order): FXOAction<string> => {
   if (order.type === OrderTypes.Ofr) {
     return createAction($$(toRowID(order), RowActions.UpdateOfr), order);
   } else if (order.type === OrderTypes.Bid) {
@@ -140,8 +140,8 @@ export const updateOrder = (id: string, order: Order): Action<string> => {
   }
 };
 
-/*export const updateOrder = (id: string, order: Order): AsyncAction<any, ActionType> => {
-  return new AsyncAction<any, ActionType>(async (): Promise<ActionType> => {
+/*export const updateOrder = (id: string, order: Order): AsyncAction<any, FXOActionType> => {
+  return new AsyncAction<any, FXOActionType>(async (): Promise<FXOActionType> => {
     const result = await API.updateOrder(order);
     if (result.Status === 'Success') {
       return createAction($$(id, TOBActions.OrderUpdated));
@@ -151,12 +151,12 @@ export const updateOrder = (id: string, order: Order): Action<string> => {
   }, createAction($$(id, TOBActions.UpdatingOrder)));
 };*/
 
-export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): Action<string> => {
+export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): FXOAction<string> => {
   return createAction($$(toRowID(order), RowActions.SetRowStatus), status);
 };
 
-export const createDarkPoolOrder = (order: DarkPoolOrder, personality: string): AsyncAction<any, ActionType> => {
-  return new AsyncAction<any, ActionType>(async () => {
+export const createDarkPoolOrder = (order: DarkPoolOrder, personality: string): AsyncAction<any, FXOActionType> => {
+  return new AsyncAction<any, FXOActionType>(async () => {
     const result: any = await API.createDarkPoolOrder({
       ...order,
       MDMkt: personality,
@@ -168,13 +168,13 @@ export const createDarkPoolOrder = (order: DarkPoolOrder, personality: string): 
   }, DummyAction);
 };
 
-export const createOrder = (id: string, personality: string, order: Order, minSize: number): AsyncAction<any, ActionType> => {
+export const createOrder = (id: string, personality: string, order: Order, minSize: number): AsyncAction<any, FXOActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
     $$(rowID, RowActions.CreatingOrder),
     order.type,
   );
-  const handler: () => Promise<ActionType> = async (): Promise<ActionType> => {
+  const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
     const result: OrderResponse = await API.createOrder(
       order,
       personality,
@@ -198,12 +198,12 @@ export const createOrder = (id: string, personality: string, order: Order, minSi
       return createAction($$(rowID, RowActions.OrderNotCreated), {order});
     }
   };
-  return new AsyncAction<any, ActionType>(handler, initialAction);
+  return new AsyncAction<any, FXOActionType>(handler, initialAction);
 };
 
-export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
+export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, FXOActionType> => {
   const rowID: string = $$('__ROW', tenor, symbol, strategy);
-  return new AsyncAction<any, ActionType>(async () => {
+  return new AsyncAction<any, FXOActionType>(async () => {
     const tob: W | null = await API.getDarkPoolTOBSnapshot(
       symbol,
       strategy,
@@ -211,8 +211,8 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
     );
     const w: W | null = await API.getDarkPoolSnapshot(symbol, strategy, tenor);
     if (tob !== null && w !== null) {
-      const a1: Action<string> | null = handlers.W<ActionType>(tob, true);
-      const a2: Action<string> | null = handlers.W<ActionType>(w, true);
+      const a1: FXOAction<string> | null = handlers.W<FXOActionType>(tob, true);
+      const a2: FXOAction<string> | null = handlers.W<FXOActionType>(w, true);
       if (a1 !== null) {
         const {bid, ofr} = a1.data;
         bid.status = bid.status | OrderStatus.DarkPool;
@@ -227,9 +227,9 @@ export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string
   }, createAction($$(rowID, RowActions.GettingSnapshot)));
 };
 
-export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, ActionType> => {
+export const getSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, FXOActionType> => {
   const rowID: string = $$('__ROW', tenor, symbol, strategy);
-  return new AsyncAction<any, ActionType>(async () => {
+  return new AsyncAction<any, FXOActionType>(async () => {
     const tob: W | null = await API.getTOBSnapshot(symbol, strategy, tenor);
     const w: W | null = await API.getSnapshot(symbol, strategy, tenor);
     if (tob !== null) {
@@ -283,7 +283,7 @@ export const unsubscribe = (
 };
 
 export const setStrategy = (tileID: string, strategy: string) => {
-  return new AsyncAction<any, ActionType>(async () => {
+  return new AsyncAction<any, FXOActionType>(async () => {
     FXOptionsDB.setWindowStrategy(tileID, strategy);
     return createAction($$(tileID, TOBActions.SetStrategy), strategy);
   }, DummyAction);
@@ -292,7 +292,7 @@ export const setStrategy = (tileID: string, strategy: string) => {
 export const setSymbol = (tileID: string, symbol: Currency | undefined) => {
   if (symbol === undefined)
     return DummyAction;
-  return new AsyncAction<any, ActionType>(async () => {
+  return new AsyncAction<any, FXOActionType>(async () => {
     FXOptionsDB.setWindowSymbol(tileID, symbol);
     return createAction($$(tileID, TOBActions.SetSymbol), symbol);
   }, DummyAction);

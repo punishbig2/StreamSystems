@@ -1,19 +1,14 @@
 import {HTTPError} from 'API';
-import {Dispatch} from 'redux';
-import {Action} from 'redux/action';
+import {Dispatch, Action} from 'redux';
 import {createAction} from 'redux/actionCreator';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 
-export class AsyncAction<T, A extends Action = Action<any>>
-  implements Action<T> {
+export class AsyncAction<T, A extends Action = Action<T>> implements Action<T> {
   private readonly handler: (dispatch?: Dispatch<A>) => Promise<A | A[]>;
   private readonly initial: A;
   public type: any;
 
-  constructor(
-    handler: (dispatch?: Dispatch<A>) => Promise<A | A[]>,
-    initial: A,
-  ) {
+  constructor(handler: (dispatch?: Dispatch<A>) => Promise<A | A[]>, initial: A) {
     this.initial = initial;
     this.handler = handler;
   }

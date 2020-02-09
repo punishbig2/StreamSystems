@@ -51,7 +51,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   const {timestamp, value} = props;
   if (value === undefined)
     throw new Error('value is not optional');
-  const [state, dispatch] = useReducer<typeof reducer>(reducer, {
+  const [state, dispatch] = useReducer(reducer, {
     tooltipX: 0,
     tooltipY: 0,
     startedShowingTooltip: false,

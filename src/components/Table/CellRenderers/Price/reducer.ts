@@ -1,11 +1,9 @@
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {State} from 'components/Table/CellRenderers/Price/state';
-import {Action} from 'redux/action';
+import {FXOAction} from 'redux/fxo-action';
 
-export const reducer = (
-  state: State,
-  {type, data}: Action<PriceActions>,
-): State => {
+export const reducer = (state: State, action: FXOAction<PriceActions>): State => {
+  const {type, data} = action;
   switch (type) {
     case PriceActions.ShowTooltip:
       return {...state, visible: true, startedShowingTooltip: false};

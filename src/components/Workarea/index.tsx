@@ -47,9 +47,8 @@ interface DispatchProps {
 
 type Props = OwnProps & WorkareaState & DispatchProps;
 
-const mapStateToProps: MapStateToProps<WorkareaState,
-  OwnProps,
-  ApplicationState> = ({workarea}: ApplicationState): WorkareaState => workarea;
+const mapStateToProps: MapStateToProps<WorkareaState, OwnProps, ApplicationState> =
+  ({workarea}: ApplicationState): WorkareaState => workarea;
 
 const mapDispatchToProps: DispatchProps = {
   addWorkspace,
@@ -65,10 +64,7 @@ const mapDispatchToProps: DispatchProps = {
   subscribeToMessages,
 };
 
-const withRedux: (ignored: any) => any = connect<WorkareaState,
-  DispatchProps,
-  OwnProps,
-  ApplicationState>(
+const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, OwnProps, ApplicationState>(
   mapStateToProps,
   mapDispatchToProps,
 );

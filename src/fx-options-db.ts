@@ -1,5 +1,5 @@
 import {Window} from 'interfaces/window';
-import {ToolbarState, STRM} from 'redux/stateDefs/workspaceState';
+import {ToolbarState, STRM, WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {Currency} from 'interfaces/currency';
 
 const createTransaction = async (storeName: string, mode: IDBTransactionMode): Promise<IDBTransaction> => {
@@ -138,8 +138,9 @@ export const FXOptionsDB = {
     await FXOptionsDB.del('windows', windowID);
     return FXOptionsDB.put('workspaces', workspaceID, 'windows', windows, true);
   },
-  addWorkspace: async (workspace: any) => {
-    await FXOptionsDB.put('workspaces', workspace.id, null, workspace, true);
+  addWorkspace: async (workspace: WorkspaceState) => {
+    const {name, id} = workspace;
+    await FXOptionsDB.put('workspaces', workspace.id, null, {name, id}, true);
     return FXOptionsDB.put('workarea', 'workspaces', null, [workspace.id]);
   },
   getWorkspaceName: async (workspaceID: string): Promise<string> => {
@@ -174,7 +175,8 @@ export const FXOptionsDB = {
   },
   getWindowsList: async (workspaceID: string): Promise<string[]> => {
     const workspace = await FXOptionsDB.getObject('workspaces', workspaceID);
-    if (!workspace) return [];
+    if (!workspace)
+      return [];
     return workspace.windows;
   },
   getWindow: async (windowID: string): Promise<Window | undefined> => {

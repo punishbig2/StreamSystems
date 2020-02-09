@@ -10,7 +10,6 @@ interface Props {
   toast: string | null;
   renderContent: (id: string, type: WindowTypes) => ReactElement | null;
   windows: { [id: string]: Window };
-  toolbarPinned: boolean;
   connected: boolean;
   personality: string;
   onGeometryChange: (
@@ -23,22 +22,17 @@ interface Props {
   onSetWindowTitle: (id: string, title: string) => void;
   onWindowRestored: (id: string) => void;
   onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseMove?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onWindowClicked: (id: string) => void;
   onWindowSizeAdjusted: (id: string) => void;
   onClearToast: () => void;
 }
 
-const Callbacks: {
-  [id: string]: { [name: string]: (...args: any[]) => void };
-} = {};
-const getCallback = (
-  id: string,
-  name: string,
-  fallback: (...args: any[]) => any,
-): ((...args: any[]) => any) => {
-  if (Callbacks[id] === undefined) Callbacks[id] = {};
-  if (Callbacks[id][name] === undefined) Callbacks[id][name] = fallback;
+const Callbacks: { [id: string]: { [name: string]: (...args: any[]) => void } } = {};
+const getCallback = (id: string, name: string, fallback: (...args: any[]) => any): ((...args: any[]) => any) => {
+  if (Callbacks[id] === undefined)
+    Callbacks[id] = {};
+  if (Callbacks[id][name] === undefined)
+    Callbacks[id][name] = fallback;
   return Callbacks[id][name];
 };
 
@@ -146,13 +140,8 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   };
   const classes = ['workspace'];
-  if (props.toolbarPinned) classes.push('toolbar-pinned');
   return (
-    <div
-      className={classes.join(' ')}
-      onMouseLeave={props.onMouseLeave}
-      onMouseMove={props.onMouseMove}
-      ref={setElement}>
+    <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} ref={setElement}>
       {windows.map(windowMapper)}
       <WindowElement
         geometry={fixedBlotterGeometry}

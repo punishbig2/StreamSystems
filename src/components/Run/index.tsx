@@ -35,12 +35,12 @@ import {
   resetOrder,
   deactivateAllOrders,
 } from 'redux/actions/runActions';
-import {Action} from 'redux/action';
 import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {Dispatch} from 'redux';
 import {compareTenors} from 'utils/dataGenerators';
 import {TOBActions} from 'redux/reducers/tobReducer';
+import {FXOAction} from 'redux/fxo-action';
 
 interface OwnProps {
   id: string;
@@ -55,23 +55,23 @@ interface OwnProps {
 }
 
 interface DispatchProps {
-  setDefaultSize: (value: number) => Action<RunActions>;
-  updateOfr: (value: any) => Action<RunActions>;
-  updateBid: (value: any) => Action<RunActions>;
-  removeOrder: (id: string) => Action<RunActions>;
-  setTable: (order: TOBTable) => Action<RunActions>;
-  setBidPrice: (id: string, value: number | null) => Action<RunActions>;
-  setOfrPrice: (id: string, value: number | null) => Action<RunActions>;
-  setMid: (id: string, value: number | null) => Action<RunActions>;
-  setSpread: (id: string, value: number | null) => Action<RunActions>;
-  setBidQty: (id: string, value: number | null) => Action<RunActions>;
-  setOfrQty: (id: string, value: number | null) => Action<RunActions>;
-  setBidDefaultQty: (value: number | null) => Action<RunActions>;
-  setOfrDefaultQty: (value: number | null) => Action<RunActions>;
-  activateRow: (id: string) => Action<RunActions>;
-  onActivateOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
-  resetOrder: (rowID: string, orderType: OrderTypes) => Action<RunActions>;
-  deactivateAllOrders: () => Action<RunActions>;
+  setDefaultSize: (value: number) => FXOAction<RunActions>;
+  updateOfr: (value: any) => FXOAction<RunActions>;
+  updateBid: (value: any) => FXOAction<RunActions>;
+  removeOrder: (id: string) => FXOAction<RunActions>;
+  setTable: (order: TOBTable) => FXOAction<RunActions>;
+  setBidPrice: (id: string, value: number | null) => FXOAction<RunActions>;
+  setOfrPrice: (id: string, value: number | null) => FXOAction<RunActions>;
+  setMid: (id: string, value: number | null) => FXOAction<RunActions>;
+  setSpread: (id: string, value: number | null) => FXOAction<RunActions>;
+  setBidQty: (id: string, value: number | null) => FXOAction<RunActions>;
+  setOfrQty: (id: string, value: number | null) => FXOAction<RunActions>;
+  setBidDefaultQty: (value: number | null) => FXOAction<RunActions>;
+  setOfrDefaultQty: (value: number | null) => FXOAction<RunActions>;
+  activateRow: (id: string) => FXOAction<RunActions>;
+  onActivateOrder: (rowID: string, orderType: OrderTypes) => FXOAction<RunActions>;
+  resetOrder: (rowID: string, orderType: OrderTypes) => FXOAction<RunActions>;
+  deactivateAllOrders: () => FXOAction<RunActions>;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {

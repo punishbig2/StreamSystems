@@ -6,7 +6,7 @@ import {
   UserProfileModalTypes,
   UserProfile,
 } from 'interfaces/user';
-import {Action} from 'redux/action';
+import {FXOAction} from 'redux/fxo-action';
 
 const defaultProfile: UserProfile = {
   ccyGroup: CurrencyGroups.Invalid,
@@ -21,7 +21,7 @@ const defaultProfile: UserProfile = {
   userType: UserTypes.Unset,
 };
 
-export enum UserProfileAction {
+export enum UserProfileActions {
   SetFieldValue = 'UserProfileAction.SetFieldValue',
   SetUserProfile = 'UserProfileAction.UpdateUserProfile',
   LoadUserProfile = 'UserProfileAction.LoadUserProfile',
@@ -38,19 +38,19 @@ const initialState: UserProfileState = {
   initialProfile: defaultProfile,
 };
 
-export default (state: UserProfileState = initialState, {data, type}: Action<UserProfileAction>): UserProfileState => {
+export default (state: UserProfileState = initialState, {data, type}: FXOAction<UserProfileActions>): UserProfileState => {
   switch (type) {
-    case UserProfileAction.ResetInitialProfile:
+    case UserProfileActions.ResetInitialProfile:
       return {...state, profile: state.initialProfile};
-    case UserProfileAction.SetCurrentModal:
+    case UserProfileActions.SetCurrentModal:
       return {...state, currentModalType: data};
-    case UserProfileAction.SetUserProfile:
+    case UserProfileActions.SetUserProfile:
       return {...state, profile: data, initialProfile: data, status: UserProfileStatus.Initial};
-    case UserProfileAction.LoadUserProfile:
+    case UserProfileActions.LoadUserProfile:
       return {...state, status: UserProfileStatus.Loading};
-    case UserProfileAction.SetUserProfileLoadingError:
+    case UserProfileActions.SetUserProfileLoadingError:
       return {...state, status: UserProfileStatus.Error};
-    case UserProfileAction.SetFieldValue:
+    case UserProfileActions.SetFieldValue:
       return {...state, profile: {...state.profile, [data.name]: data.value}};
     default:
       return state;
