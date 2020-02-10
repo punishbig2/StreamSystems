@@ -39,6 +39,7 @@ import {ErrorBox} from 'components/ErrorBox';
 import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
 import {store} from 'redux/store';
 import {saveUserProfile} from 'redux/actions/userProfileActions';
+import {ExecutionBanner} from 'components/ExecutionBanner';
 
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
@@ -293,6 +294,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>
             <i className={'fa fa-eye'}/> Add Blotter
           </button>
+          <ExecutionBanner/>
           {getRightPanelButtons()}
         </div>
       </div>

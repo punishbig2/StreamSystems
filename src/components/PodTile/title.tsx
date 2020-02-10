@@ -18,21 +18,20 @@ interface Props {
   onShowRunWindow: () => void;
 }
 
-export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
+export const PodTileTitle: React.FC<Props> = (props: Props): ReactElement => {
   const {symbols, symbol, products, strategy, setSymbol, setStrategy} = props;
-  const renderValue = (placeholder: string) => (
-    value: unknown,
-  ): React.ReactNode => {
-    if (!value) return placeholder;
+
+  const renderValue = (placeholder: string) => (value: unknown): React.ReactNode => {
+    if (!value)
+      return placeholder;
     return value as string;
   };
-  const selectChangeHandler = (fn: (v: string) => void) => (
-    event: React.ChangeEvent<SelectEventData>,
-  ) => {
+
+  const selectChangeHandler = (fn: (v: string) => void) => (event: React.ChangeEvent<SelectEventData>) => {
     const {target} = event;
-    // Call the callback :D
     fn(target.value as string);
   };
+
   return (
     <div className={'window-title-bar'}>
       <Select
@@ -41,8 +40,7 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
         autoWidth={true}
         onChange={selectChangeHandler(setSymbol)}
         renderValue={renderValue(strings.Currency)}
-        displayEmpty={true}
-      >
+        displayEmpty={true}>
         {symbols.map((item: Currency) => (
           <MenuItem key={item.name} value={item.name}>
             {item.name}
@@ -55,8 +53,7 @@ export const TOBTileTitle: React.FC<Props> = (props: Props): ReactElement => {
         autoWidth={true}
         onChange={selectChangeHandler(setStrategy)}
         renderValue={renderValue(strings.Strategy)}
-        displayEmpty={true}
-      >
+        displayEmpty={true}>
         {products.map((item: Strategy) => (
           <MenuItem key={item.name} value={item.name}>
             {item.name}

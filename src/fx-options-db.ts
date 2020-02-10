@@ -113,6 +113,9 @@ export const FXOptionsDB = {
   setWindowSymbol: async (windowID: string, symbol: Currency) => {
     return FXOptionsDB.put('windows', windowID, 'symbol', symbol);
   },
+  setWindowAutosize: async (windowID: string, autoSize: boolean) => {
+    return FXOptionsDB.put('windows', windowID, 'autoSize', autoSize);
+  },
   setWindowGeometry: async (windowID: string, geometry: ClientRect) => {
     return FXOptionsDB.put('windows', windowID, 'geometry', geometry);
   },
@@ -177,7 +180,7 @@ export const FXOptionsDB = {
       return [];
     return workspace.windows;
   },
-  getWindow: async (windowID: string): Promise<Window | undefined> => {
+  getWindow: async (windowID: string): Promise<WindowState | undefined> => {
     return FXOptionsDB.getObject('windows', windowID);
   },
   setPersonality: async (workspaceID: string, personality: string) => {

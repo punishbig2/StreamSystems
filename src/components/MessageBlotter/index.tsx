@@ -25,11 +25,8 @@ interface OwnProps {
   blotterType: BlotterTypes;
 }
 
-const mapStateToProps: ({
-                          messageBlotter,
-                        }: ApplicationState) => MessageBlotterState = ({
-                                                                         messageBlotter,
-                                                                       }: ApplicationState): MessageBlotterState => messageBlotter;
+const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterState =
+  ({messageBlotter}: ApplicationState): MessageBlotterState => messageBlotter;
 
 const mapDispatchToProps: DispatchProps = {};
 

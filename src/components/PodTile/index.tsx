@@ -11,7 +11,7 @@ import {useSubscriber} from 'components/PodTile/hooks/useSubscriber';
 import {DispatchProps, OwnProps, Props} from 'components/PodTile/props';
 import {ActionTypes, reducer, State} from 'components/PodTile/reducer';
 import {Row} from 'components/PodTile/row';
-import {TOBTileTitle} from 'components/PodTile/title';
+import {PodTileTitle} from 'components/PodTile/title';
 import {Order, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
@@ -343,7 +343,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   }, [setCurrentTenor, state.depths, state.tenor]);
   return (
     <>
-      <TOBTileTitle
+      <PodTileTitle
         symbol={symbol.name}
         strategy={strategy}
         symbols={symbols}

@@ -35,6 +35,7 @@ export const moveWindow = (workspaceID: string, windowID: string, geometry: Clie
     // FIXME: we should do this when the mouse is released instead to avoid writing too
     //        often to the database
     FXOptionsDB.setWindowGeometry(windowID, geometry);
+    FXOptionsDB.setWindowAutosize(windowID, false);
     const data = {
       id: windowID,
       ...{geometry, resized},
@@ -56,6 +57,7 @@ export const setToast = (workspaceID: string, message: string | null): FXOAction
 };
 
 export const setWindowAutoSize = (workspaceID: string, windowID: string): FXOAction<string> => {
+  FXOptionsDB.setWindowAutosize(windowID, true);
   return createWorkspaceAction(workspaceID, WorkspaceActions.SetWindowAutoSize, {
     id: windowID,
   });

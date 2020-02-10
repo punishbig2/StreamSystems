@@ -16,6 +16,14 @@
     height: $window-toolbar-size;
     line-height: $window-toolbar-size;
 
+    .execution-banner {
+      flex: 1;
+      display: flex;
+      .execution-banner-item {
+        padding: 0 16px;
+      }
+    }
+
     button {
       line-height: 2;
       border: none;

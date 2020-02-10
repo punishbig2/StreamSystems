@@ -26,6 +26,7 @@ import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
+import executionsReducer from 'redux/reducers/exectutionsReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
@@ -41,6 +42,7 @@ import {RowActions} from 'redux/reducers/rowReducer';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
 import {FXOAction} from 'redux/fxo-action';
 import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
+import {WindowState} from 'redux/stateDefs/windowState';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
@@ -51,6 +53,7 @@ export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationStat
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
     userProfile: userProfileReducer,
+    executions: executionsReducer,
     // Dynamically generated reducers
     ...dynamicReducers,
   });
@@ -66,7 +69,7 @@ const hydrate = async (dispatch: Dispatch<any>) => {
     const tiles: string[] | undefined = await FXOptionsDB.getWindowsList(id);
     if (tiles) {
       const promises = tiles.map(async (windowID: string) => {
-        const window: Window | undefined = await FXOptionsDB.getWindow(windowID);
+        const window: WindowState | undefined = await FXOptionsDB.getWindow(windowID);
         if (window !== undefined) {
           /*injectNamedReducer(windowID, createWindowReducer, {
             rows: [],

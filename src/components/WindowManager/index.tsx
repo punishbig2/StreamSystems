@@ -112,14 +112,8 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         onMinimize={onMinimize}
         onSetTitle={onSetTitle}
         onClick={onClick}
-        onAdjustSize={onWindowSizeAdjusted}
-      >
-        {content
-          ? React.cloneElement(content, {
-            ...childProps,
-            autoSize: window.autoSize,
-          })
-          : null}
+        onAdjustSize={onWindowSizeAdjusted}>
+        {content ? React.cloneElement(content, {...childProps, autoSize: window.autoSize}) : null}
       </WindowElement>
     );
   };
