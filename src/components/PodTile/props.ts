@@ -10,6 +10,7 @@ import {DispatchProp} from 'react-redux';
 
 export interface OwnProps {
   id: string;
+  workspaceID: string;
   user: User;
   tenors: string[];
   products: Strategy[];
@@ -51,4 +52,4 @@ export interface DispatchProps {
   ) => void;
 }
 
-export type Props = OwnProps & WindowState & RunState & DispatchProp;
+export type Props = OwnProps & WindowState & DispatchProp;

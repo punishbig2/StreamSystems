@@ -3,6 +3,7 @@ import config from 'config';
 import {Message, DarkPoolMessage} from 'interfaces/message';
 import {W} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
+import {API} from 'API';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -27,13 +28,22 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
-  constructor() {
+  private static instance: SignalRManager | null = null;
+
+  private constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
     connection.serverTimeoutInMilliseconds = 3600000;
     connection.keepAliveIntervalInMilliseconds = 8000;
     // Export to class wide variable
     this.connection = connection;
   }
+
+  static getInstance = (): SignalRManager => {
+    if (SignalRManager.instance !== null)
+      return SignalRManager.instance;
+    SignalRManager.instance = new SignalRManager();
+    return SignalRManager.instance;
+  };
 
   static createConnection = () =>
     new HubConnectionBuilder()
@@ -91,6 +101,8 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private onUpdateMarketData = (message: string): void => {
     const data: W = JSON.parse(message);
+    if (data['9712'] === 'TOB')
+      this.emitPodWEvent(data);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       const fn: (data: W) => void = this.onUpdateMarketDataListener;
@@ -127,5 +139,34 @@ export class SignalRManager<A extends Action = AnyAction> {
   public setOnDisconnectedListener = (fn: (error: any) => void) => {
     this.onDisconnectedListener = fn;
   };
+
+  private emitPodWEvent = (w: W) => {
+    const type: string = `${w.Symbol}/${w.Strategy}/${w.Tenor}`;
+    const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w});
+    // Dispatch it now
+    document.dispatchEvent(event);
+  };
+
+  public addPodRowListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+    API.getTOBSnapshot(symbol, strategy, tenor)
+      .then((w: W | null) => {
+        if (w === null)
+          return;
+        this.emitPodWEvent(w);
+      });
+    const type: string = `${symbol}/${strategy}/${tenor}`;
+    const listenerWrapper = (event: Event) => {
+      const customEvent: CustomEvent<W> = event as CustomEvent<W>;
+      // Probably not needed because it's on the document?
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      // Call the installed listener
+      listener(customEvent.detail);
+    };
+    document.addEventListener(type, listenerWrapper, true);
+    return () => {
+      document.removeEventListener(type, listenerWrapper, true);
+    };
+  }
 }
 

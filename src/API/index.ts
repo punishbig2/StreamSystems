@@ -262,11 +262,7 @@ export class API {
     return get<W | null>(url);
   }
 
-  static async getTOBSnapshot(
-    symbol: string,
-    strategy: string,
-    tenor: string,
-  ): Promise<W | null> {
+  static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor) return null;
     const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', {
       symbol,
@@ -277,11 +273,7 @@ export class API {
     return get<W | null>(url);
   }
 
-  static async getSnapshot(
-    symbol: string,
-    strategy: string,
-    tenor: string,
-  ): Promise<W | null> {
+  static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
     if (!symbol || !strategy || !tenor) return null;
     const url: string = API.getRawUrl(API.MarketData, 'snapshot', {
       symbol,

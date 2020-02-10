@@ -5,7 +5,7 @@ import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import {W, DarkPool} from 'interfaces/w';
 import {AnyAction} from 'redux';
-import {createAction} from 'redux/actionCreator';
+import {createAction, createWindowAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
@@ -15,14 +15,14 @@ import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
-import {TOBActions} from 'redux/reducers/tobReducer';
+import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {RunActions} from 'redux/reducers/runReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 import {Currency} from 'interfaces/currency';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {FXOAction} from 'redux/fxo-action';
 
-type FXOActionType = FXOAction<TOBActions | string>;
+type FXOActionType = FXOAction<PodTileActions | string>;
 export const cancelDarkPoolOrder = (
   id: string,
   order: Order,
@@ -35,7 +35,7 @@ export const cancelDarkPoolOrder = (
   const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
     const result = await API.cancelDarkPoolOrder(order);
     if (result.Status === 'Success') {
-      const type: string = $$(order.uid(), TOBActions.DeleteOrder, DarkPool);
+      const type: string = $$(order.uid(), PodTileActions.DeleteOrder, DarkPool);
       const event: Event = new CustomEvent(type, {detail: result.OrderID});
       // Emit the event
       document.dispatchEvent(event);
@@ -61,7 +61,7 @@ export const cancelOrder = (
   const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
     const result = await API.cancelOrder(order);
     if (result.Status === 'Success') {
-      const type: string = $$(order.uid(), TOBActions.DeleteOrder);
+      const type: string = $$(order.uid(), PodTileActions.DeleteOrder);
       const event: Event = new CustomEvent(type, {detail: result.OrderID});
       // Emit the event
       document.dispatchEvent(event);
@@ -113,7 +113,7 @@ export const cancelAll = (id: string, symbol: string, strategy: string, side: Si
     } else {
       return DummyAction;
     }
-  }, createAction(TOBActions.CancelAllOrders, {side, symbol, strategy}));
+  }, createAction(PodTileActions.CancelAllOrders, {side, symbol, strategy}));
 };
 
 export const publishDarkPoolPrice = (
@@ -144,11 +144,11 @@ export const updateOrder = (id: string, order: Order): FXOAction<string> => {
   return new AsyncAction<any, FXOActionType>(async (): Promise<FXOActionType> => {
     const result = await API.updateOrder(order);
     if (result.Status === 'Success') {
-      return createAction($$(id, TOBActions.OrderUpdated));
+      return createAction($$(id, PodTileActions.OrderUpdated));
     } else {
-      return createAction($$(id, TOBActions.OrderNotUpdated));
+      return createAction($$(id, PodTileActions.OrderNotUpdated));
     }
-  }, createAction($$(id, TOBActions.UpdatingOrder)));
+  }, createAction($$(id, PodTileActions.UpdatingOrder)));
 };*/
 
 export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): FXOAction<string> => {
@@ -175,11 +175,7 @@ export const createOrder = (id: string, personality: string, order: Order, minSi
     order.type,
   );
   const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
-    const result: OrderResponse = await API.createOrder(
-      order,
-      personality,
-      minSize,
-    );
+    const result: OrderResponse = await API.createOrder(order, personality, minSize);
     if (result.Status === 'Success') {
       return createAction($$(rowID, RowActions.OrderCreated), {
         order: {
@@ -238,7 +234,7 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
       return [
         ...(a1 ? [a1] : []),
         ...(a2 ? [a2] : []),
-        createAction($$(rowID, RowActions.SnapshotReceived), tob),
+        createAction($$(rowID, RowActions.SnapshotReceived), a1),
       ];
     } else {
       return createAction($$(rowID, RowActions.ErrorGettingSnapshot));
@@ -246,54 +242,32 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
   }, createAction($$(rowID, RowActions.GettingSnapshot)));
 };
 
-export const subscribeDarkPool = (
-  symbol: string,
-  strategy: string,
-  tenor: string,
-): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.SubscribeForDarkPoolPx, [
-    symbol,
-    strategy,
-    tenor,
-  ]);
+export const subscribeDarkPool = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.SubscribeForDarkPoolPx, [symbol, strategy, tenor]);
 };
 
-export const subscribe = (
-  symbol: string,
-  strategy: string,
-  tenor: string,
-): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.SubscribeForMarketData, [
-    symbol,
-    strategy,
-    tenor,
-  ]);
+export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, strategy, tenor]);
 };
 
-export const unsubscribe = (
-  symbol: string,
-  strategy: string,
-  tenor: string,
-): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.UnsubscribeFromMarketData, [
-    symbol,
-    strategy,
-    tenor,
-  ]);
+export const unsubscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
+  return new SignalRAction(SignalRActions.UnsubscribeFromMarketData, [symbol, strategy, tenor]);
 };
 
-export const setStrategy = (tileID: string, strategy: string) => {
+/**** real window actions ****/
+
+export const setStrategy = (workspaceID: string, windowID: string, strategy: string) => {
   return new AsyncAction<any, FXOActionType>(async () => {
-    FXOptionsDB.setWindowStrategy(tileID, strategy);
-    return createAction($$(tileID, TOBActions.SetStrategy), strategy);
+    FXOptionsDB.setWindowStrategy(windowID, strategy);
+    return createWindowAction(workspaceID, windowID, PodTileActions.SetStrategy, strategy);
   }, DummyAction);
 };
 
-export const setSymbol = (tileID: string, symbol: Currency | undefined) => {
+export const setSymbol = (workspaceID: string, windowID: string, symbol: Currency | undefined) => {
   if (symbol === undefined)
     return DummyAction;
   return new AsyncAction<any, FXOActionType>(async () => {
-    FXOptionsDB.setWindowSymbol(tileID, symbol);
-    return createAction($$(tileID, TOBActions.SetSymbol), symbol);
+    FXOptionsDB.setWindowSymbol(windowID, symbol);
+    return createWindowAction(workspaceID, windowID, PodTileActions.SetSymbol, symbol);
   }, DummyAction);
 };

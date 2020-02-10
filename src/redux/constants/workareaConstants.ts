@@ -1,5 +1,5 @@
 export enum WindowTypes {
-  TOB = 1,
+  PodTile = 1,
   MessageBlotter = 2,
   Empty = 3
 }

@@ -39,7 +39,7 @@ import {dynamicStateMapper} from 'redux/dynamicStateMapper';
 import {injectNamedReducer, removeNamedReducer} from 'redux/store';
 import {Dispatch} from 'redux';
 import {compareTenors} from 'utils/dataGenerators';
-import {TOBActions} from 'redux/reducers/tobReducer';
+import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {FXOAction} from 'redux/fxo-action';
 
 interface OwnProps {
@@ -156,11 +156,11 @@ const Run: React.FC<Props> = (props: Props) => {
       .map((row: TOBRow) => {
         const uid: string = $$(row.tenor, symbol, strategy);
         // Install the event listener
-        document.addEventListener($$(uid, TOBActions.UpdateOrder), onUpdateWrapper);
-        document.addEventListener($$(uid, TOBActions.DeleteOrder), onDeleteWrapper);
+        document.addEventListener($$(uid, PodTileActions.UpdateOrder), onUpdateWrapper);
+        document.addEventListener($$(uid, PodTileActions.DeleteOrder), onDeleteWrapper);
         return () => {
-          document.removeEventListener($$(uid, TOBActions.UpdateOrder), onUpdateWrapper);
-          document.removeEventListener($$(uid, TOBActions.DeleteOrder), onDeleteWrapper);
+          document.removeEventListener($$(uid, PodTileActions.UpdateOrder), onUpdateWrapper);
+          document.removeEventListener($$(uid, PodTileActions.DeleteOrder), onDeleteWrapper);
         };
       });
   }, [onDelete, onUpdate, strategy, symbol]);

@@ -1,6 +1,6 @@
 import React, {ReactNode} from 'react';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {TOBColumnData} from 'components/TOB/data';
+import {TOBColumnData} from 'components/PodTile/data';
 import strings from 'locales';
 import {PriceColumn} from 'columns/tobColumns/priceColumn';
 import {SizeColumn} from 'columns/tobColumns/sizeColumn';

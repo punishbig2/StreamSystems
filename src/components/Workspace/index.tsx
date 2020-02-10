@@ -1,7 +1,7 @@
 import {MenuItem, Select, FormControlLabel, Checkbox, FormControl} from '@material-ui/core';
 import {MessageBlotter} from 'components/MessageBlotter';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
-import {TOB} from 'components/TOB';
+import {PodTile} from 'components/PodTile';
 import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
@@ -116,6 +116,7 @@ type Props = OwnProps & DispatchProps & WorkspaceState;
 
 const createWindow = (
   id: string,
+  workspaceID: string,
   type: WindowTypes,
   symbols: Currency[],
   products: Strategy[],
@@ -127,10 +128,13 @@ const createWindow = (
   personality: string,
 ) => {
   switch (type) {
-    case WindowTypes.TOB:
+    case WindowTypes.Empty:
+      return null;
+    case WindowTypes.PodTile:
       return (
-        <TOB
+        <PodTile
           id={id}
+          workspaceID={workspaceID}
           symbols={symbols}
           products={products}
           tenors={tenors}
@@ -155,7 +159,6 @@ const createWindow = (
 };
 
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
-  const {toolbarState} = props;
   const {symbols, products, tenors, connected} = props;
   const {showToast, setWindowTitle, loadMarkets} = props;
 
@@ -167,8 +170,8 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
 
   const addWindow = (type: WindowTypes) => {
     switch (type) {
-      case WindowTypes.TOB:
-        props.addWindow(WindowTypes.TOB);
+      case WindowTypes.PodTile:
+        props.addWindow(WindowTypes.PodTile);
         break;
       case WindowTypes.MessageBlotter:
         props.addWindow(WindowTypes.MessageBlotter);
@@ -201,15 +204,13 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     [showToast],
   );
 
-  const renderContent = (
-    id: string,
-    type: WindowTypes,
-  ): ReactElement | null => {
+  const renderContent = (id: string, type: WindowTypes): ReactElement | null => {
     const {personality} = props;
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
     return createWindow(
       id,
+      props.id,
       type,
       symbols,
       products,
@@ -222,9 +223,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   };
 
-  const onPersonalityChange = ({
-                                 target,
-                               }: React.ChangeEvent<SelectEventData>) => {
+  const onPersonalityChange = ({target}: React.ChangeEvent<SelectEventData>) => {
     props.setPersonality(target.value as string);
   };
 
@@ -288,7 +287,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     <>
       <div className={'toolbar'}>
         <div className={'content'}>
-          <button onClick={() => addWindow(WindowTypes.TOB)}>
+          <button onClick={() => addWindow(WindowTypes.PodTile)}>
             <i className={'fa fa-plus'}/> Add POD
           </button>
           <button onClick={() => addWindow(WindowTypes.MessageBlotter)}>

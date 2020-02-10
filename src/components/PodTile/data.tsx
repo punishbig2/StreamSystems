@@ -1,5 +1,5 @@
 import {PriceErrors} from 'components/Table/CellRenderers/Price';
-import {AggregatedSz} from 'components/TOB/reducer';
+import {AggregatedSz} from 'components/PodTile/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';

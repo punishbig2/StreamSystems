@@ -1,19 +1,12 @@
-import {Window} from 'interfaces/window';
-
-export interface ToolbarState {
-  pinned: boolean;
-  hovering: boolean;
-  visible: boolean;
-}
+import {WindowState} from 'redux/stateDefs/windowState';
 
 export const STRM: string = 'None';
 
 export interface WorkspaceState {
   id: string;
   name: string;
-  windows: { [id: string]: Window };
+  windows: { [id: string]: WindowState };
   toast: string | null;
-  toolbarState: ToolbarState;
   markets: string[];
   isUserProfileModalVisible: boolean;
   personality: string;
@@ -25,7 +18,6 @@ export const defaultWorkspaceState: WorkspaceState = {
   name: '',
   windows: {},
   toast: null,
-  toolbarState: {visible: false, hovering: false, pinned: false},
   markets: [],
   isUserProfileModalVisible: false,
   personality: STRM,

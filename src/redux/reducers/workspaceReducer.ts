@@ -1,9 +1,11 @@
-import {Window} from 'interfaces/window';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {equal} from 'utils/equal';
 import {UserProfileActions} from 'redux/reducers/userProfileReducer';
-import {FXOAction} from 'redux/fxo-action';
+import {FXOAction, ActionKind} from 'redux/fxo-action';
+import {PodTileAction, podTileReducer} from 'redux/reducers/podTileReducer';
+import {WindowState} from 'redux/stateDefs/windowState';
+import {WindowTypes} from 'redux/constants/workareaConstants';
 
 export interface WorkspaceAction {
   workspaceID: string;
@@ -14,58 +16,56 @@ const initialState: WorkspaceState = {
   name: '',
   windows: {},
   toast: null,
-  toolbarState: {
-    pinned: false,
-    hovering: false,
-    visible: false,
-  },
   isUserProfileModalVisible: false,
   markets: [],
   errorMessage: null,
   personality: STRM,
 };
 
-const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = {...state.windows};
+const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = {...state.windows};
   if (windows[id].minimized) return windows;
   return {...windows, [id]: {...windows[id], minimized: true}};
 };
 
-const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = {...state.windows};
-  if (!windows[id].minimized) return windows;
+const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = {...state.windows};
+  if (!windows[id].minimized)
+    return windows;
   return {...windows, [id]: {...windows[id], minimized: false}};
 };
 
-const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = {...state.windows};
+const removeWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = {...state.windows};
   // Remove it from the copy
   delete windows[id];
   // Return the new state
   return windows;
 };
 
-const setWindowAutoSize = ({id}: { id: string; title: string }, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = state.windows;
-  if (windows[id].autoSize) return windows;
+const setWindowAutoSize = ({id}: { id: string; title: string }, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = state.windows;
+  if (windows[id].autoSize)
+    return windows;
   return {...windows, [id]: {...windows[id], autoSize: true}};
 };
 
-const setWindowTitle = ({id, title}: { id: string; title: string }, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = state.windows;
-  if (windows[id].title === title) return windows;
+const setWindowTitle = ({id, title}: { id: string; title: string }, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = state.windows;
+  if (windows[id].title === title)
+    return windows;
   return {...windows, [id]: {...windows[id], title}};
 };
 
-const addWindow = (workspaceID: string, window: Window, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = state.windows;
+const addWindow = (workspaceID: string, window: WindowState, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = state.windows;
   // Return the new state
   return {...windows, [window.id]: window};
 };
 
-const updateWindowGeometry = ({id, geometry, resized}: { id: string; geometry: ClientRect; resized: boolean }, state: WorkspaceState): { [key: string]: Window } => {
-  const windows: { [id: string]: Window } = state.windows;
-  const original: Window = windows[id];
+const updateWindowGeometry = ({id, geometry, resized}: { id: string; geometry: ClientRect; resized: boolean }, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = state.windows;
+  const original: WindowState = windows[id];
   if (equal(original.geometry, geometry)) {
     return windows;
   }
@@ -73,16 +73,17 @@ const updateWindowGeometry = ({id, geometry, resized}: { id: string; geometry: C
   // We know that at least the geometry changed
   return {...windows, [id]: {...original, geometry, autoSize}};
 };
-const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: string]: Window } => {
-  const getMaxZIndex = (windows: { [key: string]: Window }) => {
-    const values: Window[] = Object.values(windows);
+
+const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: string]: WindowState } => {
+  const getMaxZIndex = (windows: { [key: string]: WindowState }) => {
+    const values: WindowState[] = Object.values(windows);
     return Math.max(
-      ...values.map((w: Window) => (w.zIndex !== undefined ? w.zIndex : -1)),
+      ...values.map((w: WindowState) => (w.zIndex !== undefined ? w.zIndex : -1)),
     );
   };
-  const entries: [string, Window][] = Object.entries(state.windows);
+  const entries: [string, WindowState][] = Object.entries(state.windows);
   const reorderedWindows = entries.reduce(
-    (windows: { [key: string]: Window }, [key, window]: [string, Window]) => {
+    (windows: { [key: string]: WindowState }, [key, window]: [string, WindowState]) => {
       if (key === id) return windows;
       const maxZIndex: number = getMaxZIndex(windows);
       windows[key] = {...window, zIndex: 1 + maxZIndex};
@@ -91,7 +92,8 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
     },
     {},
   );
-  if (equal(reorderedWindows, state.windows)) return state.windows;
+  if (equal(reorderedWindows, state.windows))
+    return state.windows;
   // Nothing changed
   return {
     ...reorderedWindows,
@@ -99,7 +101,39 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
   };
 };
 
-type ActionType = FXOAction<WorkspaceActions & UserProfileActions, WorkspaceAction>;
+type ActionType = FXOAction<WorkspaceActions & UserProfileActions, WorkspaceAction> & PodTileAction;
+
+const nextReducer = (state: WorkspaceState, action: ActionType) => {
+  if (action.kind === ActionKind.Window) {
+    const windows: { [id: string]: WindowState } = state.windows;
+    const id: string = action.windowID;
+    const window: WindowState = windows[id];
+    if (window === undefined)
+      return state; // Probably not my window?
+    if (window.type === WindowTypes.PodTile) {
+      return {
+        ...state,
+        windows: {
+          ...windows,
+          [id]: podTileReducer(window, action),
+        },
+      };
+    } else if (window.type === WindowTypes.MessageBlotter) {
+      return {
+        ...state,
+        windows: {
+          ...windows,
+          [id]: podTileReducer(window, action),
+        },
+      };
+    } else {
+      return state;
+    }
+  } else {
+    return state;
+  }
+};
+
 export const workspaceReducer = (state: WorkspaceState = initialState, action: ActionType): WorkspaceState => {
   const {type, data, workspaceID} = action;
   switch (type) {
@@ -134,6 +168,6 @@ export const workspaceReducer = (state: WorkspaceState = initialState, action: A
     case WorkspaceActions.CloseErrorModal:
       return {...state, errorMessage: null};
     default:
-      return state;
+      return nextReducer(state, action);
   }
 };

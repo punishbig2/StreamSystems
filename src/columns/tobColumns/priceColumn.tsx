@@ -1,4 +1,4 @@
-import {TOBColumnData} from 'components/TOB/data';
+import {TOBColumnData} from 'components/PodTile/data';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order, OrderStatus} from 'interfaces/order';

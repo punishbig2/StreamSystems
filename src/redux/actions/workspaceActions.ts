@@ -1,14 +1,13 @@
 import {API} from 'API';
-import {WorkspaceWindow} from 'components/Workspace/workspaceWindow';
 import {createWorkspaceAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {createWindowReducer} from 'redux/reducers/tobReducer';
-import {DefaultWindowState} from 'redux/stateDefs/windowState';
-import {injectNamedReducer, removeNamedReducer, DummyAction} from 'redux/store';
+import {defaultWindowState, WindowState} from 'redux/stateDefs/windowState';
+import {removeNamedReducer, DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
 import {FXOAction} from 'redux/fxo-action';
+import shortid from 'shortid';
 
 export const removeWindow = (workspaceID: string, windowID: string): FXOAction<string> => {
   FXOptionsDB.removeWindow(workspaceID, windowID);
@@ -25,9 +24,8 @@ export const restoreWindow = (workspaceID: string, windowID: string): FXOAction<
 };
 
 export const addWindow = (workspaceID: string, type: WindowTypes): FXOAction<string> => {
-  const window: WorkspaceWindow = new WorkspaceWindow(type);
-  if (type === WindowTypes.TOB)
-    injectNamedReducer(window.id, createWindowReducer, DefaultWindowState);
+  const id: string = `wn-${shortid()}-${type}`;
+  const window: WindowState = {...defaultWindowState, id, type};
   FXOptionsDB.addWindow(workspaceID, window);
   return createWorkspaceAction(workspaceID, WorkspaceActions.AddWindow, window);
 };

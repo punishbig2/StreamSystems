@@ -62,12 +62,12 @@ const doInitialize = (tenors: string[], symbol: string, strategy: string, email:
   };
 
   const rows = buildRows(tenors, symbol, strategy, email);
-  const cleanups: (() => void)[] = rows.map((row: TOBRow) => {
+  /*const cleanups: (() => void)[] = rows.map((row: TOBRow) => {
     injectNamedReducer(row.id, createRowReducer, {row});
     return () => removeNamedReducer(row.id);
-  });
+  });*/
   initialize(rows.reduce(reducer, {}));
-  return cleanups;
+  return [];
 };
 
 export const useInitializer = (tenors: string[], symbol: string, strategy: string, email: string, initialize: (data: TOBTable) => void) => {

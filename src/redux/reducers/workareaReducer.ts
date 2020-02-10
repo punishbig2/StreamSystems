@@ -2,7 +2,7 @@ import {User} from 'interfaces/user';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
-import {FXOAction} from 'redux/fxo-action';
+import {FXOAction, ActionKind} from 'redux/fxo-action';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {workspaceReducer} from 'redux/reducers/workspaceReducer';
@@ -69,26 +69,39 @@ const initialize = (state: WorkareaState, data: any): WorkareaState => {
   };
 };
 
-type ActionType = WorkareaActions & SignalRActions & WorkspaceActions;
+type ActionType = FXOAction<WorkareaActions & SignalRActions & WorkspaceActions>;
 
-const nextReducer = (state: WorkareaState, action: FXOAction<ActionType>) => {
-  const values: string[] = Object.values(WorkspaceActions);
-  if (values.includes(action.type)) {
-    const workspaces: { [id: string]: WorkspaceState } = state.workspaces;
-    const id: string = action.workspaceID;
-    return {
-      ...state,
-      workspaces: {
-        ...workspaces,
-        [id]: workspaceReducer(workspaces[id], action),
-      },
-    };
-  } else {
-    return state;
+const nextReducer = (state: WorkareaState, action: ActionType) => {
+  const workspaces: { [id: string]: WorkspaceState } = state.workspaces;
+  const id: string = action.workspaceID;
+  const workspace: WorkspaceState = workspaces[id];
+  switch (action.kind) {
+    case ActionKind.Window:
+      if (workspace === undefined)
+        return state;
+      return {
+        ...state,
+        workspaces: {
+          ...workspaces,
+          // This will then call the appropriate window reducer for the
+          // targeted window
+          [id]: workspaceReducer(workspace, action),
+        },
+      };
+    case ActionKind.Workspace:
+      return {
+        ...state,
+        workspaces: {
+          ...workspaces,
+          [id]: workspaceReducer(workspace, action),
+        },
+      };
+    default:
+      return state;
   }
 };
 
-export default (state: WorkareaState = initialState, action: FXOAction<ActionType>): WorkareaState => {
+export default (state: WorkareaState = initialState, action: ActionType): WorkareaState => {
   const {type, data} = action;
   switch (type) {
     case SignalRActions.Connected:

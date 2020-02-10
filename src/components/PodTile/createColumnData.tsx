@@ -1,5 +1,5 @@
 import {PriceErrors} from 'components/Table/CellRenderers/Price';
-import {State} from 'components/TOB/reducer';
+import {State} from 'components/PodTile/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';

@@ -14,7 +14,6 @@ import {
   StoreEnhancerStoreCreator,
   Action,
 } from 'redux';
-import {Window} from 'interfaces/window';
 import {createAction, createWorkspaceAction} from 'redux/actionCreator';
 // State shapes
 import {ApplicationState} from 'redux/applicationState';
@@ -35,7 +34,6 @@ import {SignalRAction} from 'redux/signalRAction';
 import {handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
-import {createWindowReducer} from 'redux/reducers/tobReducer';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {manualToRowID, toRunId} from 'utils';
 import {RunActions} from 'redux/reducers/runReducer';
@@ -70,11 +68,11 @@ const hydrate = async (dispatch: Dispatch<any>) => {
       const promises = tiles.map(async (windowID: string) => {
         const window: Window | undefined = await FXOptionsDB.getWindow(windowID);
         if (window !== undefined) {
-          injectNamedReducer(windowID, createWindowReducer, {
+          /*injectNamedReducer(windowID, createWindowReducer, {
             rows: [],
             strategy: window.strategy,
             symbol: window.symbol,
-          });
+          });*/
           dispatch(createWorkspaceAction(id, WorkspaceActions.AddWindow, window));
         }
       });
@@ -107,7 +105,7 @@ export const removeNamedReducer = <T>(name: string) => {
   store.replaceReducer(createReducer(dynamicReducers));
 };
 
-const connectionManager: SignalRManager<Action> = new SignalRManager<Action>();
+const connectionManager: SignalRManager<Action> = SignalRManager.getInstance();
 export const DummyAction: Action = {type: '---not-valid---'};
 
 const isOCOEnabled = (): boolean => {
@@ -170,9 +168,14 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       // Dispatch an action to notify disconnection
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
+
     const onUpdateMarketData = (data: W) => {
+      const type: string = `${data.Symbol}${data.Strategy}${data.Tenor}`;
+      const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: data});
+      document.dispatchEvent(event);
       const action: A | null = handlers.W<A>(data);
       if (action !== null) {
+        console.log(action);
         dispatch(action);
       }
     };

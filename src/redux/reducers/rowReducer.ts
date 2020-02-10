@@ -4,7 +4,7 @@ import {TOBRowStatus, TOBRow} from 'interfaces/tobRow';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
-import {TOBActions} from 'redux/reducers/tobReducer';
+import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {FXOAction} from 'redux/fxo-action';
 
 const genesisState: RowState = {
@@ -84,7 +84,7 @@ const handleDarkPoolUpdate = (state: RowState, dpRow: TOBRow): RowState => {
 };
 
 export const createRowReducer = (id: string, initialState: RowState = genesisState) => {
-  return (state: RowState = initialState, {type, data}: FXOAction<RowActions | TOBActions>): RowState => {
+  return (state: RowState = initialState, {type, data}: FXOAction<RowActions | PodTileActions>): RowState => {
     const {row} = state;
     const {ofr, bid} = row;
     switch (type) {
@@ -204,7 +204,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         return {...state, row: {...row, bid: {...bid, price: data}}};
       case $$(id, RowActions.SetRowStatus):
         return {...state, row: {...row, status: data}};
-      case TOBActions.CancelAllOrders:
+      case PodTileActions.CancelAllOrders:
         switch (data.side) {
           case Sides.Buy:
             if (
@@ -261,3 +261,4 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
     }
   };
 };
+

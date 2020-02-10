@@ -8,13 +8,13 @@ import {createAction} from 'redux/actionCreator';
 import {extractDepth, mdEntryToTOBEntry, toTOBRow} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {$$} from 'utils/stringPaster';
-import {TOBActions} from 'redux/reducers/tobReducer';
+import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 
 import equal from 'deep-equal';
 
 export const emitUpdateOrderEvent = (order: Order) => {
-  const type: string = $$(order.uid(), TOBActions.UpdateOrder);
+  const type: string = $$(order.uid(), PodTileActions.UpdateOrder);
   const event: Event = new CustomEvent(type, {detail: order});
   // Now emit the event so that listeners capture it
   document.dispatchEvent(event);
@@ -38,7 +38,7 @@ const propagateDepth = (w: W) => {
   const depth: TOBTable = extractDepth(w);
   // Create depths
   const data: { tenor: string; depth: TOBTable } = {tenor: w.Tenor, depth};
-  const type: string = $$(Tenor, Symbol, Strategy, TOBActions.UpdateDOB);
+  const type: string = $$(Tenor, Symbol, Strategy, PodTileActions.UpdateDOB);
   const event: Event = new CustomEvent(type, {detail: data});
   // Now emit the event so that listeners capture it
   document.dispatchEvent(event);
@@ -59,7 +59,7 @@ export const handlers = {
       RowActions.Update,
     );
     // Is this TOB?
-    if (w['9712'] === 'TOB') {
+    if (w['9712'] === 'PodTile') {
       // FIXME: because the backend is sending multiple copies of identical Ws I do this to
       //        "collapse" them into a single one and void unnecessary refreshes to the UI
       if (equal(lastTOBW, w)) return null;

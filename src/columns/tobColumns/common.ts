@@ -2,8 +2,8 @@ import {TOBTable} from 'interfaces/tobTable';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
-import {TOBColumnData} from 'components/TOB/data';
-import {RowFunctions} from 'components/TOB/rowFunctions';
+import {TOBColumnData} from 'components/PodTile/data';
+import {RowFunctions} from 'components/PodTile/rowFunctions';
 
 export type RowType = TOBRow & {
   handlers: TOBColumnData;

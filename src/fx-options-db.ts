@@ -1,6 +1,6 @@
-import {Window} from 'interfaces/window';
-import {ToolbarState, STRM, WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {STRM, WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {Currency} from 'interfaces/currency';
+import {WindowState} from 'redux/stateDefs/windowState';
 
 const createTransaction = async (storeName: string, mode: IDBTransactionMode): Promise<IDBTransaction> => {
   return new Promise<IDBTransaction>(
@@ -101,9 +101,7 @@ export const FXOptionsDB = {
   ) => {
     return FXOptionsDB.put('dark-pool', rowID, 'price', value);
   },
-  getDarkPool: async (
-    rowID: string,
-  ): Promise<number | null> => {
+  getDarkPool: async (rowID: string): Promise<number | null> => {
     const object: any = await FXOptionsDB.getObject('dark-pool', rowID);
     if (object === undefined)
       return null;
@@ -118,7 +116,7 @@ export const FXOptionsDB = {
   setWindowGeometry: async (windowID: string, geometry: ClientRect) => {
     return FXOptionsDB.put('windows', windowID, 'geometry', geometry);
   },
-  addWindow: async (workspaceID: string, window: Window) => {
+  addWindow: async (workspaceID: string, window: WindowState) => {
     return Promise.all([
       FXOptionsDB.put('windows', window.id, null, window),
       FXOptionsDB.put('workspaces', workspaceID, 'windows', [window.id]),
@@ -193,30 +191,6 @@ export const FXOptionsDB = {
     if (workspace === undefined) return STRM;
     if (!workspace.personality) return STRM;
     return workspace.personality;
-  },
-  togglePinToolbar: async (workspaceID: string) => {
-    const workspace: any | undefined = await FXOptionsDB.getObject(
-      'workspaces',
-      workspaceID,
-    );
-    if (workspace === undefined) return;
-    const {toolbarState} = workspace;
-    if (!toolbarState || !toolbarState.pinned) {
-      FXOptionsDB.put('workspaces', workspaceID, 'toolbarState', {
-        pinned: true,
-      });
-    } else {
-      FXOptionsDB.put('workspaces', workspaceID, 'toolbarState', {
-        pinned: false,
-      });
-    }
-  },
-  getToolbarState: async (workspaceID: string): Promise<ToolbarState> => {
-    console.log(workspaceID);
-    const workspace: any | undefined = await FXOptionsDB.getObject('workspaces', workspaceID);
-    if (workspace === undefined)
-      return {pinned: false, hovering: false, visible: false};
-    return workspace.toolbarState;
   },
 };
 

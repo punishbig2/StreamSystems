@@ -1,17 +1,13 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {RowFunctions} from 'components/TOB/rowFunctions';
+import {RowFunctions} from 'components/PodTile/rowFunctions';
 import {TOBRowStatus} from 'interfaces/tobRow';
-import React, {useEffect} from 'react';
-import {connect} from 'react-redux';
-import {Dispatch} from 'redux';
-import {createAction} from 'redux/actionCreator';
-import {ApplicationState} from 'redux/applicationState';
-import {dynamicStateMapper} from 'redux/dynamicStateMapper';
-import {RowActions} from 'redux/reducers/rowReducer';
+import React, {useEffect, useState} from 'react';
 import {RowState} from 'redux/stateDefs/rowState';
 import {percentage} from 'utils';
-import {$$} from 'utils/stringPaster';
+import {W} from 'interfaces/w';
+import {SignalRManager} from 'redux/signalR/signalRManager';
+import {toTOBRow} from 'utils/dataParser';
 
 interface OwnProps {
   id: string;
@@ -24,11 +20,8 @@ interface OwnProps {
   [key: string]: any;
 }
 
-const cache: { [key: string]: RowFunctions } = {};
-const mapDispatchToProps = (
-  dispatch: Dispatch,
-  {id}: OwnProps,
-): RowFunctions => {
+/*const cache: { [key: string]: RowFunctions } = {};
+const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): RowFunctions => {
   if (!cache[id]) {
     cache[id] = {
       resetStatus: () => dispatch(createAction($$(id, RowActions.ResetStatus))),
@@ -43,11 +36,25 @@ const withRedux: (ignored: any) => any = connect<RowState,
   ApplicationState>(
   dynamicStateMapper<RowState, OwnProps, ApplicationState>(),
   mapDispatchToProps,
-);
+);*/
 
-const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
-  const {id, columns, row, onError, displayOnly, resetStatus, ...extra} = props;
+const Row = (props: OwnProps & RowState & RowFunctions) => {
+  const {id, columns, onError, displayOnly, resetStatus, ...extra} = props;
+  const [row, setRow] = useState(props.row);
+  const {symbol, strategy, tenor} = props;
   const {status} = row;
+
+  useEffect(() => {
+    const signalRManager: SignalRManager = SignalRManager.getInstance();
+    const listener = (w: W) => {
+      setRow(toTOBRow(w));
+    };
+    return signalRManager.addPodRowListener(symbol, strategy, tenor, listener);
+  }, [symbol, strategy, tenor]);
+
+  useEffect(() => {
+    setRow(props.row);
+  }, [props.row]);
 
   useEffect(() => {
     if (status === TOBRowStatus.Normal) {
@@ -83,6 +90,6 @@ const Row = withRedux((props: OwnProps & RowState & RowFunctions) => {
       })}
     </div>
   );
-});
+};
 
 export {Row};

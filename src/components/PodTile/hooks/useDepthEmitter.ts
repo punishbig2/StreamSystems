@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {$$} from 'utils/stringPaster';
-import {TOBActions} from 'redux/reducers/tobReducer';
+import {PodTileActions} from 'redux/reducers/podTileReducer';
 
 export const useDepthEmitter = (
   tenors: string[],
@@ -17,7 +17,7 @@ export const useDepthEmitter = (
       callback(customEvent.detail);
     };
     const getName = (tenor: string) =>
-      $$(tenor, symbol, strategy, TOBActions.UpdateDOB);
+      $$(tenor, symbol, strategy, PodTileActions.UpdateDOB);
     tenors.forEach((tenor: string) => {
       document.addEventListener(getName(tenor), handler);
     });

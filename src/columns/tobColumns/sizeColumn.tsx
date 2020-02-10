@@ -1,11 +1,11 @@
 import {Type, RowType, getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/tobColumns/common';
-import {TOBColumnData} from 'components/TOB/data';
+import {TOBColumnData} from 'components/PodTile/data';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBQty} from 'columns/tobQty';
 import React from 'react';
-import {AggregatedSz} from 'components/TOB/reducer';
+import {AggregatedSz} from 'components/PodTile/reducer';
 import {TOBRow} from 'interfaces/tobRow';
 import {TOBTable} from 'interfaces/tobTable';
 
