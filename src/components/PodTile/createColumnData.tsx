@@ -63,32 +63,34 @@ export const createColumnData = (
       }
     },
     onOrderModified: (order: Order) => {
-      if (order.price === InvalidPrice) {
-        // This is empty for now
-      } else if (order.price !== null) {
-        if ((order.status & OrderStatus.Owned) !== 0) {
-          fns.cancelOrder(order);
-        } else if ((order.status & OrderStatus.HaveOrders) !== 0) {
-          const {depths} = state;
-          // Find my own order and cancel it
-          const mine: Order | undefined = Object.values(depths[order.tenor])
-            .map((row: TOBRow) =>
-              order.type === OrderTypes.Bid ? row.bid : row.ofr,
-            )
-            .find((item: Order) => item.user === user.email);
-          if (mine) {
-            fns.cancelOrder(mine);
+      setTimeout(() => {
+        if (order.price === InvalidPrice) {
+          // This is empty for now
+        } else if (order.price !== null) {
+          if ((order.status & OrderStatus.Owned) !== 0) {
+            fns.cancelOrder(order);
+          } else if ((order.status & OrderStatus.HaveOrders) !== 0) {
+            const {depths} = state;
+            // Find my own order and cancel it
+            const mine: Order | undefined = Object.values(depths[order.tenor])
+              .map((row: TOBRow) =>
+                order.type === OrderTypes.Bid ? row.bid : row.ofr,
+              )
+              .find((item: Order) => item.user === user.email);
+            if (mine) {
+              fns.cancelOrder(mine);
+            }
           }
+          fns.createOrder(
+            {...order, quantity: defaultSize},
+            personality,
+            minSize,
+          );
+          // fns.setRowStatus(order, TOBRowStatus.Normal);
+        } else {
+          console.log('ignore this action');
         }
-        fns.createOrder(
-          {...order, quantity: defaultSize},
-          personality,
-          minSize,
-        );
-        fns.setRowStatus(order, TOBRowStatus.Normal);
-      } else {
-        console.log('ignore this action');
-      }
+      }, 0)
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
       if (cancelRelated) {

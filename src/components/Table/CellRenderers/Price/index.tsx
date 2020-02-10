@@ -88,7 +88,8 @@ export const Price: React.FC<Props> = (props: Props) => {
     [dispatch, toPoint],
   );
   const startFlashing = () => {
-    if (!props.animated) return;
+    if (!props.animated)
+      return;
     dispatch(createAction(PriceActions.Flash));
   };
   const stopFlashing = () => dispatch(createAction(PriceActions.Unflash));
