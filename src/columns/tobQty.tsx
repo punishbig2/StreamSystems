@@ -43,12 +43,17 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   }, [order]);
 
   const onSubmitted = (input: HTMLInputElement) => {
-    if (value === 0) {
+    if (order.price === null) {
+      setValue(null);
       props.onSubmit(order, null, props.personality, props.minSize, input);
-    } else if (value !== null && value < props.minSize) {
-      props.onSubmit(order, props.minSize, props.personality, props.minSize, input);
     } else {
-      props.onSubmit(order, value, props.personality, props.minSize, input);
+      if (value === 0) {
+        props.onSubmit(order, null, props.personality, props.minSize, input);
+      } else if (value !== null && value < props.minSize) {
+        props.onSubmit(order, props.minSize, props.personality, props.minSize, input);
+      } else {
+        props.onSubmit(order, value, props.personality, props.minSize, input);
+      }
     }
   };
 
@@ -85,6 +90,8 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     && (order.status & OrderStatus.HasDepth) !== 0
     && order.price !== null;
 
+  const onBlur = () => setValue(null);
+
   return (
     <Quantity
       value={value}
@@ -94,6 +101,7 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       className={getOrderStatusClass(order.status, 'size')}
       chevron={showChevron}
       onNavigate={props.onNavigate}
+      onBlur={onBlur}
       onChange={onChange}
       onCancel={onCancel}
       onSubmitted={onSubmitted}/>

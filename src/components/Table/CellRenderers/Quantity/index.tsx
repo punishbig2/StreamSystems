@@ -15,6 +15,7 @@ interface OwnProps {
   chevron?: boolean;
   onSubmitted: (target: HTMLInputElement) => void;
   onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
+  onBlur?: () => void;
   tabIndex?: number;
 }
 
@@ -39,6 +40,7 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
       type={'size'}
       className={props.className}
       tabIndex={props.tabIndex}
+      onBlur={props.onBlur}
       onChange={props.onChange}
       onNavigate={props.onNavigate}
       onSubmitted={props.onSubmitted}/>,
