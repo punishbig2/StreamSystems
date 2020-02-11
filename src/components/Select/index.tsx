@@ -16,6 +16,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [keyword, setKeyWord] = useState<string>('');
   const [dropdown, setDropdown] = useState<HTMLUListElement | null>(null);
+  const [currentItem, setCurrentItem] = useState<number>(0);
 
   const onChange = (event: React.FormEvent<HTMLSelectElement>) => {
     const {currentTarget} = event;
@@ -73,13 +74,14 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   const filtered: any[] = list.filter(({name}: { name: string }) => {
     const lowerName: string = name.toLowerCase();
-    if (keyword === '')
+    if (keyword.trim() === '')
       return true;
     return lowerName.startsWith(keyword.toLowerCase());
   });
 
   const updateKeyword = (event: React.FormEvent<HTMLInputElement>) => {
     setKeyWord(event.currentTarget.value);
+    setCurrentItem(0);
   };
 
   const onItemClick = (value: string) => {
@@ -90,24 +92,61 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const renderDropdown = (): ReactElement | null => {
     if (!isDropdownVisible)
       return null;
+
     const swallowMouse = (event: React.MouseEvent<HTMLUListElement>) => {
       event.stopPropagation();
       event.preventDefault();
     };
+
+    const moveCursor = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      event.stopPropagation();
+      switch (event.key) {
+        case 'ArrowUp':
+          if (currentItem === 0) {
+            setCurrentItem(filtered.length - 1);
+          } else {
+            setCurrentItem(currentItem - 1);
+          }
+          break;
+        case 'ArrowDown':
+          if (currentItem === filtered.length - 1) {
+            setCurrentItem(0);
+          } else {
+            setCurrentItem(currentItem + 1);
+          }
+          break;
+        case 'Enter':
+          onItemClick(list[currentItem].name);
+          break;
+        case 'Escape':
+          setDropdownVisible(false);
+          break;
+      }
+    };
+
     return ReactDOM.createPortal(
       <ul className={'dropdown'} style={positionToStyle(position)} onMouseDownCapture={swallowMouse} ref={setDropdown}>
-        <li><input ref={setInput} placeholder={'Search'} value={keyword} onChange={updateKeyword}/></li>
-        {filtered.map((item: { name: string }) => (
-          <li key={item.name} onClick={() => onItemClick(item.name)}>
+        <li>
+          <input ref={setInput} placeholder={'Search'} value={keyword} onChange={updateKeyword} onKeyDown={moveCursor}/>
+        </li>
+        {filtered.map((item: { name: string }, index: number) => (
+          <li key={item.name}
+              onClick={() => onItemClick(item.name)}
+              className={currentItem === index ? 'selected' : undefined}>
             <span>{item.name}</span>
           </li>
         ))}
       </ul>, document.body);
   };
 
+  const ignoreKeyboard = (event: React.KeyboardEvent<HTMLSelectElement>) => {
+    event.preventDefault();
+  };
+
   return (
     <div className={'select-container'} ref={setContainer} onMouseDown={showDropdown}>
-      <select value={props.value} className={'select'} onChange={onChange} onKeyDown={showDropdown}>
+      <select value={props.value} className={'select'} onChange={onChange} onKeyDown={ignoreKeyboard}
+              onKeyUp={ignoreKeyboard}>
         {props.empty ? <option value={''} disabled={true}>{props.empty}</option> : null}
         {filtered.map((item: Currency) => (
           <option key={item.name} value={item.name}>

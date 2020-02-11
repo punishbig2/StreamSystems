@@ -11,6 +11,7 @@
   }
 
   select {
+    pointer-events: none;
     display: inline-block;
     vertical-align: middle;
     appearance: none;
@@ -49,6 +50,10 @@ ul.dropdown {
     list-style: none;
     font-weight: 500;
     font-size: 15px;
+
+    &.selected {
+      background-color: #f1f1f1;
+    }
 
     input {
       display: block;
