@@ -111,7 +111,7 @@ export const removeNamedReducer = <T>(name: string) => {
 const connectionManager: SignalRManager<Action> = SignalRManager.getInstance();
 export const DummyAction: Action = {type: '---not-valid---'};
 
-const isOCOEnabled = (): boolean => {
+export const isOCOEnabled = (): boolean => {
   const state: ApplicationState = store.getState();
   if (!state)
     return true;

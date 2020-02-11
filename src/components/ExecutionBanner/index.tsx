@@ -19,7 +19,6 @@ const ExecutionBanner: React.FC<OwnProps & State> = (props: OwnProps & State): R
   const {executions} = props;
   const start: number = Math.max(0, executions.length - 5);
   const end: number = start + 5;
-  console.log(start, end);
   const last5: Message[] = executions
     .slice(start, end)
     .reverse();

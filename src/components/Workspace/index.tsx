@@ -265,6 +265,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       const onOCOChange = ({currentTarget: input}: React.ChangeEvent<HTMLInputElement>) => {
         props.saveUserProfile(user.email, {...profile, oco: input.checked}, profile.oco);
       };
+      console.log(profile);
       return (
         <div className={'broker-buttons'}>
           <FormControl>
