@@ -159,8 +159,10 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const onSubmitted = (input: HTMLInputElement) => {
-    if ((state.status & OrderStatus.PriceEdited) === 0)
+    if ((state.status & OrderStatus.PriceEdited) === 0) {
+      props.onChange(null, false);
       return;
+    }
     // Ignore the submission if the user has not "modified" the value
     const internalValue: string | null = state.internalValue;
     if ((state.status & OrderStatus.Cancelled) !== 0 && (state.status & OrderStatus.PriceEdited) === 0)

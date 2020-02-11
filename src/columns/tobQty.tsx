@@ -3,6 +3,7 @@ import {Quantity} from 'components/Table/CellRenderers/Quantity';
 import {Order, OrderStatus} from 'interfaces/order';
 import React, {useState, useEffect} from 'react';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {$$} from 'utils/stringPaster';
 
 interface Props {
   order: Order;
@@ -29,6 +30,17 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     setValue(props.value);
   }, [props.value]);
+
+  useEffect(() => {
+    const type: string = $$(order.uid(), 'CLEAR_SIZE');
+    const clearSize = () => {
+      setValue(null);
+    };
+    document.addEventListener(type, clearSize);
+    return () => {
+      document.removeEventListener(type, clearSize);
+    };
+  }, [order]);
 
   const onSubmitted = (input: HTMLInputElement) => {
     if (value === 0) {

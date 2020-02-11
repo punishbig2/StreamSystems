@@ -25,7 +25,8 @@ const canDoubleClick = (order: Order, personality: string) => {
 export const PriceColumn = (data: TOBColumnData, label: string, type: Type, action?: () => ReactNode): ColumnSpec => {
   return {
     name: `${type}-vol`,
-    header: () => (<DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>
+    header: () => (
+      <DualTableHeader label={label} action={action} disabled={!data.buttonsEnabled}/>
     ),
     render: (row: RowType) => {
       const {[type]: order, depths} = row;
@@ -46,8 +47,7 @@ export const PriceColumn = (data: TOBColumnData, label: string, type: Type, acti
           onTabbedOut={data.onTabbedOut}
           onDoubleClick={canDoubleClick(order, data.personality) ? data.onDoubleClick : undefined}
           onError={data.onOrderError}
-          onNavigate={data.onNavigate}
-        />
+          onNavigate={data.onNavigate}/>
       );
     },
     template: '999999.999',

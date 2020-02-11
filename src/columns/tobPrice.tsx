@@ -6,6 +6,7 @@ import {TOBTable} from 'interfaces/tobTable';
 import React from 'react';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {$$} from 'utils/stringPaster';
 
 interface Props {
   order: Order;
@@ -33,7 +34,12 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
   const onError = (error: PriceErrors, input: HTMLInputElement) =>
     props.onError(order, error, input);
   const onChange = (price: number | null, changed: boolean) => {
-    if (!changed && (order.status & OrderStatus.QuantityEdited) === 0) return;
+    if (price === null || !changed) {
+      document.dispatchEvent(new CustomEvent($$(order.uid(), 'CLEAR_SIZE')));
+    }
+    if (!changed && (order.status & OrderStatus.QuantityEdited) === 0) {
+      return;
+    }
     props.onChange({...order, price});
   };
   return (
@@ -56,7 +62,6 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
       }
       onDoubleClick={onDoubleClick}
       onNavigate={props.onNavigate}
-      onChange={onChange}
-    />
+      onChange={onChange}/>
   );
 };

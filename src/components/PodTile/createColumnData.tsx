@@ -62,6 +62,9 @@ export const createColumnData = (
         input.focus();
       }
     },
+    onResetOrderQuantity: (order: Order) => {
+      fns.resetOrderQuantity(order);
+    },
     onOrderModified: (order: Order) => {
       setTimeout(() => {
         if (order.price === InvalidPrice) {
@@ -90,7 +93,7 @@ export const createColumnData = (
         } else {
           console.log('ignore this action');
         }
-      }, 0)
+      }, 0);
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
       if (cancelRelated) {

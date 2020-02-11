@@ -178,13 +178,16 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
           return state;
         }
       case $$(id, RowActions.UpdateOfr):
-        if (!isModified(ofr, data)) return state;
+        if (!isModified(ofr, data))
+          return state;
         return {
           ...state,
           row: {...row, ofr: {...data, status: getStatus(ofr, data)}},
         };
       case $$(id, RowActions.UpdateBid):
-        if (!isModified(bid, data)) return state;
+        console.log(data);
+        if (!isModified(bid, data))
+          return state;
         return {
           ...state,
           row: {...row, bid: {...data, status: getStatus(bid, data)}},

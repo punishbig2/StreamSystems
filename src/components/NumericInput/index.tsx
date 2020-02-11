@@ -43,7 +43,8 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
       case 'Tab':
       case 'Enter':
         event.preventDefault();
-        if (event.shiftKey) return;
+        if (event.shiftKey)
+          return;
         onChange(input.value);
         if (onSubmitted) {
           onSubmitted(input);

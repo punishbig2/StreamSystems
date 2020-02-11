@@ -89,6 +89,9 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       createOrder: (order: Order, personality: string, minSize: number) => {
         return reduxDispatch(createOrder(id, personality, order, minSize));
       },
+      resetOrderQuantity: (order: Order) => {
+        return reduxDispatch(updateOrder(id, {...order, quantity: null}));
+      },
       setStrategy: (value: string) => reduxDispatch(setStrategy(props.workspaceID, id, value)),
       setSymbol: (value: string) => reduxDispatch(setSymbol(props.workspaceID, id, symbols.find((s: Currency) => s.name === value))),
       cancelOrder: (order: Order) => reduxDispatch(cancelOrder(id, order)),

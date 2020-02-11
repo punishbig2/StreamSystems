@@ -1,15 +1,13 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {RowFunctions} from 'components/PodTile/rowFunctions';
-import {TOBRowStatus, InvalidPrice, TOBRow} from 'interfaces/tobRow';
+import {TOBRowStatus} from 'interfaces/tobRow';
 import React, {useEffect, useState} from 'react';
 import {RowState} from 'redux/stateDefs/rowState';
 import {percentage} from 'utils';
 import {W} from 'interfaces/w';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {toTOBRow} from 'utils/dataParser';
-import {Order, OrderStatus} from 'interfaces/order';
-import {OrderTypes} from 'interfaces/mdEntry';
 
 interface OwnProps {
   id: string;
@@ -55,7 +53,12 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
   }, [symbol, strategy, tenor]);
 
   useEffect(() => {
-    setRow(props.row);
+    const {bid, ofr} = props.row;
+    setRow({
+      ...props.row,
+      bid: {...bid, quantity: bid.price === null ? null : bid.quantity},
+      ofr: {...ofr, quantity: ofr.price === null ? null : ofr.quantity},
+    });
   }, [props.row]);
 
   useEffect(() => {
