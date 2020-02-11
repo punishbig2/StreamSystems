@@ -17,10 +17,22 @@
     line-height: $window-toolbar-size;
 
     .execution-banner {
-      flex: 1;
       display: flex;
+      flex: 1;
+      align-items: center;
+      height: 2em;
+      line-height: $table-row-height;
+      padding: 0 8px;
       .execution-banner-item {
+        font-size: $table-font-size;
+        font-weight: 500;
+        font-family: $table-font-family;
+        line-height: inherit;
         padding: 0 16px;
+        border: 1px solid $table-border-color;
+        background-color: lighten($table-border-color, 8%);
+        margin: 0 4px;
+        border-radius: 4px;
       }
     }
 

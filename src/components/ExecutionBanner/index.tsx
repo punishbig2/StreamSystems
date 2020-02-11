@@ -17,9 +17,15 @@ const withRedux = connect(mapStateToProps);
 
 const ExecutionBanner: React.FC<OwnProps & State> = (props: OwnProps & State): ReactElement | null => {
   const {executions} = props;
+  const start: number = Math.max(0, executions.length - 5);
+  const end: number = start + 5;
+  console.log(start, end);
+  const last5: Message[] = executions
+    .slice(start, end)
+    .reverse();
   return (
     <div className={'execution-banner'}>
-      {executions.map((execution: Message) => (
+      {last5.map((execution: Message) => (
         <div className={'execution-banner-item'} key={execution.ExecID}>
           {execution.Symbol}, {execution.Strategy}, {execution.Tenor}, {execution.LastPx}
         </div>
