@@ -2,6 +2,7 @@ import React, {ReactElement} from 'react';
 import {MapStateToProps, connect} from 'react-redux';
 import {ApplicationState} from 'redux/applicationState';
 import {Message} from 'interfaces/message';
+import {priceFormatter} from 'utils/priceFormatter';
 
 interface OwnProps {
 }
@@ -26,7 +27,7 @@ const ExecutionBanner: React.FC<OwnProps & State> = (props: OwnProps & State): R
     <div className={'execution-banner'}>
       {last5.map((execution: Message) => (
         <div className={'execution-banner-item'} key={execution.ExecID}>
-          {execution.Symbol}, {execution.Strategy}, {execution.Tenor}, {execution.LastPx}
+          {execution.Symbol} {execution.Strategy} {execution.Tenor}@{priceFormatter(Number(execution.LastPx))}
         </div>
       ))}
     </div>
