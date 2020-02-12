@@ -4,6 +4,7 @@ import {Order, OrderStatus} from 'interfaces/order';
 import React, {useState, useEffect} from 'react';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {$$} from 'utils/stringPaster';
+import {OrderTypes} from 'interfaces/mdEntry';
 
 interface Props {
   order: Order;
@@ -32,14 +33,16 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
   }, [props.value]);
 
   useEffect(() => {
-    const type: string = $$(order.uid(), 'CLEAR_SIZE');
-    const clearSize = () => {
-      setValue(null);
-    };
-    document.addEventListener(type, clearSize);
-    return () => {
-      document.removeEventListener(type, clearSize);
-    };
+    if (order.type === OrderTypes.Bid) {
+      const type: string = $$(order.uid(), order.type, 'CLEAR_SIZE');
+      const clearSize = () => {
+        setValue(null);
+      };
+      document.addEventListener(type, clearSize);
+      return () => {
+        document.removeEventListener(type, clearSize);
+      };
+    }
   }, [order]);
 
   const onSubmitted = (input: HTMLInputElement) => {
@@ -90,7 +93,12 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     && (order.status & OrderStatus.HasDepth) !== 0
     && order.price !== null;
 
-  const onBlur = () => setValue(null);
+  const onBlur = () => {
+    console.log(order.price);
+    if (order.price === null || (order.status & OrderStatus.Cancelled) !== 0) {
+      setValue(null);
+    }
+  };
 
   return (
     <Quantity

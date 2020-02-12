@@ -26,7 +26,7 @@ import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
 import workareaReducer from 'redux/reducers/workareaReducer';
-import executionsReducer from 'redux/reducers/exectutionsReducer';
+import executionsReducer from 'redux/reducers/executionsReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';

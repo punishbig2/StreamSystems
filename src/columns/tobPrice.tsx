@@ -34,8 +34,8 @@ export const TOBPrice: React.FC<Props> = (props: Props) => {
   const onError = (error: PriceErrors, input: HTMLInputElement) =>
     props.onError(order, error, input);
   const onChange = (price: number | null, changed: boolean) => {
-    if (price === null && (order.status & OrderStatus.PreFilled) === 0) {
-      document.dispatchEvent(new CustomEvent($$(order.uid(), 'CLEAR_SIZE')));
+    if (!changed) {
+      document.dispatchEvent(new CustomEvent($$(order.uid(), order.type, 'CLEAR_SIZE')));
     }
     if (!changed && (order.status & OrderStatus.QuantityEdited) === 0) {
       return;
