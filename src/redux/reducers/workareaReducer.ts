@@ -6,6 +6,7 @@ import {FXOAction, ActionKind} from 'redux/fxo-action';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {workspaceReducer} from 'redux/reducers/workspaceReducer';
+import {UserProfileActions, defaultProfile} from 'redux/reducers/userProfileReducer';
 
 const initialState: WorkareaState = {
   workspaces: {},
@@ -18,6 +19,7 @@ const initialState: WorkareaState = {
   status: WorkareaStatus.Starting,
   connected: false,
   lastExecution: null,
+  userProfile: defaultProfile,
 };
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
@@ -142,6 +144,8 @@ export default (state: WorkareaState = initialState, action: ActionType): Workar
       return {...state, lastExecution: data};
     case WorkareaActions.ClearLastExecution:
       return {...state, lastExecution: null};
+    case UserProfileActions.SetUserProfile:
+      return {...state, userProfile: action.data};
     default:
       return nextReducer(state, action);
   }

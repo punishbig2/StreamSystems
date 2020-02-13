@@ -155,8 +155,6 @@ export const workspaceReducer = (state: WorkspaceState = initialState, action: A
       return {...state, windows: bringToFront(data, state)};
     case WorkspaceActions.Toast:
       return {...state, toast: data};
-    case UserProfileActions.SetUserProfile:
-      return {...state};
     case WorkspaceActions.UpdateMarkets:
       return {...state, markets: data};
     case WorkspaceActions.SetPersonality:

@@ -71,7 +71,7 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 
 const Workarea: React.FC<OwnProps> = withRedux(
   (props: Props): ReactElement | null => {
-    const {symbols, products, tenors, banks, initialize, connected, user, activeWorkspace} = props;
+    const {symbols, products, tenors, banks, initialize, connected, user, activeWorkspace, userProfile} = props;
     const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
     const {workspaces, loadMessages} = props;
     const {CloseWorkspace} = strings;
@@ -150,12 +150,12 @@ const Workarea: React.FC<OwnProps> = withRedux(
             {activeWorkspace ? (
               <Workspace
                 id={activeWorkspace}
+                userProfile={userProfile}
                 symbols={symbols}
                 products={products}
                 tenors={tenors}
                 banks={banks}
-                connected={connected}
-              />
+                connected={connected}/>
             ) : null}
             <div className={'footer'}>
               <TabBar
@@ -165,17 +165,14 @@ const Workarea: React.FC<OwnProps> = withRedux(
                 setActiveTab={props.setWorkspace}
                 onTabClosed={setSelectedToClose}
                 onTabRenamed={props.renameWorkspace}
-                onQuit={props.quit}
-              />
+                onQuit={props.quit}/>
             </div>
             <ModalWindow
               render={renderCloseQuestion}
-              visible={!!selectedToClose}
-            />
+              visible={!!selectedToClose}/>
             <ModalWindow
               render={() => renderMessage()}
-              visible={props.lastExecution !== null}
-            />
+              visible={props.lastExecution !== null}/>
           </>
         );
       default:

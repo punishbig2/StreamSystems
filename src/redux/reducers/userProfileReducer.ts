@@ -8,7 +8,7 @@ import {
 } from 'interfaces/user';
 import {FXOAction} from 'redux/fxo-action';
 
-const defaultProfile: UserProfile = {
+export const defaultProfile: UserProfile = {
   ccyGroup: CurrencyGroups.Invalid,
   colorScheme: 'default',
   execSound: 'default',

@@ -37,7 +37,6 @@ import {ModalWindow} from 'components/ModalWindow';
 import {UserProfileModal} from 'components/Workspace/UserProfileForm';
 import {ErrorBox} from 'components/ErrorBox';
 import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
-import {store} from 'redux/store';
 import {saveUserProfile} from 'redux/actions/userProfileActions';
 import {ExecutionBanner} from 'components/ExecutionBanner';
 
@@ -68,6 +67,7 @@ interface OwnProps {
   tenors: string[];
   connected: boolean;
   banks: string[];
+  userProfile: UserProfile;
 }
 
 const cache: { [key: string]: DispatchProps } = {};
@@ -261,20 +261,20 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
       );
     } else {
-      const {userProfile: {profile}} = store.getState();
+      const {userProfile} = props;
+      console.log(userProfile);
       const onOCOChange = ({currentTarget: input}: React.ChangeEvent<HTMLInputElement>) => {
-        props.saveUserProfile(user.email, {...profile, oco: input.checked}, profile.oco);
+        props.saveUserProfile(user.email, {...userProfile, oco: input.checked}, userProfile.oco);
       };
-      console.log(profile);
       return (
         <div className={'broker-buttons'}>
           <FormControl>
             <FormControlLabel
               control={
                 <Checkbox
-                  disabled={wasModifiedToday(profile.lastOCOUpdateTimestamp, profile.timezone)}
+                  disabled={wasModifiedToday(userProfile.lastOCOUpdateTimestamp, userProfile.timezone)}
                   id={'oco'}
-                  checked={profile.oco}
+                  checked={userProfile.oco}
                   name={'oco'}
                   onChange={onOCOChange}/>
               }
