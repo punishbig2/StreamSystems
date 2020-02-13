@@ -5,7 +5,6 @@ import {UserProfileModalTypes, UserProfile} from 'interfaces/user';
 import {API} from 'API';
 import {FXOAction} from 'redux/fxo-action';
 import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
-import {Dispatch} from 'redux';
 
 export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserProfileActions>> => {
   return new AsyncAction(async (): Promise<FXOAction<UserProfileActions>[]> => {

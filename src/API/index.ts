@@ -284,12 +284,9 @@ export class API {
     return get<W | null>(url);
   }
 
-  static async getMessagesSnapshot(
-    useremail: string,
-    timestamp: number,
-  ): Promise<Message[]> {
+  static async getMessagesSnapshot(useremail: string, timestamp: number): Promise<Message[]> {
     return await get<Message[]>(
-      API.getUrl(API.Oms, 'messages', 'get', {useremail, timestamp}),
+      API.getUrl(API.Oms, 'messages', 'get', {timestamp}),
     );
   }
 
@@ -299,7 +296,7 @@ export class API {
     strategy: string,
   ): Promise<any[]> {
     return get<any[]>(
-      API.getUrl(API.Oms, 'runorders', 'get', {useremail, symbol, strategy}),
+      API.getUrl(API.Oms, 'runorders', 'get', {symbol, strategy}),
     );
   }
 

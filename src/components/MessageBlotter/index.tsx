@@ -60,6 +60,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   };
 
   const isMyExecution = (message: Message): boolean => {
+    console.log(message);
     return message.Username === user.email;
   };
 
@@ -71,7 +72,8 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     const message: Message = props.row;
     const rowType = ((): BlotterRowTypes => {
       if (!isExecution(message)) {
-        if (isBusted(message)) return BlotterRowTypes.Busted;
+        if (isBusted(message))
+          return BlotterRowTypes.Busted;
         return BlotterRowTypes.Normal;
       }
       if (isMyExecution(message)) {
@@ -82,13 +84,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       return BlotterRowTypes.Normal;
     })();
     return (
-      <Row
-        key={props.key}
-        columns={props.columns}
-        row={message}
-        weight={props.weight}
-        type={rowType}
-      />
+      <Row key={props.key} columns={props.columns} row={message} weight={props.weight} type={rowType}/>
     );
   };
 
