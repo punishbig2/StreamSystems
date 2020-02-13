@@ -94,9 +94,10 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     && order.price !== null;
 
   const onBlur = () => {
-    console.log(order.price);
-    if (order.price === null || (order.status & OrderStatus.Cancelled) !== 0) {
-      setValue(null);
+    if (order.type === OrderTypes.Ofr) {
+      if (order.price === null || (order.status & OrderStatus.Cancelled) !== 0) {
+        setValue(null);
+      }
     }
   };
 
