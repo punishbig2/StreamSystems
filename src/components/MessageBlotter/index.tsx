@@ -60,7 +60,6 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   };
 
   const isMyExecution = (message: Message): boolean => {
-    console.log(message);
     return message.Username === user.email;
   };
 

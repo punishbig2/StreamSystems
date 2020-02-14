@@ -198,11 +198,7 @@ export class API {
     return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
   }
 
-  static async cancelAll(
-    symbol: string | undefined,
-    strategy: string | undefined,
-    side: Sides,
-  ): Promise<OrderResponse> {
+  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): Promise<OrderResponse> {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
@@ -213,7 +209,7 @@ export class API {
       Symbol: symbol,
     };
     return post<OrderResponse>(
-      API.getUrl(API.Oms, 'allextended', 'cxl'),
+      API.getUrl(API.Oms, 'all', 'cancel'),
       request,
     );
   }
