@@ -13,16 +13,17 @@ interface OwnProps {
   onCancel?: () => void;
   className?: string;
   chevron?: boolean;
-  onSubmitted: (target: HTMLInputElement) => void;
-  onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
-  onBlur?: () => void;
   tabIndex?: number;
+  readOnly?: boolean;
+  onSubmit: (target: HTMLInputElement) => void;
+  onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const defaultProps: OwnProps = {
   onChange: () => null,
   onCancel: () => null,
-  onSubmitted: () => null,
+  onSubmit: () => null,
   type: OrderTypes.Invalid,
   value: null,
   cancellable: false,
@@ -40,10 +41,11 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
       type={'size'}
       className={props.className}
       tabIndex={props.tabIndex}
+      readOnly={props.readOnly}
       onBlur={props.onBlur}
       onChange={props.onChange}
       onNavigate={props.onNavigate}
-      onSubmitted={props.onSubmitted}/>,
+      onSubmit={props.onSubmit}/>,
   ];
 
   if (props.cancellable)

@@ -21,7 +21,7 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const actionType: RunActions =
     type === 'bid' ? RunActions.Bid : RunActions.Ofr;
   const onPriceChange = (row: RowType) =>
-    (price: number | null, changed: boolean) => {
+    (input: HTMLInputElement, price: number | null, changed: boolean) => {
       const order: Order = row[type];
       if (price === null) {
         data.resetOrder(row.id, order.type);
@@ -41,7 +41,7 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           status={order.status}
           value={order.price}
           animated={false}
-          onChange={onPriceChange(row)}
+          onSubmit={onPriceChange(row)}
           onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
           onNavigate={data.onNavigate}/>
       );
@@ -79,7 +79,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
       <HeaderQty onChange={defaultSize.onChange}
                  value={defaultSize.value}
                  type={defaultSize.type}
-                 onSubmitted={tryToGoToTheRightCell}/>
+                 onSubmit={tryToGoToTheRightCell}/>
     ),
     render: (row: RowType) => {
       const order: Order = row[type];
@@ -89,7 +89,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           value={order.quantity}
           order={order}
           defaultValue={defaultSize.value}
-          minSize={data.minSize}
+          minimumSize={data.minimumSize}
           onTabbedOut={data.focusNext}
           onChange={onChange}
           onNavigate={data.onNavigate}
@@ -121,7 +121,7 @@ const MidCol = (data: RunColumnData) => ({
       className={'mid'}
       arrow={ArrowDirection.None}
       status={OrderStatus.None}
-      onChange={(value: number | null, changed: boolean) =>
+      onSubmit={(input: HTMLInputElement, value: number | null, changed: boolean) =>
         data.onMidChanged(id, value, changed)
       }
       onTabbedOut={(target: HTMLInputElement) =>
@@ -146,7 +146,7 @@ const SpreadCol = (data: RunColumnData) => ({
         className={'spread'}
         arrow={ArrowDirection.None}
         status={OrderStatus.None}
-        onChange={(value: number | null, changed: boolean) =>
+        onSubmit={(input: HTMLInputElement, value: number | null, changed: boolean) =>
           data.onSpreadChanged(id, value, changed)
         }
         onTabbedOut={(target: HTMLInputElement) =>

@@ -2,7 +2,7 @@ import equal from 'deep-equal';
 import {RunEntry} from 'components/Run/runEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {RunState} from 'redux/stateDefs/runState';
 import {$$} from 'utils/stringPaster';
 import {priceFormatter} from 'utils/priceFormatter';
@@ -83,7 +83,6 @@ const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
 const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>): RunState => {
   const {orders} = state;
   // const finder = rowFinder(orders);
-  // Find the interesting row
   const row: TOBRow = orders[data.id];
   // Extract the two sides
   const {bid, ofr} = row;
@@ -178,7 +177,7 @@ const clearIfMatches = (order: Order, id: string): Order => {
 };
 
 const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
-  const orders: TOBTable = {...state.orders};
+  const orders: PodTable = {...state.orders};
   const rows: [string, TOBRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
     const order: Order = row[key];
@@ -199,7 +198,7 @@ const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
 };
 
 const removeOrder = (state: RunState, id: string) => {
-  const orders: TOBTable = {...state.orders};
+  const orders: PodTable = {...state.orders};
   const rows: [string, TOBRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, TOBRow]) => {
     const {bid, ofr} = row;
@@ -336,7 +335,6 @@ const updateOrder = (state: RunState, data: { id: string; order: Order }, key: '
 
 const updateQty = (state: RunState, data: { id: string; value: number | null }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
-  // Extract the target row
   const row: TOBRow = orders[data.id];
   // Extract the target order
   const order: Order = row[key];

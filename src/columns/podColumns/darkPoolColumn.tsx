@@ -1,6 +1,6 @@
 import {TOBColumnData} from 'components/PodTile/data';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {RowType} from 'columns/tobColumns/common';
+import {RowType} from 'columns/podColumns/common';
 import {Order, OrderStatus} from 'interfaces/order';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Price} from 'components/Table/CellRenderers/Price';
@@ -9,7 +9,7 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import React, {useCallback, useMemo, useEffect, useState} from 'react';
 import {DarkPoolTooltip} from 'components/Table/CellRenderers/Price/darkPoolTooltip';
 import {$$} from 'utils/stringPaster';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {TOBRow} from 'interfaces/tobRow';
 import {STRM} from 'redux/stateDefs/workspaceState';
 
@@ -30,7 +30,7 @@ const DarkPoolColumnComponent = (props: Props) => {
     onDarkPoolPriceChanged,
     onTabbedOut,
   } = props;
-  const [data, setData] = useState<TOBTable | null>(null);
+  const [data, setData] = useState<PodTable | null>(null);
 
   const order: Order | null = useMemo((): Order | null => {
     if (!darkPool) return null;
@@ -68,7 +68,7 @@ const DarkPoolColumnComponent = (props: Props) => {
   );
 
   const changeHandler = useCallback(
-    (value: number | null) => {
+    (input: HTMLInputElement, value: number | null) => {
       if (!isBroker || value === null) return undefined;
       onDarkPoolPriceChanged(tenor, Number(value));
     },
@@ -103,7 +103,7 @@ const DarkPoolColumnComponent = (props: Props) => {
   const renderTooltip = (order: Order | null) => {
     if (order === null) return undefined;
     return () => {
-      const table: TOBTable = {
+      const table: PodTable = {
         [order.uid()]: {
           id: order.uid(),
           ofr: order.type === OrderTypes.Ofr ? order : undefined,
@@ -135,7 +135,7 @@ const DarkPoolColumnComponent = (props: Props) => {
           : OrderStatus.None
       }
       onDoubleClick={() => doubleClickHandler(order)}
-      onChange={changeHandler}
+      onSubmit={changeHandler}
       onTabbedOut={tabbedOutHandler}
       onNavigate={props.onNavigate}
     />

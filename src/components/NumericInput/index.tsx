@@ -15,11 +15,11 @@ interface Props {
   /*onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;*/
   onTabbedOut?: (target: HTMLInputElement) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onSubmitted?: (input: HTMLInputElement) => void;
+  onSubmit?: (input: HTMLInputElement) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onSubmitted, onChange, onCancelEdit, onBlur, ...otherProps} = props;
+  const {onTabbedOut, onNavigate, onSubmit, onChange, onCancelEdit, onBlur, ...otherProps} = props;
   const [selectTimer, setSelectTimer] = useState<number>(setTimeout(() => null, 0));
 
   const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -46,33 +46,37 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         if (event.shiftKey)
           return;
         onChange(input.value);
-        if (onSubmitted) {
-          onSubmitted(input);
+        if (onSubmit) {
+          onSubmit(input);
         }
         if (onTabbedOut) {
           onTabbedOut(input);
         }
         break;
       case 'ArrowUp':
-        if (onNavigate) onNavigate(input, NavigateDirection.Up);
+        if (onNavigate)
+          onNavigate(input, NavigateDirection.Up);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
       case 'ArrowLeft':
-        if (onNavigate) onNavigate(input, NavigateDirection.Left);
+        if (onNavigate)
+          onNavigate(input, NavigateDirection.Left);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
       case 'ArrowDown':
-        if (onNavigate) onNavigate(input, NavigateDirection.Down);
+        if (onNavigate)
+          onNavigate(input, NavigateDirection.Down);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();
         break;
       case 'ArrowRight':
-        if (onNavigate) onNavigate(input, NavigateDirection.Right);
+        if (onNavigate)
+          onNavigate(input, NavigateDirection.Right);
         if (onCancelEdit)
           onCancelEdit();
         event.preventDefault();

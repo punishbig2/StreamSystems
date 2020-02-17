@@ -30,7 +30,7 @@ export interface Props {
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onChange: (value: number | null, changed: boolean) => void;
+  onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
   status: OrderStatus;
@@ -158,9 +158,9 @@ export const Price: React.FC<Props> = (props: Props) => {
     return internalValue;
   };
 
-  const onSubmitted = (input: HTMLInputElement) => {
+  const onSubmit = (input: HTMLInputElement) => {
     if ((state.status & OrderStatus.PriceEdited) === 0) {
-      props.onChange(null, false);
+      props.onSubmit(input, null, false);
       return;
     }
     // Ignore the submission if the user has not "modified" the value
@@ -168,12 +168,12 @@ export const Price: React.FC<Props> = (props: Props) => {
     if ((state.status & OrderStatus.Cancelled) !== 0 && (state.status & OrderStatus.PriceEdited) === 0)
       return;
     if (internalValue === null || internalValue.trim() === '') {
-      props.onChange(null, false);
+      props.onSubmit(input, null, false);
     } else {
       const numeric: number = Number(internalValue);
       // If it's non-numeric also ignore this
       if (isNaN(numeric) || numeric === 0) {
-        props.onChange(null, false);
+        props.onSubmit(input, null, false);
       } else {
         const changed: boolean = (() => {
           if ((props.status & OrderStatus.Owned) === 0)
@@ -186,16 +186,16 @@ export const Price: React.FC<Props> = (props: Props) => {
           if (props.min >= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.LessThanMin, input);
           } else {
-            props.onChange(numeric, changed);
+            props.onSubmit(input, numeric, changed);
           }
         } else if (props.max !== null && props.max !== undefined) {
           if (props.max <= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.GreaterThanMax, input);
           } else {
-            props.onChange(numeric, changed);
+            props.onSubmit(input, numeric, changed);
           }
         } else {
-          props.onChange(numeric, changed);
+          props.onSubmit(input, numeric, changed);
         }
       }
     }
@@ -238,7 +238,8 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   return (
-    <div className={getLayoutClass(state.flash)} onMouseEnter={showTooltip} onMouseLeave={hideTooltip} ref={setRef}>
+    <div className={getLayoutClass(state.flash) + ' cell'} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
+         ref={setRef}>
       <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
       <NumericInput
         readOnly={props.readOnly}
@@ -251,7 +252,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         onBlur={onCancelEdit}
         onDoubleClick={onDoubleClick}
         onChange={onChange}
-        onSubmitted={onSubmitted}
+        onSubmit={onSubmit}
         onTabbedOut={onTabbedOut}
         onNavigate={props.onNavigate}/>
       {/* The floating object */}

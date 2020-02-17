@@ -2,6 +2,7 @@ import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {User} from 'interfaces/user';
 import {ArrowDirection, MessageTypes, W} from 'interfaces/w';
 import {$$} from 'utils/stringPaster';
+import {OrderAction} from 'orderEvents';
 
 export enum Sides {
   Buy = 'BUY',
@@ -50,8 +51,8 @@ export enum OrderStatus {
   QuantityEdited = 1 << 5,
   Owned = 1 << 6,
   NotOwned = 1 << 7,
-  HaveOrders = 1 << 8,
-  HasDepth = 1 << 9,
+  HasDepth = 1 << 8,
+  HasMyOrder = 1 << 9,
   SameBank = 1 << 10,
   BeingCreated = 1 << 11,
   BeingCancelled = 1 << 12,
@@ -59,6 +60,8 @@ export enum OrderStatus {
   DarkPool = 1 << 14,
   FullDarkPool = 1 << 15,
   OwnedByBroker = 1 << 16,
+  JustCreated = 1 << 17,
+  JustCancelled = 1 << 18,
 }
 
 export interface OrderMessage {
@@ -133,9 +136,7 @@ export class Order {
     this.status = OrderStatus.None;
   }
 
-  public uid = () => {
-    return $$(this.tenor, this.symbol, this.strategy);
-  };
+  public uid = () => $$(this.symbol, this.strategy, this.tenor);
 
   public static fromOrderMessage = (
     entry: OrderMessage,
@@ -188,5 +189,28 @@ export class Order {
     order.arrowDirection = normalizeTickDirection(entry.TickDirection, order.type);
     // Now return the built order
     return order;
+  };
+
+  public dispatchEvent = (action: OrderAction) => {
+    const type: string = $$(this.uid(), action);
+    const event: CustomEvent = new CustomEvent<Order>(type, {detail: this});
+    // Now dispatch it
+    document.dispatchEvent(event);
+  };
+
+  public isBeingCreated = (): boolean => {
+    return (this.status & OrderStatus.BeingCreated) !== 0;
+  };
+
+  public isOwnedByCurrentUser = (): boolean => {
+    return (this.status & OrderStatus.Owned) !== 0;
+  };
+
+  public isBeingCancelled = (): boolean => {
+    return (this.status & OrderStatus.BeingCancelled) !== 0;
+  };
+
+  public isCancellable = () => {
+    return (this.status & OrderStatus.Owned) !== 0;
   };
 }

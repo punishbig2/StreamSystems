@@ -1,6 +1,6 @@
 import {RunActions} from 'redux/reducers/runReducer';
 import {createAction} from 'redux/actionCreator';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {$$} from 'utils/stringPaster';
 import {OrderTypes} from 'interfaces/mdEntry';
 
@@ -16,7 +16,7 @@ export const updateBid = (runID: string) => (ofr: any) =>
 export const removeOrder = (runID: string) => (id: string) =>
   createAction($$(runID, RunActions.RemoveOrder), id);
 
-export const setTable = (runID: string) => (orders: TOBTable) =>
+export const setTable = (runID: string) => (orders: PodTable) =>
   createAction($$(runID, RunActions.SetTable), orders);
 
 export const setBidPrice = (runID: string) => (id: string, value: number | null) =>

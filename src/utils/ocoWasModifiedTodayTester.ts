@@ -11,7 +11,6 @@ export const wasModifiedToday = (timestamp: number | null, timezone: string) => 
     const date: Date = new Date();
     return {offset: date.getTimezoneOffset() / 60} as TimezoneInfo;
   })();
-  console.log(tz);
   if (tz) {
     const when: moment.Moment = moment
     // Get the time from unix timestamp in seconds (hence divide by 1000)

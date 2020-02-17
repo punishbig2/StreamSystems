@@ -6,7 +6,7 @@ import strings from 'locales';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 
-type Props = QtyHeader & {onSubmitted: (input: HTMLInputElement) => void};
+type Props = QtyHeader & {onSubmit: (input: HTMLInputElement) => void};
 export const HeaderQty: React.FC<Props> = (props: Props) => {
   const onChange = (value: string | null) => {
     if (value === '' || value === null)
@@ -21,7 +21,7 @@ export const HeaderQty: React.FC<Props> = (props: Props) => {
           <NumericInput type={'size'}
                         value={sizeFormatter(props.value)}
                         onChange={onChange}
-                        onSubmitted={props.onSubmitted}/>
+                        onSubmit={props.onSubmit}/>
         </div>
       )
     }/>

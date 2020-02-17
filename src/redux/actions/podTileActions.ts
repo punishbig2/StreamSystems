@@ -1,6 +1,6 @@
 import {API} from 'API';
 import {Order, OrderErrors, OrderMessage, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
-import {OrderResponse} from 'interfaces/orderResponse';
+import {MessageResponse} from 'interfaces/messageResponse';
 import {TOBRowStatus} from 'interfaces/tobRow';
 import {User} from 'interfaces/user';
 import {W, DarkPool} from 'interfaces/w';
@@ -168,14 +168,14 @@ export const createDarkPoolOrder = (order: DarkPoolOrder, personality: string): 
   }, DummyAction);
 };
 
-export const createOrder = (id: string, personality: string, order: Order, minSize: number): AsyncAction<any, FXOActionType> => {
+export const createOrder = (id: string, personality: string, order: Order, minimumSize: number): AsyncAction<any, FXOActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
     $$(rowID, RowActions.CreatingOrder),
     order.type,
   );
   const handler: () => Promise<FXOActionType> = async (): Promise<FXOActionType> => {
-    const result: OrderResponse = await API.createOrder(order, personality, minSize);
+    const result: MessageResponse = await API.createOrder(order, personality, minimumSize);
     if (result.Status === 'Success') {
       return createAction($$(rowID, RowActions.OrderCreated), {
         order: {

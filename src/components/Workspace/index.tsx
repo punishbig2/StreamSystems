@@ -61,7 +61,7 @@ interface DispatchProps {
 
 interface OwnProps {
   id: string;
-  // Global row
+  // Global internalRow
   symbols: Currency[];
   products: Strategy[];
   tenors: string[];
@@ -262,7 +262,6 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       );
     } else {
       const {userProfile} = props;
-      console.log(userProfile);
       const onOCOChange = ({currentTarget: input}: React.ChangeEvent<HTMLInputElement>) => {
         props.saveUserProfile(user.email, {...userProfile, oco: input.checked}, userProfile.oco);
       };

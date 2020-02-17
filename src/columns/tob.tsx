@@ -2,31 +2,31 @@ import React, {ReactNode} from 'react';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {TOBColumnData} from 'components/PodTile/data';
 import strings from 'locales';
-import {PriceColumn} from 'columns/tobColumns/priceColumn';
-import {SizeColumn} from 'columns/tobColumns/sizeColumn';
-import {TenorColumn} from 'columns/tobColumns/tenorColumn';
-import {FirmColumn} from 'columns/tobColumns/firmColumn';
-import {DarkPoolColumn} from 'columns/tobColumns/darkPoolColumn';
+import {OrderColumnWrapper} from 'columns/podColumns/orderColumnWrapper';
+import {TenorColumn} from 'columns/podColumns/tenorColumn';
+import {FirmColumn} from 'columns/podColumns/firmColumn';
+import {DarkPoolColumn} from 'columns/podColumns/darkPoolColumn';
+import {OrderTypes} from 'interfaces/mdEntry';
 
 const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(data),
-  SizeColumn(strings.BidSz, 'bid', data, depth),
   ...(data.isBroker ? [FirmColumn(data, 'bid')] : []),
-  PriceColumn(
+  OrderColumnWrapper(
     data,
     strings.BidPx,
-    'bid',
+    OrderTypes.Bid,
+    depth,
     !depth ? ((): ReactNode => <button onClick={data.onRefBidsButtonClicked}>{strings.RefBids}</button>) : undefined,
   ),
   DarkPoolColumn(data),
-  PriceColumn(
+  OrderColumnWrapper(
     data,
     strings.OfrPx,
-    'ofr',
+    OrderTypes.Ofr,
+    depth,
     !depth ? ((): ReactNode => <button onClick={data.onRefOfrsButtonClicked}>{strings.RefOfrs}</button>) : undefined,
   ),
   ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
-  SizeColumn(strings.OfrSz, 'ofr', data, depth),
 ];
 
 export default columns;

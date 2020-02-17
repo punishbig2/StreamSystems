@@ -13,7 +13,7 @@ interface Props {
   id: string;
   value: number | null;
   order: Order;
-  minSize: number;
+  minimumSize: number;
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
   onTabbedOut?: (input: HTMLInputElement, action?: string) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
@@ -23,7 +23,7 @@ interface Props {
 export const RunQuantity: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
   const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
-  const {order, defaultValue, onChange, id, minSize} = props;
+  const {order, defaultValue, onChange, id, minimumSize} = props;
 
   useEffect(() => {
     setLocallyModified(false);
@@ -45,15 +45,15 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       onChange(id, value, true);
     } else {
       const numeric: number = Number(value);
-      if (numeric < minSize) {
-        onChange(id, minSize, true);
+      if (numeric < minimumSize) {
+        onChange(id, minimumSize, true);
       } else {
         onChange(id, numeric, true);
       }
     }
-  }, [onChange, id, minSize]);
+  }, [onChange, id, minimumSize]);
 
-  const onSubmitted = (input: HTMLInputElement) => {
+  const onSubmit = (input: HTMLInputElement) => {
     sendOnChange(Number(value));
     if (props.onTabbedOut) {
       props.onTabbedOut(input, $$(order.type, 'size'));
@@ -112,7 +112,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
       value={getValue()}
       onNavigate={props.onNavigate}
       onChange={onChangeWrapper}
-      onSubmitted={onSubmitted}
+      onSubmit={onSubmit}
       onBlur={reset}/>,
   ];
 

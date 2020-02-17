@@ -1,4 +1,4 @@
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
@@ -7,7 +7,7 @@ import {RowFunctions} from 'components/PodTile/rowFunctions';
 
 export type RowType = TOBRow & {
   handlers: TOBColumnData;
-  depths: { [key: string]: TOBTable };
+  depths: { [key: string]: PodTable };
 } & RowFunctions;
 export type Type = 'bid' | 'ofr';
 
@@ -19,12 +19,8 @@ const getDepthStatus = (values: Order[]): OrderStatus => {
   return OrderStatus.HasDepth;
 };
 
-export const getChevronStatus = (
-  depths: { [key: string]: TOBTable },
-  tenor: string,
-  type: OrderTypes,
-): OrderStatus => {
-  const order: TOBTable | undefined = depths[tenor];
+export const getChevronStatus = (depths: { [key: string]: PodTable }, tenor: string, type: OrderTypes): OrderStatus => {
+  const order: PodTable | undefined = depths[tenor];
   if (!order) return OrderStatus.None;
   const isEntryMineAndValid = (order: Order): boolean => {
     if (
@@ -50,12 +46,12 @@ export const getChevronStatus = (
       break;
     case OrderTypes.Ofr:
       return (
-        (values.find(isMyOfr) ? OrderStatus.HaveOrders : OrderStatus.None) |
+        (values.find(isMyOfr) ? OrderStatus.HasMyOrder : OrderStatus.None) |
         ofrDepthStatus
       );
     case OrderTypes.Bid:
       return (
-        (values.find(isMyBid) ? OrderStatus.HaveOrders : OrderStatus.None) |
+        (values.find(isMyBid) ? OrderStatus.HasMyOrder : OrderStatus.None) |
         bidDepthStatus
       );
     case OrderTypes.DarkPool:
@@ -63,6 +59,8 @@ export const getChevronStatus = (
   }
   return OrderStatus.None;
 };
+
 export const getBankMatchesPersonalityStatus = (order: Order, personality: string) => {
   return order.firm === personality ? OrderStatus.SameBank : OrderStatus.None;
 };
+

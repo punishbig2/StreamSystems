@@ -2,12 +2,14 @@ import {PriceErrors} from 'components/Table/CellRenderers/Price';
 import {State} from 'components/PodTile/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus, Sides} from 'interfaces/order';
-import {InvalidPrice, TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
 import {TenorType} from 'interfaces/w';
 import {Settings} from 'settings';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {API} from 'API';
+import {$$} from 'utils/stringPaster';
+import {TOBColumnData} from 'components/PodTile/data';
 
 type Fn1 = (tenor: TenorType | null) => void;
 type Fn2 = (order: Order) => void;
@@ -23,8 +25,8 @@ export const createColumnData = (
   settings: Settings,
   personality: string,
   defaultSize: number,
-  minSize: number,
-) => {
+  minimumSize: number,
+): TOBColumnData => {
   // Dispatch properties
   return {
     onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
@@ -62,38 +64,12 @@ export const createColumnData = (
         input.focus();
       }
     },
-    onResetOrderQuantity: (order: Order) => {
+    /*onResetOrderQuantity: (order: Order) => {
       fns.resetOrderQuantity(order);
-    },
+    },*/
     onOrderModified: (order: Order) => {
-      setTimeout(() => {
-        if (order.price === InvalidPrice) {
-          // This is empty for now
-        } else if (order.price !== null) {
-          if ((order.status & OrderStatus.Owned) !== 0) {
-            fns.cancelOrder(order);
-          } else if ((order.status & OrderStatus.HaveOrders) !== 0) {
-            const {depths} = state;
-            // Find my own order and cancel it
-            const mine: Order | undefined = Object.values(depths[order.tenor])
-              .map((row: TOBRow) =>
-                order.type === OrderTypes.Bid ? row.bid : row.ofr,
-              )
-              .find((item: Order) => item.user === user.email);
-            if (mine) {
-              fns.cancelOrder(mine);
-            }
-          }
-          fns.createOrder(
-            {...order, quantity: defaultSize},
-            personality,
-            minSize,
-          );
-          // fns.setRowStatus(order, TOBRowStatus.Normal);
-        } else {
-          console.log('ignore this action');
-        }
-      }, 0);
+      /*setTimeout(() => {
+        , 0);*/
     },
     onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
       if (cancelRelated) {
@@ -109,7 +85,7 @@ export const createColumnData = (
         fns.cancelOrder(order);
       }
     },
-    onQuantityChange: async (order: Order, newQuantity: number | null, personality: string, minSize: number, input: HTMLInputElement) => {
+    onQuantityChange: async (order: Order, newQuantity: number | null, personality: string, minimumSize: number, input: HTMLInputElement) => {
       const shouldCancelReplace: boolean = order.price !== null
         && (
           ((order.status & OrderStatus.Cancelled) === 0 && (order.status & OrderStatus.Owned) !== 0)
@@ -119,10 +95,15 @@ export const createColumnData = (
       if (shouldCancelReplace) {
         const newOrder: Order = {...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited};
         fns.cancelOrder(order);
-        await API.createOrder(newOrder, personality, minSize);
+        await API.createOrder(newOrder, personality, minimumSize);
         skipTabIndex(input, 1, 0);
       } else {
-        fns.updateOrder({...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited});
+        const type: string = $$(order.symbol, order.strategy, order.tenor, 'UPDATE_SIZE');
+        const detail: Order = {...order, quantity: newQuantity};
+        const event: CustomEvent<Order> = new CustomEvent<Order>(type, {detail});
+        // Dispatch the event now
+        document.dispatchEvent(event);
+        // fns.updateOrder({...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited});
         skipTabIndex(input, 1, 0);
       }
     },
@@ -157,13 +138,14 @@ export const createColumnData = (
           break;
       }
     },
-    aggregatedSz: state.aggregatedSz,
+    aggregatedSize: state.aggregatedSize,
     buttonsEnabled: symbol !== '' && strategy !== '',
     isBroker: user.isbroker,
     strategy: strategy,
     symbol: symbol,
     personality: personality,
     defaultSize: defaultSize,
-    minSize: minSize,
+    minimumSize: minimumSize,
+    depths: state.depths,
   };
 };

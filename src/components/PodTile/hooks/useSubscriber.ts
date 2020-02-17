@@ -1,12 +1,12 @@
 import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {useEffect} from 'react';
 import {Subscriber} from 'redux/signalRAction';
 
 type GetSnapshot = (symbol: string, strategy: string, tenor: string) => void;
 type GetOrders = (symbol: string, strategy: string) => any;
 export const useSubscriber = (
-  rows: TOBTable,
+  rows: PodTable,
   connected: boolean,
   symbol: string,
   strategy: string,

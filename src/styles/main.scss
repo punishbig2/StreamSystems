@@ -1,5 +1,11 @@
 @import "variables";
 
+:root {
+  #{--window-toolbar-height}: $window-toolbar-size;
+  #{--table-row-height}: $table-row-height;
+  #{--table-header-height}: $table-header-height;
+}
+
 %button {
   pointer-events: initial;
   cursor: default;
@@ -68,3 +74,5 @@
 @import "cell-layouts";
 @import "user-profile-form";
 @import "select";
+
+

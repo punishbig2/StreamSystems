@@ -14,7 +14,7 @@ import {Row} from 'components/PodTile/row';
 import {PodTileTitle} from 'components/PodTile/title';
 import {Order, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {SettingsContext} from 'main';
 import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
@@ -86,8 +86,8 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         reduxDispatch(subscribeDarkPool(symbol, strategy, tenor)),
       unsubscribe: (symbol: string, strategy: string, tenor: string) =>
         reduxDispatch(unsubscribe(symbol, strategy, tenor)),
-      createOrder: (order: Order, personality: string, minSize: number) => {
-        return reduxDispatch(createOrder(id, personality, order, minSize));
+      createOrder: (order: Order, personality: string, minimumSize: number) => {
+        return reduxDispatch(createOrder(id, personality, order, minimumSize));
       },
       resetOrderQuantity: (order: Order) => {
         return reduxDispatch(updateOrder(id, {...order, quantity: null}));
@@ -177,7 +177,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol.name, strategy, insertDepth);
   // Initialize tile/window
-  useInitializer(tenors, symbol.name, strategy, email, actions.initialize);
+  useInitializer(tenors, email, actions.initialize);
   // Subscribe to signal-r
   useSubscriber(
     rows,
@@ -289,7 +289,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         onClose={hideRunWindow}
         onSubmit={bulkCreateOrders}
         defaultSize={symbol.defaultqty}
-        minSize={symbol.minqty}/>
+        minimumSize={symbol.minqty}/>
     );
   };
 
@@ -299,11 +299,12 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   );
   const renderRow = (rowProps: any, index?: number): ReactElement => {
     const {symbol, strategy} = props;
+    const {row} = rowProps;
     return (
       <Row {...rowProps}
            symbol={symbol.name}
            strategy={strategy}
-           tenor={rowProps.row.tenor}
+           tenor={row.tenor}
            depths={state.depths}
            onError={onRowErrorFn}
            displayOnly={false}
@@ -319,7 +320,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   const tobColumns = useMemo(() => createTOBColumns(data, false), [data]);
   const getDepthTable = (): ReactElement | null => {
     if (state.tenor === null) return null;
-    const rows: TOBTable = {...state.depths[state.tenor]};
+    const rows: PodTable = {...state.depths[state.tenor]};
     return (
       <Table
         scrollable={false}
@@ -334,7 +335,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     if (state.tenor === null) {
       return;
     } else {
-      const depth: TOBTable = state.depths[state.tenor];
+      const depth: PodTable = state.depths[state.tenor];
       const values: TOBRow[] = Object.values(depth);
       if (values.length === 0) {
         // Has the equivalent effect of hiding the depth book

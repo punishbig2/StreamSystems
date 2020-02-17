@@ -1,9 +1,9 @@
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 
 export interface RunState {
-  orders: TOBTable;
+  orders: PodTable;
   initialized: boolean;
   defaultBidSize: number;
   defaultOfrSize: number;
-  originalOrders: TOBTable;
+  originalOrders: PodTable;
 }

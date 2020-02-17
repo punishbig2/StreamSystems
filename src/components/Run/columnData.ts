@@ -23,6 +23,6 @@ export interface RunColumnData {
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;
   resetOrder: (rowID: string, orderType: OrderTypes) => void;
-  minSize: number;
+  minimumSize: number;
   defaultSize: number;
 }

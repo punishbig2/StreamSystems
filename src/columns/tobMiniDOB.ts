@@ -1,9 +1,9 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 
-type Depths = { [key: string]: TOBTable };
+type Depths = { [key: string]: PodTable };
 export const getMiniDOBByType = (
   depths: Depths,
   tenor: string,

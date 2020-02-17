@@ -3,7 +3,7 @@
   width: 120px;
   line-height: 20px;
   cursor: default;
-  padding: 4px 16px;
+  padding: 4px;
   pointer-events: all;
 
   &:hover {
@@ -68,7 +68,7 @@ ul.dropdown {
     span {
       display: block;
       cursor: default;
-      padding: 8px 16px;
+      padding: 8px;
 
       &:hover {
         background-color: #e0e0e0;

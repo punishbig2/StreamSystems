@@ -37,7 +37,7 @@ export interface DispatchProps {
   setStrategy: (value: string) => void;
   setSymbol: (value: string) => void;
   toggleOCO: () => void;
-  createOrder: (order: Order, personality: string, minSize: number) => void;
+  createOrder: (order: Order, personality: string, minimumSize: number) => void;
   cancelOrder: (order: Order) => void;
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;

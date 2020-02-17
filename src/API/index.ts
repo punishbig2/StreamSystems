@@ -2,7 +2,7 @@ import config from 'config';
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
 import {CreateOrder, Order, Sides, UpdateOrder, DarkPoolOrder} from 'interfaces/order';
-import {OrderResponse} from 'interfaces/orderResponse';
+import {MessageResponse} from 'interfaces/messageResponse';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
 import {MessageTypes, W} from 'interfaces/w';
@@ -153,11 +153,11 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(order: Order, personality: string, minSize: number): Promise<OrderResponse> {
+  static async createOrder(order: Order, personality: string, minimumSize: number): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
     if (order.price === null || order.quantity === null)
       throw new Error('price and quantity MUST be specified');
-    if (order.quantity < minSize) order.quantity = minSize;
+    if (order.quantity < minimumSize) order.quantity = minimumSize;
     const {price, quantity} = order;
     // Build a create order request
     if (currentUser.isbroker && personality === STRM)
@@ -175,10 +175,17 @@ export class API {
       Price: price.toString(),
       MDMkt,
     };
-    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
+    order.dispatchEvent('CREATE');
+    const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
+    if (result.Status === 'Success') {
+      order.dispatchEvent('CREATED');
+    } else {
+      order.dispatchEvent('CREATE_ERROR');
+    }
+    return result;
   }
 
-  static async updateOrder(entry: Order): Promise<OrderResponse> {
+  static async updateOrder(entry: Order): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
     if (entry.price === null || entry.quantity === null || !entry.orderId)
       throw new Error('price, quantity and order id MUST be specified');
@@ -195,10 +202,10 @@ export class API {
       Strategy: entry.strategy,
       Tenor: entry.tenor,
     };
-    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
+    return post<MessageResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
   }
 
-  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): Promise<OrderResponse> {
+  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
@@ -208,74 +215,61 @@ export class API {
       Strategy: strategy,
       Symbol: symbol,
     };
-    return post<OrderResponse>(
+    return post<MessageResponse>(
       API.getUrl(API.Oms, 'all', 'cancel'),
       request,
     );
   }
 
-  static async cancelOrder(entry: Order): Promise<OrderResponse> {
+  static async cancelOrder(order: Order): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
       User: currentUser.email,
-      Symbol: entry.symbol,
-      Strategy: entry.strategy,
-      Tenor: entry.tenor,
-      OrderID: entry.orderId,
+      Symbol: order.symbol,
+      Strategy: order.strategy,
+      Tenor: order.tenor,
+      OrderID: order.orderId,
     };
-    return post<OrderResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
+    order.dispatchEvent('CANCEL');
+    const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
+    if (result.Status === 'Success') {
+      order.dispatchEvent('CANCELLED');
+    } else {
+      order.dispatchEvent('CANCEL_ERROR');
+    }
+    return result;
   }
 
-  static async getDarkPoolSnapshot(
-    symbol: string,
-    strategy: string,
-    tenor: string,
-  ): Promise<W | null> {
-    if (!symbol || !strategy || !tenor) return null;
-    const url: string = API.getRawUrl(API.DarkPool, 'snapshot', {
-      symbol,
-      strategy,
-      tenor,
-    });
+  static async getDarkPoolSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.DarkPool, 'snapshot', {symbol, strategy, tenor});
     // Execute the query
     return get<W | null>(url);
   }
 
-  static async getDarkPoolTOBSnapshot(
-    symbol: string,
-    strategy: string,
-    tenor: string,
-  ): Promise<W | null> {
-    if (!symbol || !strategy || !tenor) return null;
-    const url: string = API.getRawUrl(API.DarkPool, 'tobsnapshot', {
-      symbol,
-      strategy,
-      tenor,
-    });
+  static async getDarkPoolTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.DarkPool, 'tobsnapshot', {symbol, strategy, tenor});
     // Execute the query
     return get<W | null>(url);
   }
 
   static async getTOBSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
-    if (!symbol || !strategy || !tenor) return null;
-    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', {
-      symbol,
-      strategy,
-      tenor,
-    });
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', {symbol, strategy, tenor});
     // Execute the query
     return get<W | null>(url);
   }
 
   static async getSnapshot(symbol: string, strategy: string, tenor: string): Promise<W | null> {
-    if (!symbol || !strategy || !tenor) return null;
-    const url: string = API.getRawUrl(API.MarketData, 'snapshot', {
-      symbol,
-      strategy,
-      tenor,
-    });
+    if (!symbol || !strategy || !tenor)
+      return null;
+    const url: string = API.getRawUrl(API.MarketData, 'snapshot', {symbol, strategy, tenor});
     // Execute the query
     return get<W | null>(url);
   }
@@ -286,11 +280,7 @@ export class API {
     );
   }
 
-  static async getRunOrders(
-    useremail: string,
-    symbol: string,
-    strategy: string,
-  ): Promise<any[]> {
+  static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<any[]> {
     return get<any[]>(
       API.getUrl(API.Oms, 'runorders', 'get', {symbol, strategy}),
     );
@@ -317,17 +307,14 @@ export class API {
     } else if (!user.isbroker) {
       request.MDMkt = user.firm;
     }
-    return post<OrderResponse>(
+    return post<MessageResponse>(
       API.getUrl(API.DarkPool, 'order', 'create'),
       request,
     );
   }
 
   static async modifyDarkPoolOrder(request: any): Promise<any> {
-    return post<OrderResponse>(
-      API.getUrl(API.DarkPool, 'order', 'modify'),
-      request,
-    );
+    return post<MessageResponse>(API.getUrl(API.DarkPool, 'order', 'modify'), request);
   }
 
   static async cancelDarkPoolOrder(entry: Order): Promise<any> {
@@ -341,41 +328,29 @@ export class API {
       Tenor: entry.tenor,
       OrderID: entry.orderId,
     };
-    return post<OrderResponse>(
-      API.getUrl(API.DarkPool, 'order', 'cancel'),
-      request,
-    );
+    return post<MessageResponse>(API.getUrl(API.DarkPool, 'order', 'cancel'), request);
   }
 
   static async cxlAllExtendedDarkPoolOrder(request: any): Promise<any> {
-    return post<OrderResponse>(
+    return post<MessageResponse>(
       API.getUrl(API.DarkPool, 'allextended', 'cxl'),
       request,
     );
   }
 
   static async cancelAllDarkPoolOrder(request: any): Promise<any> {
-    return post<OrderResponse>(
-      API.getUrl(API.DarkPool, 'all', 'cancel'),
-      request,
-    );
+    return post<MessageResponse>(API.getUrl(API.DarkPool, 'all', 'cancel'), request);
   }
 
   static async getDarkPoolMessages(request: any): Promise<any> {
-    return get<OrderResponse>(API.getUrl(API.DarkPool, 'messages', 'get'));
+    return get<MessageResponse>(API.getUrl(API.DarkPool, 'messages', 'get'));
   }
 
   static async getDarkPoolRunOrders(request: any): Promise<any> {
-    return get<OrderResponse>(API.getUrl(API.DarkPool, 'runorders', 'get'));
+    return get<MessageResponse>(API.getUrl(API.DarkPool, 'runorders', 'get'));
   }
 
-  static async publishDarkPoolPrice(
-    user: string,
-    symbol: string,
-    strategy: string,
-    tenor: string,
-    price: number,
-  ): Promise<any> {
+  static async publishDarkPoolPrice(user: string, symbol: string, strategy: string, tenor: string, price: number): Promise<any> {
     const data = {
       User: user,
       Symbol: symbol,
@@ -402,7 +377,7 @@ export class API {
       MDMkt: personality === 'None' ? undefined : personality,
       TransactTime: getCurrentTime(),
     };
-    return post<OrderResponse>(
+    return post<MessageResponse>(
       API.getUrl(API.Oms, 'all', 'cxlall'),
       request,
     );

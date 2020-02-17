@@ -5,7 +5,7 @@ import {TOBRow} from 'interfaces/tobRow';
 };
 
 export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, quantity, OrderTypes.Ofr);
+  return emptyEntry(tenor, symbol, strategy, user, quantity, OrderTypes.Offer);
 };
 
 export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {

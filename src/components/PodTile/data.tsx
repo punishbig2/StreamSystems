@@ -3,6 +3,7 @@ import {AggregatedSz} from 'components/PodTile/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import {PodTable} from 'interfaces/podTable';
 
 export interface TOBColumnData {
   onTenorSelected: (tenor: string) => void;
@@ -10,13 +11,7 @@ export interface TOBColumnData {
   onRefBidsButtonClicked: () => void;
   onRefOfrsButtonClicked: () => void;
   onOrderModified: (entry: Order) => void;
-  onQuantityChange: (
-    entry: Order,
-    newQuantity: number | null,
-    personality: string,
-    minSize: number,
-    input: HTMLInputElement,
-  ) => void;
+  onQuantityChange: (entry: Order, newQuantity: number | null, personality: string, minimumSize: number, input: HTMLInputElement) => void;
   onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
   onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => void;
   onOrderError: (
@@ -24,7 +19,7 @@ export interface TOBColumnData {
     error: PriceErrors,
     input: HTMLInputElement,
   ) => void;
-  aggregatedSz?: AggregatedSz;
+  aggregatedSize?: AggregatedSz;
   buttonsEnabled: boolean;
   isBroker: boolean;
   onDarkPoolPriceChanged: (tenor: string, price: number) => void;
@@ -39,5 +34,6 @@ export interface TOBColumnData {
   symbol: string;
   strategy: string;
   defaultSize: number;
-  minSize: number;
+  minimumSize: number;
+  depths: { [key: string]: PodTable };
 }

@@ -33,7 +33,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     // Get the geometry to locate the dropdown
     if (container !== null) {
       const boundingBox: ClientRect = container.getBoundingClientRect();
-      setPosition(new DOMRect(boundingBox.left, boundingBox.bottom, boundingBox.width, -1));
+      setPosition(new DOMRect(boundingBox.left - 4, boundingBox.bottom, boundingBox.width + 8, -1));
     }
   };
 

@@ -1,6 +1,6 @@
 import {Order} from 'interfaces/order';
 import {TOBRow} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {DarkPoolTicketData} from 'components/DarkPoolTicket';
 
 interface Aggregation {
@@ -13,11 +13,11 @@ export type AggregatedSz = {
 };
 
 export interface State {
-  depths: { [key: string]: TOBTable };
+  depths: { [key: string]: PodTable };
   tenor: string | null;
   orderTicket: Order | null;
   runWindowVisible: boolean;
-  aggregatedSz?: AggregatedSz;
+  aggregatedSize?: AggregatedSz;
   darkPoolTicket: DarkPoolTicketData | null;
 }
 
@@ -65,8 +65,8 @@ export const reducer = (
       return {
         ...state,
         depths: {...state.depths, [data.tenor]: data.depth},
-        aggregatedSz: {
-          ...state.aggregatedSz,
+        aggregatedSize: {
+          ...state.aggregatedSize,
           [data.tenor]: collapse(data.depth),
         },
       };

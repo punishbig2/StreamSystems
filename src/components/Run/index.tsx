@@ -6,7 +6,7 @@ import {Table} from 'components/Table';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useCallback} from 'react';
 import {toRunId} from 'utils';
@@ -49,7 +49,7 @@ interface OwnProps {
   tenors: string[];
   onClose: () => void;
   onSubmit: (entries: Order[]) => void;
-  minSize: number;
+  minimumSize: number;
   defaultSize: number;
   visible: boolean;
 }
@@ -59,7 +59,7 @@ interface DispatchProps {
   updateOfr: (value: any) => FXOAction<RunActions>;
   updateBid: (value: any) => FXOAction<RunActions>;
   removeOrder: (id: string) => FXOAction<RunActions>;
-  setTable: (order: TOBTable) => FXOAction<RunActions>;
+  setTable: (order: PodTable) => FXOAction<RunActions>;
   setBidPrice: (id: string, value: number | null) => FXOAction<RunActions>;
   setOfrPrice: (id: string, value: number | null) => FXOAction<RunActions>;
   setMid: (id: string, value: number | null) => FXOAction<RunActions>;
@@ -115,7 +115,7 @@ type Props = RunState & OwnProps & DispatchProps;
 const Run: React.FC<Props> = (props: Props) => {
   const {symbol, strategy, tenors, id} = props;
   const {setDefaultSize, deactivateAllOrders, defaultSize, setTable} = props;
-  const setTableWrapper = useCallback((orders: TOBTable) => setTable(orders), [setTable]);
+  const setTableWrapper = useCallback((orders: PodTable) => setTable(orders), [setTable]);
 
   const {updateOfr, updateBid, removeOrder} = props;
 
@@ -138,8 +138,8 @@ const Run: React.FC<Props> = (props: Props) => {
 
   const onDelete = useCallback((id: string) => removeOrder(id), [removeOrder]);
 
-  let installOrderListeners: (orders: TOBTable) => (any[] | (() => void)[]);
-  installOrderListeners = useCallback((orders: TOBTable) => {
+  let installOrderListeners: (orders: PodTable) => (any[] | (() => void)[]);
+  installOrderListeners = useCallback((orders: PodTable) => {
     if (!orders)
       return [];
     const onUpdateWrapper = (event: Event) => {
@@ -192,7 +192,7 @@ const Run: React.FC<Props> = (props: Props) => {
     });
     const table = rows
       .sort(compareTenors)
-      .reduce((table: TOBTable, row: TOBRow) => {
+      .reduce((table: PodTable, row: TOBRow) => {
         table[row.id] = row;
         return table;
       }, {});
@@ -305,7 +305,7 @@ const Run: React.FC<Props> = (props: Props) => {
       type: OrderTypes.Ofr,
     },
     defaultSize: props.defaultSize,
-    minSize: props.minSize,
+    minimumSize: props.minimumSize,
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:

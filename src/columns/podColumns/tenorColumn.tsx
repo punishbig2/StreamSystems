@@ -1,7 +1,7 @@
 import {TOBColumnData} from 'components/PodTile/data';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {DualTableHeader} from 'components/dualTableHeader';
-import {RowType} from 'columns/tobColumns/common';
+import {RowType} from 'columns/podColumns/common';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import React from 'react';
 

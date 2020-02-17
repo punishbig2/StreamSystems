@@ -1,7 +1,7 @@
 import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
@@ -9,10 +9,7 @@ import {$$} from 'utils/stringPaster';
 
 type E = 'bid' | 'ofr';
 
-export const mdEntryToTOBEntry = (w: W) => (
-  entry: MDEntry,
-  fallbackType: OrderTypes,
-): Order => {
+export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
   const user: User = getAuthenticatedUser();
   if (entry) {
     return Order.fromWAndMDEntry(w, entry, user);
@@ -28,8 +25,8 @@ export const mdEntryToTOBEntry = (w: W) => (
   }
 };
 
-const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): TOBTable => {
-  const reducer = (table: TOBTable, row: TOBRow, index: number): TOBTable => {
+const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
+  const reducer = (table: PodTable, row: TOBRow, index: number): PodTable => {
     const key: string = $$('__DOB_KEY', index, w.Tenor, w.Symbol, w.Strategy);
     table[key] = row;
     return table;
@@ -104,11 +101,11 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
   }
 };
 
-export const toTOBRow = (w: W): TOBRow => {
+export const toPodRow = (w: W): TOBRow => {
   const [bid, ofr]: [MDEntry, MDEntry] = reorder(w);
   const transform = mdEntryToTOBEntry(w);
   return {
-    id: '',
+    id: `${w.Symbol}${w.Strategy}${w.Tenor}`,
     tenor: w.Tenor,
     bid: transform(bid, OrderTypes.Bid),
     ofr: transform(ofr, OrderTypes.Ofr),
@@ -119,7 +116,7 @@ export const toTOBRow = (w: W): TOBRow => {
   };
 };
 
-export const extractDepth = (w: W): TOBTable => {
+export const extractDepth = (w: W): PodTable => {
   const entries: MDEntry[] = w.Entries;
   const bids: MDEntry[] = entries.filter(
     (entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid,

@@ -1,10 +1,11 @@
-export const getNthParentOf = (element: Element, count: number): Element | null => {
-  let parent: Node | null = element.parentNode;
+export const getNthParentOf = (element: HTMLElement, count: number): HTMLElement | null => {
+  let parent: HTMLElement | null = element.parentElement;
   for (let i = 0; i < count - 1; ++i) {
-    if (parent === null) return null;
-    parent = parent.parentNode;
+    if (parent === null)
+      return null;
+    parent = parent.parentElement;
   }
-  return parent as Element;
+  return parent;
 };
 
 export const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number = 0) => {
@@ -32,7 +33,7 @@ export const skipTabIndex = (target: HTMLInputElement, n: number, cycle: number 
 };
 
 export const skipTabIndexAll = (target: HTMLInputElement, n: number, cycle: number | 'first-row' | 'last-row' = 0) => {
-  const parent: Element | null = getNthParentOf(target, 4);
+  const parent: Element | null = getNthParentOf(target, 7);
   if (parent !== null) {
     const inputs: HTMLInputElement[] = Array.from(
       parent.querySelectorAll('input'),
@@ -55,3 +56,4 @@ export const skipTabIndexAll = (target: HTMLInputElement, n: number, cycle: numb
     }
   }
 };
+

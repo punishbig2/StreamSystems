@@ -14,17 +14,17 @@ interface Props {
     order: Order,
     newQuantity: number | null,
     personality: string,
-    minSize: number,
+    minimumSize: number,
     input: HTMLInputElement,
   ) => void;
   value: number | null;
-  minSize: number;
+  minimumSize: number;
   defaultSize: number;
   personality: string;
   onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
-export const TOBQty: React.FC<Props> = (props: Props) => {
+export const PodSize: React.FC<Props> = (props: Props) => {
   const {order} = props;
   const [value, setValue] = useState<number | null>(props.value);
 
@@ -45,18 +45,13 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
     }
   }, [order]);
 
-  const onSubmitted = (input: HTMLInputElement) => {
-    if (order.price === null) {
-      setValue(null);
-      props.onSubmit(order, null, props.personality, props.minSize, input);
+  const onSubmit = (input: HTMLInputElement) => {
+    if (value === 0) {
+      props.onSubmit(order, null, props.personality, props.minimumSize, input);
+    } else if (value !== null && value < props.minimumSize) {
+      props.onSubmit(order, props.minimumSize, props.personality, props.minimumSize, input);
     } else {
-      if (value === 0) {
-        props.onSubmit(order, null, props.personality, props.minSize, input);
-      } else if (value !== null && value < props.minSize) {
-        props.onSubmit(order, props.minSize, props.personality, props.minSize, input);
-      } else {
-        props.onSubmit(order, value, props.personality, props.minSize, input);
-      }
+      props.onSubmit(order, value, props.personality, props.minimumSize, input);
     }
   };
 
@@ -83,21 +78,20 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       return false;
     if (props.isDepth)
       return ((status & OrderStatus.Owned) !== 0 || (status & OrderStatus.SameBank) !== 0);
-    return ((status & OrderStatus.Owned) !== 0 || (status & OrderStatus.HaveOrders) !== 0);
+    return (status & OrderStatus.Owned) !== 0;
   };
 
   const cancellable = canCancel(order);
   const onCancel = () => (cancellable ? props.onCancel(order, true) : null);
   const showChevron = !props.isDepth
-    && (order.status & OrderStatus.HaveOrders) !== 0
     && (order.status & OrderStatus.HasDepth) !== 0
     && order.price !== null;
 
   const onBlur = () => {
-    if (order.type === OrderTypes.Ofr) {
-      if (order.price === null || (order.status & OrderStatus.Cancelled) !== 0) {
-        setValue(null);
-      }
+    if (order.price === null) {
+      setValue(null);
+    } else {
+      setValue(order.quantity);
     }
   };
 
@@ -107,13 +101,13 @@ export const TOBQty: React.FC<Props> = (props: Props) => {
       type={order.type}
       tabIndex={-1}
       cancellable={cancellable}
-      className={getOrderStatusClass(order.status, 'size')}
+      className={getOrderStatusClass(order.status, 'size cell')}
       chevron={showChevron}
       onNavigate={props.onNavigate}
       onBlur={onBlur}
       onChange={onChange}
       onCancel={onCancel}
-      onSubmitted={onSubmitted}/>
+      onSubmit={onSubmit}/>
   );
 };
 

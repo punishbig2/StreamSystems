@@ -1,5 +1,5 @@
 import React, {ReactElement} from 'react';
-import {TOBTable} from 'interfaces/tobTable';
+import {PodTable} from 'interfaces/podTable';
 import {Table} from 'components/Table/index';
 import columns from 'columns/darkPoolDepth';
 import {percentage} from 'utils';
@@ -8,7 +8,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order} from 'interfaces/order';
 
 interface OwnProps {
-  data: TOBTable | null;
+  data: PodTable | null;
   onCancelOrder: (order: Order) => void;
 }
 
