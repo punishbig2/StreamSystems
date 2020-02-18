@@ -280,7 +280,7 @@
         text-align: center;
         width: 100%;
 
-        .runs-quantity-input {
+        .runs-size-input {
           display: block;
           background-color: white;
           border: none;
@@ -350,6 +350,7 @@
     .size-layout {
       position: relative;
       display: flex;
+      z-index: 1;
 
       .plus-sign {
         i {
@@ -383,6 +384,7 @@
         &::placeholder {
           color: $text-color-grey;
         }
+
 
         &.dark-pool-base {
           font-weight: 400;
@@ -427,6 +429,9 @@
 
     .price-waiting-spinner {
       position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: 600;
       font-size: 11px;
       left: 0;
@@ -436,11 +441,16 @@
       background-color: white;
       z-index: 2;
       border-bottom: 1px solid $table-border-color;
+      border-top: 1px solid transparent;
+
+      span {
+        display: block;
+        height: $table-row-height;
+      }
 
       &::before {
+        display: block;
         content: '';
-        display: inline-block;
-        vertical-align: middle;
         margin: 0 4px 0 0;
         width: 12px;
         height: 12px;
@@ -462,12 +472,13 @@
 
       &.flash {
         input {
-          animation: flash 0.5s infinite;
+          animation: flash 0.5s infinite linear;
         }
       }
 
       input {
         cursor: default;
+        will-change: opacity;
 
         box-sizing: border-box;
 
@@ -500,6 +511,28 @@
 }
 
 .size-layout {
+  &.busy {
+    .times, input {
+      visibility: hidden;
+    }
+
+    &::after {
+      content: '\00b7 \00b7 \00b7';
+      position: absolute;
+      font-size: $table-row-height;
+      line-height: $table-row-height - 4;
+      height: $table-row-height - 2;
+      top: 0;
+      width: 100%;
+      left: 0;
+      text-align: center;
+      box-sizing: border-box;
+      animation: flash 0.5s infinite linear;
+      will-change: color;
+      z-index: 2;
+    }
+  }
+
   .chevron {
     position: absolute;
     top: 1px;

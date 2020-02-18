@@ -1,6 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 
 type Depths = { [key: string]: PodTable };
@@ -10,7 +10,7 @@ export const getMiniDOBByType = (
   type: OrderTypes,
 ): Order[] | undefined => {
   if (depths === undefined || depths[tenor] === undefined) return undefined;
-  const items: TOBRow[] = Object.values(depths[tenor]);
+  const items: PodRow[] = Object.values(depths[tenor]);
   const offers: Order[] = items.map(item => item.ofr);
   const bids: Order[] = items.map(item => item.bid);
   switch (type) {

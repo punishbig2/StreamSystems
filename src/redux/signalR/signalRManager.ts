@@ -1,9 +1,12 @@
-import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
+import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState} from '@microsoft/signalr';
 import config from 'config';
 import {Message, DarkPoolMessage} from 'interfaces/message';
-import {W} from 'interfaces/w';
+import {W, isTOBW} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
 import {API} from 'API';
+import {propagateDepth} from 'utils/messageHandler';
+import {$$} from 'utils/stringPaster';
+import {SignalRActions} from 'redux/constants/signalRConstants';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -100,14 +103,14 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   private onUpdateMarketData = (message: string): void => {
-    const data: W = JSON.parse(message);
-    if (data['9712'] === 'TOB')
-      this.emitPodWEvent(data);
+    const w: W = JSON.parse(message);
+    if (isTOBW(w))
+      this.emitPodWEvent(w);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       const fn: (data: W) => void = this.onUpdateMarketDataListener;
       setTimeout(() => {
-        fn(data);
+        fn(w);
       }, 0);
     }
   };
@@ -140,33 +143,54 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.onDisconnectedListener = fn;
   };
 
+  private dispatchedWs: string[] = [];
   private emitPodWEvent = (w: W) => {
-    const type: string = `${w.Symbol}/${w.Strategy}/${w.Tenor}`;
-    const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w});
+    const {dispatchedWs} = this;
+    const cacheKey: string = $$(w.Tenor, w.TransactTime);
+    if (!isTOBW(w) || dispatchedWs.includes(cacheKey)) {
+      console.log('ignoring w');
+      return;
+    }
+    dispatchedWs.push(cacheKey);
+    // Now that we know it's the right time, create and dispatch the event
+    const type: string = $$(w.Symbol, w.Strategy, w.Tenor);
+    const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w, bubbles: false, cancelable: false});
     // Dispatch it now
     document.dispatchEvent(event);
   };
 
   public addPodRowListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
-    API.getTOBSnapshot(symbol, strategy, tenor)
-      .then((w: W | null) => {
-        if (w === null)
-          return;
-        this.emitPodWEvent(w);
-      });
-    const type: string = `${symbol}/${strategy}/${tenor}`;
-    const listenerWrapper = (event: Event) => {
-      const customEvent: CustomEvent<W> = event as CustomEvent<W>;
-      // Probably not needed because it's on the document?
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      // Call the installed listener
-      listener(customEvent.detail);
-    };
-    document.addEventListener(type, listenerWrapper, true);
-    return () => {
-      document.removeEventListener(type, listenerWrapper, true);
-    };
+    const connection: HubConnection | null = this.connection;
+    if (connection !== null && connection.state === HubConnectionState.Connected) {
+      const type: string = $$(symbol, strategy, tenor);
+      const listenerWrapper = (event: CustomEvent<W>) => {
+        // Call the installed listener
+        listener(event.detail);
+      };
+      connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
+      // Add the listener so that they are ready to receive
+      document.addEventListener(type, listenerWrapper as EventListener);
+      // Now get the "snapshots"
+      API.getTOBSnapshot(symbol, strategy, tenor)
+        .then((w: W | null) => {
+          if (w === null)
+            return;
+          this.emitPodWEvent({...w, '9712': 'TOB'});
+        });
+      API.getSnapshot(symbol, strategy, tenor)
+        .then((w: W | null) => {
+          if (w === null)
+            return;
+          propagateDepth(w);
+        });
+      return () => {
+        document.removeEventListener(type, listenerWrapper as EventListener);
+        // Unsubscribe from the market data feed
+        connection.invoke(SignalRActions.UnsubscribeFromMarketData, symbol, strategy, tenor);
+      };
+    } else {
+      throw new Error('you are not connected to signal R, this should never happen');
+    }
   }
 }
 

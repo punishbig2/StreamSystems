@@ -4,7 +4,7 @@ import {Table} from 'components/Table';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {User} from 'interfaces/user';
 import strings from 'locales';
-import React, {useEffect, useMemo} from 'react';
+import React, {useEffect, useMemo, ReactElement} from 'react';
 import {connect} from 'react-redux';
 import {ApplicationState} from 'redux/applicationState';
 import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
@@ -54,8 +54,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   };
 
   const isMyBankExecution = (message: Message): boolean => {
-    const targetUser: string =
-      message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
+    const targetUser: string = message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
     return targetUser === user.firm;
   };
 
@@ -67,7 +66,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     return false;
   };
 
-  const renderRow = (props: any) => {
+  const renderRow = (props: any): ReactElement | null => {
     const message: Message = props.row;
     const rowType = ((): BlotterRowTypes => {
       if (!isExecution(message)) {
@@ -117,8 +116,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
           scrollable={true}
           columns={columns}
           rows={entries.filter(baseFilter)}
-          renderRow={renderRow}
-        />
+          renderRow={renderRow}/>
       </div>
     </>
   );

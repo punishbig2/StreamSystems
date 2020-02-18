@@ -29,6 +29,9 @@ export interface W {
   NoMDEntries: number;
   Entries: MDEntry[];
   ExDestination: 'DP' | undefined;
-  '9712': string;
-  '9702': string;
+  '9712': 'TOB' | undefined;
 }
+
+export const isTOBW = (w: W) => {
+  return w['9712'] === 'TOB';
+};

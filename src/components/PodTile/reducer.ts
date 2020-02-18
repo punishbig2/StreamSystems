@@ -1,5 +1,5 @@
 import {Order} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {DarkPoolTicketData} from 'components/DarkPoolTicket';
 
@@ -8,7 +8,7 @@ interface Aggregation {
   ofr: { [price: string]: number };
 }
 
-export type AggregatedSz = {
+export type AggregatedSize = {
   [key: string]: Aggregation;
 };
 
@@ -17,7 +17,7 @@ export interface State {
   tenor: string | null;
   orderTicket: Order | null;
   runWindowVisible: boolean;
-  aggregatedSize?: AggregatedSz;
+  aggregatedSize?: AggregatedSize;
   darkPoolTicket: DarkPoolTicketData | null;
 }
 
@@ -36,17 +36,17 @@ const coalesce = (value: number | null, fallback: number): number =>
   value === null ? fallback : value;
 const collapse = (depth: any): Aggregation | undefined => {
   if (!depth) return undefined;
-  const values: TOBRow[] = Object.values(depth);
-  const bids: Order[] = values.map((value: TOBRow) => value.bid);
-  const ofrs: Order[] = values.map((value: TOBRow) => value.ofr);
+  const values: PodRow[] = Object.values(depth);
+  const bids: Order[] = values.map((value: PodRow) => value.bid);
+  const ofrs: Order[] = values.map((value: PodRow) => value.ofr);
   const groupByPrice = (group: Group, entry: Order): Group => {
     const price: number | null = entry.price;
     if (price === null) return group;
     const key: string = price.toFixed(3);
     if (group[key]) {
-      group[key] = coalesce(entry.quantity, 0) + group[key];
+      group[key] = coalesce(entry.size, 0) + group[key];
     } else {
-      group[key] = coalesce(entry.quantity, 0);
+      group[key] = coalesce(entry.size, 0);
     }
     return group;
   };

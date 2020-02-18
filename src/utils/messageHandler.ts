@@ -2,7 +2,7 @@ import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {PodTable} from 'interfaces/podTable';
 import {User} from 'interfaces/user';
-import {W, DarkPool} from 'interfaces/w';
+import {W, DarkPool, isTOBW} from 'interfaces/w';
 import {Action} from 'redux';
 import {extractDepth, mdEntryToTOBEntry} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
@@ -32,12 +32,12 @@ const propagateOrders = (w: W) => {
     .forEach(emitUpdateOrderEvent);
 };
 
-const propagateDepth = (w: W) => {
+export const propagateDepth = (w: W) => {
   const {Tenor, Symbol, Strategy} = w;
   const depth: PodTable = extractDepth(w);
   // Create depths
   const data: { tenor: string; depth: PodTable } = {tenor: w.Tenor, depth};
-  const type: string = $$(Tenor, Symbol, Strategy, PodTileActions.UpdateDOB);
+  const type: string = $$(Symbol, Strategy, Tenor, PodTileActions.UpdateDOB);
   const event: Event = new CustomEvent(type, {detail: data});
   // Now emit the event so that listeners capture it
   document.dispatchEvent(event);
@@ -52,7 +52,7 @@ export const handlers = {
     // const {Tenor, Symbol, Strategy} = w;
     // const type: string = $$('__ROW', Tenor, Symbol, Strategy, RowActions.Update);
     // Is this TOB?
-    if (w['9712'] === 'PodTile') {
+    if (isTOBW(w)) {
       // FIXME: because the backend is sending multiple copies of identical Ws I do this to
       //        "collapse" them into a single one and void unnecessary refreshes to the UI
       if (equal(lastTOBW, w)) return null;

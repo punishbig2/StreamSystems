@@ -21,5 +21,11 @@ export const getOrderStatusClass = (
     classes.push('same-bank');
   if ((status & OrderStatus.QuantityEdited) !== 0 || (status & OrderStatus.PriceEdited) !== 0)
     classes.push('edited');
+  if ((status & OrderStatus.BeingCreated) !== 0)
+    classes.push('busy');
+  if ((status & OrderStatus.BeingCancelled) !== 0)
+    classes.push('busy');
+  if ((status & OrderStatus.BeingLoaded) !== 0)
+    classes.push('busy');
   return classes.join(' ');
 };

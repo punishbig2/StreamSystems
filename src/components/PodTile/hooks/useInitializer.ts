@@ -1,6 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {TenorType} from 'interfaces/w';
 import {useEffect} from 'react';
@@ -8,12 +8,12 @@ import {compareTenors} from 'utils/dataGenerators';
 import {FXOptionsDB} from 'fx-options-db';
 import {toRowID} from 'utils';
 
-const buildRows = async (tenors: string[], email: string): Promise<TOBRow[]> => {
-  const rows: Promise<TOBRow>[] = tenors
+const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => {
+  const rows: Promise<PodRow>[] = tenors
     .map(async (tenor: TenorType) => {
       const order: Order = new Order(tenor, '', '', email, null, OrderTypes.Invalid);
       const darkPrice: number | null | undefined = await FXOptionsDB.getDarkPool(toRowID(order));
-      const row: TOBRow = {
+      const row: PodRow = {
         tenor: tenor,
         id: `${tenor}`,
         bid: {...order, type: OrderTypes.Bid},
@@ -26,19 +26,19 @@ const buildRows = async (tenors: string[], email: string): Promise<TOBRow[]> => 
       // Return internalRow
       return row;
     });
-  const finalRows: TOBRow[] = await Promise.all(rows);
+  const finalRows: PodRow[] = await Promise.all(rows);
   finalRows.sort(compareTenors);
   return finalRows;
 };
 
 const doInitialize = (tenors: string[], email: string, initialize: (data: PodTable) => void): (() => void)[] => {
-  const arrayToObjectReducer = (object: PodTable, item: TOBRow): PodTable => {
+  const arrayToObjectReducer = (object: PodTable, item: PodRow): PodTable => {
     object[item.id] = item;
     // Return the accumulator
     return object;
   };
   buildRows(tenors, email)
-    .then((rows: TOBRow[]) => {
+    .then((rows: PodRow[]) => {
       initialize(rows.reduce(arrayToObjectReducer, {}));
     });
   return [];

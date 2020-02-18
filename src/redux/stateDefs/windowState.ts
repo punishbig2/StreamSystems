@@ -1,4 +1,4 @@
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 import {Currency} from 'interfaces/currency';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 
@@ -8,7 +8,7 @@ export interface WindowState {
   id: string;
   type: WindowTypes;
   title: string;
-  rows: { [tenor: string]: TOBRow };
+  rows: { [tenor: string]: PodRow };
   strategy: string;
   symbol: Currency;
   zIndex: number;

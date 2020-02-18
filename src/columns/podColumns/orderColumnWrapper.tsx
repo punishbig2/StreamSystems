@@ -1,17 +1,16 @@
-import {TOBColumnData} from 'components/PodTile/data';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import React, {ReactNode, ReactElement} from 'react';
-import {RowType} from 'columns/podColumns/common';
+import {RowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderCellGroup} from 'columns/podColumns/orderColumn';
 
-export const OrderColumnWrapper = (data: TOBColumnData, label: string, type: OrderTypes, isDepth: boolean, action?: () => ReactNode): ColumnSpec => {
+export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boolean, action?: () => ReactNode): ColumnSpec => {
   return {
     name: `${type}-vol`,
     header: () => {
       const items: ReactElement[] = [
-        <DualTableHeader key={1} label={label} action={action} disabled={!data.buttonsEnabled} className={'price'}/>,
+        <DualTableHeader key={1} label={label} action={action} disabled={false} className={'price'}/>,
       ];
       if (type === OrderTypes.Bid) {
         items.unshift(<DualTableHeader key={2} label={'Size'} className={'size'}/>);
@@ -24,19 +23,18 @@ export const OrderColumnWrapper = (data: TOBColumnData, label: string, type: Ord
         </div>
       );
     },
-    render: (row: RowType) => (
+    render: (props: RowProps) => (
       <OrderCellGroup
         type={type}
-        personality={data.personality}
-        aggregatedSize={data.aggregatedSize}
-        isBroker={data.isBroker}
-        bid={row.bid}
-        ofr={row.ofr}
-        depths={row.depths}
-        defaultSize={data.defaultSize}
-        minimumSize={data.minimumSize}
-        isDepth={isDepth}
-        onDoubleClick={data.onDoubleClick}/>
+        personality={props.personality}
+        aggregatedSize={props.aggregatedSize}
+        isBroker={props.isBroker}
+        bid={props.bid}
+        ofr={props.ofr}
+        depths={props.depths}
+        defaultSize={props.defaultSize}
+        minimumSize={props.minimumSize}
+        isDepth={isDepth}/>
     ),
     template: '99999 999999.999',
     weight: 12,

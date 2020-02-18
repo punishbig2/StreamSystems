@@ -1,7 +1,7 @@
 import equal from 'deep-equal';
 import {RunEntry} from 'components/Run/runEntry';
 import {Order, OrderStatus} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {RunState} from 'redux/stateDefs/runState';
 import {$$} from 'utils/stringPaster';
@@ -83,7 +83,7 @@ const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
 const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>): RunState => {
   const {orders} = state;
   // const finder = rowFinder(orders);
-  const row: TOBRow = orders[data.id];
+  const row: PodRow = orders[data.id];
   // Extract the two sides
   const {bid, ofr} = row;
   // Original values
@@ -153,7 +153,7 @@ const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>
   }
 };
 
-const fillSpreadAndMid = (row: TOBRow): TOBRow => {
+const fillSpreadAndMid = (row: PodRow): PodRow => {
   const {ofr, bid} = row;
   if (ofr && ofr.price !== null && (bid && bid.price !== null)) {
     return {
@@ -178,8 +178,8 @@ const clearIfMatches = (order: Order, id: string): Order => {
 
 const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
   const orders: PodTable = {...state.orders};
-  const rows: [string, TOBRow][] = Object.entries(orders);
-  const entries = rows.map(([index, row]: [string, TOBRow]) => {
+  const rows: [string, PodRow][] = Object.entries(orders);
+  const entries = rows.map(([index, row]: [string, PodRow]) => {
     const order: Order = row[key];
     if (order.price !== null)
       return [
@@ -199,8 +199,8 @@ const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
 
 const removeOrder = (state: RunState, id: string) => {
   const orders: PodTable = {...state.orders};
-  const rows: [string, TOBRow][] = Object.entries(orders);
-  const entries = rows.map(([index, row]: [string, TOBRow]) => {
+  const rows: [string, PodRow][] = Object.entries(orders);
+  const entries = rows.map(([index, row]: [string, PodRow]) => {
     const {bid, ofr} = row;
     return [
       index,
@@ -219,13 +219,12 @@ const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   if ((status & OrderStatus.Cancelled) === 0)
     return status;
   const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
-  // Remove the cancelled flag and add the edited flags (both)
-  return (status | edited); // & ~OrderStatus.Cancelled;
+  return status | edited;
 };
 
 const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
-  const row: TOBRow = orders[rowID];
+  const row: PodRow = orders[rowID];
   if (row === undefined)
     return state;
   const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
@@ -244,7 +243,7 @@ const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: Order
 
 const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
-  const row: TOBRow = orders[rowID];
+  const row: PodRow = orders[rowID];
   if (row === undefined)
     return state;
   const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
@@ -268,7 +267,7 @@ const deactivateAll = (state: RunState, rowID: string): RunState => {
   const {orders} = state;
   if (orders === undefined || rowID === undefined)
     return state;
-  const row: TOBRow = orders[rowID];
+  const row: PodRow = orders[rowID];
   if (row === undefined)
     return state;
   const {bid, ofr} = row;
@@ -287,7 +286,7 @@ const deactivateAll = (state: RunState, rowID: string): RunState => {
 
 const activateRow = (state: RunState, rowID: string): RunState => {
   const {orders} = state;
-  const row: TOBRow = orders[rowID];
+  const row: PodRow = orders[rowID];
   if (row === undefined)
     return state;
   const {bid, ofr} = row;
@@ -309,14 +308,14 @@ const updateOrder = (state: RunState, data: { id: string; order: Order }, key: '
   const {order} = data;
   if (orders === undefined)
     return state;
-  const row: TOBRow = orders[data.id];
+  const row: PodRow = orders[data.id];
   if (row === undefined)
     return state;
   if ((row[key].status & OrderStatus.Active) !== 0 && (order.status & OrderStatus.Cancelled) !== 0)
     return state;
   if (!isValidUpdate(key === 'bid' ? order : row.bid, key === 'ofr' ? order : row.ofr))
     return state;
-  const newRow: TOBRow = fillSpreadAndMid({
+  const newRow: PodRow = fillSpreadAndMid({
     ...row,
     [key]: order,
   });
@@ -335,7 +334,7 @@ const updateOrder = (state: RunState, data: { id: string; order: Order }, key: '
 
 const updateQty = (state: RunState, data: { id: string; value: number | null }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
-  const row: TOBRow = orders[data.id];
+  const row: PodRow = orders[data.id];
   // Extract the target order
   const order: Order = row[key];
   return {
@@ -346,7 +345,7 @@ const updateQty = (state: RunState, data: { id: string; value: number | null }, 
         ...row,
         [key]: {
           ...order,
-          quantity: data.value,
+          size: data.value,
           // In this case also set `PriceEdited' bit because we want to make
           // the value eligible for submission
           status: order.status | OrderStatus.QuantityEdited | OrderStatus.PriceEdited,

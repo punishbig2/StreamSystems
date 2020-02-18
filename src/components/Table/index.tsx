@@ -3,6 +3,7 @@ import {Header} from 'components/Table/Header';
 import {VirtualScroll} from 'components/VirtualScroll';
 import {SortInfo} from 'interfaces/sortInfo';
 import React, {CSSProperties, ReactElement, useState, useMemo} from 'react';
+import getStyles from 'styles';
 
 export enum SortDirection {
   Descending,
@@ -32,9 +33,7 @@ const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
   });
 };
 
-export const Table: (props: Props) => React.ReactElement | null = (
-  props: Props,
-): ReactElement | null => {
+export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
   const {rows, columns} = props;
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<{ [key: string]: SortInfo }>({});
@@ -153,8 +152,9 @@ export const Table: (props: Props) => React.ReactElement | null = (
     if (sortFn !== undefined)
       rows.sort(sortFn);
     if (props.scrollable) {
+      const styles = getStyles();
       return (
-        <VirtualScroll itemSize={24} className={'tbody'}>
+        <VirtualScroll itemSize={styles.tableRowHeight} className={'tbody'}>
           {rows.map(props.renderRow)}
         </VirtualScroll>
       );

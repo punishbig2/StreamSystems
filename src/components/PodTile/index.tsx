@@ -1,6 +1,5 @@
-import createTOBColumns from 'columns/tob';
+import createTOBColumns from 'columns/podColumns';
 import {ModalWindow} from 'components/ModalWindow';
-import {OrderTicket} from 'components/OrderTicket';
 import {Run} from 'components/Run';
 import {Table} from 'components/Table';
 import {createColumnData} from 'components/PodTile/createColumnData';
@@ -10,10 +9,10 @@ import {useInitializer} from 'components/PodTile/hooks/useInitializer';
 import {useSubscriber} from 'components/PodTile/hooks/useSubscriber';
 import {DispatchProps, OwnProps, Props} from 'components/PodTile/props';
 import {ActionTypes, reducer, State} from 'components/PodTile/reducer';
-import {Row} from 'components/PodTile/row';
+import {Row} from 'components/PodTile/Row';
 import {PodTileTitle} from 'components/PodTile/title';
 import {Order, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {SettingsContext} from 'main';
 import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
@@ -24,9 +23,7 @@ import {WindowState} from 'redux/stateDefs/windowState';
 import {Settings} from 'settings';
 import {toRunId} from 'utils';
 import {
-  subscribe,
   subscribeDarkPool,
-  unsubscribe,
   getSnapshot,
   getDarkPoolSnapshot,
   cancelAll,
@@ -78,19 +75,12 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
 
   const actions = useMemo(
     () => ({
-      initialize: (rows: { [tenor: string]: TOBRow }) =>
+      initialize: (rows: { [tenor: string]: PodRow }) =>
         reduxDispatch(createWindowAction(props.workspaceID, id, PodTileActions.Initialize, rows)),
-      subscribe: (symbol: string, strategy: string, tenor: string) =>
-        reduxDispatch(subscribe(symbol, strategy, tenor)),
       subscribeDarkPool: (symbol: string, strategy: string, tenor: string) =>
         reduxDispatch(subscribeDarkPool(symbol, strategy, tenor)),
-      unsubscribe: (symbol: string, strategy: string, tenor: string) =>
-        reduxDispatch(unsubscribe(symbol, strategy, tenor)),
       createOrder: (order: Order, personality: string, minimumSize: number) => {
         return reduxDispatch(createOrder(id, personality, order, minimumSize));
-      },
-      resetOrderQuantity: (order: Order) => {
-        return reduxDispatch(updateOrder(id, {...order, quantity: null}));
       },
       setStrategy: (value: string) => reduxDispatch(setStrategy(props.workspaceID, id, value)),
       setSymbol: (value: string) => reduxDispatch(setSymbol(props.workspaceID, id, symbols.find((s: Currency) => s.name === value))),
@@ -135,7 +125,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [id, reduxDispatch],
+    [id],
   );
 
   // Internal temporary reducer actions
@@ -184,9 +174,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     connected,
     symbol.name,
     strategy,
-    actions.subscribe,
     actions.subscribeDarkPool,
-    actions.unsubscribe,
     actions.getSnapshot,
     actions.getDarkPoolSnapshot,
     actions.getRunOrders,
@@ -236,26 +224,11 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         onSubmit={onSubmit}
         onCancel={() => setDarkPoolTicket(null)}
         price={priceFormatter(ticket.price)}
-        quantity={defaultSize.toString()}
+        size={defaultSize.toString()}
         tenor={ticket.tenor}
         strategy={strategy}
         symbol={symbol.name}
         user={user.email}/>
-    );
-  };
-
-  const renderOrderTicket = () => {
-    if (state.orderTicket === null) return <div/>;
-    const onSubmit = (order: Order) => {
-      actions.createOrder(order, personality, symbol.minqty);
-      // Remove the internal order ticket
-      setOrderTicket(null);
-    };
-    return (
-      <OrderTicket
-        order={state.orderTicket}
-        onCancel={() => setOrderTicket(null)}
-        onSubmit={onSubmit}/>
     );
   };
 
@@ -299,21 +272,27 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   );
   const renderRow = (rowProps: any, index?: number): ReactElement => {
     const {symbol, strategy} = props;
-    const {row} = rowProps;
+    const {row, ...childProps} = rowProps;
     return (
-      <Row {...rowProps}
+      <Row {...childProps}
+           aggregatedSize={state.aggregatedSize}
+           personality={props.personality}
+           defaultSize={symbol.defaultqty}
+           minimumSize={symbol.minqty}
            symbol={symbol.name}
            strategy={strategy}
            tenor={row.tenor}
            depths={state.depths}
-           onError={onRowErrorFn}
            displayOnly={false}
-           rowNumber={index}/>
+           rowNumber={index}
+           connected={props.connected}
+           onError={onRowErrorFn}/>
     );
   };
-  const renderDOBRow = (props: any): ReactElement => {
+  const renderDOBRow = (rowProps: any): ReactElement => {
+    // static
     return (
-      <Row {...props} depths={[]} onError={onRowErrorFn} displayOnly={true}/>
+      <Row {...rowProps} depths={[]} onError={onRowErrorFn} connected={props.connected}/>
     );
   };
   const dobColumns = useMemo(() => createTOBColumns(data, true), [data]);
@@ -336,7 +315,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       return;
     } else {
       const depth: PodTable = state.depths[state.tenor];
-      const values: TOBRow[] = Object.values(depth);
+      const values: PodRow[] = Object.values(depth);
       if (values.length === 0) {
         // Has the equivalent effect of hiding the depth book
         // but it will actually set the correct state for the
@@ -368,9 +347,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
         <div className={'depth-table'}>{getDepthTable()}</div>
       </div>
-      <ModalWindow
-        render={renderOrderTicket}
-        visible={state.orderTicket !== null}/>
+
       <ModalWindow
         render={renderDarkPoolTicket}
         visible={state.darkPoolTicket !== null}/>

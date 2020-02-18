@@ -16,8 +16,7 @@ export const useDepthEmitter = (
       // Dispatch an action for our reducer
       callback(customEvent.detail);
     };
-    const getName = (tenor: string) =>
-      $$(tenor, symbol, strategy, PodTileActions.UpdateDOB);
+    const getName = (tenor: string) => $$(symbol, strategy, tenor, PodTileActions.UpdateDOB);
     tenors.forEach((tenor: string) => {
       document.addEventListener(getName(tenor), handler);
     });

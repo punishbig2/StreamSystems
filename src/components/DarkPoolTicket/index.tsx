@@ -11,7 +11,7 @@ interface OwnProps {
   symbol: string;
   strategy: string;
   price: string;
-  quantity: string;
+  size: string;
   user: string;
   onCancel: () => void;
   onSubmit: (order: DarkPoolOrder) => void;
@@ -28,7 +28,7 @@ const None = '';
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   const [price, setPrice] = useState<string>(props.price || '');
-  const [quantity, setQuantity] = useState<string>(props.quantity);
+  const [size, setQuantity] = useState<string>(props.size);
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
   useEffect(() => {
@@ -49,7 +49,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       ExecInst: inst === None ? undefined : inst,
       MsgType: MessageTypes.D,
       Price: price,
-      Quantity: quantity,
+      Quantity: size,
       Side: side as Sides,
       Strategy: props.strategy,
       Symbol: props.symbol,
@@ -62,7 +62,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const instLabels: { [key: string]: string } = {G: 'AON', D: '1/2 AON'};
   const sideLabels: { [key: string]: string } = {SELL: 'Sell', BUY: 'Buy'};
   const canSubmit: boolean =
-    !isNaN(Number(price)) && !isNaN(Number(quantity)) && side !== '';
+    !isNaN(Number(price)) && !isNaN(Number(size)) && side !== '';
   const renderSide = (value: any) =>
     !value ? (
       <span className={'invalid'}>Side</span>
@@ -117,7 +117,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
             <div className={'value'}>
               <div className={'editor'}>
                 <input
-                  value={quantity}
+                  value={size}
                   onChange={updateQuantity}
                   autoFocus={true}
                   ref={setInput}

@@ -1,6 +1,5 @@
-import {TOBColumnData} from 'components/PodTile/data';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {RowType} from 'columns/podColumns/common';
+import {RowProps} from 'columns/podColumns/common';
 import {Order, OrderStatus} from 'interfaces/order';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Price} from 'components/Table/CellRenderers/Price';
@@ -10,26 +9,14 @@ import React, {useCallback, useMemo, useEffect, useState} from 'react';
 import {DarkPoolTooltip} from 'components/Table/CellRenderers/Price/darkPoolTooltip';
 import {$$} from 'utils/stringPaster';
 import {PodTable} from 'interfaces/podTable';
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 import {STRM} from 'redux/stateDefs/workspaceState';
 
-type Props = RowType & TOBColumnData;
+type Props = RowProps;
 
 const DarkPoolColumnComponent = (props: Props) => {
-  const {
-    isBroker,
-    tenor,
-    symbol,
-    strategy,
-    personality,
-    darkPool,
-    darkPrice,
-  } = props;
-  const {
-    onDarkPoolDoubleClicked,
-    onDarkPoolPriceChanged,
-    onTabbedOut,
-  } = props;
+  const {isBroker, tenor, symbol, strategy, personality, darkPool, darkPrice} = props;
+  const {onDarkPoolDoubleClick, onDarkPoolPriceChange} = props;
   const [data, setData] = useState<PodTable | null>(null);
 
   const order: Order | null = useMemo((): Order | null => {
@@ -61,33 +48,35 @@ const DarkPoolColumnComponent = (props: Props) => {
 
   const doubleClickHandler = useCallback(
     (currentOrder: Order | null) => {
-      if (isBroker && personality === STRM) return;
-      onDarkPoolDoubleClicked(tenor, price, currentOrder);
+      if (isBroker && personality === STRM)
+        return;
+      onDarkPoolDoubleClick(tenor, price, currentOrder);
     },
-    [isBroker, personality, onDarkPoolDoubleClicked, tenor, price],
+    [isBroker, personality, onDarkPoolDoubleClick, tenor, price],
   );
 
   const changeHandler = useCallback(
     (input: HTMLInputElement, value: number | null) => {
       if (!isBroker || value === null) return undefined;
-      onDarkPoolPriceChanged(tenor, Number(value));
+      onDarkPoolPriceChange(tenor, Number(value));
     },
-    [isBroker, tenor, onDarkPoolPriceChanged],
+    [isBroker, tenor, onDarkPoolPriceChange],
   );
 
-  const tabbedOutHandler = useCallback(
+  /*const tabbedOutHandler = useCallback(
     (input: HTMLInputElement) => {
-      if (input.readOnly) return;
+      if (input.readOnly)
+        return;
       onTabbedOut(input, OrderTypes.DarkPool);
     },
     [onTabbedOut],
-  );
+  );*/
 
   const findMyOrder = (table: any): Order | null => {
     if (!table) return null;
-    const values: TOBRow[] = Object.values(table);
-    const row: TOBRow | undefined = values.find(
-      ({ofr, bid}: TOBRow): boolean => {
+    const values: PodRow[] = Object.values(table);
+    const row: PodRow | undefined = values.find(
+      ({ofr, bid}: PodRow): boolean => {
         if ((ofr.status & OrderStatus.Owned) !== 0) return true;
         return (bid.status & OrderStatus.Owned) !== 0;
       },
@@ -108,7 +97,7 @@ const DarkPoolColumnComponent = (props: Props) => {
           id: order.uid(),
           ofr: order.type === OrderTypes.Ofr ? order : undefined,
           bid: order.type === OrderTypes.Bid ? order : undefined,
-        } as TOBRow,
+        } as PodRow,
       };
       return (
         <DarkPoolTooltip
@@ -118,7 +107,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       );
     };
   };
-  const rows: TOBRow[] = data ? Object.values(data) : [];
+  const rows: PodRow[] = data ? Object.values(data) : [];
   const full: OrderStatus =
     rows.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None;
   return (
@@ -136,13 +125,11 @@ const DarkPoolColumnComponent = (props: Props) => {
       }
       onDoubleClick={() => doubleClickHandler(order)}
       onSubmit={changeHandler}
-      onTabbedOut={tabbedOutHandler}
-      onNavigate={props.onNavigate}
-    />
+      onNavigate={() => null}/>
   );
 };
 
-export const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
+export const DarkPoolColumn = (): ColumnSpec => ({
   name: 'dark-pool',
   header: () => (
     <div className={'dark-pool-header'}>
@@ -150,7 +137,7 @@ export const DarkPoolColumn = (data: TOBColumnData): ColumnSpec => ({
       <div>Pool</div>
     </div>
   ),
-  render: (row: RowType) => <DarkPoolColumnComponent {...data} {...row} />,
+  render: (row: RowProps) => <DarkPoolColumnComponent {...row} />,
   template: '999999.99',
   weight: 5,
 });

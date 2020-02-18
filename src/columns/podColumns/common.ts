@@ -1,19 +1,29 @@
 import {PodTable} from 'interfaces/podTable';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 import {TOBColumnData} from 'components/PodTile/data';
-import {RowFunctions} from 'components/PodTile/rowFunctions';
+import {AggregatedSize} from 'components/PodTile/reducer';
 
-export type RowType = TOBRow & {
+export type RowProps = PodRow & {
   handlers: TOBColumnData;
   depths: { [key: string]: PodTable };
-} & RowFunctions;
-export type Type = 'bid' | 'ofr';
+  personality: string;
+  aggregatedSize: { [key: string]: AggregatedSize };
+  isBroker: boolean;
+  defaultSize: number;
+  minimumSize: number;
+  onPriceDoubleClick: (orderType: OrderTypes, data: any) => void;
+  symbol: string;
+  strategy: string;
+  onDarkPoolDoubleClick: (tenor: string, price: number | null, order: Order | null) => void;
+  onDarkPoolPriceChange: (tenor: string, price: number) => void;
+  onCancelDarkPoolOrder: () => void;
+};
 
 const getDepthStatus = (values: Order[]): OrderStatus => {
   const filtered: Order[] = values.filter(
-    (order: Order) => order.price !== null && order.quantity !== null,
+    (order: Order) => order.price !== null && order.size !== null,
   );
   if (filtered.length <= 1) return OrderStatus.None;
   return OrderStatus.HasDepth;
@@ -30,16 +40,16 @@ export const getChevronStatus = (depths: { [key: string]: PodTable }, tenor: str
       return false;
     return (order.status & OrderStatus.Cancelled) === 0;
   };
-  const values: TOBRow[] = Object.values(order);
-  const isMyOfr: ({ofr}: TOBRow) => boolean = ({ofr}: TOBRow) =>
+  const values: PodRow[] = Object.values(order);
+  const isMyOfr: ({ofr}: PodRow) => boolean = ({ofr}: PodRow) =>
     isEntryMineAndValid(ofr);
   const ofrDepthStatus: OrderStatus = getDepthStatus(
-    values.map(({ofr}: TOBRow) => ofr),
+    values.map(({ofr}: PodRow) => ofr),
   );
-  const isMyBid: ({bid}: TOBRow) => boolean = ({bid}: TOBRow) =>
+  const isMyBid: ({bid}: PodRow) => boolean = ({bid}: PodRow) =>
     isEntryMineAndValid(bid);
   const bidDepthStatus: OrderStatus = getDepthStatus(
-    values.map(({bid}: TOBRow) => bid),
+    values.map(({bid}: PodRow) => bid),
   );
   switch (type) {
     case OrderTypes.Invalid:

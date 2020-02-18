@@ -1,3 +1,3 @@
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 
-export type PodTable = { [tenor: string]: TOBRow };
+export type PodTable = { [tenor: string]: PodRow };

@@ -62,6 +62,7 @@ export enum OrderStatus {
   OwnedByBroker = 1 << 16,
   JustCreated = 1 << 17,
   JustCancelled = 1 << 18,
+  RunOrder = 1 << 19,
 }
 
 export interface OrderMessage {
@@ -108,7 +109,7 @@ export class Order {
   public firm: string | undefined;
   public orderId: string | undefined;
   public price: number | null;
-  public quantity: number | null;
+  public size: number | null;
   public status: OrderStatus;
   public strategy: string;
   public symbol: string;
@@ -122,7 +123,7 @@ export class Order {
     symbol: string,
     strategy: string,
     user: string,
-    quantity: number | null,
+    size: number | null,
     type: OrderTypes,
   ) {
     this.type = type;
@@ -131,17 +132,14 @@ export class Order {
     this.strategy = strategy;
     this.user = user;
     this.price = null;
-    this.quantity = quantity;
+    this.size = size;
     this.arrowDirection = ArrowDirection.None;
     this.status = OrderStatus.None;
   }
 
   public uid = () => $$(this.symbol, this.strategy, this.tenor);
 
-  public static fromOrderMessage = (
-    entry: OrderMessage,
-    email: string,
-  ): Order => {
+  public static fromOrderMessage = (entry: OrderMessage, email: string): Order => {
     const type: OrderTypes =
       entry.Side === '1' ? OrderTypes.Bid : OrderTypes.Ofr;
     const order: Order = new Order(
@@ -154,7 +152,7 @@ export class Order {
     );
     // Update the price
     order.price = Number(entry.Price);
-    order.status = OrderStatus.Cancelled | OrderStatus.PreFilled;
+    order.status = OrderStatus.Cancelled | OrderStatus.PreFilled | OrderStatus.RunOrder;
     // Return the newly built order
     return order;
   };

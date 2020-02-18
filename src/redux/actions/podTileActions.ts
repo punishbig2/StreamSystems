@@ -1,7 +1,7 @@
 import {API} from 'API';
 import {Order, OrderErrors, OrderMessage, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
 import {MessageResponse} from 'interfaces/messageResponse';
-import {TOBRowStatus} from 'interfaces/tobRow';
+import {TOBRowStatus} from 'interfaces/podRow';
 import {User} from 'interfaces/user';
 import {W, DarkPool} from 'interfaces/w';
 import {AnyAction} from 'redux';
@@ -49,10 +49,7 @@ export const cancelDarkPoolOrder = (
   return new AsyncAction<any, FXOActionType>(handler, initialAction);
 };
 
-export const cancelOrder = (
-  id: string,
-  order: Order,
-): AsyncAction<any, FXOActionType> => {
+export const cancelOrder = (id: string, order: Order): AsyncAction<any, FXOActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
     $$(rowID, RowActions.CancellingOrder),
@@ -75,23 +72,12 @@ export const cancelOrder = (
   return new AsyncAction<any, FXOActionType>(handler, initialAction);
 };
 
-export const getRunOrders = (
-  id: string,
-  symbol: string,
-  strategy: string,
-): AsyncAction<any, any> => {
+export const getRunOrders = (id: string, symbol: string, strategy: string): AsyncAction<any, any> => {
   const user: User = getAuthenticatedUser();
   return new AsyncAction<any, any>(async (): Promise<FXOActionType> => {
-    const entries: OrderMessage[] = await API.getRunOrders(
-      user.email,
-      symbol,
-      strategy,
-    );
+    const entries: OrderMessage[] = await API.getRunOrders(user.email, symbol, strategy);
     entries
-      .map(
-        (entry: OrderMessage): Order =>
-          Order.fromOrderMessage(entry, user.email),
-      )
+      .map((entry: OrderMessage): Order => Order.fromOrderMessage(entry, user.email))
       .forEach(emitUpdateOrderEvent);
     return createAction('');
   }, createAction(''));
@@ -245,16 +231,6 @@ export const getSnapshot = (id: string, symbol: string, strategy: string, tenor:
 export const subscribeDarkPool = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
   return new SignalRAction(SignalRActions.SubscribeForDarkPoolPx, [symbol, strategy, tenor]);
 };
-
-export const subscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.SubscribeForMarketData, [symbol, strategy, tenor]);
-};
-
-export const unsubscribe = (symbol: string, strategy: string, tenor: string): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.UnsubscribeFromMarketData, [symbol, strategy, tenor]);
-};
-
-/**** real window actions ****/
 
 export const setStrategy = (workspaceID: string, windowID: string, strategy: string) => {
   return new AsyncAction<any, FXOActionType>(async () => {

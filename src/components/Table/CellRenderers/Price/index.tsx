@@ -97,7 +97,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   useTooltip(state.startedShowingTooltip, setTooltipVisible);
   useStatusUpdater(props.status, setStatus);
   useFlasher(state.flash, stopFlashing);
-  useValueComparator(value, state.internalValue, startFlashing);
+  useValueComparator(value, state.internalValue, startFlashing, props.status, state.status);
   useValueListener(value, timestamp, setInternalValue);
   // Avoid having more than a single move event listener because
   // that would of course be expensive
@@ -110,7 +110,8 @@ export const Price: React.FC<Props> = (props: Props) => {
   }, [state.visible, ref, onMouseMove]);
 
   const getTooltip = () => {
-    if (!state.visible || !props.tooltip) return null;
+    if (!state.visible || !props.tooltip)
+      return null;
     return (
       <Tooltip x={state.tooltipX} y={state.tooltipY} render={props.tooltip}/>
     );

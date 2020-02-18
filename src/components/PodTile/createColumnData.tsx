@@ -1,14 +1,10 @@
 import {PriceErrors} from 'components/Table/CellRenderers/Price';
 import {State} from 'components/PodTile/reducer';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {Order, Sides} from 'interfaces/order';
+import {TOBRowStatus} from 'interfaces/podRow';
 import {TenorType} from 'interfaces/w';
 import {Settings} from 'settings';
-import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {API} from 'API';
-import {$$} from 'utils/stringPaster';
 import {TOBColumnData} from 'components/PodTile/data';
 
 type Fn1 = (tenor: TenorType | null) => void;
@@ -29,7 +25,8 @@ export const createColumnData = (
 ): TOBColumnData => {
   // Dispatch properties
   return {
-    onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
+    /*onTabbedOut: (input: HTMLInputElement, type: OrderTypes) => {
+      console.log('onTabbedOut');
       switch (type) {
         case OrderTypes.Bid:
           skipTabIndex(input, 1, 1);
@@ -41,7 +38,7 @@ export const createColumnData = (
           skipTabIndex(input, 1, 1);
           break;
       }
-    },
+    },*/
     onTenorSelected: (tenor: string) => {
       if (state.tenor === null) {
         setCurrentTenor(tenor);
@@ -64,17 +61,10 @@ export const createColumnData = (
         input.focus();
       }
     },
-    /*onResetOrderQuantity: (order: Order) => {
-      fns.resetOrderQuantity(order);
-    },*/
-    onOrderModified: (order: Order) => {
-      /*setTimeout(() => {
-        , 0);*/
-    },
-    onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
+    /*onCancelOrder: (order: Order, cancelRelated: boolean = true) => {
       if (cancelRelated) {
-        const rows: TOBRow[] = Object.values(state.depths[order.tenor]);
-        rows.forEach((row: TOBRow) => {
+        const rows: PodRow[] = Object.values(state.depths[order.tenor]);
+        rows.forEach((row: PodRow) => {
           const targetEntry: Order =
             order.type === OrderTypes.Bid ? row.bid : row.ofr;
           if ((targetEntry.status & OrderStatus.Owned) !== 0) {
@@ -93,20 +83,20 @@ export const createColumnData = (
         )
       ;
       if (shouldCancelReplace) {
-        const newOrder: Order = {...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited};
+        const newOrder: Order = {...order, size: newQuantity, status: order.status | OrderStatus.QuantityEdited};
         fns.cancelOrder(order);
         await API.createOrder(newOrder, personality, minimumSize);
         skipTabIndex(input, 1, 0);
       } else {
         const type: string = $$(order.symbol, order.strategy, order.tenor, 'UPDATE_SIZE');
-        const detail: Order = {...order, quantity: newQuantity};
+        const detail: Order = {...order, size: newQuantity};
         const event: CustomEvent<Order> = new CustomEvent<Order>(type, {detail});
         // Dispatch the event now
         document.dispatchEvent(event);
-        // fns.updateOrder({...order, quantity: newQuantity, status: order.status | OrderStatus.QuantityEdited});
+        // fns.updateOrder({...order, size: newQuantity, status: order.status | OrderStatus.QuantityEdited});
         skipTabIndex(input, 1, 0);
       }
-    },
+    },*/
     onCancelDarkPoolOrder: (order: Order) => {
       fns.cancelDarkPoolOrder(order);
     },
@@ -119,10 +109,10 @@ export const createColumnData = (
         fns.onDarkPoolDoubleClicked(tenor, price, currentOrder);
       }
     },
-    onDarkPoolPriceChanged: (tenor: string, price: number) => {
+    onDarkPoolPriceChange: (tenor: string, price: number) => {
       fns.publishDarkPoolPrice(symbol, strategy, tenor, price);
     },
-    onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
+    /*onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
           skipTabIndexAll(target, -5, 'last-row');
@@ -137,7 +127,7 @@ export const createColumnData = (
           skipTabIndexAll(target, 1);
           break;
       }
-    },
+    },*/
     aggregatedSize: state.aggregatedSize,
     buttonsEnabled: symbol !== '' && strategy !== '',
     isBroker: user.isbroker,

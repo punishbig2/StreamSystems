@@ -26,7 +26,7 @@ export const PodTileTitle: React.FC<Props> = (props: Props): ReactElement => {
         <Select value={symbol} onChange={setSymbol} list={symbols} empty={'Symbol'}/>
       </div>
       <div className={'item'}>
-        <Select value={strategy} onChange={setStrategy} list={products} empty={'Currency'}/>
+        <Select value={strategy} onChange={setStrategy} list={products} empty={'Strategy'}/>
       </div>
       <button onClick={props.onShowRunWindow} disabled={props.runsDisabled}>
         {strings.Run}

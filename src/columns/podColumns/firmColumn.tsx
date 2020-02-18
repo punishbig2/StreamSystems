@@ -1,7 +1,7 @@
 import {TOBColumnData} from 'components/PodTile/data';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {DualTableHeader} from 'components/dualTableHeader';
-import {RowType} from 'columns/podColumns/common';
+import {RowProps} from 'columns/podColumns/common';
 import React from 'react';
 
 export const FirmColumn = (
@@ -10,7 +10,7 @@ export const FirmColumn = (
 ): ColumnSpec => ({
   name: `${type}-firm`,
   header: () => <DualTableHeader label={''}/>,
-  render: (row: RowType) => {
+  render: (row: RowProps) => {
     const {
       [type]: {firm},
     } = row;

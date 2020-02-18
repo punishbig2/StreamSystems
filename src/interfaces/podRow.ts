@@ -21,7 +21,7 @@ interface TOBRowBase {
   status: TOBRowStatus;
 }
 
-export type TOBRow = TOBRowBase & {
+export type PodRow = TOBRowBase & {
   darkPool?: TOBRowBase;
   darkPrice: number | null;
 };

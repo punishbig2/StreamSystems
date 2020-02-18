@@ -58,7 +58,7 @@ export const PodSize: React.FC<Props> = (props: Props) => {
   const onChange = (value: string | null) => {
     if (value === null) {
       if ((order.status & OrderStatus.PreFilled) !== 0) {
-        setValue(order.quantity);
+        setValue(order.size);
       } else {
         setValue(null);
       }
@@ -72,7 +72,7 @@ export const PodSize: React.FC<Props> = (props: Props) => {
 
   const canCancel = (order: Order) => {
     const status: OrderStatus = order.status;
-    if (order.price === null || order.quantity === null)
+    if (order.price === null || order.size === null)
       return false;
     if ((status & OrderStatus.Cancelled) !== 0)
       return false;
@@ -91,7 +91,7 @@ export const PodSize: React.FC<Props> = (props: Props) => {
     if (order.price === null) {
       setValue(null);
     } else {
-      setValue(order.quantity);
+      setValue(order.size);
     }
   };
 

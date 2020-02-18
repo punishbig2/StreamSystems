@@ -5,7 +5,7 @@ import {PodTile} from 'components/PodTile';
 import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
-import {TOBRowStatus} from 'interfaces/tobRow';
+import {TOBRowStatus} from 'interfaces/podRow';
 import {User, UserProfile} from 'interfaces/user';
 import React, {ReactElement, useCallback, useEffect, ReactNode} from 'react';
 import {connect, MapStateToProps} from 'react-redux';

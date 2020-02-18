@@ -43,7 +43,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     () =>
       styles.windowToolbarHeight +
       styles.tableHeaderHeight +
-      4 * styles.tableRowHeight  + 10 /* window padding */,
+      4 * (styles.tableRowHeight + 1) + 1/* window padding */,
     [styles],
   );
   const fixedBlotterGeometry: DOMRect = useMemo(

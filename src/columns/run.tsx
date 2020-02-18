@@ -5,7 +5,7 @@ import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order, OrderStatus} from 'interfaces/order';
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
@@ -13,7 +13,7 @@ import {RunActions} from 'redux/reducers/runReducer';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {getNthParentOf} from 'utils/skipTab';
 
-type RowType = TOBRow & { defaultBidSize: number; defaultOfrSize: number };
+type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
 const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const onChange = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
@@ -74,7 +74,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
     }
   };
   return {
-    name: `${type}-quantity`,
+    name: `${type}-size`,
     header: () => (
       <HeaderQty onChange={defaultSize.onChange}
                  value={defaultSize.value}
@@ -86,7 +86,7 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
       return (
         <RunQuantity
           id={row.id}
-          value={order.quantity}
+          value={order.size}
           order={order}
           defaultValue={defaultSize.value}
           minimumSize={data.minimumSize}
@@ -128,8 +128,7 @@ const MidCol = (data: RunColumnData) => ({
         data.focusNext(target, RunActions.Mid)
       }
       onNavigate={data.onNavigate}
-      animated={false}
-    />
+      animated={false}/>
   ),
   template: '999999.99',
   weight: 4,

@@ -138,7 +138,7 @@
         var item = nodesTested.conflict[_key];
         data[_key] = {
           tagName: item.tagName,
-          'src/href': item.src || item.href || 'n/a',
+          'href': item.src || item.href || 'n/a',
           'innerText excerpt':
             item.innerText && item.innerText !== ''
               ? item.innerText.slice(0, 200) + '...'
@@ -164,7 +164,7 @@
         var _item = nodesTested.noConflict[_key2];
         _data[_key2] = {
           tagName: _item.tagName,
-          'src/href': _item.src || _item.href || 'n/a',
+          'href': _item.src || _item.href || 'n/a',
           'innerText excerpt':
             _item.innerText && _item.innerText !== ''
               ? _item.innerText.slice(0, 200) + '...'
@@ -191,7 +191,7 @@
         var _item2 = timedOutTests[_key3];
         _data2[_key3] = {
           tagName: _item2.tagName,
-          'src/href': _item2.src || _item2.href || 'n/a',
+          'href': _item2.src || _item2.href || 'n/a',
           'innerText excerpt':
             _item2.innerText && _item2.innerText !== ''
               ? _item2.innerText.slice(0, 200) + '...'

@@ -5,7 +5,7 @@ import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderStatus} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useCallback} from 'react';
@@ -41,6 +41,7 @@ import {Dispatch} from 'redux';
 import {compareTenors} from 'utils/dataGenerators';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {FXOAction} from 'redux/fxo-action';
+import {createSymbolStrategyTenorListener} from 'orderEvents';
 
 interface OwnProps {
   id: string;
@@ -142,32 +143,28 @@ const Run: React.FC<Props> = (props: Props) => {
   installOrderListeners = useCallback((orders: PodTable) => {
     if (!orders)
       return [];
-    const onUpdateWrapper = (event: Event) => {
-      const customEvent: CustomEvent<Order> = event as CustomEvent<Order>;
-      // Do update the order
-      onUpdate(customEvent.detail);
+    const onUpdateWrapper = (order: Order) => {
+      if ((order.status & OrderStatus.Cancelled) !== 0 && (order.status & OrderStatus.RunOrder) === 0)
+        return;
+      onUpdate(order);
     };
-    const onDeleteWrapper = (event: Event) => {
-      const customEvent: CustomEvent<string> = event as CustomEvent<string>;
-      // Do delete the order
-      onDelete(customEvent.detail);
-    };
+    const onDeleteWrapper = (order: Order) => onDelete(order.orderId as string);
     return Object.values(orders)
-      .map((row: TOBRow) => {
-        const uid: string = $$(row.tenor, symbol, strategy);
-        // Install the event listener
-        document.addEventListener($$(uid, PodTileActions.UpdateOrder), onUpdateWrapper);
-        document.addEventListener($$(uid, PodTileActions.DeleteOrder), onDeleteWrapper);
+      .map((row: PodRow) => {
+        const {tenor} = row;
+        const listeners: (() => void)[] = [
+          createSymbolStrategyTenorListener(symbol, strategy, tenor, 'CANCEL', onDeleteWrapper),
+          createSymbolStrategyTenorListener(symbol, strategy, tenor, PodTileActions.UpdateOrder, onUpdateWrapper),
+        ];
         return () => {
-          document.removeEventListener($$(uid, PodTileActions.UpdateOrder), onUpdateWrapper);
-          document.removeEventListener($$(uid, PodTileActions.DeleteOrder), onDeleteWrapper);
+          listeners.forEach((fn: () => void) => fn());
         };
       });
   }, [onDelete, onUpdate, strategy, symbol]);
 
   const initialize = useCallback((): (() => void)[] => {
     const {email} = getAuthenticatedUser();
-    const rows: TOBRow[] = tenors.map((tenor: string) => {
+    const rows: PodRow[] = tenors.map((tenor: string) => {
       const getEntry = (type: OrderTypes) => {
         return new Order(tenor, symbol, strategy, email, defaultSize, type);
       };
@@ -192,7 +189,7 @@ const Run: React.FC<Props> = (props: Props) => {
     });
     const table = rows
       .sort(compareTenors)
-      .reduce((table: PodTable, row: TOBRow) => {
+      .reduce((table: PodTable, row: PodRow) => {
         table[row.id] = row;
         return table;
       }, {});
@@ -212,22 +209,22 @@ const Run: React.FC<Props> = (props: Props) => {
     };
   }, [id, initialize]);
 
-  const activateOrders = (row: TOBRow) => {
+  const activateOrders = (row: PodRow) => {
     props.activateRow(row.id);
   };
 
   const activateCancelledOrders = () => {
     if (!props.orders)
       return;
-    const orders: TOBRow[] = Object.values(props.orders);
+    const orders: PodRow[] = Object.values(props.orders);
     orders.forEach(activateOrders);
   };
 
   const getSelectedOrders = (): Order[] => {
     if (!props.orders)
       return [];
-    const rows: TOBRow[] = Object.values(props.orders)
-      .filter((row: TOBRow) => {
+    const rows: PodRow[] = Object.values(props.orders)
+      .filter((row: PodRow) => {
         const {bid, ofr} = row;
         if (bid.price === null && ofr.price === null)
           return false;
@@ -240,7 +237,7 @@ const Run: React.FC<Props> = (props: Props) => {
       const canceled = (order.status & OrderStatus.Cancelled) !== 0;
       const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
       if (quantityEdited || (preFilled && !canceled))
-        return order.quantity as number;
+        return order.size as number;
       if (canceled && fallback !== props.defaultSize)
         return fallback as number;
       if (fallback === undefined || fallback === null)
@@ -248,17 +245,17 @@ const Run: React.FC<Props> = (props: Props) => {
       return fallback as number;
     };
     const orders: Order[] = [
-      ...rows.map(({bid}: TOBRow) => ({
+      ...rows.map(({bid}: PodRow) => ({
         ...bid,
-        quantity: ownOrDefaultQty(bid, props.defaultSize),
+        size: ownOrDefaultQty(bid, props.defaultSize),
       })),
-      ...rows.map(({ofr}: TOBRow) => ({
+      ...rows.map(({ofr}: PodRow) => ({
         ...ofr,
-        quantity: ownOrDefaultQty(ofr, props.defaultSize),
+        size: ownOrDefaultQty(ofr, props.defaultSize),
       })),
     ];
     return orders.filter((order: Order) => {
-      if (order.price === null || order.quantity === null)
+      if (order.price === null || order.size === null)
         return false;
       return !((order.status & OrderStatus.QuantityEdited) === 0 && (order.status & OrderStatus.PriceEdited) === 0);
     });
@@ -279,8 +276,12 @@ const Run: React.FC<Props> = (props: Props) => {
   const renderRow = (props: any, index?: number): ReactElement | null => {
     const {row} = props;
     return (
-      <Row {...props} user={props.user} row={row} defaultBidSize={props.defaultBidSize}
-           defaultOfrSize={props.defaultOfrSize} rowNumber={index}/>
+      <Row {...props}
+           user={props.user}
+           row={row}
+           defaultBidSize={props.defaultBidSize}
+           defaultOfrSize={props.defaultOfrSize}
+           rowNumber={index}/>
     );
   };
 
@@ -372,3 +373,4 @@ const Run: React.FC<Props> = (props: Props) => {
 
 const run = withRedux(Run);
 export {run as Run};
+

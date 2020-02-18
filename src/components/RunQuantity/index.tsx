@@ -34,7 +34,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     if (!locallyModified)
       setLocallyModified(true);
     if (value === null) {
-      setValue(sizeFormatter(order.quantity || defaultValue));
+      setValue(sizeFormatter(order.size || defaultValue));
     } else {
       setValue(value);
     }

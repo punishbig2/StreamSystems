@@ -1,15 +1,15 @@
-import {TOBRow} from 'interfaces/tobRow';
+import {PodRow} from 'interfaces/podRow';
 
-/*export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null, type: OrderTypes): Order => {
-  return new Order(tenor, symbol, strategy, user, quantity, type);
+/*export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes): Order => {
+  return new Order(tenor, symbol, strategy, user, size, type);
 };
 
-export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, quantity, OrderTypes.Offer);
+export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, size: number | null = null): Order => {
+  return emptyEntry(tenor, symbol, strategy, user, size, OrderTypes.Offer);
 };
 
-export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, quantity: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, quantity, OrderTypes.Bid);
+export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, size: number | null = null): Order => {
+  return emptyEntry(tenor, symbol, strategy, user, size, OrderTypes.Bid);
 };*/
 
 export const tenorToNumber = (value: string) => {
@@ -27,7 +27,7 @@ export const tenorToNumber = (value: string) => {
   return 0;
 };
 
-export const compareTenors = (a: TOBRow, b: TOBRow) => {
+export const compareTenors = (a: PodRow, b: PodRow) => {
   const at: string = a.tenor;
   const bt: string = b.tenor;
   return tenorToNumber(at) - tenorToNumber(bt);

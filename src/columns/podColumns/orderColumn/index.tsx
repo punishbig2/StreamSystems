@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useReducer, Reducer} from 'react';
+import React, {ReactElement, useEffect, useReducer, Reducer, useState} from 'react';
 import {Order, OrderStatus} from 'interfaces/order';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Quantity} from 'components/Table/CellRenderers/Quantity';
@@ -6,15 +6,19 @@ import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/ge
 import {Price} from 'components/Table/CellRenderers/Price';
 import {STRM} from 'redux/stateDefs/workspaceState';
 import {PodTable} from 'interfaces/podTable';
-import {AggregatedSz} from 'components/PodTile/reducer';
-import {User} from 'interfaces/user';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {createOrder, cancelOrder} from 'columns/podColumns/helpers';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {getNthParentOf, skipTabIndexAll} from 'utils/skipTab';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {API} from 'API';
+import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
+import {getMiniDOBByType} from 'columns/tobMiniDOB';
+import {ModalWindow} from 'components/ModalWindow';
+import {OrderTicket} from 'components/OrderTicket';
+import {getAggregatedSize} from 'columns/podColumns/orderColumn/helpers/getAggregatedSize';
+import {shouldOpenOrderTicket} from 'columns/podColumns/orderColumn/helpers/shoulOpenOrderTicket';
+import {reducer, State, ActionTypes} from 'columns/podColumns/orderColumn/reducer';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -27,33 +31,7 @@ type OwnProps = {
   isDepth: boolean;
   minimumSize: number;
   defaultSize: number;
-  onDoubleClick: (type: OrderTypes, data: any) => void;
 }
-const getAggregatedSize = (aggregatedSize: AggregatedSz | undefined, order: Order): number | null => {
-  if (aggregatedSize) {
-    const price: number | null = order.price;
-    const key: string | null = price === null ? null : price.toFixed(3);
-    const index: 'ofr' | 'bid' = ((type: OrderTypes): 'ofr' | 'bid' => {
-      switch (type) {
-        case OrderTypes.Bid:
-          return 'bid';
-        case OrderTypes.Ofr:
-          return 'ofr';
-        default:
-          throw new Error('I cannot find aggregated sizes of non orders');
-      }
-    })(order.type);
-    if (aggregatedSize[order.tenor] && key !== null)
-      return aggregatedSize[order.tenor][index][key];
-    return order.quantity;
-  } else {
-    return order.quantity;
-  }
-};
-
-/*const onSubmitHandler = (order: Order, ...args: any[]) => {
-  data.onQuantityChange(findMyOrder(order), args[0], args[1], args[2], args[3]);
-};*/
 
 const getPriceIfApplies = (order: Order | undefined): number | undefined => {
   if (order === undefined)
@@ -63,45 +41,8 @@ const getPriceIfApplies = (order: Order | undefined): number | undefined => {
   return undefined;
 };
 
-const canDoubleClick = (order: Order, personality: string) => {
-  const user: User = getAuthenticatedUser();
-  if (user.isbroker && personality === STRM)
-    return false;
-  return order.price !== null && order.quantity !== null;
-};
-
-enum ActionTypes {
-  SetEditedSize, SetSubmittedSize, ResetAllSizes
-}
-
-interface State {
-  editedSize: number | null;
-  submittedSize: number | null;
-}
-
-const toNumberOrFallbackIfNaN = (value: string | null, fallback: number | null) => {
-  if (value === null)
-    return null;
-  const numeric: number = Number(value);
-  if (isNaN(numeric))
-    return fallback;
-  return numeric;
-};
-
-const reducer: Reducer<State, FXOAction<ActionTypes>> = (state: State, action: FXOAction<ActionTypes>): State => {
-  switch (action.type) {
-    case ActionTypes.SetEditedSize:
-      return {...state, editedSize: toNumberOrFallbackIfNaN(action.data, state.editedSize)};
-    case ActionTypes.SetSubmittedSize:
-      return {...state, submittedSize: toNumberOrFallbackIfNaN(action.data, state.submittedSize)};
-    case ActionTypes.ResetAllSizes:
-      return {...state, editedSize: null, submittedSize: null};
-    default:
-      return state;
-  }
-};
-
 export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
+  const [orderTicket, setOrderTicket] = useState<any>(null);
   const {depths, type} = props;
   const initialState: State = {
     submittedSize: null,
@@ -124,6 +65,7 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
   useEffect(() => {
     dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
   }, [order]);
+
   const bid: Order | undefined = type === OrderTypes.Bid ? props.bid : undefined;
   const ofr: Order | undefined = type === OrderTypes.Ofr ? props.ofr : undefined;
   /*const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
@@ -146,9 +88,9 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
       // We fist cancel our current order
       await API.cancelOrder(order);
       // Get the desired new size
-      const quantity: number | null = state.editedSize;
+      const size: number | null = state.editedSize;
       // Create the order
-      createOrder({...order, quantity}, props.depths, props.minimumSize, props.personality);
+      createOrder({...order, size}, props.depths, props.minimumSize, props.personality);
     }
     // Please wait until the main loop has ran and then
     // move the focus, because otherwise it could happen
@@ -160,18 +102,19 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const onDoubleClick = () => {
-    if (!canDoubleClick(order, props.personality))
+    if (!shouldOpenOrderTicket(order, props.personality))
       return;
-    props.onDoubleClick(order.type, order);
+    const type: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
+    setOrderTicket({...order, type});
   };
 
   const onChangeSize = (value: string | null) => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, value));
   const resetSize = () => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, state.submittedSize));
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
     if (changed) {
-      const quantity: number = getFinalSize();
+      const size: number = getFinalSize();
       // Do not wait for this
-      createOrder({...order, price, quantity}, props.depths, props.minimumSize, props.personality);
+      createOrder({...order, price, size}, props.depths, props.minimumSize, props.personality);
     } else {
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
     }
@@ -211,19 +154,19 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const readOnly: boolean = props.isBroker && props.personality === STRM;
-  const quantity: number | null = (() => {
+  const size: number | null = (() => {
     if (state.editedSize !== null)
       return state.editedSize;
     if (props.isDepth)
-      return order.quantity;
+      return order.size;
     return getAggregatedSize(props.aggregatedSize, order);
   })();
 
-  const size: ReactElement = (
+  const sizeCell: ReactElement = (
     <Quantity key={2}
               type={type}
               className={getOrderStatusClass(order.status, 'cell size-layout')}
-              value={quantity}
+              value={size}
               cancellable={order.isCancellable()}
               readOnly={readOnly}
               onCancel={() => cancelOrder(order, depths)}
@@ -232,12 +175,10 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
               onChange={onChangeSize}
               onSubmit={onSubmitSize}/>
   );
-  /*
-      onSubmit={onSubmit}
-      onTabbedOut={data.onTabbedOut}
-      onDoubleClick={canDoubleClick(order, data.personality) ? data.onDoubleClick : undefined}
-      onError={data.onOrderError}
-   */
+
+  const depthOfTheBookTable = (
+    <MiniDOB {...props} rows={getMiniDOBByType(props.depths, order.tenor, order.type)}/>
+  );
 
   const items: ReactElement[] = [
     <Price
@@ -249,19 +190,38 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
       className={'pod'}
       readOnly={readOnly}
       arrow={order.arrowDirection}
+      tooltip={() => depthOfTheBookTable}
       onDoubleClick={onDoubleClick}
       onSubmit={onSubmitPrice}
       onNavigate={onNavigate}/>,
   ];
   switch (type) {
     case OrderTypes.Ofr:
-      items.push(size);
+      items.push(sizeCell);
       break;
     case OrderTypes.Bid:
-      items.unshift(size);
+      items.unshift(sizeCell);
   }
+
+  const renderOrderTicket = (): ReactElement | null => {
+    if (orderTicket === null)
+      return null;
+    const onSubmit = (order: Order) => {
+      createOrder(order, props.depths, props.minimumSize, props.personality);
+      // Remove the internal order ticket
+      setOrderTicket(null);
+    };
+    return (
+      <OrderTicket
+        order={orderTicket}
+        onCancel={() => setOrderTicket(null)}
+        onSubmit={onSubmit}/>
+    );
+  };
+
   return (
     <div className={'twin-cell'}>
+      <ModalWindow render={renderOrderTicket} visible={orderTicket !== null}/>
       {items}
     </div>
   );

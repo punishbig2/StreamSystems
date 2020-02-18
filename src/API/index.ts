@@ -9,6 +9,7 @@ import {MessageTypes, W} from 'interfaces/w';
 import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {STRM} from 'redux/stateDefs/workspaceState';
+import {$$} from 'utils/stringPaster';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -155,10 +156,10 @@ export class API {
 
   static async createOrder(order: Order, personality: string, minimumSize: number): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
-    if (order.price === null || order.quantity === null)
-      throw new Error('price and quantity MUST be specified');
-    if (order.quantity < minimumSize) order.quantity = minimumSize;
-    const {price, quantity} = order;
+    if (order.price === null || order.size === null)
+      throw new Error('price and size MUST be specified');
+    if (order.size < minimumSize) order.size = minimumSize;
+    const {price, size} = order;
     // Build a create order request
     if (currentUser.isbroker && personality === STRM)
       throw new Error('brokers cannot create orders when in streaming mode');
@@ -171,31 +172,29 @@ export class API {
       Strategy: order.strategy,
       Tenor: order.tenor,
       Side: getSideFromType(order.type),
-      Quantity: quantity.toString(),
+      Quantity: size.toString(),
       Price: price.toString(),
       MDMkt,
     };
     order.dispatchEvent('CREATE');
     const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
-    if (result.Status === 'Success') {
-      order.dispatchEvent('CREATED');
-    } else {
-      order.dispatchEvent('CREATE_ERROR');
+    if (result.Status !== 'Success') {
+      console.warn('error creating an order');
     }
     return result;
   }
 
   static async updateOrder(entry: Order): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
-    if (entry.price === null || entry.quantity === null || !entry.orderId)
-      throw new Error('price, quantity and order id MUST be specified');
-    const {price, quantity} = entry;
+    if (entry.price === null || entry.size === null || !entry.orderId)
+      throw new Error('price, size and order id MUST be specified');
+    const {price, size} = entry;
     // Build a create order request
     const request: UpdateOrder = {
       MsgType: MessageTypes.G,
       TransactTime: getCurrentTime(),
       User: currentUser.email,
-      Quantity: quantity.toString(),
+      Quantity: size.toString(),
       Price: price.toString(),
       OrderID: entry.orderId,
       Symbol: entry.symbol,
@@ -215,10 +214,13 @@ export class API {
       Strategy: strategy,
       Symbol: symbol,
     };
-    return post<MessageResponse>(
-      API.getUrl(API.Oms, 'all', 'cancel'),
-      request,
-    );
+    // Notify all orders of a given group that they're being cancelled
+    const event: CustomEvent = new CustomEvent<void>($$(symbol, strategy, side, 'CANCEL'));
+    // Dispatch the event so that listeners are called
+    document.dispatchEvent(event);
+    // Sadly, in this case it is not possible to know if a given individual order was
+    // cancelled (but this is not that bad because in principle it never fails)
+    return post<MessageResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
   }
 
   static async cancelOrder(order: Order): Promise<MessageResponse> {
@@ -234,10 +236,8 @@ export class API {
     };
     order.dispatchEvent('CANCEL');
     const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
-    if (result.Status === 'Success') {
-      order.dispatchEvent('CANCELLED');
-    } else {
-      order.dispatchEvent('CANCEL_ERROR');
+    if (result.Status !== 'Success') {
+      console.warn('error cancelling an order');
     }
     return result;
   }
@@ -282,7 +282,7 @@ export class API {
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<any[]> {
     return get<any[]>(
-      API.getUrl(API.Oms, 'runorders', 'get', {symbol, strategy}),
+      API.getUrl(API.Oms, 'runorders', 'get', {symbol, strategy, useremail}),
     );
   }
 

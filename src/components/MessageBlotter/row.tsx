@@ -39,7 +39,7 @@ const getClassFromRowType = (
   return classes.join(' ');
 };
 
-const Row = (props: Props) => {
+const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const {columns, row} = props;
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {
@@ -51,12 +51,10 @@ const Row = (props: Props) => {
       </div>
     );
   };
+  if (!row)
+    return null;
   return (
-    <div
-      className={getClassFromRowType('tr', props.type)}
-      id={row.id}
-      key={row.id}
-    >
+    <div className={getClassFromRowType('tr', props.type)} id={row.id} key={row.id}>
       {columns.map(columnMapper)}
     </div>
   );

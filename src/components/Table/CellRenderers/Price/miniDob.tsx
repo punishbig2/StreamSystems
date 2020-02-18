@@ -13,7 +13,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const {rows} = props;
   if (!rows) return null;
   const children = rows.map(
-    ({price, quantity, status}: Order, index: number) => {
+    ({price, size, status}: Order, index: number) => {
       const priceElement: ReactNode = (() => {
         return (
           <div className={getOrderStatusClass(status, 'mini-price')} key={1}>
@@ -24,7 +24,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
       const elements: ReactNode[] = [priceElement];
       const sizeElement = (
         <div className={'mini-size'} key={2}>
-          {quantity}
+          {size}
         </div>
       );
       if (props.type === OrderTypes.Bid) elements.unshift(sizeElement);

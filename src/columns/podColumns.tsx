@@ -12,15 +12,13 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(data),
   ...(data.isBroker ? [FirmColumn(data, 'bid')] : []),
   OrderColumnWrapper(
-    data,
     strings.BidPx,
     OrderTypes.Bid,
     depth,
     !depth ? ((): ReactNode => <button onClick={data.onRefBidsButtonClicked}>{strings.RefBids}</button>) : undefined,
   ),
-  DarkPoolColumn(data),
+  DarkPoolColumn(),
   OrderColumnWrapper(
-    data,
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
@@ -30,3 +28,4 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
 ];
 
 export default columns;
+

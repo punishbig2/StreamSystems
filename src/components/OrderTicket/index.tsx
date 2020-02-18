@@ -14,8 +14,8 @@ const formatValue = (value: number | null, precision: number): string =>
   value === null ? '' : value.toFixed(precision);
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const {order} = props;
-  const [quantity, setQuantity] = useState<string>(
-    formatValue(order.quantity, 0),
+  const [size, setQuantity] = useState<string>(
+    formatValue(order.size, 0),
   );
   const [price, setPrice] = useState<string>(formatValue(order.price, 3));
   const [input, setInput] = useState<HTMLInputElement | null>(null);
@@ -41,15 +41,15 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   };
   const onSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    if (quantity !== null && price !== null) {
+    if (size !== null && price !== null) {
       props.onSubmit({
         ...order,
-        quantity: Number(quantity),
+        size: Number(size),
         price: Number(price),
       });
     }
   };
-  const canSubmit: boolean = price !== null && quantity !== null;
+  const canSubmit: boolean = price !== null && size !== null;
   const presetQty: string[] = ['30', '50', '100'];
   return (
     <>
@@ -84,7 +84,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
             <div className={'value'}>
               <div className={'editor'}>
                 <input
-                  value={quantity}
+                  value={size}
                   onChange={updateQuantity}
                   autoFocus={true}
                   ref={setInput}

@@ -1,6 +1,6 @@
 import {Order, OrderStatus} from 'interfaces/order';
 import {PodTable} from 'interfaces/podTable';
-import {InvalidPrice, TOBRow} from 'interfaces/tobRow';
+import {InvalidPrice, PodRow} from 'interfaces/podRow';
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
 
@@ -8,12 +8,12 @@ const findMyOrder = (topOrder: Order, depths: { [key: string]: PodTable }): Orde
   if ((topOrder.status & OrderStatus.Owned) !== 0)
     return topOrder;
   const tables: PodTable[] = Object.values(depths);
-  const rows: TOBRow[][] = tables.map((table: PodTable) => Object.values(table));
+  const rows: PodRow[][] = tables.map((table: PodTable) => Object.values(table));
   const found: Order | undefined = rows
-    .reduce((all: TOBRow[], one: TOBRow[]) => {
+    .reduce((all: PodRow[], one: PodRow[]) => {
       return [...all, ...one];
     }, [])
-    .reduce((orders: Order[], row: TOBRow) => {
+    .reduce((orders: Order[], row: PodRow) => {
       const {bid, ofr} = row;
       if (topOrder.type === OrderTypes.Bid && bid)
         return [...orders, bid];

@@ -40,7 +40,7 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
       const {bid, ofr} = row;
       const order: Order = !bid || bid.price === null ? ofr : bid;
       const side: string = getSide(row);
-      return <div className={side.toLowerCase()}>{order.quantity}</div>;
+      return <div className={side.toLowerCase()}>{order.size}</div>;
     },
     weight: 3,
     template: '9999999.99',

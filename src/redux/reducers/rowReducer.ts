@@ -1,6 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
-import {TOBRowStatus, TOBRow} from 'interfaces/tobRow';
+import {TOBRowStatus, PodRow} from 'interfaces/podRow';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
@@ -62,12 +62,12 @@ export enum RowActions {
 const getStatus = (o1: Order, o2: Order): OrderStatus => {
   return (
     o1.status |
-    (o2.quantity !== o1.quantity ? OrderStatus.QuantityEdited : 0) |
+    (o2.size !== o1.size ? OrderStatus.QuantityEdited : 0) |
     (o2.price !== o1.price ? OrderStatus.PriceEdited : 0)
   );
 };
 
-const handleDarkPoolUpdate = (state: RowState, dpRow: TOBRow): RowState => {
+const handleDarkPoolUpdate = (state: RowState, dpRow: PodRow): RowState => {
   const {bid, ofr} = dpRow;
   const {row} = state;
   return {
@@ -94,12 +94,12 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
         if (data === '2') {
           return {
             ...state,
-            row: {...row, ofr: {...ofr, price: null, quantity: null}},
+            row: {...row, ofr: {...ofr, price: null, size: null}},
           };
         } else if (data === '1') {
           return {
             ...state,
-            row: {...row, bid: {...bid, price: null, quantity: null}},
+            row: {...row, bid: {...bid, price: null, size: null}},
           };
         } else {
           throw new Error('unknown side, cannot process removal!!!');
@@ -155,7 +155,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
                 ...bid,
                 status: bid.status & ~OrderStatus.BeingCreated,
                 price: null,
-                quantity: null,
+                size: null,
               },
               status: getRowStatusFromOrderError(reason, row.status),
             },
@@ -169,7 +169,7 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
                 ...ofr,
                 status: ofr.status & ~OrderStatus.BeingCreated,
                 price: null,
-                quantity: null,
+                size: null,
               },
               status: getRowStatusFromOrderError(reason, row.status),
             },

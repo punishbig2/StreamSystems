@@ -1,10 +1,9 @@
 import {Currency} from 'interfaces/currency';
 import {Order, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {User} from 'interfaces/user';
 import {Subscriber} from 'redux/signalRAction';
-import {RunState} from 'redux/stateDefs/runState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {DispatchProp} from 'react-redux';
 
@@ -24,7 +23,7 @@ export interface OwnProps {
 }
 
 export interface DispatchProps {
-  initialize: (rows: { [tenor: string]: TOBRow }) => void;
+  initialize: (rows: { [tenor: string]: PodRow }) => void;
   unsubscribe: Subscriber;
   subscribe: Subscriber;
   subscribeDarkPool: Subscriber;

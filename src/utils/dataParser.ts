@@ -1,6 +1,6 @@
 import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
@@ -26,7 +26,7 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderT
 };
 
 const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
-  const reducer = (table: PodTable, row: TOBRow, index: number): PodTable => {
+  const reducer = (table: PodTable, row: PodRow, index: number): PodTable => {
     const key: string = $$('__DOB_KEY', index, w.Tenor, w.Symbol, w.Strategy);
     table[key] = row;
     return table;
@@ -34,7 +34,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
   const createMapper = (key1: E, key2: E) => (other: MDEntry[]) => (
     entry: MDEntry,
     index: number,
-  ): TOBRow => {
+  ): PodRow => {
     const transform = mdEntryToTOBEntry(w);
     if (key1 === 'ofr' && key2 === 'bid') {
       return {
@@ -72,12 +72,12 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
 };
 
 const reorder = (w: W): [MDEntry, MDEntry] => {
-  const entries: MDEntry[] = w.Entries;
+  const entries: MDEntry[] = w.Entries !== undefined ? w.Entries : [];
   const e1: MDEntry = entries[0];
   const e2: MDEntry = entries[1];
   // We need the user here
   const now: number = Date.now();
-  if (e1 === undefined || e2 === undefined)
+  if (e1 === undefined && e2 === undefined)
     return [
       {
         MDEntryType: OrderTypes.Bid,
@@ -94,6 +94,23 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
         MDEntryTime: now.toString(),
       },
     ];
+  else if (e1 === undefined) {
+    return [{
+      MDEntryType: OrderTypes.Bid,
+      MDEntryPx: '0',
+      MDEntrySize: '0',
+      MDEntryOriginator: '',
+      MDEntryTime: now.toString(),
+    }, e2];
+  } else if (e2 === undefined) {
+    return [e1, {
+      MDEntryType: OrderTypes.Ofr,
+      MDEntryPx: '0',
+      MDEntrySize: '0',
+      MDEntryOriginator: '',
+      MDEntryTime: now.toString(),
+    }];
+  }
   if (e1.MDEntryType === OrderTypes.Bid) {
     return [e1, e2];
   } else {
@@ -101,7 +118,7 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
   }
 };
 
-export const toPodRow = (w: W): TOBRow => {
+export const toPodRow = (w: W): PodRow => {
   const [bid, ofr]: [MDEntry, MDEntry] = reorder(w);
   const transform = mdEntryToTOBEntry(w);
   return {

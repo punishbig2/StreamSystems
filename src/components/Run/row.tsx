@@ -1,7 +1,7 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {TOBRow, TOBRowStatus} from 'interfaces/tobRow';
+import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {User} from 'interfaces/user';
 import React from 'react';
 import {RowState} from 'redux/stateDefs/rowState';
@@ -11,7 +11,7 @@ interface OwnProps {
   id: string;
   columns: ColumnSpec[];
   user?: User;
-  fixedRow?: TOBRow;
+  fixedRow?: PodRow;
   weight: number;
   navigation: (target: HTMLInputElement, direction: NavigateDirection) => void;
   rowNumber?: number;
