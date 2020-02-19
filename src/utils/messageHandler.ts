@@ -2,7 +2,7 @@ import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {PodTable} from 'interfaces/podTable';
 import {User} from 'interfaces/user';
-import {W, DarkPool, isTOBW} from 'interfaces/w';
+import {W, DarkPool, isPodW} from 'interfaces/w';
 import {Action} from 'redux';
 import {extractDepth, mdEntryToTOBEntry} from 'utils/dataParser';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
@@ -52,7 +52,7 @@ export const handlers = {
     // const {Tenor, Symbol, Strategy} = w;
     // const type: string = $$('__ROW', Tenor, Symbol, Strategy, RowActions.Update);
     // Is this TOB?
-    if (isTOBW(w)) {
+    if (isPodW(w)) {
       // FIXME: because the backend is sending multiple copies of identical Ws I do this to
       //        "collapse" them into a single one and void unnecessary refreshes to the UI
       if (equal(lastTOBW, w)) return null;

@@ -1,7 +1,7 @@
 import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState} from '@microsoft/signalr';
 import config from 'config';
 import {Message, DarkPoolMessage} from 'interfaces/message';
-import {W, isTOBW} from 'interfaces/w';
+import {W, isPodW} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
 import {API} from 'API';
 import {propagateDepth} from 'utils/messageHandler';
@@ -30,6 +30,8 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
+
+  private dispatchedWs: string[] = [];
 
   private static instance: SignalRManager | null = null;
 
@@ -102,16 +104,28 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
+  private isCollapsedW = (w: W): boolean => {
+    const dispatched = this.dispatchedWs;
+    const cacheKey: string = $$(w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
+    if (dispatched.includes(cacheKey))
+      return true;
+    dispatched.unshift(cacheKey);
+    // update it
+    dispatched.splice(10, dispatched.length - 10);
+    // We have not collapased it yet
+    return false;
+  };
+
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
-    if (isTOBW(w))
+    if (this.isCollapsedW(w))
+      return;
+    if (isPodW(w))
       this.emitPodWEvent(w);
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       const fn: (data: W) => void = this.onUpdateMarketDataListener;
-      setTimeout(() => {
-        fn(w);
-      }, 0);
+      fn(w);
     }
   };
 
@@ -143,15 +157,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.onDisconnectedListener = fn;
   };
 
-  private dispatchedWs: string[] = [];
   private emitPodWEvent = (w: W) => {
-    const {dispatchedWs} = this;
-    const cacheKey: string = $$(w.Tenor, w.TransactTime);
-    if (!isTOBW(w) || dispatchedWs.includes(cacheKey)) {
-      console.log('ignoring w');
-      return;
-    }
-    dispatchedWs.push(cacheKey);
     // Now that we know it's the right time, create and dispatch the event
     const type: string = $$(w.Symbol, w.Strategy, w.Tenor);
     const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w, bubbles: false, cancelable: false});

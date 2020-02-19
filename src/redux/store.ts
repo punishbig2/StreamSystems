@@ -173,9 +173,9 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
 
     const onUpdateMarketData = (data: W) => {
-      const type: string = `${data.Symbol}${data.Strategy}${data.Tenor}`;
+      /*const type: string = `${data.Symbol}${data.Strategy}${data.Tenor}`;
       const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: data});
-      document.dispatchEvent(event);
+      document.dispatchEvent(event);*/
       const action: A | null = handlers.W<A>(data);
       if (action !== null && action !== DummyAction) {
         dispatch(action);

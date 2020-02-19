@@ -32,6 +32,6 @@ export interface W {
   '9712': 'TOB' | undefined;
 }
 
-export const isTOBW = (w: W) => {
+export const isPodW = (w: W) => {
   return w['9712'] === 'TOB';
 };

@@ -55,7 +55,6 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
         // Update us
         dispatch(createAction<ActionTypes>(ActionTypes.SetRow, row));
       };
-      console.log(`added listener for: ${symbol}${strategy}${tenor}`);
       // Show the loading spinner
       dispatch(createAction<ActionTypes>(ActionTypes.StartLoading));
       // Create an array of "unsubscribe/remove listener" functions

@@ -10,11 +10,11 @@ interface OwnProps {
 }
 
 export const Select: React.FC<OwnProps> = (props: OwnProps) => {
-  const {list} = props;
+  const {list, value} = props;
   const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [position, setPosition] = useState<ClientRect>(new DOMRect());
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const [keyword, setKeyWord] = useState<string>('');
+  const [keyword, setKeyword] = useState<string>('');
   const [dropdown, setDropdown] = useState<HTMLUListElement | null>(null);
   const [currentItem, setCurrentItem] = useState<number>(0);
 
@@ -72,6 +72,10 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, [isDropdownVisible, dropdown]);
 
+  useEffect(() => {
+    setCurrentItem(list.findIndex((item: { name: string }) => item.name === value));
+  }, [value, list]);
+
   const filtered: any[] = list.filter(({name}: { name: string }) => {
     const lowerName: string = name.toLowerCase();
     if (keyword.trim() === '')
@@ -80,7 +84,8 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   });
 
   const updateKeyword = (event: React.FormEvent<HTMLInputElement>) => {
-    setKeyWord(event.currentTarget.value);
+    const {value} = event.currentTarget;
+    setKeyword(value);
     setCurrentItem(0);
   };
 
