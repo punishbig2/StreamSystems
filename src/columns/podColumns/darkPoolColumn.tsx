@@ -114,9 +114,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         } as PodRow,
       };
       return (
-        <DarkPoolTooltip
-          onCancelOrder={props.onCancelDarkPoolOrder}
-          data={table}
+        <DarkPoolTooltip onCancelOrder={() => console.log('cancel dark pool')} data={table}
         />
       );
     };
@@ -148,9 +146,6 @@ const DarkPoolColumnComponent = (props: Props) => {
         user={user.email}/>
     );
   };
-  const showDarkpoolTicket = () => {
-
-  };
   const rows: PodRow[] = data ? Object.values(data) : [];
   const full: OrderStatus = rows.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None;
   return (
@@ -163,7 +158,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         tooltip={renderTooltip(myOrder)}
         readOnly={props.personality !== STRM && isBroker}
         status={finalOrder !== null ? finalOrder.status | OrderStatus.DarkPool | full : OrderStatus.None}
-        onDoubleClick={showDarkpoolTicket}
+        onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
         onNavigate={() => null}/>
       <ModalWindow

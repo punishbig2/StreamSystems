@@ -95,14 +95,11 @@ export const FXOptionsDB = {
       };
     });
   },
-  saveDarkPool: async (
-    rowID: string,
-    value: number | null,
-  ) => {
-    return FXOptionsDB.put('dark-pool', rowID, 'price', value);
+  saveDarkPool: async (id: string, value: number | null) => {
+    return FXOptionsDB.put('dark-pool', id, 'price', value);
   },
-  getDarkPool: async (rowID: string): Promise<number | null> => {
-    const object: any = await FXOptionsDB.getObject('dark-pool', rowID);
+  getDarkPool: async (id: string): Promise<number | null> => {
+    const object: any = await FXOptionsDB.getObject('dark-pool', id);
     if (object === undefined)
       return null;
     return object.price;

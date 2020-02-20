@@ -25,6 +25,7 @@ import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {Currency} from 'interfaces/currency';
 import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {API} from 'API';
+import {SignalRManager} from 'redux/signalR/signalRManager';
 
 const mapStateToProps: MapStateToProps<WindowState, OwnProps, ApplicationState> =
   ({workarea: {workspaces}}: ApplicationState, ownProps: OwnProps) => {
@@ -131,10 +132,17 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       hideRunWindow();
       // Create the orders
       entries.forEach((order: Order) => {
+        const allMyOrders: Order[] = SignalRManager.getOrdersForUser(user.email);
+        const matchingOrder: Order | undefined = allMyOrders.find((other: Order) => {
+          return other.uid() === order.uid();
+        });
+        if (matchingOrder) {
+          API.cancelOrder(matchingOrder);
+        }
         API.createOrder(order, personality, symbol.minqty);
       });
     },
-    [actions, hideRunWindow, symbol, personality],
+    [hideRunWindow, user.email, personality, symbol.minqty],
   );
 
   const runWindow = (): ReactElement | null => {
@@ -158,6 +166,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   const renderRow = (rowProps: any, index?: number): ReactElement => {
     const {symbol, strategy} = props;
     const {row, ...childProps} = rowProps;
+    console.log(row, childProps);
     return (
       <Row {...childProps}
            aggregatedSize={state.aggregatedSize}

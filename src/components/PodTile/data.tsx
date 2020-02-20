@@ -6,9 +6,9 @@ import {PodTable} from 'interfaces/podTable';
 
 export interface TOBColumnData {
   onTenorSelected: (tenor: string) => void;
-  onDoubleClick: (type: OrderTypes, data: any) => void;
+  /*onDoubleClick: (type: OrderTypes, data: any) => void;
   onRefBidsButtonClicked: () => void;
-  onRefOfrsButtonClicked: () => void;
+  onRefOfrsButtonClicked: () => void;*/
   // onOrderModified: (entry: Order) => void;
   // onQuantityChange: (entry: Order, newQuantity: number | null, personality: string, minimumSize: number, input: HTMLInputElement) => void;
   // onCancelOrder: (entry: Order, cancelRelated: boolean) => void;
@@ -17,10 +17,10 @@ export interface TOBColumnData {
   aggregatedSize?: AggregatedSize;
   buttonsEnabled: boolean;
   isBroker: boolean;
-  onDarkPoolPriceChange: (tenor: string, price: number) => void;
+  /*onDarkPoolPriceChange: (tenor: string, price: number) => void;
   onDarkPoolDoubleClicked: (tenor: string, price: number | null, currentOrder: Order | null) => void;
   // onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onCancelDarkPoolOrder: (order: Order) => void;
+  onCancelDarkPoolOrder: (order: Order) => void;*/
   personality: string;
   symbol: string;
   strategy: string;

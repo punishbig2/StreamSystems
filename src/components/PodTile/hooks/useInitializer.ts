@@ -5,13 +5,11 @@ import {PodTable} from 'interfaces/podTable';
 import {TenorType} from 'interfaces/w';
 import {useEffect} from 'react';
 import {compareTenors} from 'utils/dataGenerators';
-import {FXOptionsDB} from 'fx-options-db';
 
 const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => {
   const rows: Promise<PodRow>[] = tenors
     .map(async (tenor: TenorType) => {
       const order: Order = new Order(tenor, '', '', email, null, OrderTypes.Invalid);
-      const darkPrice: number | null | undefined = await FXOptionsDB.getDarkPool(order.uid());
       const row: PodRow = {
         tenor: tenor,
         id: `${tenor}`,
@@ -19,7 +17,7 @@ const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => 
         ofr: {...order, type: OrderTypes.Ofr},
         mid: null,
         spread: null,
-        darkPrice: darkPrice,
+        darkPrice: null,
         status: TOBRowStatus.Normal,
       };
       // Return internalRow

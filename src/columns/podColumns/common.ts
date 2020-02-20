@@ -13,12 +13,9 @@ export type RowProps = PodRow & {
   isBroker: boolean;
   defaultSize: number;
   minimumSize: number;
-  onPriceDoubleClick: (orderType: OrderTypes, data: any) => void;
+  darkPrice: number | null;
   symbol: string;
   strategy: string;
-  onDarkPoolDoubleClick: (tenor: string, price: number | null, order: Order | null) => void;
-  onDarkPoolPriceChange: (tenor: string, price: number) => void;
-  onCancelDarkPoolOrder: () => void;
 };
 
 const getDepthStatus = (values: Order[]): OrderStatus => {

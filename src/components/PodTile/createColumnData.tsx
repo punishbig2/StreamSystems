@@ -1,7 +1,6 @@
 import {PriceErrors} from 'components/Table/CellRenderers/Price';
 import {State} from 'components/PodTile/reducer';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, Sides} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {TOBRowStatus} from 'interfaces/podRow';
 import {TenorType} from 'interfaces/w';
 import {Settings} from 'settings';
@@ -46,15 +45,6 @@ export const createColumnData = (
         setCurrentTenor(null);
       }
     },
-    onDoubleClick: (type: OrderTypes, entry: Order) => {
-      setOrderTicket({...entry, type});
-    },
-    onRefBidsButtonClicked: () => {
-      fns.cancelAll(symbol, strategy, Sides.Buy);
-    },
-    onRefOfrsButtonClicked: () => {
-      fns.cancelAll(symbol, strategy, Sides.Sell);
-    },
     onOrderError: (order: Order, error: PriceErrors, input: HTMLInputElement) => {
       if (error === PriceErrors.GreaterThanMax || error === PriceErrors.LessThanMin) {
         fns.setRowStatus(order, TOBRowStatus.InvertedMarketsError);
@@ -97,21 +87,6 @@ export const createColumnData = (
         skipTabIndex(input, 1, 0);
       }
     },*/
-    onCancelDarkPoolOrder: (order: Order) => {
-      fns.cancelDarkPoolOrder(order);
-    },
-    onDarkPoolDoubleClicked: (
-      tenor: string,
-      price: number | null,
-      currentOrder: Order | null,
-    ) => {
-      if (price !== null) {
-        fns.onDarkPoolDoubleClicked(tenor, price, currentOrder);
-      }
-    },
-    onDarkPoolPriceChange: (tenor: string, price: number) => {
-      fns.publishDarkPoolPrice(symbol, strategy, tenor, price);
-    },
     /*onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:

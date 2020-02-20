@@ -118,14 +118,7 @@ export class Order {
   public user: string;
   public timestamp: string = Date.now().toString();
 
-  constructor(
-    tenor: string,
-    symbol: string,
-    strategy: string,
-    user: string,
-    size: number | null,
-    type: OrderTypes,
-  ) {
+  constructor(tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes) {
     this.type = type;
     this.tenor = tenor;
     this.symbol = symbol;

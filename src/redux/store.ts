@@ -32,18 +32,31 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
 import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 import {WindowState} from 'redux/stateDefs/windowState';
+import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
+import {API} from 'API';
+import {ExecTypes, Message} from 'interfaces/message';
+import {Sides} from 'interfaces/order';
+import {$$} from 'utils/stringPaster';
+import {RowActions} from 'redux/reducers/rowReducer';
 
-const dynamicReducers: { [name: string]: Reducer<any, Action> } = {};
 // Build the reducer from the fixed and dynamic reducers
-export const createReducer = (dynamicReducers: {} = {}): Reducer<ApplicationState, Action> => {
+export const createReducer = (): Reducer<ApplicationState, Action> => {
   return combineReducers<any, Action<any>>({
     workarea: workareaReducer,
     messageBlotter: messageBlotterReducer,
     userProfile: userProfileReducer,
     executions: executionsReducer,
-    // Dynamically generated reducers
-    ...dynamicReducers,
   });
+};
+
+const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
+
+const isOCOEnabled = (): boolean => {
+  const state: ApplicationState = store.getState();
+  if (!state)
+    return true;
+  const {profile} = state.userProfile;
+  return profile.oco;
 };
 
 const hydrate = async (dispatch: Dispatch<any>) => {
@@ -147,7 +160,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           message.DarkPrice,
         ),
       );
-    };
+    };*/
 
     const onUpdateMessageBlotter = (data: Message) => {
       switch (data.OrdStatus) {
@@ -155,23 +168,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           break;
         case ExecTypes.Filled:
           if (isOCOEnabled()) {
-            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side])
-              .then(() => {
-                  const runID = toRunId(data.Symbol, data.Strategy);
-                  switch (SidesMap[data.Side]) {
-                    case Sides.Buy:
-                      dispatch(
-                        createAction<any, A>($$(runID, RunActions.RemoveAllBids)),
-                      );
-                      break;
-                    case Sides.Sell:
-                      dispatch(
-                        createAction<any, A>($$(runID, RunActions.RemoveAllOfrs)),
-                      );
-                      break;
-                  }
-                },
-              );
+            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
           }
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
@@ -188,12 +185,12 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
       }
-    };*/
+    };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);
     // connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
     connectionManager.setOnDisconnectedListener(onDisconnected);
-    // connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
+    connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
     // connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
     connectionManager.connect();
 
@@ -204,7 +201,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
 };
 // Create the store
 export const store: Store = createStore(
-  createReducer(dynamicReducers),
+  createReducer(),
   {},
   enhancer,
 );

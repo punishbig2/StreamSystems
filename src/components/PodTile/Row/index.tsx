@@ -15,7 +15,8 @@ import {createSymbolStrategyTenorListener, createSymbolStrategySideListener} fro
 import {AggregatedSize} from 'components/PodTile/reducer';
 import {createRow} from 'components/PodTile/Row/helpers/emptyRowCreator';
 import {State, ActionTypes, reducer} from 'components/PodTile/Row/reducer';
-import {PodTileActions} from 'redux/reducers/podTileReducer';
+import {FXOptionsDB} from 'fx-options-db';
+import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
   id: string;
@@ -45,9 +46,12 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
       if (!symbol || !strategy || symbol === '' || strategy === '')
         return;
       const signalRManager: SignalRManager = SignalRManager.getInstance();
-      const onNewWMessage = (w: W) => {
+      const onNewWMessage = async (w: W) => {
+        const row: PodRow = toPodRow(w);
+        // Update the dark price
+        row.darkPrice = await FXOptionsDB.getDarkPool($$(symbol, strategy, tenor));
         // Update us
-        dispatch(createAction<ActionTypes>(ActionTypes.SetRow, toPodRow(w)));
+        dispatch(createAction<ActionTypes>(ActionTypes.SetRow, row));
       };
       // Show the loading spinner
       dispatch(createAction<ActionTypes>(ActionTypes.StartLoading));
@@ -125,8 +129,8 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
   return (
     <div className={classes.join(' ')} data-row-number={props.rowNumber}>
       {columns.map((column: ColumnSpec, index: number) => {
-        const name: string = column.name;
         const width: string = percentage(column.weight, props.weight);
+        const name: string = column.name;
         return (
           <Cell key={name}
                 render={column.render}
