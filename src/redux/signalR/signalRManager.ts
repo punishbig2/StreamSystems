@@ -11,6 +11,7 @@ import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {User} from 'interfaces/user';
+import deepEqual from 'deep-equal';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -126,15 +127,16 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
+  private static x: {[key: string]: W} = {};
   private static isCollapsedW = (w: W): boolean => {
-    return false;
-    const dispatched = SignalRManager.dispatchedWs;
+    // const dispatched = SignalRManager.dispatchedWs;
     const cacheKey: string = $$(w.Symbol, w.Strategy, w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
-    if (dispatched.includes(cacheKey))
+    if (SignalRManager.x[cacheKey] !== undefined && deepEqual(w, SignalRManager.x[cacheKey]))
       return true;
-    dispatched.unshift(cacheKey);
+    SignalRManager.x[cacheKey] = w;
+    // dispatched.unshift(cacheKey);
     // update it
-    dispatched.splice(10, dispatched.length - 10);
+    // dispatched.splice(100, dispatched.length - 100);
     // We have not collapsed it yet
     return false;
   };
