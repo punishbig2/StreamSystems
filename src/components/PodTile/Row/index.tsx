@@ -46,7 +46,6 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
         return;
       const signalRManager: SignalRManager = SignalRManager.getInstance();
       const onNewWMessage = (w: W) => {
-        console.log(w);
         // Update us
         dispatch(createAction<ActionTypes>(ActionTypes.SetRow, toPodRow(w)));
       };

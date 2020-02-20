@@ -22,13 +22,13 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
       .then((messages: OrderMessage[]) => {
         const getMid = (row: PodRow): number | null => {
           const {ofr, bid} = row;
-          if (bid.isCancelled() || ofr.isCancelled() || ofr.price === null || bid.price === null)
+          if (ofr.price === null || bid.price === null)
             return null;
           return (ofr.price + bid.price) / 2;
         };
         const getSpread = (row: PodRow): number | null => {
           const {ofr, bid} = row;
-          if (bid.isCancelled() || ofr.isCancelled() || ofr.price === null || bid.price === null)
+          if (ofr.price === null || bid.price === null)
             return null;
           return ofr.price - bid.price;
         };

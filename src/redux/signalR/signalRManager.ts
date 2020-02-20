@@ -225,7 +225,6 @@ export class SignalRManager<A extends Action = AnyAction> {
         // Call the installed listener
         listener(event.detail);
       };
-      console.log('event listener added', symbol, strategy, tenor);
       document.addEventListener(type, listenerWrapper as EventListener);
       // Now subscribe to the events
       setTimeout(() => {
