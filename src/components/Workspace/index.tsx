@@ -36,7 +36,6 @@ import {SelectEventData} from 'interfaces/selectEventData';
 import {ModalWindow} from 'components/ModalWindow';
 import {UserProfileModal} from 'components/Workspace/UserProfileForm';
 import {ErrorBox} from 'components/ErrorBox';
-import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
 import {saveUserProfile} from 'redux/actions/userProfileActions';
 import {ExecutionBanner} from 'components/ExecutionBanner';
 
@@ -56,7 +55,7 @@ interface DispatchProps {
   closeUserProfileModal: () => void;
   refAll: (personality: string) => void;
   closeErrorModal: () => void;
-  saveUserProfile: (useremail: string, newProfile: UserProfile, oldOCO: boolean) => void;
+  saveUserProfile: (useremail: string, newProfile: UserProfile) => void;
 }
 
 interface OwnProps {
@@ -98,8 +97,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       closeUserProfileModal: () => dispatch(closeUserProfileModal(id)),
       refAll: (personality: string) => dispatch(refAll(id, personality)),
       closeErrorModal: () => dispatch(closeErrorModal(id)),
-      saveUserProfile: (useremail: string, profile: UserProfile, oldOCO: boolean) =>
-        dispatch(saveUserProfile(useremail, profile, oldOCO)),
+      saveUserProfile: (useremail: string, profile: UserProfile) => dispatch(saveUserProfile(useremail, profile)),
     };
   }
   return cache[id];
@@ -263,7 +261,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     } else {
       const {userProfile} = props;
       const onOCOChange = ({currentTarget: input}: React.ChangeEvent<HTMLInputElement>) => {
-        props.saveUserProfile(user.email, {...userProfile, oco: input.checked}, userProfile.oco);
+        props.saveUserProfile(user.email, {...userProfile, oco: input.checked});
       };
       return (
         <div className={'broker-buttons'}>
@@ -271,7 +269,6 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
             <FormControlLabel
               control={
                 <Checkbox
-                  disabled={wasModifiedToday(userProfile.lastOCOUpdateTimestamp, userProfile.timezone)}
                   id={'oco'}
                   checked={userProfile.oco}
                   name={'oco'}

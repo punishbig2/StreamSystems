@@ -5,7 +5,6 @@ import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Check
 import {UserTypes, CurrencyGroups, UserProfile} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
-import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
 
 interface OwnProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -76,7 +75,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      disabled={wasModifiedToday(profile.lastOCOUpdateTimestamp, profile.timezone)}
                       id={'oco'}
                       checked={profile.oco}
                       name={'oco'}

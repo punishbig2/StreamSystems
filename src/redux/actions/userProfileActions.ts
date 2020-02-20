@@ -4,7 +4,6 @@ import {createAction} from 'redux/actionCreator';
 import {UserProfileModalTypes, UserProfile} from 'interfaces/user';
 import {API} from 'API';
 import {FXOAction} from 'redux/fxo-action';
-import {wasModifiedToday} from 'utils/ocoWasModifiedTodayTester';
 
 export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserProfileActions>> => {
   return new AsyncAction(async (): Promise<FXOAction<UserProfileActions>[]> => {
@@ -20,18 +19,9 @@ export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserPr
   }, createAction<UserProfileActions>(UserProfileActions.LoadUserProfile));
 };
 
-export const saveUserProfile = (useremail: string, profile: UserProfile, lastOCO: boolean): AsyncAction<FXOAction<UserProfileActions>> => {
+export const saveUserProfile = (useremail: string, profile: UserProfile): AsyncAction<FXOAction<UserProfileActions>> => {
   return new AsyncAction(async () => {
     try {
-      if (lastOCO !== profile.oco) {
-        if (wasModifiedToday(profile.lastOCOUpdateTimestamp, profile.timezone)) {
-          return [
-            createAction<UserProfileActions>(UserProfileActions.SetUserProfile, profile),
-            createAction<UserProfileActions>(UserProfileActions.SetCurrentModal, UserProfileModalTypes.Success),
-          ];
-        }
-        profile.lastOCOUpdateTimestamp = Date.now();
-      }
       const data: any = await API.saveUserProfile({useremail, workspace: JSON.stringify(profile)});
       if (data === 'success') {
         return [
