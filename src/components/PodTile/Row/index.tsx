@@ -47,14 +47,8 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
       const signalRManager: SignalRManager = SignalRManager.getInstance();
       const onNewWMessage = (w: W) => {
         console.log(w);
-        const row: PodRow = toPodRow(w);
-        const {bid, ofr} = row;
-        // FIXME: the run window should be independent probably
-        // Update the run window
-        bid.dispatchEvent(PodTileActions.UpdateOrder);
-        ofr.dispatchEvent(PodTileActions.UpdateOrder);
         // Update us
-        dispatch(createAction<ActionTypes>(ActionTypes.SetRow, row));
+        dispatch(createAction<ActionTypes>(ActionTypes.SetRow, toPodRow(w)));
       };
       // Show the loading spinner
       dispatch(createAction<ActionTypes>(ActionTypes.StartLoading));
@@ -83,7 +77,7 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
           }));
         };
       const setCancelStatus = (order: Order) => {
-        if (order.price === null || (order.status & OrderStatus.Cancelled) !== 0)
+        if (order.price === null || order.isCancelled() || !order.isOwnedByCurrentUser())
           return;
         dispatch(createAction<ActionTypes>(ActionTypes.ReplaceOrder, {
           ...order,

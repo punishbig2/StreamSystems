@@ -10,6 +10,19 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {API} from 'API';
 import {getSideFromType} from 'utils';
 
+interface RefButtonProps {
+  type: OrderTypes;
+  data: TOBColumnData;
+}
+
+const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
+  const labels: { [key: string]: string } = {
+    [OrderTypes.Bid]: strings.RefBids,
+    [OrderTypes.Ofr]: strings.RefOfrs,
+  };
+  return <button onClick={cancelAll(props.type, props.data)}>{labels[props.type]}</button>;
+};
+
 const cancelAll = (type: OrderTypes, {symbol, strategy}: TOBColumnData) =>
   () => {
     API.cancelAll(symbol, strategy, getSideFromType(type));
@@ -22,16 +35,14 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
     strings.BidPx,
     OrderTypes.Bid,
     depth,
-    !depth ? ((): ReactNode => <button
-      onClick={cancelAll(OrderTypes.Bid, data)}>{strings.RefBids}</button>) : undefined,
+    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Bid} data={data}/>) : undefined,
   ),
   DarkPoolColumn(),
   OrderColumnWrapper(
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
-    !depth ? ((): ReactNode => <button
-      onClick={cancelAll(OrderTypes.Ofr, data)}>{strings.RefOfrs}</button>) : undefined,
+    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Ofr} data={data}/>) : undefined,
   ),
   ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
 ];

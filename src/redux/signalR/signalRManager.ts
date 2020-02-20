@@ -169,6 +169,7 @@ export class SignalRManager<A extends Action = AnyAction> {
       this.emitPodWEvent(w);
     } else {
       SignalRManager.addToCache(w);
+      propagateDepth(w);
     }
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
@@ -224,24 +225,28 @@ export class SignalRManager<A extends Action = AnyAction> {
         // Call the installed listener
         listener(event.detail);
       };
-      connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
-      // Add the listener so that they are ready to receive
+      console.log('event listener added', symbol, strategy, tenor);
       document.addEventListener(type, listenerWrapper as EventListener);
-      // Now get the "snapshots"
-      API.getTOBSnapshot(symbol, strategy, tenor)
-        .then((w: W | null) => {
-          if (w === null)
-            return;
-          SignalRManager.addToCache(w);
-          this.emitPodWEvent({...w, '9712': 'TOB'});
-        });
-      API.getSnapshot(symbol, strategy, tenor)
-        .then((w: W | null) => {
-          if (w === null)
-            return;
-          SignalRManager.addToCache(w);
-          propagateDepth(w);
-        });
+      // Now subscribe to the events
+      setTimeout(() => {
+        connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
+        // Now get the "snapshots"
+        API.getTOBSnapshot(symbol, strategy, tenor)
+          .then((w: W | null) => {
+            if (w === null)
+              return;
+            SignalRManager.addToCache(w);
+            this.emitPodWEvent({...w, '9712': 'TOB'});
+          });
+        API.getSnapshot(symbol, strategy, tenor)
+          .then((w: W | null) => {
+            if (w === null)
+              return;
+            SignalRManager.addToCache(w);
+            propagateDepth(w);
+          });
+      }, 0);
+
       return () => {
         document.removeEventListener(type, listenerWrapper as EventListener);
         // Unsubscribe from the market data feed
