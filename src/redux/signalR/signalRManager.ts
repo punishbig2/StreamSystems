@@ -1,7 +1,7 @@
 import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState} from '@microsoft/signalr';
 import config from 'config';
 import {Message, DarkPoolMessage, ExecTypes} from 'interfaces/message';
-import {W, isPodW} from 'interfaces/w';
+import {W, isPodW, MessageTypes} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
 import {API} from 'API';
 import {propagateDepth} from 'utils/messageHandler';
@@ -219,6 +219,7 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   public addPodRowListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
     const connection: HubConnection | null = this.connection;
+    const user: User = getAuthenticatedUser();
     if (connection !== null && connection.state === HubConnectionState.Connected) {
       const type: string = $$(symbol, strategy, tenor);
       const listenerWrapper = (event: CustomEvent<W>) => {
@@ -234,11 +235,17 @@ export class SignalRManager<A extends Action = AnyAction> {
           .then((w: W | null) => {
             if (w === null) {
               this.emitPodWEvent({
+                MsgType: MessageTypes.W,
+                TransactTime: Date.now() / 1000,
+                User: user.email,
                 Tenor: tenor,
                 Strategy: strategy,
                 Symbol: symbol,
+                NoMDEntries: 2,
+                Entries: [],
+                ExDestination: undefined,
                 '9712': 'TOB',
-              } as W);
+              });
             } else {
               SignalRManager.addToCache(w);
               this.emitPodWEvent({...w, '9712': 'TOB'});
