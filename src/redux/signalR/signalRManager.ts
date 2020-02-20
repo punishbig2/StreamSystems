@@ -114,7 +114,7 @@ export class SignalRManager<A extends Action = AnyAction> {
         }
       })();
       if (type !== OrderTypes.Invalid) {
-        const key: string = $$(data.Symbol, data.Strategy, data.Tenor, type);
+        const key: string = data.OrderID;
         // Remove the order from the cache
         delete SignalRManager.orderCache[key];
       }
@@ -190,14 +190,9 @@ export class SignalRManager<A extends Action = AnyAction> {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const type: string = $$(message.Symbol, message.Strategy, message.Tenor, 'DpPx');
     document.dispatchEvent(new CustomEvent(type, {detail: message}));
-    /*if (this.onUpdateDarkPoolPxListener) {
-      this.onUpdateDarkPoolPxListener(message);
-    }*/
   };
 
-  public setOnUpdateDarkPoolPxListener = (
-    fn: (data: DarkPoolMessage) => void,
-  ) => {
+  public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
     this.onUpdateDarkPoolPxListener = fn;
   };
 
