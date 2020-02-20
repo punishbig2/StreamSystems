@@ -36,7 +36,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
-  private static dispatchedWs: {[key: string]: W} = {};
+  private static dispatchedWs: { [key: string]: W } = {};
   private static orderCache: { [id: string]: Order } = {};
 
   private static instance: SignalRManager | null = null;
@@ -143,13 +143,25 @@ export class SignalRManager<A extends Action = AnyAction> {
       // This is stupid, but it shuts the compiler warning
       if (orders.length > 0) {
         SignalRManager.orderCache = orders.reduce((cache: { [id: string]: Order }, order: Order) => {
-          const key: string = $$(order.symbol, order.strategy, order.tenor, order.type);
+          const key: string = order.orderId ? order.orderId : $$(order.uid(), order.type);
           if (order.orderId !== undefined)
             cache[key] = order;
           return cache;
         }, SignalRManager.orderCache);
       }
     }
+  };
+
+  public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string, type: OrderTypes) => {
+    const {orderCache} = SignalRManager;
+    const values: Order[] = Object.values(orderCache);
+    console.log(values);
+    return values.filter((order: Order) => {
+      return order.symbol === symbol
+        && order.strategy === strategy
+        && order.tenor === tenor
+        && order.type === type;
+    });
   };
 
   public static getOrdersForUser = (email: string): Order[] => {

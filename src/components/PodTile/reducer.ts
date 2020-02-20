@@ -56,10 +56,7 @@ const collapse = (depth: any): Aggregation | undefined => {
   };
 };
 
-export const reducer = (
-  state: State,
-  {type, data}: { type: ActionTypes; data: any },
-): State => {
+export const reducer = (state: State, {type, data}: { type: ActionTypes; data: any }): State => {
   switch (type) {
     case ActionTypes.InsertDepth:
       return {
