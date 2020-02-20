@@ -155,7 +155,6 @@ export class SignalRManager<A extends Action = AnyAction> {
   public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string, type: OrderTypes) => {
     const {orderCache} = SignalRManager;
     const values: Order[] = Object.values(orderCache);
-    console.log(values);
     return values.filter((order: Order) => {
       return order.symbol === symbol
         && order.strategy === strategy
