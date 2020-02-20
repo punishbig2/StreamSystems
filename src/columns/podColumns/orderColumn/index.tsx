@@ -19,6 +19,7 @@ import {OrderTicket} from 'components/OrderTicket';
 import {getAggregatedSize} from 'columns/podColumns/orderColumn/helpers/getAggregatedSize';
 import {shouldOpenOrderTicket} from 'columns/podColumns/orderColumn/helpers/shoulOpenOrderTicket';
 import {reducer, State, ActionTypes} from 'columns/podColumns/orderColumn/reducer';
+import {getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/podColumns/common';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -68,10 +69,10 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
 
   const bid: Order | undefined = type === OrderTypes.Bid ? props.bid : undefined;
   const ofr: Order | undefined = type === OrderTypes.Ofr ? props.ofr : undefined;
-  /*const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
-    | getBankMatchesPersonalityStatus(order, data.personality)
+  const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
+    | getBankMatchesPersonalityStatus(order, props.personality)
     | order.status
-  ;*/
+  ;
   const getFinalSize = (): number => {
     if (state.submittedSize !== null)
       return state.submittedSize;
@@ -165,10 +166,11 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
   const sizeCell: ReactElement = (
     <Quantity key={2}
               type={type}
-              className={getOrderStatusClass(order.status, 'cell size-layout')}
+              className={getOrderStatusClass(status, 'cell size-layout')}
               value={size}
-              cancellable={order.isCancellable()}
+              cancellable={(status & OrderStatus.HasMyOrder) !== 0}
               readOnly={readOnly}
+              chevron={(status & OrderStatus.HasDepth) !== 0}
               onCancel={() => cancelOrder(order, depths)}
               onBlur={resetSize}
               onNavigate={onNavigate}
@@ -183,7 +185,7 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
   const items: ReactElement[] = [
     <Price
       key={1}
-      status={order.status}
+      status={status}
       value={order.price}
       min={getPriceIfApplies(bid)}
       max={getPriceIfApplies(ofr)}

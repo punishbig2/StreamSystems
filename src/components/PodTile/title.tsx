@@ -3,6 +3,8 @@ import {Strategy} from 'interfaces/strategy';
 import strings from 'locales';
 import React, {ReactElement} from 'react';
 import {Select} from 'components/Select';
+import {$$} from 'utils/stringPaster';
+import {CCYGroups} from 'data/groups';
 
 interface Props {
   symbols: Currency[];
@@ -20,6 +22,14 @@ interface Props {
 export const PodTileTitle: React.FC<Props> = (props: Props): ReactElement => {
   const {symbols, symbol, products, strategy, setSymbol, setStrategy} = props;
 
+  const getGroup = (key: string): string => {
+    if (CCYGroups[key] !== undefined) {
+      return CCYGroups[key];
+    } else {
+      return '';
+    }
+  };
+
   return (
     <div className={'window-title-bar'}>
       <div className={'item'}>
@@ -31,6 +41,9 @@ export const PodTileTitle: React.FC<Props> = (props: Props): ReactElement => {
       <button onClick={props.onShowRunWindow} disabled={props.runsDisabled}>
         {strings.Run}
       </button>
+      <div className={'ccy-group'}>
+        {getGroup($$(symbol, strategy))}
+      </div>
     </div>
   );
 };

@@ -16,7 +16,7 @@ import {$$} from 'utils/stringPaster';
 import {DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
-import {RunActions} from 'redux/reducers/runReducer';
+import {RunActions} from 'components/Run/reducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 import {Currency} from 'interfaces/currency';
 import {OrderTypes} from 'interfaces/mdEntry';

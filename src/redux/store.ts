@@ -37,7 +37,7 @@ import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {manualToRowID, toRunId} from 'utils';
-import {RunActions} from 'redux/reducers/runReducer';
+import {RunActions} from 'components/Run/reducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
 import {FXOAction} from 'redux/fxo-action';

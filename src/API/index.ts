@@ -1,7 +1,7 @@
 import config from 'config';
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
-import {CreateOrder, Order, Sides, UpdateOrder, DarkPoolOrder} from 'interfaces/order';
+import {CreateOrder, Order, Sides, UpdateOrder, DarkPoolOrder, OrderMessage} from 'interfaces/order';
 import {MessageResponse} from 'interfaces/messageResponse';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
@@ -280,8 +280,8 @@ export class API {
     );
   }
 
-  static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<any[]> {
-    return get<any[]>(
+  static async getRunOrders(useremail: string, symbol: string, strategy: string): Promise<OrderMessage[]> {
+    return get<OrderMessage[]>(
       API.getUrl(API.Oms, 'runorders', 'get', {symbol, strategy, useremail}),
     );
   }

@@ -211,4 +211,8 @@ export class Order {
   public isCancellable = () => {
     return (this.status & OrderStatus.Owned) !== 0;
   };
+
+  public isCancelled = () => {
+    return (this.status & OrderStatus.Cancelled) !== 0;
+  };
 }

@@ -1,12 +1,16 @@
 import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState} from '@microsoft/signalr';
 import config from 'config';
-import {Message, DarkPoolMessage} from 'interfaces/message';
+import {Message, DarkPoolMessage, ExecTypes} from 'interfaces/message';
 import {W, isPodW} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
 import {API} from 'API';
 import {propagateDepth} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {SignalRActions} from 'redux/constants/signalRConstants';
+import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
+import {Order} from 'interfaces/order';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {User} from 'interfaces/user';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -31,7 +35,8 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
-  private dispatchedWs: string[] = [];
+  private static dispatchedWs: string[] = [];
+  private static orderCache: { [id: string]: Order } = {};
 
   private static instance: SignalRManager | null = null;
 
@@ -96,6 +101,23 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private onUpdateMessageBlotter = (message: string): void => {
     const data: Message = JSON.parse(message);
+    if (data.OrdStatus === ExecTypes.Canceled) {
+      const type: OrderTypes = (() => {
+        switch (data.Side) {
+          case '1':
+            return OrderTypes.Bid;
+          case '2':
+            return OrderTypes.Ofr;
+          default:
+            return OrderTypes.Invalid;
+        }
+      })();
+      if (type !== OrderTypes.Invalid) {
+        const key: string = $$(data.Symbol, data.Strategy, data.Tenor, type);
+        // Remove the order from the cache
+        delete SignalRManager.orderCache[key];
+      }
+    }
     // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
       const fn: (message: Message) => void = this
@@ -104,24 +126,50 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  private isCollapsedW = (w: W): boolean => {
-    const dispatched = this.dispatchedWs;
-    const cacheKey: string = $$(w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
+  private static isCollapsedW = (w: W): boolean => {
+    const dispatched = SignalRManager.dispatchedWs;
+    const cacheKey: string = $$(w.Symbol, w.Strategy, w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
     if (dispatched.includes(cacheKey))
       return true;
     dispatched.unshift(cacheKey);
     // update it
     dispatched.splice(10, dispatched.length - 10);
-    // We have not collapased it yet
+    // We have not collapsed it yet
     return false;
+  };
+
+  private static addToCache = (w: W) => {
+    const entries: MDEntry[] = w.Entries;
+    const user: User = getAuthenticatedUser();
+    if (entries) {
+      const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
+      // This is stupid, but it shuts the compiler warning
+      if (orders.length > 0) {
+        SignalRManager.orderCache = orders.reduce((cache: { [id: string]: Order }, order: Order) => {
+          const key: string = $$(order.symbol, order.strategy, order.tenor, order.type);
+          if (order.orderId !== undefined)
+            cache[key] = order;
+          return cache;
+        }, SignalRManager.orderCache);
+      }
+    }
+  };
+
+  public static getOrdersForUser = (email: string): Order[] => {
+    const {orderCache} = SignalRManager;
+    const values: Order[] = Object.values(orderCache);
+    return values.filter((order: Order) => order.user === email);
   };
 
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
-    if (this.isCollapsedW(w))
+    if (SignalRManager.isCollapsedW(w))
       return;
-    if (isPodW(w))
+    if (isPodW(w)) {
       this.emitPodWEvent(w);
+    } else {
+      SignalRManager.addToCache(w);
+    }
     // Dispatch the action
     if (this.onUpdateMarketDataListener !== null) {
       const fn: (data: W) => void = this.onUpdateMarketDataListener;
@@ -181,12 +229,14 @@ export class SignalRManager<A extends Action = AnyAction> {
         .then((w: W | null) => {
           if (w === null)
             return;
+          SignalRManager.addToCache(w);
           this.emitPodWEvent({...w, '9712': 'TOB'});
         });
       API.getSnapshot(symbol, strategy, tenor)
         .then((w: W | null) => {
           if (w === null)
             return;
+          SignalRManager.addToCache(w);
           propagateDepth(w);
         });
       return () => {

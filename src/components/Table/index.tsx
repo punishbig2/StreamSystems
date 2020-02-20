@@ -174,6 +174,9 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
     <div className={classes.join(' ')} style={style}>
       {getHeaders()}
       {getBody(rowProps)}
+      <div className={'loading-banner'}>
+        <div className={'spinner'}/>
+      </div>
     </div>
   );
 };

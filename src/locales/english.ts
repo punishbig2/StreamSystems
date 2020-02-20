@@ -14,6 +14,7 @@ export default {
   Mid: 'Mid',
   Spread: 'Spread',
   Close: 'Close',
+  ActivateAll: 'Activate All',
   RefOfrs: 'Ref Ofrs',
   RefBids: 'Ref Bids',
   Run: 'Run',

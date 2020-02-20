@@ -25,9 +25,6 @@ export const addWorkspace = (): AnyAction => {
   const id: string = `ws-${shortid()}`;
   const newWorkspace: WorkspaceState = {...defaultWorkspaceState, id, name};
   FXOptionsDB.addWorkspace(newWorkspace);
-  // Create the reducer now, after doing this we will have the reducer
-  // that will work specifically with this email
-  // injectNamedReducer(id, createWorkspaceReducer, defaultWorkspaceState);
   // Generate the action to make the reducer insert a new workspace
   return createAction(WorkareaActions.AddWorkspace, newWorkspace);
 };

@@ -9,26 +9,22 @@ import {PodRow} from 'interfaces/podRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
-import {RunActions} from 'redux/reducers/runReducer';
+import {RunActions} from 'components/Run/reducer';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {getNthParentOf} from 'utils/skipTab';
+import {$$} from 'utils/stringPaster';
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
 const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const onChange = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
   const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
-  const actionType: RunActions =
-    type === 'bid' ? RunActions.Bid : RunActions.Ofr;
-  const onPriceChange = (row: RowType) =>
-    (input: HTMLInputElement, price: number | null, changed: boolean) => {
-      const order: Order = row[type];
-      if (price === null) {
-        data.resetOrder(row.id, order.type);
-      } else {
-        onChange(row.id, price, changed);
-      }
-    };
+  const actionType: RunActions = type === 'bid' ? RunActions.Bid : RunActions.Ofr;
+  const onPriceChange = (row: RowType) => (input: HTMLInputElement, price: number | null, changed: boolean) => {
+    if (price !== null) {
+      onChange(row.id, price, changed);
+    }
+  };
   return {
     name: `${type}-price`,
     header: () => <DualTableHeader label={label}/>,
@@ -36,7 +32,7 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
       const order: Order = row[type];
       return (
         <Price
-          uid={`run-${order.uid()}${order.type}`}
+          uid={$$('run', order.uid(), order.type)}
           arrow={ArrowDirection.None}
           status={order.status}
           value={order.price}
@@ -68,7 +64,6 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
           return null;
       }
     })();
-    console.log(targetInput);
     if (targetInput !== null) {
       targetInput.focus();
     }
@@ -121,8 +116,12 @@ const MidCol = (data: RunColumnData) => ({
       className={'mid'}
       arrow={ArrowDirection.None}
       status={OrderStatus.None}
-      onSubmit={(input: HTMLInputElement, value: number | null, changed: boolean) =>
-        data.onMidChanged(id, value, changed)
+      onSubmit={
+        (input: HTMLInputElement, value: number | null, changed: boolean) => {
+          if (value !== null) {
+            data.onMidChanged(id, value, changed);
+          }
+        }
       }
       onTabbedOut={(target: HTMLInputElement) =>
         data.focusNext(target, RunActions.Mid)
@@ -145,8 +144,12 @@ const SpreadCol = (data: RunColumnData) => ({
         className={'spread'}
         arrow={ArrowDirection.None}
         status={OrderStatus.None}
-        onSubmit={(input: HTMLInputElement, value: number | null, changed: boolean) =>
-          data.onSpreadChanged(id, value, changed)
+        onSubmit={
+          (input: HTMLInputElement, value: number | null, changed: boolean) => {
+            if (value !== null) {
+              data.onSpreadChanged(id, value, changed);
+            }
+          }
         }
         onTabbedOut={(target: HTMLInputElement) =>
           data.focusNext(target, RunActions.Spread)

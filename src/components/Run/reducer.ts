@@ -4,18 +4,9 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {RunState} from 'redux/stateDefs/runState';
-import {$$} from 'utils/stringPaster';
 import {priceFormatter} from 'utils/priceFormatter';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {FXOAction} from 'redux/fxo-action';
-
-const genesisState: RunState = {
-  orders: {},
-  initialized: false,
-  defaultOfrSize: 0,
-  defaultBidSize: 0,
-  originalOrders: {},
-};
 
 export enum RunActions {
   Mid = 'mid',
@@ -23,22 +14,22 @@ export enum RunActions {
   Ofr = 'ofr',
   Bid = 'bid',
   // Other
-  SetTable = 'Run.SetTable',
-  OfrQtyChanged = 'Run.OfferQuantityChanged',
-  BidQtyChanged = 'Run.BidQuantityChanged',
-  UpdateBid = 'Run.UpdateBid',
-  UpdateDefaultOfrQty = 'Run.UpdateDefaultOfrQty',
-  UpdateOfr = 'Run.UpdateOffer',
-  DeactivateAllOrders = 'Run/DeactivateAllOrders',
-  UpdateDefaultBidQty = 'Run.UpdateDefaultBidQty',
-  RemoveOrder = 'Run.RemoveOrder',
-  RemoveAllOfrs = 'Run.RemoveAllOfrs',
-  RemoveAllBids = 'Run.RemoveAllBids',
-  SetDefaultSize = 'Run.SetDefaultSize',
-  ActivateRow = 'Run.ActivateRow',
-  ActivateOrder = 'Run.ActivateOrder',
-  ResetOrder = 'Run.ResetOrder',
-  ResetAll = 'Run.ResetAll',
+  SetTable = 'RUN_SET_TABLE',
+  SetLoadingStatus = 'RUN_SET_LOADING_STATUS',
+  OfrQtyChanged = 'RUN_OFFER_SIZE_CHANGED',
+  BidQtyChanged = 'RUN_BID_SIZE_CHANGED',
+  UpdateBid = 'RUN_UPDATE_BID',
+  UpdateDefaultOfrSize = 'RUN_UPDATE_DEFAULT_OFFER_SIZE',
+  UpdateOfr = 'RUN_UPDATE_OFFER',
+  DeactivateAllOrders = 'RUN_DEACTIVATE_ALL_ORDERS',
+  UpdateDefaultBidSize = 'RUN_UPDATE_DEFAULT_BID_SIZE',
+  RemoveOrder = 'RUN_REMOVE_ORDER',
+  RemoveAllOfrs = 'RUN_REMOVE_ALL_OFFERS',
+  RemoveAllBids = 'RUN_REMOVE_ALL_BIDS',
+  SetDefaultSize = 'RUN_SET_DEFAULT_SIZE',
+  ActivateRow = 'RUN_ACTIVATE_ROW',
+  ActivateOrder = 'RUN_ACTIVATE_ORDER',
+  ResetAll = 'RUN_RESET_ALL',
 }
 
 const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
@@ -104,9 +95,9 @@ const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>
       : TOBRowStatus.Normal;
   };
   const getOrderStatus = (status: OrderStatus, newValue: number | null, oldValue: number | null) => {
-    if (priceFormatter(newValue) === priceFormatter(oldValue))
+    if (priceFormatter(newValue) === priceFormatter(oldValue) && (status & OrderStatus.Cancelled) === 0)
       return status;
-    return (status | OrderStatus.PriceEdited) & ~OrderStatus.Owned & ~OrderStatus.SameBank;
+    return (status | OrderStatus.PriceEdited) & ~OrderStatus.Owned & ~OrderStatus.SameBank & ~OrderStatus.Cancelled;
   };
   const coalesce = (v1: number | null, v2: number | null) => v1 === null ? v2 : v1;
   const newOfr: Order = {
@@ -222,7 +213,7 @@ const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   return status | edited;
 };
 
-const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
+/*const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
   const row: PodRow = orders[rowID];
   if (row === undefined)
@@ -239,7 +230,7 @@ const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: Order
       },
     },
   };
-};
+};*/
 
 const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
@@ -355,51 +346,51 @@ const updateQty = (state: RunState, data: { id: string; value: number | null }, 
   };
 };
 
-export default (id: string, initialState: RunState = genesisState) => {
-  return (state: RunState = initialState, {type, data}: FXOAction<RunActions>): RunState => {
-    switch (type) {
-      case $$(id, RunActions.SetDefaultSize):
-        return {...state, defaultOfrSize: data, defaultBidSize: data};
-      case $$(id, RunActions.RemoveOrder):
-        return removeOrder(state, data);
-      case $$(id, RunActions.UpdateDefaultBidQty):
-        return {...state, defaultBidSize: data};
-      case $$(id, RunActions.UpdateDefaultOfrQty):
-        return {...state, defaultOfrSize: data};
-      case $$(id, RunActions.UpdateBid):
-        return updateOrder(state, data, 'bid');
-      case $$(id, RunActions.UpdateOfr):
-        return updateOrder(state, data, 'ofr');
-      case $$(id, RunActions.SetTable):
-        return {...state, orders: data, originalOrders: data};
-      case $$(id, RunActions.OfrQtyChanged):
-        return updateQty(state, data, 'ofr');
-      case $$(id, RunActions.BidQtyChanged):
-        return updateQty(state, data, 'bid');
-      case $$(id, RunActions.RemoveAllBids):
-        return removeAll(state, 'bid');
-      case $$(id, RunActions.RemoveAllOfrs):
-        return removeAll(state, 'ofr');
-      case $$(id, RunActions.Bid):
-        return valueChangeReducer(state, {type: RunActions.Bid, data});
-      case $$(id, RunActions.Ofr):
-        return valueChangeReducer(state, {type: RunActions.Ofr, data});
-      case $$(id, RunActions.Mid):
-        return valueChangeReducer(state, {type: RunActions.Mid, data});
-      case $$(id, RunActions.Spread):
-        return valueChangeReducer(state, {type: RunActions.Spread, data});
-      case $$(id, RunActions.ActivateRow):
-        return activateRow(state, data);
-      case $$(id, RunActions.DeactivateAllOrders):
-        return deactivateAll(state, data);
-      case $$(id, RunActions.ActivateOrder):
-        return activateOrder(state, data);
-      case $$(id, RunActions.ResetOrder):
-        return resetOrder(state, data);
-      case $$(id, RunActions.ResetAll):
-        return {...initialState, orders: state.originalOrders, originalOrders: state.originalOrders};
-      default:
-        return state;
-    }
-  };
+export default (state: RunState, {type, data}: FXOAction<RunActions>): RunState => {
+  switch (type) {
+    case RunActions.SetLoadingStatus:
+      return {...state, isLoading: true};
+    case RunActions.SetDefaultSize:
+      return {...state, defaultOfrSize: data, defaultBidSize: data};
+    case RunActions.RemoveOrder:
+      return removeOrder(state, data);
+    case RunActions.UpdateDefaultBidSize:
+      return {...state, defaultBidSize: data};
+    case RunActions.UpdateDefaultOfrSize:
+      return {...state, defaultOfrSize: data};
+    case RunActions.UpdateBid:
+      return updateOrder(state, data, 'bid');
+    case RunActions.UpdateOfr:
+      return updateOrder(state, data, 'ofr');
+    case RunActions.SetTable:
+      return {...state, orders: data, isLoading: false};
+    case RunActions.OfrQtyChanged:
+      return updateQty(state, data, 'ofr');
+    case RunActions.BidQtyChanged:
+      return updateQty(state, data, 'bid');
+    case RunActions.RemoveAllBids:
+      return removeAll(state, 'bid');
+    case RunActions.RemoveAllOfrs:
+      return removeAll(state, 'ofr');
+    case RunActions.Bid:
+    case RunActions.Ofr:
+    case RunActions.Mid:
+    case RunActions.Spread:
+      return valueChangeReducer(state, {type, data});
+    case RunActions.ActivateRow:
+      return activateRow(state, data);
+    case RunActions.DeactivateAllOrders:
+      return deactivateAll(state, data);
+    case RunActions.ActivateOrder:
+      return activateOrder(state, data);
+    case RunActions.ResetAll:
+      return {
+        defaultOfrSize: 0,
+        defaultBidSize: 0,
+        orders: {},
+        isLoading: false,
+      };
+    default:
+      return state;
+  }
 };

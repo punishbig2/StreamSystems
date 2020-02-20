@@ -21,7 +21,6 @@ import {createAction, createWindowAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {Settings} from 'settings';
-import {toRunId} from 'utils';
 import {
   subscribeDarkPool,
   getSnapshot,
@@ -250,19 +249,17 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     [actions, hideRunWindow, symbol, personality],
   );
 
-  const runID = useMemo(() => toRunId(symbol.name, strategy), [symbol, strategy]);
   const runWindow = (): ReactElement | null => {
     return (
       <Run
-        id={runID}
         visible={state.runWindowVisible}
         symbol={symbol.name}
         strategy={strategy}
         tenors={tenors}
-        onClose={hideRunWindow}
-        onSubmit={bulkCreateOrders}
         defaultSize={symbol.defaultqty}
-        minimumSize={symbol.minqty}/>
+        minimumSize={symbol.minqty}
+        onClose={hideRunWindow}
+        onSubmit={bulkCreateOrders}/>
     );
   };
 

@@ -9,6 +9,10 @@ export const getOrderStatusClass = (
     classes.push('owned-by-broker');
   if ((status & OrderStatus.FullDarkPool) !== 0)
     classes.push('dark-pool');
+  if ((status & OrderStatus.HasMyOrder) !== 0)
+    classes.push('among');
+  if ((status & OrderStatus.HasMyOrder) === 0)
+    classes.push('not-among');
   if ((status & OrderStatus.Owned) !== 0)
     classes.push('owned');
   if ((status & OrderStatus.Active) !== 0)

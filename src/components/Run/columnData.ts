@@ -1,6 +1,5 @@
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {RunActions} from 'redux/reducers/runReducer';
 
 export interface QtyHeader {
   value: number;
@@ -22,7 +21,6 @@ export interface RunColumnData {
   focusNext: (target: HTMLInputElement, action?: string) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;
-  resetOrder: (rowID: string, orderType: OrderTypes) => void;
   minimumSize: number;
   defaultSize: number;
 }

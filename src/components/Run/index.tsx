@@ -1,50 +1,24 @@
 import createColumns from 'columns/run';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import reducer, {RunActions} from 'redux/reducers/runReducer';
+import reducer, {RunActions} from 'components/Run/reducer';
 import {Row} from 'components/Run/row';
 import {Table} from 'components/Table';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, OrderStatus} from 'interfaces/order';
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
-import {PodTable} from 'interfaces/podTable';
+import {Order} from 'interfaces/order';
+import {PodRow} from 'interfaces/podRow';
 import strings from 'locales';
-import React, {ReactElement, useEffect, useCallback} from 'react';
-import {toRunId} from 'utils';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import React, {ReactElement, useEffect, useReducer, Reducer} from 'react';
 import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
-import {$$} from 'utils/stringPaster';
-import {connect} from 'react-redux';
-import {ApplicationState} from 'redux/applicationState';
 import {RunState} from 'redux/stateDefs/runState';
-import {
-  updateOfr,
-  updateBid,
-  removeOrder,
-  setTable,
-  setOfrPrice,
-  setBidPrice,
-  setMid,
-  setSpread,
-  setBidQty,
-  setOfrQty,
-  setBidDefaultQty,
-  setOfrDefaultQty,
-  setDefaultSize,
-  activateRow,
-  onActivateOrder,
-  resetOrder,
-  deactivateAllOrders,
-} from 'redux/actions/runActions';
-import {dynamicStateMapper} from 'redux/dynamicStateMapper';
-import {injectNamedReducer, removeNamedReducer} from 'redux/store';
-import {Dispatch} from 'redux';
-import {compareTenors} from 'utils/dataGenerators';
-import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {FXOAction} from 'redux/fxo-action';
-import {createSymbolStrategyTenorListener} from 'orderEvents';
+import {createAction} from 'redux/actionCreator';
+import {useRunInitializer} from 'components/Run/hooks/useRunInitializer';
+import {createEmptyTable} from 'components/Run/helpers/createEmptyTablei';
+import {getSelectedOrders} from 'components/Run/helpers/getSelectedOrders';
+import {$$} from 'utils/stringPaster';
 
 interface OwnProps {
-  id: string;
+  visible: boolean;
   symbol: string;
   strategy: string;
   tenors: string[];
@@ -52,226 +26,53 @@ interface OwnProps {
   onSubmit: (entries: Order[]) => void;
   minimumSize: number;
   defaultSize: number;
-  visible: boolean;
 }
 
-interface DispatchProps {
-  setDefaultSize: (value: number) => FXOAction<RunActions>;
-  updateOfr: (value: any) => FXOAction<RunActions>;
-  updateBid: (value: any) => FXOAction<RunActions>;
-  removeOrder: (id: string) => FXOAction<RunActions>;
-  setTable: (order: PodTable) => FXOAction<RunActions>;
-  setBidPrice: (id: string, value: number | null) => FXOAction<RunActions>;
-  setOfrPrice: (id: string, value: number | null) => FXOAction<RunActions>;
-  setMid: (id: string, value: number | null) => FXOAction<RunActions>;
-  setSpread: (id: string, value: number | null) => FXOAction<RunActions>;
-  setBidQty: (id: string, value: number | null) => FXOAction<RunActions>;
-  setOfrQty: (id: string, value: number | null) => FXOAction<RunActions>;
-  setBidDefaultQty: (value: number | null) => FXOAction<RunActions>;
-  setOfrDefaultQty: (value: number | null) => FXOAction<RunActions>;
-  activateRow: (id: string) => FXOAction<RunActions>;
-  onActivateOrder: (rowID: string, orderType: OrderTypes) => FXOAction<RunActions>;
-  resetOrder: (rowID: string, orderType: OrderTypes) => FXOAction<RunActions>;
-  deactivateAllOrders: () => FXOAction<RunActions>;
-}
+type Props = OwnProps;
 
-const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps) => {
-  const actions: { [key: string]: any } = {
-    setDefaultSize: setDefaultSize(id),
-    updateOfr: updateOfr(id),
-    updateBid: updateBid(id),
-    removeOrder: removeOrder(id),
-    setTable: setTable(id),
-    setOfrPrice: setOfrPrice(id),
-    setBidPrice: setBidPrice(id),
-    setMid: setMid(id),
-    setSpread: setSpread(id),
-    setBidQty: setBidQty(id),
-    setOfrQty: setOfrQty(id),
-    setBidDefaultQty: setBidDefaultQty(id),
-    setOfrDefaultQty: setOfrDefaultQty(id),
-    activateRow: activateRow(id),
-    onActivateOrder: onActivateOrder(id),
-    resetOrder: resetOrder(id),
-    deactivateAllOrders: deactivateAllOrders(id),
-  };
-  const entries: [string, any][] = Object.entries(actions);
-  return entries.reduce((obj, [name, value]) => {
-    return {
-      ...obj,
-      [name]: (...args: any[]) => {
-        dispatch(value(...args));
-      },
-    };
-  }, {}) as DispatchProps;
+const initialState: RunState = {
+  orders: {},
+  defaultOfrSize: 0,
+  defaultBidSize: 0,
+  isLoading: false,
 };
 
-const withRedux = connect(
-  dynamicStateMapper<RunState, OwnProps, ApplicationState>(),
-  mapDispatchToProps,
-);
-
-type Props = RunState & OwnProps & DispatchProps;
-
 const Run: React.FC<Props> = (props: Props) => {
-  const {symbol, strategy, tenors, id} = props;
-  const {setDefaultSize, deactivateAllOrders, defaultSize, setTable} = props;
-  const setTableWrapper = useCallback((orders: PodTable) => setTable(orders), [setTable]);
-
-  const {updateOfr, updateBid, removeOrder} = props;
-
-  // Updates a single side of the depth
-  const onUpdate = useCallback((order: Order) => {
-    const id: string = $$(toRunId(order.symbol, order.strategy), order.tenor);
-    switch (order.type) {
-      case OrderTypes.Invalid:
-        break;
-      case OrderTypes.Ofr:
-        updateOfr({id, order});
-        break;
-      case OrderTypes.Bid:
-        updateBid({id, order});
-        break;
-      case OrderTypes.DarkPool:
-        break;
-    }
-  }, [updateBid, updateOfr]);
-
-  const onDelete = useCallback((id: string) => removeOrder(id), [removeOrder]);
-
-  let installOrderListeners: (orders: PodTable) => (any[] | (() => void)[]);
-  installOrderListeners = useCallback((orders: PodTable) => {
-    if (!orders)
-      return [];
-    const onUpdateWrapper = (order: Order) => {
-      if ((order.status & OrderStatus.Cancelled) !== 0 && (order.status & OrderStatus.RunOrder) === 0)
-        return;
-      onUpdate(order);
-    };
-    const onDeleteWrapper = (order: Order) => onDelete(order.orderId as string);
-    return Object.values(orders)
-      .map((row: PodRow) => {
-        const {tenor} = row;
-        const listeners: (() => void)[] = [
-          createSymbolStrategyTenorListener(symbol, strategy, tenor, 'CANCEL', onDeleteWrapper),
-          createSymbolStrategyTenorListener(symbol, strategy, tenor, PodTileActions.UpdateOrder, onUpdateWrapper),
-        ];
-        return () => {
-          listeners.forEach((fn: () => void) => fn());
-        };
-      });
-  }, [onDelete, onUpdate, strategy, symbol]);
-
-  const initialize = useCallback((): (() => void)[] => {
-    const {email} = getAuthenticatedUser();
-    const rows: PodRow[] = tenors.map((tenor: string) => {
-      const getEntry = (type: OrderTypes) => {
-        return new Order(tenor, symbol, strategy, email, defaultSize, type);
-      };
-      const bid: Order = getEntry(OrderTypes.Bid);
-      const ofr: Order = getEntry(OrderTypes.Ofr);
-      return {
-        id: $$(toRunId(symbol, strategy), tenor),
-        tenor: tenor,
-        bid: bid,
-        ofr: ofr,
-        mid:
-          bid.price !== null && ofr.price !== null
-            ? (Number(bid.price) + Number(ofr.price)) / 2
-            : null,
-        spread:
-          bid.price !== null && ofr.price !== null
-            ? Number(ofr.price) - Number(bid.price)
-            : null,
-        darkPrice: null,
-        status: TOBRowStatus.Normal,
-      };
-    });
-    const table = rows
-      .sort(compareTenors)
-      .reduce((table: PodTable, row: PodRow) => {
-        table[row.id] = row;
-        return table;
-      }, {});
-    setTableWrapper(table);
-    setDefaultSize(defaultSize);
-    deactivateAllOrders();
-    return installOrderListeners(table);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategy, symbol, tenors]);
+  const {symbol, strategy, tenors, defaultSize, minimumSize, visible} = props;
+  const [state, dispatch] = useReducer<Reducer<RunState, FXOAction<RunActions>>>(reducer, initialState);
+  const {orders} = state;
 
   useEffect(() => {
-    injectNamedReducer(id, reducer);
-    const cleaners: (() => void)[] = initialize();
-    return () => {
-      removeNamedReducer(id);
-      cleaners.forEach(fn => fn());
-    };
-  }, [id, initialize]);
+    // Very initial initialization ... this runs even when not visible
+    // to pre-populate the table
+    dispatch(createAction<RunActions>(RunActions.SetTable, createEmptyTable(symbol, strategy, tenors)));
+  }, [symbol, strategy, tenors]);
+
+  useRunInitializer(tenors, symbol, strategy, visible, dispatch);
+  useEffect(() => {
+    dispatch(createAction<RunActions>(RunActions.SetDefaultSize, defaultSize));
+  }, [defaultSize]);
 
   const activateOrders = (row: PodRow) => {
-    props.activateRow(row.id);
+    dispatch(createAction<RunActions>(RunActions.ActivateRow, row.id));
   };
 
   const activateCancelledOrders = () => {
-    if (!props.orders)
+    if (!orders)
       return;
-    const orders: PodRow[] = Object.values(props.orders);
-    orders.forEach(activateOrders);
-  };
-
-  const getSelectedOrders = (): Order[] => {
-    if (!props.orders)
-      return [];
-    const rows: PodRow[] = Object.values(props.orders)
-      .filter((row: PodRow) => {
-        const {bid, ofr} = row;
-        if (bid.price === null && ofr.price === null)
-          return false;
-        if (bid.price === null || ofr.price === null)
-          return true;
-        return bid.price < ofr.price;
-      });
-    const ownOrDefaultQty = (order: Order, fallback: number | null): number => {
-      const quantityEdited = (order.status & OrderStatus.QuantityEdited) !== 0;
-      const canceled = (order.status & OrderStatus.Cancelled) !== 0;
-      const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
-      if (quantityEdited || (preFilled && !canceled))
-        return order.size as number;
-      if (canceled && fallback !== props.defaultSize)
-        return fallback as number;
-      if (fallback === undefined || fallback === null)
-        return props.defaultSize;
-      return fallback as number;
-    };
-    const orders: Order[] = [
-      ...rows.map(({bid}: PodRow) => ({
-        ...bid,
-        size: ownOrDefaultQty(bid, props.defaultSize),
-      })),
-      ...rows.map(({ofr}: PodRow) => ({
-        ...ofr,
-        size: ownOrDefaultQty(ofr, props.defaultSize),
-      })),
-    ];
-    return orders.filter((order: Order) => {
-      if (order.price === null || order.size === null)
-        return false;
-      return !((order.status & OrderStatus.QuantityEdited) === 0 && (order.status & OrderStatus.PriceEdited) === 0);
-    });
+    const values: PodRow[] = Object.values(orders);
+    values.forEach(activateOrders);
   };
 
   const isSubmitEnabled = () => {
-    const selection: Order[] = getSelectedOrders();
+    const selection: Order[] = getSelectedOrders(orders, defaultSize);
+    // Check if selection is not empty
     return selection.length > 0;
   };
 
   const onSubmit = () => {
-    props.onSubmit(getSelectedOrders());
+    props.onSubmit(getSelectedOrders(orders, defaultSize));
   };
-
-  if (props.orders === {})
-    return <div>Loading&hellip;</div>;
 
   const renderRow = (props: any, index?: number): ReactElement | null => {
     const {row} = props;
@@ -287,26 +88,37 @@ const Run: React.FC<Props> = (props: Props) => {
 
   // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number | null) => props.setBidPrice(id, value),
-    onOfrChanged: (id: string, value: number | null) => props.setOfrPrice(id, value),
-    onMidChanged: (id: string, value: number | null) => props.setMid(id, value),
-    onSpreadChanged: (id: string, value: number | null) => props.setSpread(id, value),
-    onBidQtyChanged: (id: string, value: number | null) => props.setBidQty(id, value),
-    onOfrQtyChanged: (id: string, value: number | null) => props.setOfrQty(id, value),
-    onActivateOrder: (id: string, orderType: OrderTypes) => props.onActivateOrder(id, orderType),
-    resetOrder: (id: string, orderType: OrderTypes) => props.resetOrder(id, orderType),
+    onBidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Bid, {id, value})),
+    onOfrChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Ofr, {id, value})),
+    onMidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Mid, {id, value})),
+    onSpreadChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Spread, {
+      id,
+      value,
+    })),
+    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.BidQtyChanged, {
+      id,
+      value,
+    })),
+    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.OfrQtyChanged, {
+      id,
+      value,
+    })),
+    onActivateOrder: (rowID: string, type: OrderTypes) => dispatch(createAction<RunActions>(RunActions.ActivateOrder, {
+      rowID,
+      type,
+    })),
     defaultBidSize: {
-      value: props.defaultBidSize,
-      onChange: props.setBidDefaultQty,
+      value: state.defaultBidSize,
+      onChange: (value: number | null) => dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, value)),
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
-      value: props.defaultOfrSize,
-      onChange: props.setOfrDefaultQty,
+      value: state.defaultOfrSize,
+      onChange: (value: number | null) => dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, value)),
       type: OrderTypes.Ofr,
     },
-    defaultSize: props.defaultSize,
-    minimumSize: props.minimumSize,
+    defaultSize: defaultSize,
+    minimumSize: minimumSize,
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
@@ -324,6 +136,7 @@ const Run: React.FC<Props> = (props: Props) => {
       }
     },
     focusNext: (target: HTMLInputElement, action?: string) => {
+      console.log(action);
       switch (action) {
         case RunActions.Bid:
           skipTabIndex(target, 1, 0);
@@ -337,7 +150,7 @@ const Run: React.FC<Props> = (props: Props) => {
         case RunActions.Mid:
           skipTabIndex(target, 4, 2);
           break;
-        case '1.size':
+        case $$('1', 'size'):
           skipTabIndexAll(target, 4, 2);
           break;
         default:
@@ -355,9 +168,15 @@ const Run: React.FC<Props> = (props: Props) => {
           <div className={'item'}>{props.strategy}</div>
         </div>
       </div>
-      <Table scrollable={false} columns={columns} rows={props.orders} renderRow={renderRow}/>
+      <Table scrollable={false}
+             columns={columns}
+             rows={orders}
+             renderRow={renderRow}
+             className={state.isLoading ? 'loading' : ''}/>
       <div className={'modal-buttons'}>
-        <button className={'pull-left'} onClick={activateCancelledOrders}>Activate All</button>
+        <button className={'pull-left'} onClick={activateCancelledOrders} disabled={state.isLoading}>
+          {strings.ActivateAll}
+        </button>
         <div className={'pull-right'}>
           <button className={'cancel'} onClick={props.onClose}>
             {strings.Close}
@@ -371,6 +190,5 @@ const Run: React.FC<Props> = (props: Props) => {
   );
 };
 
-const run = withRedux(Run);
-export {run as Run};
+export {Run};
 

@@ -164,6 +164,13 @@
           line-height: $title-bar-height / 2;
         }
 
+        .ccy-group {
+          display: inline-block;
+          font-size: 14px;
+          font-weight: 600;
+          margin: 0 12px;
+        }
+
         h1 {
           font-size: 14px;
           margin: 0;
