@@ -4,14 +4,13 @@ import {AsyncAction} from 'redux/asyncAction';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {defaultWindowState, WindowState} from 'redux/stateDefs/windowState';
-import {removeNamedReducer, DummyAction} from 'redux/store';
+import {DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
 import {FXOAction} from 'redux/fxo-action';
 import shortid from 'shortid';
 
 export const removeWindow = (workspaceID: string, windowID: string): FXOAction<string> => {
   FXOptionsDB.removeWindow(workspaceID, windowID);
-  removeNamedReducer(windowID);
   return createWorkspaceAction(workspaceID, WorkspaceActions.RemoveWindow, windowID);
 };
 

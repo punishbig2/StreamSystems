@@ -374,7 +374,7 @@ export class API {
     const request = {
       MsgType: MessageTypes.F,
       User: currentUser.email,
-      MDMkt: personality === 'None' ? undefined : personality,
+      MDMkt: personality === STRM ? undefined : personality,
       TransactTime: getCurrentTime(),
     };
     return post<MessageResponse>(

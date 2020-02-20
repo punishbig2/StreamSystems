@@ -1,8 +1,4 @@
 import {HubConnection, HubConnectionState} from '@microsoft/signalr';
-import {API} from 'API';
-import {ExecTypes, Message, DarkPoolMessage} from 'interfaces/message';
-import {Sides} from 'interfaces/order';
-import {W} from 'interfaces/w';
 import {
   combineReducers,
   createStore,
@@ -19,7 +15,6 @@ import {createAction, createWorkspaceAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 // Special action types
 import {AsyncAction} from 'redux/asyncAction';
-import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 // Action enumerators
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
@@ -32,19 +27,11 @@ import executionsReducer from 'redux/reducers/executionsReducer';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {SignalRAction} from 'redux/signalRAction';
 // Websocket action parsers/converters
-import {handlers} from 'utils/messageHandler';
-import {$$} from 'utils/stringPaster';
 import {FXOptionsDB} from 'fx-options-db';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {manualToRowID, toRunId} from 'utils';
-import {RunActions} from 'components/Run/reducer';
-import {RowActions} from 'redux/reducers/rowReducer';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
-import {FXOAction} from 'redux/fxo-action';
 import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 import {WindowState} from 'redux/stateDefs/windowState';
-
-const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
 const dynamicReducers: { [name: string]: Reducer<any, Action> } = {};
 // Build the reducer from the fixed and dynamic reducers
@@ -85,39 +72,8 @@ const hydrate = async (dispatch: Dispatch<any>) => {
   return Promise.all(promises);
 };
 
-type NamedReducerCreator = (name: string, initialState: any) => Reducer<any, FXOAction>;
-export const injectNamedReducer = (name: string, createNamedReducer: NamedReducerCreator, initialState: any = {}) => {
-  if (dynamicReducers.hasOwnProperty(name)) {
-    console.warn(
-      'creating the reducer more than once seems to me like a bug: `' +
-      name +
-      '\'',
-    );
-    // Simple don't do it because it already exists
-    return;
-  }
-  dynamicReducers[name] = createNamedReducer(name, initialState);
-  const finalReducer: Reducer<ApplicationState, Action> = createReducer(dynamicReducers);
-  // Replace the reducer
-  store.replaceReducer(finalReducer);
-};
-
-export const removeNamedReducer = <T>(name: string) => {
-  delete dynamicReducers[name];
-  // Replace the reducer
-  store.replaceReducer(createReducer(dynamicReducers));
-};
-
 const connectionManager: SignalRManager<Action> = SignalRManager.getInstance();
 export const DummyAction: Action = {type: '---not-valid---'};
-
-export const isOCOEnabled = (): boolean => {
-  const state: ApplicationState = store.getState();
-  if (!state)
-    return true;
-  const {profile} = state.userProfile;
-  return profile.oco;
-};
 
 const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
   let connection: HubConnection | null = null;
@@ -172,10 +128,10 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
 
-    const onUpdateMarketData = (data: W) => {
-      /*const type: string = `${data.Symbol}${data.Strategy}${data.Tenor}`;
+    /*const onUpdateMarketData = (data: W) => {
+      const type: string = `${data.Symbol}${data.Strategy}${data.Tenor}`;
       const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: data});
-      document.dispatchEvent(event);*/
+      document.dispatchEvent(event);
       const action: A | null = handlers.W<A>(data);
       if (action !== null && action !== DummyAction) {
         dispatch(action);
@@ -232,13 +188,13 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
       }
-    };
+    };*/
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);
-    connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
+    // connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
     connectionManager.setOnDisconnectedListener(onDisconnected);
-    connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
-    connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
+    // connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
+    // connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
     connectionManager.connect();
 
     hydrate(dispatch);

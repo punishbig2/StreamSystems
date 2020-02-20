@@ -7,6 +7,13 @@ import {TenorColumn} from 'columns/podColumns/tenorColumn';
 import {FirmColumn} from 'columns/podColumns/firmColumn';
 import {DarkPoolColumn} from 'columns/podColumns/darkPoolColumn';
 import {OrderTypes} from 'interfaces/mdEntry';
+import {API} from 'API';
+import {getSideFromType} from 'utils';
+
+const cancelAll = (type: OrderTypes, {symbol, strategy}: TOBColumnData) =>
+  () => {
+    API.cancelAll(symbol, strategy, getSideFromType(type));
+  };
 
 const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(data),
@@ -15,14 +22,16 @@ const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
     strings.BidPx,
     OrderTypes.Bid,
     depth,
-    !depth ? ((): ReactNode => <button onClick={data.onRefBidsButtonClicked}>{strings.RefBids}</button>) : undefined,
+    !depth ? ((): ReactNode => <button
+      onClick={cancelAll(OrderTypes.Bid, data)}>{strings.RefBids}</button>) : undefined,
   ),
   DarkPoolColumn(),
   OrderColumnWrapper(
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
-    !depth ? ((): ReactNode => <button onClick={data.onRefOfrsButtonClicked}>{strings.RefOfrs}</button>) : undefined,
+    !depth ? ((): ReactNode => <button
+      onClick={cancelAll(OrderTypes.Ofr, data)}>{strings.RefOfrs}</button>) : undefined,
   ),
   ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
 ];

@@ -12,6 +12,7 @@ import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import {Message, ExecTypes} from 'interfaces/message';
 import {OrderTypes} from 'interfaces/mdEntry';
+import {STRM} from 'redux/stateDefs/workspaceState';
 
 interface DispatchProps {
 }
@@ -91,7 +92,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     props.blotterType,
   );
   const columns: ColumnSpec[] = useMemo(() => {
-    return user.isbroker && props.personality === 'None'
+    return user.isbroker && props.personality === STRM
       ? columnsMap.broker
       : columnsMap.normal;
   }, [columnsMap.broker, columnsMap.normal, props.personality, user.isbroker]);

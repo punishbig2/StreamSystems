@@ -1,32 +1,21 @@
 import {API} from 'API';
-import {Order, OrderErrors, OrderMessage, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
-import {MessageResponse} from 'interfaces/messageResponse';
-import {TOBRowStatus} from 'interfaces/podRow';
-import {User} from 'interfaces/user';
-import {W, DarkPool} from 'interfaces/w';
-import {AnyAction} from 'redux';
+import {OrderStatus} from 'interfaces/order';
+import {W} from 'interfaces/w';
 import {createAction, createWindowAction} from 'redux/actionCreator';
 import {AsyncAction} from 'redux/asyncAction';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {SignalRAction} from 'redux/signalRAction';
-import {getSideFromType, toRowID, toRunId} from 'utils';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {emitUpdateOrderEvent, handlers} from 'utils/messageHandler';
+import {handlers} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {DummyAction} from 'redux/store';
 import {FXOptionsDB} from 'fx-options-db';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
-import {RunActions} from 'components/Run/reducer';
 import {RowActions} from 'redux/reducers/rowReducer';
 import {Currency} from 'interfaces/currency';
-import {OrderTypes} from 'interfaces/mdEntry';
 import {FXOAction} from 'redux/fxo-action';
 
 type FXOActionType = FXOAction<PodTileActions | string>;
-export const cancelDarkPoolOrder = (
-  id: string,
-  order: Order,
-): AsyncAction<any, FXOActionType> => {
+/*export const cancelDarkPoolOrder = (id: string, order: Order): AsyncAction<any, FXOActionType> => {
   const rowID: string = toRowID(order);
   const initialAction: AnyAction = createAction(
     $$(rowID, RowActions.CancellingOrder, DarkPool),
@@ -126,7 +115,7 @@ export const updateOrder = (id: string, order: Order): FXOAction<string> => {
   }
 };
 
-/*export const updateOrder = (id: string, order: Order): AsyncAction<any, FXOActionType> => {
+export const updateOrder = (id: string, order: Order): AsyncAction<any, FXOActionType> => {
   return new AsyncAction<any, FXOActionType>(async (): Promise<FXOActionType> => {
     const result = await API.updateOrder(order);
     if (result.Status === 'Success') {
@@ -135,7 +124,7 @@ export const updateOrder = (id: string, order: Order): FXOAction<string> => {
       return createAction($$(id, PodTileActions.OrderNotUpdated));
     }
   }, createAction($$(id, PodTileActions.UpdatingOrder)));
-};*/
+};
 
 export const setRowStatus = (id: string, order: Order, status: TOBRowStatus): FXOAction<string> => {
   return createAction($$(toRowID(order), RowActions.SetRowStatus), status);
@@ -181,7 +170,7 @@ export const createOrder = (id: string, personality: string, order: Order, minim
     }
   };
   return new AsyncAction<any, FXOActionType>(handler, initialAction);
-};
+};*/
 
 export const getDarkPoolSnapshot = (id: string, symbol: string, strategy: string, tenor: string): AsyncAction<any, FXOActionType> => {
   const rowID: string = $$('__ROW', tenor, symbol, strategy);

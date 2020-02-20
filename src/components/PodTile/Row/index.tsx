@@ -46,6 +46,7 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
         return;
       const signalRManager: SignalRManager = SignalRManager.getInstance();
       const onNewWMessage = (w: W) => {
+        console.log(w);
         const row: PodRow = toPodRow(w);
         const {bid, ofr} = row;
         // FIXME: the run window should be independent probably

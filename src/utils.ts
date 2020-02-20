@@ -1,24 +1,5 @@
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order, Sides} from 'interfaces/order';
-import {StrategyType, SymbolType, TenorType} from 'interfaces/w';
-import {$$} from 'utils/stringPaster';
-
-export const toRowID = (order: Order) => $$('__ROW', order.uid());
-export const manualToRowID = (
-  tenor: TenorType,
-  symbol: SymbolType,
-  strategy: StrategyType,
-) => {
-  return $$('__ROW', tenor, symbol, strategy);
-};
-
-/*export const toRowID = (tenor: TenorType, symbol: SymbolType, strategy: StrategyType): string => {
-  return $$('__ROW', tenor, symbol, strategy);
-};*/
-
-export const toRunId = (symbol: SymbolType, strategy: StrategyType): string => {
-  return $$('__RUN', strategy, symbol);
-};
+import {Sides} from 'interfaces/order';
 
 export const getSideFromType = (type: OrderTypes): Sides => {
   switch (type) {

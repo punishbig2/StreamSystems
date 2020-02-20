@@ -6,12 +6,11 @@ import {createColumnData} from 'components/PodTile/createColumnData';
 import {TOBColumnData} from 'components/PodTile/data';
 import {useDepthEmitter} from 'components/PodTile/hooks/useDepthEmitter';
 import {useInitializer} from 'components/PodTile/hooks/useInitializer';
-import {useSubscriber} from 'components/PodTile/hooks/useSubscriber';
 import {DispatchProps, OwnProps, Props} from 'components/PodTile/props';
 import {ActionTypes, reducer, State} from 'components/PodTile/reducer';
 import {Row} from 'components/PodTile/Row';
 import {PodTileTitle} from 'components/PodTile/title';
-import {Order, Sides, OrderStatus, DarkPoolOrder} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {SettingsContext} from 'main';
@@ -21,27 +20,11 @@ import {createAction, createWindowAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowState} from 'redux/stateDefs/windowState';
 import {Settings} from 'settings';
-import {
-  subscribeDarkPool,
-  getSnapshot,
-  getDarkPoolSnapshot,
-  cancelAll,
-  updateOrder,
-  getRunOrders,
-  setRowStatus,
-  publishDarkPoolPrice,
-  createDarkPoolOrder,
-  createOrder,
-  cancelOrder,
-  setStrategy,
-  setSymbol,
-  cancelDarkPoolOrder,
-} from 'redux/actions/podTileActions';
+import {setStrategy, setSymbol} from 'redux/actions/podTileActions';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
-import {DarkPoolTicket, DarkPoolTicketData} from 'components/DarkPoolTicket';
-import {priceFormatter} from 'utils/priceFormatter';
 import {Currency} from 'interfaces/currency';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
+import {API} from 'API';
 
 const mapStateToProps: MapStateToProps<WindowState, OwnProps, ApplicationState> =
   ({workarea: {workspaces}}: ApplicationState, ownProps: OwnProps) => {
@@ -76,82 +59,30 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     () => ({
       initialize: (rows: { [tenor: string]: PodRow }) =>
         reduxDispatch(createWindowAction(props.workspaceID, id, PodTileActions.Initialize, rows)),
-      subscribeDarkPool: (symbol: string, strategy: string, tenor: string) =>
-        reduxDispatch(subscribeDarkPool(symbol, strategy, tenor)),
-      createOrder: (order: Order, personality: string, minimumSize: number) => {
-        return reduxDispatch(createOrder(id, personality, order, minimumSize));
-      },
       setStrategy: (value: string) => reduxDispatch(setStrategy(props.workspaceID, id, value)),
       setSymbol: (value: string) => reduxDispatch(setSymbol(props.workspaceID, id, symbols.find((s: Currency) => s.name === value))),
-      cancelOrder: (order: Order) => reduxDispatch(cancelOrder(id, order)),
-      getSnapshot: (symbol: string, strategy: string, tenor: string) =>
-        reduxDispatch(getSnapshot(id, symbol, strategy, tenor)),
-      getDarkPoolSnapshot: (
-        symbol: string,
-        strategy: string,
-        tenor: string,
-      ) => reduxDispatch(getDarkPoolSnapshot(id, symbol, strategy, tenor)),
-      getRunOrders: (symbol: string, strategy: string) =>
-        reduxDispatch(getRunOrders(id, symbol, strategy)),
-      cancelAll: (symbol: string, strategy: string, side: Sides) =>
-        reduxDispatch(cancelAll(id, symbol, strategy, side)),
-      updateOrder: (order: Order) => reduxDispatch(updateOrder(id, order)),
-      setRowStatus: (order: Order, status: TOBRowStatus) =>
-        reduxDispatch(setRowStatus(id, order, status)),
-      publishDarkPoolPrice: (
-        symbol: string,
-        strategy: string,
-        tenor: string,
-        price: number,
-      ) =>
-        reduxDispatch(
-          publishDarkPoolPrice(id, symbol, strategy, tenor, price),
-        ),
-      onDarkPoolDoubleClicked: (
-        tenor: string,
-        price: number,
-        currentOrder: Order | null,
-      ) =>
-        setDarkPoolTicket({
-          tenor,
-          price,
-          currentOrder,
-        }),
-      createDarkPoolOrder: (order: DarkPoolOrder, personality: string) =>
-        reduxDispatch(createDarkPoolOrder(order, personality)),
-      cancelDarkPoolOrder: (order: Order) =>
-        reduxDispatch(cancelDarkPoolOrder(id, order)),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // updateOrder: (order: Order) => reduxDispatch(updateOrder(id, order)),
+      setRowStatus: (order: Order, status: TOBRowStatus) => {
+        console.log('set row status ignore');
+        // reduxDispatch(setRowStatus(id, order, status))
+      },
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [id],
   );
 
   // Internal temporary reducer actions
-  const setCurrentTenor = useCallback(
-    (tenor: string | null) =>
+  const setCurrentTenor = useCallback((tenor: string | null) =>
       dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)),
-    [],
-  );
-  const setOrderTicket = useCallback(
-    (ticket: Order | null) =>
+    []);
+
+  const setOrderTicket = useCallback((ticket: Order | null) =>
       dispatch(createAction(ActionTypes.SetOrderTicket, ticket)),
-    [],
-  );
-  const setDarkPoolTicket = useCallback(
-    (price: DarkPoolTicketData | null) =>
-      dispatch(createAction(ActionTypes.SetDarkPoolTicket, price)),
-    [],
-  );
-  const insertDepth = useCallback(
-    (data: any) =>
+    []);
+
+  const insertDepth = useCallback((data: any) =>
       dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
-    [],
-  );
-  const showRunWindow = useCallback(
-    () => dispatch(createAction(ActionTypes.ShowRunWindow)),
-    [],
-  );
+    []);
+  const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
   const hideRunWindow = useCallback(
     () => dispatch(createAction(ActionTypes.HideRunWindow)),
     [],
@@ -167,17 +98,6 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   useDepthEmitter(tenors, symbol.name, strategy, insertDepth);
   // Initialize tile/window
   useInitializer(tenors, email, actions.initialize);
-  // Subscribe to signal-r
-  useSubscriber(
-    rows,
-    connected,
-    symbol.name,
-    strategy,
-    actions.subscribeDarkPool,
-    actions.getSnapshot,
-    actions.getDarkPoolSnapshot,
-    actions.getRunOrders,
-  );
   // Handler methods
   const data: TOBColumnData = useMemo(() => {
     return createColumnData(
@@ -204,32 +124,6 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     user,
     personality,
   ]);
-  const renderDarkPoolTicket = () => {
-    if (state.darkPoolTicket === null) return <div/>;
-    const ticket: DarkPoolTicketData = state.darkPoolTicket;
-    const onSubmit = (order: DarkPoolOrder) => {
-      if (ticket.currentOrder !== null) {
-        const order: Order = ticket.currentOrder;
-        if ((order.status & OrderStatus.Owned) !== 0) {
-          actions.cancelDarkPoolOrder(ticket.currentOrder);
-        }
-      }
-      actions.createDarkPoolOrder(order, personality);
-      setDarkPoolTicket(null);
-    };
-    const {defaultSize} = data;
-    return (
-      <DarkPoolTicket
-        onSubmit={onSubmit}
-        onCancel={() => setDarkPoolTicket(null)}
-        price={priceFormatter(ticket.price)}
-        size={defaultSize.toString()}
-        tenor={ticket.tenor}
-        strategy={strategy}
-        symbol={symbol.name}
-        user={user.email}/>
-    );
-  };
 
   const bulkCreateOrders = useCallback(
     (entries: Order[]) => {
@@ -237,13 +131,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       hideRunWindow();
       // Create the orders
       entries.forEach((order: Order) => {
-        if (
-          (order.status & OrderStatus.PreFilled) !== 0 ||
-          (order.status & OrderStatus.Active) !== 0
-        ) {
-          actions.cancelOrder(order);
-        }
-        actions.createOrder(order, personality, symbol.minqty);
+        API.createOrder(order, personality, symbol.minqty);
       });
     },
     [actions, hideRunWindow, symbol, personality],
@@ -328,7 +216,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         strategy={strategy}
         symbols={symbols}
         products={products}
-        runsDisabled={!symbol || !strategy}
+        runsDisabled={!symbol || !strategy || (props.personality === STRM && user.isbroker)}
         connected={connected}
         setStrategy={(value: string) => actions.setStrategy(value)}
         setSymbol={(value: string) => actions.setSymbol(value)}
@@ -345,9 +233,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         <div className={'depth-table'}>{getDepthTable()}</div>
       </div>
 
-      <ModalWindow
-        render={renderDarkPoolTicket}
-        visible={state.darkPoolTicket !== null}/>
+
       <ModalWindow
         render={runWindow}
         visible={state.runWindowVisible}

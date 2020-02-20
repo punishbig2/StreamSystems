@@ -177,10 +177,13 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  private onUpdateDarkPoolPx = (message: string) => {
-    if (this.onUpdateDarkPoolPxListener) {
-      this.onUpdateDarkPoolPxListener(JSON.parse(message));
-    }
+  private onUpdateDarkPoolPx = (rawMessage: string) => {
+    const message: DarkPoolMessage = JSON.parse(rawMessage);
+    const type: string = $$(message.Symbol, message.Strategy, message.Tenor, 'DpPx');
+    document.dispatchEvent(new CustomEvent(type, {detail: message}));
+    /*if (this.onUpdateDarkPoolPxListener) {
+      this.onUpdateDarkPoolPxListener(message);
+    }*/
   };
 
   public setOnUpdateDarkPoolPxListener = (
@@ -248,5 +251,22 @@ export class SignalRManager<A extends Action = AnyAction> {
       throw new Error('you are not connected to signal R, this should never happen');
     }
   }
+
+  public addDarkPoolPxListener = (symbol: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
+    const {connection} = this;
+    const type: string = $$(symbol, strategy, tenor, 'DpPx');
+    const listenerWrapper = (event: CustomEvent<DarkPoolMessage>) => {
+      fn(event.detail);
+    };
+    document.addEventListener(type, listenerWrapper as EventListener);
+    if (connection !== null && connection.state === HubConnectionState.Connected) {
+      connection.invoke(SignalRActions.SubscribeForDarkPoolPx, symbol, strategy, tenor);
+      return () => {
+        document.removeEventListener(type, listenerWrapper as EventListener);
+        connection.invoke(SignalRActions.UnsubscribeForDarkPoolPx, symbol, strategy, tenor);
+      };
+    }
+    return () => null;
+  };
 }
 
