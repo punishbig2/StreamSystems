@@ -232,10 +232,17 @@ export class SignalRManager<A extends Action = AnyAction> {
         // Now get the "snapshots"
         API.getTOBSnapshot(symbol, strategy, tenor)
           .then((w: W | null) => {
-            if (w === null)
-              return;
-            SignalRManager.addToCache(w);
-            this.emitPodWEvent({...w, '9712': 'TOB'});
+            if (w === null) {
+              this.emitPodWEvent({
+                Tenor: tenor,
+                Strategy: strategy,
+                Symbol: symbol,
+                '9712': 'TOB',
+              } as W);
+            } else {
+              SignalRManager.addToCache(w);
+              this.emitPodWEvent({...w, '9712': 'TOB'});
+            }
           });
         API.getSnapshot(symbol, strategy, tenor)
           .then((w: W | null) => {
