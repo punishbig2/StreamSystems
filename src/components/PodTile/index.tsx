@@ -134,7 +134,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       entries.forEach((order: Order) => {
         const allMyOrders: Order[] = SignalRManager.getOrdersForUser(user.email);
         const matchingOrder: Order | undefined = allMyOrders.find((other: Order) => {
-          return other.uid() === order.uid();
+          return other.uid() === order.uid() && other.type === order.type;
         });
         if (matchingOrder) {
           API.cancelOrder(matchingOrder);
@@ -166,7 +166,6 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   const renderRow = (rowProps: any, index?: number): ReactElement => {
     const {symbol, strategy} = props;
     const {row, ...childProps} = rowProps;
-    console.log(row, childProps);
     return (
       <Row {...childProps}
            aggregatedSize={state.aggregatedSize}

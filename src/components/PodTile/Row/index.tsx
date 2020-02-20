@@ -48,6 +48,8 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
       const signalRManager: SignalRManager = SignalRManager.getInstance();
       const onNewWMessage = async (w: W) => {
         const row: PodRow = toPodRow(w);
+        if (w.Tenor === '1M')
+          console.log(w);
         // Update the dark price
         row.darkPrice = await FXOptionsDB.getDarkPool($$(symbol, strategy, tenor));
         // Update us

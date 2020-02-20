@@ -36,7 +36,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
 
-  private static dispatchedWs: string[] = [];
+  private static dispatchedWs: {[key: string]: W} = {};
   private static orderCache: { [id: string]: Order } = {};
 
   private static instance: SignalRManager | null = null;
@@ -127,17 +127,11 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  private static x: {[key: string]: W} = {};
   private static isCollapsedW = (w: W): boolean => {
-    // const dispatched = SignalRManager.dispatchedWs;
     const cacheKey: string = $$(w.Symbol, w.Strategy, w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
-    if (SignalRManager.x[cacheKey] !== undefined && deepEqual(w, SignalRManager.x[cacheKey]))
+    if (SignalRManager.dispatchedWs[cacheKey] !== undefined && deepEqual(w, SignalRManager.dispatchedWs[cacheKey]))
       return true;
-    SignalRManager.x[cacheKey] = w;
-    // dispatched.unshift(cacheKey);
-    // update it
-    // dispatched.splice(100, dispatched.length - 100);
-    // We have not collapsed it yet
+    SignalRManager.dispatchedWs[cacheKey] = w;
     return false;
   };
 
