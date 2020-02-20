@@ -127,6 +127,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   private static isCollapsedW = (w: W): boolean => {
+    return false;
     const dispatched = SignalRManager.dispatchedWs;
     const cacheKey: string = $$(w.Symbol, w.Strategy, w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
     if (dispatched.includes(cacheKey))
