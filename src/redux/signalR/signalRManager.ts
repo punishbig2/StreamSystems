@@ -94,15 +94,26 @@ export class SignalRManager<A extends Action = AnyAction> {
         console.log(error);
       });
       // Install update market handler
-      connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
-      connection.on('updateMarketData', this.onUpdateMarketData);
-      connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
+      connection.on('updateMessageBlotter', this.synchronize(this.onUpdateMessageBlotter));
+      connection.on('updateMarketData', this.synchronize(this.onUpdateMarketData));
+      connection.on('updateDarkPoolPx', this.synchronize(this.onUpdateDarkPoolPx));
     }
   };
 
+  /**
+   * Make these callbacks run exactly when they should, i.e. after all events have
+   * been processed in the corresponding tick of the clock
+   *
+   * @param fn
+   */
+  private synchronize = (fn: (...args: any[]) => any) =>
+    (...args: any[]) => {
+      setTimeout(() => fn(...args), 0);
+    };
+
   private onUpdateMessageBlotter = (message: string): void => {
     const data: Message = JSON.parse(message);
-    if (data.OrdStatus === ExecTypes.Canceled) {
+    if (data.OrdStatus === ExecTypes.Canceled || (data.OrdStatus === ExecTypes.Filled)) {
       const type: OrderTypes = (() => {
         switch (data.Side) {
           case '1':
@@ -117,13 +128,12 @@ export class SignalRManager<A extends Action = AnyAction> {
         const key: string = data.OrderID;
         // Remove the order from the cache
         delete SignalRManager.orderCache[key];
+      } else {
+        throw new Error('invalid orders cannot be cached, so no sense in removing them');
       }
     }
-    // Dispatch the action
     if (this.onUpdateMessageBlotterListener !== null) {
-      const fn: (message: Message) => void = this
-        .onUpdateMessageBlotterListener;
-      fn(data);
+      this.onUpdateMessageBlotterListener(data);
     }
   };
 

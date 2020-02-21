@@ -134,7 +134,7 @@ export const toPodRow = (w: W): PodRow => {
 };
 
 export const extractDepth = (w: W): PodTable => {
-  const entries: MDEntry[] = w.Entries;
+  const entries: MDEntry[] = w.Entries || [];
   const bids: MDEntry[] = entries.filter(
     (entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid,
   );

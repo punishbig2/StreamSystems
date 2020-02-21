@@ -7,6 +7,7 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 import {workspaceReducer} from 'redux/reducers/workspaceReducer';
 import {UserProfileActions, defaultProfile} from 'redux/reducers/userProfileReducer';
+import {getUserFromUrl} from 'utils/getUserFromUrl';
 
 const initialState: WorkareaState = {
   workspaces: {},
@@ -55,13 +56,12 @@ const renameWorkspace = (state: WorkareaState, {name, id}: WorkspaceState): Work
 
 const initialize = (state: WorkareaState, data: any): WorkareaState => {
   const {users, ...rest} = data;
-  const {location} = window;
-  const urlParameters: URLSearchParams = new URLSearchParams(location.search);
-  const email: string | null = urlParameters.get('user');
+  const email: string | null = getUserFromUrl();
   const user: User | undefined = users.find(
     (user: User): boolean => user.email === email,
   );
-  if (!user) return {...state, status: WorkareaStatus.UserNotFound};
+  if (!user)
+    return {...state, status: WorkareaStatus.UserNotFound};
   return {
     ...state,
     ...rest,

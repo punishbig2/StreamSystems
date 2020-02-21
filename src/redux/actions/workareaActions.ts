@@ -41,18 +41,8 @@ export const currencyToNumber = (value: string) => {
 export const loadMessages = (useremail: string): AsyncAction<AnyAction> => {
   const handler = async (): Promise<AnyAction[]> => {
     const currentDate: Date = new Date();
-    const since: Date = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      currentDate.getDate(),
-      0,
-      0,
-      0,
-    );
-    const messages: Message[] = await API.getMessagesSnapshot(
-      useremail,
-      since.getTime(),
-    );
+    const since: Date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
+    const messages: Message[] = await API.getMessagesSnapshot(useremail, since.getTime());
     if (messages === null) return [];
     return [
       createAction(
@@ -110,10 +100,10 @@ export const quit = () => {
 };
 
 export const subscribeToMessages = (email: string): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.SubscribeForMBMsg, [email]);
+  return new SignalRAction(SignalRActions.SubscribeForMBMsg, ['*']);
 };
 
 export const unsubscribeFromMessages = (email: string): SignalRAction<SignalRActions> => {
-  return new SignalRAction(SignalRActions.UnsubscribeForMBMsg, [email]);
+  return new SignalRAction(SignalRActions.UnsubscribeForMBMsg, ['*']);
 };
 
