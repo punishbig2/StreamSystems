@@ -33,7 +33,7 @@ export const PodTileTitle: React.FC<Props> = (props: Props): ReactElement => {
   return (
     <div className={'window-title-bar'}>
       <div className={'item'}>
-        <Select value={symbol} onChange={setSymbol} list={symbols} empty={'Symbol'}/>
+        <Select value={symbol} onChange={setSymbol} list={symbols} empty={'Currency'}/>
       </div>
       <div className={'item'}>
         <Select value={strategy} onChange={setStrategy} list={products} empty={'Strategy'}/>

@@ -8,13 +8,16 @@ interface Props {
 
 const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
   const className = props.visible ? 'visible' : 'hidden';
+  const container: HTMLElement | null = document.getElementById('modals');
+  if (container === null)
+    return null;
   return ReactDOM.createPortal(
     <div className={['modal-window-container', className].join(' ')}>
       <div className={['modal-window', className].join(' ')}>
         {props.render(props)}
       </div>
     </div>,
-    document.body,
+    container,
   );
 };
 

@@ -3,7 +3,7 @@ import React from 'react';
 import {currencyToNumber} from 'redux/actions/workareaActions';
 
 export default (sortable: boolean) => ({
-  name: 'Symbol',
+  name: 'Currency',
   template: 'Symbol',
   filterable: true,
   sortable: sortable,

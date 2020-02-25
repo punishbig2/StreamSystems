@@ -29,5 +29,8 @@ export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
       </div>
     </div>
   );
-  return element;
+  const container: HTMLElement | null = document.getElementById('tooltips');
+  if (container === null)
+    return null;
+  return ReactDOM.createPortal(element, container);
 };
