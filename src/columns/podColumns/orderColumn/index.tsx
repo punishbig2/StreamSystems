@@ -187,9 +187,9 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
               onSubmit={onSubmitSize}/>
   );
 
-  const depthOfTheBookTable = (
+  const depthOfTheBookTable = props.depths ? (
     <MiniDOB {...props} rows={getMiniDOBByType(props.depths, order.tenor, order.type)}/>
-  );
+  ) : undefined;
 
   const items: ReactElement[] = [
     <Price
@@ -201,7 +201,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       className={'pod'}
       readOnly={readOnly}
       arrow={order.arrowDirection}
-      tooltip={() => depthOfTheBookTable}
+      tooltip={depthOfTheBookTable ? () => depthOfTheBookTable : undefined}
       onDoubleClick={onDoubleClick}
       onSubmit={onSubmitPrice}
       onNavigate={onNavigate}/>,

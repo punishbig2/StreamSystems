@@ -38,12 +38,12 @@ export const PodTileTitle: React.FC<Props> = (props: Props): ReactElement => {
       <div className={'item'}>
         <Select value={strategy} onChange={setStrategy} list={products} empty={'Strategy'}/>
       </div>
-      <button onClick={props.onShowRunWindow} disabled={props.runsDisabled}>
-        {strings.Run}
-      </button>
       <div className={'ccy-group'}>
         {getGroup($$(symbol, strategy))}
       </div>
+      <button onClick={props.onShowRunWindow} disabled={props.runsDisabled}>
+        {strings.Run}
+      </button>
     </div>
   );
 };
