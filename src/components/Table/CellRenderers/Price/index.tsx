@@ -98,7 +98,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     };
   }, [state.tooltipVisible, ref, onMouseMove]);*/
 
-  const getTooltip = useCallback((): ReactElement | null => {
+  const getTooltip = (): ReactElement | null => {
     if (!tooltip || !tooltipVisible)
       return null;
     return (
@@ -106,7 +106,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         {typeof tooltip === 'function' ? tooltip({}) : tooltip}
       </Tooltip>
     );
-  }, [tooltip, tooltipVisible, target, hideTooltip]);
+  };
 
   const onChange = (value: string | null) => {
     if (value !== null) {

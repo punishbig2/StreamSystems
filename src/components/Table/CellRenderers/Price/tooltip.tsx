@@ -1,4 +1,4 @@
-import React, {ReactElement, PropsWithChildren, useEffect, useState} from 'react';
+import React, {ReactElement, PropsWithChildren, useEffect, useState, Children} from 'react';
 import ReactDOM from 'react-dom';
 
 interface OwnProps {
@@ -10,6 +10,7 @@ type Props = PropsWithChildren<OwnProps>;
 
 export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
   const [style, setStyle] = useState<any>({});
+  const children: any[] = Children.toArray(props.children);
   const {target} = props;
   useEffect(() => {
     if (target === null)
@@ -20,7 +21,7 @@ export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
       top: (bounds.bottom - 8) + 'px',
     });
   }, [target]);
-  if (target === null)
+  if (target === null || children.length === 0)
     return null;
   const element: ReactElement = (
     <div className={'tooltip'} style={style}>
