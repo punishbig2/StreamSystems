@@ -86,6 +86,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     } else if (order.type === OrderTypes.Bid) {
       dispatch(createAction<ActionTypes>(ActionTypes.SetSubmittedSize, state.editedSize));
     }
+
     if (order.isOwnedByCurrentUser() && (order.status & OrderStatus.PreFilled) !== 0) {
       // We fist cancel our current order
       await API.cancelOrder(order);
@@ -116,6 +117,8 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   function isInvertedMarket(price: number | null) {
     const otherType: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
     const allOrders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, otherType);
+    if (allOrders.length === 0)
+      return false;
     return allOrders.every((order: Order) => {
       if (price === null)
         return true;
