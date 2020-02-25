@@ -27,12 +27,12 @@ type OwnProps = {
   ofr: Order;
   bid: Order;
   type: OrderTypes;
-  aggregatedSize: any;
   isBroker: boolean;
   personality: string;
   isDepth: boolean;
   minimumSize: number;
   defaultSize: number;
+  onRowStatusChange: (status: PodRowStatus) => void;
 }
 
 const getPriceIfApplies = (order: Order | undefined): number | undefined => {
@@ -113,7 +113,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const onChangeSize = (value: string | null) => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, value));
   const resetSize = () => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, state.submittedSize));
 
-  function isValidPrice(price: number | null) {
+  function isInvertedMarket(price: number | null) {
     const otherType: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
     const allOrders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, otherType);
     return allOrders.every((order: Order) => {
@@ -130,8 +130,8 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   }
 
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
-    if (!isValidPrice(price)) {
-      dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, PodRowStatus.InvertedMarketsError));
+    if (!isInvertedMarket(price)) {
+      props.onRowStatusChange(PodRowStatus.InvertedMarketsError);
       return;
     }
     if (changed) {
@@ -169,7 +169,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       return state.editedSize;
     if (props.isDepth)
       return order.size;
-    return getAggregatedSize(props.aggregatedSize, order);
+    return getAggregatedSize(order);
   })();
 
   const sizeCell: ReactElement = (
@@ -223,10 +223,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       setOrderTicket(null);
     };
     return (
-      <OrderTicket
-        order={orderTicket}
-        onCancel={() => setOrderTicket(null)}
-        onSubmit={onSubmit}/>
+      <OrderTicket order={orderTicket} onCancel={() => setOrderTicket(null)} onSubmit={onSubmit}/>
     );
   };
 
@@ -237,3 +234,4 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     </div>
   );
 };
+

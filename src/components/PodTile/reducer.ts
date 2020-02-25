@@ -1,23 +1,12 @@
-import {Order} from 'interfaces/order';
-import {PodRow} from 'interfaces/podRow';
-import {PodTable} from 'interfaces/podTable';
 import {DarkPoolTicketData} from 'components/DarkPoolTicket';
-
-interface Aggregation {
-  bid: { [price: string]: number };
-  ofr: { [price: string]: number };
-}
-
-export type AggregatedSize = {
-  [key: string]: Aggregation;
-};
+import {Order} from 'interfaces/order';
+import {PodTable} from 'interfaces/podTable';
 
 export interface State {
   depths: { [key: string]: PodTable };
   tenor: string | null;
   orderTicket: Order | null;
   runWindowVisible: boolean;
-  aggregatedSize?: AggregatedSize;
   darkPoolTicket: DarkPoolTicketData | null;
 }
 
@@ -30,7 +19,7 @@ export enum ActionTypes {
   SetDarkPoolTicket
 }
 
-type Group = { [key: string]: number };
+/*type Group = { [key: string]: number };
 
 const coalesce = (value: number | null, fallback: number): number =>
   value === null ? fallback : value;
@@ -54,7 +43,7 @@ const collapse = (depth: any): Aggregation | undefined => {
     bid: bids.reduce(groupByPrice, {}),
     ofr: ofrs.reduce(groupByPrice, {}),
   };
-};
+};*/
 
 export const reducer = (state: State, {type, data}: { type: ActionTypes; data: any }): State => {
   switch (type) {
@@ -62,10 +51,10 @@ export const reducer = (state: State, {type, data}: { type: ActionTypes; data: a
       return {
         ...state,
         depths: {...state.depths, [data.tenor]: data.depth},
-        aggregatedSize: {
+        /*aggregatedSize: {
           ...state.aggregatedSize,
           [data.tenor]: collapse(data.depth),
-        },
+        },*/
       };
     case ActionTypes.ShowRunWindow:
       return {...state, runWindowVisible: true};

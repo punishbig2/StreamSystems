@@ -7,7 +7,7 @@ export interface State {
 }
 
 export enum ActionTypes {
-  SetRow, ReplaceOrder, StartLoading,
+  SetRow, ReplaceOrder, StartLoading, SetRowStatus
 }
 
 export const reducer = (state: State, action: FXOAction<ActionTypes>): State => {
@@ -27,6 +27,8 @@ export const reducer = (state: State, action: FXOAction<ActionTypes>): State => 
           ofr: {...ofr, status: ofr.status | OrderStatus.BeingLoaded},
         },
       };
+    case ActionTypes.SetRowStatus:
+      return {...state, internalRow: {...state.internalRow, status: action.data}};
     default:
       return state;
   }

@@ -1,13 +1,11 @@
 import {PodTable} from 'interfaces/podTable';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
-import {PodRow} from 'interfaces/podRow';
-import {AggregatedSize} from 'components/PodTile/reducer';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 
 export type PodRowProps = PodRow & {
   depths: { [key: string]: PodTable };
   personality: string;
-  aggregatedSize: { [key: string]: AggregatedSize };
   isBroker: boolean;
   defaultSize: number;
   minimumSize: number;
@@ -16,6 +14,7 @@ export type PodRowProps = PodRow & {
   strategy: string;
   // Event handlers
   onTenorSelected: (tenor: string) => void;
+  onRowStatusChange: (status: PodRowStatus) => void;
 };
 
 const getDepthStatus = (values: Order[]): OrderStatus => {

@@ -70,7 +70,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)),
     []);
 
- const insertDepth = useCallback((data: any) =>
+  const insertDepth = useCallback((data: any) =>
       dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
     []);
 

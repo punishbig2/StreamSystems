@@ -25,7 +25,6 @@ interface OwnProps {
   defaultSize: number;
   minimumSize: number;
   connected: boolean;
-  onError: (status: PodRowStatus) => void;
   onTenorSelected: (tenor: string) => void;
 
   [key: string]: any;
@@ -42,7 +41,12 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
   // Internal row object (it starts as a copy of the original object)
   const {internalRow} = state;
   const {status} = internalRow;
+
   const classes: string[] = ['tr'];
+
+  const onRowStatusChange = (status: PodRowStatus) => {
+    dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, status));
+  };
 
   useEffect(() => {
     if (connected) {
@@ -120,6 +124,7 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
       onError(status);
     }
   }, [onError, resetStatus, internalRow, status]);*/
+
   const functions: RowFunctions = {
     resetStatus: props.resetStatus,
   };
@@ -140,6 +145,7 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
                 render={column.render}
                 width={width}
                 colNumber={index}
+                onRowStatusChange={onRowStatusChange}
                 {...extra}
                 {...internalRow}
                 {...functions}/>

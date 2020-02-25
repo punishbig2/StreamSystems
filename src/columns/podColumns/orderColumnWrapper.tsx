@@ -27,7 +27,7 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
       );
     },
     render: (props: PodRowProps) => {
-      const pickOrderOrTop = (order: Order): Order => {
+      const pickMyOrderIfOnTopOrCurrentTop = (order: Order): Order => {
         const allOrders: Order[] = SignalRManager.getDepthOfTheBook(
           order.symbol, order.strategy, order.tenor, order.type,
         );
@@ -40,23 +40,24 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           return mine;
         return order;
       };
-      const bid: Order = pickOrderOrTop(props.bid);
-      const ofr: Order = pickOrderOrTop(props.ofr);
+      const bid: Order = pickMyOrderIfOnTopOrCurrentTop(props.bid);
+      const ofr: Order = pickMyOrderIfOnTopOrCurrentTop(props.ofr);
       return (
         <OrderColumn
           type={type}
           personality={props.personality}
-          aggregatedSize={props.aggregatedSize}
           isBroker={props.isBroker}
           bid={bid}
           ofr={ofr}
           depths={props.depths}
           defaultSize={props.defaultSize}
           minimumSize={props.minimumSize}
-          isDepth={isDepth}/>
+          isDepth={isDepth}
+          onRowStatusChange={props.onRowStatusChange}/>
       );
     },
     template: '99999 999999.999',
     weight: 12,
   };
 };
+
