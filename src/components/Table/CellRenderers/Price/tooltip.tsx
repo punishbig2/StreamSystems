@@ -1,18 +1,33 @@
-import React, {CSSProperties} from 'react';
+import React, {ReactElement, PropsWithChildren, useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 
-interface TooltipProps {
-  x: number;
-  y: number;
-  render: React.FC<any>;
+interface OwnProps {
+  target: HTMLDivElement | null;
+  onClose: () => void;
 }
 
-export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
-  const style: CSSProperties = {left: props.x + 16, top: props.y + 16};
-  const child = (
+type Props = PropsWithChildren<OwnProps>;
+
+export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
+  const [style, setStyle] = useState<any>({});
+  const {target} = props;
+  useEffect(() => {
+    if (target === null)
+      return;
+    const bounds: ClientRect = target.getBoundingClientRect();
+    setStyle({
+      left: (bounds.right - 8) + 'px',
+      top: (bounds.bottom - 8) + 'px',
+    });
+  }, [target]);
+  if (target === null)
+    return null;
+  const element: ReactElement = (
     <div className={'tooltip'} style={style}>
-      {props.render(0)}
+      <div className={'tooltip-content'}>
+        {props.children}
+      </div>
     </div>
   );
-  return ReactDOM.createPortal(child, document.body);
+  return element;
 };

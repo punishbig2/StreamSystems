@@ -12,7 +12,6 @@ import {Order, OrderStatus, Sides} from 'interfaces/order';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {createSymbolStrategyTenorListener, createSymbolStrategySideListener} from 'orderEvents';
-import {AggregatedSize} from 'components/PodTile/reducer';
 import {createRow} from 'components/PodTile/Row/helpers/emptyRowCreator';
 import {State, ActionTypes, reducer} from 'components/PodTile/Row/reducer';
 import {FXOptionsDB} from 'fx-options-db';
@@ -22,12 +21,12 @@ interface OwnProps {
   id: string;
   columns: ColumnSpec[];
   weight: number;
-  onError: (status: TOBRowStatus) => void;
   rowNumber: number;
-  aggregatedSize: { [key: string]: AggregatedSize };
   defaultSize: number;
   minimumSize: number;
   connected: boolean;
+  onError: (status: TOBRowStatus) => void;
+  onTenorSelected: (tenor: string) => void;
 
   [key: string]: any;
 }
@@ -36,10 +35,14 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
   const {id, columns, onError, resetStatus, ...extra} = props;
   // Three identifying props
   const {symbol, strategy, tenor, connected} = props;
+  // Internal row state
   const initialState: State = {internalRow: createRow(symbol, strategy, tenor)};
+  // Internal row reducer
   const [state, dispatch] = useReducer<Reducer<State, FXOAction<ActionTypes>>>(reducer, initialState);
+  // Internal row object (it starts as a copy of the original object)
   const {internalRow} = state;
   const {status} = internalRow;
+  const classes: string[] = ['tr'];
 
   useEffect(() => {
     if (connected) {
@@ -120,12 +123,13 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
   const functions: RowFunctions = {
     resetStatus: props.resetStatus,
   };
-  const classes: string[] = ['tr'];
+
   if (status === TOBRowStatus.Executed) {
     classes.push('executed');
   } else if (status !== TOBRowStatus.Normal) {
     classes.push('error');
   }
+
   return (
     <div className={classes.join(' ')} data-row-number={props.rowNumber}>
       {columns.map((column: ColumnSpec, index: number) => {

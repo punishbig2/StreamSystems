@@ -1,6 +1,5 @@
 import React, {ReactNode} from 'react';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {TOBColumnData} from 'components/PodTile/data';
 import strings from 'locales';
 import {OrderColumnWrapper} from 'columns/podColumns/orderColumnWrapper';
 import {TenorColumn} from 'columns/podColumns/tenorColumn';
@@ -9,10 +8,13 @@ import {DarkPoolColumn} from 'columns/podColumns/darkPoolColumn';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {API} from 'API';
 import {getSideFromType} from 'utils';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {User} from 'interfaces/user';
 
 interface RefButtonProps {
   type: OrderTypes;
-  data: TOBColumnData;
+  strategy: string;
+  symbol: string;
 }
 
 const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
@@ -20,31 +22,33 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
     [OrderTypes.Bid]: strings.RefBids,
     [OrderTypes.Ofr]: strings.RefOfrs,
   };
-  return <button onClick={cancelAll(props.type, props.data)}>{labels[props.type]}</button>;
+  return <button onClick={cancelAll(props.type, props.symbol, props.strategy)}>{labels[props.type]}</button>;
 };
 
-const cancelAll = (type: OrderTypes, {symbol, strategy}: TOBColumnData) =>
+const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>
   () => {
     API.cancelAll(symbol, strategy, getSideFromType(type));
   };
 
-const columns = (data: TOBColumnData, depth: boolean = false): ColumnSpec[] => [
-  TenorColumn(data),
-  ...(data.isBroker ? [FirmColumn(data, 'bid')] : []),
+const user: User = getAuthenticatedUser();
+
+const columns = (symbol: string, strategy: string, isBroker: boolean, depth: boolean = false): ColumnSpec[] => [
+  TenorColumn(),
+  ...(isBroker ? [FirmColumn('bid')] : []),
   OrderColumnWrapper(
     strings.BidPx,
     OrderTypes.Bid,
     depth,
-    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Bid} data={data}/>) : undefined,
+    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Bid} symbol={symbol} strategy={strategy}/>) : undefined,
   ),
   DarkPoolColumn(),
   OrderColumnWrapper(
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
-    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Ofr} data={data}/>) : undefined,
+    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Ofr} symbol={symbol} strategy={strategy}/>) : undefined,
   ),
-  ...(data.isBroker ? [FirmColumn(data, 'ofr')] : []),
+  ...(isBroker ? [FirmColumn('ofr')] : []),
 ];
 
 export default columns;

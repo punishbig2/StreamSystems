@@ -6,15 +6,11 @@ export const reducer = (state: State, action: FXOAction<PriceActions>): State =>
   const {type, data} = action;
   switch (type) {
     case PriceActions.ShowTooltip:
-      return {...state, visible: true, startedShowingTooltip: false};
+      return {...state, tooltipVisible: true};
     case PriceActions.HideTooltip:
-      return {...state, visible: false, startedShowingTooltip: false};
+      return {...state, tooltipVisible: false};
     case PriceActions.MoveTooltip:
       return {...state, ...data};
-    case PriceActions.StartShowingTooltip:
-      return {...state, startedShowingTooltip: true};
-    case PriceActions.StopShowingTooltip:
-      return {...state, startedShowingTooltip: false};
     case PriceActions.SetStatus:
       return {...state, status: data};
     case PriceActions.SetValue:

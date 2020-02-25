@@ -43,6 +43,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                          currentTarget,
                        }: React.ChangeEvent<HTMLInputElement>) => setPrice(currentTarget.value);
   const presetQty: string[] = ['30', '50', '100', '500'];
+
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const order: DarkPoolOrder = {
@@ -57,27 +58,31 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       TransactTime: (Date.now() / 1000).toFixed(0),
       User: props.user,
     };
+    console.log(order);
     props.onSubmit(order);
   };
+
   const instLabels: { [key: string]: string } = {G: 'AON', D: '1/2 AON'};
   const sideLabels: { [key: string]: string } = {SELL: 'Sell', BUY: 'Buy'};
+
   const canSubmit: boolean =
     !isNaN(Number(price)) && !isNaN(Number(size)) && side !== '';
+
   const renderSide = (value: any) =>
     !value ? (
       <span className={'invalid'}>Side</span>
     ) : (
       sideLabels[value as string]
     );
-  const stringSelectSetter = (fn: (value: string) => void) => (
-    event: React.ChangeEvent<SelectEventData>,
-  ) => {
+
+  const stringSelectSetter = (fn: (value: string) => void) => (event: React.ChangeEvent<SelectEventData>) => {
     const {value} = event.target;
     fn(value as string);
   };
+
   return (
     <div>
-      <div className={'modal-title'}>{strings.OrderEntry}</div>
+      <div className={'modal-title'}>{strings.DarkPool}</div>
       <form onSubmit={onSubmit}>
         <div className={'order-ticket'}>
           <div className={'title-chain'}>

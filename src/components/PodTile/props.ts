@@ -15,11 +15,9 @@ export interface OwnProps {
   products: Strategy[];
   symbols: Currency[];
   connected: boolean;
-  setWindowTitle: (id: string, title: string) => void;
-  onRowError: (status: TOBRowStatus) => void;
-  onClose?: () => void;
   autoSize?: boolean;
   personality: string;
+  onClose?: () => void;
 }
 
 export interface DispatchProps {

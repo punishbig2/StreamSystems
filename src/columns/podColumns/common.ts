@@ -2,11 +2,9 @@ import {PodTable} from 'interfaces/podTable';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus, Order} from 'interfaces/order';
 import {PodRow} from 'interfaces/podRow';
-import {TOBColumnData} from 'components/PodTile/data';
 import {AggregatedSize} from 'components/PodTile/reducer';
 
-export type RowProps = PodRow & {
-  handlers: TOBColumnData;
+export type PodRowProps = PodRow & {
   depths: { [key: string]: PodTable };
   personality: string;
   aggregatedSize: { [key: string]: AggregatedSize };
@@ -16,6 +14,8 @@ export type RowProps = PodRow & {
   darkPrice: number | null;
   symbol: string;
   strategy: string;
+  // Event handlers
+  onTenorSelected: (tenor: string) => void;
 };
 
 const getDepthStatus = (values: Order[]): OrderStatus => {

@@ -1,18 +1,14 @@
-import {TOBColumnData} from 'components/PodTile/data';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {DualTableHeader} from 'components/dualTableHeader';
-import {RowProps} from 'columns/podColumns/common';
+import {PodRowProps} from 'columns/podColumns/common';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import React from 'react';
 
-export const TenorColumn = (data: TOBColumnData): ColumnSpec => ({
+export const TenorColumn = (): ColumnSpec => ({
   name: 'tenor',
   header: () => <DualTableHeader label={''}/>,
-  render: ({tenor}: RowProps) => (
-    <Tenor
-      tenor={tenor}
-      onTenorSelected={(tenor: string) => data.onTenorSelected(tenor)}
-    />
+  render: ({tenor, onTenorSelected}: PodRowProps) => (
+    <Tenor tenor={tenor} onTenorSelected={onTenorSelected}/>
   ),
   template: 'WW',
   weight: 2,

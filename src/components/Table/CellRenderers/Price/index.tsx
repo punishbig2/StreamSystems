@@ -4,20 +4,19 @@ import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
 import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
 import {useStatusUpdater} from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
-import {useTooltip} from 'components/Table/CellRenderers/Price/hooks/useTooltop';
 import {useValueComparator} from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
-import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderStatus} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
-import React, {useCallback, useEffect, useReducer, useState} from 'react';
+import React, {useCallback, useReducer, ReactElement, useState} from 'react';
 import {createAction} from 'redux/actionCreator';
 import {priceFormatter} from 'utils/priceFormatter';
 import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
+import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
+import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -48,45 +47,36 @@ export interface Props {
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
-  const {timestamp, value} = props;
+  const {timestamp, value, tooltip} = props;
   if (value === undefined)
     throw new Error('value is not optional');
+  const [target, setTarget] = useState<HTMLDivElement | null>(null);
   const [state, dispatch] = useReducer(reducer, {
     tooltipX: 0,
     tooltipY: 0,
-    startedShowingTooltip: false,
-    visible: false,
+    tooltipVisible: false,
     flash: false,
     initialStatus: props.status,
     status: props.status || OrderStatus.None,
     internalValue: priceFormatter(value),
   });
+  const {tooltipVisible} = state;
 
-  const [ref, setRef] = useState<HTMLDivElement | null>(null);
-
-  const setTooltipVisible = useCallback(() => dispatch(createAction(PriceActions.ShowTooltip)), []);
   const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
   const setInternalValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.SetValue, {value, status}));
   }, []);
+
   const resetValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.ResetValue, {value, status}));
   }, []);
 
-  const showTooltip = (event: React.MouseEvent<HTMLDivElement>) => {
-    dispatch(createAction(PriceActions.StartShowingTooltip));
-    dispatch(
-      createAction(PriceActions.MoveTooltip, toPoint(event.nativeEvent)),
-    );
-  };
-  const toPoint = useCallback((event: MouseEvent) => ({tooltipX: event.clientX, tooltipY: event.clientY}), []);
+  const showTooltip = tooltip ? (event: React.MouseEvent<HTMLDivElement>) => {
+    dispatch(createAction(PriceActions.ShowTooltip));
+  } : undefined;
+
   const hideTooltip = () => dispatch(createAction(PriceActions.HideTooltip));
-  const onMouseMove = useCallback(
-    (event: MouseEvent) => {
-      dispatch(createAction(PriceActions.MoveTooltip, toPoint(event)));
-    },
-    [dispatch, toPoint],
-  );
+
   const startFlashing = () => {
     if (!props.animated)
       return;
@@ -94,28 +84,29 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
   const stopFlashing = () => dispatch(createAction(PriceActions.Unflash));
 
-  useTooltip(state.startedShowingTooltip, setTooltipVisible);
   useStatusUpdater(props.status, setStatus);
   useFlasher(state.flash, stopFlashing);
   useValueComparator(value, state.internalValue, startFlashing, props.status, state.status);
   useValueListener(value, timestamp, setInternalValue);
-  // Avoid having more than a single move event listener because
-  // that would of course be expensive
-  useEffect(() => {
-    if (!state.visible || ref === null) return;
+
+  /*useEffect(() => {
+    if (!state.tooltipVisible || ref === null)
+      return;
     ref.addEventListener('mousemove', onMouseMove);
     return () => {
       ref.removeEventListener('mousemove', onMouseMove);
     };
-  }, [state.visible, ref, onMouseMove]);
+  }, [state.tooltipVisible, ref, onMouseMove]);*/
 
-  const getTooltip = () => {
-    if (!state.visible || !props.tooltip)
+  const getTooltip = useCallback((): ReactElement | null => {
+    if (!tooltip || !tooltipVisible)
       return null;
     return (
-      <Tooltip x={state.tooltipX} y={state.tooltipY} render={props.tooltip}/>
+      <Tooltip target={target} onClose={hideTooltip}>
+        {typeof tooltip === 'function' ? tooltip({}) : tooltip}
+      </Tooltip>
     );
-  };
+  }, [tooltip, tooltipVisible, target, hideTooltip]);
 
   const onChange = (value: string | null) => {
     if (value !== null) {
@@ -239,27 +230,31 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   return (
-    <div className={getLayoutClass(state.flash) + ' cell'} onMouseEnter={showTooltip} onMouseLeave={hideTooltip}
-         ref={setRef}>
-      <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
-      <NumericInput
-        readOnly={props.readOnly}
-        tabIndex={props.tabIndex}
-        value={finalValue(state.status)}
-        className={getOrderStatusClass(state.status, props.className)}
-        placeholder={getPlaceholder(state.status, props.value)}
-        type={'price'}
-        onCancelEdit={onCancelEdit}
-        onBlur={onCancelEdit}
-        onDoubleClick={onDoubleClick}
-        onChange={onChange}
-        onSubmit={onSubmit}
-        onTabbedOut={onTabbedOut}
-        onNavigate={props.onNavigate}/>
-      {/* The floating object */}
-      {getTooltip()}
-      {getSpinner()}
-    </div>
+    <>
+      <div className={getLayoutClass(state.flash) + ' cell'}
+           onMouseLeave={hideTooltip}
+           onMouseEnter={showTooltip}
+           ref={setTarget}>
+        <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
+        <NumericInput
+          readOnly={props.readOnly}
+          tabIndex={props.tabIndex}
+          value={finalValue(state.status)}
+          className={getOrderStatusClass(state.status, props.className)}
+          placeholder={getPlaceholder(state.status, props.value)}
+          type={'price'}
+          onCancelEdit={onCancelEdit}
+          onBlur={onCancelEdit}
+          onDoubleClick={onDoubleClick}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          onTabbedOut={onTabbedOut}
+          onNavigate={props.onNavigate}/>
+        {/* The floating object */}
+        {getTooltip()}
+        {getSpinner()}
+      </div>
+    </>
   );
 };
 

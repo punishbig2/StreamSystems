@@ -1,7 +1,7 @@
 import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import React, {ReactNode, ReactElement} from 'react';
-import {RowProps} from 'columns/podColumns/common';
+import {PodRowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderCellGroup} from 'columns/podColumns/orderColumn';
 
@@ -23,7 +23,7 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
         </div>
       );
     },
-    render: (props: RowProps) => (
+    render: (props: PodRowProps) => (
       <OrderCellGroup
         type={type}
         personality={props.personality}

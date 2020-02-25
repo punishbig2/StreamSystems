@@ -5,9 +5,8 @@ import {PodTile} from 'components/PodTile';
 import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
-import {TOBRowStatus} from 'interfaces/podRow';
 import {User, UserProfile} from 'interfaces/user';
-import React, {ReactElement, useCallback, useEffect, ReactNode} from 'react';
+import React, {ReactElement, useEffect, ReactNode, useState, useCallback} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {
@@ -113,41 +112,27 @@ const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, 
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
 
-const createWindow = (
-  id: string,
-  workspaceID: string,
-  type: WindowTypes,
-  symbols: Currency[],
-  products: Strategy[],
-  tenors: string[],
-  connected: boolean,
-  user: User,
-  setWindowTitle: (id: string, title: string) => void,
-  onRowError: (status: TOBRowStatus) => void,
-  personality: string,
-) => {
+const createWindow = (windowID: string, workspaceID: string, type: WindowTypes, symbols: Currency[], products: Strategy[], tenors: string[], connected: boolean, user: User, personality: string) => {
   switch (type) {
     case WindowTypes.Empty:
       return null;
     case WindowTypes.PodTile:
       return (
         <PodTile
-          id={id}
+          id={windowID}
           workspaceID={workspaceID}
           symbols={symbols}
           products={products}
           tenors={tenors}
           user={user}
           connected={connected}
-          setWindowTitle={setWindowTitle}
-          onRowError={onRowError}
           personality={personality}/>
       );
     case WindowTypes.MessageBlotter:
       return (
         <MessageBlotter
-          id={id}
-          setWindowTitle={setWindowTitle}
+          id={windowID}
+          setWindowTitle={(id: string, title: string) => console.log(id, title)}
           connected={connected}
           personality={personality}
           blotterType={BlotterTypes.Regular}/>
@@ -159,7 +144,7 @@ const createWindow = (
 
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const {symbols, products, tenors, connected} = props;
-  const {showToast, setWindowTitle, loadMarkets} = props;
+  const {loadMarkets} = props;
 
   const user: User = getAuthenticatedUser();
 
@@ -183,7 +168,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     }
   };
 
-  const onRowError = useCallback(
+  /*const onRowError = useCallback(
     (status: TOBRowStatus) => {
       switch (status) {
         case TOBRowStatus.Normal:
@@ -201,26 +186,15 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
       }
     },
     [showToast],
-  );
+  );*/
 
-  const renderContent = (id: string, type: WindowTypes): ReactElement | null => {
-    const {personality} = props;
+  const {personality, id: workspaceID} = props;
+  const renderContent = useCallback((windowID: string, type: WindowTypes): ReactElement | null => {
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
-    return createWindow(
-      id,
-      props.id,
-      type,
-      symbols,
-      products,
-      tenors,
-      connected,
-      user,
-      setWindowTitle,
-      onRowError,
-      personality,
-    );
-  };
+    // Return the new window
+    return createWindow(windowID, workspaceID, type, symbols, products, tenors, connected, user, personality);
+  }, [connected, personality, products, symbols, tenors, user, workspaceID]);
 
   const onPersonalityChange = ({target}: React.ChangeEvent<SelectEventData>) => {
     props.setPersonality(target.value as string);
@@ -309,11 +283,8 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         onWindowRestored={props.restoreWindow}
         onWindowClicked={props.bringToFront}
         onWindowSizeAdjusted={props.setWindowAutoSize}/>
-      <ModalWindow
-        render={() => (
-          <UserProfileModal onCancel={props.closeUserProfileModal}/>
-        )}
-        visible={props.isUserProfileModalVisible}/>
+      <ModalWindow render={() => (<UserProfileModal onCancel={props.closeUserProfileModal}/>)}
+                   visible={props.isUserProfileModalVisible}/>
       <ModalWindow
         render={() => (
           <ErrorBox

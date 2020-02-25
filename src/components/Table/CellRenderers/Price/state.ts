@@ -4,8 +4,7 @@ export interface State {
   tooltipX: number;
   tooltipY: number;
   flash: boolean;
-  startedShowingTooltip: boolean;
-  visible: boolean;
+  tooltipVisible: boolean;
   initialStatus: OrderStatus;
   status: OrderStatus;
   internalValue: string;

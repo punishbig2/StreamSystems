@@ -181,18 +181,23 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
-    if (SignalRManager.isCollapsedW(w))
-      return;
-    if (isPodW(w)) {
-      this.emitPodWEvent(w);
-    } else {
-      SignalRManager.addToCache(w);
-      propagateDepth(w);
-    }
-    // Dispatch the action
-    if (this.onUpdateMarketDataListener !== null) {
-      const fn: (data: W) => void = this.onUpdateMarketDataListener;
-      fn(w);
+    if (w.ExDestination === undefined) {
+      if (SignalRManager.isCollapsedW(w))
+        return;
+      if (isPodW(w)) {
+        this.emitPodWEvent(w);
+      } else {
+        SignalRManager.addToCache(w);
+        propagateDepth(w);
+      }
+      // Dispatch the action
+      /*if (this.onUpdateMarketDataListener !== null) {
+        const fn: (data: W) => void = this.onUpdateMarketDataListener;
+        console.log(w);
+        fn(w);
+      }*/
+    } else if (w.ExDestination === 'DP') {
+      this.emitDarkPoolOrderWEvent(w);
     }
   };
 
@@ -220,6 +225,14 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   public setOnDisconnectedListener = (fn: (error: any) => void) => {
     this.onDisconnectedListener = fn;
+  };
+
+  private emitDarkPoolOrderWEvent = (w: W) => {
+    // Now that we know it's the right time, create and dispatch the event
+    const type: string = $$(w.Symbol, w.Strategy, w.Tenor, 'Dp');
+    const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w, bubbles: false, cancelable: false});
+    // Dispatch it now
+    document.dispatchEvent(event);
   };
 
   private emitPodWEvent = (w: W) => {
@@ -286,9 +299,11 @@ export class SignalRManager<A extends Action = AnyAction> {
   public addDarkPoolPxListener = (symbol: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
     const {connection} = this;
     const type: string = $$(symbol, strategy, tenor, 'DpPx');
+
     const listenerWrapper = (event: CustomEvent<DarkPoolMessage>) => {
       fn(event.detail);
     };
+
     document.addEventListener(type, listenerWrapper as EventListener);
     if (connection !== null && connection.state === HubConnectionState.Connected) {
       connection.invoke(SignalRActions.SubscribeForDarkPoolPx, symbol, strategy, tenor);
@@ -299,5 +314,22 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
     return () => null;
   };
+
+  public addDarkPoolOrderListener(symbol: string, strategy: string, tenor: string, fn: (w: W) => void) {
+    const type: string = $$(symbol, strategy, tenor, 'Dp');
+    const listenerWrapper = (event: CustomEvent<W>) => {
+      fn(event.detail);
+    };
+    API.getDarkPoolSnapshot(symbol, strategy, tenor)
+      .then((w: W | null) => {
+        if (w !== null) {
+          this.emitDarkPoolOrderWEvent(w);
+        }
+      });
+    document.addEventListener(type, listenerWrapper as EventListener);
+    return () => {
+      document.removeEventListener(type, listenerWrapper as EventListener);
+    };
+  }
 }
 

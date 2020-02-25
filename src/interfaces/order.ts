@@ -208,4 +208,8 @@ export class Order {
   public isCancelled = () => {
     return (this.status & OrderStatus.Cancelled) !== 0;
   };
+
+  public isSameBankAsCurrentUser = () => {
+    return (this.status & OrderStatus.SameBank) !== 0;
+  };
 }

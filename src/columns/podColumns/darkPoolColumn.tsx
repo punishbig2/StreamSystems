@@ -1,11 +1,11 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import {RowProps} from 'columns/podColumns/common';
+import {PodRowProps} from 'columns/podColumns/common';
 import {Order, OrderStatus, DarkPoolOrder} from 'interfaces/order';
-import {OrderTypes} from 'interfaces/mdEntry';
+import {OrderTypes, MDEntry} from 'interfaces/mdEntry';
 import {Price} from 'components/Table/CellRenderers/Price';
-import {ArrowDirection} from 'interfaces/w';
+import {ArrowDirection, W} from 'interfaces/w';
 import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
-import React, {useCallback, useMemo, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState, useMemo} from 'react';
 import {DarkPoolTooltip} from 'components/Table/CellRenderers/Price/darkPoolTooltip';
 import {PodTable} from 'interfaces/podTable';
 import {PodRow} from 'interfaces/podRow';
@@ -21,34 +21,72 @@ import {DarkPoolMessage} from 'interfaces/message';
 import {FXOptionsDB} from 'fx-options-db';
 import {$$} from 'utils/stringPaster';
 
-type Props = RowProps;
+type Props = PodRowProps;
 
 const DarkPoolColumnComponent = (props: Props) => {
   const user: User = getAuthenticatedUser();
-  const {tenor, symbol, strategy, personality, darkPool, darkPrice} = props;
-  const [data, setData] = useState<PodTable | null>(null);
+  const {tenor, symbol, strategy, personality, darkPrice} = props;
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isShowingTicket, setIsShowingTicket] = useState<boolean>(false);
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const isBroker: boolean = user.isbroker;
 
-  const order: Order | null = useMemo((): Order | null => {
-    if (!darkPool) return null;
-    const {bid, ofr} = darkPool;
-    if (bid.price === null) return ofr;
-    return bid;
-  }, [darkPool]);
-
-  const [value, setValue] = useState<number | null>(order ? order.price : darkPrice);
+  const [value, setValue] = useState<number | null>(darkPrice);
 
   useEffect(() => {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
-    return signalRManager.addDarkPoolPxListener(symbol, strategy, tenor, (message: DarkPoolMessage) => {
-      const value: number = Number(message.DarkPrice);
-      // Update the saved dark pool
-      FXOptionsDB.saveDarkPool($$(symbol, strategy, tenor), value);
-      // Set the value in the input
-      setValue(value);
-    });
-  }, [symbol, strategy, tenor]);
+    const removePriceListener: () => void =
+      signalRManager.addDarkPoolPxListener(symbol, strategy, tenor, (message: DarkPoolMessage) => {
+        const value: number = Number(message.DarkPrice);
+        // Update the saved dark pool
+        FXOptionsDB.saveDarkPool($$(symbol, strategy, tenor), value);
+        // Set the value in the input
+        setValue(value);
+      });
+
+    const reset = () => {
+      setValue(null);
+      setCurrentOrder(null);
+      setOrders([]);
+    };
+
+    const removeOrderListener: () => void =
+      signalRManager.addDarkPoolOrderListener(symbol, strategy, tenor, (w: W) => {
+        const entries: MDEntry[] = w.Entries;
+        if (entries !== undefined) {
+          const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
+          const currentOrder: Order | null = (() => {
+            const myOrder: Order | undefined = orders.find((order: Order) => order.isOwnedByCurrentUser());
+            const myBankOrder: Order | undefined = orders.find((order: Order) => order.isSameBankAsCurrentUser());
+            if (myOrder !== undefined) {
+              return myOrder;
+            } else if (myBankOrder !== undefined) {
+              return myBankOrder;
+            } else if (orders.length > 0) {
+              return orders[0];
+            } else {
+              return null;
+            }
+          })();
+          setValue(currentOrder ? currentOrder.price : darkPrice);
+          setCurrentOrder(currentOrder);
+          setOrders(orders);
+        } else {
+          reset();
+        }
+      });
+    reset();
+    return () => {
+      console.log('removing listeners');
+      removePriceListener();
+      removeOrderListener();
+    };
+  }, [symbol, strategy, tenor, user, darkPrice]);
+
+  // If the dark price changes update it
+  useEffect(() => {
+    setValue(darkPrice);
+  }, [darkPrice]);
 
   /*useEffect(() => {
     if (!tenor || !symbol || !strategy) return;
@@ -86,25 +124,18 @@ const DarkPoolColumnComponent = (props: Props) => {
     [onTabbedOut],
   );*/
 
-  const findMyOrder = (table: any): Order | null => {
-    if (!table) return null;
-    const values: PodRow[] = Object.values(table);
-    const row: PodRow | undefined = values.find(
-      ({ofr, bid}: PodRow): boolean => {
-        if ((ofr.status & OrderStatus.Owned) !== 0) return true;
-        return (bid.status & OrderStatus.Owned) !== 0;
-      },
-    );
-    if (row === undefined) return null;
-    const {ofr, bid} = row;
-    if ((ofr.status & OrderStatus.Owned) !== 0) return ofr;
-    return bid;
+  const myOrder: Order | undefined = useMemo(
+    () => orders.find((order: Order) => order.user === user.email),
+    [orders, user],
+  );
+
+  const cancelOrder = (order: Order) => {
+    API.cancelDarkPoolOrder(order);
   };
 
-  const myOrder: Order | null = findMyOrder(data);
-  const finalOrder: Order | null = myOrder ? myOrder : order;
-  const renderTooltip = (order: Order | null) => {
-    if (order === null) return undefined;
+  const renderTooltip = (order: Order | undefined) => {
+    if (order === undefined)
+      return undefined;
     return () => {
       const table: PodTable = {
         [order.uid()]: {
@@ -114,22 +145,19 @@ const DarkPoolColumnComponent = (props: Props) => {
         } as PodRow,
       };
       return (
-        <DarkPoolTooltip onCancelOrder={() => console.log('cancel dark pool')} data={table}
-        />
+        <DarkPoolTooltip onCancelOrder={cancelOrder} data={table}/>
       );
     };
   };
+
   const renderDarkPoolTicket = () => {
     if (!isShowingTicket)
       return <div/>;
     // const ticket: DarkPoolTicketData = state.darkPoolTicket;
-    const onSubmit = (order: DarkPoolOrder) => {
-      /*if (ticket.currentOrder !== null) {
-        const order: Order = ticket.currentOrder;
-        if ((order.status & OrderStatus.Owned) !== 0) {
-          // actions.cancelDarkPoolOrder(ticket.currentOrder);
-        }
-      }*/
+    const onSubmit = async (order: DarkPoolOrder) => {
+      if (currentOrder !== null && currentOrder.isOwnedByCurrentUser() === true)
+        await API.cancelDarkPoolOrder(currentOrder);
+      await API.createDarkPoolOrder(order);
       // actions.createDarkPoolOrder(order, personality);
       setIsShowingTicket(false);
     };
@@ -138,7 +166,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       <DarkPoolTicket
         onSubmit={onSubmit}
         onCancel={() => setIsShowingTicket(false)}
-        price={priceFormatter(0)}
+        price={priceFormatter(value)}
         size={defaultSize.toString()}
         tenor={tenor}
         strategy={strategy}
@@ -146,8 +174,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         user={user.email}/>
     );
   };
-  const rows: PodRow[] = data ? Object.values(data) : [];
-  const full: OrderStatus = rows.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None;
+  const full: OrderStatus = orders.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None;
   return (
     <>
       <Price
@@ -156,8 +183,8 @@ const DarkPoolColumnComponent = (props: Props) => {
         className={'dark-pool-base'}
         value={value}
         tooltip={renderTooltip(myOrder)}
-        readOnly={props.personality !== STRM && isBroker}
-        status={finalOrder !== null ? finalOrder.status | OrderStatus.DarkPool | full : OrderStatus.None}
+        readOnly={(props.personality !== STRM && isBroker) || !isBroker}
+        status={(currentOrder !== null ? currentOrder.status : OrderStatus.None) | OrderStatus.DarkPool | full}
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
         onNavigate={() => null}/>
@@ -176,7 +203,7 @@ export const DarkPoolColumn = (): ColumnSpec => ({
       <div>Pool</div>
     </div>
   ),
-  render: (row: RowProps) => <DarkPoolColumnComponent {...row} />,
+  render: (row: PodRowProps) => <DarkPoolColumnComponent {...row} />,
   template: '999999.99',
   weight: 5,
 });

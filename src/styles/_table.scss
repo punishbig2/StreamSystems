@@ -179,6 +179,11 @@
     border-top: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
 
+    z-index: 2;
+    * {
+      z-index: 1;
+    }
+
     &:last-child {
       border-right: 1px solid $table-border-color;
     }
@@ -525,7 +530,7 @@
 
         &:not(.edited) {
           &.dark-pool {
-            background-color: yellow;
+            background-color: $yellow-background;
           }
 
           &:focus {

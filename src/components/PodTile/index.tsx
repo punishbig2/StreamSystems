@@ -2,8 +2,6 @@ import createTOBColumns from 'columns/podColumns';
 import {ModalWindow} from 'components/ModalWindow';
 import {Run} from 'components/Run';
 import {Table} from 'components/Table';
-import {createColumnData} from 'components/PodTile/createColumnData';
-import {TOBColumnData} from 'components/PodTile/data';
 import {useDepthEmitter} from 'components/PodTile/hooks/useDepthEmitter';
 import {useInitializer} from 'components/PodTile/hooks/useInitializer';
 import {DispatchProps, OwnProps, Props} from 'components/PodTile/props';
@@ -13,13 +11,11 @@ import {PodTileTitle} from 'components/PodTile/title';
 import {Order} from 'interfaces/order';
 import {PodRow, TOBRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
-import {SettingsContext} from 'main';
-import React, {ReactElement, useCallback, useContext, useEffect, useMemo, useReducer} from 'react';
+import React, {ReactElement, useCallback, useEffect, useMemo, useReducer} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {createAction, createWindowAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowState} from 'redux/stateDefs/windowState';
-import {Settings} from 'settings';
 import {setStrategy, setSymbol} from 'redux/actions/podTileActions';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {Currency} from 'interfaces/currency';
@@ -50,9 +46,7 @@ const initialState: State = {
 
 const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   const {id, dispatch: reduxDispatch} = props;
-  const {onRowError} = props;
   const {symbols, symbol, products, strategy, tenors, connected, rows, user, personality} = props;
-  const settings = useContext<Settings>(SettingsContext);
   const {email} = props.user;
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -68,7 +62,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         // reduxDispatch(setRowStatus(id, order, status))
       },
     }),
-    [id],
+    [id, props.workspaceID, reduxDispatch, symbols],
   );
 
   // Internal temporary reducer actions
@@ -76,56 +70,26 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)),
     []);
 
-  const setOrderTicket = useCallback((ticket: Order | null) =>
-      dispatch(createAction(ActionTypes.SetOrderTicket, ticket)),
-    []);
-
-  const insertDepth = useCallback((data: any) =>
+ const insertDepth = useCallback((data: any) =>
       dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
     []);
+
   const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
   const hideRunWindow = useCallback(
     () => dispatch(createAction(ActionTypes.HideRunWindow)),
     [],
   );
 
-  const {setWindowTitle} = props;
-  useEffect(() => {
+  /*useEffect(() => {
     if (setWindowTitle && !!symbol && !!strategy) {
       setWindowTitle(props.id, `${symbol} ${strategy}`);
     }
-  }, [props.id, symbol, strategy, setWindowTitle]);
+  }, [props.id, symbol, strategy, setWindowTitle]);*/
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol.name, strategy, insertDepth);
   // Initialize tile/window
   useInitializer(tenors, email, actions.initialize);
   // Handler methods
-  const data: TOBColumnData = useMemo(() => {
-    return createColumnData(
-      actions,
-      state,
-      symbol.name,
-      strategy,
-      user,
-      setCurrentTenor,
-      setOrderTicket,
-      settings,
-      personality,
-      symbol.defaultqty,
-      symbol.minqty,
-    );
-  }, [
-    actions,
-    symbol,
-    strategy,
-    state,
-    settings,
-    setCurrentTenor,
-    setOrderTicket,
-    user,
-    personality,
-  ]);
-
   const bulkCreateOrders = useCallback(
     (entries: Order[]) => {
       // Close the runs window
@@ -159,37 +123,37 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   };
 
-  const onRowErrorFn = useCallback(
-    (status: TOBRowStatus) => onRowError(status),
-    [onRowError],
-  );
-  const renderRow = (rowProps: any, index?: number): ReactElement => {
-    const {symbol, strategy} = props;
+  const renderRow = useCallback((rowProps: any, index?: number): ReactElement => {
     const {row, ...childProps} = rowProps;
     return (
       <Row {...childProps}
-           aggregatedSize={state.aggregatedSize}
-           personality={props.personality}
+           isBroker={user.isbroker}
+           depths={state.depths}
+           personality={personality}
            defaultSize={symbol.defaultqty}
            minimumSize={symbol.minqty}
            symbol={symbol.name}
            strategy={strategy}
            tenor={row.tenor}
-           depths={state.depths}
            displayOnly={false}
            rowNumber={index}
-           connected={props.connected}
-           onError={onRowErrorFn}/>
+           connected={connected}
+           onTenorSelected={setCurrentTenor}/>
     );
-  };
+  }, [user, state.depths, personality, symbol, strategy, connected, setCurrentTenor]);
+
   const renderDOBRow = (rowProps: any): ReactElement => {
     // static
     return (
-      <Row {...rowProps} depths={[]} onError={onRowErrorFn} connected={props.connected}/>
+      <Row {...rowProps} depths={[]} connected={props.connected} onTenorSelected={() => setCurrentTenor(null)}/>
     );
   };
-  const dobColumns = useMemo(() => createTOBColumns(data, true), [data]);
-  const tobColumns = useMemo(() => createTOBColumns(data, false), [data]);
+  const dobColumns = useMemo(() => createTOBColumns(symbol.name, strategy, user.isbroker, true),
+    [strategy, symbol.name, user],
+  );
+  const tobColumns = useMemo(() => createTOBColumns(symbol.name, strategy, user.isbroker, false),
+    [strategy, symbol.name, user],
+  );
   const getDepthTable = (): ReactElement | null => {
     if (state.tenor === null) return null;
     const rows: PodTable = {...state.depths[state.tenor]};
@@ -240,15 +204,11 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
         <div className={'depth-table'}>{getDepthTable()}</div>
       </div>
-
-
-      <ModalWindow
-        render={runWindow}
-        visible={state.runWindowVisible}
-      />
+      <ModalWindow render={runWindow} visible={state.runWindowVisible}/>
     </>
   );
 };
-
 const connected = withRedux(PodTile);
+
 export {connected as PodTile};
+
