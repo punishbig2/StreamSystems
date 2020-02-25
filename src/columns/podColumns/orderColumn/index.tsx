@@ -6,7 +6,7 @@ import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/ge
 import {Price} from 'components/Table/CellRenderers/Price';
 import {STRM} from 'redux/stateDefs/workspaceState';
 import {PodTable} from 'interfaces/podTable';
-import {createOrder, cancelOrder} from 'columns/podColumns/helpers';
+import {createOrder, cancelOrder, onNavigate} from 'columns/podColumns/helpers';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {getNthParentOf, skipTabIndexAll} from 'utils/skipTab';
@@ -137,22 +137,6 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
     }
   };
 
-  const onNavigate = (input: HTMLInputElement, direction: NavigateDirection) => {
-    switch (direction) {
-      case NavigateDirection.Up:
-        skipTabIndexAll(input, -5, 'last-row');
-        break;
-      case NavigateDirection.Left:
-        skipTabIndexAll(input, -1);
-        break;
-      case NavigateDirection.Down:
-        skipTabIndexAll(input, 5, 'first-row');
-        break;
-      case NavigateDirection.Right:
-        skipTabIndexAll(input, 1);
-        break;
-    }
-  };
 
   const readOnly: boolean = props.isBroker && props.personality === STRM;
   const size: number | null = (() => {

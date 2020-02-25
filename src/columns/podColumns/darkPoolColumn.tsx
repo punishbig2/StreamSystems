@@ -20,6 +20,7 @@ import {SignalRManager} from 'redux/signalR/signalRManager';
 import {DarkPoolMessage} from 'interfaces/message';
 import {FXOptionsDB} from 'fx-options-db';
 import {$$} from 'utils/stringPaster';
+import {onNavigate} from 'columns/podColumns/helpers';
 
 type Props = PodRowProps;
 
@@ -187,7 +188,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         status={(currentOrder !== null ? currentOrder.status : OrderStatus.None) | OrderStatus.DarkPool | full}
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
-        onNavigate={() => null}/>
+        onNavigate={onNavigate}/>
       <ModalWindow
         render={renderDarkPoolTicket}
         visible={isShowingTicket}/>
