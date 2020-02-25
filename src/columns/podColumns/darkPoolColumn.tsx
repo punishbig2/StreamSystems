@@ -78,7 +78,6 @@ const DarkPoolColumnComponent = (props: Props) => {
       });
     reset();
     return () => {
-      console.log('removing listeners');
       removePriceListener();
       removeOrderListener();
     };
@@ -189,9 +188,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
         onNavigate={onNavigate}/>
-      <ModalWindow
-        render={renderDarkPoolTicket}
-        visible={isShowingTicket}/>
+      <ModalWindow render={renderDarkPoolTicket} visible={isShowingTicket}/>
     </>
   );
 };

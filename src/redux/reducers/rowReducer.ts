@@ -1,6 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order, OrderErrors, OrderStatus, Sides} from 'interfaces/order';
-import {TOBRowStatus, PodRow} from 'interfaces/podRow';
+import {PodRowStatus, PodRow} from 'interfaces/podRow';
 import {RowState} from 'redux/stateDefs/rowState';
 import {equal} from 'utils/equal';
 import {$$} from 'utils/stringPaster';
@@ -24,15 +24,8 @@ const canBeCancelled = (order: Order) =>
   ((order.status & OrderStatus.Owned) !== 0 ||
     (order.status & OrderStatus.SameBank) !== 0);
 
-const getRowStatusFromOrderError = (
-  reason: OrderErrors,
-  status: TOBRowStatus,
-) => {
-  if (reason === OrderErrors.NegativePrice) {
-    return TOBRowStatus.NegativePrice;
-  } else {
-    return status;
-  }
+const getRowStatusFromOrderError = (reason: OrderErrors, status: PodRowStatus) => {
+  return status;
 };
 
 export enum RowActions {
@@ -53,10 +46,6 @@ export enum RowActions {
   ResetStatus = 'RowActions.ResetStatus',
   UpdateDarkPrice = 'RowActions.UpdateDarkPrice',
   OrderNotCreated = 'RowActions.OrderNotCreated',
-  // These actions are not being used currently
-  OrderCreated = 'RowActions.OrderCreated',
-  OrderCanceled = 'RowActions.OrderCanceled',
-  OrderNotCanceled = 'RowActions.OrderNotCanceled'
 }
 
 const getStatus = (o1: Order, o2: Order): OrderStatus => {
@@ -243,9 +232,9 @@ export const createRowReducer = (id: string, initialState: RowState = genesisSta
           },
         };
       case $$(id, RowActions.Executed):
-        return {...state, row: {...row, status: TOBRowStatus.Executed}};
+        return {...state, row: {...row, status: PodRowStatus.Executed}};
       case $$(id, RowActions.ResetStatus):
-        return {...state, row: {...row, status: TOBRowStatus.Normal}};
+        return {...state, row: {...row, status: PodRowStatus.Normal}};
       case $$(id, RowActions.ErrorGettingSnapshot):
       // TODO: show the error somehow?
       // eslint-disable-next-line no-fallthrough

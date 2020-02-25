@@ -9,7 +9,7 @@ import {ActionTypes, reducer, State} from 'components/PodTile/reducer';
 import {Row} from 'components/PodTile/Row';
 import {PodTileTitle} from 'components/PodTile/title';
 import {Order} from 'interfaces/order';
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import React, {ReactElement, useCallback, useEffect, useMemo, useReducer} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
@@ -57,7 +57,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       setStrategy: (value: string) => reduxDispatch(setStrategy(props.workspaceID, id, value)),
       setSymbol: (value: string) => reduxDispatch(setSymbol(props.workspaceID, id, symbols.find((s: Currency) => s.name === value))),
       // updateOrder: (order: Order) => reduxDispatch(updateOrder(id, order)),
-      setRowStatus: (order: Order, status: TOBRowStatus) => {
+      setRowStatus: (order: Order, status: PodRowStatus) => {
         console.log('set row status ignore');
         // reduxDispatch(setRowStatus(id, order, status))
       },

@@ -10,7 +10,6 @@ import {createOrder, cancelOrder, onNavigate} from 'columns/podColumns/helpers';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {getNthParentOf, skipTabIndexAll} from 'utils/skipTab';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {API} from 'API';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {getMiniDOBByType} from 'columns/tobMiniDOB';
@@ -20,6 +19,8 @@ import {getAggregatedSize} from 'columns/podColumns/orderColumn/helpers/getAggre
 import {shouldOpenOrderTicket} from 'columns/podColumns/orderColumn/helpers/shoulOpenOrderTicket';
 import {reducer, State, ActionTypes} from 'columns/podColumns/orderColumn/reducer';
 import {getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/podColumns/common';
+import {PodRowStatus} from 'interfaces/podRow';
+import {SignalRManager} from 'redux/signalR/signalRManager';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -111,9 +112,36 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
 
   const onChangeSize = (value: string | null) => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, value));
   const resetSize = () => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, state.submittedSize));
+
+  function isValidPrice(price: number | null) {
+    const otherType: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
+    const allOrders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, otherType);
+    return allOrders.every((other: Order) => {
+      if (order.price === null)
+        return true;
+      if (other.price === null)
+        return false;
+      console.log(other.price, order.price);
+      if (type === OrderTypes.Bid) {
+        return other.price > order.price;
+      } else {
+        return other.price < order.price;
+      }
+    });
+  }
+
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
+    if (!isValidPrice(price)) {
+      console.log('inverted markets');
+      dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, PodRowStatus.InvertedMarketsError));
+      return;
+    }
     if (changed) {
       const size: number = getFinalSize();
+      const orders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, order.type);
+      const mine: Order | undefined = orders.find((each: Order) => each.isOwnedByCurrentUser());
+      if (mine !== undefined)
+        await API.cancelOrder(mine);
       // Do not wait for this
       createOrder({...order, price, size}, props.depths, props.minimumSize, props.personality);
     } else {
@@ -136,7 +164,6 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
       next.focus();
     }
   };
-
 
   const readOnly: boolean = props.isBroker && props.personality === STRM;
   const size: number | null = (() => {

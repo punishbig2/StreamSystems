@@ -1,7 +1,7 @@
 import equal from 'deep-equal';
 import {RunEntry} from 'components/Run/runEntry';
 import {Order, OrderStatus} from 'interfaces/order';
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {RunState} from 'redux/stateDefs/runState';
 import {priceFormatter} from 'utils/priceFormatter';
@@ -87,12 +87,12 @@ const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>
     [type]: data.value,
   };
   const computedEntry: RunEntry = computeRow(type, startingEntry, data.value);
-  const getRowStatus = (computed: RunEntry): TOBRowStatus => {
+  const getRowStatus = (computed: RunEntry): PodRowStatus => {
     if (computed.bid === null || computed.ofr === null)
-      return TOBRowStatus.Normal;
+      return PodRowStatus.Normal;
     return computed.bid > computed.ofr
-      ? TOBRowStatus.InvertedMarketsError
-      : TOBRowStatus.Normal;
+      ? PodRowStatus.InvertedMarketsError
+      : PodRowStatus.Normal;
   };
   const getOrderStatus = (status: OrderStatus, newValue: number | null, oldValue: number | null) => {
     if (priceFormatter(newValue) === priceFormatter(oldValue) && (status & OrderStatus.Cancelled) === 0)
@@ -202,7 +202,8 @@ const removeOrder = (state: RunState, id: string) => {
 };
 
 const isValidUpdate = (bid: Order, ofr: Order) => {
-  if (bid.price === null || ofr.price === null) return true;
+  if (bid.price === null || ofr.price === null)
+    return true;
   return bid.price < ofr.price;
 };
 
@@ -212,25 +213,6 @@ const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
   return status | edited;
 };
-
-/*const resetOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
-  const {orders} = state;
-  const row: PodRow = orders[rowID];
-  if (row === undefined)
-    return state;
-  const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
-  const {[key]: order} = state.originalOrders[rowID];
-  return {
-    ...state,
-    orders: {
-      ...orders,
-      [rowID]: {
-        ...row,
-        [key]: order,
-      },
-    },
-  };
-};*/
 
 const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;

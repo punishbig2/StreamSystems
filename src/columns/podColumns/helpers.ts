@@ -47,11 +47,7 @@ export const createOrder = (order: Order, depths: { [key: string]: PodTable }, m
         API.cancelOrder(myOrder);
       }
     }
-    API.createOrder(
-      order,
-      personality,
-      minimumSize,
-    );
+    API.createOrder(order, personality, minimumSize);
   } else {
     console.log('ignore this action');
   }

@@ -1,7 +1,7 @@
 import {Currency} from 'interfaces/currency';
 import {Order, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {User} from 'interfaces/user';
 import {Subscriber} from 'redux/signalRAction';
 import {WindowState} from 'redux/stateDefs/windowState';
@@ -39,7 +39,7 @@ export interface DispatchProps {
   cancelAll: (symbol: string, strategy: string, side: Sides) => void;
   updateOrder: (entry: Order) => void;
   getRunOrders: (symbol: string, strategy: string) => void;
-  setRowStatus: (order: Order, status: TOBRowStatus) => void;
+  setRowStatus: (order: Order, status: PodRowStatus) => void;
   updateOrderQuantity: (order: Order) => void;
   publishDarkPoolPrice: (
     symbol: string,

@@ -1,6 +1,6 @@
 import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {User} from 'interfaces/user';
 import {W} from 'interfaces/w';
@@ -45,7 +45,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
         mid: null,
         spread: null,
         darkPrice: null,
-        status: TOBRowStatus.Normal,
+        status: PodRowStatus.Normal,
       };
     } else if (key1 === 'bid' && key2 === 'ofr') {
       return {
@@ -56,7 +56,7 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
         mid: null,
         spread: null,
         darkPrice: null,
-        status: TOBRowStatus.Normal,
+        status: PodRowStatus.Normal,
       };
     } else {
       throw new Error('I cannot understand this combination');
@@ -129,7 +129,7 @@ export const toPodRow = (w: W): PodRow => {
     mid: null,
     spread: null,
     darkPrice: null,
-    status: TOBRowStatus.Normal,
+    status: PodRowStatus.Normal,
   };
 };
 

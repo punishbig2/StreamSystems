@@ -6,7 +6,7 @@ import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
 import {User, UserProfile} from 'interfaces/user';
-import React, {ReactElement, useEffect, ReactNode, useState, useCallback} from 'react';
+import React, {ReactElement, useEffect, ReactNode, useCallback} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
 import {
@@ -132,7 +132,7 @@ const createWindow = (windowID: string, workspaceID: string, type: WindowTypes, 
       return (
         <MessageBlotter
           id={windowID}
-          setWindowTitle={(id: string, title: string) => console.log(id, title)}
+          setWindowTitle={(id: string, title: string) => null}
           connected={connected}
           personality={personality}
           blotterType={BlotterTypes.Regular}/>

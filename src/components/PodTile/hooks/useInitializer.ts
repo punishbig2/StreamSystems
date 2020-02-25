@@ -1,6 +1,6 @@
 import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import {TenorType} from 'interfaces/w';
 import {useEffect} from 'react';
@@ -18,7 +18,7 @@ const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => 
         mid: null,
         spread: null,
         darkPrice: null,
-        status: TOBRowStatus.Normal,
+        status: PodRowStatus.Normal,
       };
       // Return internalRow
       return row;

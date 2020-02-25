@@ -1,7 +1,7 @@
 import {Cell} from 'components/Table/Cell';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {RowFunctions} from 'components/PodTile/rowFunctions';
-import {TOBRowStatus, PodRow} from 'interfaces/podRow';
+import {PodRowStatus, PodRow} from 'interfaces/podRow';
 import React, {useEffect, useReducer, Reducer} from 'react';
 import {RowState} from 'redux/stateDefs/rowState';
 import {percentage} from 'utils';
@@ -25,7 +25,7 @@ interface OwnProps {
   defaultSize: number;
   minimumSize: number;
   connected: boolean;
-  onError: (status: TOBRowStatus) => void;
+  onError: (status: PodRowStatus) => void;
   onTenorSelected: (tenor: string) => void;
 
   [key: string]: any;
@@ -124,9 +124,9 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
     resetStatus: props.resetStatus,
   };
 
-  if (status === TOBRowStatus.Executed) {
+  if (status === PodRowStatus.Executed) {
     classes.push('executed');
-  } else if (status !== TOBRowStatus.Normal) {
+  } else if (status !== PodRowStatus.Normal) {
     classes.push('error');
   }
 

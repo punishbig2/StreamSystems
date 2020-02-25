@@ -1,4 +1,4 @@
-import {TOBRowStatus} from 'interfaces/podRow';
+import {PodRowStatus} from 'interfaces/podRow';
 import {Order} from 'interfaces/order';
 import {OrderTypes} from 'interfaces/mdEntry';
 
@@ -12,6 +12,6 @@ export const createRow = (symbol: string, strategy: string, tenor: string) => {
     mid: null,
     spread: null,
     darkPrice: null,
-    status: TOBRowStatus.Normal,
+    status: PodRowStatus.Normal,
   };
 };

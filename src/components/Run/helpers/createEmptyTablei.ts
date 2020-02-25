@@ -1,4 +1,4 @@
-import {PodRow, TOBRowStatus} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {Order} from 'interfaces/order';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {$$} from 'utils/stringPaster';
@@ -16,7 +16,7 @@ export const createEmptyTable = (symbol: string, strategy: string, tenors: strin
       mid: null,
       spread: null,
       darkPrice: null,
-      status: TOBRowStatus.Normal,
+      status: PodRowStatus.Normal,
     };
   });
   return rows
