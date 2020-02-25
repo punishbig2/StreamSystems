@@ -28,8 +28,13 @@ const Row = (props: OwnProps & RowState) => {
         const width: string = percentage(column.weight, props.weight);
         const name: string = column.name;
         return (
-          <Cell key={name} width={width} user={user} render={column.render} {...(fixedRow || row)}
-                onNavigate={onNavigate} colNumber={index}/>
+          <Cell key={name}
+                width={width}
+                user={user}
+                render={column.render}
+                {...(fixedRow || row)}
+                onNavigate={onNavigate}
+                colNumber={index}/>
         );
       })}
     </div>

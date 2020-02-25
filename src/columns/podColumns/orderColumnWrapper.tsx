@@ -3,7 +3,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import React, {ReactNode, ReactElement} from 'react';
 import {PodRowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {OrderCellGroup} from 'columns/podColumns/orderColumn';
+import {OrderColumn} from 'columns/podColumns/orderColumn';
 import {Order} from 'interfaces/order';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {priceFormatter} from 'utils/priceFormatter';
@@ -43,7 +43,7 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
       const bid: Order = pickOrderOrTop(props.bid);
       const ofr: Order = pickOrderOrTop(props.ofr);
       return (
-        <OrderCellGroup
+        <OrderColumn
           type={type}
           personality={props.personality}
           aggregatedSize={props.aggregatedSize}

@@ -72,7 +72,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
 
   const getValueHelper = (forceEmpty: boolean) => {
     if ((forceEmpty && !locallyModified) || (order.status & OrderStatus.PreFilled) === 0)
-      return '';
+      return sizeFormatter(defaultValue);
     if (value !== null)
       return value;
     return sizeFormatter(props.value);

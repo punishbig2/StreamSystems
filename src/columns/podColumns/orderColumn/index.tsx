@@ -43,7 +43,7 @@ const getPriceIfApplies = (order: Order | undefined): number | undefined => {
   return undefined;
 };
 
-export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
+export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const [orderTicket, setOrderTicket] = useState<any>(null);
   const {depths, type} = props;
   const initialState: State = {
@@ -116,23 +116,21 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
   function isValidPrice(price: number | null) {
     const otherType: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
     const allOrders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, otherType);
-    return allOrders.every((other: Order) => {
-      if (order.price === null)
+    return allOrders.every((order: Order) => {
+      if (price === null)
         return true;
-      if (other.price === null)
+      if (order.price === null)
         return false;
-      console.log(other.price, order.price);
       if (type === OrderTypes.Bid) {
-        return other.price > order.price;
+        return order.price > price;
       } else {
-        return other.price < order.price;
+        return order.price < price;
       }
     });
   }
 
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
     if (!isValidPrice(price)) {
-      console.log('inverted markets');
       dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, PodRowStatus.InvertedMarketsError));
       return;
     }
@@ -179,7 +177,7 @@ export const OrderCellGroup: React.FC<OwnProps> = (props: OwnProps) => {
               type={type}
               className={getOrderStatusClass(status, 'cell size-layout')}
               value={size}
-              cancellable={(status & OrderStatus.HasMyOrder) !== 0}
+              cancellable={(status & OrderStatus.HasMyOrder) !== 0 || (status & OrderStatus.Owned) !== 0}
               readOnly={readOnly}
               chevron={(status & OrderStatus.HasDepth) !== 0}
               onCancel={() => cancelOrder(order, depths)}
