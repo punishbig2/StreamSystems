@@ -37,7 +37,9 @@ import {API} from 'API';
 import {ExecTypes, Message} from 'interfaces/message';
 import {Sides} from 'interfaces/order';
 import {$$} from 'utils/stringPaster';
-import {RowActions} from 'redux/reducers/rowReducer';
+import {RowActions} from 'components/Table/CellRenderers/Price/constants';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {User} from 'interfaces/user';
 
 // Build the reducer from the fixed and dynamic reducers
 export const createReducer = (): Reducer<ApplicationState, Action> => {
@@ -163,22 +165,24 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };*/
 
     const onUpdateMessageBlotter = (data: Message) => {
+      const user: User = getAuthenticatedUser();
       switch (data.OrdStatus) {
         case ExecTypes.PendingCancel:
           break;
         case ExecTypes.Filled:
-          if (isOCOEnabled()) {
+          if (isOCOEnabled() && data.Username === user.email) {
             API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
           }
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
-          const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
-          // FIXME: to improve performance we should try to find a way to do this
-          //        in a single dispatch
-          dispatch(
-            createAction<any, A>(WorkareaActions.SetLastExecution, data),
-          );
-          dispatch(createAction<any, A>(type));
+          if (data.Username === user.email) {
+            // FIXME: this should not be working right now right?
+            const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
+            // FIXME: to improve performance we should try to find a way to do this
+            //        in a single dispatch
+            dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
+            dispatch(createAction<any, A>(type));
+          }
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
           break;
         default:

@@ -1,6 +1,5 @@
-import {DualTableHeader} from 'components/dualTableHeader';
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import React, {ReactNode, ReactElement} from 'react';
+import React, {ReactElement} from 'react';
 import {PodRowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderColumn} from 'columns/podColumns/orderColumn';
@@ -8,17 +7,20 @@ import {Order, OrderStatus} from 'interfaces/order';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {priceFormatter} from 'utils/priceFormatter';
 
-export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boolean, action?: () => ReactNode): ColumnSpec => {
+export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boolean, action: () => ReactElement | null): ColumnSpec => {
   return {
     name: `${type}-vol`,
     header: () => {
       const items: ReactElement[] = [
-        <DualTableHeader key={1} label={label} action={action} disabled={false} className={'price'}/>,
+        <div className={'price'}>{label}</div>,
       ];
-      if (type === OrderTypes.Bid) {
-        items.unshift(<DualTableHeader key={2} label={'Size'} className={'size'}/>);
-      } else if (type === OrderTypes.Ofr) {
-        items.push(<DualTableHeader key={2} label={'Size'} className={'size'}/>);
+      const actionItem: ReactElement | null = action();
+      if (actionItem !== null) {
+        if (type === OrderTypes.Bid) {
+          items.unshift(<div className={'size'}>{actionItem}</div>);
+        } else if (type === OrderTypes.Ofr) {
+          items.push(<div className={'size'}>{actionItem}</div>);
+        }
       }
       return (
         <div className={'twin-header'}>

@@ -8,3 +8,7 @@ export enum PriceActions {
   SetValue,
   ResetValue
 }
+
+export enum RowActions {
+  Executed,
+}

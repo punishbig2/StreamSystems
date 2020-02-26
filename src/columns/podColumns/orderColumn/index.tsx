@@ -91,7 +91,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       // Get the desired new size
       const size: number | null = state.editedSize;
       if (size !== null && size < props.minimumSize) {
-        dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, PodRowStatus.SizeTooSmall));
+        props.onRowStatusChange(PodRowStatus.SizeTooSmall);
         // Do not create the order in this case
         return;
       }

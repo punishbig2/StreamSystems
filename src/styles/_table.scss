@@ -41,23 +41,28 @@
   .thead {
     width: 100%;
     z-index: 0;
-    line-height: 30px;
+    line-height: $table-header-height / 2;
+    height: $table-header-height / 2;
+    background-color: rgba($primary-color, $table-tint);
 
     .twin-header {
       display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      border: none;
+      margin: 0;
 
-      .dual-header {
-        &:first-child {
-          border-right: 1px solid $table-border-color;
-        }
+      :first-child {
+        border-right: 1px solid $table-border-color;
+      }
 
-        &.size {
-          width: 40%
-        }
+      .size {
+        width: 40%
+      }
 
-        &.price {
-          width: 60%;
-        }
+      .price {
+        width: 60%;
       }
     }
   }
@@ -180,6 +185,7 @@
     border-left: 1px solid $table-border-color;
 
     z-index: 2;
+
     * {
       z-index: 1;
     }
@@ -246,8 +252,6 @@
     font-weight: 600;
     text-align: center;
     margin: 0;
-
-    background-color: rgba($primary-color, $table-tint);
 
     input.filter {
       width: 100%;
@@ -342,11 +346,11 @@
             line-height: $table-header-height / 2;
             height: $table-header-height / 2;
             width: 100%;
-
-            button {
-              @extend %button;
-            }
           }
+        }
+
+        button {
+          @extend %button;
         }
       }
 
@@ -587,6 +591,7 @@
       }
     }
   }
+
   .chevron {
     position: absolute;
     top: 1px;

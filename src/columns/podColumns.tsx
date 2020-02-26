@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, {ReactElement} from 'react';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import strings from 'locales';
 import {OrderColumnWrapper} from 'columns/podColumns/orderColumnWrapper';
@@ -8,8 +8,6 @@ import {DarkPoolColumn} from 'columns/podColumns/darkPoolColumn';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {API} from 'API';
 import {getSideFromType} from 'utils';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User} from 'interfaces/user';
 
 interface RefButtonProps {
   type: OrderTypes;
@@ -30,7 +28,11 @@ const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>
     API.cancelAll(symbol, strategy, getSideFromType(type));
   };
 
-const user: User = getAuthenticatedUser();
+const getRefButton = (depth: boolean, symbol: string, strategy: string, type: OrderTypes): (() => ReactElement | null) => {
+  if (depth)
+    return () => null;
+  return () => <RefButton type={type} symbol={symbol} strategy={strategy}/>;
+};
 
 const columns = (symbol: string, strategy: string, isBroker: boolean, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(),
@@ -39,14 +41,14 @@ const columns = (symbol: string, strategy: string, isBroker: boolean, depth: boo
     strings.BidPx,
     OrderTypes.Bid,
     depth,
-    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Bid} symbol={symbol} strategy={strategy}/>) : undefined,
+    getRefButton(depth, symbol, strategy, OrderTypes.Bid),
   ),
   DarkPoolColumn(),
   OrderColumnWrapper(
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
-    !depth ? ((): ReactNode => <RefButton type={OrderTypes.Ofr} symbol={symbol} strategy={strategy}/>) : undefined,
+    getRefButton(depth, symbol, strategy, OrderTypes.Ofr),
   ),
   ...(isBroker ? [FirmColumn('ofr')] : []),
 ];
