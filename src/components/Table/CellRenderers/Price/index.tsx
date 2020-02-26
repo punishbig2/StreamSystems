@@ -168,7 +168,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         props.onSubmit(input, null, false);
       } else {
         const changed: boolean = (() => {
-          if ((props.status & OrderStatus.Owned) === 0 || (props.status & OrderStatus.Cancelled) === 0)
+          if ((props.status & OrderStatus.Owned) === 0 || (props.status & OrderStatus.Cancelled) !== 0)
             return true;
           return priceFormatter(numeric) !== priceFormatter(value);
         })();

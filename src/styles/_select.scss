@@ -1,9 +1,10 @@
 .select-container {
   display: flex;
   width: 100px;
-  line-height: 20px;
+  line-height: $title-bar-height;
+  height: $title-bar-height;
   cursor: default;
-  padding: 4px;
+  padding: 0 4px;
   pointer-events: all;
 
   &:hover {

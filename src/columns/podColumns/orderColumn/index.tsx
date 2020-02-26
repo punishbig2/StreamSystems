@@ -88,10 +88,15 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     }
 
     if (order.isOwnedByCurrentUser() && (order.status & OrderStatus.PreFilled) !== 0) {
-      // We fist cancel our current order
-      await API.cancelOrder(order);
       // Get the desired new size
       const size: number | null = state.editedSize;
+      if (size !== null && size < props.minimumSize) {
+        dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, PodRowStatus.SizeTooSmall));
+        // Do not create the order in this case
+        return;
+      }
+      // We fist cancel our current order
+      await API.cancelOrder(order);
       // Create the order
       createOrder({...order, size}, props.depths, props.minimumSize, props.personality);
     }
@@ -142,8 +147,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       const size: number = getFinalSize();
       const orders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, order.type);
       const mine: Order | undefined = orders.find((each: Order) => each.isOwnedByCurrentUser());
-      console.log(mine);
-      if (mine !== undefined)
+      if (mine !== undefined && !mine.isCancelled())
         await API.cancelOrder(mine);
       // Do not wait for this
       createOrder({...order, price, size}, props.depths, props.minimumSize, props.personality);

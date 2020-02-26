@@ -4,7 +4,7 @@ import React, {ReactNode, ReactElement} from 'react';
 import {PodRowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderColumn} from 'columns/podColumns/orderColumn';
-import {Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {priceFormatter} from 'utils/priceFormatter';
 
@@ -37,11 +37,11 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           return priceFormatter(each.price) === priceFormatter(order.price);
         });
         if (mine !== undefined)
-          return mine;
+          return {...order, status: order.status | OrderStatus.Owned};
         return order;
       };
-      const bid: Order = props.bid; // pickMyOrderIfOnTopOrCurrentTop(props.bid);
-      const ofr: Order = props.ofr; // pickMyOrderIfOnTopOrCurrentTop(props.ofr);
+      const bid: Order = pickMyOrderIfOnTopOrCurrentTop(props.bid);
+      const ofr: Order = pickMyOrderIfOnTopOrCurrentTop(props.ofr);
       return (
         <OrderColumn
           type={type}

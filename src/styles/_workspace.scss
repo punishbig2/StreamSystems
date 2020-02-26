@@ -43,27 +43,31 @@
       width: auto;
       line-height: $title-bar-height;
       padding: 0 8px;
-
+      color: #444;
 
       button {
         display: inline-block;
         vertical-align: middle;
         border-radius: $title-bar-button-size / 2;
-        width: $title-bar-button-size;
-        height: $title-bar-button-size;
-        line-height: $title-bar-button-size;
+        width: $title-bar-button-size - 3;
+        height: $title-bar-button-size - 3;
+        line-height: $title-bar-button-size - 3;
         background: none;
         text-align: center;
         border: none;
         padding: 0;
         margin: 0;
 
+        &:first-child {
+          font-size: 11px;
+        }
+
         &:not(:last-child) {
-          margin: 0 ($title-bar-height - $title-bar-button-size) 0 0;
+          margin: 0 12px 0 0;
         }
 
         &:hover {
-          background-color: rgba(0, 0, 0, 0.075);
+          color: black;
         }
 
         &:active {
@@ -146,16 +150,17 @@
       z-index: 0;
 
       .window-title-bar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
         position: relative;
         pointer-events: none;
         width: 100%;
-        padding: 0 8px;
         line-height: $title-bar-height;
         height: $title-bar-height;
         z-index: 2;
 
         .item {
-          display: inline-block;
           margin: 0 4px 0 0;
         }
 
@@ -173,32 +178,13 @@
 
         h1 {
           font-size: 14px;
+          padding: 2px;
           margin: 0;
-          line-height: 28px;
+          line-height: $title-bar-height;
           display: inline-block;
         }
 
-        .select {
-          pointer-events: initial;
-          margin-right: 8px;
-
-          .MuiSelect-root {
-            font-size: 120%;
-            padding: 0 24px 0 8px;
-            line-height: $title-bar-height;
-          }
-
-          &::after,
-          &::before {
-            content: none;
-          }
-
-          &:focus {
-            background: transparent;
-          }
-        }
-
-        .status {
+       .status {
           display: inline-block;
           margin: 0 8px;
 
@@ -235,7 +221,7 @@
         min-width: min-content;
         pointer-events: none;
         min-height: 0;
-        padding: 8px;
+        padding: 2px 2px 4px 2px;
         box-sizing: border-box;
       }
     }

@@ -5,6 +5,7 @@ export const InvalidPrice: number = -1;
 export enum PodRowStatus {
   Normal,
   InvertedMarketsError,
+  SizeTooSmall,
   Executed
 }
 
