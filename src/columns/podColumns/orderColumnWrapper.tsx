@@ -12,14 +12,14 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
     name: `${type}-vol`,
     header: () => {
       const items: ReactElement[] = [
-        <div className={'price'}>{label}</div>,
+        <div className={'price'} key={'1'}>{label}</div>,
       ];
       const actionItem: ReactElement | null = action();
       if (actionItem !== null) {
         if (type === OrderTypes.Bid) {
-          items.unshift(<div className={'size'}>{actionItem}</div>);
+          items.unshift(<div className={'size'} key={'2'}>{actionItem}</div>);
         } else if (type === OrderTypes.Ofr) {
-          items.push(<div className={'size'}>{actionItem}</div>);
+          items.push(<div className={'size'} key={'2'}>{actionItem}</div>);
         }
       }
       return (

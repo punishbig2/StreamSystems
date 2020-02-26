@@ -71,14 +71,11 @@ export const PodSize: React.FC<Props> = (props: Props) => {
   };
 
   const canCancel = (order: Order) => {
-    const status: OrderStatus = order.status;
     if (order.price === null || order.size === null)
       return false;
-    if ((status & OrderStatus.Cancelled) !== 0)
+    if (order.isCancelled())
       return false;
-    if (props.isDepth)
-      return ((status & OrderStatus.Owned) !== 0 || (status & OrderStatus.SameBank) !== 0);
-    return (status & OrderStatus.Owned) !== 0;
+    return order.isOwnedByCurrentUser();
   };
 
   const cancellable = canCancel(order);

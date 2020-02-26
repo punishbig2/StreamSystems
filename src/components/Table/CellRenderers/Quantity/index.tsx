@@ -68,3 +68,4 @@ export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => 
     <div className={['size-layout', props.className].join(' ')}>{children}</div>
   );
 };
+

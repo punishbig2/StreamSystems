@@ -34,11 +34,10 @@ const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined =>
 const resize = (x: number, y: number, width: number, height: number, r: ClientRect, minWidth: number | undefined): DOMRect => {
   const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
   const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
-  if (width - left > window.innerWidth) {
-    return new DOMRect(0, 0, 100, 100);
-  }
   if (minWidth !== undefined && width < minWidth)
-    return new DOMRect(left, top, minWidth, height);
+    width = minWidth;
+  if (width - left > window.innerWidth)
+    return new DOMRect(0, 0, minWidth, 100);
   // Create the new rectangle confined to the r rectangle
   return new DOMRect(left, top, width, height);
 };
