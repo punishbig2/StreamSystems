@@ -41,8 +41,6 @@
   .thead {
     width: 100%;
     z-index: 0;
-    line-height: $table-header-height / 2;
-    height: $table-header-height / 2;
     background-color: rgba($primary-color, $table-tint);
 
     .twin-header {
@@ -50,6 +48,7 @@
       align-items: center;
       justify-content: center;
       height: 100%;
+      line-height: $table-header-height / 2;
       border: none;
       margin: 0;
 
