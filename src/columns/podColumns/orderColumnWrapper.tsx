@@ -40,8 +40,8 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           return mine;
         return order;
       };
-      const bid: Order = pickMyOrderIfOnTopOrCurrentTop(props.bid);
-      const ofr: Order = pickMyOrderIfOnTopOrCurrentTop(props.ofr);
+      const bid: Order = props.bid; // pickMyOrderIfOnTopOrCurrentTop(props.bid);
+      const ofr: Order = props.ofr; // pickMyOrderIfOnTopOrCurrentTop(props.ofr);
       return (
         <OrderColumn
           type={type}

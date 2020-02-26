@@ -212,4 +212,8 @@ export class Order {
   public isSameBankAsCurrentUser = () => {
     return (this.status & OrderStatus.SameBank) !== 0;
   };
+
+  public isActive = () => {
+    return (this.status & OrderStatus.Active) !== 0;
+  };
 }

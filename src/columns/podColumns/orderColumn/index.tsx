@@ -19,7 +19,7 @@ import {getAggregatedSize} from 'columns/podColumns/orderColumn/helpers/getAggre
 import {shouldOpenOrderTicket} from 'columns/podColumns/orderColumn/helpers/shoulOpenOrderTicket';
 import {reducer, State, ActionTypes} from 'columns/podColumns/orderColumn/reducer';
 import {getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/podColumns/common';
-import {PodRowStatus} from 'interfaces/podRow';
+import {PodRowStatus, PodRow} from 'interfaces/podRow';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 
 type OwnProps = {
@@ -125,22 +125,24 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       if (order.price === null)
         return false;
       if (type === OrderTypes.Bid) {
-        return order.price > price;
-      } else {
         return order.price < price;
+      } else {
+        return order.price > price;
       }
     });
   }
 
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
-    if (!isInvertedMarket(price)) {
+    if (isInvertedMarket(price)) {
       props.onRowStatusChange(PodRowStatus.InvertedMarketsError);
       return;
     }
+
     if (changed) {
       const size: number = getFinalSize();
       const orders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, order.type);
       const mine: Order | undefined = orders.find((each: Order) => each.isOwnedByCurrentUser());
+      console.log(mine);
       if (mine !== undefined)
         await API.cancelOrder(mine);
       // Do not wait for this
@@ -148,6 +150,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     } else {
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
     }
+
     // Move to the next price
     const parent: HTMLElement | null = getNthParentOf(input, 7);
     if (parent !== null) {
@@ -190,7 +193,24 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
               onSubmit={onSubmitSize}/>
   );
 
-  const depthOfTheBookTable = props.depths ? (
+  const currentDepth: PodTable = props.depths[order.tenor];
+  const shouldShowTooltip: boolean = currentDepth && Object.values(currentDepth)
+    .some((row: PodRow) => {
+      const order: Order | null = (() => {
+        if (type === OrderTypes.Bid) {
+          return row.bid;
+        } else if (type === OrderTypes.Ofr) {
+          return row.ofr;
+        } else {
+          return null;
+        }
+      })();
+      if (order === null)
+        return false;
+      return order.isActive();
+    });
+
+  const depthOfTheBookTable = shouldShowTooltip ? (
     <MiniDOB {...props} rows={getMiniDOBByType(props.depths, order.tenor, order.type)}/>
   ) : undefined;
 
