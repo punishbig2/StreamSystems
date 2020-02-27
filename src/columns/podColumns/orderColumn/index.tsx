@@ -18,7 +18,7 @@ import {OrderTicket} from 'components/OrderTicket';
 import {getAggregatedSize} from 'columns/podColumns/orderColumn/helpers/getAggregatedSize';
 import {shouldOpenOrderTicket} from 'columns/podColumns/orderColumn/helpers/shoulOpenOrderTicket';
 import {reducer, State, ActionTypes} from 'columns/podColumns/orderColumn/reducer';
-import {getBankMatchesPersonalityStatus} from 'columns/podColumns/common';
+import {getBankMatchesPersonalityStatus, getChevronStatus} from 'columns/podColumns/common';
 import {PodRowStatus, PodRow} from 'interfaces/podRow';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {dispatchWorkspaceError} from 'utils';
@@ -71,8 +71,8 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
 
   const bid: Order | undefined = type === OrderTypes.Bid ? props.bid : undefined;
   const ofr: Order | undefined = type === OrderTypes.Ofr ? props.ofr : undefined;
-  const status: OrderStatus =  // getChevronStatus(depths, order.tenor, order.type)
-    getBankMatchesPersonalityStatus(order, props.personality)
+  const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
+    | getBankMatchesPersonalityStatus(order, props.personality)
     | order.status
   ;
   const getFinalSize = (): number => {

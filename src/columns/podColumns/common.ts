@@ -24,7 +24,7 @@ const getDepthStatus = (values: Order[]): OrderStatus => {
   return OrderStatus.HasDepth;
 };
 
-/*export const getChevronStatus = (depths: { [key: string]: PodTable }, tenor: string, type: OrderTypes): OrderStatus => {
+export const getChevronStatus = (depths: { [key: string]: PodTable }, tenor: string, type: OrderTypes): OrderStatus => {
   const order: PodTable | undefined = depths[tenor];
   if (!order)
     return OrderStatus.None;
@@ -49,7 +49,7 @@ const getDepthStatus = (values: Order[]): OrderStatus => {
       break;
   }
   return OrderStatus.None;
-};*/
+};
 
 export const getBankMatchesPersonalityStatus = (order: Order, personality: string) => {
   return order.firm === personality ? OrderStatus.SameBank : OrderStatus.None;
