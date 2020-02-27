@@ -214,20 +214,6 @@ const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   return status | edited;
 };
 
-const getMid = (row: PodRow): number | null => {
-  const {ofr, bid} = row;
-  if ((ofr.price === null || ofr.isCancelled()) || (bid.price === null || bid.isCancelled()))
-    return null;
-  return (ofr.price + bid.price) / 2;
-};
-
-const getSpread = (row: PodRow): number | null => {
-  const {ofr, bid} = row;
-  if ((ofr.price === null || ofr.isCancelled()) || (bid.price === null || bid.isCancelled()))
-    return null;
-  return ofr.price - bid.price;
-};
-
 const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
   const row: PodRow = orders[rowID];
@@ -235,22 +221,17 @@ const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: Or
     return state;
   const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
   const {[key]: order} = row;
-  const newRow: PodRow = {
-    ...row,
-    [key]: {
-      ...order,
-      status: activateOrderIfPossible(order.status),
-    },
-  };
   return {
     ...state,
     orders: {
       ...orders,
-      [rowID]: {
-        ...newRow,
-        spread: getSpread(newRow),
-        mid: getMid(newRow),
-      },
+      [rowID]: fillSpreadAndMid({
+        ...row,
+        [key]: {
+          ...order,
+          status: activateOrderIfPossible(order.status),
+        },
+      }),
     },
   };
 };
@@ -286,11 +267,11 @@ const activateRow = (state: RunState, rowID: string): RunState => {
     ...state,
     orders: {
       ...orders,
-      [rowID]: {
+      [rowID]: fillSpreadAndMid({
         ...row,
         bid: {...bid, status: activateOrderIfPossible(bid.status)},
         ofr: {...ofr, status: activateOrderIfPossible(ofr.status)},
-      },
+      }),
     },
   };
 };
