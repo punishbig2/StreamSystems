@@ -4,7 +4,7 @@ import {RunActions} from 'components/Run/reducer';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {createAction} from 'redux/actionCreator';
 import {API} from 'API';
-import {OrderMessage, Order} from 'interfaces/order';
+import {OrderMessage, Order, OrderStatus} from 'interfaces/order';
 import {PodRow} from 'interfaces/podRow';
 import {$$} from 'utils/stringPaster';
 import {SignalRManager} from 'redux/signalR/signalRManager';
@@ -22,13 +22,13 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
       .then((messages: OrderMessage[]) => {
         const getMid = (row: PodRow): number | null => {
           const {ofr, bid} = row;
-          if (ofr.price === null || bid.price === null)
+          if (ofr.price === null || ofr.isCancelled() || bid.price === null || bid.isCancelled())
             return null;
           return (ofr.price + bid.price) / 2;
         };
         const getSpread = (row: PodRow): number | null => {
           const {ofr, bid} = row;
-          if (ofr.price === null || bid.price === null)
+          if (ofr.price === null || ofr.isCancelled() || bid.price === null || bid.isCancelled())
             return null;
           return ofr.price - bid.price;
         };
@@ -44,6 +44,7 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           .reduce(orderReducer, {});
         const prevOrders: { [id: string]: Order } = messages
           .map((message: OrderMessage) => Order.fromOrderMessage(message, email))
+          .map((order: Order) => ({...order, status: (order.status & ~OrderStatus.Active) | OrderStatus.Cancelled}))
           .reduce(orderReducer, {});
         const newOrders: Order[] = Object.values({...prevOrders, ...currOrders});
         const rows: PodRow[] = Object.values(createEmptyTable(symbol, strategy, tenors));

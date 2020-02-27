@@ -2,6 +2,7 @@ import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import React, {ReactElement, useState} from 'react';
 
 interface Props {
+  id?: string;
   value: string;
   type: 'price' | 'size',
   onChange: (value: string | null) => void;
@@ -92,6 +93,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <input
       {...otherProps}
+      id={props.id}
       data-input-type={props.type}
       placeholder={props.placeholder}
       onKeyDown={onKeyPress}

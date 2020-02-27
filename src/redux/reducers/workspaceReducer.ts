@@ -153,13 +153,13 @@ export const workspaceReducer = (state: WorkspaceState = initialState, action: A
       return {...state, windows: restoreWindow(data, state)};
     case WorkspaceActions.BringToFront:
       return {...state, windows: bringToFront(data, state)};
-    case WorkspaceActions.Toast:
+    case WorkspaceActions.ShowToast:
       return {...state, toast: data};
     case WorkspaceActions.UpdateMarkets:
       return {...state, markets: data};
     case WorkspaceActions.SetPersonality:
       return {...state, personality: data};
-    case WorkspaceActions.SetUserProfileModalVisible:
+    case WorkspaceActions.ShowUserProfileModal:
       return {...state, isUserProfileModalVisible: data};
     case WorkspaceActions.ShowError:
       return {...state, errorMessage: data};

@@ -18,9 +18,10 @@ import {OrderTicket} from 'components/OrderTicket';
 import {getAggregatedSize} from 'columns/podColumns/orderColumn/helpers/getAggregatedSize';
 import {shouldOpenOrderTicket} from 'columns/podColumns/orderColumn/helpers/shoulOpenOrderTicket';
 import {reducer, State, ActionTypes} from 'columns/podColumns/orderColumn/reducer';
-import {getChevronStatus, getBankMatchesPersonalityStatus} from 'columns/podColumns/common';
+import {getBankMatchesPersonalityStatus} from 'columns/podColumns/common';
 import {PodRowStatus, PodRow} from 'interfaces/podRow';
 import {SignalRManager} from 'redux/signalR/signalRManager';
+import {dispatchWorkspaceError} from 'utils';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -70,8 +71,8 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
 
   const bid: Order | undefined = type === OrderTypes.Bid ? props.bid : undefined;
   const ofr: Order | undefined = type === OrderTypes.Ofr ? props.ofr : undefined;
-  const status: OrderStatus = getChevronStatus(depths, order.tenor, order.type)
-    | getBankMatchesPersonalityStatus(order, props.personality)
+  const status: OrderStatus =  // getChevronStatus(depths, order.tenor, order.type)
+    getBankMatchesPersonalityStatus(order, props.personality)
     | order.status
   ;
   const getFinalSize = (): number => {
@@ -81,17 +82,15 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const onSubmitSize = async (input: HTMLInputElement) => {
-    if (order.type === OrderTypes.Ofr && order.price === null) {
+    if (order.isCancelled() || order.price === null)
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
-    } else if (order.type === OrderTypes.Bid) {
-      dispatch(createAction<ActionTypes>(ActionTypes.SetSubmittedSize, state.editedSize));
-    }
-
-    if (order.isOwnedByCurrentUser() && (order.status & OrderStatus.PreFilled) !== 0) {
+    if (order.isOwnedByCurrentUser() && (order.status & OrderStatus.PreFilled) !== 0 && !order.isCancelled()) {
       // Get the desired new size
       const size: number | null = state.editedSize;
       if (size !== null && size < props.minimumSize) {
         props.onRowStatusChange(PodRowStatus.SizeTooSmall);
+        // Emit a global message to show an error
+        dispatchWorkspaceError(`Size cannot be smaller than ${props.minimumSize}`);
         // Do not create the order in this case
         return;
       }
@@ -138,12 +137,13 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   }
 
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
-    if (isInvertedMarket(price)) {
-      props.onRowStatusChange(PodRowStatus.InvertedMarketsError);
-      return;
-    }
-
     if (changed) {
+      if (isInvertedMarket(price)) {
+        props.onRowStatusChange(PodRowStatus.InvertedMarketsError);
+        // Emit a global message to show an error
+        dispatchWorkspaceError('Inverted markets not allowed');
+        return;
+      }
       const size: number = getFinalSize();
       const orders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, order.type);
       const mine: Order | undefined = orders.find((each: Order) => each.isOwnedByCurrentUser());
@@ -181,13 +181,15 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       return order.size;
     return getAggregatedSize(order);
   })();
-
+  const cancellable: boolean = (status & OrderStatus.Cancelled) === 0 && (
+    (status & OrderStatus.HasMyOrder) !== 0 || (status & OrderStatus.Owned) !== 0
+  );
   const sizeCell: ReactElement = (
     <Quantity key={2}
               type={type}
               className={getOrderStatusClass(status, 'cell size-layout')}
               value={size}
-              cancellable={(status & OrderStatus.HasMyOrder) !== 0 || (status & OrderStatus.Owned) !== 0}
+              cancellable={cancellable}
               readOnly={readOnly}
               chevron={(status & OrderStatus.HasDepth) !== 0}
               onCancel={() => cancelOrder(order, depths)}

@@ -540,7 +540,7 @@
             cursor: initial;
           }
 
-          &:not(.owned-by-broker).owned {
+          &:not(.cancelled):not(.owned-by-broker).owned {
             color: $text-color-red;
           }
 

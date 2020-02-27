@@ -31,7 +31,7 @@ interface OwnProps {
 }
 
 const Row = (props: OwnProps & RowState & RowFunctions) => {
-  const {id, columns, onError, resetStatus, ...extra} = props;
+  const {id, columns, resetStatus, ...extra} = props;
   // Three identifying props
   const {symbol, strategy, tenor, connected} = props;
   // Internal row state
@@ -109,21 +109,6 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
       };
     }
   }, [symbol, strategy, tenor, connected, internalRow]);
-
-  /*useEffect(() => {
-    if (status === TOBRowStatus.Normal) {
-      return;
-    } else if (status === TOBRowStatus.Executed) {
-      const {ofr, bid} = internalRow;
-      if (ofr.price === null && bid.price === null) return;
-      const timer = setTimeout(() => {
-        resetStatus();
-      }, 5000);
-      return () => clearTimeout(timer);
-    } else {
-      onError(status);
-    }
-  }, [onError, resetStatus, internalRow, status]);*/
 
   const functions: RowFunctions = {
     resetStatus: props.resetStatus,

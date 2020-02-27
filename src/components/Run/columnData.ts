@@ -1,7 +1,8 @@
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {OrderTypes} from 'interfaces/mdEntry';
 
-export interface QtyHeader {
+export interface SizeHeaderProps {
+  minimum: number;
   value: number;
   type: OrderTypes;
   onChange: (value: number | null) => void;
@@ -16,8 +17,8 @@ export interface RunColumnData {
   onSpreadChanged: ChangeFn<number>;
   onOfrQtyChanged: ChangeFn<number>;
   onBidQtyChanged: ChangeFn<number>;
-  defaultOfrSize: QtyHeader;
-  defaultBidSize: QtyHeader;
+  defaultOfrSize: SizeHeaderProps;
+  defaultBidSize: SizeHeaderProps;
   focusNext: (target: HTMLInputElement, action?: string) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;

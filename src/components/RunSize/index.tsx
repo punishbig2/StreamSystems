@@ -20,23 +20,30 @@ interface Props {
   onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
-export const RunQuantity: React.FC<Props> = (props: Props) => {
+export const RunSize: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
-  const [value, setValue] = useState<string | null>(sizeFormatter(props.value));
+  const [internalValue, setInternalValue] = useState<string>(sizeFormatter(props.value));
   const {order, defaultValue, onChange, id, minimumSize} = props;
 
   useEffect(() => {
+    if (props.value === null)
+      return;
     setLocallyModified(false);
-    setValue(sizeFormatter(props.value));
+    setInternalValue(sizeFormatter(props.value));
   }, [props.value]);
+
+  useEffect(() => {
+    setLocallyModified(false);
+    setInternalValue(sizeFormatter(defaultValue));
+  }, [defaultValue]);
 
   const onChangeWrapper = (value: string | null) => {
     if (!locallyModified)
       setLocallyModified(true);
     if (value === null) {
-      setValue(sizeFormatter(order.size || defaultValue));
+      setInternalValue(sizeFormatter(order.size || defaultValue));
     } else {
-      setValue(value);
+      setInternalValue(value);
     }
   };
 
@@ -54,7 +61,7 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
   }, [onChange, id, minimumSize]);
 
   const onSubmit = (input: HTMLInputElement) => {
-    sendOnChange(Number(value));
+    sendOnChange(Number(internalValue));
     if (props.onTabbedOut) {
       props.onTabbedOut(input, $$(order.type, 'size'));
     }
@@ -70,26 +77,19 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
     // eslint-disable-next-line
   }, [defaultValue, oldDefaultValue, locallyModified]);
 
-  const getValueHelper = (forceEmpty: boolean) => {
-    if ((forceEmpty && !locallyModified) || (order.status & OrderStatus.PreFilled) === 0)
-      return sizeFormatter(defaultValue);
-    if (value !== null)
-      return value;
-    return sizeFormatter(props.value);
-  };
-
   const reset = () => {
-    setValue(null);
+    if (props.value === null) {
+      setInternalValue(sizeFormatter(defaultValue));
+    } else {
+      setInternalValue(sizeFormatter(props.value));
+    }
+    setLocallyModified(false);
   };
 
   const inactive: boolean = ((order.status & OrderStatus.Cancelled) !== 0
     && (order.status & OrderStatus.QuantityEdited) === 0
     && !locallyModified
   );
-
-  const getValue = () => {
-    return getValueHelper(inactive);
-  };
 
   const onActivateOrder = () => {
     if (!inactive)
@@ -104,16 +104,17 @@ export const RunQuantity: React.FC<Props> = (props: Props) => {
 
   const items: ReactNode[] = [
     <NumericInput
+      id={$$('run-size-', order.uid(), order.type)}
       key={0}
       tabIndex={-1}
       className={getOrderStatusClass(order.status, 'size')}
       placeholder={sizeFormatter(props.value)}
       type={'size'}
-      value={getValue()}
+      value={internalValue}
       onNavigate={props.onNavigate}
       onChange={onChangeWrapper}
       onSubmit={onSubmit}
-      onBlur={reset}/>,
+      onCancelEdit={reset}/>,
   ];
 
   if (order.type === OrderTypes.Bid) {

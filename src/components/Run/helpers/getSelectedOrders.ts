@@ -1,6 +1,7 @@
 import {PodTable} from 'interfaces/podTable';
 import {Order, OrderStatus} from 'interfaces/order';
 import {PodRow} from 'interfaces/podRow';
+import {$$} from 'utils/stringPaster';
 
 export const getSelectedOrders = (orders: PodTable, defaultSize: number): Order[] => {
   const rows: PodRow[] = Object.values(orders)
@@ -12,26 +13,24 @@ export const getSelectedOrders = (orders: PodTable, defaultSize: number): Order[
         return true;
       return bid.price < ofr.price;
     });
-  const ownOrDefaultQty = (order: Order, fallback: number | null): number => {
-    const quantityEdited = (order.status & OrderStatus.QuantityEdited) !== 0;
-    const canceled = (order.status & OrderStatus.Cancelled) !== 0;
-    const preFilled = (order.status & OrderStatus.PreFilled) !== 0;
-    if (quantityEdited || (preFilled && !canceled))
-      return order.size as number;
-    if (canceled && fallback !== defaultSize)
-      return fallback as number;
-    if (fallback === undefined || fallback === null)
-      return defaultSize;
-    return fallback as number;
+  const getSize = (order: Order, fallback: number | null): number | null => {
+    const element: HTMLElement | null = document.getElementById($$('run-size-', order.uid(), order.type));
+    if (element === null)
+      return fallback;
+    const input: HTMLInputElement = element as HTMLInputElement;
+    const value: number = Number(input.value);
+    if (isNaN(value))
+      return fallback;
+    return value;
   };
   const selection: Order[] = [
     ...rows.map(({bid}: PodRow) => ({
       ...bid,
-      size: ownOrDefaultQty(bid, defaultSize),
+      size: getSize(bid, defaultSize),
     })),
     ...rows.map(({ofr}: PodRow) => ({
       ...ofr,
-      size: ownOrDefaultQty(ofr, defaultSize),
+      size: getSize(ofr, defaultSize),
     })),
   ];
   return selection.filter((order: Order) => {

@@ -17,7 +17,7 @@ import {
   moveWindow,
   removeWindow,
   restoreWindow,
-  setToast,
+  showToast,
   setWindowAutoSize,
   setWindowTitle,
   setPersonality,
@@ -88,7 +88,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       bringToFront: (windowId: string) => dispatch(bringToFront(id, windowId)),
       setWindowAutoSize: (windowId: string) =>
         dispatch(setWindowAutoSize(id, windowId)),
-      showToast: (message: string | null) => dispatch(setToast(id, message)),
+      showToast: (message: string | null) => dispatch(showToast(id, message)),
       loadMarkets: () => dispatch(loadMarkets(id)),
       setPersonality: (personality: string) =>
         dispatch(setPersonality(id, personality)),
@@ -168,26 +168,6 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     }
   };
 
-  /*const onRowError = useCallback(
-    (status: TOBRowStatus) => {
-      switch (status) {
-        case TOBRowStatus.Normal:
-          break;
-        case TOBRowStatus.InvertedMarketsError:
-          showToast('Inverted Markets Not Allowed');
-          break;
-        case TOBRowStatus.NegativePrice:
-          showToast('Negative Prices Not Allowed');
-          break;
-        case TOBRowStatus.IncompleteError:
-          break;
-        case TOBRowStatus.CreatingOrder:
-          break;
-      }
-    },
-    [showToast],
-  );*/
-
   const {personality, id: workspaceID} = props;
   const renderContent = useCallback((windowID: string, type: WindowTypes): ReactElement | null => {
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
@@ -199,6 +179,17 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const onPersonalityChange = ({target}: React.ChangeEvent<SelectEventData>) => {
     props.setPersonality(target.value as string);
   };
+
+  const {showToast} = props;
+  useEffect(() => {
+    const errorListener = (event: CustomEvent<string>) => {
+      showToast(event.detail);
+    };
+    document.addEventListener('workspace-error', errorListener as EventListener);
+    return () => {
+      document.removeEventListener('workspace-error', errorListener as EventListener);
+    };
+  }, [workspaceID, showToast]);
 
   const getRightPanelButtons = (): ReactNode => {
     const user: User = getAuthenticatedUser();

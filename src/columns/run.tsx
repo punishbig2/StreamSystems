@@ -1,6 +1,6 @@
-import {HeaderQty} from 'components/HeaderQty';
-import {RunQuantity} from 'components/RunQuantity';
-import {RunColumnData} from 'components/Run/columnData';
+import {SizeHeader} from 'components/SizeHeader';
+import {RunSize} from 'components/RunSize';
+import {RunColumnData, SizeHeaderProps} from 'components/Run/columnData';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
@@ -47,8 +47,8 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   };
 };
 
-const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
-  const defaultSize = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
+const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+  const defaultSize: SizeHeaderProps = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
   const onChange = type === 'bid' ? data.onBidQtyChanged : data.onOfrQtyChanged;
   const tryToGoToTheRightCell = (input: HTMLInputElement) => {
     const parent: Element | null = getNthParentOf(input, 9);
@@ -71,15 +71,16 @@ const RunQtyCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   return {
     name: `${type}-size`,
     header: () => (
-      <HeaderQty onChange={defaultSize.onChange}
-                 value={defaultSize.value}
-                 type={defaultSize.type}
-                 onSubmit={tryToGoToTheRightCell}/>
+      <SizeHeader onChange={defaultSize.onChange}
+                  value={defaultSize.value}
+                  minimum={defaultSize.minimum}
+                  type={defaultSize.type}
+                  onSubmit={tryToGoToTheRightCell}/>
     ),
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
-        <RunQuantity
+        <RunSize
           id={row.id}
           value={order.size}
           order={order}
@@ -164,10 +165,10 @@ const SpreadCol = (data: RunColumnData) => ({
 
 const columns = (data: RunColumnData): ColumnSpec[] => [
   TenorColumn,
-  RunQtyCol(data, 'bid'),
+  RunSizeColumn(data, 'bid'),
   RunPxCol(data, 'bid'),
   RunPxCol(data, 'ofr'),
-  RunQtyCol(data, 'ofr'),
+  RunSizeColumn(data, 'ofr'),
   MidCol(data),
   SpreadCol(data),
 ];

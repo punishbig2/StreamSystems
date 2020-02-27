@@ -108,11 +108,13 @@ const Run: React.FC<Props> = (props: Props) => {
       type,
     })),
     defaultBidSize: {
+      minimum: props.minimumSize,
       value: state.defaultBidSize,
       onChange: (value: number | null) => dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, value)),
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
+      minimum: props.minimumSize,
       value: state.defaultOfrSize,
       onChange: (value: number | null) => dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, value)),
       type: OrderTypes.Ofr,

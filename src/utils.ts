@@ -16,3 +16,7 @@ export const percentage = (numerator: number, denominator: number): string => {
   const percentage: number = (100 * numerator) / denominator;
   return `${percentage}%`;
 };
+
+export const dispatchWorkspaceError = (message: string) => {
+  document.dispatchEvent(new CustomEvent('workspace-error', {detail: message}));
+};

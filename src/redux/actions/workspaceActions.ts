@@ -51,8 +51,8 @@ export const setWindowTitle = (workspaceID: string, windowID: string, title: str
   return createWorkspaceAction(workspaceID, WorkspaceActions.SetWindowTitle, {id: windowID, title});
 };
 
-export const setToast = (workspaceID: string, message: string | null): FXOAction<string> => {
-  return createWorkspaceAction(workspaceID, WorkspaceActions.Toast, message);
+export const showToast = (workspaceID: string, message: string | null): FXOAction<string> => {
+  return createWorkspaceAction(workspaceID, WorkspaceActions.ShowToast, message);
 };
 
 export const setWindowAutoSize = (workspaceID: string, windowID: string): FXOAction<string> => {
@@ -77,11 +77,11 @@ export const setPersonality = (workspaceID: string, personality: string) => {
 };
 
 export const showUserProfileModal = (workspaceID: string): FXOAction<WorkspaceActions> => {
-  return createWorkspaceAction(workspaceID, WorkspaceActions.SetUserProfileModalVisible, true);
+  return createWorkspaceAction(workspaceID, WorkspaceActions.ShowUserProfileModal, true);
 };
 
 export const closeUserProfileModal = (workspaceID: string): FXOAction<WorkspaceActions> => {
-  return createWorkspaceAction(workspaceID, WorkspaceActions.SetUserProfileModalVisible, false);
+  return createWorkspaceAction(workspaceID, WorkspaceActions.ShowUserProfileModal, false);
 };
 
 export const closeErrorModal = (workspaceID: string): FXOAction<WorkspaceActions> => {
