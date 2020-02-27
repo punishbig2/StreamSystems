@@ -31,13 +31,13 @@ const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined =>
   };
 };
 
-const resize = (x: number, y: number, width: number, height: number, r: ClientRect, minWidth: number | undefined): DOMRect => {
+const resize = (x: number, y: number, width: number, height: number, r: ClientRect, minWidth: number): DOMRect => {
   const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
   const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
-  if (minWidth !== undefined && width < minWidth)
+  if (minWidth > 0 && width < minWidth)
     width = minWidth;
   if (width - left > window.innerWidth)
-    return new DOMRect(0, 0, minWidth, 100);
+    return new DOMRect(0, 0, minWidth, height);
   // Create the new rectangle confined to the r rectangle
   return new DOMRect(left, top, width, height);
 };
@@ -80,9 +80,7 @@ const pixels = (x: number): string => `${x}px`;
 
 const adjustToContent = (element: HTMLDivElement, area: ClientRect, setMinWidth: (value: number) => void) => {
   const {style} = element;
-  const windowContent: HTMLDivElement | null = element.querySelector(
-    '.window-content',
-  );
+  const windowContent: HTMLDivElement | null = element.querySelector('.window-content');
   const contentStyle: any = windowContent ? windowContent.style : {};
   if (windowContent) contentStyle.minHeight = 'auto';
   // Let's force scrollWidth and scrollHeight to have the minimal internalValue
@@ -100,12 +98,13 @@ const adjustToContent = (element: HTMLDivElement, area: ClientRect, setMinWidth:
   } else {
     style.height = pixels(area.height - element.offsetTop);
   }
-  if (windowContent)
+  if (windowContent) {
     contentStyle.minHeight = '0';
+  }
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
-  const [minWidth, setMinWidth] = useState<number>(Number.MAX_SAFE_INTEGER);
+  const [minWidth, setMinWidth] = useState<number>(-1);
   const {onGeometryChange, autoSize, area} = props;
   // Create a reference to the window container
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(
@@ -174,11 +173,14 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   const style: CSSProperties | undefined = toStyle(props.geometry);
 
   useEffect(() => {
-    if (!autoSize) return;
+    if (!autoSize)
+      return;
     const {current: parent} = container;
-    if (parent === null) return;
+    if (parent === null)
+      return;
     const element: HTMLDivElement | null = parent.querySelector('.content');
-    if (element === null) return;
+    if (element === null)
+      return;
     const observer = new MutationObserver(() => {
       adjustToContent(parent, area, setMinWidth);
     });
@@ -188,9 +190,11 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   }, [container, autoSize, area]);
 
   useEffect(() => {
-    if (!autoSize) return;
+    if (!autoSize)
+      return;
     const {current: parent} = container;
-    if (parent === null) return;
+    if (parent === null)
+      return;
     adjustToContent(parent, area, setMinWidth);
   }, [container, autoSize, area]);
 
