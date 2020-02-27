@@ -49,7 +49,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
     style.fontFamily = '"Roboto", sans-serif';
     style.fontSize = '15px';
     style.fontWeight = '500';
-    style.padding = '12px';
+    style.padding = '4px';
     // Temporarily add the element to the document so that it's measurable
     body.appendChild(el);
     // Sums the widths of individual elements
