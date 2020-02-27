@@ -4,24 +4,23 @@ import {Run} from 'components/Run';
 import {Table} from 'components/Table';
 import {useDepthEmitter} from 'components/PodTile/hooks/useDepthEmitter';
 import {useInitializer} from 'components/PodTile/hooks/useInitializer';
-import {DispatchProps, OwnProps, Props} from 'components/PodTile/props';
+import {OwnProps, Props, DispatchProps} from 'components/PodTile/props';
 import {ActionTypes, reducer, State} from 'components/PodTile/reducer';
 import {Row} from 'components/PodTile/Row';
 import {PodTileTitle} from 'components/PodTile/title';
 import {Order} from 'interfaces/order';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
+import {PodRow} from 'interfaces/podRow';
 import {PodTable} from 'interfaces/podTable';
 import React, {ReactElement, useCallback, useEffect, useMemo, useReducer} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
-import {createAction, createWindowAction} from 'redux/actionCreator';
+import {createAction} from 'redux/actionCreator';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowState} from 'redux/stateDefs/windowState';
-import {setStrategy, setSymbol} from 'redux/actions/podTileActions';
-import {PodTileActions} from 'redux/reducers/podTileReducer';
-import {Currency} from 'interfaces/currency';
+import {initialize, setStrategy, setSymbol} from 'redux/actions/podTileActions';
 import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {API} from 'API';
 import {SignalRManager} from 'redux/signalR/signalRManager';
+import {Currency} from 'interfaces/currency';
 
 const mapStateToProps: MapStateToProps<WindowState, OwnProps, ApplicationState> =
   ({workarea: {workspaces}}: ApplicationState, ownProps: OwnProps) => {
@@ -32,8 +31,15 @@ const mapStateToProps: MapStateToProps<WindowState, OwnProps, ApplicationState> 
     return workspace.windows[id];
   };
 
+const mapDispatchToProps: DispatchProps = {
+  initialize,
+  setStrategy,
+  setSymbol,
+};
+
 const withRedux = connect<WindowState, DispatchProps, OwnProps, ApplicationState>(
   mapStateToProps,
+  mapDispatchToProps,
 );
 
 const initialState: State = {
@@ -45,25 +51,10 @@ const initialState: State = {
 };
 
 const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
-  const {id, dispatch: reduxDispatch} = props;
+  const {workspaceID, id: windowID} = props;
   const {symbols, symbol, products, strategy, tenors, connected, rows, user, personality} = props;
   const {email} = props.user;
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  const actions = useMemo(
-    () => ({
-      initialize: (rows: { [tenor: string]: PodRow }) =>
-        reduxDispatch(createWindowAction(props.workspaceID, id, PodTileActions.Initialize, rows)),
-      setStrategy: (value: string) => reduxDispatch(setStrategy(props.workspaceID, id, value)),
-      setSymbol: (value: string) => reduxDispatch(setSymbol(props.workspaceID, id, symbols.find((s: Currency) => s.name === value))),
-      // updateOrder: (order: Order) => reduxDispatch(updateOrder(id, order)),
-      setRowStatus: (order: Order, status: PodRowStatus) => {
-        console.log('set row status ignore');
-        // reduxDispatch(setRowStatus(id, order, status))
-      },
-    }),
-    [id, props.workspaceID, reduxDispatch, symbols],
-  );
 
   // Internal temporary reducer actions
   const setCurrentTenor = useCallback((tenor: string | null) =>
@@ -88,7 +79,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol.name, strategy, insertDepth);
   // Initialize tile/window
-  useInitializer(tenors, email, actions.initialize);
+  useInitializer(workspaceID, windowID, tenors, email, props.initialize);
   // Handler methods
   const bulkCreateOrders = useCallback(
     (entries: Order[]) => {
@@ -181,6 +172,15 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       }
     }
   }, [setCurrentTenor, state.depths, state.tenor]);
+  const setStrategy = (value: string) => {
+    props.setStrategy(workspaceID, windowID, value);
+  };
+  const setSymbol = (value: string) => {
+    const currency: Currency | undefined = symbols.find((currency: Currency) => currency.name === value);
+    if (currency !== undefined) {
+      props.setSymbol(workspaceID, windowID, currency);
+    }
+  };
   return (
     <>
       <PodTileTitle
@@ -190,8 +190,8 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
         products={products}
         runsDisabled={!symbol || !strategy || (props.personality === STRM && user.isbroker)}
         connected={connected}
-        setStrategy={(value: string) => actions.setStrategy(value)}
-        setSymbol={(value: string) => actions.setSymbol(value)}
+        setStrategy={setStrategy}
+        setSymbol={setSymbol}
         onClose={props.onClose}
         onShowRunWindow={showRunWindow}/>
       <div className={'window-content'}>

@@ -33,7 +33,6 @@ const getCallback = (id: string, name: string, fallback: (...args: any[]) => any
 };
 
 const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
-const empty: any[] = [];
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const [area, setArea] = useState<ClientRect>(BodyRectangle);
@@ -103,7 +102,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       <WindowElement
         geometry={geometry}
         key={id}
-        forbidden={empty}
         area={area}
         isMinimized={window.minimized}
         autoSize={window.autoSize}
@@ -135,7 +133,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       {windows.map(windowMapper)}
       <WindowElement
         geometry={fixedBlotterGeometry}
-        forbidden={empty}
         area={area}
         isMinimized={false}
         autoSize={true}

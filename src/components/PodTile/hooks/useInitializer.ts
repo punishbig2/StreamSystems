@@ -28,7 +28,8 @@ const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => 
   return finalRows;
 };
 
-const doInitialize = (tenors: string[], email: string, initialize: (data: PodTable) => void): (() => void)[] => {
+type PodInitializer = (workspaceID: string, windowID: string, data: PodTable) => void;
+const doInitialize = (workspaceID: string, windowID: string, tenors: string[], email: string, initialize: PodInitializer) => {
   const arrayToObjectReducer = (object: PodTable, item: PodRow): PodTable => {
     object[item.id] = item;
     // Return the accumulator
@@ -36,17 +37,13 @@ const doInitialize = (tenors: string[], email: string, initialize: (data: PodTab
   };
   buildRows(tenors, email)
     .then((rows: PodRow[]) => {
-      initialize(rows.reduce(arrayToObjectReducer, {}));
+      initialize(workspaceID, windowID, rows.reduce(arrayToObjectReducer, {}));
     });
-  return [];
 };
 
-export const useInitializer = (tenors: string[], email: string, initialize: (data: PodTable) => void) => {
+export const useInitializer = (workspaceID: string, windowID: string, tenors: string[], email: string, initialize: PodInitializer) => {
   useEffect(() => {
-    const cleanups: (() => void)[] = doInitialize(tenors, email, initialize);
-    return () => {
-      cleanups.forEach((cleanup) => cleanup());
-    };
+    doInitialize(workspaceID, windowID, tenors, email, initialize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenors, email]);
 };

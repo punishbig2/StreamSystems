@@ -1,11 +1,16 @@
 import {Currency} from 'interfaces/currency';
-import {Order, Sides} from 'interfaces/order';
 import {Strategy} from 'interfaces/strategy';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {User} from 'interfaces/user';
-import {Subscriber} from 'redux/signalRAction';
 import {WindowState} from 'redux/stateDefs/windowState';
-import {DispatchProp} from 'react-redux';
+import {FXOAction} from 'redux/fxo-action';
+import {PodTileActions} from 'redux/reducers/podTileReducer';
+import {PodTable} from 'interfaces/podTable';
+
+export interface DispatchProps {
+  initialize: (workspaceID: string, windowID: string, rows: PodTable) => FXOAction<PodTileActions>;
+  setStrategy: (workspaceID: string, windowID: string, strategy: string) => FXOAction<PodTileActions>;
+  setSymbol: (workspaceID: string, windowID: string, currency: Currency) => FXOAction<PodTileActions>;
+}
 
 export interface OwnProps {
   id: string;
@@ -20,33 +25,4 @@ export interface OwnProps {
   onClose?: () => void;
 }
 
-export interface DispatchProps {
-  initialize: (rows: { [tenor: string]: PodRow }) => void;
-  unsubscribe: Subscriber;
-  subscribe: Subscriber;
-  subscribeDarkPool: Subscriber;
-  getSnapshot: (symbol: string, strategy: string, tenor: string) => void;
-  getDarkPoolSnapshot: (
-    symbol: string,
-    strategy: string,
-    tenor: string,
-  ) => void;
-  setStrategy: (value: string) => void;
-  setSymbol: (value: string) => void;
-  toggleOCO: () => void;
-  createOrder: (order: Order, personality: string, minimumSize: number) => void;
-  cancelOrder: (order: Order) => void;
-  cancelAll: (symbol: string, strategy: string, side: Sides) => void;
-  updateOrder: (entry: Order) => void;
-  getRunOrders: (symbol: string, strategy: string) => void;
-  setRowStatus: (order: Order, status: PodRowStatus) => void;
-  updateOrderQuantity: (order: Order) => void;
-  publishDarkPoolPrice: (
-    symbol: string,
-    strategy: string,
-    tenor: string,
-    price: number,
-  ) => void;
-}
-
-export type Props = OwnProps & WindowState & DispatchProp;
+export type Props = OwnProps & WindowState & DispatchProps;

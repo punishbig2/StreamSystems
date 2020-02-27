@@ -1,22 +1,19 @@
-import {HubConnection, HubConnectionState} from '@microsoft/signalr';
 import {
   combineReducers,
   createStore,
-  DeepPartial,
   Dispatch,
   Reducer,
   Store,
-  StoreEnhancer,
-  StoreEnhancerStoreCreator,
   Action,
+  applyMiddleware,
+  StoreEnhancer,
+  StoreEnhancerStoreCreator, DeepPartial,
 } from 'redux';
 import {createAction, createWorkspaceAction} from 'redux/actionCreator';
 // State shapes
 import {ApplicationState} from 'redux/applicationState';
 // Special action types
-import {AsyncAction} from 'redux/asyncAction';
 // Action enumerators
-import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
 import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
@@ -25,21 +22,24 @@ import executionsReducer from 'redux/reducers/executionsReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
-import {SignalRAction} from 'redux/signalRAction';
 // Websocket action parsers/converters
 import {FXOptionsDB} from 'fx-options-db';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
 import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 import {WindowState} from 'redux/stateDefs/windowState';
-import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
-import {API} from 'API';
-import {ExecTypes, Message} from 'interfaces/message';
 import {Sides} from 'interfaces/order';
+import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
+import {HubConnection, HubConnectionState} from '@microsoft/signalr';
+import {SignalRAction} from 'redux/signalRAction';
+import {AsyncAction} from 'redux/asyncAction';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {SignalRActions} from 'redux/constants/signalRConstants';
+import {Message, ExecTypes} from 'interfaces/message';
+import {User} from 'interfaces/user';
+import {API} from 'API';
 import {$$} from 'utils/stringPaster';
 import {RowActions} from 'components/Table/CellRenderers/Price/constants';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User} from 'interfaces/user';
 
 // Build the reducer from the fixed and dynamic reducers
 export const createReducer = (): Reducer<ApplicationState, Action> => {
@@ -73,11 +73,6 @@ const hydrate = async (dispatch: Dispatch<any>) => {
       const promises = tiles.map(async (windowID: string) => {
         const window: WindowState | undefined = await FXOptionsDB.getWindow(windowID);
         if (window !== undefined) {
-          /*injectNamedReducer(windowID, createWindowReducer, {
-            rows: [],
-            strategy: window.strategy,
-            symbol: window.symbol,
-          });*/
           dispatch(createWorkspaceAction(id, WorkspaceActions.AddWindow, window));
         }
       });
@@ -142,27 +137,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       // Dispatch an action to notify disconnection
       dispatch(createAction<any, A>(SignalRActions.Disconnected));
     };
-
-    /*const onUpdateMarketData = (data: W) => {
-      const type: string = `${data.Symbol}${data.Strategy}${data.Tenor}`;
-      const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: data});
-      document.dispatchEvent(event);
-      const action: A | null = handlers.W<A>(data);
-      if (action !== null && action !== DummyAction) {
-        dispatch(action);
-      }
-    };
-
-    const onUpdateDarkPoolPx = (message: DarkPoolMessage) => {
-      const rowID = manualToRowID(message.Tenor, message.Symbol, message.Strategy);
-      FXOptionsDB.saveDarkPool(rowID, message.DarkPrice);
-      dispatch(
-        createAction<any, A>(
-          $$(rowID, RowActions.UpdateDarkPrice),
-          message.DarkPrice,
-        ),
-      );
-    };*/
 
     const onUpdateMessageBlotter = (data: Message) => {
       const user: User = getAuthenticatedUser();

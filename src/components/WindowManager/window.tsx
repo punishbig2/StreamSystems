@@ -5,7 +5,6 @@ import React, {CSSProperties, ReactElement, useCallback, useEffect, useRef, useS
 interface OwnProps {
   geometry?: ClientRect;
   area: ClientRect;
-  forbidden: ClientRect[];
   isMinimized: boolean;
   autoSize: boolean;
   fixed?: boolean;
