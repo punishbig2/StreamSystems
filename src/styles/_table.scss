@@ -456,8 +456,8 @@
       line-height: $table-row-height;
 
       &:not(.edited) {
-        &:not(.owned-by-broker).owned,
-        &:not(.owned-by-broker).among {
+        &.owned,
+        &.among {
           color: $text-color-red;
         }
       }
@@ -506,7 +506,7 @@
 
     .price-layout {
       input {
-        &:not(.owned-by-broker).among {
+        &.among {
           color: $text-color-red;
         }
       }
@@ -540,13 +540,12 @@
             cursor: initial;
           }
 
-          &:not(.cancelled):not(.owned-by-broker).owned {
+          &:not(.cancelled).owned {
             color: $text-color-red;
           }
 
           &.mid,
-          &:not(.owned).same-bank,
-          &.owned-by-broker.same-bank {
+          &:not(.owned).same-bank {
             color: $text-color-blue;
           }
 

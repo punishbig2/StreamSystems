@@ -9,7 +9,9 @@ import {sizeFormatter} from 'utils/sizeFormatter';
 type Props = SizeHeaderProps & { onSubmit: (input: HTMLInputElement) => void };
 export const SizeHeader: React.FC<Props> = (props: Props) => {
   const [internalValue, setInternalValue] = useState<number | null>(props.value);
+
   const onBlur = () => {
+    setInternalValue(props.value);
   };
 
   useEffect(() => {
