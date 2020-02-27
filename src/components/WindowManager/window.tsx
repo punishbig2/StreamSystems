@@ -78,11 +78,12 @@ const onResize = (area: ClientRect, minWidth: number, update: (geometry: ClientR
 
 const pixels = (x: number): string => `${x}px`;
 
-const adjustToContent = (element: HTMLDivElement, area: ClientRect, setMinWidth: (value: number) => void) => {
+const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
   const {style} = element;
   const windowContent: HTMLDivElement | null = element.querySelector('.window-content');
   const contentStyle: any = windowContent ? windowContent.style : {};
-  if (windowContent) contentStyle.minHeight = 'auto';
+  if (windowContent)
+    contentStyle.minHeight = 'auto';
   // Let's force scrollWidth and scrollHeight to have the minimal internalValue
   style.width = '1px';
   style.height = '1px';
@@ -92,15 +93,13 @@ const adjustToContent = (element: HTMLDivElement, area: ClientRect, setMinWidth:
   } else {
     style.width = pixels(area.width - element.offsetLeft);
   }
-  setMinWidth(parseInt(style.width));
   if (element.scrollHeight + element.offsetTop < area.height) {
     style.height = pixels(element.scrollHeight);
   } else {
     style.height = pixels(area.height - element.offsetTop);
   }
-  if (windowContent) {
+  if (windowContent)
     contentStyle.minHeight = '0';
-  }
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
@@ -171,6 +170,25 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     .trim();
 
   const style: CSSProperties | undefined = toStyle(props.geometry);
+  // Keep the min width up to date
+  useEffect(() => {
+    const {current: parent} = container;
+    if (parent === null)
+      return;
+    const element: HTMLDivElement | null = parent.querySelector('.content');
+    if (element === null)
+      return;
+    const {style} = parent;
+    // Let's force scrollWidth and scrollHeight to have the minimal internalValue
+    style.width = '1px';
+    // Update the element with the minimal size possible
+    if (element.scrollWidth + element.offsetLeft < area.width) {
+      style.width = pixels(element.scrollWidth);
+    } else {
+      style.width = pixels(area.width - element.offsetLeft);
+    }
+    setMinWidth(parseInt(style.width));
+  }, [area.width]);
 
   useEffect(() => {
     if (!autoSize)
@@ -182,7 +200,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     if (element === null)
       return;
     const observer = new MutationObserver(() => {
-      adjustToContent(parent, area, setMinWidth);
+      adjustToContent(parent, area);
     });
     // Observe changes
     observer.observe(element, {childList: true, subtree: true});
@@ -195,7 +213,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     const {current: parent} = container;
     if (parent === null)
       return;
-    adjustToContent(parent, area, setMinWidth);
+    adjustToContent(parent, area);
   }, [container, autoSize, area]);
 
   const getTitlebarButtons = (): ReactElement | null => {
