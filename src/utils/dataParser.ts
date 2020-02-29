@@ -27,14 +27,10 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderT
 
 const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
   const reducer = (table: PodTable, row: PodRow, index: number): PodTable => {
-    const key: string = $$('__DOB_KEY', index, w.Tenor, w.Symbol, w.Strategy);
-    table[key] = row;
+    table[row.id] = row;
     return table;
   };
-  const createMapper = (key1: E, key2: E) => (other: MDEntry[]) => (
-    entry: MDEntry,
-    index: number,
-  ): PodRow => {
+  const createMapper = (key1: E, key2: E) => (other: MDEntry[]) => (entry: MDEntry, index: number): PodRow => {
     const transform = mdEntryToTOBEntry(w);
     if (key1 === 'ofr' && key2 === 'bid') {
       return {
@@ -77,7 +73,7 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
   const e2: MDEntry = entries[1];
   // We need the user here
   const now: number = Date.now();
-  if (e1 === undefined && e2 === undefined)
+  if (e1 === undefined && e2 === undefined) {
     return [
       {
         MDEntryType: OrderTypes.Bid,
@@ -94,7 +90,7 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
         MDEntryTime: now.toString(),
       },
     ];
-  else if (e1 === undefined) {
+  } else if (e1 === undefined) {
     return [{
       MDEntryType: OrderTypes.Bid,
       MDEntryPx: '0',

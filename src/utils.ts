@@ -1,5 +1,5 @@
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/order';
+import {Sides} from 'interfaces/sides';
 
 export const getSideFromType = (type: OrderTypes): Sides => {
   switch (type) {

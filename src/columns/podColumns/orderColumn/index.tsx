@@ -10,7 +10,6 @@ import {createOrder, cancelOrder, onNavigate} from 'columns/podColumns/helpers';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {getNthParentOf, skipTabIndexAll} from 'utils/skipTab';
-import {API} from 'API';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
 import {getMiniDOBByType} from 'columns/tobMiniDOB';
 import {ModalWindow} from 'components/ModalWindow';
@@ -94,8 +93,6 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
         // Do not create the order in this case
         return;
       }
-      // We fist cancel our current order
-      await API.cancelOrder(order);
       // Create the order
       createOrder({...order, size}, props.depths, props.minimumSize, props.personality);
     }
@@ -118,7 +115,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const onChangeSize = (value: string | null) => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, value));
   const resetSize = () => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, state.submittedSize));
 
-  function isInvertedMarket(price: number | null) {
+  const isInvertedMarket = (price: number | null) => {
     const otherType: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
     const allOrders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, otherType);
     if (allOrders.length === 0)
@@ -126,7 +123,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     return allOrders.every((order: Order) => {
       if (price === null)
         return true;
-      if (order.price === null)
+      if (order.price === null || order.isCancelled())
         return false;
       if (type === OrderTypes.Bid) {
         return order.price < price;
@@ -134,7 +131,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
         return order.price > price;
       }
     });
-  }
+  };
 
   const onSubmitPrice = async (input: HTMLInputElement, price: number | null, changed: boolean) => {
     if (changed) {
@@ -145,10 +142,6 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
         return;
       }
       const size: number = getFinalSize();
-      const orders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, order.type);
-      const mine: Order | undefined = orders.find((each: Order) => each.isOwnedByCurrentUser());
-      if (mine !== undefined && !mine.isCancelled())
-        await API.cancelOrder(mine);
       // Do not wait for this
       createOrder({...order, price, size}, props.depths, props.minimumSize, props.personality);
     } else {

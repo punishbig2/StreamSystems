@@ -7,11 +7,6 @@ export enum OrderTypes {
   DarkPool = '2'
 }
 
-export enum FirmTypes {
-  Bank = 'BANK',
-  Broker = 'BROKER'
-}
-
 export interface MDEntry {
   MDEntryType: OrderTypes;
   MDEntryPx: string;

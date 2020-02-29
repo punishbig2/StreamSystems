@@ -1,6 +1,7 @@
-import {Order, Sides} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {$$} from 'utils/stringPaster';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
+import {Sides} from 'interfaces/sides';
 
 export type OrderAction = 'UPDATE_SIZE' | 'CREATE' | 'CANCEL' | 'CANCEL_ERROR' | PodTileActions.UpdateOrder | '';
 export const createSymbolStrategyTenorListener =

@@ -3,11 +3,8 @@ import {User} from 'interfaces/user';
 import {ArrowDirection, MessageTypes, W} from 'interfaces/w';
 import {$$} from 'utils/stringPaster';
 import {OrderAction} from 'orderEvents';
-
-export enum Sides {
-  Buy = 'BUY',
-  Sell = 'SELL'
-}
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {Sides} from 'interfaces/sides';
 
 export interface CreateOrder {
   MsgType: MessageTypes;
@@ -25,10 +22,6 @@ export interface CreateOrder {
 export type DarkPoolOrder = CreateOrder & {
   ExecInst?: string;
 };
-
-export enum OrderErrors {
-  NegativePrice = 'Invalid price. Price should be positive.'
-}
 
 export interface UpdateOrder {
   MsgType: MessageTypes;
@@ -60,9 +53,7 @@ export enum OrderStatus {
   DarkPool = 1 << 14,
   FullDarkPool = 1 << 15,
   OwnedByBroker = 1 << 16,
-  JustCreated = 1 << 17,
-  JustCancelled = 1 << 18,
-  RunOrder = 1 << 19,
+  RunOrder = 1 << 17,
 }
 
 export interface OrderMessage {
@@ -116,7 +107,6 @@ export class Order {
   public tenor: string;
   public type: OrderTypes;
   public user: string;
-  public timestamp: string = Date.now().toString();
 
   constructor(tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes) {
     this.type = type;
@@ -152,11 +142,7 @@ export class Order {
 
   public static fromWAndMDEntry = (w: W, entry: MDEntry, user: User): Order => {
     const price: number | null = getNumber(entry.MDEntryPx);
-    // Status holders
-    const ownership: OrderStatus =
-      user.email === entry.MDEntryOriginator
-        ? OrderStatus.Owned
-        : OrderStatus.NotOwned;
+    const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
     const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
     const preFilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
     const cancelled: OrderStatus =
@@ -194,7 +180,8 @@ export class Order {
   };
 
   public isOwnedByCurrentUser = (): boolean => {
-    return (this.status & OrderStatus.Owned) !== 0;
+    const user: User = getAuthenticatedUser();
+    return this.user === user.email;
   };
 
   public isBeingCancelled = (): boolean => {
@@ -202,7 +189,7 @@ export class Order {
   };
 
   public isCancellable = () => {
-    return (this.status & OrderStatus.Owned) !== 0;
+    return this.isOwnedByCurrentUser();
   };
 
   public isCancelled = () => {

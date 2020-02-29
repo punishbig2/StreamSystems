@@ -1,13 +1,16 @@
-import {Order, OrderStatus} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {PodTable} from 'interfaces/podTable';
-import {InvalidPrice, PodRow} from 'interfaces/podRow';
+import {PodRow} from 'interfaces/podRow';
 import {API} from 'API';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {skipTabIndexAll} from 'utils/skipTab';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {User} from 'interfaces/user';
 
 const findMyOrder = (topOrder: Order, depths: { [key: string]: PodTable }): Order | undefined => {
-  if ((topOrder.status & OrderStatus.Owned) !== 0)
+  const user: User = getAuthenticatedUser();
+  if (topOrder.user === user.email)
     return topOrder;
   const tables: PodTable[] = Object.values(depths);
   const rows: PodRow[][] = tables.map((table: PodTable) => Object.values(table));
@@ -26,7 +29,7 @@ const findMyOrder = (topOrder: Order, depths: { [key: string]: PodTable }): Orde
     .find((order: Order) => {
       if (order.tenor !== topOrder.tenor)
         return false;
-      return ((order.status & OrderStatus.Owned) !== 0);
+      return order.user === user.email;
     });
   if (found !== undefined)
     return found;
@@ -35,21 +38,15 @@ const findMyOrder = (topOrder: Order, depths: { [key: string]: PodTable }): Orde
 };
 
 export const createOrder = (order: Order, depths: { [key: string]: PodTable }, minimumSize: number, personality: string) => {
-  if (order.price === InvalidPrice) {
-    // This is empty for now
-  } else if (order.price !== null) {
-    if ((order.status & OrderStatus.Owned) !== 0) {
-      API.cancelOrder(order);
-    } else if ((order.status & OrderStatus.HasMyOrder) !== 0) {
-      // Find my own order and cancel it
-      const myOrder: Order | undefined = findMyOrder(order, depths);
-      if (myOrder) {
-        API.cancelOrder(myOrder);
-      }
+  if (order.price !== null) {
+    // Find my own order and cancel it
+    const myOrder: Order | undefined = findMyOrder(order, depths);
+    if (myOrder) {
+      API.cancelOrder(myOrder);
     }
     API.createOrder(order, personality, minimumSize);
   } else {
-    console.log('ignore this action');
+    throw new Error('attempting to create an invalid order');
   }
 };
 

@@ -23,7 +23,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
       })();
       const elements: ReactNode[] = [priceElement];
       const sizeElement = (
-        <div className={'mini-size'} key={2}>
+        <div className={getOrderStatusClass(status, 'mini-size')} key={2}>
           {size}
         </div>
       );

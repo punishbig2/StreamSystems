@@ -8,7 +8,7 @@ import {percentage} from 'utils';
 import {W} from 'interfaces/w';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {toPodRow} from 'utils/dataParser';
-import {Order, OrderStatus, Sides} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {createSymbolStrategyTenorListener, createSymbolStrategySideListener} from 'orderEvents';
@@ -16,6 +16,7 @@ import {createRow} from 'components/PodTile/Row/helpers/emptyRowCreator';
 import {State, ActionTypes, reducer} from 'components/PodTile/Row/reducer';
 import {FXOptionsDB} from 'fx-options-db';
 import {$$} from 'utils/stringPaster';
+import {Sides} from 'interfaces/sides';
 
 interface OwnProps {
   id: string;

@@ -1,7 +1,7 @@
 import config from 'config';
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
-import {CreateOrder, Order, Sides, UpdateOrder, DarkPoolOrder, OrderMessage} from 'interfaces/order';
+import {CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage} from 'interfaces/order';
 import {MessageResponse} from 'interfaces/messageResponse';
 import {Strategy} from 'interfaces/strategy';
 import {User} from 'interfaces/user';
@@ -10,6 +10,7 @@ import {getSideFromType} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {STRM} from 'redux/stateDefs/workspaceState';
 import {$$} from 'utils/stringPaster';
+import {Sides} from 'interfaces/sides';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -225,10 +226,13 @@ export class API {
 
   static async cancelOrder(order: Order): Promise<MessageResponse> {
     const currentUser = getAuthenticatedUser();
+    if (order.user !== currentUser.email) {
+      throw new Error(`cancelling someone else's order: ${order.user} -> ${currentUser.email}`);
+    }
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
-      User: currentUser.email,
+      User: order.user,
       Symbol: order.symbol,
       Strategy: order.strategy,
       Tenor: order.tenor,

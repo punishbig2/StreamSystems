@@ -5,9 +5,9 @@ import {
   Reducer,
   Store,
   Action,
-  applyMiddleware,
   StoreEnhancer,
-  StoreEnhancerStoreCreator, DeepPartial,
+  StoreEnhancerStoreCreator,
+  DeepPartial,
 } from 'redux';
 import {createAction, createWorkspaceAction} from 'redux/actionCreator';
 // State shapes
@@ -28,7 +28,6 @@ import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import userProfileReducer from 'redux/reducers/userProfileReducer';
 import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 import {WindowState} from 'redux/stateDefs/windowState';
-import {Sides} from 'interfaces/order';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {HubConnection, HubConnectionState} from '@microsoft/signalr';
 import {SignalRAction} from 'redux/signalRAction';
@@ -40,6 +39,7 @@ import {User} from 'interfaces/user';
 import {API} from 'API';
 import {$$} from 'utils/stringPaster';
 import {RowActions} from 'components/Table/CellRenderers/Price/constants';
+import {Sides} from 'interfaces/sides';
 
 // Build the reducer from the fixed and dynamic reducers
 export const createReducer = (): Reducer<ApplicationState, Action> => {

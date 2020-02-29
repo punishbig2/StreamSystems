@@ -2,9 +2,10 @@ import strings from 'locales';
 import React, {useState, useEffect} from 'react';
 import {Select, MenuItem} from '@material-ui/core';
 import {PresetQtyButton} from 'components/presetQtyButton';
-import {DarkPoolOrder, Sides, Order} from 'interfaces/order';
+import {DarkPoolOrder, Order} from 'interfaces/order';
 import {MessageTypes} from 'interfaces/w';
 import {SelectEventData} from 'interfaces/selectEventData';
+import {Sides} from 'interfaces/sides';
 
 interface OwnProps {
   tenor: string;

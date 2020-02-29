@@ -9,7 +9,6 @@ import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
 import {reducer} from 'components/Table/CellRenderers/Price/reducer';
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {OrderStatus} from 'interfaces/order';
 import {ArrowDirection} from 'interfaces/w';
 import React, {useCallback, useReducer, ReactElement, useState} from 'react';
 import {createAction} from 'redux/actionCreator';
@@ -17,6 +16,7 @@ import {priceFormatter} from 'utils/priceFormatter';
 import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
+import {OrderStatus} from 'interfaces/order';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -33,6 +33,7 @@ export interface Props {
   tabIndex?: number;
   arrow: ArrowDirection;
   status: OrderStatus;
+  title?: string;
   className?: string;
   onTabbedOut?: (input: HTMLInputElement) => void;
   min?: number | null;
@@ -239,6 +240,7 @@ export const Price: React.FC<Props> = (props: Props) => {
         <NumericInput
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
+          title={props.title}
           value={finalValue(state.status)}
           className={getOrderStatusClass(state.status, props.className)}
           placeholder={getPlaceholder(state.status, props.value)}
