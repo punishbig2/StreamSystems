@@ -1,5 +1,5 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Order, OrderStatus, dumpStatus} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import React, {useEffect, useState, useCallback, ReactNode} from 'react';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
@@ -61,7 +61,11 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   }, [onChange, id, minimumSize]);
 
   const onSubmit = (input: HTMLInputElement) => {
-    sendOnChange(Number(internalValue));
+    if (locallyModified) {
+      sendOnChange(Number(internalValue));
+    } else {
+      reset();
+    }
     if (props.onTabbedOut) {
       props.onTabbedOut(input, $$(order.type, 'size'));
     }
