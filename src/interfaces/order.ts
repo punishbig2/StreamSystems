@@ -41,7 +41,7 @@ export enum OrderStatus {
   Cancelled = 1 << 2,
   PreFilled = 1 << 3,
   PriceEdited = 1 << 4,
-  QuantityEdited = 1 << 5,
+  SizeEdited = 1 << 5,
   Owned = 1 << 6,
   NotOwned = 1 << 7,
   HasDepth = 1 << 8,
@@ -145,10 +145,10 @@ export class Order {
     const ownership: OrderStatus = user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
     const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
     const preFilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
-    const cancelled: OrderStatus =
+    const active: OrderStatus =
       price !== null && !entry.MDEntrySize
         ? OrderStatus.Cancelled
-        : OrderStatus.None;
+        : OrderStatus.Active;
     const isOwnerBroker: OrderStatus = user.isbroker ? OrderStatus.OwnedByBroker : OrderStatus.None;
     const order: Order = new Order(
       w.Tenor,
@@ -162,7 +162,7 @@ export class Order {
     order.price = getNumber(entry.MDEntryPx);
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;
-    order.status = OrderStatus.Active | ownership | preFilled | sameBank | cancelled | isOwnerBroker;
+    order.status = ownership | preFilled | sameBank | active | isOwnerBroker;
     order.arrowDirection = normalizeTickDirection(entry.TickDirection, order.type);
     // Now return the built order
     return order;
@@ -204,3 +204,35 @@ export class Order {
     return (this.status & OrderStatus.Active) !== 0;
   };
 }
+
+export const dumpStatus = (status: OrderStatus) => {
+  const map = {
+    [OrderStatus.None]: 'None',
+    [OrderStatus.Active]: 'Active',
+    [OrderStatus.Cancelled]: 'Cancelled',
+    [OrderStatus.PreFilled]: 'PreFilled',
+    [OrderStatus.PriceEdited]: 'PriceEdited',
+    [OrderStatus.SizeEdited]: 'QuantityEdited',
+    [OrderStatus.Owned]: 'Owned',
+    [OrderStatus.NotOwned]: 'NotOwned',
+    [OrderStatus.HasDepth]: 'HasDepth',
+    [OrderStatus.HasMyOrder]: 'HasMyOrder',
+    [OrderStatus.SameBank]: 'SameBank',
+    [OrderStatus.BeingCreated]: 'BeingCreated',
+    [OrderStatus.BeingCancelled]: 'BeingCancelled',
+    [OrderStatus.BeingLoaded]: 'BeingLoaded',
+    [OrderStatus.DarkPool]: 'DarkPool',
+    [OrderStatus.FullDarkPool]: 'FullDarkPool',
+    [OrderStatus.OwnedByBroker]: 'OwnedByBroker',
+    [OrderStatus.RunOrder]: 'RunOrder',
+  };
+  if (status === OrderStatus.None)
+    return 'None';
+  const keys: any[] = Object.keys(map);
+  return keys.reduce((result: string[], key: OrderStatus) => {
+      if ((status & key) !== 0)
+        return [...result, map[key]];
+      return result;
+    }, [])
+    .join(' | ');
+};

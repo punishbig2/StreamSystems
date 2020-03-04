@@ -19,7 +19,7 @@ interface DispatchProps {
 
 interface OwnProps {
   // FIXME: add filters and sorting
-  setWindowTitle: (id: string, title: string) => void;
+  onTitleChange: (id: string, title: string) => void;
   id: string;
   personality: string;
   connected: boolean;
@@ -41,11 +41,11 @@ const withRedux = connect<MessageBlotterState,
 
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const {entries, setWindowTitle, id} = props;
+  const {entries, onTitleChange, id} = props;
 
   useEffect(() => {
-    setWindowTitle(id, strings.Monitor);
-  }, [id, setWindowTitle]);
+    onTitleChange(id, strings.Monitor);
+  }, [id, onTitleChange]);
 
   const isExecution = (message: Message): boolean => {
     return (

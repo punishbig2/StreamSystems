@@ -16,8 +16,8 @@ export enum RunActions {
   // Other
   SetTable = 'RUN_SET_TABLE',
   SetLoadingStatus = 'RUN_SET_LOADING_STATUS',
-  OfrQtyChanged = 'RUN_OFFER_SIZE_CHANGED',
-  BidQtyChanged = 'RUN_BID_SIZE_CHANGED',
+  OfrSizeChanged = 'RUN_OFFER_SIZE_CHANGED',
+  BidSizeChanged = 'RUN_BID_SIZE_CHANGED',
   UpdateBid = 'RUN_UPDATE_BID',
   UpdateDefaultOfrSize = 'RUN_UPDATE_DEFAULT_OFFER_SIZE',
   UpdateOfr = 'RUN_UPDATE_OFFER',
@@ -87,6 +87,10 @@ const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>
     [type]: data.value,
   };
   const computedEntry: RunEntry = computeRow(type, startingEntry, data.value);
+  if (computedEntry.ofr === null)
+    computedEntry.ofr = startingEntry.ofr;
+  if (computedEntry.bid === null)
+    computedEntry.bid = startingEntry.bid;
   const getRowStatus = (computed: RunEntry): PodRowStatus => {
     if (computed.bid === null || computed.ofr === null)
       return PodRowStatus.Normal;
@@ -114,8 +118,26 @@ const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>
     // Update the status and set it as edited/modified
     status: getOrderStatus(bid.status, computedEntry.bid, bid.price),
   };
-  const isQuantityEdited = (order: Order) => (order.status & OrderStatus.QuantityEdited) !== 0;
+  const isQuantityEdited = (order: Order) => (order.status & OrderStatus.SizeEdited) !== 0;
   const quantitiesChanged: boolean = isQuantityEdited(bid) || isQuantityEdited(ofr);
+  const inactive = (() => {
+    if (type === RunActions.Mid && startingEntry.spread !== null)
+      return false;
+    if (type === RunActions.Spread && startingEntry.mid !== null)
+      return false;
+    if (type !== RunActions.Bid
+      && (bid.status & OrderStatus.Cancelled) !== 0
+      && (bid.status & OrderStatus.PriceEdited) === 0
+      && (bid.status & OrderStatus.SizeEdited) === 0
+    ) {
+      return true;
+    }
+    return !!(type !== RunActions.Ofr
+      && (ofr.status & OrderStatus.Cancelled) !== 0
+      && (ofr.status & OrderStatus.PriceEdited) === 0
+      && (ofr.status & OrderStatus.SizeEdited) === 0
+    );
+  })();
   const ordersChanged: boolean = !equal(newOfr, ofr) || !equal(newBid, bid);
   switch (type) {
     case RunActions.Ofr:
@@ -131,10 +153,10 @@ const valueChangeReducer = (state: RunState, {type, data}: FXOAction<RunActions>
           ...orders,
           [row.id]: {
             ...row,
-            spread: coalesce(computedEntry.spread, startingEntry.spread),
-            mid: coalesce(computedEntry.mid, startingEntry.mid),
-            ofr: newOfr,
-            bid: newBid,
+            spread: inactive && (type !== RunActions.Spread) ? null : coalesce(computedEntry.spread, startingEntry.spread),
+            mid: inactive && (type !== RunActions.Mid) ? null : coalesce(computedEntry.mid, startingEntry.mid),
+            ofr: (inactive && ofr.isCancelled() && type !== RunActions.Ofr) ? ofr : newOfr,
+            bid: (inactive && bid.isCancelled() && type !== RunActions.Bid) ? bid : newBid,
             status: getRowStatus(computedEntry),
           },
         },
@@ -210,7 +232,7 @@ const isValidUpdate = (bid: Order, ofr: Order) => {
 const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   if ((status & OrderStatus.Cancelled) === 0)
     return status;
-  const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.QuantityEdited;
+  const edited: OrderStatus = OrderStatus.PriceEdited | OrderStatus.SizeEdited;
   return status | edited;
 };
 
@@ -250,8 +272,8 @@ const deactivateAll = (state: RunState, rowID: string): RunState => {
       ...orders,
       [rowID]: {
         ...row,
-        bid: {...bid, status: bid.status & ~OrderStatus.PriceEdited & ~OrderStatus.QuantityEdited},
-        ofr: {...ofr, status: ofr.status & ~OrderStatus.PriceEdited & ~OrderStatus.QuantityEdited},
+        bid: {...bid, status: bid.status & ~OrderStatus.PriceEdited & ~OrderStatus.SizeEdited},
+        ofr: {...ofr, status: ofr.status & ~OrderStatus.PriceEdited & ~OrderStatus.SizeEdited},
       },
     },
   };
@@ -305,7 +327,7 @@ const updateOrder = (state: RunState, data: { id: string; order: Order }, key: '
   };
 };
 
-const updateQty = (state: RunState, data: { id: string; value: number | null }, key: 'ofr' | 'bid'): RunState => {
+const updateSize = (state: RunState, data: { id: string; value: number | null }, key: 'ofr' | 'bid'): RunState => {
   const {orders} = state;
   const row: PodRow = orders[data.id];
   // Extract the target order
@@ -321,7 +343,7 @@ const updateQty = (state: RunState, data: { id: string; value: number | null }, 
           size: data.value,
           // In this case also set `PriceEdited' bit because we want to make
           // the value eligible for submission
-          status: order.status | OrderStatus.QuantityEdited | OrderStatus.PriceEdited,
+          status: order.status | OrderStatus.SizeEdited | OrderStatus.PriceEdited,
         },
       },
     },
@@ -346,10 +368,10 @@ export default (state: RunState, {type, data}: FXOAction<RunActions>): RunState 
       return updateOrder(state, data, 'ofr');
     case RunActions.SetTable:
       return {...state, orders: data, isLoading: false};
-    case RunActions.OfrQtyChanged:
-      return updateQty(state, data, 'ofr');
-    case RunActions.BidQtyChanged:
-      return updateQty(state, data, 'bid');
+    case RunActions.OfrSizeChanged:
+      return updateSize(state, data, 'ofr');
+    case RunActions.BidSizeChanged:
+      return updateSize(state, data, 'bid');
     case RunActions.RemoveAllBids:
       return removeAll(state, 'bid');
     case RunActions.RemoveAllOfrs:
@@ -376,3 +398,4 @@ export default (state: RunState, {type, data}: FXOAction<RunActions>): RunState 
       return state;
   }
 };
+

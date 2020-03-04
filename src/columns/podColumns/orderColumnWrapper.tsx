@@ -2,8 +2,8 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import React, {ReactElement} from 'react';
 import {PodRowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {OrderColumn} from 'columns/podColumns/orderColumn';
-import {Order} from 'interfaces/order';
+import {OrderColumn} from 'columns/podColumns/OrderColumn';
+import {Order, OrderStatus} from 'interfaces/order';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {priceFormatter} from 'utils/priceFormatter';
 
@@ -30,16 +30,14 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
     },
     render: (props: PodRowProps) => {
       const pickMyOrderIfOnTopOrCurrentTop = (order: Order): Order => {
-        const allOrders: Order[] = SignalRManager.getDepthOfTheBook(
-          order.symbol, order.strategy, order.tenor, order.type,
-        );
+        const allOrders: Order[] = SignalRManager.getDepth(order.symbol, order.strategy, order.tenor, order.type);
         const mine: Order | undefined = allOrders.find((each: Order) => {
           if (!each.isOwnedByCurrentUser())
             return false;
           return priceFormatter(each.price) === priceFormatter(order.price);
         });
         if (mine !== undefined)
-          return mine;
+          return {...order, status: order.status | OrderStatus.Owned};
         return order;
       };
       const bid: Order = isDepth ? props.bid : pickMyOrderIfOnTopOrCurrentTop(props.bid);

@@ -16,7 +16,7 @@ import {priceFormatter} from 'utils/priceFormatter';
 import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
-import {OrderStatus} from 'interfaces/order';
+import {OrderStatus, dumpStatus} from 'interfaces/order';
 
 export enum PriceErrors {
   GreaterThanMax,

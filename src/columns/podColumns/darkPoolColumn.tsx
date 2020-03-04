@@ -11,7 +11,6 @@ import {PodTable} from 'interfaces/podTable';
 import {PodRow} from 'interfaces/podRow';
 import {STRM} from 'redux/stateDefs/workspaceState';
 import {DarkPoolTicket} from 'components/DarkPoolTicket';
-import {priceFormatter} from 'utils/priceFormatter';
 import {ModalWindow} from 'components/ModalWindow';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {User} from 'interfaces/user';
@@ -20,7 +19,7 @@ import {SignalRManager} from 'redux/signalR/signalRManager';
 import {DarkPoolMessage} from 'interfaces/message';
 import {FXOptionsDB} from 'fx-options-db';
 import {$$} from 'utils/stringPaster';
-import {onNavigate} from 'columns/podColumns/helpers';
+import {onNavigate} from 'components/PodTile/helpers';
 
 type Props = PodRowProps;
 
@@ -158,16 +157,17 @@ const DarkPoolColumnComponent = (props: Props) => {
       if (currentOrder !== null && currentOrder.isOwnedByCurrentUser() === true)
         await API.cancelDarkPoolOrder(currentOrder);
       await API.createDarkPoolOrder(order);
-      // actions.createDarkPoolOrder(order, personality);
       setIsShowingTicket(false);
     };
     const defaultSize: number = 0;
+    if (value === null)
+      throw new Error('dark pool price cannot be null at this point, something is very wrong');
     return (
       <DarkPoolTicket
         onSubmit={onSubmit}
         onCancel={() => setIsShowingTicket(false)}
-        price={priceFormatter(value)}
-        size={defaultSize.toString()}
+        price={value}
+        size={defaultSize}
         tenor={tenor}
         strategy={strategy}
         symbol={symbol}

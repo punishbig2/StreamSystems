@@ -1,6 +1,6 @@
 import {Reducer} from 'react';
 import {FXOAction} from 'redux/fxo-action';
-import {toNumberOrFallbackIfNaN} from 'columns/podColumns/orderColumn/helpers/toNumberOrFallbackIfNaN';
+import {toNumberOrFallbackIfNaN} from 'columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN';
 
 export interface State {
   editedSize: number | null;

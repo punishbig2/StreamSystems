@@ -112,7 +112,18 @@ const withRedux: (ignored: any) => any = connect<WorkspaceState, DispatchProps, 
 
 type Props = OwnProps & DispatchProps & WorkspaceState;
 
-const createWindow = (windowID: string, workspaceID: string, type: WindowTypes, symbols: Currency[], products: Strategy[], tenors: string[], connected: boolean, user: User, personality: string) => {
+const createWindow = (
+  windowID: string,
+  workspaceID: string,
+  type: WindowTypes,
+  symbols: Currency[],
+  products: Strategy[],
+  tenors: string[],
+  connected: boolean,
+  user: User,
+  personality: string,
+  onWindowTitleChange: (windowID: string, title: string) => void,
+) => {
   switch (type) {
     case WindowTypes.Empty:
       return null;
@@ -126,13 +137,14 @@ const createWindow = (windowID: string, workspaceID: string, type: WindowTypes, 
           tenors={tenors}
           user={user}
           connected={connected}
-          personality={personality}/>
+          personality={personality}
+          onTitleChange={(title: string) => onWindowTitleChange(windowID, title)}/>
       );
     case WindowTypes.MessageBlotter:
       return (
         <MessageBlotter
           id={windowID}
-          setWindowTitle={(id: string, title: string) => null}
+          onTitleChange={(title: string) => onWindowTitleChange(windowID, title)}
           connected={connected}
           personality={personality}
           blotterType={BlotterTypes.Regular}/>
@@ -168,13 +180,15 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
     }
   };
 
-  const {personality, id: workspaceID} = props;
+  const {personality, id: workspaceID, setWindowTitle} = props;
   const renderContent = useCallback((windowID: string, type: WindowTypes): ReactElement | null => {
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;
     // Return the new window
-    return createWindow(windowID, workspaceID, type, symbols, products, tenors, connected, user, personality);
-  }, [connected, personality, products, symbols, tenors, user, workspaceID]);
+    return createWindow(
+      windowID, workspaceID, type, symbols, products, tenors, connected, user, personality, setWindowTitle,
+    );
+  }, [connected, personality, products, setWindowTitle, symbols, tenors, user, workspaceID]);
 
   const onPersonalityChange = ({target}: React.ChangeEvent<SelectEventData>) => {
     props.setPersonality(target.value as string);
@@ -267,7 +281,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         connected={connected}
         personality={props.personality}
         onClearToast={() => props.showToast(null)}
-        onSetWindowTitle={props.setWindowTitle}
+        onWindowTitleChanged={props.setWindowTitle}
         onGeometryChange={props.updateGeometry}
         onWindowClosed={props.removeWindow}
         onWindowMinimized={props.minimizeWindow}

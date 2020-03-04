@@ -12,6 +12,8 @@ import {Order} from 'interfaces/order';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {User} from 'interfaces/user';
 import deepEqual from 'deep-equal';
+import {PodTable} from 'interfaces/podTable';
+import {orderArrayToPodTableReducer} from 'utils/dataParser';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -153,16 +155,18 @@ export class SignalRManager<A extends Action = AnyAction> {
       // This is stupid, but it shuts the compiler warning
       if (orders.length > 0) {
         SignalRManager.orderCache = orders.reduce((cache: { [id: string]: Order }, order: Order) => {
-          const key: string = order.orderId ? order.orderId : $$(order.uid(), order.type);
+          // Cancelled orders are just for "informational purposes"
+          if (order.isCancelled())
+            return cache;
           if (order.orderId !== undefined)
-            cache[key] = order;
+            cache[order.orderId] = order;
           return cache;
         }, SignalRManager.orderCache);
       }
     }
   };
 
-  public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string, type: OrderTypes) => {
+  public static getDepth = (symbol: string, strategy: string, tenor: string, type: OrderTypes): Order[] => {
     const {orderCache} = SignalRManager;
     const values: Order[] = Object.values(orderCache);
     return values.filter((order: Order) => {
@@ -171,6 +175,14 @@ export class SignalRManager<A extends Action = AnyAction> {
         && order.tenor === tenor
         && order.type === type;
     });
+  };
+
+  public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string): PodTable => {
+    const orders: Order[] = [
+      ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Bid),
+      ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Ofr),
+    ];
+    return orders.reduce(orderArrayToPodTableReducer, {});
   };
 
   public static getOrdersForUser = (email: string): Order[] => {

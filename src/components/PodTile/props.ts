@@ -23,6 +23,7 @@ export interface OwnProps {
   autoSize?: boolean;
   personality: string;
   onClose?: () => void;
+  onTitleChange: (title: string) => void;
 }
 
 export type Props = OwnProps & WindowState & DispatchProps;

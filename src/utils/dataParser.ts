@@ -155,3 +155,19 @@ export const extractDepth = (w: W): PodTable => {
   // Change the shape of this thing
   return reshape(w, bids, ofrs);
 };
+
+export const orderArrayToPodTableReducer = (table: PodTable, order: Order) => {
+  const currentBid: Order = table[order.tenor] ? table[order.tenor].bid : {} as Order;
+  const currentOfr: Order = table[order.tenor] ? table[order.tenor].ofr : {} as Order;
+  table[order.tenor] = {
+    id: order.tenor,
+    tenor: order.tenor,
+    bid: order.type === OrderTypes.Ofr ? order : currentBid,
+    ofr: order.type === OrderTypes.Ofr ? order : currentOfr,
+    spread: null,
+    mid: null,
+    status: PodRowStatus.Normal,
+    darkPrice: null,
+  };
+  return table;
+};

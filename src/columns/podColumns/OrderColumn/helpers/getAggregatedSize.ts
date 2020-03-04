@@ -3,7 +3,7 @@ import {SignalRManager} from 'redux/signalR/signalRManager';
 import {priceFormatter} from 'utils/priceFormatter';
 
 export const getAggregatedSize = (order: Order): number | null => {
-  const orders: Order[] = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor, order.type);
+  const orders: Order[] = SignalRManager.getDepth(order.symbol, order.strategy, order.tenor, order.type);
   if (orders.length === 0)
     return null;
   else if (orders.length === 1)

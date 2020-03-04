@@ -95,11 +95,11 @@ const Run: React.FC<Props> = (props: Props) => {
       id,
       value,
     })),
-    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.BidQtyChanged, {
+    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.BidSizeChanged, {
       id,
       value,
     })),
-    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.OfrQtyChanged, {
+    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.OfrSizeChanged, {
       id,
       value,
     })),

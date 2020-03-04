@@ -68,3 +68,4 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
       });
   }, [tenors, symbol, strategy, visible, dispatch]);
 };
+

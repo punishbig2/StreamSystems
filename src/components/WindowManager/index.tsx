@@ -15,7 +15,7 @@ interface Props {
   onGeometryChange: (id: string, geometry: ClientRect, resized: boolean) => void;
   onWindowMinimized: (id: string) => void;
   onWindowClosed: (id: string) => void;
-  onSetWindowTitle: (id: string, title: string) => void;
+  onWindowTitleChanged: (id: string, title: string) => void;
   onWindowRestored: (id: string) => void;
   onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onWindowClicked: (id: string) => void;
@@ -81,7 +81,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         props.onGeometryChange(id, geometry, resized),
     );
     const onSetTitle = getCallback(id, 'set-title', (title: string) =>
-      props.onSetWindowTitle(id, title),
+      props.onWindowTitleChanged(id, title),
     );
     const onMinimize = getCallback(id, 'on-window-minimized', () =>
       props.onWindowMinimized(id),
@@ -145,7 +145,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         onAdjustSize={() => null}>
         <MessageBlotter
           id={'fills-blotter'}
-          setWindowTitle={() => null}
+          onTitleChange={() => null}
           connected={props.connected}
           personality={props.personality}
           blotterType={BlotterTypes.Fills}/>

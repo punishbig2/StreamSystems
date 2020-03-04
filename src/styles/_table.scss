@@ -456,8 +456,7 @@
       line-height: $table-row-height;
 
       &:not(.edited) {
-        &.owned,
-        &.among {
+        &.owned {
           color: $text-color-red;
         }
       }
@@ -504,10 +503,18 @@
       }
     }
 
-    .price-layout {
+    .size-layout {
       input {
-        &.among {
-          color: $text-color-red;
+        &:not(.edited) {
+          &:not(.cancelled) {
+            &:not(.among) {
+              &.has-depth {
+                &.owned {
+                  color: $text-color-black;
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -540,8 +547,12 @@
             cursor: initial;
           }
 
-          &:not(.cancelled).owned {
-            color: $text-color-red;
+          &:not(.cancelled) {
+            &:not(.among) {
+              &.owned {
+                color: $text-color-red;
+              }
+            }
           }
 
           &.mid,

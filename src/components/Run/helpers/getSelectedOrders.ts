@@ -36,6 +36,6 @@ export const getSelectedOrders = (orders: PodTable, defaultSize: number): Order[
   return selection.filter((order: Order) => {
     if (order.price === null || order.size === null)
       return false;
-    return !((order.status & OrderStatus.QuantityEdited) === 0 && (order.status & OrderStatus.PriceEdited) === 0);
+    return !((order.status & OrderStatus.SizeEdited) === 0 && (order.status & OrderStatus.PriceEdited) === 0);
   });
 };

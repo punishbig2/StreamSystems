@@ -1,18 +1,20 @@
 import strings from 'locales';
 import React, {useState, useEffect} from 'react';
 import {Select, MenuItem} from '@material-ui/core';
-import {PresetQtyButton} from 'components/presetQtyButton';
+import {PresetSizeButton} from 'components/presetSizeButton';
 import {DarkPoolOrder, Order} from 'interfaces/order';
 import {MessageTypes} from 'interfaces/w';
 import {SelectEventData} from 'interfaces/selectEventData';
 import {Sides} from 'interfaces/sides';
+import {priceFormatter} from 'utils/priceFormatter';
+import {sizeFormatter} from 'utils/sizeFormatter';
 
 interface OwnProps {
   tenor: string;
   symbol: string;
   strategy: string;
-  price: string;
-  size: string;
+  price: number;
+  size: number;
   user: string;
   onCancel: () => void;
   onSubmit: (order: DarkPoolOrder) => void;
@@ -28,8 +30,8 @@ const None = '';
 
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const [input, setInput] = useState<HTMLInputElement | null>(null);
-  const [price, setPrice] = useState<string>(props.price || '');
-  const [size, setQuantity] = useState<string>(props.size);
+  const [price, setPrice] = useState<number>(props.price);
+  const [size, setSize] = useState<number>(props.size);
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
   useEffect(() => {
@@ -37,21 +39,27 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     input.select();
     input.focus();
   }, [input]);
-  const updateQuantity = ({
-                            currentTarget,
-                          }: React.ChangeEvent<HTMLInputElement>) => setQuantity(currentTarget.value);
-  const updatePrice = ({
-                         currentTarget,
-                       }: React.ChangeEvent<HTMLInputElement>) => setPrice(currentTarget.value);
-  const presetQty: string[] = ['30', '50', '100', '500'];
+  const updateSize = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
+    const numeric: number = Number(currentTarget.value);
+    if (isNaN(numeric))
+      return;
+    setSize(numeric);
+  };
+  const updatePrice = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
+    const numeric: number = Number(currentTarget.value);
+    if (isNaN(numeric))
+      return;
+    setPrice(numeric);
+  };
+  const presetSizes: number[] = [30, 50, 100, 500];
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const order: DarkPoolOrder = {
       ExecInst: inst === None ? undefined : inst,
       MsgType: MessageTypes.D,
-      Price: price,
-      Quantity: size,
+      Price: priceFormatter(price),
+      Quantity: sizeFormatter(size),
       Side: side as Sides,
       Strategy: props.strategy,
       Symbol: props.symbol,
@@ -124,18 +132,14 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               <div className={'editor'}>
                 <input
                   value={size}
-                  onChange={updateQuantity}
+                  onChange={updateSize}
                   autoFocus={true}
                   ref={setInput}
                 />
               </div>
               <div className={'buttons'}>
-                {presetQty.map((value: string) => (
-                  <PresetQtyButton
-                    key={value}
-                    value={value}
-                    setValue={setQuantity}
-                  />
+                {presetSizes.map((value: number) => (
+                  <PresetSizeButton key={value} value={value} setValue={setSize}/>
                 ))}
               </div>
             </div>

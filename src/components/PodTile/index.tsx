@@ -19,8 +19,8 @@ import {WindowState} from 'redux/stateDefs/windowState';
 import {initialize, setStrategy, setSymbol} from 'redux/actions/podTileActions';
 import {WorkspaceState, STRM} from 'redux/stateDefs/workspaceState';
 import {API} from 'API';
-import {SignalRManager} from 'redux/signalR/signalRManager';
 import {Currency} from 'interfaces/currency';
+import {findMyOrder} from 'components/PodTile/helpers';
 
 const mapStateToProps: MapStateToProps<WindowState, OwnProps, ApplicationState> =
   ({workarea: {workspaces}}: ApplicationState, ownProps: OwnProps) => {
@@ -53,6 +53,7 @@ const initialState: State = {
 const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
   const {workspaceID, id: windowID} = props;
   const {symbols, symbol, products, strategy, tenors, connected, rows, user, personality} = props;
+  const {onTitleChange} = props;
   const {email} = props.user;
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -70,12 +71,12 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     () => dispatch(createAction(ActionTypes.HideRunWindow)),
     [],
   );
+  useEffect(() => {
+    if (!symbol.name || symbol.name === '' || !strategy || strategy === '')
+      return;
+    onTitleChange(`${symbol.name} ${strategy}`);
+  }, [symbol, strategy, onTitleChange]);
 
-  /*useEffect(() => {
-    if (setWindowTitle && !!symbol && !!strategy) {
-      setWindowTitle(props.id, `${symbol} ${strategy}`);
-    }
-  }, [props.id, symbol, strategy, setWindowTitle]);*/
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol.name, strategy, insertDepth);
   // Initialize tile/window
@@ -87,17 +88,14 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
       hideRunWindow();
       // Create the orders
       entries.forEach((order: Order) => {
-        const allMyOrders: Order[] = SignalRManager.getOrdersForUser(user.email);
-        const matchingOrder: Order | undefined = allMyOrders.find((other: Order) => {
-          return other.uid() === order.uid() && other.type === order.type;
-        });
-        if (matchingOrder) {
-          API.cancelOrder(matchingOrder);
+        const myOrder: Order | undefined = findMyOrder(order);
+        if (myOrder) {
+          API.cancelOrder(myOrder);
         }
         API.createOrder(order, personality, symbol.minqty);
       });
     },
-    [hideRunWindow, user.email, personality, symbol.minqty],
+    [hideRunWindow, personality, symbol.minqty],
   );
 
   const runWindow = (): ReactElement | null => {

@@ -27,8 +27,11 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
           {size}
         </div>
       );
-      if (props.type === OrderTypes.Bid) elements.unshift(sizeElement);
-      else elements.push(sizeElement);
+      if (props.type === OrderTypes.Bid) {
+        elements.unshift(sizeElement);
+      } else {
+        elements.push(sizeElement);
+      }
       return (
         <div className={'row'} key={index}>
           {elements}

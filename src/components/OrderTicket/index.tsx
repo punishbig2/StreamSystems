@@ -2,10 +2,12 @@ import {OrderTypes} from 'interfaces/mdEntry';
 import {Order} from 'interfaces/order';
 import React, {ReactElement, useEffect, useState} from 'react';
 import strings from 'locales';
-import {PresetQtyButton} from 'components/presetQtyButton';
+import {PresetSizeButton} from 'components/presetSizeButton';
+import {sizeFormatter} from 'utils/sizeFormatter';
 
 interface Props {
   order: Order;
+  minimumSize: number;
   onSubmit: (order: Order) => void;
   onCancel: () => void;
 }
@@ -14,9 +16,7 @@ const formatValue = (value: number | null, precision: number): string =>
   value === null ? '' : value.toFixed(precision);
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const {order} = props;
-  const [size, setQuantity] = useState<string>(
-    formatValue(order.size, 0),
-  );
+  const [size, setSize] = useState<number | null>(order.size);
   const [price, setPrice] = useState<string>(formatValue(order.price, 3));
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   useEffect(() => {
@@ -25,12 +25,12 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
     input.focus();
   }, [input]);
   if (!order) return null;
-  const updateQuantity = ({
-                            target: {value},
-                          }: React.ChangeEvent<HTMLInputElement>) => {
+  const updateQuantity = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = Number(value);
-    if (isNaN(numeric)) return;
-    setQuantity(Number(value).toFixed(0));
+    if (isNaN(numeric)) {
+      return;
+    }
+    setSize(numeric);
   };
   const updatePrice = ({
                          target: {value},
@@ -49,8 +49,8 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
       });
     }
   };
-  const canSubmit: boolean = price !== null && size !== null;
-  const presetQty: string[] = ['30', '50', '100'];
+  const canSubmit: boolean = (price !== null && size !== null && size >= props.minimumSize);
+  const presetSizes: number[] = [30, 50, 100];
   return (
     <>
       <div className={'modal-title'}>{strings.OrderEntry}</div>
@@ -83,20 +83,11 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
             </div>
             <div className={'value'}>
               <div className={'editor'}>
-                <input
-                  value={size}
-                  onChange={updateQuantity}
-                  autoFocus={true}
-                  ref={setInput}
-                />
+                <input value={sizeFormatter(size)} onChange={updateQuantity} autoFocus={true} ref={setInput}/>
               </div>
               <div className={'buttons'}>
-                {presetQty.map((value: string) => (
-                  <PresetQtyButton
-                    key={value}
-                    value={value}
-                    setValue={setQuantity}
-                  />
+                {presetSizes.map((value: number) => (
+                  <PresetSizeButton key={value} value={value} setValue={setSize}/>
                 ))}
               </div>
             </div>

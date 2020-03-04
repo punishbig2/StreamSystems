@@ -6,7 +6,9 @@ export const getOrderStatusClass = (status: OrderStatus, className?: string): st
     classes.push('owned-by-broker');
   if ((status & OrderStatus.FullDarkPool) !== 0)
     classes.push('dark-pool');
-  if ((status & OrderStatus.HasMyOrder) !== 0)
+  if ((status & OrderStatus.HasDepth))
+    classes.push('has-depth');
+  if ((status & OrderStatus.HasMyOrder) !== 0 && (status & OrderStatus.Owned) === 0)
     classes.push('among');
   if ((status & OrderStatus.HasMyOrder) === 0)
     classes.push('not-among');
@@ -20,7 +22,7 @@ export const getOrderStatusClass = (status: OrderStatus, className?: string): st
     classes.push('cancelled');
   if ((status & OrderStatus.SameBank) !== 0)
     classes.push('same-bank');
-  if ((status & OrderStatus.QuantityEdited) !== 0 || (status & OrderStatus.PriceEdited) !== 0)
+  if ((status & OrderStatus.SizeEdited) !== 0 || (status & OrderStatus.PriceEdited) !== 0)
     classes.push('edited');
   if ((status & OrderStatus.BeingCreated) !== 0)
     classes.push('busy');

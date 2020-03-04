@@ -1,5 +1,5 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Order, OrderStatus} from 'interfaces/order';
+import {Order, OrderStatus, dumpStatus} from 'interfaces/order';
 import React, {useEffect, useState, useCallback, ReactNode} from 'react';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
@@ -87,7 +87,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   };
 
   const inactive: boolean = ((order.status & OrderStatus.Cancelled) !== 0
-    && (order.status & OrderStatus.QuantityEdited) === 0
+    && (order.status & OrderStatus.SizeEdited) === 0
     && !locallyModified
   );
 
@@ -96,11 +96,26 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       return;
     props.onActivateOrder(props.id, order.type);
   };
+
   const plusSign = (
     <div className={'plus-sign' + (inactive ? ' active' : '')} onClick={onActivateOrder} key={1}>
       <i className={'fa fa-plus-circle'}/>
     </div>
   );
+
+  const displayValue: string = (() => {
+    if (order.price === null)
+      return '';
+    if ((order.status & OrderStatus.Cancelled) !== 0 && (order.status & OrderStatus.SizeEdited) === 0)
+      return '';
+    return internalValue;
+  })();
+
+  const placeholder: string = (() => {
+    if (order.price === null)
+      return '';
+    return internalValue;
+  })();
 
   const items: ReactNode[] = [
     <NumericInput
@@ -108,9 +123,9 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       key={0}
       tabIndex={-1}
       className={getOrderStatusClass(order.status, 'size')}
-      placeholder={sizeFormatter(props.value)}
+      placeholder={placeholder}
       type={'size'}
-      value={internalValue}
+      value={displayValue}
       onNavigate={props.onNavigate}
       onChange={onChangeWrapper}
       onSubmit={onSubmit}

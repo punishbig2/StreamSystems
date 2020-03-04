@@ -6,6 +6,7 @@ interface OwnProps {
   list: any[];
   value: any;
   empty?: string;
+  searchable?: boolean;
   onChange: (value: string) => void;
 }
 
@@ -129,11 +130,14 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       }
     };
 
+    const searchBox: ReactElement = (
+      <li>
+        <input ref={setInput} placeholder={'Search'} value={keyword} onChange={updateKeyword} onKeyDown={moveCursor}/>
+      </li>
+    );
     return ReactDOM.createPortal(
       <ul className={'dropdown'} style={positionToStyle(position)} onMouseDownCapture={swallowMouse} ref={setDropdown}>
-        <li>
-          <input ref={setInput} placeholder={'Search'} value={keyword} onChange={updateKeyword} onKeyDown={moveCursor}/>
-        </li>
+        {props.searchable && searchBox}
         {filtered.map((item: { name: string }, index: number) => (
           <li key={item.name}
               onClick={() => onItemClick(item.name)}
@@ -150,8 +154,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <div className={'select-container'} ref={setContainer} onMouseDown={showDropdown}>
-      <select value={props.value} className={'select'} onChange={onChange} onKeyDown={ignoreKeyboard}
-              onKeyUp={ignoreKeyboard}>
+      <select value={props.value}
+              className={'select'}
+              onChange={onChange}
+              onKeyPressCapture={ignoreKeyboard}
+              onKeyDownCapture={ignoreKeyboard}
+              onKeyUpCapture={ignoreKeyboard}>
         {props.empty ? <option value={''} disabled={true}>{props.empty}</option> : null}
         {filtered.map((item: Currency) => (
           <option key={item.name} value={item.name}>
