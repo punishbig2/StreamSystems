@@ -71,10 +71,11 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
   return {
     name: `${type}-size`,
     header: () => (
-      <SizeHeader onChange={defaultSize.onChange}
-                  value={defaultSize.value}
+      <SizeHeader value={defaultSize.value}
                   minimum={defaultSize.minimum}
                   type={defaultSize.type}
+                  onReset={defaultSize.onReset}
+                  onChange={defaultSize.onChange}
                   onSubmit={tryToGoToTheRightCell}/>
     ),
     render: (row: RowType) => {

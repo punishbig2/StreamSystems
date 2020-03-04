@@ -3,6 +3,7 @@ import React, {useState, useEffect} from 'react';
 import {DualTableHeader} from 'components/dualTableHeader';
 
 import strings from 'locales';
+
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 
@@ -18,9 +19,13 @@ export const SizeHeader: React.FC<Props> = (props: Props) => {
     setInternalValue(props.value);
   }, [props.value]);
 
+  const reset = () => {
+    props.onReset();
+  };
+
   const onChange = (value: string | null) => {
     if (value === '' || value === null) {
-      setInternalValue(props.value);
+      setInternalValue(null);
     } else {
       const numeric: number = Number(value);
       if (isNaN(numeric))
@@ -39,6 +44,7 @@ export const SizeHeader: React.FC<Props> = (props: Props) => {
                         value={sizeFormatter(internalValue)}
                         onBlur={onBlur}
                         onChange={onChange}
+                        onCancelEdit={reset}
                         onSubmit={props.onSubmit}/>
         </div>
       )

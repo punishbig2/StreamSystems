@@ -38,7 +38,6 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
             return priceFormatter(each.price) === priceFormatter(order.price);
           })
           .sort((o1: Order, o2: Order) => o1.timestamp - o2.timestamp);
-        console.log(allOrders, sorted);
         return sorted[0];
       };
       const bid: Order = isDepth ? props.bid : pickMyOrderIfOnTopOrCurrentTop(props.bid);

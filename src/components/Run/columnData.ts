@@ -5,6 +5,7 @@ export interface SizeHeaderProps {
   minimum: number;
   value: number;
   type: OrderTypes;
+  onReset: () => void;
   onChange: (value: number | null) => void;
 }
 
