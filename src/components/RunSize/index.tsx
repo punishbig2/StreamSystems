@@ -42,6 +42,8 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       setLocallyModified(true);
     if (value === null) {
       setInternalValue(sizeFormatter(order.size || defaultValue));
+    } else if (value.length === 0) {
+      reset();
     } else {
       setInternalValue(value);
     }
@@ -108,6 +110,8 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   );
 
   const displayValue: string = (() => {
+    if (locallyModified)
+      return internalValue;
     if (order.price === null)
       return '';
     if ((order.status & OrderStatus.Cancelled) !== 0 && (order.status & OrderStatus.SizeEdited) === 0)
@@ -121,12 +125,14 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     return internalValue;
   })();
 
+  const status: OrderStatus = order.status;
+
   const items: ReactNode[] = [
     <NumericInput
       id={$$('run-size-', order.uid(), order.type)}
       key={0}
       tabIndex={-1}
-      className={getOrderStatusClass(order.status, 'size')}
+      className={getOrderStatusClass(status, 'size')}
       placeholder={placeholder}
       type={'size'}
       value={displayValue}
