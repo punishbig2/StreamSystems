@@ -96,7 +96,6 @@ const normalizeTickDirection = (source: string | undefined, orderType: OrderType
 };
 
 export class Order {
-  public arrowDirection: ArrowDirection;
   public firm: string | undefined;
   public orderId: string | undefined;
   public price: number | null;
@@ -107,6 +106,8 @@ export class Order {
   public tenor: string;
   public type: OrderTypes;
   public user: string;
+  public arrowDirection: ArrowDirection;
+  public timestamp: number;
 
   constructor(tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes) {
     this.type = type;
@@ -118,6 +119,7 @@ export class Order {
     this.size = size;
     this.arrowDirection = ArrowDirection.None;
     this.status = OrderStatus.None;
+    this.timestamp = Date.now();
   }
 
   public uid = () => $$(this.symbol, this.strategy, this.tenor);
@@ -164,6 +166,7 @@ export class Order {
     order.orderId = entry.OrderID;
     order.status = ownership | preFilled | sameBank | active | isOwnerBroker;
     order.arrowDirection = normalizeTickDirection(entry.TickDirection, order.type);
+    order.timestamp = Number(entry.MDEntryTime);
     // Now return the built order
     return order;
   };

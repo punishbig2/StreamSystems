@@ -31,14 +31,15 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
     render: (props: PodRowProps) => {
       const pickMyOrderIfOnTopOrCurrentTop = (order: Order): Order => {
         const allOrders: Order[] = SignalRManager.getDepth(order.symbol, order.strategy, order.tenor, order.type);
-        const mine: Order | undefined = allOrders.find((each: Order) => {
-          if (!each.isOwnedByCurrentUser())
-            return false;
-          return priceFormatter(each.price) === priceFormatter(order.price);
-        });
-        if (mine !== undefined)
-          return {...order, status: order.status | OrderStatus.Owned};
-        return order;
+        if (allOrders.length === 0)
+          return order;
+        const sorted: Order[] = allOrders
+          .filter((each: Order) => {
+            return priceFormatter(each.price) === priceFormatter(order.price);
+          })
+          .sort((o1: Order, o2: Order) => o1.timestamp - o2.timestamp);
+        console.log(allOrders, sorted);
+        return sorted[0];
       };
       const bid: Order = isDepth ? props.bid : pickMyOrderIfOnTopOrCurrentTop(props.bid);
       const ofr: Order = isDepth ? props.ofr : pickMyOrderIfOnTopOrCurrentTop(props.ofr);
