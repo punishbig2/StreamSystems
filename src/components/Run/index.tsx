@@ -51,7 +51,7 @@ const Run: React.FC<Props> = (props: Props) => {
   useRunInitializer(tenors, symbol, strategy, visible, dispatch);
   useEffect(() => {
     dispatch(createAction<RunActions>(RunActions.SetDefaultSize, defaultSize));
-  }, [defaultSize]);
+  }, [defaultSize, visible]);
 
   const activateOrders = (row: PodRow) => {
     dispatch(createAction<RunActions>(RunActions.ActivateRow, row.id));
