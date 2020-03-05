@@ -48,7 +48,7 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      line-height: $table-header-height / 2;
+      line-height: $table-header-height / 2 + 1;
       border: none;
       margin: 0;
 
