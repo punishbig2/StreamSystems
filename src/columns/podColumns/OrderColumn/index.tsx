@@ -57,6 +57,13 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const {defaultSize, minimumSize, personality, onRowStatusChange} = props;
   // Create size submission listener
   const order: Order = getOrder(type, props.ofr, props.bid);
+  useEffect(() => {
+    if (!order)
+      return;
+    dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
+  }, [order]);
+  if (!order)
+    return null;
   const depthOfTheBook: PodTable = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor);
   const shouldShowTooltip: boolean = checkIfShouldShowTooltip(depthOfTheBook, type);
   const depthOfTheBookTable = <MiniDOB {...props} rows={getMiniDOBByType(depths, order.tenor, order.type)}/>;
@@ -75,10 +82,6 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       | (order.firm === personality ? OrderStatus.SameBank : OrderStatus.None);
   })();
   const status: OrderStatus = chevronStatus | order.status;
-
-  useEffect(() => {
-    dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
-  }, [order]);
 
   const onDoubleClick = () => {
     if (!shouldOpenOrderTicket(order, props.personality))
