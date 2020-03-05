@@ -3,7 +3,7 @@ import React, {ReactElement} from 'react';
 import {PodRowProps} from 'columns/podColumns/common';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {OrderColumn} from 'columns/podColumns/OrderColumn';
-import {Order, OrderStatus} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {priceFormatter} from 'utils/priceFormatter';
 
@@ -20,6 +20,12 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           items.unshift(<div className={'size'} key={'2'}>{actionItem}</div>);
         } else if (type === OrderTypes.Ofr) {
           items.push(<div className={'size'} key={'2'}>{actionItem}</div>);
+        }
+      } else {
+        if (type === OrderTypes.Bid) {
+          items.unshift(<div className={'size'} key={'2'}>&nbsp;</div>);
+        } else {
+          items.push(<div className={'size'} key={'2'}>&nbsp;</div>);
         }
       }
       return (

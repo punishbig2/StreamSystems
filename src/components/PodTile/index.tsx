@@ -112,7 +112,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   };
 
-  const renderRow = useCallback((rowProps: any, index?: number): ReactElement => {
+  const renderTobRow = useCallback((rowProps: any, index?: number): ReactElement => {
     const {row, ...childProps} = rowProps;
     return (
       <Row {...childProps}
@@ -198,7 +198,7 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
             scrollable={!props.autoSize}
             columns={tobColumns}
             rows={rows}
-            renderRow={renderRow}/>
+            renderRow={renderTobRow}/>
         </div>
         <div className={'depth-table'}>{getDepthTable()}</div>
       </div>
