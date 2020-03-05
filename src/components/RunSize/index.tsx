@@ -14,6 +14,7 @@ interface Props {
   value: number | null;
   order: Order;
   minimumSize: number;
+  visible: boolean;
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
   onTabbedOut?: (input: HTMLInputElement, action?: string) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
@@ -22,20 +23,27 @@ interface Props {
 
 export const RunSize: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
-  const [internalValue, setInternalValue] = useState<string>(sizeFormatter(props.value));
-  const {order, defaultValue, onChange, id, minimumSize} = props;
+  const {order, defaultValue, onChange, id, minimumSize, visible, value} = props;
+  const [internalValue, setInternalValue] = useState<string>(sizeFormatter(value));
 
   useEffect(() => {
-    if (props.value === null)
+    if (value === null)
       return;
     setLocallyModified(false);
-    setInternalValue(sizeFormatter(props.value));
-  }, [props.value]);
+    setInternalValue(sizeFormatter(value));
+  }, [value]);
 
   useEffect(() => {
     setLocallyModified(false);
     setInternalValue(sizeFormatter(defaultValue));
   }, [defaultValue]);
+
+  useEffect(() => {
+    setLocallyModified(false);
+    if (value !== null) {
+      setInternalValue(sizeFormatter(value));
+    }
+  }, [value, visible]);
 
   const onChangeWrapper = (value: string | null) => {
     if (!locallyModified)
@@ -62,14 +70,25 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   }, [onChange, id, minimumSize]);
 
-  const onSubmit = (input: HTMLInputElement) => {
-    if (locallyModified) {
-      sendOnChange(Number(internalValue));
-    } else {
-      reset();
-    }
+  const tabOut = (input: HTMLInputElement) => {
     if (props.onTabbedOut) {
       props.onTabbedOut(input, $$(order.type, 'size'));
+    }
+  };
+
+  const onSubmit = (input: HTMLInputElement) => {
+    if (locallyModified) {
+      const numeric: number = Number(internalValue);
+      if (!isNaN(numeric)) {
+        if (numeric < props.minimumSize) {
+          input.focus();
+        } else {
+          sendOnChange(numeric);
+          tabOut(input);
+        }
+      }
+    } else {
+      tabOut(input);
     }
   };
 
@@ -83,11 +102,14 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     // eslint-disable-next-line
   }, [defaultValue, oldDefaultValue, locallyModified]);
 
+  const status: OrderStatus = order.status;
   const reset = () => {
-    if (props.value === null) {
+    if (!locallyModified) {
+      setInternalValue(internalValue);
+    } else if (value === null) {
       setInternalValue(sizeFormatter(defaultValue));
     } else {
-      setInternalValue(sizeFormatter(props.value));
+      setInternalValue(sizeFormatter(value));
     }
     setLocallyModified(false);
   };
@@ -105,7 +127,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
 
   const plusSign = (
     <div className={'plus-sign' + (inactive ? ' active' : '')} onClick={onActivateOrder} key={1}>
-      <i className={'fa fa-plus-circle'}/>
+      {inactive ? <i className={'fa fa-plus-circle'}/> : <i className={'fa fa-minus-circle'}/>}
     </div>
   );
 
@@ -124,8 +146,6 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       return '';
     return internalValue;
   })();
-
-  const status: OrderStatus = order.status;
 
   const items: ReactNode[] = [
     <NumericInput

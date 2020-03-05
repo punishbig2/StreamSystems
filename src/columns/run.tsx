@@ -16,7 +16,7 @@ import {$$} from 'utils/stringPaster';
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
-const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
+const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const onChange = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
   const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
   const actionType: RunActions = type === 'bid' ? RunActions.Bid : RunActions.Ofr;
@@ -50,7 +50,7 @@ const RunPxCol = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
 const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const defaultSize: SizeHeaderProps = type === 'bid' ? data.defaultBidSize : data.defaultOfrSize;
   const onChange = type === 'bid' ? data.onBidQtyChanged : data.onOfrQtyChanged;
-  const tryToGoToTheRightCell = (input: HTMLInputElement) => {
+  const focusNextInput = (input: HTMLInputElement) => {
     const parent: Element | null = getNthParentOf(input, 9);
     if (parent === null)
       throw new Error('seriously? how can an input like this have no parent?');
@@ -68,6 +68,13 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
       targetInput.focus();
     }
   };
+
+  const onSubmit = (input: HTMLInputElement, value: number) => {
+    defaultSize.onSubmit(input, value);
+    // Move to the next cell
+    focusNextInput(input);
+  };
+
   return {
     name: `${type}-size`,
     header: () => (
@@ -75,8 +82,7 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
                   minimum={defaultSize.minimum}
                   type={defaultSize.type}
                   onReset={defaultSize.onReset}
-                  onChange={defaultSize.onChange}
-                  onSubmit={tryToGoToTheRightCell}/>
+                  onSubmit={onSubmit}/>
     ),
     render: (row: RowType) => {
       const order: Order = row[type];
@@ -87,6 +93,7 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
           order={order}
           defaultValue={defaultSize.value}
           minimumSize={data.minimumSize}
+          visible={data.visible}
           onTabbedOut={data.focusNext}
           onChange={onChange}
           onNavigate={data.onNavigate}
@@ -167,8 +174,8 @@ const SpreadCol = (data: RunColumnData) => ({
 const columns = (data: RunColumnData): ColumnSpec[] => [
   TenorColumn,
   RunSizeColumn(data, 'bid'),
-  RunPxCol(data, 'bid'),
-  RunPxCol(data, 'ofr'),
+  RunPriceColumn(data, 'bid'),
+  RunPriceColumn(data, 'ofr'),
   RunSizeColumn(data, 'ofr'),
   MidCol(data),
   SpreadCol(data),

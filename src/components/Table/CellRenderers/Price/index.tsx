@@ -16,7 +16,7 @@ import {priceFormatter} from 'utils/priceFormatter';
 import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
-import {OrderStatus, dumpStatus} from 'interfaces/order';
+import {OrderStatus} from 'interfaces/order';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -90,21 +90,15 @@ export const Price: React.FC<Props> = (props: Props) => {
   useValueComparator(value, state.internalValue, startFlashing, props.status, state.status);
   useValueListener(value, timestamp, setInternalValue);
 
-  /*useEffect(() => {
-    if (!state.tooltipVisible || ref === null)
-      return;
-    ref.addEventListener('mousemove', onMouseMove);
-    return () => {
-      ref.removeEventListener('mousemove', onMouseMove);
-    };
-  }, [state.tooltipVisible, ref, onMouseMove]);*/
-
   const getTooltip = (): ReactElement | null => {
     if (!tooltip || !tooltipVisible)
       return null;
+    const content: ReactElement | null = typeof tooltip === 'function' ? tooltip({}) : tooltip;
+    if (!content)
+      return null;
     return (
       <Tooltip target={target} onClose={hideTooltip}>
-        {typeof tooltip === 'function' ? tooltip({}) : tooltip}
+        {content}
       </Tooltip>
     );
   };

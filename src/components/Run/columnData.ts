@@ -6,7 +6,7 @@ export interface SizeHeaderProps {
   value: number;
   type: OrderTypes;
   onReset: () => void;
-  onChange: (value: number | null) => void;
+  onSubmit: (input: HTMLInputElement, value: number) => void;
 }
 
 type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => void;
@@ -25,4 +25,5 @@ export interface RunColumnData {
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;
   minimumSize: number;
   defaultSize: number;
+  visible: boolean;
 }

@@ -7,7 +7,7 @@ import strings from 'locales';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 
-type Props = SizeHeaderProps & { onSubmit: (input: HTMLInputElement) => void };
+type Props = SizeHeaderProps;
 export const SizeHeader: React.FC<Props> = (props: Props) => {
   const [internalValue, setInternalValue] = useState<number | null>(props.value);
 
@@ -30,9 +30,15 @@ export const SizeHeader: React.FC<Props> = (props: Props) => {
       const numeric: number = Number(value);
       if (isNaN(numeric))
         return;
-      if (numeric >= props.minimum)
-        props.onChange(numeric);
       setInternalValue(numeric);
+    }
+  };
+
+  const onSubmit = (input: HTMLInputElement) => {
+    if (internalValue === null)
+      return;
+    if (internalValue >= props.minimum) {
+      props.onSubmit(input, internalValue);
     }
   };
 
@@ -45,7 +51,7 @@ export const SizeHeader: React.FC<Props> = (props: Props) => {
                         onBlur={onBlur}
                         onChange={onChange}
                         onCancelEdit={reset}
-                        onSubmit={props.onSubmit}/>
+                        onSubmit={onSubmit}/>
         </div>
       )
     }/>

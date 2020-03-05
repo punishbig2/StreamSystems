@@ -62,6 +62,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       return;
     dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
   }, [order]);
+  // FIXME: this should in principle NEVER happen ...
   if (!order)
     return null;
   const depthOfTheBook: PodTable = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor);

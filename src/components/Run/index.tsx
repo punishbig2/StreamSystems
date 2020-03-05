@@ -110,19 +110,22 @@ const Run: React.FC<Props> = (props: Props) => {
     defaultBidSize: {
       minimum: props.minimumSize,
       value: state.defaultBidSize,
-      onChange: (value: number | null) => dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, value)),
+      onSubmit: (input: HTMLInputElement, value: number | null) =>
+        dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, value)),
       onReset: () => dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, props.defaultSize)),
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
       minimum: props.minimumSize,
       value: state.defaultOfrSize,
-      onChange: (value: number | null) => dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, value)),
+      onSubmit: (input: HTMLInputElement, value: number | null) =>
+        dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, value)),
       onReset: () => dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, props.defaultSize)),
       type: OrderTypes.Ofr,
     },
     defaultSize: defaultSize,
     minimumSize: minimumSize,
+    visible: visible,
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
@@ -140,7 +143,6 @@ const Run: React.FC<Props> = (props: Props) => {
       }
     },
     focusNext: (target: HTMLInputElement, action?: string) => {
-      console.log(action);
       switch (action) {
         case RunActions.Bid:
           skipTabIndex(target, 1, 0);
