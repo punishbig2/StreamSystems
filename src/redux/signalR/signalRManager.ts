@@ -169,11 +169,32 @@ export class SignalRManager<A extends Action = AnyAction> {
   public static getDepth = (symbol: string, strategy: string, tenor: string, type: OrderTypes): Order[] => {
     const {orderCache} = SignalRManager;
     const values: Order[] = Object.values(orderCache);
-    return values.filter((order: Order) => {
+    const unsorted: Order[] = values.filter((order: Order) => {
       return order.symbol === symbol
         && order.strategy === strategy
         && order.tenor === tenor
         && order.type === type;
+    });
+    return unsorted.sort((o1: Order, o2: Order) => {
+      if (o1.type !== o2.type)
+        throw new Error('cannot sort orders of different types');
+      if (o1.type === OrderTypes.Bid) {
+        if (o1.price !== null && o2.price !== null) {
+          if (o1.price > o2.price) {
+            return o1.price - o2.price;
+          }
+        }
+        return o1.timestamp - o2.timestamp;
+      } else if (o1.type === OrderTypes.Ofr) {
+        if (o1.price !== null && o2.price !== null) {
+          if (o1.price < o2.price) {
+            return o1.price - o2.price;
+          }
+        }
+        return o1.timestamp - o2.timestamp;
+      } else {
+        throw new Error('invalid order types for sorting');
+      }
     });
   };
 
