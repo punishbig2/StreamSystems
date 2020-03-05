@@ -17,9 +17,12 @@ export const onSubmitSizeListener = (
   onRowStatusChange: (rowStatus: PodRowStatus) => void,
 ) =>
   async (input: HTMLInputElement) => {
-    if (order.isCancelled() || order.price === null) {
-      dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
+    if (editedSize === null || editedSize === order.size) {
+      skipTabIndexAll(input, 1);
+      return;
     }
+    if (order.isCancelled() || order.price === null)
+      dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
     if (order.isOwnedByCurrentUser() && (order.status & OrderStatus.PreFilled) !== 0 && !order.isCancelled()) {
       // Get the desired new size
       const size: number | null = editedSize;
@@ -31,13 +34,14 @@ export const onSubmitSizeListener = (
         return;
       }
       // Create the order
-      createOrder({...order, size}, minimumSize, personality);
+      createOrder({...order, size}, minimumSize, personality)
+        .then(() => {
+          console.log('order created');
+        });
     }
     // Please wait until the main loop has ran and then
     // move the focus, because otherwise it could happen
     // that the focus is moved BEFORE the edited size
     // value is updated
-    setImmediate(() => {
-      skipTabIndexAll(input, 1);
-    });
+    skipTabIndexAll(input, 1);
   };

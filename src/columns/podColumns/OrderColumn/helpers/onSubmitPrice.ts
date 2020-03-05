@@ -21,7 +21,7 @@ export const onSubmitPriceListener = (
   dispatch: Dispatch<FXOAction<ActionTypes>>,
   onRowStatusChange: (rowStatus: PodRowStatus) => void,
 ) =>
-  async (input: HTMLInputElement, price: number | null, changed: boolean) => {
+  (input: HTMLInputElement, price: number | null, changed: boolean) => {
     input.disabled = true;
     if (changed) {
       if (isInvertedMarket(order, type, price)) {
@@ -36,7 +36,10 @@ export const onSubmitPriceListener = (
       }
       const size: number = getFinalSize(submittedSize, defaultSize);
       // Do not wait for this
-      await createOrder({...order, price, size}, minimumSize, personality);
+      createOrder({...order, price, size}, minimumSize, personality)
+        .then(() => {
+          console.log('executed');
+        });
     } else {
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
     }
