@@ -2,28 +2,14 @@ import {usePrevious} from 'hooks/usePrevious';
 import {useEffect} from 'react';
 import {OrderStatus} from 'interfaces/order';
 
-export const useValueComparator = (propsValue: number | null, stateValue: string, startFlashing: () => void, propsStatus: OrderStatus, stateStatus: OrderStatus) => {
-  const oldValue: number | null | undefined = usePrevious<number | null>(
-    propsValue,
-  );
+export const useValueComparator = (propsValue: number | null, startFlashing: () => void, status: OrderStatus) => {
+  const oldValue: number | null | undefined = usePrevious<number | null>(propsValue);
   useEffect(() => {
-    if (
-      oldValue === null
-      || oldValue === undefined
-      || (stateStatus & OrderStatus.Cancelled) !== 0
-      || (stateStatus & OrderStatus.Owned) !== 0
-      || (propsStatus & OrderStatus.Cancelled) !== 0
-    )
+    if (oldValue === null || oldValue === undefined || propsValue === null)
       return;
-    const numeric: number = Number(stateValue);
-    if (propsValue === null) {
+    if ((status & OrderStatus.Owned) !== 0)
       return;
-    }
-    if (propsValue.toFixed(3) === numeric.toFixed(3)) {
-      return;
-    }
-    if (oldValue.toFixed(3) !== propsValue.toFixed(3)) {
+    if (propsValue.toFixed(3) !== oldValue.toFixed(3))
       startFlashing();
-    }
-  }, [oldValue, propsValue, stateValue, startFlashing, stateStatus]);
+  }, [oldValue, propsValue, startFlashing, status]);
 };

@@ -11,6 +11,11 @@ export enum CurrencyGroups {
   Asia = 'Asia'
 }
 
+export interface ExecSound {
+  path: string;
+  name: string;
+}
+
 export interface User {
   email: string;
   firm: string;
@@ -36,6 +41,7 @@ export interface UserProfile {
   ccyGroup: CurrencyGroups;
   oco: boolean;
   lastOCOUpdateTimestamp: number | null;
+  execSoundList: ExecSound[];
 }
 
 export interface UserProfileState {

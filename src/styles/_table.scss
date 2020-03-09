@@ -124,22 +124,11 @@
     &.error {
       background-color: rgba($text-color-red, $table-tint);
 
-      .td:first-child {
-        position: relative;
-
-        * {
-          display: none;
-        }
-
-        &::before {
-          position: absolute;
-          content: "\f071";
-          font-family: "Font Awesome 5 Free Solid", sans-serif;
-          color: $text-color-red;
-          width: 100%;
-          left: 0;
-          top: 0;
-          height: 100%;
+      .td {
+        .error-cell {
+          i {
+            color: $text-color-red;
+          }
         }
       }
     }
@@ -156,6 +145,10 @@
       .td * {
         text-decoration: line-through;
       }
+    }
+
+    &.flash {
+      animation: flash 0.25s infinite;
     }
 
     &.my-bank-fill {
@@ -287,10 +280,12 @@
 
     .dark-pool-header {
       white-space: pre-wrap;
+      line-height: $table-header-height / 4;
 
       div {
         display: inline-block;
-        line-height: $table-header-height / 2;
+        line-height: $table-header-height / 4;
+        font-size: 3 * $table-font-size / 4;
         width: 100%;
 
         &:first-child {
@@ -393,11 +388,21 @@
       z-index: 1;
 
       .plus-sign {
-        i {
-          color: $text-color-grey;
+        &.empty {
+          i {
+            color: $text-color-grey;
+          }
         }
 
         &.active {
+          cursor: pointer;
+
+          i {
+            color: $text-color-red;
+          }
+        }
+
+        &.inactive {
           cursor: pointer;
 
           i {

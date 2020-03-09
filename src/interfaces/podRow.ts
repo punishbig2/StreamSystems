@@ -6,7 +6,6 @@ export enum PodRowStatus {
   Normal,
   InvertedMarketsError,
   SizeTooSmall,
-  Executed
 }
 
 interface TOBRowBase {

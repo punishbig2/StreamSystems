@@ -72,10 +72,12 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     [],
   );
   useEffect(() => {
-    if (!symbol.name || symbol.name === '' || !strategy || strategy === '')
-      return;
-    onTitleChange(`${symbol.name} ${strategy}`);
-  }, [symbol, strategy, onTitleChange]);
+    if (!symbol.name || symbol.name === '' || !strategy || strategy === '') {
+      onTitleChange(windowID, 'POD');
+    } else {
+      onTitleChange(windowID, `${symbol.name} ${strategy}`);
+    }
+  }, [symbol, strategy, onTitleChange, windowID]);
 
   // Create depths for each tenor
   useDepthEmitter(tenors, symbol.name, strategy, insertDepth);

@@ -1,8 +1,8 @@
-import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
+import React, {ChangeEvent, FormEvent, ReactNode, useState} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Checkbox} from '@material-ui/core';
-import {UserTypes, CurrencyGroups, UserProfile} from 'interfaces/user';
+import {UserTypes, CurrencyGroups, UserProfile, ExecSound} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
 
@@ -13,6 +13,10 @@ interface OwnProps {
   profile: UserProfile;
   original: UserProfile | null;
 }
+
+declare var GlobalApplicationVersion: string;
+if (GlobalApplicationVersion === undefined)
+  GlobalApplicationVersion = 'Unknown';
 
 const renderTimezone = (value: unknown): ReactNode => {
   if (value === '')
@@ -27,7 +31,9 @@ const renderCCYGroup = (value: unknown): ReactNode => {
 };
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
+  const [isAddExecSoundModalVisible, showAddExecSoundModal] = useState<boolean>(false);
   const {profile} = props;
+  const execSoundList = profile.execSoundList ? profile.execSoundList : [];
 
   const hasNotChanged = () => {
     if (props.original === null)
@@ -35,9 +41,21 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     return deepEqual(profile, props.original);
   };
 
+  const onExecSoundChange = (event: any) => {
+    const {target} = event;
+    if (target.value === 'add') {
+      showAddExecSoundModal(true);
+    } else {
+      props.onChange(event);
+    }
+  };
+
   return (
     <>
-      <div className={'modal-title'}>{strings.UserProfile}</div>
+      <div className={'modal-title'}>
+        <div>{strings.UserProfile}</div>
+        <small>FX Options {GlobalApplicationVersion}</small>
+      </div>
       <form className={'user-profile-form'} name={'user-profile'} onSubmit={props.onSubmit} autoComplete={'off'}
             noValidate>
         <Grid container direction={'column'}>
@@ -45,11 +63,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'user-type'}>User Type</FormLabel>
-                <Select
-                  id={'user-type'}
-                  onChange={props.onChange}
-                  name={'userType'}
-                  value={profile.userType}>
+                <Select id={'user-type'} onChange={props.onChange} name={'userType'} value={profile.userType}>
                   <MenuItem value={UserTypes.Bank}>Bank</MenuItem>
                   <MenuItem value={UserTypes.Broker}>Broker</MenuItem>
                   <MenuItem value={UserTypes.MarketMaker}>
@@ -65,8 +79,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   id={'mpid'}
                   onChange={props.onChange}
                   name={'mpid'}
-                  value={profile.mpid}
-                />
+                  value={profile.mpid}/>
               </FormControl>
             </Grid>
             <Grid item xs={4}>
@@ -123,10 +136,12 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={'exec-sound'}>Exec Sound</FormLabel>
                 <Select
                   id={'exec-sound'}
-                  onChange={props.onChange}
+                  onChange={onExecSoundChange}
                   name={'execSound'}
                   value={profile.execSound}>
                   <MenuItem value={'default'}>Default</MenuItem>
+                  {execSoundList.map((item: ExecSound) => (<MenuItem value={item.path}>{item.name}</MenuItem>))}
+                  <MenuItem value={'add'}>Add New</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

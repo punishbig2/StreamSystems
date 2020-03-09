@@ -68,10 +68,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
   }, [columns]);
   if (!rows) return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
-  const total: number = columns.reduce(
-    (total: number, column: ColumnSpec) => total + column.weight,
-    0,
-  );
+  const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.weight, 0);
   const propertyMapper = ([key, row]: [string, any]) => ({
     id: key,
     weight: total,
@@ -94,10 +91,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
   const getSortFn = () => {
     const sortColumns = Object.values(sortBy);
     if (sortColumns.length > 0) {
-      const combineSortFns = (
-        combined: (x: any, y: any) => number,
-        info: SortInfo,
-      ) => {
+      const combineSortFns = (combined: (x: any, y: any) => number, info: SortInfo) => {
         const column: ColumnSpec = columnMap[info.column];
         if (column) {
           const sortFn = (direction: SortDirection) => {

@@ -87,7 +87,7 @@ export const Price: React.FC<Props> = (props: Props) => {
 
   useStatusUpdater(props.status, setStatus);
   useFlasher(state.flash, stopFlashing);
-  useValueComparator(value, state.internalValue, startFlashing, props.status, state.status);
+  useValueComparator(value, startFlashing, props.status);
   useValueListener(value, timestamp, setInternalValue);
 
   const getTooltip = (): ReactElement | null => {

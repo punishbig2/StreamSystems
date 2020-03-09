@@ -9,6 +9,3 @@ export enum PriceActions {
   ResetValue
 }
 
-export enum RowActions {
-  Executed,
-}

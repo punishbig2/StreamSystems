@@ -32,11 +32,10 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
     }
     setSize(numeric);
   };
-  const updatePrice = ({
-                         target: {value},
-                       }: React.ChangeEvent<HTMLInputElement>) => {
+  const updatePrice = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = Number(value);
-    if (isNaN(numeric)) return;
+    if (isNaN(numeric))
+      return;
     setPrice(value);
   };
   const onSubmit = (event: React.SyntheticEvent) => {

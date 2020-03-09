@@ -138,13 +138,13 @@ const createWindow = (
           user={user}
           connected={connected}
           personality={personality}
-          onTitleChange={(title: string) => onWindowTitleChange(windowID, title)}/>
+          onTitleChange={onWindowTitleChange}/>
       );
     case WindowTypes.MessageBlotter:
       return (
         <MessageBlotter
           id={windowID}
-          onTitleChange={(title: string) => onWindowTitleChange(windowID, title)}
+          onTitleChange={onWindowTitleChange}
           connected={connected}
           personality={personality}
           blotterType={BlotterTypes.Regular}/>
@@ -181,6 +181,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   };
 
   const {personality, id: workspaceID, setWindowTitle} = props;
+
   const renderContent = useCallback((windowID: string, type: WindowTypes): ReactElement | null => {
     if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
       return null;

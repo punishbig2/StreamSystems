@@ -19,6 +19,7 @@ export const defaultProfile: UserProfile = {
   timezone: '',
   lastOCOUpdateTimestamp: null,
   userType: UserTypes.Unset,
+  execSoundList: [],
 };
 
 export enum UserProfileActions {

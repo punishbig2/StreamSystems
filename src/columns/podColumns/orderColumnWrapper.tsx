@@ -62,8 +62,8 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           onRowStatusChange={props.onRowStatusChange}/>
       );
     },
-    template: '99999 999999.999',
-    weight: 12,
+    template: '999999 999999.999',
+    weight: 13,
   };
 };
 

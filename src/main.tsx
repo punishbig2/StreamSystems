@@ -8,6 +8,7 @@ import {Provider} from 'react-redux';
 import {store} from 'redux/store';
 import 'styles/main.scss';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
+// import whyDidYouRender from '@welldone-software/why-did-you-render';
 
 Object.defineProperty(MouseEvent.prototype, 'ignore', {
   value: function () {

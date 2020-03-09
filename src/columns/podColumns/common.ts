@@ -10,6 +10,7 @@ export type PodRowProps = PodRow & {
   darkPrice: number | null;
   symbol: string;
   strategy: string;
+  status: PodRowStatus;
   // Event handlers
   onTenorSelected: (tenor: string) => void;
   onRowStatusChange: (status: PodRowStatus) => void;

@@ -1,7 +1,8 @@
 import {ColumnSpec} from 'components/Table/columnSpecification';
-import React, {CSSProperties, ReactElement} from 'react';
+import React, {CSSProperties, ReactElement, useEffect, useState} from 'react';
 import {percentage} from 'utils';
 import {$$} from 'utils/stringPaster';
+import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 
 export enum BlotterRowTypes {
   Normal,
@@ -17,11 +18,10 @@ interface Props {
   type: BlotterRowTypes;
 }
 
-const getClassFromRowType = (
-  baseClassName: string,
-  rowType: BlotterRowTypes,
-): string => {
+const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, executed: boolean): string => {
   const classes: string[] = [baseClassName];
+  if (executed)
+    classes.push('flash');
   switch (rowType) {
     case BlotterRowTypes.Normal:
       classes.push('normal');
@@ -41,6 +41,27 @@ const getClassFromRowType = (
 
 const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const {columns, row} = props;
+  const [executed, setExecuted] = useState<boolean>(false);
+  const {ExecID} = row;
+
+  useEffect(() => {
+    let timer: number | null = null;
+    const onExecuted = () => {
+      setExecuted(true);
+      timer = setTimeout(() => {
+        setExecuted(false);
+      }, 3000);
+    };
+    const type: string = $$(ExecID, MessageBlotterActions.Executed);
+    document.addEventListener(type, onExecuted, true);
+    return () => {
+      document.removeEventListener(type, onExecuted, true);
+      if (timer !== null) {
+        clearTimeout(timer);
+      }
+    };
+  }, [ExecID]);
+
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {
       width: percentage(column.weight, props.weight),
@@ -54,7 +75,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   if (!row)
     return null;
   return (
-    <div className={getClassFromRowType('tr', props.type)} id={row.id} key={row.id}>
+    <div className={getClassFromRowType('tr', props.type, executed)} id={row.id} key={row.id}>
       {columns.map(columnMapper)}
     </div>
   );

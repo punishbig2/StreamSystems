@@ -38,7 +38,6 @@ import {Message, ExecTypes} from 'interfaces/message';
 import {User} from 'interfaces/user';
 import {API} from 'API';
 import {$$} from 'utils/stringPaster';
-import {RowActions} from 'components/Table/CellRenderers/Price/constants';
 import {Sides} from 'interfaces/sides';
 
 // Build the reducer from the fixed and dynamic reducers
@@ -149,15 +148,20 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
           }
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
+          const type: string = $$(data.ExecID, MessageBlotterActions.Executed);
           if (data.Username === user.email) {
             // FIXME: this should not be working right now right?
-            const type: string = $$('__ROW', data.Tenor, data.Symbol, data.Strategy, RowActions.Executed);
             // FIXME: to improve performance we should try to find a way to do this
             //        in a single dispatch
             dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
-            dispatch(createAction<any, A>(type));
+            // dispatch(createAction<any, A>(type));
           }
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+          // Execute after the system had time to update the state and hence
+          // create the row in the blotters
+          setTimeout(() => {
+            document.dispatchEvent(new CustomEvent(type));
+          }, 100);
           break;
         default:
           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));

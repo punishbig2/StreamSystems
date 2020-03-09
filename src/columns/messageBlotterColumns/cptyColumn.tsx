@@ -18,9 +18,23 @@ export default (sortable: boolean) => ({
   },
   weight: 2,
   filterByKeyword: ({ExecBroker}: Message, keyword: string): boolean => {
-    return ExecBroker.includes(keyword);
+    if (ExecBroker) {
+      const lowerCase: string = ExecBroker.toLowerCase();
+      return lowerCase.includes(keyword.toLowerCase());
+    } else {
+      return false;
+    }
   },
   difference: ({ExecBroker}: Message, v2: Message) => {
-    return ExecBroker.localeCompare(v2.MDMkt);
+    if (ExecBroker) {
+      const lowerCase: string = ExecBroker.toLowerCase();
+      if (v2.ExecBroker) {
+        return lowerCase.localeCompare(v2.ExecBroker.toLowerCase());
+      } else {
+        return -1;
+      }
+    } else {
+      return 1;
+    }
   },
 });

@@ -107,6 +107,10 @@ const Run: React.FC<Props> = (props: Props) => {
       rowID,
       type,
     })),
+    onDeactivateOrder: (rowID: string, type: OrderTypes) => dispatch(createAction<RunActions>(RunActions.DeactivateOrder, {
+      rowID,
+      type,
+    })),
     defaultBidSize: {
       minimum: props.minimumSize,
       value: state.defaultBidSize,

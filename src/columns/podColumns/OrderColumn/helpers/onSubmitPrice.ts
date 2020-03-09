@@ -23,6 +23,8 @@ export const onSubmitPriceListener = (
 ) =>
   (input: HTMLInputElement, price: number | null, changed: boolean) => {
     input.disabled = true;
+    onRowStatusChange(PodRowStatus.Normal);
+    dispatchWorkspaceError(null);
     if (changed) {
       if (isInvertedMarket(order, type, price)) {
         onRowStatusChange(PodRowStatus.InvertedMarketsError);

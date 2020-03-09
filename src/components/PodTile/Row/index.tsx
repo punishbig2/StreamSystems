@@ -50,9 +50,7 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
     dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, status));
   };
 
-  if (status === PodRowStatus.Executed) {
-    classes.push('executed');
-  } else if (status !== PodRowStatus.Normal) {
+  if (status !== PodRowStatus.Normal) {
     classes.push('error');
   }
 

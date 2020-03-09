@@ -1,7 +1,7 @@
 import React, {ReactElement, useEffect, useReducer, Reducer, useState} from 'react';
 import {Order, OrderStatus} from 'interfaces/order';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Quantity} from 'components/Table/CellRenderers/Quantity';
+import {Size} from 'components/Table/CellRenderers/Size';
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {Price} from 'components/Table/CellRenderers/Price';
 import {STRM} from 'redux/stateDefs/workspaceState';
@@ -23,6 +23,7 @@ import {checkIfShouldShowTooltip} from 'columns/podColumns/OrderColumn/helpers/c
 import {orderTicketRenderer} from 'columns/podColumns/OrderColumn/helpers/orderTicketRenderer';
 import {getOrder} from 'columns/podColumns/OrderColumn/helpers/getOrder';
 import {ArrowDirection} from 'interfaces/w';
+import {dispatchWorkspaceError} from 'utils';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -108,19 +109,24 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     (status & OrderStatus.HasMyOrder) !== 0 || (status & OrderStatus.Owned) !== 0
   );
 
+  const cancelOrderWrapper = (order: Order) => {
+    dispatchWorkspaceError(null);
+    return cancelOrder(order);
+  };
+
   const sizeCell: ReactElement = (
-    <Quantity key={2}
-              type={type}
-              className={getOrderStatusClass(status, 'cell size-layout')}
-              value={size}
-              cancellable={cancellable}
-              readOnly={readOnly}
-              chevron={(status & OrderStatus.HasDepth) !== 0}
-              onCancel={cancellable ? () => cancelOrder(order) : undefined}
-              onBlur={resetSize}
-              onNavigate={onNavigate}
-              onChange={onChangeSize}
-              onSubmit={onSubmitSize}/>
+    <Size key={2}
+          type={type}
+          className={getOrderStatusClass(status, 'cell size-layout')}
+          value={size}
+          cancellable={cancellable}
+          readOnly={readOnly}
+          chevron={(status & OrderStatus.HasDepth) !== 0}
+          onCancel={cancellable ? () => cancelOrderWrapper(order) : undefined}
+          onBlur={resetSize}
+          onNavigate={onNavigate}
+          onChange={onChangeSize}
+          onSubmit={onSubmitSize}/>
   );
 
   const items: ReactElement[] = [
@@ -139,13 +145,13 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       onNavigate={onNavigate}/>,
   ];
 
-  // Depending on the type the size cell goes to the left or right
   switch (type) {
     case OrderTypes.Ofr:
       items.push(sizeCell);
       break;
     case OrderTypes.Bid:
       items.unshift(sizeCell);
+      break;
   }
 
   return (

@@ -29,6 +29,7 @@ export enum RunActions {
   SetDefaultSize = 'RUN_SET_DEFAULT_SIZE',
   ActivateRow = 'RUN_ACTIVATE_ROW',
   ActivateOrder = 'RUN_ACTIVATE_ORDER',
+  DeactivateOrder = 'RUN_DEACTIVATE_ORDER',
   ResetAll = 'RUN_RESET_ALL',
 }
 
@@ -236,6 +237,28 @@ const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   return status | edited;
 };
 
+const deactivateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
+  const {orders} = state;
+  const row: PodRow = orders[rowID];
+  if (row === undefined)
+    return state;
+  const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
+  const {[key]: order} = row;
+  return {
+    ...state,
+    orders: {
+      ...orders,
+      [rowID]: fillSpreadAndMid({
+        ...row,
+        [key]: {
+          ...order,
+          status: order.status & ~OrderStatus.PriceEdited & ~OrderStatus.SizeEdited,
+        },
+      }),
+    },
+  };
+};
+
 const activateOrder = (state: RunState, {rowID, type}: { rowID: string, type: OrderTypes }): RunState => {
   const {orders} = state;
   const row: PodRow = orders[rowID];
@@ -389,6 +412,8 @@ export default (state: RunState, {type, data}: FXOAction<RunActions>): RunState 
       return deactivateAll(state, data);
     case RunActions.ActivateOrder:
       return activateOrder(state, data);
+    case RunActions.DeactivateOrder:
+      return deactivateOrder(state, data);
     case RunActions.ResetAll:
       return {
         defaultOfrSize: 0,

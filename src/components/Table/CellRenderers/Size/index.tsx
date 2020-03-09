@@ -30,7 +30,7 @@ const defaultProps: OwnProps = {
   chevron: false,
 };
 
-export const Quantity: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
+export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
   const {value} = props;
 
   const classes: string[] = ['times'];

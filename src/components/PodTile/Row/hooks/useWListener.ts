@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {W} from 'interfaces/w';
 import {PodRow} from 'interfaces/podRow';
@@ -9,7 +9,6 @@ import {createAction} from 'redux/actionCreator';
 import {ActionTypes} from 'components/PodTile/Row/reducer';
 import {FXOAction} from 'redux/fxo-action';
 import {useAction} from 'hooks/useAction';
-
 
 export const useWListener = (symbol: string, strategy: string, tenor: string, connected: boolean) => {
   const [action, dispatch] = useAction<FXOAction<ActionTypes>>();

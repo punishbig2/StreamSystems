@@ -197,6 +197,7 @@ export const DarkPoolColumn = (): ColumnSpec => ({
   name: 'dark-pool',
   header: () => (
     <div className={'dark-pool-header'}>
+      <div>Dark</div>
       <div>Pool</div>
     </div>
   ),

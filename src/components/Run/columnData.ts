@@ -22,6 +22,7 @@ export interface RunColumnData {
   defaultBidSize: SizeHeaderProps;
   focusNext: (target: HTMLInputElement, action?: string) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  onDeactivateOrder: (rowID: string, orderType: OrderTypes) => void;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;
   minimumSize: number;
   defaultSize: number;

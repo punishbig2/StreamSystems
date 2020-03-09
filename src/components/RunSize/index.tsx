@@ -1,5 +1,5 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Order, OrderStatus} from 'interfaces/order';
+import {Order, OrderStatus, dumpStatus} from 'interfaces/order';
 import React, {useEffect, useState, useCallback, ReactNode} from 'react';
 import {NumericInput} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
@@ -16,9 +16,14 @@ interface Props {
   minimumSize: number;
   visible: boolean;
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
+  onDeactivateOrder: (id: string, orderType: OrderTypes) => void;
   onTabbedOut?: (input: HTMLInputElement, action?: string) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
   onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
+}
+
+enum ActivationStatus {
+  Active, Inactive, Empty
 }
 
 export const RunSize: React.FC<Props> = (props: Props) => {
@@ -114,22 +119,54 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     setLocallyModified(false);
   };
 
-  const inactive: boolean = ((order.status & OrderStatus.Cancelled) !== 0
-    && (order.status & OrderStatus.SizeEdited) === 0
-    && !locallyModified
-  );
-
-  const onActivateOrder = () => {
-    if (!inactive)
-      return;
-    props.onActivateOrder(props.id, order.type);
+  const getActivationStatus = (): ActivationStatus => {
+    if (order.price === null)
+      return ActivationStatus.Empty;
+    dumpStatus(order.status);
+    if ((order.status & OrderStatus.PriceEdited) === 0) {
+      return ActivationStatus.Inactive;
+    } else if ((order.status & OrderStatus.PriceEdited) !== 0) {
+      return ActivationStatus.Active;
+    } else {
+      return ActivationStatus.Empty;
+    }
   };
 
-  const plusSign = (
-    <div className={'plus-sign' + (inactive ? ' active' : '')} onClick={onActivateOrder} key={1}>
-      {inactive ? <i className={'fa fa-plus-circle'}/> : <i className={'fa fa-minus-circle'}/>}
-    </div>
-  );
+  const onActivateOrder = () => {
+    const status: ActivationStatus = getActivationStatus();
+    if (status === ActivationStatus.Active) {
+      props.onDeactivateOrder(props.id, order.type);
+    } else if (status === ActivationStatus.Inactive) {
+      props.onActivateOrder(props.id, order.type);
+    }
+  };
+
+  const getActivationButton = (status: ActivationStatus) => {
+    switch (getActivationStatus()) {
+      case ActivationStatus.Inactive:
+        return (
+          <div key={'3'} className={'plus-sign inactive'} onClick={onActivateOrder}>
+            <i className={'fa fa-plus-circle'}/>
+          </div>
+        );
+      case ActivationStatus.Active:
+        return (
+          <div key={'3'} className={'plus-sign active'} onClick={onActivateOrder}>
+            <i className={'fa fa-minus-circle'}/>
+          </div>
+        );
+      case ActivationStatus.Empty:
+        return (
+          <div key={'3'} className={'plus-sign empty'}>
+            <i className={'far fa-circle'}/>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const plusSign = getActivationButton(getActivationStatus());
 
   const displayValue: string = (() => {
     if (locallyModified)

@@ -17,6 +17,6 @@ export const percentage = (numerator: number, denominator: number): string => {
   return `${percentage}%`;
 };
 
-export const dispatchWorkspaceError = (message: string) => {
+export const dispatchWorkspaceError = (message: string | null) => {
   document.dispatchEvent(new CustomEvent('workspace-error', {detail: message}));
 };

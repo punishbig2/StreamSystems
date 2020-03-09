@@ -97,10 +97,11 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
           onTabbedOut={data.focusNext}
           onChange={onChange}
           onNavigate={data.onNavigate}
+          onDeactivateOrder={data.onDeactivateOrder}
           onActivateOrder={data.onActivateOrder}/>
       );
     },
-    template: '999999',
+    template: '9999999',
     weight: 3,
   };
 };
