@@ -39,10 +39,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const styles: any = getStyles();
   // Compute the ideal height
   const blotterHeight: number = useMemo(
-    () =>
-      styles.windowToolbarHeight +
-      styles.tableHeaderHeight +
-      4 * (styles.tableRowHeight + 1) + 1/* window padding */,
+    () => styles.windowToolbarHeight + styles.tableHeaderHeight + 4 * styles.tableRowHeight,
     [styles],
   );
   const fixedBlotterGeometry: DOMRect = useMemo(
