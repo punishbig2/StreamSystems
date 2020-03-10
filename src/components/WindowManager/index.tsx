@@ -148,7 +148,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
           onTitleChange={() => null}
           connected={props.connected}
           personality={props.personality}
-          blotterType={BlotterTypes.Fills}/>
+          blotterType={BlotterTypes.Executions}/>
       </WindowElement>
       <div className={'minimized-window-buttons'}>
         {minimized.map(minimizedWindowMapper)}

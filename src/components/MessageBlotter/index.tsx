@@ -98,7 +98,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   }, [columnsMap.broker, columnsMap.normal, props.personality, user.isbroker]);
 
   const baseFilter = (message: Message): boolean => {
-    if (props.blotterType === BlotterTypes.Fills) {
+    if (props.blotterType === BlotterTypes.Executions) {
       return isExecution(message);
     } else {
       if (isExecution(message)) {
@@ -110,7 +110,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   return (
     <>
       <div className={'window-title-bar'}>
-        <h1>{strings.Messages}</h1>
+        <h1>{props.blotterType === BlotterTypes.Executions ? 'Execution Blotter' : strings.Messages}</h1>
       </div>
       <div className={'window-content'}>
         <Table

@@ -14,9 +14,9 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 
 const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: BlotterTypes) => {
-  const sortable: boolean = type !== BlotterTypes.Fills;
+  const sortable: boolean = type !== BlotterTypes.Executions;
   return {
-    normal: [...(type === BlotterTypes.Fills ? [] : [transactTypeColumn(sortable)]),
+    normal: [...(type === BlotterTypes.Executions ? [] : [transactTypeColumn(sortable)]),
       transactTimeColumn(sortable),
       symbolColumn(sortable),
       tenorColumn(sortable),
@@ -27,7 +27,7 @@ const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: 
       cptyColumn(sortable),
       poolColumn(sortable),
     ],
-    broker: [...(type === BlotterTypes.Fills ? [] : [transactTypeColumn(sortable)]),
+    broker: [...(type === BlotterTypes.Executions ? [] : [transactTypeColumn(sortable)]),
       sizeColumn(sortable),
       symbolColumn(sortable),
       tenorColumn(sortable),

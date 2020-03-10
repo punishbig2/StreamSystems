@@ -232,6 +232,7 @@ export const Price: React.FC<Props> = (props: Props) => {
            ref={setTarget}>
         <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
         <NumericInput
+          id={props.uid}
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
           title={props.title}

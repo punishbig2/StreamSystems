@@ -5,7 +5,7 @@ import {Price} from 'components/Table/CellRenderers/Price';
 import {Tenor} from 'components/Table/CellRenderers/Tenor';
 import {ColumnSpec} from 'components/Table/columnSpecification';
 import {Order, OrderStatus} from 'interfaces/order';
-import {PodRow} from 'interfaces/podRow';
+import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {ArrowDirection} from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
@@ -16,15 +16,23 @@ import {$$} from 'utils/stringPaster';
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
+const ignoreTabbedOut = () => {
+};
+
 const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
   const onChange = type === 'bid' ? data.onBidChanged : data.onOfrChanged;
   const label: string = type === 'bid' ? strings.Bid : strings.Ofr;
   const actionType: RunActions = type === 'bid' ? RunActions.Bid : RunActions.Ofr;
-  const onPriceChange = (row: RowType) => (input: HTMLInputElement, price: number | null, changed: boolean) => {
-    if (price !== null) {
-      onChange(row.id, price, changed);
-    }
-  };
+
+  const onPriceChange = (row: RowType) =>
+    (input: HTMLInputElement, price: number | null, changed: boolean) => {
+      if (price !== null) {
+        if (onChange(row.id, price, changed)) {
+          data.focusNext(input, actionType);
+        }
+      }
+    };
+
   return {
     name: `${type}-price`,
     header: () => <DualTableHeader label={label}/>,
@@ -38,7 +46,7 @@ const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec =>
           value={order.price}
           animated={false}
           onSubmit={onPriceChange(row)}
-          onTabbedOut={(target: HTMLInputElement) => data.focusNext(target, actionType)}
+          onTabbedOut={ignoreTabbedOut}
           onNavigate={data.onNavigate}/>
       );
     },
@@ -109,9 +117,17 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
 const TenorColumn: ColumnSpec = {
   name: 'tenor',
   header: () => <DualTableHeader label={''}/>,
-  render: ({tenor}: RowType) => (
-    <Tenor tenor={tenor} onTenorSelected={() => null}/>
-  ),
+  render: (row: RowType) => {
+    const {tenor} = row;
+    if (row.status !== PodRowStatus.Normal) {
+      return (
+        <div className={'error-cell'}>
+          <i className={'fa fa-exclamation-triangle'}/>
+        </div>
+      );
+    }
+    return <Tenor tenor={tenor} onTenorSelected={() => null}/>;
+  },
   template: 'WW',
   weight: 2,
 };

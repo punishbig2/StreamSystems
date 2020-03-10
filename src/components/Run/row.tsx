@@ -3,7 +3,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {PodRow, PodRowStatus} from 'interfaces/podRow';
 import {User} from 'interfaces/user';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {RowState} from 'redux/stateDefs/rowState';
 import {percentage} from 'utils';
 
@@ -19,8 +19,10 @@ interface OwnProps {
 
 const Row = (props: OwnProps & RowState) => {
   const {columns, row, fixedRow, user} = props;
-  const onNavigate = (target: HTMLInputElement, direction: NavigateDirection) => {
-  };
+  const {status} = row;
+  useEffect(() => {
+    // TODO: show an error message within the run and set it by using a browser custom event
+  }, [status]);
   return (
     <div className={'tr' + (row.status === PodRowStatus.InvertedMarketsError ? ' error' : '')}
          data-row-number={props.rowNumber}>
@@ -32,9 +34,8 @@ const Row = (props: OwnProps & RowState) => {
                 width={width}
                 user={user}
                 render={column.render}
-                {...(fixedRow || row)}
-                onNavigate={onNavigate}
-                colNumber={index}/>
+                colNumber={index}
+                {...(fixedRow || row)}/>
         );
       })}
     </div>

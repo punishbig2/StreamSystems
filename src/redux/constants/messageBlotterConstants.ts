@@ -5,6 +5,6 @@ export enum MessageBlotterActions {
 }
 
 export enum BlotterTypes {
-  Fills,
+  Executions,
   Regular
 }

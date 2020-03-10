@@ -16,6 +16,7 @@ import {useRunInitializer} from 'components/Run/hooks/useRunInitializer';
 import {createEmptyTable} from 'components/Run/helpers/createEmptyTablei';
 import {getSelectedOrders} from 'components/Run/helpers/getSelectedOrders';
 import {$$} from 'utils/stringPaster';
+import {onPriceChange} from 'components/Run/helpers/onPriceChange';
 
 interface OwnProps {
   visible: boolean;
@@ -31,6 +32,7 @@ interface OwnProps {
 type Props = OwnProps;
 
 const initialState: RunState = {
+  original: {},
   orders: {},
   defaultOfrSize: 0,
   defaultBidSize: 0,
@@ -88,8 +90,8 @@ const Run: React.FC<Props> = (props: Props) => {
 
   // This builds the set of columns of the run depth with it's callbacks
   const columns = createColumns({
-    onBidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Bid, {id, value})),
-    onOfrChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Ofr, {id, value})),
+    onBidChanged: onPriceChange(dispatch)(orders, OrderTypes.Bid),
+    onOfrChanged: onPriceChange(dispatch)(orders, OrderTypes.Ofr),
     onMidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Mid, {id, value})),
     onSpreadChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Spread, {
       id,

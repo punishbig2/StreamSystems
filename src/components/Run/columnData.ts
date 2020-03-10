@@ -9,7 +9,7 @@ export interface SizeHeaderProps {
   onSubmit: (input: HTMLInputElement, value: number) => void;
 }
 
-type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => void;
+type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => boolean | void;
 
 export interface RunColumnData {
   onBidChanged: ChangeFn<number>;
