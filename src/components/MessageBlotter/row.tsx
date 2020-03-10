@@ -2,7 +2,7 @@ import {ColumnSpec} from 'components/Table/columnSpecification';
 import React, {CSSProperties, ReactElement, useEffect, useState} from 'react';
 import {percentage} from 'utils';
 import {$$} from 'utils/stringPaster';
-import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
+import {MessageBlotterActions, BlotterTypes} from 'redux/constants/messageBlotterConstants';
 
 export enum BlotterRowTypes {
   Normal,
@@ -16,6 +16,7 @@ interface Props {
   row: { [key: string]: any };
   weight: number;
   type: BlotterRowTypes;
+  blotterType: BlotterTypes;
 }
 
 const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, executed: boolean): string => {
@@ -40,27 +41,29 @@ const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, ex
 };
 
 const Row: React.FC<Props> = (props: Props): ReactElement | null => {
-  const {columns, row} = props;
+  const {columns, blotterType, row} = props;
   const [executed, setExecuted] = useState<boolean>(false);
   const {ExecID} = row;
 
   useEffect(() => {
-    let timer: number | null = null;
-    const onExecuted = () => {
-      setExecuted(true);
-      timer = setTimeout(() => {
-        setExecuted(false);
-      }, 3000);
-    };
-    const type: string = $$(ExecID, MessageBlotterActions.Executed);
-    document.addEventListener(type, onExecuted, true);
-    return () => {
-      document.removeEventListener(type, onExecuted, true);
-      if (timer !== null) {
-        clearTimeout(timer);
-      }
-    };
-  }, [ExecID]);
+    if (blotterType === BlotterTypes.Executions) {
+      let timer: number | null = null;
+      const onExecuted = () => {
+        setExecuted(true);
+        timer = setTimeout(() => {
+          setExecuted(false);
+        }, 3000);
+      };
+      const type: string = $$(ExecID, MessageBlotterActions.Executed);
+      document.addEventListener(type, onExecuted, true);
+      return () => {
+        document.removeEventListener(type, onExecuted, true);
+        if (timer !== null) {
+          clearTimeout(timer);
+        }
+      };
+    }
+  }, [ExecID, blotterType]);
 
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {

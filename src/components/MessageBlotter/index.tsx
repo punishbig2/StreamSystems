@@ -42,6 +42,7 @@ const withRedux = connect<MessageBlotterState,
 type Props = OwnProps & DispatchProps & MessageBlotterState;
 const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
   const {entries, onTitleChange, id} = props;
+  const {blotterType} = props;
 
   useEffect(() => {
     onTitleChange(id, strings.Monitor);
@@ -83,7 +84,8 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
       return BlotterRowTypes.Normal;
     })();
     return (
-      <Row key={props.key} columns={props.columns} row={message} weight={props.weight} type={rowType}/>
+      <Row key={props.key} columns={props.columns} row={message} weight={props.weight} type={rowType}
+           blotterType={blotterType}/>
     );
   };
 
