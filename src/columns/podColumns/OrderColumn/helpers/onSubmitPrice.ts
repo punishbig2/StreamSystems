@@ -36,11 +36,13 @@ export const onSubmitPriceListener = (
         input.focus();
         return;
       }
-      const size: number = getFinalSize(submittedSize, defaultSize);
+      // Pick the appropriate size according to the priority for each
+      // possible source
+      const size: number = getFinalSize(submittedSize, order.size, defaultSize);
       // Do not wait for this
       createOrder({...order, price, size}, minimumSize, personality)
         .then(() => {
-          console.log('executed');
+          order.dispatchEvent('CREATED');
         });
     } else {
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
@@ -49,3 +51,4 @@ export const onSubmitPriceListener = (
     // We are certainly done
     input.disabled = false;
   };
+

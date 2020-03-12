@@ -8,7 +8,7 @@ export interface State {
 }
 
 export enum ActionTypes {
-  SetEditedSize, SetSubmittedSize, ResetAllSizes
+  SetEditedSize, SetSubmittedSize, ResetAllSizes, OrderCreated
 }
 
 export const reducer: Reducer<State, FXOAction<ActionTypes>> = (state: State, action: FXOAction<ActionTypes>): State => {

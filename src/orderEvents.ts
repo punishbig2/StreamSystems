@@ -3,7 +3,7 @@ import {$$} from 'utils/stringPaster';
 import {PodTileActions} from 'redux/reducers/podTileReducer';
 import {Sides} from 'interfaces/sides';
 
-export type OrderAction = 'UPDATE_SIZE' | 'CREATE' | 'CANCEL' | 'CANCEL_ERROR' | PodTileActions.UpdateOrder | '';
+export type OrderAction = 'UPDATE_SIZE' | 'CREATE' | 'CANCEL' | 'CANCEL_ERROR' | PodTileActions.UpdateOrder | 'CREATED' | '';
 export const createSymbolStrategyTenorListener =
   (symbol: string, strategy: string, tenor: string, name: OrderAction, fn: (order: Order) => void) => {
     const type: string = $$(symbol, strategy, tenor, name);
