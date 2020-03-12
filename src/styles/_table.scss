@@ -460,10 +460,8 @@
       font-family: $table-font-family;
       line-height: $table-row-height;
 
-      &:not(.edited) {
-        &.owned {
-          color: $text-color-red;
-        }
+      &:not(.edited).owned {
+        color: $text-color-red;
       }
     }
 
@@ -512,16 +510,8 @@
 
     .size-layout {
       input {
-        &:not(.edited) {
-          &:not(.cancelled) {
-            &:not(.among) {
-              &.has-depth {
-                &.owned {
-                  color: $text-color-black;
-                }
-              }
-            }
-          }
+        &:not(.edited):not(.cancelled):not(.among).has-depth.owned {
+          color: $text-color-black;
         }
       }
     }
@@ -554,15 +544,12 @@
             cursor: initial;
           }
 
-          &:not(.cancelled) {
-            &:not(.among) {
-              &.owned {
-                color: $text-color-red;
-              }
-            }
+          &:not(.owned-by-broker):not(.cancelled):not(.among).owned {
+            color: $text-color-red;
           }
 
           &.mid,
+          &.owned-by-broker,
           &:not(.owned).same-bank {
             color: $text-color-blue;
           }

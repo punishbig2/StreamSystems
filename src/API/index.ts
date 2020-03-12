@@ -12,11 +12,18 @@ import {STRM} from 'redux/stateDefs/workspaceState';
 import {$$} from 'utils/stringPaster';
 import {Sides} from 'interfaces/sides';
 
+const toString = (value: any): string => {
+  if (typeof value === 'string')
+    return encodeURI(value);
+  return encodeURI(JSON.stringify(value));
+};
+
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
-  return entries
-    .map(([key, value]: [string, string]) => `${key}=${value}`)
+  const query: string = entries
+    .map(([key, value]: [string, string]) => `${key}=${toString(value)}`)
     .join('&');
+  return query;
 };
 
 enum Method {

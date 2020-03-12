@@ -103,7 +103,7 @@ const bringToFront = ({id}: { id: string }, state: WorkspaceState): { [key: stri
 
 type ActionType = FXOAction<WorkspaceActions & UserProfileActions, WorkspaceAction> & PodTileAction;
 
-const nextReducer = (state: WorkspaceState, action: ActionType) => {
+const nextReducer = (state: WorkspaceState = initialState, action: ActionType): WorkspaceState => {
   if (action.kind === ActionKind.Window) {
     const windows: { [id: string]: WindowState } = state.windows;
     const id: string = action.windowID;

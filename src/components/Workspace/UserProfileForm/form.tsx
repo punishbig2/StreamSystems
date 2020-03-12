@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, ReactNode, useState} from 'react';
+import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Checkbox} from '@material-ui/core';
@@ -31,9 +31,8 @@ const renderCCYGroup = (value: unknown): ReactNode => {
 };
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
-  const [isAddExecSoundModalVisible, showAddExecSoundModal] = useState<boolean>(false);
   const {profile} = props;
-  const execSoundList = profile.execSoundList ? profile.execSoundList : [];
+  const {execSoundList} = profile;
 
   const hasNotChanged = () => {
     if (props.original === null)
@@ -42,12 +41,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const onExecSoundChange = (event: any) => {
-    const {target} = event;
-    if (target.value === 'add') {
-      showAddExecSoundModal(true);
-    } else {
-      props.onChange(event);
-    }
+    props.onChange(event);
   };
 
   return (
@@ -140,8 +134,8 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   name={'execSound'}
                   value={profile.execSound}>
                   <MenuItem value={'default'}>Default</MenuItem>
-                  {execSoundList.map((item: ExecSound) => (<MenuItem value={item.path}>{item.name}</MenuItem>))}
-                  <MenuItem value={'add'}>Add New</MenuItem>
+                  {execSoundList.map((item: ExecSound) => (
+                    <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>))}
                 </Select>
               </FormControl>
             </Grid>

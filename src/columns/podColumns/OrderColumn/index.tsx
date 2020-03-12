@@ -25,6 +25,7 @@ import {getOrder} from 'columns/podColumns/OrderColumn/helpers/getOrder';
 import {ArrowDirection} from 'interfaces/w';
 import {dispatchWorkspaceError} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {User} from 'interfaces/user';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -86,7 +87,8 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       | (depth.some((order: Order) => order.isOwnedByCurrentUser()) ? OrderStatus.HasMyOrder : OrderStatus.None)
       | (order.firm === personality ? OrderStatus.SameBank : OrderStatus.None);
   })();
-  const personalityStatus: OrderStatus = order.firm !== personality ? OrderStatus.Owned : OrderStatus.None;
+  const user: User = getAuthenticatedUser();
+  const personalityStatus: OrderStatus = (user.isbroker && order.firm !== personality) ? OrderStatus.Owned : OrderStatus.None;
   const status: OrderStatus = (chevronStatus | order.status) & ~personalityStatus;
 
   const onDoubleClick = () => {

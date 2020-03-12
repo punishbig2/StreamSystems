@@ -33,8 +33,6 @@ export const moveWindow = (workspaceID: string, windowID: string, geometry: Clie
   return new AsyncAction(async () => {
     // FIXME: we should do this when the mouse is released instead to avoid writing too
     //        often to the database
-    FXOptionsDB.setWindowGeometry(windowID, geometry);
-    FXOptionsDB.setWindowAutosize(windowID, false);
     const data = {
       id: windowID,
       ...{geometry, resized},

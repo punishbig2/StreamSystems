@@ -22,7 +22,7 @@ interface DispatchProps {
   resetInitialProfile: () => FXOAction<UserProfileActions>;
   setCurrentModal: (modalType: UserProfileModalTypes) => FXOAction<UserProfileActions>;
   setFieldValue: (name: string, value: any) => FXOAction<UserProfileActions>;
-  saveUserProfile: (useremail: string, profile: any, lastOCO: boolean) => AsyncAction<UserProfileActions>,
+  saveUserProfile: (useremail: string, profile: any) => AsyncAction<UserProfileActions>,
 }
 
 interface OwnProps {
@@ -55,9 +55,8 @@ const UserProfileModal: React.FC<Props> = (props: Props) => {
   };
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    const {initialProfile} = props;
     event.preventDefault();
-    props.saveUserProfile(user.email, props.profile, initialProfile.oco);
+    props.saveUserProfile(user.email, props.profile);
   };
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import {MessageBlotter} from 'components/MessageBlotter';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import getStyles from 'styles';
 import {WindowState} from 'redux/stateDefs/windowState';
+import {FXOptionsDB} from 'fx-options-db';
 
 interface Props {
   toast: string | null;
@@ -70,6 +71,12 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const {type} = window;
     const content: ReactElement | null = renderContent(id, type);
     const geometry: ClientRect | undefined = window.geometry;
+    const saveWindowGeometry = (windowID: string, geometry: ClientRect, resized: boolean) => {
+      FXOptionsDB.setWindowGeometry(windowID, geometry);
+      if (resized) {
+        FXOptionsDB.setWindowAutosize(windowID, false);
+      }
+    };
     // Geometries of sibling windows
     const updateGeometry = getCallback(
       id,
@@ -97,11 +104,13 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const childProps: any = content ? content.props : {};
     return (
       <WindowElement
+        id={id}
         geometry={geometry}
         key={id}
         area={area}
         isMinimized={window.minimized}
         autoSize={window.autoSize}
+        onSaveWindowGeometry={saveWindowGeometry}
         onGeometryChange={updateGeometry}
         onClose={onClose}
         onMinimize={onMinimize}
@@ -115,11 +124,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const minimizedWindowMapper = ([, window]: [string, WindowState]) => {
     const onRestore = (id: string) => props.onWindowRestored(id);
     return (
-      <div
-        className={'window-button'}
-        onClick={() => onRestore(window.id)}
-        key={window.id}
-      >
+      <div className={'window-button'} onClick={() => onRestore(window.id)} key={window.id}>
         <h1>{window.title || window.id}</h1>
       </div>
     );
@@ -129,11 +134,13 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} ref={setElement}>
       {windows.map(windowMapper)}
       <WindowElement
+        id={'___IGNORED_ID___'}
         geometry={fixedBlotterGeometry}
         area={area}
         isMinimized={false}
         autoSize={true}
         fixed={true}
+        onSaveWindowGeometry={() => null}
         onGeometryChange={() => null}
         onClose={() => null}
         onMinimize={() => null}

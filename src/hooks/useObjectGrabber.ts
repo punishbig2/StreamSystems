@@ -4,11 +4,7 @@ type DivReference = React.MutableRefObject<HTMLDivElement | null>;
 
 type MoveFn = (x: number, y: number) => void;
 type GrabFn = (value: boolean) => void;
-const createObjectGrabber = (
-  object: HTMLDivElement,
-  onMove: MoveFn,
-  setGrabbed: GrabFn,
-) => {
+const createObjectGrabber = (object: HTMLDivElement, onMove: MoveFn, onCompleted: () => void, setGrabbed: GrabFn) => {
   const offset: { x: number; y: number } = {x: 0, y: 0};
   let timer: number = setTimeout(() => null, 0);
   const onMouseMove = (event: MouseEvent) => {
@@ -33,6 +29,7 @@ const createObjectGrabber = (
     const onRelease = () => {
       document.removeEventListener('mousemove', onMouseMove, true);
       document.removeEventListener('mouseup', onRelease, true);
+      onCompleted();
       // Release
       setGrabbed(false);
     };
@@ -49,7 +46,8 @@ const createObjectGrabber = (
 
 export const useObjectGrabber = (
   container: DivReference,
-  callback: (geometry: ClientRect, x: number, y: number) => void,
+  onChange: (geometry: ClientRect, x: number, y: number) => void,
+  onCompleted: (geometry: ClientRect) => void,
 ): [boolean, (element: HTMLDivElement) => void] => {
   const [grabbed, setGrabbed] = useState<boolean>(false);
   const [object, setObject] = useState<HTMLDivElement | null>(null);
@@ -57,20 +55,22 @@ export const useObjectGrabber = (
     const element: HTMLDivElement | null = container.current;
     if (object === null || element === null)
       return;
+    const getGeometry = () => new DOMRect(
+      element.offsetLeft,
+      element.offsetTop,
+      element.offsetWidth,
+      element.offsetHeight,
+    );
     return createObjectGrabber(
       object,
       (x: number, y: number) => {
-        const r: ClientRect = new DOMRect(
-          element.offsetLeft,
-          element.offsetTop,
-          element.offsetWidth,
-          element.offsetHeight,
-        );
         // Call the callback
-        callback(r, x, y);
+        onChange(getGeometry(), x, y);
       },
+      () => onCompleted(getGeometry()),
       setGrabbed,
     );
-  }, [object, container, callback]);
+  }, [object, container, onChange, onCompleted]);
   return [grabbed, setObject];
 };
+

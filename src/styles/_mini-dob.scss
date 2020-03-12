@@ -28,10 +28,11 @@
         border-right: 1px solid $table-border-color;
       }
 
-      &.owned {
+      &:not(.owned-by-broker).owned {
         color: $text-color-red;
       }
 
+      &.owned-by-broker,
       &:not(.owned).same-bank {
         color: $text-color-blue;
       }

@@ -8,7 +8,8 @@ const createTransaction = async (storeName: string, mode: IDBTransactionMode): P
       const request: any = indexedDB.open('fx-options', 2);
       request.onupgradeneeded = ({target: {result}}: any) => {
         const db: IDBDatabase = result;
-        if (!db) return;
+        if (!db)
+          return;
         // Create all stores
         try {
           db.createObjectStore('workarea');
@@ -188,8 +189,10 @@ export const FXOptionsDB = {
       'workspaces',
       workspaceID,
     );
-    if (workspace === undefined) return STRM;
-    if (!workspace.personality) return STRM;
+    if (workspace === undefined)
+      return STRM;
+    if (!workspace.personality)
+      return STRM;
     return workspace.personality;
   },
 };
