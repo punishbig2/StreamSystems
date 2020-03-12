@@ -469,7 +469,9 @@
 
     .firm {
       color: $text-color-green;
-      font-weight: 600;
+      font-family: $table-font-family;
+      font-size: $table-font-size - 2;
+      font-weight: $table-font-weight + 100;
     }
 
     .price-waiting-spinner {
