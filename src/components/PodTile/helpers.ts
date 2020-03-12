@@ -25,7 +25,7 @@ export const createOrder = async (order: Order, minimumSize: number, personality
   if (order.price !== null) {
     // Find my own order and cancel it
     const myOrder: Order | undefined = findMyOrder(order);
-    if (myOrder && (myOrder.status & OrderStatus.Cancelled) === 0)
+    if (myOrder && (myOrder.status & OrderStatus.Cancelled) === 0 && myOrder.firm === personality)
       await API.cancelOrder(myOrder);
     await API.createOrder(order, personality, minimumSize);
   } else {

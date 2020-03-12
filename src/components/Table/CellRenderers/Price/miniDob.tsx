@@ -1,19 +1,24 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
+import {Order, OrderStatus} from 'interfaces/order';
 import React, {ReactNode} from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
+import {User} from 'interfaces/user';
 
 interface Props {
-  type?: OrderTypes;
+  personality: string;
+  user: User;
   rows?: Order[];
+  type?: OrderTypes;
 }
 
 export const MiniDOB: React.FC<Props> = (props: Props) => {
-  const {rows} = props;
-  if (!rows) return null;
+  const {personality, user, rows} = props;
+  if (!rows)
+    return null;
   const children = rows.map(
-    ({price, size, status}: Order, index: number) => {
+    ({price, size, firm, status: originalStatus}: Order, index: number) => {
+      const status: OrderStatus = originalStatus & ~(personality === firm ? OrderStatus.None : OrderStatus.Owned);
       const priceElement: ReactNode = (() => {
         return (
           <div className={getOrderStatusClass(status, 'mini-price')} key={1}>
@@ -29,8 +34,14 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
       );
       if (props.type === OrderTypes.Bid) {
         elements.unshift(sizeElement);
+        if (user.isbroker) {
+          elements.unshift(<div key={3} className={'mini-firm'}>{firm}</div>)
+        }
       } else {
         elements.push(sizeElement);
+        if (user.isbroker) {
+          elements.push(<div key={3} className={'mini-firm'}>{firm}</div>)
+        }
       }
       return (
         <div className={'row'} key={index}>

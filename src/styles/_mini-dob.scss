@@ -12,6 +12,7 @@
     font-weight: $table-font-weight;
     font-family: $table-font-family;
 
+    .mini-firm,
     .mini-price,
     .mini-size {
       padding: 0 4px;
@@ -19,9 +20,11 @@
       text-overflow: ellipsis;
       overflow: hidden;
       text-align: center;
-      font-family: "Roboto", sans-serif;
+      font-size: inherit;
+      font-family: inherit;
+      font-weight: inherit;
 
-      &:first-child {
+      &:not(:last-child) {
         border-right: 1px solid $table-border-color;
       }
 
@@ -32,6 +35,14 @@
       &:not(.owned).same-bank {
         color: $text-color-blue;
       }
+    }
+
+    .mini-price {
+      font-weight: bold;
+    }
+
+    .mini-firm {
+      color: $text-color-green;
     }
   }
 }

@@ -24,6 +24,7 @@ import {orderTicketRenderer} from 'columns/podColumns/OrderColumn/helpers/orderT
 import {getOrder} from 'columns/podColumns/OrderColumn/helpers/getOrder';
 import {ArrowDirection} from 'interfaces/w';
 import {dispatchWorkspaceError} from 'utils';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -68,7 +69,9 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
     return null;
   const depthOfTheBook: PodTable = SignalRManager.getDepthOfTheBook(order.symbol, order.strategy, order.tenor);
   const shouldShowTooltip: boolean = checkIfShouldShowTooltip(depthOfTheBook, type);
-  const depthOfTheBookTable = <MiniDOB {...props} rows={getMiniDOBByType(depths, order.tenor, order.type)}/>;
+  const depthOfTheBookTable = (
+    <MiniDOB {...props} rows={getMiniDOBByType(depths, order.tenor, order.type)} user={getAuthenticatedUser()}/>
+  );
   const onSubmitSize = onSubmitSizeListener(order, editedSize, minimumSize, personality, dispatch, onRowStatusChange);
   const onSubmitPrice = onSubmitPriceListener(order, type, submittedSize, defaultSize, minimumSize, personality, dispatch, onRowStatusChange);
   const renderOrderTicket = orderTicketRenderer(orderTicket, minimumSize, personality, () => setOrderTicket(null));
@@ -83,7 +86,8 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       | (depth.some((order: Order) => order.isOwnedByCurrentUser()) ? OrderStatus.HasMyOrder : OrderStatus.None)
       | (order.firm === personality ? OrderStatus.SameBank : OrderStatus.None);
   })();
-  const status: OrderStatus = chevronStatus | order.status;
+  const personalityStatus: OrderStatus = order.firm !== personality ? OrderStatus.Owned : OrderStatus.None;
+  const status: OrderStatus = (chevronStatus | order.status) & ~personalityStatus;
 
   const onDoubleClick = () => {
     if (!shouldOpenOrderTicket(order, props.personality))
