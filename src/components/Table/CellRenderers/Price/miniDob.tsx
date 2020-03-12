@@ -19,7 +19,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const children = rows.map(
     ({price, size, firm, status: originalStatus}: Order, index: number) => {
       const status: OrderStatus = originalStatus &
-        ~((personality === firm && user.isbroker) ? OrderStatus.None : OrderStatus.Owned);
+        ~((personality === firm || !user.isbroker) ? OrderStatus.None : OrderStatus.Owned);
       const priceElement: ReactNode = (() => {
         return (
           <div className={getOrderStatusClass(status, 'mini-price')} key={1}>
