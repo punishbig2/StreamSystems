@@ -133,12 +133,20 @@ const PodTile: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   }, [user, state.depths, personality, symbol, strategy, connected, setCurrentTenor]);
 
-  const renderDOBRow = (rowProps: any): ReactElement => {
+  const renderDOBRow = useCallback((rowProps: any): ReactElement | null => {
+    if (!symbol || symbol.minqty === undefined || symbol.defaultqty === undefined || !strategy)
+      return null;
     // static
     return (
-      <Row {...rowProps} depths={[]} connected={props.connected} onTenorSelected={() => setCurrentTenor(null)}/>
+      <Row {...rowProps}
+           depths={[]}
+           connected={connected}
+           personality={personality}
+           defaultSize={symbol.defaultqty}
+           minimumSize={symbol.minqty}
+           onTenorSelected={() => setCurrentTenor(null)}/>
     );
-  };
+  }, [symbol, strategy, connected, personality, setCurrentTenor]);
   const dobColumns = useMemo(() => createTOBColumns(symbol.name, strategy, user.isbroker, true),
     [strategy, symbol.name, user],
   );
