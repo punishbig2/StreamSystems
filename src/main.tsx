@@ -5,9 +5,10 @@ import 'fonts/montserrat/font.css';
 
 import React from 'react';
 import {Provider} from 'react-redux';
-import {store} from 'redux/store';
+import {store, persistor} from 'redux/store';
 import 'styles/main.scss';
 import {createMuiTheme, MuiThemeProvider} from '@material-ui/core';
+import {PersistGate} from 'redux-persist/integration/react';
 // import whyDidYouRender from '@welldone-software/why-did-you-render';
 
 Object.defineProperty(MouseEvent.prototype, 'ignore', {
@@ -36,7 +37,9 @@ const FXOptionsUI: React.FC = () => {
   return (
     <MuiThemeProvider theme={theme}>
       <Provider store={store}>
-        <Workarea/>
+        <PersistGate persistor={persistor}>
+          <Workarea/>
+        </PersistGate>
       </Provider>
     </MuiThemeProvider>
   );

@@ -5,7 +5,6 @@ import {MessageBlotter} from 'components/MessageBlotter';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import getStyles from 'styles';
 import {WindowState} from 'redux/stateDefs/windowState';
-import {FXOptionsDB} from 'fx-options-db';
 
 interface Props {
   toast: string | null;
@@ -71,12 +70,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const {type} = window;
     const content: ReactElement | null = renderContent(id, type);
     const geometry: ClientRect | undefined = window.geometry;
-    const saveWindowGeometry = (windowID: string, geometry: ClientRect, resized: boolean) => {
-      FXOptionsDB.setWindowGeometry(windowID, geometry);
-      if (resized) {
-        FXOptionsDB.setWindowAutosize(windowID, false);
-      }
-    };
     // Geometries of sibling windows
     const updateGeometry = getCallback(
       id,
@@ -110,7 +103,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         area={area}
         isMinimized={window.minimized}
         autoSize={window.autoSize}
-        onSaveWindowGeometry={saveWindowGeometry}
+        onSaveWindowGeometry={() => null}
         onGeometryChange={updateGeometry}
         onClose={onClose}
         onMinimize={onMinimize}

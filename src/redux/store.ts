@@ -1,5 +1,4 @@
 import {
-  combineReducers,
   createStore,
   Dispatch,
   Reducer,
@@ -9,25 +8,17 @@ import {
   StoreEnhancerStoreCreator,
   DeepPartial,
 } from 'redux';
-import {createAction, createWorkspaceAction} from 'redux/actionCreator';
+import {createAction} from 'redux/actionCreator';
 // State shapes
 import {ApplicationState} from 'redux/applicationState';
 // Special action types
 // Action enumerators
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 // Reducers
-import messageBlotterReducer from 'redux/reducers/messageBlotterReducer';
-import workareaReducer from 'redux/reducers/workareaReducer';
-import executionsReducer from 'redux/reducers/executionsReducer';
 // Dynamic reducer creators
 // Special object helper for connection management
 import {SignalRManager} from 'redux/signalR/signalRManager';
 // Websocket action parsers/converters
-import {FXOptionsDB} from 'fx-options-db';
-import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import userProfileReducer from 'redux/reducers/userProfileReducer';
-import {defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
-import {WindowState} from 'redux/stateDefs/windowState';
 import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
 import {HubConnection, HubConnectionState} from '@microsoft/signalr';
 import {SignalRAction} from 'redux/signalRAction';
@@ -40,15 +31,15 @@ import {API} from 'API';
 import {$$} from 'utils/stringPaster';
 import {Sides} from 'interfaces/sides';
 
-// Build the reducer from the fixed and dynamic reducers
-export const createReducer = (): Reducer<ApplicationState, Action> => {
-  return combineReducers<any, Action<any>>({
-    workarea: workareaReducer,
-    messageBlotter: messageBlotterReducer,
-    userProfile: userProfileReducer,
-    executions: executionsReducer,
-  });
-};
+import {persistStore} from 'redux-persist';
+import rootReducer from 'redux/rootReducer';
+
+/*const preloadState: ApplicationState = {
+  workarea: defaultWorkareaState,
+  messageBlotter: defaultMessageBlotterState,
+  userProfile: defaultUserProfileState,
+  executions: [],
+};*/
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
@@ -60,9 +51,12 @@ const isOCOEnabled = (): boolean => {
   return profile.oco;
 };
 
-const hydrate = async (dispatch: Dispatch<any>) => {
+/*const hydrate = async (dispatch: Dispatch<any>) => {
+  const email: string | null = getUserFromUrl();
   const workspaces: string[] = await FXOptionsDB.getWorkspacesList();
   const promises = workspaces.map(async (id: string) => {
+    if (email !== null)
+      await FXOptionsDB.initialize(email);
     const name: string = await FXOptionsDB.getWorkspaceName(id);
     const personality: string = await FXOptionsDB.getPersonality(id);
 
@@ -79,7 +73,7 @@ const hydrate = async (dispatch: Dispatch<any>) => {
     }
   });
   return Promise.all(promises);
-};
+};*/
 
 const connectionManager: SignalRManager<Action> = SignalRManager.getInstance();
 export const DummyAction: Action = {type: '---not-valid---'};
@@ -176,15 +170,18 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     // connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
     connectionManager.connect();
 
-    hydrate(dispatch);
+    // hydrate(dispatch);
     // Build a new store with the modified dispatch
     return {...store, dispatch};
   };
 };
+
 // Create the store
 export const store: Store = createStore(
-  createReducer(),
+  rootReducer,
   {},
   enhancer,
 );
+
+export const persistor = persistStore(store);
 

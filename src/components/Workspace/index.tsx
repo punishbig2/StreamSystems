@@ -5,7 +5,7 @@ import {PodTile} from 'components/PodTile';
 import {WindowManager} from 'components/WindowManager';
 import {Currency} from 'interfaces/currency';
 import {Strategy} from 'interfaces/strategy';
-import {User, UserProfile} from 'interfaces/user';
+import {User, UserWorkspace} from 'interfaces/user';
 import React, {ReactElement, useEffect, ReactNode, useCallback} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
 import {Dispatch} from 'redux';
@@ -54,7 +54,7 @@ interface DispatchProps {
   closeUserProfileModal: () => void;
   refAll: (personality: string) => void;
   closeErrorModal: () => void;
-  saveUserProfile: (useremail: string, newProfile: UserProfile) => void;
+  saveUserProfile: (useremail: string, newProfile: UserWorkspace) => void;
 }
 
 interface OwnProps {
@@ -65,7 +65,7 @@ interface OwnProps {
   tenors: string[];
   connected: boolean;
   banks: string[];
-  userProfile: UserProfile;
+  userProfile: UserWorkspace;
 }
 
 const cache: { [key: string]: DispatchProps } = {};
@@ -96,7 +96,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       closeUserProfileModal: () => dispatch(closeUserProfileModal(id)),
       refAll: (personality: string) => dispatch(refAll(id, personality)),
       closeErrorModal: () => dispatch(closeErrorModal(id)),
-      saveUserProfile: (useremail: string, profile: UserProfile) => dispatch(saveUserProfile(useremail, profile)),
+      saveUserProfile: (useremail: string, profile: UserWorkspace) => dispatch(saveUserProfile(useremail, profile)),
     };
   }
   return cache[id];

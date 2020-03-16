@@ -12,18 +12,11 @@ import {STRM} from 'redux/stateDefs/workspaceState';
 import {$$} from 'utils/stringPaster';
 import {Sides} from 'interfaces/sides';
 
-const toString = (value: any): string => {
-  if (typeof value === 'string')
-    return encodeURI(value);
-  return encodeURI(JSON.stringify(value));
-};
-
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
-  const query: string = entries
-    .map(([key, value]: [string, string]) => `${key}=${toString(value)}`)
+  return entries
+    .map(([key, value]: [string, string]) => `${key}=${encodeURI(value)}`)
     .join('&');
-  return query;
 };
 
 enum Method {
@@ -59,10 +52,7 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Prom
   // This should be accessible from outside the executor/promise to allow cancellation
   const xhr = new XMLHttpRequest();
   // Executor
-  const executeRequest = (
-    resolve: (data: T) => void,
-    reject: (error?: any) => void,
-  ): void => {
+  const executeRequest = (resolve: (data: T) => void, reject: (error?: any) => void): void => {
     xhr.open(method, url, true);
     xhr.onreadystatechange = (): void => {
       switch (xhr.readyState as ReadyState) {
@@ -377,7 +367,8 @@ export class API {
   }
 
   static async saveUserProfile(data: any) {
-    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', data), null);
+    const {useremail, workspace} = data;
+    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', {useremail, workspace}), null);
   }
 
   static async brokerRefAll(personality: string) {

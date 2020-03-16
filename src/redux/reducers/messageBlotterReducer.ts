@@ -6,13 +6,13 @@ import {FXOAction} from 'redux/fxo-action';
 import {WorkareaActions} from 'redux/constants/workareaConstants';
 import {getUserFromUrl} from 'utils/getUserFromUrl';
 
-const initialState: MessageBlotterState = {
+export const defaultMessageBlotterState: MessageBlotterState = {
   entries: [],
   user: getUserFromUrl(),
 };
 
 type ActionType = MessageBlotterActions | SignalRActions & WorkareaActions;
-export default (state: MessageBlotterState = initialState, {type, data}: FXOAction<ActionType>) => {
+export default (state: MessageBlotterState = defaultMessageBlotterState, {type, data}: FXOAction<ActionType>) => {
   switch (type) {
     case MessageBlotterActions.Update:
       if (data.Username !== state.user)

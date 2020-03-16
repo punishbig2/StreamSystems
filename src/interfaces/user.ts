@@ -30,7 +30,7 @@ export enum UserProfileModalTypes {
   Form, Success, Error,
 }
 
-export interface UserProfile {
+export interface UserWorkspace {
   userType: UserTypes;
   mpid: string;
   fontSize: string;
@@ -42,11 +42,13 @@ export interface UserProfile {
   oco: boolean;
   lastOCOUpdateTimestamp: number | null;
   execSoundList: ExecSound[];
+
+  [key: string]: any;
 }
 
 export interface UserProfileState {
   status: UserProfileStatus;
   currentModalType: UserProfileModalTypes;
-  profile: UserProfile,
-  initialProfile: UserProfile,
+  profile: UserWorkspace,
+  initialProfile: UserWorkspace,
 }

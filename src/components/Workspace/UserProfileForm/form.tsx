@@ -2,7 +2,7 @@ import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Checkbox} from '@material-ui/core';
-import {UserTypes, CurrencyGroups, UserProfile, ExecSound} from 'interfaces/user';
+import {UserTypes, CurrencyGroups, UserWorkspace, ExecSound} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
 
@@ -10,8 +10,8 @@ interface OwnProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   onChange: (event: ChangeEvent<any>) => void;
-  profile: UserProfile;
-  original: UserProfile | null;
+  profile: UserWorkspace;
+  original: UserWorkspace | null;
 }
 
 declare var GlobalApplicationVersion: string;

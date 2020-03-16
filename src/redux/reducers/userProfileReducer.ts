@@ -4,11 +4,11 @@ import {
   UserTypes,
   UserProfileStatus,
   UserProfileModalTypes,
-  UserProfile,
+  UserWorkspace,
 } from 'interfaces/user';
 import {FXOAction} from 'redux/fxo-action';
 
-export const defaultProfile: UserProfile = {
+export const defaultProfile: UserWorkspace = {
   ccyGroup: CurrencyGroups.Invalid,
   colorScheme: 'default',
   execSound: 'default',
@@ -32,14 +32,14 @@ export enum UserProfileActions {
   SavingUserProfile = 'UserProfileAction.SavingUserProfile',
 }
 
-const initialState: UserProfileState = {
+export const defaultUserProfileState: UserProfileState = {
   status: UserProfileStatus.Initial,
   currentModalType: UserProfileModalTypes.Form,
   profile: defaultProfile,
   initialProfile: defaultProfile,
 };
 
-export default (state: UserProfileState = initialState, {data, type}: FXOAction<UserProfileActions>): UserProfileState => {
+export default (state: UserProfileState = defaultUserProfileState, {data, type}: FXOAction<UserProfileActions>): UserProfileState => {
   switch (type) {
     case UserProfileActions.ResetInitialProfile:
       return {...state, profile: state.initialProfile};

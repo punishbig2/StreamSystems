@@ -1,7 +1,7 @@
 import {Currency} from 'interfaces/currency';
 import {Message} from 'interfaces/message';
 import {Strategy} from 'interfaces/strategy';
-import {User, UserProfile} from 'interfaces/user';
+import {User, UserWorkspace} from 'interfaces/user';
 import {WorkspaceState} from 'redux/stateDefs/workspaceState';
 
 export enum WorkareaStatus {
@@ -26,5 +26,5 @@ export interface WorkareaState {
   connected: boolean;
   message?: string;
   lastExecution: Message | null;
-  userProfile: UserProfile;
+  userProfile: UserWorkspace;
 }

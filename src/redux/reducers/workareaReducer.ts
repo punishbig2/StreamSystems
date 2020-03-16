@@ -9,7 +9,7 @@ import {workspaceReducer} from 'redux/reducers/workspaceReducer';
 import {UserProfileActions, defaultProfile} from 'redux/reducers/userProfileReducer';
 import {getUserFromUrl} from 'utils/getUserFromUrl';
 
-const initialState: WorkareaState = {
+export const defaultWorkareaState: WorkareaState = {
   workspaces: {},
   activeWorkspace: null,
   symbols: [],
@@ -22,6 +22,8 @@ const initialState: WorkareaState = {
   lastExecution: null,
   userProfile: defaultProfile,
 };
+
+const initialState: WorkareaState = {...defaultWorkareaState};
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
   // This is actually a copy

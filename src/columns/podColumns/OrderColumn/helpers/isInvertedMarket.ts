@@ -8,7 +8,6 @@ export const isInvertedMarket = (order: Order, type: OrderTypes, price: number |
   if (allOrders.length === 0)
     return false;
   return allOrders.every((order: Order) => {
-    console.log(order);
     if (price === null)
       return true;
     if (order.price === null || order.isCancelled())

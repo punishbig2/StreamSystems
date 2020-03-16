@@ -106,7 +106,8 @@ const Workarea: React.FC<OwnProps> = withRedux(
     };
 
     const renderMessage = () => {
-      if (!props.lastExecution) return null;
+      if (!props.lastExecution)
+        return null;
       const columns: ColumnSpec[] = messageBlotterColumns(BlotterTypes.Regular)
         .normal;
       return (

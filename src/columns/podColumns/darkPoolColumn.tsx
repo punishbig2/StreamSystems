@@ -17,8 +17,6 @@ import {User} from 'interfaces/user';
 import {API} from 'API';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {DarkPoolMessage} from 'interfaces/message';
-import {FXOptionsDB} from 'fx-options-db';
-import {$$} from 'utils/stringPaster';
 import {onNavigate} from 'components/PodTile/helpers';
 
 type Props = PodRowProps;
@@ -39,7 +37,8 @@ const DarkPoolColumnComponent = (props: Props) => {
       signalRManager.addDarkPoolPxListener(symbol, strategy, tenor, (message: DarkPoolMessage) => {
         const value: number = Number(message.DarkPrice);
         // Update the saved dark pool
-        FXOptionsDB.saveDarkPool($$(symbol, strategy, tenor), value);
+        // FIXME: maybe we do need this?
+        // FXOptionsDB.saveDarkPool($$(symbol, strategy, tenor), value);
         // Set the value in the input
         setValue(value);
       });

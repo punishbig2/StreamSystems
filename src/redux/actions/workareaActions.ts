@@ -10,7 +10,6 @@ import {SignalRActions} from 'redux/constants/signalRConstants';
 import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {SignalRAction} from 'redux/signalRAction';
 import shortid from 'shortid';
-import {FXOptionsDB} from 'fx-options-db';
 import {FXOAction} from 'redux/fxo-action';
 import {WorkspaceState, defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
 
@@ -24,7 +23,6 @@ export const addWorkspace = (): AnyAction => {
   const name: string = 'Untitled';
   const id: string = `ws-${shortid()}`;
   const newWorkspace: WorkspaceState = {...defaultWorkspaceState, id, name};
-  FXOptionsDB.addWorkspace(newWorkspace);
   // Generate the action to make the reducer insert a new workspace
   return createAction(WorkareaActions.AddWorkspace, newWorkspace);
 };
@@ -86,12 +84,10 @@ export const initialize = (): AsyncAction<AnyAction> => {
 };
 
 export const renameWorkspace = (name: string, id: string): FXOAction<WorkareaActions> => {
-  FXOptionsDB.renameWorkspace(id, name);
   return createAction(WorkareaActions.RenameWorkspace, {name, id});
 };
 
 export const closeWorkspace = (id: string): FXOAction<WorkareaActions> => {
-  FXOptionsDB.removeWorkspace(id);
   // Now dispatch the action
   return createAction(WorkareaActions.CloseWorkspace, id);
 };

@@ -5,12 +5,10 @@ import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkspaceActions} from 'redux/constants/workspaceConstants';
 import {defaultWindowState, WindowState} from 'redux/stateDefs/windowState';
 import {DummyAction} from 'redux/store';
-import {FXOptionsDB} from 'fx-options-db';
 import {FXOAction} from 'redux/fxo-action';
 import shortid from 'shortid';
 
 export const removeWindow = (workspaceID: string, windowID: string): FXOAction<string> => {
-  FXOptionsDB.removeWindow(workspaceID, windowID);
   return createWorkspaceAction(workspaceID, WorkspaceActions.RemoveWindow, windowID);
 };
 
@@ -25,7 +23,6 @@ export const restoreWindow = (workspaceID: string, windowID: string): FXOAction<
 export const addWindow = (workspaceID: string, type: WindowTypes): FXOAction<string> => {
   const id: string = `wn-${shortid()}-${type}`;
   const window: WindowState = {...defaultWindowState, id, type};
-  FXOptionsDB.addWindow(workspaceID, window);
   return createWorkspaceAction(workspaceID, WorkspaceActions.AddWindow, window);
 };
 
@@ -54,7 +51,6 @@ export const showToast = (workspaceID: string, message: string | null): FXOActio
 };
 
 export const setWindowAutoSize = (workspaceID: string, windowID: string): FXOAction<string> => {
-  FXOptionsDB.setWindowAutosize(windowID, true);
   return createWorkspaceAction(workspaceID, WorkspaceActions.SetWindowAutoSize, {
     id: windowID,
   });
@@ -69,7 +65,6 @@ export const loadMarkets = (workspaceID: string) =>
 
 export const setPersonality = (workspaceID: string, personality: string) => {
   return new AsyncAction(async () => {
-    await FXOptionsDB.setPersonality(workspaceID, personality);
     return createWorkspaceAction(workspaceID, WorkspaceActions.SetPersonality, personality);
   }, createWorkspaceAction(workspaceID, WorkspaceActions.SetPersonality, personality));
 };

@@ -3,8 +3,6 @@ import {SignalRManager} from 'redux/signalR/signalRManager';
 import {W} from 'interfaces/w';
 import {PodRow} from 'interfaces/podRow';
 import {toPodRow} from 'utils/dataParser';
-import {FXOptionsDB} from 'fx-options-db';
-import {$$} from 'utils/stringPaster';
 import {createAction} from 'redux/actionCreator';
 import {ActionTypes} from 'components/PodTile/Row/reducer';
 import {FXOAction} from 'redux/fxo-action';
@@ -20,7 +18,8 @@ export const useWListener = (symbol: string, strategy: string, tenor: string, co
       const onNewWMessage = async (w: W) => {
         const row: PodRow = toPodRow(w);
         // Update the dark price
-        row.darkPrice = await FXOptionsDB.getDarkPool($$(symbol, strategy, tenor));
+        // FIXME: maybe this is the only one we should keep?
+        // row.darkPrice = await FXOptionsDB.getDarkPool($$(symbol, strategy, tenor));
         // Update us
         dispatch(createAction<ActionTypes>(ActionTypes.SetRow, row));
       };
