@@ -1,6 +1,11 @@
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import React, {ReactElement, useState} from 'react';
 
+export enum TabDirection {
+  Forward = 1,
+  Backward = -1,
+}
+
 interface Props {
   id?: string;
   value: string;
@@ -14,10 +19,9 @@ interface Props {
   placeholder?: string;
   title?: string;
   onCancelEdit?: () => void;
-  /*onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;*/
-  onTabbedOut?: (target: HTMLInputElement) => void;
+  onTabbedOut?: (target: HTMLInputElement, tabDirection: TabDirection) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onSubmit?: (input: HTMLInputElement) => void;
+  onSubmit?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
@@ -40,19 +44,18 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   };
 
   const onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const tabDirection: TabDirection = event.shiftKey ? TabDirection.Backward : TabDirection.Forward;
     const input: HTMLInputElement = event.currentTarget;
     switch (event.key) {
       case 'Tab':
       case 'Enter':
         event.preventDefault();
-        if (event.shiftKey)
-          return;
         onChange(input.value);
         if (onSubmit) {
-          onSubmit(input);
+          onSubmit(input, tabDirection);
         }
         if (onTabbedOut) {
-          onTabbedOut(input);
+          onTabbedOut(input, tabDirection);
         }
         break;
       case 'ArrowUp':

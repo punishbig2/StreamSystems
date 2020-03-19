@@ -148,7 +148,7 @@ export class Order {
     const sameBank: OrderStatus = user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
     const preFilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
     const active: OrderStatus =
-      price !== null && !entry.MDEntrySize
+      entry.MDEntrySize === undefined || entry.MDEntrySize === '0'
         ? OrderStatus.Cancelled
         : OrderStatus.Active;
     const isOwnerBroker: OrderStatus = user.isbroker ? OrderStatus.OwnedByBroker : OrderStatus.None;

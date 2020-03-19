@@ -1,3 +1,7 @@
+export enum OCOModes {
+  Disabled, FullEx, PartialEx,
+}
+
 export enum UserTypes {
   Broker = 'BROKER',
   Bank = 'BANK',
@@ -39,7 +43,7 @@ export interface UserWorkspace {
   timezone: string;
   colorScheme: string;
   ccyGroup: CurrencyGroups;
-  oco: boolean;
+  oco: OCOModes;
   lastOCOUpdateTimestamp: number | null;
   execSoundList: ExecSound[];
 

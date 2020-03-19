@@ -1,4 +1,4 @@
-import {NumericInput} from 'components/NumericInput';
+import {NumericInput, TabDirection} from 'components/NumericInput';
 import {NavigateDirection} from 'components/NumericInput/navigateDirection';
 import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
 import {Direction} from 'components/Table/CellRenderers/Price/direction';
@@ -29,13 +29,13 @@ export interface Props {
   priceType?: PriceTypes;
   // Events
   onDoubleClick?: () => void;
-  onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean) => void;
+  onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean, tabDirection: TabDirection) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
   status: OrderStatus;
   title?: string;
   className?: string;
-  onTabbedOut?: (input: HTMLInputElement) => void;
+  onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
   min?: number | null;
   max?: number | null;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
@@ -145,9 +145,9 @@ export const Price: React.FC<Props> = (props: Props) => {
     return internalValue;
   };
 
-  const onSubmit = (input: HTMLInputElement) => {
+  const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
     if ((state.status & OrderStatus.PriceEdited) === 0) {
-      props.onSubmit(input, null, false);
+      props.onSubmit(input, null, false, tabDirection);
       return;
     }
     // Ignore the submission if the user has not "modified" the value
@@ -155,12 +155,12 @@ export const Price: React.FC<Props> = (props: Props) => {
     if ((state.status & OrderStatus.Cancelled) !== 0 && (state.status & OrderStatus.PriceEdited) === 0)
       return;
     if (internalValue === null || internalValue.trim() === '') {
-      props.onSubmit(input, null, false);
+      props.onSubmit(input, null, false, tabDirection);
     } else {
       const numeric: number = Number(internalValue);
       // If it's non-numeric also ignore this
       if (isNaN(numeric) || numeric === 0) {
-        props.onSubmit(input, null, false);
+        props.onSubmit(input, null, false, tabDirection);
       } else {
         const changed: boolean = (() => {
           if ((props.status & OrderStatus.Owned) === 0 || (props.status & OrderStatus.Cancelled) !== 0)
@@ -173,24 +173,18 @@ export const Price: React.FC<Props> = (props: Props) => {
           if (props.min >= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.LessThanMin, input);
           } else {
-            props.onSubmit(input, numeric, changed);
+            props.onSubmit(input, numeric, changed, tabDirection);
           }
         } else if (props.max !== null && props.max !== undefined) {
           if (props.max <= numeric && typeof props.onError === 'function') {
             props.onError(PriceErrors.GreaterThanMax, input);
           } else {
-            props.onSubmit(input, numeric, changed);
+            props.onSubmit(input, numeric, changed, tabDirection);
           }
         } else {
-          props.onSubmit(input, numeric, changed);
+          props.onSubmit(input, numeric, changed, tabDirection);
         }
       }
-    }
-  };
-
-  const onTabbedOut = (input: HTMLInputElement) => {
-    if (props.onTabbedOut) {
-      props.onTabbedOut(input);
     }
   };
 
@@ -245,7 +239,7 @@ export const Price: React.FC<Props> = (props: Props) => {
           onDoubleClick={onDoubleClick}
           onChange={onChange}
           onSubmit={onSubmit}
-          onTabbedOut={onTabbedOut}
+          onTabbedOut={props.onTabbedOut}
           onNavigate={props.onNavigate}/>
         {/* The floating object */}
         {getTooltip()}

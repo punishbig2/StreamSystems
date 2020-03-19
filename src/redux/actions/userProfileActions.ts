@@ -12,6 +12,7 @@ export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserPr
       return [];
     // Extract the actual user profile
     const profile: UserWorkspace = {...defaultProfile, ...JSON.parse(data[0].workspace)};
+    console.log(profile);
     // Initialize the original profile
     return [
       createAction<UserProfileActions>(UserProfileActions.SetUserProfile, profile),

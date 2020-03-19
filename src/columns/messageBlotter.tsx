@@ -17,7 +17,7 @@ const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: 
   const sortable: boolean = type !== BlotterTypes.Executions;
   return {
     normal: [...(type === BlotterTypes.Executions ? [] : [transactTypeColumn(sortable)]),
-      transactTimeColumn(sortable),
+      transactTimeColumn(),
       symbolColumn(sortable),
       tenorColumn(sortable),
       strategyColumn(sortable),

@@ -1,4 +1,4 @@
-import {MenuItem, Select, FormControlLabel, Checkbox, FormControl} from '@material-ui/core';
+import {MenuItem, Select} from '@material-ui/core';
 import {MessageBlotter} from 'components/MessageBlotter';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import {PodTile} from 'components/PodTile';
@@ -239,23 +239,11 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
       );
     } else {
-      const {userProfile} = props;
-      const onOCOChange = ({currentTarget: input}: React.ChangeEvent<HTMLInputElement>) => {
-        props.saveUserProfile(user.email, {...userProfile, oco: input.checked});
-      };
       return (
         <div className={'broker-buttons'}>
-          <FormControl>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id={'oco'}
-                  checked={userProfile.oco}
-                  name={'oco'}
-                  onChange={onOCOChange}/>
-              }
-              label={'OCO Enabled'}/>
-          </FormControl>
+          <button onClick={props.showUserProfileModal}>
+            <i className={'fa fa-user'}/> User Prof
+          </button>
         </div>
       );
     }

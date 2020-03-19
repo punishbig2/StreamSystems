@@ -5,6 +5,7 @@ import {
   UserProfileStatus,
   UserProfileModalTypes,
   UserWorkspace,
+  OCOModes,
 } from 'interfaces/user';
 import {FXOAction} from 'redux/fxo-action';
 
@@ -15,7 +16,7 @@ export const defaultProfile: UserWorkspace = {
   font: 'default',
   fontSize: '15px',
   mpid: '',
-  oco: true,
+  oco: OCOModes.Disabled,
   timezone: '',
   lastOCOUpdateTimestamp: null,
   userType: UserTypes.Unset,

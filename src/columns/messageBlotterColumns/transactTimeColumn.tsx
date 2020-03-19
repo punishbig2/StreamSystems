@@ -5,12 +5,12 @@ import React from 'react';
 const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
 const DISPLAY_DATE_FORMAT: string = 'MM-DD-YYYY hh:mm a';
 
-export default (sortable: boolean) => ({
+export default () => ({
   name: 'TransactTime',
   template: 'MM/DD/YYYY 00:00:00 pm',
   header: () => <div>Time (EST)</div>,
   filterable: true,
-  sortable: sortable,
+  sortable: true,
   render: (data: Message) => {
     return (
       <div className={'message-blotter-cell time'}>

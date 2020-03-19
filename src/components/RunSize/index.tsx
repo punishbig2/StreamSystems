@@ -1,7 +1,7 @@
 import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import {Order, OrderStatus, dumpStatus} from 'interfaces/order';
 import React, {useEffect, useState, useCallback, ReactNode} from 'react';
-import {NumericInput} from 'components/NumericInput';
+import {NumericInput, TabDirection} from 'components/NumericInput';
 import {sizeFormatter} from 'utils/sizeFormatter';
 import {OrderTypes} from 'interfaces/mdEntry';
 import {usePrevious} from 'hooks/usePrevious';
@@ -17,7 +17,7 @@ interface Props {
   visible: boolean;
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
   onDeactivateOrder: (id: string, orderType: OrderTypes) => void;
-  onTabbedOut?: (input: HTMLInputElement, action?: string) => void;
+  onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection, action?: string) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
   onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
@@ -75,13 +75,13 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   }, [onChange, id, minimumSize]);
 
-  const tabOut = (input: HTMLInputElement) => {
+  const tabOut = (input: HTMLInputElement, tabDirection: TabDirection) => {
     if (props.onTabbedOut) {
-      props.onTabbedOut(input, $$(order.type, 'size'));
+      props.onTabbedOut(input, tabDirection, $$(order.type, 'size'));
     }
   };
 
-  const onSubmit = (input: HTMLInputElement) => {
+  const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
     if (locallyModified) {
       const numeric: number = Number(internalValue);
       if (!isNaN(numeric)) {
@@ -89,11 +89,11 @@ export const RunSize: React.FC<Props> = (props: Props) => {
           input.focus();
         } else {
           sendOnChange(numeric);
-          tabOut(input);
+          tabOut(input, tabDirection);
         }
       }
     } else {
-      tabOut(input);
+      tabOut(input, tabDirection);
     }
   };
 

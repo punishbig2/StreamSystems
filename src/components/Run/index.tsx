@@ -17,6 +17,7 @@ import {createEmptyTable} from 'components/Run/helpers/createEmptyTablei';
 import {getSelectedOrders} from 'components/Run/helpers/getSelectedOrders';
 import {$$} from 'utils/stringPaster';
 import {onPriceChange} from 'components/Run/helpers/onPriceChange';
+import {TabDirection} from 'components/NumericInput';
 
 interface OwnProps {
   visible: boolean;
@@ -148,25 +149,25 @@ const Run: React.FC<Props> = (props: Props) => {
           break;
       }
     },
-    focusNext: (target: HTMLInputElement, action?: string) => {
+    focusNext: (target: HTMLInputElement, tabDirection: TabDirection, action?: string) => {
       switch (action) {
         case RunActions.Bid:
-          skipTabIndex(target, 1, 0);
+          skipTabIndex(target, 1 * tabDirection, 0);
           break;
         case RunActions.Spread:
-          skipTabIndex(target, 4, 3);
+          skipTabIndex(target, 4 * tabDirection, 3);
           break;
         case RunActions.Ofr:
-          skipTabIndex(target, 3, 0);
+          skipTabIndex(target, 3 * tabDirection, 0);
           break;
         case RunActions.Mid:
-          skipTabIndex(target, 4, 2);
+          skipTabIndex(target, 4 * tabDirection, 2);
           break;
         case $$('1', 'size'):
-          skipTabIndexAll(target, 4, 2);
+          skipTabIndexAll(target, 4 * tabDirection, 2);
           break;
         default:
-          skipTabIndexAll(target, 1, 0);
+          skipTabIndexAll(target, 1 * tabDirection, 0);
           break;
       }
     },

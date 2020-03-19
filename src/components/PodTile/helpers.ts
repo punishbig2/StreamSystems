@@ -10,10 +10,10 @@ export const findMyOrder = (topOrder: Order): Order | undefined => {
   const user: User = getAuthenticatedUser();
   if (topOrder.user === user.email)
     return topOrder;
-  const orders: Order[] = SignalRManager.getDepth(topOrder.symbol, topOrder.strategy, topOrder.tenor, topOrder.type);
-  const found: Order | undefined = orders
-    .find((order: Order) => {
-      return order.user === user.email;
+  const haystack: Order[] = SignalRManager.getDepth(topOrder.symbol, topOrder.strategy, topOrder.tenor, topOrder.type);
+  const found: Order | undefined = haystack
+    .find((needle: Order) => {
+      return needle.user === user.email;
     });
   if (found !== undefined)
     return found;
@@ -25,8 +25,14 @@ export const createOrder = async (order: Order, minimumSize: number, personality
   if (order.price !== null) {
     // Find my own order and cancel it
     const myOrder: Order | undefined = findMyOrder(order);
-    if (myOrder && (myOrder.status & OrderStatus.Cancelled) === 0 && myOrder.firm === personality)
-      await API.cancelOrder(myOrder);
+    if (myOrder !== undefined && (myOrder.status & OrderStatus.Cancelled) === 0) {
+      const user: User = getAuthenticatedUser();
+      if ((user.isbroker && order.firm === personality) || !user.isbroker) {
+        // It's funny, but actually "myOrder" and "order" have the same
+        // Id
+        await API.cancelOrder(myOrder);
+      }
+    }
     await API.createOrder(order, personality, minimumSize);
   } else {
     throw new Error('attempting to create an invalid order');

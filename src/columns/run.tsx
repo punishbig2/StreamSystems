@@ -13,10 +13,12 @@ import {RunActions} from 'components/Run/reducer';
 import {DualTableHeader} from 'components/dualTableHeader';
 import {getNthParentOf} from 'utils/skipTab';
 import {$$} from 'utils/stringPaster';
+import {TabDirection} from 'components/NumericInput';
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
 const ignoreTabbedOut = () => {
+  // THIS SHOULD BE EXPLICITLY IGNORE
 };
 
 const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => {
@@ -25,10 +27,10 @@ const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec =>
   const actionType: RunActions = type === 'bid' ? RunActions.Bid : RunActions.Ofr;
 
   const onPriceChange = (row: RowType) =>
-    (input: HTMLInputElement, price: number | null, changed: boolean) => {
+    (input: HTMLInputElement, price: number | null, changed: boolean, tabDirection: TabDirection) => {
       if (price !== null) {
         if (onChange(row.id, price, changed)) {
-          data.focusNext(input, actionType);
+          data.focusNext(input, tabDirection, actionType);
         }
       }
     };
@@ -149,8 +151,8 @@ const MidCol = (data: RunColumnData) => ({
           }
         }
       }
-      onTabbedOut={(target: HTMLInputElement) =>
-        data.focusNext(target, RunActions.Mid)
+      onTabbedOut={(target: HTMLInputElement, tabDirection: TabDirection) =>
+        data.focusNext(target, tabDirection, RunActions.Mid)
       }
       onNavigate={data.onNavigate}
       animated={false}/>
@@ -177,8 +179,8 @@ const SpreadCol = (data: RunColumnData) => ({
             }
           }
         }
-        onTabbedOut={(target: HTMLInputElement) =>
-          data.focusNext(target, RunActions.Spread)
+        onTabbedOut={(target: HTMLInputElement, tabDirection: TabDirection) =>
+          data.focusNext(target, tabDirection, RunActions.Spread)
         }
         onNavigate={data.onNavigate}
         animated={false}/>

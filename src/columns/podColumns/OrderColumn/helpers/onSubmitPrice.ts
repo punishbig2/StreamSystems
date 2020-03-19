@@ -10,6 +10,7 @@ import {moveToNextPrice} from 'columns/podColumns/OrderColumn/helpers/moveToNext
 import {getFinalSize} from 'columns/podColumns/OrderColumn/helpers/getFinalSize';
 import {FXOAction} from 'redux/fxo-action';
 import {Dispatch} from 'react';
+import {TabDirection} from 'components/NumericInput';
 
 export const onSubmitPriceListener = (
   order: Order,
@@ -21,7 +22,7 @@ export const onSubmitPriceListener = (
   dispatch: Dispatch<FXOAction<ActionTypes>>,
   onRowStatusChange: (rowStatus: PodRowStatus) => void,
 ) =>
-  (input: HTMLInputElement, price: number | null, changed: boolean) => {
+  (input: HTMLInputElement, price: number | null, changed: boolean, tabDirection: TabDirection) => {
     input.disabled = true;
     onRowStatusChange(PodRowStatus.Normal);
     dispatchWorkspaceError(null);
@@ -47,7 +48,7 @@ export const onSubmitPriceListener = (
     } else {
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
     }
-    moveToNextPrice(input);
+    moveToNextPrice(input, tabDirection);
     // We are certainly done
     input.disabled = false;
   };

@@ -26,7 +26,7 @@ import {AsyncAction} from 'redux/asyncAction';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {SignalRActions} from 'redux/constants/signalRConstants';
 import {Message, ExecTypes} from 'interfaces/message';
-import {User} from 'interfaces/user';
+import {User, OCOModes} from 'interfaces/user';
 import {API} from 'API';
 import {$$} from 'utils/stringPaster';
 import {Sides} from 'interfaces/sides';
@@ -43,10 +43,10 @@ import rootReducer from 'redux/rootReducer';
 
 const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 
-const isOCOEnabled = (): boolean => {
+const getOCOMode = (): OCOModes => {
   const state: ApplicationState = store.getState();
   if (!state)
-    return true;
+    return OCOModes.Disabled;
   const {profile} = state.userProfile;
   return profile.oco;
 };
@@ -133,11 +133,15 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
 
     const onUpdateMessageBlotter = (data: Message) => {
       const user: User = getAuthenticatedUser();
+      const ocoMode: OCOModes = getOCOMode();
       switch (data.OrdStatus) {
         case ExecTypes.PendingCancel:
+          if (ocoMode === OCOModes.PartialEx && data.Username === user.email) {
+            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
+          }
           break;
         case ExecTypes.Filled:
-          if (isOCOEnabled() && data.Username === user.email) {
+          if (ocoMode === OCOModes.FullEx && data.Username === user.email) {
             API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
           }
         // eslint-disable-next-line no-fallthrough

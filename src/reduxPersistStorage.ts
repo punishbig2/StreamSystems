@@ -5,6 +5,7 @@ import {defaultProfile} from 'redux/reducers/userProfileReducer';
 
 const {Api} = config;
 const saveToBackend = async (useremail: string, workspace: any) => {
+  return null;
   return new Promise((resolve: () => void, reject: () => void) => {
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     const url: string = `${Api.Protocol}://${Api.Host}/api/UserApi/saveUserJson?useremail=${useremail}&workspace=${workspace}`;
@@ -50,7 +51,6 @@ const readFromBackend = async (email: string): Promise<UserWorkspace> => {
   });
 };
 
-let saveTimer = setTimeout(() => null, 0);
 let readTimer = setTimeout(() => null, 0);
 
 export const storage = {
@@ -81,7 +81,6 @@ export const storage = {
           return saveToBackend(useremail, JSON.stringify(workspace));
         })
         .then(() => {
-          localStorage.removeItem(key);
         });
     }, 100);
     localStorage.setItem(key, value);

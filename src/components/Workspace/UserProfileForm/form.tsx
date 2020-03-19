@@ -2,7 +2,7 @@ import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Checkbox} from '@material-ui/core';
-import {UserTypes, CurrencyGroups, UserWorkspace, ExecSound} from 'interfaces/user';
+import {UserTypes, CurrencyGroups, UserWorkspace, ExecSound, OCOModes} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
 
@@ -77,17 +77,13 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl margin={'normal'}>
+              <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'oco'}>OCO</FormLabel>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      id={'oco'}
-                      checked={profile.oco}
-                      name={'oco'}
-                      onChange={props.onChange}/>
-                  }
-                  label={'Enabled'}/>
+                <Select id={'oco'} onChange={props.onChange} name={'oco'} value={profile.oco}>
+                  <MenuItem value={OCOModes.Disabled}>Disabled</MenuItem>
+                  <MenuItem value={OCOModes.PartialEx}>Partial Ex.</MenuItem>
+                  <MenuItem value={OCOModes.FullEx}>Full Ex.</MenuItem>
+                </Select>
               </FormControl>
             </Grid>
           </Grid>

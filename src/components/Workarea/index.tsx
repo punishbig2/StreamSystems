@@ -105,19 +105,24 @@ const Workarea: React.FC<OwnProps> = withRedux(
       setSelectedToClose(null);
     };
 
+    const sideClasses: { [key: string]: string } = {
+      2: 'sell',
+      1: 'buy',
+    };
     const renderMessage = () => {
-      if (!props.lastExecution)
+      const {lastExecution} = props;
+      if (lastExecution === null)
         return null;
       const columns: ColumnSpec[] = messageBlotterColumns(BlotterTypes.Regular)
         .normal;
       return (
-        <div className={'message-detail'}>
+        <div className={'message-detail ' + sideClasses[lastExecution.Side]}>
           <audio src={'/sounds/alert.wav'} autoPlay={true}/>
           {columns.map((column: ColumnSpec) => (
             <div className={'message-entry'} key={column.name}>
               <div className={'message-entry-label'}>{column.header({})}</div>
               <div className={'message-entry-value'}>
-                {column.render(props.lastExecution)}
+                {column.render(lastExecution)}
               </div>
             </div>
           ))}
