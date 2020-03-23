@@ -1,5 +1,5 @@
 .message-detail {
-  &.buy {
+  &.sell {
     .message-entry {
       .message-entry-value {
         * {
@@ -9,7 +9,7 @@
     }
   }
 
-  &.sell {
+  &.buy {
     .message-entry {
       .message-entry-value {
         * {

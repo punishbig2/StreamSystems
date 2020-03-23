@@ -13,7 +13,7 @@ const filterExecutions = (array: Message[]): Message[] => {
   });
 };
 
-const applyFilter = (messages: Message[]): Message[] => {
+const hasLink = (messages: Message[], item: Message): boolean => {
   const getOrderLinkID = (message: any): string => {
     if (message.hasOwnProperty('ClOrdLinkID')) {
       return message.ClOrdLinkID;
@@ -22,17 +22,18 @@ const applyFilter = (messages: Message[]): Message[] => {
     }
   };
 
-  const filtered: Message[] = messages.filter((item: Message, index: number, array: Message[]) => {
+  const link: number = messages.findIndex((each: Message) => {
+    return getOrderLinkID(each) === item.ClOrdID;
+  });
+  return link !== -1;
+};
+
+const applyFilter = (messages: Message[]): Message[] => {
+  return messages.filter((item: Message, index: number, array: Message[]) => {
     if (index !== array.findIndex((each: Message) => each.ClOrdID === item.ClOrdID))
       return false;
-    const link: number = array.findIndex((each: Message) => {
-      return getOrderLinkID(each) === item.ClOrdID;
-    });
-    const hasLink: boolean = link !== -1;
-    return hasLink && item.Side === '1';
+    return hasLink(array, item) && item.Side === '1';
   });
-  console.log(filtered);
-  return filtered;
 };
 
 export default (state: Message[] = defaultExecutions, action: FXOAction<MessageBlotterActions>): Message[] => {
@@ -42,7 +43,9 @@ export default (state: Message[] = defaultExecutions, action: FXOAction<MessageB
     case MessageBlotterActions.Update:
       if (!isFill(action.data))
         return state;
-      return applyFilter([...state, action.data]);
+      if (hasLink(state, action.data))
+        return state;
+      return [...state, action.data];
     default:
       return state;
   }
