@@ -1,14 +1,19 @@
 import {ExecTypes, Message} from 'interfaces/message';
 import React from 'react';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {User} from 'interfaces/user';
 
-export default (sortable: boolean) => ({
+export default (sortable: boolean, isExecBlotter: boolean) => ({
   name: 'CPTY',
   template: 'WWWWWW',
   filterable: true,
   sortable: sortable,
   header: () => <div>CPTY</div>,
   render: (message: Message) => {
-    const {ExecBroker, OrdStatus} = message;
+    const {ExecBroker, Username, OrdStatus} = message;
+    const user: User = getAuthenticatedUser();
+    if (isExecBlotter && Username !== user.email)
+      return null;
     if (
       OrdStatus !== ExecTypes.Filled &&
       OrdStatus !== ExecTypes.PartiallyFilled

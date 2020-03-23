@@ -115,6 +115,7 @@ const Workarea: React.FC<OwnProps> = withRedux(
         return null;
       const columns: ColumnSpec[] = messageBlotterColumns(BlotterTypes.Regular)
         .normal;
+      console.log(lastExecution);
       return (
         <div className={'message-detail ' + sideClasses[lastExecution.Side]}>
           <audio src={'/sounds/alert.wav'} autoPlay={true}/>

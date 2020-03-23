@@ -1,8 +1,6 @@
 import {useEffect, useState} from 'react';
 
-export const useResizeObserver = (
-  element: HTMLDivElement | null,
-): [number, number] => {
+export const useResizeObserver = (element: HTMLDivElement | null): [number, number] => {
   const [containerSize, setContainerSize] = useState<number>(0);
   const [contentSize, setContentSize] = useState<number>(0);
   useEffect(() => {

@@ -35,8 +35,9 @@ const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined =>
 const resize = (x: number, y: number, width: number, height: number, r: ClientRect, minWidth: number): DOMRect => {
   const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
   const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
-  if (minWidth > 0 && width < minWidth)
+  if (minWidth > 0 && width < minWidth) {
     width = minWidth;
+  }
   if (width - left > window.innerWidth)
     return new DOMRect(0, 0, minWidth, height);
   // Create the new rectangle confined to the r rectangle
@@ -184,6 +185,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     if (element === null)
       return;
     const {style} = parent;
+    const originalWidth = style.width;
     // Let's force scrollWidth and scrollHeight to have the minimal internalValue
     style.width = '1px';
     // Update the element with the minimal size possible
@@ -193,6 +195,8 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
       style.width = pixels(area.width - element.offsetLeft);
     }
     setMinWidth(parseInt(style.width));
+    // Restore original width
+    style.width = originalWidth;
   }, [area.width]);
 
   useEffect(() => {

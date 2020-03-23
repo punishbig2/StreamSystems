@@ -101,7 +101,7 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
 
   const baseFilter = (message: Message): boolean => {
     if (props.blotterType === BlotterTypes.Executions) {
-      return isExecution(message);
+      return isExecution(message) && message.ContraTrader !== user.email;
     } else {
       if (isExecution(message)) {
         return isMyExecution(message);

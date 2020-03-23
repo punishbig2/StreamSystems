@@ -48,6 +48,12 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       style.height = `${size}px`;
     };
 
+    setTimeout(() => {
+      if (content !== null && scrollbar !== null) {
+        setupScrollbar(content, scrollbar);
+      }
+    });
+
     const onMouseMove = (event: MouseEvent) => {
       event.preventDefault();
       event.stopPropagation();
@@ -112,10 +118,19 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
         }
       },
     );
+    const mutationObserver: MutationObserver = new MutationObserver(() => {
+      if (content !== null && scrollbar !== null) {
+        setupScrollbar(content, scrollbar);
+      }
+    });
     // Start with the initial size
     setHeight(element.offsetHeight);
     // Watch for resizing ...
     observer.observe(observable);
+    mutationObserver.observe(observable, {
+      childList: true,
+      subtree: true,
+    });
     // Install event handlers
     installMouseHandlers();
     return () => {

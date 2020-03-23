@@ -48,6 +48,7 @@ export interface Message {
   Username: string;
   MDMkt: string;
   ExecBroker: string;
+  ContraTrader: string;
   ExDestination?: string;
 }
 
