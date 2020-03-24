@@ -39,7 +39,7 @@ export const onSubmitPriceListener = (
       }
       // Pick the appropriate size according to the priority for each
       // possible source
-      const size: number = getFinalSize(submittedSize, order.size, defaultSize);
+      const size: number = getFinalSize(order.status, submittedSize, order.size, minimumSize, defaultSize);
       // Do not wait for this
       createOrder({...order, price, size}, minimumSize, personality)
         .then(() => {

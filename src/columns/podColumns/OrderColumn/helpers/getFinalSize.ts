@@ -1,4 +1,8 @@
-export const getFinalSize = (submittedSize: number | null, orderSize: number | null, defaultSize?: number): number => {
+import {OrderStatus} from 'interfaces/order';
+
+export const getFinalSize = (status: OrderStatus, submittedSize: number | null, orderSize: number | null, minimumSize: number, defaultSize?: number): number => {
+  if ((status & OrderStatus.Owned) === 0)
+    return defaultSize !== undefined ? defaultSize : minimumSize;
   // If a size was submitted use it
   if (submittedSize !== null)
     return submittedSize;
