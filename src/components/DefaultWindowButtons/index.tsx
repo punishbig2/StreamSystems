@@ -1,6 +1,7 @@
 import React from 'react';
 
 interface Props {
+  isMinimized: boolean;
   onClose?: () => void;
   onMinimize?: () => void;
   onAdjustSize?: () => void;
@@ -13,7 +14,7 @@ export const DefaultWindowButtons: React.FC<Props> = (props: Props) => {
         <i className={'fa fa-compress-arrows-alt'}/>
       </button>
       <button onClick={props.onMinimize}>
-        <i className={'fa fa-minus'}/>
+        {props.isMinimized ? <i className={'fa fa-window-restore'}/> : <i className={'fa fa-minus'}/>}
       </button>
       <button onClick={props.onClose}>
         <i className={'fa fa-times'}/>

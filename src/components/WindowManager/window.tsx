@@ -169,8 +169,8 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   // Compute the style
   const classes: string = [
     'window-element',
-    isGrabbed ? 'grabbed' : null,
     props.isMinimized ? 'minimized' : null,
+    isGrabbed ? 'grabbed' : null,
   ]
     .join(' ')
     .trim();
@@ -229,7 +229,11 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     if (props.fixed)
       return null;
     return (
-      <DefaultWindowButtons onClose={props.onClose} onMinimize={props.onMinimize} onAdjustSize={props.onAdjustSize}/>
+      <DefaultWindowButtons
+        isMinimized={props.isMinimized}
+        onClose={props.onClose}
+        onMinimize={props.onMinimize}
+        onAdjustSize={props.onAdjustSize}/>
     );
   };
 

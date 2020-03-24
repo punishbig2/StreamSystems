@@ -24,8 +24,7 @@ const initialState: WorkspaceState = {
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {
   const windows: { [id: string]: WindowState } = {...state.windows};
-  if (windows[id].minimized) return windows;
-  return {...windows, [id]: {...windows[id], minimized: true}};
+  return {...windows, [id]: {...windows[id], minimized: !(windows[id].minimized)}};
 };
 
 const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {

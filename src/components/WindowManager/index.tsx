@@ -49,10 +49,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const {renderContent} = props;
   // Get non-minimized windows
   const windows: [string, WindowState][] = Object.entries(props.windows || {});
-  // Get minimized windows
-  const minimized: [string, WindowState][] = windows.filter(
-    ([, window]: [string, WindowState]): boolean => window.minimized,
-  );
   useEffect(() => {
     if (element === null) return;
     const updateArea = () => {
@@ -114,14 +110,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       </WindowElement>
     );
   };
-  const minimizedWindowMapper = ([, window]: [string, WindowState]) => {
-    const onRestore = (id: string) => props.onWindowRestored(id);
-    return (
-      <div className={'window-button'} onClick={() => onRestore(window.id)} key={window.id}>
-        <h1>{window.title || window.id}</h1>
-      </div>
-    );
-  };
   const classes = ['workspace'];
   return (
     <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} ref={setElement}>
@@ -147,9 +135,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
           personality={props.personality}
           blotterType={BlotterTypes.Executions}/>
       </WindowElement>
-      <div className={'minimized-window-buttons'}>
-        {minimized.map(minimizedWindowMapper)}
-      </div>
       <div className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(' ')}>
         <div className={'message'}>{props.toast}</div>
         <div className={'close-button'} onClick={props.onClearToast}>
