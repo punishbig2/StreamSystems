@@ -1,6 +1,7 @@
-import {ExecTypes, Message} from 'interfaces/message';
+import {Message} from 'interfaces/message';
 import React from 'react';
 import {priceFormatter} from 'utils/priceFormatter';
+import {getMessagePrice} from 'messageUtils';
 
 export default (sortable: boolean) => ({
   name: 'Price',
@@ -8,23 +9,13 @@ export default (sortable: boolean) => ({
   filterable: true,
   sortable: sortable,
   header: () => <div>Level</div>,
-  render: ({OrdStatus, LastPx, Price}: Message) => {
-    if (
-      OrdStatus === ExecTypes.PartiallyFilled ||
-      OrdStatus === ExecTypes.Filled
-    ) {
-      return (
-        <div className={'message-blotter-cell normal'}>
-          {priceFormatter(Number(LastPx))}
-        </div>
-      );
-    } else {
-      return (
-        <div className={'message-blotter-cell normal'}>
-          {priceFormatter(Number(Price))}
-        </div>
-      );
-    }
+  render: (message: Message) => {
+    return (
+      <div className={'message-blotter-cell normal'}>
+        {priceFormatter(getMessagePrice(message))}
+      </div>
+    );
+
   },
   weight: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {

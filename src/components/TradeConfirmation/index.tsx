@@ -1,5 +1,6 @@
 import React, {ReactElement} from 'react';
 import {Message} from 'interfaces/message';
+import {getMessageSize, getMessagePrice} from 'messageUtils';
 
 interface OwnProps {
   trade: Message;
@@ -20,10 +21,10 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
       <audio src={'/sounds/alert.wav'} autoPlay={true}/>
       <div className={'content'}>
         <div className={'line'}>
-          {trade.Currency} {trade.Tenor} {trade.Strategy} @ {trade.Price}
+          {trade.Currency} {trade.Tenor} {trade.Strategy} @ {getMessagePrice(trade)}
         </div>
         <div className={'line'}>
-          You {Side.toString() === '1' ? 'buy' : 'sell'} {trade.OrderQty} {direction} {trade.MDMkt}
+          You {Side.toString() === '1' ? 'buy' : 'sell'} {getMessageSize(trade)} {direction} {trade.MDMkt}
         </div>
       </div>
     </div>
