@@ -136,9 +136,6 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
       const ocoMode: OCOModes = getOCOMode();
       switch (data.OrdStatus) {
         case ExecTypes.PendingCancel:
-          if (ocoMode === OCOModes.PartialEx && data.Username === user.email) {
-            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
-          }
           break;
         case ExecTypes.Filled:
           if (ocoMode === OCOModes.FullEx && data.Username === user.email) {
@@ -147,6 +144,9 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         // eslint-disable-next-line no-fallthrough
         case ExecTypes.PartiallyFilled:
           const type: string = $$(data.ExecID, MessageBlotterActions.Executed);
+          if (ocoMode === OCOModes.PartialEx && data.Username === user.email) {
+            API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
+          }
           if (data.Username === user.email) {
             // FIXME: this should not be working right now right?
             // FIXME: to improve performance we should try to find a way to do this
