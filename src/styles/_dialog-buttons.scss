@@ -16,6 +16,10 @@
     color: #333;
     min-width: 100px;
 
+    &:not(:first-child) {
+      margin-left: 3px;
+    }
+
     &:disabled {
       background-color: $table-border-color;
       color: darken($table-border-color, 15%);

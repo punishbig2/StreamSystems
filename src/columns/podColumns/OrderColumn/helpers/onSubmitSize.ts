@@ -1,9 +1,9 @@
 import {createAction} from 'redux/actionCreator';
 import {ActionTypes} from 'columns/podColumns/OrderColumn/reducer';
-import {OrderStatus, Order} from 'interfaces/order';
+import {Order} from 'interfaces/order';
 import {PodRowStatus} from 'interfaces/podRow';
 import {dispatchWorkspaceError} from 'utils';
-import {createOrder} from 'components/PodTile/helpers';
+import {createOrder, findMyOrder} from 'components/PodTile/helpers';
 import {skipTabIndexAll} from 'utils/skipTab';
 import {Dispatch} from 'react';
 import {FXOAction} from 'redux/fxo-action';
@@ -23,7 +23,8 @@ export const onSubmitSizeListener = (
     }
     if (order.isCancelled() || order.price === null)
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
-    if (order.isOwnedByCurrentUser() && (order.status & OrderStatus.PreFilled) !== 0 && !order.isCancelled()) {
+    const myOrder: Order | undefined = findMyOrder(order);
+    if (!!myOrder && !myOrder.isCancelled()) {
       // Get the desired new size
       const size: number | null = editedSize;
       if (size !== null && size < minimumSize) {

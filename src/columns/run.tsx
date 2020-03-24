@@ -32,6 +32,8 @@ const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec =>
         if (onChange(row.id, price, changed)) {
           data.focusNext(input, tabDirection, actionType);
         }
+      } else {
+        data.focusNext(input, tabDirection, actionType);
       }
     };
 

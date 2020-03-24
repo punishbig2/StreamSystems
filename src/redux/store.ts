@@ -138,7 +138,7 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
         case ExecTypes.PendingCancel:
           break;
         case ExecTypes.Filled:
-          if (ocoMode === OCOModes.FullEx && data.Username === user.email) {
+          if (ocoMode !== OCOModes.Disabled && data.Username === user.email) {
             API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
           }
         // eslint-disable-next-line no-fallthrough
