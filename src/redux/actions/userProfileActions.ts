@@ -4,6 +4,7 @@ import {createAction} from 'redux/actionCreator';
 import {UserProfileModalTypes, UserWorkspace} from 'interfaces/user';
 import {API} from 'API';
 import {FXOAction} from 'redux/fxo-action';
+import {Globals} from 'golbals';
 
 export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserProfileActions>> => {
   return new AsyncAction(async (): Promise<FXOAction<UserProfileActions>[]> => {
@@ -12,7 +13,8 @@ export const loadUserProfile = (useremail: string): AsyncAction<FXOAction<UserPr
       return [];
     // Extract the actual user profile
     const profile: UserWorkspace = {...defaultProfile, ...JSON.parse(data[0].workspace)};
-    console.log(profile);
+    // Update timezone
+    Globals.timezone = profile.timezone;
     // Initialize the original profile
     return [
       createAction<UserProfileActions>(UserProfileActions.SetUserProfile, profile),

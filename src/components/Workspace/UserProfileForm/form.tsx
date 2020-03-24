@@ -1,7 +1,7 @@
 import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
-import {FormControl, FormLabel, Select, MenuItem, Input, FormControlLabel, Checkbox} from '@material-ui/core';
+import {FormControl, FormLabel, Select, MenuItem, Input} from '@material-ui/core';
 import {UserTypes, CurrencyGroups, UserWorkspace, ExecSound, OCOModes} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
@@ -42,6 +42,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
   const onExecSoundChange = (event: any) => {
     props.onChange(event);
+  };
+
+  const formatTimezone = (text: string): string => {
+    return text.replace(/_/g, ' ');
   };
 
   return (
@@ -169,7 +173,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 renderValue={renderTimezone}>
                 {timezones.map((zone: TimezoneInfo) => (
                   <MenuItem key={zone.text} value={zone.text}>
-                    {zone.text}
+                    {formatTimezone(zone.text)}
                   </MenuItem>
                 ))}
               </Select>

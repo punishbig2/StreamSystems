@@ -8,6 +8,21 @@ import {
   OCOModes,
 } from 'interfaces/user';
 import {FXOAction} from 'redux/fxo-action';
+import timezones, {TimezoneInfo} from 'data/timezones';
+
+const findDefaultTimezone = () => {
+  const formatter: Intl.DateTimeFormat = Intl.DateTimeFormat();
+  const options: Intl.ResolvedDateTimeFormatOptions = formatter.resolvedOptions();
+  const browserTimezone = options.timeZone;
+  const found: TimezoneInfo | undefined = timezones.find(({text}: TimezoneInfo) => {
+    return text === browserTimezone;
+  });
+  if (found === undefined) {
+    return 'America/New_York' /* sensible default */;
+  } else {
+    return found.text;
+  }
+};
 
 export const defaultProfile: UserWorkspace = {
   ccyGroup: CurrencyGroups.Invalid,
@@ -17,7 +32,7 @@ export const defaultProfile: UserWorkspace = {
   fontSize: '15px',
   mpid: '',
   oco: OCOModes.Disabled,
-  timezone: '',
+  timezone: findDefaultTimezone(),
   lastOCOUpdateTimestamp: null,
   userType: UserTypes.Unset,
   execSoundList: [],
