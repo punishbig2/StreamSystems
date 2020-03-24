@@ -16,11 +16,8 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
   const {Side} = trade;
   const direction: string = Side.toString() === '1' ? 'from' : 'to';
   return (
-    <div className={'message-detail ' + sideClasses[trade.Side]}>
+    <div className={[sideClasses[trade.Side], 'item'].join(' ')}>
       <audio src={'/sounds/alert.wav'} autoPlay={true}/>
-      <div className={'title'}>
-        Trade Confirmation
-      </div>
       <div className={'content'}>
         <div className={'line'}>
           {trade.Currency} {trade.Tenor} {trade.Strategy} @ {trade.Price}
@@ -28,11 +25,6 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
         <div className={'line'}>
           You {Side.toString() === '1' ? 'buy' : 'sell'} {trade.OrderQty} {direction} {trade.MDMkt}
         </div>
-      </div>
-      <div className={'modal-buttons'}>
-        <button className={'cancel'} onClick={props.onClose}>
-          Close
-        </button>
       </div>
     </div>
   );

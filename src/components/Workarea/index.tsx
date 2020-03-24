@@ -1,15 +1,12 @@
-import messageBlotterColumns from 'columns/messageBlotter';
 import {ModalWindow} from 'components/ModalWindow';
 import {QuestionBox} from 'components/QuestionBox';
 import {TabBar} from 'components/TabBar';
-import {ColumnSpec} from 'components/Table/columnSpecification';
 import {UserNotFound} from 'components/Workarea/userNotFound';
 import {WorkareaError} from 'components/Workarea/workareaError';
 import {Workspace} from 'components/Workspace';
 import strings from 'locales';
 import React, {ReactElement, useEffect, useState} from 'react';
 import {connect, MapStateToProps} from 'react-redux';
-import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import {AnyAction} from 'redux';
 import {
   addWindow,
@@ -27,6 +24,7 @@ import {
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
+import {Message} from 'interfaces/message';
 import {TradeConfirmation} from 'components/TradeConfirmation';
 
 interface OwnProps {
@@ -72,6 +70,7 @@ const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, O
 
 const Workarea: React.FC<OwnProps> = withRedux(
   (props: Props): ReactElement | null => {
+    const {recentExecutions} = props;
     const {symbols, products, tenors, banks, initialize, connected, user, activeWorkspace, userProfile} = props;
     const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
     const {workspaces, loadMessages} = props;
@@ -106,12 +105,24 @@ const Workarea: React.FC<OwnProps> = withRedux(
       setSelectedToClose(null);
     };
 
-
     const renderMessage = () => {
-      const {lastExecution} = props;
-      if (lastExecution === null)
-        return null;
-      return <TradeConfirmation trade={lastExecution} onClose={props.clearLastExecution}/>;
+      const {recentExecutions} = props;
+      const mapTrade = (trade: Message) => (
+        <TradeConfirmation key={trade.ClOrdID} trade={trade} onClose={props.clearLastExecution}/>
+      );
+      return (
+        <div className={'message-detail'}>
+          <div className={'title'}>
+            Trade Confirmation
+          </div>
+          {recentExecutions.map(mapTrade)}
+          <div className={'modal-buttons'}>
+            <button className={'cancel'} onClick={props.clearLastExecution}>
+              Close
+            </button>
+          </div>
+        </div>
+      );
     };
 
     switch (props.status) {
@@ -152,12 +163,8 @@ const Workarea: React.FC<OwnProps> = withRedux(
                 onTabRenamed={props.renameWorkspace}
                 onQuit={props.quit}/>
             </div>
-            <ModalWindow
-              render={renderCloseQuestion}
-              visible={!!selectedToClose}/>
-            <ModalWindow
-              render={() => renderMessage()}
-              visible={props.lastExecution !== null}/>
+            <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
+            <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>
           </>
         );
       default:

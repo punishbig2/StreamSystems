@@ -25,6 +25,6 @@ export interface WorkareaState {
   status: WorkareaStatus;
   connected: boolean;
   message?: string;
-  lastExecution: Message | null;
+  recentExecutions: Message[];
   userProfile: UserWorkspace;
 }

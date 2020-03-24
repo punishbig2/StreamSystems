@@ -1,12 +1,6 @@
 .message-detail {
-  &.sell {
-    color: $text-color-red;
-  }
-
-  &.buy {
-    color: black;
-  }
-
+  max-width: 460px;
+  padding: 0 6px;
   .title {
     color: black;
     text-transform: uppercase;
@@ -15,11 +9,35 @@
     font-size: 13px;
   }
 
-  .content {
-    font-size: 15px;
-    padding: 4px 16px 0 16px;
-    font-weight: 500;
-    text-transform: uppercase;
-    text-align: center;
+  .item {
+    display: inline-block;
+    background-color: lighten($foreground-color, 80%);
+    padding: 2px;
+    width: 220px;
+    margin: 2px;
+
+    &.sell {
+      .content {
+        .line {
+          color: $text-color-red;
+        }
+      }
+    }
+
+    &.buy {
+      .content {
+        .line {
+          color: black;
+        }
+      }
+    }
+
+    .content {
+      font-size: 15px;
+      padding: 4px 16px 0 16px;
+      font-weight: 500;
+      text-transform: uppercase;
+      text-align: center;
+    }
   }
 }

@@ -19,7 +19,7 @@ export const defaultWorkareaState: WorkareaState = {
   banks: [],
   status: WorkareaStatus.Starting,
   connected: false,
-  lastExecution: null,
+  recentExecutions: [],
   userProfile: defaultProfile,
 };
 
@@ -143,9 +143,9 @@ export default (state: WorkareaState = initialState, action: ActionType): Workar
     case WorkareaActions.ServerUnavailable:
       return {...state, status: WorkareaStatus.Error};
     case WorkareaActions.SetLastExecution:
-      return {...state, lastExecution: data};
+      return {...state, recentExecutions: [...state.recentExecutions, data]};
     case WorkareaActions.ClearLastExecution:
-      return {...state, lastExecution: null};
+      return {...state, recentExecutions: []};
     case UserProfileActions.SetUserProfile:
       return {...state, userProfile: action.data};
     default:
