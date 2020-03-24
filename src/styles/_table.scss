@@ -198,6 +198,18 @@
     }
   }
 
+  .tbody .tr {
+    &.my-fill, &.my-bank-fill {
+      .td {
+        .message-blotter-cell.exec-blotter {
+          &.cpty, &.side {
+            display: block;
+          }
+        }
+      }
+    }
+  }
+
   .thead .tr .th,
   .tbody .tr .td {
     display: inline-block;
@@ -235,10 +247,17 @@
       color: red;
     }
 
+
     .message-blotter-cell {
       font-weight: $table-font-weight;
       font-size: $table-font-size;
       font-family: $table-font-family;
+
+      &.exec-blotter {
+        &.cpty, &.side {
+          display: none;
+        }
+      }
     }
 
     .ref {

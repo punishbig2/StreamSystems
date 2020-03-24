@@ -1,7 +1,5 @@
 import {ExecTypes, Message} from 'interfaces/message';
 import React from 'react';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User} from 'interfaces/user';
 
 export default (sortable: boolean, isExecBlotter: boolean) => ({
   name: 'CPTY',
@@ -10,16 +8,14 @@ export default (sortable: boolean, isExecBlotter: boolean) => ({
   sortable: sortable,
   header: () => <div>CPTY</div>,
   render: (message: Message) => {
-    const {ExecBroker, Username, OrdStatus} = message;
-    const user: User = getAuthenticatedUser();
-    if (isExecBlotter && Username !== user.email)
-      return null;
-    if (
-      OrdStatus !== ExecTypes.Filled &&
-      OrdStatus !== ExecTypes.PartiallyFilled
-    )
+    const {ExecBroker, OrdStatus} = message;
+    if (OrdStatus !== ExecTypes.Filled && OrdStatus !== ExecTypes.PartiallyFilled)
       return <div/>;
-    return <div className={'message-blotter-cell normal'}>{ExecBroker}</div>;
+    return (
+      <div className={'message-blotter-cell normal cpty ' + (isExecBlotter ? 'exec-blotter' : '')}>
+        {ExecBroker}
+      </div>
+    );
   },
   weight: 2,
   filterByKeyword: ({ExecBroker}: Message, keyword: string): boolean => {

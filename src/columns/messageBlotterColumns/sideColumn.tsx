@@ -1,7 +1,5 @@
 import {Message} from 'interfaces/message';
 import React from 'react';
-import {User} from 'interfaces/user';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 export default (sortable: boolean, isExecBlotter: boolean) => ({
   name: 'Side',
@@ -9,12 +7,9 @@ export default (sortable: boolean, isExecBlotter: boolean) => ({
   filterable: true,
   sortable: sortable,
   header: () => <div>Side</div>,
-  render: ({Side, Username}: Message) => {
-    const user: User = getAuthenticatedUser();
-    if (isExecBlotter && Username !== user.email)
-      return null;
+  render: ({Side}: Message) => {
     return (
-      <div className={'message-blotter-cell normal'}>
+      <div className={'message-blotter-cell normal side ' + (isExecBlotter ? 'exec-blotter' : '')}>
         {Side === '1' ? 'Buy' : 'Sell'}
       </div>
     );
