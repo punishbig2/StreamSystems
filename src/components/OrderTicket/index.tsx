@@ -52,22 +52,18 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const presetSizes: number[] = [30, 50, 100];
   return (
     <>
-      <div className={'modal-title'}>{strings.OrderEntry}</div>
+      <div className={'title-chain modal-title'}>
+        <div className={'title'}>
+          <div className={'item'}>{order.symbol}</div>
+          <div className={'item'}>{order.tenor}</div>
+          <div className={'item'}>{order.strategy}</div>
+        </div>
+        <div className={'subtitle'}>
+          <span>{order.type === OrderTypes.Bid ? 'Buy' : 'Sell'}</span>
+        </div>
+      </div>
       <form onSubmit={onSubmit}>
         <div className={'order-ticket'}>
-          <div className={'title-chain'}>
-            <div className={'item'}>{order.symbol}</div>
-            <div className={'item'}>{order.tenor}</div>
-            <div className={'item'}>{order.strategy}</div>
-          </div>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Side</span>
-            </div>
-            <div className={'value'}>
-              <span>{order.type === OrderTypes.Bid ? 'Buy' : 'Sell'}</span>
-            </div>
-          </div>
           <div className={'row'}>
             <div className={'label'}>
               <span>Vol</span>
@@ -78,7 +74,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           </div>
           <div className={'row'}>
             <div className={'label'}>
-              <span>Qty</span>
+              <span>Amt</span>
             </div>
             <div className={'value'}>
               <div className={'editor'}>

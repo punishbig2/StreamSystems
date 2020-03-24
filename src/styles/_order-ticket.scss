@@ -1,48 +1,52 @@
-.order-ticket {
-  min-width: 400px;
+.title-chain {
+  border-bottom: 1px solid $table-border-color;
+  padding: 2px 4px;
 
-  .title-chain {
-    border-bottom: 1px solid $table-border-color;
-    padding: 2px 8px;
-
+  .title {
+    display: flex;
+    justify-content: center;
     .item {
-      display: inline-block;
       border-radius: 2px;
       color: $primary-color;
-      padding: 2px 0;
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 600;
-
-      &:not(:last-child) {
-        &:after {
-          content: "\f105";
-          font-family: "Font Awesome 5 Free Solid", sans-serif;
-          margin: 0 8px;
-          color: #a1a1a1;
-        }
-      }
-
-      &:nth-child(n + 2) {
-      }
+      padding: 4px 10px;
     }
   }
 
+  .subtitle {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 4px;
+  }
+}
+
+
+.order-ticket {
+  padding: 0 12px;
   .row {
     margin: 8px 0;
 
     .label,
     .value {
       display: inline-block;
-      width: 50%;
       vertical-align: middle;
       line-height: 2;
-      font-size: 14px;
       font-weight: 500;
+      text-transform: uppercase;
+      font-size: 15px;
+    }
+
+    .label {
+      width: 6ex;
     }
 
     .value {
       font-weight: 600;
       font-family: "Roboto", sans-serif;
+      width: 20ex;
 
       input {
         display: block;
@@ -53,6 +57,7 @@
         font-family: inherit;
         font-weight: inherit;
         text-align: center;
+        color: $foreground-color;
 
         &:focus {
           outline: 2px solid $primary-color;
@@ -94,19 +99,17 @@
 
       .buttons {
         display: flex;
-        margin: -1px 0 0 0;
+        justify-content: center;
+        margin: 4px auto 0 auto;
+        width: 80%;
 
         button {
           flex: 1;
           padding: 0;
           line-height: 1.75;
-          border: 1px solid darken($table-border-color, 5%);
-          border-left-color: transparent;
-          border-top-color: transparent;
-
-          &:first-child {
-            border-left-color: darken($table-border-color, 5%);
-          }
+          border: 1px solid darken($table-border-color, 15%);
+          border-radius: 2px;
+          margin: 0 2px;
 
           background: linear-gradient(
                           to bottom,
@@ -114,6 +117,7 @@
                           lighten($table-border-color, 3%)
           );
           transition: color 0.25s;
+          color: $foreground-color;
 
           &:hover {
             color: $primary-color;
@@ -121,14 +125,6 @@
 
           &:nth-child(2) {
             width: 34%;
-          }
-
-          &:first-child {
-            border-bottom-left-radius: 3px;
-          }
-
-          &:last-child {
-            border-bottom-right-radius: 3px;
           }
         }
       }

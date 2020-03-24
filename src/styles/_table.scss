@@ -305,6 +305,7 @@
         font-weight: $table-font-weight;
         font-size: $table-font-size;
         border: none;
+        color: $foreground-color;
 
         &:focus {
           outline: 2px solid $primary-color;
@@ -459,6 +460,7 @@
         font-weight: 400;
         z-index: 1;
         position: relative;
+        color: $foreground-color;
 
         &::placeholder {
           color: $text-color-grey;

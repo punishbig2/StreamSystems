@@ -1,7 +1,7 @@
 .modal-buttons {
   display: flex;
-  text-align: right;
-  margin: 32px 0 0 0;
+  justify-content: space-evenly;
+  margin: 12px 8px;
 
   button {
     border-radius: 3px;
@@ -14,10 +14,6 @@
     border-bottom: 2px solid rgba(0, 0, 0, 0.15);
     color: #333;
     min-width: 100px;
-
-    &:not(.first-child) {
-      margin: 0 0 0 8px;
-    }
 
     &:disabled {
       background-color: $table-border-color;

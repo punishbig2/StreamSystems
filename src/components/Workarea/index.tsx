@@ -27,6 +27,7 @@ import {
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
+import {TradeConfirmation} from 'components/TradeConfirmation';
 
 interface OwnProps {
 }
@@ -105,35 +106,12 @@ const Workarea: React.FC<OwnProps> = withRedux(
       setSelectedToClose(null);
     };
 
-    const sideClasses: { [key: string]: string } = {
-      2: 'sell',
-      1: 'buy',
-    };
+
     const renderMessage = () => {
       const {lastExecution} = props;
       if (lastExecution === null)
         return null;
-      const columns: ColumnSpec[] = messageBlotterColumns(BlotterTypes.Regular)
-        .normal;
-      console.log(lastExecution);
-      return (
-        <div className={'message-detail ' + sideClasses[lastExecution.Side]}>
-          <audio src={'/sounds/alert.wav'} autoPlay={true}/>
-          {columns.map((column: ColumnSpec) => (
-            <div className={'message-entry'} key={column.name}>
-              <div className={'message-entry-label'}>{column.header({})}</div>
-              <div className={'message-entry-value'}>
-                {column.render(lastExecution)}
-              </div>
-            </div>
-          ))}
-          <div className={'modal-buttons'}>
-            <button className={'cancel'} onClick={props.clearLastExecution}>
-              Close
-            </button>
-          </div>
-        </div>
-      );
+      return <TradeConfirmation trade={lastExecution} onClose={props.clearLastExecution}/>;
     };
 
     switch (props.status) {
