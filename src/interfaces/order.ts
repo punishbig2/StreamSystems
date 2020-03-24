@@ -54,6 +54,7 @@ export enum OrderStatus {
   FullDarkPool = 1 << 15,
   OwnedByBroker = 1 << 16,
   RunOrder = 1 << 17,
+  Publishing = 1 << 18,
 }
 
 export interface OrderMessage {

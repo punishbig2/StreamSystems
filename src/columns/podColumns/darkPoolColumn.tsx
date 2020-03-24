@@ -18,8 +18,14 @@ import {API} from 'API';
 import {SignalRManager} from 'redux/signalR/signalRManager';
 import {DarkPoolMessage} from 'interfaces/message';
 import {onNavigate} from 'components/PodTile/helpers';
+import {$$} from 'utils/stringPaster';
+import {skipTabIndexAll} from 'utils/skipTab';
 
 type Props = PodRowProps;
+
+enum Status {
+  Publishing, Normal, Error
+}
 
 const DarkPoolColumnComponent = (props: Props) => {
   const user: User = getAuthenticatedUser();
@@ -27,9 +33,19 @@ const DarkPoolColumnComponent = (props: Props) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isShowingTicket, setIsShowingTicket] = useState<boolean>(false);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
+  const [status, setStatus] = useState<Status>(Status.Normal);
   const isBroker: boolean = user.isbroker;
 
   const [value, setValue] = useState<number | null>(darkPrice);
+
+  useEffect(() => {
+    const savedValue: string | null = localStorage.getItem($$(symbol, strategy, tenor, 'DpPx'));
+    if (savedValue === null)
+      return;
+    setTimeout(() => {
+      setValue(Number(savedValue));
+    }, 0);
+  }, [tenor, strategy, symbol]);
 
   useEffect(() => {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
@@ -38,7 +54,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         const value: number = Number(message.DarkPrice);
         // Update the saved dark pool
         // FIXME: maybe we do need this?
-        // FXOptionsDB.saveDarkPool($$(symbol, strategy, tenor), value);
+        localStorage.setItem($$(symbol, strategy, tenor, 'DpPx'), value.toString());
         // Set the value in the input
         setValue(value);
       });
@@ -86,41 +102,34 @@ const DarkPoolColumnComponent = (props: Props) => {
     setValue(darkPrice);
   }, [darkPrice]);
 
-  /*useEffect(() => {
-    if (!tenor || !symbol || !strategy) return;
-    const update = (event: any) => {
-      setData(event.detail);
-    };
-    const type: string = $$(tenor, symbol, strategy, 'update-dark-pool-depth');
-    document.addEventListener(type, update);
-    return () => {
-      document.removeEventListener(type, update);
-    };
-  }, [tenor, symbol, strategy]);*/
-
   const onDoubleClick = useCallback(() => {
-      if (isBroker && personality === STRM)
+      if ((isBroker && personality === STRM) || value === null)
         return;
       setIsShowingTicket(true);
-    }, [isBroker, personality],
+    }, [isBroker, personality, value],
   );
 
   const onSubmit = useCallback((input: HTMLInputElement, value: number | null) => {
-      console.log(isBroker, value);
-      if (!isBroker || value === null)
+      if (!isBroker)
         return undefined;
-      API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, value);
+      // Now go to the next one
+      skipTabIndexAll(input, 5, 2);
+      if (value !== null) {
+        setStatus(Status.Publishing);
+        API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, value)
+          .then(() => {
+            setTimeout(() => {
+              setStatus(Status.Normal);
+              // Otherwise it's for some reason wiped!
+              setValue(value);
+            }, 0);
+          })
+          .catch(() => {
+            setStatus(Status.Error);
+          });
+      }
     }, [isBroker, user.email, symbol, strategy, tenor],
   );
-
-  /*const tabbedOutHandler = useCallback(
-    (input: HTMLInputElement) => {
-      if (input.readOnly)
-        return;
-      onTabbedOut(input, OrderTypes.DarkPool);
-    },
-    [onTabbedOut],
-  );*/
 
   const myOrder: Order | undefined = useMemo(
     () => orders.find((order: Order) => order.user === user.email),
@@ -173,7 +182,9 @@ const DarkPoolColumnComponent = (props: Props) => {
         user={user.email}/>
     );
   };
-  const full: OrderStatus = orders.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None;
+  const full: OrderStatus = (orders.length > 0 ? OrderStatus.FullDarkPool : OrderStatus.None) | (
+    status === Status.Publishing ? OrderStatus.Publishing : OrderStatus.None
+  );
   return (
     <>
       <Price

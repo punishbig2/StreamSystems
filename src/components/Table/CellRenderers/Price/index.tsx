@@ -215,6 +215,12 @@ export const Price: React.FC<Props> = (props: Props) => {
           <span>Loading&hellip;</span>
         </div>
       );
+    } else if ((props.status & OrderStatus.Publishing) !== 0) {
+      return (
+        <div className={'price-waiting-spinner'}>
+          <span>Pub&hellip;</span>
+        </div>
+      );
     }
   };
 

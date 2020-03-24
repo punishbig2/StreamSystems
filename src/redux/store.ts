@@ -168,10 +168,8 @@ const enhancer: StoreEnhancer = (nextCreator: StoreEnhancerStoreCreator) => {
     };
     // Setup the connection manager now
     connectionManager.setOnConnectedListener(onConnected);
-    // connectionManager.setOnUpdateMarketDataListener(onUpdateMarketData);
     connectionManager.setOnDisconnectedListener(onDisconnected);
     connectionManager.setOnUpdateMessageBlotter(onUpdateMessageBlotter);
-    // connectionManager.setOnUpdateDarkPoolPxListener(onUpdateDarkPoolPx);
     connectionManager.connect();
 
     // hydrate(dispatch);
