@@ -35,8 +35,11 @@ const readFromBackend = async (email: string): Promise<UserWorkspace> => {
     xhr.onreadystatechange = () => {
       if (xhr.status === 200) {
         const object: { workspace: any }[] = JSON.parse(xhr.responseText);
-        // Resolve the promise
-        resolve(JSON.parse(object[0].workspace));
+        if (!object[0]) {
+          resolve(defaultProfile);
+        } else {
+          resolve(JSON.parse(object[0].workspace));
+        }
       } else {
         reject();
       }
