@@ -565,8 +565,24 @@
 
     .size-layout {
       input {
-        &:not(.edited):not(.cancelled):not(.among).has-depth.owned {
+        &:not(.edited):not(.cancelled):not(.among).has-depth.owned, &.joined {
           color: $text-color-black;
+        }
+      }
+    }
+
+    .size-layout {
+      input {
+        &:not(.owned-by-broker):not(.cancelled):not(.among):not(.joined).owned {
+          color: $text-color-red;
+        }
+      }
+    }
+
+    .price-layout {
+      input {
+        &:not(.owned-by-broker):not(.cancelled):not(.among).owned {
+          color: $text-color-red;
         }
       }
     }
@@ -597,10 +613,6 @@
 
           &:focus {
             cursor: initial;
-          }
-
-          &:not(.owned-by-broker):not(.cancelled):not(.among).owned {
-            color: $text-color-red;
           }
 
           &.mid,
@@ -641,7 +653,7 @@
     }
   }
 
-  &.not-among {
+  &.not-among, &:not(.owned) {
     .chevron {
       i {
         color: #444;

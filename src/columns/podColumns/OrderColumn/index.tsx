@@ -87,9 +87,17 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
       | (depth.some((order: Order) => order.isOwnedByCurrentUser()) ? OrderStatus.HasMyOrder : OrderStatus.None)
       | (order.firm === personality ? OrderStatus.SameBank : OrderStatus.None);
   })();
+  const size: number | null = (() => {
+    if (state.editedSize !== null)
+      return state.editedSize;
+    if (props.isDepth)
+      return order.size;
+    return getAggregatedSize(order);
+  })();
   const user: User = getAuthenticatedUser();
   const personalityStatus: OrderStatus = (user.isbroker && order.firm !== personality) ? OrderStatus.Owned : OrderStatus.None;
-  const status: OrderStatus = (chevronStatus | order.status) & ~personalityStatus;
+  const joinedStatus: OrderStatus = order.size !== size ? OrderStatus.Joined : OrderStatus.None;
+  const status: OrderStatus = (chevronStatus | joinedStatus | order.status) & ~personalityStatus;
 
   const onDoubleClick = () => {
     if (!shouldOpenOrderTicket(order, props.personality))
@@ -103,13 +111,7 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const resetSize = () => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, state.submittedSize));
 
   const readOnly: boolean = props.isBroker && props.personality === STRM;
-  const size: number | null = (() => {
-    if (state.editedSize !== null)
-      return state.editedSize;
-    if (props.isDepth)
-      return order.size;
-    return getAggregatedSize(order);
-  })();
+
 
   const cancellable: boolean = (status & OrderStatus.Cancelled) === 0 && (
     (status & OrderStatus.HasMyOrder) !== 0 || (status & OrderStatus.Owned) !== 0

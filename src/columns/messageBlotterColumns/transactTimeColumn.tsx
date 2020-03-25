@@ -4,7 +4,6 @@ import React from 'react';
 import {Globals} from 'golbals';
 
 const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
-const DISPLAY_DATE_FORMAT: string = 'MM-DD-YYYY hh:mm a';
 
 const parse = (date: string, tz: string | null): Date => {
   const regex: RegExp = /(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})/;

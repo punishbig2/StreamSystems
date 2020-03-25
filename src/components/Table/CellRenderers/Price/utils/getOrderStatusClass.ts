@@ -2,6 +2,8 @@ import {OrderStatus} from 'interfaces/order';
 
 export const getOrderStatusClass = (status: OrderStatus, className?: string): string => {
   const classes: string[] = className !== undefined ? [className] : [];
+  if ((status & OrderStatus.Joined) !== 0)
+    classes.push('joined');
   if ((status & OrderStatus.OwnedByBroker) !== 0)
     classes.push('owned-by-broker');
   if ((status & OrderStatus.FullDarkPool) !== 0)
