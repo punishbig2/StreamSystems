@@ -91,14 +91,20 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <div>
-      <div className={'modal-title'}>{strings.DarkPool}</div>
-      <form onSubmit={onSubmit}>
-        <div className={'order-ticket'}>
-          <div className={'title-chain'}>
+      <div className={'modal-title'}>
+        <div className={'title-chain modal-title'}>
+          <div className={'title'}>
             <div className={'item'}>{props.symbol}</div>
             <div className={'item'}>{props.tenor}</div>
             <div className={'item'}>{props.strategy}</div>
           </div>
+          <div className={'subtitle'}>
+            {strings.DarkPool}
+          </div>
+        </div>
+      </div>
+      <form onSubmit={onSubmit}>
+        <div className={'order-ticket'}>
           <div className={'row'}>
             <div className={'label'}>
               <span>Side</span>
@@ -109,8 +115,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 displayEmpty={true}
                 renderValue={renderSide}
                 onChange={stringSelectSetter((value: string) => setSide(value))}
-                variant={'outlined'}
-              >
+                variant={'outlined'}>
                 <MenuItem value={'BUY'}>Buy</MenuItem>
                 <MenuItem value={'SELL'}>Sell</MenuItem>
               </Select>

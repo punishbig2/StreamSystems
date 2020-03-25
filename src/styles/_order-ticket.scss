@@ -1,6 +1,6 @@
 .title-chain {
   border-bottom: 1px solid $table-border-color;
-  padding: 2px 4px;
+  padding: 0px 4px;
 
   .title {
     display: flex;
@@ -27,7 +27,7 @@
 .order-ticket {
   padding: 0 12px;
   .row {
-    margin: 8px 0;
+    margin: 2px 0;
 
     .label,
     .value {
