@@ -24,6 +24,7 @@ const transformWorkarea = (workarea: WorkareaState): WorkareaState => {
           autoSize: window.autoSize,
           symbol: window.symbol,
           strategy: window.strategy,
+          savedSize: window.savedSize,
         };
         return map;
       }, {});

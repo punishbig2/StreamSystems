@@ -6,7 +6,7 @@ import {defaultProfile} from 'redux/reducers/userProfileReducer';
 const {Api} = config;
 const saveToBackend = async (useremail: string, workspace: any) => {
   return null;
-  return new Promise((resolve: () => void, reject: () => void) => {
+  /*return new Promise((resolve: () => void, reject: () => void) => {
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     const url: string = `${Api.Protocol}://${Api.Host}/api/UserApi/saveUserJson?useremail=${useremail}&workspace=${workspace}`;
     xhr.open('POST', url, false);
@@ -18,13 +18,13 @@ const saveToBackend = async (useremail: string, workspace: any) => {
       }
     };
     xhr.send();
-    /*const profile: any[] = await API.getUserProfile(email);
+    const profile: any[] = await API.getUserProfile(email);
     if (profile.length === 0)
       return defaultProfile;
     console.log('returning the result');
-    return JSON.parse(profile[0].workspace);*/
+    return JSON.parse(profile[0].workspace);
     resolve();
-  });
+  });*/
 };
 
 const readFromBackend = async (email: string): Promise<UserWorkspace> => {
@@ -104,3 +104,4 @@ export const storage = {
     }, 100);
   },
 };
+

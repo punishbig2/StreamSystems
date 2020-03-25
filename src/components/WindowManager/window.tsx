@@ -146,6 +146,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
       onGeometryChange(newGeometry, resized);
     }
   }, [container, onGeometryChange]);
+  const {isMinimized} = props;
   // Callbacks
   const resizeCallback = useCallback(
     (side: WindowSide) => {
@@ -243,11 +244,11 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
       <div className={'content'} ref={setMoveHandle}>
         {props.children}
       </div>
-      <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>
-      <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>
-      <div className={'vertical resize-handle bottom'} ref={setBottomResizeHandle}/>
-      <div className={'vertical resize-handle top'} ref={setTopResizeHandle}/>
-      <div className={'corner resize-handle'} ref={setBottomCornerResizeHandle}/>
+      {!isMinimized && <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>}
+      {!isMinimized && <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>}
+      {!isMinimized && <div className={'vertical resize-handle bottom'} ref={setBottomResizeHandle}/>}
+      {!isMinimized && <div className={'vertical resize-handle top'} ref={setTopResizeHandle}/>}
+      {!isMinimized && <div className={'corner resize-handle'} ref={setBottomCornerResizeHandle}/>}
     </div>
   );
 };

@@ -24,7 +24,21 @@ const initialState: WorkspaceState = {
 
 const minimizeWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {
   const windows: { [id: string]: WindowState } = {...state.windows};
-  return {...windows, [id]: {...windows[id], minimized: !(windows[id].minimized)}};
+  const geometry: ClientRect = windows[id].geometry;
+  if (windows[id].minimized) {
+    const savedSize: { width: number, height: number } | null = windows[id].savedSize;
+    if (savedSize === null)
+      throw new Error('minimized windows MUST save their size');
+    const finalGeometry: ClientRect = new DOMRect(geometry.left, geometry.top, savedSize.width, savedSize.height);
+    // Return the resulting object
+    return {...windows, [id]: {...windows[id], minimized: false, geometry: finalGeometry, savedSize: null}};
+  } else {
+    const savedSize: { width: number, height: number } = {
+      height: geometry.height,
+      width: geometry.width,
+    };
+    return {...windows, [id]: {...windows[id], minimized: true, savedSize}};
+  }
 };
 
 const restoreWindow = (id: string, state: WorkspaceState): { [key: string]: WindowState } => {

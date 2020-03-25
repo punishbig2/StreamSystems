@@ -15,6 +15,7 @@ export interface WindowState {
   geometry: ClientRect;
   autoSize: boolean;
   minimized: boolean;
+  savedSize: { width: number; height: number } | null;
 }
 
 export const defaultWindowState: WindowState = {
@@ -28,4 +29,5 @@ export const defaultWindowState: WindowState = {
   geometry: new DOMRect(0, 0, 0, 0),
   autoSize: true,
   minimized: false,
+  savedSize: null,
 };
