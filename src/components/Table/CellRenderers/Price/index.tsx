@@ -28,23 +28,24 @@ export interface Props {
   type?: OrderTypes;
   priceType?: PriceTypes;
   // Events
-  onDoubleClick?: () => void;
-  onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean, tabDirection: TabDirection) => void;
   tabIndex?: number;
   arrow: ArrowDirection;
   status: OrderStatus;
   title?: string;
   className?: string;
-  onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
   min?: number | null;
   max?: number | null;
-  onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onError?: (error: PriceErrors, input: HTMLInputElement) => void;
+  allowZero?: boolean;
   animated?: boolean;
   readOnly?: boolean;
   uid?: string;
   timestamp?: string;
   tooltip?: React.FC<any>;
+  onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
+  onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  onError?: (error: PriceErrors, input: HTMLInputElement) => void;
+  onDoubleClick?: () => void;
+  onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean, tabDirection: TabDirection) => void;
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
@@ -159,7 +160,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     } else {
       const numeric: number = Number(internalValue);
       // If it's non-numeric also ignore this
-      if (isNaN(numeric) || numeric === 0) {
+      if (isNaN(numeric) || (numeric === 0 && !props.allowZero)) {
         props.onSubmit(input, null, false, tabDirection);
       } else {
         const changed: boolean = (() => {

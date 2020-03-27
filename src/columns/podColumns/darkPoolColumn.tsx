@@ -127,6 +127,19 @@ const DarkPoolColumnComponent = (props: Props) => {
           .catch(() => {
             setStatus(Status.Error);
           });
+      } else {
+        setStatus(Status.Publishing);
+        API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, "")
+          .then(() => {
+            setTimeout(() => {
+              setStatus(Status.Normal);
+              // Otherwise it's for some reason wiped!
+              setValue(value);
+            }, 0);
+          })
+          .catch(() => {
+            setStatus(Status.Error);
+          });
       }
     }, [isBroker, user.email, symbol, strategy, tenor],
   );
@@ -195,6 +208,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         tooltip={renderTooltip(myOrder)}
         readOnly={(props.personality !== STRM && isBroker) || !isBroker}
         status={(currentOrder !== null ? currentOrder.status : OrderStatus.None) | OrderStatus.DarkPool | full}
+        allowZero={true}
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
         onNavigate={onNavigate}/>

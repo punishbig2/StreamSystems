@@ -31,14 +31,18 @@ const readFromBackend = async (email: string): Promise<UserWorkspace> => {
   return new Promise((resolve: (workspace: UserWorkspace) => void, reject: () => void) => {
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     const url: string = `${Api.Protocol}://${Api.Host}/api/UserApi/getUserJson?useremail=${email}`;
-    xhr.open('GET', url, false);
+    xhr.open('GET', url, true);
     xhr.onreadystatechange = () => {
       if (xhr.status === 200) {
-        const object: { workspace: any }[] = JSON.parse(xhr.responseText);
-        if (!object[0]) {
+        try {
+          const object: { workspace: any }[] = JSON.parse(xhr.responseText);
+          if (!object[0]) {
+            resolve(defaultProfile);
+          } else {
+            resolve(JSON.parse(object[0].workspace));
+          }
+        } catch {
           resolve(defaultProfile);
-        } else {
-          resolve(JSON.parse(object[0].workspace));
         }
       } else {
         reject();

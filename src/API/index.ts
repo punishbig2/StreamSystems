@@ -351,7 +351,7 @@ export class API {
     return get<MessageResponse>(API.getUrl(API.DarkPool, 'runorders', 'get'));
   }
 
-  static async publishDarkPoolPrice(user: string, symbol: string, strategy: string, tenor: string, price: number): Promise<any> {
+  static async publishDarkPoolPrice(user: string, symbol: string, strategy: string, tenor: string, price: number | ""): Promise<any> {
     const data = {
       User: user,
       Symbol: symbol,
