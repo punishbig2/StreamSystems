@@ -11,6 +11,7 @@ export type PodRowProps = PodRow & {
   symbol: string;
   strategy: string;
   status: PodRowStatus;
+  connected: boolean;
   // Event handlers
   onTenorSelected: (tenor: string) => void;
   onRowStatusChange: (status: PodRowStatus) => void;

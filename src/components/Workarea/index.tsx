@@ -108,7 +108,8 @@ const Workarea: React.FC<OwnProps> = withRedux(
     const renderMessage = () => {
       const {recentExecutions} = props;
       const mapTrade = (trade: Message) => (
-        <TradeConfirmation key={trade.ClOrdID} trade={trade} onClose={props.clearLastExecution}/>
+        <TradeConfirmation userProfile={props.userProfile} key={trade.ClOrdID} trade={trade}
+                           onClose={props.clearLastExecution}/>
       );
       return (
         <div className={'message-detail'}>

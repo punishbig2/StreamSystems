@@ -1,10 +1,11 @@
-import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
+import React, {ChangeEvent, FormEvent, ReactNode, useState, useEffect} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input} from '@material-ui/core';
 import {UserTypes, CurrencyGroups, UserWorkspace, ExecSound, OCOModes} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
+import {getSoundsList, addSound} from 'beep-sound';
 
 interface OwnProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -30,9 +31,14 @@ const renderCCYGroup = (value: unknown): ReactNode => {
   return value as string;
 };
 
+
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const {profile} = props;
-  const {execSoundList} = profile;
+  const [sounds, setSounds] = useState<ExecSound[]>([]);
+
+  useEffect(() => {
+    getSoundsList().then(setSounds);
+  }, []);
 
   const hasNotChanged = () => {
     if (props.original === null)
@@ -41,7 +47,33 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const onExecSoundChange = (event: any) => {
-    props.onChange(event);
+    const {value} = event.target;
+    if (value === 'add') {
+      const input: HTMLInputElement = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'audio/*');
+      input.click();
+      input.onchange = () => {
+        if (input.files) {
+          const file: File = input.files[0];
+          const reader: FileReader = new FileReader();
+          reader.onload = () => {
+            if (reader.result !== null) {
+              const newFile: ExecSound = {
+                data: reader.result,
+                name: file.name,
+              };
+              addSound(newFile);
+            }
+          };
+          if (file) {
+            reader.readAsDataURL(file);
+          }
+        }
+      };
+    } else {
+      props.onChange(event);
+    }
   };
 
   const formatTimezone = (text: string): string => {
@@ -134,8 +166,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   name={'execSound'}
                   value={profile.execSound}>
                   <MenuItem value={'default'}>Default</MenuItem>
-                  {execSoundList.map((item: ExecSound) => (
-                    <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>))}
+                  {sounds.map((item: ExecSound) => <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>)}
+                  <MenuItem key={'add-item-key'} value={'add'}>
+                    Add New
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Grid>

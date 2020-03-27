@@ -16,7 +16,7 @@ export enum CurrencyGroups {
 }
 
 export interface ExecSound {
-  path: string;
+  data: ArrayBuffer | string;
   name: string;
 }
 
@@ -45,7 +45,6 @@ export interface UserWorkspace {
   ccyGroup: CurrencyGroups;
   oco: OCOModes;
   lastOCOUpdateTimestamp: number | null;
-  execSoundList: ExecSound[];
 
   [key: string]: any;
 }

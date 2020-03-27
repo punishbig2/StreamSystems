@@ -114,6 +114,7 @@ type Endpoints =
   | 'UserJson'
   | 'markets'
   | 'allextended'
+  | 'allall'
   | 'price';
 
 type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save' | 'cxlall';
@@ -334,7 +335,7 @@ export class API {
 
   static async cxlAllExtendedDarkPoolOrder(request: any): Promise<any> {
     return post<MessageResponse>(
-      API.getUrl(API.DarkPool, 'allextended', 'cxl'),
+      API.getUrl(API.DarkPool, 'allall', 'cxl'),
       request,
     );
   }

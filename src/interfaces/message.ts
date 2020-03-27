@@ -57,5 +57,5 @@ export interface DarkPoolMessage {
   Symbol: SymbolType;
   Strategy: StrategyType;
   Tenor: TenorType;
-  DarkPrice: number;
+  DarkPrice: string;
 }

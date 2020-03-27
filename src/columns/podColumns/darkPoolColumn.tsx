@@ -29,7 +29,7 @@ enum Status {
 
 const DarkPoolColumnComponent = (props: Props) => {
   const user: User = getAuthenticatedUser();
-  const {tenor, symbol, strategy, personality, darkPrice} = props;
+  const {tenor, symbol, strategy, personality, darkPrice, connected} = props;
   const [orders, setOrders] = useState<Order[]>([]);
   const [isShowingTicket, setIsShowingTicket] = useState<boolean>(false);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
@@ -51,12 +51,19 @@ const DarkPoolColumnComponent = (props: Props) => {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     const removePriceListener: () => void =
       signalRManager.addDarkPoolPxListener(symbol, strategy, tenor, (message: DarkPoolMessage) => {
-        const value: number = Number(message.DarkPrice);
-        // Update the saved dark pool
-        // FIXME: maybe we do need this?
-        localStorage.setItem($$(symbol, strategy, tenor, 'DpPx'), value.toString());
-        // Set the value in the input
-        setValue(value);
+        const {DarkPrice} = message;
+        const key: string = $$(symbol, strategy, tenor, 'DpPx');
+        if (DarkPrice === '') {
+          localStorage.removeItem(key);
+          setValue(null);
+        } else {
+          const value: number = Number(message.DarkPrice);
+          // Update the saved dark pool
+          // FIXME: maybe we do need this?
+          localStorage.setItem(key, value.toString());
+          // Set the value in the input
+          setValue(value);
+        }
       });
 
     const reset = () => {
@@ -95,7 +102,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       removePriceListener();
       removeOrderListener();
     };
-  }, [symbol, strategy, tenor, user, darkPrice]);
+  }, [symbol, strategy, tenor, user, darkPrice, connected]);
 
   // If the dark price changes update it
   useEffect(() => {
@@ -129,7 +136,13 @@ const DarkPoolColumnComponent = (props: Props) => {
           });
       } else {
         setStatus(Status.Publishing);
-        API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, "")
+        API.cxlAllExtendedDarkPoolOrder({
+          User: user.email,
+          Strategy: strategy,
+          Tenor: tenor,
+          Symbol: symbol,
+        });
+        API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, '')
           .then(() => {
             setTimeout(() => {
               setStatus(Status.Normal);
