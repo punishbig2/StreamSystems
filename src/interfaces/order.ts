@@ -56,6 +56,7 @@ export enum OrderStatus {
   RunOrder = 1 << 17,
   Publishing = 1 << 18,
   Joined = 1 << 19,
+  AtTop = 1 << 20,
 }
 
 export interface OrderMessage {

@@ -653,7 +653,7 @@
     }
   }
 
-  &.not-among, &:not(.owned) {
+  &.not-among, &:not(.at-top) {
     .chevron {
       i {
         color: #444;

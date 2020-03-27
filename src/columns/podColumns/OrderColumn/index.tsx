@@ -6,7 +6,7 @@ import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/ge
 import {Price} from 'components/Table/CellRenderers/Price';
 import {STRM} from 'redux/stateDefs/workspaceState';
 import {PodTable} from 'interfaces/podTable';
-import {cancelOrder, onNavigate} from 'components/PodTile/helpers';
+import {cancelOrder, onNavigate, findMyOrder} from 'components/PodTile/helpers';
 import {FXOAction} from 'redux/fxo-action';
 import {createAction} from 'redux/actionCreator';
 import {MiniDOB} from 'components/Table/CellRenderers/Price/miniDob';
@@ -26,6 +26,7 @@ import {ArrowDirection} from 'interfaces/w';
 import {dispatchWorkspaceError} from 'utils';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
 import {User} from 'interfaces/user';
+import {priceFormatter} from 'utils/priceFormatter';
 
 type OwnProps = {
   depths: { [key: string]: PodTable };
@@ -97,7 +98,13 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const user: User = getAuthenticatedUser();
   const personalityStatus: OrderStatus = (user.isbroker && order.firm !== personality) ? OrderStatus.Owned : OrderStatus.None;
   const joinedStatus: OrderStatus = order.size !== size ? OrderStatus.Joined : OrderStatus.None;
-  const status: OrderStatus = (chevronStatus | joinedStatus | order.status) & ~personalityStatus;
+  const isOnTop: OrderStatus = (() => {
+    const myOrder: Order | undefined = findMyOrder(order);
+    if (myOrder === undefined)
+      return OrderStatus.None;
+    return priceFormatter(order.price) === priceFormatter(myOrder.price) ? OrderStatus.AtTop : OrderStatus.None;
+  })();
+  const status: OrderStatus = (chevronStatus | joinedStatus | isOnTop | order.status) & ~personalityStatus;
 
   const onDoubleClick = () => {
     if (!shouldOpenOrderTicket(order, props.personality))
@@ -111,7 +118,6 @@ export const OrderColumn: React.FC<OwnProps> = (props: OwnProps) => {
   const resetSize = () => dispatch(createAction<ActionTypes>(ActionTypes.SetEditedSize, state.submittedSize));
 
   const readOnly: boolean = props.isBroker && props.personality === STRM;
-
 
   const cancellable: boolean = (status & OrderStatus.Cancelled) === 0 && (
     (status & OrderStatus.HasMyOrder) !== 0 || (status & OrderStatus.Owned) !== 0
