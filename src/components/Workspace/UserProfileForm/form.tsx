@@ -2,10 +2,11 @@ import React, {ChangeEvent, FormEvent, ReactNode, useState, useEffect} from 'rea
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input} from '@material-ui/core';
-import {UserTypes, CurrencyGroups, UserWorkspace, ExecSound, OCOModes} from 'interfaces/user';
+import {CurrencyGroups, UserWorkspace, ExecSound, OCOModes, User} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
 import {getSoundsList, addSound} from 'beep-sound';
+import {getAuthenticatedUser} from 'utils/getCurrentUser';
 
 interface OwnProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -19,6 +20,26 @@ declare var GlobalApplicationVersion: string;
 if (GlobalApplicationVersion === undefined)
   GlobalApplicationVersion = 'Unknown';
 
+const SoundEntry: React.FC<ExecSound> = (props: ExecSound) => {
+  const displayName: string = ((name: string) => {
+    return name.replace(/\.[^.]+$/, '');
+  })(props.name);
+  const onDelete = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  return (
+    <MenuItem key={props.name} value={props.name}>
+      <div className={'sound-item'}>
+        <div className={'label'}>{displayName}</div>
+        <div className={'delete-button'}>
+          <i className={'far fa-trash-alt'} onClick={onDelete}/>
+        </div>
+      </div>
+    </MenuItem>
+  );
+};
+
 const renderTimezone = (value: unknown): ReactNode => {
   if (value === '')
     return <span className={'disabled-item'}>{strings.TimezoneUnset}</span>;
@@ -30,7 +51,6 @@ const renderCCYGroup = (value: unknown): ReactNode => {
     return <span className={'disabled-item'}>{strings.CCYGroupUnset}</span>;
   return value as string;
 };
-
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const {profile} = props;
@@ -80,6 +100,8 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     return text.replace(/_/g, ' ');
   };
 
+  const user: User = getAuthenticatedUser();
+  const userType: string = user.isbroker ? 'Broker' : 'Bank';
   return (
     <>
       <div className={'modal-title'}>
@@ -93,23 +115,13 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'user-type'}>User Type</FormLabel>
-                <Select id={'user-type'} onChange={props.onChange} name={'userType'} value={profile.userType}>
-                  <MenuItem value={UserTypes.Bank}>Bank</MenuItem>
-                  <MenuItem value={UserTypes.Broker}>Broker</MenuItem>
-                  <MenuItem value={UserTypes.MarketMaker}>
-                    Market Maker
-                  </MenuItem>
-                </Select>
+                <Input value={userType} readOnly={true}/>
               </FormControl>
             </Grid>
             <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'mpid'}>MPID</FormLabel>
-                <Input
-                  id={'mpid'}
-                  onChange={props.onChange}
-                  name={'mpid'}
-                  value={profile.mpid}/>
+                <Input value={user.firm} readOnly={true}/>
               </FormControl>
             </Grid>
             <Grid item xs={4}>
@@ -166,7 +178,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   name={'execSound'}
                   value={profile.execSound}>
                   <MenuItem value={'default'}>Default</MenuItem>
-                  {sounds.map((item: ExecSound) => <MenuItem key={item.name} value={item.name}>{item.name}</MenuItem>)}
+                  {sounds.map((item: ExecSound) => <SoundEntry {...item}/>)}
                   <MenuItem key={'add-item-key'} value={'add'}>
                     Add New
                   </MenuItem>

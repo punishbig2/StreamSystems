@@ -1,0 +1,26 @@
+.sound-item {
+	display: flex;
+
+	.label {
+		flex: 1;	
+		font-family: 'Roboto';
+		text-overflow: ellipsis;
+	}
+
+	.delete-button {
+		width: 32px;
+		text-align: right;
+		&:hover {
+			color: crimson;
+			cursor: pointer;
+		}
+	}
+}
+
+
+
+
+
+
+
+
