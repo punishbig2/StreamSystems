@@ -76,8 +76,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const reducer = (next: { [id: string]: ClientRect }, [, window]: [string, WindowState], index: number, array: [string, WindowState][]) => {
       const element: HTMLElement | null = document.getElementById(window.id) as HTMLElement;
       if (element instanceof HTMLDivElement) {
-        if (index >= 8)
-          addClass(element, 'minimized');
         const {width, height} = getOptimalSize(element);
         if (index === 0) {
           next[window.id] = new DOMRect(0, 0, width, height);
