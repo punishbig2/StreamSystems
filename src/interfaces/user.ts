@@ -11,8 +11,7 @@ export enum UserTypes {
 
 export enum CurrencyGroups {
   Invalid = '',
-  G10 = 'G10',
-  Asia = 'Asia'
+  Latam = 'LATAM'
 }
 
 export interface ExecSound {

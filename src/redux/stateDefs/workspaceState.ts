@@ -9,6 +9,7 @@ export interface WorkspaceState {
   toast: string | null;
   markets: string[];
   isUserProfileModalVisible: boolean;
+  isDefaultWorkspace: boolean;
   personality: string;
   errorMessage: string | null;
 }
@@ -22,4 +23,7 @@ export const defaultWorkspaceState: WorkspaceState = {
   isUserProfileModalVisible: false,
   personality: STRM,
   errorMessage: null,
+  isDefaultWorkspace: true,
 };
+
+

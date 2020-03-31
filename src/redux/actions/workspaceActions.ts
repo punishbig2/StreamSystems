@@ -26,6 +26,10 @@ export const addWindow = (workspaceID: string, type: WindowTypes): FXOAction<str
   return createWorkspaceAction(workspaceID, WorkspaceActions.AddWindow, window);
 };
 
+export const updateAllGeometries = (workspaceID: string, geometries: { [id: string]: ClientRect }): FXOAction<string> => {
+  return createWorkspaceAction(workspaceID, WorkspaceActions.UpdateAllGeometries, geometries);
+};
+
 export const moveWindow = (workspaceID: string, windowID: string, geometry: ClientRect, resized: boolean): AsyncAction<any> => {
   return new AsyncAction(async () => {
     // FIXME: we should do this when the mouse is released instead to avoid writing too

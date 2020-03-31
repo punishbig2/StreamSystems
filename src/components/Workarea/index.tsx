@@ -15,7 +15,6 @@ import {
   closeWorkspace,
   initialize,
   loadMessages,
-  quit,
   renameWorkspace,
   setWorkspace,
   subscribeToMessages,
@@ -26,19 +25,20 @@ import {WindowTypes} from 'redux/constants/workareaConstants';
 import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
 import {Message} from 'interfaces/message';
 import {TradeConfirmation} from 'components/TradeConfirmation';
+import {CurrencyGroups} from 'interfaces/user';
+import {Currency} from 'interfaces/currency';
 
 interface OwnProps {
 }
 
 interface DispatchProps {
-  addWorkspace: () => AnyAction;
+  addWorkspace: (symbols: Currency[], group: CurrencyGroups) => AnyAction;
   setWorkspace: (id: string) => AnyAction;
   renameWorkspace: (name: string, id: string) => AnyAction;
   closeWorkspace: (id: string) => AnyAction;
   addWindow: (type: WindowTypes, id: string) => AnyAction;
   initialize: () => AnyAction;
   loadMessages: (useremail: string) => AnyAction;
-  quit: () => void;
   clearLastExecution: () => void;
   unsubscribeFromMessages: (email: string) => void;
   subscribeToMessages: (email: string) => void;
@@ -58,7 +58,6 @@ const mapDispatchToProps: DispatchProps = {
   addWindow,
   loadMessages,
   initialize,
-  quit,
   unsubscribeFromMessages,
   subscribeToMessages,
 };
@@ -157,12 +156,12 @@ const Workarea: React.FC<OwnProps> = withRedux(
             <div className={'footer'}>
               <TabBar
                 entries={workspaces}
-                addTab={props.addWorkspace}
+                addTab={(group: CurrencyGroups) => props.addWorkspace(props.symbols, group)}
                 active={activeWorkspace}
                 setActiveTab={props.setWorkspace}
                 onTabClosed={setSelectedToClose}
                 onTabRenamed={props.renameWorkspace}
-                onQuit={props.quit}/>
+                onQuit={() => null}/>
             </div>
             <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
             <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>

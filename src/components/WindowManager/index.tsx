@@ -5,11 +5,13 @@ import {MessageBlotter} from 'components/MessageBlotter';
 import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
 import getStyles from 'styles';
 import {WindowState} from 'redux/stateDefs/windowState';
+import {getOptimalSize, addClass} from 'windowUtils';
 
 interface Props {
   toast: string | null;
   renderContent: (id: string, type: WindowTypes) => ReactElement | null;
   windows: { [id: string]: WindowState };
+  isDefaultWorkspace: boolean;
   connected: boolean;
   personality: string;
   onGeometryChange: (id: string, geometry: ClientRect, resized: boolean) => void;
@@ -21,6 +23,7 @@ interface Props {
   onWindowClicked: (id: string) => void;
   onWindowSizeAdjusted: (id: string) => void;
   onClearToast: () => void;
+  onUpdateAllGeometries: (geometries: { [id: string]: ClientRect }) => void;
 }
 
 const Callbacks: { [id: string]: { [name: string]: (...args: any[]) => void } } = {};
@@ -34,6 +37,7 @@ const getCallback = (id: string, name: string, fallback: (...args: any[]) => any
 
 const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
+  const {isDefaultWorkspace} = props;
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const [area, setArea] = useState<ClientRect>(BodyRectangle);
   const styles: any = getStyles();
@@ -49,6 +53,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const {renderContent} = props;
   // Get non-minimized windows
   const windows: [string, WindowState][] = Object.entries(props.windows || {});
+
   useEffect(() => {
     if (element === null) return;
     const updateArea = () => {
@@ -62,6 +67,49 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     return () => observer.disconnect();
     // Update the element's area
   }, [element]);
+
+  const [layoutCompleted, setLayoutCompleted] = useState<boolean>(false);
+  const {onUpdateAllGeometries} = props;
+  useEffect(() => {
+    if (!isDefaultWorkspace || layoutCompleted)
+      return;
+    const reducer = (next: { [id: string]: ClientRect }, [, window]: [string, WindowState], index: number, array: [string, WindowState][]) => {
+      const element: HTMLElement | null = document.getElementById(window.id) as HTMLElement;
+      if (element instanceof HTMLDivElement) {
+        if (index >= 8)
+          addClass(element, 'minimized');
+        const {width, height} = getOptimalSize(element);
+        if (index === 0) {
+          next[window.id] = new DOMRect(0, 0, width, height);
+        } else {
+          const [, last]: [string, WindowState] = array[index - 1];
+          const {left, top} = next[last.id];
+          const {width: offsetWidth, height: offsetHeight} = next[last.id];
+          console.log(window.id, offsetHeight, height);
+          if (left + offsetWidth + width + 1 > area.right) {
+            next[window.id] = new DOMRect(0, top + offsetHeight + 1, width, height);
+          } else {
+            next[window.id] = new DOMRect(left + offsetWidth + 1, top, width, height);
+          }
+        }
+        return next;
+      }
+      return next;
+    };
+    const objects: [string, WindowState][] = Object.values(windows);
+    const windowsAreReady: boolean = objects.every(([, window]: [string, WindowState]) => {
+      const rows = Object.values(window.rows);
+      return !!rows.length;
+    });
+    if (!windowsAreReady)
+      return;
+    setTimeout(() => {
+      const geometries: { [key: string]: ClientRect } = objects.reduce(reducer, {});
+      onUpdateAllGeometries(geometries);
+    }, 0);
+    setLayoutCompleted(windowsAreReady);
+  }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, layoutCompleted, area.bottom, area.right]);
+
   const windowMapper = ([id, window]: [string, WindowState]): ReactElement => {
     const {type} = window;
     const content: ReactElement | null = renderContent(id, type);
@@ -99,6 +147,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         area={area}
         isMinimized={window.minimized}
         autoSize={window.autoSize}
+        isDefaultWorkspace={isDefaultWorkspace}
         onSaveWindowGeometry={() => null}
         onGeometryChange={updateGeometry}
         onClose={onClose}
@@ -121,6 +170,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
         isMinimized={false}
         autoSize={true}
         fixed={true}
+        isDefaultWorkspace={false}
         onSaveWindowGeometry={() => null}
         onGeometryChange={() => null}
         onClose={() => null}

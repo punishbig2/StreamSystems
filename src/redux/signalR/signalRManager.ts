@@ -3,7 +3,7 @@ import config from 'config';
 import {Message, DarkPoolMessage, ExecTypes} from 'interfaces/message';
 import {W, isPodW, MessageTypes} from 'interfaces/w';
 import {Action, AnyAction} from 'redux';
-import {API} from 'API';
+import {API, CancellablePromise} from 'API';
 import {propagateDepth} from 'utils/messageHandler';
 import {$$} from 'utils/stringPaster';
 import {SignalRActions} from 'redux/constants/signalRConstants';
@@ -286,43 +286,48 @@ export class SignalRManager<A extends Action = AnyAction> {
         listener(event.detail);
       };
       document.addEventListener(type, listenerWrapper as EventListener);
-      // Now subscribe to the events
-      setTimeout(() => {
-        connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
-        // Now get the "snapshots"
-        API.getTOBSnapshot(symbol, strategy, tenor)
-          .then((w: W | null) => {
-            if (w === null) {
-              this.emitPodWEvent({
-                MsgType: MessageTypes.W,
-                TransactTime: Date.now() / 1000,
-                User: user.email,
-                Tenor: tenor,
-                Strategy: strategy,
-                Symbol: symbol,
-                NoMDEntries: 2,
-                Entries: [],
-                ExDestination: undefined,
-                '9712': 'TOB',
-              });
-            } else {
-              SignalRManager.addToCache(w);
-              this.emitPodWEvent({...w, '9712': 'TOB'});
-            }
+      connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
+      // Now get the "snapshots"
+      const p1: CancellablePromise<W | null> = API.getTOBSnapshot(symbol, strategy, tenor);
+      // Wait for resolution here
+      p1.then((w: W | null) => {
+        if (w === null) {
+          this.emitPodWEvent({
+            MsgType: MessageTypes.W,
+            TransactTime: Date.now() / 1000,
+            User: user.email,
+            Tenor: tenor,
+            Strategy: strategy,
+            Symbol: symbol,
+            NoMDEntries: 2,
+            Entries: [],
+            ExDestination: undefined,
+            '9712': 'TOB',
           });
-        API.getSnapshot(symbol, strategy, tenor)
-          .then((w: W | null) => {
-            if (w === null)
-              return;
-            SignalRManager.addToCache(w);
-            propagateDepth(w);
-          });
-      }, 0);
-
+        } else {
+          SignalRManager.addToCache(w);
+          this.emitPodWEvent({...w, '9712': 'TOB'});
+        }
+      });
+      const p2: CancellablePromise<W | null> = API.getSnapshot(symbol, strategy, tenor);
+      p2.then((w: W | null) => {
+        if (w === null)
+          return;
+        SignalRManager.addToCache(w);
+        propagateDepth(w);
+      });
       return () => {
         document.removeEventListener(type, listenerWrapper as EventListener);
         // Unsubscribe from the market data feed
         connection.invoke(SignalRActions.UnsubscribeFromMarketData, symbol, strategy, tenor);
+        if (typeof p1.cancel === 'function' && typeof p2.cancel === 'function') {
+          // Cancel tob snapshot
+          p1.cancel();
+          // Cancel full snapshot
+          p2.cancel();
+        } else {
+          console.log(p1, p2);
+        }
       };
     } else {
       throw new Error('you are not connected to signal R, this should never happen');

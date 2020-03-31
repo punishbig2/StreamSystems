@@ -1,6 +1,7 @@
 import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
 import {useObjectGrabber} from 'hooks/useObjectGrabber';
 import React, {CSSProperties, ReactElement, useCallback, useEffect, useRef, useState} from 'react';
+import {getOptimalSize} from 'windowUtils';
 
 interface OwnProps {
   id: string;
@@ -9,6 +10,7 @@ interface OwnProps {
   isMinimized: boolean;
   autoSize: boolean;
   fixed?: boolean;
+  isDefaultWorkspace: boolean;
   // Methods/Event handlers
   onGeometryChange: (geometry: ClientRect, resized: boolean) => void;
   onClose: () => void;
@@ -82,26 +84,9 @@ const pixels = (x: number): string => `${x}px`;
 
 const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
   const {style} = element;
-  const windowContent: HTMLDivElement | null = element.querySelector('.window-content');
-  const contentStyle: any = windowContent ? windowContent.style : {};
-  if (windowContent)
-    contentStyle.minHeight = 'auto';
-  // Let's force scrollWidth and scrollHeight to have the minimal internalValue
-  style.width = '1px';
-  style.height = '1px';
-  // Update the element with the minimal size possible
-  if (element.scrollWidth + element.offsetLeft < area.width) {
-    style.width = pixels(element.scrollWidth);
-  } else {
-    style.width = pixels(area.width - element.offsetLeft);
-  }
-  if (element.scrollHeight + element.offsetTop < area.height) {
-    style.height = pixels(element.scrollHeight);
-  } else {
-    style.height = pixels(area.height - element.offsetTop);
-  }
-  if (windowContent)
-    contentStyle.minHeight = '0';
+  const size: { width: number, height: number } = getOptimalSize(element, area);
+  style.height = pixels(size.height);
+  style.width = pixels(size.width);
 };
 
 export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
@@ -136,11 +121,11 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
         if (geometry.top < threshold)
           geometry = new DOMRect(geometry.left, 0, geometry.width, geometry.height);
         if (Math.abs(border.right - geometry.left) < threshold)
-          geometry = new DOMRect(border.right, geometry.top, geometry.width, geometry.height);
+          geometry = new DOMRect(border.right + 1, geometry.top, geometry.width, geometry.height);
         if (Math.abs((border.top + border.height) - geometry.top) < threshold)
-          geometry = new DOMRect(geometry.left, border.top + border.height, geometry.width, geometry.height);
+          geometry = new DOMRect(geometry.left, border.top + border.height + 1, geometry.width, geometry.height);
         if (Math.abs(border.left - geometry.right) < threshold)
-          geometry = new DOMRect(border.left - geometry.width, geometry.top, geometry.width, geometry.height);
+          geometry = new DOMRect(border.left - geometry.width + 1, geometry.top, geometry.width, geometry.height);
         return geometry;
       }, geometry);
       onGeometryChange(newGeometry, resized);
@@ -239,7 +224,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   };
 
   return (
-    <div className={classes} ref={container} style={style} onClickCapture={props.onClick}>
+    <div id={props.id} className={classes} ref={container} style={style} onClickCapture={props.onClick}>
       {getTitlebarButtons()}
       <div className={'content'} ref={setMoveHandle}>
         {props.children}

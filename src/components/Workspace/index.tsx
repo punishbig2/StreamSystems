@@ -25,6 +25,7 @@ import {
   closeUserProfileModal,
   closeErrorModal,
   refAll,
+  updateAllGeometries,
 } from 'redux/actions/workspaceActions';
 import {ApplicationState} from 'redux/applicationState';
 import {WindowTypes} from 'redux/constants/workareaConstants';
@@ -37,6 +38,7 @@ import {UserProfileModal} from 'components/Workspace/UserProfileForm';
 import {ErrorBox} from 'components/ErrorBox';
 import {saveUserProfile} from 'redux/actions/userProfileActions';
 import {ExecutionBanner} from 'components/ExecutionBanner';
+import {FXOAction} from 'redux/fxo-action';
 
 interface DispatchProps {
   addWindow: (type: WindowTypes) => void;
@@ -55,6 +57,7 @@ interface DispatchProps {
   refAll: (personality: string) => void;
   closeErrorModal: () => void;
   saveUserProfile: (useremail: string, newProfile: UserWorkspace) => void;
+  updateAllGeometries: (geometries: { [id: string]: ClientRect }) => FXOAction<string>;
 }
 
 interface OwnProps {
@@ -97,6 +100,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {id}: OwnProps): DispatchProps =
       refAll: (personality: string) => dispatch(refAll(id, personality)),
       closeErrorModal: () => dispatch(closeErrorModal(id)),
       saveUserProfile: (useremail: string, profile: UserWorkspace) => dispatch(saveUserProfile(useremail, profile)),
+      updateAllGeometries: (geometries: { [id: string]: ClientRect }) => dispatch(updateAllGeometries(id, geometries)),
     };
   }
   return cache[id];
@@ -264,6 +268,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
       </div>
       <WindowManager
+        isDefaultWorkspace={props.isDefaultWorkspace}
         toast={props.toast}
         renderContent={renderContent}
         windows={props.windows}
@@ -276,6 +281,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
         onWindowMinimized={props.minimizeWindow}
         onWindowRestored={props.restoreWindow}
         onWindowClicked={props.bringToFront}
+        onUpdateAllGeometries={props.updateAllGeometries}
         onWindowSizeAdjusted={props.setWindowAutoSize}/>
       <ModalWindow render={() => (<UserProfileModal onCancel={props.closeUserProfileModal}/>)}
                    visible={props.isUserProfileModalVisible}/>

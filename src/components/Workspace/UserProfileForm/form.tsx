@@ -1,17 +1,17 @@
-import React, {ChangeEvent, FormEvent, ReactNode, useState, useEffect} from 'react';
+import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import {FormControl, FormLabel, Select, MenuItem, Input} from '@material-ui/core';
-import {CurrencyGroups, UserWorkspace, ExecSound, OCOModes, User} from 'interfaces/user';
+import {UserWorkspace, OCOModes, User} from 'interfaces/user';
 import timezones, {TimezoneInfo} from 'data/timezones';
 import deepEqual from 'deep-equal';
-import {getSoundsList, addSound} from 'beep-sound';
 import {getAuthenticatedUser} from 'utils/getCurrentUser';
+import {SoundsList} from 'components/Workspace/UserProfileForm/soundsList';
 
 interface OwnProps {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
-  onChange: (event: ChangeEvent<any>) => void;
+  onChange: (name: string, value: any) => void;
   profile: UserWorkspace;
   original: UserWorkspace | null;
 }
@@ -19,26 +19,6 @@ interface OwnProps {
 declare var GlobalApplicationVersion: string;
 if (GlobalApplicationVersion === undefined)
   GlobalApplicationVersion = 'Unknown';
-
-const SoundEntry: React.FC<ExecSound> = (props: ExecSound) => {
-  const displayName: string = ((name: string) => {
-    return name.replace(/\.[^.]+$/, '');
-  })(props.name);
-  const onDelete = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-  return (
-    <MenuItem key={props.name} value={props.name}>
-      <div className={'sound-item'}>
-        <div className={'label'}>{displayName}</div>
-        <div className={'delete-button'}>
-          <i className={'far fa-trash-alt'} onClick={onDelete}/>
-        </div>
-      </div>
-    </MenuItem>
-  );
-};
 
 const renderTimezone = (value: unknown): ReactNode => {
   if (value === '')
@@ -54,46 +34,23 @@ const renderCCYGroup = (value: unknown): ReactNode => {
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const {profile} = props;
-  const [sounds, setSounds] = useState<ExecSound[]>([]);
 
-  useEffect(() => {
-    getSoundsList().then(setSounds);
-  }, []);
+  const onChangeWrapper = ({target}: ChangeEvent<any>) => {
+    const {name} = target;
+    const value: any = (() => {
+      if (target.type === 'checkbox') {
+        return target.checked;
+      } else {
+        return target.value;
+      }
+    })();
+    props.onChange(name, value);
+  };
 
   const hasNotChanged = () => {
     if (props.original === null)
       return false;
     return deepEqual(profile, props.original);
-  };
-
-  const onExecSoundChange = (event: any) => {
-    const {value} = event.target;
-    if (value === 'add') {
-      const input: HTMLInputElement = document.createElement('input');
-      input.setAttribute('type', 'file');
-      input.setAttribute('accept', 'audio/*');
-      input.click();
-      input.onchange = () => {
-        if (input.files) {
-          const file: File = input.files[0];
-          const reader: FileReader = new FileReader();
-          reader.onload = () => {
-            if (reader.result !== null) {
-              const newFile: ExecSound = {
-                data: reader.result,
-                name: file.name,
-              };
-              addSound(newFile);
-            }
-          };
-          if (file) {
-            reader.readAsDataURL(file);
-          }
-        }
-      };
-    } else {
-      props.onChange(event);
-    }
   };
 
   const formatTimezone = (text: string): string => {
@@ -127,7 +84,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'oco'}>OCO</FormLabel>
-                <Select id={'oco'} onChange={props.onChange} name={'oco'} value={profile.oco}>
+                <Select id={'oco'} onChange={onChangeWrapper} name={'oco'} value={profile.oco}>
                   <MenuItem value={OCOModes.Disabled}>Disabled</MenuItem>
                   <MenuItem value={OCOModes.PartialEx}>Partial Ex.</MenuItem>
                   <MenuItem value={OCOModes.FullEx}>Full Ex.</MenuItem>
@@ -142,7 +99,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={'font'}>Font</FormLabel>
                 <Select
                   id={'font'}
-                  onChange={props.onChange}
+                  onChange={onChangeWrapper}
                   name={'font'}
                   value={profile.font}>
                   <MenuItem value={'default'}>Default</MenuItem>
@@ -154,7 +111,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={'font-size'}>Font Size</FormLabel>
                 <Select
                   id={'font-size'}
-                  onChange={props.onChange}
+                  onChange={onChangeWrapper}
                   name={'fontSize'}
                   value={profile.fontSize}>
                   <MenuItem value={'12px'}>12px</MenuItem>
@@ -172,17 +129,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'exec-sound'}>Exec Sound</FormLabel>
-                <Select
-                  id={'exec-sound'}
-                  onChange={onExecSoundChange}
-                  name={'execSound'}
-                  value={profile.execSound}>
-                  <MenuItem value={'default'}>Default</MenuItem>
-                  {sounds.map((item: ExecSound) => <SoundEntry {...item}/>)}
-                  <MenuItem key={'add-item-key'} value={'add'}>
-                    Add New
-                  </MenuItem>
-                </Select>
+                <SoundsList value={profile.execSound} onChange={props.onChange}/>
               </FormControl>
             </Grid>
           </Grid>
@@ -192,16 +139,13 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <FormLabel htmlFor={'ccy-group'}>CCY Group</FormLabel>
               <Select
                 id={'ccy-group'}
-                onChange={props.onChange}
+                onChange={onChangeWrapper}
                 name={'ccyGroup'}
                 value={profile.ccyGroup}
                 displayEmpty={true}
                 renderValue={renderCCYGroup}>
-                <MenuItem value={CurrencyGroups.G10}>
-                  {CurrencyGroups.G10}
-                </MenuItem>
-                <MenuItem value={CurrencyGroups.Asia}>
-                  {CurrencyGroups.Asia}
+                <MenuItem value={'LATAM'}>
+                  {'LATAM'}
                 </MenuItem>
               </Select>
             </FormControl>
@@ -212,7 +156,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <FormLabel htmlFor={'time-zone'}>Time Zone</FormLabel>
               <Select
                 id={'time-zone'}
-                onChange={props.onChange}
+                onChange={onChangeWrapper}
                 name={'timezone'}
                 value={profile.timezone}
                 displayEmpty
@@ -238,7 +182,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <FormLabel htmlFor={'color-scheme'}>Color Scheme</FormLabel>
               <Select
                 id={'color-scheme'}
-                onChange={props.onChange}
+                onChange={onChangeWrapper}
                 name={'colorScheme'}
                 value={profile.colorScheme}>
                 <MenuItem value={'default'}>Default</MenuItem>

@@ -1,14 +1,23 @@
-import React, {ChangeEvent, KeyboardEvent, useState} from 'react';
+import React, {ChangeEvent, KeyboardEvent, useState, useEffect} from 'react';
 
 interface Props {
   label: string;
+  isDefault: boolean;
   onRenamed: (name: string) => void;
   onClosed: (event: React.MouseEvent) => void;
 }
 
 export const TabLabel: React.FC<Props> = (props: Props) => {
   const [editable, setEditable] = useState(false);
-  const [value, setValue] = useState(props.label);
+  const [value, setValue] = useState<string>('');
+  const {label, isDefault} = props;
+  useEffect(() => {
+    if (isDefault) {
+      setValue(`${label} (default)`);
+    } else {
+      setValue(label);
+    }
+  }, [label, isDefault]);
   const cancel = () => {
     setValue(props.label);
     setEditable(false);
@@ -37,8 +46,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
         onChange={onChange}
         onBlur={onBlur}
         onDoubleClick={onDoubleClick}
-        onKeyDown={onKeyDown}
-      />
+        onKeyDown={onKeyDown}/>
       <button onClick={props.onClosed}>
         <i className={'fa fa-times'}/>
       </button>

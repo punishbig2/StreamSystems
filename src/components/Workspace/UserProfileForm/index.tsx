@@ -63,16 +63,8 @@ const UserProfileModal: React.FC<Props> = (props: Props) => {
     loadUserProfile(user.email);
   }, [user.email, loadUserProfile]);
 
-  const onChange = ({target}: React.ChangeEvent<any>) => {
-    const {name} = target;
+  const onChange = (name: string, value: any) => {
 
-    const value: any = (() => {
-      if (target.type === 'checkbox') {
-        return target.checked;
-      } else {
-        return target.value;
-      }
-    })();
     props.setFieldValue(name, value);
   };
 

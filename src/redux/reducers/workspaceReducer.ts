@@ -16,6 +16,7 @@ const initialState: WorkspaceState = {
   name: '',
   windows: {},
   toast: null,
+  isDefaultWorkspace: false,
   isUserProfileModalVisible: false,
   markets: [],
   errorMessage: null,
@@ -74,6 +75,15 @@ const addWindow = (workspaceID: string, window: WindowState, state: WorkspaceSta
   const windows: { [id: string]: WindowState } = state.windows;
   // Return the new state
   return {...windows, [window.id]: window};
+};
+
+const updateAllGeometries = (workspaceID: string, geometries: { [id: string]: ClientRect }, state: WorkspaceState): { [key: string]: WindowState } => {
+  const windows: { [id: string]: WindowState } = state.windows;
+  const keys: string[] = Object.keys(geometries);
+  return keys.reduce((updatedWindows: { [key: string]: WindowState }, id: string) => {
+    updatedWindows[id] = {...windows[id], geometry: geometries[id]};
+    return updatedWindows;
+  }, {});
 };
 
 const updateWindowGeometry = ({id, geometry, resized}: { id: string; geometry: ClientRect; resized: boolean }, state: WorkspaceState): { [key: string]: WindowState } => {
@@ -151,27 +161,29 @@ export const workspaceReducer = (state: WorkspaceState = initialState, action: A
   const {type, data, workspaceID} = action;
   switch (type) {
     case WorkspaceActions.SetWindowAutoSize:
-      return {...state, windows: setWindowAutoSize(data, state)};
+      return {...state, windows: setWindowAutoSize(data, state), isDefaultWorkspace: false};
     case WorkspaceActions.SetWindowTitle:
       return {...state, windows: setWindowTitle(data, state)};
     case WorkspaceActions.MinimizeWindow:
-      return {...state, windows: minimizeWindow(data, state)};
+      return {...state, windows: minimizeWindow(data, state), isDefaultWorkspace: false};
     case WorkspaceActions.AddWindow:
-      return {...state, windows: addWindow(workspaceID, data, state)};
+      return {...state, windows: addWindow(workspaceID, data, state), isDefaultWorkspace: false};
+    case WorkspaceActions.UpdateAllGeometries:
+      return {...state, windows: updateAllGeometries(workspaceID, data, state)};
     case WorkspaceActions.UpdateGeometry:
       return {...state, windows: updateWindowGeometry(data, state)};
     case WorkspaceActions.RemoveWindow:
-      return {...state, windows: removeWindow(data, state)};
+      return {...state, windows: removeWindow(data, state), isDefaultWorkspace: false};
     case WorkspaceActions.RestoreWindow:
-      return {...state, windows: restoreWindow(data, state)};
+      return {...state, windows: restoreWindow(data, state), isDefaultWorkspace: false};
     case WorkspaceActions.BringToFront:
-      return {...state, windows: bringToFront(data, state)};
+      return {...state, windows: bringToFront(data, state), isDefaultWorkspace: false};
     case WorkspaceActions.ShowToast:
       return {...state, toast: data};
     case WorkspaceActions.UpdateMarkets:
       return {...state, markets: data};
     case WorkspaceActions.SetPersonality:
-      return {...state, personality: data};
+      return {...state, personality: data, isDefaultWorkspace: false};
     case WorkspaceActions.ShowUserProfileModal:
       return {...state, isUserProfileModalVisible: data};
     case WorkspaceActions.ShowError:

@@ -11,7 +11,9 @@ import {WindowTypes, WorkareaActions} from 'redux/constants/workareaConstants';
 import {SignalRAction} from 'redux/signalRAction';
 import shortid from 'shortid';
 import {FXOAction} from 'redux/fxo-action';
-import {WorkspaceState, defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
+import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import {CurrencyGroups} from 'interfaces/user';
+import {getDefaultWorkspace} from 'redux/stateDefs/getDefaultWorkspace';
 
 export const clearLastExecution = () =>
   createAction(WorkareaActions.ClearLastExecution);
@@ -19,10 +21,10 @@ export const clearLastExecution = () =>
 export const setWorkspace = (id: string): AnyAction =>
   createAction(WorkareaActions.SetWorkspace, id);
 
-export const addWorkspace = (): AnyAction => {
-  const name: string = 'Untitled';
-  const id: string = `ws-${shortid()}`;
-  const newWorkspace: WorkspaceState = {...defaultWorkspaceState, id, name};
+export const addWorkspace = (symbols: Currency[], group: CurrencyGroups): AnyAction => {
+  const name: string = group === CurrencyGroups.Invalid ? 'Untitled' : `${group}`;
+  const id: string = `ws-${group}-${shortid()}`;
+  const newWorkspace: WorkspaceState = {...getDefaultWorkspace(symbols, group), id, name};
   // Generate the action to make the reducer insert a new workspace
   return createAction(WorkareaActions.AddWorkspace, newWorkspace);
 };
@@ -90,9 +92,6 @@ export const renameWorkspace = (name: string, id: string): FXOAction<WorkareaAct
 export const closeWorkspace = (id: string): FXOAction<WorkareaActions> => {
   // Now dispatch the action
   return createAction(WorkareaActions.CloseWorkspace, id);
-};
-
-export const quit = () => {
 };
 
 export const subscribeToMessages = (email: string): SignalRAction<SignalRActions> => {
