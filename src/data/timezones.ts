@@ -355,4 +355,4 @@ const aryIannaTimeZones = [
 
 export default aryIannaTimeZones
   .sort((a: string, b: string) => a.localeCompare(b))
-  .map((text: string) => ({text}) as TimezoneInfo);
+  .map((text: string) => ({ text }) as TimezoneInfo);

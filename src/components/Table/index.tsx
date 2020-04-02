@@ -1,8 +1,8 @@
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {Header} from 'components/Table/Header';
-import {VirtualScroll} from 'components/VirtualScroll';
-import {SortInfo} from 'interfaces/sortInfo';
-import React, {CSSProperties, ReactElement, useState, useMemo} from 'react';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { Header } from 'components/Table/Header';
+import { VirtualScroll } from 'components/VirtualScroll';
+import { SortInfo } from 'interfaces/sortInfo';
+import React, { CSSProperties, ReactElement, useState, useMemo } from 'react';
 import getStyles from 'styles';
 
 export enum SortDirection {
@@ -25,7 +25,7 @@ type ColumnMap = { [key: string]: ColumnSpec };
 const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
   const entries: [string, string | undefined][] = Object.entries(filters);
   return entries.every(([name, keyword]: [string, string | undefined]) => {
-    const {row} = props;
+    const { row } = props;
     if (keyword === undefined) return true;
     const column: ColumnSpec | undefined = columns[name];
     if (!column || !column.filterByKeyword) return true;
@@ -33,45 +33,48 @@ const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
   });
 };
 
+const getMinWidth = (columns: ColumnSpec[]): number => {
+  // Create an element to use it as a placeholder and measure
+  // the size of the column using the template of the column
+  // specification
+  const el = document.createElement('div');
+  const { body } = document;
+  const { style } = el;
+  // FIXME: ideally we should be able to read variables from the .scss file
+  style.display = 'inline-block';
+  style.fontFamily = '"Roboto", sans-serif';
+  style.fontSize = '15px';
+  style.fontWeight = '500';
+  style.padding = '4px';
+  // Sums the widths of individual elements
+  const reducer = (value: number, column: ColumnSpec): number => {
+    const { template } = column;
+    el.innerHTML = template;
+    if (column.sortable)
+      return value + el.offsetWidth + 24;
+    return value + el.offsetWidth;
+  };
+  // Temporarily add the element to the document so that it's measurable
+  body.appendChild(el);
+  const minWidth: number = columns.reduce(reducer, 0);
+  body.removeChild(el);
+  return minWidth;
+};
+
 export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
-  const {rows, columns} = props;
+  const { rows, columns } = props;
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<{ [key: string]: SortInfo }>({});
-  const style = useMemo((): CSSProperties => {
-    // Create an element to use it as a placeholder and measure
-    // the size of the column using the template of the column
-    // specification
-    const el = document.createElement('div');
-    const {body} = document;
-    const {style} = el;
-    // FIXME: ideally we should be able to read variables from the .scss file
-    style.display = 'inline-block';
-    style.fontFamily = '"Roboto", sans-serif';
-    style.fontSize = '15px';
-    style.fontWeight = '500';
-    style.padding = '4px';
-    // Temporarily add the element to the document so that it's measurable
-    body.appendChild(el);
-    // Sums the widths of individual elements
-    const reducer = (value: number, column: ColumnSpec): number => {
-      const {template} = column;
-      el.innerHTML = template;
-      if (column.sortable)
-        return value + el.offsetWidth + 24;
-      return value + el.offsetWidth;
-    };
-    const minWidth: string = columns.reduce(reducer, 0) + 'px';
-    body.removeChild(el);
-    return {
-      minWidth,
-    };
-  }, [columns]);
-  if (!rows) return null; // FIXME: show "No data in this depth message"
+  const [minWidth] = useState(getMinWidth(columns));
+  const style = useMemo((): CSSProperties => ({ minWidth: `${minWidth}px` }), [minWidth]);
+  if (!rows)
+    return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
-  const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.weight, 0);
+  const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.width, 0);
   const propertyMapper = ([key, row]: [string, any]) => ({
     id: key,
-    weight: total,
+    totalWidth: total,
+    containerWidth: minWidth,
     key,
     columns,
     row,
@@ -96,12 +99,12 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
         if (column) {
           const sortFn = (direction: SortDirection) => {
             if (direction === SortDirection.Ascending) {
-              return ({row: row1}: any, {row: row2}: any) => {
+              return ({ row: row1 }: any, { row: row2 }: any) => {
                 if (!column.difference) return 0;
                 return column.difference(row1, row2);
               };
             } else {
-              return ({row: row1}: any, {row: row2}: any) => {
+              return ({ row: row1 }: any, { row: row2 }: any) => {
                 if (!column.difference) return 0;
                 return column.difference(row2, row1);
               };
@@ -123,20 +126,20 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
   const addFilter = (column: string, keyword: string) => {
     const clean: string = keyword.trim();
     if (clean.length === 0) {
-      setFilters({...filters, [column]: undefined});
+      setFilters({ ...filters, [column]: undefined });
     } else {
-      setFilters({...filters, [column]: clean});
+      setFilters({ ...filters, [column]: clean });
     }
   };
 
   const addSortColumn = (info: SortInfo) => {
-    const {column, direction} = info;
+    const { column, direction } = info;
     if (direction === SortDirection.None) {
-      const copy: { [key: string]: SortInfo } = {...sortBy};
+      const copy: { [key: string]: SortInfo } = { ...sortBy };
       delete copy[column];
       setSortBy(copy);
     } else {
-      setSortBy({...sortBy, [column]: info});
+      setSortBy({ ...sortBy, [column]: info });
     }
   };
 
@@ -156,14 +159,21 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
       return <div className={'tbody'}>{rows.map(props.renderRow)}</div>;
     }
   };
+
   const getHeaders = () => {
     return (
-      <Header columns={columns} addSortColumn={addSortColumn} sortBy={sortBy} addFilter={addFilter} weight={total}/>
+      <Header columns={columns}
+              addSortColumn={addSortColumn}
+              sortBy={sortBy}
+              addFilter={addFilter}
+              totalWidth={total}
+              containerWidth={minWidth}/>
     );
   };
 
   const classes: string[] = ['table'];
-  if (props.className) classes.push(props.className);
+  if (props.className)
+    classes.push(props.className);
   return (
     <div className={classes.join(' ')} style={style}>
       {getHeaders()}

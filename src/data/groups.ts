@@ -1,4 +1,4 @@
-export const CCYGroups: {[key: string]: string} = {
+export const CCYGroups: { [key: string]: string } = {
   'AUDBRL10D RR': '+AC',
   'AUDBRL25D RR': '+AC',
   'AUDMXN10D RR': '+AC',

@@ -1,6 +1,6 @@
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {TabDirection} from 'components/NumericInput';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { TabDirection } from 'components/NumericInput';
 
 export interface SizeHeaderProps {
   minimum: number;

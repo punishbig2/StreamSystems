@@ -1,5 +1,5 @@
-import {getNthParentOf} from 'utils/skipTab';
-import {TabDirection} from 'components/NumericInput';
+import { getNthParentOf } from 'utils/skipTab';
+import { TabDirection } from 'components/NumericInput';
 
 export const moveToNextPrice = (input: HTMLInputElement, tabDirection: TabDirection) => {
   // Move to the next price

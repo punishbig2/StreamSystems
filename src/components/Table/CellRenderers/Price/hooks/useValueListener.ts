@@ -1,6 +1,6 @@
-import {OrderStatus} from 'interfaces/order';
-import {useEffect} from 'react';
-import {priceFormatter} from 'utils/priceFormatter';
+import { OrderStatus } from 'interfaces/order';
+import { useEffect } from 'react';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export const useValueListener = (
   value: number | null,

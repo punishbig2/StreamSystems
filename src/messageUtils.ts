@@ -1,4 +1,4 @@
-import {Message, ExecTypes} from 'interfaces/message';
+import { Message, ExecTypes } from 'interfaces/message';
 
 export const getMessageSize = (message: Message): number => {
   switch (message.OrdStatus) {

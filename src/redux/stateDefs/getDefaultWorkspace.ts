@@ -1,13 +1,9 @@
-import {CurrencyGroups} from 'interfaces/user';
-import {defaultLatamWorkspace} from 'defaultWorkspaces/latam';
-import {WorkspaceState, defaultWorkspaceState} from 'redux/stateDefs/workspaceState';
-import {Currency} from 'interfaces/currency';
-
-export const getDefaultWorkspace = (symbols: Currency[], group: CurrencyGroups): WorkspaceState => {
+/*export const getDefaultWorkspace = (symbols: Currency[], group: CurrencyGroups): WorkspaceStore => {
   switch (group) {
     case CurrencyGroups.Invalid:
-      return defaultWorkspaceState;
+      return new WorkspaceStore();
     case CurrencyGroups.Latam:
       return defaultLatamWorkspace(symbols);
   }
-};
+};*/
+export const dontExport = 0;

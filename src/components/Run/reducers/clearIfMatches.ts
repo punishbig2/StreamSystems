@@ -1,4 +1,4 @@
-import {Order, OrderStatus} from 'interfaces/order';
+import { Order, OrderStatus } from 'interfaces/order';
 
 export const clearIfMatches = (order: Order, id: string): Order => {
   if (order.orderId === id) {

@@ -1,24 +1,24 @@
-import {Column} from 'components/Table/Column';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {SortDirection} from 'components/Table/index';
-import {SortInfo} from 'interfaces/sortInfo';
+import { Column } from 'components/Table/Column';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { SortDirection } from 'components/Table/index';
+import { SortInfo } from 'interfaces/sortInfo';
 import React from 'react';
-import {percentage} from 'utils';
 
 interface HeaderProps {
   columns: ColumnSpec[];
   sortBy: { [key: string]: SortInfo };
   addSortColumn: (sortInfo: SortInfo) => void;
-  weight: number;
+  totalWidth: number;
+  containerWidth: number;
   addFilter: (column: string, value: string) => void;
 }
 
 export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends unknown>(
   props: HeaderProps,
 ) => {
-  const {columns, sortBy} = props;
+  const { columns, sortBy } = props;
   const sortColumns: SortInfo[] = Object.values(sortBy);
-  const columnMapper = (weight: number) => (column: ColumnSpec) => {
+  const columnMapper = (totalWidth: number, containerWidth: number) => (column: ColumnSpec) => {
     const handleSorting = (): [SortDirection, () => void] => {
       const sortInfo: SortInfo | undefined = sortColumns.find(
         (info: SortInfo) => info.column === column.name,
@@ -58,15 +58,14 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends
         onSorted={onSorted}
         sortDirection={sortDirection}
         onFiltered={(keyword: string) => props.addFilter(column.name, keyword)}
-        width={percentage(column.weight, weight)}
-      >
+        width={(column.width / totalWidth) * containerWidth}>
         {column.header(props)}
       </Column>
     );
   };
   return (
     <div className={'thead'}>
-      <div className={'tr'}>{columns.map(columnMapper(props.weight))}</div>
+      <div className={'tr'}>{columns.map(columnMapper(props.totalWidth, props.containerWidth))}</div>
     </div>
   );
 };

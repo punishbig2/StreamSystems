@@ -1,8 +1,7 @@
-import {Currency} from 'interfaces/currency';
-import {Message} from 'interfaces/message';
-import {Strategy} from 'interfaces/strategy';
-import {User, UserWorkspace} from 'interfaces/user';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
+import { Currency } from 'interfaces/currency';
+import { Message } from 'interfaces/message';
+import { Strategy } from 'interfaces/strategy';
+import { User, UserWorkspace } from 'interfaces/user';
 
 export enum WorkareaStatus {
   Starting,
@@ -18,7 +17,6 @@ export interface WorkareaState {
   products: Strategy[];
   banks: string[];
   activeWorkspace: string | null;
-  workspaces: { [id: string]: WorkspaceState };
   messages: Message[];
   user?: User;
   originalUser?: User;

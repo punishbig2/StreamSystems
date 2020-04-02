@@ -1,11 +1,10 @@
-import React, {ReactElement} from 'react';
-import {PodTable} from 'interfaces/podTable';
-import {Table} from 'components/Table/index';
+import React, { ReactElement } from 'react';
+import { PodTable } from 'interfaces/podTable';
+import { Table } from 'components/Table/index';
 import columns from 'columns/darkPoolDepth';
-import {percentage} from 'utils';
-import {Cell} from 'components/Table/Cell';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {Order} from 'interfaces/order';
+import { Cell } from 'components/Table/Cell';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { Order } from 'interfaces/order';
 
 interface OwnProps {
   data: PodTable | null;
@@ -14,12 +13,12 @@ interface OwnProps {
 
 export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any): ReactElement => {
-    const {columns, row} = props;
+    const { columns, row } = props;
     return (
       <div className={'tr'} key={row.id}>
         {columns.map((column: ColumnSpec) => {
           const name: string = column.name;
-          const width: string = percentage(column.weight, props.weight);
+          const width: number = props.width;
           return (
             <Cell key={name} render={column.render} width={width} {...row} />
           );

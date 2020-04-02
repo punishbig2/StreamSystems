@@ -1,4 +1,4 @@
-import React, {Children, useEffect, useRef, useState} from 'react';
+import React, { Children, useEffect, useRef, useState } from 'react';
 
 interface Props {
   className: string;
@@ -8,7 +8,7 @@ interface Props {
 export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
   props: React.PropsWithChildren<Props>,
 ) => {
-  const {itemSize} = props;
+  const { itemSize } = props;
   const [offset, setOffset] = useState<number>(0);
   const [visibleCount, setVisibleCount] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
@@ -105,12 +105,12 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
         if (entries.length !== 1)
           return;
         if (content !== null) {
-          const {style} = content;
+          const { style } = content;
           style.height = '0';
         }
         setHeight(element.offsetHeight);
         if (content !== null) {
-          const {style} = content;
+          const { style } = content;
           style.height = `${element.offsetHeight}px`;
         }
         if (content !== null && scrollbar !== null) {
@@ -142,21 +142,20 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
     setVisibleCount(Math.max(Math.ceil(height / itemSize), 12));
   }, [height, itemSize]);
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    const {currentTarget} = event;
+    const { currentTarget } = event;
     const offset: number = Math.round(currentTarget.scrollTop / itemSize);
     // Clear old timeout
     setOffset(offset);
   };
   const preHeight: number = itemSize * (offset - 1);
   const postHeight: number = itemSize * (array.length - visibleCount - offset);
-  // TODO: use a scrollbar that is guaranteed to be overlay
   return (
     <div className={props.className} ref={reference}>
-      <div className={'tbody-scrollable-content'} style={{height}} onScroll={onScroll}>
-        <div className={'tbody-fill-area pre'} style={{height: Math.max(preHeight, 0)}}/>
+      <div className={'tbody-scrollable-content'} style={{ height }} onScroll={onScroll}>
+        <div className={'tbody-fill-area pre'} style={{ height: Math.max(preHeight, 0) }}/>
         {offset > 0 ? array[offset - 1] : null}
         {array.slice(offset, offset + visibleCount + 1)}
-        <div className={'tbody-fill-area post'} style={{height: Math.max(postHeight, 0)}}/>
+        <div className={'tbody-fill-area post'} style={{ height: Math.max(postHeight, 0) }}/>
         <div className={'scrollbar-container'}>
           <div className={'handle'}/>
         </div>

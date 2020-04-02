@@ -1,16 +1,17 @@
-import {PodRowStatus} from 'interfaces/podRow';
-import {dispatchWorkspaceError} from 'utils';
-import {createOrder} from 'components/PodTile/helpers';
-import {createAction} from 'redux/actionCreator';
-import {ActionTypes} from 'columns/podColumns/OrderColumn/reducer';
-import {isInvertedMarket} from 'columns/podColumns/OrderColumn/helpers/isInvertedMarket';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {moveToNextPrice} from 'columns/podColumns/OrderColumn/helpers/moveToNextPrice';
-import {getFinalSize} from 'columns/podColumns/OrderColumn/helpers/getFinalSize';
-import {FXOAction} from 'redux/fxo-action';
-import {Dispatch} from 'react';
-import {TabDirection} from 'components/NumericInput';
+import { PodRowStatus } from 'interfaces/podRow';
+import { dispatchWorkspaceError } from 'utils';
+import { createOrder } from 'components/PodTile/helpers';
+import { createAction } from 'redux/actionCreator';
+import { ActionTypes } from 'columns/podColumns/OrderColumn/reducer';
+import { isInvertedMarket } from 'columns/podColumns/OrderColumn/helpers/isInvertedMarket';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { moveToNextPrice } from 'columns/podColumns/OrderColumn/helpers/moveToNextPrice';
+import { getFinalSize } from 'columns/podColumns/OrderColumn/helpers/getFinalSize';
+import { FXOAction } from 'redux/fxo-action';
+import { Dispatch } from 'react';
+import { TabDirection } from 'components/NumericInput';
+import { User } from 'interfaces/user';
 
 export const onSubmitPriceListener = (
   order: Order,
@@ -20,6 +21,7 @@ export const onSubmitPriceListener = (
   minimumSize: number,
   personality: string,
   dispatch: Dispatch<FXOAction<ActionTypes>>,
+  user: User,
   onRowStatusChange: (rowStatus: PodRowStatus) => void,
 ) =>
   (input: HTMLInputElement, price: number | null, changed: boolean, tabDirection: TabDirection) => {
@@ -41,7 +43,7 @@ export const onSubmitPriceListener = (
       // possible source
       const size: number = getFinalSize(order.status, submittedSize, order.size, minimumSize, defaultSize);
       // Do not wait for this
-      createOrder({...order, price, size}, minimumSize, personality)
+      createOrder({ ...order, price, size }, minimumSize, personality, user)
         .then(() => {
           order.dispatchEvent('CREATED');
         });

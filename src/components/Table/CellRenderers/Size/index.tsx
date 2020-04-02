@@ -1,9 +1,9 @@
-import {NumericInput} from 'components/NumericInput';
-import {Chevron} from 'components/Table/CellRenderers/Price/chevron';
-import {OrderTypes} from 'interfaces/mdEntry';
-import React, {ReactNode} from 'react';
-import {sizeFormatter} from 'utils/sizeFormatter';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
+import { NumericInput } from 'components/NumericInput';
+import { Chevron } from 'components/Table/CellRenderers/Price/chevron';
+import { OrderTypes } from 'interfaces/mdEntry';
+import React, { ReactNode } from 'react';
+import { sizeFormatter } from 'utils/sizeFormatter';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 
 interface OwnProps {
   type: OrderTypes;
@@ -31,7 +31,7 @@ const defaultProps: OwnProps = {
 };
 
 export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
-  const {value} = props;
+  const { value } = props;
 
   const classes: string[] = ['times'];
   const children: ReactNode[] = [
@@ -58,11 +58,13 @@ export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
     </div>
   );
   if (props.type === OrderTypes.Bid) {
-    if (props.chevron) children.push(<Chevron side={'left'} key={3}/>);
+    if (props.chevron)
+      children.push(<Chevron side={'left'} key={3}/>);
     children.push(button);
   } else {
     children.unshift(button);
-    if (props.chevron) children.push(<Chevron side={'right'} key={3}/>);
+    if (props.chevron)
+      children.push(<Chevron side={'right'} key={3}/>);
   }
   return (
     <div className={['size-layout', props.className].join(' ')}>{children}</div>

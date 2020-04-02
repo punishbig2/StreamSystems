@@ -7,14 +7,14 @@ import {
   UserWorkspace,
   OCOModes,
 } from 'interfaces/user';
-import {FXOAction} from 'redux/fxo-action';
-import timezones, {TimezoneInfo} from 'data/timezones';
+import { FXOAction } from 'redux/fxo-action';
+import timezones, { TimezoneInfo } from 'data/timezones';
 
 const findDefaultTimezone = () => {
   const formatter: Intl.DateTimeFormat = Intl.DateTimeFormat();
   const options: Intl.ResolvedDateTimeFormatOptions = formatter.resolvedOptions();
   const browserTimezone = options.timeZone;
-  const found: TimezoneInfo | undefined = timezones.find(({text}: TimezoneInfo) => {
+  const found: TimezoneInfo | undefined = timezones.find(({ text }: TimezoneInfo) => {
     return text === browserTimezone;
   });
   if (found === undefined) {
@@ -55,20 +55,20 @@ export const defaultUserProfileState: UserProfileState = {
   initialProfile: defaultProfile,
 };
 
-export default (state: UserProfileState = defaultUserProfileState, {data, type}: FXOAction<UserProfileActions>): UserProfileState => {
+export default (state: UserProfileState = defaultUserProfileState, { data, type }: FXOAction<UserProfileActions>): UserProfileState => {
   switch (type) {
     case UserProfileActions.ResetInitialProfile:
-      return {...state, profile: state.initialProfile};
+      return { ...state, profile: state.initialProfile };
     case UserProfileActions.SetCurrentModal:
-      return {...state, currentModalType: data};
+      return { ...state, currentModalType: data };
     case UserProfileActions.SetUserProfile:
-      return {...state, profile: data, initialProfile: data, status: UserProfileStatus.Initial};
+      return { ...state, profile: data, initialProfile: data, status: UserProfileStatus.Initial };
     case UserProfileActions.LoadUserProfile:
-      return {...state, status: UserProfileStatus.Loading};
+      return { ...state, status: UserProfileStatus.Loading };
     case UserProfileActions.SetUserProfileLoadingError:
-      return {...state, status: UserProfileStatus.Error};
+      return { ...state, status: UserProfileStatus.Error };
     case UserProfileActions.SetFieldValue:
-      return {...state, profile: {...state.profile, [data.name]: data.value}};
+      return { ...state, profile: { ...state.profile, [data.name]: data.value } };
     default:
       return state;
   }

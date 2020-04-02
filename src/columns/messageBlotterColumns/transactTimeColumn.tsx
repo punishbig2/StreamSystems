@@ -1,7 +1,7 @@
-import {Message} from 'interfaces/message';
-import moment, {Moment} from 'moment';
+import { Message } from 'interfaces/message';
+import moment, { Moment } from 'moment';
 import React from 'react';
-import {Globals} from 'golbals';
+import { Globals } from 'golbals';
 
 const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
 
@@ -39,7 +39,7 @@ export default () => ({
       </div>
     );
   },
-  weight: 4,
+  width: 4,
   difference: (v1: Message, v2: Message): number => {
     const m1: Moment = moment(v1.TransactTime, INCOMING_DATE_FORMAT);
     const m2: Moment = moment(v2.TransactTime, INCOMING_DATE_FORMAT);

@@ -1,4 +1,4 @@
-import React, {ReactElement} from 'react';
+import React, { ReactElement } from 'react';
 
 const location = window.location;
 export const UserNotFound: React.FC = (): ReactElement => {

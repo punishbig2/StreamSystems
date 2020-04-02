@@ -1,8 +1,8 @@
-import {ExecSound} from 'interfaces/user';
+import { ExecSound } from 'interfaces/user';
 
 const onDBUpgradeNeeded = (event: any) => {
-  const {result} = event.currentTarget;
-  result.createObjectStore('list', {keyPath: 'name'});
+  const { result } = event.currentTarget;
+  result.createObjectStore('list', { keyPath: 'name' });
 };
 
 const openDatabase = (onSuccess: (db: IDBDatabase) => void, onError: () => void) => {

@@ -1,4 +1,4 @@
-import {ExecTypes, Message} from 'interfaces/message';
+import { ExecTypes, Message } from 'interfaces/message';
 import React from 'react';
 
 export default (sortable: boolean, isExecBlotter: boolean) => ({
@@ -8,7 +8,7 @@ export default (sortable: boolean, isExecBlotter: boolean) => ({
   sortable: sortable,
   header: () => <div>CPTY</div>,
   render: (message: Message) => {
-    const {ExecBroker, OrdStatus} = message;
+    const { ExecBroker, OrdStatus } = message;
     if (OrdStatus !== ExecTypes.Filled && OrdStatus !== ExecTypes.PartiallyFilled)
       return <div/>;
     return (
@@ -17,8 +17,8 @@ export default (sortable: boolean, isExecBlotter: boolean) => ({
       </div>
     );
   },
-  weight: 2,
-  filterByKeyword: ({ExecBroker}: Message, keyword: string): boolean => {
+  width: 2,
+  filterByKeyword: ({ ExecBroker }: Message, keyword: string): boolean => {
     if (ExecBroker) {
       const lowerCase: string = ExecBroker.toLowerCase();
       return lowerCase.includes(keyword.toLowerCase());
@@ -26,7 +26,7 @@ export default (sortable: boolean, isExecBlotter: boolean) => ({
       return false;
     }
   },
-  difference: ({ExecBroker}: Message, v2: Message) => {
+  difference: ({ ExecBroker }: Message, v2: Message) => {
     if (ExecBroker) {
       const lowerCase: string = ExecBroker.toLowerCase();
       if (v2.ExecBroker) {

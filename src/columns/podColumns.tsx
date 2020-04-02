@@ -1,18 +1,20 @@
-import React, {ReactElement} from 'react';
-import {ColumnSpec} from 'components/Table/columnSpecification';
+import React, { ReactElement } from 'react';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 import strings from 'locales';
-import {OrderColumnWrapper} from 'columns/podColumns/orderColumnWrapper';
-import {TenorColumn} from 'columns/podColumns/tenorColumn';
-import {FirmColumn} from 'columns/podColumns/firmColumn';
-import {DarkPoolColumn} from 'columns/podColumns/darkPoolColumn';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {API} from 'API';
-import {getSideFromType} from 'utils';
+import { OrderColumnWrapper } from 'columns/podColumns/orderColumnWrapper';
+import { TenorColumn } from 'columns/podColumns/tenorColumn';
+import { FirmColumn } from 'columns/podColumns/firmColumn';
+import { DarkPoolColumn } from 'columns/podColumns/darkPoolColumn';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { API } from 'API';
+import { getSideFromType } from 'utils';
+import { User } from 'interfaces/user';
 
 interface RefButtonProps {
   type: OrderTypes;
   strategy: string;
   symbol: string;
+  user: User;
 }
 
 const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
@@ -20,37 +22,38 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
     [OrderTypes.Bid]: strings.RefBids,
     [OrderTypes.Ofr]: strings.RefOfrs,
   };
-  return <button onClick={cancelAll(props.type, props.symbol, props.strategy)}>{labels[props.type]}</button>;
+  return <button
+    onClick={cancelAll(props.type, props.symbol, props.strategy, props.user)}>{labels[props.type]}</button>;
 };
 
-const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>
+const cancelAll = (type: OrderTypes, symbol: string, strategy: string, user: User) =>
   () => {
-    API.cancelAll(symbol, strategy, getSideFromType(type));
+    API.cancelAll(symbol, strategy, getSideFromType(type), user);
   };
 
-const getRefButton = (depth: boolean, symbol: string, strategy: string, type: OrderTypes): (() => ReactElement | null) => {
+const getRefButton = (depth: boolean, symbol: string, strategy: string, user: User, type: OrderTypes): (() => ReactElement | null) => {
   if (depth)
     return () => null;
-  return () => <RefButton type={type} symbol={symbol} strategy={strategy}/>;
+  return () => <RefButton type={type} symbol={symbol} strategy={strategy} user={user}/>;
 };
 
-const columns = (symbol: string, strategy: string, isBroker: boolean, depth: boolean = false): ColumnSpec[] => [
+const columns = (symbol: string, strategy: string, user: User, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(),
-  ...(isBroker ? [FirmColumn('bid')] : []),
+  ...(user.isbroker ? [FirmColumn('bid')] : []),
   OrderColumnWrapper(
     strings.BidPx,
     OrderTypes.Bid,
     depth,
-    getRefButton(depth, symbol, strategy, OrderTypes.Bid),
+    getRefButton(depth, symbol, strategy, user, OrderTypes.Bid),
   ),
   DarkPoolColumn(),
   OrderColumnWrapper(
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
-    getRefButton(depth, symbol, strategy, OrderTypes.Ofr),
+    getRefButton(depth, symbol, strategy, user, OrderTypes.Ofr),
   ),
-  ...(isBroker ? [FirmColumn('ofr')] : []),
+  ...(user.isbroker ? [FirmColumn('ofr')] : []),
 ];
 
 export default columns;

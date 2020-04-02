@@ -1,18 +1,18 @@
-import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
-import {State} from 'components/Table/CellRenderers/Price/state';
-import {FXOAction} from 'redux/fxo-action';
+import { PriceActions } from 'components/Table/CellRenderers/Price/constants';
+import { State } from 'components/Table/CellRenderers/Price/state';
+import { FXOAction } from 'redux/fxo-action';
 
 export const reducer = (state: State, action: FXOAction<PriceActions>): State => {
-  const {type, data} = action;
+  const { type, data } = action;
   switch (type) {
     case PriceActions.ShowTooltip:
-      return {...state, tooltipVisible: true};
+      return { ...state, tooltipVisible: true };
     case PriceActions.HideTooltip:
-      return {...state, tooltipVisible: false};
+      return { ...state, tooltipVisible: false };
     case PriceActions.MoveTooltip:
-      return {...state, ...data};
+      return { ...state, ...data };
     case PriceActions.SetStatus:
-      return {...state, status: data};
+      return { ...state, status: data };
     case PriceActions.SetValue:
       return {
         ...state,
@@ -20,11 +20,11 @@ export const reducer = (state: State, action: FXOAction<PriceActions>): State =>
         status: state.status | data.status,
       };
     case PriceActions.ResetValue:
-      return {...state, internalValue: data.value, status: data.status};
+      return { ...state, internalValue: data.value, status: data.status };
     case PriceActions.Flash:
-      return {...state, flash: true};
+      return { ...state, flash: true };
     case PriceActions.Unflash:
-      return {...state, flash: false};
+      return { ...state, flash: false };
     default:
       return state;
   }

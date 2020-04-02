@@ -1,6 +1,6 @@
-import {useEffect} from 'react';
-import {$$} from 'utils/stringPaster';
-import {PodTileActions} from 'redux/reducers/podTileReducer';
+import { useEffect } from 'react';
+import { $$ } from 'utils/stringPaster';
+import { PodTileActions } from 'redux/reducers/podTileReducer';
 
 export const useDepthEmitter = (
   tenors: string[],

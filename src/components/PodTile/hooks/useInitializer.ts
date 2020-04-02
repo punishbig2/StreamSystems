@@ -1,20 +1,21 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
-import {PodTable} from 'interfaces/podTable';
-import {TenorType} from 'interfaces/w';
-import {useEffect} from 'react';
-import {compareTenors} from 'utils/dataGenerators';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { PodTable } from 'interfaces/podTable';
+import { TenorType } from 'interfaces/w';
+import { useEffect } from 'react';
+import { compareTenors } from 'utils/dataGenerators';
+import { User } from 'interfaces/user';
 
 const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => {
-  const rows: Promise<PodRow>[] = tenors
-    .map(async (tenor: TenorType) => {
+  const rows: PodRow[] = tenors
+    .map((tenor: TenorType) => {
       const order: Order = new Order(tenor, '', '', email, null, OrderTypes.Invalid);
       const row: PodRow = {
         tenor: tenor,
         id: `${tenor}`,
-        bid: {...order, type: OrderTypes.Bid},
-        ofr: {...order, type: OrderTypes.Ofr},
+        bid: { ...order, type: OrderTypes.Bid },
+        ofr: { ...order, type: OrderTypes.Ofr },
         mid: null,
         spread: null,
         darkPrice: null,
@@ -23,13 +24,12 @@ const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => 
       // Return internalRow
       return row;
     });
-  const finalRows: PodRow[] = await Promise.all(rows);
-  finalRows.sort(compareTenors);
-  return finalRows;
+  rows.sort(compareTenors);
+  return rows;
 };
 
-type PodInitializer = (workspaceID: string, windowID: string, data: PodTable) => void;
-const doInitialize = (workspaceID: string, windowID: string, tenors: string[], email: string, initialize: PodInitializer) => {
+type PodInitializer = (data: PodTable) => void;
+const populateEmptyTOB = (tenors: string[], email: string, initialize: PodInitializer) => {
   const arrayToObjectReducer = (object: PodTable, item: PodRow): PodTable => {
     object[item.id] = item;
     // Return the accumulator
@@ -37,14 +37,13 @@ const doInitialize = (workspaceID: string, windowID: string, tenors: string[], e
   };
   buildRows(tenors, email)
     .then((rows: PodRow[]) => {
-      initialize(workspaceID, windowID, rows.reduce(arrayToObjectReducer, {}));
+      initialize(rows.reduce(arrayToObjectReducer, {}));
     });
 };
 
-export const useInitializer = (workspaceID: string, windowID: string, tenors: string[], email: string, initialize: PodInitializer) => {
+export const useInitializer = (tenors: string[], user: User, initialize: PodInitializer) => {
   useEffect(() => {
-    doInitialize(workspaceID, windowID, tenors, email, initialize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tenors, email]);
+    populateEmptyTOB(tenors, user.email, initialize);
+  }, [tenors, user, initialize]);
 };
 

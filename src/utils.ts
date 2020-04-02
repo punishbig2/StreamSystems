@@ -1,5 +1,5 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Sides} from 'interfaces/sides';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Sides } from 'interfaces/sides';
 
 export const getSideFromType = (type: OrderTypes): Sides => {
   switch (type) {
@@ -12,11 +12,11 @@ export const getSideFromType = (type: OrderTypes): Sides => {
   }
 };
 
-export const percentage = (numerator: number, denominator: number): string => {
-  const percentage: number = (100 * numerator) / denominator;
-  return `${percentage}%`;
+export const percentage = (numerator: number, denominator: number, base: number): string => {
+  const percentage: number = numerator / denominator;
+  return `${percentage * base}ex`;
 };
 
 export const dispatchWorkspaceError = (message: string | null) => {
-  document.dispatchEvent(new CustomEvent('workspace-error', {detail: message}));
+  document.dispatchEvent(new CustomEvent('workspace-error', { detail: message }));
 };

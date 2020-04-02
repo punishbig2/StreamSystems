@@ -1,5 +1,5 @@
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import React, {ReactElement, useState} from 'react';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import React, { ReactElement, useState } from 'react';
 
 export enum TabDirection {
   Forward = 1,
@@ -25,11 +25,11 @@ interface Props {
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const {onTabbedOut, onNavigate, onSubmit, onChange, onCancelEdit, onBlur, ...otherProps} = props;
+  const { onTabbedOut, onNavigate, onSubmit, onChange, onCancelEdit, onBlur, ...otherProps } = props;
   const [selectTimer, setSelectTimer] = useState<number>(setTimeout(() => null, 0));
 
   const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>) => {
-    const {target} = event;
+    const { target } = event;
     clearTimeout(selectTimer);
     setSelectTimer(
       setTimeout(() => target.select(), 30),
@@ -93,7 +93,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
         break;
     }
   };
-  const onChangeWrapper = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => onChange(value);
+  const onChangeWrapper = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => onChange(value);
   return (
     <input
       {...otherProps}
@@ -108,4 +108,4 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   );
 };
 
-export {NumericInput};
+export { NumericInput };

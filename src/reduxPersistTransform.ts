@@ -1,17 +1,17 @@
-import {WorkareaState} from 'redux/stateDefs/workareaState';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
-import {WindowState, defaultWindowState} from 'redux/stateDefs/windowState';
-import {defaultWorkareaState} from 'redux/reducers/workareaReducer';
-import {createTransform} from 'redux-persist';
+/*import { WorkareaState } from 'redux/stateDefs/workareaState';
+import { WorkspaceState } from 'redux/stateDefs/workspaceState';
+import { WindowState, defaultWindowState } from 'redux/stateDefs/windowState';
+import { defaultWorkareaState } from 'redux/reducers/workareaReducer';
+import { createTransform } from 'redux-persist';
 
 type Map<T> = { [id: string]: T };
 
 const transformWorkarea = (workarea: WorkareaState): WorkareaState => {
-  const {workspaces} = workarea;
+  const { workspaces } = workarea;
   const keys: string[] = Object.keys(workspaces);
   const transformedWorkspaces: Map<WorkspaceState> =
     keys.reduce((map: Map<WorkspaceState>, id: string): Map<WorkspaceState> => {
-      const {windows} = workspaces[id];
+      const { windows } = workspaces[id];
       const keys: string[] = Object.keys(windows);
       const transformedWindows: Map<WindowState> = keys.reduce((map: Map<WindowState>, id: string) => {
         const window: WindowState = windows[id];
@@ -68,4 +68,6 @@ export const WorkareaTransform = createTransform(
   transform,
   transform, {
     whitelist: ['workarea', 'messageBlotter', 'executions', 'userProfile'],
-  });
+  });*/
+
+export const DontExportTransfom = null;

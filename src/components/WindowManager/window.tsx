@@ -1,24 +1,20 @@
-import {DefaultWindowButtons} from 'components/DefaultWindowButtons';
-import {useObjectGrabber} from 'hooks/useObjectGrabber';
-import React, {CSSProperties, ReactElement, useCallback, useEffect, useRef, useState} from 'react';
-import {getOptimalSize} from 'windowUtils';
+import { DefaultWindowButtons } from 'components/DefaultWindowButtons';
+import { useObjectGrabber } from 'hooks/useObjectGrabber';
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useRef, useState } from 'react';
+import { getOptimalSize } from 'windowUtils';
+import { WindowStore } from 'mobx/stores/window';
+import { observer } from 'mobx-react';
+import { WindowTypes } from 'redux/constants/workareaConstants';
 
 interface OwnProps {
   id: string;
   geometry?: ClientRect;
-  area: ClientRect;
-  isMinimized: boolean;
-  autoSize: boolean;
-  fixed?: boolean;
+  type: WindowTypes;
   isDefaultWorkspace: boolean;
-  // Methods/Event handlers
-  onGeometryChange: (geometry: ClientRect, resized: boolean) => void;
-  onClose: () => void;
-  onMinimize: () => void;
-  onSetTitle: (title: string) => void;
-  onClick: () => void;
-  onAdjustSize: () => void;
-  onSaveWindowGeometry: (windowID: string, geometry: ClientRect, resized: boolean) => void;
+  area: ClientRect;
+  fixed?: boolean;
+  onClose: (id: string) => void;
+  onLayoutModify: () => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -83,15 +79,25 @@ const onResize = (area: ClientRect, minWidth: number, update: (geometry: ClientR
 const pixels = (x: number): string => `${x}px`;
 
 const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
-  const {style} = element;
+  const { style } = element;
   const size: { width: number, height: number } = getOptimalSize(element, area);
   style.height = pixels(size.height);
   style.width = pixels(size.width);
 };
 
-export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
+export const WindowElement: React.FC<Props> = observer((props: Props): ReactElement => {
+  const { id, area, geometry, type, fixed } = props;
+
+  const [store] = useState<WindowStore>(new WindowStore(id, type, fixed));
   const [minWidth, setMinWidth] = useState<number>(-1);
-  const {onGeometryChange, autoSize, area} = props;
+  const { onLayoutModify } = props;
+
+  useEffect(() => {
+    if (geometry !== undefined) {
+      store.saveGeometry(geometry);
+    }
+  }, [geometry, store]);
+
   // Create a reference to the window container
   const container: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(
     null,
@@ -102,7 +108,9 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
       return;
     const parent: HTMLElement | null = window.parentElement;
     if (parent === null) {
-      onGeometryChange(geometry, resized);
+      store.setGeometry(geometry, resized);
+      // Notify the workspace
+      onLayoutModify();
     } else {
       const elements: NodeListOf<Element> = parent.querySelectorAll('.window-element');
       const windows: Element[] = Array.from(elements);
@@ -114,7 +122,7 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
           const window: HTMLDivElement = element as HTMLDivElement;
           return new DOMRect(window.offsetLeft, window.offsetTop, window.offsetWidth, window.offsetHeight);
         });
-      const threshold: number = 15;
+      const threshold: number = 10;
       const newGeometry: ClientRect = borders.reduce((geometry: ClientRect, border: ClientRect) => {
         if (geometry.left < threshold)
           geometry = new DOMRect(0, geometry.top, geometry.width, geometry.height);
@@ -128,10 +136,11 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
           geometry = new DOMRect(border.left - geometry.width + 1, geometry.top, geometry.width, geometry.height);
         return geometry;
       }, geometry);
-      onGeometryChange(newGeometry, resized);
+      store.setGeometry(newGeometry, resized);
+      // Notify the workspace
+      onLayoutModify();
     }
-  }, [container, onGeometryChange]);
-  const {isMinimized} = props;
+  }, [onLayoutModify, store]);
   // Callbacks
   const resizeCallback = useCallback(
     (side: WindowSide) => {
@@ -139,38 +148,30 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
     },
     [area, minWidth, tryToSnapToSiblings],
   );
-  const onGeometryChangeComplete = (resized: boolean) =>
-    (geometry: ClientRect) => {
-      return props.onSaveWindowGeometry(props.id, geometry, resized);
-    };
+  const onGeometryChangeComplete = (geometry: ClientRect) => store.saveGeometry(geometry);
   const moveCallback = useCallback(onMove(area, tryToSnapToSiblings), [area, tryToSnapToSiblings]);
   // Moving object, the handle is the whole window
-  const [isGrabbed, setMoveHandle] = useObjectGrabber(container, moveCallback, onGeometryChangeComplete(false));
+  const [isGrabbed, setMoveHandle] = useObjectGrabber(container, moveCallback, onGeometryChangeComplete);
   // These installs all the resize handles
-  const [, setBottomResizeHandle] = useObjectGrabber(container, resizeCallback('bottom'), onGeometryChangeComplete(true));
-  const [, setTopResizeHandle] = useObjectGrabber(container, resizeCallback('top'), onGeometryChangeComplete(true));
-  const [, setRightResizeHandle] = useObjectGrabber(container, resizeCallback('right'), onGeometryChangeComplete(true));
-  const [, setLeftResizeHandle] = useObjectGrabber(container, resizeCallback('left'), onGeometryChangeComplete(true));
-  const [, setBottomCornerResizeHandle] = useObjectGrabber(container, resizeCallback('bottom-corner'), onGeometryChangeComplete(true));
+  const [, setBottomResizeHandle] = useObjectGrabber(container, resizeCallback('bottom'), onGeometryChangeComplete);
+  const [, setTopResizeHandle] = useObjectGrabber(container, resizeCallback('top'), onGeometryChangeComplete);
+  const [, setRightResizeHandle] = useObjectGrabber(container, resizeCallback('right'), onGeometryChangeComplete);
+  const [, setLeftResizeHandle] = useObjectGrabber(container, resizeCallback('left'), onGeometryChangeComplete);
+  const [, setBottomCornerResizeHandle] = useObjectGrabber(container, resizeCallback('bottom-corner'), onGeometryChangeComplete);
   // Compute the style
-  const classes: string = [
-    'window-element',
-    props.isMinimized ? 'minimized' : null,
-    isGrabbed ? 'grabbed' : null,
-  ]
+  const classes: string = ['window-element', store.minimized ? 'minimized' : null, isGrabbed ? 'grabbed' : null]
     .join(' ')
     .trim();
-
-  const style: CSSProperties | undefined = toStyle(props.geometry);
+  const style: CSSProperties | undefined = toStyle(store.geometry);
   // Keep the min width up to date
   useEffect(() => {
-    const {current: parent} = container;
+    const { current: parent } = container;
     if (parent === null)
       return;
     const element: HTMLDivElement | null = parent.querySelector('.content');
     if (element === null)
       return;
-    const {style} = parent;
+    const { style } = parent;
     const originalWidth = style.width;
     // Let's force scrollWidth and scrollHeight to have the minimal internalValue
     style.width = '1px';
@@ -186,9 +187,9 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
   }, [area.width]);
 
   useEffect(() => {
-    if (!autoSize)
+    if (fixed || !store.autoSize)
       return;
-    const {current: parent} = container;
+    const { current: parent } = container;
     if (parent === null)
       return;
     const element: HTMLDivElement | null = parent.querySelector('.content');
@@ -198,42 +199,69 @@ export const WindowElement: React.FC<Props> = (props: Props): ReactElement => {
       adjustToContent(parent, area);
     });
     // Observe changes
-    observer.observe(element, {childList: true, subtree: true});
+    observer.observe(element, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, [container, autoSize, area]);
+  }, [container, area, fixed, store.autoSize]);
 
   useEffect(() => {
-    if (!autoSize)
+    if (fixed || !store.autoSize)
       return;
-    const {current: parent} = container;
+    const { current: parent } = container;
     if (parent === null)
       return;
     adjustToContent(parent, area);
-  }, [container, autoSize, area]);
+  }, [container, area, fixed, store.autoSize]);
+
+  const bringToFront = () => {
+    const element: HTMLDivElement | null = container.current;
+    if (element === null)
+      return;
+    const parent: HTMLElement | null = element.parentElement;
+    if (parent === null)
+      return;
+    const front: Element | null = parent.querySelector('[data-front-tile]');
+    if (front !== null)
+      front.removeAttribute('data-front-tile');
+    element.setAttribute('data-front-tile', 'true');
+  };
+
+  const onClose = () => {
+    props.onClose(store.id);
+    props.onLayoutModify();
+  };
+
+  const onMinimize = () => {
+    props.onLayoutModify();
+    store.minimize();
+  };
+
+  const onAdjustSize = () => {
+    props.onLayoutModify();
+    store.adjustSize();
+  };
 
   const getTitlebarButtons = (): ReactElement | null => {
-    if (props.fixed)
+    if (fixed)
       return null;
     return (
-      <DefaultWindowButtons
-        isMinimized={props.isMinimized}
-        onClose={props.onClose}
-        onMinimize={props.onMinimize}
-        onAdjustSize={props.onAdjustSize}/>
+      <DefaultWindowButtons isMinimized={store.minimized}
+                            onMinimize={onMinimize}
+                            onAdjustSize={onAdjustSize}
+                            onClose={onClose}/>
     );
   };
 
   return (
-    <div id={props.id} className={classes} ref={container} style={style} onClickCapture={props.onClick}>
+    <div id={store.id} className={classes} ref={container} style={style} onClickCapture={bringToFront}>
       {getTitlebarButtons()}
       <div className={'content'} ref={setMoveHandle}>
-        {props.children}
+        {props.children && React.cloneElement(props.children as ReactElement, { scrollable: !store.autoSize })}
       </div>
-      {!isMinimized && <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>}
-      {!isMinimized && <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>}
-      {!isMinimized && <div className={'vertical resize-handle bottom'} ref={setBottomResizeHandle}/>}
-      {!isMinimized && <div className={'vertical resize-handle top'} ref={setTopResizeHandle}/>}
-      {!isMinimized && <div className={'corner resize-handle'} ref={setBottomCornerResizeHandle}/>}
+      {!store.minimized && !fixed && <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>}
+      {!store.minimized && !fixed && <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>}
+      {!store.minimized && !fixed && <div className={'vertical resize-handle bottom'} ref={setBottomResizeHandle}/>}
+      {!store.minimized && !fixed && <div className={'vertical resize-handle top'} ref={setTopResizeHandle}/>}
+      {!store.minimized && !fixed && <div className={'corner resize-handle'} ref={setBottomCornerResizeHandle}/>}
     </div>
   );
-};
+});

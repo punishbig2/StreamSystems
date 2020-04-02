@@ -1,5 +1,5 @@
-import {defaultWindowState, WindowState} from 'redux/stateDefs/windowState';
-import {FXOAction} from 'redux/fxo-action';
+import { defaultWindowState, WindowState } from 'redux/stateDefs/windowState';
+import { FXOAction } from 'redux/fxo-action';
 
 const initialState: WindowState = defaultWindowState;
 
@@ -18,14 +18,14 @@ export enum PodTileActions {
   DeleteOrder = 'POD_TILE_ACTIONS_DELETE_ORDER',
 }
 
-export const podTileReducer = (state: WindowState = initialState, {type, data}: FXOAction<PodTileActions>) => {
+export const podTileReducer = (state: WindowState = initialState, { type, data }: FXOAction<PodTileActions>) => {
   switch (type) {
     case PodTileActions.Initialize:
-      return {...state, rows: data};
+      return { ...state, rows: data };
     case PodTileActions.SetStrategy:
-      return {...state, strategy: data};
+      return { ...state, strategy: data };
     case PodTileActions.SetSymbol:
-      return {...state, symbol: data};
+      return { ...state, symbol: data };
     case PodTileActions.UpdateDOB:
       return state;
     default:

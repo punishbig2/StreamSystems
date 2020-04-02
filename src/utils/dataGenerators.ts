@@ -1,4 +1,4 @@
-import {PodRow} from 'interfaces/podRow';
+import { PodRow } from 'interfaces/podRow';
 
 /*export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes): Order => {
   return new Order(tenor, symbol, strategy, user, size, type);

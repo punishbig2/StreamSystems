@@ -1,6 +1,6 @@
 import strings from 'locales';
-import React, {ReactElement} from 'react';
-import {MessageBox} from 'components/MessageBox';
+import React, { ReactElement } from 'react';
+import { MessageBox } from 'components/MessageBox';
 
 interface Props {
   title: string;

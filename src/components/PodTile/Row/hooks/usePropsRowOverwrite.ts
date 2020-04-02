@@ -1,8 +1,8 @@
-import {useEffect} from 'react';
-import {createAction} from 'redux/actionCreator';
-import {ActionTypes} from 'components/PodTile/Row/reducer';
-import {FXOAction} from 'redux/fxo-action';
-import {useAction} from 'hooks/useAction';
+import { useEffect } from 'react';
+import { createAction } from 'redux/actionCreator';
+import { ActionTypes } from 'components/PodTile/Row/reducer';
+import { FXOAction } from 'redux/fxo-action';
+import { useAction } from 'hooks/useAction';
 
 export const usePropsRowOverwrite = (row: { [key: string]: any }) => {
   const [action, dispatch] = useAction<FXOAction<ActionTypes>>();

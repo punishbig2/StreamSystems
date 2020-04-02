@@ -1,12 +1,13 @@
-import {createAction} from 'redux/actionCreator';
-import {ActionTypes} from 'columns/podColumns/OrderColumn/reducer';
-import {Order} from 'interfaces/order';
-import {PodRowStatus} from 'interfaces/podRow';
-import {dispatchWorkspaceError} from 'utils';
-import {createOrder, findMyOrder} from 'components/PodTile/helpers';
-import {skipTabIndexAll} from 'utils/skipTab';
-import {Dispatch} from 'react';
-import {FXOAction} from 'redux/fxo-action';
+import { createAction } from 'redux/actionCreator';
+import { ActionTypes } from 'columns/podColumns/OrderColumn/reducer';
+import { Order } from 'interfaces/order';
+import { PodRowStatus } from 'interfaces/podRow';
+import { dispatchWorkspaceError } from 'utils';
+import { createOrder, findMyOrder } from 'components/PodTile/helpers';
+import { skipTabIndexAll } from 'utils/skipTab';
+import { Dispatch } from 'react';
+import { FXOAction } from 'redux/fxo-action';
+import { User } from 'interfaces/user';
 
 export const onSubmitSizeListener = (
   order: Order,
@@ -14,6 +15,7 @@ export const onSubmitSizeListener = (
   minimumSize: number,
   personality: string,
   dispatch: Dispatch<FXOAction<ActionTypes>>,
+  user: User,
   onRowStatusChange: (rowStatus: PodRowStatus) => void,
 ) =>
   async (input: HTMLInputElement) => {
@@ -23,7 +25,7 @@ export const onSubmitSizeListener = (
     }
     if (order.isCancelled() || order.price === null)
       dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
-    const myOrder: Order | undefined = findMyOrder(order);
+    const myOrder: Order | undefined = findMyOrder(order, user);
     if (!!myOrder && !myOrder.isCancelled()) {
       // Get the desired new size
       const size: number | null = editedSize;
@@ -35,7 +37,7 @@ export const onSubmitSizeListener = (
         return;
       }
       // Create the order
-      createOrder({...order, size}, minimumSize, personality)
+      createOrder({ ...order, size }, minimumSize, personality, user)
         .then(() => {
           console.log('order created');
         });

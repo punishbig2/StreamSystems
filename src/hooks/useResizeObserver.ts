@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 
 export const useResizeObserver = (element: HTMLDivElement | null): [number, number] => {
   const [containerSize, setContainerSize] = useState<number>(0);
@@ -14,7 +14,7 @@ export const useResizeObserver = (element: HTMLDivElement | null): [number, numb
       const mutateObserver: MutationObserver = new MutationObserver(callback);
       // @ts-ignore
       const resizeObserver: ResizeObserver = new ResizeObserver(callback);
-      mutateObserver.observe(element, {childList: true});
+      mutateObserver.observe(element, { childList: true });
       resizeObserver.observe(element);
       return () => {
         resizeObserver.disconnect();

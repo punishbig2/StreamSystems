@@ -1,15 +1,15 @@
-import {RunState} from 'redux/stateDefs/runState';
-import {FXOAction} from 'redux/fxo-action';
-import {activateOrder} from 'components/Run/reducers/activateOrder';
-import {valueChange} from 'components/Run/reducers/valueChange';
-import {removeAll} from 'components/Run/reducers/removeAll';
-import {removeOrder} from 'components/Run/reducers/removeOrder';
-import {deactivateOrder} from 'components/Run/reducers/deactivateOrder';
-import {deactivateAll} from 'components/Run/reducers/deactivateAll';
-import {activateRow} from 'components/Run/reducers/activateRow';
-import {updateOrder} from 'components/Run/reducers/updateOrder';
-import {updateSize} from 'components/Run/reducers/updateSize';
-import {updateRowStatus} from 'components/Run/reducers/updateRowStatus';
+import { RunState } from 'redux/stateDefs/runState';
+import { FXOAction } from 'redux/fxo-action';
+import { activateOrder } from 'components/Run/reducers/activateOrder';
+import { valueChange } from 'components/Run/reducers/valueChange';
+import { removeAll } from 'components/Run/reducers/removeAll';
+import { removeOrder } from 'components/Run/reducers/removeOrder';
+import { deactivateOrder } from 'components/Run/reducers/deactivateOrder';
+import { deactivateAll } from 'components/Run/reducers/deactivateAll';
+import { activateRow } from 'components/Run/reducers/activateRow';
+import { updateOrder } from 'components/Run/reducers/updateOrder';
+import { updateSize } from 'components/Run/reducers/updateSize';
+import { updateRowStatus } from 'components/Run/reducers/updateRowStatus';
 
 export enum RunActions {
   Mid = 'mid',
@@ -37,26 +37,26 @@ export enum RunActions {
   SetRowStatus = 'RUN_SET_ROW_STATUS',
 }
 
-export default (state: RunState, {type, data}: FXOAction<RunActions>): RunState => {
+export default (state: RunState, { type, data }: FXOAction<RunActions>): RunState => {
   switch (type) {
     case RunActions.SetRowStatus:
-      return updateRowStatus(state, data);;
+      return updateRowStatus(state, data);
     case RunActions.SetLoadingStatus:
-      return {...state, isLoading: true};
+      return { ...state, isLoading: true };
     case RunActions.SetDefaultSize:
-      return {...state, defaultOfrSize: data, defaultBidSize: data};
+      return { ...state, defaultOfrSize: data, defaultBidSize: data };
     case RunActions.RemoveOrder:
       return removeOrder(state, data);
     case RunActions.UpdateDefaultBidSize:
-      return {...state, defaultBidSize: data};
+      return { ...state, defaultBidSize: data };
     case RunActions.UpdateDefaultOfrSize:
-      return {...state, defaultOfrSize: data};
+      return { ...state, defaultOfrSize: data };
     case RunActions.UpdateBid:
       return updateOrder(state, data, 'bid');
     case RunActions.UpdateOfr:
       return updateOrder(state, data, 'ofr');
     case RunActions.SetTable:
-      return {...state, orders: data, original: data, isLoading: false};
+      return { ...state, orders: data, original: data, isLoading: false };
     case RunActions.OfrSizeChanged:
       return updateSize(state, data, 'ofr');
     case RunActions.BidSizeChanged:
@@ -69,7 +69,7 @@ export default (state: RunState, {type, data}: FXOAction<RunActions>): RunState 
     case RunActions.Ofr:
     case RunActions.Mid:
     case RunActions.Spread:
-      return valueChange(state, {type, data});
+      return valueChange(state, { type, data });
     case RunActions.ActivateRow:
       return activateRow(state, data);
     case RunActions.DeactivateAllOrders:

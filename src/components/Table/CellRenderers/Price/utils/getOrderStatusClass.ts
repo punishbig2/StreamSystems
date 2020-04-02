@@ -1,4 +1,4 @@
-import {OrderStatus} from 'interfaces/order';
+import { OrderStatus } from 'interfaces/order';
 
 export const getOrderStatusClass = (status: OrderStatus, className?: string): string => {
   const classes: string[] = className !== undefined ? [className] : [];

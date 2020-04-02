@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useReducer} from 'react';
-import {createAction} from 'redux/actionCreator';
+import React, { useCallback, useEffect, useReducer } from 'react';
+import { createAction } from 'redux/actionCreator';
 
 const cancelEvent = (event: Event | React.SyntheticEvent) => {
   event.stopPropagation();
@@ -19,15 +19,15 @@ enum ScrollerActions {
 
 const reducer = (
   state: State,
-  {type, data}: { type: ScrollerActions; data: any },
+  { type, data }: { type: ScrollerActions; data: any },
 ): State => {
   switch (type) {
     case ScrollerActions.Update:
-      return {...state, value: state.value + data};
+      return { ...state, value: state.value + data };
     case ScrollerActions.Grab:
-      return {...state, grabbedAt: data};
+      return { ...state, grabbedAt: data };
     case ScrollerActions.Release:
-      return {...state, grabbedAt: null};
+      return { ...state, grabbedAt: null };
     default:
       return state;
   }
@@ -83,8 +83,8 @@ const useMoveHandler = (
 export const useScroller = (
   reference: React.MutableRefObject<HTMLDivElement | null>,
 ): [number, number] => {
-  const [state, dispatch] = useReducer(reducer, {value: 0, grabbedAt: null});
-  const {grabbedAt} = state;
+  const [state, dispatch] = useReducer(reducer, { value: 0, grabbedAt: null });
+  const { grabbedAt } = state;
   // Get a reference to the reference :D
   const slider: HTMLElement | null = reference.current;
 

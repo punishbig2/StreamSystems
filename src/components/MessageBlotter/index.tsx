@@ -1,52 +1,32 @@
 import messageBlotterColumns from 'columns/messageBlotter';
-import {Row, BlotterRowTypes} from 'components/MessageBlotter/row';
-import {Table} from 'components/Table';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {User} from 'interfaces/user';
+import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
+import { Table } from 'components/Table';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { User } from 'interfaces/user';
 import strings from 'locales';
-import React, {useEffect, useMemo, ReactElement} from 'react';
-import {connect} from 'react-redux';
-import {ApplicationState} from 'redux/applicationState';
-import {MessageBlotterState} from 'redux/stateDefs/messageBlotterState';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {BlotterTypes} from 'redux/constants/messageBlotterConstants';
-import {Message, ExecTypes} from 'interfaces/message';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {STRM} from 'redux/stateDefs/workspaceState';
-
-interface DispatchProps {
-}
+import React, { useMemo, ReactElement, useState } from 'react';
+import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
+import { Message, ExecTypes } from 'interfaces/message';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { STRM } from 'redux/stateDefs/workspaceState';
+import { MessageBlotterStore } from 'mobx/stores/messageBlotter';
 
 interface OwnProps {
-  // FIXME: add filters and sorting
-  onTitleChange: (id: string, title: string) => void;
   id: string;
   personality: string;
   connected: boolean;
   blotterType: BlotterTypes;
+  user: User;
+  scrollable?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-const mapStateToProps: ({messageBlotter}: ApplicationState) => MessageBlotterState =
-  ({messageBlotter}: ApplicationState): MessageBlotterState => messageBlotter;
-
-const mapDispatchToProps: DispatchProps = {};
-
-const withRedux = connect<MessageBlotterState,
-  DispatchProps,
-  OwnProps,
-  ApplicationState>(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-type Props = OwnProps & DispatchProps & MessageBlotterState;
-const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
-  const {entries, onTitleChange, id} = props;
-  const {blotterType} = props;
-
-  useEffect(() => {
-    onTitleChange(id, strings.Monitor);
-  }, [id, onTitleChange]);
+type Props = OwnProps;
+const MessageBlotter: React.FC<Props> = React.forwardRef((props: Props, ref: React.Ref<HTMLDivElement>) => {
+  const [store] = useState<MessageBlotterStore>(new MessageBlotterStore());
+  const { user } = props;
+  const { entries } = store;
+  const { blotterType } = props;
 
   const isExecution = (message: Message): boolean => {
     return (
@@ -89,10 +69,10 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     );
   };
 
-  const user: User = getAuthenticatedUser();
   const columnsMap: { [key: string]: ColumnSpec[] } = messageBlotterColumns(
     props.blotterType,
   );
+
   const columns: ColumnSpec[] = useMemo(() => {
     return user.isbroker && props.personality === STRM
       ? columnsMap.broker
@@ -110,19 +90,19 @@ const MessageBlotter: React.FC<OwnProps> = withRedux((props: Props) => {
     }
   };
   return (
-    <>
+    <div ref={ref}>
       <div className={'window-title-bar'}>
         <h1>{props.blotterType === BlotterTypes.Executions ? 'Execution Blotter' : strings.Messages}</h1>
       </div>
       <div className={'window-content'}>
         <Table
-          scrollable={true}
+          scrollable={!!props.scrollable}
           columns={columns}
           rows={entries.filter(baseFilter)}
           renderRow={renderRow}/>
       </div>
-    </>
+    </div>
   );
 });
 
-export {MessageBlotter};
+export { MessageBlotter };

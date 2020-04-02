@@ -1,81 +1,52 @@
-import React, {useEffect, ReactNode} from 'react';
-import {UserProfileState, UserProfileModalTypes, User} from 'interfaces/user';
-import {UserProfileForm} from 'components/Workspace/UserProfileForm/form';
-import {ErrorBox} from 'components/ErrorBox';
-import {MessageBox} from 'components/MessageBox';
-import {MapStateToProps, MapDispatchToProps, connect} from 'react-redux';
-import {ApplicationState} from 'redux/applicationState';
-import {
-  loadUserProfile,
-  resetInitialProfile,
-  setCurrentModal,
-  setFieldValue,
-  saveUserProfile,
-} from 'redux/actions/userProfileActions';
-import {UserProfileActions} from 'redux/reducers/userProfileReducer';
-import {AsyncAction} from 'redux/asyncAction';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {FXOAction} from 'redux/fxo-action';
-
-interface DispatchProps {
-  loadUserProfile: (useremail: string) => AsyncAction<UserProfileActions>,
-  resetInitialProfile: () => FXOAction<UserProfileActions>;
-  setCurrentModal: (modalType: UserProfileModalTypes) => FXOAction<UserProfileActions>;
-  setFieldValue: (name: string, value: any) => FXOAction<UserProfileActions>;
-  saveUserProfile: (useremail: string, profile: any) => AsyncAction<UserProfileActions>,
-}
+import React, { useEffect, ReactNode, useState } from 'react';
+import { UserProfileModalTypes, User } from 'interfaces/user';
+import { UserProfileForm } from 'components/Workspace/UserProfileForm/form';
+import { ErrorBox } from 'components/ErrorBox';
+import { MessageBox } from 'components/MessageBox';
+import { UserProfileStore } from 'mobx/stores/userProfile';
+import { observer } from 'mobx-react';
 
 interface OwnProps {
+  user: User;
   onCancel: () => void;
 }
 
-const mapStateToProps: MapStateToProps<UserProfileState, OwnProps, ApplicationState> =
-  ({userProfile}: ApplicationState) => userProfile;
-const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = ({
-  loadUserProfile,
-  resetInitialProfile,
-  setCurrentModal,
-  setFieldValue,
-  saveUserProfile,
-});
+type Props = OwnProps;
 
-const withRedux = connect(mapStateToProps, mapDispatchToProps);
-
-type Props = OwnProps & DispatchProps & UserProfileState;
-
-const UserProfileModal: React.FC<Props> = (props: Props) => {
-  const {loadUserProfile} = props;
-  const user: User = getAuthenticatedUser();
+const UserProfileModal: React.FC<Props> = observer((props: Props) => {
+  const [store] = useState<UserProfileStore>(new UserProfileStore());
+  const { user } = props;
 
   const onClose = () => {
     props.onCancel();
     // Reset the profile in case it has changed
-    props.resetInitialProfile();
-    props.setCurrentModal(UserProfileModalTypes.Form);
+    store.resetInitialProfile();
+    store.setCurrentModal(UserProfileModalTypes.Form);
   };
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.saveUserProfile(user.email, props.profile);
+    store.saveUserProfile(user.email, store.profile);
   };
 
   useEffect(() => {
-    loadUserProfile(user.email);
-  }, [user.email, loadUserProfile]);
+    store.loadUserProfile(user.email);
+  }, [user.email, store]);
 
   const onChange = (name: string, value: any) => {
 
-    props.setFieldValue(name, value);
+    store.setFieldValue(name, value);
   };
 
   const closeButton = (): ReactNode => (
     <button className={'cancel'} onClick={onClose}>Close</button>
   );
 
-  switch (props.currentModalType) {
+  switch (store.currentModalType) {
     case UserProfileModalTypes.Form:
-      return <UserProfileForm profile={props.profile}
-                              original={props.initialProfile}
+      return <UserProfileForm profile={store.profile}
+                              user={props.user}
+                              original={store.initialProfile}
                               onChange={onChange}
                               onSubmit={onSubmit}
                               onCancel={onClose}/>;
@@ -96,7 +67,7 @@ const UserProfileModal: React.FC<Props> = (props: Props) => {
     default:
       return null;
   }
-};
+});
 
-const connected = withRedux(UserProfileModal);
-export {connected as UserProfileModal};
+export { UserProfileModal };
+

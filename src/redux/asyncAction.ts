@@ -1,7 +1,7 @@
-import {HTTPError} from 'API';
-import {Dispatch, Action} from 'redux';
-import {createAction} from 'redux/actionCreator';
-import {WorkareaActions} from 'redux/constants/workareaConstants';
+import { HTTPError } from 'API';
+import { Dispatch, Action } from 'redux';
+import { createAction } from 'redux/actionCreator';
+import { WorkareaActions } from 'redux/constants/workareaConstants';
 
 export class AsyncAction<T, A extends Action = Action<T>> implements Action<T> {
   private readonly handler: (dispatch?: Dispatch<A>) => Promise<A | A[]>;

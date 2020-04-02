@@ -1,22 +1,22 @@
-import {NumericInput, TabDirection} from 'components/NumericInput';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {PriceActions} from 'components/Table/CellRenderers/Price/constants';
-import {Direction} from 'components/Table/CellRenderers/Price/direction';
-import {useFlasher} from 'components/Table/CellRenderers/Price/hooks/useFlasher';
-import {useStatusUpdater} from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
-import {useValueComparator} from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
-import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
-import {reducer} from 'components/Table/CellRenderers/Price/reducer';
-import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {ArrowDirection} from 'interfaces/w';
-import React, {useCallback, useReducer, ReactElement, useState} from 'react';
-import {createAction} from 'redux/actionCreator';
-import {priceFormatter} from 'utils/priceFormatter';
-import {useValueListener} from 'components/Table/CellRenderers/Price/hooks/useValueListener';
-import {getLayoutClass} from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
-import {Tooltip} from 'components/Table/CellRenderers/Price/tooltip';
-import {OrderStatus} from 'interfaces/order';
+import { NumericInput, TabDirection } from 'components/NumericInput';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { PriceActions } from 'components/Table/CellRenderers/Price/constants';
+import { Direction } from 'components/Table/CellRenderers/Price/direction';
+import { useFlasher } from 'components/Table/CellRenderers/Price/hooks/useFlasher';
+import { useStatusUpdater } from 'components/Table/CellRenderers/Price/hooks/useStatusUpdater';
+import { useValueComparator } from 'components/Table/CellRenderers/Price/hooks/useValueComparator';
+import { PriceTypes } from 'components/Table/CellRenderers/Price/priceTypes';
+import { reducer } from 'components/Table/CellRenderers/Price/reducer';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { ArrowDirection } from 'interfaces/w';
+import React, { useCallback, useReducer, ReactElement, useState } from 'react';
+import { createAction } from 'redux/actionCreator';
+import { priceFormatter } from 'utils/priceFormatter';
+import { useValueListener } from 'components/Table/CellRenderers/Price/hooks/useValueListener';
+import { getLayoutClass } from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
+import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';
+import { OrderStatus } from 'interfaces/order';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -49,7 +49,7 @@ export interface Props {
 }
 
 export const Price: React.FC<Props> = (props: Props) => {
-  const {timestamp, value, tooltip} = props;
+  const { timestamp, value, tooltip } = props;
   if (value === undefined)
     throw new Error('value is not optional');
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
@@ -62,15 +62,15 @@ export const Price: React.FC<Props> = (props: Props) => {
     status: props.status || OrderStatus.None,
     internalValue: priceFormatter(value),
   });
-  const {tooltipVisible} = state;
+  const { tooltipVisible } = state;
 
   const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
   const setInternalValue = useCallback((value: string, status: OrderStatus) => {
-    dispatch(createAction(PriceActions.SetValue, {value, status}));
+    dispatch(createAction(PriceActions.SetValue, { value, status }));
   }, []);
 
   const resetValue = useCallback((value: string, status: OrderStatus) => {
-    dispatch(createAction(PriceActions.ResetValue, {value, status}));
+    dispatch(createAction(PriceActions.ResetValue, { value, status }));
   }, []);
 
   const showTooltip = tooltip ? (event: React.MouseEvent<HTMLDivElement>) => {
@@ -140,7 +140,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
 
   const finalValue = (status: OrderStatus): string => {
-    const {internalValue} = state;
+    const { internalValue } = state;
     if (internalValue === null || ((status & OrderStatus.Cancelled) !== 0 && (status & OrderStatus.PriceEdited) === 0))
       return '';
     return internalValue;
@@ -231,7 +231,7 @@ export const Price: React.FC<Props> = (props: Props) => {
            onMouseLeave={hideTooltip}
            onMouseEnter={showTooltip}
            ref={setTarget}>
-        <Direction direction={value === null ? ArrowDirection.None : props.arrow}/>
+        {value !== null && props.arrow !== ArrowDirection.None && <Direction direction={props.arrow}/>}
         <NumericInput
           id={props.uid}
           readOnly={props.readOnly}

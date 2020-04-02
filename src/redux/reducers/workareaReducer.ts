@@ -1,13 +1,13 @@
-import {User} from 'interfaces/user';
-import {SignalRActions} from 'redux/constants/signalRConstants';
-import {WorkareaActions} from 'redux/constants/workareaConstants';
-import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
-import {FXOAction, ActionKind} from 'redux/fxo-action';
-import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {WorkspaceState} from 'redux/stateDefs/workspaceState';
-import {workspaceReducer} from 'redux/reducers/workspaceReducer';
-import {UserProfileActions, defaultProfile} from 'redux/reducers/userProfileReducer';
-import {getUserFromUrl} from 'utils/getUserFromUrl';
+/*import { User } from 'interfaces/user';
+import { SignalRActions } from 'redux/constants/signalRConstants';
+import { WorkareaActions } from 'redux/constants/workareaConstants';
+import { WorkareaState, WorkareaStatus } from 'redux/stateDefs/workareaState';
+import { FXOAction, ActionKind } from 'redux/fxo-action';
+import { WorkspaceActions } from 'redux/constants/workspaceConstants';
+import { WorkspaceState } from 'redux/stateDefs/workspaceState';
+import { workspaceReducer } from 'redux/reducers/workspaceReducer';
+import { UserProfileActions, defaultProfile } from 'redux/reducers/userProfileReducer';
+import { getUserFromUrl } from 'utils/getUserFromUrl';
 
 export const defaultWorkareaState: WorkareaState = {
   workspaces: {},
@@ -23,11 +23,11 @@ export const defaultWorkareaState: WorkareaState = {
   userProfile: defaultProfile,
 };
 
-const initialState: WorkareaState = {...defaultWorkareaState};
+const initialState: WorkareaState = { ...defaultWorkareaState };
 
 const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
   // This is actually a copy
-  const workspaces: { [id: string]: WorkspaceState } = {...state.workspaces};
+  const workspaces: { [id: string]: WorkspaceState } = { ...state.workspaces };
   // Remove it from the workspaces list
   delete workspaces[id];
   // Get the new active if the old one was the deleted one
@@ -38,10 +38,10 @@ const removeWorkspace = (state: WorkareaState, id: string): WorkareaState => {
     return id === state.activeWorkspace ? values[0].id : state.activeWorkspace;
   };
   // Return the "new" object
-  return {...state, activeWorkspace: newActive(), workspaces};
+  return { ...state, activeWorkspace: newActive(), workspaces };
 };
 
-const renameWorkspace = (state: WorkareaState, {name, id}: WorkspaceState): WorkareaState => {
+const renameWorkspace = (state: WorkareaState, { name, id }: WorkspaceState): WorkareaState => {
   // All the workspaces
   const workspaces: { [id: string]: WorkspaceState } = state.workspaces;
   // The target workspace
@@ -52,18 +52,18 @@ const renameWorkspace = (state: WorkareaState, {name, id}: WorkspaceState): Work
   // Create the new object
   return {
     ...state,
-    workspaces: {...workspaces, [id]: {...workspace, name}},
+    workspaces: { ...workspaces, [id]: { ...workspace, name } },
   };
 };
 
 const initialize = (state: WorkareaState, data: any): WorkareaState => {
-  const {users, ...rest} = data;
+  const { users, ...rest } = data;
   const email: string | null = getUserFromUrl();
   const user: User | undefined = users.find(
     (user: User): boolean => user.email === email,
   );
   if (!user)
-    return {...state, status: WorkareaStatus.UserNotFound};
+    return { ...state, status: WorkareaStatus.UserNotFound };
   return {
     ...state,
     ...rest,
@@ -106,20 +106,20 @@ const nextReducer = (state: WorkareaState, action: ActionType) => {
 };
 
 export default (state: WorkareaState = initialState, action: ActionType): WorkareaState => {
-  const {type, data} = action;
+  const { type, data } = action;
   switch (type) {
     case SignalRActions.Connected:
-      return {...state, connected: true};
+      return { ...state, connected: true };
     case SignalRActions.Disconnected:
-      return {...state, connected: false};
+      return { ...state, connected: false };
     case WorkareaActions.AddWorkspace:
       return {
         ...state,
-        workspaces: {...state.workspaces, [data.id]: data},
+        workspaces: { ...state.workspaces, [data.id]: data },
         activeWorkspace: data.id,
       };
     case WorkareaActions.SetWorkspace:
-      return {...state, activeWorkspace: data};
+      return { ...state, activeWorkspace: data };
     case WorkareaActions.CloseWorkspace:
       return removeWorkspace(state, data);
     case WorkareaActions.RenameWorkspace:
@@ -127,28 +127,29 @@ export default (state: WorkareaState = initialState, action: ActionType): Workar
     case WorkareaActions.SetupTOBTile:
       return state;
     case WorkareaActions.Initializing:
-      return {...state, status: WorkareaStatus.Initializing};
+      return { ...state, status: WorkareaStatus.Initializing };
     case WorkareaActions.Initialized:
       return initialize(state, data);
     case WorkareaActions.LoadingSymbols:
-      return {...state, message: 'Loading Symbols'};
+      return { ...state, message: 'Loading Symbols' };
     case WorkareaActions.LoadingStrategies:
-      return {...state, message: 'Loading Strategies'};
+      return { ...state, message: 'Loading Strategies' };
     case WorkareaActions.LoadingTenors:
-      return {...state, message: 'Loading Tenors'};
+      return { ...state, message: 'Loading Tenors' };
     case WorkareaActions.LoadingMessages:
-      return {...state, message: 'Loading Messages'};
+      return { ...state, message: 'Loading Messages' };
     case WorkareaActions.LoadingUsersList:
-      return {...state, message: 'Loading User Information'};
+      return { ...state, message: 'Loading User Information' };
     case WorkareaActions.ServerUnavailable:
-      return {...state, status: WorkareaStatus.Error};
+      return { ...state, status: WorkareaStatus.Error };
     case WorkareaActions.SetLastExecution:
-      return {...state, recentExecutions: [...state.recentExecutions, data]};
+      return { ...state, recentExecutions: [...state.recentExecutions, data] };
     case WorkareaActions.ClearLastExecution:
-      return {...state, recentExecutions: []};
+      return { ...state, recentExecutions: [] };
     case UserProfileActions.SetUserProfile:
-      return {...state, userProfile: action.data};
+      return { ...state, userProfile: action.data };
     default:
       return nextReducer(state, action);
   }
-};
+};*/
+export const WorkareaReducerModule = null;

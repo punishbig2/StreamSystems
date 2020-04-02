@@ -1,7 +1,7 @@
-import React, {useState, useEffect, ReactNode} from 'react';
-import {ExecSound} from 'interfaces/user';
-import {Select, MenuItem} from '@material-ui/core';
-import {addSound, getSoundsList, deleteSound} from 'beep-sound';
+import React, { useState, useEffect, ReactNode } from 'react';
+import { ExecSound } from 'interfaces/user';
+import { Select, MenuItem } from '@material-ui/core';
+import { addSound, getSoundsList, deleteSound } from 'beep-sound';
 
 interface Props {
   value: string;
@@ -15,7 +15,7 @@ export const SoundsList: React.FC<Props> = (props: Props) => {
   }, []);
 
   const onExecSoundChange = (event: any) => {
-    const {value} = event.target;
+    const { value } = event.target;
     if (value === 'add') {
       const input: HTMLInputElement = document.createElement('input');
       input.setAttribute('type', 'file');
@@ -50,7 +50,7 @@ export const SoundsList: React.FC<Props> = (props: Props) => {
         }
       };
     } else {
-      const {target} = event;
+      const { target } = event;
       props.onChange(target.name, target.value);
     }
   };

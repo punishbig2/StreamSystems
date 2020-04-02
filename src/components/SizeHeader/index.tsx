@@ -1,11 +1,11 @@
-import {SizeHeaderProps} from 'components/Run/columnData';
-import React, {useState, useEffect} from 'react';
-import {DualTableHeader} from 'components/dualTableHeader';
+import { SizeHeaderProps } from 'components/Run/columnData';
+import React, { useState, useEffect } from 'react';
+import { DualTableHeader } from 'components/dualTableHeader';
 
 import strings from 'locales';
 
-import {NumericInput} from 'components/NumericInput';
-import {sizeFormatter} from 'utils/sizeFormatter';
+import { NumericInput } from 'components/NumericInput';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 type Props = SizeHeaderProps;
 export const SizeHeader: React.FC<Props> = (props: Props) => {

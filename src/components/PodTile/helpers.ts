@@ -1,13 +1,11 @@
-import {Order, OrderStatus} from 'interfaces/order';
-import {API} from 'API';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {skipTabIndexAll} from 'utils/skipTab';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User} from 'interfaces/user';
-import {SignalRManager} from 'redux/signalR/signalRManager';
+import { Order, OrderStatus } from 'interfaces/order';
+import { API } from 'API';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { skipTabIndexAll } from 'utils/skipTab';
+import { User } from 'interfaces/user';
+import { SignalRManager } from 'redux/signalR/signalRManager';
 
-export const findMyOrder = (topOrder: Order): Order | undefined => {
-  const user: User = getAuthenticatedUser();
+export const findMyOrder = (topOrder: Order, user: User): Order | undefined => {
   if (topOrder.user === user.email)
     return topOrder;
   const haystack: Order[] = SignalRManager.getDepth(topOrder.symbol, topOrder.strategy, topOrder.tenor, topOrder.type);
@@ -21,28 +19,27 @@ export const findMyOrder = (topOrder: Order): Order | undefined => {
   return undefined;
 };
 
-export const createOrder = async (order: Order, minimumSize: number, personality: string) => {
+export const createOrder = async (order: Order, minimumSize: number, personality: string, user: User) => {
   if (order.price !== null) {
     // Find my own order and cancel it
-    const myOrder: Order | undefined = findMyOrder(order);
+    const myOrder: Order | undefined = findMyOrder(order, user);
     if (myOrder !== undefined && (myOrder.status & OrderStatus.Cancelled) === 0) {
-      const user: User = getAuthenticatedUser();
       if ((user.isbroker && order.firm === personality) || !user.isbroker) {
         // It's funny, but actually "myOrder" and "order" have the same
         // Id
-        await API.cancelOrder(myOrder);
+        await API.cancelOrder(myOrder, user);
       }
     }
-    await API.createOrder(order, personality, minimumSize);
+    await API.createOrder(order, personality, user, minimumSize);
   } else {
     throw new Error('attempting to create an invalid order');
   }
 };
 
-export const cancelOrder = (order: Order) => {
-  const myOrder: Order | undefined = findMyOrder(order);
+export const cancelOrder = (order: Order, user: User) => {
+  const myOrder: Order | undefined = findMyOrder(order, user);
   if (myOrder) {
-    API.cancelOrder(myOrder);
+    API.cancelOrder(myOrder, user);
   }
 };
 

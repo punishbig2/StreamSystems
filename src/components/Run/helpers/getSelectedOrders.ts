@@ -1,12 +1,12 @@
-import {PodTable} from 'interfaces/podTable';
-import {Order, OrderStatus} from 'interfaces/order';
-import {PodRow} from 'interfaces/podRow';
-import {$$} from 'utils/stringPaster';
+import { PodTable } from 'interfaces/podTable';
+import { Order, OrderStatus } from 'interfaces/order';
+import { PodRow } from 'interfaces/podRow';
+import { $$ } from 'utils/stringPaster';
 
 export const getSelectedOrders = (orders: PodTable, defaultSize: number): Order[] => {
   const rows: PodRow[] = Object.values(orders)
     .filter((row: PodRow) => {
-      const {bid, ofr} = row;
+      const { bid, ofr } = row;
       if (bid.price === null && ofr.price === null)
         return false;
       if (bid.price === null || ofr.price === null)
@@ -24,11 +24,11 @@ export const getSelectedOrders = (orders: PodTable, defaultSize: number): Order[
     return value;
   };
   const selection: Order[] = [
-    ...rows.map(({bid}: PodRow) => ({
+    ...rows.map(({ bid }: PodRow) => ({
       ...bid,
       size: getSize(bid, defaultSize),
     })),
-    ...rows.map(({ofr}: PodRow) => ({
+    ...rows.map(({ ofr }: PodRow) => ({
       ...ofr,
       size: getSize(ofr, defaultSize),
     })),

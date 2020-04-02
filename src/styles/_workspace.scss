@@ -16,9 +16,14 @@
     position: absolute;
     z-index: 0;
 
+    &[data-front-tile] {
+      z-index: 1;
+    }
+
     &.minimized {
       max-height: $window-toolbar-size;
       overflow: hidden;
+
       .window-buttons {
         button:first-child {
           display: none;
@@ -31,12 +36,11 @@
     }
 
     &.grabbed {
-      box-shadow: 0 4px 16px -3px rgba(0, 0, 0, 0.5);
+      outline: 2px solid $primary-color;
       z-index: 3;
 
       .content {
         outline: none;
-        cursor: grabbing;
       }
     }
 
@@ -191,7 +195,7 @@
           display: inline-block;
         }
 
-       .status {
+        .status {
           display: inline-block;
           margin: 0 8px;
 
@@ -226,10 +230,10 @@
         position: relative;
         flex: 1 0;
         min-width: min-content;
-        pointer-events: none;
         min-height: 0;
         padding: 2px 2px 4px 2px;
         box-sizing: border-box;
+        pointer-events: none;
       }
     }
   }

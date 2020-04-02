@@ -1,16 +1,14 @@
-import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
-import {PodTable} from 'interfaces/podTable';
-import {User} from 'interfaces/user';
-import {W} from 'interfaces/w';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {$$} from 'utils/stringPaster';
+import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { PodTable } from 'interfaces/podTable';
+import { User } from 'interfaces/user';
+import { W } from 'interfaces/w';
+import { $$ } from 'utils/stringPaster';
 
 type E = 'bid' | 'ofr';
 
-export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
-  const user: User = getAuthenticatedUser();
+export const mdEntryToTOBEntry = (w: W, user: User) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
   if (entry) {
     return Order.fromWAndMDEntry(w, entry, user);
   } else {
@@ -25,13 +23,13 @@ export const mdEntryToTOBEntry = (w: W) => (entry: MDEntry, fallbackType: OrderT
   }
 };
 
-const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
-  const reducer = (table: PodTable, row: PodRow, index: number): PodTable => {
+const reshape = (w: W, user: User, bids: MDEntry[], offers: MDEntry[]): PodTable => {
+  const reducer = (table: PodTable, row: PodRow): PodTable => {
     table[row.id] = row;
     return table;
   };
-  const createMapper = (key1: E, key2: E) => (other: MDEntry[]) => (entry: MDEntry, index: number): PodRow => {
-    const transform = mdEntryToTOBEntry(w);
+  const createMapper = (key1: E, key2: E, user: User) => (other: MDEntry[]) => (entry: MDEntry, index: number): PodRow => {
+    const transform = mdEntryToTOBEntry(w, user);
     if (key1 === 'ofr' && key2 === 'bid') {
       return {
         id: $$('__DOB', index, w.Tenor, w.Symbol, w.Strategy),
@@ -59,10 +57,10 @@ const reshape = (w: W, bids: MDEntry[], offers: MDEntry[]): PodTable => {
     }
   };
   if (bids.length > offers.length) {
-    const mapperSelector = createMapper('bid', 'ofr');
+    const mapperSelector = createMapper('bid', 'ofr', user);
     return bids.map(mapperSelector(offers)).reduce(reducer, {});
   } else {
-    const mapperSelector = createMapper('ofr', 'bid');
+    const mapperSelector = createMapper('ofr', 'bid', user);
     return offers.map(mapperSelector(bids)).reduce(reducer, {});
   }
 };
@@ -114,9 +112,9 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
   }
 };
 
-export const toPodRow = (w: W): PodRow => {
+export const toPodRow = (w: W, user: User): PodRow => {
   const [bid, ofr]: [MDEntry, MDEntry] = reorder(w);
-  const transform = mdEntryToTOBEntry(w);
+  const transform = mdEntryToTOBEntry(w, user);
   return {
     id: `${w.Symbol}${w.Strategy}${w.Tenor}`,
     tenor: w.Tenor,
@@ -129,7 +127,7 @@ export const toPodRow = (w: W): PodRow => {
   };
 };
 
-export const extractDepth = (w: W): PodTable => {
+export const extractDepth = (w: W, user: User): PodTable => {
   const entries: MDEntry[] = w.Entries || [];
   const bids: MDEntry[] = entries.filter(
     (entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid,
@@ -153,7 +151,7 @@ export const extractDepth = (w: W): PodTable => {
   bids.sort(compareEntries(-1));
   ofrs.sort(compareEntries(1));
   // Change the shape of this thing
-  return reshape(w, bids, ofrs);
+  return reshape(w, user, bids, ofrs);
 };
 
 export const orderArrayToPodTableReducer = (table: PodTable, order: Order) => {

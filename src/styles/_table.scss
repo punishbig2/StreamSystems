@@ -44,9 +44,6 @@
     background-color: rgba($primary-color, $table-tint);
 
     .twin-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       height: 100%;
       line-height: $table-header-height / 2 + 1;
       border: none;
@@ -54,6 +51,11 @@
 
       :first-child {
         border-right: 1px solid $table-border-color;
+      }
+
+      .size, .price {
+        display: inline-block;
+        vertical-align: top;
       }
 
       .size {
@@ -72,19 +74,22 @@
     pointer-events: all;
     z-index: 1;
 
-    .twin-cell {
-      display: flex;
-
-      .cell:first-child {
+    .td.twin-cell {
+      > .cell:first-child {
         border-right: 1px solid $table-border-color;
       }
 
-      .price-layout {
-        width: 60%;
-      }
+      .cell {
+        display: inline-block;
+        vertical-align: top;
 
-      .size-layout {
-        width: 40%;
+        &.price-layout {
+          width: 60%;
+        }
+
+        &.size-layout {
+          width: 40%;
+        }
       }
     }
 
@@ -210,6 +215,10 @@
     }
   }
 
+  .thead {
+    margin-bottom: -1px;
+  }
+
   .thead .tr .th,
   .tbody .tr .td {
     display: inline-block;
@@ -219,14 +228,10 @@
     line-height: inherit;
     height: inherit;
     cursor: text;
-    border-top: 1px solid $table-border-color;
     border-left: 1px solid $table-border-color;
+    border-top: 1px solid $table-border-color;
 
     z-index: 2;
-
-    * {
-      z-index: 1;
-    }
 
     &:last-child {
       border-right: 1px solid $table-border-color;
@@ -297,6 +302,7 @@
     font-weight: 600;
     text-align: center;
     margin: 0;
+    border-bottom: 1px solid $table-border-color;
 
     input.filter {
       width: 100%;
@@ -370,7 +376,7 @@
         width: 100%;
 
         .runs-size-input {
-          display: block;
+          display: inline-block;
           background-color: white;
           border: none;
           padding: 0;
@@ -433,12 +439,21 @@
     }
   }
 
+  .tbody .tr .td .size-layout {
+    position: relative;
+
+    input.cell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+  }
+
   .tbody .tr .td,
   .thead .tr .th {
     .price-layout,
     .size-layout {
       position: relative;
-      display: flex;
       z-index: 1;
 
       .plus-sign {
@@ -588,7 +603,6 @@
 
     .price-layout,
     .size-layout {
-      display: flex;
       align-items: center;
       line-height: $table-row-height;
       white-space: nowrap;
@@ -701,12 +715,23 @@
     height: 100%;
 
     &.times {
+      position: relative;
+      display: inline-block;
       top: 0;
       left: 0;
       color: $text-color-red;
       height: $table-row-height;
       width: $table-row-height;
       line-height: $table-row-height;
+      z-index: 2;
+
+      &:first-child {
+        margin-right: -$table-row-height;
+      }
+
+      &:last-child {
+        margin-left: -$table-row-height;
+      }
 
       i {
         display: inline-block;
@@ -787,7 +812,6 @@
   }
 
   input {
-    flex: 1;
     text-overflow: ellipsis;
     overflow: hidden;
     text-align: center;

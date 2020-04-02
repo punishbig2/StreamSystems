@@ -1,6 +1,6 @@
-import {MessageBlotterActions} from 'redux/constants/messageBlotterConstants';
-import {FXOAction} from 'redux/fxo-action';
-import {ExecTypes, Message} from 'interfaces/message';
+import { MessageBlotterActions } from 'redux/constants/messageBlotterConstants';
+import { FXOAction } from 'redux/fxo-action';
+import { ExecTypes, Message } from 'interfaces/message';
 
 export const defaultExecutions = [];
 

@@ -1,4 +1,4 @@
-import {Action} from 'redux';
+import { Action } from 'redux';
 
 export enum ActionKind {
   Base = 'BASE',

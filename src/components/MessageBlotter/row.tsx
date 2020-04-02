@@ -1,8 +1,7 @@
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import React, {CSSProperties, ReactElement, useEffect, useState} from 'react';
-import {percentage} from 'utils';
-import {$$} from 'utils/stringPaster';
-import {MessageBlotterActions, BlotterTypes} from 'redux/constants/messageBlotterConstants';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
+import { $$ } from 'utils/stringPaster';
+import { MessageBlotterActions, BlotterTypes } from 'redux/constants/messageBlotterConstants';
 
 export enum BlotterRowTypes {
   Normal,
@@ -41,9 +40,9 @@ const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, ex
 };
 
 const Row: React.FC<Props> = (props: Props): ReactElement | null => {
-  const {columns, blotterType, row} = props;
+  const { columns, blotterType, row } = props;
   const [executed, setExecuted] = useState<boolean>(false);
-  const {ExecID} = row;
+  const { ExecID } = row;
 
   useEffect(() => {
     if (blotterType === BlotterTypes.Executions) {
@@ -67,7 +66,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
 
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {
-      width: percentage(column.weight, props.weight),
+      width: props.weight,
     };
     return (
       <div className={'td'} key={$$(column.name, row.id)} style={style}>
@@ -84,4 +83,4 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   );
 };
 
-export {Row};
+export { Row };

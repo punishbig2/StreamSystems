@@ -1,8 +1,8 @@
-import {RunState} from 'redux/stateDefs/runState';
-import {PodRow} from 'interfaces/podRow';
+import { RunState } from 'redux/stateDefs/runState';
+import { PodRow } from 'interfaces/podRow';
 
 export const deactivateAll = (state: RunState, rowID: string): RunState => {
-  const {orders} = state;
+  const { orders } = state;
   if (orders === undefined || rowID === undefined)
     return state;
   const row: PodRow = orders[rowID];

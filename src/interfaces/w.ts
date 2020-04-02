@@ -1,4 +1,4 @@
-import {MDEntry} from 'interfaces/mdEntry';
+import { MDEntry } from 'interfaces/mdEntry';
 
 export enum MessageTypes {
   W = 'W',

@@ -1,9 +1,9 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import React, {ReactElement, useEffect, useState} from 'react';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import React, { ReactElement, useEffect, useState } from 'react';
 import strings from 'locales';
-import {PresetSizeButton} from 'components/presetSizeButton';
-import {sizeFormatter} from 'utils/sizeFormatter';
+import { PresetSizeButton } from 'components/presetSizeButton';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 interface Props {
   order: Order;
@@ -15,7 +15,7 @@ interface Props {
 const formatValue = (value: number | null, precision: number): string =>
   value === null ? '' : value.toFixed(precision);
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
-  const {order} = props;
+  const { order } = props;
   const [size, setSize] = useState<number | null>(order.size);
   const [price, setPrice] = useState<string>(formatValue(order.price, 3));
   const [input, setInput] = useState<HTMLInputElement | null>(null);
@@ -25,14 +25,14 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
     input.focus();
   }, [input]);
   if (!order) return null;
-  const updateQuantity = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+  const updateQuantity = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = Number(value);
     if (isNaN(numeric)) {
       return;
     }
     setSize(numeric);
   };
-  const updatePrice = ({target: {value}}: React.ChangeEvent<HTMLInputElement>) => {
+  const updatePrice = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = Number(value);
     if (isNaN(numeric))
       return;
@@ -101,4 +101,4 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   );
 };
 
-export {OrderTicket};
+export { OrderTicket };

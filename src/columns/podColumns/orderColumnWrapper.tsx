@@ -1,11 +1,11 @@
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import React, {ReactElement} from 'react';
-import {PodRowProps} from 'columns/podColumns/common';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {OrderColumn} from 'columns/podColumns/OrderColumn';
-import {Order} from 'interfaces/order';
-import {SignalRManager} from 'redux/signalR/signalRManager';
-import {priceFormatter} from 'utils/priceFormatter';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import React, { ReactElement } from 'react';
+import { PodRowProps } from 'columns/podColumns/common';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { OrderColumn } from 'columns/podColumns/OrderColumn';
+import { Order } from 'interfaces/order';
+import { SignalRManager } from 'redux/signalR/signalRManager';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boolean, action: () => ReactElement | null): ColumnSpec => {
   return {
@@ -51,19 +51,20 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
       return (
         <OrderColumn
           type={type}
+          user={props.user}
           personality={props.personality}
-          isBroker={props.isBroker}
-          bid={bid}
-          ofr={ofr}
           depths={props.depths}
           defaultSize={props.defaultSize}
           minimumSize={props.minimumSize}
+          bid={bid}
+          ofr={ofr}
           isDepth={isDepth}
           onRowStatusChange={props.onRowStatusChange}/>
       );
     },
     template: '999999 999999.999',
-    weight: 13,
+    width: 13,
+    className: 'twin-cell',
   };
 };
 

@@ -1,53 +1,50 @@
-import {Tab} from 'components/Tab';
-import {TabLabel} from 'components/TabLabel';
+import { Tab } from 'components/Tab';
+import { TabLabel } from 'components/TabLabel';
 import config from 'config';
 
-import React, {ReactElement, useState, useRef} from 'react';
-import {Menu, MenuItem} from '@material-ui/core';
-import {CurrencyGroups} from 'interfaces/user';
-
-interface Entry {
-  name: string;
-  id: string;
-  isDefaultWorkspace: boolean;
-}
+import React, { ReactElement, useState, useRef } from 'react';
+import { Menu, MenuItem } from '@material-ui/core';
+import { CurrencyGroups } from 'interfaces/user';
+import { WorkspaceDef } from 'mobx/stores/workarea';
 
 interface Props {
-  entries: { [key: string]: Entry };
+  entries: { [k: string]: WorkspaceDef };
   active: string | null;
   addTab: (group: CurrencyGroups) => void;
-  setActiveTab: (name: string) => void;
+  setActiveTab: (id: string) => void;
   onTabClosed: (id: string) => void;
-  onTabRenamed: (name: string, id: string) => void;
   onQuit: () => void;
+  onWorkspaceRename: (id: string, name: string) => void;
 }
 
 const TabBar: React.FC<Props> = (props: Props): ReactElement => {
-  const active: string | null = props.active;
+  const { active, entries } = props;
   const [isShowingOptions, showOptions] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
   // Get the workspace entries
-  const entries: [string, Entry][] = Object.entries<Entry>(props.entries);
   const destroyWorkspace = (id: string) => {
     props.onTabClosed(id);
   };
   // Map the entries to an array
-  const tabs: ReactElement[] = entries.map<ReactElement>(([id, object]) => {
-    const onClosed = (event: React.MouseEvent) => {
-      event.stopPropagation();
-      event.preventDefault();
-      // Remove the tab (with it's contents)
-      destroyWorkspace(id);
-    };
-    const onClick = () => props.setActiveTab(id);
-    const onRenamed = (name: string) => props.onTabRenamed(name, id);
-    const label = (
-      <TabLabel label={object.name} isDefault={object.isDefaultWorkspace} onRenamed={onRenamed} onClosed={onClosed}/>
-    );
-    return (
-      <Tab key={id} id={id} onClick={onClick} active={id === active} label={label}/>
-    );
-  });
+  const tabs: ReactElement[] = Object.values(entries)
+    .map<ReactElement>((workspace: WorkspaceDef) => {
+      const onClosed = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        // Remove the tab (with it's contents)
+        destroyWorkspace(workspace.id);
+      };
+      const onClick = () => props.setActiveTab(workspace.id);
+      const label = (
+        <TabLabel label={workspace.name}
+                  isDefault={workspace.isDefault}
+                  onRenamed={(name: string) => props.onWorkspaceRename(workspace.id, name)}
+                  onClosed={onClosed}/>
+      );
+      return (
+        <Tab key={workspace.id} id={workspace.id} onClick={onClick} active={workspace.id === active} label={label}/>
+      );
+    });
   // Add WorkspaceActions label
   const addWorkspaceLabel: ReactElement = (
     <button className={'new-workspace'}>
@@ -92,4 +89,4 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   );
 };
 
-export {TabBar};
+export { TabBar };

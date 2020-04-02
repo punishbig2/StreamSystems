@@ -1,6 +1,6 @@
-import {Reducer} from 'react';
-import {FXOAction} from 'redux/fxo-action';
-import {toNumberOrFallbackIfNaN} from 'columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN';
+import { Reducer } from 'react';
+import { FXOAction } from 'redux/fxo-action';
+import { toNumberOrFallbackIfNaN } from 'columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN';
 
 export interface State {
   editedSize: number | null;
@@ -14,11 +14,11 @@ export enum ActionTypes {
 export const reducer: Reducer<State, FXOAction<ActionTypes>> = (state: State, action: FXOAction<ActionTypes>): State => {
   switch (action.type) {
     case ActionTypes.SetEditedSize:
-      return {...state, editedSize: toNumberOrFallbackIfNaN(action.data, state.editedSize)};
+      return { ...state, editedSize: toNumberOrFallbackIfNaN(action.data, state.editedSize) };
     case ActionTypes.SetSubmittedSize:
-      return {...state, submittedSize: toNumberOrFallbackIfNaN(action.data, state.submittedSize)};
+      return { ...state, submittedSize: toNumberOrFallbackIfNaN(action.data, state.submittedSize) };
     case ActionTypes.ResetAllSizes:
-      return {...state, editedSize: null, submittedSize: null};
+      return { ...state, editedSize: null, submittedSize: null };
     default:
       return state;
   }

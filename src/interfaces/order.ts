@@ -1,10 +1,9 @@
-import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
-import {User} from 'interfaces/user';
-import {ArrowDirection, MessageTypes, W} from 'interfaces/w';
-import {$$} from 'utils/stringPaster';
-import {OrderAction} from 'orderEvents';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {Sides} from 'interfaces/sides';
+import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
+import { User } from 'interfaces/user';
+import { ArrowDirection, MessageTypes, W } from 'interfaces/w';
+import { $$ } from 'utils/stringPaster';
+import { OrderAction } from 'orderEvents';
+import { Sides } from 'interfaces/sides';
 
 export interface CreateOrder {
   MsgType: MessageTypes;
@@ -164,7 +163,7 @@ export class Order {
       entry.MDEntryType,
     );
     // Update fields not in the constructor
-    order.price = getNumber(entry.MDEntryPx);
+    order.price = price;
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;
     order.status = ownership | preFilled | sameBank | active | isOwnerBroker;
@@ -176,7 +175,7 @@ export class Order {
 
   public dispatchEvent = (action: OrderAction) => {
     const type: string = $$(this.uid(), action);
-    const event: CustomEvent = new CustomEvent<Order>(type, {detail: this});
+    const event: CustomEvent = new CustomEvent<Order>(type, { detail: this });
     // Now dispatch it
     document.dispatchEvent(event);
   };
@@ -185,8 +184,7 @@ export class Order {
     return (this.status & OrderStatus.BeingCreated) !== 0;
   };
 
-  public isOwnedByCurrentUser = (): boolean => {
-    const user: User = getAuthenticatedUser();
+  public isOwnedByCurrentUser = (user: User): boolean => {
     return this.user === user.email;
   };
 
@@ -194,8 +192,8 @@ export class Order {
     return (this.status & OrderStatus.BeingCancelled) !== 0;
   };
 
-  public isCancellable = () => {
-    return this.isOwnedByCurrentUser();
+  public isCancellable = (user: User) => {
+    return this.isOwnedByCurrentUser(user);
   };
 
   public isCancelled = () => {

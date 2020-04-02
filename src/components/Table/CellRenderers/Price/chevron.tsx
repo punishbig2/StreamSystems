@@ -12,4 +12,4 @@ const Chevron: React.FC<OwnProps> = (props: OwnProps) => {
   );
 };
 
-export {Chevron};
+export { Chevron };

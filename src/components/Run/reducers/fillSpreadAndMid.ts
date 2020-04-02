@@ -1,5 +1,5 @@
-import {PodRow} from 'interfaces/podRow';
-import {Order, OrderStatus} from 'interfaces/order';
+import { PodRow } from 'interfaces/podRow';
+import { Order, OrderStatus } from 'interfaces/order';
 
 const isOrderAcceptableForComputation = (order: Order): boolean => {
   const status: OrderStatus = order.status;
@@ -13,7 +13,7 @@ const isOrderAcceptableForComputation = (order: Order): boolean => {
 };
 
 export const fillSpreadAndMid = (row: PodRow): PodRow => {
-  const {ofr, bid} = row;
+  const { ofr, bid } = row;
   if (isOrderAcceptableForComputation(ofr) && isOrderAcceptableForComputation(bid)) {
     return {
       ...row,

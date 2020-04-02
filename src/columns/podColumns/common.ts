@@ -1,10 +1,10 @@
-import {PodTable} from 'interfaces/podTable';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
+import { PodTable } from 'interfaces/podTable';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { User } from 'interfaces/user';
 
 export type PodRowProps = PodRow & {
   depths: { [key: string]: PodTable };
   personality: string;
-  isBroker: boolean;
   defaultSize: number;
   minimumSize: number;
   darkPrice: number | null;
@@ -12,6 +12,7 @@ export type PodRowProps = PodRow & {
   strategy: string;
   status: PodRowStatus;
   connected: boolean;
+  user: User;
   // Event handlers
   onTenorSelected: (tenor: string) => void;
   onRowStatusChange: (status: PodRowStatus) => void;

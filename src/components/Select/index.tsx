@@ -1,5 +1,5 @@
-import {Currency} from 'interfaces/currency';
-import React, {useState, ReactElement, useEffect} from 'react';
+import { Currency } from 'interfaces/currency';
+import React, { useState, ReactElement, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
 interface OwnProps {
@@ -11,7 +11,7 @@ interface OwnProps {
 }
 
 export const Select: React.FC<OwnProps> = (props: OwnProps) => {
-  const {list, value} = props;
+  const { list, value } = props;
   const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [position, setPosition] = useState<ClientRect>(new DOMRect());
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -20,7 +20,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const [currentItem, setCurrentItem] = useState<number>(0);
 
   const onChange = (event: React.FormEvent<HTMLSelectElement>) => {
-    const {currentTarget} = event;
+    const { currentTarget } = event;
     props.onChange(currentTarget.value);
   };
 
@@ -64,7 +64,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         return true;
       return array.some((next: ChildNode) => isChildOf(next, child));
     };
-    const onClickOutside = ({target}: MouseEvent) => {
+    const onClickOutside = ({ target }: MouseEvent) => {
       if (target === dropdown || isChildOf(dropdown, target as HTMLElement))
         return;
       setDropdownVisible(false);
@@ -77,7 +77,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     setCurrentItem(list.findIndex((item: { name: string }) => item.name === value));
   }, [value, list]);
 
-  const filtered: any[] = list.filter(({name}: { name: string }) => {
+  const filtered: any[] = list.filter(({ name }: { name: string }) => {
     const lowerName: string = name.toLowerCase();
     if (keyword.trim() === '')
       return true;
@@ -85,7 +85,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   });
 
   const updateKeyword = (event: React.FormEvent<HTMLInputElement>) => {
-    const {value} = event.currentTarget;
+    const { value } = event.currentTarget;
     setKeyword(value);
     setCurrentItem(0);
   };

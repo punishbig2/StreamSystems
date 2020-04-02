@@ -34,4 +34,11 @@ export default {
   Save: 'Save',
   TimezoneUnset: 'Timezone not defined',
   CCYGroupUnset: 'Currency group not defined',
+  LoadingSymbols: 'Loading Currencies',
+  LoadingStrategies: 'Loading Strategies',
+  LoadingMessages: 'Loading System Messages',
+  LoadingTenors: 'Loading Tenors',
+  LoadingUserData: 'Loading User Data',
+  EstablishingConnection: 'Connecting\u2026',
+  LoadingWorkspaces: 'Loading Workspaces',
 };

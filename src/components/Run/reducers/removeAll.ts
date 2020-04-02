@@ -1,10 +1,10 @@
-import {RunState} from 'redux/stateDefs/runState';
-import {PodTable} from 'interfaces/podTable';
-import {PodRow} from 'interfaces/podRow';
-import {Order, OrderStatus} from 'interfaces/order';
+import { RunState } from 'redux/stateDefs/runState';
+import { PodTable } from 'interfaces/podTable';
+import { PodRow } from 'interfaces/podRow';
+import { Order, OrderStatus } from 'interfaces/order';
 
 export const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
-  const orders: PodTable = {...state.orders};
+  const orders: PodTable = { ...state.orders };
   const rows: [string, PodRow][] = Object.entries(orders);
   const entries = rows.map(([index, row]: [string, PodRow]) => {
     const order: Order = row[key];
@@ -21,5 +21,5 @@ export const removeAll = (state: RunState, key: 'bid' | 'ofr'): RunState => {
       ];
     return [index, row];
   });
-  return {...state, orders: Object.fromEntries(entries)};
+  return { ...state, orders: Object.fromEntries(entries) };
 };

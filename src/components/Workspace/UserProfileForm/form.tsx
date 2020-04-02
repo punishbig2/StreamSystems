@@ -1,19 +1,19 @@
-import React, {ChangeEvent, FormEvent, ReactNode} from 'react';
+import React, { ChangeEvent, FormEvent, ReactNode } from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
-import {FormControl, FormLabel, Select, MenuItem, Input} from '@material-ui/core';
-import {UserWorkspace, OCOModes, User} from 'interfaces/user';
-import timezones, {TimezoneInfo} from 'data/timezones';
+import { FormControl, FormLabel, Select, MenuItem, Input } from '@material-ui/core';
+import { UserWorkspace, OCOModes, User } from 'interfaces/user';
+import timezones, { TimezoneInfo } from 'data/timezones';
 import deepEqual from 'deep-equal';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {SoundsList} from 'components/Workspace/UserProfileForm/soundsList';
+import { SoundsList } from 'components/Workspace/UserProfileForm/soundsList';
 
 interface OwnProps {
+  profile: UserWorkspace;
+  original: UserWorkspace | null;
+  user: User;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   onChange: (name: string, value: any) => void;
-  profile: UserWorkspace;
-  original: UserWorkspace | null;
 }
 
 declare var GlobalApplicationVersion: string;
@@ -33,10 +33,10 @@ const renderCCYGroup = (value: unknown): ReactNode => {
 };
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
-  const {profile} = props;
+  const { profile, user } = props;
 
-  const onChangeWrapper = ({target}: ChangeEvent<any>) => {
-    const {name} = target;
+  const onChangeWrapper = ({ target }: ChangeEvent<any>) => {
+    const { name } = target;
     const value: any = (() => {
       if (target.type === 'checkbox') {
         return target.checked;
@@ -57,7 +57,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     return text.replace(/_/g, ' ');
   };
 
-  const user: User = getAuthenticatedUser();
   const userType: string = user.isbroker ? 'Broker' : 'Bank';
   return (
     <>

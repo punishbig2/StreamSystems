@@ -1,19 +1,24 @@
-import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState} from '@microsoft/signalr';
+import {
+  HttpTransportType,
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+  HubConnectionState,
+} from '@microsoft/signalr';
 import config from 'config';
-import {Message, DarkPoolMessage, ExecTypes} from 'interfaces/message';
-import {W, isPodW, MessageTypes} from 'interfaces/w';
-import {Action, AnyAction} from 'redux';
-import {API, CancellablePromise} from 'API';
-import {propagateDepth} from 'utils/messageHandler';
-import {$$} from 'utils/stringPaster';
-import {SignalRActions} from 'redux/constants/signalRConstants';
-import {MDEntry, OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User} from 'interfaces/user';
+import { Message, DarkPoolMessage, ExecTypes } from 'interfaces/message';
+import { W, isPodW } from 'interfaces/w';
+import { Action, AnyAction } from 'redux';
+import { API } from 'API';
+import { propagateDepth } from 'utils/messageHandler';
+import { $$ } from 'utils/stringPaster';
+import { SignalRActions } from 'redux/constants/signalRConstants';
+import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { User } from 'interfaces/user';
 import deepEqual from 'deep-equal';
-import {PodTable} from 'interfaces/podTable';
-import {orderArrayToPodTableReducer} from 'utils/dataParser';
+import { PodTable } from 'interfaces/podTable';
+import { orderArrayToPodTableReducer } from 'utils/dataParser';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -37,6 +42,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
+  private user: User = {} as User;
 
   private static dispatchedWs: { [key: string]: W } = {};
   private static orderCache: { [id: string]: Order } = {};
@@ -50,6 +56,10 @@ export class SignalRManager<A extends Action = AnyAction> {
     // Export to class wide variable
     this.connection = connection;
   }
+
+  public setUser = (user: User) => {
+    this.user = user;
+  };
 
   static getInstance = (): SignalRManager => {
     if (SignalRManager.instance !== null)
@@ -69,7 +79,7 @@ export class SignalRManager<A extends Action = AnyAction> {
       .build();
 
   public connect = () => {
-    const {connection} = this;
+    const { connection } = this;
     if (connection !== null) {
       connection
         .start()
@@ -96,7 +106,7 @@ export class SignalRManager<A extends Action = AnyAction> {
         console.log(error);
       });
       // Install update market handler
-      connection.on('updateMessageBlotter', this.synchronize(this.onUpdateMessageBlotter));
+      // connection.on('updateMessageBlotter', this.synchronize(this.onUpdateMessageBlotter));
       connection.on('updateMarketData', this.synchronize(this.onUpdateMarketData));
       connection.on('updateDarkPoolPx', this.synchronize(this.onUpdateDarkPoolPx));
     }
@@ -147,9 +157,8 @@ export class SignalRManager<A extends Action = AnyAction> {
     return false;
   };
 
-  private static addToCache = (w: W) => {
+  public static addToCache = (w: W, user: User) => {
     const entries: MDEntry[] = w.Entries;
-    const user: User = getAuthenticatedUser();
     if (entries) {
       const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
       // This is stupid, but it shuts the compiler warning
@@ -167,7 +176,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   public static getDepth = (symbol: string, strategy: string, tenor: string, type: OrderTypes): Order[] => {
-    const {orderCache} = SignalRManager;
+    const { orderCache } = SignalRManager;
     const values: Order[] = Object.values(orderCache);
     const unsorted: Order[] = values.filter((order: Order) => {
       return order.symbol === symbol
@@ -207,7 +216,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   public static getOrdersForUser = (email: string): Order[] => {
-    const {orderCache} = SignalRManager;
+    const { orderCache } = SignalRManager;
     const values: Order[] = Object.values(orderCache);
     return values.filter((order: Order) => order.user === email);
   };
@@ -220,8 +229,8 @@ export class SignalRManager<A extends Action = AnyAction> {
       if (isPodW(w)) {
         this.emitPodWEvent(w);
       } else {
-        SignalRManager.addToCache(w);
-        propagateDepth(w);
+        SignalRManager.addToCache(w, this.user);
+        propagateDepth(w, this.user);
       }
       // Dispatch the action
       /*if (this.onUpdateMarketDataListener !== null) {
@@ -237,7 +246,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const type: string = $$(message.Symbol, message.Strategy, message.Tenor, 'DpPx');
-    document.dispatchEvent(new CustomEvent(type, {detail: message}));
+    document.dispatchEvent(new CustomEvent(type, { detail: message }));
   };
 
   public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
@@ -263,22 +272,21 @@ export class SignalRManager<A extends Action = AnyAction> {
   private emitDarkPoolOrderWEvent = (w: W) => {
     // Now that we know it's the right time, create and dispatch the event
     const type: string = $$(w.Symbol, w.Strategy, w.Tenor, 'Dp');
-    const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w, bubbles: false, cancelable: false});
+    const event: CustomEvent<W> = new CustomEvent<W>(type, { detail: w, bubbles: false, cancelable: false });
     // Dispatch it now
     document.dispatchEvent(event);
   };
 
-  private emitPodWEvent = (w: W) => {
+  public emitPodWEvent = (w: W) => {
     // Now that we know it's the right time, create and dispatch the event
     const type: string = $$(w.Symbol, w.Strategy, w.Tenor);
-    const event: CustomEvent<W> = new CustomEvent<W>(type, {detail: w, bubbles: false, cancelable: false});
+    const event: CustomEvent<W> = new CustomEvent<W>(type, { detail: w, bubbles: false, cancelable: false });
     // Dispatch it now
     document.dispatchEvent(event);
   };
 
   public addPodRowListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
     const connection: HubConnection | null = this.connection;
-    const user: User = getAuthenticatedUser();
     if (connection !== null && connection.state === HubConnectionState.Connected) {
       const type: string = $$(symbol, strategy, tenor);
       const listenerWrapper = (event: CustomEvent<W>) => {
@@ -287,47 +295,10 @@ export class SignalRManager<A extends Action = AnyAction> {
       };
       document.addEventListener(type, listenerWrapper as EventListener);
       connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
-      // Now get the "snapshots"
-      const p1: CancellablePromise<W | null> = API.getTOBSnapshot(symbol, strategy, tenor);
-      // Wait for resolution here
-      p1.then((w: W | null) => {
-        if (w === null) {
-          this.emitPodWEvent({
-            MsgType: MessageTypes.W,
-            TransactTime: Date.now() / 1000,
-            User: user.email,
-            Tenor: tenor,
-            Strategy: strategy,
-            Symbol: symbol,
-            NoMDEntries: 2,
-            Entries: [],
-            ExDestination: undefined,
-            '9712': 'TOB',
-          });
-        } else {
-          SignalRManager.addToCache(w);
-          this.emitPodWEvent({...w, '9712': 'TOB'});
-        }
-      });
-      const p2: CancellablePromise<W | null> = API.getSnapshot(symbol, strategy, tenor);
-      p2.then((w: W | null) => {
-        if (w === null)
-          return;
-        SignalRManager.addToCache(w);
-        propagateDepth(w);
-      });
       return () => {
         document.removeEventListener(type, listenerWrapper as EventListener);
         // Unsubscribe from the market data feed
         connection.invoke(SignalRActions.UnsubscribeFromMarketData, symbol, strategy, tenor);
-        if (typeof p1.cancel === 'function' && typeof p2.cancel === 'function') {
-          // Cancel tob snapshot
-          p1.cancel();
-          // Cancel full snapshot
-          p2.cancel();
-        } else {
-          console.log(p1, p2);
-        }
       };
     } else {
       throw new Error('you are not connected to signal R, this should never happen');
@@ -335,7 +306,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   public addDarkPoolPxListener = (symbol: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
-    const {connection} = this;
+    const { connection } = this;
     const type: string = $$(symbol, strategy, tenor, 'DpPx');
 
     const listenerWrapper = (event: CustomEvent<DarkPoolMessage>) => {
@@ -369,5 +340,36 @@ export class SignalRManager<A extends Action = AnyAction> {
       document.removeEventListener(type, listenerWrapper as EventListener);
     };
   }
+
+  public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
+    const { connection } = this;
+    if (connection) {
+      connection.invoke(SignalRActions.SubscribeForMBMsg, useremail);
+      connection.on('updateMessageBlotter', (message: any) => {
+        onMessage(message);
+      });
+      return () => {
+        connection.invoke(SignalRActions.UnsubscribeFromMBMsg, useremail);
+      };
+    }
+    return () => null;
+  }
+
+  public loadDepth = (currency: string, strategy: string, user: User) => {
+    API.getSnapshot(currency, strategy)
+      .then((snapshot: { [k: string]: W } | null) => {
+        if (snapshot === null)
+          return;
+        const keys: string[] = Object.keys(snapshot);
+        keys.forEach((tenor: string) => {
+          const w: W = snapshot[tenor];
+          SignalRManager.addToCache(w, user);
+          propagateDepth(w, user);
+        });
+      });
+  };
 }
+
+// Call this to initialize it
+SignalRManager.getInstance();
 

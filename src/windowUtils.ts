@@ -7,8 +7,8 @@ export const addClass = (element: HTMLDivElement, className: string) => {
 };
 
 export const getOptimalSize = (element: HTMLDivElement, area: ClientRect = windowRect()): { width: number, height: number } => {
-  const {style} = element;
-  const size: { width: number, height: number } = {width: 0, height: 0};
+  const { style } = element;
+  const size: { width: number, height: number } = { width: 0, height: 0 };
   const [top, left] = [style.top, style.left];
   style.width = '1px';
   style.height = '1px';

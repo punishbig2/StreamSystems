@@ -1,7 +1,7 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {PodRow} from 'interfaces/podRow';
-import {PodTable} from 'interfaces/podTable';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { PodRow } from 'interfaces/podRow';
+import { PodTable } from 'interfaces/podTable';
 
 type Depths = { [key: string]: PodTable };
 export const getMiniDOBByType = (depths: Depths, tenor: string, type: OrderTypes): Order[] | undefined => {

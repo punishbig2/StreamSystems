@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, { ReactNode } from 'react';
 
 interface Props {
   action?: (() => ReactNode);
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const DualTableHeader = (props: Props) => {
-  const {action} = props;
+  const { action } = props;
   const classes: string[] = ['dual-header'];
   if (props.className !== undefined)
     classes.push(props.className);

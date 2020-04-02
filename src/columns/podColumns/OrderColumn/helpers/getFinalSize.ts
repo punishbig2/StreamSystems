@@ -1,4 +1,4 @@
-import {OrderStatus} from 'interfaces/order';
+import { OrderStatus } from 'interfaces/order';
 
 export const getFinalSize = (status: OrderStatus, submittedSize: number | null, orderSize: number | null, minimumSize: number, defaultSize?: number): number => {
   if ((status & OrderStatus.Owned) === 0)

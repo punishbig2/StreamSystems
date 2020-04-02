@@ -1,6 +1,9 @@
-import {Message} from 'interfaces/message';
+import { Message } from 'interfaces/message';
 import React from 'react';
-import {currencyToNumber} from 'redux/actions/workareaActions';
+
+const currencyToNumber = (value: string) => {
+  return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
+};
 
 export default (sortable: boolean) => ({
   name: 'Currency',
@@ -8,10 +11,10 @@ export default (sortable: boolean) => ({
   filterable: true,
   sortable: sortable,
   header: () => <div>Currency</div>,
-  render: ({Symbol}: Message) => (
+  render: ({ Symbol }: Message) => (
     <div className={'message-blotter-cell normal'}>{Symbol}</div>
   ),
-  weight: 2,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Symbol;
     if (!original) return false;

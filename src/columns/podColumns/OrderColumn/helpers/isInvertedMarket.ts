@@ -1,6 +1,6 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {SignalRManager} from 'redux/signalR/signalRManager';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { SignalRManager } from 'redux/signalR/signalRManager';
 
 export const isInvertedMarket = (order: Order, type: OrderTypes, price: number | null) => {
   const otherType: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;

@@ -1,5 +1,5 @@
-import {RunEntry} from 'components/Run/runEntry';
-import {RunActions} from 'components/Run/reducer';
+import { RunEntry } from 'components/Run/runEntry';
+import { RunActions } from 'components/Run/reducer';
 
 export const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
   switch (type) {

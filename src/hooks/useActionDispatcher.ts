@@ -1,4 +1,4 @@
-import {Dispatch} from 'react';
+import { Dispatch } from 'react';
 
 export const useActionDispatcher = <T>(actions: (T | null)[], dispatch: Dispatch<T>) => {
   actions.forEach((action: T | null) => {

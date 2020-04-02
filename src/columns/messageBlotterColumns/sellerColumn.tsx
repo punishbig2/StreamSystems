@@ -1,5 +1,5 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {ExecTypes, Message} from 'interfaces/message';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { ExecTypes, Message } from 'interfaces/message';
 import React from 'react';
 
 const getSeller = (message: Message): string | null => {
@@ -34,5 +34,5 @@ export const sellerColumn = (sortable: boolean) => ({
   filterable: true,
   sortable: sortable,
   template: 'SELLER',
-  weight: 2,
+  width: 2,
 });

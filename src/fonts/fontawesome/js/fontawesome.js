@@ -204,7 +204,7 @@
   var DATA_ICON = 'data-icon';
   var HTML_CLASS_I2SVG_BASE_CLASS = 'fontawesome-i2svg';
   var MUTATION_APPROACH_ASYNC = 'async';
-  var TAGNAMES_TO_SKIP_FOR_PSEUDOELEMENTS = [ 'HTML', 'HEAD', 'STYLE', 'SCRIPT' ];
+  var TAGNAMES_TO_SKIP_FOR_PSEUDOELEMENTS = ['HTML', 'HEAD', 'STYLE', 'SCRIPT'];
   var PRODUCTION = (function () {
     try {
       return 'production' === 'production';
@@ -235,8 +235,8 @@
     normal: 'far',
     '300': 'fal',
   };
-  var oneToTen = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ];
-  var oneToTwenty = oneToTen.concat([ 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 ]);
+  var oneToTen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var oneToTwenty = oneToTen.concat([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
   var ATTRIBUTES_WATCHED_FOR_MUTATION = [
     'class',
     'data-prefix',
@@ -313,17 +313,17 @@
 
   if (DOCUMENT && typeof DOCUMENT.querySelector === 'function') {
     var attrs = [
-      [ 'data-family-prefix', 'familyPrefix' ],
-      [ 'data-replacement-class', 'replacementClass' ],
-      [ 'data-auto-replace-svg', 'autoReplaceSvg' ],
-      [ 'data-auto-add-css', 'autoAddCss' ],
-      [ 'data-auto-a11y', 'autoA11y' ],
-      [ 'data-search-pseudo-elements', 'searchPseudoElements' ],
-      [ 'data-observe-mutations', 'observeMutations' ],
-      [ 'data-mutate-approach', 'mutateApproach' ],
-      [ 'data-keep-original-source', 'keepOriginalSource' ],
-      [ 'data-measure-performance', 'measurePerformance' ],
-      [ 'data-show-missing-icons', 'showMissingIcons' ],
+      ['data-family-prefix', 'familyPrefix'],
+      ['data-replacement-class', 'replacementClass'],
+      ['data-auto-replace-svg', 'autoReplaceSvg'],
+      ['data-auto-add-css', 'autoAddCss'],
+      ['data-auto-a11y', 'autoA11y'],
+      ['data-search-pseudo-elements', 'searchPseudoElements'],
+      ['data-observe-mutations', 'observeMutations'],
+      ['data-mutate-approach', 'mutateApproach'],
+      ['data-keep-original-source', 'keepOriginalSource'],
+      ['data-measure-performance', 'measurePerformance'],
+      ['data-show-missing-icons', 'showMissingIcons'],
     ];
     attrs.forEach(function (_ref) {
       var _ref2 = _slicedToArray(_ref, 2),
@@ -420,7 +420,7 @@
   }
 
   function asyncCall(callback, arg) {
-    asyncQueue.push([ callback, arg ]);
+    asyncQueue.push([callback, arg]);
 
     if (!asyncTimer) {
       asyncTimer = true;
@@ -737,7 +737,7 @@
       var child = headChildren[i];
       var tagName = (child.tagName || '').toUpperCase();
 
-      if ([ 'STYLE', 'LINK' ].indexOf(tagName) > -1) {
+      if (['STYLE', 'LINK'].indexOf(tagName) > -1) {
         beforeChild = child;
       }
     }
@@ -915,7 +915,7 @@
     if (abstract.tag === 'g') {
       return abstract.children;
     } else {
-      return [ abstract ];
+      return [abstract];
     }
   }
 
@@ -963,7 +963,7 @@
     var maskOuterGroup = {
       tag: 'g',
       attributes: _objectSpread({}, trans.outer),
-      children: [ maskInnerGroup ],
+      children: [maskInnerGroup],
     };
     var maskId = 'mask-'.concat(nextUniqueId());
     var clipId = 'clip-'.concat(nextUniqueId());
@@ -974,7 +974,7 @@
         maskUnits: 'userSpaceOnUse',
         maskContentUnits: 'userSpaceOnUse',
       }),
-      children: [ maskRect, maskOuterGroup ],
+      children: [maskRect, maskOuterGroup],
     };
     var defs = {
       tag: 'defs',
@@ -1168,7 +1168,7 @@
             content.attributes['aria-labelledby'] ||
             'title-'.concat(nextUniqueId()),
         },
-        children: [ title ],
+        children: [title],
       });
     }
 
@@ -1248,7 +1248,7 @@
     val.push({
       tag: 'span',
       attributes: attributes,
-      children: [ content ],
+      children: [content],
     });
 
     if (title) {
@@ -1257,7 +1257,7 @@
         attributes: {
           class: 'sr-only',
         },
-        children: [ title ],
+        children: [title],
       });
     }
 
@@ -1292,7 +1292,7 @@
     val.push({
       tag: 'span',
       attributes: attributes,
-      children: [ content ],
+      children: [content],
     });
 
     if (title) {
@@ -1301,7 +1301,7 @@
         attributes: {
           class: 'sr-only',
         },
-        children: [ title ],
+        children: [title],
       });
     }
 
@@ -1536,7 +1536,7 @@
         acc.prefix = cls;
       } else if (
         config.autoFetchSvg &&
-        [ 'fas', 'far', 'fal', 'fad', 'fab', 'fa' ].indexOf(cls) > -1
+        ['fas', 'far', 'fal', 'fad', 'fab', 'fa'].indexOf(cls) > -1
       ) {
         acc.prefix = cls;
       } else if (iconName) {
@@ -2062,7 +2062,7 @@
   };
   var missing = {
     tag: 'g',
-    children: [ RING, DOT, QUESTION, EXCLAMATION ],
+    children: [RING, DOT, QUESTION, EXCLAMATION],
   };
 
   var styles$2 = namespace.styles;
@@ -2171,7 +2171,7 @@
       extra = nodeMeta.extra;
     return new picked(function (resolve, reject) {
       picked
-        .all([ findIcon(iconName, prefix), findIcon(mask.iconName, mask.prefix) ])
+        .all([findIcon(iconName, prefix), findIcon(mask.iconName, mask.prefix)])
         .then(function (_ref) {
           var _ref2 = _slicedToArray(_ref, 2),
             main = _ref2[0],
@@ -2333,7 +2333,7 @@
       arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     generateMutation(node).then(function (mutation) {
       if (mutation) {
-        perform([ mutation ], callback);
+        perform([mutation], callback);
       }
     });
   }
@@ -2801,7 +2801,7 @@
           extra: {
             attributes: attributes,
             styles: styles,
-            classes: [ ''.concat(config.familyPrefix, '-layers-text') ].concat(
+            classes: [''.concat(config.familyPrefix, '-layers-text')].concat(
               _toConsumableArray(classes),
             ),
           },
@@ -2833,7 +2833,7 @@
           extra: {
             attributes: attributes,
             styles: styles,
-            classes: [ ''.concat(config.familyPrefix, '-layers-counter') ].concat(
+            classes: [''.concat(config.familyPrefix, '-layers-counter')].concat(
               _toConsumableArray(classes),
             ),
           },
@@ -2930,12 +2930,12 @@
 
         (_namespace$shims = namespace.shims).push.apply(
           _namespace$shims,
-          _toConsumableArray(shims)
+          _toConsumableArray(shims),
         );
 
         build();
         autoReplace();
-      }
+      },
     });
   }
 

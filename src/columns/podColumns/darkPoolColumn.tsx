@@ -1,25 +1,23 @@
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {PodRowProps} from 'columns/podColumns/common';
-import {Order, OrderStatus, DarkPoolOrder} from 'interfaces/order';
-import {OrderTypes, MDEntry} from 'interfaces/mdEntry';
-import {Price} from 'components/Table/CellRenderers/Price';
-import {ArrowDirection, W} from 'interfaces/w';
-import {PriceTypes} from 'components/Table/CellRenderers/Price/priceTypes';
-import React, {useCallback, useEffect, useState, useMemo} from 'react';
-import {DarkPoolTooltip} from 'components/Table/CellRenderers/Price/darkPoolTooltip';
-import {PodTable} from 'interfaces/podTable';
-import {PodRow} from 'interfaces/podRow';
-import {STRM} from 'redux/stateDefs/workspaceState';
-import {DarkPoolTicket} from 'components/DarkPoolTicket';
-import {ModalWindow} from 'components/ModalWindow';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {User} from 'interfaces/user';
-import {API} from 'API';
-import {SignalRManager} from 'redux/signalR/signalRManager';
-import {DarkPoolMessage} from 'interfaces/message';
-import {onNavigate} from 'components/PodTile/helpers';
-import {$$} from 'utils/stringPaster';
-import {skipTabIndexAll} from 'utils/skipTab';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { PodRowProps } from 'columns/podColumns/common';
+import { Order, OrderStatus, DarkPoolOrder } from 'interfaces/order';
+import { OrderTypes, MDEntry } from 'interfaces/mdEntry';
+import { Price } from 'components/Table/CellRenderers/Price';
+import { ArrowDirection, W } from 'interfaces/w';
+import { PriceTypes } from 'components/Table/CellRenderers/Price/priceTypes';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { DarkPoolTooltip } from 'components/Table/CellRenderers/Price/darkPoolTooltip';
+import { PodTable } from 'interfaces/podTable';
+import { PodRow } from 'interfaces/podRow';
+import { STRM } from 'redux/stateDefs/workspaceState';
+import { DarkPoolTicket } from 'components/DarkPoolTicket';
+import { ModalWindow } from 'components/ModalWindow';
+import { API } from 'API';
+import { SignalRManager } from 'redux/signalR/signalRManager';
+import { DarkPoolMessage } from 'interfaces/message';
+import { onNavigate } from 'components/PodTile/helpers';
+import { $$ } from 'utils/stringPaster';
+import { skipTabIndexAll } from 'utils/skipTab';
 
 type Props = PodRowProps;
 
@@ -28,8 +26,7 @@ enum Status {
 }
 
 const DarkPoolColumnComponent = (props: Props) => {
-  const user: User = getAuthenticatedUser();
-  const {tenor, symbol, strategy, personality, darkPrice, connected} = props;
+  const { tenor, symbol, strategy, personality, darkPrice, connected, user } = props;
   const [orders, setOrders] = useState<Order[]>([]);
   const [isShowingTicket, setIsShowingTicket] = useState<boolean>(false);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
@@ -51,7 +48,7 @@ const DarkPoolColumnComponent = (props: Props) => {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     const removePriceListener: () => void =
       signalRManager.addDarkPoolPxListener(symbol, strategy, tenor, (message: DarkPoolMessage) => {
-        const {DarkPrice} = message;
+        const { DarkPrice } = message;
         const key: string = $$(symbol, strategy, tenor, 'DpPx');
         if (DarkPrice === '') {
           localStorage.removeItem(key);
@@ -78,7 +75,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         if (entries !== undefined) {
           const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
           const currentOrder: Order | null = (() => {
-            const myOrder: Order | undefined = orders.find((order: Order) => order.isOwnedByCurrentUser());
+            const myOrder: Order | undefined = orders.find((order: Order) => order.isOwnedByCurrentUser(user));
             const myBankOrder: Order | undefined = orders.find((order: Order) => order.isSameBankAsCurrentUser());
             if (myOrder !== undefined) {
               return myOrder;
@@ -163,7 +160,7 @@ const DarkPoolColumnComponent = (props: Props) => {
   );
 
   const cancelOrder = (order: Order) => {
-    API.cancelDarkPoolOrder(order);
+    API.cancelDarkPoolOrder(order, user);
   };
 
   const renderTooltip = (order: Order | undefined) => {
@@ -188,9 +185,9 @@ const DarkPoolColumnComponent = (props: Props) => {
       return <div/>;
     // const ticket: DarkPoolTicketData = state.darkPoolTicket;
     const onSubmit = async (order: DarkPoolOrder) => {
-      if (currentOrder !== null && currentOrder.isOwnedByCurrentUser() === true)
-        await API.cancelDarkPoolOrder(currentOrder);
-      await API.createDarkPoolOrder(order);
+      if (currentOrder !== null && currentOrder.isOwnedByCurrentUser(user) === true)
+        await API.cancelDarkPoolOrder(currentOrder, user);
+      await API.createDarkPoolOrder(order, user);
       setIsShowingTicket(false);
     };
     const defaultSize: number = 0;
@@ -240,5 +237,5 @@ export const DarkPoolColumn = (): ColumnSpec => ({
   ),
   render: (row: PodRowProps) => <DarkPoolColumnComponent {...row} />,
   template: '999999.99',
-  weight: 5,
+  width: 5,
 });

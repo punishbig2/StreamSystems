@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
 type DivReference = React.MutableRefObject<HTMLDivElement | null>;
 
 type MoveFn = (x: number, y: number) => void;
 type GrabFn = (value: boolean) => void;
 const createObjectGrabber = (object: HTMLDivElement, onMove: MoveFn, onCompleted: () => void, setGrabbed: GrabFn) => {
-  const offset: { x: number; y: number } = {x: 0, y: 0};
+  const offset: { x: number; y: number } = { x: 0, y: 0 };
   let timer: number = setTimeout(() => null, 0);
   const onMouseMove = (event: MouseEvent) => {
     clearTimeout(timer);

@@ -54,3 +54,4 @@ export interface UserProfileState {
   profile: UserWorkspace,
   initialProfile: UserWorkspace,
 }
+

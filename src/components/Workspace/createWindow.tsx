@@ -1,0 +1,40 @@
+import { Currency } from 'interfaces/currency';
+import { Strategy } from 'interfaces/strategy';
+import { User } from 'interfaces/user';
+import { WindowTypes } from 'redux/constants/workareaConstants';
+import { PodTile } from 'components/PodTile';
+import { MessageBlotter } from 'components/MessageBlotter';
+import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
+import React from 'react';
+
+export const createWindow = (wID: string, type: WindowTypes, workspaceID: string, symbols: Currency[], products: Strategy[], tenors: string[], connected: boolean, user: User | null, personality: string) => {
+  if (user === null)
+    return null;
+  switch (type) {
+    case WindowTypes.Empty:
+      return null;
+    case WindowTypes.PodTile:
+      return (
+        <PodTile
+          id={wID}
+          workspaceID={workspaceID}
+          symbols={symbols}
+          products={products}
+          tenors={tenors}
+          user={user}
+          connected={connected}
+          personality={personality}/>
+      );
+    case WindowTypes.MessageBlotter:
+      return (
+        <MessageBlotter
+          id={wID}
+          connected={connected}
+          personality={personality}
+          blotterType={BlotterTypes.Regular}
+          user={user}/>
+      );
+    default:
+      throw new Error(`invalid tile type ${type}`);
+  }
+};

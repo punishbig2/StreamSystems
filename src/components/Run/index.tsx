@@ -1,23 +1,24 @@
 import createColumns from 'columns/run';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import reducer, {RunActions} from 'components/Run/reducer';
-import {Row} from 'components/Run/row';
-import {Table} from 'components/Table';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Order} from 'interfaces/order';
-import {PodRow} from 'interfaces/podRow';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import reducer, { RunActions } from 'components/Run/reducer';
+import { Row } from 'components/Run/row';
+import { Table } from 'components/Table';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Order } from 'interfaces/order';
+import { PodRow } from 'interfaces/podRow';
 import strings from 'locales';
-import React, {ReactElement, useEffect, useReducer, Reducer} from 'react';
-import {skipTabIndex, skipTabIndexAll} from 'utils/skipTab';
-import {RunState} from 'redux/stateDefs/runState';
-import {FXOAction} from 'redux/fxo-action';
-import {createAction} from 'redux/actionCreator';
-import {useRunInitializer} from 'components/Run/hooks/useRunInitializer';
-import {createEmptyTable} from 'components/Run/helpers/createEmptyTablei';
-import {getSelectedOrders} from 'components/Run/helpers/getSelectedOrders';
-import {$$} from 'utils/stringPaster';
-import {onPriceChange} from 'components/Run/helpers/onPriceChange';
-import {TabDirection} from 'components/NumericInput';
+import React, { ReactElement, useEffect, useReducer, Reducer } from 'react';
+import { skipTabIndex, skipTabIndexAll } from 'utils/skipTab';
+import { RunState } from 'redux/stateDefs/runState';
+import { FXOAction } from 'redux/fxo-action';
+import { createAction } from 'redux/actionCreator';
+import { useRunInitializer } from 'components/Run/hooks/useRunInitializer';
+import { createEmptyTable } from 'components/Run/helpers/createEmptyTablei';
+import { getSelectedOrders } from 'components/Run/helpers/getSelectedOrders';
+import { $$ } from 'utils/stringPaster';
+import { onPriceChange } from 'components/Run/helpers/onPriceChange';
+import { TabDirection } from 'components/NumericInput';
+import { User } from 'interfaces/user';
 
 interface OwnProps {
   visible: boolean;
@@ -28,6 +29,7 @@ interface OwnProps {
   onSubmit: (entries: Order[]) => void;
   minimumSize: number;
   defaultSize: number;
+  user: User;
 }
 
 type Props = OwnProps;
@@ -41,9 +43,9 @@ const initialState: RunState = {
 };
 
 const Run: React.FC<Props> = (props: Props) => {
-  const {symbol, strategy, tenors, defaultSize, minimumSize, visible} = props;
+  const { symbol, strategy, tenors, user, defaultSize, minimumSize, visible } = props;
   const [state, dispatch] = useReducer<Reducer<RunState, FXOAction<RunActions>>>(reducer, initialState);
-  const {orders} = state;
+  const { orders } = state;
 
   useEffect(() => {
     // Very initial initialization ... this runs even when not visible
@@ -51,7 +53,7 @@ const Run: React.FC<Props> = (props: Props) => {
     dispatch(createAction<RunActions>(RunActions.SetTable, createEmptyTable(symbol, strategy, tenors)));
   }, [symbol, strategy, tenors]);
 
-  useRunInitializer(tenors, symbol, strategy, visible, dispatch);
+  useRunInitializer(tenors, symbol, strategy, visible, user, dispatch);
   useEffect(() => {
     dispatch(createAction<RunActions>(RunActions.SetDefaultSize, defaultSize));
   }, [defaultSize, visible]);
@@ -78,7 +80,7 @@ const Run: React.FC<Props> = (props: Props) => {
   };
 
   const renderRow = (props: any, index?: number): ReactElement | null => {
-    const {row} = props;
+    const { row } = props;
     return (
       <Row {...props}
            user={props.user}
@@ -93,7 +95,10 @@ const Run: React.FC<Props> = (props: Props) => {
   const columns = createColumns({
     onBidChanged: onPriceChange(dispatch)(orders, OrderTypes.Bid),
     onOfrChanged: onPriceChange(dispatch)(orders, OrderTypes.Ofr),
-    onMidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Mid, {id, value})),
+    onMidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Mid, {
+      id,
+      value,
+    })),
     onSpreadChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Spread, {
       id,
       value,
@@ -203,5 +208,5 @@ const Run: React.FC<Props> = (props: Props) => {
   );
 };
 
-export {Run};
+export { Run };
 

@@ -1,4 +1,4 @@
-import React, {ReactElement} from 'react';
+import React, { ReactElement } from 'react';
 import ReactDOM from 'react-dom';
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
   const className = props.visible ? 'visible' : 'hidden';
   const container: HTMLElement | null = document.getElementById('modals');
-  if (container === null)
+  if (container === null || !props.visible)
     return null;
   return ReactDOM.createPortal(
     <div className={['modal-window-container', className].join(' ')}>
@@ -21,4 +21,4 @@ const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
   );
 };
 
-export {ModalWindow};
+export { ModalWindow };

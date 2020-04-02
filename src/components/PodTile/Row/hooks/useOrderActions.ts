@@ -1,14 +1,15 @@
-import {useEffect} from 'react';
-import {ActionTypes} from 'components/PodTile/Row/reducer';
-import {Order, OrderStatus} from 'interfaces/order';
-import {createAction} from 'redux/actionCreator';
-import {createSymbolStrategySideListener, createSymbolStrategyTenorListener} from 'orderEvents';
-import {Sides} from 'interfaces/sides';
-import {FXOAction} from 'redux/fxo-action';
-import {useAction} from 'hooks/useAction';
+import { useEffect } from 'react';
+import { ActionTypes } from 'components/PodTile/Row/reducer';
+import { Order, OrderStatus } from 'interfaces/order';
+import { createAction } from 'redux/actionCreator';
+import { createSymbolStrategySideListener, createSymbolStrategyTenorListener } from 'orderEvents';
+import { Sides } from 'interfaces/sides';
+import { FXOAction } from 'redux/fxo-action';
+import { useAction } from 'hooks/useAction';
+import { User } from 'interfaces/user';
 
 type RowType = { [key: string]: any };
-export const useOrderActions = (symbol: string, strategy: string, tenor: string, connected: boolean, row: RowType) => {
+export const useOrderActions = (symbol: string, strategy: string, tenor: string, user: User, connected: boolean, row: RowType) => {
   const [action, dispatch] = useAction<FXOAction<ActionTypes>>();
   useEffect(() => {
     if (connected) {
@@ -23,7 +24,7 @@ export const useOrderActions = (symbol: string, strategy: string, tenor: string,
           }));
         };
       const setCancelStatus = (order: Order) => {
-        if (order.price === null || order.isCancelled() || !order.isOwnedByCurrentUser())
+        if (order.price === null || order.isCancelled() || !order.isOwnedByCurrentUser(user))
           return;
         dispatch(createAction<ActionTypes>(ActionTypes.ReplaceOrder, {
           ...order,
@@ -44,6 +45,6 @@ export const useOrderActions = (symbol: string, strategy: string, tenor: string,
         listeners.forEach((cleanup: () => void) => cleanup());
       };
     }
-  }, [symbol, strategy, tenor, connected, row, dispatch]);
+  }, [symbol, strategy, tenor, connected, row, dispatch, user]);
   return action;
 };

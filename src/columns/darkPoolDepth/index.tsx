@@ -1,8 +1,8 @@
 import React from 'react';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {Order, OrderStatus} from 'interfaces/order';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { Order, OrderStatus } from 'interfaces/order';
 
-const getSide = ({bid}: any): string => {
+const getSide = ({ bid }: any): string => {
   if (!bid) return 'Sell';
   return bid.price !== null ? 'Buy' : 'Sell';
 };
@@ -11,7 +11,7 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
   {
     name: 'ref',
     header: () => 'REF',
-    render: ({bid, ofr}: any) => {
+    render: ({ bid, ofr }: any) => {
       const order: Order = !bid || bid.price === null ? ofr : bid;
       if ((order.status & OrderStatus.Owned) === 0) return null;
       return (
@@ -20,7 +20,7 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
         </div>
       );
     },
-    weight: 1,
+    width: 1,
     template: 'XXXXX',
   },
   {
@@ -30,19 +30,19 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
       const side: string = getSide(row);
       return <div className={side.toLowerCase()}>{side}</div>;
     },
-    weight: 3,
+    width: 3,
     template: '9999999999.99',
   },
   {
     name: 'size',
     header: () => 'Qty',
     render: (row: any) => {
-      const {bid, ofr} = row;
+      const { bid, ofr } = row;
       const order: Order = !bid || bid.price === null ? ofr : bid;
       const side: string = getSide(row);
       return <div className={side.toLowerCase()}>{order.size}</div>;
     },
-    weight: 3,
+    width: 3,
     template: '9999999.99',
   },
 ];

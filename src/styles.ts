@@ -1,5 +1,12 @@
 const style: CSSStyleDeclaration = getComputedStyle(document.documentElement);
-export default () => ({
+
+export interface Dimensions {
+  tableRowHeight: number;
+  windowToolbarHeight: number;
+  tableHeaderHeight: number;
+}
+
+export default (): Dimensions => ({
   tableRowHeight: parseInt(style.getPropertyValue('--table-row-height')),
   windowToolbarHeight: parseInt(
     style.getPropertyValue('--window-toolbar-height'),

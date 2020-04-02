@@ -1,8 +1,8 @@
-import React, {ReactElement, useEffect} from 'react';
-import {Message} from 'interfaces/message';
-import {getMessageSize, getMessagePrice} from 'messageUtils';
-import {UserWorkspace, ExecSound} from 'interfaces/user';
-import {getSound} from 'beep-sound';
+import React, { ReactElement, useEffect } from 'react';
+import { Message } from 'interfaces/message';
+import { getMessageSize, getMessagePrice } from 'messageUtils';
+import { UserWorkspace, ExecSound } from 'interfaces/user';
+import { getSound } from 'beep-sound';
 
 interface OwnProps {
   trade: Message;
@@ -17,7 +17,7 @@ const sideClasses: { [key: string]: string } = {
 
 const playBeep = async (profile: UserWorkspace) => {
   const src: string = await (async () => {
-    const {execSound} = profile;
+    const { execSound } = profile;
     if (execSound === 'default') {
       return '/sounds/alert.wav';
     } else {
@@ -31,8 +31,8 @@ const playBeep = async (profile: UserWorkspace) => {
 };
 
 export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
-  const {trade} = props;
-  const {Side} = trade;
+  const { trade } = props;
+  const { Side } = trade;
   const direction: string = Side.toString() === '1' ? 'from' : 'to';
   useEffect(() => {
     playBeep(props.userProfile);

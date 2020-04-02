@@ -1,7 +1,7 @@
-import {PodRow} from 'interfaces/podRow';
-import {Order, OrderStatus} from 'interfaces/order';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {PodTable} from 'interfaces/podTable';
+import { PodRow } from 'interfaces/podRow';
+import { Order, OrderStatus } from 'interfaces/order';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { PodTable } from 'interfaces/podTable';
 
 export const checkIfShouldShowTooltip = (depthOfTheBook: PodTable, type: OrderTypes): boolean => {
   return depthOfTheBook && Object.values(depthOfTheBook)

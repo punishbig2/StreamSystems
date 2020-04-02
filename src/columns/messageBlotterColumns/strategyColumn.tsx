@@ -1,4 +1,4 @@
-import {Message} from 'interfaces/message';
+import { Message } from 'interfaces/message';
 import React from 'react';
 
 export default (sortable: boolean) => ({
@@ -7,10 +7,10 @@ export default (sortable: boolean) => ({
   filterable: true,
   sortable: sortable,
   header: () => <div>Strategy</div>,
-  render: ({Strategy}: Message) => (
+  render: ({ Strategy }: Message) => (
     <div className={'message-blotter-cell normal'}>{Strategy}</div>
   ),
-  weight: 2,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;
     const value = original.toLowerCase();

@@ -1,19 +1,19 @@
-import {SizeHeader} from 'components/SizeHeader';
-import {RunSize} from 'components/RunSize';
-import {RunColumnData, SizeHeaderProps} from 'components/Run/columnData';
-import {Price} from 'components/Table/CellRenderers/Price';
-import {Tenor} from 'components/Table/CellRenderers/Tenor';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {Order, OrderStatus} from 'interfaces/order';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
-import {ArrowDirection} from 'interfaces/w';
+import { SizeHeader } from 'components/SizeHeader';
+import { RunSize } from 'components/RunSize';
+import { RunColumnData, SizeHeaderProps } from 'components/Run/columnData';
+import { Price } from 'components/Table/CellRenderers/Price';
+import { Tenor } from 'components/Table/CellRenderers/Tenor';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { Order, OrderStatus } from 'interfaces/order';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { ArrowDirection } from 'interfaces/w';
 import strings from 'locales';
 import React from 'react';
-import {RunActions} from 'components/Run/reducer';
-import {DualTableHeader} from 'components/dualTableHeader';
-import {getNthParentOf} from 'utils/skipTab';
-import {$$} from 'utils/stringPaster';
-import {TabDirection} from 'components/NumericInput';
+import { RunActions } from 'components/Run/reducer';
+import { DualTableHeader } from 'components/dualTableHeader';
+import { getNthParentOf } from 'utils/skipTab';
+import { $$ } from 'utils/stringPaster';
+import { TabDirection } from 'components/NumericInput';
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
@@ -55,7 +55,7 @@ const RunPriceColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec =>
       );
     },
     template: '999999.99',
-    weight: 4,
+    width: 4,
   };
 };
 
@@ -114,7 +114,7 @@ const RunSizeColumn = (data: RunColumnData, type: 'bid' | 'ofr'): ColumnSpec => 
       );
     },
     template: '9999999',
-    weight: 3,
+    width: 3,
   };
 };
 
@@ -122,7 +122,7 @@ const TenorColumn: ColumnSpec = {
   name: 'tenor',
   header: () => <DualTableHeader label={''}/>,
   render: (row: RowType) => {
-    const {tenor} = row;
+    const { tenor } = row;
     if (row.status !== PodRowStatus.Normal) {
       return (
         <div className={'error-cell'}>
@@ -133,13 +133,13 @@ const TenorColumn: ColumnSpec = {
     return <Tenor tenor={tenor} onTenorSelected={() => null}/>;
   },
   template: 'WW',
-  weight: 2,
+  width: 2,
 };
 
 const MidCol = (data: RunColumnData) => ({
   name: 'mid',
   header: () => <DualTableHeader label={strings.Mid}/>,
-  render: ({id, mid}: RowType) => (
+  render: ({ id, mid }: RowType) => (
     <Price
       uid={`run-${id}-mid`}
       value={mid}
@@ -160,13 +160,13 @@ const MidCol = (data: RunColumnData) => ({
       animated={false}/>
   ),
   template: '999999.99',
-  weight: 4,
+  width: 4,
 });
 
 const SpreadCol = (data: RunColumnData) => ({
   name: 'spread',
   header: () => <DualTableHeader label={strings.Spread}/>,
-  render: ({id, spread}: RowType) => {
+  render: ({ id, spread }: RowType) => {
     return (
       <Price
         uid={`run-${id}-spread`}
@@ -189,7 +189,7 @@ const SpreadCol = (data: RunColumnData) => ({
     );
   },
   template: '999999.99',
-  weight: 4,
+  width: 4,
 });
 
 const columns = (data: RunColumnData): ColumnSpec[] => [

@@ -1,4 +1,4 @@
-import {ExecTypes, Message} from 'interfaces/message';
+import { ExecTypes, Message } from 'interfaces/message';
 import React from 'react';
 
 const TransTypes: { [key: string]: string } = {
@@ -31,7 +31,7 @@ export default (sortable: boolean) => ({
       );
     }
   },
-  weight: 3,
+  width: 3,
   difference: (v1: Message, v2: Message): number => {
     return Number(v1.OrdStatus) - Number(v2.OrdStatus);
   },

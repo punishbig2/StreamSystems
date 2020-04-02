@@ -1,16 +1,15 @@
 import config from 'config';
-import {Currency} from 'interfaces/currency';
-import {Message} from 'interfaces/message';
-import {CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage} from 'interfaces/order';
-import {MessageResponse} from 'interfaces/messageResponse';
-import {Strategy} from 'interfaces/strategy';
-import {User} from 'interfaces/user';
-import {MessageTypes, W} from 'interfaces/w';
-import {getSideFromType} from 'utils';
-import {getAuthenticatedUser} from 'utils/getCurrentUser';
-import {STRM} from 'redux/stateDefs/workspaceState';
-import {$$} from 'utils/stringPaster';
-import {Sides} from 'interfaces/sides';
+import { Currency } from 'interfaces/currency';
+import { Message } from 'interfaces/message';
+import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage } from 'interfaces/order';
+import { MessageResponse } from 'interfaces/messageResponse';
+import { Strategy } from 'interfaces/strategy';
+import { User } from 'interfaces/user';
+import { MessageTypes, W } from 'interfaces/w';
+import { getSideFromType } from 'utils';
+import { STRM } from 'redux/stateDefs/workspaceState';
+import { $$ } from 'utils/stringPaster';
+import { Sides } from 'interfaces/sides';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -86,7 +85,7 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Canc
           if (xhr.status === 0) {
             reject();
           } else if (xhr.status >= 200 && xhr.status < 300) {
-            const {responseText} = xhr;
+            const { responseText } = xhr;
             if (responseText.length > 0) {
               // TODO: throw an exception or handle the one thrown here
               const object: any = JSON.parse(responseText);
@@ -112,7 +111,7 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Canc
   return new CancellablePromise<T>(executor, () => xhr.abort());
 };
 
-const {Api} = config;
+const { Api } = config;
 
 const post = <T>(url: string, data: any): CancellablePromise<T> => request<T>(url, Method.Post, data);
 const get = <T>(url: string, args?: any): CancellablePromise<T> => request<T>(url, Method.Get, args);
@@ -169,20 +168,19 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
-  static async createOrder(order: Order, personality: string, minimumSize: number): CancellablePromise<MessageResponse> {
-    const currentUser = getAuthenticatedUser();
+  static async createOrder(order: Order, personality: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
     if (order.price === null || order.size === null)
       throw new Error('price and size MUST be specified');
     if (order.size < minimumSize) order.size = minimumSize;
-    const {price, size} = order;
+    const { price, size } = order;
     // Build a create order request
-    if (currentUser.isbroker && personality === STRM)
+    if (user.isbroker && personality === STRM)
       throw new Error('brokers cannot create orders when in streaming mode');
-    const MDMkt: string | undefined = currentUser.isbroker ? personality : undefined;
+    const MDMkt: string | undefined = user.isbroker ? personality : undefined;
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
-      User: currentUser.email,
+      User: user.email,
       Symbol: order.symbol,
       Strategy: order.strategy,
       Tenor: order.tenor,
@@ -199,16 +197,15 @@ export class API {
     return result;
   }
 
-  static async updateOrder(entry: Order): CancellablePromise<MessageResponse> {
-    const currentUser = getAuthenticatedUser();
+  static async updateOrder(entry: Order, user: User): CancellablePromise<MessageResponse> {
     if (entry.price === null || entry.size === null || !entry.orderId)
       throw new Error('price, size and order id MUST be specified');
-    const {price, size} = entry;
+    const { price, size } = entry;
     // Build a create order request
     const request: UpdateOrder = {
       MsgType: MessageTypes.G,
       TransactTime: getCurrentTime(),
-      User: currentUser.email,
+      User: user.email,
       Quantity: size.toString(),
       Price: price.toString(),
       OrderID: entry.orderId,
@@ -219,11 +216,10 @@ export class API {
     return post<MessageResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
   }
 
-  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): CancellablePromise<MessageResponse> {
-    const currentUser = getAuthenticatedUser();
+  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides, user: User): CancellablePromise<MessageResponse> {
     const request = {
       MsgType: MessageTypes.F,
-      User: currentUser.email,
+      User: user.email,
       TransactTime: getCurrentTime(),
       Side: side,
       Strategy: strategy,
@@ -238,11 +234,9 @@ export class API {
     return post<MessageResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
   }
 
-  static async cancelOrder(order: Order): CancellablePromise<MessageResponse> {
-    const currentUser = getAuthenticatedUser();
-    if (order.user !== currentUser.email) {
-      throw new Error(`cancelling someone else's order: ${order.user} -> ${currentUser.email}`);
-    }
+  static async cancelOrder(order: Order, user: User): CancellablePromise<MessageResponse> {
+    if (order.user !== user.email)
+      throw new Error(`cancelling someone else's order: ${order.user} -> ${user.email}`);
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
@@ -263,7 +257,7 @@ export class API {
   static async getDarkPoolSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
-    const url: string = API.getRawUrl(API.DarkPool, 'snapshot', {symbol, strategy, tenor});
+    const url: string = API.getRawUrl(API.DarkPool, 'snapshot', { symbol, strategy, tenor });
     // Execute the query
     return get<W | null>(url);
   }
@@ -271,42 +265,42 @@ export class API {
   static async getDarkPoolTOBSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
-    const url: string = API.getRawUrl(API.DarkPool, 'tobsnapshot', {symbol, strategy, tenor});
+    const url: string = API.getRawUrl(API.DarkPool, 'tobsnapshot', { symbol, strategy, tenor });
     // Execute the query
     return get<W | null>(url);
   }
 
-  static getTOBSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
-    if (!symbol || !strategy || !tenor)
+  static getTOBSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
+    if (!symbol || !strategy)
       throw new Error('you have to tell me which symbol, strategy and tenor you want');
-    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', {symbol, strategy, tenor});
+    const url: string = API.getRawUrl(API.MarketData, 'tiletobsnapshot', { symbol, strategy });
     // Execute the query
-    return get<W | null>(url);
+    return get<{ [k: string]: W } | null>(url);
   }
 
-  static getSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
-    if (!symbol || !strategy || !tenor)
+  static getSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
+    if (!symbol || !strategy)
       throw new Error('you have to tell me which symbol, strategy and tenor you want');
-    const url: string = API.getRawUrl(API.MarketData, 'snapshot', {symbol, strategy, tenor});
+    const url: string = API.getRawUrl(API.MarketData, 'tilesnapshot', { symbol, strategy });
     // Execute the query
-    return get<W | null>(url);
+    return get<{ [k: string]: W } | null>(url);
   }
 
   static async getMessagesSnapshot(useremail: string, timestamp: number): CancellablePromise<Message[]> {
     return await get<Message[]>(
-      API.getUrl(API.Oms, 'messages', 'get', {timestamp}),
+      API.getUrl(API.Oms, 'messages', 'get', { timestamp }),
     );
   }
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): CancellablePromise<OrderMessage[]> {
     return get<OrderMessage[]>(
-      API.getUrl(API.Oms, 'runorders', 'get', {symbol, strategy, useremail}),
+      API.getUrl(API.Oms, 'runorders', 'get', { symbol, strategy, useremail }),
     );
   }
 
   static async getUserGroupSymbol(useremail: string): CancellablePromise<any[]> {
     return get<any[]>(
-      API.getUrl(API.Oms, 'UserGroupSymbol', 'get', {useremail}),
+      API.getUrl(API.Oms, 'UserGroupSymbol', 'get', { useremail }),
     );
   }
 
@@ -318,8 +312,7 @@ export class API {
     return get<string[]>(API.getUrl(API.Config, 'markets', 'get'));
   }
 
-  static async createDarkPoolOrder(order: DarkPoolOrder): CancellablePromise<any> {
-    const user: User = getAuthenticatedUser();
+  static async createDarkPoolOrder(order: DarkPoolOrder, user: User): CancellablePromise<any> {
     if (user.isbroker && order.MDMkt === STRM) {
       throw new Error('brokers cannot create orders when in streaming mode');
     } else if (!user.isbroker) {
@@ -335,12 +328,11 @@ export class API {
     return post<MessageResponse>(API.getUrl(API.DarkPool, 'order', 'modify'), request);
   }
 
-  static async cancelDarkPoolOrder(order: Order): CancellablePromise<any> {
-    const currentUser = getAuthenticatedUser();
+  static async cancelDarkPoolOrder(order: Order, user: User): CancellablePromise<any> {
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
-      User: currentUser.email,
+      User: user.email,
       Symbol: order.symbol,
       Strategy: order.strategy,
       Tenor: order.tenor,
@@ -380,19 +372,18 @@ export class API {
   }
 
   static async getUserProfile(email: string) {
-    return get<any>(API.getUrl(API.UserApi, 'UserJson', 'get', {useremail: email}));
+    return get<any>(API.getUrl(API.UserApi, 'UserJson', 'get', { useremail: email }));
   }
 
   static async saveUserProfile(data: any) {
-    const {useremail, workspace} = data;
-    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', {useremail, workspace}), null);
+    const { useremail, workspace } = data;
+    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', { useremail, workspace }), null);
   }
 
-  static async brokerRefAll(personality: string) {
-    const currentUser = getAuthenticatedUser();
+  static async brokerRefAll(user: string, personality: string) {
     const request = {
       MsgType: MessageTypes.F,
-      User: currentUser.email,
+      User: user,
       MDMkt: personality === STRM ? undefined : personality,
       TransactTime: getCurrentTime(),
     };

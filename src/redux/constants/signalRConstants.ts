@@ -3,7 +3,7 @@ export enum SignalRActions {
   SubscribeForMarketData = 'SubscribeForMarketData',
   UnsubscribeFromMarketData = 'UnsubscribeForMarketData',
   SubscribeForMBMsg = 'SubscribeForMBMsg',
-  UnsubscribeForMBMsg = 'UnsubscribeForMBMsg',
+  UnsubscribeFromMBMsg = 'UnsubscribeForMBMsg',
   SubscribeForDarkPoolPx = 'SubscribeForDarkPoolPx',
   UnsubscribeForDarkPoolPx = 'UnsubscribeForDarkPoolPx',
   // Internal

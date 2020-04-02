@@ -1,25 +1,26 @@
-import {Cell} from 'components/Table/Cell';
-import {ColumnSpec} from 'components/Table/columnSpecification';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
-import {User} from 'interfaces/user';
-import React, {useEffect} from 'react';
-import {RowState} from 'redux/stateDefs/rowState';
-import {percentage} from 'utils';
+import { Cell } from 'components/Table/Cell';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { User } from 'interfaces/user';
+import React, { useEffect } from 'react';
+import { RowState } from 'redux/stateDefs/rowState';
 
 interface OwnProps {
   id: string;
   columns: ColumnSpec[];
   user?: User;
   fixedRow?: PodRow;
-  weight: number;
+  width: number;
   navigation: (target: HTMLInputElement, direction: NavigateDirection) => void;
   rowNumber?: number;
+  totalWidth: number;
+  containerWidth: number;
 }
 
 const Row = (props: OwnProps & RowState) => {
-  const {columns, row, fixedRow, user} = props;
-  const {status} = row;
+  const { columns, row, fixedRow, totalWidth, containerWidth, user } = props;
+  const { status } = row;
   useEffect(() => {
     // TODO: show an error message within the run and set it by using a browser custom event
   }, [status]);
@@ -27,7 +28,7 @@ const Row = (props: OwnProps & RowState) => {
     <div className={'tr' + (row.status === PodRowStatus.InvertedMarketsError ? ' error' : '')}
          data-row-number={props.rowNumber}>
       {columns.map((column: ColumnSpec, index: number) => {
-        const width: string = percentage(column.weight, props.weight);
+        const width: number = (column.width / totalWidth) * containerWidth;
         const name: string = column.name;
         return (
           <Cell key={name}
@@ -42,4 +43,4 @@ const Row = (props: OwnProps & RowState) => {
   );
 };
 
-export {Row};
+export { Row };

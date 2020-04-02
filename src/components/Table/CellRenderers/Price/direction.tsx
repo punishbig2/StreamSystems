@@ -1,5 +1,5 @@
-import {ArrowDirection} from 'interfaces/w';
-import React, {ReactElement} from 'react';
+import { ArrowDirection } from 'interfaces/w';
+import React, { ReactElement } from 'react';
 
 interface DirectionProps {
   direction: ArrowDirection;

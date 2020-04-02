@@ -1,4 +1,4 @@
-import React, {ChangeEvent, KeyboardEvent, useState, useEffect} from 'react';
+import React, { ChangeEvent, KeyboardEvent, useState, useEffect, useRef } from 'react';
 
 interface Props {
   label: string;
@@ -8,28 +8,45 @@ interface Props {
 }
 
 export const TabLabel: React.FC<Props> = (props: Props) => {
+  const ref: React.Ref<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const [editable, setEditable] = useState(false);
   const [value, setValue] = useState<string>('');
-  const {label, isDefault} = props;
-  useEffect(() => {
+  const { label, isDefault } = props;
+
+  const getLabel = () => {
+    const finalLabel: string = label.trim() === '' ? 'Untitled' : label;
     if (isDefault) {
-      setValue(`${label} (default)`);
+      return `${finalLabel} (default)`;
     } else {
-      setValue(label);
+      return finalLabel;
     }
-  }, [label, isDefault]);
-  const cancel = () => {
+  };
+
+  useEffect(() => {
+    setValue(label);
+  }, [label]);
+
+  useEffect(() => {
+    if (ref.current === null || !editable)
+      return;
+    const input: HTMLInputElement = ref.current;
+    input.select();
+  }, [ref, editable]);
+
+  const reset = () => {
     setValue(props.label);
     setEditable(false);
   };
-  const onChange = ({target: {value}}: ChangeEvent<HTMLInputElement>) => {
+
+  const onChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
     setValue(value);
   };
-  const onBlur = () => cancel();
-  const onKeyDown = ({key}: KeyboardEvent<HTMLInputElement>) => {
+
+  const onBlur = () => reset();
+  const onKeyDown = ({ key }: KeyboardEvent<HTMLInputElement>) => {
     switch (key) {
       case 'Escape':
-        cancel();
+        reset();
         break;
       case 'Enter':
         props.onRenamed(value);
@@ -41,7 +58,8 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   return (
     <div className={'tab-label'}>
       <input
-        value={value}
+        ref={ref}
+        value={getLabel()}
         readOnly={!editable}
         onChange={onChange}
         onBlur={onBlur}

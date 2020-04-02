@@ -1,6 +1,6 @@
-import {usePrevious} from 'hooks/usePrevious';
-import {useEffect} from 'react';
-import {OrderStatus} from 'interfaces/order';
+import { usePrevious } from 'hooks/usePrevious';
+import { useEffect } from 'react';
+import { OrderStatus } from 'interfaces/order';
 
 export const useValueComparator = (propsValue: number | null, startFlashing: () => void, status: OrderStatus) => {
   const oldValue: number | null | undefined = usePrevious<number | null>(propsValue);

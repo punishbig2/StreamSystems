@@ -1,6 +1,6 @@
-import {Message} from 'interfaces/message';
+import { Message } from 'interfaces/message';
 import React from 'react';
-import {tenorToNumber} from 'utils/dataGenerators';
+import { tenorToNumber } from 'utils/dataGenerators';
 
 export default (sortable: boolean) => ({
   name: 'Tenor',
@@ -8,10 +8,10 @@ export default (sortable: boolean) => ({
   filterable: true,
   sortable: sortable,
   header: () => <div>Tenor</div>,
-  render: ({Tenor}: Message) => (
+  render: ({ Tenor }: Message) => (
     <div className={'message-blotter-cell normal'}>{Tenor}</div>
   ),
-  weight: 2,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Tenor;
     const value = original.toLowerCase();

@@ -1,6 +1,6 @@
-import {Order} from 'interfaces/order';
-import {SignalRManager} from 'redux/signalR/signalRManager';
-import {priceFormatter} from 'utils/priceFormatter';
+import { Order } from 'interfaces/order';
+import { SignalRManager } from 'redux/signalR/signalRManager';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export const getAggregatedSize = (order: Order): number | null => {
   const orders: Order[] = SignalRManager.getDepth(order.symbol, order.strategy, order.tenor, order.type);

@@ -1,5 +1,5 @@
-import {SortDirection} from 'components/Table/index';
-import React, {ReactElement} from 'react';
+import { SortDirection } from 'components/Table/index';
+import React, { ReactElement } from 'react';
 
 interface Props {
   direction: SortDirection;
@@ -24,4 +24,4 @@ const SortIndicator: React.FC<Props> = (props: Props) => {
   );
 };
 
-export {SortIndicator};
+export { SortIndicator };

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Message} from 'interfaces/message';
+import { Message } from 'interfaces/message';
 
 export const poolColumn = (sortable: boolean) => ({
   name: 'pool',
@@ -10,9 +10,9 @@ export const poolColumn = (sortable: boolean) => ({
     return false;
   },
   header: () => <div>Venue</div>,
-  render: ({ExDestination}: Message) => <div className={'message-blotter-cell normal'}>{ExDestination}&nbsp;</div>,
+  render: ({ ExDestination }: Message) => <div className={'message-blotter-cell normal'}>{ExDestination}&nbsp;</div>,
   filterable: true,
   sortable: sortable,
   template: 'MAKE_IT_WIDE_AND_WIDER',
-  weight: 2,
+  width: 2,
 });

@@ -1,13 +1,13 @@
 import strings from 'locales';
-import React, {useState, useEffect} from 'react';
-import {Select, MenuItem} from '@material-ui/core';
-import {PresetSizeButton} from 'components/presetSizeButton';
-import {DarkPoolOrder, Order} from 'interfaces/order';
-import {MessageTypes} from 'interfaces/w';
-import {SelectEventData} from 'interfaces/selectEventData';
-import {Sides} from 'interfaces/sides';
-import {priceFormatter} from 'utils/priceFormatter';
-import {sizeFormatter} from 'utils/sizeFormatter';
+import React, { useState, useEffect } from 'react';
+import { Select, MenuItem } from '@material-ui/core';
+import { PresetSizeButton } from 'components/presetSizeButton';
+import { DarkPoolOrder, Order } from 'interfaces/order';
+import { MessageTypes } from 'interfaces/w';
+import { SelectEventData } from 'interfaces/selectEventData';
+import { Sides } from 'interfaces/sides';
+import { priceFormatter } from 'utils/priceFormatter';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 interface OwnProps {
   tenor: string;
@@ -39,13 +39,13 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     input.select();
     input.focus();
   }, [input]);
-  const updateSize = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
+  const updateSize = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric: number = Number(currentTarget.value);
     if (isNaN(numeric))
       return;
     setSize(numeric);
   };
-  const updatePrice = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
+  const updatePrice = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric: number = Number(currentTarget.value);
     if (isNaN(numeric))
       return;
@@ -71,8 +71,8 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     props.onSubmit(order);
   };
 
-  const instLabels: { [key: string]: string } = {G: 'AON', D: '1/2 AON'};
-  const sideLabels: { [key: string]: string } = {SELL: 'Sell', BUY: 'Buy'};
+  const instLabels: { [key: string]: string } = { G: 'AON', D: '1/2 AON' };
+  const sideLabels: { [key: string]: string } = { SELL: 'Sell', BUY: 'Buy' };
 
   const canSubmit: boolean =
     !isNaN(Number(price)) && !isNaN(Number(size)) && side !== '';
@@ -85,7 +85,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     );
 
   const stringSelectSetter = (fn: (value: string) => void) => (event: React.ChangeEvent<SelectEventData>) => {
-    const {value} = event.target;
+    const { value } = event.target;
     fn(value as string);
   };
 
@@ -184,4 +184,4 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   );
 };
 
-export {DarkPoolTicket};
+export { DarkPoolTicket };

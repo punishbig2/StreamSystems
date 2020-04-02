@@ -1,4 +1,4 @@
-import React, {ReactElement, PropsWithRef} from 'react';
+import React, { ReactElement, PropsWithRef } from 'react';
 
 interface OwnProps {
   onClick: (id: string) => void;
@@ -12,7 +12,8 @@ type Props = PropsWithRef<OwnProps>;
 
 const Tab: React.FC<Props> = React.forwardRef((props: Props, ref?: React.Ref<HTMLDivElement>): ReactElement => {
   const classes: string[] = ['tab'];
-  if (props.active) classes.push('active');
+  if (props.active)
+    classes.push('active');
   return (
     <div ref={ref} className={classes.join(' ')} onClick={() => props.onClick(props.id)}>
       {props.label}
@@ -20,4 +21,4 @@ const Tab: React.FC<Props> = React.forwardRef((props: Props, ref?: React.Ref<HTM
   );
 });
 
-export {Tab};
+export { Tab };

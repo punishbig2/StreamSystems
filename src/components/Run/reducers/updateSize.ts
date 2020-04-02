@@ -1,9 +1,9 @@
-import {RunState} from 'redux/stateDefs/runState';
-import {PodRow} from 'interfaces/podRow';
-import {Order, OrderStatus} from 'interfaces/order';
+import { RunState } from 'redux/stateDefs/runState';
+import { PodRow } from 'interfaces/podRow';
+import { Order, OrderStatus } from 'interfaces/order';
 
 export const updateSize = (state: RunState, data: { id: string; value: number | null }, key: 'ofr' | 'bid'): RunState => {
-  const {orders} = state;
+  const { orders } = state;
   const row: PodRow = orders[data.id];
   // Extract the target order
   const order: Order = row[key];

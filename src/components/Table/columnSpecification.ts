@@ -1,4 +1,4 @@
-import {ReactElement} from 'react';
+import { ReactElement } from 'react';
 
 export interface ColumnSpec {
   name: string;
@@ -7,8 +7,9 @@ export interface ColumnSpec {
   header: (props: any) => ReactElement | string | null;
   render: React.FC<any>;
   span?: number;
-  weight: number;
+  width: number;
   filterByKeyword?: (v1: any, keyword: string) => boolean;
   difference?: (v1: any, v2: any) => number;
   template: string;
+  className?: string;
 }

@@ -1,11 +1,11 @@
-import {API} from 'API';
-import {createWorkspaceAction} from 'redux/actionCreator';
-import {AsyncAction} from 'redux/asyncAction';
-import {WindowTypes} from 'redux/constants/workareaConstants';
-import {WorkspaceActions} from 'redux/constants/workspaceConstants';
-import {defaultWindowState, WindowState} from 'redux/stateDefs/windowState';
-import {DummyAction} from 'redux/store';
-import {FXOAction} from 'redux/fxo-action';
+/*import { API } from 'API';
+import { createWorkspaceAction } from 'redux/actionCreator';
+import { AsyncAction } from 'redux/asyncAction';
+import { WindowTypes } from 'redux/constants/workareaConstants';
+import { WorkspaceActions } from 'redux/constants/workspaceConstants';
+import { defaultWindowState, WindowState } from 'redux/stateDefs/windowState';
+import { DummyAction } from 'redux/store';
+import { FXOAction } from 'redux/fxo-action';
 import shortid from 'shortid';
 
 export const removeWindow = (workspaceID: string, windowID: string): FXOAction<string> => {
@@ -22,7 +22,7 @@ export const restoreWindow = (workspaceID: string, windowID: string): FXOAction<
 
 export const addWindow = (workspaceID: string, type: WindowTypes): FXOAction<string> => {
   const id: string = `wn-${shortid()}-${type}`;
-  const window: WindowState = {...defaultWindowState, id, type};
+  const window: WindowState = { ...defaultWindowState, id, type };
   return createWorkspaceAction(workspaceID, WorkspaceActions.AddWindow, window);
 };
 
@@ -36,18 +36,18 @@ export const moveWindow = (workspaceID: string, windowID: string, geometry: Clie
     //        often to the database
     const data = {
       id: windowID,
-      ...{geometry, resized},
+      ...{ geometry, resized },
     };
     return createWorkspaceAction(workspaceID, WorkspaceActions.UpdateGeometry, data);
   }, DummyAction);
 };
 
 export const bringToFront = (workspaceID: string, windowID: string): FXOAction<string> => {
-  return createWorkspaceAction(workspaceID, WorkspaceActions.BringToFront, {id: windowID});
+  return createWorkspaceAction(workspaceID, WorkspaceActions.BringToFront, { id: windowID });
 };
 
 export const setWindowTitle = (workspaceID: string, windowID: string, title: string): FXOAction<string> => {
-  return createWorkspaceAction(workspaceID, WorkspaceActions.SetWindowTitle, {id: windowID, title});
+  return createWorkspaceAction(workspaceID, WorkspaceActions.SetWindowTitle, { id: windowID, title });
 };
 
 export const showToast = (workspaceID: string, message: string | null): FXOAction<string> => {
@@ -93,4 +93,5 @@ export const refAll = (workspaceID: string, personality: string) => {
     return DummyAction;
   }, DummyAction);
 };
-
+*/
+export const WorkspaceActionsModule = null;

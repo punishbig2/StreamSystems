@@ -1,4 +1,4 @@
-import {SymbolType, StrategyType, TenorType} from 'interfaces/w';
+import { SymbolType, StrategyType, TenorType } from 'interfaces/w';
 
 export enum ExecTypes {
   New = '0',

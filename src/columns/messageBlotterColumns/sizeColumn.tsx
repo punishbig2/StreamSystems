@@ -1,6 +1,6 @@
-import {Message} from 'interfaces/message';
+import { Message } from 'interfaces/message';
 import React from 'react';
-import {getMessageSize} from 'messageUtils';
+import { getMessageSize } from 'messageUtils';
 
 export default (sortable: boolean) => ({
   name: 'Size',
@@ -11,7 +11,7 @@ export default (sortable: boolean) => ({
   render: (message: Message) => (
     <div className={'message-blotter-cell normal'}>{getMessageSize(message)}</div>
   ),
-  weight: 2,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = getMessageSize(v1);
     const numeric: number = Number(keyword);

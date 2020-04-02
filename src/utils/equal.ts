@@ -7,5 +7,5 @@ export const equal = (A: any, B: any) => {
       A.x === B.x && A.y === B.y && A.width === B.width && A.height === B.height
     );
   }
-  return deepEqual(A, B, {strict: true});
+  return deepEqual(A, B, { strict: true });
 };

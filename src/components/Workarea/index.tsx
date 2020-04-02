@@ -1,177 +1,149 @@
-import {ModalWindow} from 'components/ModalWindow';
-import {QuestionBox} from 'components/QuestionBox';
-import {TabBar} from 'components/TabBar';
-import {UserNotFound} from 'components/Workarea/userNotFound';
-import {WorkareaError} from 'components/Workarea/workareaError';
-import {Workspace} from 'components/Workspace';
+import { ModalWindow } from 'components/ModalWindow';
+import { QuestionBox } from 'components/QuestionBox';
+import { TabBar } from 'components/TabBar';
+import { UserNotFound } from 'components/Workarea/userNotFound';
+import { WorkareaError } from 'components/Workarea/workareaError';
+import { Workspace } from 'components/Workspace';
 import strings from 'locales';
-import React, {ReactElement, useEffect, useState} from 'react';
-import {connect, MapStateToProps} from 'react-redux';
-import {AnyAction} from 'redux';
-import {
-  addWindow,
-  addWorkspace,
-  clearLastExecution,
-  closeWorkspace,
-  initialize,
-  loadMessages,
-  renameWorkspace,
-  setWorkspace,
-  subscribeToMessages,
-  unsubscribeFromMessages,
-} from 'redux/actions/workareaActions';
-import {ApplicationState} from 'redux/applicationState';
-import {WindowTypes} from 'redux/constants/workareaConstants';
-import {WorkareaState, WorkareaStatus} from 'redux/stateDefs/workareaState';
-import {Message} from 'interfaces/message';
-import {TradeConfirmation} from 'components/TradeConfirmation';
-import {CurrencyGroups} from 'interfaces/user';
-import {Currency} from 'interfaces/currency';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { WorkareaStatus } from 'redux/stateDefs/workareaState';
+import { Message } from 'interfaces/message';
+import { TradeConfirmation } from 'components/TradeConfirmation';
+import { CurrencyGroups } from 'interfaces/user';
+import { observer } from 'mobx-react';
+import { WorkareaStore, WorkspaceDef } from 'mobx/stores/workarea';
+import { create } from 'mobx-persist';
+import { getUserFromUrl } from 'utils/getUserFromUrl';
 
-interface OwnProps {
-}
+const Workarea: React.FC = (): ReactElement | null => {
+  const [store] = useState(new WorkareaStore());
 
-interface DispatchProps {
-  addWorkspace: (symbols: Currency[], group: CurrencyGroups) => AnyAction;
-  setWorkspace: (id: string) => AnyAction;
-  renameWorkspace: (name: string, id: string) => AnyAction;
-  closeWorkspace: (id: string) => AnyAction;
-  addWindow: (type: WindowTypes, id: string) => AnyAction;
-  initialize: () => AnyAction;
-  loadMessages: (useremail: string) => AnyAction;
-  clearLastExecution: () => void;
-  unsubscribeFromMessages: (email: string) => void;
-  subscribeToMessages: (email: string) => void;
-}
+  const { recentExecutions } = store;
+  const { connected, user } = store;
+  const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
+  const { CloseWorkspace } = strings;
 
-type Props = OwnProps & WorkareaState & DispatchProps;
+  useEffect(() => {
+    const hydrate = create({
+      storage: localStorage,
+      jsonify: true,
+    });
+    hydrate('workarea', store)
+      .then(() => {
+        const useremail: string | null = getUserFromUrl();
+        if (useremail === null)
+          return;
+        store.initialize(useremail);
+      });
+  }, [store]);
 
-const mapStateToProps: MapStateToProps<WorkareaState, OwnProps, ApplicationState> =
-  ({workarea}: ApplicationState): WorkareaState => workarea;
+  useEffect(() => {
+    if (!user || !connected)
+      return;
+    return store.subscribeToBlotterMessages(user.email);
+  }, [connected, store, user]);
 
-const mapDispatchToProps: DispatchProps = {
-  addWorkspace,
-  setWorkspace,
-  clearLastExecution,
-  renameWorkspace,
-  closeWorkspace,
-  addWindow,
-  loadMessages,
-  initialize,
-  unsubscribeFromMessages,
-  subscribeToMessages,
-};
+  const cancelCloseWorkspace = () => setSelectedToClose(null);
+  const closeWorkspace = () => {
+    store.closeWorkspace(selectedToClose as string);
+    // Close the modal window
+    setSelectedToClose(null);
+  };
+  const renderCloseQuestion = () => (
+    <QuestionBox {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>
+  );
 
-const withRedux: (ignored: any) => any = connect<WorkareaState, DispatchProps, OwnProps, ApplicationState>(
-  mapStateToProps,
-  mapDispatchToProps,
-);
-
-const Workarea: React.FC<OwnProps> = withRedux(
-  (props: Props): ReactElement | null => {
-    const {recentExecutions} = props;
-    const {symbols, products, tenors, banks, initialize, connected, user, activeWorkspace, userProfile} = props;
-    const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
-    const {workspaces, loadMessages} = props;
-    const {CloseWorkspace} = strings;
-    const {subscribeToMessages, unsubscribeFromMessages} = props;
-
-    useEffect(() => {
-      if (!user) return;
-      subscribeToMessages(user.email);
-      return () => {
-        unsubscribeFromMessages(user.email);
-      };
-    }, [subscribeToMessages, unsubscribeFromMessages, connected, user]);
-
-    useEffect(() => {
-      initialize();
-    }, [initialize]);
-
-    useEffect((): void => {
-      if (user) {
-        loadMessages(user.email);
-      }
-    }, [user, loadMessages]);
-
-    const renderCloseQuestion = () => (
-      <QuestionBox {...CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace}/>
+  const renderMessage = () => {
+    const { recentExecutions } = store;
+    const mapTrade = (trade: Message) => (
+      <TradeConfirmation userProfile={store.userProfile}
+                         trade={trade}
+                         key={trade.ClOrdID}
+                         onClose={store.clearLastExecution}/>
     );
-    const cancelCloseWorkspace = () => setSelectedToClose(null);
-    const closeWorkspace = () => {
-      props.closeWorkspace(selectedToClose as string);
-      // Close the modal window
-      setSelectedToClose(null);
-    };
+    return (
+      <div className={'message-detail'}>
+        <div className={'title'}>
+          Trade Confirmation
+        </div>
+        {recentExecutions.map(mapTrade)}
+        <div className={'modal-buttons'}>
+          <button className={'cancel'} onClick={store.clearLastExecution}>
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
 
-    const renderMessage = () => {
-      const {recentExecutions} = props;
-      const mapTrade = (trade: Message) => (
-        <TradeConfirmation userProfile={props.userProfile} key={trade.ClOrdID} trade={trade}
-                           onClose={props.clearLastExecution}/>
-      );
+  const getActiveWorkspace = () => {
+    const { workspaces, user, currentWorkspaceID } = store;
+    if (user === null)
+      return null;
+    return Object.values(workspaces)
+      .map(({ id, isDefault }: WorkspaceDef) => {
+        return (
+          <Workspace
+            id={id}
+            key={id}
+            isDefault={isDefault}
+            visible={id === currentWorkspaceID}
+            userProfile={store.userProfile}
+            symbols={store.symbols}
+            products={store.products}
+            tenors={store.tenors}
+            banks={store.banks}
+            connected={store.connected}
+            user={user}
+            onModify={store.setWorkspaceModified}/>
+        );
+      });
+  };
+
+  const getFooter = () => {
+    return (
+      <div className={'footer'}>
+        <TabBar
+          entries={store.workspaces}
+          addTab={(group: CurrencyGroups) => store.addWorkspace(group)}
+          active={store.currentWorkspaceID}
+          setActiveTab={store.setWorkspace}
+          onTabClosed={setSelectedToClose}
+          onQuit={() => null}
+          onWorkspaceRename={store.setWorkspaceName}/>
+      </div>
+    );
+  };
+
+  switch (store.status) {
+    case WorkareaStatus.Error:
+      return <WorkareaError/>;
+    case WorkareaStatus.UserNotFound:
+      return <UserNotFound/>;
+    case WorkareaStatus.Starting:
+      // Should never happen
+      return null;
+    case WorkareaStatus.Initializing:
       return (
-        <div className={'message-detail'}>
-          <div className={'title'}>
-            Trade Confirmation
-          </div>
-          {recentExecutions.map(mapTrade)}
-          <div className={'modal-buttons'}>
-            <button className={'cancel'} onClick={props.clearLastExecution}>
-              Close
-            </button>
-          </div>
+        <div className={'loading-window'}>
+          <div className={'spinner'}/>
+          <h2>{store.message}</h2>
         </div>
       );
-    };
+    case WorkareaStatus.Ready:
+      return (
+        <>
+          {getActiveWorkspace()}
+          {getFooter()}
+          <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
+          <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>
+        </>
+      );
+    default:
+      // Should never happen
+      return null;
+  }
+};
 
-    switch (props.status) {
-      case WorkareaStatus.Error:
-        return <WorkareaError/>;
-      case WorkareaStatus.UserNotFound:
-        return <UserNotFound/>;
-      case WorkareaStatus.Starting:
-        // Should never happen
-        return null;
-      case WorkareaStatus.Initializing:
-        return (
-          <div className={'loading-window'}>
-            <div className={'spinner'}/>
-            <h2>{props.message}</h2>
-          </div>
-        );
-      case WorkareaStatus.Ready:
-        return (
-          <>
-            {activeWorkspace ? (
-              <Workspace
-                id={activeWorkspace}
-                userProfile={userProfile}
-                symbols={symbols}
-                products={products}
-                tenors={tenors}
-                banks={banks}
-                connected={connected}/>
-            ) : null}
-            <div className={'footer'}>
-              <TabBar
-                entries={workspaces}
-                addTab={(group: CurrencyGroups) => props.addWorkspace(props.symbols, group)}
-                active={activeWorkspace}
-                setActiveTab={props.setWorkspace}
-                onTabClosed={setSelectedToClose}
-                onTabRenamed={props.renameWorkspace}
-                onQuit={() => null}/>
-            </div>
-            <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
-            <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>
-          </>
-        );
-      default:
-        // Should never happen
-        return null;
-    }
-  },
-);
-
-export {Workarea};
+const observed = observer(Workarea);
+export { observed as Workarea };

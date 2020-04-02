@@ -1,9 +1,9 @@
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
-import {Order} from 'interfaces/order';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {$$} from 'utils/stringPaster';
-import {compareTenors} from 'utils/dataGenerators';
-import {PodTable} from 'interfaces/podTable';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { Order } from 'interfaces/order';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { $$ } from 'utils/stringPaster';
+import { compareTenors } from 'utils/dataGenerators';
+import { PodTable } from 'interfaces/podTable';
 
 export const createEmptyTable = (symbol: string, strategy: string, tenors: string[]) => {
   const rows: PodRow[] = tenors.map((tenor: string) => {
@@ -11,8 +11,8 @@ export const createEmptyTable = (symbol: string, strategy: string, tenors: strin
     return {
       id: $$('run', symbol, strategy, tenor), // $$(toRunId(symbol, strategy), tenor),
       tenor: tenor,
-      bid: {...order, type: OrderTypes.Bid},
-      ofr: {...order, type: OrderTypes.Ofr},
+      bid: { ...order, type: OrderTypes.Bid },
+      ofr: { ...order, type: OrderTypes.Ofr },
       mid: null,
       spread: null,
       darkPrice: null,

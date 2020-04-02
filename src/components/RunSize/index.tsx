@@ -1,12 +1,12 @@
-import {getOrderStatusClass} from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import {Order, OrderStatus, dumpStatus} from 'interfaces/order';
-import React, {useEffect, useState, useCallback, ReactNode} from 'react';
-import {NumericInput, TabDirection} from 'components/NumericInput';
-import {sizeFormatter} from 'utils/sizeFormatter';
-import {OrderTypes} from 'interfaces/mdEntry';
-import {usePrevious} from 'hooks/usePrevious';
-import {NavigateDirection} from 'components/NumericInput/navigateDirection';
-import {$$} from 'utils/stringPaster';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { Order, OrderStatus, dumpStatus } from 'interfaces/order';
+import React, { useEffect, useState, useCallback, ReactNode } from 'react';
+import { NumericInput, TabDirection } from 'components/NumericInput';
+import { sizeFormatter } from 'utils/sizeFormatter';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { usePrevious } from 'hooks/usePrevious';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { $$ } from 'utils/stringPaster';
 
 interface Props {
   defaultValue: number;
@@ -28,7 +28,7 @@ enum ActivationStatus {
 
 export const RunSize: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
-  const {order, defaultValue, onChange, id, minimumSize, visible, value} = props;
+  const { order, defaultValue, onChange, id, minimumSize, visible, value } = props;
   const [internalValue, setInternalValue] = useState<string>(sizeFormatter(value));
 
   useEffect(() => {

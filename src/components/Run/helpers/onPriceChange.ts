@@ -1,10 +1,10 @@
-import {OrderTypes} from 'interfaces/mdEntry';
-import {Dispatch} from 'react';
-import {createAction} from 'redux/actionCreator';
-import {RunActions} from 'components/Run/reducer';
-import {PodTable} from 'interfaces/podTable';
-import {PodRow, PodRowStatus} from 'interfaces/podRow';
-import {Order} from 'interfaces/order';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { Dispatch } from 'react';
+import { createAction } from 'redux/actionCreator';
+import { RunActions } from 'components/Run/reducer';
+import { PodTable } from 'interfaces/podTable';
+import { PodRow, PodRowStatus } from 'interfaces/podRow';
+import { Order } from 'interfaces/order';
 
 export const onPriceChange =
   (dispatch: Dispatch<RunActions>) =>
@@ -25,7 +25,7 @@ export const onPriceChange =
               }));
               return false;
             } else {
-              dispatch(createAction<RunActions>(RunActions.Ofr, {id: rowID, value}));
+              dispatch(createAction<RunActions>(RunActions.Ofr, { id: rowID, value }));
               return true;
             }
           case OrderTypes.Bid:
@@ -36,7 +36,7 @@ export const onPriceChange =
               }));
               return false;
             } else {
-              dispatch(createAction<RunActions>(RunActions.Bid, {id: rowID, value}));
+              dispatch(createAction<RunActions>(RunActions.Bid, { id: rowID, value }));
               return true;
             }
         }

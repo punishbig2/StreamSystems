@@ -1,7 +1,7 @@
-import {Message} from 'interfaces/message';
+import { Message } from 'interfaces/message';
 import React from 'react';
-import {priceFormatter} from 'utils/priceFormatter';
-import {getMessagePrice} from 'messageUtils';
+import { priceFormatter } from 'utils/priceFormatter';
+import { getMessagePrice } from 'messageUtils';
 
 export default (sortable: boolean) => ({
   name: 'Price',
@@ -17,7 +17,7 @@ export default (sortable: boolean) => ({
     );
 
   },
-  weight: 2,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);
     const numeric: number = Number(keyword);
