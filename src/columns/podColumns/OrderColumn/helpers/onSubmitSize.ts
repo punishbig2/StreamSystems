@@ -8,13 +8,14 @@ import { skipTabIndexAll } from 'utils/skipTab';
 import { Dispatch } from 'react';
 import { FXOAction } from 'redux/fxo-action';
 import { User } from 'interfaces/user';
+import { OrderStore } from 'mobx/stores/orderStore';
 
 export const onSubmitSizeListener = (
   order: Order,
   editedSize: number | null,
   minimumSize: number,
   personality: string,
-  dispatch: Dispatch<FXOAction<ActionTypes>>,
+  store: OrderStore,
   user: User,
   onRowStatusChange: (rowStatus: PodRowStatus) => void,
 ) =>
@@ -24,7 +25,7 @@ export const onSubmitSizeListener = (
       return;
     }
     if (order.isCancelled() || order.price === null)
-      dispatch(createAction<ActionTypes>(ActionTypes.ResetAllSizes));
+      store.resetAllSizes();
     const myOrder: Order | undefined = findMyOrder(order, user);
     if (!!myOrder && !myOrder.isCancelled()) {
       // Get the desired new size
@@ -48,3 +49,4 @@ export const onSubmitSizeListener = (
     // value is updated
     skipTabIndexAll(input, 1);
   };
+

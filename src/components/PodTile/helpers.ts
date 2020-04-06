@@ -4,6 +4,19 @@ import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 import { skipTabIndexAll } from 'utils/skipTab';
 import { User } from 'interfaces/user';
 import { SignalRManager } from 'redux/signalR/signalRManager';
+import { OrderTypes } from 'interfaces/mdEntry';
+
+export const findMyOrder_ = (currency: string, strategy: string, tenor: string, type: OrderTypes, user: User): Order | undefined => {
+  const haystack: Order[] = SignalRManager.getDepth(currency, strategy, tenor, type);
+  const found: Order | undefined = haystack
+    .find((needle: Order) => {
+      return needle.user === user.email;
+    });
+  if (found !== undefined)
+    return found;
+  // No order was found
+  return undefined;
+};
 
 export const findMyOrder = (topOrder: Order, user: User): Order | undefined => {
   if (topOrder.user === user.email)
@@ -20,13 +33,14 @@ export const findMyOrder = (topOrder: Order, user: User): Order | undefined => {
 };
 
 export const createOrder = async (order: Order, minimumSize: number, personality: string, user: User) => {
+  if (order.symbol === '' || order.strategy === '') {
+    console.warn('please give me symbol and strategy');
+    return;
+  }
   if (order.price !== null) {
-    // Find my own order and cancel it
     const myOrder: Order | undefined = findMyOrder(order, user);
     if (myOrder !== undefined && (myOrder.status & OrderStatus.Cancelled) === 0) {
       if ((user.isbroker && order.firm === personality) || !user.isbroker) {
-        // It's funny, but actually "myOrder" and "order" have the same
-        // Id
         await API.cancelOrder(myOrder, user);
       }
     }

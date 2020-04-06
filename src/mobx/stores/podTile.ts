@@ -8,6 +8,7 @@ import { PodTable } from 'interfaces/podTable';
 import { toPodRow } from 'utils/dataParser';
 import { User } from 'interfaces/user';
 import { SignalRManager } from 'redux/signalR/signalRManager';
+import { tenorToNumber } from 'utils/dataGenerators';
 
 export class PodTileStore {
   public id: string = '';
@@ -18,6 +19,10 @@ export class PodTileStore {
   @observable type: WindowTypes = WindowTypes.Empty;
   @observable title: string = '';
   @observable rows: { [tenor: string]: PodRow } = {};
+  @observable loading: boolean = false;
+
+  @observable isRunWindowVisible: boolean = false;
+  @observable isRunButtonEnabled: boolean = false;
 
   constructor(windowID: string) {
     this.id = `PoD${windowID}`;
@@ -43,6 +48,8 @@ export class PodTileStore {
   private initializeFromSnapshot({ snapshot, user }: { snapshot: { [k: string]: W } | null, user: User }) {
     if (snapshot !== null) {
       const keys: string[] = Object.keys(snapshot);
+      // Sort by tenor
+      keys.sort((t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2));
       // Update the rows object
       this.rows = keys.reduce((table: PodTable, tenor: string): PodTable => {
         table[tenor] = toPodRow(snapshot[tenor], user);
@@ -50,10 +57,12 @@ export class PodTileStore {
         SignalRManager.addToCache(snapshot[tenor], user);
         return table;
       }, {});
+      this.loading = false;
     }
   }
 
   public initialize(currency: string, strategy: string, user: User) {
+    this.loading = true;
     API.getTOBSnapshot(currency, strategy)
       .then((snapshot: { [k: string]: W } | null) => ({ snapshot, user }))
       .then(this.initializeFromSnapshot);
@@ -65,7 +74,17 @@ export class PodTileStore {
   }
 
   @action.bound
-  public setCurrency(symbol: string) {
-    this.currency = symbol;
+  public setCurrency(currency: string) {
+    this.currency = currency;
+  }
+
+  @action.bound
+  public showRunWindow() {
+    this.isRunWindowVisible = true;
+  }
+
+  @action.bound
+  public hideRunWindow() {
+    this.isRunWindowVisible = false;
   }
 }

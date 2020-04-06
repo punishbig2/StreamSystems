@@ -1,16 +1,14 @@
 import { Message } from 'interfaces/message';
-import React from 'react';
 import { tenorToNumber } from 'utils/dataGenerators';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
-export default (sortable: boolean) => ({
+export default (sortable: boolean): ColumnSpec => ({
   name: 'Tenor',
   template: 'WW',
   filterable: true,
   sortable: sortable,
-  header: () => <div>Tenor</div>,
-  render: ({ Tenor }: Message) => (
-    <div className={'message-blotter-cell normal'}>{Tenor}</div>
-  ),
+  header: () => 'Tenor',
+  render: ({ Tenor }: Message) => Tenor,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Tenor;

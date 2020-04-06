@@ -2,15 +2,18 @@ import { OrderTypes } from 'interfaces/mdEntry';
 import { Order } from 'interfaces/order';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
-import { TenorType } from 'interfaces/w';
+import { TenorType, W } from 'interfaces/w';
 import { useEffect } from 'react';
 import { compareTenors } from 'utils/dataGenerators';
 import { User } from 'interfaces/user';
+import { SignalRManager } from 'redux/signalR/signalRManager';
+import { API } from 'API';
+import { propagateDepth } from 'utils/messageHandler';
 
-const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => {
+const buildRows = async (tenors: string[], currency: string, strategy: string, email: string): Promise<PodRow[]> => {
   const rows: PodRow[] = tenors
     .map((tenor: TenorType) => {
-      const order: Order = new Order(tenor, '', '', email, null, OrderTypes.Invalid);
+      const order: Order = new Order(tenor, currency, strategy, email, null, OrderTypes.Invalid);
       const row: PodRow = {
         tenor: tenor,
         id: `${tenor}`,
@@ -29,21 +32,41 @@ const buildRows = async (tenors: string[], email: string): Promise<PodRow[]> => 
 };
 
 type PodInitializer = (data: PodTable) => void;
-const populateEmptyTOB = (tenors: string[], email: string, initialize: PodInitializer) => {
+const populateEmptyTOB = (tenors: string[], currency: string, strategy: string, email: string, initialize: PodInitializer) => {
   const arrayToObjectReducer = (object: PodTable, item: PodRow): PodTable => {
     object[item.id] = item;
     // Return the accumulator
     return object;
   };
-  buildRows(tenors, email)
+  buildRows(tenors, currency, strategy, email)
     .then((rows: PodRow[]) => {
       initialize(rows.reduce(arrayToObjectReducer, {}));
     });
 };
 
-export const useInitializer = (tenors: string[], user: User, initialize: PodInitializer) => {
+export const useInitializer = (tenors: string[], currency: string, strategy: string, user: User, initialize: PodInitializer) => {
   useEffect(() => {
-    populateEmptyTOB(tenors, user.email, initialize);
-  }, [tenors, user, initialize]);
+    populateEmptyTOB(tenors, currency, strategy, user.email, initialize);
+    if (!currency || !strategy || strategy === '' || currency === '') {
+      return;
+    }
+    const manager: SignalRManager = SignalRManager.getInstance();
+    tenors.forEach((tenor: string) => {
+      API.getTenorTOBSnapshot(currency, strategy, tenor)
+        .then((w: W | null) => {
+          if (w !== null) {
+            SignalRManager.addToCache(w, user);
+            manager.emitPodWEvent(w);
+          }
+        });
+      API.getTenorSnapshot(currency, strategy, tenor)
+        .then((w: W | null) => {
+          if (w !== null) {
+            SignalRManager.addToCache(w, user);
+            propagateDepth(w, user);
+          }
+        });
+    });
+  }, [tenors, user, initialize, currency, strategy]);
 };
 

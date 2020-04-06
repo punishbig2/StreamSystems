@@ -35,7 +35,6 @@
 //   executions: [],
 // };*/
 //
-// const SidesMap: { [key: string]: Sides } = {'1': Sides.Buy, '2': Sides.Sell};
 //
 // const getOCOMode = (): OCOModes => {
 //   const state: ApplicationState = store.getState();
@@ -126,38 +125,7 @@
 //     };
 //
 //     const onUpdateMessageBlotter = (data: Message) => {
-//       /*const ocoMode: OCOModes = getOCOMode();
-//       switch (data.OrdStatus) {
-//         case ExecTypes.PendingCancel:
-//           break;
-//         case ExecTypes.Filled:
-//           if (ocoMode !== OCOModes.Disabled && data.Username === user.email) {
-//             API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
-//           }
-//         // eslint-disable-next-line no-fallthrough
-//         case ExecTypes.PartiallyFilled:
-//           const type: string = $$(data.ExecID, MessageBlotterActions.Executed);
-//           if (ocoMode === OCOModes.PartialEx && data.Username === user.email) {
-//             API.cancelAll(data.Symbol, data.Strategy, SidesMap[data.Side]);
-//           }
-//           if (data.Username === user.email) {
-//             // FIXME: this should not be working right now right?
-//             // FIXME: to improve performance we should try to find a way to do this
-//             //        in a single dispatch
-//             dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
-//             // dispatch(createAction<any, A>(type));
-//           }
-//           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
-//           // Execute after the system had time to update the state and hence
-//           // create the row in the blotters
-//           setTimeout(() => {
-//             document.dispatchEvent(new CustomEvent(type));
-//           }, 100);
-//           break;
-//         default:
-//           dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
-//           break;
-//       }*/
+
 //     };
 //     // Setup the connection manager now
 //     connectionManager.setOnConnectedListener(onConnected);

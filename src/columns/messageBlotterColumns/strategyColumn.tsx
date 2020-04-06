@@ -1,15 +1,13 @@
 import { Message } from 'interfaces/message';
-import React from 'react';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
-export default (sortable: boolean) => ({
+export default (sortable: boolean): ColumnSpec => ({
   name: 'Strategy',
   template: 'WWWWWW',
   filterable: true,
   sortable: sortable,
-  header: () => <div>Strategy</div>,
-  render: ({ Strategy }: Message) => (
-    <div className={'message-blotter-cell normal'}>{Strategy}</div>
-  ),
+  header: () => 'Strategy',
+  render: ({ Strategy }: Message) => Strategy,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;

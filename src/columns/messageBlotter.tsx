@@ -22,7 +22,7 @@ const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: 
       tenorColumn(sortable),
       strategyColumn(sortable),
       priceColumn(sortable),
-      sideColumn(sortable, type === BlotterTypes.Executions),
+      sideColumn(sortable),
       sizeColumn(sortable),
       cptyColumn(sortable, type === BlotterTypes.Executions),
       poolColumn(sortable),

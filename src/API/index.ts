@@ -3,10 +3,9 @@ import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
 import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage } from 'interfaces/order';
 import { MessageResponse } from 'interfaces/messageResponse';
-import { Strategy } from 'interfaces/strategy';
 import { User } from 'interfaces/user';
 import { MessageTypes, W } from 'interfaces/w';
-import { getSideFromType } from 'utils';
+import { getSideFromType, getCurrentTime } from 'utils';
 import { STRM } from 'redux/stateDefs/workspaceState';
 import { $$ } from 'utils/stringPaster';
 import { Sides } from 'interfaces/sides';
@@ -134,8 +133,6 @@ type Endpoints =
 
 type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save' | 'cxlall';
 
-const getCurrentTime = (): string => Math.round(Date.now()).toString();
-
 export class API {
   static FxOpt: string = '/api/fxopt';
   static MarketData: string = `${API.FxOpt}/marketdata`;
@@ -160,18 +157,26 @@ export class API {
     return get<Currency[]>(API.getUrl(API.Config, 'symbols', 'get'));
   }
 
-  static getProducts(): CancellablePromise<Strategy[]> {
-    return get<Strategy[]>(API.getUrl(API.Config, 'products', 'get'));
+  static getProducts(): CancellablePromise<string[]> {
+    return get<string[]>(API.getUrl(API.Config, 'products', 'get'));
   }
 
   static getTenors(): CancellablePromise<string[]> {
     return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
   }
 
+  static async executeCreateOrderRequest(request: CreateOrder): CancellablePromise<MessageResponse> {
+    const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
+    if (result.Status !== 'Success')
+      console.warn(`error creating an order ${result.Response}`);
+    return result;
+  };
+
   static async createOrder(order: Order, personality: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
     if (order.price === null || order.size === null)
       throw new Error('price and size MUST be specified');
-    if (order.size < minimumSize) order.size = minimumSize;
+    if (order.size < minimumSize)
+      order.size = minimumSize;
     const { price, size } = order;
     // Build a create order request
     if (user.isbroker && personality === STRM)
@@ -189,12 +194,7 @@ export class API {
       Price: price.toString(),
       MDMkt,
     };
-    order.dispatchEvent('CREATE');
-    const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
-    if (result.Status !== 'Success') {
-      console.warn('error creating an order');
-    }
-    return result;
+    return API.executeCreateOrderRequest(request);
   }
 
   static async updateOrder(entry: Order, user: User): CancellablePromise<MessageResponse> {
@@ -246,10 +246,10 @@ export class API {
       Tenor: order.tenor,
       OrderID: order.orderId,
     };
-    order.dispatchEvent('CANCEL');
     const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
     if (result.Status !== 'Success') {
       console.warn('error cancelling an order');
+      order.dispatchEvent('CANCEL');
     }
     return result;
   }
@@ -284,6 +284,22 @@ export class API {
     const url: string = API.getRawUrl(API.MarketData, 'tilesnapshot', { symbol, strategy });
     // Execute the query
     return get<{ [k: string]: W } | null>(url);
+  }
+
+  static async getTenorTOBSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
+    if (!symbol || !strategy)
+      throw new Error('you have to tell me which symbol, strategy and tenor you want');
+    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', { symbol, strategy, tenor });
+    // Execute the query
+    return await get<W | null>(url);
+  }
+
+  static getTenorSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
+    if (!symbol || !strategy)
+      throw new Error('you have to tell me which symbol, strategy and tenor you want');
+    const url: string = API.getRawUrl(API.MarketData, 'snapshot', { symbol, strategy, tenor });
+    // Execute the query
+    return get<W | null>(url);
   }
 
   static async getMessagesSnapshot(useremail: string, timestamp: number): CancellablePromise<Message[]> {

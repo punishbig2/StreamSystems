@@ -16753,7 +16753,7 @@
     "changes": ["5.9.0"],
     "ligatures": [],
     "search": {
-      "terms": ["bolt", "emoji", "heart", "image", "music", "photo", "symbols"]
+      "terms": ["bolt", "emoji", "heart", "image", "music", "photo", "currencies"]
     },
     "styles": ["solid"],
     "unicode": "f86d",

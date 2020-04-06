@@ -15,6 +15,8 @@ import { WorkareaStore, WorkspaceDef } from 'mobx/stores/workarea';
 import { create } from 'mobx-persist';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
 
+import messages from 'mobx/stores/messages';
+
 const Workarea: React.FC = (): ReactElement | null => {
   const [store] = useState(new WorkareaStore());
 
@@ -38,10 +40,14 @@ const Workarea: React.FC = (): ReactElement | null => {
   }, [store]);
 
   useEffect(() => {
-    if (!user || !connected)
+    if (!user)
       return;
-    return store.subscribeToBlotterMessages(user.email);
-  }, [connected, store, user]);
+    if (connected) {
+      messages.connect(user.email);
+    } else {
+      messages.disconnect();
+    }
+  }, [connected, user]);
 
   const cancelCloseWorkspace = () => setSelectedToClose(null);
   const closeWorkspace = () => {
@@ -89,9 +95,9 @@ const Workarea: React.FC = (): ReactElement | null => {
             isDefault={isDefault}
             visible={id === currentWorkspaceID}
             userProfile={store.userProfile}
-            symbols={store.symbols}
-            products={store.products}
             tenors={store.tenors}
+            currencies={store.currencies}
+            strategies={store.strategies}
             banks={store.banks}
             connected={store.connected}
             user={user}

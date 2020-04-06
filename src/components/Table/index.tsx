@@ -4,6 +4,7 @@ import { VirtualScroll } from 'components/VirtualScroll';
 import { SortInfo } from 'interfaces/sortInfo';
 import React, { CSSProperties, ReactElement, useState, useMemo } from 'react';
 import getStyles from 'styles';
+import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 
 export enum SortDirection {
   Descending,
@@ -17,6 +18,7 @@ interface Props {
   scrollable: boolean;
   renderRow: (props: any, index?: number) => ReactElement | null;
   className?: string;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 type Filters = { [key: string]: string | undefined };
@@ -33,40 +35,12 @@ const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
   });
 };
 
-const getMinWidth = (columns: ColumnSpec[]): number => {
-  // Create an element to use it as a placeholder and measure
-  // the size of the column using the template of the column
-  // specification
-  const el = document.createElement('div');
-  const { body } = document;
-  const { style } = el;
-  // FIXME: ideally we should be able to read variables from the .scss file
-  style.display = 'inline-block';
-  style.fontFamily = '"Roboto", sans-serif';
-  style.fontSize = '15px';
-  style.fontWeight = '500';
-  style.padding = '4px';
-  // Sums the widths of individual elements
-  const reducer = (value: number, column: ColumnSpec): number => {
-    const { template } = column;
-    el.innerHTML = template;
-    if (column.sortable)
-      return value + el.offsetWidth + 24;
-    return value + el.offsetWidth;
-  };
-  // Temporarily add the element to the document so that it's measurable
-  body.appendChild(el);
-  const minWidth: number = columns.reduce(reducer, 0);
-  body.removeChild(el);
-  return minWidth;
-};
-
-export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
+export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React.Ref<HTMLDivElement>): ReactElement | null => {
   const { rows, columns } = props;
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<{ [key: string]: SortInfo }>({});
-  const [minWidth] = useState(getMinWidth(columns));
-  const style = useMemo((): CSSProperties => ({ minWidth: `${minWidth}px` }), [minWidth]);
+  const [optimalWidth] = useState(getOptimalWidthFromColumnsSpec(columns));
+  const style = useMemo((): CSSProperties => ({ minWidth: `${optimalWidth}px` }), [optimalWidth]);
   if (!rows)
     return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
@@ -74,7 +48,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
   const propertyMapper = ([key, row]: [string, any]) => ({
     id: key,
     totalWidth: total,
-    containerWidth: minWidth,
+    containerWidth: optimalWidth,
     key,
     columns,
     row,
@@ -155,7 +129,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
           {rows.map(props.renderRow)}
         </VirtualScroll>
       );
-    } else if (props.renderRow) {
+    } else {
       return <div className={'tbody'}>{rows.map(props.renderRow)}</div>;
     }
   };
@@ -167,7 +141,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
               sortBy={sortBy}
               addFilter={addFilter}
               totalWidth={total}
-              containerWidth={minWidth}/>
+              containerWidth={optimalWidth}/>
     );
   };
 
@@ -175,7 +149,7 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
   if (props.className)
     classes.push(props.className);
   return (
-    <div className={classes.join(' ')} style={style}>
+    <div ref={ref} className={classes.join(' ')} style={style}>
       {getHeaders()}
       {getBody(rowProps)}
       <div className={'loading-banner'}>
@@ -183,4 +157,4 @@ export const Table: React.FC<Props> = (props: Props): ReactElement | null => {
       </div>
     </div>
   );
-};
+});

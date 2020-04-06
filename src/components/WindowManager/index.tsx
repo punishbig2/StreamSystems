@@ -1,20 +1,23 @@
-import { WindowElement } from 'components/WindowManager/window';
+import { WindowElement } from 'components/WindowManager/windowElement';
 import React, { ReactElement, useState, useEffect } from 'react';
 import getStyles, { Dimensions } from 'styles';
 import { getOptimalSize } from 'windowUtils';
 import { User } from 'interfaces/user';
 import { ExecutionBlotter } from 'components/WindowManager/executionBlotter';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { WindowDef } from 'mobx/stores/workspace';
+import { WindowTypes } from 'redux/constants/workareaConstants';
+import { PodTileStore } from 'mobx/stores/podTile';
+import { MessagesStore } from 'mobx/stores/messages';
 
 interface Props {
   toast: string | null;
-  renderContent: (wID: string, type: WindowTypes) => ReactElement | null;
   windows: WindowDef[];
   isDefaultWorkspace: boolean;
   connected: boolean;
   personality: string;
   user: User;
+  getContentRenderer: (id: string, type: WindowTypes) => ((props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null);
+  getTitleRenderer: (id: string, type: WindowTypes) => ((props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null);
   onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onWindowClose: (id: string) => void;
   onClearToast: () => void;
@@ -29,8 +32,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const [area, setArea] = useState<ClientRect>(BodyRectangle);
   const styles: any = getStyles();
-
-  const { renderContent } = props;
 
   useEffect(() => {
     if (element === null) return;
@@ -87,19 +88,22 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, area.bottom, area.right, layoutCompleted]);
 
   const windowMapper = (window: WindowDef): ReactElement => {
-    const content: ReactElement | null = renderContent(window.id, window.type);
-    const childProps: any = content ? content.props : {};
+    /*const content: ReactElement | null = renderContent(window.id, window.type);
+    const contentProps: { [k: string]: any } = content ? content.props : {};*/
     return (
-      <WindowElement key={window.id}
-                     id={window.id}
-                     area={area}
+      <WindowElement id={window.id}
                      type={window.type}
+                     key={window.id}
                      geometry={window.geometry}
+                     area={area}
+                     connected={props.connected}
+                     user={props.user}
+                     content={props.getContentRenderer(window.id, window.type)}
+                     title={props.getTitleRenderer(window.id, window.type)}
+                     personality={props.personality}
                      isDefaultWorkspace={isDefaultWorkspace}
                      onLayoutModify={props.onLayoutModify}
-                     onClose={props.onWindowClose}>
-        {content ? React.cloneElement(content, childProps) : null}
-      </WindowElement>
+                     onClose={props.onWindowClose}/>
     );
   };
   const classes = ['workspace'];

@@ -25,7 +25,7 @@ interface Props {
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {
-  const { onTabbedOut, onNavigate, onSubmit, onChange, onCancelEdit, onBlur, ...otherProps } = props;
+  const { onTabbedOut, onNavigate, onSubmit, onChange, onCancelEdit, onBlur, className, ...otherProps } = props;
   const [selectTimer, setSelectTimer] = useState<number>(setTimeout(() => null, 0));
 
   const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>) => {

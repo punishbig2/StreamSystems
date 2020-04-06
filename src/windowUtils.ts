@@ -1,11 +1,4 @@
 const windowRect = (): ClientRect => new DOMRect(0, 0, window.innerWidth, window.innerHeight);
-export const addClass = (element: HTMLDivElement, className: string) => {
-  const list: DOMTokenList = element.classList;
-  if (list) {
-    list.add(className);
-  }
-};
-
 export const getOptimalSize = (element: HTMLDivElement, area: ClientRect = windowRect()): { width: number, height: number } => {
   const { style } = element;
   const size: { width: number, height: number } = { width: 0, height: 0 };

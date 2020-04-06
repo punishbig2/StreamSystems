@@ -2,7 +2,7 @@ import { Cell } from 'components/Table/Cell';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { RowFunctions } from 'components/PodTile/rowFunctions';
 import { PodRowStatus } from 'interfaces/podRow';
-import React, { useReducer, Reducer, useEffect } from 'react';
+import React, { useReducer, Reducer } from 'react';
 import { RowState } from 'redux/stateDefs/rowState';
 import { FXOAction } from 'redux/fxo-action';
 import { createAction } from 'redux/actionCreator';
@@ -45,12 +45,6 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
     usePropsRowOverwrite(row),
     useOrderActions(currency, strategy, tenor, user, connected, internalRow),
   ], dispatch);
-
-  useEffect(() => {
-    if (row === undefined)
-      return;
-    dispatch(createAction<ActionTypes>(ActionTypes.SetRow, row));
-  }, [row]);
 
   const onRowStatusChange = (status: PodRowStatus) => {
     dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, status));

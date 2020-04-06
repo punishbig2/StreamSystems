@@ -1,18 +1,19 @@
 import { ExecTypes, Message } from 'interfaces/message';
 import React from 'react';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
-export default (sortable: boolean, isExecBlotter: boolean) => ({
+export default (sortable: boolean, isExecBlotter: boolean): ColumnSpec => ({
   name: 'CPTY',
   template: 'WWWWWW',
   filterable: true,
   sortable: sortable,
-  header: () => <div>CPTY</div>,
+  header: () => 'CPTY',
   render: (message: Message) => {
     const { ExecBroker, OrdStatus } = message;
     if (OrdStatus !== ExecTypes.Filled && OrdStatus !== ExecTypes.PartiallyFilled)
       return <div/>;
     return (
-      <div className={'message-blotter-cell normal cpty ' + (isExecBlotter ? 'exec-blotter' : '')}>
+      <div className={'normal cpty ' + (isExecBlotter ? 'exec-blotter' : '')}>
         {ExecBroker}
       </div>
     );

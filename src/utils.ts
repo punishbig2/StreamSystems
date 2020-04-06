@@ -20,3 +20,4 @@ export const percentage = (numerator: number, denominator: number, base: number)
 export const dispatchWorkspaceError = (message: string | null) => {
   document.dispatchEvent(new CustomEvent('workspace-error', { detail: message }));
 };
+export const getCurrentTime = (): string => Math.round(Date.now()).toString();

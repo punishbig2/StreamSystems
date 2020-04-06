@@ -16,6 +16,8 @@ interface Props {
   weight: number;
   type: BlotterRowTypes;
   blotterType: BlotterTypes;
+  totalWidth: number;
+  containerWidth: number;
 }
 
 const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, executed: boolean): string => {
@@ -66,7 +68,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
 
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {
-      width: props.weight,
+      width: column.width * props.containerWidth / props.totalWidth,
     };
     return (
       <div className={'td'} key={$$(column.name, row.id)} style={style}>

@@ -12,9 +12,9 @@ import { getUserFromUrl } from 'utils/getUserFromUrl';
 export const defaultWorkareaState: WorkareaState = {
   workspaces: {},
   activeWorkspace: null,
-  symbols: [],
+  currencies: [],
   tenors: [],
-  products: [],
+  strategies: [],
   messages: [],
   banks: [],
   status: WorkareaStatus.Starting,

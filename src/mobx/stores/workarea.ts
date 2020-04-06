@@ -1,5 +1,4 @@
 import { Currency } from 'interfaces/currency';
-import { Strategy } from 'interfaces/strategy';
 import { Message } from 'interfaces/message';
 import { User, UserWorkspace, CurrencyGroups } from 'interfaces/user';
 import { WorkareaStatus } from 'redux/stateDefs/workareaState';
@@ -26,11 +25,10 @@ export class WorkareaStore {
   @persist('object') @observable workspaces: { [k: string]: WorkspaceDef } = {};
   @persist @observable currentWorkspaceID: string | null = null;
 
-  @observable symbols: Currency[] = [];
-  @observable tenors: string[] = [];
-  @observable products: Strategy[] = [];
-  @observable banks: string[] = [];
-  @observable messages: Message[] = [];
+  @observable.ref currencies: Currency[] = [];
+  @observable.ref tenors: string[] = [];
+  @observable.ref strategies: string[] = [];
+  @observable.ref banks: string[] = [];
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
   @observable recentExecutions: Message[] = [];
@@ -51,8 +49,8 @@ export class WorkareaStore {
     const map: { [k: string]: string[] } | null = WorkareaStore.getMapForCurrencyGroup(group);
     if (map === null)
       return;
-    const symbols: string[] = Object.keys(map);
-    const windows: WindowDef[] = symbols.reduce((accumulator: WindowDef[], currency: string): WindowDef[] => {
+    const currencies: string[] = Object.keys(map);
+    const windows: WindowDef[] = currencies.reduce((accumulator: WindowDef[], currency: string): WindowDef[] => {
       const windows: WindowDef[] = map[currency]
         .map((strategy: string): WindowDef => {
           const id: string = `WiN${currency}${strategy}${randomID()}`;
@@ -127,18 +125,15 @@ export class WorkareaStore {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     // Start the loading mode
     this.status = WorkareaStatus.Initializing;
-    // Load symbols
+    // Load currencies
     this.message = strings.LoadingSymbols;
-    this.symbols = await API.getSymbols();
+    this.currencies = await API.getSymbols();
     // Load strategies
     this.message = strings.LoadingStrategies;
-    this.products = await API.getProducts();
+    this.strategies = await API.getProducts();
     // Load strategies
     this.message = strings.LoadingTenors;
     this.tenors = await API.getTenors();
-    // Load blotter messages
-    this.message = strings.LoadingMessages;
-    this.messages = await API.getMessagesSnapshot(email, Date.now());
     // Now load users information
     this.message = strings.LoadingUserData;
     const users: any[] = await API.getUsers();
@@ -164,19 +159,6 @@ export class WorkareaStore {
       });
     }
   };
-
-  @action.bound
-  public onMessage(message: Message) {
-    const { messages } = this;
-    messages.push(message);
-  }
-
-  @action.bound
-  public subscribeToBlotterMessages(email: string) {
-    const signalRManager: SignalRManager = SignalRManager.getInstance();
-    // Subscribe to signal r messages
-    return signalRManager.setMessagesListener('*', this.onMessage);
-  }
 
   @action.bound
   public setWorkspace(id: string) {

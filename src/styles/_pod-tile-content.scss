@@ -1,0 +1,29 @@
+.pod-tile-content {
+  display: inline-block;
+
+  .pod {
+    transition: opacity 0.25s;
+    opacity: initial;
+
+    &[data-showing-tenor="true"] {
+      opacity: 0;
+    }
+  }
+
+  overflow: hidden;
+
+  .dob {
+    position: absolute;
+    display: none;
+
+    top: $window-content-padding;
+    bottom: $window-content-padding;
+    left: $window-content-padding;
+    right: $window-content-padding;
+
+    &[data-showing-tenor="true"] {
+      display: block;
+      pointer-events: all;
+    }
+  }
+}

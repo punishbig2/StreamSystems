@@ -6,22 +6,20 @@ import { useDepthEmitter } from 'components/PodTile/hooks/useDepthEmitter';
 import { useInitializer } from 'components/PodTile/hooks/useInitializer';
 import { ActionTypes, reducer, State } from 'components/PodTile/reducer';
 import { Row } from 'components/PodTile/Row';
-import { Title } from 'components/PodTile/title';
 import { Order } from 'interfaces/order';
 import { PodRow } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
-import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, CSSProperties } from 'react';
 import { createAction } from 'redux/actionCreator';
-import { STRM } from 'redux/stateDefs/workspaceState';
 import { API } from 'API';
 import { Currency } from 'interfaces/currency';
 import { findMyOrder } from 'components/PodTile/helpers';
 import { observer } from 'mobx-react';
 import { User } from 'interfaces/user';
-import { Strategy } from 'interfaces/strategy';
 import { InvalidCurrency } from 'redux/stateDefs/windowState';
 import { PodTileStore } from 'mobx/stores/podTile';
 import { SignalRManager } from 'redux/signalR/signalRManager';
+import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 
 const initialState: State = {
   depths: {},
@@ -33,14 +31,18 @@ const initialState: State = {
 
 interface OwnProps {
   id: string;
-  workspaceID: string;
+  store: PodTileStore;
   user: User;
   tenors: string[];
-  products: Strategy[];
-  symbols: Currency[];
+  strategies: string[];
+  currencies: Currency[];
   connected: boolean;
-  scrollable?: boolean;
+
   personality: string;
+
+  scrollable?: boolean;
+  minimized?: boolean;
+
   onClose?: () => void;
 }
 
@@ -52,15 +54,19 @@ const getCurrencyFromName = (list: Currency[], name: string): Currency => {
 };
 
 const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
-  const [store] = useState<PodTileStore>(new PodTileStore(props.id));
+  const store: PodTileStore = props.store;
 
-  const { workspaceID, id: windowID } = props;
-  const { symbols, products, tenors, connected, user, personality } = props;
-  const { email } = user;
+  const { currencies, tenors, connected, user, personality } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const { strategy } = store;
   const { rows } = store;
-  const currency: Currency | undefined = getCurrencyFromName(symbols, store.currency);
+  const currency: Currency | undefined = getCurrencyFromName(currencies, store.currency);
+
+  useEffect(() => {
+    store.setCurrency(currency.name);
+    store.setStrategy(strategy);
+  }, [store, currency, strategy]);
+
   // Internal temporary reducer actions
   const setCurrentTenor = useCallback((tenor: string | null) =>
       dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)),
@@ -70,11 +76,11 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
     []);
 
-  const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
-  const hideRunWindow = useCallback(
+  // const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
+  /*const hideRunWindow = useCallback(
     () => dispatch(createAction(ActionTypes.HideRunWindow)),
     [],
-  );
+  );*/
   useEffect(() => {
     const manager: SignalRManager = SignalRManager.getInstance();
     if (currency === InvalidCurrency || !strategy)
@@ -85,12 +91,12 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   // Create depths for each tenor
   useDepthEmitter(tenors, currency.name, strategy, insertDepth);
   // Initialize tile/window
-  useInitializer(tenors, user, store.setRows);
+  useInitializer(tenors, currency.name, strategy, user, store.setRows);
   // Handler methods
   const bulkCreateOrders = useCallback(
     (entries: Order[]) => {
       // Close the runs window
-      hideRunWindow();
+      // hideRunWindow();
       // Create the orders
       entries.forEach((order: Order) => {
         const myOrder: Order | undefined = findMyOrder(order, user);
@@ -100,7 +106,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         API.createOrder(order, personality, user, currency.minqty);
       });
     },
-    [hideRunWindow, personality, currency.minqty, user],
+    [personality, currency.minqty, user],
   );
 
   const runWindow = (): ReactElement | null => {
@@ -113,12 +119,12 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         tenors={tenors}
         defaultSize={currency.defaultqty}
         minimumSize={currency.minqty}
-        onClose={hideRunWindow}
+        onClose={store.hideRunWindow}
         onSubmit={bulkCreateOrders}/>
     );
   };
 
-  const renderTobRow = useCallback((rowProps: any, index?: number): ReactElement => {
+  const renderToBRow = useCallback((rowProps: any, index?: number): ReactElement => {
     const { row } = rowProps;
     return (
       <Row {...rowProps}
@@ -137,7 +143,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     );
   }, [user, state.depths, personality, currency, strategy, connected, setCurrentTenor]);
 
-  const renderDOBRow = useCallback((rowProps: any): ReactElement | null => {
+  const renderDoBRow = useCallback((rowProps: any): ReactElement | null => {
     if (!currency || currency.minqty === undefined || currency.defaultqty === undefined || !strategy)
       return null;
     // static
@@ -158,7 +164,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const tobColumns = useMemo(() => createTOBColumns(currency.name, strategy, user, false),
     [strategy, currency.name, user],
   );
-  const getDepthTable = (): ReactElement | null => {
+  /*const getDepthTable = (): ReactElement | null => {
     if (state.tenor === null) return null;
     const rows: PodTable = { ...state.depths[state.tenor] };
     return (
@@ -168,7 +174,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         rows={rows}
         renderRow={renderDOBRow}/>
     );
-  };
+  };*/
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
   useEffect(() => {
@@ -186,29 +192,34 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     }
   }, [setCurrentTenor, state.depths, state.tenor]);
 
+  const getWindowContent = () => {
+    if (props.minimized) {
+      const style: CSSProperties = {
+        width: getOptimalWidthFromColumnsSpec(tobColumns),
+      };
+      return <div style={style}/>;
+    }
+    const dobRows = !!state.tenor ? { ...state.depths[state.tenor] } : {};
+    return (
+      <div className={'pod-tile-content'}>
+        <div className={'pod'} data-showing-tenor={!!state.tenor}>
+          <Table scrollable={!!props.scrollable} columns={tobColumns} rows={rows} renderRow={renderToBRow}/>
+        </div>
+        <div className={'dob'} data-showing-tenor={!!state.tenor}>
+          <Table scrollable={!!props.scrollable} columns={dobColumns} rows={dobRows} renderRow={renderDoBRow}/>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
-      <Title
-        currency={currency.name}
-        strategy={strategy}
-        symbols={symbols}
-        products={products}
-        runsDisabled={!currency || !strategy || (props.personality === STRM && user.isbroker)}
-        connected={connected}
-        onStrategyChange={store.setStrategy}
-        onCurrencyChange={store.setCurrency}
-        onClose={props.onClose}
-        onShowRunWindow={showRunWindow}/>
-      <div className={'window-content'}>
-        <div className={state.tenor === null ? 'visible' : 'invisible'}>
-          <Table scrollable={!!props.scrollable} columns={tobColumns} rows={rows} renderRow={renderTobRow}/>
-        </div>
-        <div className={'depth-table'}>{getDepthTable()}</div>
-      </div>
+      {getWindowContent()}
       <ModalWindow render={runWindow} visible={state.runWindowVisible}/>
     </>
   );
 };
+
 const connected = observer(PodTile);
 
 export { connected as PodTile };

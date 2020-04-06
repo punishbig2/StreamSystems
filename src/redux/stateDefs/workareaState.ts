@@ -12,9 +12,9 @@ export enum WorkareaStatus {
 }
 
 export interface WorkareaState {
-  symbols: Currency[];
+  currencies: Currency[];
   tenors: string[];
-  products: Strategy[];
+  strategies: Strategy[];
   banks: string[];
   activeWorkspace: string | null;
   messages: Message[];

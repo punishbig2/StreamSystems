@@ -1,19 +1,17 @@
 import { Message } from 'interfaces/message';
-import React from 'react';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
 const currencyToNumber = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
 };
 
-export default (sortable: boolean) => ({
+export default (sortable: boolean): ColumnSpec => ({
   name: 'Currency',
   template: 'Symbol',
   filterable: true,
   sortable: sortable,
-  header: () => <div>Currency</div>,
-  render: ({ Symbol }: Message) => (
-    <div className={'message-blotter-cell normal'}>{Symbol}</div>
-  ),
+  header: () => 'Currency',
+  render: ({ Symbol }: Message) => Symbol,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Symbol;

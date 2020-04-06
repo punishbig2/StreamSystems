@@ -1,828 +1,410 @@
 .table {
-  position: relative;
-  display: inline-flex;
-  font-size: 12px;
-  min-height: 100%;
+  font-family: $table-font-family;
+  font-size: $table-font-size;
+  font-weight: $table-font-weight;
+
+  display: flex;
   flex-direction: column;
-  box-sizing: content-box;
-  padding: 0;
+  height: 100%;
 
-  &.loading {
-    pointer-events: none;
+  .thead {
+    flex: 0 1;
+  }
 
-    .tbody, .thead {
-      filter: grayscale(100%) blur(1px);
-      opacity: 0.15;
-    }
-
-    .loading-banner {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      filter: none;
-
-      .spinner {
-        width: 64px;
-        height: 64px;
-        border: 6px solid $primary-color;
-        border-radius: 32px;
-        border-bottom-color: #f1f1f1;
-        z-index: 1;
-        animation: spin 1s infinite linear;
-      }
-    }
+  .tbody {
+    position: relative;
+    flex: 1 0;
   }
 
   .thead {
-    width: 100%;
-    z-index: 0;
-    background-color: rgba($primary-color, $table-tint);
+    .tr {
+      white-space: nowrap;
 
-    .twin-header {
-      height: 100%;
-      line-height: $table-header-height / 2 + 1;
-      border: none;
-      margin: 0;
-
-      :first-child {
-        border-right: 1px solid $table-border-color;
-      }
-
-      .size, .price {
+      .th {
+        position: relative;
+        pointer-events: all;
         display: inline-block;
         vertical-align: top;
-      }
+        font-weight: $table-font-weight + 200;
+        text-transform: uppercase;
+        text-align: center;
+        background-color: rgba($primary-color, 0.125);
+        border-width: 1px;
+        border-color: $table-border-color;
+        border-left-style: solid;
+        border-top-style: solid;
 
-      .size {
-        width: 40%
-      }
+        &:last-child {
+          border-right-style: solid;
+        }
 
-      .price {
-        width: 60%;
+        &.sortable {
+          .sort-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 6px;
+          }
+        }
+
+        input.filter {
+          width: 100%;
+          border: none;
+          height: $table-header-height;
+          padding: 0 4px;
+          outline: none;
+          background-color: rgba(255, 255, 255, 0.65);
+          border-top: 1px solid $table-border-color;
+
+          &:hover, &:focus {
+            outline: 2px solid $primary-color;
+            outline-offset: -2px;
+          }
+        }
+
+        .column {
+          font-size: $table-font-size - 1;
+          line-height: $table-header-height;
+          height: $table-header-height;
+
+          .dark-pool-header {
+            font-size: $table-header-height / 2 - 1;
+            line-height: $table-header-height / 2 - 2;
+            padding: 1px 0;
+          }
+
+          .twin-header {
+            .size, .price {
+              display: inline-block;
+            }
+
+            .size {
+              width: 40%;
+
+              &:first-child {
+                border-right: 1px solid $table-border-color;
+              }
+
+              &:last-child {
+                border-left: 1px solid $table-border-color;
+              }
+            }
+
+            .price {
+              width: 60%;
+            }
+
+            button {
+              background-color: $primary-color;
+              color: $primary-contrast-color;
+              border: none;
+              padding: 0 4px 0 4px;
+              height: $table-header-height - 8;
+              border-radius: 3px;
+              outline: none;
+              box-shadow: 0 2px 4px -3px black;
+
+              &:hover {
+                background-color: darken($primary-color, 10%);
+              }
+
+              &:active {
+                transform: translateY(1px);
+              }
+            }
+          }
+        }
       }
     }
   }
 
   .tbody {
-    flex-direction: column;
-    flex: 1 0 0;
-    pointer-events: all;
-    z-index: 1;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    border-bottom: 1px solid $table-border-color;
 
-    .td.twin-cell {
-      > .cell:first-child {
-        border-right: 1px solid $table-border-color;
-      }
+    .tr {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
 
-      .cell {
+      .td {
         display: inline-block;
         vertical-align: top;
-
-        &.price-layout {
-          width: 60%;
-        }
-
-        &.size-layout {
-          width: 40%;
-        }
-      }
-    }
-
-    .tbody-scrollable-content {
-      height: 100%;
-      pointer-events: initial;
-      overflow-y: hidden;
-
-      .scrollbar-container {
-        position: absolute;
-        display: block;
-        width: 13px;
-        background-color: white;
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
-        border: 1px solid $table-border-color;
-        border-left-color: transparent;
-        box-sizing: content-box;
-
-        left: 100%;
-        top: 0;
-        bottom: -4px;
-
-        &.hidden {
-          display: none;
-        }
-
-        .handle {
-          position: absolute;
-          min-height: 30px;
-          left: 3px;
-          right: 3px;
-          top: 3px;
-          border-radius: 8px;
-          background-color: black;
-
-          &:hover {
-            cursor: pointer;
-            background-color: $primary-color;
-          }
-        }
-      }
-    }
-  }
-
-  .tbody .tr,
-  .thead .tr {
-    position: relative;
-    width: 100%;
-    height: $table-row-height;
-    line-height: $table-row-height;
-    white-space: nowrap;
-
-    @keyframes blink {
-      0% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.5;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
-
-    &.executed {
-      background-color: #f8f8f8;
-      animation: blink 0.5s infinite linear;
-    }
-
-    &.error {
-      background-color: rgba($text-color-red, $table-tint);
-
-      .td {
-        .error-cell {
-          i {
-            color: $text-color-red;
-          }
-        }
-      }
-    }
-  }
-
-  .thead .tr {
-    border: none;
-    height: auto;
-    line-height: $table-row-height;
-  }
-
-  .tbody .tr {
-    &.busted {
-      .td * {
-        text-decoration: line-through;
-      }
-    }
-
-    &.flash {
-      animation: flash 0.25s infinite;
-    }
-
-    &.my-bank-fill {
-      .td * {
-        color: $text-color-blue;
-      }
-    }
-
-    &.my-fill {
-      .td * {
-        color: $text-color-red;
-      }
-    }
-  }
-
-  .tbody .tr {
-    &.my-fill, &.my-bank-fill {
-      .td {
-        .message-blotter-cell.exec-blotter {
-          &.cpty, &.side {
-            display: block;
-          }
-        }
-      }
-    }
-  }
-
-  .thead {
-    margin-bottom: -1px;
-  }
-
-  .thead .tr .th,
-  .tbody .tr .td {
-    display: inline-block;
-    position: relative;
-    width: auto;
-    vertical-align: top;
-    line-height: inherit;
-    height: inherit;
-    cursor: text;
-    border-left: 1px solid $table-border-color;
-    border-top: 1px solid $table-border-color;
-
-    z-index: 2;
-
-    &:last-child {
-      border-right: 1px solid $table-border-color;
-    }
-
-    .buy,
-    .sell {
-      font-weight: $table-font-weight;
-      font-size: $table-font-size;
-      font-family: $table-font-family;
-    }
-
-    .buy {
-      color: green;
-    }
-
-    .sell {
-      color: red;
-    }
-
-
-    .message-blotter-cell {
-      font-weight: $table-font-weight;
-      font-size: $table-font-size;
-      font-family: $table-font-family;
-
-      &.exec-blotter {
-        &.cpty, &.side {
-          display: none;
-        }
-      }
-    }
-
-    .ref {
-      padding: 0;
-      margin: auto;
-      text-align: center;
-      line-height: $table-row-height;
-
-      i {
-        color: $text-color-red;
-        width: $red-x-size;
-        height: $red-x-size;
-        cursor: pointer;
-        border-radius: $red-x-size / 2;
-        line-height: $red-x-size;
-
-        &:hover {
-          background-color: $text-color-red;
-          color: white;
-        }
-
-        &:active {
-          transform: translateY(1px);
-        }
-      }
-    }
-  }
-
-  .tbody .tr:last-child {
-    border-bottom: 1px solid $table-border-color;
-  }
-
-  .thead .tr .th {
-    pointer-events: initial;
-    text-transform: uppercase;
-    font-size: 13px;
-    font-weight: 600;
-    text-align: center;
-    margin: 0;
-    border-bottom: 1px solid $table-border-color;
-
-    input.filter {
-      width: 100%;
-      border: none;
-      border-top: 1px dashed $table-border-color;
-      line-height: 1.5;
-      padding: 0 8px;
-      outline-offset: -2px;
-      background-color: white;
-      text-align: center;
-
-      &:focus {
-        outline: 2px solid $primary-color;
-      }
-    }
-
-    .header-size {
-      input {
-        display: block;
-        height: $table-header-height / 2;
-        line-height: $table-header-height / 2;
-        width: 100%;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
         text-align: center;
-        font-family: $table-font-family;
-        font-weight: $table-font-weight;
-        font-size: $table-font-size;
-        border: none;
-        color: $foreground-color;
 
-        &:focus {
-          outline: 2px solid $primary-color;
+        line-height: $table-row-height;
+        height: $table-row-height;
+
+        border-width: 1px;
+        border-color: $table-border-color;
+        border-left-style: solid;
+        border-top-style: solid;
+
+        .tenor-layout {
+          font-weight: $table-font-weight + 200;
+          font-size: $table-font-size - 1;
+          text-align: center;
+          pointer-events: all;
         }
-      }
-    }
 
-    .dark-pool-header {
-      white-space: pre-wrap;
-      line-height: $table-header-height / 4;
-
-      div {
-        display: inline-block;
-        line-height: $table-header-height / 4;
-        font-size: 3 * $table-font-size / 4;
-        width: 100%;
-
-        &:first-child {
-          vertical-align: bottom;
+        .firm {
+          color: $text-color-green;
+          font-size: $table-font-size - 3;
         }
 
         &:last-child {
-          vertical-align: top;
+          border-right-style: solid;
         }
-      }
-    }
 
-    &.sortable {
-      .label {
-        margin: 0 -26px 0 0;
-      }
-    }
+        *:not(.fa) {
+          font-family: inherit;
+          font-size: inherit;
+          font-weight: inherit;
+        }
 
-    .column {
-      .label,
-      .sort-indicator {
-        display: inline-block;
-        vertical-align: middle;
-      }
-
-      .label {
-        text-align: center;
-        width: 100%;
-
-        .runs-size-input {
-          display: inline-block;
-          background-color: white;
-          border: none;
-          padding: 0;
-          height: $table-row-height;
-          width: 100%;
+        input {
           text-align: center;
-          font-family: "Roboto", sans-serif;
-          font-weight: 600;
+          pointer-events: all;
+          width: 100%;
+          border: none;
+          height: $table-row-height - 1; /* the border below would overlap */
+          color: inherit;
 
           &:focus {
             outline: 2px solid $primary-color;
+            outline-offset: -2px;
           }
-        }
 
-        .dual-header {
-          line-height: $table-header-height;
-          height: $table-header-height;
-
-          .first,
-          .second {
-            line-height: $table-header-height / 2;
-            height: $table-header-height / 2;
-            width: 100%;
-          }
-        }
-
-        button {
-          @extend %button;
-        }
-      }
-
-      .sort-indicator {
-        height: 22px;
-        width: 22px;
-        line-height: 22px;
-        border-radius: 11px;
-        margin: 0 4px 0 0;
-        cursor: pointer;
-        text-align: center;
-        pointer-events: initial;
-
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .fa.none {
-          opacity: 0.5;
-        }
-
-        &:hover {
-          .fa.none {
-            opacity: 1;
-          }
-        }
-
-        &:active {
-          transform: translateY(1px);
-        }
-      }
-    }
-  }
-
-  .tbody .tr .td .size-layout {
-    position: relative;
-
-    input.cell {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-    }
-  }
-
-  .tbody .tr .td,
-  .thead .tr .th {
-    .price-layout,
-    .size-layout {
-      position: relative;
-      z-index: 1;
-
-      .plus-sign {
-        &.empty {
-          i {
+          &::placeholder {
             color: $text-color-grey;
           }
         }
 
-        &.active {
-          cursor: pointer;
+        &.twin-cell {
+          .cell {
+            display: inline-block;
+            vertical-align: top;
+            color: $text-color-black;
 
-          i {
-            color: $text-color-red;
-          }
-        }
+            &.owned {
+              color: $text-color-red;
+            }
 
-        &.inactive {
-          cursor: pointer;
+            &:not(.owned).same-bank {
+              color: $text-color-blue;
+            }
 
-          i {
-            color: $text-color-green;
-          }
-        }
-      }
+            &.size-layout {
+              position: relative;
+              width: 40%;
 
-      input {
-        padding: 0 8px;
-        min-width: 0;
-        width: 100%;
-        text-align: center;
-        line-height: $table-row-height;
-        height: $table-row-height;
-        border: none;
-        background: none;
-        font-size: $table-font-size;
-        font-family: $table-font-family;
-        font-weight: 400;
-        z-index: 1;
-        position: relative;
-        color: $foreground-color;
+              &:first-child {
+                border-right: 1px solid $table-border-color;
+              }
 
-        &::placeholder {
-          color: $text-color-grey;
-        }
+              &:last-child {
+                border-left: 1px solid $table-border-color;
+              }
 
+              &:not(.owned).not-among {
+                .times {
+                  pointer-events: none;
 
-        &.dark-pool-base {
-          font-weight: 400;
-        }
+                  .st0 {
+                    fill: $text-color-grey;
+                  }
+                }
+              }
 
-        &:focus {
-          outline: 2px solid $primary-color;
-          outline-offset: -2px;
-          z-index: 1;
-        }
-      }
-    }
+              &.cancelled {
+                .times {
+                  display: none;
+                }
+              }
 
-    .price-layout {
-      input {
-        font-weight: 800;
-      }
-    }
-  }
+              &:not(.cancelled), &.among {
+                .times {
+                  pointer-events: all;
 
-  .tbody .tr .td {
-    text-align: center;
-    pointer-events: initial;
+                  svg {
+                    fill: $text-color-red;
+                  }
 
-    .dp-table-cell {
-      font-weight: $table-font-weight;
-      font-size: $table-font-size;
-      font-family: $table-font-family;
-      line-height: $table-row-height;
+                  &:hover {
+                    svg {
+                      background-color: $text-color-red;
+                      fill: white;
+                    }
+                  }
+                }
+              }
 
-      &:not(.edited).owned {
-        color: $text-color-red;
-      }
-    }
+              .chevron {
+                position: absolute;
+                font-size: $table-row-height / 2;
+                top: 2px;
+                height: $table-row-height / 2;
+                width: $table-row-height / 2;
+                line-height: $table-row-height / 2;
 
-    .firm {
-      color: $text-color-green;
-      font-family: $table-font-family;
-      font-size: $table-font-size - 2;
-      font-weight: $table-font-weight + 100;
-    }
+                &.left {
+                  left: 4px;
+                }
 
-    .price-waiting-spinner {
-      position: absolute;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 11px;
-      height: $table-row-height - 2;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      background-color: white;
-      z-index: 2;
+                &.right {
+                  right: 4px;
+                }
+              }
 
-      span {
-        display: block;
-        height: $table-row-height;
-      }
+              &.among {
+                &.owned {
+                  .chevron {
+                    color: $text-color-red;
+                  }
+                }
 
-      &::before {
-        display: block;
-        content: '';
-        margin: 0 4px 0 0;
-        width: 12px;
-        height: 12px;
-        border: 2px solid $table-border-color;
-        border-top-color: $primary-color;
-        border-left-color: $primary-color;
-        border-radius: 6px;
-        box-sizing: border-box;
-        animation: spin 1s infinite linear;
-      }
-    }
+                &.same-bank {
+                  .chevron {
+                    color: $text-color-blue;
+                  }
+                }
+              }
 
-    .size-layout {
-      input {
-        &:not(.edited):not(.cancelled):not(.among).has-depth.owned, &.joined {
-          color: $text-color-black;
-        }
-      }
-    }
+              &.joined {
+                color: $text-color-black;
 
-    .size-layout {
-      input {
-        &:not(.owned-by-broker):not(.cancelled):not(.among):not(.joined).owned {
-          color: $text-color-red;
-        }
-      }
-    }
+                &.among {
+                  .chevron {
+                    color: $text-color-red;
+                  }
+                }
+              }
 
-    .price-layout {
-      input {
-        &:not(.owned-by-broker):not(.cancelled):not(.among).owned {
-          color: $text-color-red;
-        }
-      }
-    }
+              input {
+                position: relative;
+                display: inline-block;
+                width: 100%;
+                z-index: 0;
+              }
 
-    .price-layout,
-    .size-layout {
-      align-items: center;
-      line-height: $table-row-height;
-      white-space: nowrap;
+              .times {
+                position: relative;
+                display: inline-block;
+                vertical-align: top;
+                width: $table-row-height;
+                height: $table-row-height;
+                cursor: default;
+                z-index: 1;
 
-      &.flash {
-        input {
-          animation: flash 0.5s infinite linear;
-        }
-      }
+                &:last-child {
+                  margin-left: -$table-row-height;
+                }
 
-      input {
-        cursor: default;
-        will-change: opacity;
+                &:first-child {
+                  margin-right: -$table-row-height;
+                }
 
-        box-sizing: border-box;
+                svg {
+                  display: block;
+                  height: $red-x-size - 2;
+                  width: $red-x-size - 2;
+                  margin: ($table-row-height - $red-x-size + 2) / 2;
+                  border-radius: $red-x-size;
 
-        &:not(.edited) {
-          &.dark-pool {
-            background-color: $yellow-background;
-          }
+                  &:active {
+                    transform: translateY(1px);
+                  }
+                }
+              }
+            }
 
-          &:focus {
-            cursor: initial;
-          }
+            &.price-layout {
+              position: relative;
+              width: 60%;
+              font-weight: $table-font-weight + 200;
 
-          &.mid,
-          &.owned-by-broker,
-          &:not(.owned).same-bank {
-            color: $text-color-blue;
-          }
+              $spinner-size: $table-row-height - 6;
 
-          &.spread {
-            color: $text-color-green;
-          }
-        }
-      }
-    }
-  }
-}
+              &.busy {
+                input {
+                  display: none;
+                }
+              }
 
-.size-layout {
-  &.busy {
-    .times, input {
-      visibility: hidden;
-    }
+              .spinner {
+                font-size: $table-font-size - 4;
+                line-height: $table-row-height;
+                height: $table-row-height;
+                width: 100%;
+                background-image: url('/images/spinner.gif');
+                background-size: $spinner-size;
+                background-repeat: no-repeat;
+                background-position: 8px ($table-row-height - $spinner-size) / 2;
+                background-origin: padding-box;
+                color: $text-color-black;
+                opacity: 0.75;
 
-    &::after {
-      content: '\00b7 \00b7 \00b7';
-      position: absolute;
-      font-size: $table-row-height;
-      line-height: $table-row-height - 4;
-      height: $table-row-height - 2;
-      top: 0;
-      width: 100%;
-      left: 0;
-      text-align: center;
-      box-sizing: border-box;
-      animation: flash 0.5s infinite linear;
-      will-change: color;
-      z-index: 2;
-    }
-  }
-
-  &.not-among, &:not(.at-top) {
-    .chevron {
-      i {
-        color: #444;
-        text-shadow: 0 0 1px black;
-      }
-    }
-  }
-
-  .chevron {
-    position: absolute;
-    top: 1px;
-    line-height: 12px;
-    width: 12px;
-    height: 12px;
-    vertical-align: top;
-
-    &.left {
-      left: 1px;
-    }
-
-    &.right {
-      right: 1px;
-    }
-
-    i {
-      font-size: 8px;
-      text-shadow: 0 0 1px $text-color-red;
-      color: $text-color-red;
-    }
-  }
-
-  &.cancelled {
-    .times {
-      i {
-        &::after,
-        &::before {
-          content: none;
-        }
-      }
-    }
-  }
-
-  div {
-    width: $table-row-height;
-    line-height: $table-row-height;
-    height: 100%;
-
-    &.times {
-      position: relative;
-      display: inline-block;
-      top: 0;
-      left: 0;
-      color: $text-color-red;
-      height: $table-row-height;
-      width: $table-row-height;
-      line-height: $table-row-height;
-      z-index: 2;
-
-      &:first-child {
-        margin-right: -$table-row-height;
-      }
-
-      &:last-child {
-        margin-left: -$table-row-height;
-      }
-
-      i {
-        display: inline-block;
-      }
-
-      &.empty {
-        i {
-          &::after,
-          &::before {
-            border: none;
-          }
-        }
-      }
-
-      &:not(.clickable) {
-        i {
-          pointer-events: none;
-
-          &::after,
-          &::before {
-            border-color: lighten(black, 80%);
-          }
-        }
-      }
-
-      i {
-        position: relative;
-        transition: background-color 0.25s;
-        line-height: 15px;
-        border-radius: 8px;
-        margin: ($table-row-height - $red-x-size) / 2 0;
-        width: $red-x-size;
-        height: $red-x-size;
-
-        $x-tick-length: 10px;
-
-        &::after,
-        &::before {
-          content: "";
-          position: absolute;
-          left: ($red-x-size - $x-tick-length) / 2;
-          top: $red-x-size / 2 - 1px;
-          width: $x-tick-length;
-          border-top: 2px solid $text-color-red;
-          transition: border-color 0.25s;
-        }
-
-        &::after {
-          transform: rotate(45deg);
-        }
-
-        &::before {
-          transform: rotate(-45deg);
-        }
-      }
-
-      &.clickable {
-        &:hover {
-          i {
-            cursor: pointer;
-            background-color: $text-color-red;
-            color: white;
-
-            &:after,
-            &:before {
-              border-color: white;
+                span {
+                  padding-left: $spinner-size + 12px;
+                }
+              }
             }
           }
-
-          cursor: default;
-        }
-
-        &:active {
-          transform: translateY(1px);
         }
       }
     }
   }
 
-  input {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    text-align: center;
-    border: none;
-    font-weight: $table-font-weight;
-    font-size: $table-font-size;
-    font-family: $table-font-family;
-    padding: 0;
+  &.showing-scrollbar .scrollbar-container {
+    position: absolute;
+    display: block;
+    width: 16px;
+    background-color: transparent;
+    box-sizing: content-box;
+    pointer-events: all;
 
-    &:focus {
-      outline: 2px solid $primary-color;
+    left: 100%;
+    top: 0;
+    bottom: -4px;
+
+    &.hidden {
+      display: none;
+    }
+
+    .handle {
+      position: absolute;
+      min-height: 30px;
+      left: 3px;
+      right: 3px;
+      top: 3px;
+      border-radius: 8px;
+      background-color: black;
+      cursor: default;
+
+      &:hover {
+        background-color: $primary-color;
+      }
     }
   }
+
+  .tbody-scrollable-content {
+    position: absolute;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+
+    top: 0;
+    width: 100%;
+    left: 0;
+    height: 100%;
+
+    pointer-events: initial;
+    overflow: hidden;
+  }
 }
+

@@ -1,5 +1,5 @@
 import React, { ReactElement, useRef } from 'react';
-import { WindowElement } from 'components/WindowManager/window';
+import { WindowElement } from 'components/WindowManager/windowElement';
 import { MessageBlotter } from 'components/MessageBlotter';
 import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import getStyles, { Dimensions } from 'styles';
@@ -23,22 +23,30 @@ export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElem
   const height: number = styles.windowToolbarHeight + styles.tableHeaderHeight + 4 * styles.tableRowHeight;
   const geometry: ClientRect = new DOMRect(0, area.height - height, width, height);
   const id: string = '___EX_BLOTTER___';
+  const content = (): ReactElement => {
+    return (
+      <MessageBlotter id={id}
+                      ref={ref}
+                      personality={props.personality}
+                      connected={props.connected}
+                      user={props.user}
+                      blotterType={BlotterTypes.Executions}/>
+    );
+  };
+  const title = () => <h1>Execution Blotter</h1>;
   return (
     <WindowElement id={id}
                    geometry={geometry}
                    type={WindowTypes.MessageBlotter}
                    area={area}
                    fixed={true}
+                   content={content}
+                   title={title}
                    isDefaultWorkspace={false}
+                   connected={props.connected}
+                   personality={props.personality}
+                   user={props.user}
                    onClose={() => null}
-                   onLayoutModify={() => null}>
-      <MessageBlotter
-        id={'fills-blotter'}
-        ref={ref}
-        connected={props.connected}
-        personality={props.personality}
-        blotterType={BlotterTypes.Executions}
-        user={props.user}/>
-    </WindowElement>
+                   onLayoutModify={() => null}/>
   );
 };

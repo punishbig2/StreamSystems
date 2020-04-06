@@ -156,9 +156,9 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
         {offset > 0 ? array[offset - 1] : null}
         {array.slice(offset, offset + visibleCount + 1)}
         <div className={'tbody-fill-area post'} style={{ height: Math.max(postHeight, 0) }}/>
-        <div className={'scrollbar-container'}>
-          <div className={'handle'}/>
-        </div>
+      </div>
+      <div className={'scrollbar-container'}>
+        <div className={'handle'}/>
       </div>
     </div>
   );

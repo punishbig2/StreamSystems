@@ -1,8 +1,8 @@
 import { User } from 'interfaces/user';
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, ReactElement } from 'react';
 
 interface CellProps {
-  render: React.FC<any>;
+  render: (props: any) => ReactElement | string | null;
   user?: User;
   width: number;
   colNumber?: number;

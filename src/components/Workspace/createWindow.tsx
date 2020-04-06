@@ -6,21 +6,24 @@ import { PodTile } from 'components/PodTile';
 import { MessageBlotter } from 'components/MessageBlotter';
 import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import React from 'react';
+import { PodTileStore } from 'mobx/stores/podTile';
 
-export const createWindow = (wID: string, type: WindowTypes, workspaceID: string, symbols: Currency[], products: Strategy[], tenors: string[], connected: boolean, user: User | null, personality: string) => {
-  if (user === null)
+export const createWindow = (wID: string, type: WindowTypes, workspaceID: string, currencies: Currency[], strategies: Strategy[], tenors: string[], connected: boolean, user: User | null, personality: string) => {
+  /*if (user === null)
     return null;
   switch (type) {
     case WindowTypes.Empty:
       return null;
     case WindowTypes.PodTile:
+      const store: PodTileStore = new PodTileStore(wID);
       return (
         <PodTile
           id={wID}
           workspaceID={workspaceID}
-          symbols={symbols}
-          products={products}
+          currencies={currencies}
+          strategies={strategies}
           tenors={tenors}
+          store={store}
           user={user}
           connected={connected}
           personality={personality}/>
@@ -36,5 +39,6 @@ export const createWindow = (wID: string, type: WindowTypes, workspaceID: string
       );
     default:
       throw new Error(`invalid tile type ${type}`);
-  }
+  }*/
+  return null;
 };

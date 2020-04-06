@@ -5,7 +5,7 @@ export interface ColumnSpec {
   sortable?: boolean;
   filterable?: boolean;
   header: (props: any) => ReactElement | string | null;
-  render: React.FC<any>;
+  render: (props: any) => ReactElement | string | null;
   span?: number;
   width: number;
   filterByKeyword?: (v1: any, keyword: string) => boolean;

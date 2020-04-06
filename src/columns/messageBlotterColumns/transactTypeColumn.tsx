@@ -1,5 +1,4 @@
 import { ExecTypes, Message } from 'interfaces/message';
-import React from 'react';
 
 const TransTypes: { [key: string]: string } = {
   [ExecTypes.New]: 'New',
@@ -13,22 +12,14 @@ const TransTypes: { [key: string]: string } = {
 export default (sortable: boolean) => ({
   name: 'ExecTransType',
   template: 'Long String to Fit the content',
-  header: () => <div>Type</div>,
+  header: () => 'Type',
   filterable: true,
   sortable: sortable,
   render: (data: Message) => {
     if (TransTypes[data.OrdStatus]) {
-      return (
-        <div className={'message-blotter-cell normal'}>
-          {TransTypes[data.OrdStatus]}
-        </div>
-      );
+      return TransTypes[data.OrdStatus];
     } else {
-      return (
-        <div className={'message-blotter-cell normal red'}>
-          {data.OrdStatus}
-        </div>
-      );
+      return data.OrdStatus;
     }
   },
   width: 3,

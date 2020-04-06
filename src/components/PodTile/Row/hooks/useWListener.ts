@@ -15,7 +15,6 @@ export const useWListener = (symbol: string, strategy: string, tenor: string, us
     if (connected) {
       if (!symbol || !strategy || symbol === '' || strategy === '')
         return;
-      console.log(`adding listener for: ${symbol} ${strategy} ${tenor}`);
       const signalRManager: SignalRManager = SignalRManager.getInstance();
       const onNewWMessage = async (w: W) => {
         const row: PodRow = toPodRow(w, user);

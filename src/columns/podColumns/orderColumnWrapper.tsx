@@ -58,7 +58,6 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           minimumSize={props.minimumSize}
           bid={bid}
           ofr={ofr}
-          isDepth={isDepth}
           onRowStatusChange={props.onRowStatusChange}/>
       );
     },

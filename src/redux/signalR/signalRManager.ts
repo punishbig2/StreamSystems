@@ -15,13 +15,16 @@ import { $$ } from 'utils/stringPaster';
 import { SignalRActions } from 'redux/constants/signalRConstants';
 import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
 import { Order } from 'interfaces/order';
-import { User } from 'interfaces/user';
+import { User, OCOModes } from 'interfaces/user';
 import deepEqual from 'deep-equal';
 import { PodTable } from 'interfaces/podTable';
 import { orderArrayToPodTableReducer } from 'utils/dataParser';
+import { MessageBlotterActions } from 'redux/constants/messageBlotterConstants';
+import { Sides } from 'interfaces/sides';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
+const SidesMap: { [key: string]: Sides } = { '1': Sides.Buy, '2': Sides.Sell };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 enum SignalRMessageTypes {
@@ -157,6 +160,10 @@ export class SignalRManager<A extends Action = AnyAction> {
     return false;
   };
 
+  public static removeFromCache = (orderID: string) => {
+    delete SignalRManager.orderCache[orderID];
+  };
+
   public static addToCache = (w: W, user: User) => {
     const entries: MDEntry[] = w.Entries;
     if (entries) {
@@ -165,7 +172,7 @@ export class SignalRManager<A extends Action = AnyAction> {
       if (orders.length > 0) {
         SignalRManager.orderCache = orders.reduce((cache: { [id: string]: Order }, order: Order) => {
           // Cancelled orders are just for "informational purposes"
-          if (order.isCancelled())
+          if (order.size === null)
             return cache;
           if (order.orderId !== undefined)
             cache[order.orderId] = order;
@@ -341,11 +348,58 @@ export class SignalRManager<A extends Action = AnyAction> {
     };
   }
 
+  private getOCOMode = (): OCOModes => {
+    return OCOModes.Disabled;
+  };
+
+  private handleMessageActions = (message: Message) => {
+    const ocoMode: OCOModes = this.getOCOMode();
+    const { user } = this;
+    switch (message.OrdStatus) {
+      case ExecTypes.Canceled:
+        SignalRManager.removeFromCache(message.OrderID);
+        break;
+      case ExecTypes.PendingCancel:
+        break;
+      case ExecTypes.Filled:
+        if (ocoMode !== OCOModes.Disabled && message.Username === user.email) {
+          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
+        }
+      // eslint-disable-next-line no-fallthrough
+      case ExecTypes.PartiallyFilled:
+        const type: string = $$(message.ExecID, MessageBlotterActions.Executed);
+        if (ocoMode === OCOModes.PartialEx && message.Username === user.email) {
+          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
+        }
+        if (message.Username === user.email) {
+          // FIXME: this should not be working right now right?
+          // FIXME: to improve performance we should try to find a way to do this
+          //        in a single dispatch
+          // dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
+          // dispatch(createAction<any, A>(type));
+        }
+        // dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+        // Execute after the system had time to update the state and hence
+        // create the row in the blotters
+        setTimeout(() => {
+          document.dispatchEvent(new CustomEvent(type));
+        }, 100);
+        break;
+      default:
+        // dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
+        break;
+    }
+  };
+
   public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
     const { connection } = this;
     if (connection) {
       connection.invoke(SignalRActions.SubscribeForMBMsg, useremail);
-      connection.on('updateMessageBlotter', (message: any) => {
+      connection.on('updateMessageBlotter', (raw: string) => {
+        const message: Message = JSON.parse(raw);
+        // First call the internal handler
+        this.handleMessageActions(message);
+        // Now call the setup handler
         onMessage(message);
       });
       return () => {

@@ -1,17 +1,16 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
-import { ExecutionBannerStore } from 'mobx/stores/executionBanner';
+import store from 'mobx/stores/messages';
 
 interface OwnProps {
 }
 
 const ExecutionBanner: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
-  const [store] = useState<ExecutionBannerStore>(new ExecutionBannerStore());
-  const { executions } = store;
-  const start: number = Math.max(0, executions.length - 5);
+  const { entries } = store;
+  const start: number = Math.max(0, entries.length - 5);
   const end: number = start + 5;
-  const last5: Message[] = executions
+  const last5: Message[] = entries
     .slice(start, end)
     .reverse();
   return (

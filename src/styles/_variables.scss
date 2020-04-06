@@ -1,6 +1,7 @@
 @import "css-variables.css";
 
 $primary-color: #407af0;
+$primary-contrast-color: white;
 $primary-dark-color: #2058c0;
 $foreground-color: #222;
 
@@ -14,7 +15,7 @@ $yellow-background: #ffff00;
 $table-border-color: #d5d5d5;
 $title-bar-height: 18px;
 $title-bar-button-size: 16px;
-$table-header-height: 44px;
+$table-header-height: 24px;
 $table-row-height: 20px;
 $table-tint: 0.075;
 
@@ -22,8 +23,10 @@ $window-border-size: 1px;
 $window-toolbar-size: 48px;
 $window-footer-size: 36px;
 $window-border-color: #e1e1e1;
+$window-content-padding: 2px;
 
 $table-font-weight: 400;
+$table-price-font-weight: 600;
 $table-font-size: 14px;
 $table-font-family: "Roboto", sans-serif;
 $red-x-size: $table-row-height - 6;

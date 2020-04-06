@@ -1,6 +1,4 @@
 import { WindowManager } from 'components/WindowManager';
-import { Currency } from 'interfaces/currency';
-import { Strategy } from 'interfaces/strategy';
 import { User, UserWorkspace } from 'interfaces/user';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { WindowTypes } from 'redux/constants/workareaConstants';
@@ -13,15 +11,20 @@ import { observer } from 'mobx-react';
 import { WorkspaceStore } from 'mobx/stores/workspace';
 import { MenuItem, Select } from '@material-ui/core';
 import { SelectEventData } from 'interfaces/selectEventData';
-import { createWindow } from 'components/Workspace/createWindow';
+import { Currency } from 'interfaces/currency';
+import { PodTileStore } from 'mobx/stores/podTile';
+import { MessagesStore } from 'mobx/stores/messages';
+import { PodTile } from 'components/PodTile';
+import { MessageBlotter } from 'components/MessageBlotter';
+import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
+import { PodTileTitle } from 'components/PodTile/title';
 
 interface OwnProps {
   id: string;
   user: User;
-  // Global internalRow
-  symbols: Currency[];
-  products: Strategy[];
   tenors: string[];
+  currencies: Currency[];
+  strategies: string[];
   connected: boolean;
   banks: string[];
   userProfile: UserWorkspace;
@@ -47,35 +50,8 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
 
   if (store === null)
     return null;
-  /*const {personality, id: workspaceID} = props;
-  const {setWindowTitle, showToast} = store;
-
-  const renderContent = useCallback(, [connected, personality, products, setWindowTitle, symbols, tenors, user, workspaceID]);
-
-  const
-
-  useEffect(() => {
-    const errorListener = (event: CustomEvent<string>) => {
-      showToast(event.detail);
-    };
-    document.addEventListener('workspace-error', errorListener as EventListener);
-    return () => {
-      document.removeEventListener('workspace-error', errorListener as EventListener);
-    };
-  }, [workspaceID, showToast]);
-
-  const ;*/
-
   const onPersonalityChange = ({ target }: React.ChangeEvent<SelectEventData>) => {
     store.setPersonality(target.value as string);
-  };
-
-  const renderContent = (wID: string, type: WindowTypes): ReactElement | null => {
-    const { symbols, tenors, products, connected } = props;
-    const { personality } = store;
-    if (symbols.length === 0 || tenors.length === 0 || products.length === 0)
-      return <div>no content</div>;
-    return createWindow(wID, type, id, symbols, products, tenors, connected, user, personality);
   };
 
   const getRightPanelButtons = (): ReactElement | null => {
@@ -127,6 +103,63 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
     store.addWindow(WindowTypes.MessageBlotter);
   };
 
+  const getContentRenderer = (id: string, type: WindowTypes) => {
+    switch (type) {
+      case WindowTypes.PodTile:
+        return (contentProps: any, contentStore: PodTileStore | MessagesStore | null) => {
+          if (contentStore instanceof PodTileStore) {
+            return (
+              <PodTile id={id}
+                       personality={store.personality}
+                       connected={props.connected}
+                       store={contentStore}
+                       currencies={props.currencies}
+                       strategies={props.strategies}
+                       tenors={props.tenors}
+                       user={props.user}
+                       {...contentProps}/>
+            );
+          } else {
+            throw new Error('invalid type of store specified');
+          }
+        };
+      case WindowTypes.MessageBlotter:
+        return (contentProps: any, contentStore: PodTileStore | MessagesStore | null) => {
+          if (contentStore instanceof MessagesStore) {
+            return (
+              <MessageBlotter id={id}
+                              personality={store.personality}
+                              blotterType={BlotterTypes.Regular}
+                              connected={props.connected}
+                              user={props.user}
+                              {...contentProps}/>
+            );
+          } else {
+            throw new Error('invalid type of store specified');
+          }
+        };
+    }
+    throw new Error('invalid type of window specified');
+  };
+
+  const getTitleRenderer = (id: string, type: WindowTypes) => {
+    switch (type) {
+      case WindowTypes.PodTile:
+        return (contentProps: any, contentStore: PodTileStore | MessagesStore | null) => {
+          if (contentStore instanceof PodTileStore) {
+            return <PodTileTitle strategies={props.strategies} currencies={props.currencies} store={contentStore}/>;
+          } else {
+            throw new Error('invalid type of store specified');
+          }
+        };
+      case WindowTypes.MessageBlotter:
+        return (contentProps: any, contentStore: PodTileStore | MessagesStore | null) => (
+          <h1>Blotter</h1>
+        );
+    }
+    return () => null;
+  };
+
   const render = () => {
     return (
       <div className={props.visible ? 'visible' : 'invisible'}>
@@ -143,12 +176,13 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
           </div>
         </div>
         <WindowManager
-          connected={props.connected}
           user={props.user}
+          connected={props.connected}
           isDefaultWorkspace={props.isDefault}
           toast={store.toast}
-          renderContent={renderContent}
           windows={store.windows}
+          getTitleRenderer={getTitleRenderer}
+          getContentRenderer={getContentRenderer}
           personality={store.personality}
           onLayoutModify={() => props.onModify(id)}
           onClearToast={() => store.showToast(null)}

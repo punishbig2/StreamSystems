@@ -1,22 +1,15 @@
 import { Message } from 'interfaces/message';
-import React from 'react';
 import { priceFormatter } from 'utils/priceFormatter';
 import { getMessagePrice } from 'messageUtils';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
-export default (sortable: boolean) => ({
+export default (sortable: boolean): ColumnSpec => ({
   name: 'Price',
   template: '999999.99',
   filterable: true,
   sortable: sortable,
-  header: () => <div>Level</div>,
-  render: (message: Message) => {
-    return (
-      <div className={'message-blotter-cell normal'}>
-        {priceFormatter(getMessagePrice(message))}
-      </div>
-    );
-
-  },
+  header: () => 'Level',
+  render: (message: Message) => priceFormatter(getMessagePrice(message)),
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);

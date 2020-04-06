@@ -5,6 +5,7 @@ import React, { ReactNode } from 'react';
 import { sizeFormatter } from 'utils/sizeFormatter';
 import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 
+const xPoints = '382.2,396.4 560.8,217.8 484,141 305.4,319.6 126.8,141 50,217.8 228.6,396.4 50,575 126.8,651.8 305.4,473.2 484,651.8 560.8,575 382.2,396.4';
 interface OwnProps {
   type: OrderTypes;
   value: number | null;
@@ -54,7 +55,11 @@ export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
     classes.push('empty');
   const button = (
     <div key={2} className={classes.join(' ')} onClick={props.onCancel}>
-      <i/>
+      <svg viewBox={'0 0 612 792'}>
+        <g>
+          <polygon className={'st0'} points={xPoints}/>
+        </g>
+      </svg>
     </div>
   );
   if (props.type === OrderTypes.Bid) {
@@ -66,8 +71,11 @@ export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
     if (props.chevron)
       children.push(<Chevron side={'right'} key={3}/>);
   }
+  const layoutClasses: string[] = ['size-layout', 'cell'];
+  if (!!props.className)
+    layoutClasses.push(props.className);
   return (
-    <div className={['size-layout', props.className].join(' ')}>{children}</div>
+    <div className={layoutClasses.join(' ')}>{children}</div>
   );
 };
 

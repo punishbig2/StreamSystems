@@ -1,26 +1,21 @@
 import { Currency } from 'interfaces/currency';
-import { Strategy } from 'interfaces/strategy';
 import strings from 'locales';
 import React, { ReactElement } from 'react';
 import { Select } from 'components/Select';
 import { $$ } from 'utils/stringPaster';
 import { CCYGroups } from 'data/groups';
+import { PodTileStore } from 'mobx/stores/podTile';
+import { observer } from 'mobx-react';
 
 interface Props {
-  symbols: Currency[];
-  currency: string;
-  products: Strategy[];
-  strategy: string;
-  runsDisabled: boolean;
-  connected: boolean;
-  onCurrencyChange: (value: string) => void;
-  onStrategyChange: (value: string) => void;
-  onClose?: () => void;
-  onShowRunWindow: () => void;
+  store: PodTileStore;
+  currencies: Currency[];
+  strategies: string[];
 }
 
-export const Title: React.FC<Props> = (props: Props): ReactElement => {
-  const { symbols, currency, products, strategy } = props;
+export const PodTileTitle: React.FC<Props> = observer((props: Props): ReactElement => {
+  const { store } = props;
+  const { currency, strategy } = store;
 
   const getGroup = (key: string): string => {
     if (CCYGroups[key] !== undefined) {
@@ -31,19 +26,20 @@ export const Title: React.FC<Props> = (props: Props): ReactElement => {
   };
 
   return (
-    <div className={'window-title-bar'}>
+    <>
       <div className={'item'}>
-        <Select value={currency} onChange={props.onCurrencyChange} list={symbols} empty={'Currency'} searchable={true}/>
+        <Select value={currency} onChange={store.setCurrency} list={props.currencies} empty={'Currency'}
+                searchable={true}/>
       </div>
       <div className={'item'}>
-        <Select value={strategy} onChange={props.onStrategyChange} list={products} empty={'Strategy'}/>
+        <Select value={strategy} onChange={store.setStrategy} list={props.strategies} empty={'Strategy'}/>
       </div>
       <div className={'ccy-group'}>
         {getGroup($$(currency, strategy))}
       </div>
-      <button onClick={props.onShowRunWindow} disabled={props.runsDisabled}>
+      <button onClick={store.showRunWindow} disabled={store.isRunButtonEnabled}>
         {strings.Run}
       </button>
-    </div>
+    </>
   );
-};
+});

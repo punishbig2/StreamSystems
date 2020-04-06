@@ -14,7 +14,6 @@ import React, { useCallback, useReducer, ReactElement, useState } from 'react';
 import { createAction } from 'redux/actionCreator';
 import { priceFormatter } from 'utils/priceFormatter';
 import { useValueListener } from 'components/Table/CellRenderers/Price/hooks/useValueListener';
-import { getLayoutClass } from 'components/Table/CellRenderers/Price/utils/getLayoutClass';
 import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';
 import { OrderStatus } from 'interfaces/order';
 
@@ -40,7 +39,7 @@ export interface Props {
   readOnly?: boolean;
   uid?: string;
   timestamp?: string;
-  tooltip?: React.FC<any>;
+  tooltip?: React.FC<any> | string;
   onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onError?: (error: PriceErrors, input: HTMLInputElement) => void;
@@ -94,7 +93,7 @@ export const Price: React.FC<Props> = (props: Props) => {
   const getTooltip = (): ReactElement | null => {
     if (!tooltip || !tooltipVisible)
       return null;
-    const content: ReactElement | null = typeof tooltip === 'function' ? tooltip({}) : tooltip;
+    const content: ReactElement | string | null = typeof tooltip === 'function' ? tooltip({}) : tooltip;
     if (!content)
       return null;
     return (
@@ -200,37 +199,37 @@ export const Price: React.FC<Props> = (props: Props) => {
   const getSpinner = () => {
     if ((props.status & OrderStatus.BeingCreated) !== 0) {
       return (
-        <div className={'price-waiting-spinner'}>
+        <div className={'spinner'}>
           <span>Creating&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
       return (
-        <div className={'price-waiting-spinner'}>
+        <div className={'spinner'}>
           <span>Cancelling&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
       return (
-        <div className={'price-waiting-spinner'}>
+        <div className={'spinner'}>
           <span>Loading&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.Publishing) !== 0) {
       return (
-        <div className={'price-waiting-spinner'}>
+        <div className={'spinner'}>
           <span>Pub&hellip;</span>
         </div>
       );
     }
   };
-
+  const classes = ['price-layout', 'cell'];
+  if (state.flash)
+    classes.push('flash');
+  classes.push(getOrderStatusClass(props.status));
   return (
     <>
-      <div className={getLayoutClass(state.flash) + ' cell'}
-           onMouseLeave={hideTooltip}
-           onMouseEnter={showTooltip}
-           ref={setTarget}>
+      <div className={classes.join(' ')} onMouseLeave={hideTooltip} onMouseEnter={showTooltip} ref={setTarget}>
         {value !== null && props.arrow !== ArrowDirection.None && <Direction direction={props.arrow}/>}
         <NumericInput
           id={props.uid}

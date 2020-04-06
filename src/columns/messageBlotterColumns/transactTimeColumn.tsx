@@ -1,7 +1,7 @@
 import { Message } from 'interfaces/message';
 import moment, { Moment } from 'moment';
-import React from 'react';
 import { Globals } from 'golbals';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
 const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
 
@@ -22,22 +22,17 @@ const parse = (date: string, tz: string | null): Date => {
   );
 };
 
-export default () => ({
+export default (): ColumnSpec => ({
   name: 'TransactTime',
   template: 'MM/DD/YYYY 00:00:00 pm',
-  header: () => <div>Time</div>,
+  header: () => 'Time',
   filterable: true,
   sortable: true,
   render: (data: Message) => {
     const date: Date = parse(data.TransactTime, Globals.timezone);
-    const formattedDate: string = date.toLocaleString('en-US', {
+    return date.toLocaleString('en-US', {
       timeZone: Globals.timezone || undefined,
     });
-    return (
-      <div className={'message-blotter-cell time'}>
-        {formattedDate}
-      </div>
-    );
   },
   width: 4,
   difference: (v1: Message, v2: Message): number => {

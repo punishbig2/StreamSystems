@@ -1,6 +1,6 @@
 import { OrderTypes } from 'interfaces/mdEntry';
 import { ExecTypes, Message } from 'interfaces/message';
-import React from 'react';
+import { ColumnSpec } from 'components/Table/columnSpecification';
 
 const getBuyer = (message: Message): string | null => {
   if (
@@ -11,7 +11,7 @@ const getBuyer = (message: Message): string | null => {
   return null;
 };
 
-export const buyerColumn = (sortable: boolean) => ({
+export const buyerColumn = (sortable: boolean): ColumnSpec => ({
   name: 'buyer',
   difference: (m1: any, m2: any) => {
     const s1: string | null = getBuyer(m1);
@@ -25,12 +25,8 @@ export const buyerColumn = (sortable: boolean) => ({
     if (buyer === null) return false;
     return buyer.includes(keyword);
   },
-  header: () => {
-    return <div>Buyer</div>;
-  },
-  render: (message: Message) => {
-    return <div className={'message-blotter-cell'}>{getBuyer(message)}</div>;
-  },
+  header: () => 'Buyer',
+  render: (message: Message) => getBuyer(message),
   filterable: true,
   sortable: sortable,
   template: 'BUYER',

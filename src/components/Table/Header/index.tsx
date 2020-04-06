@@ -58,7 +58,7 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends
         onSorted={onSorted}
         sortDirection={sortDirection}
         onFiltered={(keyword: string) => props.addFilter(column.name, keyword)}
-        width={(column.width / totalWidth) * containerWidth}>
+        width={((column.width / totalWidth) * containerWidth)}>
         {column.header(props)}
       </Column>
     );

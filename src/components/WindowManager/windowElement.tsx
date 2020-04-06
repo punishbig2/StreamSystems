@@ -5,6 +5,10 @@ import { getOptimalSize } from 'windowUtils';
 import { WindowStore } from 'mobx/stores/window';
 import { observer } from 'mobx-react';
 import { WindowTypes } from 'redux/constants/workareaConstants';
+import { PodTileStore } from 'mobx/stores/podTile';
+
+import messages, { MessagesStore } from 'mobx/stores/messages';
+import { User } from 'interfaces/user';
 
 interface OwnProps {
   id: string;
@@ -13,11 +17,17 @@ interface OwnProps {
   isDefaultWorkspace: boolean;
   area: ClientRect;
   fixed?: boolean;
-  onClose: (id: string) => void;
+  connected: boolean;
+  personality: string;
+  title: (props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null;
+  content: (props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null;
+  user: User;
   onLayoutModify: () => void;
+  onClose: (id: string) => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
+type WindowSide = 'top' | 'bottom' | 'left' | 'right' | 'bottom-corner';
 
 const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined => {
   if (geometry === undefined)
@@ -53,8 +63,6 @@ const onMove = (area: ClientRect, update: (geometry: ClientRect, resized: boolea
   update(move(r.left + x, r.top + y, r.width, r.height, area), false);
 };
 
-type WindowSide = 'top' | 'bottom' | 'left' | 'right' | 'bottom-corner';
-
 const onResize = (area: ClientRect, minWidth: number, update: (geometry: ClientRect, resized: boolean) => void, side: WindowSide) => {
   switch (side) {
     case 'bottom-corner':
@@ -74,6 +82,16 @@ const onResize = (area: ClientRect, minWidth: number, update: (geometry: ClientR
       return (r: ClientRect, x: number) =>
         update(resize(r.left, r.top, r.width + x, r.height, area, minWidth), true);
   }
+};
+
+const getContentStore = (id: string, type: WindowTypes): MessagesStore | PodTileStore | null => {
+  switch (type) {
+    case WindowTypes.PodTile:
+      return new PodTileStore(id);
+    case WindowTypes.MessageBlotter:
+      return messages;
+  }
+  return null;
 };
 
 const pixels = (x: number): string => `${x}px`;
@@ -152,6 +170,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   const moveCallback = useCallback(onMove(area, tryToSnapToSiblings), [area, tryToSnapToSiblings]);
   // Moving object, the handle is the whole window
   const [isGrabbed, setMoveHandle] = useObjectGrabber(container, moveCallback, onGeometryChangeComplete);
+  const [contentStore, setContentStore] = useState<MessagesStore | PodTileStore | null>(getContentStore(id, type));
   // These installs all the resize handles
   const [, setBottomResizeHandle] = useObjectGrabber(container, resizeCallback('bottom'), onGeometryChangeComplete);
   const [, setTopResizeHandle] = useObjectGrabber(container, resizeCallback('top'), onGeometryChangeComplete);
@@ -168,7 +187,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     const { current: parent } = container;
     if (parent === null)
       return;
-    const element: HTMLDivElement | null = parent.querySelector('.content');
+    const element: HTMLDivElement | null = parent.querySelector('.window-content');
     if (element === null)
       return;
     const { style } = parent;
@@ -187,12 +206,18 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   }, [area.width]);
 
   useEffect(() => {
+    if (container.current === null)
+      return;
+    setMoveHandle(container.current);
+  }, [container, setMoveHandle]);
+
+  useEffect(() => {
     if (fixed || !store.autoSize)
       return;
     const { current: parent } = container;
     if (parent === null)
       return;
-    const element: HTMLDivElement | null = parent.querySelector('.content');
+    const element: HTMLDivElement | null = parent.querySelector('.window-content');
     if (element === null)
       return;
     const observer = new MutationObserver(() => {
@@ -251,11 +276,19 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     );
   };
 
+  useEffect(() => {
+    setContentStore(getContentStore(id, type));
+  }, [id, type]);
+
+  const contentProps = { scrollable: !store.autoSize, minimized: store.minimized };
   return (
     <div id={store.id} className={classes} ref={container} style={style} onClickCapture={bringToFront}>
-      {getTitlebarButtons()}
-      <div className={'content'} ref={setMoveHandle}>
-        {props.children && React.cloneElement(props.children as ReactElement, { scrollable: !store.autoSize })}
+      <div className={'window-title-bar'}>
+        {props.title(contentProps, contentStore)}
+        {getTitlebarButtons()}
+      </div>
+      <div className={'window-content'}>
+        {props.content(contentProps, contentStore)}
       </div>
       {!store.minimized && !fixed && <div className={'horizontal resize-handle left'} ref={setLeftResizeHandle}/>}
       {!store.minimized && !fixed && <div className={'horizontal resize-handle right'} ref={setRightResizeHandle}/>}

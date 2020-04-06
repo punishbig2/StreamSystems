@@ -56,6 +56,8 @@ export enum OrderStatus {
   Publishing = 1 << 18,
   Joined = 1 << 19,
   AtTop = 1 << 20,
+  InDepth = 1 << 21,
+  ActionError = 1 << 22,
 }
 
 export interface OrderMessage {
@@ -111,10 +113,10 @@ export class Order {
   public arrowDirection: ArrowDirection;
   public timestamp: number;
 
-  constructor(tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes) {
+  constructor(tenor: string, currency: string, strategy: string, user: string, size: number | null, type: OrderTypes) {
     this.type = type;
     this.tenor = tenor;
-    this.symbol = symbol;
+    this.symbol = currency;
     this.strategy = strategy;
     this.user = user;
     this.price = null;
