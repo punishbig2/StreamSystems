@@ -206,13 +206,13 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   }, [area.width]);
 
   useEffect(() => {
-    if (container.current === null)
+    if (fixed || container.current === null)
       return;
     setMoveHandle(container.current);
-  }, [container, setMoveHandle]);
+  }, [container, setMoveHandle, fixed]);
 
   useEffect(() => {
-    if (fixed || !store.autoSize)
+    if (fixed)
       return;
     const { current: parent } = container;
     if (parent === null)
@@ -221,7 +221,9 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     if (element === null)
       return;
     const observer = new MutationObserver(() => {
-      adjustToContent(parent, area);
+      if (store.autoSize) {
+        adjustToContent(parent, area);
+      }
     });
     // Observe changes
     observer.observe(element, { childList: true, subtree: true });

@@ -129,6 +129,14 @@
       font-size: inherit;
       font-weight: inherit;
 
+      &.my-fill {
+        color: $text-color-red;
+      }
+
+      &.my-bank-fill {
+        color: $text-color-blue;
+      }
+
       .td {
         display: inline-block;
         vertical-align: top;
