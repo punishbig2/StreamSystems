@@ -5,6 +5,7 @@ import columns from 'columns/darkPoolDepth';
 import { Cell } from 'components/Table/Cell';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { Order } from 'interfaces/order';
+import { getCellWidth } from 'components/Table/helpers';
 
 interface OwnProps {
   data: PodTable | null;
@@ -18,7 +19,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
       <div className={'tr'} key={row.id}>
         {columns.map((column: ColumnSpec) => {
           const name: string = column.name;
-          const width: number = props.width;
+          const width: string = getCellWidth(column.width, props.totalWidth, props.containerWidth);
           return (
             <Cell key={name} render={column.render} width={width} {...row} />
           );

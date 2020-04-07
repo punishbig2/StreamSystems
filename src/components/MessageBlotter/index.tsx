@@ -88,20 +88,18 @@ const MessageBlotter: React.FC<Props> = observer(
       if (props.blotterType === BlotterTypes.Executions) {
         return isExecution(message) && message.ContraTrader !== user.email;
       } else {
-        if (isExecution(message)) {
+        if (isExecution(message))
           return isMyExecution(message);
-        }
         return true;
       }
     };
 
     return (
-      <Table
-        ref={ref}
-        scrollable={!!props.scrollable}
-        columns={columns}
-        rows={entries.filter(baseFilter)}
-        renderRow={renderRow}/>
+      <Table ref={ref}
+             scrollable={!!props.scrollable}
+             columns={columns}
+             rows={entries.filter(baseFilter)}
+             renderRow={renderRow}/>
     );
   }),
 );
