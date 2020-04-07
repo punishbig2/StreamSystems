@@ -14,6 +14,7 @@ import { SignalRManager } from 'redux/signalR/signalRManager';
 import { randomID } from 'randomID';
 import { WindowDef } from 'mobx/stores/workspace';
 import { WindowTypes } from 'redux/constants/workareaConstants';
+import { PresetWindow } from 'groups/presetWindow';
 
 export interface WorkspaceDef {
   id: string;
@@ -46,18 +47,19 @@ export class WorkareaStore {
   }
 
   private populateDefaultWorkspace(id: string, group: CurrencyGroups) {
-    const map: { [k: string]: string[] } | null = WorkareaStore.getMapForCurrencyGroup(group);
+    const map: { [k: string]: PresetWindow[] } | null = WorkareaStore.getMapForCurrencyGroup(group);
     if (map === null)
       return;
     const currencies: string[] = Object.keys(map);
     const windows: WindowDef[] = currencies.reduce((accumulator: WindowDef[], currency: string): WindowDef[] => {
       const windows: WindowDef[] = map[currency]
-        .map((strategy: string): WindowDef => {
+        .map(({ strategy, minimized }: PresetWindow): WindowDef => {
           const id: string = `WiN${currency}${strategy}${randomID()}`;
           // Force the initialization of a pod structure
           localStorage.setItem(`PoD${id}`, JSON.stringify({ currency, strategy }));
           return {
             id: id,
+            minimized: minimized,
             type: WindowTypes.PodTile,
           };
         });
@@ -96,7 +98,7 @@ export class WorkareaStore {
 
   @action.bound
   public clearLastExecution() {
-    this.recentExecutions = []
+    this.recentExecutions = [];
   }
 
   private updateCurrentWorkspaceID() {

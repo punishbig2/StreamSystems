@@ -1,6 +1,6 @@
 import { WindowElement } from 'components/WindowManager/windowElement';
 import React, { ReactElement, useState, useEffect } from 'react';
-import getStyles, { Dimensions } from 'styles';
+import getStyles from 'styles';
 import { getOptimalSize } from 'windowUtils';
 import { User } from 'interfaces/user';
 import { ExecutionBlotter } from 'components/WindowManager/executionBlotter';
@@ -55,6 +55,8 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const reducer = (next: { [id: string]: ClientRect }, window: WindowDef, index: number, array: WindowDef[]) => {
       const element: HTMLElement | null = document.getElementById(window.id);
       if (element instanceof HTMLDivElement) {
+        if (window.minimized)
+          element.classList.add('minimized');
         const { width, height } = getOptimalSize(element);
         if (index === 0) {
           next[window.id] = new DOMRect(0, 0, width, height);
@@ -62,12 +64,10 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
           const last: WindowDef = array[index - 1];
           const { left, top } = next[last.id];
           const { width: offsetWidth, height: offsetHeight } = next[last.id];
-          const styles: Dimensions = getStyles();
-          const finalHeight: number = index <= 7 ? offsetHeight : styles.windowToolbarHeight + styles.tableHeaderHeight;
-          if (left + offsetWidth + width + 1 > area.right) {
-            next[window.id] = new DOMRect(0, top + finalHeight + 1, width, finalHeight);
+          if (top + offsetHeight + 1 > area.height) {
+            next[window.id] = new DOMRect(left + offsetWidth + 1, 0, width, height);
           } else {
-            next[window.id] = new DOMRect(left + offsetWidth + 1, top, width, finalHeight);
+            next[window.id] = new DOMRect(left, top + offsetHeight + 1, width, height);
           }
         }
         return next;
@@ -81,15 +81,15 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     if (!windowsAreReady)
       return;
     setTimeout(() => {
-      const geometries: { [key: string]: ClientRect } = windows.reduce(reducer, {});
+      const sorted: WindowDef[] = [...windows];
+      sorted.sort((w1: WindowDef, w2: WindowDef) => w1.minimized ? 1 : -1);
+      const geometries: { [key: string]: ClientRect } = sorted.reduce(reducer, {});
       onUpdateAllGeometries(geometries);
     }, 0);
     setLayoutCompleted(true);
   }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, area.bottom, area.right, layoutCompleted]);
 
   const windowMapper = (window: WindowDef): ReactElement => {
-    /*const content: ReactElement | null = renderContent(window.id, window.type);
-    const contentProps: { [k: string]: any } = content ? content.props : {};*/
     return (
       <WindowElement id={window.id}
                      type={window.type}

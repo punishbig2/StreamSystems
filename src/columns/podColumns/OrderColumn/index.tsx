@@ -61,7 +61,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
     const status: OrderStatus = getOrderStatus(order, user, personality, tableType);
     // This is the actual action, the others are just for setup
     store.setOrder({ ...order, status });
-  }, [order, personality, store, user]);
+  }, [order, personality, store, tableType, user]);
 
   useEffect(() => {
     store.setPersonality(personality);
