@@ -11,15 +11,13 @@ import { Message } from 'interfaces/message';
 import { TradeConfirmation } from 'components/TradeConfirmation';
 import { CurrencyGroups } from 'interfaces/user';
 import { observer } from 'mobx-react';
-import { WorkareaStore, WorkspaceDef } from 'mobx/stores/workarea';
+import store, { WorkspaceDef } from 'mobx/stores/workarea';
 import { create } from 'mobx-persist';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
 
 import messages from 'mobx/stores/messages';
 
 const Workarea: React.FC = (): ReactElement | null => {
-  const [store] = useState(new WorkareaStore());
-
   const { recentExecutions } = store;
   const { connected, user } = store;
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);

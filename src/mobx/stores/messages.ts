@@ -25,8 +25,8 @@ export class MessagesStore {
     if (email !== null) {
       const now: Date = new Date();
       const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      // Query the messages now
       this.entries = await API.getMessagesSnapshot('*', midnight.getTime());
-      console.log(this.entries);
     }
   }
 

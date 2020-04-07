@@ -9,15 +9,16 @@ import { API } from 'API';
 import { findMyOrder_ } from 'components/PodTile/helpers';
 
 export class OrderStore {
-  private orderID: string | undefined;
-
   public type: OrderTypes = OrderTypes.Invalid;
+
   public symbol: string = '';
   public strategy: string = '';
   public tenor: string = '';
-  public user: User | null = null;
-  public personality: string | null = null;
 
+  @observable user: User | null = null;
+  @observable personality: string | null = null;
+
+  @observable orderID: string | undefined;
   @observable baseSize: number | null = null;
   @observable price: number | null = null;
   @observable currentStatus: OrderStatus = OrderStatus.None;
@@ -33,7 +34,7 @@ export class OrderStore {
   get size() {
     if (this.editedSize !== null)
       return this.editedSize;
-    if ((this.baseStatus & OrderStatus.InDepth) !== 0)
+    if ((this.baseStatus & OrderStatus.InDepth) !== 0 || (this.baseSize === null))
       return this.baseSize;
     return getAggregatedSize(this);
   }
@@ -158,10 +159,12 @@ export class OrderStore {
     this.orderTicket = null;
   }
 
+  @action.bound
   public setPersonality(personality: string) {
     this.personality = personality;
   }
 
+  @action.bound
   public setUser(user: User) {
     this.user = user;
   }

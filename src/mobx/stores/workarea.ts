@@ -96,6 +96,7 @@ export class WorkareaStore {
 
   @action.bound
   public clearLastExecution() {
+    this.recentExecutions = []
   }
 
   private updateCurrentWorkspaceID() {
@@ -181,5 +182,12 @@ export class WorkareaStore {
       return;
     workspaces[id].isDefault = false;
   }
+
+  @action.bound
+  public addRecentExecution(message: Message) {
+    const { recentExecutions } = this;
+    recentExecutions.push(message);
+  }
 }
 
+export default new WorkareaStore();

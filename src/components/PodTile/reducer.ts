@@ -1,22 +1,14 @@
 import { DarkPoolTicketData } from 'components/DarkPoolTicket';
-import { Order } from 'interfaces/order';
 import { PodTable } from 'interfaces/podTable';
 
 export interface State {
   depths: { [key: string]: PodTable };
   tenor: string | null;
-  orderTicket: Order | null;
-  runWindowVisible: boolean;
-  darkPoolTicket: DarkPoolTicketData | null;
 }
 
 export enum ActionTypes {
   InsertDepth,
   SetCurrentTenor,
-  ShowRunWindow,
-  HideRunWindow,
-  SetOrderTicket,
-  SetDarkPoolTicket
 }
 
 /*type Group = { [key: string]: number };
@@ -56,17 +48,9 @@ export const reducer = (state: State, { type, data }: { type: ActionTypes; data:
           [data.tenor]: collapse(data.depth),
         },*/
       };
-    case ActionTypes.ShowRunWindow:
-      return { ...state, runWindowVisible: true };
-    case ActionTypes.HideRunWindow:
-      return { ...state, runWindowVisible: false };
-    case ActionTypes.SetOrderTicket:
-      return { ...state, orderTicket: data };
     case ActionTypes.SetCurrentTenor:
       if (data && !state.depths[data]) return state;
       return { ...state, tenor: data };
-    case ActionTypes.SetDarkPoolTicket:
-      return { ...state, darkPoolTicket: data };
     default:
       return state;
   }

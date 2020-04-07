@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
 import store from 'mobx/stores/messages';
+import { getMessagePrice } from 'messageUtils';
 
 interface OwnProps {
 }
@@ -17,7 +18,7 @@ const ExecutionBanner: React.FC<OwnProps> = (props: OwnProps): ReactElement | nu
     <div className={'execution-banner'}>
       {last5.map((execution: Message) => (
         <div className={'execution-banner-item'} key={execution.ExecID}>
-          {execution.Symbol} {execution.Strategy} {execution.Tenor} @ {priceFormatter(Number(execution.LastPx))}
+          {execution.Symbol} {execution.Strategy} {execution.Tenor} @ {priceFormatter(getMessagePrice(execution))}
         </div>
       ))}
     </div>

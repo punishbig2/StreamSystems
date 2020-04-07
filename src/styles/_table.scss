@@ -19,13 +19,16 @@
   .thead {
     .tr {
       white-space: nowrap;
+      border-bottom: 1px solid $table-border-color;
 
       .th {
         position: relative;
         pointer-events: all;
         display: inline-block;
         vertical-align: top;
-        font-weight: $table-font-weight + 200;
+        font-weight: $table-font-weight + 300;
+        font-size: $table-font-size - 2;
+        color: darken($primary-color, 50%);
         text-transform: uppercase;
         text-align: center;
         background-color: rgba($primary-color, 0.125);
@@ -55,6 +58,7 @@
           outline: none;
           background-color: rgba(255, 255, 255, 0.65);
           border-top: 1px solid $table-border-color;
+          color: inherit;
 
           &:hover, &:focus {
             outline: 2px solid $primary-color;
@@ -63,14 +67,26 @@
         }
 
         .column {
-          font-size: $table-font-size - 1;
           line-height: $table-header-height;
-          height: $table-header-height;
+          min-height: $table-header-height;
 
           .dark-pool-header {
             font-size: $table-header-height / 2 - 1;
             line-height: $table-header-height / 2 - 2;
             padding: 1px 0;
+          }
+
+          .dual-header {
+            height: 2 * $table-header-height;
+
+            input {
+              border: none;
+              width: 100%;
+              text-align: center;
+              font-family: inherit;
+              font-weight: $table-font-weight + 200;
+              font-size: inherit;
+            }
           }
 
           .twin-header {
@@ -122,11 +138,15 @@
     font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
-    border-bottom: 1px solid $table-border-color;
 
     .tr {
       font-family: inherit;
       font-size: inherit;
+
+      &:last-child {
+        border-bottom: 1px solid $table-border-color;
+      }
+
       font-weight: inherit;
 
       &.my-fill {
@@ -137,6 +157,7 @@
         color: $text-color-blue;
       }
 
+      border-top: 1px solid $table-border-color;
       .td {
         display: inline-block;
         vertical-align: top;
@@ -151,7 +172,6 @@
         border-width: 1px;
         border-color: $table-border-color;
         border-left-style: solid;
-        border-top-style: solid;
 
         .tenor-layout {
           font-weight: $table-font-weight + 200;
@@ -180,7 +200,7 @@
           pointer-events: all;
           width: 100%;
           border: none;
-          height: $table-row-height - 1; /* the border below would overlap */
+          height: $table-row-height;
           color: inherit;
 
           &:focus {
@@ -193,174 +213,208 @@
           }
         }
 
-        &.twin-cell {
-          .cell {
+        .size-layout {
+          position: relative;
+
+          &:not(.owned).not-among {
+            .times {
+              pointer-events: none;
+
+              .st0 {
+                fill: $text-color-grey;
+              }
+            }
+          }
+
+          &.cancelled {
+            .times {
+              display: none;
+            }
+          }
+
+          &:not(.cancelled), &.among {
+            .times {
+              pointer-events: all;
+
+              svg {
+                fill: $text-color-red;
+              }
+
+              &:hover {
+                svg {
+                  background-color: $text-color-red;
+                  fill: white;
+                }
+              }
+            }
+          }
+
+          .plus-sign {
+            font-size: $table-font-size - 2;
+          }
+
+          .plus-sign,
+          .times {
+            position: relative;
             display: inline-block;
             vertical-align: top;
-            color: $text-color-black;
+            width: $table-row-height;
+            height: $table-row-height;
+            cursor: default;
+            z-index: 1;
 
-            &.owned {
+            &:last-child {
+              margin-left: -$table-row-height;
+            }
+
+            &:first-child {
+              margin-right: -$table-row-height;
+            }
+
+            &.empty {
+              display: none;
+            }
+
+            &.inactive {
+              color: $text-color-green;
+            }
+
+            &.active {
               color: $text-color-red;
             }
 
-            &:not(.owned).same-bank {
-              color: $text-color-blue;
+            svg {
+              display: block;
+              height: $red-x-size - 2;
+              width: $red-x-size - 2;
+              margin: ($table-row-height - $red-x-size + 2) / 2;
+              border-radius: $red-x-size;
+
+              &:active {
+                transform: translateY(1px);
+              }
+            }
+          }
+
+          .chevron {
+            position: absolute;
+            font-size: $table-row-height / 2;
+            top: 2px;
+            height: $table-row-height / 2;
+            width: $table-row-height / 2;
+            line-height: $table-row-height / 2;
+
+            &.left {
+              left: 4px;
+            }
+
+            &.right {
+              right: 4px;
+            }
+          }
+
+          &.among {
+            &.owned {
+              .chevron {
+                color: $text-color-red;
+              }
+            }
+
+            &.same-bank {
+              .chevron {
+                color: $text-color-blue;
+              }
+            }
+          }
+        }
+
+        .cell {
+          display: inline-block;
+          vertical-align: top;
+          color: $text-color-black;
+
+          &.dark-pool {
+            input {
+              background-color: $yellow-background;
+            }
+          }
+
+          &.owned {
+            color: $text-color-red;
+          }
+
+          &:not(.owned).same-bank {
+            color: $text-color-blue;
+          }
+
+          &.size-layout {
+            &:first-child {
+              border-right: 1px solid $table-border-color;
+            }
+
+            &:last-child {
+              border-left: 1px solid $table-border-color;
+            }
+
+
+            &.joined {
+              color: $text-color-black;
+
+              &.among {
+                .chevron {
+                  color: $text-color-red;
+                }
+              }
+            }
+
+            input {
+              position: relative;
+              display: inline-block;
+              width: 100%;
+              z-index: 0;
+            }
+          }
+
+          &.price-layout {
+            position: relative;
+            font-weight: $table-font-weight + 200;
+
+            $spinner-size: $table-row-height - 6;
+
+            &.busy {
+              input {
+                display: none;
+              }
+            }
+
+            .spinner {
+              font-size: $table-font-size - 4;
+              line-height: $table-row-height;
+              height: $table-row-height;
+              width: 100%;
+              background-image: url('/images/spinner.gif');
+              background-size: $spinner-size;
+              background-repeat: no-repeat;
+              background-position: 8px ($table-row-height - $spinner-size) / 2;
+              background-origin: padding-box;
+              color: $text-color-black;
+              opacity: 0.75;
+
+              span {
+                padding-left: $spinner-size + 12px;
+              }
+            }
+          }
+        }
+
+        &.twin-cell {
+          .cell {
+            &.price-layout {
+              width: 60%;
             }
 
             &.size-layout {
-              position: relative;
               width: 40%;
-
-              &:first-child {
-                border-right: 1px solid $table-border-color;
-              }
-
-              &:last-child {
-                border-left: 1px solid $table-border-color;
-              }
-
-              &:not(.owned).not-among {
-                .times {
-                  pointer-events: none;
-
-                  .st0 {
-                    fill: $text-color-grey;
-                  }
-                }
-              }
-
-              &.cancelled {
-                .times {
-                  display: none;
-                }
-              }
-
-              &:not(.cancelled), &.among {
-                .times {
-                  pointer-events: all;
-
-                  svg {
-                    fill: $text-color-red;
-                  }
-
-                  &:hover {
-                    svg {
-                      background-color: $text-color-red;
-                      fill: white;
-                    }
-                  }
-                }
-              }
-
-              .chevron {
-                position: absolute;
-                font-size: $table-row-height / 2;
-                top: 2px;
-                height: $table-row-height / 2;
-                width: $table-row-height / 2;
-                line-height: $table-row-height / 2;
-
-                &.left {
-                  left: 4px;
-                }
-
-                &.right {
-                  right: 4px;
-                }
-              }
-
-              &.among {
-                &.owned {
-                  .chevron {
-                    color: $text-color-red;
-                  }
-                }
-
-                &.same-bank {
-                  .chevron {
-                    color: $text-color-blue;
-                  }
-                }
-              }
-
-              &.joined {
-                color: $text-color-black;
-
-                &.among {
-                  .chevron {
-                    color: $text-color-red;
-                  }
-                }
-              }
-
-              input {
-                position: relative;
-                display: inline-block;
-                width: 100%;
-                z-index: 0;
-              }
-
-              .times {
-                position: relative;
-                display: inline-block;
-                vertical-align: top;
-                width: $table-row-height;
-                height: $table-row-height;
-                cursor: default;
-                z-index: 1;
-
-                &:last-child {
-                  margin-left: -$table-row-height;
-                }
-
-                &:first-child {
-                  margin-right: -$table-row-height;
-                }
-
-                svg {
-                  display: block;
-                  height: $red-x-size - 2;
-                  width: $red-x-size - 2;
-                  margin: ($table-row-height - $red-x-size + 2) / 2;
-                  border-radius: $red-x-size;
-
-                  &:active {
-                    transform: translateY(1px);
-                  }
-                }
-              }
-            }
-
-            &.price-layout {
-              position: relative;
-              width: 60%;
-              font-weight: $table-font-weight + 200;
-
-              $spinner-size: $table-row-height - 6;
-
-              &.busy {
-                input {
-                  display: none;
-                }
-              }
-
-              .spinner {
-                font-size: $table-font-size - 4;
-                line-height: $table-row-height;
-                height: $table-row-height;
-                width: 100%;
-                background-image: url('/images/spinner.gif');
-                background-size: $spinner-size;
-                background-repeat: no-repeat;
-                background-position: 8px ($table-row-height - $spinner-size) / 2;
-                background-origin: padding-box;
-                color: $text-color-black;
-                opacity: 0.75;
-
-                span {
-                  padding-left: $spinner-size + 12px;
-                }
-              }
             }
           }
         }

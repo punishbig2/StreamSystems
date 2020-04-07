@@ -54,12 +54,17 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
     if (!order)
       return;
     const status: OrderStatus = getOrderStatus(order, user, personality);
-    // Initialize the store
-    store.setPersonality(personality);
-    store.setUser(user);
     // This is the actual action, the others are just for setup
     store.setOrder({ ...order, status });
   }, [order, personality, store, user]);
+
+  useEffect(() => {
+    store.setPersonality(personality);
+  }, [store, personality]);
+
+  useEffect(() => {
+    store.setUser(user);
+  }, [store, user]);
   // Watch for default and minimum sizes
   useEffect(() => {
     store.setDefaultAndMinimumSizes(defaultSize, minimumSize);

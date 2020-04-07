@@ -10,7 +10,7 @@ export default (sortable: boolean): ColumnSpec => ({
   sortable: sortable,
   header: () => 'Level',
   render: (message: Message) => priceFormatter(getMessagePrice(message)),
-  width: 2,
+  width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);
     const numeric: number = Number(keyword);

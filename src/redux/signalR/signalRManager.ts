@@ -22,6 +22,8 @@ import { orderArrayToPodTableReducer } from 'utils/dataParser';
 import { MessageBlotterActions } from 'redux/constants/messageBlotterConstants';
 import { Sides } from 'interfaces/sides';
 
+import workareaStore from 'mobx/stores/workarea';
+
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { '1': Sides.Buy, '2': Sides.Sell };
@@ -327,6 +329,8 @@ export class SignalRManager<A extends Action = AnyAction> {
         document.removeEventListener(type, listenerWrapper as EventListener);
         connection.invoke(SignalRActions.UnsubscribeForDarkPoolPx, symbol, strategy, tenor);
       };
+    } else {
+      console.log('cannot connect to dark pool price');
     }
     return () => null;
   };
@@ -367,7 +371,6 @@ export class SignalRManager<A extends Action = AnyAction> {
         }
       // eslint-disable-next-line no-fallthrough
       case ExecTypes.PartiallyFilled:
-        const type: string = $$(message.ExecID, MessageBlotterActions.Executed);
         if (ocoMode === OCOModes.PartialEx && message.Username === user.email) {
           API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
         }
@@ -381,9 +384,7 @@ export class SignalRManager<A extends Action = AnyAction> {
         // dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
         // Execute after the system had time to update the state and hence
         // create the row in the blotters
-        setTimeout(() => {
-          document.dispatchEvent(new CustomEvent(type));
-        }, 100);
+        workareaStore.addRecentExecution(message);
         break;
       default:
         // dispatch(createAction<any, A>(MessageBlotterActions.Update, data));

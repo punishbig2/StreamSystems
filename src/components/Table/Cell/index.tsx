@@ -4,7 +4,7 @@ import React, { CSSProperties, ReactElement } from 'react';
 interface CellProps {
   render: (props: any) => ReactElement | string | null;
   user?: User;
-  width: number;
+  width: number | string;
   colNumber?: number;
   className?: string;
 

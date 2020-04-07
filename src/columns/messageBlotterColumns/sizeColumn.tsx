@@ -9,7 +9,7 @@ export default (sortable: boolean): ColumnSpec => ({
   sortable: sortable,
   header: () => 'Size',
   render: (message: Message) => getMessageSize(message).toString(),
-  width: 2,
+  width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = getMessageSize(v1);
     const numeric: number = Number(keyword);

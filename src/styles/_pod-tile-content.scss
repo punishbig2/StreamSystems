@@ -2,7 +2,6 @@
   display: inline-block;
 
   .pod {
-    transition: opacity 0.25s;
     opacity: initial;
 
     &[data-showing-tenor="true"] {
@@ -17,9 +16,9 @@
     display: none;
 
     top: $window-content-padding;
-    bottom: $window-content-padding;
-    left: $window-content-padding;
-    right: $window-content-padding;
+    bottom: 0;
+    left: 0;
+    right: 0;
 
     &[data-showing-tenor="true"] {
       display: block;

@@ -34,7 +34,7 @@ export default (): ColumnSpec => ({
       timeZone: Globals.timezone || undefined,
     });
   },
-  width: 4,
+  width: 6,
   difference: (v1: Message, v2: Message): number => {
     const m1: Moment = moment(v1.TransactTime, INCOMING_DATE_FORMAT);
     const m2: Moment = moment(v2.TransactTime, INCOMING_DATE_FORMAT);

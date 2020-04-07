@@ -8,7 +8,7 @@ export default (sortable: boolean): ColumnSpec => ({
   sortable: sortable,
   header: () => 'Strategy',
   render: ({ Strategy }: Message) => Strategy,
-  width: 2,
+  width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;
     const value = original.toLowerCase();

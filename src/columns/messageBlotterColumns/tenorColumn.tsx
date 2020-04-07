@@ -4,7 +4,7 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Tenor',
-  template: 'WW',
+  template: 'XXXXX',
   filterable: true,
   sortable: sortable,
   header: () => 'Tenor',

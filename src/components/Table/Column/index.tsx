@@ -8,7 +8,7 @@ interface OwnProps {
   filterable?: boolean;
   sortDirection?: SortDirection;
   onSorted: () => void;
-  width: number;
+  width: number | string;
   onFiltered: (keyword: string) => void;
 }
 

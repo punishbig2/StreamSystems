@@ -26,7 +26,7 @@ enum Status {
 }
 
 const DarkPoolColumnComponent = (props: Props) => {
-  const { tenor, symbol, strategy, personality, darkPrice, connected, user } = props;
+  const { tenor, currency, strategy, personality, darkPrice, connected, user } = props;
   const [orders, setOrders] = useState<Order[]>([]);
   const [isShowingTicket, setIsShowingTicket] = useState<boolean>(false);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
@@ -36,20 +36,20 @@ const DarkPoolColumnComponent = (props: Props) => {
   const [value, setValue] = useState<number | null>(darkPrice);
 
   useEffect(() => {
-    const savedValue: string | null = localStorage.getItem($$(symbol, strategy, tenor, 'DpPx'));
+    const savedValue: string | null = localStorage.getItem($$(currency, strategy, tenor, 'DpPx'));
     if (savedValue === null)
       return;
     setTimeout(() => {
       setValue(Number(savedValue));
     }, 0);
-  }, [tenor, strategy, symbol]);
+  }, [tenor, strategy, currency]);
 
   useEffect(() => {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     const removePriceListener: () => void =
-      signalRManager.addDarkPoolPxListener(symbol, strategy, tenor, (message: DarkPoolMessage) => {
+      signalRManager.addDarkPoolPxListener(currency, strategy, tenor, (message: DarkPoolMessage) => {
         const { DarkPrice } = message;
-        const key: string = $$(symbol, strategy, tenor, 'DpPx');
+        const key: string = $$(currency, strategy, tenor, 'DpPx');
         if (DarkPrice === '') {
           localStorage.removeItem(key);
           setValue(null);
@@ -70,7 +70,7 @@ const DarkPoolColumnComponent = (props: Props) => {
     };
 
     const removeOrderListener: () => void =
-      signalRManager.addDarkPoolOrderListener(symbol, strategy, tenor, (w: W) => {
+      signalRManager.addDarkPoolOrderListener(currency, strategy, tenor, (w: W) => {
         const entries: MDEntry[] = w.Entries;
         if (entries !== undefined) {
           const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
@@ -99,7 +99,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       removePriceListener();
       removeOrderListener();
     };
-  }, [symbol, strategy, tenor, user, darkPrice, connected]);
+  }, [currency, strategy, tenor, user, darkPrice, connected]);
 
   // If the dark price changes update it
   useEffect(() => {
@@ -120,7 +120,7 @@ const DarkPoolColumnComponent = (props: Props) => {
       skipTabIndexAll(input, 5, 2);
       if (value !== null) {
         setStatus(Status.Publishing);
-        API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, value)
+        API.publishDarkPoolPrice(user.email, currency, strategy, tenor, value)
           .then(() => {
             setTimeout(() => {
               setStatus(Status.Normal);
@@ -137,9 +137,9 @@ const DarkPoolColumnComponent = (props: Props) => {
           User: user.email,
           Strategy: strategy,
           Tenor: tenor,
-          Symbol: symbol,
+          Symbol: currency,
         });
-        API.publishDarkPoolPrice(user.email, symbol, strategy, tenor, '')
+        API.publishDarkPoolPrice(user.email, currency, strategy, tenor, '')
           .then(() => {
             setTimeout(() => {
               setStatus(Status.Normal);
@@ -151,7 +151,7 @@ const DarkPoolColumnComponent = (props: Props) => {
             setStatus(Status.Error);
           });
       }
-    }, [isBroker, user.email, symbol, strategy, tenor],
+    }, [isBroker, user.email, currency, strategy, tenor],
   );
 
   const myOrder: Order | undefined = useMemo(
@@ -201,7 +201,7 @@ const DarkPoolColumnComponent = (props: Props) => {
         size={defaultSize}
         tenor={tenor}
         strategy={strategy}
-        symbol={symbol}
+        currency={currency}
         user={user.email}/>
     );
   };

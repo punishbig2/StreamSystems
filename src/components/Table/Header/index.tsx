@@ -3,6 +3,7 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 import { SortDirection } from 'components/Table/index';
 import { SortInfo } from 'interfaces/sortInfo';
 import React from 'react';
+import { getCellWidth } from 'components/Table/helpers';
 
 interface HeaderProps {
   columns: ColumnSpec[];
@@ -58,7 +59,7 @@ export const Header: <T extends unknown>(props: HeaderProps) => any = <T extends
         onSorted={onSorted}
         sortDirection={sortDirection}
         onFiltered={(keyword: string) => props.addFilter(column.name, keyword)}
-        width={((column.width / totalWidth) * containerWidth)}>
+        width={getCellWidth(column.width, totalWidth, containerWidth)}>
         {column.header(props)}
       </Column>
     );

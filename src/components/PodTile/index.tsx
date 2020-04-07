@@ -24,9 +24,6 @@ import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 const initialState: State = {
   depths: {},
   tenor: null,
-  orderTicket: null,
-  runWindowVisible: false,
-  darkPoolTicket: null,
 };
 
 interface OwnProps {
@@ -76,11 +73,6 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
     []);
 
-  // const showRunWindow = useCallback(() => dispatch(createAction(ActionTypes.ShowRunWindow)), []);
-  /*const hideRunWindow = useCallback(
-    () => dispatch(createAction(ActionTypes.HideRunWindow)),
-    [],
-  );*/
   useEffect(() => {
     const manager: SignalRManager = SignalRManager.getInstance();
     if (currency === InvalidCurrency || !strategy)
@@ -88,6 +80,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     manager.loadDepth(currency.name, strategy, user);
     store.initialize(currency.name, strategy, user);
   }, [currency, store, strategy, user]);
+
   // Create depths for each tenor
   useDepthEmitter(tenors, currency.name, strategy, insertDepth);
   // Initialize tile/window
@@ -96,24 +89,26 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const bulkCreateOrders = useCallback(
     (entries: Order[]) => {
       // Close the runs window
-      // hideRunWindow();
       // Create the orders
-      entries.forEach((order: Order) => {
-        const myOrder: Order | undefined = findMyOrder(order, user);
-        if (myOrder) {
-          API.cancelOrder(myOrder, user);
-        }
-        API.createOrder(order, personality, user, currency.minqty);
-      });
+      Promise.all(
+        entries.map(async (order: Order) => {
+          const myOrder: Order | undefined = findMyOrder(order, user);
+          if (myOrder) {
+            await API.cancelOrder(myOrder, user);
+          }
+          await API.createOrder(order, personality, user, currency.minqty);
+        }),
+        )
+        .then(() => store.hideRunWindow());
     },
-    [personality, currency.minqty, user],
+    [personality, currency.minqty, user, store],
   );
 
   const runWindow = (): ReactElement | null => {
     return (
       <Run
         user={user}
-        visible={state.runWindowVisible}
+        visible={store.isRunWindowVisible}
         symbol={currency.name}
         strategy={strategy}
         tenors={tenors}
@@ -164,17 +159,6 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const tobColumns = useMemo(() => createTOBColumns(currency.name, strategy, user, false),
     [strategy, currency.name, user],
   );
-  /*const getDepthTable = (): ReactElement | null => {
-    if (state.tenor === null) return null;
-    const rows: PodTable = { ...state.depths[state.tenor] };
-    return (
-      <Table
-        scrollable={false}
-        columns={dobColumns}
-        rows={rows}
-        renderRow={renderDOBRow}/>
-    );
-  };*/
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
   useEffect(() => {
@@ -215,7 +199,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   return (
     <>
       {getWindowContent()}
-      <ModalWindow render={runWindow} visible={state.runWindowVisible}/>
+      <ModalWindow render={runWindow} visible={store.isRunWindowVisible}/>
     </>
   );
 };

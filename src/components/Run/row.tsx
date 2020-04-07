@@ -5,6 +5,7 @@ import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { User } from 'interfaces/user';
 import React, { useEffect } from 'react';
 import { RowState } from 'redux/stateDefs/rowState';
+import { getCellWidth } from 'components/Table/helpers';
 
 interface OwnProps {
   id: string;
@@ -28,7 +29,7 @@ const Row = (props: OwnProps & RowState) => {
     <div className={'tr' + (row.status === PodRowStatus.InvertedMarketsError ? ' error' : '')}
          data-row-number={props.rowNumber}>
       {columns.map((column: ColumnSpec, index: number) => {
-        const width: number = (column.width / totalWidth) * containerWidth;
+        const width: string = getCellWidth(column.width, totalWidth, containerWidth);
         const name: string = column.name;
         return (
           <Cell key={name}

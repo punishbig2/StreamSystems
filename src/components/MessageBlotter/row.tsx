@@ -2,6 +2,7 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { $$ } from 'utils/stringPaster';
 import { MessageBlotterActions, BlotterTypes } from 'redux/constants/messageBlotterConstants';
+import { getCellWidth } from 'components/Table/helpers';
 
 export enum BlotterRowTypes {
   Normal,
@@ -68,7 +69,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
 
   const columnMapper = (column: ColumnSpec): ReactElement => {
     const style: CSSProperties = {
-      width: column.width * props.containerWidth / props.totalWidth,
+      width: getCellWidth(column.width, props.totalWidth, props.containerWidth),
     };
     return (
       <div className={'td'} key={$$(column.name, row.id)} style={style}>

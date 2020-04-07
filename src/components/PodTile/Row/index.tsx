@@ -12,6 +12,7 @@ import { useOrderActions } from 'components/PodTile/Row/hooks/useOrderActions';
 import { useWListener } from 'components/PodTile/Row/hooks/useWListener';
 import { usePropsRowOverwrite } from 'components/PodTile/Row/hooks/usePropsRowOverwrite';
 import { useActionDispatcher } from 'hooks/useActionDispatcher';
+import { getCellWidth } from 'components/Table/helpers';
 
 interface OwnProps {
   id: string;
@@ -57,7 +58,7 @@ const Row = (props: OwnProps & RowState & RowFunctions) => {
   return (
     <div className={classes.join(' ')} data-row-number={props.rowNumber}>
       {columns.map((column: ColumnSpec, index: number) => {
-        const width: number = (column.width / totalWidth) * containerWidth;
+        const width: string = getCellWidth(column.width, totalWidth, containerWidth);
         const name: string = column.name;
         return (
           <Cell key={name}

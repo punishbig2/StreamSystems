@@ -7,12 +7,12 @@ const currencyToNumber = (value: string) => {
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Currency',
-  template: 'Symbol',
+  template: '  XXXXXX  ',
   filterable: true,
   sortable: sortable,
   header: () => 'Currency',
   render: ({ Symbol }: Message) => Symbol,
-  width: 2,
+  width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Symbol;
     if (!original) return false;
