@@ -2,14 +2,16 @@ import { OrderStatus, Order } from 'interfaces/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 import { User } from 'interfaces/user';
 import { SignalRManager } from 'redux/signalR/signalRManager';
+import { PodTableType } from 'columns/podColumns/OrderColumn/index';
 
-export const getOrderStatus = (topOrder: Order, user: User, personality: string) => {
+export const getOrderStatus = (topOrder: Order, user: User, personality: string, tableType: PodTableType) => {
   let status: OrderStatus = OrderStatus.None;
   const depth: Order[] = SignalRManager.getDepth(topOrder.symbol, topOrder.strategy, topOrder.tenor, topOrder.type)
     .filter(({ size }: Order) => size !== null);
   const ownOrder: Order | undefined = depth.find(({ user: email }: Order) => email === user.email);
   // Get depth related status
-  status |= depth.length > 1 ? OrderStatus.HasDepth : OrderStatus.None;
+  if (tableType === PodTableType.Pod)
+    status |= depth.length > 1 ? OrderStatus.HasDepth : OrderStatus.None;
   status |= (!!ownOrder && ownOrder.orderId !== topOrder.orderId) ? OrderStatus.HasMyOrder : OrderStatus.None;
   // If it's the same firm the order belongs to the same bank
   status |= (topOrder.firm === user.firm || (user.isbroker && topOrder.firm === personality)) ? OrderStatus.SameBank : OrderStatus.None;
@@ -21,6 +23,7 @@ export const getOrderStatus = (topOrder: Order, user: User, personality: string)
   status |= topOrder.size === null ? OrderStatus.Cancelled : OrderStatus.None;
   // If the user is a broker, the order is only owned if it also belongs to the same firm
   status &= (user.isbroker && topOrder.firm !== personality) ? ~OrderStatus.Owned : ~OrderStatus.None;
+  status |= tableType === PodTableType.Dob ? OrderStatus.InDepth : OrderStatus.None;
   // We finally have the definitive status
   return status;
 };

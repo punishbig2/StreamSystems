@@ -21,6 +21,10 @@ import { SignalRManager } from 'redux/signalR/signalRManager';
 import { MiniDOB } from 'components/Table/CellRenderers/Price/miniDob';
 import { shouldOpenOrderTicket } from 'columns/podColumns/OrderColumn/helpers/shoulOpenOrderTicket';
 
+export enum PodTableType {
+  Pod, Dob
+}
+
 type OwnProps = {
   depths: { [key: string]: PodTable };
   ofr: Order;
@@ -31,6 +35,7 @@ type OwnProps = {
   minimumSize: number;
   defaultSize: number;
   onRowStatusChange: (status: PodRowStatus) => void;
+  tableType: PodTableType;
 }
 
 /*const getPriceIfApplies = (order: Order | undefined): number | undefined => {
@@ -44,7 +49,7 @@ type OwnProps = {
 export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
-  const { type, personality } = props;
+  const { type, personality, tableType } = props;
   // Get the order from the row
   const order: Order = getOrder(type, props.ofr, props.bid);
   // Create size submission listener
@@ -53,7 +58,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
   useEffect(() => {
     if (!order)
       return;
-    const status: OrderStatus = getOrderStatus(order, user, personality);
+    const status: OrderStatus = getOrderStatus(order, user, personality, tableType);
     // This is the actual action, the others are just for setup
     store.setOrder({ ...order, status });
   }, [order, personality, store, user]);

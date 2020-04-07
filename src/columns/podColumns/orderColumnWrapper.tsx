@@ -2,7 +2,7 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 import React, { ReactElement } from 'react';
 import { PodRowProps } from 'columns/podColumns/common';
 import { OrderTypes } from 'interfaces/mdEntry';
-import { OrderColumn } from 'columns/podColumns/OrderColumn';
+import { OrderColumn, PodTableType } from 'columns/podColumns/OrderColumn';
 
 export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boolean, action: () => ReactElement | null): ColumnSpec => {
   return {
@@ -42,6 +42,7 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           minimumSize={props.minimumSize}
           bid={props.bid}
           ofr={props.ofr}
+          tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
           onRowStatusChange={props.onRowStatusChange}/>
       );
     },

@@ -158,6 +158,7 @@
       }
 
       border-top: 1px solid $table-border-color;
+
       .td {
         display: inline-block;
         vertical-align: top;
@@ -216,7 +217,7 @@
         .size-layout {
           position: relative;
 
-          &:not(.owned).not-among {
+          &:not(.cancelled) {
             .times {
               pointer-events: none;
 
@@ -232,18 +233,37 @@
             }
           }
 
-          &:not(.cancelled), &.among {
-            .times {
+          &.in-depth {
+            &.owned {
               pointer-events: all;
 
               svg {
-                fill: $text-color-red;
+                .st0 {
+                  fill: $text-color-red;
+                }
               }
+            }
+          }
 
-              &:hover {
+          &:not(.in-depth) {
+            &.among, &.owned {
+              .times {
+                pointer-events: all;
+
                 svg {
-                  background-color: $text-color-red;
-                  fill: white;
+                  .st0 {
+                    fill: $text-color-red;
+                  }
+                }
+
+                &:hover {
+                  svg {
+                    background-color: $text-color-red;
+
+                    .st0 {
+                      fill: white;
+                    }
+                  }
                 }
               }
             }

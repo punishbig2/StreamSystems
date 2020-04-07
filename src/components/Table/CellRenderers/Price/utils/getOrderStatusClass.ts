@@ -28,6 +28,8 @@ export const getOrderStatusClass = (status: OrderStatus, className?: string): st
     classes.push('same-bank');
   if ((status & OrderStatus.SizeEdited) !== 0 || (status & OrderStatus.PriceEdited) !== 0)
     classes.push('edited');
+  if ((status & OrderStatus.InDepth) !== 0)
+    classes.push('in-depth');
   if ((status & OrderStatus.Publishing) !== 0)
     classes.push('busy');
   if ((status & OrderStatus.BeingCreated) !== 0)
