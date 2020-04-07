@@ -359,6 +359,14 @@
             }
           }
 
+          &.mid {
+            color: $text-color-blue;
+          }
+
+          &.spread {
+            color: $text-color-green;
+          }
+
           &.owned {
             color: $text-color-red;
           }

@@ -224,6 +224,8 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
   const classes = ['price-layout', 'cell'];
+  if (props.className)
+    classes.push(props.className);
   if (state.flash)
     classes.push('flash');
   classes.push(getOrderStatusClass(props.status));

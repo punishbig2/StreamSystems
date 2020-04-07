@@ -212,7 +212,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   }, [container, setMoveHandle, fixed]);
 
   useEffect(() => {
-    if (fixed)
+    if (fixed || store.minimized)
       return;
     const { current: parent } = container;
     if (parent === null)
@@ -228,7 +228,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     // Observe changes
     observer.observe(element, { childList: true, subtree: true });
     return () => observer.disconnect();
-  }, [container, area, fixed, store.autoSize]);
+  }, [container, area, fixed, store.autoSize, store.minimized]);
 
   useEffect(() => {
     if (fixed || !store.autoSize)
