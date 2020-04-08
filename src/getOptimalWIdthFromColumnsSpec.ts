@@ -24,7 +24,7 @@ export const getOptimalWidthFromColumnsSpec = (columns: ColumnSpec[]): number =>
   // Temporarily add the element to the document so that it's measurable
   body.appendChild(el);
   const candidateWidth: number = columns.reduce(reducer, 0);
-  const columnCount: number = Math.ceil(window.innerWidth / candidateWidth);
+  const columnCount: number = Math.round(window.innerWidth / candidateWidth);
   const minWidth: number = window.innerWidth / columnCount;
   body.removeChild(el);
   return minWidth;
