@@ -36,6 +36,7 @@ export class WorkareaStore {
   @observable userProfile: UserWorkspace = defaultProfile;
   @observable user: User | null = null;
   @observable message?: string;
+  @observable isCreatingWorkspace: boolean = false;
 
   private static getMapForCurrencyGroup(group: CurrencyGroups) {
     switch (group) {
@@ -70,7 +71,7 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public addWorkspace(group: CurrencyGroups) {
+  private internalAddWorkspace(group: CurrencyGroups) {
     const { workspaces } = this;
     const id: string = `WoS${group}${randomID()}`;
     // Populate the default stuff if needed
@@ -81,8 +82,14 @@ export class WorkareaStore {
       isDefault: true,
       name: group,
     };
-    // Activate it
+    this.isCreatingWorkspace = false;
     this.currentWorkspaceID = id;
+  }
+
+  @action.bound
+  public addWorkspace(group: CurrencyGroups) {
+    this.isCreatingWorkspace = true;
+    setTimeout(() => this.internalAddWorkspace(group), 0);
   }
 
   @computed

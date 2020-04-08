@@ -1,7 +1,10 @@
 .modal-buttons {
   display: flex;
   justify-content: space-evenly;
-  margin: 12px 8px;
+
+  &:not(:empty) {
+    margin: 12px 8px;
+  }
 
   button {
     border-radius: 3px;
@@ -17,7 +20,7 @@
     min-width: 100px;
 
     &:not(:first-child) {
-      margin-left: 3px;
+      margin-left: 6px;
     }
 
     &:disabled {

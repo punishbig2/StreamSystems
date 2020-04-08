@@ -24,11 +24,10 @@ export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
   };
 
   return (
-    <MessageBox
-      icon={'question-circle'}
-      color={'neutral'}
-      title={props.title}
-      message={props.content}
-      buttons={renderButtons}/>
+    <MessageBox icon={'question-circle'}
+                color={'neutral'}
+                title={props.title}
+                message={props.content}
+                buttons={renderButtons}/>
   );
 };

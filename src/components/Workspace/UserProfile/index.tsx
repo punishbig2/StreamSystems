@@ -1,6 +1,6 @@
-import React, { useEffect, ReactNode, useState } from 'react';
+import React, { useEffect, useState, ReactElement } from 'react';
 import { UserProfileModalTypes, User } from 'interfaces/user';
-import { UserProfileForm } from 'components/Workspace/UserProfileForm/form';
+import { UserProfileForm } from 'components/Workspace/UserProfile/form';
 import { ErrorBox } from 'components/ErrorBox';
 import { MessageBox } from 'components/MessageBox';
 import { UserProfileStore } from 'mobx/stores/userProfile';
@@ -38,7 +38,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
     store.setFieldValue(name, value);
   };
 
-  const closeButton = (): ReactNode => (
+  const closeButton = (): ReactElement => (
     <button className={'cancel'} onClick={onClose}>Close</button>
   );
 

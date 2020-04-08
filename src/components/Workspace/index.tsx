@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { WindowTypes } from 'redux/constants/workareaConstants';
 import { STRM } from 'redux/stateDefs/workspaceState';
 import { ModalWindow } from 'components/ModalWindow';
-import { UserProfileModal } from 'components/Workspace/UserProfileForm';
+import { UserProfileModal } from 'components/Workspace/UserProfile';
 import { ErrorBox } from 'components/ErrorBox';
 import { ExecutionBanner } from 'components/ExecutionBanner';
 import { observer } from 'mobx-react';

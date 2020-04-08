@@ -16,6 +16,7 @@ import { create } from 'mobx-persist';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
 
 import messages from 'mobx/stores/messages';
+import { MessageBox } from 'components/MessageBox';
 
 const Workarea: React.FC = (): ReactElement | null => {
   const { recentExecutions } = store;
@@ -119,6 +120,18 @@ const Workarea: React.FC = (): ReactElement | null => {
     );
   };
 
+  const renderLoadingPopup = (): ReactElement => {
+    const message: string = 'We are setting up your preset workspace, this will not take long. Please be patient.';
+    return (
+      <MessageBox title={'Creating Workspace'}
+                  message={message}
+                  buttons={() => null}
+                  color={'good'}
+                  icon={'spinner'}/>
+
+    );
+  };
+
   switch (store.status) {
     case WorkareaStatus.Error:
       return <WorkareaError/>;
@@ -139,6 +152,7 @@ const Workarea: React.FC = (): ReactElement | null => {
         <>
           {getActiveWorkspace()}
           {getFooter()}
+          <ModalWindow render={renderLoadingPopup} visible={store.isCreatingWorkspace}/>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
           <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>
         </>

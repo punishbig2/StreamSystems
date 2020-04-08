@@ -5,7 +5,7 @@ import { FormControl, FormLabel, Select, MenuItem, Input } from '@material-ui/co
 import { UserWorkspace, OCOModes, User } from 'interfaces/user';
 import timezones, { TimezoneInfo } from 'data/timezones';
 import deepEqual from 'deep-equal';
-import { SoundsList } from 'components/Workspace/UserProfileForm/soundsList';
+import { SoundsList } from 'components/Workspace/UserProfile/soundsList';
 
 interface OwnProps {
   profile: UserWorkspace;
