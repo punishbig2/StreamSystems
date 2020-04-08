@@ -13,6 +13,7 @@ export interface WindowDef {
   type: WindowTypes;
   minimized: boolean;
   position: number;
+  fitContent: boolean;
 }
 
 export class WorkspaceStore {
@@ -41,13 +42,14 @@ export class WorkspaceStore {
   public addWindow(type: WindowTypes) {
     const { windows } = this;
     const id: string = `WnD${type}${randomID()}`;
+    const fitContent: boolean = type === WindowTypes.PodTile;
     const minimized: boolean = false;
     const position: number = windows.length;
     switch (type) {
       case WindowTypes.PodTile:
       case WindowTypes.MessageBlotter:
         // Add the window to the window list
-        this.windows = [...windows, { id, type, minimized, position }];
+        this.windows = [...windows, { id, type, minimized, position, fitContent }];
         break;
       case WindowTypes.Empty:
       default:

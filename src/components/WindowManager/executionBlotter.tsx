@@ -39,6 +39,7 @@ export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElem
                    geometry={geometry}
                    type={WindowTypes.MessageBlotter}
                    area={area}
+                   fitContent={false}
                    fixed={true}
                    content={content}
                    title={title}

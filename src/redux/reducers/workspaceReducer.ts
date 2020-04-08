@@ -59,9 +59,9 @@ const removeWindow = (id: string, state: WorkspaceState): { [key: string]: Windo
 
 const setWindowAutoSize = ({ id }: { id: string; title: string }, state: WorkspaceState): { [key: string]: WindowState } => {
   const windows: { [id: string]: WindowState } = state.windows;
-  if (windows[id].autoSize)
+  if (windows[id].fitContent)
     return windows;
-  return { ...windows, [id]: { ...windows[id], autoSize: true } };
+  return { ...windows, [id]: { ...windows[id], fitContent: true } };
 };
 
 const setWindowTitle = ({ id, title }: { id: string; title: string }, state: WorkspaceState): { [key: string]: WindowState } => {
@@ -92,9 +92,9 @@ const updateWindowGeometry = ({ id, geometry, resized }: { id: string; geometry:
   if (equal(original.geometry, geometry)) {
     return windows;
   }
-  const autoSize: boolean = original.autoSize && !resized;
+  const fitContent: boolean = original.fitContent && !resized;
   // We know that at least the geometry changed
-  return { ...windows, [id]: { ...original, geometry, autoSize } };
+  return { ...windows, [id]: { ...original, geometry, fitContent } };
 };
 
 const bringToFront = ({ id }: { id: string }, state: WorkspaceState): { [key: string]: WindowState } => {

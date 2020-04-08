@@ -25,7 +25,8 @@ export const getOptimalWidthFromColumnsSpec = (columns: ColumnSpec[]): number =>
   body.appendChild(el);
   const candidateWidth: number = columns.reduce(reducer, 0);
   const columnCount: number = Math.round(window.innerWidth / candidateWidth);
-  const minWidth: number = window.innerWidth / columnCount;
   body.removeChild(el);
-  return minWidth;
+  if (columnCount === 1)
+    return candidateWidth;
+  return window.innerWidth / columnCount;
 };

@@ -13,7 +13,7 @@ export interface WindowState {
   symbol: Currency;
   zIndex: number;
   geometry: ClientRect;
-  autoSize: boolean;
+  fitContent: boolean;
   minimized: boolean;
   savedSize: { width: number; height: number } | null;
 }
@@ -27,7 +27,7 @@ export const defaultWindowState: WindowState = {
   rows: {},
   zIndex: 1,
   geometry: new DOMRect(0, 0, 0, 0),
-  autoSize: true,
+  fitContent: true,
   minimized: false,
   savedSize: null,
 };

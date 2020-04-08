@@ -21,7 +21,7 @@ const transformWorkarea = (workarea: WorkareaState): WorkareaState => {
           type: window.type,
           minimized: window.minimized,
           geometry: window.geometry,
-          autoSize: window.autoSize,
+          fitContent: window.fitContent,
           symbol: window.symbol,
           strategy: window.strategy,
           savedSize: window.savedSize,

@@ -37,7 +37,8 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     if (element === null)
       return;
     const updateArea = () => {
-      setArea(element.getBoundingClientRect());
+      const { width, height } = element.getBoundingClientRect();
+      setArea(new DOMRect(0, 0, width, height));
     };
     const observer: ResizeObserver = new ResizeObserver(updateArea);
     updateArea();
@@ -96,6 +97,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
                      key={window.id}
                      minimized={window.minimized}
                      geometry={window.geometry}
+                     fitContent={window.fitContent}
                      area={area}
                      connected={props.connected}
                      user={props.user}

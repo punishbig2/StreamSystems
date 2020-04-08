@@ -21,6 +21,7 @@ interface OwnProps {
   type: WindowTypes;
   isDefaultWorkspace: boolean;
   area: ClientRect;
+  fitContent: boolean;
   fixed?: boolean;
   connected: boolean;
   personality: string;
@@ -70,7 +71,7 @@ const getContentStore = (id: string, type: WindowTypes): MessagesStore | PodTile
 };
 
 export const WindowElement: React.FC<Props> = observer((props: Props): ReactElement => {
-  const { id, area, geometry, type, fixed } = props;
+  const { id, area, geometry, type, fixed, fitContent } = props;
 
   const [store] = useState<WindowStore>(new WindowStore(id, type, fixed));
   const [minWidth, setMinWidth] = useState<number>(-1);
@@ -81,6 +82,10 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
       store.saveGeometry(geometry);
     }
   }, [geometry, store]);
+
+  useEffect(() => {
+    store.setFitContent(fitContent);
+  }, [fitContent, store]);
 
   // Create a reference to the window container
   const containerRef: React.MutableRefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(
@@ -187,7 +192,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     if (content === null)
       return;
     const observer = new MutationObserver(() => {
-      if (store.autoSize) {
+      if (store.fitContent) {
         adjustToContent(container, area);
       }
     });
@@ -197,16 +202,16 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     adjustToContent(container, area);
     // Cleanup by removing the observer
     return () => observer.disconnect();
-  }, [containerRef, area, fixed, store.autoSize, store.minimized]);
+  }, [containerRef, area, fixed, store.fitContent, store.minimized]);
 
   useEffect(() => {
-    if (fixed || !store.autoSize)
+    if (fixed || !store.fitContent)
       return;
     const { current: parent } = containerRef;
     if (parent === null)
       return;
     adjustToContent(parent, area);
-  }, [containerRef, area, fixed, store.autoSize]);
+  }, [containerRef, area, fixed, store.fitContent]);
 
   const bringToFront = () => {
     const element: HTMLDivElement | null = containerRef.current;
@@ -233,7 +238,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
 
   const onAdjustSize = () => {
     props.onLayoutModify();
-    store.adjustSize();
+    store.setFitContent();
   };
 
   const getTitlebarButtons = (): ReactElement | null => {
@@ -259,7 +264,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     setContentStore(getContentStore(id, type));
   }, [id, type]);
 
-  const contentProps = { scrollable: !store.autoSize, minimized: store.minimized };
+  const contentProps = { scrollable: !store.fitContent, minimized: store.minimized };
   return (
     <div id={store.id} className={classes} ref={containerRef} style={style} onClickCapture={bringToFront}>
       <div className={'window-title-bar'}>
