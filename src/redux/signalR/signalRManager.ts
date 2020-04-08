@@ -19,8 +19,8 @@ import { User, OCOModes } from 'interfaces/user';
 import deepEqual from 'deep-equal';
 import { PodTable } from 'interfaces/podTable';
 import { orderArrayToPodTableReducer } from 'utils/dataParser';
-import { MessageBlotterActions } from 'redux/constants/messageBlotterConstants';
 import { Sides } from 'interfaces/sides';
+import userProfileStore from 'mobx/stores/userProfile';
 
 import workareaStore from 'mobx/stores/workarea';
 
@@ -352,12 +352,9 @@ export class SignalRManager<A extends Action = AnyAction> {
     };
   }
 
-  private getOCOMode = (): OCOModes => {
-    return OCOModes.Disabled;
-  };
-
   private handleMessageActions = (message: Message) => {
-    const ocoMode: OCOModes = this.getOCOMode();
+    const { profile: userProfile } = userProfileStore;
+    const ocoMode: OCOModes = userProfile.oco;
     const { user } = this;
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:

@@ -10,13 +10,13 @@ export class UserProfileStore {
   @observable.ref profile: UserWorkspace = defaultProfile;
   public initialProfile: UserWorkspace = defaultProfile;
 
+  constructor() {
+    this.loadUserProfile('');
+  }
+
   @action.bound
   public async loadUserProfile(email: string) {
-    const data: any = await API.getUserProfile(email);
-    if (data[0] === undefined)
-      return [];
-    // Extract the actual user profile
-    const profile: UserWorkspace = { ...defaultProfile, ...JSON.parse(data[0].workspace) };
+    const profile: UserWorkspace = await API.getUserProfile(email);
     // Update timezone
     Globals.timezone = profile.timezone;
     this.profile = profile;
@@ -39,6 +39,12 @@ export class UserProfileStore {
   }
 
   @action.bound
-  public saveUserProfile(email: string, profile: any) {
+  public async saveUserProfile(email: string, profile: any) {
+    this.currentModalType = UserProfileModalTypes.Saving;
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+    await new Promise((resolve: () => void) => setTimeout(resolve, 1800));
+    this.currentModalType = UserProfileModalTypes.Success;
   }
 }
+
+export default new UserProfileStore();

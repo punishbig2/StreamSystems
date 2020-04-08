@@ -3,12 +3,13 @@ import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
 import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage } from 'interfaces/order';
 import { MessageResponse } from 'interfaces/messageResponse';
-import { User } from 'interfaces/user';
+import { User, UserWorkspace } from 'interfaces/user';
 import { MessageTypes, W } from 'interfaces/w';
 import { getSideFromType, getCurrentTime } from 'utils';
 import { STRM } from 'redux/stateDefs/workspaceState';
 import { $$ } from 'utils/stringPaster';
 import { Sides } from 'interfaces/sides';
+import { defaultProfile } from 'redux/reducers/userProfileReducer';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -387,8 +388,11 @@ export class API {
     return post<any>(API.getUrl(API.DarkPool, 'price', 'publish'), data);
   }
 
-  static async getUserProfile(email: string) {
-    return get<any>(API.getUrl(API.UserApi, 'UserJson', 'get', { useremail: email }));
+  static async getUserProfile(email: string): Promise<UserWorkspace> {
+    const profile = localStorage.getItem('userProfile');
+    if (profile === null)
+      return defaultProfile;
+    return JSON.parse(profile);// get<any>(API.getUrl(API.UserApi, 'UserJson', 'get', { useremail: email }));
   }
 
   static async saveUserProfile(data: any) {

@@ -1,9 +1,9 @@
-import React, { useEffect, useState, ReactElement } from 'react';
+import React, { useEffect, ReactElement } from 'react';
 import { UserProfileModalTypes, User } from 'interfaces/user';
 import { UserProfileForm } from 'components/Workspace/UserProfile/form';
 import { ErrorBox } from 'components/ErrorBox';
 import { MessageBox } from 'components/MessageBox';
-import { UserProfileStore } from 'mobx/stores/userProfile';
+import store from 'mobx/stores/userProfile';
 import { observer } from 'mobx-react';
 
 interface OwnProps {
@@ -14,7 +14,6 @@ interface OwnProps {
 type Props = OwnProps;
 
 const UserProfileModal: React.FC<Props> = observer((props: Props) => {
-  const [store] = useState<UserProfileStore>(new UserProfileStore());
   const { user } = props;
 
   const onClose = () => {
@@ -34,7 +33,6 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
   }, [user.email, store]);
 
   const onChange = (name: string, value: any) => {
-
     store.setFieldValue(name, value);
   };
 
@@ -50,6 +48,14 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
                               onChange={onChange}
                               onSubmit={onSubmit}
                               onCancel={onClose}/>;
+    case UserProfileModalTypes.Saving:
+      return (
+        <MessageBox title={'Saving your profile'}
+                    message={'Please wait while we\'re saving your profile'}
+                    icon={'spinner'}
+                    color={'good'}
+                    buttons={() => null}/>
+      );
     case UserProfileModalTypes.Success:
       return (
         <MessageBox title={'Looks Good'}

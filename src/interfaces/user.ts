@@ -30,7 +30,7 @@ export enum UserProfileStatus {
 }
 
 export enum UserProfileModalTypes {
-  Form, Success, Error,
+  Form, Success, Error, Saving
 }
 
 export interface UserWorkspace {
