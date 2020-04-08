@@ -44,6 +44,8 @@ export class UserProfileStore {
     localStorage.setItem('userProfile', JSON.stringify(profile));
     await new Promise((resolve: () => void) => setTimeout(resolve, 1800));
     this.currentModalType = UserProfileModalTypes.Success;
+    this.profile = profile;
+    this.initialProfile = profile;
   }
 }
 
