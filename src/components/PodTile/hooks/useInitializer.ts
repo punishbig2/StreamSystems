@@ -50,7 +50,7 @@ export const useInitializer = (tenors: string[], currency: string, strategy: str
     if (!currency || !strategy || strategy === '' || currency === '') {
       return;
     }
-    const manager: SignalRManager = SignalRManager.getInstance();
+    /*const manager: SignalRManager = SignalRManager.getInstance();
     tenors.forEach((tenor: string) => {
       API.getTenorTOBSnapshot(currency, strategy, tenor)
         .then((w: W | null) => {
@@ -66,7 +66,7 @@ export const useInitializer = (tenors: string[], currency: string, strategy: str
             propagateDepth(w, user);
           }
         });
-    });
+    });*/
   }, [tenors, user, initialize, currency, strategy]);
 };
 

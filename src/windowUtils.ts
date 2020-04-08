@@ -6,8 +6,9 @@ export const getOptimalSize = (element: HTMLDivElement): { width: number, height
   const savedWidth = style.width;
   const savedHeight = style.height;
 
-  style.width = '1px';
+  style.width = '100px';
   style.height = '1px';
+
   size.width = element.scrollWidth;
   size.height = element.scrollHeight;
 
