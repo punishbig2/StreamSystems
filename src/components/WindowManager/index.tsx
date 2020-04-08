@@ -62,7 +62,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
           const last: WindowDef = array[index - 1];
           const { left, top } = next[last.id];
           const { width: offsetWidth, height: offsetHeight } = next[last.id];
-          if (top + offsetHeight + 1 > area.height) {
+          if (top + offsetHeight + 1 > area.height - area.top) {
             next[window.id] = new DOMRect(left + offsetWidth + 1, 0, width, height);
           } else {
             next[window.id] = new DOMRect(left, top + offsetHeight + 1, width, height);
