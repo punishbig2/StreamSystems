@@ -124,7 +124,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
       // Notify the workspace
       onLayoutModify();
     }
-  }, [onLayoutModify, store]);
+  }, [onLayoutModify, area, store]);
   // Callbacks
   const resizeCallback = useCallback(
     (side: WindowSide) => {
