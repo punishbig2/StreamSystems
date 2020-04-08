@@ -80,7 +80,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       return;
     setTimeout(() => {
       const sorted: WindowDef[] = [...windows];
-      sorted.sort((w1: WindowDef, w2: WindowDef) => w1.minimized ? 1 : -1);
+      sorted.sort((w1: WindowDef, w2: WindowDef) => w1.position - w2.position);
       const geometries: { [key: string]: ClientRect } = sorted.reduce(reducer, {});
       onUpdateAllGeometries(geometries);
     }, 0);

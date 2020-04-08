@@ -53,7 +53,7 @@ export class WorkareaStore {
     const currencies: string[] = Object.keys(map);
     const windows: WindowDef[] = currencies.reduce((accumulator: WindowDef[], currency: string): WindowDef[] => {
       const windows: WindowDef[] = map[currency]
-        .map(({ strategy, minimized }: PresetWindow): WindowDef => {
+        .map(({ strategy, minimized, position }: PresetWindow): WindowDef => {
           const id: string = `WiN${currency}${strategy}${randomID()}`;
           // Force the initialization of a pod structure
           localStorage.setItem(`PoD${id}`, JSON.stringify({ currency, strategy }));
@@ -61,6 +61,7 @@ export class WorkareaStore {
             id: id,
             minimized: minimized,
             type: WindowTypes.PodTile,
+            position: position,
           };
         });
       return [...accumulator, ...windows];
