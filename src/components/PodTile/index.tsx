@@ -180,6 +180,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     if (props.minimized) {
       const style: CSSProperties = {
         width: getOptimalWidthFromColumnsSpec(tobColumns),
+        height: 1, // We need a minimal height or else it wont be rendered at all
       };
       return <div style={style}/>;
     }

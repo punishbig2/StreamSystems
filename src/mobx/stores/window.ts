@@ -34,7 +34,7 @@ export class WindowStore {
   }
 
   @action.bound
-  public minimize() {
+  public toggleMinimized() {
     const { left, top } = this.persistedGeometry;
     if (!this.minimized) {
       const { width, height } = this.persistedGeometry;

@@ -17,7 +17,7 @@ interface OwnProps {
 export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const ref: React.Ref<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const { area } = props;
-  const { width } = ref.current ? getOptimalSize(ref.current, area) : { width: 0 };
+  const { width } = ref.current ? getOptimalSize(ref.current) : { width: 0 };
   // Compute the ideal height
   const styles: Dimensions = getStyles();
   const height: number = styles.windowToolbarHeight + styles.tableHeaderHeight + 4 * styles.tableRowHeight;

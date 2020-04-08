@@ -1,7 +1,6 @@
 import { DefaultWindowButtons } from 'components/DefaultWindowButtons';
 import { useObjectGrabber } from 'hooks/useObjectGrabber';
 import React, { CSSProperties, ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-import { getOptimalSize } from 'windowUtils';
 import { WindowStore } from 'mobx/stores/window';
 import { observer } from 'mobx-react';
 import { WindowTypes } from 'redux/constants/workareaConstants';
@@ -9,10 +8,16 @@ import { PodTileStore } from 'mobx/stores/podTile';
 
 import messages, { MessagesStore } from 'mobx/stores/messages';
 import { User } from 'interfaces/user';
+import { move } from 'components/WindowManager/helpers/move';
+import { resize } from 'components/WindowManager/helpers/resize';
+import { toStyle } from 'components/WindowManager/helpers/toStyle';
+import { toPixels } from 'components/WindowManager/helpers/toPixels';
+import { adjustToContent } from 'components/WindowManager/helpers/adjustToContent';
 
 interface OwnProps {
   id: string;
   geometry?: ClientRect;
+  minimized?: boolean;
   type: WindowTypes;
   isDefaultWorkspace: boolean;
   area: ClientRect;
@@ -28,36 +33,6 @@ interface OwnProps {
 
 type Props = React.PropsWithChildren<OwnProps>;
 type WindowSide = 'top' | 'bottom' | 'left' | 'right' | 'bottom-corner';
-
-const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined => {
-  if (geometry === undefined)
-    return undefined;
-  return {
-    left: geometry.left,
-    top: geometry.top,
-    width: geometry.width,
-    height: geometry.height,
-  };
-};
-
-const resize = (x: number, y: number, width: number, height: number, r: ClientRect, minWidth: number): DOMRect => {
-  const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
-  const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
-  if (minWidth > 0 && width < minWidth) {
-    width = minWidth;
-  }
-  if (width - left > window.innerWidth)
-    return new DOMRect(0, 0, minWidth, height);
-  // Create the new rectangle confined to the r rectangle
-  return new DOMRect(left, top, width, height);
-};
-
-const move = (x: number, y: number, width: number, height: number, r: ClientRect): DOMRect => {
-  const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
-  const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
-  // Create the new rectangle confined to the r rectangle
-  return new DOMRect(left, top, width, height);
-};
 
 const onMove = (area: ClientRect, update: (geometry: ClientRect, resized: boolean) => void) => (r: ClientRect, x: number, y: number) => {
   update(move(r.left + x, r.top + y, r.width, r.height, area), false);
@@ -92,15 +67,6 @@ const getContentStore = (id: string, type: WindowTypes): MessagesStore | PodTile
       return messages;
   }
   return null;
-};
-
-const pixels = (x: number): string => `${x}px`;
-
-const adjustToContent = (element: HTMLDivElement, area: ClientRect) => {
-  const { style } = element;
-  const size: { width: number, height: number } = getOptimalSize(element, area);
-  style.height = pixels(size.height);
-  style.width = pixels(size.width);
 };
 
 export const WindowElement: React.FC<Props> = observer((props: Props): ReactElement => {
@@ -196,9 +162,9 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     style.width = '1px';
     // Update the element with the minimal size possible
     if (element.scrollWidth + element.offsetLeft < area.width) {
-      style.width = pixels(element.scrollWidth);
+      style.width = toPixels(element.scrollWidth);
     } else {
-      style.width = pixels(area.width - element.offsetLeft);
+      style.width = toPixels(area.width - element.offsetLeft);
     }
     setMinWidth(parseInt(style.width));
     // Restore original width
@@ -259,7 +225,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
 
   const onMinimize = () => {
     props.onLayoutModify();
-    store.minimize();
+    store.toggleMinimized();
   };
 
   const onAdjustSize = () => {
@@ -277,6 +243,14 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
                             onClose={onClose}/>
     );
   };
+
+  useEffect(() => {
+    if (props.minimized === undefined)
+      return;
+    if (props.minimized !== store.minimized) {
+      store.toggleMinimized();
+    }
+  }, [store, props.minimized]);
 
   useEffect(() => {
     setContentStore(getContentStore(id, type));

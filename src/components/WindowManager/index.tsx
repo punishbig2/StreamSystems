@@ -55,8 +55,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     const reducer = (next: { [id: string]: ClientRect }, window: WindowDef, index: number, array: WindowDef[]) => {
       const element: HTMLElement | null = document.getElementById(window.id);
       if (element instanceof HTMLDivElement) {
-        if (window.minimized)
-          element.classList.add('minimized');
         const { width, height } = getOptimalSize(element);
         if (index === 0) {
           next[window.id] = new DOMRect(0, 0, width, height);
@@ -87,19 +85,20 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       onUpdateAllGeometries(geometries);
     }, 0);
     setLayoutCompleted(true);
-  }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, area.bottom, area.right, layoutCompleted]);
+  }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, area.bottom, area.right, layoutCompleted, area.height]);
 
   const windowMapper = (window: WindowDef): ReactElement => {
     return (
       <WindowElement id={window.id}
                      type={window.type}
+                     content={props.getContentRenderer(window.id, window.type)}
+                     title={props.getTitleRenderer(window.id, window.type)}
                      key={window.id}
+                     minimized={window.minimized}
                      geometry={window.geometry}
                      area={area}
                      connected={props.connected}
                      user={props.user}
-                     content={props.getContentRenderer(window.id, window.type)}
-                     title={props.getTitleRenderer(window.id, window.type)}
                      personality={props.personality}
                      isDefaultWorkspace={isDefaultWorkspace}
                      onLayoutModify={props.onLayoutModify}
