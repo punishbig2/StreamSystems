@@ -25,7 +25,7 @@ interface Props {
   onLayoutModify: () => void;
 }
 
-const BodyRectangle: ClientRect = document.body.getBoundingClientRect();
+const BodyRectangle: ClientRect = new DOMRect(0, 0, window.innerWidth, window.innerHeight);
 
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const { isDefaultWorkspace, windows } = props;
@@ -34,11 +34,10 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const styles: any = getStyles();
 
   useEffect(() => {
-    if (element === null) return;
+    if (element === null)
+      return;
     const updateArea = () => {
-      const height: number = element.offsetHeight;
-      const width: number = element.offsetWidth;
-      setArea(new DOMRect(0, 0, width, height));
+      setArea(element.getBoundingClientRect());
     };
     const observer: ResizeObserver = new ResizeObserver(updateArea);
     updateArea();
@@ -86,7 +85,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
       onUpdateAllGeometries(geometries);
     }, 0);
     setLayoutCompleted(true);
-  }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, area.bottom, area.right, layoutCompleted, area.height]);
+  }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, layoutCompleted, area]);
 
   const windowMapper = (window: WindowDef): ReactElement => {
     return (

@@ -29,7 +29,6 @@ export const useWListener = (symbol: string, strategy: string, tenor: string, us
       // Create an array of "unsubscribe/remove listener" functions
       const remove = signalRManager.addPodRowListener(symbol, strategy, tenor, onNewWMessage);
       return () => {
-        console.warn(`removing listener for: ${symbol} ${strategy} ${tenor}`);
         remove();
       };
     }
