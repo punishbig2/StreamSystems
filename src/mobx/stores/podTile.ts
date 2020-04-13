@@ -22,7 +22,6 @@ export class PodTileStore {
   @observable loading: boolean = false;
 
   @observable isRunWindowVisible: boolean = false;
-  @observable isRunButtonEnabled: boolean = false;
 
   constructor(windowID: string) {
     this.id = `PoD${windowID}`;
