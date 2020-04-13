@@ -63,7 +63,7 @@ export class WorkareaStore {
             minimized: minimized,
             type: WindowTypes.PodTile,
             position: position,
-            fitContent: true,
+            fitToContent: true,
           };
         });
       return [...accumulator, ...windows];

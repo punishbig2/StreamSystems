@@ -154,8 +154,14 @@ export class API {
     return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}?${toQuery(args)}`;
   }
 
-  static getSymbols(): CancellablePromise<Currency[]> {
-    return get<Currency[]>(API.getUrl(API.Config, 'symbols', 'get'));
+  static async getSymbols(): CancellablePromise<Currency[]> {
+    const currencies: Currency[] = await get<Currency[]>(API.getUrl(API.Config, 'symbols', 'get'));
+    currencies.sort((c1: Currency, c2: Currency): number => {
+      const { name: n1 } = c1;
+      const { name: n2 } = c2;
+      return 1000 * (n1.charCodeAt(0) - n2.charCodeAt(0)) + (n1.charCodeAt(4) - n2.charCodeAt(4));
+    });
+    return currencies;
   }
 
   static getProducts(): CancellablePromise<string[]> {

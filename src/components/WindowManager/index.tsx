@@ -97,7 +97,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
                      key={window.id}
                      minimized={window.minimized}
                      geometry={window.geometry}
-                     fitContent={window.fitContent}
+                     fitToContent={window.fitToContent}
                      area={area}
                      connected={props.connected}
                      user={props.user}

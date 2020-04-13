@@ -12,7 +12,7 @@ export class WindowStore {
   // Use this for instant updates
   @observable localGeometry: ClientRect | null = null;
   @persist @observable minimized: boolean = false;
-  @persist @observable fitContent: boolean = true;
+  @persist @observable fitToContent: boolean = true;
 
   constructor(id: string, type: WindowTypes, fixed?: boolean) {
     this.id = id;
@@ -50,8 +50,8 @@ export class WindowStore {
   @action.bound
   public setGeometry(geometry: ClientRect, resized: boolean) {
     this.localGeometry = geometry;
-    if (resized && this.fitContent) {
-      this.fitContent = false;
+    if (resized && this.fitToContent) {
+      this.fitToContent = false;
     }
   }
 
@@ -61,8 +61,8 @@ export class WindowStore {
   }
 
   @action.bound
-  public setFitContent(value: boolean = true) {
-    this.fitContent = value;
+  public setFitToContent(value: boolean = true) {
+    this.fitToContent = value;
   }
 
   @action.bound

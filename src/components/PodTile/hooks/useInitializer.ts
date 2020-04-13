@@ -2,13 +2,10 @@ import { OrderTypes } from 'interfaces/mdEntry';
 import { Order } from 'interfaces/order';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
-import { TenorType, W } from 'interfaces/w';
+import { TenorType } from 'interfaces/w';
 import { useEffect } from 'react';
 import { compareTenors } from 'utils/dataGenerators';
 import { User } from 'interfaces/user';
-import { SignalRManager } from 'redux/signalR/signalRManager';
-import { API } from 'API';
-import { propagateDepth } from 'utils/messageHandler';
 
 const buildRows = async (tenors: string[], currency: string, strategy: string, email: string): Promise<PodRow[]> => {
   const rows: PodRow[] = tenors
