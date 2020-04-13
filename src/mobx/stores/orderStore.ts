@@ -57,7 +57,7 @@ export class OrderStore {
       return this.submittedSize;
     // Otherwise use current order's size
     if (this.baseSize !== null)
-      return this.baseStatus;
+      return this.baseSize;
     // Finally use the default size
     if (this.defaultSize === undefined)
       throw new Error('impossible to determine order creation size');
@@ -141,6 +141,8 @@ export class OrderStore {
     this.symbol = order.symbol;
     this.strategy = order.strategy;
     this.tenor = order.tenor;
+    this.submittedSize = null;
+    this.editedSize = null;
   }
 
   @action.bound
@@ -171,6 +173,16 @@ export class OrderStore {
 
   public setPrice(price: number | null) {
     this.price = price;
+  }
+
+  @action.bound
+  public addStatusBit(status: OrderStatus) {
+    this.currentStatus |= status;
+  }
+
+  @action.bound
+  public removeStatusBit(status: OrderStatus) {
+    this.currentStatus &= ~status;
   }
 }
 

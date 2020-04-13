@@ -27,7 +27,7 @@ export const useWListener = (symbol: string, strategy: string, tenor: string, us
       // Show the loading spinner
       dispatch(createAction<ActionTypes>(ActionTypes.StartLoading));
       // Create an array of "unsubscribe/remove listener" functions
-      const remove = signalRManager.addPodRowListener(symbol, strategy, tenor, onNewWMessage);
+      const remove = signalRManager.setTOBWListener(symbol, strategy, tenor, onNewWMessage);
       return () => {
         remove();
       };

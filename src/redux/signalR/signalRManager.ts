@@ -17,8 +17,6 @@ import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
 import { Order } from 'interfaces/order';
 import { User, OCOModes } from 'interfaces/user';
 import deepEqual from 'deep-equal';
-import { PodTable } from 'interfaces/podTable';
-import { orderArrayToPodTableReducer } from 'utils/dataParser';
 import { Sides } from 'interfaces/sides';
 import userProfileStore from 'mobx/stores/userProfile';
 
@@ -43,11 +41,13 @@ export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  private onUpdateMarketDataListener: ((data: W) => void) | null = null;
+  /*private onUpdateMarketDataListener: ((data: W) => void) | null = null;
   private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
-  private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;
+  private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;*/
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private user: User = {} as User;
+
+  private tobWListener: { [k: string]: (w: W) => void } = {};
 
   private static dispatchedWs: { [key: string]: W } = {};
   private static orderCache: { [id: string]: Order } = {};
@@ -128,7 +128,7 @@ export class SignalRManager<A extends Action = AnyAction> {
       setTimeout(() => fn(...args), 0);
     };
 
-  private onUpdateMessageBlotter = (message: string): void => {
+  /*private onUpdateMessageBlotter = (message: string): void => {
     const data: Message = JSON.parse(message);
     if (data.OrdStatus === ExecTypes.Canceled || (data.OrdStatus === ExecTypes.Filled)) {
       const type: OrderTypes = (() => {
@@ -152,7 +152,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     if (this.onUpdateMessageBlotterListener !== null) {
       this.onUpdateMessageBlotterListener(data);
     }
-  };
+  };*/
 
   private static isCollapsedW = (w: W): boolean => {
     const cacheKey: string = $$(w.Symbol, w.Strategy, w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
@@ -216,13 +216,13 @@ export class SignalRManager<A extends Action = AnyAction> {
     });
   };
 
-  public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string): PodTable => {
+  /*public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string): PodTable => {
     const orders: Order[] = [
       ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Bid),
       ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Ofr),
     ];
     return orders.reduce(orderArrayToPodTableReducer, {});
-  };
+  };*/
 
   public static getOrdersForUser = (email: string): Order[] => {
     const { orderCache } = SignalRManager;
@@ -236,7 +236,11 @@ export class SignalRManager<A extends Action = AnyAction> {
       if (SignalRManager.isCollapsedW(w))
         return;
       if (isPodW(w)) {
-        this.emitPodWEvent(w);
+        SignalRManager.addToCache(w, this.user);
+        const listener: ((w: W) => void) | undefined = this.tobWListener[$$(w.Symbol, w.Strategy, w.Tenor)];
+        if (listener) {
+          listener(w);
+        }
       } else {
         SignalRManager.addToCache(w, this.user);
         propagateDepth(w, this.user);
@@ -258,21 +262,21 @@ export class SignalRManager<A extends Action = AnyAction> {
     document.dispatchEvent(new CustomEvent(type, { detail: message }));
   };
 
-  public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
+  /*public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
     this.onUpdateDarkPoolPxListener = fn;
-  };
+  };*/
 
   public setOnConnectedListener = (fn: (connection: HubConnection) => void) => {
     this.onConnectedListener = fn;
   };
 
-  public setOnUpdateMarketDataListener = (fn: (data: W) => void) => {
+  /*public setOnUpdateMarketDataListener = (fn: (data: W) => void) => {
     this.onUpdateMarketDataListener = fn;
   };
 
   public setOnUpdateMessageBlotter = (fn: (data: any) => void) => {
     this.onUpdateMessageBlotterListener = fn;
-  };
+  };*/
 
   public setOnDisconnectedListener = (fn: (error: any) => void) => {
     this.onDisconnectedListener = fn;
@@ -294,20 +298,24 @@ export class SignalRManager<A extends Action = AnyAction> {
     document.dispatchEvent(event);
   };
 
-  public addPodRowListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+  public setTOBWListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
     const connection: HubConnection | null = this.connection;
     if (connection !== null && connection.state === HubConnectionState.Connected) {
-      const type: string = $$(symbol, strategy, tenor);
-      const listenerWrapper = (event: CustomEvent<W>) => {
+      const key: string = $$(symbol, strategy, tenor);
+      // const type: string = $$(symbol, strategy, tenor);
+      /*const listenerWrapper = (event: CustomEvent<W>) => {
         // Call the installed listener
         listener(event.detail);
-      };
-      document.addEventListener(type, listenerWrapper as EventListener);
+      };*/
+      // document.addEventListener(type, listenerWrapper as EventListener);
       connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
+      this.tobWListener[key] = listener;
       return () => {
-        document.removeEventListener(type, listenerWrapper as EventListener);
+        // document.removeEventListener(type, listenerWrapper as EventListener);
         // Unsubscribe from the market data feed
         connection.invoke(SignalRActions.UnsubscribeFromMarketData, symbol, strategy, tenor);
+        // Remove the listener
+        delete this.tobWListener[key];
       };
     } else {
       throw new Error('you are not connected to signal R, this should never happen');

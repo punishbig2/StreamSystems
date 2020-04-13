@@ -1,46 +1,47 @@
-import { createAction } from 'redux/actionCreator';
-import { ActionTypes } from 'columns/podColumns/OrderColumn/reducer';
-import { Order } from 'interfaces/order';
-import { PodRowStatus } from 'interfaces/podRow';
-import { dispatchWorkspaceError } from 'utils';
-import { createOrder, findMyOrder } from 'components/PodTile/helpers';
+import { Order, OrderStatus } from 'interfaces/order';
+import { findMyOrder_ } from 'components/PodTile/helpers';
 import { skipTabIndexAll } from 'utils/skipTab';
-import { Dispatch } from 'react';
-import { FXOAction } from 'redux/fxo-action';
-import { User } from 'interfaces/user';
 import { OrderStore } from 'mobx/stores/orderStore';
+import { API } from 'API';
+import { User } from 'interfaces/user';
 
-export const onSubmitSizeListener = (
-  order: Order,
-  editedSize: number | null,
-  minimumSize: number,
-  personality: string,
-  store: OrderStore,
-  user: User,
-  onRowStatusChange: (rowStatus: PodRowStatus) => void,
-) =>
+export const onSubmitSize = (store: OrderStore) =>
   async (input: HTMLInputElement) => {
-    if (editedSize === null || editedSize === order.size) {
+    const user: User | null = store.user;
+    if (user === null)
+      throw new Error('user cannot be null at this point');
+    const personality: string | null = store.personality;
+    if (personality === null)
+      throw new Error('internal error, personality must be set');
+    if (store.editedSize === null || store.editedSize === store.baseSize) {
       skipTabIndexAll(input, 1);
       return;
     }
-    if (order.isCancelled() || order.price === null)
+    if (store.baseSize === null)
       store.resetAllSizes();
-    const myOrder: Order | undefined = findMyOrder(order, user);
-    if (!!myOrder && !myOrder.isCancelled()) {
+    const order: Order | undefined = findMyOrder_(store.symbol, store.strategy, store.tenor, store.type, user);
+    if (!!order && !order.isCancelled()) {
       // Get the desired new size
-      const size: number | null = editedSize;
-      if (size !== null && size < minimumSize) {
-        onRowStatusChange(PodRowStatus.SizeTooSmall);
+      const size: number | null = store.editedSize;
+      if (size !== null && size < store.minimumSize) {
+        // onRowStatusChange(PodRowStatus.SizeTooSmall);
         // Emit a global message to show an error
-        dispatchWorkspaceError(`Size cannot be smaller than ${minimumSize}`);
+        // dispatchWorkspaceError(`Size cannot be smaller than ${minimumSize}`);
         // Do not create the order in this case
         return;
       }
-      // Create the order
-      createOrder({ ...order, size }, minimumSize, personality, user)
+      // Update the order's size
+      order.size = store.editedSize;
+      // Cancel current order and then create a new one
+      store.addStatusBit(OrderStatus.BeingCancelled);
+      API.cancelOrder(order, user)
         .then(() => {
-          console.log('order created');
+          store.removeStatusBit(OrderStatus.BeingCancelled);
+          store.addStatusBit(OrderStatus.BeingCreated);
+          API.createOrder(order, personality, user, store.minimumSize)
+            .then(() => {
+              store.removeStatusBit(OrderStatus.BeingCreated);
+            });
         });
     }
     // Please wait until the main loop has ran and then

@@ -20,6 +20,7 @@ import { getOrderStatus } from 'columns/podColumns/OrderColumn/helpers/getOrderS
 import { SignalRManager } from 'redux/signalR/signalRManager';
 import { MiniDOB } from 'components/Table/CellRenderers/Price/miniDob';
 import { shouldOpenOrderTicket } from 'columns/podColumns/OrderColumn/helpers/shoulOpenOrderTicket';
+import { onSubmitSize } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
 
 export enum PodTableType {
   Pod, Dob
@@ -77,7 +78,6 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
 
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
-  const onSubmitSize = () => null;
   const renderTooltip = (): ReactElement | null => {
     const depth: Order[] = SignalRManager.getDepth(store.symbol, store.strategy, store.tenor, store.type);
     if (depth.length === 0)
@@ -114,7 +114,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
           onBlur={resetSize}
           onNavigate={onNavigate}
           onChange={onChangeSize}
-          onSubmit={onSubmitSize}/>
+          onSubmit={onSubmitSize(store)}/>
   );
 
   const items: ReactElement[] = [
