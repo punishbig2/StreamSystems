@@ -1,12 +1,12 @@
 import { DefaultWindowButtons } from 'components/DefaultWindowButtons';
 import { useObjectGrabber } from 'hooks/useObjectGrabber';
 import React, { CSSProperties, ReactElement, useCallback, useEffect, useRef, useState } from 'react';
-import { WindowStore } from 'mobx/stores/window';
+import { WindowStore } from 'mobx/stores/windowStore';
 import { observer } from 'mobx-react';
 import { WindowTypes } from 'redux/constants/workareaConstants';
-import { PodTileStore } from 'mobx/stores/podTile';
+import { PodTileStore } from 'mobx/stores/podTileStore';
 
-import messages, { MessagesStore } from 'mobx/stores/messages';
+import messages, { MessagesStore } from 'mobx/stores/messagesStore';
 import { User } from 'interfaces/user';
 import { move } from 'components/WindowManager/helpers/move';
 import { resize } from 'components/WindowManager/helpers/resize';
@@ -149,9 +149,13 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   const [, setLeftResizeHandle] = useObjectGrabber(containerRef, resizeCallback('left'), onGeometryChangeComplete);
   const [, setBottomCornerResizeHandle] = useObjectGrabber(containerRef, resizeCallback('bottom-corner'), onGeometryChangeComplete);
   // Compute the style
-  const classes: string = ['window-element', store.minimized ? 'minimized' : null, isGrabbed ? 'grabbed' : null]
-    .join(' ')
-    .trim();
+  const classes: string[] = ['window-element'];
+  if (isGrabbed && !fixed)
+    classes.push('grabbed');
+  if (store.minimized)
+    classes.push('minimized');
+  if (fixed)
+    classes.push('fixed');
   const style: CSSProperties | undefined = toStyle(store.geometry);
   // Keep the min width up to date
   useEffect(() => {
@@ -257,7 +261,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
 
   const contentProps = { scrollable: !store.fitToContent, minimized: store.minimized };
   return (
-    <div id={store.id} className={classes} ref={containerRef} style={style} onClickCapture={bringToFront}>
+    <div id={store.id} className={classes.join(' ')} ref={containerRef} style={style} onClickCapture={bringToFront}>
       <div className={'window-title-bar'}>
         {props.title(contentProps, contentStore)}
         {getTitlebarButtons()}

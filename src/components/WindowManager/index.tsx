@@ -4,10 +4,10 @@ import getStyles from 'styles';
 import { getOptimalSize } from 'windowUtils';
 import { User } from 'interfaces/user';
 import { ExecutionBlotter } from 'components/WindowManager/executionBlotter';
-import { WindowDef } from 'mobx/stores/workspace';
+import { WindowDef } from 'mobx/stores/workspaceStore';
 import { WindowTypes } from 'redux/constants/workareaConstants';
-import { PodTileStore } from 'mobx/stores/podTile';
-import { MessagesStore } from 'mobx/stores/messages';
+import { PodTileStore } from 'mobx/stores/podTileStore';
+import { MessagesStore } from 'mobx/stores/messagesStore';
 
 interface Props {
   toast: string | null;

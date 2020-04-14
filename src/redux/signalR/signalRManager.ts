@@ -18,9 +18,9 @@ import { Order } from 'interfaces/order';
 import { User, OCOModes } from 'interfaces/user';
 import deepEqual from 'deep-equal';
 import { Sides } from 'interfaces/sides';
-import userProfileStore from 'mobx/stores/userProfile';
+import userProfileStore from 'mobx/stores/userProfileStore';
 
-import workareaStore from 'mobx/stores/workarea';
+import workareaStore from 'mobx/stores/workareaStore';
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -37,6 +37,11 @@ enum SignalRMessageTypes {
   Close = 7
 }
 
+interface Command {
+  name: string;
+  args: any[];
+}
+
 export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
@@ -46,8 +51,9 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;*/
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private user: User = {} as User;
+  private recordedCommands: Command[] = [];
 
-  private tobWListener: { [k: string]: (w: W) => void } = {};
+  private listeners: { [k: string]: (arg: W) => void } = {};
 
   private static dispatchedWs: { [key: string]: W } = {};
   private static orderCache: { [id: string]: Order } = {};
@@ -94,6 +100,8 @@ export class SignalRManager<A extends Action = AnyAction> {
           if (this.onConnectedListener !== null)
             this.onConnectedListener(connection);
           this.reconnectDelay = INITIAL_RECONNECT_DELAY;
+          // Replay recorded commands
+          this.replayRecorderCommands();
         })
         .catch(console.log);
     }
@@ -232,12 +240,23 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
+    this.handleWMessage(w);
+  };
+
+  private static isEmptyW(w: W): boolean {
+    const entries: MDEntry[] = w.Entries;
+    if (entries.length < 2)
+      return true;
+    return (!entries[0].MDEntryPx && !entries[1].MDEntryPx);
+  };
+
+  public handleWMessage(w: W) {
     if (w.ExDestination === undefined) {
       if (SignalRManager.isCollapsedW(w))
         return;
       if (isPodW(w)) {
         SignalRManager.addToCache(w, this.user);
-        const listener: ((w: W) => void) | undefined = this.tobWListener[$$(w.Symbol, w.Strategy, w.Tenor)];
+        const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor)];
         if (listener) {
           listener(w);
         }
@@ -245,14 +264,11 @@ export class SignalRManager<A extends Action = AnyAction> {
         SignalRManager.addToCache(w, this.user);
         propagateDepth(w, this.user);
       }
-      // Dispatch the action
-      /*if (this.onUpdateMarketDataListener !== null) {
-        const fn: (data: W) => void = this.onUpdateMarketDataListener;
-        console.log(w);
-        fn(w);
-      }*/
-    } else if (w.ExDestination === 'DP') {
-      this.emitDarkPoolOrderWEvent(w);
+    } else if (w.ExDestination === 'DP' && !SignalRManager.isEmptyW(w)) {
+      const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor, 'Dp')];
+      if (listener) {
+        listener(w);
+      }
     }
   };
 
@@ -282,44 +298,56 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.onDisconnectedListener = fn;
   };
 
-  private emitDarkPoolOrderWEvent = (w: W) => {
-    // Now that we know it's the right time, create and dispatch the event
-    const type: string = $$(w.Symbol, w.Strategy, w.Tenor, 'Dp');
-    const event: CustomEvent<W> = new CustomEvent<W>(type, { detail: w, bubbles: false, cancelable: false });
-    // Dispatch it now
-    document.dispatchEvent(event);
-  };
+  private replayRecorderCommands() {
+    const { recordedCommands } = this;
+    recordedCommands.forEach(this.replayCommand);
+  }
 
-  public emitPodWEvent = (w: W) => {
-    // Now that we know it's the right time, create and dispatch the event
-    const type: string = $$(w.Symbol, w.Strategy, w.Tenor);
-    const event: CustomEvent<W> = new CustomEvent<W>(type, { detail: w, bubbles: false, cancelable: false });
-    // Dispatch it now
-    document.dispatchEvent(event);
-  };
+  private replayCommand(command: Command) {
+    const { connection } = this;
+    if (connection === null)
+      return;
+    if (connection.state !== HubConnectionState.Connected)
+      return;
+    connection.invoke(command.name, ...command.args);
+  }
+
+  public removeTOBWListener(symbol: string, strategy: string, tenor: string) {
+    const { recordedCommands } = this;
+    const key: string = $$(symbol, strategy, tenor);
+    const index: number = recordedCommands.findIndex((command: Command) => {
+      if (command.name !== SignalRActions.SubscribeForMarketData)
+        return false;
+      return command.args[0] === symbol && command.args[1] === strategy && command.args[2] === tenor;
+    });
+    if (index === -1) {
+      console.warn(`command does not exist, cannot remove it`);
+    } else {
+      const { connection } = this;
+      if (connection === null)
+        return;
+      if (connection.state !== HubConnectionState.Connected)
+        return;
+      connection.invoke(SignalRActions.UnsubscribeFromMarketData, ...recordedCommands[index].args);
+      delete this.listeners[key];
+      // Update recorded commands
+      this.recordedCommands = [...recordedCommands.slice(0, index), ...recordedCommands.slice(index + 1)];
+    }
+  }
 
   public setTOBWListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
-    const connection: HubConnection | null = this.connection;
-    if (connection !== null && connection.state === HubConnectionState.Connected) {
-      const key: string = $$(symbol, strategy, tenor);
-      // const type: string = $$(symbol, strategy, tenor);
-      /*const listenerWrapper = (event: CustomEvent<W>) => {
-        // Call the installed listener
-        listener(event.detail);
-      };*/
-      // document.addEventListener(type, listenerWrapper as EventListener);
-      connection.invoke(SignalRActions.SubscribeForMarketData, symbol, strategy, tenor);
-      this.tobWListener[key] = listener;
-      return () => {
-        // document.removeEventListener(type, listenerWrapper as EventListener);
-        // Unsubscribe from the market data feed
-        connection.invoke(SignalRActions.UnsubscribeFromMarketData, symbol, strategy, tenor);
-        // Remove the listener
-        delete this.tobWListener[key];
-      };
-    } else {
-      throw new Error('you are not connected to signal R, this should never happen');
-    }
+    const { recordedCommands } = this;
+    const key: string = $$(symbol, strategy, tenor);
+    // We always save the listener
+    this.listeners[key] = listener;
+    const command: Command = {
+      name: SignalRActions.SubscribeForMarketData,
+      args: [symbol, strategy, tenor],
+    };
+    // Record the command
+    recordedCommands.push(command);
+    // Try to run the command now
+    this.replayCommand(command);
   }
 
   public addDarkPoolPxListener = (symbol: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
@@ -343,20 +371,12 @@ export class SignalRManager<A extends Action = AnyAction> {
     return () => null;
   };
 
-  public addDarkPoolOrderListener(symbol: string, strategy: string, tenor: string, fn: (w: W) => void) {
-    const type: string = $$(symbol, strategy, tenor, 'Dp');
-    const listenerWrapper = (event: CustomEvent<W>) => {
-      fn(event.detail);
-    };
-    API.getDarkPoolSnapshot(symbol, strategy, tenor)
-      .then((w: W | null) => {
-        if (w !== null) {
-          this.emitDarkPoolOrderWEvent(w);
-        }
-      });
-    document.addEventListener(type, listenerWrapper as EventListener);
+  public addDarkPoolOrderListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+    const key: string = $$(symbol, strategy, tenor, 'Dp');
+    // Commands already exists as this is the same as the market update
+    this.listeners[key] = listener;
     return () => {
-      document.removeEventListener(type, listenerWrapper as EventListener);
+      delete this.listeners[key];
     };
   }
 

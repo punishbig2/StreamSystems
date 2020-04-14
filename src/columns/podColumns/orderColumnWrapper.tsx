@@ -40,10 +40,10 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           depths={props.depths}
           defaultSize={props.defaultSize}
           minimumSize={props.minimumSize}
+          rowStore={props.rowStore}
           bid={props.bid}
           ofr={props.ofr}
-          tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
-          onRowStatusChange={props.onRowStatusChange}/>
+          tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}/>
       );
     },
     template: '999999 999999.999',

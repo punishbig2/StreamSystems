@@ -17,7 +17,7 @@ import { findMyOrder } from 'components/PodTile/helpers';
 import { observer } from 'mobx-react';
 import { User } from 'interfaces/user';
 import { InvalidCurrency } from 'redux/stateDefs/windowState';
-import { PodTileStore } from 'mobx/stores/podTile';
+import { PodTileStore } from 'mobx/stores/podTileStore';
 import { SignalRManager } from 'redux/signalR/signalRManager';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 

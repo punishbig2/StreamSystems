@@ -29,11 +29,6 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   };
   if (props.data === null) return null;
   return (
-    <Table
-      columns={columns(props.onCancelOrder)}
-      scrollable={false}
-      renderRow={renderRow}
-      rows={props.data}
-    />
+    <Table columns={columns(props.onCancelOrder)} scrollable={false} renderRow={renderRow} rows={props.data}/>
   );
 };

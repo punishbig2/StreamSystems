@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
-import store from 'mobx/stores/messages';
+import store from 'mobx/stores/messagesStore';
 import { getMessagePrice } from 'messageUtils';
 
 interface OwnProps {

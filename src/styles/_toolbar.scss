@@ -37,7 +37,7 @@
       }
     }
 
-    button {
+    button, .MuiInputBase-root {
       line-height: 2;
       border: none;
       background-color: $primary-color;
@@ -71,6 +71,8 @@
     }
 
     .broker-buttons {
+      display: flex;
+      align-items: center;
       margin: 0 0 0 auto;
 
       .MuiFormControl-root .MuiFormControlLabel-label {

@@ -3,6 +3,7 @@ import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { $$ } from 'utils/stringPaster';
 import { MessageBlotterActions, BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import { getCellWidth } from 'components/Table/helpers';
+import { DarkPool } from 'interfaces/w';
 
 export enum BlotterRowTypes {
   Normal,
@@ -21,10 +22,12 @@ interface Props {
   containerWidth: number;
 }
 
-const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, executed: boolean): string => {
+const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, executed: boolean, isDarkPool: boolean): string => {
   const classes: string[] = [baseClassName];
   if (executed)
     classes.push('flash');
+  if (isDarkPool)
+    classes.push('dark-pool');
   switch (rowType) {
     case BlotterRowTypes.Normal:
       classes.push('normal');
@@ -79,8 +82,9 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   };
   if (!row)
     return null;
+  const isDarkPool: boolean = row.ExDestination === DarkPool;
   return (
-    <div className={getClassFromRowType('tr', props.type, executed)} id={row.id} key={row.id}>
+    <div className={getClassFromRowType('tr', props.type, executed, isDarkPool)} id={row.id} key={row.id}>
       {columns.map(columnMapper)}
     </div>
   );

@@ -1,18 +1,14 @@
 import { Cell } from 'components/Table/Cell';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { RowFunctions } from 'components/PodTile/rowFunctions';
-import { PodRowStatus } from 'interfaces/podRow';
-import React, { useReducer, Reducer } from 'react';
-import { RowState } from 'redux/stateDefs/rowState';
-import { FXOAction } from 'redux/fxo-action';
-import { createAction } from 'redux/actionCreator';
-import { createRow } from 'components/PodTile/Row/helpers/emptyRowCreator';
-import { State, ActionTypes, reducer } from 'components/PodTile/Row/reducer';
+import React, { useState } from 'react';
 import { useOrderActions } from 'components/PodTile/Row/hooks/useOrderActions';
 import { useWListener } from 'components/PodTile/Row/hooks/useWListener';
 import { usePropsRowOverwrite } from 'components/PodTile/Row/hooks/usePropsRowOverwrite';
-import { useActionDispatcher } from 'hooks/useActionDispatcher';
 import { getCellWidth } from 'components/Table/helpers';
+import { PodRowStore } from 'mobx/stores/podRowStore';
+import { observer } from 'mobx-react';
+import { PodRowStatus } from 'interfaces/podRow';
 
 interface OwnProps {
   id: string;
@@ -27,52 +23,46 @@ interface OwnProps {
   [key: string]: any;
 }
 
-const Row = (props: OwnProps & RowState & RowFunctions) => {
+type Props = OwnProps & RowFunctions;
+
+export const Row: React.FC<Props> = observer((props: Props) => {
+  const [store] = useState(new PodRowStore(props.currency, props.strategy, props.tenor));
+
   const { id, columns, row, totalWidth, containerWidth, ...rowProps } = props;
   const { user } = rowProps;
   // Three identifying props
   const { currency, strategy, tenor, connected } = props;
-  // Internal row state
-  const initialState: State = { internalRow: createRow(currency, strategy, tenor) };
-  // Internal row reducer
-  const [state, dispatch] = useReducer<Reducer<State, FXOAction<ActionTypes>>>(reducer, initialState);
-  // Internal row object (it starts as a copy of the original object)
-  const { internalRow } = state;
-  const { status } = internalRow;
+  const { internalRow } = store;
   const classes: string[] = ['tr'];
 
-  useActionDispatcher<FXOAction<ActionTypes>>([
-    useWListener(currency, strategy, tenor, user, connected),
-    usePropsRowOverwrite(row),
-    useOrderActions(currency, strategy, tenor, user, connected, internalRow),
-  ], dispatch);
+  useWListener(currency, strategy, tenor, user, connected, store);
+  usePropsRowOverwrite(row, store);
+  useOrderActions(currency, strategy, tenor, user, connected, internalRow, store);
 
-  const onRowStatusChange = (status: PodRowStatus) => {
-    dispatch(createAction<ActionTypes>(ActionTypes.SetRowStatus, status));
-  };
-
-  if (status !== PodRowStatus.Normal) {
+  if (internalRow.status !== PodRowStatus.Normal)
     classes.push('error');
+  try {
+    return (
+      <div className={classes.join(' ')} data-row-number={props.rowNumber}>
+        {columns.map((column: ColumnSpec, index: number) => {
+          const width: string = getCellWidth(column.width, totalWidth, containerWidth);
+          const name: string = column.name;
+          return (
+            <Cell key={name}
+                  render={column.render}
+                  width={width}
+                  colNumber={index}
+                  className={column.className}
+                  rowStore={store}
+                  {...rowProps}
+                  {...internalRow}/>
+          );
+        })}
+      </div>
+    );
+  } catch (error) {
+    console.log(error);
+    return null;
   }
+});
 
-  return (
-    <div className={classes.join(' ')} data-row-number={props.rowNumber}>
-      {columns.map((column: ColumnSpec, index: number) => {
-        const width: string = getCellWidth(column.width, totalWidth, containerWidth);
-        const name: string = column.name;
-        return (
-          <Cell key={name}
-                render={column.render}
-                width={width}
-                colNumber={index}
-                onRowStatusChange={onRowStatusChange}
-                className={column.className}
-                {...rowProps}
-                {...internalRow}/>
-        );
-      })}
-    </div>
-  );
-};
-
-export { Row };

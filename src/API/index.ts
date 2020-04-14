@@ -261,7 +261,15 @@ export class API {
     return result;
   }
 
-  static async getDarkPoolSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
+  static async getDarkPoolSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
+    if (!symbol || !strategy)
+      return null;
+    const url: string = API.getRawUrl(API.DarkPool, 'tiletobsnapshot', { symbol, strategy });
+    // Execute the query
+    return get<{ [k: string]: W } | null>(url);
+  }
+
+  static async getDarkPoolTenorSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
     if (!symbol || !strategy || !tenor)
       return null;
     const url: string = API.getRawUrl(API.DarkPool, 'snapshot', { symbol, strategy, tenor });

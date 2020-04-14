@@ -1,6 +1,7 @@
 import { PodTable } from 'interfaces/podTable';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { User } from 'interfaces/user';
+import { PodRowStore } from 'mobx/stores/podRowStore';
 
 export type PodRowProps = PodRow & {
   depths: { [key: string]: PodTable };
@@ -13,8 +14,8 @@ export type PodRowProps = PodRow & {
   status: PodRowStatus;
   connected: boolean;
   user: User;
+  rowStore: PodRowStore;
   // Event handlers
   onTenorSelected: (tenor: string) => void;
-  onRowStatusChange: (status: PodRowStatus) => void;
 };
 

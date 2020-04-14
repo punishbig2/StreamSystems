@@ -11,12 +11,13 @@ import { Message } from 'interfaces/message';
 import { TradeConfirmation } from 'components/TradeConfirmation';
 import { CurrencyGroups } from 'interfaces/user';
 import { observer } from 'mobx-react';
-import store, { WorkspaceDef } from 'mobx/stores/workarea';
+import store, { WorkspaceDef } from 'mobx/stores/workareaStore';
 import { create } from 'mobx-persist';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
 
-import messages from 'mobx/stores/messages';
+import messages from 'mobx/stores/messagesStore';
 import { MessageBox } from 'components/MessageBox';
+import { Toast } from 'components/Toast';
 
 const Workarea: React.FC = (): ReactElement | null => {
   const { recentExecutions } = store;
@@ -36,7 +37,7 @@ const Workarea: React.FC = (): ReactElement | null => {
           return;
         store.initialize(useremail);
       });
-  }, [store]);
+  }, []);
 
   useEffect(() => {
     if (!user)
@@ -144,7 +145,7 @@ const Workarea: React.FC = (): ReactElement | null => {
       return (
         <div className={'loading-window'}>
           <div className={'spinner'}/>
-          <h2>{store.message}</h2>
+          <h2>{store.loadingMessage}</h2>
         </div>
       );
     case WorkareaStatus.Ready:
@@ -155,6 +156,7 @@ const Workarea: React.FC = (): ReactElement | null => {
           <ModalWindow render={renderLoadingPopup} visible={store.isCreatingWorkspace}/>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
           <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>
+          <Toast message={store.errorMessage} onDismiss={() => store.setError(null)}/>
         </>
       );
     default:

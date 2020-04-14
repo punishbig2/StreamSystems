@@ -1,17 +1,13 @@
 import { useEffect } from 'react';
-import { createAction } from 'redux/actionCreator';
-import { ActionTypes } from 'components/PodTile/Row/reducer';
-import { FXOAction } from 'redux/fxo-action';
-import { useAction } from 'hooks/useAction';
+import { PodRowStore } from 'mobx/stores/podRowStore';
+import { PodRow } from 'interfaces/podRow';
 
-export const usePropsRowOverwrite = (row: { [key: string]: any }) => {
-  const [action, dispatch] = useAction<FXOAction<ActionTypes>>();
+export const usePropsRowOverwrite = (row: PodRow, store: PodRowStore) => {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     if (row) {
       // In case of passing the row statically do this
-      dispatch(createAction<ActionTypes>(ActionTypes.SetRow, row));
+      store.setInternalRow(row);
     }
-  }, [row, dispatch]);
-  return action;
+  }, [row, store]);
 };

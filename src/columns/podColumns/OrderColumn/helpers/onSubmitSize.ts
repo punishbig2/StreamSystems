@@ -5,6 +5,8 @@ import { OrderStore } from 'mobx/stores/orderStore';
 import { API } from 'API';
 import { User } from 'interfaces/user';
 
+export const SizeTooSmallError = new Error('size is too small');
+
 export const onSubmitSize = (store: OrderStore) =>
   async (input: HTMLInputElement) => {
     const user: User | null = store.user;
@@ -24,11 +26,8 @@ export const onSubmitSize = (store: OrderStore) =>
       // Get the desired new size
       const size: number | null = store.editedSize;
       if (size !== null && size < store.minimumSize) {
-        // onRowStatusChange(PodRowStatus.SizeTooSmall);
-        // Emit a global message to show an error
-        // dispatchWorkspaceError(`Size cannot be smaller than ${minimumSize}`);
         // Do not create the order in this case
-        return;
+        throw SizeTooSmallError;
       }
       // Update the order's size
       order.size = store.editedSize;

@@ -12,9 +12,11 @@ import latam from 'groups/latam';
 import strings from 'locales';
 import { SignalRManager } from 'redux/signalR/signalRManager';
 import { randomID } from 'randomID';
-import { WindowDef } from 'mobx/stores/workspace';
+import { WindowDef } from 'mobx/stores/workspaceStore';
 import { WindowTypes } from 'redux/constants/workareaConstants';
 import { PresetWindow } from 'groups/presetWindow';
+import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
+import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
 
 export interface WorkspaceDef {
   id: string;
@@ -35,8 +37,9 @@ export class WorkareaStore {
   @observable recentExecutions: Message[] = [];
   @observable userProfile: UserWorkspace = defaultProfile;
   @observable user: User | null = null;
-  @observable message?: string;
+  @observable loadingMessage?: string;
   @observable isCreatingWorkspace: boolean = false;
+  @observable errorMessage: string | null = null;
 
   private static getMapForCurrencyGroup(group: CurrencyGroups) {
     switch (group) {
@@ -138,16 +141,16 @@ export class WorkareaStore {
     // Start the loading mode
     this.status = WorkareaStatus.Initializing;
     // Load currencies
-    this.message = strings.LoadingSymbols;
+    this.loadingMessage = strings.LoadingSymbols;
     this.currencies = await API.getSymbols();
     // Load strategies
-    this.message = strings.LoadingStrategies;
+    this.loadingMessage = strings.LoadingStrategies;
     this.strategies = await API.getProducts();
     // Load strategies
-    this.message = strings.LoadingTenors;
+    this.loadingMessage = strings.LoadingTenors;
     this.tenors = await API.getTenors();
     // Now load users information
-    this.message = strings.LoadingUserData;
+    this.loadingMessage = strings.LoadingUserData;
     const users: any[] = await API.getUsers();
     // Find said user in the users array
     const user: User | undefined = users.find((each: User) => each.email === email);
@@ -155,7 +158,7 @@ export class WorkareaStore {
       this.status = WorkareaStatus.UserNotFound;
     } else {
       this.user = user;
-      this.message = strings.EstablishingConnection;
+      this.loadingMessage = strings.EstablishingConnection;
       // Update signal R manager
       signalRManager.setUser(user);
       // Connect the signal R client
@@ -195,9 +198,20 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public addRecentExecution(message: Message) {
+  public addRecentExecution(loadingMessage: Message) {
     const { recentExecutions } = this;
-    recentExecutions.push(message);
+    recentExecutions.push(loadingMessage);
+  }
+
+  @action.bound
+  public setError(error: Error | null) {
+    if (error === InvertedMarketsError) {
+      this.errorMessage = 'Inverted markets not allowed';
+    } else if (error === SizeTooSmallError) {
+      this.errorMessage = 'You cannot create orders with less than the minimum size';
+    } else {
+      this.errorMessage = null;
+    }
   }
 }
 

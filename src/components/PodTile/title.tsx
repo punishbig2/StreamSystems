@@ -4,7 +4,7 @@ import React, { ReactElement } from 'react';
 import { Select } from 'components/Select';
 import { $$ } from 'utils/stringPaster';
 import { CCYGroups } from 'data/groups';
-import { PodTileStore } from 'mobx/stores/podTile';
+import { PodTileStore } from 'mobx/stores/podTileStore';
 import { observer } from 'mobx-react';
 
 interface Props {

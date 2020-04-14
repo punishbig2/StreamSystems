@@ -8,7 +8,6 @@ import { STRM } from 'redux/stateDefs/workspaceState';
 import { PodTable } from 'interfaces/podTable';
 import { onNavigate } from 'components/PodTile/helpers';
 import { ModalWindow } from 'components/ModalWindow';
-import { PodRowStatus } from 'interfaces/podRow';
 import { getOrder } from 'columns/podColumns/OrderColumn/helpers/getOrder';
 import { ArrowDirection } from 'interfaces/w';
 import { User } from 'interfaces/user';
@@ -21,6 +20,8 @@ import { SignalRManager } from 'redux/signalR/signalRManager';
 import { MiniDOB } from 'components/Table/CellRenderers/Price/miniDob';
 import { shouldOpenOrderTicket } from 'columns/podColumns/OrderColumn/helpers/shoulOpenOrderTicket';
 import { onSubmitSize } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
+import { PodRowStore } from 'mobx/stores/podRowStore';
+import workareaStore from 'mobx/stores/workareaStore';
 
 export enum PodTableType {
   Pod, Dob
@@ -35,22 +36,15 @@ type OwnProps = {
   user: User;
   minimumSize: number;
   defaultSize: number;
-  onRowStatusChange: (status: PodRowStatus) => void;
   tableType: PodTableType;
+  rowStore: PodRowStore;
 }
-
-/*const getPriceIfApplies = (order: Order | undefined): number | undefined => {
-  if (order === undefined)
-    return undefined;
-  if ((order.status & OrderStatus.SameBank) !== 0)
-    return order.price as number;
-  return undefined;
-};*/
 
 export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
   const { type, personality, tableType } = props;
+  const { rowStore } = props;
   // Get the order from the row
   const order: Order = getOrder(type, props.ofr, props.bid);
   // Create size submission listener
@@ -101,6 +95,16 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
     store.setOrderTicket({ ...order, type });
   };
 
+  const errorHandler = (fn: (...args: any[]) => Promise<void> | void) => {
+    return (...args: any[]) => {
+      try {
+        return fn(...args);
+      } catch (error) {
+        workareaStore.setError(error);
+        rowStore.setError(error);
+      }
+    };
+  };
   const readOnly: boolean = user.isbroker && props.personality === STRM;
   const sizeCell: ReactElement = (
     <Size key={2}
@@ -114,7 +118,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
           onBlur={resetSize}
           onNavigate={onNavigate}
           onChange={onChangeSize}
-          onSubmit={onSubmitSize(store)}/>
+          onSubmit={errorHandler(onSubmitSize(store))}/>
   );
 
   const items: ReactElement[] = [
@@ -129,7 +133,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
       arrow={(store.status & OrderStatus.HasDepth) ? order.arrowDirection : ArrowDirection.None}
       tooltip={renderTooltip}
       onDoubleClick={onDoubleClick}
-      onSubmit={onSubmitPrice(store)}
+      onSubmit={errorHandler(onSubmitPrice(store))}
       onNavigate={onNavigate}/>,
   ];
 

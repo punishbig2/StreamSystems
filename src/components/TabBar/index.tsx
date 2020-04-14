@@ -5,7 +5,7 @@ import config from 'config';
 import React, { ReactElement, useState, useRef } from 'react';
 import { Menu, MenuItem } from '@material-ui/core';
 import { CurrencyGroups } from 'interfaces/user';
-import { WorkspaceDef } from 'mobx/stores/workarea';
+import { WorkspaceDef } from 'mobx/stores/workareaStore';
 
 interface Props {
   entries: { [k: string]: WorkspaceDef };

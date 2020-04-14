@@ -1,3 +1,5 @@
+$spinner-size: $table-row-height - 6;
+
 .table {
   font-family: $table-font-family;
   font-size: $table-font-size;
@@ -43,6 +45,7 @@
 
         &.sortable {
           .sort-indicator {
+            pointer-events: all;
             position: absolute;
             top: 0;
             bottom: 0;
@@ -143,6 +146,20 @@
       font-family: inherit;
       font-size: inherit;
 
+      &.dark-pool {
+        background-color: rgba(green, 0.15);
+      }
+
+      &.error {
+        background-color: rgba($text-color-red, 0.10);
+
+        .td {
+          .error-cell {
+            color: $text-color-red;
+          }
+        }
+      }
+
       &:last-child {
         border-bottom: 1px solid $table-border-color;
       }
@@ -181,6 +198,27 @@
           pointer-events: all;
         }
 
+        .ref {
+          color: $text-color-red;
+          width: $red-x-size;
+          height: $red-x-size;
+          border-radius: $red-x-size / 2;
+          line-height: $red-x-size;
+          margin: ($table-row-height - $red-x-size) / 2 auto;
+          text-align: center;
+
+          i {
+            display: block;
+            font-size: smaller;
+            line-height: inherit;
+          }
+
+          &:hover {
+            color: white;
+            background-color: $text-color-red;
+          }
+        }
+
         .firm {
           color: $text-color-green;
           font-size: $table-font-size - 3;
@@ -216,6 +254,22 @@
 
         .size-layout {
           position: relative;
+
+          &.busy {
+            background-image: url('/images/size-spinner.gif');
+            background-size: $spinner-size;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-origin: padding-box;
+
+            input {
+              color: transparent;
+            }
+
+            .times, .chevron {
+              display: none;
+            }
+          }
 
           &:not(.cancelled) {
             .times {
@@ -406,8 +460,6 @@
           &.price-layout {
             position: relative;
             font-weight: $table-font-weight + 200;
-
-            $spinner-size: $table-row-height - 6;
 
             &.busy {
               input {

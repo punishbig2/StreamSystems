@@ -32,7 +32,6 @@ const DarkPoolColumnComponent = (props: Props) => {
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [status, setStatus] = useState<Status>(Status.Normal);
   const isBroker: boolean = user.isbroker;
-
   const [value, setValue] = useState<number | null>(darkPrice);
 
   useEffect(() => {
@@ -239,3 +238,4 @@ export const DarkPoolColumn = (): ColumnSpec => ({
   template: '999999.99',
   width: 5,
 });
+

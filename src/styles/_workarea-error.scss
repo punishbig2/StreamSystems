@@ -34,3 +34,35 @@
     color: crimson;
   }
 }
+
+$toast-size: 32px;
+
+.toast {
+  position: fixed;
+  width: 30%;
+  bottom: $window-footer-size + 5;
+  left: 35%;
+  padding: 0 16px;
+  height: $toast-size;
+  line-height: $toast-size;
+  color: white;
+  font-weight: 600;
+  background-color: $text-color-red;
+  border-radius: 4px;
+  box-shadow: 0 3px 8px -4px black;
+
+  .button {
+    position: absolute;
+    width: $toast-size;
+    height: $toast-size;
+    top: 0;
+    right: 0;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    transition: background-color 0.25s;
+    text-align: center;
+    &:hover {
+      background-color: darken($text-color-red, 5%);
+    }
+  }
+}

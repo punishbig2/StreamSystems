@@ -1,35 +1,31 @@
 import { useEffect } from 'react';
-import { ActionTypes } from 'components/PodTile/Row/reducer';
 import { Order, OrderStatus } from 'interfaces/order';
-import { createAction } from 'redux/actionCreator';
 import { createSymbolStrategySideListener, createSymbolStrategyTenorListener } from 'orderEvents';
 import { Sides } from 'interfaces/sides';
-import { FXOAction } from 'redux/fxo-action';
-import { useAction } from 'hooks/useAction';
 import { User } from 'interfaces/user';
+import { PodRowStore } from 'mobx/stores/podRowStore';
 
 type RowType = { [key: string]: any };
-export const useOrderActions = (symbol: string, strategy: string, tenor: string, user: User, connected: boolean, row: RowType) => {
-  const [action, dispatch] = useAction<FXOAction<ActionTypes>>();
+export const useOrderActions = (symbol: string, strategy: string, tenor: string, user: User, connected: boolean, row: RowType, store: PodRowStore) => {
   useEffect(() => {
     if (connected) {
       const onNewOrder = (order: Order) => {
-        dispatch(createAction<ActionTypes>(ActionTypes.ReplaceOrder, order));
+        store.replaceOrder(order);
       };
       const onStatusChange = (status: OrderStatus) =>
         (order: Order) => {
-          dispatch(createAction<ActionTypes>(ActionTypes.ReplaceOrder, {
+          store.replaceOrder({
             ...order,
             status: order.status | status,
-          }));
+          });
         };
       const setCancelStatus = (order: Order) => {
         if (order.price === null || order.isCancelled() || !order.isOwnedByCurrentUser(user))
           return;
-        dispatch(createAction<ActionTypes>(ActionTypes.ReplaceOrder, {
+        store.replaceOrder({
           ...order,
           status: order.status | OrderStatus.BeingCancelled,
-        }));
+        });
       };
       const onSellCancelAll = () => setCancelStatus(row.ofr);
       const onBuyCancelAll = () => setCancelStatus(row.bid);
@@ -45,6 +41,5 @@ export const useOrderActions = (symbol: string, strategy: string, tenor: string,
         listeners.forEach((cleanup: () => void) => cleanup());
       };
     }
-  }, [symbol, strategy, tenor, connected, row, dispatch, user]);
-  return action;
+  }, [symbol, strategy, tenor, connected, row, user, store]);
 };

@@ -8,7 +8,7 @@ import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import { Message, ExecTypes } from 'interfaces/message';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { STRM } from 'redux/stateDefs/workspaceState';
-import store from 'mobx/stores/messages';
+import store from 'mobx/stores/messagesStore';
 import { observer } from 'mobx-react';
 
 interface OwnProps {

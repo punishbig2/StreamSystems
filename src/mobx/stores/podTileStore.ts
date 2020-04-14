@@ -18,7 +18,7 @@ export class PodTileStore {
 
   @observable type: WindowTypes = WindowTypes.Empty;
   @observable title: string = '';
-  @observable rows: { [tenor: string]: PodRow } = {};
+  @observable.ref rows: { [tenor: string]: PodRow } = {};
   @observable loading: boolean = false;
 
   @observable isRunWindowVisible: boolean = false;
@@ -44,13 +44,16 @@ export class PodTileStore {
   }
 
   @action.bound
-  private initializeFromSnapshot({ snapshot, user }: { snapshot: { [k: string]: W } | null, user: User }) {
+  private initializeFromSnapshot(snapshot: { [k: string]: W }, darkpool: { [k: string]: W }, user: User) {
+    const signalRManger: SignalRManager = SignalRManager.getInstance();
     if (snapshot !== null) {
       const keys: string[] = Object.keys(snapshot);
       // Sort by tenor
       keys.sort((t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2));
       // Update the rows object
       this.rows = keys.reduce((table: PodTable, tenor: string): PodTable => {
+        signalRManger.handleWMessage({ ...darkpool[tenor], ExDestination: 'DP' });
+        // Now create the row in the table
         table[tenor] = toPodRow(snapshot[tenor], user);
         // Cache this in the signal R manager object
         SignalRManager.addToCache(snapshot[tenor], user);
@@ -60,11 +63,13 @@ export class PodTileStore {
     }
   }
 
-  public initialize(currency: string, strategy: string, user: User) {
+  public async initialize(currency: string, strategy: string, user: User) {
     this.loading = true;
-    API.getTOBSnapshot(currency, strategy)
-      .then((snapshot: { [k: string]: W } | null) => ({ snapshot, user }))
-      .then(this.initializeFromSnapshot);
+    const darkpool: { [k: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
+    const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(currency, strategy);
+    if (snapshot === null || darkpool === null)
+      return;
+    this.initializeFromSnapshot(snapshot, darkpool, user);
   }
 
   @action.bound

@@ -3,7 +3,7 @@ import { UserProfileModalTypes, User } from 'interfaces/user';
 import { UserProfileForm } from 'components/Workspace/UserProfile/form';
 import { ErrorBox } from 'components/ErrorBox';
 import { MessageBox } from 'components/MessageBox';
-import store from 'mobx/stores/userProfile';
+import store from 'mobx/stores/userProfileStore';
 import { observer } from 'mobx-react';
 
 interface OwnProps {
@@ -30,7 +30,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
 
   useEffect(() => {
     store.loadUserProfile(user.email);
-  }, [user.email, store]);
+  }, [user.email]);
 
   const onChange = (name: string, value: any) => {
     store.setFieldValue(name, value);

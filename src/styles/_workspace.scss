@@ -18,6 +18,10 @@
     position: absolute;
     background-color: white;
 
+    &.fixed:hover {
+      cursor: default;
+    }
+
     &[data-front-tile] {
       z-index: 1;
     }
