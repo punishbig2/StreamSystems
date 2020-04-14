@@ -318,9 +318,12 @@ export class API {
   }
 
   static async getMessagesSnapshot(useremail: string, timestamp: number): CancellablePromise<Message[]> {
-    return await get<Message[]>(
-      API.getUrl(API.Oms, 'messages', 'get', { timestamp }),
-    );
+    const query: any = { timestamp };
+    const darkpool: Message[] = await get<Message[]>(API.getUrl(API.DarkPool, 'messages', 'get', query));
+    const normal: Message[] = await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get', query));
+    const combined: Message[] = [...darkpool, ...normal];
+    combined.sort((m1: Message, m2: Message) => Number(m1.TransactTime) - Number(m2.TransactTime));
+    return combined;
   }
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): CancellablePromise<OrderMessage[]> {
@@ -383,8 +386,8 @@ export class API {
     return post<MessageResponse>(API.getUrl(API.DarkPool, 'all', 'cancel'), request);
   }
 
-  static async getDarkPoolMessages(request: any): CancellablePromise<any> {
-    return get<MessageResponse>(API.getUrl(API.DarkPool, 'messages', 'get'));
+  static async getDarkPoolMessages(useremail: string, timestamp: number): CancellablePromise<any> {
+    return get<MessageResponse>(API.getUrl(API.DarkPool, 'messages', 'get', { useremail, timestamp }));
   }
 
   static async getDarkPoolRunOrders(request: any): CancellablePromise<any> {

@@ -46,10 +46,14 @@ $spinner-size: $table-row-height - 6;
         &.sortable {
           .sort-indicator {
             pointer-events: all;
+            cursor: default;
             position: absolute;
             top: 0;
             bottom: 0;
             right: 6px;
+            &:hover {
+              color: $primary-color;
+            }
           }
         }
 
