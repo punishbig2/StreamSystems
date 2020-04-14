@@ -6,7 +6,7 @@ import { useDepthEmitter } from 'components/PodTile/hooks/useDepthEmitter';
 import { useInitializer } from 'components/PodTile/hooks/useInitializer';
 import { ActionTypes, reducer, State } from 'components/PodTile/reducer';
 import { Row } from 'components/PodTile/Row';
-import { Order } from 'interfaces/order';
+import { Order, OrderStatus } from 'interfaces/order';
 import { PodRow } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
 import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, CSSProperties } from 'react';
@@ -93,7 +93,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       Promise.all(
         entries.map(async (order: Order) => {
           const myOrder: Order | undefined = findMyOrder(order, user);
-          if (myOrder) {
+          if (myOrder && myOrder.orderId && ((myOrder.status & OrderStatus.Cancelled) === 0)) {
             await API.cancelOrder(myOrder, user);
           }
           await API.createOrder(order, personality, user, currency.minqty);

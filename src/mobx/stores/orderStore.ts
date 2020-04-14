@@ -78,7 +78,7 @@ export class OrderStore {
   @action.bound
   public async create() {
     // First cancel previous orders if any
-    if (this.baseSize !== null)
+    if ((this.status & OrderStatus.Cancelled) === 0)
       await this.cancel();
     // Now attempt to create the new order
     const { user, personality } = this;
@@ -116,7 +116,7 @@ export class OrderStore {
     const { user } = this;
     if (user !== null) {
       const order: Order | undefined = findMyOrder_(this.symbol, this.strategy, this.tenor, this.type, user);
-      if (!!order) {
+      if (!!order && !!order.orderId && !!order.size) {
         this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
         const response = await API.cancelOrder(order, user);
         if (response.Status === 'Success') {
