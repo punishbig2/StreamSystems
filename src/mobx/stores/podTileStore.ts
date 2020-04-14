@@ -70,6 +70,11 @@ export class PodTileStore {
     if (snapshot === null || darkpool === null)
       return;
     this.initializeFromSnapshot(snapshot, darkpool, user);
+    // Load depth
+    API.getSnapshot(currency, strategy)
+      .then((snapshot: { [k: string]: W } | null) => {
+        console.log(snapshot);
+      });
   }
 
   @action.bound

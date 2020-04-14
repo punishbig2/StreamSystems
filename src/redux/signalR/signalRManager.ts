@@ -391,28 +391,16 @@ export class SignalRManager<A extends Action = AnyAction> {
       case ExecTypes.PendingCancel:
         break;
       case ExecTypes.Filled:
-        if (ocoMode !== OCOModes.Disabled && message.Username === user.email) {
+        if (ocoMode !== OCOModes.Disabled && message.Username === user.email)
           API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
-        }
+        SignalRManager.removeFromCache(message.OrderID);
       // eslint-disable-next-line no-fallthrough
       case ExecTypes.PartiallyFilled:
-        if (ocoMode === OCOModes.PartialEx && message.Username === user.email) {
+        if (ocoMode === OCOModes.PartialEx && message.Username === user.email)
           API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
-        }
-        if (message.Username === user.email) {
-          // FIXME: this should not be working right now right?
-          // FIXME: to improve performance we should try to find a way to do this
-          //        in a single dispatch
-          // dispatch(createAction<any, A>(WorkareaActions.SetLastExecution, data));
-          // dispatch(createAction<any, A>(type));
-        }
-        // dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
-        // Execute after the system had time to update the state and hence
-        // create the row in the blotters
         workareaStore.addRecentExecution(message);
         break;
       default:
-        // dispatch(createAction<any, A>(MessageBlotterActions.Update, data));
         break;
     }
   };

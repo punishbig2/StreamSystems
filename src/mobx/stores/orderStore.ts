@@ -78,7 +78,8 @@ export class OrderStore {
   @action.bound
   public async create() {
     // First cancel previous orders if any
-    await this.cancel();
+    if (this.baseSize !== null)
+      await this.cancel();
     // Now attempt to create the new order
     const { user, personality } = this;
     const { price } = this;
