@@ -17,6 +17,8 @@
     flex-direction: column;
     position: absolute;
     background-color: white;
+    min-width: min-content;
+    min-height: $window-toolbar-size + $table-header-height + $table-row-height;
 
     &.fixed:hover {
       cursor: default;

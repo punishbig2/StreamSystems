@@ -51,6 +51,7 @@ $spinner-size: $table-row-height - 6;
             top: 0;
             bottom: 0;
             right: 6px;
+
             &:hover {
               color: $primary-color;
             }
@@ -506,17 +507,30 @@ $spinner-size: $table-row-height - 6;
     }
   }
 
+  &:hover {
+    .scrollbar-container {
+      pointer-events: all;
+      opacity: 0.25;
+    }
+  }
+
   .scrollbar-container {
+    transition: opacity 0.25s;
     position: absolute;
     display: block;
     width: 16px;
     background-color: transparent;
     box-sizing: content-box;
-    pointer-events: all;
-
-    left: 100%;
+    pointer-events: none;
+    opacity: 0;
+    right: 0;
     top: 0;
     bottom: -4px;
+
+    &.grabbed {
+      pointer-events: all;
+      opacity: 1;
+    }
 
     &.hidden {
       display: none;
@@ -531,10 +545,6 @@ $spinner-size: $table-row-height - 6;
       border-radius: 8px;
       background-color: black;
       cursor: default;
-
-      &:hover {
-        background-color: $primary-color;
-      }
     }
   }
 

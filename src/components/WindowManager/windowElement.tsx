@@ -187,7 +187,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   }, [containerRef, setMoveHandle, fixed]);
 
   useEffect(() => {
-    if (fixed || store.minimized)
+    if (fixed || store.minimized || !store.fitToContent)
       return;
     const { current: container } = containerRef;
     if (container === null)
@@ -196,9 +196,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     if (content === null)
       return;
     const observer = new MutationObserver(() => {
-      if (store.fitToContent) {
-        adjustToContent(container, area);
-      }
+      adjustToContent(container, area);
     });
     // Observe changes
     observer.observe(content, { childList: true, subtree: true });

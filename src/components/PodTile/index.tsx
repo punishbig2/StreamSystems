@@ -186,7 +186,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     }
     const dobRows = !!state.tenor ? { ...state.depths[state.tenor] } : {};
     return (
-      <div className={'pod-tile-content'}>
+      <div className={'pod-tile-content' + (props.scrollable ? ' scrollable' : '')}>
         <div className={'pod'} data-showing-tenor={!!state.tenor}>
           <Table scrollable={!!props.scrollable} columns={tobColumns} rows={rows} renderRow={renderToBRow}/>
         </div>

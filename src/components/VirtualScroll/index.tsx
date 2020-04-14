@@ -73,8 +73,21 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       }
     };
 
+    const setGrabbed = (grabbed: boolean) => {
+      if (scrollbar === null)
+        return;
+      const { classList } = scrollbar;
+      if (grabbed) {
+        classList.add('grabbed');
+      } else {
+        classList.remove('grabbed');
+      }
+    };
+
     const onGrabHandle = (event: MouseEvent) => {
+      setGrabbed(true);
       const onMouseUp = () => {
+        setGrabbed(false);
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
       };
