@@ -159,4 +159,4 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
   );
 });
 
-Table.whyDidYouRender = true;
+// Table.whyDidYouRender = true;
