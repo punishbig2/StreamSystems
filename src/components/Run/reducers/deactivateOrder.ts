@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 

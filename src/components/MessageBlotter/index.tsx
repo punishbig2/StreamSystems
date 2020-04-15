@@ -6,7 +6,7 @@ import { User } from 'interfaces/user';
 import React, { useMemo, ReactElement } from 'react';
 import { Message, ExecTypes } from 'interfaces/message';
 import { OrderTypes } from 'interfaces/mdEntry';
-import { STRM } from 'redux/stateDefs/workspaceState';
+import { STRM } from 'stateDefs/workspaceState';
 import store from 'mobx/stores/messagesStore';
 import { observer } from 'mobx-react';
 import workareaStore from 'mobx/stores/workareaStore';

@@ -1,6 +1,6 @@
 import { PriceActions } from 'components/Table/CellRenderers/Price/constants';
 import { State } from 'components/Table/CellRenderers/Price/state';
-import { FXOAction } from 'redux/actionCreator';
+import { FXOAction } from 'actionCreator';
 
 export const reducer = (state: State, action: FXOAction<PriceActions>): State => {
   const { type, data } = action;

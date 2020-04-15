@@ -1,5 +1,5 @@
 import { observable, action } from 'mobx';
-import { STRM } from 'redux/stateDefs/workspaceState';
+import { STRM } from 'stateDefs/workspaceState';
 import { persist, create } from 'mobx-persist';
 import { API } from 'API';
 import { randomID } from 'randomID';

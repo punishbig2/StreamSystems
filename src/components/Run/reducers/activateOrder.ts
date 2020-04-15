@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { PodRow } from 'interfaces/podRow';
 import { fillSpreadAndMid } from 'components/Run/reducers/fillSpreadAndMid';

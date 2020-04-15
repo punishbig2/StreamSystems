@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { Order, OrderStatus } from 'interfaces/order';
 import { PodRow } from 'interfaces/podRow';
 import { isValidUpdate } from 'components/Run/reducers/isValidUpdate';

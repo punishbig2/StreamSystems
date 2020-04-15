@@ -6,7 +6,7 @@ import { W } from 'interfaces/w';
 import { PodTable } from 'interfaces/podTable';
 import { toPodRow } from 'utils/dataParser';
 import { User } from 'interfaces/user';
-import { SignalRManager } from 'redux/signalR/signalRManager';
+import { SignalRManager } from 'signalR/signalRManager';
 import { tenorToNumber } from 'utils/dataGenerators';
 import { Order } from 'interfaces/order';
 import { MDEntry } from 'interfaces/mdEntry';

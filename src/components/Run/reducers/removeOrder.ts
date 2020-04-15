@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { PodTable } from 'interfaces/podTable';
 import { PodRow } from 'interfaces/podRow';
 import { clearIfMatches } from 'components/Run/reducers/clearIfMatches';

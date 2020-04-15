@@ -51,7 +51,7 @@ export class OrderStore {
     return 0;
   }
 
-  private getCreateSize() {
+  public getCreateSize() {
     if ((this.status & OrderStatus.Owned) === 0)
       return this.defaultSize !== undefined ? this.defaultSize : this.minimumSize;
     // If a size was submitted use it

@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { PodRowStatus, PodRow } from 'interfaces/podRow';
 
 export const updateRowStatus = (state: RunState, { id, status }: { id: string, status: PodRowStatus }): RunState => {

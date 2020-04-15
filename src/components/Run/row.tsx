@@ -4,7 +4,7 @@ import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { User } from 'interfaces/user';
 import React, { useEffect } from 'react';
-import { RowState } from 'redux/stateDefs/rowState';
+import { RowState } from 'stateDefs/rowState';
 import { getCellWidth } from 'components/Table/helpers';
 
 interface OwnProps {

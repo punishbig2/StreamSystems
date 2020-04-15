@@ -5,11 +5,11 @@ import { MessageResponse } from 'interfaces/messageResponse';
 import { User, UserPreferences } from 'interfaces/user';
 import { MessageTypes, W } from 'interfaces/w';
 import { getSideFromType, getCurrentTime } from 'utils';
-import { STRM } from 'redux/stateDefs/workspaceState';
+import { STRM } from 'stateDefs/workspaceState';
 import { $$ } from 'utils/stringPaster';
 import { Sides } from 'interfaces/sides';
 import config from 'config';
-import { defaultProfile } from 'redux/stateDefs/defaultUserProfile';
+import { defaultProfile } from 'stateDefs/defaultUserProfile';
 
 const toQuery = (obj: { [key: string]: string }): string => {
   const entries: [string, string][] = Object.entries(obj);

@@ -9,7 +9,7 @@ import { PodRow } from 'interfaces/podRow';
 import strings from 'locales';
 import React, { ReactElement, useEffect, useReducer, Reducer } from 'react';
 import { skipTabIndex, skipTabIndexAll } from 'utils/skipTab';
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { useRunInitializer } from 'components/Run/hooks/useRunInitializer';
 import { createEmptyTable } from 'components/Run/helpers/createEmptyTablei';
 import { getSelectedOrders } from 'components/Run/helpers/getSelectedOrders';
@@ -17,7 +17,7 @@ import { $$ } from 'utils/stringPaster';
 import { onPriceChange } from 'components/Run/helpers/onPriceChange';
 import { TabDirection } from 'components/NumericInput';
 import { User } from 'interfaces/user';
-import { createAction } from 'redux/actionCreator';
+import { createAction } from 'actionCreator';
 
 interface OwnProps {
   visible: boolean;

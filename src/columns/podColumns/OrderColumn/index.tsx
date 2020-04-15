@@ -4,7 +4,7 @@ import { OrderTypes } from 'interfaces/mdEntry';
 import { Size } from 'components/Table/CellRenderers/Size';
 import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import { Price } from 'components/Table/CellRenderers/Price';
-import { STRM } from 'redux/stateDefs/workspaceState';
+import { STRM } from 'stateDefs/workspaceState';
 import { onNavigate } from 'components/PodTile/helpers';
 import { ModalWindow } from 'components/ModalWindow';
 import { getOrder } from 'columns/podColumns/OrderColumn/helpers/getOrder';
@@ -81,16 +81,9 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     return <MiniDOB {...props} rows={siblingOrders} user={user}/>;
   };
 
-  const renderOrderTicket = orderTicketRenderer(
-    store.orderTicket,
-    minimumSize,
-    personality,
-    user,
-    store.unsetOrderTicket,
-  );
-
+  const renderOrderTicket = orderTicketRenderer(store);
   const onDoubleClick = () => {
-    if (!shouldOpenOrderTicket(order, props.personality, user))
+    if (!shouldOpenOrderTicket(order, personality, user))
       return;
     const type: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
     // Replace the inferred type to create an opposing order

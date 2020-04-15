@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { SignalRManager } from 'redux/signalR/signalRManager';
+import { SignalRManager } from 'signalR/signalRManager';
 import { W } from 'interfaces/w';
 import { PodRow } from 'interfaces/podRow';
 import { toPodRow } from 'utils/dataParser';

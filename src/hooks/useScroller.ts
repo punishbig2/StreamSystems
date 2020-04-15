@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { createAction } from 'redux/actionCreator';
+import { createAction } from 'actionCreator';
 
 const cancelEvent = (event: Event | React.SyntheticEvent) => {
   event.stopPropagation();

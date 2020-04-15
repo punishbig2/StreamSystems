@@ -1,7 +1,7 @@
 import { WindowManager } from 'components/WindowManager';
 import { User, UserPreferences } from 'interfaces/user';
 import React, { ReactElement, useEffect, useState } from 'react';
-import { STRM } from 'redux/stateDefs/workspaceState';
+import { STRM } from 'stateDefs/workspaceState';
 import { ModalWindow } from 'components/ModalWindow';
 import { UserProfileModal } from 'components/Workspace/UserProfile';
 import { ErrorBox } from 'components/ErrorBox';

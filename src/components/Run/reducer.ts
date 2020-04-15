@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { activateOrder } from 'components/Run/reducers/activateOrder';
 import { valueChange } from 'components/Run/reducers/valueChange';
 import { removeAll } from 'components/Run/reducers/removeAll';
@@ -9,7 +9,7 @@ import { activateRow } from 'components/Run/reducers/activateRow';
 import { updateOrder } from 'components/Run/reducers/updateOrder';
 import { updateSize } from 'components/Run/reducers/updateSize';
 import { updateRowStatus } from 'components/Run/reducers/updateRowStatus';
-import { FXOAction } from 'redux/actionCreator';
+import { FXOAction } from 'actionCreator';
 
 export enum RunActions {
   Mid = 'mid',

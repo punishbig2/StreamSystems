@@ -3,6 +3,7 @@ import { Message } from 'interfaces/message';
 import { getMessageSize, getMessagePrice } from 'messageUtils';
 import { UserPreferences, ExecSound } from 'interfaces/user';
 import { getSound } from 'beep-sound';
+import userProfileStore from 'mobx/stores/userProfileStore';
 
 interface OwnProps {
   trade: Message;
@@ -15,9 +16,10 @@ const sideClasses: { [key: string]: string } = {
   1: 'buy',
 };
 
-const playBeep = async (profile: UserPreferences) => {
+const playBeep = async (preferences: UserPreferences) => {
   const src: string = await (async () => {
-    const { execSound } = profile;
+    const { execSound } = preferences;
+    console.log(execSound);
     if (execSound === 'default') {
       return '/sounds/alert.wav';
     } else {
@@ -35,7 +37,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
   const { Side } = trade;
   const direction: string = Side.toString() === '1' ? 'from' : 'to';
   useEffect(() => {
-    playBeep(props.userProfile);
+    playBeep(userProfileStore.preferences);
   });
   return (
     <div className={[sideClasses[trade.Side], 'item'].join(' ')}>

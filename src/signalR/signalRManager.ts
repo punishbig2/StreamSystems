@@ -30,9 +30,6 @@ export enum SignalRActions {
   UnsubscribeFromMBMsg = 'UnsubscribeForMBMsg',
   SubscribeForDarkPoolPx = 'SubscribeForDarkPoolPx',
   UnsubscribeForDarkPoolPx = 'UnsubscribeForDarkPoolPx',
-  // Internal
-  Disconnected = 'SignalR.Disconnected',
-  Connected = 'SignalR.Connected'
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -55,9 +52,6 @@ export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  /*private onUpdateMarketDataListener: ((data: W) => void) | null = null;
-  private onUpdateDarkPoolPxListener: ((data: DarkPoolMessage) => void) | null = null;
-  private onUpdateMessageBlotterListener: ((data: Message) => void) | null = null;*/
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private user: User = {} as User;
   private recordedCommands: Command[] = [];
@@ -116,15 +110,15 @@ export class SignalRManager<A extends Action = AnyAction> {
     if (connection !== null) {
       // Install close handler
       connection.onclose((error?: Error) => {
+        if (error)
+          console.warn(error);
         if (this.onDisconnectedListener) {
           this.onDisconnectedListener(connection);
         }
       });
       connection.onreconnecting((error?: Error) => {
-        console.log(error);
       });
       // Install update market handler
-      // connection.on('updateMessageBlotter', this.synchronize(this.onUpdateMessageBlotter));
       connection.on('updateMarketData', this.synchronize(this.onUpdateMarketData));
       connection.on('updateDarkPoolPx', this.synchronize(this.onUpdateDarkPoolPx));
     }
@@ -141,99 +135,6 @@ export class SignalRManager<A extends Action = AnyAction> {
       setTimeout(() => fn(...args), 0);
     };
 
-  /*private onUpdateMessageBlotter = (message: string): void => {
-    const data: Message = JSON.parse(message);
-    if (data.OrdStatus === ExecTypes.Canceled || (data.OrdStatus === ExecTypes.Filled)) {
-      const type: OrderTypes = (() => {
-        switch (data.Side) {
-          case '1':
-            return OrderTypes.Bid;
-          case '2':
-            return OrderTypes.Ofr;
-          default:
-            return OrderTypes.Invalid;
-        }
-      })();
-      if (type !== OrderTypes.Invalid) {
-        const key: string = data.OrderID;
-        // Remove the order from the cache
-        delete SignalRManager.orderCache[key];
-      } else {
-        throw new Error('invalid orders cannot be cached, so no sense in removing them');
-      }
-    }
-    if (this.onUpdateMessageBlotterListener !== null) {
-      this.onUpdateMessageBlotterListener(data);
-    }
-  };
-  public static removeFromCache = (orderID: string) => {
-    delete SignalRManager.orderCache[orderID];
-  };
-
-  public static addToCache = (w: W, user: User) => {
-    const entries: MDEntry[] = w.Entries;
-    if (entries) {
-      const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
-      // This is stupid, but it shuts the compiler warning
-      if (orders.length > 0) {
-        SignalRManager.orderCache = orders.reduce((cache: { [id: string]: Order }, order: Order) => {
-          // Cancelled orders are just for "informational purposes"
-          if (order.size === null)
-            return cache;
-          if (order.orderId !== undefined)
-            cache[order.orderId] = order;
-          return cache;
-        }, SignalRManager.orderCache);
-      }
-    }
-  };
-
-  public static getDepth = (symbol: string, strategy: string, tenor: string, type: OrderTypes): Order[] => {
-    const { orderCache } = SignalRManager;
-    const values: Order[] = Object.values(orderCache);
-    const unsorted: Order[] = values.filter((order: Order) => {
-      return order.symbol === symbol
-        && order.strategy === strategy
-        && order.tenor === tenor
-        && order.type === type;
-    });
-    return unsorted.sort((o1: Order, o2: Order) => {
-      if (o1.type !== o2.type)
-        throw new Error('cannot sort orders of different types');
-      if (o1.type === OrderTypes.Bid) {
-        if (o1.price !== null && o2.price !== null) {
-          if (o1.price > o2.price) {
-            return o1.price - o2.price;
-          }
-        }
-        return o1.timestamp - o2.timestamp;
-      } else if (o1.type === OrderTypes.Ofr) {
-        if (o1.price !== null && o2.price !== null) {
-          if (o1.price < o2.price) {
-            return o1.price - o2.price;
-          }
-        }
-        return o1.timestamp - o2.timestamp;
-      } else {
-        throw new Error('invalid order types for sorting');
-      }
-    });
-  };
-
-  public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string): PodTable => {
-    const orders: Order[] = [
-      ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Bid),
-      ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Ofr),
-    ];
-    return orders.reduce(orderArrayToPodTableReducer, {});
-  };*/
-
-  /*public static getOrdersForUser = (email: string): Order[] => {
-    const { orderCache } = SignalRManager;
-    const values: Order[] = Object.values(orderCache);
-    return values.filter((order: Order) => order.user === email);
-  };*/
-
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
     this.handleWMessage(w);
@@ -241,7 +142,7 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private static isEmptyW(w: W): boolean {
     const entries: MDEntry[] = w.Entries;
-    if (entries.length < 2)
+    if (!entries || entries.length < 2)
       return true;
     return (!entries[0].MDEntryPx && !entries[1].MDEntryPx);
   };
@@ -273,21 +174,9 @@ export class SignalRManager<A extends Action = AnyAction> {
     document.dispatchEvent(new CustomEvent(type, { detail: message }));
   };
 
-  /*public setOnUpdateDarkPoolPxListener = (fn: (data: DarkPoolMessage) => void) => {
-    this.onUpdateDarkPoolPxListener = fn;
-  };*/
-
   public setOnConnectedListener = (fn: (connection: HubConnection) => void) => {
     this.onConnectedListener = fn;
   };
-
-  /*public setOnUpdateMarketDataListener = (fn: (data: W) => void) => {
-    this.onUpdateMarketDataListener = fn;
-  };
-
-  public setOnUpdateMessageBlotter = (fn: (data: any) => void) => {
-    this.onUpdateMessageBlotterListener = fn;
-  };*/
 
   public setOnDisconnectedListener = (fn: (error: any) => void) => {
     this.onDisconnectedListener = fn;
@@ -382,7 +271,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   private handleMessageActions = (message: Message) => {
-    const { profile: userProfile } = userProfileStore;
+    const { preferences: userProfile } = userProfileStore;
     const ocoMode: OCOModes = userProfile.oco;
     const { user } = this;
     switch (message.OrdStatus) {
@@ -421,19 +310,6 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
     return () => null;
   }
-
-  /*public loadDepth = (currency: string, strategy: string, user: User) => {
-    API.getSnapshot(currency, strategy)
-      .then((snapshot: { [k: string]: W } | null) => {
-        if (snapshot === null)
-          return;
-        const keys: string[] = Object.keys(snapshot);
-        keys.forEach((tenor: string) => {
-          // const w: W = snapshot[tenor];
-          // propagateDepth(w, user);
-        });
-      });
-  };*/
 }
 
 // Call this to initialize it

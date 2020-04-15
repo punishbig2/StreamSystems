@@ -1,7 +1,7 @@
 import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
 import { User, UserPreferences, CurrencyGroups } from 'interfaces/user';
-import { WorkareaStatus } from 'redux/stateDefs/workareaState';
+import { WorkareaStatus } from 'stateDefs/workareaState';
 import { observable, action, computed } from 'mobx';
 import { persist } from 'mobx-persist';
 import { API } from 'API';
@@ -9,13 +9,13 @@ import { API } from 'API';
 import latam from 'groups/latam';
 
 import strings from 'locales';
-import { SignalRManager } from 'redux/signalR/signalRManager';
+import { SignalRManager } from 'signalR/signalRManager';
 import { randomID } from 'randomID';
 import { WindowDef } from 'mobx/stores/workspaceStore';
 import { PresetWindow } from 'groups/presetWindow';
 import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
 import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
-import { defaultProfile } from 'redux/stateDefs/defaultUserProfile';
+import { defaultProfile } from 'stateDefs/defaultUserProfile';
 
 export enum WindowTypes {
   PodTile = 1,

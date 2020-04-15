@@ -6,7 +6,7 @@ import { WorkareaError } from 'components/Workarea/workareaError';
 import { Workspace } from 'components/Workspace';
 import strings from 'locales';
 import React, { ReactElement, useEffect, useState } from 'react';
-import { WorkareaStatus } from 'redux/stateDefs/workareaState';
+import { WorkareaStatus } from 'stateDefs/workareaState';
 import { Message } from 'interfaces/message';
 import { TradeConfirmation } from 'components/TradeConfirmation';
 import { CurrencyGroups } from 'interfaces/user';

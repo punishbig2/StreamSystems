@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { PodRow } from 'interfaces/podRow';
 
 export const deactivateAll = (state: RunState, rowID: string): RunState => {

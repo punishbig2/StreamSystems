@@ -25,7 +25,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    store.saveUserProfile(user.email, store.profile);
+    store.saveUserProfile(user.email, store.preferences);
   };
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
 
   switch (store.currentModalType) {
     case UserProfileModalTypes.Form:
-      return <UserProfileForm profile={store.profile}
+      return <UserProfileForm profile={store.preferences}
                               user={props.user}
                               original={store.initialProfile}
                               onChange={onChange}

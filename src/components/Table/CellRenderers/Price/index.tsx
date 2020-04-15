@@ -11,7 +11,7 @@ import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/
 import { OrderTypes } from 'interfaces/mdEntry';
 import { ArrowDirection } from 'interfaces/w';
 import React, { useCallback, useReducer, ReactElement, useState } from 'react';
-import { createAction } from 'redux/actionCreator';
+import { createAction } from 'actionCreator';
 import { priceFormatter } from 'utils/priceFormatter';
 import { useValueListener } from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';

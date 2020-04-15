@@ -2,12 +2,12 @@ import { API } from 'API';
 import { Globals } from 'golbals';
 import { UserPreferences, UserProfileStatus, UserProfileModalTypes } from 'interfaces/user';
 import { observable, action } from 'mobx';
-import { defaultProfile } from 'redux/stateDefs/defaultUserProfile';
+import { defaultProfile } from 'stateDefs/defaultUserProfile';
 
 export class UserProfileStore {
   @observable status: UserProfileStatus = UserProfileStatus.Initial;
   @observable currentModalType: UserProfileModalTypes = UserProfileModalTypes.Form;
-  @observable.ref profile: UserPreferences = defaultProfile;
+  @observable.ref preferences: UserPreferences = defaultProfile;
   public initialProfile: UserPreferences = defaultProfile;
 
   constructor() {
@@ -19,13 +19,13 @@ export class UserProfileStore {
     const profile: UserPreferences = await API.getUserProfile(email);
     // Update timezone
     Globals.timezone = profile.timezone;
-    this.profile = profile;
-    this.initialProfile = this.profile;
+    this.preferences = profile;
+    this.initialProfile = this.preferences;
   }
 
   @action.bound
   public resetInitialProfile() {
-    this.profile = this.initialProfile;
+    this.preferences = this.initialProfile;
   }
 
   @action.bound
@@ -35,7 +35,7 @@ export class UserProfileStore {
 
   @action.bound
   public setFieldValue(name: string, value: any) {
-    this.profile = { ...this.profile, [name]: value };
+    this.preferences = { ...this.preferences, [name]: value };
   }
 
   @action.bound
@@ -44,7 +44,7 @@ export class UserProfileStore {
     localStorage.setItem('userProfile', JSON.stringify(profile));
     await new Promise((resolve: () => void) => setTimeout(resolve, 1800));
     this.currentModalType = UserProfileModalTypes.Success;
-    this.profile = profile;
+    this.preferences = profile;
     this.initialProfile = profile;
   }
 }

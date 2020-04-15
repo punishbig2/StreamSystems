@@ -1,5 +1,5 @@
-import { MessageBlotterState } from 'redux/stateDefs/messageBlotterState';
-import { WorkareaState } from 'redux/stateDefs/workareaState';
+import { MessageBlotterState } from 'stateDefs/messageBlotterState';
+import { WorkareaState } from 'stateDefs/workareaState';
 import { UserProfileState } from 'interfaces/user';
 import { Message } from 'interfaces/message';
 

@@ -1,4 +1,4 @@
-import { RunState } from 'redux/stateDefs/runState';
+import { RunState } from 'stateDefs/runState';
 import { PodRow } from 'interfaces/podRow';
 import { fillSpreadAndMid } from 'components/Run/reducers/fillSpreadAndMid';
 import { activateOrderIfPossible } from 'components/Run/reducers/activateOrderIfPossible';

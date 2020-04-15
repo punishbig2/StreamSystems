@@ -1,18 +1,23 @@
 import React, { ReactElement } from 'react';
-import { Order } from 'interfaces/order';
+import { Order, OrderStatus } from 'interfaces/order';
 import { OrderTicket } from 'components/OrderTicket';
-import { User } from 'interfaces/user';
+import { OrderStore } from 'mobx/stores/orderStore';
 
-export const orderTicketRenderer = (orderTicket: any, minimumSize: number, personality: string, user: User, reset: () => void) =>
+export const orderTicketRenderer = (store: OrderStore) =>
   (): ReactElement | null => {
-    if (orderTicket === null)
+    if (store.orderTicket === null)
       return null;
     const onSubmit = (order: Order) => {
-      console.log(order, minimumSize, personality, user);
-      // Remove the internal order ticket
-      reset();
+      if (store.orderTicket) {
+        store.setOrder(order, order.status | OrderStatus.Owned);
+        store.create();
+      }
+      store.unsetOrderTicket();
     };
     return (
-      <OrderTicket order={orderTicket} minimumSize={minimumSize} onCancel={reset} onSubmit={onSubmit}/>
+      <OrderTicket order={store.orderTicket}
+                   minimumSize={store.minimumSize}
+                   onCancel={store.unsetOrderTicket}
+                   onSubmit={onSubmit}/>
     );
   };

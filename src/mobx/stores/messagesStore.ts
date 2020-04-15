@@ -2,7 +2,7 @@ import { Message } from 'interfaces/message';
 import { observable, action } from 'mobx';
 import { API } from 'API';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
-import { SignalRManager } from 'redux/signalR/signalRManager';
+import { SignalRManager } from 'signalR/signalRManager';
 
 export class MessagesStore {
   @observable entries: Message[] = [];
