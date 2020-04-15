@@ -30,6 +30,7 @@
 
     &.minimized {
       max-height: $title-bar-height;
+      min-height: 0;
       overflow: hidden;
 
       .window-buttons {

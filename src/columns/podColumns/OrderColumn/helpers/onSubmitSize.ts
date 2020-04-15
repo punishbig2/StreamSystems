@@ -1,15 +1,16 @@
 import { Order, OrderStatus } from 'interfaces/order';
-import { findMyOrder_ } from 'components/PodTile/helpers';
 import { skipTabIndexAll } from 'utils/skipTab';
 import { OrderStore } from 'mobx/stores/orderStore';
 import { API } from 'API';
 import { User } from 'interfaces/user';
+import workareaStore from 'mobx/stores/workareaStore';
 
 export const SizeTooSmallError = new Error('size is too small');
 
 export const onSubmitSize = (store: OrderStore) =>
   async (input: HTMLInputElement) => {
-    const user: User | null = store.user;
+    const { depth } = store;
+    const user: User | null = workareaStore.user;
     if (user === null)
       throw new Error('user cannot be null at this point');
     const personality: string | null = store.personality;
@@ -21,8 +22,12 @@ export const onSubmitSize = (store: OrderStore) =>
     }
     if (store.baseSize === null)
       store.resetAllSizes();
-    const order: Order | undefined = findMyOrder_(store.symbol, store.strategy, store.tenor, store.type, user);
-    if (!!order && !order.isCancelled()) {
+    const order: Order | undefined = depth.find((o: Order) => {
+      if (o.type !== store.type)
+        return false;
+      return o.user === user.email;
+    });
+    if (!!order && !order.size) {
       // Get the desired new size
       const size: number | null = store.editedSize;
       if (size !== null && size < store.minimumSize) {

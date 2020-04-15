@@ -1,5 +1,5 @@
 .message-detail {
-  max-width: 460px;
+  max-width: 520px;
   padding: 0 6px;
 
   .title {
@@ -14,7 +14,7 @@
     display: inline-block;
     background-color: lighten($foreground-color, 80%);
     padding: 2px;
-    width: 220px;
+    width: 250px;
     margin: 2px;
 
     &.sell {

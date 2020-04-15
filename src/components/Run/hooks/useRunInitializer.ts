@@ -39,9 +39,9 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           // Return the updated map
           return map;
         };
-        const currOrders: { [id: string]: Order } = SignalRManager.getOrdersForUser(email)
+        const currOrders: { [id: string]: Order } = {} /*SignalRManager.getOrdersForUser(email)
           .filter((order: Order) => order.symbol === symbol && order.strategy === strategy)
-          .reduce(orderReducer, {});
+          .reduce(orderReducer, {});*/
         const prevOrders: { [id: string]: Order } = messages
           .map((message: OrderMessage) => Order.fromOrderMessage(message, email))
           .map((order: Order) => ({ ...order, status: (order.status & ~OrderStatus.Active) | OrderStatus.Cancelled }))

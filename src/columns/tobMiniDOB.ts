@@ -3,11 +3,11 @@ import { Order } from 'interfaces/order';
 import { PodRow } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
 
-type Depths = { [key: string]: PodTable };
-export const getMiniDOBByType = (depths: Depths, tenor: string, type: OrderTypes): Order[] | undefined => {
-  if (depths === undefined || depths[tenor] === undefined)
+type Depth = { [key: string]: PodTable };
+export const getMiniDOBByType = (depth: Depth, tenor: string, type: OrderTypes): Order[] | undefined => {
+  if (depth === undefined || depth[tenor] === undefined)
     return undefined;
-  const items: PodRow[] = Object.values(depths[tenor]);
+  const items: PodRow[] = Object.values(depth[tenor]);
   const offers: Order[] = items.map(item => item.ofr);
   const bids: Order[] = items.map(item => item.bid);
   switch (type) {

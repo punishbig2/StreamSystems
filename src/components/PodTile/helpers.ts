@@ -1,12 +1,7 @@
-import { Order, OrderStatus } from 'interfaces/order';
-import { API } from 'API';
 import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 import { skipTabIndexAll } from 'utils/skipTab';
-import { User } from 'interfaces/user';
-import { SignalRManager } from 'redux/signalR/signalRManager';
-import { OrderTypes } from 'interfaces/mdEntry';
 
-export const findMyOrder_ = (currency: string, strategy: string, tenor: string, type: OrderTypes, user: User): Order | undefined => {
+/*export const findMyOrder_ = (currency: string, strategy: string, tenor: string, type: OrderTypes, user: User): Order | undefined => {
   const haystack: Order[] = SignalRManager.getDepth(currency, strategy, tenor, type);
   const found: Order | undefined = haystack
     .find((needle: Order) => {
@@ -55,7 +50,7 @@ export const cancelOrder = (order: Order, user: User) => {
   if (myOrder) {
     API.cancelOrder(myOrder, user);
   }
-};
+};*/
 
 export const onNavigate = (input: HTMLInputElement, direction: NavigateDirection) => {
   switch (direction) {

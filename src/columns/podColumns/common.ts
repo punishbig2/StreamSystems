@@ -1,10 +1,10 @@
-import { PodTable } from 'interfaces/podTable';
+import { Order } from 'interfaces/order';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { User } from 'interfaces/user';
 import { PodRowStore } from 'mobx/stores/podRowStore';
 
 export type PodRowProps = PodRow & {
-  depths: { [key: string]: PodTable };
+  depth: Order[];
   personality: string;
   defaultSize: number;
   minimumSize: number;

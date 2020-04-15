@@ -2,29 +2,22 @@ import createTOBColumns from 'columns/podColumns';
 import { ModalWindow } from 'components/ModalWindow';
 import { Run } from 'components/Run';
 import { Table } from 'components/Table';
-import { useDepthEmitter } from 'components/PodTile/hooks/useDepthEmitter';
 import { useInitializer } from 'components/PodTile/hooks/useInitializer';
-import { ActionTypes, reducer, State } from 'components/PodTile/reducer';
 import { Row } from 'components/PodTile/Row';
 import { Order, OrderStatus } from 'interfaces/order';
-import { PodRow } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
-import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, CSSProperties } from 'react';
-import { createAction } from 'redux/actionCreator';
+import React, { ReactElement, useCallback, useEffect, useMemo, CSSProperties } from 'react';
 import { API } from 'API';
 import { Currency } from 'interfaces/currency';
-import { findMyOrder } from 'components/PodTile/helpers';
 import { observer } from 'mobx-react';
 import { User } from 'interfaces/user';
 import { InvalidCurrency } from 'redux/stateDefs/windowState';
 import { PodTileStore } from 'mobx/stores/podTileStore';
 import { SignalRManager } from 'redux/signalR/signalRManager';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
-
-const initialState: State = {
-  depths: {},
-  tenor: null,
-};
+import { OrderTypes } from 'interfaces/mdEntry';
+import { priceFormatter } from 'utils/priceFormatter';
+import { PodRowStatus } from 'interfaces/podRow';
 
 interface OwnProps {
   id: string;
@@ -52,9 +45,7 @@ const getCurrencyFromName = (list: Currency[], name: string): Currency => {
 
 const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const store: PodTileStore = props.store;
-
   const { currencies, tenors, connected, user, personality } = props;
-  const [state, dispatch] = useReducer(reducer, initialState);
   const { strategy } = store;
   const { rows } = store;
   const currency: Currency | undefined = getCurrencyFromName(currencies, store.currency);
@@ -64,15 +55,6 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     store.setStrategy(strategy);
   }, [store, currency, strategy]);
 
-  // Internal temporary reducer actions
-  const setCurrentTenor = useCallback((tenor: string | null) =>
-      dispatch(createAction(ActionTypes.SetCurrentTenor, tenor)),
-    []);
-
-  const insertDepth = useCallback((data: any) =>
-      dispatch(createAction<ActionTypes, any>(ActionTypes.InsertDepth, data)),
-    []);
-
   useEffect(() => {
     const manager: SignalRManager = SignalRManager.getInstance();
     if (currency === InvalidCurrency || !strategy)
@@ -81,8 +63,8 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     store.initialize(currency.name, strategy, user);
   }, [currency, store, strategy, user]);
 
-  // Create depths for each tenor
-  useDepthEmitter(tenors, currency.name, strategy, insertDepth);
+  // Create depth for each tenor
+  // useDepthEmitter(tenors, currency.name, strategy, insertDepth);
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   // Handler methods
@@ -92,13 +74,14 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       // Create the orders
       Promise.all(
         entries.map(async (order: Order) => {
-          const myOrder: Order | undefined = findMyOrder(order, user);
-          if (myOrder && myOrder.orderId && ((myOrder.status & OrderStatus.Cancelled) === 0)) {
+          const depth: Order[] = store.depth[order.tenor];
+          const myOrder: Order | undefined = depth ? depth.find((o: Order) => {
+            return o.type === order.type && o.user === user.email;
+          }) : undefined;
+          if (myOrder && myOrder.orderId && ((myOrder.status & OrderStatus.Cancelled) === 0))
             await API.cancelOrder(myOrder, user);
-          }
           await API.createOrder(order, personality, user, currency.minqty);
-        }),
-        )
+        }))
         .then(() => store.hideRunWindow());
     },
     [personality, currency.minqty, user, store],
@@ -119,12 +102,12 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     );
   };
 
-  const renderToBRow = useCallback((rowProps: any, index?: number): ReactElement => {
+  const renderToBRow = (rowProps: any, index?: number): ReactElement => {
     const { row } = rowProps;
     return (
       <Row {...rowProps}
            user={user}
-           depths={state.depths}
+           depth={store.depth[row.tenor]}
            personality={personality}
            defaultSize={currency.defaultqty}
            minimumSize={currency.minqty}
@@ -134,25 +117,25 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
            displayOnly={false}
            rowNumber={index}
            connected={connected}
-           onTenorSelected={setCurrentTenor}/>
+           onTenorSelected={store.setCurrentTenor}/>
     );
-  }, [user, state.depths, personality, currency, strategy, connected, setCurrentTenor]);
+  };
 
-  const renderDoBRow = useCallback((rowProps: any): ReactElement | null => {
+  const renderDoBRow = (rowProps: any): ReactElement | null => {
     if (!currency || currency.minqty === undefined || currency.defaultqty === undefined || !strategy)
       return null;
     // static
     return (
       <Row {...rowProps}
            user={user}
-           depths={[]}
+           depth={[]}
            connected={connected}
            personality={personality}
            defaultSize={currency.defaultqty}
            minimumSize={currency.minqty}
-           onTenorSelected={() => setCurrentTenor(null)}/>
+           onTenorSelected={() => store.setCurrentTenor(null)}/>
     );
-  }, [currency, strategy, connected, user, personality, setCurrentTenor]);
+  };
   const dobColumns = useMemo(() => createTOBColumns(currency.name, strategy, user, true),
     [strategy, currency.name, user],
   );
@@ -162,19 +145,18 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
   useEffect(() => {
-    if (state.tenor === null) {
+    if (store.currentTenor === null) {
       return;
     } else {
-      const depth: PodTable = state.depths[state.tenor];
-      const values: PodRow[] = Object.values(depth);
-      if (values.length === 0) {
+      const depth: Order[] = store.depth[store.currentTenor];
+      if (depth.length === 0) {
         // Has the equivalent effect of hiding the depth book
         // but it will actually set the correct state for the
         // tenors to be double-clickable
-        setCurrentTenor(null);
+        store.setCurrentTenor(null);
       }
     }
-  }, [setCurrentTenor, state.depths, state.tenor]);
+  }, [store.currentTenor, store.depth, store]);
 
   const getWindowContent = () => {
     if (props.minimized) {
@@ -184,13 +166,53 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       };
       return <div style={style}/>;
     }
-    const dobRows = !!state.tenor ? { ...state.depths[state.tenor] } : {};
+
+    const convertToDepth = (orders: Order[]): PodTable => {
+      if (orders === undefined || store.currentTenor === null)
+        return {};
+      const tenor: string = store.currentTenor;
+      const orderSorter = (sign: number) =>
+        (o1: Order, o2: Order): number => {
+          if (o1.price === null || o2.price === null)
+            throw new Error('should not be sorting orders with null price');
+          if (priceFormatter(o1.price) === priceFormatter(o2.price))
+            return sign * (o1.timestamp - o2.timestamp);
+          return sign * (o1.price - o2.price);
+        };
+      const bids: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Bid);
+      const ofrs: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Ofr);
+      // Sort them
+      bids.sort(orderSorter(-1));
+      ofrs.sort(orderSorter(1));
+      const count: number = bids.length > ofrs.length ? bids.length : ofrs.length;
+      const depth: PodTable = {};
+      for (let i = 0; i < count; ++i) {
+        depth[i] = {
+          id: i.toString(),
+          bid: bids[i],
+          ofr: ofrs[i],
+          spread: null,
+          mid: null,
+          darkPrice: null,
+          tenor: tenor,
+          status: PodRowStatus.Normal,
+        };
+      }
+      return depth;
+    };
+
+    const dobRows = !!store.currentTenor ? convertToDepth(store.depth[store.currentTenor]) : {};
+    const loadingClass: string | undefined = store.loading ? 'loading' : undefined;
     return (
       <div className={'pod-tile-content' + (props.scrollable ? ' scrollable' : '')}>
-        <div className={'pod'} data-showing-tenor={!!state.tenor}>
-          <Table scrollable={!!props.scrollable} columns={tobColumns} rows={rows} renderRow={renderToBRow}/>
+        <div className={'pod'} data-showing-tenor={!!store.currentTenor}>
+          <Table className={loadingClass}
+                 scrollable={!!props.scrollable}
+                 columns={tobColumns}
+                 rows={rows}
+                 renderRow={renderToBRow}/>
         </div>
-        <div className={'dob'} data-showing-tenor={!!state.tenor}>
+        <div className={'dob'} data-showing-tenor={!!store.currentTenor}>
           <Table scrollable={!!props.scrollable} columns={dobColumns} rows={dobRows} renderRow={renderDoBRow}/>
         </div>
       </div>

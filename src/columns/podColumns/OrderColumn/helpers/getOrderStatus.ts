@@ -1,14 +1,14 @@
 import { OrderStatus, Order } from 'interfaces/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 import { User } from 'interfaces/user';
-import { SignalRManager } from 'redux/signalR/signalRManager';
 import { PodTableType } from 'columns/podColumns/OrderColumn/index';
 
-export const getOrderStatus = (topOrder: Order, user: User, personality: string, tableType: PodTableType) => {
+export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], user: User, personality: string, tableType: PodTableType) => {
   let status: OrderStatus = OrderStatus.None;
-  const depth: Order[] = SignalRManager.getDepth(topOrder.symbol, topOrder.strategy, topOrder.tenor, topOrder.type)
-    .filter(({ size }: Order) => size !== null);
+  if (!topOrder)
+    return status;
   const ownOrder: Order | undefined = depth.find(({ user: email }: Order) => email === user.email);
+  const aggregatedSize: number | null = getAggregatedSize(topOrder, depth);
   // Get depth related status
   if (tableType === PodTableType.Pod)
     status |= depth.length > 1 ? OrderStatus.HasDepth : OrderStatus.None;
@@ -18,7 +18,7 @@ export const getOrderStatus = (topOrder: Order, user: User, personality: string,
   // If it's the same username the order belongs to the user
   status |= topOrder.user === user.email ? OrderStatus.Owned : OrderStatus.None;
   // If the size of the order doesn't match the aggregated size, it's a joined order
-  status |= topOrder.size !== getAggregatedSize(topOrder) ? OrderStatus.Joined : OrderStatus.None;
+  status |= topOrder.size !== aggregatedSize ? OrderStatus.Joined : OrderStatus.None;
   // If the size is not present it's a cancelled order by convention
   status |= topOrder.size === null ? OrderStatus.Cancelled : OrderStatus.None;
   // If the user is a broker, the order is only owned if it also belongs to the same firm

@@ -562,5 +562,34 @@ $spinner-size: $table-row-height - 6;
     pointer-events: initial;
     overflow: hidden;
   }
+
+  &.loading {
+    position: relative;
+    pointer-events: none;
+
+    .tbody, .thead {
+      opacity: 0.4;
+      filter: blur(2px) grayscale(100%);
+    }
+
+    $spinner-size: 48px;
+    &::after {
+      position: absolute;
+      display: block;
+      left: 50%;
+      top: 50%;
+      margin-top: -$spinner-size / 2;
+      margin-left: -$spinner-size / 2;
+      content: '';
+      width: $spinner-size;
+      height: $spinner-size;
+      border-width: 8px;
+      border-style: solid;
+      border-color: rgba(black, 0.1);
+      border-top-color: $primary-color;
+      border-radius: $spinner-size;
+      animation: spin 1s infinite linear;
+    }
+  }
 }
 

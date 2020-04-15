@@ -13,10 +13,8 @@ import { API } from 'API';
 import { propagateDepth } from 'utils/messageHandler';
 import { $$ } from 'utils/stringPaster';
 import { SignalRActions } from 'redux/constants/signalRConstants';
-import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
-import { Order } from 'interfaces/order';
+import { MDEntry } from 'interfaces/mdEntry';
 import { User, OCOModes } from 'interfaces/user';
-import deepEqual from 'deep-equal';
 import { Sides } from 'interfaces/sides';
 import userProfileStore from 'mobx/stores/userProfileStore';
 
@@ -54,10 +52,6 @@ export class SignalRManager<A extends Action = AnyAction> {
   private recordedCommands: Command[] = [];
 
   private listeners: { [k: string]: (arg: W) => void } = {};
-
-  private static dispatchedWs: { [key: string]: W } = {};
-  private static orderCache: { [id: string]: Order } = {};
-
   private static instance: SignalRManager | null = null;
 
   private constructor() {
@@ -160,16 +154,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     if (this.onUpdateMessageBlotterListener !== null) {
       this.onUpdateMessageBlotterListener(data);
     }
-  };*/
-
-  private static isCollapsedW = (w: W): boolean => {
-    const cacheKey: string = $$(w.Symbol, w.Strategy, w.Tenor, w.TransactTime, isPodW(w) ? 'TOB' : 'FULL');
-    if (SignalRManager.dispatchedWs[cacheKey] !== undefined && deepEqual(w, SignalRManager.dispatchedWs[cacheKey]))
-      return true;
-    SignalRManager.dispatchedWs[cacheKey] = w;
-    return false;
   };
-
   public static removeFromCache = (orderID: string) => {
     delete SignalRManager.orderCache[orderID];
   };
@@ -224,7 +209,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     });
   };
 
-  /*public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string): PodTable => {
+  public static getDepthOfTheBook = (symbol: string, strategy: string, tenor: string): PodTable => {
     const orders: Order[] = [
       ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Bid),
       ...SignalRManager.getDepth(symbol, strategy, tenor, OrderTypes.Ofr),
@@ -232,11 +217,11 @@ export class SignalRManager<A extends Action = AnyAction> {
     return orders.reduce(orderArrayToPodTableReducer, {});
   };*/
 
-  public static getOrdersForUser = (email: string): Order[] => {
+  /*public static getOrdersForUser = (email: string): Order[] => {
     const { orderCache } = SignalRManager;
     const values: Order[] = Object.values(orderCache);
     return values.filter((order: Order) => order.user === email);
-  };
+  };*/
 
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
@@ -252,17 +237,16 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   public handleWMessage(w: W) {
     if (w.ExDestination === undefined) {
-      if (SignalRManager.isCollapsedW(w))
-        return;
       if (isPodW(w)) {
-        SignalRManager.addToCache(w, this.user);
         const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor)];
         if (listener) {
           listener(w);
         }
       } else {
-        SignalRManager.addToCache(w, this.user);
-        propagateDepth(w, this.user);
+        const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor, 'depth')];
+        if (listener) {
+          listener(w);
+        }
       }
     } else if (w.ExDestination === 'DP' && !SignalRManager.isEmptyW(w)) {
       const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor, 'Dp')];
@@ -335,6 +319,12 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   }
 
+  public setMarketListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+    const key: string = $$(symbol, strategy, tenor, 'depth');
+    // Just add the listener, the rest is done elsewhere
+    this.listeners[key] = listener;
+  }
+
   public setTOBWListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
     const { recordedCommands } = this;
     const key: string = $$(symbol, strategy, tenor);
@@ -386,14 +376,12 @@ export class SignalRManager<A extends Action = AnyAction> {
     const { user } = this;
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
-        SignalRManager.removeFromCache(message.OrderID);
         break;
       case ExecTypes.PendingCancel:
         break;
       case ExecTypes.Filled:
         if (ocoMode !== OCOModes.Disabled && message.Username === user.email)
           API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
-        SignalRManager.removeFromCache(message.OrderID);
       // eslint-disable-next-line no-fallthrough
       case ExecTypes.PartiallyFilled:
         if (ocoMode === OCOModes.PartialEx && message.Username === user.email)
@@ -431,7 +419,6 @@ export class SignalRManager<A extends Action = AnyAction> {
         const keys: string[] = Object.keys(snapshot);
         keys.forEach((tenor: string) => {
           const w: W = snapshot[tenor];
-          SignalRManager.addToCache(w, user);
           propagateDepth(w, user);
         });
       });

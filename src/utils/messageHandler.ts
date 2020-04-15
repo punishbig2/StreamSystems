@@ -33,7 +33,7 @@ const propagateOrders = (w: W, user: User) => {
 export const propagateDepth = (w: W, user: User) => {
   const { Tenor, Symbol, Strategy } = w;
   const depth: PodTable = extractDepth(w, user);
-  // Create depths
+  // Create depth
   const data: { tenor: string; depth: PodTable } = { tenor: w.Tenor, depth };
   const type: string = $$(Symbol, Strategy, Tenor, PodTileActions.UpdateDOB);
   const event: Event = new CustomEvent(type, { detail: data });

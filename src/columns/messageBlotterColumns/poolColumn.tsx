@@ -18,5 +18,5 @@ export const poolColumn = (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   template: 'MAKE_IT_WIDE_AND_WIDER',
-  width: 2,
+  width: 3,
 });

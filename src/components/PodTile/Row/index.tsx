@@ -27,7 +27,6 @@ type Props = OwnProps & RowFunctions;
 
 export const Row: React.FC<Props> = observer((props: Props) => {
   const [store] = useState(new PodRowStore(props.currency, props.strategy, props.tenor));
-
   const { id, columns, row, totalWidth, containerWidth, ...rowProps } = props;
   const { user } = rowProps;
   // Three identifying props

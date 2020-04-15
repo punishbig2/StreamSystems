@@ -5,7 +5,6 @@ import { Size } from 'components/Table/CellRenderers/Size';
 import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import { Price } from 'components/Table/CellRenderers/Price';
 import { STRM } from 'redux/stateDefs/workspaceState';
-import { PodTable } from 'interfaces/podTable';
 import { onNavigate } from 'components/PodTile/helpers';
 import { ModalWindow } from 'components/ModalWindow';
 import { getOrder } from 'columns/podColumns/OrderColumn/helpers/getOrder';
@@ -16,7 +15,6 @@ import { orderTicketRenderer } from 'columns/podColumns/OrderColumn/helpers/orde
 import { observer } from 'mobx-react';
 import { onSubmitPrice } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
 import { getOrderStatus } from 'columns/podColumns/OrderColumn/helpers/getOrderStatus';
-import { SignalRManager } from 'redux/signalR/signalRManager';
 import { MiniDOB } from 'components/Table/CellRenderers/Price/miniDob';
 import { shouldOpenOrderTicket } from 'columns/podColumns/OrderColumn/helpers/shoulOpenOrderTicket';
 import { onSubmitSize } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
@@ -28,7 +26,7 @@ export enum PodTableType {
 }
 
 type OwnProps = {
-  depths: { [key: string]: PodTable };
+  depth: Order[];
   ofr: Order;
   bid: Order;
   type: OrderTypes;
@@ -40,23 +38,24 @@ type OwnProps = {
   rowStore: PodRowStore;
 }
 
-export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
+export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): ReactElement | null => {
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
   const { type, personality, tableType } = props;
   const { rowStore } = props;
   // Get the order from the row
   const order: Order = getOrder(type, props.ofr, props.bid);
-  // Create size submission listener
-  const user: User = props.user;
+  const depth: Order[] = props.depth ? props.depth : [];
+  const user: User | null = workareaStore.user;
+  if (user === null)
+    throw new Error('cannot show orders to unauthenticated users');
   // Some changes require the store to be updated
+  const orders: Order[] = depth.filter((o: Order) => o.type === order.type);
+  const status: OrderStatus = getOrderStatus(order, orders, user, personality, tableType);
+
   useEffect(() => {
-    if (!order)
-      return;
-    const status: OrderStatus = getOrderStatus(order, user, personality, tableType);
-    // This is the actual action, the others are just for setup
-    store.setOrder({ ...order, status });
-  }, [order, personality, store, tableType, user]);
+    store.setOrder(order, status);
+  }, [store, order, status]);
 
   useEffect(() => {
     store.setPersonality(personality);
@@ -65,18 +64,21 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps) => {
   useEffect(() => {
     store.setUser(user);
   }, [store, user]);
-  // Watch for default and minimum sizes
+
   useEffect(() => {
     store.setDefaultAndMinimumSizes(defaultSize, minimumSize);
   }, [store, minimumSize, defaultSize]);
 
+  useEffect(() => {
+    store.setCurrentDepth(depth);
+  }, [store, depth]);
+
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
-    const depth: Order[] = SignalRManager.getDepth(store.symbol, store.strategy, store.tenor, store.type);
-    if (depth.length === 0)
+    if (depth === undefined)
       return null;
-    return <MiniDOB {...props} rows={depth} user={user}/>;
+    return <MiniDOB {...props} rows={orders} user={user}/>;
   };
 
   const renderOrderTicket = orderTicketRenderer(

@@ -155,7 +155,7 @@ const Workarea: React.FC = (): ReactElement | null => {
           {getFooter()}
           <ModalWindow render={renderLoadingPopup} visible={store.isCreatingWorkspace}/>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
-          <ModalWindow render={() => renderMessage()} visible={recentExecutions.length > 0}/>
+          <ModalWindow render={renderMessage} visible={recentExecutions.length > 0}/>
           <Toast message={store.errorMessage} onDismiss={() => store.setError(null)}/>
         </>
       );

@@ -41,7 +41,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
     <div className={[sideClasses[trade.Side], 'item'].join(' ')}>
       <div className={'content'}>
         <div className={'line'}>
-          {trade.Currency} {trade.Tenor} {trade.Strategy} @ {getMessagePrice(trade)}
+          {trade.Symbol} {trade.Tenor} {trade.Strategy} @ {getMessagePrice(trade)}
         </div>
         <div className={'line'}>
           You {Side.toString() === '1' ? 'buy' : 'sell'} {getMessageSize(trade)} {direction} {trade.MDMkt}

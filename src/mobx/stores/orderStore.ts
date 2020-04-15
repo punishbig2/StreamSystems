@@ -6,7 +6,7 @@ import { MessageTypes } from 'interfaces/w';
 import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
-import { findMyOrder_ } from 'components/PodTile/helpers';
+import workareaStore from 'mobx/stores/workareaStore';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -30,13 +30,15 @@ export class OrderStore {
   @observable minimumSize: number = 0;
   @observable orderTicket: Order | null = null;
 
+  @observable.ref depth: Order[] = [];
+
   @computed
   get size() {
     if (this.editedSize !== null)
       return this.editedSize;
     if ((this.baseStatus & OrderStatus.InDepth) !== 0 || (this.baseSize === null))
       return this.baseSize;
-    return getAggregatedSize(this);
+    return getAggregatedSize(this, this.depth);
   }
 
   @computed
@@ -66,6 +68,7 @@ export class OrderStore {
 
   @computed
   get status() {
+
     return this.baseStatus | this.currentStatus;
   }
 
@@ -113,9 +116,10 @@ export class OrderStore {
 
   @action.bound
   public async cancel() {
-    const { user } = this;
+    const { depth } = this;
+    const user: User | null = workareaStore.user;
     if (user !== null) {
-      const order: Order | undefined = findMyOrder_(this.symbol, this.strategy, this.tenor, this.type, user);
+      const order: Order | undefined = depth.find((o: Order) => o.type === this.type && o.user === user.email);
       if (!!order && !!order.orderId && !!order.size) {
         this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
         const response = await API.cancelOrder(order, user);
@@ -134,17 +138,19 @@ export class OrderStore {
   }
 
   @action.bound
-  public setOrder(order: Order) {
-    this.price = order.price;
-    this.baseSize = order.size;
-    this.baseStatus = order.status;
-    this.orderID = order.orderId;
-    this.submittedSize = null;
-    this.editedSize = null;
-    this.type = order.type;
-    this.symbol = order.symbol;
-    this.strategy = order.strategy;
-    this.tenor = order.tenor;
+  public setOrder(order: Order | undefined, status: OrderStatus) {
+    if (order) {
+      this.price = order.price;
+      this.baseSize = order.size;
+      this.orderID = order.orderId;
+      this.submittedSize = null;
+      this.editedSize = null;
+      this.type = order.type;
+      this.symbol = order.symbol;
+      this.strategy = order.strategy;
+      this.tenor = order.tenor;
+    }
+    this.baseStatus = status;
     this.submittedSize = null;
     this.editedSize = null;
   }
@@ -187,6 +193,11 @@ export class OrderStore {
   @action.bound
   public removeStatusBit(status: OrderStatus) {
     this.currentStatus &= ~status;
+  }
+
+  @action.bound
+  public setCurrentDepth(depth: Order[]) {
+    this.depth = depth;
   }
 }
 
