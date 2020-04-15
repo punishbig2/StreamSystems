@@ -7,7 +7,6 @@ export const SizeTooSmallError = new Error('size is too small');
 
 export const onSubmitSize = (store: OrderStore) =>
   async (input: HTMLInputElement) => {
-    const { depth } = store;
     const user: User | null = workareaStore.user;
     if (user === null)
       throw new Error('user cannot be null at this point');
@@ -28,21 +27,6 @@ export const onSubmitSize = (store: OrderStore) =>
     }
     // Update the order's size
     store.create();
-    // Cancel current order and then create a new one
-    // store.addStatusBit(OrderStatus.BeingCancelled);
-    /*API.cancelOrder(order, user)
-      .then(() => {
-        store.removeStatusBit(OrderStatus.BeingCancelled);
-        store.addStatusBit(OrderStatus.BeingCreated);
-        API.createOrder(order, personality, user, store.minimumSize)
-          .then(() => {
-            store.removeStatusBit(OrderStatus.BeingCreated);
-          });
-      });*/
-    // Please wait until the main loop has ran and then
-    // move the focus, because otherwise it could happen
-    // that the focus is moved BEFORE the edited size
-    // value is updated
     skipTabIndexAll(input, 1);
   };
 

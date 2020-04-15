@@ -18,7 +18,6 @@ export const onSubmitPrice = (store: OrderStore) =>
         throw InvertedMarketsError;
       }
       store.price = price;
-      console.log(store.price);
       store.create();
     } else {
       store.resetAllSizes();

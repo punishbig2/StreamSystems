@@ -3,7 +3,7 @@ import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { Table } from 'components/Table';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { User } from 'interfaces/user';
-import React, { useMemo, ReactElement } from 'react';
+import React, { useMemo, ReactElement, useEffect } from 'react';
 import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import { Message, ExecTypes } from 'interfaces/message';
 import { OrderTypes } from 'interfaces/mdEntry';
@@ -78,6 +78,10 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
   if (user === null)
     throw new Error('cannot create message blotters without at least one authenticated user');
   const { email, isbroker, firm } = user;
+
+  useEffect(() => {
+    console.log('reacting to entries changes?');
+  }, [entries]);
 
   const columnsMap: { [key: string]: ColumnSpec[] } = useMemo(() => messageBlotterColumns(blotterType), [blotterType]);
   const columns: ColumnSpec[] = useMemo(() => {
