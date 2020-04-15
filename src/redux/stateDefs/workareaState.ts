@@ -1,7 +1,7 @@
 import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
 import { Strategy } from 'interfaces/strategy';
-import { User, UserWorkspace } from 'interfaces/user';
+import { User, UserPreferences } from 'interfaces/user';
 
 export enum WorkareaStatus {
   Starting,
@@ -24,5 +24,5 @@ export interface WorkareaState {
   connected: boolean;
   message?: string;
   recentExecutions: Message[];
-  userProfile: UserWorkspace;
+  userProfile: UserPreferences;
 }

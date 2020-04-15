@@ -1,9 +1,8 @@
 import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
-import { User, UserWorkspace, CurrencyGroups } from 'interfaces/user';
+import { User, UserPreferences, CurrencyGroups } from 'interfaces/user';
 import { WorkareaStatus } from 'redux/stateDefs/workareaState';
 import { observable, action, computed } from 'mobx';
-import { defaultProfile } from 'redux/reducers/userProfileReducer';
 import { persist } from 'mobx-persist';
 import { API } from 'API';
 
@@ -13,10 +12,16 @@ import strings from 'locales';
 import { SignalRManager } from 'redux/signalR/signalRManager';
 import { randomID } from 'randomID';
 import { WindowDef } from 'mobx/stores/workspaceStore';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { PresetWindow } from 'groups/presetWindow';
 import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
 import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
+import { defaultProfile } from 'redux/stateDefs/defaultUserProfile';
+
+export enum WindowTypes {
+  PodTile = 1,
+  MessageBlotter = 2,
+  Empty = 3
+}
 
 export interface WorkspaceDef {
   id: string;
@@ -35,7 +40,7 @@ export class WorkareaStore {
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
   @observable recentExecutions: Message[] = [];
-  @observable userProfile: UserWorkspace = defaultProfile;
+  @observable userProfile: UserPreferences = defaultProfile;
   @observable user: User | null = null;
   @observable loadingMessage?: string;
   @observable isCreatingWorkspace: boolean = false;

@@ -2,7 +2,6 @@ import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
 import { User } from 'interfaces/user';
 import { ArrowDirection, MessageTypes, W } from 'interfaces/w';
 import { $$ } from 'utils/stringPaster';
-import { OrderAction } from 'orderEvents';
 import { Sides } from 'interfaces/sides';
 
 export interface CreateOrder {
@@ -175,27 +174,15 @@ export class Order {
     return order;
   };
 
-  public dispatchEvent = (action: OrderAction) => {
+  /*public dispatchEvent = (action: OrderAction) => {
     const type: string = $$(this.uid(), action);
     const event: CustomEvent = new CustomEvent<Order>(type, { detail: this });
     // Now dispatch it
     document.dispatchEvent(event);
-  };
-
-  public isBeingCreated = (): boolean => {
-    return (this.status & OrderStatus.BeingCreated) !== 0;
-  };
+  };*/
 
   public isOwnedByCurrentUser = (user: User): boolean => {
     return this.user === user.email;
-  };
-
-  public isBeingCancelled = (): boolean => {
-    return (this.status & OrderStatus.BeingCancelled) !== 0;
-  };
-
-  public isCancellable = (user: User) => {
-    return this.isOwnedByCurrentUser(user);
   };
 
   public isCancelled = () => {
@@ -204,9 +191,5 @@ export class Order {
 
   public isSameBankAsCurrentUser = () => {
     return (this.status & OrderStatus.SameBank) !== 0;
-  };
-
-  public isActive = () => {
-    return (this.status & OrderStatus.Active) !== 0;
   };
 }

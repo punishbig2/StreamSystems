@@ -1,9 +1,9 @@
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import React, { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { $$ } from 'utils/stringPaster';
-import { MessageBlotterActions, BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import { getCellWidth } from 'components/Table/helpers';
 import { DarkPool } from 'interfaces/w';
+import { BlotterTypes } from 'columns/messageBlotter';
 
 export enum BlotterRowTypes {
   Normal,
@@ -52,7 +52,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
 
   useEffect(() => {
     if (blotterType === BlotterTypes.Executions) {
-      let timer: number | null = null;
+      /*let timer: number | null = null;
       const onExecuted = () => {
         setExecuted(true);
         timer = setTimeout(() => {
@@ -66,7 +66,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
         if (timer !== null) {
           clearTimeout(timer);
         }
-      };
+      };*/
     }
   }, [ExecID, blotterType]);
 

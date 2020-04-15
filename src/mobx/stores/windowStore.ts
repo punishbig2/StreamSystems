@@ -1,6 +1,6 @@
 import { observable, action, computed } from 'mobx';
 import { persist, create } from 'mobx-persist';
-import { WindowTypes } from 'redux/constants/workareaConstants';
+import { WindowTypes } from 'mobx/stores/workareaStore';
 
 export class WindowStore {
   public id: string = '';

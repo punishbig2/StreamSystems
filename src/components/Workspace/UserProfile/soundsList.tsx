@@ -3,12 +3,13 @@ import { ExecSound } from 'interfaces/user';
 import { Select, MenuItem } from '@material-ui/core';
 import { addSound, getSoundsList, deleteSound } from 'beep-sound';
 
-interface Props {
+interface OwnProps {
   value: string;
+  name: string;
   onChange: (name: string, value: any) => void;
 }
 
-export const SoundsList: React.FC<Props> = (props: Props) => {
+export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
   const [sounds, setSounds] = useState<ExecSound[]>([]);
   useEffect(() => {
     getSoundsList().then(setSounds);
@@ -39,7 +40,7 @@ export const SoundsList: React.FC<Props> = (props: Props) => {
                   setSounds(sounds);
                   setTimeout(() => {
                     // Now update the active item
-                    props.onChange('execSound', file.name);
+                    props.onChange(props.name, file.name);
                   }, 0);
                 });
             }
@@ -69,7 +70,7 @@ export const SoundsList: React.FC<Props> = (props: Props) => {
       return;
     setSounds([...sounds.slice(0, index), ...sounds.slice(index + 1)]);
     // Reset to default
-    props.onChange('execSound', 'default');
+    props.onChange(props.name, 'default');
   };
 
   const displayName = (name: string) => name.replace(/\.[^.]+$/, '');
@@ -110,7 +111,7 @@ export const SoundsList: React.FC<Props> = (props: Props) => {
   };
 
   return (
-    <Select id={'exec-sound'} onChange={onExecSoundChange} name={'execSound'} value={getExecSoundValue()}
+    <Select id={'exec-sound'} onChange={onExecSoundChange} name={props.name} value={getExecSoundValue()}
             renderValue={renderValue}>
       <MenuItem value={'default'}><DefaultItem/></MenuItem>
       {sounds.map((item: ExecSound) => (

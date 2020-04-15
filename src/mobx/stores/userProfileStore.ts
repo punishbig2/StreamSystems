@@ -1,14 +1,14 @@
-import { UserProfileStatus, UserProfileModalTypes, UserWorkspace } from 'interfaces/user';
-import { observable, action } from 'mobx';
-import { defaultProfile } from 'redux/reducers/userProfileReducer';
 import { API } from 'API';
 import { Globals } from 'golbals';
+import { UserPreferences, UserProfileStatus, UserProfileModalTypes } from 'interfaces/user';
+import { observable, action } from 'mobx';
+import { defaultProfile } from 'redux/stateDefs/defaultUserProfile';
 
 export class UserProfileStore {
   @observable status: UserProfileStatus = UserProfileStatus.Initial;
   @observable currentModalType: UserProfileModalTypes = UserProfileModalTypes.Form;
-  @observable.ref profile: UserWorkspace = defaultProfile;
-  public initialProfile: UserWorkspace = defaultProfile;
+  @observable.ref profile: UserPreferences = defaultProfile;
+  public initialProfile: UserPreferences = defaultProfile;
 
   constructor() {
     this.loadUserProfile('');
@@ -16,7 +16,7 @@ export class UserProfileStore {
 
   @action.bound
   public async loadUserProfile(email: string) {
-    const profile: UserWorkspace = await API.getUserProfile(email);
+    const profile: UserPreferences = await API.getUserProfile(email);
     // Update timezone
     Globals.timezone = profile.timezone;
     this.profile = profile;

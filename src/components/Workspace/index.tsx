@@ -1,7 +1,6 @@
 import { WindowManager } from 'components/WindowManager';
-import { User, UserWorkspace } from 'interfaces/user';
+import { User, UserPreferences } from 'interfaces/user';
 import React, { ReactElement, useEffect, useState } from 'react';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { STRM } from 'redux/stateDefs/workspaceState';
 import { ModalWindow } from 'components/ModalWindow';
 import { UserProfileModal } from 'components/Workspace/UserProfile';
@@ -16,8 +15,9 @@ import { PodTileStore } from 'mobx/stores/podTileStore';
 import { MessagesStore } from 'mobx/stores/messagesStore';
 import { PodTile } from 'components/PodTile';
 import { MessageBlotter } from 'components/MessageBlotter';
-import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import { PodTileTitle } from 'components/PodTile/title';
+import { WindowTypes } from 'mobx/stores/workareaStore';
+import { BlotterTypes } from 'columns/messageBlotter';
 
 interface OwnProps {
   id: string;
@@ -27,7 +27,7 @@ interface OwnProps {
   strategies: string[];
   connected: boolean;
   banks: string[];
-  userProfile: UserWorkspace;
+  userProfile: UserPreferences;
   isDefault: boolean;
   visible: boolean;
   onModify: (id: string) => void;

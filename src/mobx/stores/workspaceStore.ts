@@ -1,9 +1,9 @@
 import { observable, action } from 'mobx';
 import { STRM } from 'redux/stateDefs/workspaceState';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { persist, create } from 'mobx-persist';
 import { API } from 'API';
 import { randomID } from 'randomID';
+import { WindowTypes } from 'mobx/stores/workareaStore';
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch

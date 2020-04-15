@@ -1,13 +1,11 @@
 import React, { ReactElement } from 'react';
 import { WindowElement } from 'components/WindowManager/windowElement';
 import { MessageBlotter } from 'components/MessageBlotter';
-import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
 import getStyles, { Dimensions } from 'styles';
 import { User } from 'interfaces/user';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
-import columns from 'columns/messageBlotter';
-import workareaStore from 'mobx/stores/workareaStore';
+import columns, { BlotterTypes } from 'columns/messageBlotter';
+import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 
 interface OwnProps {
   area: ClientRect;

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
+import { BlotterTypes } from 'columns/messageBlotter';
 
 interface Props {
   type: BlotterTypes;

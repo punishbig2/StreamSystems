@@ -53,10 +53,10 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   }, [store, currency, strategy]);
 
   useEffect(() => {
-    const manager: SignalRManager = SignalRManager.getInstance();
+    // const manager: SignalRManager = SignalRManager.getInstance();
     if (currency === InvalidCurrency || !strategy)
       return;
-    manager.loadDepth(currency.name, strategy, user);
+    // manager.loadDepth(currency.name, strategy, user);
     store.initialize(currency.name, strategy, user);
   }, [currency, store, strategy, user]);
 

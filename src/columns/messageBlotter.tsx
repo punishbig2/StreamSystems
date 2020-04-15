@@ -11,7 +11,11 @@ import tenorColumn from 'columns/messageBlotterColumns/tenorColumn';
 import transactTimeColumn from 'columns/messageBlotterColumns/transactTimeColumn';
 import transactTypeColumn from 'columns/messageBlotterColumns/transactTypeColumn';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { BlotterTypes } from 'redux/constants/messageBlotterConstants';
+
+export enum BlotterTypes {
+  Executions,
+  Regular
+}
 
 const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (type: BlotterTypes) => {
   const sortable: boolean = type !== BlotterTypes.Executions;

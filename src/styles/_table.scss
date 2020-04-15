@@ -475,6 +475,10 @@ $spinner-size: $table-row-height - 6;
               input {
                 display: none;
               }
+
+              .price-direction-layout {
+                display: none;
+              }
             }
 
             .spinner {

@@ -1,4 +1,15 @@
-import { FXOAction, ActionKind } from 'redux/fxo-action';
+import { Action } from 'redux';
+
+export enum ActionKind {
+  Base = 'BASE',
+}
+
+interface __Action<T> extends Action<T> {
+  kind: ActionKind,
+  data: any;
+}
+
+export type FXOAction<T = string, E = any> = __Action<T> & E;
 
 export const createAction = <T = any, A extends FXOAction = FXOAction<any>>(type: T, data?: any): A => (({
   kind: ActionKind.Base,
@@ -6,17 +17,3 @@ export const createAction = <T = any, A extends FXOAction = FXOAction<any>>(type
   data,
 } as FXOAction) as A);
 
-/*export const createWorkspaceAction = (workspaceID: string, type: WorkspaceActions, data?: any): FXOAction<WorkspaceActions, WorkspaceAction> => ({
-  kind: ActionKind.Workspace,
-  workspaceID,
-  type,
-  data,
-});
-
-export const createWindowAction = (workspaceID: string, windowID: string, type: PodTileActions, data?: any): FXOAction<PodTileActions, PodTileAction> => ({
-  kind: ActionKind.Window,
-  workspaceID,
-  windowID,
-  type,
-  data,
-});*/

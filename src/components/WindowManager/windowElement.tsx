@@ -3,7 +3,6 @@ import { useObjectGrabber } from 'hooks/useObjectGrabber';
 import React, { CSSProperties, ReactElement, useCallback, useEffect, useRef, useState } from 'react';
 import { WindowStore } from 'mobx/stores/windowStore';
 import { observer } from 'mobx-react';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { PodTileStore } from 'mobx/stores/podTileStore';
 
 import messages, { MessagesStore } from 'mobx/stores/messagesStore';
@@ -13,6 +12,7 @@ import { resize } from 'components/WindowManager/helpers/resize';
 import { toStyle } from 'components/WindowManager/helpers/toStyle';
 import { toPixels } from 'components/WindowManager/helpers/toPixels';
 import { adjustToContent } from 'components/WindowManager/helpers/adjustToContent';
+import { WindowTypes } from 'mobx/stores/workareaStore';
 
 interface OwnProps {
   id: string;

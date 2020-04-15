@@ -10,9 +10,7 @@ import { Message, DarkPoolMessage, ExecTypes } from 'interfaces/message';
 import { W, isPodW } from 'interfaces/w';
 import { Action, AnyAction } from 'redux';
 import { API } from 'API';
-import { propagateDepth } from 'utils/messageHandler';
 import { $$ } from 'utils/stringPaster';
-import { SignalRActions } from 'redux/constants/signalRConstants';
 import { MDEntry } from 'interfaces/mdEntry';
 import { User, OCOModes } from 'interfaces/user';
 import { Sides } from 'interfaces/sides';
@@ -23,6 +21,19 @@ import workareaStore from 'mobx/stores/workareaStore';
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { '1': Sides.Buy, '2': Sides.Sell };
+
+export enum SignalRActions {
+  // Messages
+  SubscribeForMarketData = 'SubscribeForMarketData',
+  UnsubscribeFromMarketData = 'UnsubscribeForMarketData',
+  SubscribeForMBMsg = 'SubscribeForMBMsg',
+  UnsubscribeFromMBMsg = 'UnsubscribeForMBMsg',
+  SubscribeForDarkPoolPx = 'SubscribeForDarkPoolPx',
+  UnsubscribeForDarkPoolPx = 'UnsubscribeForDarkPoolPx',
+  // Internal
+  Disconnected = 'SignalR.Disconnected',
+  Connected = 'SignalR.Connected'
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 enum SignalRMessageTypes {
@@ -411,18 +422,18 @@ export class SignalRManager<A extends Action = AnyAction> {
     return () => null;
   }
 
-  public loadDepth = (currency: string, strategy: string, user: User) => {
+  /*public loadDepth = (currency: string, strategy: string, user: User) => {
     API.getSnapshot(currency, strategy)
       .then((snapshot: { [k: string]: W } | null) => {
         if (snapshot === null)
           return;
         const keys: string[] = Object.keys(snapshot);
         keys.forEach((tenor: string) => {
-          const w: W = snapshot[tenor];
-          propagateDepth(w, user);
+          // const w: W = snapshot[tenor];
+          // propagateDepth(w, user);
         });
       });
-  };
+  };*/
 }
 
 // Call this to initialize it

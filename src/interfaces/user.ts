@@ -33,12 +33,13 @@ export enum UserProfileModalTypes {
   Form, Success, Error, Saving
 }
 
-export interface UserWorkspace {
+export interface UserPreferences {
   userType: UserTypes;
   mpid: string;
   fontSize: string;
   font: string;
   execSound: string;
+  darkPoolExecSound: string;
   timezone: string;
   colorScheme: string;
   ccyGroup: CurrencyGroups;
@@ -51,7 +52,7 @@ export interface UserWorkspace {
 export interface UserProfileState {
   status: UserProfileStatus;
   currentModalType: UserProfileModalTypes;
-  profile: UserWorkspace,
-  initialProfile: UserWorkspace,
+  initialPreferences: UserPreferences,
+  preferences: UserPreferences,
 }
 

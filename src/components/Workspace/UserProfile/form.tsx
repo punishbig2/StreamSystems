@@ -2,14 +2,14 @@ import React, { ChangeEvent, FormEvent, ReactNode } from 'react';
 import strings from 'locales';
 import Grid from '@material-ui/core/Grid';
 import { FormControl, FormLabel, Select, MenuItem, Input } from '@material-ui/core';
-import { UserWorkspace, OCOModes, User } from 'interfaces/user';
+import { UserPreferences, OCOModes, User } from 'interfaces/user';
 import timezones, { TimezoneInfo } from 'data/timezones';
 import deepEqual from 'deep-equal';
 import { SoundsList } from 'components/Workspace/UserProfile/soundsList';
 
 interface OwnProps {
-  profile: UserWorkspace;
-  original: UserWorkspace | null;
+  profile: UserPreferences;
+  original: UserPreferences | null;
   user: User;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
@@ -128,7 +128,16 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'exec-sound'}>Exec Sound</FormLabel>
-                <SoundsList value={profile.execSound} onChange={props.onChange}/>
+                <SoundsList name={'execSound'} value={profile.execSound} onChange={props.onChange}/>
+              </FormControl>
+            </Grid>
+          </Grid>
+
+          <Grid item container spacing={2} direction={'row'}>
+            <Grid item xs={4}>
+              <FormControl margin={'normal'} fullWidth>
+                <FormLabel htmlFor={'exec-sound'}>Dark pool exec sound</FormLabel>
+                <SoundsList name={'darkPoolExecSound'} value={profile.darkPoolExecSound} onChange={props.onChange}/>
               </FormControl>
             </Grid>
           </Grid>
@@ -168,14 +177,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </Select>
             </FormControl>
           </Grid>
-
-          <Grid item>
-            <FormControl fullWidth>
-              <FormLabel>Workspace</FormLabel>
-              <h4 className={'no-content'}>No content</h4>
-            </FormControl>
-          </Grid>
-
           <Grid item>
             <FormControl fullWidth margin={'normal'}>
               <FormLabel htmlFor={'color-scheme'}>Color Scheme</FormLabel>

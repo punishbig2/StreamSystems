@@ -5,9 +5,9 @@ import { getOptimalSize } from 'windowUtils';
 import { User } from 'interfaces/user';
 import { ExecutionBlotter } from 'components/WindowManager/executionBlotter';
 import { WindowDef } from 'mobx/stores/workspaceStore';
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { PodTileStore } from 'mobx/stores/podTileStore';
 import { MessagesStore } from 'mobx/stores/messagesStore';
+import { WindowTypes } from 'mobx/stores/workareaStore';
 
 interface Props {
   toast: string | null;

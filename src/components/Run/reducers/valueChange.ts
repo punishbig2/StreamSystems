@@ -1,5 +1,4 @@
 import { RunState } from 'redux/stateDefs/runState';
-import { FXOAction } from 'redux/fxo-action';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
 import { RunEntry } from 'components/Run/runEntry';
 import { computeRow } from 'components/Run/reducers/computeRow';
@@ -7,6 +6,7 @@ import { OrderStatus, Order } from 'interfaces/order';
 import { priceFormatter } from 'utils/priceFormatter';
 import equal from 'deep-equal';
 import { RunActions } from 'components/Run/reducer';
+import { FXOAction } from 'redux/actionCreator';
 
 export const valueChange = (state: RunState, { type, data }: FXOAction<RunActions>): RunState => {
   const { orders } = state;

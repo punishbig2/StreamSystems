@@ -1,7 +1,6 @@
 import { Dispatch, useEffect } from 'react';
-import { FXOAction } from 'redux/fxo-action';
 import { RunActions } from 'components/Run/reducer';
-import { createAction } from 'redux/actionCreator';
+import { createAction, FXOAction } from 'redux/actionCreator';
 import { API } from 'API';
 import { OrderMessage, Order, OrderStatus } from 'interfaces/order';
 import { PodRow } from 'interfaces/podRow';

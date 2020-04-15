@@ -1,8 +1,8 @@
-import { PodRow } from 'interfaces/podRow';
+export const InvalidCurrency = { name: '', minqty: 0, defaultqty: 0 };
+/*import { PodRow } from 'interfaces/podRow';
 import { Currency } from 'interfaces/currency';
 import { WindowTypes } from 'redux/constants/workareaConstants';
 
-export const InvalidCurrency = { name: '', minqty: 0, defaultqty: 0 };
 
 export interface WindowState {
   id: string;
@@ -30,4 +30,5 @@ export const defaultWindowState: WindowState = {
   fitToContent: true,
   minimized: false,
   savedSize: null,
-};
+};*/
+export const lame = 0;

@@ -1,12 +1,12 @@
 import React, { ReactElement, useEffect } from 'react';
 import { Message } from 'interfaces/message';
 import { getMessageSize, getMessagePrice } from 'messageUtils';
-import { UserWorkspace, ExecSound } from 'interfaces/user';
+import { UserPreferences, ExecSound } from 'interfaces/user';
 import { getSound } from 'beep-sound';
 
 interface OwnProps {
   trade: Message;
-  userProfile: UserWorkspace;
+  userProfile: UserPreferences;
   onClose: () => void;
 }
 
@@ -15,7 +15,7 @@ const sideClasses: { [key: string]: string } = {
   1: 'buy',
 };
 
-const playBeep = async (profile: UserWorkspace) => {
+const playBeep = async (profile: UserPreferences) => {
   const src: string = await (async () => {
     const { execSound } = profile;
     if (execSound === 'default') {

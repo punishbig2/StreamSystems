@@ -10,8 +10,6 @@ import strings from 'locales';
 import React, { ReactElement, useEffect, useReducer, Reducer } from 'react';
 import { skipTabIndex, skipTabIndexAll } from 'utils/skipTab';
 import { RunState } from 'redux/stateDefs/runState';
-import { FXOAction } from 'redux/fxo-action';
-import { createAction } from 'redux/actionCreator';
 import { useRunInitializer } from 'components/Run/hooks/useRunInitializer';
 import { createEmptyTable } from 'components/Run/helpers/createEmptyTablei';
 import { getSelectedOrders } from 'components/Run/helpers/getSelectedOrders';
@@ -19,6 +17,7 @@ import { $$ } from 'utils/stringPaster';
 import { onPriceChange } from 'components/Run/helpers/onPriceChange';
 import { TabDirection } from 'components/NumericInput';
 import { User } from 'interfaces/user';
+import { createAction } from 'redux/actionCreator';
 
 interface OwnProps {
   visible: boolean;
@@ -43,7 +42,7 @@ const initialState: RunState = {
 
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
   const { symbol, strategy, tenors, user, defaultSize, minimumSize, visible, depth } = props;
-  const [state, dispatch] = useReducer<Reducer<RunState, FXOAction<RunActions>>>(reducer, initialState);
+  const [state, dispatch] = useReducer<Reducer<RunState, RunActions>>(reducer, initialState);
   const { orders } = state;
 
   useEffect(() => {

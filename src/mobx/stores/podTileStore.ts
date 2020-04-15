@@ -1,4 +1,3 @@
-import { WindowTypes } from 'redux/constants/workareaConstants';
 import { PodRow } from 'interfaces/podRow';
 import { observable, action } from 'mobx';
 import { persist, create } from 'mobx-persist';
@@ -12,7 +11,7 @@ import { tenorToNumber } from 'utils/dataGenerators';
 import { Order } from 'interfaces/order';
 import { MDEntry } from 'interfaces/mdEntry';
 
-import workareaStore from 'mobx/stores/workareaStore';
+import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 
 export class PodTileStore {
   public id: string = '';

@@ -1,5 +1,6 @@
 import { OrderTypes } from 'interfaces/mdEntry';
 import { Sides } from 'interfaces/sides';
+import timezones, { TimezoneInfo } from 'data/timezones';
 
 export const getSideFromType = (type: OrderTypes): Sides => {
   switch (type) {
@@ -12,12 +13,23 @@ export const getSideFromType = (type: OrderTypes): Sides => {
   }
 };
 
+export const findDefaultTimezone = () => {
+  const formatter: Intl.DateTimeFormat = Intl.DateTimeFormat();
+  const options: Intl.ResolvedDateTimeFormatOptions = formatter.resolvedOptions();
+  const browserTimezone = options.timeZone;
+  const found: TimezoneInfo | undefined = timezones.find(({ text }: TimezoneInfo) => {
+    return text === browserTimezone;
+  });
+  if (found === undefined) {
+    return 'America/New_York' /* sensible default */;
+  } else {
+    return found.text;
+  }
+};
+
 export const percentage = (numerator: number, denominator: number, base: number): string => {
   const percentage: number = numerator / denominator;
   return `${percentage * base}ex`;
 };
 
-export const dispatchWorkspaceError = (message: string | null) => {
-  document.dispatchEvent(new CustomEvent('workspace-error', { detail: message }));
-};
 export const getCurrentTime = (): string => Math.round(Date.now()).toString();
