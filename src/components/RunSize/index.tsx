@@ -1,5 +1,5 @@
 import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import { Order, OrderStatus, dumpStatus } from 'interfaces/order';
+import { Order, OrderStatus } from 'interfaces/order';
 import React, { useEffect, useState, useCallback, ReactNode } from 'react';
 import { NumericInput, TabDirection } from 'components/NumericInput';
 import { sizeFormatter } from 'utils/sizeFormatter';
@@ -122,8 +122,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   const getActivationStatus = (): ActivationStatus => {
     if (order.price === null)
       return ActivationStatus.Empty;
-    dumpStatus(order.status);
-    if ((order.status & OrderStatus.PriceEdited) === 0) {
+    if ((order.status & OrderStatus.PriceEdited) === 0 && (order.status & OrderStatus.Active) === 0) {
       return ActivationStatus.Inactive;
     } else if ((order.status & OrderStatus.PriceEdited) !== 0) {
       return ActivationStatus.Active;
@@ -141,7 +140,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const getActivationButton = (status: ActivationStatus) => {
+  const getActivationButton = () => {
     switch (getActivationStatus()) {
       case ActivationStatus.Inactive:
         return (
@@ -166,7 +165,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const plusSign = getActivationButton(getActivationStatus());
+  const plusSign = getActivationButton();
 
   const displayValue: string = (() => {
     if (locallyModified)

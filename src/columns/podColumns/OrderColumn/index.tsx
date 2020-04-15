@@ -50,8 +50,8 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   if (user === null)
     throw new Error('cannot show orders to unauthenticated users');
   // Some changes require the store to be updated
-  const orders: Order[] = depth.filter((o: Order) => o.type === order.type);
-  const status: OrderStatus = getOrderStatus(order, orders, user, personality, tableType);
+  const siblingOrders: Order[] = depth.filter((o: Order) => o.type === order.type);
+  const status: OrderStatus = getOrderStatus(order, siblingOrders, user, personality, tableType);
 
   useEffect(() => {
     store.setOrder(order, status);
@@ -76,9 +76,9 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
-    if (depth.length === 0)
+    if (siblingOrders.length === 0)
       return null;
-    return <MiniDOB {...props} rows={orders} user={user}/>;
+    return <MiniDOB {...props} rows={siblingOrders} user={user}/>;
   };
 
   const renderOrderTicket = orderTicketRenderer(

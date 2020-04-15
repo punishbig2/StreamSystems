@@ -17,7 +17,8 @@ export const onSubmitPrice = (store: OrderStore) =>
         input.focus();
         throw InvertedMarketsError;
       }
-      store.setPrice(price);
+      store.price = price;
+      console.log(store.price);
       store.create();
     } else {
       store.resetAllSizes();

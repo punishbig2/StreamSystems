@@ -10,11 +10,11 @@ interface Props {
 export const TabLabel: React.FC<Props> = (props: Props) => {
   const ref: React.Ref<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const [editable, setEditable] = useState(false);
-  const [value, setValue] = useState<string>('');
   const { label, isDefault } = props;
+  const [value, setValue] = useState<string>(label);
 
   const getLabel = () => {
-    const finalLabel: string = label.trim() === '' ? 'Untitled' : label;
+    const finalLabel: string = value.trim() === '' ? 'Untitled' : label;
     if (isDefault) {
       return `${finalLabel} (default)`;
     } else {
@@ -39,6 +39,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
 
   const onChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+    console.log(value);
     setValue(value);
   };
 
@@ -55,6 +56,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
     }
   };
   const onDoubleClick = () => setEditable(true);
+  console.log(editable);
   return (
     <div className={'tab-label'}>
       <input

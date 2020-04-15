@@ -210,35 +210,3 @@ export class Order {
     return (this.status & OrderStatus.Active) !== 0;
   };
 }
-
-export const dumpStatus = (status: OrderStatus) => {
-  const map = {
-    [OrderStatus.None]: 'None',
-    [OrderStatus.Active]: 'Active',
-    [OrderStatus.Cancelled]: 'Cancelled',
-    [OrderStatus.PreFilled]: 'PreFilled',
-    [OrderStatus.PriceEdited]: 'PriceEdited',
-    [OrderStatus.SizeEdited]: 'QuantityEdited',
-    [OrderStatus.Owned]: 'Owned',
-    [OrderStatus.NotOwned]: 'NotOwned',
-    [OrderStatus.HasDepth]: 'HasDepth',
-    [OrderStatus.HasMyOrder]: 'HasMyOrder',
-    [OrderStatus.SameBank]: 'SameBank',
-    [OrderStatus.BeingCreated]: 'BeingCreated',
-    [OrderStatus.BeingCancelled]: 'BeingCancelled',
-    [OrderStatus.BeingLoaded]: 'BeingLoaded',
-    [OrderStatus.DarkPool]: 'DarkPool',
-    [OrderStatus.FullDarkPool]: 'FullDarkPool',
-    [OrderStatus.OwnedByBroker]: 'OwnedByBroker',
-    [OrderStatus.RunOrder]: 'RunOrder',
-  };
-  if (status === OrderStatus.None)
-    return 'None';
-  const keys: any[] = Object.keys(map);
-  return keys.reduce((result: string[], key: OrderStatus) => {
-      if ((status & key) !== 0)
-        return [...result, map[key]];
-      return result;
-    }, [])
-    .join(' | ');
-};

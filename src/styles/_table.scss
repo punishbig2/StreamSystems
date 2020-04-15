@@ -259,6 +259,7 @@ $spinner-size: $table-row-height - 6;
 
         .size-layout {
           position: relative;
+          font-weight: $table-font-weight + 200;
 
           &.busy {
             background-image: url('/images/size-spinner.gif');
@@ -466,6 +467,10 @@ $spinner-size: $table-row-height - 6;
             position: relative;
             font-weight: $table-font-weight + 200;
 
+            &.dark-pool-base {
+              font-weight: $table-font-weight;
+            }
+
             &.busy {
               input {
                 display: none;
@@ -477,6 +482,7 @@ $spinner-size: $table-row-height - 6;
               line-height: $table-row-height;
               height: $table-row-height;
               width: 100%;
+              text-align: left;
               background-image: url('/images/spinner.gif');
               background-size: $spinner-size;
               background-repeat: no-repeat;
@@ -486,7 +492,9 @@ $spinner-size: $table-row-height - 6;
               opacity: 0.75;
 
               span {
+                display: block;
                 padding-left: $spinner-size + 12px;
+                line-height: $table-row-height + 1;
               }
             }
           }
@@ -569,10 +577,11 @@ $spinner-size: $table-row-height - 6;
 
     .tbody, .thead {
       opacity: 0.4;
-      filter: blur(2px) grayscale(100%);
+      filter: blur(1px) grayscale(100%);
     }
 
     $spinner-size: 48px;
+
     &::after {
       position: absolute;
       display: block;

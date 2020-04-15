@@ -5,8 +5,7 @@ import { Table } from 'components/Table';
 import { useInitializer } from 'components/PodTile/hooks/useInitializer';
 import { Row } from 'components/PodTile/Row';
 import { Order, OrderStatus } from 'interfaces/order';
-import { PodTable } from 'interfaces/podTable';
-import React, { ReactElement, useCallback, useEffect, useMemo, CSSProperties } from 'react';
+import React, { ReactElement, useEffect, useMemo, CSSProperties } from 'react';
 import { API } from 'API';
 import { Currency } from 'interfaces/currency';
 import { observer } from 'mobx-react';
@@ -15,9 +14,7 @@ import { InvalidCurrency } from 'redux/stateDefs/windowState';
 import { PodTileStore } from 'mobx/stores/podTileStore';
 import { SignalRManager } from 'redux/signalR/signalRManager';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { priceFormatter } from 'utils/priceFormatter';
-import { PodRowStatus } from 'interfaces/podRow';
+import { convertToDepth } from 'components/PodTile/helpers';
 
 interface OwnProps {
   id: string;
@@ -68,24 +65,25 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   // Handler methods
-  const bulkCreateOrders = useCallback(
-    (entries: Order[]) => {
-      // Close the runs window
-      // Create the orders
-      Promise.all(
-        entries.map(async (order: Order) => {
-          const depth: Order[] = store.depth[order.tenor];
-          const myOrder: Order | undefined = depth ? depth.find((o: Order) => {
-            return o.type === order.type && o.user === user.email;
-          }) : undefined;
-          if (myOrder && myOrder.orderId && ((myOrder.status & OrderStatus.Cancelled) === 0))
-            await API.cancelOrder(myOrder, user);
-          await API.createOrder(order, personality, user, currency.minqty);
-        }))
-        .then(() => store.hideRunWindow());
-    },
-    [personality, currency.minqty, user, store],
-  );
+  const bulkCreateOrders = async (entries: Order[]) => {
+    let progress: number = 0;
+    // Close the runs window
+    // Create the orders
+    store.hideRunWindow();
+    store.showProgressWindow(entries.length);
+    await Promise.all(
+      entries.map(async (order: Order) => {
+        const depth: Order[] = store.depth[order.tenor];
+        const myOrder: Order | undefined = depth ? depth.find((o: Order) => {
+          return o.type === order.type && o.user === user.email;
+        }) : undefined;
+        if (myOrder && myOrder.orderId && ((myOrder.status & OrderStatus.Cancelled) === 0))
+          await API.cancelOrder(myOrder, user);
+        await API.createOrder(order, personality, user, currency.minqty);
+        store.setProgress(progress++);
+      }));
+    store.hideProgressWindow();
+  };
 
   const runWindow = (): ReactElement | null => {
     return (
@@ -168,42 +166,30 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       return <div style={style}/>;
     }
 
-    const convertToDepth = (orders: Order[]): PodTable => {
-      if (orders === undefined || store.currentTenor === null)
-        return {};
-      const tenor: string = store.currentTenor;
-      const orderSorter = (sign: number) =>
-        (o1: Order, o2: Order): number => {
-          if (o1.price === null || o2.price === null)
-            throw new Error('should not be sorting orders with null price');
-          if (priceFormatter(o1.price) === priceFormatter(o2.price))
-            return sign * (o1.timestamp - o2.timestamp);
-          return sign * (o1.price - o2.price);
-        };
-      const bids: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Bid);
-      const ofrs: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Ofr);
-      // Sort them
-      bids.sort(orderSorter(-1));
-      ofrs.sort(orderSorter(1));
-      const count: number = bids.length > ofrs.length ? bids.length : ofrs.length;
-      const depth: PodTable = {};
-      for (let i = 0; i < count; ++i) {
-        depth[i] = {
-          id: i.toString(),
-          bid: bids[i],
-          ofr: ofrs[i],
-          spread: null,
-          mid: null,
-          darkPrice: null,
-          tenor: tenor,
-          status: PodRowStatus.Normal,
-        };
-      }
-      return depth;
+    const dobRows = !!store.currentTenor ? convertToDepth(store.depth[store.currentTenor], store.currentTenor) : {};
+    const loadingClass: string | undefined = store.loading ? 'loading' : undefined;
+    const renderProgress = (): ReactElement | null => {
+      if (store.currentProgress === null)
+        return null;
+      let remainingSeconds: number = Date.now() - store.operationStartedAt;
+
+      const pad = (value: number) => value < 10 ? '0' + value : value.toString();
+
+      const percent: number = Math.round(100 * store.currentProgress / store.progressMax);
+      const hours: number = Math.round(remainingSeconds / 3600000);
+      const minutes: number = Math.round((remainingSeconds - 3600000 * hours) / 60000);
+      const seconds: number = Math.round((remainingSeconds - 60000 * minutes) / 1000);
+      return (
+        <div className={'progress-dialog'}>
+          <h1>Creating orders&hellip;</h1>
+          <div className={'timer'}>Time elapsed: {pad(hours)}:{pad(minutes)}:{pad(seconds)}</div>
+          <div data-value={percent} className={'progress'}>
+            <div className={'value'} style={{ width: `${percent}%` }}/>
+          </div>
+        </div>
+      );
     };
 
-    const dobRows = !!store.currentTenor ? convertToDepth(store.depth[store.currentTenor]) : {};
-    const loadingClass: string | undefined = store.loading ? 'loading' : undefined;
     return (
       <div className={'pod-tile-content' + (props.scrollable ? ' scrollable' : '')}>
         <div className={'pod'} data-showing-tenor={!!store.currentTenor}>
@@ -216,6 +202,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         <div className={'dob'} data-showing-tenor={!!store.currentTenor}>
           <Table scrollable={!!props.scrollable} columns={dobColumns} rows={dobRows} renderRow={renderDoBRow}/>
         </div>
+        <ModalWindow render={renderProgress} visible={store.isProgressWindowVisible}/>
       </div>
     );
   };

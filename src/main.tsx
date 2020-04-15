@@ -6,7 +6,7 @@ import 'fonts/montserrat/font.css';
 import React from 'react';
 import 'styles/main.scss';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
-// import whyDidYouRender from '@welldone-software/why-did-you-render';
+import whyDidYouRender from '@welldone-software/why-did-you-render';
 
 Object.defineProperty(MouseEvent.prototype, 'ignore', {
   value: function () {
@@ -15,7 +15,7 @@ Object.defineProperty(MouseEvent.prototype, 'ignore', {
   },
 });
 
-// whyDidYouRender(React);
+whyDidYouRender(React);
 
 const theme = createMuiTheme({
   palette: {

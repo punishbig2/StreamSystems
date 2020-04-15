@@ -153,7 +153,7 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
           }
         };
       case WindowTypes.MessageBlotter:
-        return (contentProps: any, contentStore: PodTileStore | MessagesStore | null) => (
+        return () => (
           <h1>Blotter</h1>
         );
     }

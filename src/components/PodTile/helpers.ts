@@ -1,56 +1,43 @@
 import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 import { skipTabIndexAll } from 'utils/skipTab';
+import { Order } from 'interfaces/order';
+import { PodTable } from 'interfaces/podTable';
+import { priceFormatter } from 'utils/priceFormatter';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { PodRowStatus } from 'interfaces/podRow';
 
-/*export const findMyOrder_ = (currency: string, strategy: string, tenor: string, type: OrderTypes, user: User): Order | undefined => {
-  const haystack: Order[] = SignalRManager.getDepth(currency, strategy, tenor, type);
-  const found: Order | undefined = haystack
-    .find((needle: Order) => {
-      return needle.user === user.email;
-    });
-  if (found !== undefined)
-    return found;
-  // No order was found
-  return undefined;
-};
-
-export const findMyOrder = (topOrder: Order, user: User): Order | undefined => {
-  if (topOrder.user === user.email)
-    return topOrder;
-  const haystack: Order[] = SignalRManager.getDepth(topOrder.symbol, topOrder.strategy, topOrder.tenor, topOrder.type);
-  const found: Order | undefined = haystack
-    .find((needle: Order) => {
-      return needle.user === user.email;
-    });
-  if (found !== undefined)
-    return found;
-  // No order was found
-  return undefined;
-};
-
-export const createOrder = async (order: Order, minimumSize: number, personality: string, user: User) => {
-  if (order.symbol === '' || order.strategy === '') {
-    console.warn('please give me symbol and strategy');
-    return;
+export const convertToDepth = (orders: Order[], tenor: string | null): PodTable => {
+  if (orders === undefined || tenor === null)
+    return {};
+  const orderSorter = (sign: number) =>
+    (o1: Order, o2: Order): number => {
+      if (o1.price === null || o2.price === null)
+        throw new Error('should not be sorting orders with null price');
+      if (priceFormatter(o1.price) === priceFormatter(o2.price))
+        return sign * (o1.timestamp - o2.timestamp);
+      return sign * (o1.price - o2.price);
+    };
+  const bids: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Bid);
+  const ofrs: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Ofr);
+  // Sort them
+  bids.sort(orderSorter(-1));
+  ofrs.sort(orderSorter(1));
+  const count: number = bids.length > ofrs.length ? bids.length : ofrs.length;
+  const depth: PodTable = {};
+  for (let i = 0; i < count; ++i) {
+    depth[i] = {
+      id: i.toString(),
+      bid: bids[i],
+      ofr: ofrs[i],
+      spread: null,
+      mid: null,
+      darkPrice: null,
+      tenor: tenor,
+      status: PodRowStatus.Normal,
+    };
   }
-  if (order.price !== null) {
-    const myOrder: Order | undefined = findMyOrder(order, user);
-    if (myOrder !== undefined && (myOrder.status & OrderStatus.Cancelled) === 0) {
-      if ((user.isbroker && order.firm === personality) || !user.isbroker) {
-        await API.cancelOrder(myOrder, user);
-      }
-    }
-    await API.createOrder(order, personality, user, minimumSize);
-  } else {
-    throw new Error('attempting to create an invalid order');
-  }
+  return depth;
 };
-
-export const cancelOrder = (order: Order, user: User) => {
-  const myOrder: Order | undefined = findMyOrder(order, user);
-  if (myOrder) {
-    API.cancelOrder(myOrder, user);
-  }
-};*/
 
 export const onNavigate = (input: HTMLInputElement, direction: NavigateDirection) => {
   switch (direction) {

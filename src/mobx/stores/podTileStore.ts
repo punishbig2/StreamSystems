@@ -29,6 +29,11 @@ export class PodTileStore {
   @observable depth: { [tenor: string]: Order[] } = {};
 
   @observable isRunWindowVisible: boolean = false;
+  // Progress bar
+  @observable isProgressWindowVisible: boolean = false;
+  @observable currentProgress: number | null = null;
+  @observable operationStartedAt: number = 0;
+  public progressMax: number = 100;
 
   constructor(windowID: string) {
     const tenors: string[] = workareaStore.tenors;
@@ -151,5 +156,25 @@ export class PodTileStore {
   @action.bound
   public setCurrentTenor(tenor: string | null) {
     this.currentTenor = tenor;
+  }
+
+  @action.bound
+  public showProgressWindow(maximum: number) {
+    this.isProgressWindowVisible = true;
+    this.currentProgress = 0;
+    this.progressMax = maximum;
+    this.operationStartedAt = Date.now();
+  }
+
+  @action.bound
+  public hideProgressWindow() {
+    this.isProgressWindowVisible = false;
+    this.currentProgress = null;
+    this.progressMax = 100;
+  }
+
+  @action.bound
+  public setProgress(value: number) {
+    this.currentProgress = value;
   }
 }

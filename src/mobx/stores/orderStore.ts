@@ -55,8 +55,8 @@ export class OrderStore {
     if ((this.status & OrderStatus.Owned) === 0)
       return this.defaultSize !== undefined ? this.defaultSize : this.minimumSize;
     // If a size was submitted use it
-    if (this.submittedSize !== null)
-      return this.submittedSize;
+    if (this.editedSize !== null)
+      return this.editedSize;
     // Otherwise use current order's size
     if (this.baseSize !== null)
       return this.baseSize;
@@ -68,7 +68,6 @@ export class OrderStore {
 
   @computed
   get status() {
-
     return this.baseStatus | this.currentStatus;
   }
 
@@ -80,17 +79,17 @@ export class OrderStore {
 
   @action.bound
   public async create() {
+    const price: number | null = this.price;
+    const size: number | null = this.getCreateSize();
+    if (price === null || size === null)
+      throw new Error('cannot create orders when the user has not initialized the cell');
     // First cancel previous orders if any
     if ((this.status & OrderStatus.Cancelled) === 0)
       await this.cancel();
     // Now attempt to create the new order
     const { user, personality } = this;
-    const { price } = this;
     if (user === null || personality === null)
       throw new Error('store not properly initialized');
-    const size: number = this.getCreateSize();
-    if (size === null || price === null)
-      throw new Error('invalid request: size and price must be non-null');
     // Set "creating status"
     this.currentStatus = this.currentStatus | OrderStatus.BeingCreated;
     // Create the request

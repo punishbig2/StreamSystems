@@ -40,5 +40,6 @@ export default {
   LoadingTenors: 'Loading Tenors',
   LoadingUserData: 'Loading User Data',
   EstablishingConnection: 'Connecting\u2026',
+  Connected: 'Connected\u2026',
   LoadingWorkspaces: 'Loading Workspaces',
 };

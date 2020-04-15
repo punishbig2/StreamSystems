@@ -137,41 +137,46 @@ export class WorkareaStore {
 
   @action.bound
   public async initialize(email: string) {
-    const signalRManager: SignalRManager = SignalRManager.getInstance();
-    // Start the loading mode
-    this.status = WorkareaStatus.Initializing;
-    // Load currencies
-    this.loadingMessage = strings.LoadingSymbols;
-    this.currencies = await API.getSymbols();
-    // Load strategies
-    this.loadingMessage = strings.LoadingStrategies;
-    this.strategies = await API.getProducts();
-    // Load strategies
-    this.loadingMessage = strings.LoadingTenors;
-    this.tenors = await API.getTenors();
-    // Now load users information
-    this.loadingMessage = strings.LoadingUserData;
-    const users: any[] = await API.getUsers();
-    // Find said user in the users array
-    const user: User | undefined = users.find((each: User) => each.email === email);
-    if (user === undefined) {
-      this.status = WorkareaStatus.UserNotFound;
-    } else {
-      this.user = user;
-      this.loadingMessage = strings.EstablishingConnection;
-      // Update signal R manager
-      signalRManager.setUser(user);
-      // Connect the signal R client
-      signalRManager.connect();
-      // Try to connect
-      signalRManager.setOnConnectedListener(() => {
-        this.status = WorkareaStatus.Ready;
-        this.connected = true;
-      });
-      signalRManager.setOnDisconnectedListener(() => {
-        this.status = WorkareaStatus.Error;
-        this.connected = false;
-      });
+    try {
+      const signalRManager: SignalRManager = SignalRManager.getInstance();
+      // Start the loading mode
+      this.status = WorkareaStatus.Initializing;
+      // Load currencies
+      this.loadingMessage = strings.LoadingSymbols;
+      this.currencies = await API.getSymbols();
+      // Load strategies
+      this.loadingMessage = strings.LoadingStrategies;
+      this.strategies = await API.getProducts();
+      // Load strategies
+      this.loadingMessage = strings.LoadingTenors;
+      this.tenors = await API.getTenors();
+      // Now load users information
+      this.loadingMessage = strings.LoadingUserData;
+      const users: any[] = await API.getUsers();
+      // Find said user in the users array
+      const user: User | undefined = users.find((each: User) => each.email === email);
+      if (user === undefined) {
+        this.status = WorkareaStatus.UserNotFound;
+      } else {
+        this.user = user;
+        this.loadingMessage = strings.EstablishingConnection;
+        // Update signal R manager
+        signalRManager.setUser(user);
+        // Connect the signal R client
+        signalRManager.connect();
+        // Try to connect
+        signalRManager.setOnConnectedListener(() => {
+          this.status = WorkareaStatus.Ready;
+          this.loadingMessage = strings.Connected;
+          this.connected = true;
+        });
+        signalRManager.setOnDisconnectedListener(() => {
+          this.status = WorkareaStatus.Error;
+          this.connected = false;
+        });
+      }
+    } catch (error) {
+      this.status = WorkareaStatus.Error;
     }
   };
 
