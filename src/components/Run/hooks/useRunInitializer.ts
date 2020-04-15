@@ -6,13 +6,12 @@ import { API } from 'API';
 import { OrderMessage, Order, OrderStatus } from 'interfaces/order';
 import { PodRow } from 'interfaces/podRow';
 import { $$ } from 'utils/stringPaster';
-import { SignalRManager } from 'redux/signalR/signalRManager';
 import { PodTable } from 'interfaces/podTable';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { createEmptyTable } from 'components/Run/helpers/createEmptyTablei';
 import { User } from 'interfaces/user';
 
-export const useRunInitializer = (tenors: string[], symbol: string, strategy: string, visible: boolean, user: User, dispatch: Dispatch<FXOAction<RunActions>>) => {
+export const useRunInitializer = (tenors: string[], symbol: string, strategy: string, depth: { [tenor: string]: Order[] }, visible: boolean, user: User, dispatch: Dispatch<FXOAction<RunActions>>) => {
   useEffect(() => {
     if (!visible)
       return;
@@ -39,9 +38,11 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           // Return the updated map
           return map;
         };
-        const currOrders: { [id: string]: Order } = {} /*SignalRManager.getOrdersForUser(email)
-          .filter((order: Order) => order.symbol === symbol && order.strategy === strategy)
-          .reduce(orderReducer, {});*/
+        const currOrders: { [id: string]: Order } = Object.values(depth)
+          .reduce((flat: Order[], next: Order[]) => [...flat, ...next], [])
+          .filter((order: Order) => order.user === user.email)
+          .map((order: Order) => ({ ...order, status: order.status | OrderStatus.Active }))
+          .reduce(orderReducer, {});
         const prevOrders: { [id: string]: Order } = messages
           .map((message: OrderMessage) => Order.fromOrderMessage(message, email))
           .map((order: Order) => ({ ...order, status: (order.status & ~OrderStatus.Active) | OrderStatus.Cancelled }))
@@ -66,6 +67,6 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           }, {});
         dispatch(createAction<RunActions>(RunActions.SetTable, table));
       });
-  }, [tenors, symbol, strategy, visible, dispatch, user]);
+  }, [tenors, symbol, strategy, visible, dispatch, user, depth]);
 };
 

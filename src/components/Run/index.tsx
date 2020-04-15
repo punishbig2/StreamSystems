@@ -30,9 +30,8 @@ interface OwnProps {
   minimumSize: number;
   defaultSize: number;
   user: User;
+  depth: { [tenor: string]: Order[] };
 }
-
-type Props = OwnProps;
 
 const initialState: RunState = {
   original: {},
@@ -42,8 +41,8 @@ const initialState: RunState = {
   isLoading: false,
 };
 
-const Run: React.FC<Props> = (props: Props) => {
-  const { symbol, strategy, tenors, user, defaultSize, minimumSize, visible } = props;
+const Run: React.FC<OwnProps> = (props: OwnProps) => {
+  const { symbol, strategy, tenors, user, defaultSize, minimumSize, visible, depth } = props;
   const [state, dispatch] = useReducer<Reducer<RunState, FXOAction<RunActions>>>(reducer, initialState);
   const { orders } = state;
 
@@ -53,7 +52,7 @@ const Run: React.FC<Props> = (props: Props) => {
     dispatch(createAction<RunActions>(RunActions.SetTable, createEmptyTable(symbol, strategy, tenors)));
   }, [symbol, strategy, tenors]);
 
-  useRunInitializer(tenors, symbol, strategy, visible, user, dispatch);
+  useRunInitializer(tenors, symbol, strategy, depth, visible, user, dispatch);
   useEffect(() => {
     dispatch(createAction<RunActions>(RunActions.SetDefaultSize, defaultSize));
   }, [defaultSize, visible]);

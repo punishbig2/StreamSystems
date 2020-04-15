@@ -97,6 +97,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         tenors={tenors}
         defaultSize={currency.defaultqty}
         minimumSize={currency.minqty}
+        depth={store.depth}
         onClose={store.hideRunWindow}
         onSubmit={bulkCreateOrders}/>
     );

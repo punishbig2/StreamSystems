@@ -76,7 +76,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
-    if (depth === undefined)
+    if (depth.length === 0)
       return null;
     return <MiniDOB {...props} rows={orders} user={user}/>;
   };
