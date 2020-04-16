@@ -302,7 +302,7 @@ export class API {
     return result;
   }
 
-  static async getDarkPoolSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
+  static async getDarkTOBPoolSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       return null;
     const url: string = API.getRawUrl(API.DarkPool, 'tiletobsnapshot', { symbol, strategy });
@@ -310,20 +310,12 @@ export class API {
     return get<{ [k: string]: W } | null>(url);
   }
 
-  static async getDarkPoolTenorSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
-    if (!symbol || !strategy || !tenor)
+  static async getDarkPoolSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
+    if (!symbol || !strategy)
       return null;
-    const url: string = API.getRawUrl(API.DarkPool, 'snapshot', { symbol, strategy, tenor });
+    const url: string = API.getRawUrl(API.DarkPool, 'tilesnapshot', { symbol, strategy });
     // Execute the query
-    return get<W | null>(url);
-  }
-
-  static async getDarkPoolTOBSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
-    if (!symbol || !strategy || !tenor)
-      return null;
-    const url: string = API.getRawUrl(API.DarkPool, 'tobsnapshot', { symbol, strategy, tenor });
-    // Execute the query
-    return get<W | null>(url);
+    return get<{ [k: string]: W } | null>(url);
   }
 
   static getTOBSnapshot(symbol: string, strategy: string): CancellablePromise<{ [k: string]: W } | null> {
@@ -340,22 +332,6 @@ export class API {
     const url: string = API.getRawUrl(API.MarketData, 'tilesnapshot', { symbol, strategy });
     // Execute the query
     return get<{ [k: string]: W } | null>(url);
-  }
-
-  static async getTenorTOBSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
-    if (!symbol || !strategy)
-      throw new Error('you have to tell me which symbol, strategy and tenor you want');
-    const url: string = API.getRawUrl(API.MarketData, 'tobsnapshot', { symbol, strategy, tenor });
-    // Execute the query
-    return await get<W | null>(url);
-  }
-
-  static getTenorSnapshot(symbol: string, strategy: string, tenor: string): CancellablePromise<W | null> {
-    if (!symbol || !strategy)
-      throw new Error('you have to tell me which symbol, strategy and tenor you want');
-    const url: string = API.getRawUrl(API.MarketData, 'snapshot', { symbol, strategy, tenor });
-    // Execute the query
-    return get<W | null>(url);
   }
 
   static async getMessagesSnapshot(useremail: string, timestamp: number): CancellablePromise<Message[]> {

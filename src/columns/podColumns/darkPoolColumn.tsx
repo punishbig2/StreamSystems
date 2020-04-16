@@ -7,7 +7,7 @@ import React, { useState, useEffect, ReactElement } from 'react';
 import { STRM } from 'stateDefs/workspaceState';
 import { ModalWindow } from 'components/ModalWindow';
 import { onNavigate } from 'components/PodTile/helpers';
-import { DarkPoolColumnStore } from 'mobx/stores/darkPoolColumnStore';
+import { DarkPoolStore } from 'mobx/stores/darkPoolStore';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
 import { skipTabIndexAll } from 'utils/skipTab';
@@ -205,7 +205,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     status === Status.Publishing ? OrderStatus.Publishing : OrderStatus.None
   );
   console.log(value);*/
-  const [store] = useState<DarkPoolColumnStore>(new DarkPoolColumnStore());
+  const [store] = useState<DarkPoolStore>(new DarkPoolStore());
   const { currency, strategy, tenor, personality } = props;
   const user: User = workareaStore.user;
 
@@ -228,6 +228,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         currency={currency}/>
     );
   };
+
   const renderTooltip = () => {
     const depth: PodTable | null = store.depth;
     if (depth === null)
@@ -240,7 +241,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   useEffect(() => {
     store.connect(currency, strategy, tenor);
     return () => {
-      DarkPoolColumnStore.disconnect(currency, strategy, tenor);
+      DarkPoolStore.disconnect(currency, strategy, tenor);
     };
   }, [currency, store, strategy, tenor]);
 

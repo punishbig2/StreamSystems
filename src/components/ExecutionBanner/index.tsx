@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
 import store from 'mobx/stores/messagesStore';

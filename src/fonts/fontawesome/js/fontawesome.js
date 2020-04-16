@@ -1771,7 +1771,7 @@
 
   function disconnect() {
     if (!mo) return;
-    DarkPoolColumnStore.disconnect();
+    DarkPoolStore.disconnect();
   }
 
   function styleParser(node) {

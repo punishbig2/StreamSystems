@@ -8,7 +8,7 @@ import { STRM } from 'stateDefs/workspaceState';
 import store from 'mobx/stores/messagesStore';
 import { observer } from 'mobx-react';
 import workareaStore from 'mobx/stores/workareaStore';
-import { isMyMessage, renderRowFactory } from 'components/MessageBlotter/helpers';
+import { renderRowFactory } from 'components/MessageBlotter/helpers';
 
 interface OwnProps {
   id: string;

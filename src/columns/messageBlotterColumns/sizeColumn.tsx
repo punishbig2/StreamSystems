@@ -1,4 +1,3 @@
-import React from 'react';
 import { Message } from 'interfaces/message';
 import { getMessageSize } from 'messageUtils';
 import { ColumnSpec } from 'components/Table/columnSpecification';

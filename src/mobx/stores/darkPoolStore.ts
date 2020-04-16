@@ -12,7 +12,7 @@ import { PodTable } from 'interfaces/podTable';
 import { orderSorter } from 'components/PodTile/helpers';
 import { PodRowStatus } from 'interfaces/podRow';
 
-export class DarkPoolColumnStore {
+export class DarkPoolStore {
   @observable orders: Order[] = [];
   @observable publishedPrice: number | null = null;
   @observable isTicketOpen: boolean = false;
@@ -117,12 +117,6 @@ export class DarkPoolColumnStore {
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
     }
-    API.getDarkPoolTenorSnapshot(currency, strategy, tenor)
-      .then((snapshot: W | null) => {
-        if (snapshot !== null) {
-          this.onOrderReceived(snapshot);
-        }
-      });
   }
 
   public static disconnect(currency: string, strategy: string, tenor: string) {
