@@ -12,6 +12,7 @@ import { Order } from 'interfaces/order';
 import { MDEntry } from 'interfaces/mdEntry';
 
 import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
+import persistStorage from 'persistStorage';
 
 export class PodTileStore {
   public id: string = '';
@@ -36,9 +37,9 @@ export class PodTileStore {
 
   constructor(windowID: string) {
     const tenors: string[] = workareaStore.tenors;
-    this.id = `PoD${windowID}`;
+    this.id = windowID;
     const hydrate = create({
-      storage: localStorage,
+      storage: persistStorage.pods,
       jsonify: true,
     });
     hydrate(this.id, this);

@@ -8,14 +8,15 @@ import { SelectEventData } from 'interfaces/selectEventData';
 import { Sides } from 'interfaces/sides';
 import { priceFormatter } from 'utils/priceFormatter';
 import { sizeFormatter } from 'utils/sizeFormatter';
+import workareaStore from 'mobx/stores/workareaStore';
+import { User } from 'interfaces/user';
 
 interface OwnProps {
   tenor: string;
   currency: string;
   strategy: string;
   price: number;
-  size: number;
-  user: string;
+  size: number | null;
   onCancel: () => void;
   onSubmit: (order: DarkPoolOrder) => void;
 }
@@ -27,11 +28,12 @@ export interface DarkPoolTicketData {
 }
 
 const None = '';
+const presetSizes: number[] = [30, 50, 100, 500];
 
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   const [price, setPrice] = useState<number>(props.price);
-  const [size, setSize] = useState<number>(props.size);
+  const [size, setSize] = useState<number>(props.size === null ? presetSizes[0] : props.size);
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
   useEffect(() => {
@@ -51,10 +53,10 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       return;
     setPrice(numeric);
   };
-  const presetSizes: number[] = [30, 50, 100, 500];
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const user: User = workareaStore.user;
     const order: DarkPoolOrder = {
       ExecInst: inst === None ? undefined : inst,
       MsgType: MessageTypes.D,
@@ -65,9 +67,8 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       Symbol: props.currency,
       Tenor: props.tenor,
       TransactTime: (Date.now() / 1000).toFixed(0),
-      User: props.user,
+      User: user.email,
     };
-    console.log(order);
     props.onSubmit(order);
   };
 
@@ -135,12 +136,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
             </div>
             <div className={'value'}>
               <div className={'editor'}>
-                <input
-                  value={size}
-                  onChange={updateSize}
-                  autoFocus={true}
-                  ref={setInput}
-                />
+                <input value={size} onChange={updateSize} autoFocus={true} ref={setInput}/>
               </div>
               <div className={'buttons'}>
                 {presetSizes.map((value: number) => (
@@ -161,8 +157,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 renderValue={(value: any) =>
                   !value ? 'None' : instLabels[value as string]
                 }
-                variant={'outlined'}
-              >
+                variant={'outlined'}>
                 <MenuItem value={'G'}>AON</MenuItem>
                 <MenuItem value={'D'}>
                   <sup>1</sup>/<sub>2</sub>&nbsp; AOD

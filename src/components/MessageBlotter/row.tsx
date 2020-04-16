@@ -51,6 +51,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const { ExecID } = row;
 
   useEffect(() => {
+    setExecuted(false);
     if (blotterType === BlotterTypes.Executions) {
       /*let timer: number | null = null;
       const onExecuted = () => {

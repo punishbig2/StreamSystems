@@ -2,16 +2,15 @@ import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
 import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage } from 'interfaces/order';
 import { MessageResponse } from 'interfaces/messageResponse';
-import { User, UserPreferences } from 'interfaces/user';
+import { User } from 'interfaces/user';
 import { MessageTypes, W } from 'interfaces/w';
 import { getSideFromType, getCurrentTime } from 'utils';
 import { STRM } from 'stateDefs/workspaceState';
 import { $$ } from 'utils/stringPaster';
 import { Sides } from 'interfaces/sides';
 import config from 'config';
-import { defaultProfile } from 'stateDefs/defaultUserProfile';
 
-const toQuery = (obj: { [key: string]: string }): string => {
+const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
   return entries
     .map(([key, value]: [string, string]) => `${key}=${encodeURI(value)}`)
@@ -65,7 +64,7 @@ export class CancellablePromise<T> extends Promise<T> {
 // Special type to exclude 1 type from a set of types
 type NotOfType<T> = T extends string ? never : T;
 // Generic request builder
-const request = <T>(url: string, method: Method, data?: NotOfType<string>): CancellablePromise<T> => {
+const request = <T>(url: string, method: Method, data?: NotOfType<string>, contentType?: string): CancellablePromise<T> => {
   // This should be accessible from outside the executor/promise to allow cancellation
   const xhr = new XMLHttpRequest();
   // Executor
@@ -102,8 +101,15 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Canc
     };
     if (data) {
       // Content type MUST be json
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify(data));
+      if (contentType === undefined || contentType === 'application/json') {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
+      } else if (contentType === 'application/x-www-form-urlencoded') {
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(toUrlQuery(data));
+      } else {
+        throw new Error('unsupported media type');
+      }
     } else {
       xhr.send();
     }
@@ -113,8 +119,11 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>): Canc
 
 const { Api } = config;
 
-const post = <T>(url: string, data: any): CancellablePromise<T> => request<T>(url, Method.Post, data);
-const get = <T>(url: string, args?: any): CancellablePromise<T> => request<T>(url, Method.Get, args);
+const post = <T>(url: string, data: any, contentType?: string): CancellablePromise<T> =>
+  request<T>(url, Method.Post, data, contentType);
+
+const get = <T>(url: string, args?: any): CancellablePromise<T> =>
+  request<T>(url, Method.Get, args);
 
 type Endpoints =
   | 'symbols'
@@ -145,17 +154,17 @@ export class API {
   static getRawUrl(section: string, rest: string, args?: any): string {
     if (args === undefined)
       return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
-    return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toQuery(args)}`;
+    return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toUrlQuery(args)}`;
   }
 
-  static getUrl(section: string, object: Endpoints, verb: Verb, args?: any): string {
+  static buildUrl(section: string, object: Endpoints, verb: Verb, args?: any): string {
     if (args === undefined)
       return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
-    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}?${toQuery(args)}`;
+    return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}?${toUrlQuery(args)}`;
   }
 
   static async getSymbols(): CancellablePromise<Currency[]> {
-    const currencies: Currency[] = await get<Currency[]>(API.getUrl(API.Config, 'symbols', 'get'));
+    const currencies: Currency[] = await get<Currency[]>(API.buildUrl(API.Config, 'symbols', 'get'));
     currencies.sort((c1: Currency, c2: Currency): number => {
       const { name: n1 } = c1;
       const { name: n2 } = c2;
@@ -165,15 +174,15 @@ export class API {
   }
 
   static getProducts(): CancellablePromise<string[]> {
-    return get<string[]>(API.getUrl(API.Config, 'products', 'get'));
+    return get<string[]>(API.buildUrl(API.Config, 'products', 'get'));
   }
 
   static getTenors(): CancellablePromise<string[]> {
-    return get<string[]>(API.getUrl(API.Config, 'tenors', 'get'));
+    return get<string[]>(API.buildUrl(API.Config, 'tenors', 'get'));
   }
 
   static async executeCreateOrderRequest(request: CreateOrder): CancellablePromise<MessageResponse> {
-    const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'create'), request);
+    const result: MessageResponse = await post<MessageResponse>(API.buildUrl(API.Oms, 'order', 'create'), request);
     if (result.Status !== 'Success')
       console.warn(`error creating an order ${result.Response}`);
     return result;
@@ -220,7 +229,7 @@ export class API {
       Strategy: entry.strategy,
       Tenor: entry.tenor,
     };
-    return post<MessageResponse>(API.getUrl(API.Oms, 'order', 'modify'), request);
+    return post<MessageResponse>(API.buildUrl(API.Oms, 'order', 'modify'), request);
   }
 
   static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides, user: User): CancellablePromise<MessageResponse> {
@@ -238,7 +247,7 @@ export class API {
     document.dispatchEvent(event);
     // Sadly, in this case it is not possible to know if a given individual order was
     // cancelled (but this is not that bad because in principle it never fails)
-    return post<MessageResponse>(API.getUrl(API.Oms, 'all', 'cancel'), request);
+    return post<MessageResponse>(API.buildUrl(API.Oms, 'all', 'cancel'), request);
   }
 
   static async cancelOrder(order: Order, user: User): CancellablePromise<MessageResponse> {
@@ -253,7 +262,7 @@ export class API {
       Tenor: order.tenor,
       OrderID: order.orderId,
     };
-    const result: MessageResponse = await post<MessageResponse>(API.getUrl(API.Oms, 'order', 'cancel'), request);
+    const result: MessageResponse = await post<MessageResponse>(API.buildUrl(API.Oms, 'order', 'cancel'), request);
     if (result.Status !== 'Success') {
       console.warn('error cancelling an order');
     }
@@ -318,8 +327,8 @@ export class API {
 
   static async getMessagesSnapshot(useremail: string, timestamp: number): CancellablePromise<Message[]> {
     const query: any = { timestamp };
-    const darkpool: Message[] = await get<Message[]>(API.getUrl(API.DarkPool, 'messages', 'get', query));
-    const normal: Message[] = await get<Message[]>(API.getUrl(API.Oms, 'messages', 'get', query));
+    const darkpool: Message[] = await get<Message[]>(API.buildUrl(API.DarkPool, 'messages', 'get', query));
+    const normal: Message[] = await get<Message[]>(API.buildUrl(API.Oms, 'messages', 'get', query));
     const combined: Message[] = [...darkpool, ...normal];
     combined.sort((m1: Message, m2: Message) => Number(m1.TransactTime) - Number(m2.TransactTime));
     return combined;
@@ -327,22 +336,22 @@ export class API {
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): CancellablePromise<OrderMessage[]> {
     return get<OrderMessage[]>(
-      API.getUrl(API.Oms, 'runorders', 'get', { symbol, strategy, useremail }),
+      API.buildUrl(API.Oms, 'runorders', 'get', { symbol, strategy, useremail }),
     );
   }
 
   static async getUserGroupSymbol(useremail: string): CancellablePromise<any[]> {
     return get<any[]>(
-      API.getUrl(API.Oms, 'UserGroupSymbol', 'get', { useremail }),
+      API.buildUrl(API.Oms, 'UserGroupSymbol', 'get', { useremail }),
     );
   }
 
   static async getUsers(): CancellablePromise<User[]> {
-    return get<User[]>(API.getUrl(API.UserApi, 'Users', 'get'));
+    return get<User[]>(API.buildUrl(API.UserApi, 'Users', 'get'));
   }
 
   static async getBanks(): CancellablePromise<string[]> {
-    return get<string[]>(API.getUrl(API.Config, 'markets', 'get'));
+    return get<string[]>(API.buildUrl(API.Config, 'markets', 'get'));
   }
 
   static async createDarkPoolOrder(order: DarkPoolOrder, user: User): CancellablePromise<any> {
@@ -352,13 +361,13 @@ export class API {
       order.MDMkt = user.firm;
     }
     return post<MessageResponse>(
-      API.getUrl(API.DarkPool, 'order', 'create'),
+      API.buildUrl(API.DarkPool, 'order', 'create'),
       order,
     );
   }
 
   static async modifyDarkPoolOrder(request: any): CancellablePromise<any> {
-    return post<MessageResponse>(API.getUrl(API.DarkPool, 'order', 'modify'), request);
+    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'order', 'modify'), request);
   }
 
   static async cancelDarkPoolOrder(order: Order, user: User): CancellablePromise<any> {
@@ -371,26 +380,26 @@ export class API {
       Tenor: order.tenor,
       OrderID: order.orderId,
     };
-    return post<MessageResponse>(API.getUrl(API.DarkPool, 'order', 'cancel'), request);
+    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'order', 'cancel'), request);
   }
 
   static async cxlAllExtendedDarkPoolOrder(request: any): CancellablePromise<any> {
     return post<MessageResponse>(
-      API.getUrl(API.DarkPool, 'allall', 'cxl'),
+      API.buildUrl(API.DarkPool, 'allall', 'cxl'),
       request,
     );
   }
 
   static async cancelAllDarkPoolOrder(request: any): CancellablePromise<any> {
-    return post<MessageResponse>(API.getUrl(API.DarkPool, 'all', 'cancel'), request);
+    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'all', 'cancel'), request);
   }
 
   static async getDarkPoolMessages(useremail: string, timestamp: number): CancellablePromise<any> {
-    return get<MessageResponse>(API.getUrl(API.DarkPool, 'messages', 'get', { useremail, timestamp }));
+    return get<MessageResponse>(API.buildUrl(API.DarkPool, 'messages', 'get', { useremail, timestamp }));
   }
 
   static async getDarkPoolRunOrders(request: any): CancellablePromise<any> {
-    return get<MessageResponse>(API.getUrl(API.DarkPool, 'runorders', 'get'));
+    return get<MessageResponse>(API.buildUrl(API.DarkPool, 'runorders', 'get'));
   }
 
   static async publishDarkPoolPrice(user: string, symbol: string, strategy: string, tenor: string, price: number | ''): CancellablePromise<any> {
@@ -401,19 +410,17 @@ export class API {
       Tenor: tenor,
       DarkPrice: price,
     };
-    return post<any>(API.getUrl(API.DarkPool, 'price', 'publish'), data);
+    return post<any>(API.buildUrl(API.DarkPool, 'price', 'publish'), data);
   }
 
-  static async getUserProfile(email: string): Promise<UserPreferences> {
-    const profile = localStorage.getItem('userProfile');
-    if (profile === null)
-      return defaultProfile;
-    return JSON.parse(profile);// get<any>(API.getUrl(API.UserApi, 'UserJson', 'get', { useremail: email }));
+  static async getUserProfile(email: string): Promise<[{ workspace: any }]> {
+    return get<any>(API.buildUrl(API.UserApi, 'UserJson', 'get', { useremail: email }));
   }
 
   static async saveUserProfile(data: any) {
     const { useremail, workspace } = data;
-    return post<any>(API.getUrl(API.UserApi, 'UserJson', 'save', { useremail, workspace }), null);
+    const contentType = 'application/x-www-form-urlencoded';
+    return post<any>(API.buildUrl(API.UserApi, 'UserJson', 'save'), { useremail, workspace }, contentType);
   }
 
   static async brokerRefAll(user: string, personality: string) {
@@ -424,7 +431,7 @@ export class API {
       TransactTime: getCurrentTime(),
     };
     return post<MessageResponse>(
-      API.getUrl(API.Oms, 'all', 'cxlall'),
+      API.buildUrl(API.Oms, 'all', 'cxlall'),
       request,
     );
   }

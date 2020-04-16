@@ -174,22 +174,7 @@ export class Order {
     return order;
   };
 
-  /*public dispatchEvent = (action: OrderAction) => {
-    const type: string = $$(this.uid(), action);
-    const event: CustomEvent = new CustomEvent<Order>(type, { detail: this });
-    // Now dispatch it
-    document.dispatchEvent(event);
-  };*/
-
-  public isOwnedByCurrentUser = (user: User): boolean => {
-    return this.user === user.email;
-  };
-
   public isCancelled = () => {
     return (this.status & OrderStatus.Cancelled) !== 0;
-  };
-
-  public isSameBankAsCurrentUser = () => {
-    return (this.status & OrderStatus.SameBank) !== 0;
   };
 }

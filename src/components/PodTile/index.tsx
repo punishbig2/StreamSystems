@@ -12,7 +12,6 @@ import { observer } from 'mobx-react';
 import { User } from 'interfaces/user';
 import { InvalidCurrency } from 'stateDefs/windowState';
 import { PodTileStore } from 'mobx/stores/podTileStore';
-import { SignalRManager } from 'signalR/signalRManager';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 import { convertToDepth } from 'components/PodTile/helpers';
 

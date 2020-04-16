@@ -1,6 +1,7 @@
 import { observable, action, computed } from 'mobx';
 import { persist, create } from 'mobx-persist';
 import { WindowTypes } from 'mobx/stores/workareaStore';
+import persistStorage from 'persistStorage';
 
 export class WindowStore {
   public id: string = '';
@@ -19,7 +20,7 @@ export class WindowStore {
     this.type = type;
     if (!fixed) {
       const hydrate = create({
-        storage: localStorage,
+        storage: persistStorage.windows,
         jsonify: true,
       });
       hydrate(id, this);

@@ -56,7 +56,6 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
     }
   };
   const onDoubleClick = () => setEditable(true);
-  console.log(editable);
   return (
     <div className={'tab-label'}>
       <input

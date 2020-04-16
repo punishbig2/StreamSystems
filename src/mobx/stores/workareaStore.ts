@@ -3,7 +3,7 @@ import { Message } from 'interfaces/message';
 import { User, UserPreferences, CurrencyGroups } from 'interfaces/user';
 import { WorkareaStatus } from 'stateDefs/workareaState';
 import { observable, action, computed } from 'mobx';
-import { persist } from 'mobx-persist';
+import { persist, create } from 'mobx-persist';
 import { API } from 'API';
 
 import latam from 'groups/latam';
@@ -15,7 +15,8 @@ import { WindowDef } from 'mobx/stores/workspaceStore';
 import { PresetWindow } from 'groups/presetWindow';
 import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
 import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
-import { defaultProfile } from 'stateDefs/defaultUserProfile';
+import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
+import persistStorage from 'persistStorage';
 
 export enum WindowTypes {
   PodTile = 1,
@@ -40,8 +41,8 @@ export class WorkareaStore {
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
   @observable recentExecutions: Message[] = [];
-  @observable userProfile: UserPreferences = defaultProfile;
-  @observable user: User | null = null;
+  @persist('object') @observable preferences: UserPreferences = defaultPreferences;
+  @observable user: User = {} as User;
   @observable loadingMessage?: string;
   @observable isCreatingWorkspace: boolean = false;
   @observable errorMessage: string | null = null;
@@ -59,13 +60,15 @@ export class WorkareaStore {
     const map: { [k: string]: PresetWindow[] } | null = WorkareaStore.getMapForCurrencyGroup(group);
     if (map === null)
       return;
+    const { workspaces } = persistStorage;
     const currencies: string[] = Object.keys(map);
     const windows: WindowDef[] = currencies.reduce((accumulator: WindowDef[], currency: string): WindowDef[] => {
-      const windows: WindowDef[] = map[currency]
+      const { pods } = persistStorage;
+      const windowList: WindowDef[] = map[currency]
         .map(({ strategy, minimized, position }: PresetWindow): WindowDef => {
-          const id: string = `WiN${currency}${strategy}${randomID()}`;
+          const id: string = randomID('pods');
           // Force the initialization of a pod structure
-          localStorage.setItem(`PoD${id}`, JSON.stringify({ currency, strategy }));
+          pods.setItem(id, JSON.stringify({ currency, strategy }));
           return {
             id: id,
             minimized: minimized,
@@ -74,15 +77,15 @@ export class WorkareaStore {
             fitToContent: true,
           };
         });
-      return [...accumulator, ...windows];
+      return [...accumulator, ...windowList];
     }, []);
-    localStorage.setItem(id, JSON.stringify({ windows }));
+    workspaces.setItem(id, JSON.stringify({ windows }));
   }
 
   @action.bound
   private internalAddWorkspace(group: CurrencyGroups) {
     const { workspaces } = this;
-    const id: string = `WoS${group}${randomID()}`;
+    const id: string = randomID('workspaces');
     // Populate the default stuff if needed
     this.populateDefaultWorkspace(id, group);
     // Create the workspace
@@ -98,6 +101,7 @@ export class WorkareaStore {
   @action.bound
   public addWorkspace(group: CurrencyGroups) {
     this.isCreatingWorkspace = true;
+    // Do this after the `isCreatingWorkspace' takes effect
     setTimeout(() => this.internalAddWorkspace(group), 0);
   }
 
@@ -131,13 +135,21 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public closeWorkspace(id: string) {
+  public async closeWorkspace(id: string) {
     const { workspaces } = this;
     const copy: { [k: string]: WorkspaceDef } = { ...workspaces };
     if (copy[id] !== undefined)
       delete copy[id];
     this.workspaces = copy;
     this.updateCurrentWorkspaceID();
+  }
+
+  private hydrate() {
+    const hydrate = create({
+      storage: persistStorage.workarea,
+      jsonify: true,
+    });
+    hydrate('workarea', this);
   }
 
   @action.bound
@@ -163,8 +175,13 @@ export class WorkareaStore {
       if (user === undefined) {
         this.status = WorkareaStatus.UserNotFound;
       } else {
+        await persistStorage.initialize(user);
+        // Hydrate now
+        this.hydrate();
+        // Start connecting to the websocket
         this.user = user;
         this.loadingMessage = strings.EstablishingConnection;
+        // Load settings and profile
         // Update signal R manager
         signalRManager.setUser(user);
         // Connect the signal R client
@@ -222,6 +239,11 @@ export class WorkareaStore {
     } else {
       this.errorMessage = null;
     }
+  }
+
+  @action.bound
+  public setPreferences(preferences: UserPreferences) {
+    this.preferences = preferences;
   }
 }
 

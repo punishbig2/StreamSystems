@@ -3,7 +3,7 @@ import { UserProfileModalTypes, User } from 'interfaces/user';
 import { UserProfileForm } from 'components/Workspace/UserProfile/form';
 import { ErrorBox } from 'components/ErrorBox';
 import { MessageBox } from 'components/MessageBox';
-import store from 'mobx/stores/userProfileStore';
+import store from 'mobx/stores/userPreferencesStore';
 import { observer } from 'mobx-react';
 
 interface OwnProps {
@@ -14,8 +14,6 @@ interface OwnProps {
 type Props = OwnProps;
 
 const UserProfileModal: React.FC<Props> = observer((props: Props) => {
-  const { user } = props;
-
   const onClose = () => {
     props.onCancel();
     // Reset the profile in case it has changed
@@ -25,12 +23,12 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    store.saveUserProfile(user.email, store.preferences);
+    store.saveUserProfile(store.preferences);
   };
 
   useEffect(() => {
-    store.loadUserProfile(user.email);
-  }, [user.email]);
+    store.loadUserProfile();
+  }, []);
 
   const onChange = (name: string, value: any) => {
     store.setFieldValue(name, value);
@@ -44,7 +42,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
     case UserProfileModalTypes.Form:
       return <UserProfileForm profile={store.preferences}
                               user={props.user}
-                              original={store.initialProfile}
+                              original={store.initialPreferences}
                               onChange={onChange}
                               onSubmit={onSubmit}
                               onCancel={onClose}/>;

@@ -3,7 +3,7 @@ import { Message } from 'interfaces/message';
 import { getMessageSize, getMessagePrice } from 'messageUtils';
 import { UserPreferences, ExecSound } from 'interfaces/user';
 import { getSound } from 'beep-sound';
-import userProfileStore from 'mobx/stores/userProfileStore';
+import userProfileStore from 'mobx/stores/userPreferencesStore';
 
 interface OwnProps {
   trade: Message;

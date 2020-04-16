@@ -18,6 +18,7 @@ import { MessageBlotter } from 'components/MessageBlotter';
 import { PodTileTitle } from 'components/PodTile/title';
 import { WindowTypes } from 'mobx/stores/workareaStore';
 import { BlotterTypes } from 'columns/messageBlotter';
+import { MessageBox } from 'components/MessageBox';
 
 interface OwnProps {
   id: string;
@@ -160,6 +161,19 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
     return () => null;
   };
 
+  const renderLoadingModal = (): ReactElement | null => {
+    const { busyMessage } = store;
+    if (busyMessage === null)
+      return null;
+    return (
+      <MessageBox title={busyMessage.title}
+                  message={busyMessage.detail}
+                  buttons={() => null}
+                  color={'good'}
+                  icon={'spinner'}/>
+    );
+  };
+
   const render = () => {
     return (
       <div className={props.visible ? 'visible' : 'invisible'}>
@@ -190,6 +204,7 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
           onWindowClose={store.removeWindow}/>
         <ModalWindow render={() => (<UserProfileModal onCancel={store.hideUserProfileModal} user={user}/>)}
                      visible={store.isUserProfileModalVisible}/>
+        <ModalWindow render={renderLoadingModal} visible={!!store.busyMessage}/>
         <ModalWindow
           render={() => (
             <ErrorBox title={'Oops, there was an error'} message={store.errorMessage as string}

@@ -4,6 +4,7 @@ import { persist, create } from 'mobx-persist';
 import { API } from 'API';
 import { randomID } from 'randomID';
 import { WindowTypes } from 'mobx/stores/workareaStore';
+import persistStorage from 'persistStorage';
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch
@@ -14,6 +15,11 @@ export interface WindowDef {
   minimized: boolean;
   position: number;
   fitToContent: boolean;
+}
+
+export interface BusyMessage {
+  title: string;
+  detail: string;
 }
 
 export class WorkspaceStore {
@@ -27,21 +33,36 @@ export class WorkspaceStore {
   @observable isUserProfileModalVisible = false;
   @observable markets: string[] = [];
   @observable errorMessage: string | null = null;
+  @observable busyMessage: BusyMessage | null = null;
   @observable toast: string | null = null;
 
   constructor(id: string) {
     this.id = id;
     const hydrate = create({
-      storage: localStorage,
+      storage: persistStorage.workspaces,
       jsonify: true,
     });
-    hydrate(id, this);
+    this.setBusyMessage('Loading workspace', 'Please wait while we load and initialize all your windows');
+    setTimeout(() => {
+      hydrate(id, this)
+        .then(() => this.unsetBusyMessage());
+    }, 0);
+  }
+
+  @action.bound
+  private unsetBusyMessage() {
+    this.busyMessage = null;
+  }
+
+  @action.bound
+  private setBusyMessage(title: string, detail: string) {
+    this.busyMessage = { title, detail };
   }
 
   @action.bound
   public addWindow(type: WindowTypes) {
     const { windows } = this;
-    const id: string = `WnD${type}${randomID()}`;
+    const id: string = randomID('windows');
     const fitToContent: boolean = type === WindowTypes.PodTile;
     const minimized: boolean = false;
     const position: number = windows.length;

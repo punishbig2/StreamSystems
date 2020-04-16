@@ -14,7 +14,7 @@ import { $$ } from 'utils/stringPaster';
 import { MDEntry } from 'interfaces/mdEntry';
 import { User, OCOModes } from 'interfaces/user';
 import { Sides } from 'interfaces/sides';
-import userProfileStore from 'mobx/stores/userProfileStore';
+import userProfileStore from 'mobx/stores/userPreferencesStore';
 
 import workareaStore from 'mobx/stores/workareaStore';
 
@@ -22,7 +22,7 @@ const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { '1': Sides.Buy, '2': Sides.Sell };
 
-export enum SignalRActions {
+export enum SignalRMethods {
   // Messages
   SubscribeForMarketData = 'SubscribeForMarketData',
   UnsubscribeFromMarketData = 'UnsubscribeForMarketData',
@@ -58,6 +58,8 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private listeners: { [k: string]: (arg: W) => void } = {};
   private static instance: SignalRManager | null = null;
+
+  private darkpoolPriceListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
 
   private constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
@@ -170,8 +172,11 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
-    const type: string = $$(message.Symbol, message.Strategy, message.Tenor, 'DpPx');
-    document.dispatchEvent(new CustomEvent(type, { detail: message }));
+    const key: string = $$(message.Symbol, message.Strategy, message.Tenor);
+    const listener: ((m: DarkPoolMessage) => void) | undefined = this.darkpoolPriceListeners[key];
+    if (listener) {
+      listener(message);
+    }
   };
 
   public setOnConnectedListener = (fn: (connection: HubConnection) => void) => {
@@ -200,7 +205,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     const { recordedCommands } = this;
     const key: string = $$(symbol, strategy, tenor);
     const index: number = recordedCommands.findIndex((command: Command) => {
-      if (command.name !== SignalRActions.SubscribeForMarketData)
+      if (command.name !== SignalRMethods.SubscribeForMarketData)
         return false;
       return command.args[0] === symbol && command.args[1] === strategy && command.args[2] === tenor;
     });
@@ -212,7 +217,7 @@ export class SignalRManager<A extends Action = AnyAction> {
         return;
       if (connection.state !== HubConnectionState.Connected)
         return;
-      connection.invoke(SignalRActions.UnsubscribeFromMarketData, ...recordedCommands[index].args);
+      connection.invoke(SignalRMethods.UnsubscribeFromMarketData, ...recordedCommands[index].args);
       delete this.listeners[key];
       // Update recorded commands
       this.recordedCommands = [...recordedCommands.slice(0, index), ...recordedCommands.slice(index + 1)];
@@ -231,7 +236,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     // We always save the listener
     this.listeners[key] = listener;
     const command: Command = {
-      name: SignalRActions.SubscribeForMarketData,
+      name: SignalRMethods.SubscribeForMarketData,
       args: [symbol, strategy, tenor],
     };
     // Record the command
@@ -240,28 +245,32 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.replayCommand(command);
   }
 
-  public addDarkPoolPxListener = (symbol: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
+  public removeDarkPoolPriceListener = (currency: string, strategy: string, tenor: string) => {
+    const key: string = $$(currency, strategy, tenor);
+    // Remove it from the map
+    delete this.darkpoolPriceListeners[key];
+    // Unsubscribe
     const { connection } = this;
-    const type: string = $$(symbol, strategy, tenor, 'DpPx');
-
-    const listenerWrapper = (event: CustomEvent<DarkPoolMessage>) => {
-      fn(event.detail);
-    };
-
-    document.addEventListener(type, listenerWrapper as EventListener);
-    if (connection !== null && connection.state === HubConnectionState.Connected) {
-      connection.invoke(SignalRActions.SubscribeForDarkPoolPx, symbol, strategy, tenor);
-      return () => {
-        document.removeEventListener(type, listenerWrapper as EventListener);
-        connection.invoke(SignalRActions.UnsubscribeForDarkPoolPx, symbol, strategy, tenor);
-      };
-    } else {
-      console.log('cannot connect to dark pool price');
+    if (connection && connection.state === HubConnectionState.Connected) {
+      connection.invoke(SignalRMethods.UnsubscribeForDarkPoolPx, [currency, strategy, tenor]);
     }
-    return () => null;
   };
 
-  public addDarkPoolOrderListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+  public setDarkPoolPriceListener = (currency: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
+    const { recordedCommands } = this;
+    const key: string = $$(currency, strategy, tenor);
+    const command: Command = {
+      name: SignalRMethods.SubscribeForDarkPoolPx,
+      args: [currency, strategy, tenor],
+    };
+    recordedCommands.push(command);
+    // Update the listeners map
+    this.darkpoolPriceListeners[key] = fn;
+    // Try to execute it now
+    this.replayCommand(command);
+  };
+
+  public setDarkPoolOrderListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
     const key: string = $$(symbol, strategy, tenor, 'Dp');
     // Commands already exists as this is the same as the market update
     this.listeners[key] = listener;
@@ -296,7 +305,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
     const { connection } = this;
     if (connection) {
-      connection.invoke(SignalRActions.SubscribeForMBMsg, useremail);
+      connection.invoke(SignalRMethods.SubscribeForMBMsg, useremail);
       connection.on('updateMessageBlotter', (raw: string) => {
         const message: Message = JSON.parse(raw);
         // First call the internal handler
@@ -305,7 +314,7 @@ export class SignalRManager<A extends Action = AnyAction> {
         onMessage(message);
       });
       return () => {
-        connection.invoke(SignalRActions.UnsubscribeFromMBMsg, useremail);
+        connection.invoke(SignalRMethods.UnsubscribeFromMBMsg, useremail);
       };
     }
     return () => null;
