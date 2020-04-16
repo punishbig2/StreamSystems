@@ -10,9 +10,7 @@ const ExecutionBanner: React.FC<{}> = observer((): ReactElement | null => {
   useEffect(() => {
     console.log('executions change: ', executions.length);
   }, [executions]);
-  const last5: Message[] = executions
-    .slice(0, 5)
-    .reverse();
+  const last5: Message[] = executions.slice(0, 5);
   console.log(last5.map((m: Message) => ({
     time: m.TransactTime,
     id: m.ExecID,

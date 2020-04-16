@@ -56,8 +56,7 @@ export class MessagesStore {
 
   @action.bound
   public addEntry(message: Message) {
-    const newEntries: Message[] = [message, ...this.entries];
-    this.entries = newEntries;
+    this.entries = [message, ...this.entries];
     if (isFill(message)) {
       this.executions = [message, ...this.executions]
     }
