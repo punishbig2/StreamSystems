@@ -1,6 +1,6 @@
 import { Currency } from 'interfaces/currency';
 import { Message } from 'interfaces/message';
-import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage } from 'interfaces/order';
+import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage, CreateOrderBulk } from 'interfaces/order';
 import { MessageResponse } from 'interfaces/messageResponse';
 import { User } from 'interfaces/user';
 import { MessageTypes, W } from 'interfaces/w';
@@ -130,6 +130,7 @@ type Endpoints =
   | 'products'
   | 'tenors'
   | 'order'
+  | 'bulkorders'
   | 'messages'
   | 'all'
   | 'runorders'
@@ -141,7 +142,7 @@ type Endpoints =
   | 'allall'
   | 'price';
 
-type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save' | 'cxlall';
+type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save' | 'cxlall' | 'create';
 
 export class API {
   static FxOpt: string = '/api/fxopt';
@@ -187,6 +188,38 @@ export class API {
       console.warn(`error creating an order ${result.Response}`);
     return result;
   };
+
+  static async createOrdersBulk(orders: Order[], symbol: string, strategy: string, personality: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
+    // Build a create order request
+    if (user.isbroker && personality === STRM)
+      throw new Error('brokers cannot create orders when in streaming mode');
+    const MDMkt: string | undefined = user.isbroker ? personality : undefined;
+    const request: CreateOrderBulk = {
+      MsgType: MessageTypes.D,
+      TransactTime: getCurrentTime(),
+      User: user.email,
+      Symbol: symbol,
+      Strategy: strategy,
+      Orders: orders.map((order: Order) => {
+        if (order.price === null || order.size === null)
+          throw new Error('price and size MUST be specified');
+        if (order.size < minimumSize)
+          order.size = minimumSize;
+        const { price, size } = order;
+        return {
+          Side: getSideFromType(order.type),
+          Tenor: order.tenor,
+          Quantity: size.toString(),
+          Price: price.toString(),
+        };
+      }),
+      MDMkt,
+    };
+    const result: MessageResponse = await post<MessageResponse>(API.buildUrl(API.Oms, 'bulkorders', 'create'), request);
+    if (result.Status !== 'Success')
+      console.warn(`error creating an order ${result.Response}`);
+    return result;
+  }
 
   static async createOrder(order: Order, personality: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
     if (order.price === null || order.size === null)

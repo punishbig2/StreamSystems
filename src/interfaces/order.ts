@@ -15,6 +15,17 @@ export interface CreateOrder {
   Quantity: string;
   Price: string;
   MDMkt?: string;
+  Orders?: any[];
+}
+
+export interface CreateOrderBulk {
+  MsgType: MessageTypes;
+  TransactTime: string;
+  User: string;
+  Symbol: string;
+  Strategy: string;
+  MDMkt?: string;
+  Orders?: any[];
 }
 
 export type DarkPoolOrder = CreateOrder & {
