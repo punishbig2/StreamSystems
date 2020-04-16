@@ -362,9 +362,7 @@ export class API {
     const query: any = { timestamp };
     const darkpool: Message[] = await get<Message[]>(API.buildUrl(API.DarkPool, 'messages', 'get', query));
     const normal: Message[] = await get<Message[]>(API.buildUrl(API.Oms, 'messages', 'get', query));
-    const combined: Message[] = [...darkpool, ...normal];
-    combined.sort((m1: Message, m2: Message) => Number(m1.TransactTime) - Number(m2.TransactTime));
-    return combined;
+    return [...darkpool, ...normal];
   }
 
   static async getRunOrders(useremail: string, symbol: string, strategy: string): CancellablePromise<OrderMessage[]> {
