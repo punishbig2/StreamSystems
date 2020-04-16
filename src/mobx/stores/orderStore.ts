@@ -118,7 +118,14 @@ export class OrderStore {
     const { depth } = this;
     const user: User | null = workareaStore.user;
     if (user !== null) {
-      const order: Order | undefined = depth.find((o: Order) => o.type === this.type && o.user === user.email);
+      const order: Order | undefined = depth.find((o: Order) => {
+        if (user.isbroker) {
+          if (o.firm !== this.personality) {
+            return false;
+          }
+        }
+        return o.type === this.type && o.user === user.email;
+      });
       if (!!order && !!order.orderId && !!order.size) {
         this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
         const response = await API.cancelOrder(order, user);
