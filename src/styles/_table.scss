@@ -448,7 +448,7 @@ $spinner-size: $table-row-height - 6;
             &.joined {
               color: $text-color-black;
 
-              &.among {
+              &.among, &.owned {
                 .chevron {
                   color: $text-color-red;
                 }
