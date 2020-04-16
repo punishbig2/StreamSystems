@@ -46,9 +46,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   // Get the order from the row
   const order: Order = getOrder(type, props.ofr, props.bid);
   const depth: Order[] = props.depth ? props.depth : [];
-  const user: User | null = workareaStore.user;
-  if (user === null)
-    throw new Error('cannot show orders to unauthenticated users');
+  const user: User = workareaStore.user;
   // Some changes require the store to be updated
   const siblingOrders: Order[] = depth.filter((o: Order) => o.type === order.type);
   const status: OrderStatus = getOrderStatus(order, siblingOrders, user, personality, tableType);
