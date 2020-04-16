@@ -64,29 +64,27 @@ class PersistStorage {
     const { workarea: { workspaces } } = cleanData.workarea;
     if (workspaces) {
       const list: any[] = Object.values(workspaces);
-      if (cleanData.workspaces) {
-        cleanData.workspaces = list.reduce((cleanedUpWorkspaces: any, workspace: any): any => {
-          cleanedUpWorkspaces[workspace.id] = workspace;
-          return cleanedUpWorkspaces;
-        }, {});
-      }
+      cleanData.workspaces = list.reduce((cleanedUpWorkspaces: any, workspace: any): any => {
+        cleanedUpWorkspaces[workspace.id] = cleanData.workspaces[workspace.id];
+        return cleanedUpWorkspaces;
+      }, {});
     }
     if (cleanData.workspaces) {
       const list: any[] = Object.values(cleanData.workspaces);
-      const allWindows = list.reduce((list: string[], workspace: any): string[] => {
+      const ids = list.reduce((list: string[], workspace: any): string[] => {
         const { windows } = workspace;
         if (!windows)
           return list;
         return [...list, ...windows.map((w: WindowDef) => w.id)];
       }, []);
       if (cleanData.windows) {
-        cleanData.windows = allWindows.reduce((cleanedUpWindows: any, id: string): any => {
+        cleanData.windows = ids.reduce((cleanedUpWindows: any, id: string): any => {
           cleanedUpWindows[id] = cleanData.windows[id];
           return cleanedUpWindows;
         }, {});
       }
       if (cleanData.pods) {
-        cleanData.pods = allWindows.reduce((cleanedUpPods: any, id: string): any => {
+        cleanData.pods = ids.reduce((cleanedUpPods: any, id: string): any => {
           cleanedUpPods[id] = cleanData.pods[id];
           return cleanedUpPods;
         }, {});
