@@ -14,6 +14,8 @@ import { PodTileStore } from 'mobx/stores/podTileStore';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 import { convertToDepth } from 'components/PodTile/helpers';
 import { API } from 'API';
+import { PodRow } from 'interfaces/podRow';
+import { PodTable } from 'interfaces/podTable';
 
 interface OwnProps {
   id: string;
@@ -107,14 +109,27 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     );
   };
 
+  const dobRows: PodTable = !!store.currentTenor ? convertToDepth(store.depth[store.currentTenor], store.currentTenor) : {};
   const renderDoBRow = (rowProps: any): ReactElement | null => {
+    const { row } = rowProps;
     if (!currency || currency.minqty === undefined || currency.defaultqty === undefined || !strategy)
       return null;
-    // static
+    // Get current row
+    const matchingRow: PodRow = dobRows[row.id];
+    const depth: Order[] = [];
+    if (matchingRow) {
+      if (matchingRow.bid) {
+        depth.push(matchingRow.bid);
+      }
+      if (matchingRow.ofr) {
+        depth.push(matchingRow.ofr);
+      }
+    }
+    console.log(row.id, depth);
     return (
       <Row {...rowProps}
            user={user}
-           depth={[]}
+           depth={depth}
            connected={connected}
            personality={personality}
            defaultSize={currency.defaultqty}
@@ -153,7 +168,6 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       return <div style={style}/>;
     }
 
-    const dobRows = !!store.currentTenor ? convertToDepth(store.depth[store.currentTenor], store.currentTenor) : {};
     const loadingClass: string | undefined = store.loading ? 'loading' : undefined;
     const renderProgress = (): ReactElement | null => {
       if (store.currentProgress === null)
