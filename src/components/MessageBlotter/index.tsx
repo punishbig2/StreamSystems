@@ -1,15 +1,14 @@
 import messageBlotterColumns, { BlotterTypes } from 'columns/messageBlotter';
-import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { Table } from 'components/Table';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { User } from 'interfaces/user';
-import React, { useMemo, ReactElement } from 'react';
-import { Message, ExecTypes } from 'interfaces/message';
-import { OrderTypes } from 'interfaces/mdEntry';
+import React, { useMemo } from 'react';
+import { Message } from 'interfaces/message';
 import { STRM } from 'stateDefs/workspaceState';
 import store from 'mobx/stores/messagesStore';
 import { observer } from 'mobx-react';
 import workareaStore from 'mobx/stores/workareaStore';
+import { isMyMessage, renderRowFactory } from 'components/MessageBlotter/helpers';
 
 interface OwnProps {
   id: string;
@@ -22,53 +21,6 @@ interface OwnProps {
 }
 
 type Props = OwnProps;
-const isExecution = (message: Message): boolean => {
-  return (
-    message.OrdStatus === ExecTypes.Filled ||
-    message.OrdStatus === ExecTypes.PartiallyFilled
-  );
-};
-
-const renderRowFactory = (blotterType: BlotterTypes, email: string, firm: string) =>
-  (props: any): ReactElement | null => {
-    const message: Message = props.row;
-    const rowType = ((): BlotterRowTypes => {
-      if (!isExecution(message)) {
-        if (isBusted(message))
-          return BlotterRowTypes.Busted;
-        return BlotterRowTypes.Normal;
-      }
-      if (isMyMessage(message, email)) {
-        return BlotterRowTypes.MyFill;
-      } else if (isMyBankExecution(message, firm)) {
-        return BlotterRowTypes.MyBankFill;
-      }
-      return BlotterRowTypes.Normal;
-    })();
-    return (
-      <Row key={props.key}
-           columns={props.columns}
-           row={message}
-           weight={props.weight}
-           type={rowType}
-           containerWidth={props.containerWidth}
-           totalWidth={props.totalWidth}
-           blotterType={blotterType}/>
-    );
-  };
-
-const isMyBankExecution = (message: Message, firm: string): boolean => {
-  const targetUser: string = message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
-  return targetUser === firm;
-};
-
-const isMyMessage = (message: Message, email: string): boolean => {
-  return message.Username === email;
-};
-
-const isBusted = (message: Message): boolean => {
-  return false;
-};
 
 const MessageBlotter: React.FC<Props> = observer((props: Props) => {
   const { blotterType, personality } = props;
@@ -85,20 +37,9 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       : columnsMap.normal;
   }, [columnsMap.broker, columnsMap.normal, personality, isbroker]);
 
-  const filtered: Message[] = useMemo(() => {
-    const filter = (message: Message): boolean => {
-      if (blotterType === BlotterTypes.Executions) {
-        return isExecution(message) && message.ContraTrader !== email;
-      } else {
-        return isMyMessage(message, email);
-      }
-    };
-    return entries.filter(filter);
-  }, [blotterType, email, entries]);
-
   const renderRow = useMemo(() => renderRowFactory(blotterType, email, firm), [blotterType, email, firm]);
   return (
-    <Table scrollable={!!props.scrollable} columns={columns} rows={filtered} renderRow={renderRow}/>
+    <Table scrollable={!!props.scrollable} columns={columns} rows={entries} renderRow={renderRow}/>
   );
 });
 

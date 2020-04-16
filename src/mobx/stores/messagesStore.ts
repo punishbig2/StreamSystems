@@ -1,9 +1,10 @@
 import { Message, ExecTypes } from 'interfaces/message';
 import { observable, action } from 'mobx';
 import { API } from 'API';
-import { getUserFromUrl } from 'utils/getUserFromUrl';
 import { SignalRManager } from 'signalR/signalRManager';
 import moment from 'moment';
+import workareaStore from 'mobx/stores/workareaStore';
+import { User } from 'interfaces/user';
 
 const MESSAGE_TIME_FORMAT: string = 'YYYYMMDD-HH:mm:ss';
 const sortByTimeDescending = (m1: Message, m2: Message): number => {
@@ -56,25 +57,26 @@ export class MessagesStore {
 
   @action.bound
   public addEntry(message: Message) {
-    this.entries = [message, ...this.entries];
-    if (isFill(message)) {
-      this.executions = [message, ...this.executions]
+    const user: User = workareaStore.user;
+    if (message.Username === user.email) {
+      this.entries = [message, ...this.entries];
+    }
+    if (isFill(message) && message.ContraTrader !== user.email) {
+      this.executions = [message, ...this.executions];
     }
   }
 
   @action.bound
   public async initialize() {
-    const email: string | null = getUserFromUrl();
-    if (email !== null) {
-      const now: Date = new Date();
-      const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-      const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
+    const user: User = workareaStore.user;
+    const now: Date = new Date();
+    const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
 
-      entries.sort(sortByTimeDescending);
-      this.executions = applyFilter(entries);
-      // Query the messages now
-      this.entries = entries;
-    }
+    entries.sort(sortByTimeDescending);
+    this.executions = applyFilter(entries);
+    // Query the messages now
+    this.entries = entries.filter((entry: Message) => entry.Username === user.email);
   }
 
   @action.bound
