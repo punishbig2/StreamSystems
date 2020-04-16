@@ -5,7 +5,7 @@ import { Size } from 'components/Table/CellRenderers/Size';
 import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import { Price } from 'components/Table/CellRenderers/Price';
 import { STRM } from 'stateDefs/workspaceState';
-import { onNavigate, orderSorter } from 'components/PodTile/helpers';
+import { onNavigate } from 'components/PodTile/helpers';
 import { ModalWindow } from 'components/ModalWindow';
 import { ArrowDirection } from 'interfaces/w';
 import { User } from 'interfaces/user';
@@ -19,6 +19,7 @@ import { shouldOpenOrderTicket } from 'columns/podColumns/OrderColumn/helpers/sh
 import { onSubmitSize } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
 import { PodRowStore } from 'mobx/stores/podRowStore';
 import workareaStore from 'mobx/stores/workareaStore';
+import { getDepth } from 'columns/podColumns/OrderColumn/helpers/getDepth';
 
 export enum PodTableType {
   Pod, Dob
@@ -35,14 +36,6 @@ type OwnProps = {
   rowStore: PodRowStore;
 }
 
-const getDepth = (orders: Order[], type: OrderTypes): Order[] => {
-  if (!orders)
-    return [];
-  return orders
-    .filter((order: Order) => order.type === type && order.size !== null)
-    .sort(orderSorter(type));
-};
-
 export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): ReactElement | null => {
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
@@ -50,7 +43,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const { rowStore } = props;
   const depth: Order[] = getDepth(props.depth, type);
   // It should never happen that this is {} as Order
-  const order: Order = depth.length > 0 ? depth[0] : {price: null, size: null} as Order;
+  const order: Order = depth.length > 0 ? depth[0] : { price: null, size: null } as Order;
   const user: User = workareaStore.user;
   // Determine the status of the order now
   const status: OrderStatus = getOrderStatus(order, depth, user, personality, tableType);

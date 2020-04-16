@@ -20,7 +20,6 @@ export const orderSorter = (type: OrderTypes) => {
 };
 
 export const convertToDepth = (orders: Order[], tenor: string | null): PodTable => {
-  console.log(orders);
   if (orders === undefined || tenor === null)
     return {};
   const bids: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Bid);

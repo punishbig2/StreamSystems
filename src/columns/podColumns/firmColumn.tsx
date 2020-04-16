@@ -1,15 +1,20 @@
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { PodRowProps } from 'columns/podColumns/common';
 import React, { ReactElement } from 'react';
-import { OrderStatus } from 'interfaces/order';
+import { OrderStatus, Order } from 'interfaces/order';
+import { getDepth } from 'columns/podColumns/OrderColumn/helpers/getDepth';
+import { OrderTypes } from 'interfaces/mdEntry';
 
-export const FirmColumn = (type: 'ofr' | 'bid'): ColumnSpec => ({
+export const FirmColumn = (type: OrderTypes): ColumnSpec => ({
   name: `${type}-firm`,
   header: () => <div>&nbsp;</div>,
   render: (row: PodRowProps): ReactElement | null => {
-    if (!row[type])
+    const depth: Order[] = getDepth(row.depth, type);
+    // It should never happen that this is {} as Order
+    const order: Order = depth.length > 0 ? depth[0] : { price: null, size: null } as Order;
+    if (!order)
       return null;
-    const { [type]: { firm, status } } = row;
+    const { firm, status } = order;
     if ((status & OrderStatus.Cancelled) !== 0)
       return null;
     return <div className={'firm'}>{firm}</div>;

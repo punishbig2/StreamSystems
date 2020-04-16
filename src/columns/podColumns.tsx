@@ -39,7 +39,7 @@ const getRefButton = (depth: boolean, symbol: string, strategy: string, user: Us
 
 const columns = (symbol: string, strategy: string, user: User, depth: boolean = false): ColumnSpec[] => [
   TenorColumn(),
-  ...(user.isbroker ? [FirmColumn('bid')] : []),
+  ...(user.isbroker ? [FirmColumn(OrderTypes.Bid)] : []),
   OrderColumnWrapper(
     strings.BidPx,
     OrderTypes.Bid,
@@ -53,7 +53,7 @@ const columns = (symbol: string, strategy: string, user: User, depth: boolean = 
     depth,
     getRefButton(depth, symbol, strategy, user, OrderTypes.Ofr),
   ),
-  ...(user.isbroker ? [FirmColumn('ofr')] : []),
+  ...(user.isbroker ? [FirmColumn(OrderTypes.Ofr)] : []),
 ];
 
 export default columns;

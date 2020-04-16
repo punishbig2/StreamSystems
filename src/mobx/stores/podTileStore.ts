@@ -111,17 +111,18 @@ export class PodTileStore {
       }
       return depth;
     }, {});
+    this.loading = false;
   }
 
   public async initialize(currency: string, strategy: string, user: User) {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     this.loading = true;
 
-    const darkpool: { [k: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
-    const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(currency, strategy);
+    // const darkpool: { [k: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
+    /*const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(currency, strategy);
     if (snapshot === null || darkpool === null)
       return;
-    this.initializeFromSnapshot(snapshot, darkpool, user);
+    this.initializeFromSnapshot(snapshot, darkpool, user);*/
     // Load depth
     const depth: { [k: string]: W } | null = await API.getSnapshot(currency, strategy);
     const tenors: string[] = workareaStore.tenors;
