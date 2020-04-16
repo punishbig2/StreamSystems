@@ -471,6 +471,11 @@ $spinner-size: $table-row-height - 6;
               font-weight: $table-font-weight;
             }
 
+            .price-direction-layout {
+              // FIXME: this should be enabled at some point
+              display: none;
+            }
+
             &.busy {
               input {
                 display: none;

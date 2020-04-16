@@ -72,6 +72,8 @@ class PersistStorage {
     if (cleanData.workspaces) {
       const list: any[] = Object.values(cleanData.workspaces);
       const ids = list.reduce((list: string[], workspace: any): string[] => {
+        if (!workspace)
+          return list;
         const { windows } = workspace;
         if (!windows)
           return list;

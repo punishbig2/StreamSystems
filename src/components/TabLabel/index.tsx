@@ -14,7 +14,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   const [value, setValue] = useState<string>(label);
 
   const getLabel = () => {
-    const finalLabel: string = value.trim() === '' ? 'Untitled' : label;
+    const finalLabel: string = value;
     if (isDefault) {
       return `${finalLabel} (default)`;
     } else {
@@ -39,7 +39,6 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
 
   const onChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    console.log(value);
     setValue(value);
   };
 
