@@ -12,8 +12,12 @@ const sortByTimeDescending = (m1: Message, m2: Message): number => {
   return -M1.diff(M2);
 };
 
-const isFill = (item: Message): boolean =>
-  (item.ExecType === ExecTypes.PartiallyFilled || item.ExecType === ExecTypes.Filled);
+const isFill = (item: Message): boolean => {
+  return item.ExecType === ExecTypes.PartiallyFilled
+    || item.ExecType === ExecTypes.Filled
+    || item.OrdStatus === ExecTypes.PartiallyFilled
+    || item.OrdStatus === ExecTypes.Filled;
+};
 
 const hasLink = (messages: Message[], item: Message): boolean => {
   const getOrderLinkID = (message: any): string => {
@@ -54,9 +58,9 @@ export class MessagesStore {
   public addEntry(message: Message) {
     const newEntries: Message[] = [message, ...this.entries];
     this.entries = newEntries;
-    this.executions = applyFilter(newEntries);
-    this.executions.sort(sortByTimeDescending);
-    console.log(JSON.parse(JSON.stringify(this.executions)));
+    if (isFill(message)) {
+      this.executions = [message, ...this.executions]
+    }
   }
 
   @action.bound

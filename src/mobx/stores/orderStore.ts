@@ -198,7 +198,6 @@ export class OrderStore {
   @action.bound
   public setCurrentDepth(depth: Order[]) {
     this.depth = depth.filter((order: Order) => order.size !== null);
-    this.depth.sort(orderSorter(this.type))
   }
 }
 

@@ -8,7 +8,7 @@ import { observer } from 'mobx-react';
 const ExecutionBanner: React.FC<{}> = observer((): ReactElement | null => {
   const { executions } = store;
   useEffect(() => {
-    console.log(executions);
+    console.log('executions change: ', executions.length);
   }, [executions]);
   const last5: Message[] = executions
     .slice(0, 5)
