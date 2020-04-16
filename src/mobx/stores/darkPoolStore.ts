@@ -72,12 +72,13 @@ export class DarkPoolStore {
   @action.bound
   private onOrderReceived(w: W) {
     const user: User = workareaStore.user;
-    const entries: MDEntry[] = w.Entries;
-    if (!entries) {
+    const originalEntries: MDEntry[] = w.Entries;
+    if (!originalEntries) {
       this.orders = [];
       this.currentOrder = null;
       return;
     }
+    const entries: MDEntry[] = originalEntries.filter((entry: MDEntry) => !!entry.MDEntrySize);
     const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
     if (orders.length > 0) {
       const mine: Order | undefined = orders.find((order: Order) => order.user === user.email);

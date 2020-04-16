@@ -48,7 +48,6 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
       const { bid, ofr } = row;
       const order: Order = !bid || !bid.price ? ofr : bid;
       const side: string = getSide(row);
-      console.log(row);
       return <div className={side.toLowerCase()}>{order.size}</div>;
     },
     width: 2,
