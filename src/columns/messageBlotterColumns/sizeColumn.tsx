@@ -1,6 +1,8 @@
+import React from 'react';
 import { Message } from 'interfaces/message';
 import { getMessageSize } from 'messageUtils';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { involved } from 'columns/messageBlotterColumns/helpers';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Size',
@@ -8,7 +10,12 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Size',
-  render: (message: Message) => getMessageSize(message).toString(),
+  render: (message: Message) => {
+    if (!involved(message))
+      return <div/>;
+    const size: number = getMessageSize(message);
+    return size.toString();
+  },
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = getMessageSize(v1);

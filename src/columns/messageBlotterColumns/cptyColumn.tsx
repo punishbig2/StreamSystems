@@ -1,6 +1,7 @@
 import { ExecTypes, Message } from 'interfaces/message';
 import React from 'react';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { involved } from 'columns/messageBlotterColumns/helpers';
 
 export default (sortable: boolean, isExecBlotter: boolean): ColumnSpec => ({
   name: 'CPTY',
@@ -10,6 +11,8 @@ export default (sortable: boolean, isExecBlotter: boolean): ColumnSpec => ({
   header: () => 'CPTY',
   render: (message: Message) => {
     const { ExecBroker, OrdStatus } = message;
+    if (!involved(message))
+      return <div/>;
     if (OrdStatus !== ExecTypes.Filled && OrdStatus !== ExecTypes.PartiallyFilled)
       return <div/>;
     return (

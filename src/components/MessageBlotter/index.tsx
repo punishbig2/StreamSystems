@@ -3,7 +3,7 @@ import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { Table } from 'components/Table';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { User } from 'interfaces/user';
-import React, { useMemo, ReactElement, useEffect } from 'react';
+import React, { useMemo, ReactElement } from 'react';
 import { Message, ExecTypes } from 'interfaces/message';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { STRM } from 'stateDefs/workspaceState';
@@ -38,7 +38,7 @@ const renderRowFactory = (blotterType: BlotterTypes, email: string, firm: string
           return BlotterRowTypes.Busted;
         return BlotterRowTypes.Normal;
       }
-      if (isMyExecution(message, email)) {
+      if (isMyMessage(message, email)) {
         return BlotterRowTypes.MyFill;
       } else if (isMyBankExecution(message, firm)) {
         return BlotterRowTypes.MyBankFill;
@@ -62,7 +62,7 @@ const isMyBankExecution = (message: Message, firm: string): boolean => {
   return targetUser === firm;
 };
 
-const isMyExecution = (message: Message, email: string): boolean => {
+const isMyMessage = (message: Message, email: string): boolean => {
   return message.Username === email;
 };
 
@@ -90,9 +90,7 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       if (blotterType === BlotterTypes.Executions) {
         return isExecution(message) && message.ContraTrader !== email;
       } else {
-        if (isExecution(message))
-          return isMyExecution(message, email);
-        return true;
+        return isMyMessage(message, email);
       }
     };
     return entries.filter(filter);
