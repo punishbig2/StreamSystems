@@ -1,9 +1,41 @@
-import { Message } from 'interfaces/message';
-import { observable, action } from 'mobx';
+import { Message, ExecTypes } from 'interfaces/message';
+import { observable, action, computed } from 'mobx';
 import { API } from 'API';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
 import { SignalRManager } from 'signalR/signalRManager';
 import moment from 'moment';
+
+const isFill = (item: Message): boolean =>
+  (item.OrdStatus === ExecTypes.PartiallyFilled || item.OrdStatus === ExecTypes.Filled);
+
+const filterExecutions = (array: Message[]): Message[] => {
+  return array.filter((item: Message) => {
+    return isFill(item);
+  });
+};
+
+const hasLink = (messages: Message[], item: Message): boolean => {
+  const getOrderLinkID = (message: any): string => {
+    if (message.hasOwnProperty('ClOrdLinkID')) {
+      return message.ClOrdLinkID;
+    } else {
+      return message['583'];
+    }
+  };
+
+  const link: number = messages.findIndex((each: Message) => {
+    return getOrderLinkID(each) === item.ClOrdID;
+  });
+  return link !== -1;
+};
+
+const applyFilter = (messages: Message[]): Message[] => {
+  return messages.filter((item: Message, index: number, array: Message[]) => {
+    if (index !== array.findIndex((each: Message) => each.ClOrdID === item.ClOrdID))
+      return false;
+    return hasLink(array, item) && item.Side === '1';
+  });
+};
 
 export class MessagesStore {
   @observable entries: Message[] = [];
@@ -12,6 +44,11 @@ export class MessagesStore {
 
   constructor() {
     this.initialize();
+  }
+
+  @computed
+  public get executions() {
+    return applyFilter(filterExecutions(this.entries));
   }
 
   @action.bound

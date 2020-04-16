@@ -3,16 +3,12 @@ import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
 import store from 'mobx/stores/messagesStore';
 import { getMessagePrice } from 'messageUtils';
+import { observer } from 'mobx-react';
 
-interface OwnProps {
-}
-
-const ExecutionBanner: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
-  const { entries } = store;
-  const start: number = Math.max(0, entries.length - 5);
-  const end: number = start + 5;
-  const last5: Message[] = entries
-    .slice(start, end)
+const ExecutionBanner: React.FC<{}> = observer((): ReactElement | null => {
+  const { executions } = store;
+  const last5: Message[] = executions
+    .slice(0, 5)
     .reverse();
   return (
     <div className={'execution-banner'}>
@@ -23,7 +19,7 @@ const ExecutionBanner: React.FC<OwnProps> = (props: OwnProps): ReactElement | nu
       ))}
     </div>
   );
-};
+});
 
 export { ExecutionBanner };
 

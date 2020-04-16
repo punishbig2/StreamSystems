@@ -72,7 +72,7 @@ const isBusted = (message: Message): boolean => {
 
 const MessageBlotter: React.FC<Props> = observer((props: Props) => {
   const { blotterType, personality } = props;
-  const { entries } = store;
+  const entries: Message[] = blotterType === BlotterTypes.Executions ? store.executions : store.entries;
   const user: User | null = workareaStore.user;
   if (user === null)
     throw new Error('cannot create message blotters without at least one authenticated user');
