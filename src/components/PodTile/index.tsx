@@ -125,7 +125,6 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         depth.push(matchingRow.ofr);
       }
     }
-    console.log(row.id, depth);
     return (
       <Row {...rowProps}
            user={user}
