@@ -65,24 +65,10 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   // Handler methods
   const bulkCreateOrders = async (entries: Order[]) => {
-    // let progress: number = 0;
-    // Close the runs window
-    // Create the orders
     store.hideRunWindow();
     store.showProgressWindow(1);
     await API.createOrdersBulk(entries, currency.name, strategy, personality, user, currency.minqty);
     store.setProgress(1);
-    /*await Promise.all(
-    entries.map(async (order: Order) => {
-      const depth: Order[] = store.depth[order.tenor];
-      const myOrder: Order | undefined = depth ? depth.find((o: Order) => {
-        return o.type === order.type && o.user === user.email;
-      }) : undefined;
-      if (myOrder && myOrder.orderId && ((myOrder.status & OrderStatus.Cancelled) === 0))
-        await API.cancelOrder(myOrder, user);
-      await API.createOrder(order, personality, user, currency.minqty);
-      store.setProgress(progress++);
-    }));*/
     store.hideProgressWindow();
   };
 

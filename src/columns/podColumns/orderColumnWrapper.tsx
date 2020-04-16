@@ -41,8 +41,6 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
           defaultSize={props.defaultSize}
           minimumSize={props.minimumSize}
           rowStore={props.rowStore}
-          bid={props.bid}
-          ofr={props.ofr}
           tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}/>
       );
     },

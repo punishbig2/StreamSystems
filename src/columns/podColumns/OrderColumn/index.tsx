@@ -26,8 +26,6 @@ export enum PodTableType {
 
 type OwnProps = {
   depth: Order[];
-  ofr: Order;
-  bid: Order;
   type: OrderTypes;
   personality: string;
   user: User;
@@ -37,24 +35,25 @@ type OwnProps = {
   rowStore: PodRowStore;
 }
 
+const getDepth = (orders: Order[], type: OrderTypes): Order[] => {
+  if (!orders)
+    return [];
+  return orders
+    .filter((order: Order) => order.type === type && order.size !== null)
+    .sort(orderSorter(type));
+};
+
 export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): ReactElement | null => {
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
   const { type, personality, tableType } = props;
   const { rowStore } = props;
-  // Get the order from the row
-  const defaultSort: (o1: Order, o2: Order) => number = orderSorter(type);
-  const depth: Order[] = props.depth ? props.depth : [];
-  const order: Order = depth
-    .filter((o: Order) => o.type === type && o.size !== null)
-    .sort(defaultSort)[0];
+  const depth: Order[] = getDepth(props.depth, type);
+  // It should never happen that this is {} as Order
+  const order: Order = depth.length > 0 ? depth[0] : {price: null, size: null} as Order;
   const user: User = workareaStore.user;
-  // Some changes require the store to be updated
-  const siblingOrders: Order[] = depth.filter((o: Order) => o.type === type && o.size !== null);
-  siblingOrders.sort(defaultSort);
-  console.log(siblingOrders);
-
-  const status: OrderStatus = getOrderStatus(order, siblingOrders, user, personality, tableType);
+  // Determine the status of the order now
+  const status: OrderStatus = getOrderStatus(order, depth, user, personality, tableType);
   // Sort sibling orders
   useEffect(() => {
     store.setOrder(order, status);
@@ -79,9 +78,9 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
-    if (siblingOrders.length === 0)
+    if (depth.length === 0)
       return null;
-    return <MiniDOB {...props} rows={siblingOrders} user={user}/>;
+    return <MiniDOB {...props} rows={depth} user={user}/>;
   };
 
   const renderOrderTicket = orderTicketRenderer(store);
