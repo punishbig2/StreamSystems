@@ -2,6 +2,7 @@ import { skipTabIndexAll } from 'utils/skipTab';
 import { OrderStore } from 'mobx/stores/orderStore';
 import { User } from 'interfaces/user';
 import workareaStore from 'mobx/stores/workareaStore';
+import { OrderStatus } from 'interfaces/order';
 
 export const SizeTooSmallError = new Error('size is too small');
 
@@ -21,6 +22,8 @@ export const onSubmitSize = (store: OrderStore) =>
       store.resetAllSizes();
     // Get the desired new size
     const size: number | null = store.editedSize;
+    // Force the store to think it's us >)
+    store.baseStatus |= OrderStatus.Owned;
     if (size !== null && size < store.minimumSize) {
       // Do not create the order in this case
       throw SizeTooSmallError;

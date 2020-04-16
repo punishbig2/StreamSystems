@@ -117,6 +117,12 @@ export class DarkPoolColumnStore {
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
     }
+    API.getDarkPoolTenorSnapshot(currency, strategy, tenor)
+      .then((snapshot: W | null) => {
+        if (snapshot !== null) {
+          this.onOrderReceived(snapshot);
+        }
+      });
   }
 
   public static disconnect(currency: string, strategy: string, tenor: string) {
