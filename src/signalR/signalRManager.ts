@@ -257,6 +257,8 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   public setDarkPoolPriceListener = (currency: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
+    if (currency === '' || strategy === '' || tenor === '')
+      return;
     const { recordedCommands } = this;
     const key: string = $$(currency, strategy, tenor);
     const command: Command = {

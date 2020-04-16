@@ -16,7 +16,7 @@ export class MessagesStore {
   @action.bound
   public addEntry(message: Message) {
     const { entries } = this;
-    entries.push(message);
+    entries.unshift(message);
   }
 
   @action.bound
@@ -33,13 +33,12 @@ export class MessagesStore {
   @action.bound
   public connect(email: string) {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
-    const { entries } = this;
     // First cleanup the old listener if it's here
     if (this.cleanup)
       this.cleanup();
     this.connected = true;
     this.cleanup = signalRManager.setMessagesListener(email, (message: Message) => {
-      entries.push(message);
+      this.addEntry(message);
     });
   }
 
