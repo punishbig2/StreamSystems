@@ -2,14 +2,11 @@ import { OrderStatus, Order } from 'interfaces/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 import { User } from 'interfaces/user';
 import { PodTableType } from 'columns/podColumns/OrderColumn/index';
-import { orderSorter } from 'components/PodTile/helpers';
 
-export const getOrderStatus = (supposedTopOrder: Order | undefined, depth: Order[], user: User, personality: string, tableType: PodTableType) => {
+export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], user: User, personality: string, tableType: PodTableType) => {
   let status: OrderStatus = OrderStatus.None;
-  if (!supposedTopOrder)
+  if (topOrder === undefined)
     return status;
-  depth.sort(orderSorter(supposedTopOrder.type));
-  const topOrder: Order = depth[0] || supposedTopOrder;
   const ownOrder: Order | undefined = depth.find(({ user: email }: Order) => email === user.email);
   const aggregatedSize: number | null = getAggregatedSize(topOrder, depth);
   // Get depth related status

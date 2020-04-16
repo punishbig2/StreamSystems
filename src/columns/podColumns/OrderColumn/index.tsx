@@ -7,7 +7,6 @@ import { Price } from 'components/Table/CellRenderers/Price';
 import { STRM } from 'stateDefs/workspaceState';
 import { onNavigate, orderSorter } from 'components/PodTile/helpers';
 import { ModalWindow } from 'components/ModalWindow';
-import { getOrder } from 'columns/podColumns/OrderColumn/helpers/getOrder';
 import { ArrowDirection } from 'interfaces/w';
 import { User } from 'interfaces/user';
 import { OrderStore } from 'mobx/stores/orderStore';
@@ -44,15 +43,19 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const { type, personality, tableType } = props;
   const { rowStore } = props;
   // Get the order from the row
-  const order: Order = getOrder(type, props.ofr, props.bid);
+  const defaultSort: (o1: Order, o2: Order) => number = orderSorter(type);
   const depth: Order[] = props.depth ? props.depth : [];
+  const order: Order = depth
+    .filter((o: Order) => o.type === type && o.size !== null)
+    .sort(defaultSort)[0];
   const user: User = workareaStore.user;
   // Some changes require the store to be updated
-  const siblingOrders: Order[] = depth.filter((o: Order) => o.type === order.type);
+  const siblingOrders: Order[] = depth.filter((o: Order) => o.type === type && o.size !== null);
+  siblingOrders.sort(defaultSort);
+  console.log(siblingOrders);
+
   const status: OrderStatus = getOrderStatus(order, siblingOrders, user, personality, tableType);
   // Sort sibling orders
-  siblingOrders.sort(orderSorter(type));
-
   useEffect(() => {
     store.setOrder(order, status);
   }, [store, order, status]);
