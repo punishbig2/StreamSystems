@@ -2,11 +2,14 @@ import { OrderStatus, Order } from 'interfaces/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 import { User } from 'interfaces/user';
 import { PodTableType } from 'columns/podColumns/OrderColumn/index';
+import { orderSorter } from 'components/PodTile/helpers';
 
-export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], user: User, personality: string, tableType: PodTableType) => {
+export const getOrderStatus = (supposedTopOrder: Order | undefined, depth: Order[], user: User, personality: string, tableType: PodTableType) => {
   let status: OrderStatus = OrderStatus.None;
-  if (!topOrder)
+  if (!supposedTopOrder)
     return status;
+  depth.sort(orderSorter(supposedTopOrder.type));
+  const topOrder: Order = depth[0] || supposedTopOrder;
   const ownOrder: Order | undefined = depth.find(({ user: email }: Order) => email === user.email);
   const aggregatedSize: number | null = getAggregatedSize(topOrder, depth);
   // Get depth related status
@@ -15,7 +18,7 @@ export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], user
   status |= (!!ownOrder && ownOrder.orderId !== topOrder.orderId) ? OrderStatus.HasMyOrder : OrderStatus.None;
   status |= (!!ownOrder && ownOrder.orderId === topOrder.orderId) ? OrderStatus.Owned : OrderStatus.None;
   // If it's the same firm the order belongs to the same bank
-  status |= (topOrder.firm === user.firm || (user.isbroker && topOrder.firm === personality)) ? OrderStatus.SameBank : OrderStatus.None;
+  status |= (supposedTopOrder.firm === user.firm || (user.isbroker && topOrder.firm === personality)) ? OrderStatus.SameBank : OrderStatus.None;
   // If the size of the order doesn't match the aggregated size, it's a joined order
   status |= topOrder.size !== aggregatedSize ? OrderStatus.Joined : OrderStatus.None;
   // If the size is not present it's a cancelled order by convention

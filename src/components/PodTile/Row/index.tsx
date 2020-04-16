@@ -2,7 +2,6 @@ import { Cell } from 'components/Table/Cell';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { RowFunctions } from 'components/PodTile/rowFunctions';
 import React, { useState } from 'react';
-// import { useOrderActions } from 'components/PodTile/Row/hooks/useOrderActions';
 import { useWListener } from 'components/PodTile/Row/hooks/useWListener';
 import { usePropsRowOverwrite } from 'components/PodTile/Row/hooks/usePropsRowOverwrite';
 import { getCellWidth } from 'components/Table/helpers';
@@ -36,7 +35,6 @@ export const Row: React.FC<Props> = observer((props: Props) => {
 
   useWListener(currency, strategy, tenor, user, connected, store);
   usePropsRowOverwrite(row, store);
-  // useOrderActions(currency, strategy, tenor, user, connected, internalRow, store);
 
   if (internalRow.status !== PodRowStatus.Normal)
     classes.push('error');

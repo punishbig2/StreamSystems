@@ -71,6 +71,7 @@ export class PodTileStore {
       keys.sort((t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2));
       // Update the rows object
       this.rows = keys.reduce((table: PodTable, tenor: string): PodTable => {
+        // Set the darkpool order per row
         signalRManger.handleWMessage({ ...darkpool[tenor], ExDestination: 'DP' });
         // Now create the row in the table
         table[tenor] = toPodRow(snapshot[tenor], user);

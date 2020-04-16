@@ -7,7 +7,6 @@ import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
-import { orderSorter } from 'components/PodTile/helpers';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
