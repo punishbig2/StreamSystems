@@ -5,6 +5,7 @@ import { SignalRManager } from 'signalR/signalRManager';
 import moment from 'moment';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
+import { getUserFromUrl } from 'utils/getUserFromUrl';
 
 const MESSAGE_TIME_FORMAT: string = 'YYYYMMDD-HH:mm:ss';
 const sortByTimeDescending = (m1: Message, m2: Message): number => {
@@ -68,7 +69,6 @@ export class MessagesStore {
 
   @action.bound
   public async initialize() {
-    const user: User = workareaStore.user;
     const now: Date = new Date();
     const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
     const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
@@ -76,7 +76,7 @@ export class MessagesStore {
     entries.sort(sortByTimeDescending);
     this.executions = applyFilter(entries);
     // Query the messages now
-    this.entries = entries.filter((entry: Message) => entry.Username === user.email);
+    this.entries = entries.filter((entry: Message) => entry.Username === getUserFromUrl());
   }
 
   @action.bound
