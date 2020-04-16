@@ -1,18 +1,19 @@
 import { Message, ExecTypes } from 'interfaces/message';
-import { observable, action, computed } from 'mobx';
+import { observable, action } from 'mobx';
 import { API } from 'API';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
 import { SignalRManager } from 'signalR/signalRManager';
 import moment from 'moment';
 
-const isFill = (item: Message): boolean =>
-  (item.OrdStatus === ExecTypes.PartiallyFilled || item.OrdStatus === ExecTypes.Filled);
-
-const filterExecutions = (array: Message[]): Message[] => {
-  return array.filter((item: Message) => {
-    return isFill(item);
-  });
+const MESSAGE_TIME_FORMAT: string = 'YYYYMMDD-HH:mm:ss';
+const sortByTimeDescending = (m1: Message, m2: Message): number => {
+  const M1: moment.Moment = moment(m1.TransactTime, MESSAGE_TIME_FORMAT);
+  const M2: moment.Moment = moment(m2.TransactTime, MESSAGE_TIME_FORMAT);
+  return -M1.diff(M2);
 };
+
+const isFill = (item: Message): boolean =>
+  (item.ExecType === ExecTypes.PartiallyFilled || item.ExecType === ExecTypes.Filled);
 
 const hasLink = (messages: Message[], item: Message): boolean => {
   const getOrderLinkID = (message: any): string => {
@@ -31,6 +32,8 @@ const hasLink = (messages: Message[], item: Message): boolean => {
 
 const applyFilter = (messages: Message[]): Message[] => {
   return messages.filter((item: Message, index: number, array: Message[]) => {
+    if (!isFill(item))
+      return false;
     if (index !== array.findIndex((each: Message) => each.ClOrdID === item.ClOrdID))
       return false;
     return hasLink(array, item) && item.Side === '1';
@@ -38,7 +41,8 @@ const applyFilter = (messages: Message[]): Message[] => {
 };
 
 export class MessagesStore {
-  @observable entries: Message[] = [];
+  @observable.ref entries: Message[] = [];
+  @observable.ref executions: Message[] = [];
   @observable connected: boolean = false;
   private cleanup: (() => void) | null = null;
 
@@ -46,15 +50,13 @@ export class MessagesStore {
     this.initialize();
   }
 
-  @computed
-  public get executions() {
-    return applyFilter(filterExecutions(this.entries));
-  }
-
   @action.bound
   public addEntry(message: Message) {
-    const { entries } = this;
-    entries.unshift(message);
+    const newEntries: Message[] = [message, ...this.entries];
+    this.entries = newEntries;
+    this.executions = applyFilter(newEntries);
+    this.executions.sort(sortByTimeDescending);
+    console.log(JSON.parse(JSON.stringify(this.executions)));
   }
 
   @action.bound
@@ -64,12 +66,9 @@ export class MessagesStore {
       const now: Date = new Date();
       const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
       const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
-      const format: string = 'YYYYMMDD-HH:mm:ss';
-      entries.sort((m1: Message, m2: Message): number => {
-        const M1: moment.Moment = moment(m1.TransactTime, format);
-        const M2: moment.Moment = moment(m2.TransactTime, format);
-        return -M1.diff(M2);
-      });
+
+      entries.sort(sortByTimeDescending);
+      this.executions = applyFilter(entries);
       // Query the messages now
       this.entries = entries;
     }

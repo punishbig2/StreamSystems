@@ -6,21 +6,19 @@ import { priceFormatter } from 'utils/priceFormatter';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { PodRowStatus } from 'interfaces/podRow';
 
-export enum SortOrder {
-  Increasing = -1,
-  Decreasing = 1,
-}
-
-export const orderSorter = (sortOrder: SortOrder) =>
-  (o1: Order, o2: Order): number => {
+export const orderSorter = (type: OrderTypes) => {
+  const sign: number = type === OrderTypes.Bid ? -1 : 1;
+  return (o1: Order, o2: Order): number => {
     if (o1.price === null)
       return o2.price === null ? 0 : 1;
     if (o2.price === null)
       return -1;
+    console.log(o2.timestamp);
     if (priceFormatter(o1.price) === priceFormatter(o2.price))
-      return sortOrder * (o1.timestamp - o2.timestamp);
-    return sortOrder * (o1.price - o2.price);
+      return sign * (o2.timestamp - o1.timestamp);
+    return sign * (o1.price - o2.price);
   };
+};
 
 export const convertToDepth = (orders: Order[], tenor: string | null): PodTable => {
   if (orders === undefined || tenor === null)
@@ -29,8 +27,8 @@ export const convertToDepth = (orders: Order[], tenor: string | null): PodTable 
   const bids: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Bid);
   const ofrs: Order[] = orders.filter((order: Order) => order.type === OrderTypes.Ofr);
   // Sort them
-  bids.sort(orderSorter(SortOrder.Increasing));
-  ofrs.sort(orderSorter(SortOrder.Decreasing));
+  bids.sort(orderSorter(OrderTypes.Bid));
+  ofrs.sort(orderSorter(OrderTypes.Ofr));
   const count: number = bids.length > ofrs.length ? bids.length : ofrs.length;
   const depth: PodTable = {};
   for (let i = 0; i < count; ++i) {

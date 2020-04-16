@@ -3,7 +3,7 @@ import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { Table } from 'components/Table';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { User } from 'interfaces/user';
-import React, { useMemo, ReactElement } from 'react';
+import React, { useMemo, ReactElement, useEffect } from 'react';
 import { Message, ExecTypes } from 'interfaces/message';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { STRM } from 'stateDefs/workspaceState';
@@ -85,10 +85,7 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       : columnsMap.normal;
   }, [columnsMap.broker, columnsMap.normal, personality, isbroker]);
 
-  const count: number = entries.length;
   const filtered: Message[] = useMemo(() => {
-    if (count === 0)
-      return [];
     const filter = (message: Message): boolean => {
       if (blotterType === BlotterTypes.Executions) {
         return isExecution(message) && message.ContraTrader !== email;
@@ -99,7 +96,7 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       }
     };
     return entries.filter(filter);
-  }, [blotterType, email, entries, count]);
+  }, [blotterType, email, entries]);
 
   const renderRow = useMemo(() => renderRowFactory(blotterType, email, firm), [blotterType, email, firm]);
   return (

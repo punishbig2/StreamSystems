@@ -9,7 +9,7 @@ import { DarkPoolMessage } from 'interfaces/message';
 import { API } from 'API';
 import { $$ } from 'utils/stringPaster';
 import { PodTable } from 'interfaces/podTable';
-import { orderSorter, SortOrder } from 'components/PodTile/helpers';
+import { orderSorter } from 'components/PodTile/helpers';
 import { PodRowStatus } from 'interfaces/podRow';
 
 export class DarkPoolColumnStore {
@@ -27,7 +27,7 @@ export class DarkPoolColumnStore {
       return null;
     const filtered = orders.filter((o: Order) => o.type === mine.type);
     // Sort according to the type
-    filtered.sort(orderSorter(mine.type === OrderTypes.Bid ? SortOrder.Increasing : SortOrder.Decreasing));
+    filtered.sort(orderSorter(mine.type));
     // Now convert it to a PodTable
     return filtered.reduce((table: PodTable, order: Order, index: number): PodTable => {
       table[index] = {

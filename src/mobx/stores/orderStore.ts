@@ -7,6 +7,7 @@ import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
+import { orderSorter } from 'components/PodTile/helpers';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -197,6 +198,7 @@ export class OrderStore {
   @action.bound
   public setCurrentDepth(depth: Order[]) {
     this.depth = depth.filter((order: Order) => order.size !== null);
+    this.depth.sort(orderSorter(this.type))
   }
 }
 

@@ -5,7 +5,7 @@ import { Size } from 'components/Table/CellRenderers/Size';
 import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import { Price } from 'components/Table/CellRenderers/Price';
 import { STRM } from 'stateDefs/workspaceState';
-import { onNavigate } from 'components/PodTile/helpers';
+import { onNavigate, orderSorter } from 'components/PodTile/helpers';
 import { ModalWindow } from 'components/ModalWindow';
 import { getOrder } from 'columns/podColumns/OrderColumn/helpers/getOrder';
 import { ArrowDirection } from 'interfaces/w';
@@ -52,6 +52,8 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   // Some changes require the store to be updated
   const siblingOrders: Order[] = depth.filter((o: Order) => o.type === order.type);
   const status: OrderStatus = getOrderStatus(order, siblingOrders, user, personality, tableType);
+  // Sort sibling orders
+  siblingOrders.sort(orderSorter(type));
 
   useEffect(() => {
     store.setOrder(order, status);

@@ -246,6 +246,8 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   public removeDarkPoolPriceListener = (currency: string, strategy: string, tenor: string) => {
+    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
+      return;
     const key: string = $$(currency, strategy, tenor);
     // Remove it from the map
     delete this.darkpoolPriceListeners[key];
@@ -257,7 +259,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   };
 
   public setDarkPoolPriceListener = (currency: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
-    if (currency === '' || strategy === '' || tenor === '')
+    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
       return;
     const { recordedCommands } = this;
     const key: string = $$(currency, strategy, tenor);

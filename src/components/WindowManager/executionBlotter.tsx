@@ -32,6 +32,7 @@ export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElem
                       personality={props.personality}
                       connected={props.connected}
                       user={props.user}
+                      scrollable={true}
                       blotterType={BlotterTypes.Executions}/>
     );
   };
