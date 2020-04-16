@@ -62,7 +62,7 @@ class PersistStorage {
     // Create a local copy
     const cleanData = { ...this.data };
     const { workarea: { workspaces } } = cleanData.workarea;
-    if (workspaces) {
+    if (workspaces && cleanData.workspaces) {
       const list: any[] = Object.values(workspaces);
       cleanData.workspaces = list.reduce((cleanedUpWorkspaces: any, workspace: any): any => {
         cleanedUpWorkspaces[workspace.id] = cleanData.workspaces[workspace.id];
