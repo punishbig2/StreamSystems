@@ -29,7 +29,6 @@ const hasLink = (messages: Message[], item: Message): boolean => {
       return message['583'];
     }
   };
-
   const link: number = messages.findIndex((each: Message) => {
     return getOrderLinkID(each) === item.ClOrdID;
   });
@@ -59,10 +58,11 @@ export class MessagesStore {
   @action.bound
   public addEntry(message: Message) {
     const user: User = workareaStore.user;
+    console.log(message, isFill(message), message.ContraTrader !== user.email);
     if (message.Username === user.email) {
       this.entries = [message, ...this.entries];
     }
-    if (isFill(message) && message.ContraTrader !== user.email) {
+    if (isFill(message) && !hasLink(this.executions, message)) {
       this.executions = [message, ...this.executions];
     }
   }

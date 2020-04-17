@@ -19,14 +19,14 @@ import { shouldOpenOrderTicket } from 'columns/podColumns/OrderColumn/helpers/sh
 import { onSubmitSize } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
 import { PodRowStore } from 'mobx/stores/podRowStore';
 import workareaStore from 'mobx/stores/workareaStore';
-import { getDepth } from 'columns/podColumns/OrderColumn/helpers/getDepth';
+import { getRelevantOrders } from 'columns/podColumns/OrderColumn/helpers/getRelevantOrders';
 
 export enum PodTableType {
   Pod, Dob
 }
 
 type OwnProps = {
-  depth: Order[];
+  orders: Order[];
   type: OrderTypes;
   personality: string;
   currency: string;
@@ -44,16 +44,16 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const { minimumSize, defaultSize } = props;
   const { type, personality, tableType } = props;
   const { rowStore } = props;
-  const depth: Order[] = getDepth(props.depth, type);
+  const orders: Order[] = getRelevantOrders(props.orders, type);
   // Used for the fallback order
   const { currency: symbol, strategy, tenor } = props;
   // It should never happen that this is {} as Order
-  const order: Order = depth.length > 0
-    ? depth[0]
+  const order: Order = orders.length > 0
+    ? orders[0]
     : { price: null, size: null, type, tenor, strategy, symbol } as Order;
   const user: User = workareaStore.user;
   // Determine the status of the order now
-  const status: OrderStatus = getOrderStatus(order, depth, user, personality, tableType);
+  const status: OrderStatus = getOrderStatus(order, orders, user, personality, tableType);
   // Sort sibling orders
   useEffect(() => {
     store.setOrder(order, status);
@@ -72,15 +72,16 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   }, [store, minimumSize, defaultSize]);
 
   useEffect(() => {
-    store.setCurrentDepth(depth);
-  }, [store, depth]);
+    store.setCurrentDepth(orders);
+  }, [store, orders]);
 
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
-    if (depth.length === 0)
+    const filtered: Order[] = orders.filter((order: Order) => order.size !== null);
+    if (filtered.length === 0)
       return null;
-    return <MiniDOB {...props} rows={depth} user={user}/>;
+    return <MiniDOB {...props} rows={filtered} user={user}/>;
   };
 
   const renderOrderTicket = orderTicketRenderer(store);

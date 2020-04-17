@@ -26,7 +26,7 @@ export class PodTileStore {
   @observable currentTenor: string | null = null;
 
   @observable.ref rows: { [tenor: string]: PodRow } = {};
-  @observable.ref depth: { [tenor: string]: Order[] } = {};
+  @observable.ref orders: { [tenor: string]: Order[] } = {};
 
   @observable isRunWindowVisible: boolean = false;
   // Progress bar
@@ -48,7 +48,7 @@ export class PodTileStore {
       return depth;
     };
     // Initialize depth with empty arrays
-    this.depth = tenors.reduce(reducer, {});
+    this.orders = tenors.reduce(reducer, {});
   }
 
   @action.bound
@@ -83,16 +83,15 @@ export class PodTileStore {
 
   @action.bound
   private updateSingleDepth(tenor: string, w: W) {
-    console.log(w);
     const entries: MDEntry[] = w.Entries;
     if (entries) {
       const user: User | null = workareaStore.user;
       if (user === null)
         return;
       const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
-      this.depth = { ...this.depth, [tenor]: orders };
+      this.orders = { ...this.orders, [tenor]: orders };
     } else {
-      this.depth = { ...this.depth, [tenor]: [] };
+      this.orders = { ...this.orders, [tenor]: [] };
     }
   }
 
@@ -104,7 +103,7 @@ export class PodTileStore {
     if (user === null)
       return;
     const tenors: string[] = Object.keys(ws);
-    this.depth = tenors.reduce((depth: { [k: string]: Order[] }, tenor: string): { [k: string]: Order[] } => {
+    this.orders = tenors.reduce((depth: { [k: string]: Order[] }, tenor: string): { [k: string]: Order[] } => {
       const w: W = ws[tenor];
       const entries: MDEntry[] = ws[tenor].Entries;
       if (entries)

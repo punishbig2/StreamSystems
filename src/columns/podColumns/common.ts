@@ -4,7 +4,7 @@ import { User } from 'interfaces/user';
 import { PodRowStore } from 'mobx/stores/podRowStore';
 
 export type PodRowProps = PodRow & {
-  depth: Order[];
+  orders: Order[];
   personality: string;
   defaultSize: number;
   minimumSize: number;

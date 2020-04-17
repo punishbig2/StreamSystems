@@ -82,7 +82,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         tenors={tenors}
         defaultSize={currency.defaultqty}
         minimumSize={currency.minqty}
-        depth={store.depth}
+        orders={store.orders}
         onClose={store.hideRunWindow}
         onSubmit={bulkCreateOrders}/>
     );
@@ -93,7 +93,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     return (
       <Row {...rowProps}
            user={user}
-           depth={store.depth[row.tenor]}
+           orders={store.orders[row.tenor]}
            personality={personality}
            defaultSize={currency.defaultqty}
            minimumSize={currency.minqty}
@@ -107,7 +107,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     );
   };
   const dobRows: PodTable = !!store.currentTenor
-    ? convertToDepth(store.depth[store.currentTenor], store.currentTenor)
+    ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
     : {};
   const renderDoBRow = (rowProps: any): ReactElement | null => {
     const { row } = rowProps;
@@ -115,19 +115,19 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       return null;
     // Get current row
     const matchingRow: PodRow = dobRows[row.id];
-    const depth: Order[] = [];
+    const orders: Order[] = [];
     if (matchingRow) {
       if (matchingRow.bid) {
-        depth.push(matchingRow.bid);
+        orders.push(matchingRow.bid);
       }
       if (matchingRow.ofr) {
-        depth.push(matchingRow.ofr);
+        orders.push(matchingRow.ofr);
       }
     }
     return (
       <Row {...rowProps}
            user={user}
-           depth={depth}
+           orders={orders}
            connected={connected}
            personality={personality}
            defaultSize={currency.defaultqty}
@@ -147,15 +147,15 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     if (store.currentTenor === null) {
       return;
     } else {
-      const depth: Order[] = store.depth[store.currentTenor];
-      if (depth.length === 0) {
-        // Has the equivalent effect of hiding the depth book
+      const orders: Order[] = store.orders[store.currentTenor];
+      if (orders.length === 0) {
+        // Has the equivalent effect of hiding the orders book
         // but it will actually set the correct state for the
         // tenors to be double-clickable
         store.setCurrentTenor(null);
       }
     }
-  }, [store.currentTenor, store.depth, store]);
+  }, [store.currentTenor, store.orders, store]);
 
   const getWindowContent = () => {
     if (props.minimized) {

@@ -50,6 +50,7 @@ export interface Message {
   ExecBroker: string;
   ContraTrader: string;
   ExDestination?: string;
+  ClOrdLinkId?: string;
 }
 
 export interface DarkPoolMessage {

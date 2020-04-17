@@ -31,7 +31,7 @@ export const Row: React.FC<Props> = observer((props: Props) => {
   const { internalRow } = store;
   const classes: string[] = ['tr'];
 
-  // FIXME: remove this and rely on the depth always
+  // FIXME: remove this and rely on the orders always
   // useWListener(currency, strategy, tenor, store);
   useEffect(() => {
     store.setInternalRow(row);

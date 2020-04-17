@@ -298,8 +298,10 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   private handleMessageActions = (message: Message) => {
     const { preferences: userProfile } = userProfileStore;
+    const { user } = workareaStore;
     const ocoMode: OCOModes = userProfile.oco;
-    const { user } = this;
+    if (message.Username !== user.email)
+      return;
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;
@@ -322,7 +324,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
     const { connection } = this;
     if (connection) {
-      connection.invoke(SignalRMethods.SubscribeForMBMsg, useremail);
+      connection.invoke(SignalRMethods.SubscribeForMBMsg, '*');
       connection.on('updateMessageBlotter', (raw: string) => {
         const message: Message = JSON.parse(raw);
         // First call the internal handler
