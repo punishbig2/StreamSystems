@@ -19,18 +19,20 @@ export const onSubmitSize = (store: OrderStore) =>
       return;
     }
     // Create an order in case it makes sense
-    if (store.baseSize === null)
+    if (store.baseSize === null) {
       store.resetAllSizes();
-    // Get the desired new size
-    const size: number | null = store.editedSize;
-    // Force the store to think it's us >)
-    store.baseStatus |= OrderStatus.Owned;
-    if (size !== null && size < store.minimumSize) {
-      // Do not create the order in this case
-      throw SizeTooSmallError;
+    } else {
+      // Get the desired new size
+      const size: number | null = store.editedSize;
+      // Force the store to think it's us >)
+      store.baseStatus |= OrderStatus.Owned;
+      if (size !== null && size < store.minimumSize) {
+        // Do not create the order in this case
+        throw SizeTooSmallError;
+      }
+      // Update the order's size
+      store.create();
     }
-    // Update the order's size
-    store.create();
     skipTabIndexAll(input, 1);
   };
 

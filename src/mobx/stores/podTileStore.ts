@@ -114,25 +114,52 @@ export class PodTileStore {
     this.loading = false;
   }
 
-  public async initialize(currency: string, strategy: string) {
+  public addMarketListener(currency: string, strategy: string, tenor: string) {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
-    this.loading = true;
-
-    // const darkpool: { [k: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
-    /*const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(currency, strategy);
-    if (snapshot === null || darkpool === null)
-      return;
-    this.initializeFromSnapshot(snapshot, darkpool, user);*/
-    // Load depth
-    const depth: { [k: string]: W } | null = await API.getSnapshot(currency, strategy);
-    const tenors: string[] = workareaStore.tenors;
-    tenors.forEach((tenor: string) => {
-      signalRManager.setMarketListener(currency, strategy, tenor, (w: W) => {
-        this.updateSingleDepth(tenor, w);
-      });
+    signalRManager.setMarketListener(currency, strategy, tenor, (w: W) => {
+      this.updateSingleDepth(tenor, w);
     });
+  }
+
+  private async combineSnapshots(currency: string, strategy: string, tenors: string[], depth: { [k: string]: W }) {
+    const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(currency, strategy);
+    if (snapshot === null)
+      throw new Error(`cannot get snapshot for ${currency} ${strategy}`);
+    return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
+      const w: W = depth[tenor];
+      if (w) {
+        mixed[tenor] = w;
+        if (snapshot[tenor]) {
+          const tob: W = snapshot[tenor];
+          const entries: MDEntry[] = tob.Entries;
+          const old: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntrySize === undefined);
+          if (w.Entries) {
+            w.Entries = [...w.Entries, ...old];
+          } else {
+            w.Entries = old;
+          }
+        }
+      } else {
+        mixed[tenor] = snapshot[tenor];
+      }
+      return mixed;
+    }, {});
+  }
+
+  public async initialize(currency: string, strategy: string) {
+    this.loading = true;
+    // const darkpool: { [k: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
+    // Load depth
+    const snapshot: { [k: string]: W } | null = await API.getSnapshot(currency, strategy);
+    if (snapshot === null)
+      throw new Error(`cannot get snapshot for ${currency} ${strategy}`);
+    const tenors: string[] = workareaStore.tenors;
+    // Combine TOB and full snapshots
+    const combined: { [k: string]: W } = await this.combineSnapshots(currency, strategy, tenors, snapshot);
+    // Install a listener for each tenor
+    tenors.forEach((tenor: string) => this.addMarketListener(currency, strategy, tenor));
     // Initialize from depth snapshot
-    this.initializeDepthFromSnapshot(depth);
+    this.initializeDepthFromSnapshot(combined);
   }
 
   @action.bound
