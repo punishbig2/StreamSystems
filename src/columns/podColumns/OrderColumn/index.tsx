@@ -53,7 +53,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     : { price: null, size: null, type, tenor, strategy, symbol } as Order;
   const user: User = workareaStore.user;
   // Determine the status of the order now
-  const status: OrderStatus = getOrderStatus(order, orders, user, personality, tableType);
+  const status: OrderStatus = getOrderStatus(order, orders, personality, tableType);
   // Sort sibling orders
   useEffect(() => {
     store.setOrder(order, status);
@@ -81,7 +81,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     const filtered: Order[] = orders.filter((order: Order) => order.size !== null);
     if (filtered.length === 0)
       return null;
-    return <MiniDOB {...props} rows={filtered} user={user}/>;
+    return <MiniDOB {...props} rows={filtered} orderStore={store}/>;
   };
 
   const renderOrderTicket = orderTicketRenderer(store);

@@ -2,8 +2,10 @@ import { OrderStatus, Order } from 'interfaces/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 import { User } from 'interfaces/user';
 import { PodTableType } from 'columns/podColumns/OrderColumn/index';
+import workareaStore from 'mobx/stores/workareaStore';
 
-export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], user: User, personality: string, tableType: PodTableType) => {
+export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], personality: string, tableType: PodTableType) => {
+  const user: User = workareaStore.user;
   let status: OrderStatus = OrderStatus.None;
   if (topOrder === undefined)
     return status;

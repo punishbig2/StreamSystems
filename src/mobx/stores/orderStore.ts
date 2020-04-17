@@ -7,6 +7,7 @@ import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
+import { STRM } from 'stateDefs/workspaceState';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -16,7 +17,7 @@ export class OrderStore {
   public tenor: string = '';
 
   @observable user: User | null = null;
-  @observable personality: string | null = null;
+  @observable personality: string = STRM;
 
   @observable orderID: string | undefined;
   @observable baseSize: number | null = null;

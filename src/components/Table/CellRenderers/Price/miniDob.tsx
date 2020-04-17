@@ -4,22 +4,27 @@ import { Order, OrderStatus } from 'interfaces/order';
 import React, { ReactNode } from 'react';
 import { priceFormatter } from 'utils/priceFormatter';
 import { User } from 'interfaces/user';
+import { OrderStore } from 'mobx/stores/orderStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import { getOrderStatus } from 'columns/podColumns/OrderColumn/helpers/getOrderStatus';
+import { PodTableType } from 'columns/podColumns/OrderColumn';
 
 interface Props {
   personality: string;
-  user: User;
   rows?: Order[];
   type?: OrderTypes;
+  orderStore: OrderStore;
 }
 
 export const MiniDOB: React.FC<Props> = (props: Props) => {
-  const { personality, user, rows } = props;
+  const user: User = workareaStore.user;
+  const { rows, orderStore } = props;
   if (!rows)
     return null;
   const children = rows.map(
-    ({ price, size, firm, status: originalStatus }: Order, index: number) => {
-      const status: OrderStatus = originalStatus &
-        ~((personality === firm || !user.isbroker) ? OrderStatus.None : OrderStatus.Owned);
+    (order: Order, index: number) => {
+      const { price, size, firm } = order;
+      const status: OrderStatus = getOrderStatus(order, orderStore.depth, orderStore.personality, PodTableType.Dob);
       const priceElement: ReactNode = (() => {
         return (
           <div className={getOrderStatusClass(status, 'mini-price')} key={1}>
