@@ -106,15 +106,14 @@ export class PodTileStore {
     this.depth = tenors.reduce((depth: { [k: string]: Order[] }, tenor: string): { [k: string]: Order[] } => {
       const w: W = ws[tenor];
       const entries: MDEntry[] = ws[tenor].Entries;
-      if (entries) {
+      if (entries)
         depth[tenor] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
-      }
       return depth;
     }, {});
     this.loading = false;
   }
 
-  public async initialize(currency: string, strategy: string, user: User) {
+  public async initialize(currency: string, strategy: string) {
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     this.loading = true;
 

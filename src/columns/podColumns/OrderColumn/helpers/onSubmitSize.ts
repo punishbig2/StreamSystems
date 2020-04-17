@@ -18,6 +18,7 @@ export const onSubmitSize = (store: OrderStore) =>
       skipTabIndexAll(input, 1);
       return;
     }
+    // Create an order in case it makes sense
     if (store.baseSize === null)
       store.resetAllSizes();
     // Get the desired new size

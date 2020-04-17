@@ -58,11 +58,9 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     if (currency === InvalidCurrency || !strategy)
       return;
     // manager.loadDepth(currency.name, strategy, user);
-    store.initialize(currency.name, strategy, user);
+    store.initialize(currency.name, strategy);
   }, [currency, store, strategy, user]);
 
-  // Create depth for each tenor
-  // useDepthEmitter(tenors, currency.name, strategy, insertDepth);
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   // Handler methods
@@ -109,7 +107,9 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     );
   };
 
-  const dobRows: PodTable = !!store.currentTenor ? convertToDepth(store.depth[store.currentTenor], store.currentTenor) : {};
+  const dobRows: PodTable = !!store.currentTenor
+    ? convertToDepth(store.depth[store.currentTenor], store.currentTenor)
+    : {};
   const renderDoBRow = (rowProps: any): ReactElement | null => {
     const { row } = rowProps;
     if (!currency || currency.minqty === undefined || currency.defaultqty === undefined || !strategy)

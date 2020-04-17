@@ -13,9 +13,9 @@ const buildRows = async (tenors: string[], currency: string, strategy: string, e
       const order: Order = new Order(tenor, currency, strategy, email, null, OrderTypes.Invalid);
       const row: PodRow = {
         tenor: tenor,
-        id: `${tenor}`,
-        bid: { ...order, type: OrderTypes.Bid },
-        ofr: { ...order, type: OrderTypes.Ofr },
+        id: tenor,
+        bid: order,
+        ofr: order,
         mid: null,
         spread: null,
         darkPrice: null,

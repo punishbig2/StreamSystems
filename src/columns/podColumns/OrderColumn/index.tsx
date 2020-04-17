@@ -29,6 +29,9 @@ type OwnProps = {
   depth: Order[];
   type: OrderTypes;
   personality: string;
+  currency: string;
+  strategy: string;
+  tenor: string;
   user: User;
   minimumSize: number;
   defaultSize: number;
@@ -42,8 +45,12 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const { type, personality, tableType } = props;
   const { rowStore } = props;
   const depth: Order[] = getDepth(props.depth, type);
+  // Used for the fallback order
+  const { currency: symbol, strategy, tenor } = props;
   // It should never happen that this is {} as Order
-  const order: Order = depth.length > 0 ? depth[0] : { price: null, size: null } as Order;
+  const order: Order = depth.length > 0
+    ? depth[0]
+    : { price: null, size: null, type, tenor, strategy, symbol } as Order;
   const user: User = workareaStore.user;
   // Determine the status of the order now
   const status: OrderStatus = getOrderStatus(order, depth, user, personality, tableType);

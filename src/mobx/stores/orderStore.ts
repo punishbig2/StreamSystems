@@ -205,5 +205,16 @@ export class OrderStore {
   public setCurrentDepth(depth: Order[]) {
     this.depth = depth.filter((order: Order) => order.size !== null);
   }
+
+  public emptyOrder(): Order {
+    return {
+      price: null,
+      size: null,
+      tenor: this.tenor,
+      strategy: this.strategy,
+      symbol: this.symbol,
+      type: this.type,
+    } as Order;
+  }
 }
 

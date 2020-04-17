@@ -5,9 +5,11 @@ import { PodRow } from 'interfaces/podRow';
 import { toPodRow } from 'utils/dataParser';
 import { User } from 'interfaces/user';
 import { PodRowStore } from 'mobx/stores/podRowStore';
+import workareaStore from 'mobx/stores/workareaStore';
 
-export const useWListener = (symbol: string, strategy: string, tenor: string, user: User, connected: boolean, store: PodRowStore) => {
+export const useWListener = (symbol: string, strategy: string, tenor: string, store: PodRowStore) => {
   useEffect(() => {
+    const user: User = workareaStore.user;
     if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
     const signalRManager: SignalRManager = SignalRManager.getInstance();
@@ -24,6 +26,6 @@ export const useWListener = (symbol: string, strategy: string, tenor: string, us
     return () => {
       signalRManager.removeTOBWListener(symbol, strategy, tenor);
     };
-  }, [symbol, strategy, tenor, connected, user, store]);
+  }, [symbol, strategy, tenor, store]);
 };
 
