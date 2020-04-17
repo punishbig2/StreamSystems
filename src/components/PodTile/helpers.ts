@@ -14,7 +14,7 @@ export const orderSorter = (type: OrderTypes) => {
     if (o2.price === null)
       return -1;
     if (priceFormatter(o1.price) === priceFormatter(o2.price))
-      return sign * (o2.timestamp - o1.timestamp);
+      return o1.timestamp - o2.timestamp;
     return sign * (o1.price - o2.price);
   };
 };

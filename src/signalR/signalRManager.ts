@@ -225,15 +225,9 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   public setMarketListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+    const { recordedCommands } = this;
     const key: string = $$(symbol, strategy, tenor, 'depth');
     // Just add the listener, the rest is done elsewhere
-    this.listeners[key] = listener;
-  }
-
-  public setTOBWListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
-    const { recordedCommands } = this;
-    const key: string = $$(symbol, strategy, tenor);
-    // We always save the listener
     this.listeners[key] = listener;
     const command: Command = {
       name: SignalRMethods.SubscribeForMarketData,
@@ -243,6 +237,12 @@ export class SignalRManager<A extends Action = AnyAction> {
     recordedCommands.push(command);
     // Try to run the command now
     this.replayCommand(command);
+  }
+
+  public setTOBWListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+    const key: string = $$(symbol, strategy, tenor);
+    // We always save the listener
+    this.listeners[key] = listener;
   }
 
   public removeDarkPoolPriceListener = (currency: string, strategy: string, tenor: string) => {

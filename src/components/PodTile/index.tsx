@@ -106,7 +106,6 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
            onTenorSelected={store.setCurrentTenor}/>
     );
   };
-
   const dobRows: PodTable = !!store.currentTenor
     ? convertToDepth(store.depth[store.currentTenor], store.currentTenor)
     : {};

@@ -26,7 +26,7 @@ export class PodTileStore {
   @observable currentTenor: string | null = null;
 
   @observable.ref rows: { [tenor: string]: PodRow } = {};
-  @observable depth: { [tenor: string]: Order[] } = {};
+  @observable.ref depth: { [tenor: string]: Order[] } = {};
 
   @observable isRunWindowVisible: boolean = false;
   // Progress bar
@@ -83,6 +83,7 @@ export class PodTileStore {
 
   @action.bound
   private updateSingleDepth(tenor: string, w: W) {
+    console.log(w);
     const entries: MDEntry[] = w.Entries;
     if (entries) {
       const user: User | null = workareaStore.user;

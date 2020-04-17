@@ -6,6 +6,6 @@ export const getDepth = (orders: Order[], type: OrderTypes): Order[] => {
   if (!orders)
     return [];
   return orders
-    .filter((order: Order) => order.type === type && order.size !== null)
+    .filter((order: Order) => order.type === type)
     .sort(orderSorter(type));
 };
