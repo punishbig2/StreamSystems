@@ -7,6 +7,7 @@ import { priceFormatter } from 'utils/priceFormatter';
 import equal from 'deep-equal';
 import { RunActions } from 'components/Run/reducer';
 import { FXOAction } from 'actionCreator';
+import { OrderTypes } from 'interfaces/mdEntry';
 
 export const valueChange = (state: RunState, { type, data }: FXOAction<RunActions>): RunState => {
   const { orders } = state;
@@ -18,8 +19,8 @@ export const valueChange = (state: RunState, { type, data }: FXOAction<RunAction
   const startingEntry: RunEntry = {
     spread: row.spread,
     mid: row.mid,
-    ofr: ((ofr.status & OrderStatus.Cancelled) !== 0) ? null : ofr.price,
-    bid: ((bid.status & OrderStatus.Cancelled) !== 0) ? null : bid.price,
+    ofr: ((ofr.status & OrderStatus.Cancelled) === 0) ? ofr.price : null,
+    bid: ((bid.status & OrderStatus.Cancelled) === 0) ? bid.price : null,
     // Overwrite the one that will be replaced
     [type]: data.value,
   };
@@ -28,33 +29,45 @@ export const valueChange = (state: RunState, { type, data }: FXOAction<RunAction
     computedEntry.ofr = startingEntry.ofr;
   if (computedEntry.bid === null)
     computedEntry.bid = startingEntry.bid;
+  const isActive = (order: Order, newPrice: number | null): boolean => {
+    if (newPrice !== null)
+      return true;
+    return (order.status & OrderStatus.Cancelled) !== 0;
+  };
   const getRowStatus = (computed: RunEntry): PodRowStatus => {
+    if ((bid.status & OrderStatus.Cancelled) !== 0 || (ofr.status & OrderStatus.Cancelled) !== 0)
+      return PodRowStatus.Normal;
+    if (!isActive(bid, computed.bid) || !isActive(ofr, computed.ofr) || computed.mid === null || computed.spread === null)
+      return PodRowStatus.Normal;
     if (computed.bid === null || computed.ofr === null)
       return PodRowStatus.Normal;
     return computed.bid > computed.ofr
       ? PodRowStatus.InvertedMarketsError
       : PodRowStatus.Normal;
   };
-  const getOrderStatus = (status: OrderStatus, newValue: number | null, oldValue: number | null) => {
+  const getOrderStatus = (status: OrderStatus, oldValue: number | null, newValue: number | null) => {
     if (priceFormatter(newValue) === priceFormatter(oldValue) && (status & OrderStatus.Cancelled) === 0)
       return status;
     return (status | OrderStatus.PriceEdited) & ~OrderStatus.Owned & ~OrderStatus.SameBank & ~OrderStatus.Cancelled;
   };
   const coalesce = (v1: number | null, v2: number | null) => v1 === null ? v2 : v1;
-  const newOfr: Order = {
-    ...ofr,
-    // Update the price
-    price: coalesce(computedEntry.ofr, startingEntry.ofr),
-    // Update the status and set it as edited/modified
-    status: getOrderStatus(ofr.status, computedEntry.ofr, ofr.price),
+  const buildNewOrder = (original: Order, computed: number | null, starting: number | null): Order => {
+    if (computed === null)
+      return original;
+    const defaultSize: number = original.type === OrderTypes.Bid ? state.defaultBidSize : state.defaultOfrSize;
+    const price = coalesce(computed, starting);
+    const status = getOrderStatus(original.status, original.price, price);
+    return {
+      ...original,
+      // Update the price
+      price: price,
+      size: (((status & OrderStatus.PriceEdited) !== 0) && !original.size) ? defaultSize : null,
+      // Update the status and set it as edited/modified
+      status: status,
+    };
   };
-  const newBid: Order = {
-    ...bid,
-    // Update the price
-    price: coalesce(computedEntry.bid, startingEntry.bid),
-    // Update the status and set it as edited/modified
-    status: getOrderStatus(bid.status, computedEntry.bid, bid.price),
-  };
+  const newOfr: Order = buildNewOrder(ofr, computedEntry.ofr, startingEntry.ofr);
+  const newBid: Order = buildNewOrder(bid, computedEntry.bid, startingEntry.bid);
   const isQuantityEdited = (order: Order) => (order.status & OrderStatus.SizeEdited) !== 0;
   const quantitiesChanged: boolean = isQuantityEdited(bid) || isQuantityEdited(ofr);
   const inactive = (() => {
@@ -92,8 +105,8 @@ export const valueChange = (state: RunState, { type, data }: FXOAction<RunAction
             ...row,
             spread: inactive && (type !== RunActions.Spread) ? null : coalesce(computedEntry.spread, startingEntry.spread),
             mid: inactive && (type !== RunActions.Mid) ? null : coalesce(computedEntry.mid, startingEntry.mid),
-            ofr: (inactive && ofr.isCancelled() && type !== RunActions.Ofr) ? ofr : newOfr,
-            bid: (inactive && bid.isCancelled() && type !== RunActions.Bid) ? bid : newBid,
+            ofr: (inactive && (ofr.status & OrderStatus.Cancelled) === 0 && type !== RunActions.Ofr) ? ofr : newOfr,
+            bid: (inactive && (bid.status & OrderStatus.Cancelled) === 0 && type !== RunActions.Bid) ? bid : newBid,
             status: getRowStatus(computedEntry),
           },
         },

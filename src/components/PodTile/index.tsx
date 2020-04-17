@@ -16,6 +16,7 @@ import { convertToDepth } from 'components/PodTile/helpers';
 import { API } from 'API';
 import { PodRow } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
+import { ProgressModalContent } from 'components/ProgressModalContent';
 
 interface OwnProps {
   id: string;
@@ -64,11 +65,10 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   // Handler methods
-  const bulkCreateOrders = async (entries: Order[]) => {
+  const bulkCreateOrders = async (orders: Order[]) => {
     store.hideRunWindow();
-    store.showProgressWindow(1);
-    await API.createOrdersBulk(entries, currency.name, strategy, personality, user, currency.minqty);
-    store.setProgress(1);
+    store.showProgressWindow(-1);
+    await API.createOrdersBulk(orders, currency.name, strategy, personality, user, currency.minqty);
     store.hideProgressWindow();
   };
 
@@ -170,23 +170,9 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     const renderProgress = (): ReactElement | null => {
       if (store.currentProgress === null)
         return null;
-      let remainingSeconds: number = Date.now() - store.operationStartedAt;
-
-      const pad = (value: number) => value < 10 ? '0' + value : value.toString();
-
-      const percent: number = Math.round(100 * store.currentProgress / store.progressMax);
-      const hours: number = Math.round(remainingSeconds / 3600000);
-      const minutes: number = Math.round((remainingSeconds - 3600000 * hours) / 60000);
-      const seconds: number = Math.round((remainingSeconds - 60000 * minutes) / 1000);
-      return (
-        <div className={'progress-dialog'}>
-          <h1>Creating orders&hellip;</h1>
-          <div className={'timer'}>Time elapsed: {pad(hours)}:{pad(minutes)}:{pad(seconds)}</div>
-          <div data-value={percent} className={'progress'}>
-            <div className={'value'} style={{ width: `${percent}%` }}/>
-          </div>
-        </div>
-      );
+      return <ProgressModalContent startTime={store.operationStartedAt}
+                                   maximum={store.progressMax}
+                                   progress={store.currentProgress}/>;
     };
 
     return (

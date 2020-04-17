@@ -20,14 +20,26 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
       .then((messages: OrderMessage[]) => {
         const getMid = (row: PodRow): number | null => {
           const { ofr, bid } = row;
-          if (ofr.price === null || ofr.isCancelled() || bid.price === null || bid.isCancelled())
+          if (
+            ofr.price === null ||
+            ((ofr.status & OrderStatus.Cancelled) !== 0) ||
+            bid.price === null ||
+            ((bid.status * OrderStatus.Cancelled) !== 0)
+          ) {
             return null;
+          }
           return (ofr.price + bid.price) / 2;
         };
         const getSpread = (row: PodRow): number | null => {
           const { ofr, bid } = row;
-          if (ofr.price === null || ofr.isCancelled() || bid.price === null || bid.isCancelled())
+          if (
+            ofr.price === null ||
+            ((ofr.status & OrderStatus.Cancelled) !== 0) ||
+            bid.price === null ||
+            ((bid.status * OrderStatus.Cancelled) !== 0)
+          ) {
             return null;
+          }
           return ofr.price - bid.price;
         };
         const orderReducer = (map: { [id: string]: Order }, order: Order): { [id: string]: Order } => {
@@ -39,7 +51,7 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
         };
         const currOrders: { [id: string]: Order } = Object.values(depth)
           .reduce((flat: Order[], next: Order[]) => [...flat, ...next], [])
-          .filter((order: Order) => order.user === user.email)
+          .filter((order: Order) => order.user === user.email && order.size !== null)
           .map((order: Order) => ({ ...order, status: order.status | OrderStatus.Active }))
           .reduce(orderReducer, {});
         const prevOrders: { [id: string]: Order } = messages

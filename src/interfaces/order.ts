@@ -133,7 +133,7 @@ export class Order {
     this.size = size;
     this.arrowDirection = ArrowDirection.None;
     this.status = OrderStatus.None;
-    this.timestamp = Date.now();
+    this.timestamp = Math.floor(Date.now() / 1000);
   }
 
   public uid = () => $$(this.symbol, this.strategy, this.tenor);
@@ -183,9 +183,5 @@ export class Order {
     order.timestamp = Number(entry.MDEntryTime);
     // Now return the built order
     return order;
-  };
-
-  public isCancelled = () => {
-    return (this.status & OrderStatus.Cancelled) !== 0;
   };
 }

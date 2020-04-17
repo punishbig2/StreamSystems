@@ -70,7 +70,7 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
   const e1: MDEntry = entries[0];
   const e2: MDEntry = entries[1];
   // We need the user here
-  const now: number = Date.now();
+  const now: number = Math.floor(Date.now() / 1000);
   if (e1 === undefined && e2 === undefined) {
     return [
       {

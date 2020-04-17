@@ -7,7 +7,7 @@ export const updateSize = (state: RunState, data: { id: string; value: number | 
   const row: PodRow = orders[data.id];
   // Extract the target order
   const order: Order = row[key];
-  if (order.isCancelled())
+  if ((order.status & OrderStatus.Cancelled) !== 0)
     return state;
   return {
     ...state,
@@ -26,3 +26,4 @@ export const updateSize = (state: RunState, data: { id: string; value: number | 
     },
   };
 };
+

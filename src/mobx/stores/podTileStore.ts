@@ -13,6 +13,7 @@ import { MDEntry } from 'interfaces/mdEntry';
 
 import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 import persistStorage from 'persistStorage';
+import { randomID } from 'randomID';
 
 export class PodTileStore {
   public id: string = '';

@@ -58,7 +58,6 @@ export class MessagesStore {
   @action.bound
   public addEntry(message: Message) {
     const user: User = workareaStore.user;
-    console.log(message, isFill(message), message.ContraTrader !== user.email);
     if (message.Username === user.email) {
       this.entries = [message, ...this.entries];
     }
