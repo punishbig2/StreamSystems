@@ -55,6 +55,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private user: User = {} as User;
   private recordedCommands: Command[] = [];
+  private pendingW: { [k: string]: W } = {};
 
   private listeners: { [k: string]: (arg: W) => void } = {};
   private static instance: SignalRManager | null = null;
@@ -149,17 +150,29 @@ export class SignalRManager<A extends Action = AnyAction> {
     return (!entries[0].MDEntryPx && !entries[1].MDEntryPx);
   };
 
+  private combineWs = (w1: W, w2: W) => {
+    const [pod, full] = isPodW(w1) ? [w1, w2] : [w2, w1];
+    if (full.Entries) {
+      const { Entries } = pod;
+      full.Entries = [...full.Entries, ...Entries.filter((entry: MDEntry) => entry.MDEntrySize === undefined)];
+    } else {
+      full.Entries = pod.Entries;
+    }
+    return full;
+  };
+
   public handleWMessage(w: W) {
+
     if (w.ExDestination === undefined) {
-      if (isPodW(w)) {
-        const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor)];
-        if (listener) {
-          listener(w);
-        }
+      const key: string = $$(w.Symbol, w.Strategy, w.Tenor);
+      if (!this.pendingW[key]) {
+        this.pendingW[key] = w;
       } else {
-        const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor, 'depth')];
+        const listener: ((w: W) => void) | undefined = this.listeners[key];
         if (listener) {
-          listener(w);
+          listener(this.combineWs(w, this.pendingW[key]));
+          // Remove it
+          delete this.pendingW[key];
         }
       }
     } else if (w.ExDestination === 'DP' && !SignalRManager.isEmptyW(w)) {
@@ -226,7 +239,7 @@ export class SignalRManager<A extends Action = AnyAction> {
 
   public setMarketListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
     const { recordedCommands } = this;
-    const key: string = $$(symbol, strategy, tenor, 'depth');
+    const key: string = $$(symbol, strategy, tenor);
     // Just add the listener, the rest is done elsewhere
     this.listeners[key] = listener;
     const command: Command = {
