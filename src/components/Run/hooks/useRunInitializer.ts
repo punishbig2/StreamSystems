@@ -7,7 +7,7 @@ import { PodRow } from 'interfaces/podRow';
 import { $$ } from 'utils/stringPaster';
 import { PodTable } from 'interfaces/podTable';
 import { OrderTypes } from 'interfaces/mdEntry';
-import { createEmptyTable } from 'components/Run/helpers/createEmptyTablei';
+import { createEmptyTable } from 'components/Run/helpers/createEmptyTable';
 import { User } from 'interfaces/user';
 
 export const useRunInitializer = (tenors: string[], symbol: string, strategy: string, depth: { [tenor: string]: Order[] }, visible: boolean, user: User, dispatch: Dispatch<FXOAction<RunActions>>) => {

@@ -18,8 +18,8 @@ export const valueChange = (state: RunState, { type, data }: FXOAction<RunAction
   const startingEntry: RunEntry = {
     spread: row.spread,
     mid: row.mid,
-    ofr: ofr.price,
-    bid: bid.price,
+    ofr: ((ofr.status & OrderStatus.Cancelled) !== 0) ? null : ofr.price,
+    bid: ((bid.status & OrderStatus.Cancelled) !== 0) ? null : bid.price,
     // Overwrite the one that will be replaced
     [type]: data.value,
   };

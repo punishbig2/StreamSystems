@@ -4,7 +4,13 @@ import { createAction } from 'actionCreator';
 import { RunActions } from 'components/Run/reducer';
 import { PodTable } from 'interfaces/podTable';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
-import { Order } from 'interfaces/order';
+import { Order, OrderStatus } from 'interfaces/order';
+
+const isInvertedMarket = (smaller: number | null, value: number | null, status: OrderStatus): boolean => {
+  if ((status & OrderStatus.Cancelled) !== 0)
+    return false;
+  return smaller !== null && value !== null && smaller < value;
+};
 
 export const onPriceChange =
   (dispatch: Dispatch<RunActions>) =>
@@ -18,7 +24,7 @@ export const onPriceChange =
         const opposingOrder: Order = type === OrderTypes.Bid ? row.ofr : row.bid;
         switch (type) {
           case OrderTypes.Ofr:
-            if (opposingOrder.price !== null && value !== null && opposingOrder.price > value) {
+            if (isInvertedMarket(value, opposingOrder.price, opposingOrder.status)) {
               dispatch(createAction<RunActions>(RunActions.SetRowStatus, {
                 id: rowID,
                 status: PodRowStatus.InvertedMarketsError,
@@ -29,7 +35,7 @@ export const onPriceChange =
               return true;
             }
           case OrderTypes.Bid:
-            if (opposingOrder.price !== null && value !== null && opposingOrder.price < value) {
+            if (isInvertedMarket(opposingOrder.price, value, opposingOrder.status)) {
               dispatch(createAction<RunActions>(RunActions.SetRowStatus, {
                 id: rowID,
                 status: PodRowStatus.InvertedMarketsError,

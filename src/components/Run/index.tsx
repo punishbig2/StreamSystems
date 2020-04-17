@@ -11,7 +11,7 @@ import React, { ReactElement, useEffect, useReducer, Reducer } from 'react';
 import { skipTabIndex, skipTabIndexAll } from 'utils/skipTab';
 import { RunState } from 'stateDefs/runState';
 import { useRunInitializer } from 'components/Run/hooks/useRunInitializer';
-import { createEmptyTable } from 'components/Run/helpers/createEmptyTablei';
+import { createEmptyTable } from 'components/Run/helpers/createEmptyTable';
 import { getSelectedOrders } from 'components/Run/helpers/getSelectedOrders';
 import { $$ } from 'utils/stringPaster';
 import { onPriceChange } from 'components/Run/helpers/onPriceChange';
