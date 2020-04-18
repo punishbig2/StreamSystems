@@ -3,8 +3,9 @@ import { STRM } from 'stateDefs/workspaceState';
 import { persist, create } from 'mobx-persist';
 import { API } from 'API';
 import { randomID } from 'randomID';
-import { WindowTypes } from 'mobx/stores/workareaStore';
+import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 import persistStorage from 'persistStorage';
+import { User } from 'interfaces/user';
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch
@@ -114,6 +115,8 @@ export class WorkspaceStore {
 
   @action.bound
   public superRefAll() {
+    const user: User = workareaStore.user;
+    API.brokerRefAll(user.email, this.personality);
   }
 
   @action.bound
