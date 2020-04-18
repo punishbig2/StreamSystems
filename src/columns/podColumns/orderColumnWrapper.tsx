@@ -35,11 +35,9 @@ export const OrderColumnWrapper = (label: string, type: OrderTypes, isDepth: boo
       return (
         <OrderColumn
           type={type}
-          user={props.user}
           currency={props.currency}
           strategy={props.strategy}
           tenor={props.tenor}
-          personality={props.personality}
           orders={props.orders}
           defaultSize={props.defaultSize}
           minimumSize={props.minimumSize}

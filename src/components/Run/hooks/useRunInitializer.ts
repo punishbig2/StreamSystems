@@ -9,11 +9,13 @@ import { PodTable } from 'interfaces/podTable';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { createEmptyTable } from 'components/Run/helpers/createEmptyTable';
 import { User } from 'interfaces/user';
+import workareaStore from 'mobx/stores/workareaStore';
 
-export const useRunInitializer = (tenors: string[], symbol: string, strategy: string, depth: { [tenor: string]: Order[] }, visible: boolean, user: User, dispatch: Dispatch<FXOAction<RunActions>>) => {
+export const useRunInitializer = (tenors: string[], symbol: string, strategy: string, depth: { [tenor: string]: Order[] }, visible: boolean, dispatch: Dispatch<FXOAction<RunActions>>) => {
   useEffect(() => {
     if (!visible)
       return;
+    const user: User = workareaStore.user;
     const { email } = user;
     dispatch(createAction<RunActions>(RunActions.SetLoadingStatus, true));
     API.getRunOrders(email, symbol, strategy)
@@ -24,7 +26,7 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
             ofr.price === null ||
             ((ofr.status & OrderStatus.Cancelled) !== 0) ||
             bid.price === null ||
-            ((bid.status * OrderStatus.Cancelled) !== 0)
+            ((bid.status & OrderStatus.Cancelled) !== 0)
           ) {
             return null;
           }
@@ -36,7 +38,7 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
             ofr.price === null ||
             ((ofr.status & OrderStatus.Cancelled) !== 0) ||
             bid.price === null ||
-            ((bid.status * OrderStatus.Cancelled) !== 0)
+            ((bid.status & OrderStatus.Cancelled) !== 0)
           ) {
             return null;
           }
@@ -58,16 +60,16 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           .map((message: OrderMessage) => Order.fromOrderMessage(message, email))
           .map((order: Order) => ({ ...order, status: (order.status & ~OrderStatus.Active) | OrderStatus.Cancelled }))
           .reduce(orderReducer, {});
-        const newOrders: Order[] = Object.values({ ...prevOrders, ...currOrders });
+        const orders: Order[] = Object.values({ ...prevOrders, ...currOrders });
         const rows: PodRow[] = Object.values(createEmptyTable(symbol, strategy, tenors));
         const table: PodTable = rows
           .map((row: PodRow): PodRow => {
-            const newBid: Order | undefined = newOrders.find((order: Order) => order.type === OrderTypes.Bid && order.tenor === row.tenor);
-            const newOfr: Order | undefined = newOrders.find((order: Order) => order.type === OrderTypes.Ofr && order.tenor === row.tenor);
-            if (newBid)
-              row.bid = newBid;
-            if (newOfr)
-              row.ofr = newOfr;
+            const bid: Order | undefined = orders.find((order: Order) => order.type === OrderTypes.Bid && order.tenor === row.tenor);
+            const ofr: Order | undefined = orders.find((order: Order) => order.type === OrderTypes.Ofr && order.tenor === row.tenor);
+            if (bid)
+              row.bid = bid;
+            if (ofr)
+              row.ofr = ofr;
             row.spread = getSpread(row);
             row.mid = getMid(row);
             return { ...row };
@@ -78,6 +80,6 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           }, {});
         dispatch(createAction<RunActions>(RunActions.SetTable, table));
       });
-  }, [tenors, symbol, strategy, visible, dispatch, user, depth]);
+  }, [tenors, symbol, strategy, visible, dispatch, depth]);
 };
 

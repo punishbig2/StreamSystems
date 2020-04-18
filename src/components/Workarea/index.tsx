@@ -87,13 +87,10 @@ const Workarea: React.FC = (): ReactElement | null => {
             key={id}
             isDefault={isDefault}
             visible={id === currentWorkspaceID}
-            userProfile={store.preferences}
             tenors={store.tenors}
             currencies={store.currencies}
             strategies={store.strategies}
             banks={store.banks}
-            connected={store.connected}
-            user={user}
             onModify={store.setWorkspaceModified}/>
         );
       });

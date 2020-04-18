@@ -6,11 +6,11 @@ import { UserPreferences, OCOModes, User } from 'interfaces/user';
 import timezones, { TimezoneInfo } from 'data/timezones';
 import deepEqual from 'deep-equal';
 import { SoundsList } from 'components/Workspace/UserProfile/soundsList';
+import workareaStore from 'mobx/stores/workareaStore';
 
 interface OwnProps {
   profile: UserPreferences;
   original: UserPreferences | null;
-  user: User;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   onChange: (name: string, value: any) => void;
@@ -33,8 +33,8 @@ const renderCCYGroup = (value: unknown): ReactNode => {
 };
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
-  const { profile, user } = props;
-
+  const { profile } = props;
+  const user: User = workareaStore.user;
   const onChangeWrapper = ({ target }: ChangeEvent<any>) => {
     const { name } = target;
     const value: any = (() => {

@@ -37,6 +37,7 @@
           flex: 1;
           height: 100%;
           border: none;
+          color: $foreground-color;
 
           &:read-only {
             outline: none;

@@ -10,7 +10,6 @@ import { getOrderStatus } from 'columns/podColumns/OrderColumn/helpers/getOrderS
 import { PodTableType } from 'columns/podColumns/OrderColumn';
 
 interface Props {
-  personality: string;
   rows?: Order[];
   type?: OrderTypes;
   orderStore: OrderStore;
@@ -24,7 +23,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const children = rows.map(
     (order: Order, index: number) => {
       const { price, size, firm } = order;
-      const status: OrderStatus = getOrderStatus(order, orderStore.depth, orderStore.personality, PodTableType.Dob);
+      const status: OrderStatus = getOrderStatus(order, orderStore.depth, PodTableType.Dob);
       const priceElement: ReactNode = (() => {
         return (
           <div className={getOrderStatusClass(status, 'mini-price')} key={1}>

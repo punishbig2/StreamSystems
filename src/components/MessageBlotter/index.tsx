@@ -12,10 +12,7 @@ import { renderRowFactory } from 'components/MessageBlotter/helpers';
 
 interface OwnProps {
   id: string;
-  personality: string;
-  connected: boolean;
   blotterType: BlotterTypes;
-  user: User;
   scrollable?: boolean;
   ref?: React.Ref<HTMLDivElement>;
 }
@@ -23,11 +20,12 @@ interface OwnProps {
 type Props = OwnProps;
 
 const MessageBlotter: React.FC<Props> = observer((props: Props) => {
-  const { blotterType, personality } = props;
+  const { blotterType } = props;
+
   const entries: Message[] = blotterType === BlotterTypes.Executions ? store.executions : store.entries;
-  const user: User | null = workareaStore.user;
-  if (user === null)
-    throw new Error('cannot create message blotters without at least one authenticated user');
+  const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
+
   const { email, isbroker, firm } = user;
 
   const columnsMap: { [key: string]: ColumnSpec[] } = useMemo(() => messageBlotterColumns(blotterType), [blotterType]);

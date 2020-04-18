@@ -23,11 +23,8 @@ interface OwnProps {
   area: ClientRect;
   fitToContent: boolean;
   fixed?: boolean;
-  connected: boolean;
-  personality: string;
   title: (props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null;
   content: (props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null;
-  user: User;
   onLayoutModify: () => void;
   onClose: (id: string) => void;
 }

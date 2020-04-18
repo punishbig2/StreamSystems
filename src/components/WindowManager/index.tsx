@@ -2,7 +2,6 @@ import { WindowElement } from 'components/WindowManager/windowElement';
 import React, { ReactElement, useState, useEffect } from 'react';
 import getStyles from 'styles';
 import { getOptimalSize } from 'windowUtils';
-import { User } from 'interfaces/user';
 import { ExecutionBlotter } from 'components/WindowManager/executionBlotter';
 import { WindowDef } from 'mobx/stores/workspaceStore';
 import { PodTileStore } from 'mobx/stores/podTileStore';
@@ -13,9 +12,6 @@ interface Props {
   toast: string | null;
   windows: WindowDef[];
   isDefaultWorkspace: boolean;
-  connected: boolean;
-  personality: string;
-  user: User;
   getContentRenderer: (id: string, type: WindowTypes) => ((props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null);
   getTitleRenderer: (id: string, type: WindowTypes) => ((props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null);
   onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -105,9 +101,6 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
                      geometry={window.geometry}
                      fitToContent={window.fitToContent}
                      area={area}
-                     connected={props.connected}
-                     user={props.user}
-                     personality={props.personality}
                      isDefaultWorkspace={isDefaultWorkspace}
                      onLayoutModify={props.onLayoutModify}
                      onClose={props.onWindowClose}/>
@@ -117,7 +110,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   return (
     <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} ref={setElement}>
       {windows.map(windowMapper)}
-      <ExecutionBlotter connected={props.connected} personality={props.personality} user={props.user} area={area}/>
+      <ExecutionBlotter area={area}/>
       <div className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(' ')}>
         <div className={'message'}>{props.toast}</div>
         <div className={'close-button'} onClick={props.onClearToast}>

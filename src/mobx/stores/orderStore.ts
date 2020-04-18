@@ -7,7 +7,6 @@ import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
-import { STRM } from 'stateDefs/workspaceState';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -15,9 +14,6 @@ export class OrderStore {
   public symbol: string = '';
   public strategy: string = '';
   public tenor: string = '';
-
-  @observable user: User | null = null;
-  @observable personality: string = STRM;
 
   @observable orderID: string | undefined;
   @observable baseSize: number | null = null;
@@ -87,8 +83,9 @@ export class OrderStore {
     // First cancel previous orders if any
     if ((this.status & OrderStatus.Cancelled) === 0)
       await this.cancel();
+    const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
     // Now attempt to create the new order
-    const { user, personality } = this;
     if (user === null || personality === null)
       throw new Error('store not properly initialized');
     // Set "creating status"
@@ -118,10 +115,11 @@ export class OrderStore {
   public async cancel() {
     const { depth } = this;
     const user: User | null = workareaStore.user;
+    const personality: string = workareaStore.personality;
     if (user !== null) {
       const order: Order | undefined = depth.find((o: Order) => {
         if (user.isbroker) {
-          if (o.firm !== this.personality) {
+          if (o.firm !== personality) {
             return false;
           }
         }
@@ -179,15 +177,6 @@ export class OrderStore {
   }
 
   @action.bound
-  public setPersonality(personality: string) {
-    this.personality = personality;
-  }
-
-  @action.bound
-  public setUser(user: User) {
-    this.user = user;
-  }
-
   public setPrice(price: number | null) {
     this.price = price;
   }
@@ -205,17 +194,6 @@ export class OrderStore {
   @action.bound
   public setCurrentDepth(depth: Order[]) {
     this.depth = depth.filter((order: Order) => order.size !== null);
-  }
-
-  public emptyOrder(): Order {
-    return {
-      price: null,
-      size: null,
-      tenor: this.tenor,
-      strategy: this.strategy,
-      symbol: this.symbol,
-      type: this.type,
-    } as Order;
   }
 }
 

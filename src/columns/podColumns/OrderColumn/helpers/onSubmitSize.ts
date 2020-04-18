@@ -8,12 +8,8 @@ export const SizeTooSmallError = new Error('size is too small');
 
 export const onSubmitSize = (store: OrderStore) =>
   async (input: HTMLInputElement) => {
-    const user: User | null = workareaStore.user;
-    if (user === null)
-      throw new Error('user cannot be null at this point');
-    const personality: string | null = store.personality;
-    if (personality === null)
-      throw new Error('internal error, personality must be set');
+    const user: User = workareaStore.user;
+    const personality: string | null = workareaStore.personality;
     if (store.editedSize === null || store.editedSize === store.baseSize) {
       skipTabIndexAll(input, 1);
       return;

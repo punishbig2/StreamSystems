@@ -14,7 +14,6 @@ interface RefButtonProps {
   type: OrderTypes;
   strategy: string;
   symbol: string;
-  user: User;
 }
 
 const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
@@ -23,18 +22,18 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
     [OrderTypes.Ofr]: strings.RefOfrs,
   };
   return <button
-    onClick={cancelAll(props.type, props.symbol, props.strategy, props.user)}>{labels[props.type]}</button>;
+    onClick={cancelAll(props.type, props.symbol, props.strategy)}>{labels[props.type]}</button>;
 };
 
-const cancelAll = (type: OrderTypes, symbol: string, strategy: string, user: User) =>
+const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>
   () => {
-    API.cancelAll(symbol, strategy, getSideFromType(type), user);
+    API.cancelAll(symbol, strategy, getSideFromType(type));
   };
 
-const getRefButton = (depth: boolean, symbol: string, strategy: string, user: User, type: OrderTypes): (() => ReactElement | null) => {
+const getRefButton = (depth: boolean, symbol: string, strategy: string, type: OrderTypes): (() => ReactElement | null) => {
   if (depth)
     return () => null;
-  return () => <RefButton type={type} symbol={symbol} strategy={strategy} user={user}/>;
+  return () => <RefButton type={type} symbol={symbol} strategy={strategy}/>;
 };
 
 const columns = (symbol: string, strategy: string, user: User, depth: boolean = false): ColumnSpec[] => [
@@ -44,14 +43,14 @@ const columns = (symbol: string, strategy: string, user: User, depth: boolean = 
     strings.BidPx,
     OrderTypes.Bid,
     depth,
-    getRefButton(depth, symbol, strategy, user, OrderTypes.Bid),
+    getRefButton(depth, symbol, strategy, OrderTypes.Bid),
   ),
   DarkPoolColumn(),
   OrderColumnWrapper(
     strings.OfrPx,
     OrderTypes.Ofr,
     depth,
-    getRefButton(depth, symbol, strategy, user, OrderTypes.Ofr),
+    getRefButton(depth, symbol, strategy, OrderTypes.Ofr),
   ),
   ...(user.isbroker ? [FirmColumn(OrderTypes.Ofr)] : []),
 ];

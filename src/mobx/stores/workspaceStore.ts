@@ -1,5 +1,4 @@
 import { observable, action } from 'mobx';
-import { STRM } from 'stateDefs/workspaceState';
 import { persist, create } from 'mobx-persist';
 import { API } from 'API';
 import { randomID } from 'randomID';
@@ -28,7 +27,6 @@ export class WorkspaceStore {
 
   @persist('list') @observable windows: WindowDef[] = [];
 
-  @persist @observable personality: string = STRM;
   @persist @observable name: string = 'Untitled';
 
   @observable isUserProfileModalVisible = false;
@@ -48,6 +46,11 @@ export class WorkspaceStore {
       hydrate(id, this)
         .then(() => this.unsetBusyMessage());
     }, 0);
+  }
+
+  @action.bound
+  public setPersonality(personality: string) {
+    workareaStore.setWorkspacePersonality(this.id, personality);
   }
 
   @action.bound
@@ -101,11 +104,6 @@ export class WorkspaceStore {
   }
 
   @action.bound
-  public setPersonality(personality: string) {
-    this.personality = personality;
-  }
-
-  @action.bound
   public loadMarkets() {
     API.getBanks()
       .then((markets: string[]) => {
@@ -116,7 +114,7 @@ export class WorkspaceStore {
   @action.bound
   public superRefAll() {
     const user: User = workareaStore.user;
-    API.brokerRefAll(user.email, this.personality);
+    API.brokerRefAll(user.email);
   }
 
   @action.bound

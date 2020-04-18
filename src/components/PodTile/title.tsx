@@ -6,6 +6,9 @@ import { $$ } from 'utils/stringPaster';
 import { CCYGroups } from 'data/groups';
 import { PodTileStore } from 'mobx/stores/podTileStore';
 import { observer } from 'mobx-react';
+import { STRM } from 'stateDefs/workspaceState';
+import workareaStore from 'mobx/stores/workareaStore';
+import { User } from 'interfaces/user';
 
 interface Props {
   store: PodTileStore;
@@ -17,6 +20,8 @@ export const PodTileTitle: React.FC<Props> = observer((props: Props): ReactEleme
   const { store } = props;
   const { currency, strategy } = store;
 
+  const personality: string = workareaStore.personality;
+
   const getGroup = (key: string): string => {
     if (CCYGroups[key] !== undefined) {
       return CCYGroups[key];
@@ -24,6 +29,9 @@ export const PodTileTitle: React.FC<Props> = observer((props: Props): ReactEleme
       return '';
     }
   };
+
+  const user: User = workareaStore.user;
+  const isRunButtonDisabled: boolean = !currency || !strategy || (personality === STRM && user.isbroker);
 
   return (
     <>
@@ -37,7 +45,7 @@ export const PodTileTitle: React.FC<Props> = observer((props: Props): ReactEleme
       <div className={'ccy-group'}>
         {getGroup($$(currency, strategy))}
       </div>
-      <button onClick={store.showRunWindow} disabled={!currency || !strategy}>
+      <button onClick={store.showRunWindow} disabled={isRunButtonDisabled}>
         {strings.Run}
       </button>
     </>

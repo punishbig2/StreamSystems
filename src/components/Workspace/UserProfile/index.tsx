@@ -1,5 +1,5 @@
 import React, { useEffect, ReactElement } from 'react';
-import { UserProfileModalTypes, User } from 'interfaces/user';
+import { UserProfileModalTypes } from 'interfaces/user';
 import { UserProfileForm } from 'components/Workspace/UserProfile/form';
 import { ErrorBox } from 'components/ErrorBox';
 import { MessageBox } from 'components/MessageBox';
@@ -7,7 +7,6 @@ import store from 'mobx/stores/userPreferencesStore';
 import { observer } from 'mobx-react';
 
 interface OwnProps {
-  user: User;
   onCancel: () => void;
 }
 
@@ -41,7 +40,6 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
   switch (store.currentModalType) {
     case UserProfileModalTypes.Form:
       return <UserProfileForm profile={store.preferences}
-                              user={props.user}
                               original={store.initialPreferences}
                               onChange={onChange}
                               onSubmit={onSubmit}

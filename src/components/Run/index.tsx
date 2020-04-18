@@ -16,7 +16,6 @@ import { getSelectedOrders } from 'components/Run/helpers/getSelectedOrders';
 import { $$ } from 'utils/stringPaster';
 import { onPriceChange } from 'components/Run/helpers/onPriceChange';
 import { TabDirection } from 'components/NumericInput';
-import { User } from 'interfaces/user';
 import { createAction } from 'actionCreator';
 
 interface OwnProps {
@@ -28,7 +27,6 @@ interface OwnProps {
   onSubmit: (entries: Order[]) => void;
   minimumSize: number;
   defaultSize: number;
-  user: User;
   orders: { [tenor: string]: Order[] };
 }
 
@@ -41,7 +39,7 @@ const initialState: RunState = {
 };
 
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
-  const { symbol, strategy, tenors, user, defaultSize, minimumSize, visible, orders: allOrders } = props;
+  const { symbol, strategy, tenors, defaultSize, minimumSize, visible, orders: allOrders } = props;
   const [state, dispatch] = useReducer<Reducer<RunState, RunActions>>(reducer, initialState);
   const { orders } = state;
 
@@ -51,7 +49,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     dispatch(createAction<RunActions>(RunActions.SetTable, createEmptyTable(symbol, strategy, tenors)));
   }, [symbol, strategy, tenors]);
 
-  useRunInitializer(tenors, symbol, strategy, allOrders, visible, user, dispatch);
+  useRunInitializer(tenors, symbol, strategy, allOrders, visible, dispatch);
   useEffect(() => {
     dispatch(createAction<RunActions>(RunActions.SetDefaultSize, defaultSize));
   }, [defaultSize, visible]);

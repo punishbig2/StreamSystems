@@ -17,6 +17,7 @@ import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onS
 import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
 import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
 import persistStorage from 'persistStorage';
+import { STRM } from 'stateDefs/workspaceState';
 
 export enum WindowTypes {
   PodTile = 1,
@@ -28,6 +29,7 @@ export interface WorkspaceDef {
   id: string;
   isDefault: boolean;
   name: string;
+  personality: string;
 }
 
 export class WorkareaStore {
@@ -54,6 +56,24 @@ export class WorkareaStore {
       case CurrencyGroups.Latam:
         return latam;
     }
+  }
+
+  @computed
+  public get personality(): string {
+    const { workspaces, currentWorkspaceID: id } = this;
+    if (id === null)
+      return STRM;
+    if (!workspaces[id])
+      throw new Error('this is completely unreasonable');
+    return workspaces[id].personality;
+  }
+
+  @action.bound
+  public setWorkspacePersonality(id: string, personality: string) {
+    const { workspaces } = this;
+    if (!workspaces[id])
+      return;
+    workspaces[id].personality = personality;
   }
 
   private populateDefaultWorkspace(id: string, group: CurrencyGroups) {
@@ -93,6 +113,7 @@ export class WorkareaStore {
       id: id,
       isDefault: true,
       name: group,
+      personality: STRM,
     };
     this.isCreatingWorkspace = false;
     this.currentWorkspaceID = id;

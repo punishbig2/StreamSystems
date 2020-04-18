@@ -9,6 +9,7 @@ import { STRM } from 'stateDefs/workspaceState';
 import { $$ } from 'utils/stringPaster';
 import { Sides } from 'interfaces/sides';
 import config from 'config';
+import workareaStore from 'mobx/stores/workareaStore';
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -189,7 +190,8 @@ export class API {
     return result;
   };
 
-  static async createOrdersBulk(orders: Order[], symbol: string, strategy: string, personality: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
+  static async createOrdersBulk(orders: Order[], symbol: string, strategy: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
+    const personality: string = workareaStore.personality;
     // Build a create order request
     if (user.isbroker && personality === STRM)
       throw new Error('brokers cannot create orders when in streaming mode');
@@ -221,12 +223,13 @@ export class API {
     return result;
   }
 
-  static async createOrder(order: Order, personality: string, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
+  static async createOrder(order: Order, user: User, minimumSize: number): CancellablePromise<MessageResponse> {
     if (order.price === null || order.size === null)
       throw new Error('price and size MUST be specified');
     if (order.size < minimumSize)
       order.size = minimumSize;
     const { price, size } = order;
+    const personality: string = workareaStore.personality;
     // Build a create order request
     if (user.isbroker && personality === STRM)
       throw new Error('brokers cannot create orders when in streaming mode');
@@ -265,7 +268,8 @@ export class API {
     return post<MessageResponse>(API.buildUrl(API.Oms, 'order', 'modify'), request);
   }
 
-  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides, user: User): CancellablePromise<MessageResponse> {
+  static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): CancellablePromise<MessageResponse> {
+    const user: User = workareaStore.user;
     const request = {
       MsgType: MessageTypes.F,
       User: user.email,
@@ -430,7 +434,8 @@ export class API {
     return post<any>(API.buildUrl(API.UserApi, 'UserJson', 'save'), { useremail, workspace }, contentType);
   }
 
-  static async brokerRefAll(user: string, personality: string) {
+  static async brokerRefAll(user: string) {
+    const personality: string = workareaStore.personality;
     const request = {
       MsgType: MessageTypes.F,
       User: user,

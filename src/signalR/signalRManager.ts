@@ -309,11 +309,11 @@ export class SignalRManager<A extends Action = AnyAction> {
         break;
       case ExecTypes.Filled:
         if (ocoMode !== OCOModes.Disabled && message.Username === user.email)
-          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
+          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side]);
       // eslint-disable-next-line no-fallthrough
       case ExecTypes.PartiallyFilled:
         if (ocoMode === OCOModes.PartialEx && message.Username === user.email)
-          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side], user);
+          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side]);
         workareaStore.addRecentExecution(message);
         break;
       default:

@@ -1,5 +1,4 @@
 import { WindowManager } from 'components/WindowManager';
-import { User, UserPreferences } from 'interfaces/user';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { STRM } from 'stateDefs/workspaceState';
 import { ModalWindow } from 'components/ModalWindow';
@@ -16,26 +15,24 @@ import { MessagesStore } from 'mobx/stores/messagesStore';
 import { PodTile } from 'components/PodTile';
 import { MessageBlotter } from 'components/MessageBlotter';
 import { PodTileTitle } from 'components/PodTile/title';
-import { WindowTypes } from 'mobx/stores/workareaStore';
+import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 import { BlotterTypes } from 'columns/messageBlotter';
 import { MessageBox } from 'components/MessageBox';
+import { User } from 'interfaces/user';
 
 interface OwnProps {
   id: string;
-  user: User;
   tenors: string[];
   currencies: Currency[];
   strategies: string[];
-  connected: boolean;
   banks: string[];
-  userProfile: UserPreferences;
   isDefault: boolean;
   visible: boolean;
   onModify: (id: string) => void;
 }
 
 const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
-  const { id, user } = props;
+  const { id } = props;
   const [store, setStore] = useState<WorkspaceStore | null>(null);
 
   useEffect(() => {
@@ -56,6 +53,7 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
   };
 
   const getRightPanelButtons = (): ReactElement | null => {
+    const user: User = workareaStore.user;
     if (user.isbroker) {
       const { markets } = store;
       const renderValue = (value: unknown): React.ReactNode => {
@@ -64,7 +62,7 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
       if (markets.length === 0) return null;
       return (
         <div className={'broker-buttons'}>
-          <Select value={store.personality} autoWidth={true} renderValue={renderValue}
+          <Select value={workareaStore.personality} autoWidth={true} renderValue={renderValue}
                   onChange={onPersonalityChange}>
             <MenuItem key={STRM} value={STRM}>
               None
@@ -111,13 +109,10 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
           if (contentStore instanceof PodTileStore) {
             return (
               <PodTile id={id}
-                       personality={store.personality}
-                       connected={props.connected}
                        store={contentStore}
                        currencies={props.currencies}
                        strategies={props.strategies}
                        tenors={props.tenors}
-                       user={props.user}
                        {...contentProps}/>
             );
           } else {
@@ -128,12 +123,7 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
         return (contentProps: any, contentStore: PodTileStore | MessagesStore | null) => {
           if (contentStore instanceof MessagesStore) {
             return (
-              <MessageBlotter id={id}
-                              personality={store.personality}
-                              blotterType={BlotterTypes.Regular}
-                              connected={props.connected}
-                              user={props.user}
-                              {...contentProps}/>
+              <MessageBlotter id={id} blotterType={BlotterTypes.Regular} {...contentProps}/>
             );
           } else {
             throw new Error('invalid type of store specified');
@@ -190,19 +180,16 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
           </div>
         </div>
         <WindowManager
-          user={props.user}
-          connected={props.connected}
           isDefaultWorkspace={props.isDefault}
           toast={store.toast}
           windows={store.windows}
           getTitleRenderer={getTitleRenderer}
           getContentRenderer={getContentRenderer}
-          personality={store.personality}
           onLayoutModify={() => props.onModify(id)}
           onClearToast={() => store.showToast(null)}
           onUpdateAllGeometries={store.updateAllGeometries}
           onWindowClose={store.removeWindow}/>
-        <ModalWindow render={() => (<UserProfileModal onCancel={store.hideUserProfileModal} user={user}/>)}
+        <ModalWindow render={() => (<UserProfileModal onCancel={store.hideUserProfileModal}/>)}
                      visible={store.isUserProfileModalVisible}/>
         <ModalWindow render={renderLoadingModal} visible={!!store.busyMessage}/>
         <ModalWindow

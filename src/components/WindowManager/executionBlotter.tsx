@@ -9,9 +9,6 @@ import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 
 interface OwnProps {
   area: ClientRect;
-  connected: boolean;
-  user: User;
-  personality: string;
 }
 
 export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
@@ -28,12 +25,7 @@ export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElem
   const id: string = '___EX_BLOTTER___';
   const content = (): ReactElement => {
     return (
-      <MessageBlotter id={id}
-                      personality={props.personality}
-                      connected={props.connected}
-                      user={props.user}
-                      scrollable={true}
-                      blotterType={BlotterTypes.Executions}/>
+      <MessageBlotter id={id} scrollable={true} blotterType={BlotterTypes.Executions}/>
     );
   };
   const title = () => <h1>Execution Blotter</h1>;
@@ -47,9 +39,6 @@ export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElem
                    content={content}
                    title={title}
                    isDefaultWorkspace={false}
-                   connected={props.connected}
-                   personality={props.personality}
-                   user={props.user}
                    onClose={() => null}
                    onLayoutModify={() => null}/>
   );

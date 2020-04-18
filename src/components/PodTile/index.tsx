@@ -17,21 +17,17 @@ import { API } from 'API';
 import { PodRow } from 'interfaces/podRow';
 import { PodTable } from 'interfaces/podTable';
 import { ProgressModalContent } from 'components/ProgressModalContent';
+import workareaStore from 'mobx/stores/workareaStore';
 
 interface OwnProps {
   id: string;
   store: PodTileStore;
-  user: User;
   tenors: string[];
   strategies: string[];
   currencies: Currency[];
   connected: boolean;
-
-  personality: string;
-
   scrollable?: boolean;
   minimized?: boolean;
-
   onClose?: () => void;
 }
 
@@ -44,10 +40,12 @@ const getCurrencyFromName = (list: Currency[], name: string): Currency => {
 
 const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const store: PodTileStore = props.store;
-  const { currencies, tenors, connected, user, personality } = props;
+  const { currencies, tenors, connected } = props;
   const { strategy } = store;
   const { rows } = store;
   const currency: Currency | undefined = getCurrencyFromName(currencies, store.currency);
+  const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
 
   useEffect(() => {
     store.setCurrency(currency.name);
@@ -64,18 +62,29 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
 
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
-  // Handler methods
   const bulkCreateOrders = async (orders: Order[]) => {
     store.hideRunWindow();
     store.showProgressWindow(-1);
-    await API.createOrdersBulk(orders, currency.name, strategy, personality, user, currency.minqty);
+    const promises = orders.map(async (order: Order): Promise<void> => {
+      const depth: Order[] = store.orders[order.tenor];
+      if (!depth)
+        return;
+      const conflict: Order | undefined = depth.find((o: Order) => {
+        return o.type === order.type && o.user === user.email && o.size !== null;
+      });
+      if (!conflict)
+        return;
+      // Cancel said order
+      await API.cancelOrder(conflict, user);
+    });
+    await Promise.all(promises);
+    await API.createOrdersBulk(orders, currency.name, strategy, user, currency.minqty);
     store.hideProgressWindow();
   };
 
   const runWindow = (): ReactElement | null => {
     return (
       <Run
-        user={user}
         visible={store.isRunWindowVisible}
         symbol={currency.name}
         strategy={strategy}

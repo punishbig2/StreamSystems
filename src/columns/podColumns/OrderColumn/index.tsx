@@ -28,11 +28,9 @@ export enum PodTableType {
 type OwnProps = {
   orders: Order[];
   type: OrderTypes;
-  personality: string;
   currency: string;
   strategy: string;
   tenor: string;
-  user: User;
   minimumSize: number;
   defaultSize: number;
   tableType: PodTableType;
@@ -42,7 +40,7 @@ type OwnProps = {
 export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): ReactElement | null => {
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
-  const { type, personality, tableType } = props;
+  const { type, tableType } = props;
   const { rowStore } = props;
   const orders: Order[] = getRelevantOrders(props.orders, type);
   // Used for the fallback order
@@ -52,20 +50,13 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     ? orders[0]
     : { price: null, size: null, type, tenor, strategy, symbol } as Order;
   const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
   // Determine the status of the order now
-  const status: OrderStatus = getOrderStatus(order, orders, personality, tableType);
+  const status: OrderStatus = getOrderStatus(order, orders, tableType);
   // Sort sibling orders
   useEffect(() => {
     store.setOrder(order, status);
   }, [store, order, status]);
-
-  useEffect(() => {
-    store.setPersonality(personality);
-  }, [store, personality]);
-
-  useEffect(() => {
-    store.setUser(user);
-  }, [store, user]);
 
   useEffect(() => {
     store.setDefaultAndMinimumSizes(defaultSize, minimumSize);
@@ -103,7 +94,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
       }
     };
   };
-  const readOnly: boolean = user.isbroker && props.personality === STRM;
+  const readOnly: boolean = user.isbroker && personality === STRM;
   const sizeCell: ReactElement = (
     <Size key={2}
           type={type}
