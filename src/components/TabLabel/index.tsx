@@ -11,20 +11,16 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   const ref: React.Ref<HTMLInputElement> = useRef<HTMLInputElement>(null);
   const [editable, setEditable] = useState(false);
   const { label, isDefault } = props;
-  const [value, setValue] = useState<string>(label);
+  const [value, setValue] = useState<string | null>(null);
 
   const getLabel = () => {
-    const finalLabel: string = value;
-    if (isDefault) {
+    const finalLabel: string = value === null ? (label !== '' ? label : 'Untitled') : value;
+    if (isDefault && value === null) {
       return `${finalLabel} (default)`;
     } else {
       return finalLabel;
     }
   };
-
-  useEffect(() => {
-    setValue(label);
-  }, [label]);
 
   useEffect(() => {
     if (ref.current === null || !editable)
@@ -34,7 +30,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   }, [ref, editable]);
 
   const reset = () => {
-    setValue(props.label);
+    setValue(null);
     setEditable(false);
   };
 
@@ -49,7 +45,10 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
         reset();
         break;
       case 'Enter':
-        props.onRenamed(value);
+        if (value !== null) {
+          props.onRenamed(value);
+        }
+        setValue(null);
         setEditable(false);
         break;
     }
