@@ -24,6 +24,9 @@ export class UserPreferencesStore {
   @action.bound
   public resetInitialProfile() {
     this.preferences = this.initialPreferences;
+    const { theme, colorScheme, font } = this.preferences;
+    // Update the theme too
+    updateApplicationTheme(theme, colorScheme, font);
   }
 
   @action.bound
