@@ -7,6 +7,7 @@ import workareaStore from 'mobx/stores/workareaStore';
 export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], tableType: PodTableType) => {
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
+  const bank: string = user.isbroker ? personality : user.firm;
   let status: OrderStatus = OrderStatus.None;
   if (topOrder === undefined)
     return status;
@@ -18,9 +19,10 @@ export const getOrderStatus = (topOrder: Order | undefined, depth: Order[], tabl
   status |= (!!ownOrder && ownOrder.orderId !== topOrder.orderId) ? OrderStatus.HasMyOrder : OrderStatus.None;
   status |= (topOrder.user === user.email) ? OrderStatus.Owned : OrderStatus.None;
   // If it's the same firm the order belongs to the same bank
-  if ((status & OrderStatus.Owned) === 0) {
-    status |= (topOrder.firm === user.firm || (user.isbroker && topOrder.firm === personality)) ? OrderStatus.SameBank : OrderStatus.None;
-  }
+  if ((status & OrderStatus.Owned) === 0)
+    status |= topOrder.firm === bank ? OrderStatus.SameBank : OrderStatus.None;
+  if ((status & OrderStatus.SameBank) !== 0 && user.isbroker)
+    status |= OrderStatus.OwnedByBroker;
   // If the size of the order doesn't match the aggregated size, it's a joined order
   status |= topOrder.size !== aggregatedSize ? OrderStatus.Joined : OrderStatus.None;
   // If the size is not present it's a cancelled order by convention

@@ -109,6 +109,7 @@ export class DarkPoolStore {
       // Save to the database
       localStorage.setItem(key, message.DarkPrice);
     } else {
+      this.publishedPrice = null;
       localStorage.removeItem(key);
     }
   }

@@ -118,12 +118,11 @@ export class OrderStore {
     const personality: string = workareaStore.personality;
     if (user !== null) {
       const order: Order | undefined = depth.find((o: Order) => {
-        if (user.isbroker) {
-          if (o.firm !== personality) {
-            return false;
-          }
-        }
-        return o.type === this.type && o.user === user.email;
+        if (o.type !== this.type)
+          return false;
+        if (user.isbroker)
+          return o.firm === personality;
+        return o.user === user.email;
       });
       if (!!order && !!order.orderId && !!order.size) {
         this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;

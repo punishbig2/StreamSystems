@@ -9,6 +9,7 @@ import { OrderTypes } from 'interfaces/mdEntry';
 import { API } from 'API';
 import { getSideFromType } from 'utils';
 import { User } from 'interfaces/user';
+import workareaStore from 'mobx/stores/workareaStore';
 
 interface RefButtonProps {
   type: OrderTypes;
@@ -30,7 +31,12 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
 
 const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>
   () => {
-    API.cancelAll(symbol, strategy, getSideFromType(type));
+    const user: User = workareaStore.user;
+    if (user.isbroker) {
+      API.cancelAllExtended(symbol, strategy, getSideFromType(type));
+    } else {
+      API.cancelAll(symbol, strategy, getSideFromType(type));
+    }
   };
 
 const getRefButton = (depth: boolean, symbol: string, strategy: string, type: OrderTypes): (() => ReactElement | null) => {

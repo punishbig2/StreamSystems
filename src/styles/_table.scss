@@ -359,7 +359,7 @@ $spinner-size: $table-row-height - 6;
           }
 
           &:not(.in-depth) {
-            &.among, &.owned {
+            &.among, &.owned, &.owned-by-broker {
               .times {
                 pointer-events: all;
 

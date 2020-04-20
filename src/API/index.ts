@@ -6,7 +6,6 @@ import { User } from 'interfaces/user';
 import { MessageTypes, W } from 'interfaces/w';
 import { getSideFromType, getCurrentTime } from 'utils';
 import { STRM } from 'stateDefs/workspaceState';
-import { $$ } from 'utils/stringPaster';
 import { Sides } from 'interfaces/sides';
 import config from 'config';
 import workareaStore from 'mobx/stores/workareaStore';
@@ -140,7 +139,6 @@ type Endpoints =
   | 'UserJson'
   | 'markets'
   | 'allextended'
-  | 'allall'
   | 'price';
 
 type Verb = 'get' | 'create' | 'cancel' | 'modify' | 'cxl' | 'publish' | 'save' | 'cxlall' | 'create';
@@ -268,6 +266,21 @@ export class API {
     return post<MessageResponse>(API.buildUrl(API.Oms, 'order', 'modify'), request);
   }
 
+  static async cancelAllExtended(symbol: string | undefined, strategy: string | undefined, side: Sides): CancellablePromise<MessageResponse> {
+    const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
+    const request = {
+      MsgType: MessageTypes.F,
+      User: user.email,
+      TransactTime: getCurrentTime(),
+      Side: side,
+      Strategy: strategy,
+      Symbol: symbol,
+      MDMkt: personality,
+    };
+    return post<MessageResponse>(API.buildUrl(API.Oms, 'allextended', 'cxl'), request);
+  }
+
   static async cancelAll(symbol: string | undefined, strategy: string | undefined, side: Sides): CancellablePromise<MessageResponse> {
     const user: User = workareaStore.user;
     const request = {
@@ -278,17 +291,11 @@ export class API {
       Strategy: strategy,
       Symbol: symbol,
     };
-    // Notify all orders of a given group that they're being cancelled
-    const event: CustomEvent = new CustomEvent<void>($$(symbol, strategy, side, 'CANCEL'));
-    // Dispatch the event so that listeners are called
-    document.dispatchEvent(event);
-    // Sadly, in this case it is not possible to know if a given individual order was
-    // cancelled (but this is not that bad because in principle it never fails)
     return post<MessageResponse>(API.buildUrl(API.Oms, 'all', 'cancel'), request);
   }
 
   static async cancelOrder(order: Order, user: User): CancellablePromise<MessageResponse> {
-    if (order.user !== user.email)
+    if (order.user !== user.email && !user.isbroker)
       throw new Error(`cancelling someone else's order: ${order.user} -> ${user.email}`);
     const request = {
       MsgType: MessageTypes.F,
@@ -396,7 +403,7 @@ export class API {
 
   static async cancelAllDarkPoolOrder(currency: string, strategy: string, tenor: string): CancellablePromise<any> {
     const user: User = workareaStore.user;
-    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'allall', 'cxl'), {
+    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'all', 'cxlall'), {
       User: user.email,
       Symbol: currency,
       Strategy: strategy,
