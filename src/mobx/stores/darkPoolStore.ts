@@ -125,14 +125,15 @@ export class DarkPoolStore {
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }
 
-  public publishPrice(currency: string, strategy: string, tenor: string, price: number | null) {
+  public async publishPrice(currency: string, strategy: string, tenor: string, price: number | null) {
     const user: User = workareaStore.user;
     if (price === null)
       return;
     if (!user.isbroker)
       throw new Error('non broker users cannot publish prices');
+    await API.cancelAllDarkPoolOrder(currency, strategy, tenor);
     // Call the API
-    API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price);
+    await API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price);
     // Update immediately to make it feel faster
     this.publishedPrice = price;
   }

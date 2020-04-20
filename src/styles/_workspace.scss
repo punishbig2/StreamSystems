@@ -28,6 +28,12 @@
       z-index: 1;
     }
 
+    &.not-adjustable {
+      button:first-child {
+        display: none;
+      }
+    }
+
     &.minimized {
       max-height: $title-bar-height;
       min-height: 0;
@@ -54,20 +60,19 @@
     }
 
     .window-buttons {
-      position: absolute;
+      display: flex;
+      margin: 0 0 0 auto;
+      align-self: flex-start;
+      height: $title-bar-height - 1;
       pointer-events: initial;
-      top: 0;
-      height: 100%;
-      right: 0;
-      width: auto;
-      padding: 0 8px;
+      padding: 0 4px;
       background: none;
 
       button {
+        display: block;
         border-radius: $title-bar-button-size / 2;
-        width: $title-bar-button-size - 3;
-        height: $title-bar-button-size - 3;
-        line-height: $title-bar-button-size - 3;
+        width: $title-bar-height - 2;
+        height: $title-bar-height - 2;
         background: none;
         text-align: center;
         border: none;
@@ -75,12 +80,14 @@
         margin: 0;
         color: $foreground-color;
 
-        &:first-child {
+        i {
+          display: block;
           font-size: $smaller-font-size;
+          padding: 0;
         }
 
         &:not(:last-child) {
-          margin: 0 12px 0 0;
+          margin: 0 8px 0 0;
         }
 
         &:hover {
@@ -176,13 +183,13 @@
 
       .item {
         margin: 0 4px 0 0;
-      }
 
-      button {
-        @extend %button;
-        line-height: $title-bar-height / 2;
-        border: none;
-        padding: 3px 8px;
+        button {
+          @extend %button;
+          line-height: $title-bar-height / 2;
+          border: none;
+          padding: 3px 8px;
+        }
       }
 
       .ccy-group {

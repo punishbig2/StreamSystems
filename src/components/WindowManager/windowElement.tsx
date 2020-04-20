@@ -152,6 +152,8 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
     classes.push('minimized');
   if (fixed)
     classes.push('fixed');
+  if (type === WindowTypes.MessageBlotter)
+    classes.push('not-adjustable');
   const style: CSSProperties | undefined = toStyle(store.geometry);
   // Keep the min width up to date
   useEffect(() => {
@@ -254,6 +256,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
   }, [id, type]);
 
   const contentProps = { scrollable: !store.fitToContent, minimized: store.minimized };
+
   return (
     <div id={store.id} className={classes.join(' ')} ref={containerRef} style={style} onClickCapture={bringToFront}>
       <div className={'window-title-bar'}>

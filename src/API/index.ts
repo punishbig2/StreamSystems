@@ -394,15 +394,14 @@ export class API {
     return post<MessageResponse>(API.buildUrl(API.DarkPool, 'order', 'cancel'), request);
   }
 
-  static async cxlAllExtendedDarkPoolOrder(request: any): CancellablePromise<any> {
-    return post<MessageResponse>(
-      API.buildUrl(API.DarkPool, 'allall', 'cxl'),
-      request,
-    );
-  }
-
-  static async cancelAllDarkPoolOrder(request: any): CancellablePromise<any> {
-    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'all', 'cancel'), request);
+  static async cancelAllDarkPoolOrder(currency: string, strategy: string, tenor: string): CancellablePromise<any> {
+    const user: User = workareaStore.user;
+    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'allall', 'cxl'), {
+      User: user.email,
+      Symbol: currency,
+      Strategy: strategy,
+      Tenor: tenor,
+    });
   }
 
   static async getDarkPoolMessages(useremail: string, timestamp: number): CancellablePromise<any> {

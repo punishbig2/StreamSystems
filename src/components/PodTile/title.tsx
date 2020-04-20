@@ -45,9 +45,11 @@ export const PodTileTitle: React.FC<Props> = observer((props: Props): ReactEleme
       <div className={'ccy-group'}>
         {getGroup($$(currency, strategy))}
       </div>
-      <button onClick={store.showRunWindow} disabled={isRunButtonDisabled}>
-        {strings.Run}
-      </button>
+      <div className={'item'}>
+        <button onClick={store.showRunWindow} disabled={isRunButtonDisabled}>
+          {strings.Run}
+        </button>
+      </div>
     </>
   );
 });
