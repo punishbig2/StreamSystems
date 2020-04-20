@@ -169,6 +169,7 @@ $spinner-size: $table-row-height - 6;
     .tr {
       font-family: inherit;
       font-size: inherit;
+      color: $text-color-black;
 
       &.dark-pool {
         background-color: rgba($good-color, 0.15);
@@ -207,6 +208,7 @@ $spinner-size: $table-row-height - 6;
         font-size: inherit;
         font-weight: inherit;
         text-align: center;
+        color: inherit;
 
         line-height: $table-row-height;
         height: $table-row-height;
@@ -215,7 +217,6 @@ $spinner-size: $table-row-height - 6;
           border-left: 1px solid $table-border-color;
         }
 
-        color: $text-color-black;
 
         .tenor-layout {
           font-weight: ($table-font-weight + 300) !important;

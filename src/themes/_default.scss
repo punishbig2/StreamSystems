@@ -1,9 +1,4 @@
 body.default-theme {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  overflow: hidden;
-  // Global colors
   $primary-color: #407af0;
   $background-color: #fff;
   $button-foreground-color: #fff;
@@ -14,14 +9,14 @@ body.default-theme {
   $good-color: seagreen;
   $neutral-color: dodgerblue;
   $yellow-background: #ffff00;
-  // Table colors
   $table-border-color: #d5d5d5;
-  $text-color-blue: #2051ff;
-  $text-color-red: #f02327;
-  $text-color-black: #000;
-  $text-color-green: #019734;
-  $text-color-grey: #d6d6d6;
   // Window colors
   $window-border-color: #e1e1e1;
-  @import "../styles/all";
+
+  &.default-color-scheme {
+    &.default-font {
+      @import "../color-schemes/default";
+      @import "../styles/all";
+    }
+  }
 }

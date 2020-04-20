@@ -149,7 +149,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   value={profile.theme}>
                   <MenuItem value={'default'}>Default</MenuItem>
                   <MenuItem value={'dark'}>Dark</MenuItem>
-                  <MenuItem value={'sand'}>Sand</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
