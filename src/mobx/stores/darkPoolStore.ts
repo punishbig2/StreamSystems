@@ -103,9 +103,14 @@ export class DarkPoolStore {
 
   @action.bound
   public onDarkPoolPricePublished(message: DarkPoolMessage) {
-    this.publishedPrice = Number(message.DarkPrice);
-    // Save to the database
-    localStorage.setItem($$(message.Symbol, message.Strategy, message.Tenor, 'DPPx'), message.DarkPrice);
+    const key: string = $$(message.Symbol, message.Strategy, message.Tenor, 'DPPx');
+    if (message.DarkPrice !== '') {
+      this.publishedPrice = Number(message.DarkPrice);
+      // Save to the database
+      localStorage.setItem(key, message.DarkPrice);
+    } else {
+      localStorage.removeItem(key);
+    }
   }
 
   @action.bound
@@ -127,13 +132,11 @@ export class DarkPoolStore {
 
   public async publishPrice(currency: string, strategy: string, tenor: string, price: number | null) {
     const user: User = workareaStore.user;
-    if (price === null)
-      return;
     if (!user.isbroker)
       throw new Error('non broker users cannot publish prices');
     await API.cancelAllDarkPoolOrder(currency, strategy, tenor);
     // Call the API
-    await API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price);
+    await API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price !== null ? price : '');
     // Update immediately to make it feel faster
     this.publishedPrice = price;
   }

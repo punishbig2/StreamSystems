@@ -72,12 +72,11 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   }, [currency, store, strategy, tenor]);
 
   const onSubmit = (input: HTMLInputElement, price: number | null, changed: boolean) => {
-    if (!changed)
+    skipTabIndexAll(input, 5, 2);
+    if (!changed && price !== null)
       return;
     // Publish the price through Signal R
     store.publishPrice(currency, strategy, tenor, price);
-    // Move to the next dark pool price
-    skipTabIndexAll(input, 5, 2);
   };
 
   const onDoubleClick = () => {
