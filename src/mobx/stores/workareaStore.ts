@@ -18,6 +18,7 @@ import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubm
 import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
 import persistStorage from 'persistStorage';
 import { STRM } from 'stateDefs/workspaceState';
+import { updateApplicationTheme } from 'utils';
 
 export enum WindowTypes {
   PodTile = 1,
@@ -165,13 +166,31 @@ export class WorkareaStore {
     this.updateCurrentWorkspaceID();
   }
 
+  @action.bound
+  private loadTheme() {
+    const { theme, colorScheme, font } = this.preferences;
+    updateApplicationTheme(theme, colorScheme, font);
+  }
+
   private hydrate() {
     const hydrate = create({
       storage: persistStorage.workarea,
       jsonify: true,
     });
-    hydrate('workarea', this);
+    hydrate('workarea', this)
+      .then(this.loadTheme);
   }
+
+  private static cleanupUrl(email: string) {
+    const { history, location } = window;
+    const base: string = `${location.protocol}//${location.host}${location.pathname}`;
+    // Replace the url with the same url but without parameters
+    history.pushState({ email }, '', base);
+    /*window.onbeforeunload = function () {
+      window.location.href = `${base}/?user=${email}`;
+      return false;
+    };*/
+  };
 
   @action.bound
   public async initialize(email: string) {
@@ -197,12 +216,12 @@ export class WorkareaStore {
         this.status = WorkareaStatus.UserNotFound;
       } else {
         await persistStorage.initialize(user);
-        // Hydrate now
+        // Update local copy of preferences
         this.hydrate();
         // Start connecting to the websocket
         this.user = user;
         this.loadingMessage = strings.EstablishingConnection;
-        // Load settings and profile
+        WorkareaStore.cleanupUrl(user.email);
         // Update signal R manager
         signalRManager.setUser(user);
         // Connect the signal R client

@@ -70,7 +70,7 @@ export class DarkPoolStore {
   }
 
   @action.bound
-  private onOrderReceived(w: W) {
+  public onOrderReceived(w: W) {
     const user: User = workareaStore.user;
     const originalEntries: MDEntry[] = w.Entries;
     if (!originalEntries) {

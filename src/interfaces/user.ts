@@ -44,7 +44,7 @@ export interface UserPreferences {
   colorScheme: string;
   ccyGroup: CurrencyGroups;
   oco: OCOModes;
-  lastOCOUpdateTimestamp: number | null;
+  theme: string;
 
   [key: string]: any;
 }

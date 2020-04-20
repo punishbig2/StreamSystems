@@ -1,6 +1,7 @@
 .select-container {
   display: flex;
-  width: 100px;
+  align-items: center;
+  width: 13ex;
   line-height: $title-bar-height;
   height: $title-bar-height;
   cursor: default;
@@ -8,18 +9,16 @@
   pointer-events: all;
 
   &:hover {
-    background-color: #f1f1f1;
+    background-color: darken($background-color, 4%);
   }
 
   select {
     pointer-events: none;
-    display: inline-block;
-    vertical-align: middle;
     appearance: none;
     border: none;
     background: none;
     font-weight: 500;
-    font-size: 15px;
+    font-size: $normal-font-size;
     flex: 1;
     margin-right: -20px;
     color: $foreground-color;
@@ -27,18 +26,20 @@
 
   .arrow {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: top;
     float: right;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
+    width: $title-bar-height;
+    height: $title-bar-height;
+    line-height: $title-bar-height;
     text-align: center;
+    background: none;
+    color: $foreground-color;
   }
 }
 
 ul.dropdown {
   position: absolute;
-  background-color: white;
+  font-size: $normal-font-size;
   padding: 0;
   margin: 0;
   box-shadow: 0 2px 8px -3px black;
@@ -47,14 +48,17 @@ ul.dropdown {
   z-index: 2147483647;
   top: 0;
   left: 0;
+  background-color: $background-color;
+  color: $foreground-color;
+  overflow: hidden;
 
   li {
     list-style: none;
     font-weight: 500;
-    font-size: 15px;
+    font-size: inherit;
 
     &.selected {
-      background-color: #f1f1f1;
+      background-color: darken($background-color, 4%);
     }
 
     input {
@@ -63,7 +67,8 @@ ul.dropdown {
       width: 100%;
       box-sizing: border-box;
       border: none;
-      border-bottom: 1px solid $table-border-color;
+      border-bottom: 1px solid darken($background-color, 6%);
+      color: $foreground-color;
       outline: none;
     }
 
@@ -73,7 +78,7 @@ ul.dropdown {
       padding: 8px;
 
       &:hover {
-        background-color: #e0e0e0;
+        background-color: $light-color;
       }
     }
   }

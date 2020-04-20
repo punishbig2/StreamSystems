@@ -25,9 +25,9 @@ $delete-button-size: 24px;
       border-radius: $delete-button-size / 2;
 
       &:hover {
-        color: crimson;
+        color: $danger-color;
         cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.085);
+        background-color: rgba($foreground-color, 0.085);
       }
     }
   }

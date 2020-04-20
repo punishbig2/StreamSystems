@@ -25,6 +25,7 @@ export class PodTileStore {
   @observable loading: boolean = false;
   @observable currentTenor: string | null = null;
 
+  @observable.ref darkpool: { [tenor: string]: W } = {};
   @observable.ref rows: { [tenor: string]: PodRow } = {};
   @observable.ref orders: { [tenor: string]: Order[] } = {};
 
@@ -145,9 +146,22 @@ export class PodTileStore {
     }, {});
   }
 
+  @action.bound
+  private initializeDarkPoolFromSnapshot(snapshot: { [k: string]: W }) {
+    this.darkpool = snapshot;
+  }
+
+  private async loadDarkPoolSnapshot(currency: string, strategy: string) {
+    const snapshot: { [tenor: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
+    if (snapshot !== null) {
+      this.initializeDarkPoolFromSnapshot(snapshot);
+    }
+  }
+
   public async initialize(currency: string, strategy: string) {
     this.loading = true;
-    // const darkpool: { [k: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
+    this.currency = currency;
+    this.strategy = strategy;
     // Load depth
     const snapshot: { [k: string]: W } | null = await API.getSnapshot(currency, strategy);
     if (snapshot === null)
@@ -159,6 +173,7 @@ export class PodTileStore {
     tenors.forEach((tenor: string) => this.addMarketListener(currency, strategy, tenor));
     // Initialize from depth snapshot
     this.initializeDepthFromSnapshot(combined);
+    this.loadDarkPoolSnapshot(currency, strategy);
   }
 
   @action.bound

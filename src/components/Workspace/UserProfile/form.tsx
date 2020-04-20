@@ -61,8 +61,25 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   return (
     <>
       <div className={'modal-title'}>
-        <div>{strings.UserProfile}</div>
-        <small>FX Options {GlobalApplicationVersion}</small>
+        <div className={'user-preferences-modal-title'}>
+          <div className={'user'}>
+            <div className={'avatar'}>
+              <i className={'fa fa-user'}/>
+            </div>
+            <div className={'name'}>
+              <div className={'title'}>
+                {user.email}
+              </div>
+              <div className={'sub-title'}>
+                {userType}/{user.firm}
+              </div>
+            </div>
+          </div>
+          <div className={'fx-options'}>
+            <div>{strings.UserProfile}</div>
+            <small>FX Options {GlobalApplicationVersion}</small>
+          </div>
+        </div>
       </div>
       <form className={'user-profile-form'} name={'user-profile'} onSubmit={props.onSubmit} autoComplete={'off'}
             noValidate>
@@ -93,7 +110,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
           </Grid>
 
           <Grid item container spacing={2} direction={'row'}>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'font'}>Font</FormLabel>
                 <Select
@@ -105,7 +122,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'font-size'}>Font Size</FormLabel>
                 <Select
@@ -113,31 +130,54 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   onChange={onChangeWrapper}
                   name={'fontSize'}
                   value={profile.fontSize}>
-                  <MenuItem value={'12px'}>12px</MenuItem>
-                  <MenuItem value={'13px'}>13px</MenuItem>
-                  <MenuItem value={'14px'}>14px</MenuItem>
-                  <MenuItem value={'15px'}>15px</MenuItem>
-                  <MenuItem value={'16px'}>16px</MenuItem>
-                  <MenuItem value={'17px'}>17px</MenuItem>
-                  <MenuItem value={'18px'}>18px</MenuItem>
-                  <MenuItem value={'19px'}>19px</MenuItem>
-                  <MenuItem value={'20px'}>20px</MenuItem>
+                  <MenuItem value={'smaller'}>Smaller</MenuItem>
+                  <MenuItem value={'small'}>Small</MenuItem>
+                  <MenuItem value={'medium'}>Medium</MenuItem>
+                  <MenuItem value={'large'}>Large</MenuItem>
+                  <MenuItem value={'larger'}>Larger</MenuItem>
+                  <MenuItem value={'huge'}>Huge</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl margin={'normal'} fullWidth>
-                <FormLabel htmlFor={'exec-sound'}>Exec Sound</FormLabel>
-                <SoundsList name={'execSound'} value={profile.execSound} onChange={props.onChange}/>
+              <FormControl fullWidth margin={'normal'}>
+                <FormLabel htmlFor={'theme'}>Theme</FormLabel>
+                <Select
+                  id={'theme'}
+                  onChange={onChangeWrapper}
+                  name={'theme'}
+                  value={profile.theme}>
+                  <MenuItem value={'default'}>Default</MenuItem>
+                  <MenuItem value={'dark'}>Dark</MenuItem>
+                  <MenuItem value={'sand'}>Sand</MenuItem>
+                </Select>
               </FormControl>
             </Grid>
           </Grid>
 
           <Grid item container spacing={2} direction={'row'}>
             <Grid item xs={4}>
+              <FormControl fullWidth margin={'normal'}>
+                <FormLabel htmlFor={'colorScheme'}>Color Scheme</FormLabel>
+                <Select
+                  id={'colorScheme'}
+                  onChange={onChangeWrapper}
+                  name={'colorScheme'}
+                  value={profile.colorScheme}>
+                  <MenuItem value={'default'}>Default</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
               <FormControl margin={'normal'} fullWidth>
                 <FormLabel htmlFor={'exec-sound'}>Dark pool exec sound</FormLabel>
                 <SoundsList name={'darkPoolExecSound'} value={profile.darkPoolExecSound} onChange={props.onChange}/>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl margin={'normal'} fullWidth>
+                <FormLabel htmlFor={'exec-sound'}>Exec Sound</FormLabel>
+                <SoundsList name={'execSound'} value={profile.execSound} onChange={props.onChange}/>
               </FormControl>
             </Grid>
           </Grid>
@@ -177,18 +217,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item>
-            <FormControl fullWidth margin={'normal'}>
-              <FormLabel htmlFor={'color-scheme'}>Color Scheme</FormLabel>
-              <Select
-                id={'color-scheme'}
-                onChange={onChangeWrapper}
-                name={'colorScheme'}
-                value={profile.colorScheme}>
-                <MenuItem value={'default'}>Default</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+
         </Grid>
         <div className={'modal-buttons'}>
           <button className={'cancel'} onClick={props.onCancel} type={'button'}>

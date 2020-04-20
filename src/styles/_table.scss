@@ -4,6 +4,7 @@ $spinner-size: $table-row-height - 6;
   font-family: $table-font-family;
   font-size: $table-font-size;
   font-weight: $table-font-weight;
+  background: none;
 
   display: flex;
   flex-direction: column;
@@ -30,17 +31,14 @@ $spinner-size: $table-row-height - 6;
         vertical-align: top;
         font-weight: $table-font-weight + 300;
         font-size: $table-font-size - 2;
-        color: darken($primary-color, 50%);
+        color: lighten($foreground-color, 5%);
         text-transform: uppercase;
         text-align: center;
-        background-color: rgba($primary-color, 0.125);
-        border-width: 1px;
-        border-color: $table-border-color;
-        border-left-style: solid;
-        border-top-style: solid;
+        background-color: darken($background-color, 5%);
+        border-top: 1px solid $table-border-color;
 
-        &:last-child {
-          border-right-style: solid;
+        &:not(:first-child) {
+          border-left: 1px solid $table-border-color;
         }
 
         &.sortable {
@@ -49,8 +47,9 @@ $spinner-size: $table-row-height - 6;
             cursor: default;
             position: absolute;
             top: 0;
-            bottom: 0;
+            height: $table-row-height;
             right: 6px;
+            background: none;
 
             &:hover {
               color: $primary-color;
@@ -64,9 +63,10 @@ $spinner-size: $table-row-height - 6;
           height: $table-header-height;
           padding: 0 4px;
           outline: none;
-          background-color: rgba(255, 255, 255, 0.65);
+          background-color: lighten($background-color, 2%);
           border-top: 1px solid $table-border-color;
           color: inherit;
+          font-weight: 500;
 
           &:hover, &:focus {
             outline: 2px solid $primary-color;
@@ -80,30 +80,42 @@ $spinner-size: $table-row-height - 6;
 
           .dark-pool-header {
             font-size: $table-header-height / 2 - 1;
-            line-height: $table-header-height / 2 - 2;
-            padding: 1px 0;
+            line-height: $table-header-height / 2;
+            height: $table-header-height;
+            padding: 0;
           }
 
           .dual-header {
             height: 2 * $table-header-height;
 
             input {
+              font-family: $table-font-family;
+              height: $table-header-height;
               border: none;
               width: 100%;
               text-align: center;
-              font-family: inherit;
               font-weight: $table-font-weight + 200;
-              font-size: inherit;
+              font-size: $table-font-size;
+              color: $foreground-color;
+
+              &:focus {
+                outline: 2px solid $primary-color;
+                outline-offset: -2px;
+              }
             }
           }
 
           .twin-header {
+            height: $table-header-height;
+
             .size, .price {
               display: inline-block;
+              height: $table-header-height;
             }
 
             .size {
               width: 40%;
+              line-height: $table-header-height;
 
               &:first-child {
                 border-right: 1px solid $table-border-color;
@@ -118,22 +130,29 @@ $spinner-size: $table-row-height - 6;
               width: 60%;
             }
 
-            button {
-              background-color: $primary-color;
-              color: $primary-contrast-color;
-              border: none;
-              padding: 0 4px 0 4px;
-              height: $table-header-height - 8;
-              border-radius: 3px;
-              outline: none;
-              box-shadow: 0 2px 4px -3px black;
+            .button-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: $table-header-height;
 
-              &:hover {
-                background-color: darken($primary-color, 10%);
-              }
+              button {
+                display: block;
+                background-color: $primary-color;
+                color: $button-foreground-color;
+                border: none;
+                padding: 0 6px;
+                border-radius: 3px;
+                outline: none;
+                margin: 0;
 
-              &:active {
-                transform: translateY(1px);
+                &:hover {
+                  background-color: darken($primary-color, 10%);
+                }
+
+                &:active {
+                  transform: translateY(1px);
+                }
               }
             }
           }
@@ -152,7 +171,7 @@ $spinner-size: $table-row-height - 6;
       font-size: inherit;
 
       &.dark-pool {
-        background-color: rgba(green, 0.15);
+        background-color: rgba($good-color, 0.15);
       }
 
       &.error {
@@ -192,16 +211,15 @@ $spinner-size: $table-row-height - 6;
         line-height: $table-row-height;
         height: $table-row-height;
 
-        border-left: 1px solid $table-border-color;
-        border-right: 1px solid transparent;
-
-        &:last-child {
-          border-right-color: $table-border-color;
+        &:not(:first-child) {
+          border-left: 1px solid $table-border-color;
         }
 
+        color: $text-color-black;
+
         .tenor-layout {
-          font-weight: $table-font-weight + 200;
-          font-size: $table-font-size - 1;
+          font-weight: ($table-font-weight + 300) !important;
+          font-size: ($table-font-size - 2) !important;
           text-align: center;
           pointer-events: all;
         }
@@ -217,12 +235,12 @@ $spinner-size: $table-row-height - 6;
 
           i {
             display: block;
-            font-size: smaller;
+            font-size: $small-font-size;
             line-height: inherit;
           }
 
           &:hover {
-            color: white;
+            color: $button-foreground-color;
             background-color: $text-color-red;
           }
         }
@@ -230,10 +248,6 @@ $spinner-size: $table-row-height - 6;
         .firm {
           color: $text-color-green;
           font-size: $table-font-size - 3;
-        }
-
-        &:last-child {
-          border-right-style: solid;
         }
 
         *:not(.fa) {
@@ -360,7 +374,7 @@ $spinner-size: $table-row-height - 6;
                     background-color: $text-color-red;
 
                     .st0 {
-                      fill: white;
+                      fill: $button-foreground-color;
                     }
                   }
                 }
@@ -403,11 +417,15 @@ $spinner-size: $table-row-height - 6;
             }
 
             &.inactive {
-              color: $text-color-green;
+              i {
+                color: $good-color;
+              }
             }
 
             &.active {
-              color: $text-color-red;
+              i {
+                color: $text-color-red;
+              }
             }
 
             svg {
@@ -484,11 +502,11 @@ $spinner-size: $table-row-height - 6;
 
           &.size-layout {
             &:first-child {
-              border-right: 1px solid $table-border-color;
+              // border-right: 1px solid $table-border-color;
             }
 
             &:last-child {
-              border-left: 1px solid $table-border-color;
+              // border-left: 1px solid $table-border-color;
             }
 
 
@@ -545,12 +563,15 @@ $spinner-size: $table-row-height - 6;
                 display: block;
                 padding-left: $spinner-size + 12px;
                 line-height: $table-row-height + 1;
+                background: none;
               }
             }
           }
         }
 
         &.twin-cell {
+          width: 100%;
+
           .cell {
             &.price-layout {
               width: 60%;
@@ -558,6 +579,14 @@ $spinner-size: $table-row-height - 6;
 
             &.size-layout {
               width: 40%;
+
+              &:first-child {
+                border-right: 1px solid $table-border-color;
+              }
+
+              &:last-child {
+                border-left: 1px solid $table-border-color;
+              }
             }
           }
         }
@@ -577,7 +606,7 @@ $spinner-size: $table-row-height - 6;
     position: absolute;
     display: block;
     width: 16px;
-    background-color: transparent;
+    background: none;
     box-sizing: content-box;
     pointer-events: none;
     opacity: 0;
@@ -601,7 +630,7 @@ $spinner-size: $table-row-height - 6;
       right: 3px;
       top: 3px;
       border-radius: 8px;
-      background-color: black;
+      background-color: $foreground-color;
       cursor: default;
     }
   }
@@ -642,11 +671,11 @@ $spinner-size: $table-row-height - 6;
       content: '';
       width: $spinner-size;
       height: $spinner-size;
-      border-width: 8px;
+      border-width: 6px;
       border-style: solid;
-      border-color: rgba(black, 0.1);
-      border-top-color: $primary-color;
+      border-color: rgba($foreground-color, 0.1);
       border-radius: $spinner-size;
+      border-top-color: $primary-color;
       animation: spin 1s infinite linear;
     }
   }

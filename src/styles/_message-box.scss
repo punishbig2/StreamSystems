@@ -1,5 +1,5 @@
 $icon-size: 48px;
-$title-padding: 16px;
+$title-padding: 8px;
 $text-padding: 16px;
 .message-box {
   width: 400px;
@@ -7,19 +7,19 @@ $text-padding: 16px;
   .box-title {
     display: flex;
     align-items: center;
-    padding: $title-padding $title-padding $title-padding / 2 $title-padding;
+    padding: $title-padding / 2 $title-padding $title-padding / 2 $title-padding;
 
     .icon {
       &.good {
-        color: seagreen;
+        color: $good-color;
       }
 
       &.bad {
-        color: crimson;
+        color: $danger-color;
       }
 
       &.neutral {
-        color: royalblue;
+        color: $neutral-color;
       }
 
       i {
@@ -56,7 +56,7 @@ $text-padding: 16px;
 
     .text {
       h1 {
-        font-size: 18px;
+        font-size: $large-font-size;
         text-transform: uppercase;
         padding: 0 $text-padding;
         margin: 0;
@@ -67,7 +67,8 @@ $text-padding: 16px;
 
   p {
     min-height: 5em;
-    color: lighten($foreground-color, 40%);
+    color: $foreground-color;
+    opacity: 0.75;
     font-weight: 500;
     padding: 0 $text-padding $text-padding $text-padding;
     margin: 0 $icon-size + $title-padding;

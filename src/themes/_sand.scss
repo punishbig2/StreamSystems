@@ -1,0 +1,27 @@
+body.sand-theme {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  // Global colors
+  $primary-color: #805030;
+  $background-color: #fefeed;
+  $button-foreground-color: #fff;
+  $foreground-color: #533A33;
+  $light-color: #f4f4c5;
+  $lighter-color: #f1f1f1;
+  $danger-color: crimson;
+  $good-color: seagreen;
+  $neutral-color: dodgerblue;
+  $yellow-background: #ffff00;
+  // Table colors
+  $table-border-color: rgba($primary-color, 0.25);
+  $text-color-blue: #2051ff;
+  $text-color-red: #f02327;
+  $text-color-black: darken($foreground-color, 10%);
+  $text-color-green: #019734;
+  $text-color-grey: #d6d6d6;
+  // Window colors
+  $window-border-color: #e1e1e1;
+  @import "../styles/all";
+}

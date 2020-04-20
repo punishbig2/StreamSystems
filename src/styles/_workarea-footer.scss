@@ -2,7 +2,7 @@
   position: absolute;
   display: flex;
   align-items: center;
-  background-color: white;
+  font-size: $normal-font-size;
   border-top: 1px solid $table-border-color;
   line-height: $window-footer-size;
   left: 0;
@@ -11,15 +11,22 @@
   height: $window-footer-size;
   padding: 0 8px;
 
+  background-color: $background-color;
+  color: $foreground-color;
+
   .tab-layout {
     display: flex;
     width: 100%;
     align-items: stretch;
+    color: inherit;
 
     .tab {
+      color: inherit;
+
       &.active {
         .tab-label {
           border-color: $primary-color;
+          color: inherit;
         }
       }
 
@@ -30,14 +37,14 @@
         border-top: 3px solid transparent;
 
         input {
-          font-size: 14px;
+          color: inherit;
+          font-size: $normal-font-size;
           font-weight: 500;
           padding: 0 8px;
           display: block;
           flex: 1;
           height: 100%;
           border: none;
-          color: $foreground-color;
 
           &:read-only {
             outline: none;
@@ -54,12 +61,13 @@
           width: 22px;
           height: 22px;
           border-radius: 11px;
+          color: inherit;
 
           &:hover {
-            background-color: crimson;
+            background-color: $danger-color;
 
             i {
-              color: white;
+              color: $button-foreground-color;
             }
           }
         }
@@ -72,7 +80,7 @@
       padding: 0 12px;
       margin: 0 12px;
       background-color: $primary-color;
-      color: white;
+      color: $button-foreground-color;
       line-height: $window-footer-size;
       border: none;
 
@@ -83,6 +91,7 @@
       span,
       i {
         color: inherit;
+        background: none;
       }
     }
   }
@@ -90,7 +99,7 @@
   .sign-out {
     display: block;
     margin: 0 12px 0 auto;
-    color: crimson;
+    color: $danger-color;
     text-decoration: none;
 
     span,
@@ -102,7 +111,7 @@
       font-weight: 600;
       text-transform: uppercase;
       padding: 0 0 0 4px;
-      font-size: 15px;
+      font-size: $normal-font-size;
     }
   }
 }

@@ -6,8 +6,7 @@
   bottom: $window-footer-size;
   width: 100%;
 
-
-  background-color: #e8e8e8;
+  background-color: $light-color;
   overflow: hidden;
 
   z-index: 0;
@@ -16,7 +15,8 @@
     display: flex;
     flex-direction: column;
     position: absolute;
-    background-color: white;
+    font-size: $normal-font-size;
+    background-color: $background-color;
     min-width: min-content;
     min-height: $window-toolbar-size + $table-header-height + $table-row-height;
 
@@ -56,17 +56,14 @@
     .window-buttons {
       position: absolute;
       pointer-events: initial;
-      top: 1px;
-      height: $title-bar-height;
-      right: 1px;
+      top: 0;
+      height: 100%;
+      right: 0;
       width: auto;
-      line-height: $title-bar-height;
       padding: 0 8px;
-      color: #444;
+      background: none;
 
       button {
-        display: inline-block;
-        vertical-align: middle;
         border-radius: $title-bar-button-size / 2;
         width: $title-bar-button-size - 3;
         height: $title-bar-button-size - 3;
@@ -79,7 +76,7 @@
         color: $foreground-color;
 
         &:first-child {
-          font-size: 11px;
+          font-size: $smaller-font-size;
         }
 
         &:not(:last-child) {
@@ -87,7 +84,7 @@
         }
 
         &:hover {
-          color: black;
+          color: darken($foreground-color, 20%);
         }
 
         &:active {
@@ -103,9 +100,10 @@
     .resize-handle {
       z-index: 2147483646;
       border-radius: 4px;
+      background: none;
 
       &:hover {
-        background-color: rgba(0, 44, 88, 0.15);
+        background-color: rgba($primary-color, 0.15);
       }
 
       &.horizontal {
@@ -137,7 +135,7 @@
         opacity: 0;
 
         &:hover {
-          background-color: transparent;
+          background: none;
           opacity: 1;
           cursor: se-resize;
         }
@@ -169,6 +167,12 @@
       width: 100%;
       line-height: $title-bar-height;
       height: $title-bar-height;
+      background: none;
+      color: $foreground-color;
+      border-top: 1px solid $table-border-color;
+      border-right: 1px solid $table-border-color;
+      border-left: 1px solid $table-border-color;
+      border-bottom: none;
 
       .item {
         margin: 0 4px 0 0;
@@ -177,21 +181,24 @@
       button {
         @extend %button;
         line-height: $title-bar-height / 2;
+        border: none;
+        padding: 3px 8px;
       }
 
       .ccy-group {
         display: inline-block;
-        font-size: 14px;
+        font-size: $normal-font-size;
         font-weight: 600;
         margin: 0 12px;
+        opacity: 0.75;
       }
 
       h1 {
-        font-size: 14px;
-        padding: 2px;
-        margin: 0;
+        font-size: $normal-font-size;
         line-height: $title-bar-height;
-        display: inline-block;
+        margin: 0;
+        padding: 0 2px;
+        background: none;
       }
 
       .status {
@@ -199,7 +206,7 @@
         margin: 0 8px;
 
         i {
-          font-size: 10px;
+          font-size: $tiny-font-size;
         }
 
         &.ok {
@@ -212,12 +219,12 @@
         &:not(.ok) {
           i,
           span {
-            color: crimson;
+            color: $danger-color;
           }
         }
 
         span {
-          font-size: 10px;
+          font-size: $tiny-font-size;
           text-transform: uppercase;
           font-weight: 600;
           margin: 0 4px;
@@ -232,7 +239,11 @@
       width: 100%;
       height: 100%;
       z-index: 0;
-      padding: 2px 0;
+      padding: 0;
+      background: none;
+      border-right: 1px solid $table-border-color;
+      border-left: 1px solid $table-border-color;
+      border-bottom: 1px solid $table-border-color;
     }
   }
 
@@ -247,9 +258,9 @@
     margin-left: -200px;
     z-index: 1;
     background-color: $text-color-red;
-    color: white;
+    color: $button-foreground-color;
     border-radius: 4px;
-    font-size: 15px;
+    font-size: $normal-font-size;
     font-weight: 600;
 
     .message {
@@ -260,10 +271,10 @@
       position: absolute;
       height: 22px;
       width: 22px;
-      font-size: 16px;
+      font-size: $medium-font-size;
 
       i {
-        color: white;
+        color: $button-foreground-color;
       }
 
       line-height: 22px;

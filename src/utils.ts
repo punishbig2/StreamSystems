@@ -33,3 +33,9 @@ export const percentage = (numerator: number, denominator: number, base: number)
 };
 
 export const getCurrentTime = (): string => Math.round(Date.now()).toString();
+
+export const updateApplicationTheme = (theme: string, colorScheme: string, font: string) => {
+  const { body } = document;
+  // Set the body element's class
+  body.setAttribute('class', `${theme || 'default'}-theme ${font}-font ${colorScheme}-color-scheme`);
+};

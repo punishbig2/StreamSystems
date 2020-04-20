@@ -1,7 +1,7 @@
 import { Order } from 'interfaces/order';
 import { PodRow, PodRowStatus } from 'interfaces/podRow';
-import { User } from 'interfaces/user';
 import { PodRowStore } from 'mobx/stores/podRowStore';
+import { W } from 'interfaces/w';
 
 export type PodRowProps = PodRow & {
   orders: Order[];
@@ -12,6 +12,7 @@ export type PodRowProps = PodRow & {
   strategy: string;
   status: PodRowStatus;
   rowStore: PodRowStore;
+  darkpool: W;
   // Event handlers
   onTenorSelected: (tenor: string) => void;
 };

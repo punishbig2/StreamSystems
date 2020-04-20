@@ -6,7 +6,6 @@ import { observer } from 'mobx-react';
 import { PodTileStore } from 'mobx/stores/podTileStore';
 
 import messages, { MessagesStore } from 'mobx/stores/messagesStore';
-import { User } from 'interfaces/user';
 import { move } from 'components/WindowManager/helpers/move';
 import { resize } from 'components/WindowManager/helpers/resize';
 import { toStyle } from 'components/WindowManager/helpers/toStyle';

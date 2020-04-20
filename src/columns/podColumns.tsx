@@ -21,8 +21,11 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
     [OrderTypes.Bid]: strings.RefBids,
     [OrderTypes.Ofr]: strings.RefOfrs,
   };
-  return <button
-    onClick={cancelAll(props.type, props.symbol, props.strategy)}>{labels[props.type]}</button>;
+  return (
+    <div className={'button-container'}>
+      <button onClick={cancelAll(props.type, props.symbol, props.strategy)}>{labels[props.type]}</button>
+    </div>
+  );
 };
 
 const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>

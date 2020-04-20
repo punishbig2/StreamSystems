@@ -1,9 +1,9 @@
 .modal-buttons {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: flex-end;
 
   &:not(:empty) {
-    margin: 12px 8px;
+    margin: 12px 0;
   }
 
   button {
@@ -12,12 +12,10 @@
     border: none;
     line-height: 1.5;
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: $small-font-size;
     font-weight: 600;
     padding: 2px 8px 0 8px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.15);
-    background-color: #e1e1e1;
-    color: #333;
     min-width: 100px;
 
     &:not(:first-child) {
@@ -25,18 +23,19 @@
     }
 
     &:disabled {
-      background-color: $table-border-color;
-      color: darken($table-border-color, 15%);
+      background-color: $lighter-color;
+      color: darken($lighter-color, 15%);
       opacity: 0.5;
     }
 
     &:not(:disabled).success {
-      background-color: seagreen;
-      color: white;
+      background-color: $good-color;
+      color: $button-foreground-color;
     }
 
     &:not(:disabled).cancel {
-      background-color: #e8e8e8;
+      background-color: $lighter-color;
+      color: $foreground-color;
     }
 
     &.pull-left {

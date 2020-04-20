@@ -7,7 +7,7 @@
   width: 600px;
   margin: auto;
   text-align: center;
-  font-size: 16px;
+ font-size: $medium-font-size;
   font-weight: 500;
 
   p {
@@ -30,8 +30,8 @@
   }
 
   h1 i {
-    font-size: 90px;
-    color: crimson;
+    font-size: $error-title-font-size;
+    color: $danger-color;
   }
 }
 
@@ -45,7 +45,7 @@ $toast-size: 32px;
   padding: 0 16px;
   height: $toast-size;
   line-height: $toast-size;
-  color: white;
+  color: $button-foreground-color;
   font-weight: 600;
   background-color: $text-color-red;
   border-radius: 4px;

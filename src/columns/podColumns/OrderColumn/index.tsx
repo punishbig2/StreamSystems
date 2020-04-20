@@ -70,7 +70,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
     const filtered: Order[] = orders.filter((order: Order) => order.size !== null);
-    if (filtered.length === 0)
+    if (filtered.length <= 1)
       return null;
     return <MiniDOB {...props} rows={filtered} orderStore={store}/>;
   };

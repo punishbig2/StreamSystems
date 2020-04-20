@@ -22,9 +22,15 @@ type Props = PodRowProps;
 
 const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const [store] = useState<DarkPoolStore>(new DarkPoolStore());
-  const { currency, strategy, tenor } = props;
+  const { currency, strategy, tenor, darkpool } = props;
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
+
+  useEffect(() => {
+    if (!darkpool)
+      return;
+    store.onOrderReceived(darkpool);
+  }, [store, darkpool, user]);
 
   const onTicketSubmitted = (order: DarkPoolOrder) => {
     store.createOrder(order);

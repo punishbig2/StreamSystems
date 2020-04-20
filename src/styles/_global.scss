@@ -1,12 +1,6 @@
-* {
-  font-family: "Montserrat", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  box-sizing: border-box;
-}
 
 :not(button):not(select) {
-  background-color: transparent;
+  background: none;
 }
 
 button {
@@ -20,6 +14,7 @@ body,
   width: 100%;
   margin: 0;
   overflow: hidden;
+  outline: 1px solid red;
 }
 
 button {
@@ -29,7 +24,6 @@ button {
 }
 
 /*** Animations ***/
-
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -51,17 +45,4 @@ button {
   }
 }
 
-.tooltip {
-  position: fixed;
-  overflow: hidden;
-  z-index: 2147483648;
-
-  .tooltip-content {
-    background-color: white;
-    border-radius: 2px;
-    padding: 3px;
-    border: 2px solid $table-border-color;
-    z-index: 2147483648;
-  }
-}
 

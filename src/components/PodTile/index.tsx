@@ -5,7 +5,7 @@ import { Table } from 'components/Table';
 import { useInitializer } from 'components/PodTile/hooks/useInitializer';
 import { Row } from 'components/PodTile/Row';
 import { Order } from 'interfaces/order';
-import React, { ReactElement, useEffect, useMemo, CSSProperties } from 'react';
+import React, { ReactElement, useEffect, useMemo, CSSProperties, useCallback } from 'react';
 import { Currency } from 'interfaces/currency';
 import { observer } from 'mobx-react';
 import { User } from 'interfaces/user';
@@ -40,25 +40,17 @@ const getCurrencyFromName = (list: Currency[], name: string): Currency => {
 
 const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const store: PodTileStore = props.store;
-  const { currencies, tenors, connected } = props;
+  const { currencies, tenors } = props;
   const { strategy } = store;
   const { rows } = store;
   const currency: Currency | undefined = getCurrencyFromName(currencies, store.currency);
   const user: User = workareaStore.user;
-  const personality: string = workareaStore.personality;
 
   useEffect(() => {
-    store.setCurrency(currency.name);
-    store.setStrategy(strategy);
-  }, [store, currency, strategy]);
-
-  useEffect(() => {
-    // const manager: SignalRManager = SignalRManager.getInstance();
     if (currency === InvalidCurrency || !strategy)
       return;
-    // manager.loadDepth(currency.name, strategy, user);
     store.initialize(currency.name, strategy);
-  }, [currency, store, strategy, user]);
+  }, [store, currency, strategy, user]);
 
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
@@ -96,31 +88,13 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         onSubmit={bulkCreateOrders}/>
     );
   };
-
-  const renderToBRow = (rowProps: any, index?: number): ReactElement => {
-    const { row } = rowProps;
-    return (
-      <Row {...rowProps}
-           user={user}
-           orders={store.orders[row.tenor]}
-           personality={personality}
-           defaultSize={currency.defaultqty}
-           minimumSize={currency.minqty}
-           currency={currency.name}
-           strategy={strategy}
-           tenor={row.tenor}
-           displayOnly={false}
-           rowNumber={index}
-           connected={connected}
-           onTenorSelected={store.setCurrentTenor}/>
-    );
-  };
   const dobRows: PodTable = !!store.currentTenor
     ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
     : {};
-  const renderDoBRow = (rowProps: any): ReactElement | null => {
+  const renderDoBRow = useCallback((rowProps: any): ReactElement | null => {
+    const { minqty, defaultqty } = currency;
     const { row } = rowProps;
-    if (!currency || currency.minqty === undefined || currency.defaultqty === undefined || !strategy)
+    if (minqty === undefined || defaultqty === undefined || !strategy)
       return null;
     // Get current row
     const matchingRow: PodRow = dobRows[row.id];
@@ -137,13 +111,30 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       <Row {...rowProps}
            user={user}
            orders={orders}
-           connected={connected}
-           personality={personality}
-           defaultSize={currency.defaultqty}
-           minimumSize={currency.minqty}
+           darkpool={store.darkpool[row.tenor]}
+           defaultSize={defaultqty}
+           minimumSize={minqty}
            onTenorSelected={() => store.setCurrentTenor(null)}/>
     );
-  };
+  }, [currency, dobRows, store, strategy, user]);
+  const renderPodRow = useCallback((rowProps: any, index?: number): ReactElement => {
+    const { name, minqty, defaultqty } = currency;
+    const { row } = rowProps;
+    const { tenor } = row;
+    return (
+      <Row {...rowProps}
+           currency={name}
+           strategy={strategy}
+           tenor={tenor}
+           darkpool={store.darkpool[tenor]}
+           orders={store.orders[tenor]}
+           defaultSize={defaultqty}
+           minimumSize={minqty}
+           displayOnly={false}
+           rowNumber={index}
+           onTenorSelected={store.setCurrentTenor}/>
+    );
+  }, [currency, strategy, store.darkpool, store.orders, store.setCurrentTenor]);
   const dobColumns = useMemo(() => createTOBColumns(currency.name, strategy, user, true),
     [strategy, currency.name, user],
   );
@@ -191,7 +182,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
                  scrollable={!!props.scrollable}
                  columns={tobColumns}
                  rows={rows}
-                 renderRow={renderToBRow}/>
+                 renderRow={renderPodRow}/>
         </div>
         <div className={'dob'} data-showing-tenor={!!store.currentTenor}>
           <Table scrollable={!!props.scrollable} columns={dobColumns} rows={dobRows} renderRow={renderDoBRow}/>

@@ -3,6 +3,7 @@ import { observable, action } from 'mobx';
 import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
 import workareaStore from 'mobx/stores/workareaStore';
 import { Globals } from 'golbals';
+import { updateApplicationTheme } from 'utils';
 
 export class UserPreferencesStore {
   @observable status: UserProfileStatus = UserProfileStatus.Initial;
@@ -33,6 +34,10 @@ export class UserPreferencesStore {
   @action.bound
   public setFieldValue(name: string, value: any) {
     this.preferences = { ...this.preferences, [name]: value };
+    if (name === 'theme' || name === 'colorScheme' || name === 'font') {
+      const { theme, colorScheme, font } = this.preferences;
+      updateApplicationTheme(theme, colorScheme, font);
+    }
   }
 
   @action.bound

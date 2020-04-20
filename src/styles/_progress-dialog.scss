@@ -1,8 +1,8 @@
-$progress-background: #f8f8f8;
-$progress-border-color: #f1f1f1;
+$progress-background: $light-color;
+$progress-border-color: $lighter-color;
 $progress-spinner-size: 48px;
 .progress-dialog {
-  padding: 8px;
+  padding: 0 8px 8px 8px;
   width: 400px;
 
   .header {
@@ -32,12 +32,16 @@ $progress-spinner-size: 48px;
 
     .title {
       h1 {
-        font-size: 18px;
+        font-size: $large-font-size;
+        padding: 0;
+        margin: 0;
+        color: $foreground-color;
       }
 
       .timer {
+        color: $foreground-color;
         font-family: $table-font-family;
-        font-size: 14px;
+        font-size: $normal-font-size;
         opacity: 0.5;
       }
     }
@@ -67,9 +71,9 @@ $progress-spinner-size: 48px;
       height: 100%;
       line-height: 24px;
       text-align: center;
-      font-size: smaller;
+      font-size: $small-font-size;
       font-weight: 600;
-      color: white;
+      color: $button-foreground-color;
     }
   }
 }

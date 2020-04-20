@@ -5,14 +5,16 @@
   left: 0;
   z-index: 1;
 
+  background-color: darken($background-color, 2%);
+
   .content {
     display: flex;
     align-items: center;
 
     transition: transform 0.15s linear;
-    background-color: white;
+    font-size: $normal-font-size;
     padding: 0 16px;
-    border-bottom: 1px solid $table-border-color;
+    border-bottom: 1px solid desaturate(darken($background-color, 25%), 35%);
     height: $window-toolbar-size;
     line-height: $window-toolbar-size;
 
@@ -30,10 +32,11 @@
         font-family: $table-font-family;
         line-height: inherit;
         padding: 0 16px;
-        border: 1px solid $table-border-color;
-        background-color: lighten($table-border-color, 8%);
+        border: 1px solid rgba($foreground-color, 0.10);
+        background-color: rgba($foreground-color, 0.08);
         margin: 0 4px;
-        border-radius: 4px;
+        border-radius: 2px;
+        color: $foreground-color;
       }
     }
 
@@ -41,12 +44,12 @@
       line-height: 2;
       border: none;
       background-color: $primary-color;
-      color: white;
+      color: $button-foreground-color;
       border-radius: 100px;
 
       i {
         margin: 0 8px 0 0;
-        color: white;
+        color: $button-foreground-color;
       }
 
       &:nth-child(n + 2) {
@@ -77,6 +80,7 @@
 
       .MuiFormControl-root .MuiFormControlLabel-label {
         line-height: inherit;
+        width: 100px;
       }
 
       .MuiInputBase-root {
@@ -86,20 +90,18 @@
         }
 
         .MuiSelect-root {
-          width: 50px;
-          line-height: 1;
           padding-right: 48px;
           padding-left: 16px;
           background-color: $primary-color;
-          color: white;
+          color: $button-foreground-color;
           border-radius: 2px;
-          font-size: 14px;
+          font-size: $normal-font-size;
           font-weight: 500;
           border-bottom: 2px rgba(0, 0, 0, 0.55);
         }
 
         .MuiSvgIcon-root {
-          fill: white;
+          fill: $button-foreground-color;
         }
       }
     }

@@ -1,80 +1,13 @@
 @import "variables";
+@import "../fonts/montserrat/font.css";
+@import "../fonts/fontawesome/css/all.min.css";
+@import "global";
+@import "../themes/default";
+@import "../themes/sand";
+@import "../themes/dark";
 
 :root {
   #{--window-toolbar-height}: $window-toolbar-size;
   #{--table-row-height}: $table-row-height;
   #{--table-header-height}: $table-header-height;
 }
-
-%button {
-  pointer-events: initial;
-  cursor: default;
-  line-height: 1;
-  border: none;
-  background-color: $primary-color;
-  color: white;
-  padding: 3px 8px 1px 8px;
-  border-radius: 4px;
-  border-bottom: 2px solid $primary-dark-color;
-
-  &:not(:disabled):active {
-    transform: translateY(1px);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-  }
-}
-
-.run-window {
-  max-width: min-content;
-  min-width: 500px;
-  padding: 8px 8px 0 8px;
-}
-
-.visible {
-  display: initial;
-}
-
-.hidden {
-  display: none;
-}
-
-.invisible {
-  visibility: hidden;
-}
-
-.depth-table {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  left: 2px;
-  bottom: 4px;
-}
-
-.tbody-fill-area.post {
-  border-top: 1px solid $table-border-color;
-}
-
-@import "global";
-@import "loading-window";
-@import "modal-window";
-@import "table";
-@import "toolbar";
-@import "workarea-footer";
-@import "workspace";
-@import "messages";
-@import "order-ticket";
-@import "dialog-buttons";
-@import "mini-dob";
-@import "user-not-found";
-@import "workarea-error";
-@import "message-blotter";
-@import "message-box";
-@import "cell-layouts";
-@import "user-profile-form";
-@import "select";
-@import "sound-item";
-@import "message-blotter-content";
-@import "pod-tile-content";
-@import "progress-dialog";

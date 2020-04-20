@@ -226,11 +226,12 @@ export class SignalRManager<A extends Action = AnyAction> {
       console.warn(`command does not exist, cannot remove it`);
     } else {
       const { connection } = this;
+      const command: Command = recordedCommands[index];
       if (connection === null)
         return;
       if (connection.state !== HubConnectionState.Connected)
         return;
-      connection.invoke(SignalRMethods.UnsubscribeFromMarketData, ...recordedCommands[index].args);
+      connection.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
       delete this.listeners[key];
       // Update recorded commands
       this.recordedCommands = [...recordedCommands.slice(0, index), ...recordedCommands.slice(index + 1)];
@@ -267,7 +268,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     // Unsubscribe
     const { connection } = this;
     if (connection && connection.state === HubConnectionState.Connected) {
-      connection.invoke(SignalRMethods.UnsubscribeForDarkPoolPx, [currency, strategy, tenor]);
+      connection.invoke(SignalRMethods.UnsubscribeForDarkPoolPx, currency, strategy, tenor);
     }
   };
 

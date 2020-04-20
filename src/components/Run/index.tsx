@@ -175,7 +175,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   });
 
   return (
-    <div className={'run-window'}>
+    <div style={{minWidth: 500}}>
       <div className={'modal-title-bar'}>
         <div className={'half'}>
           <div className={'item'}>{props.symbol}</div>
@@ -188,7 +188,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
              renderRow={renderRow}
              className={state.isLoading ? 'loading' : ''}/>
       <div className={'modal-buttons'}>
-        <button className={'pull-left'} onClick={activateCancelledOrders} disabled={state.isLoading}>
+        <button className={'cancel pull-left'} onClick={activateCancelledOrders} disabled={state.isLoading}>
           {strings.ActivateAll}
         </button>
         <div className={'pull-right'}>

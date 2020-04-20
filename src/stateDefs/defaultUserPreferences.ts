@@ -11,7 +11,7 @@ export const defaultPreferences: UserPreferences = {
   mpid: '',
   oco: OCOModes.Disabled,
   timezone: findDefaultTimezone(),
-  lastOCOUpdateTimestamp: null,
   userType: UserTypes.Unset,
   execSoundList: [],
+  theme: 'default',
 };

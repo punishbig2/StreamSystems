@@ -1,19 +1,9 @@
 @import "css-variables.css";
 
-$primary-color: #407af0;
-$primary-contrast-color: white;
-$primary-dark-color: #2058c0;
-$foreground-color: #222;
-$light-color: #eee;
+$primary-color: '#ff0000';
+$foreground-color: '#000000';
+$background-color: '#ffffff';
 
-$text-color-blue: #2051ff;
-$text-color-red: #f02327;
-$text-color-black: #000;
-$text-color-green: #01b734;
-$text-color-grey: #d6d6d6;
-$yellow-background: #ffff00;
-
-$table-border-color: #d5d5d5;
 $title-bar-height: 18px;
 $title-bar-button-size: 16px;
 $table-header-height: 24px;
@@ -23,12 +13,18 @@ $table-tint: 0.075;
 $window-border-size: 1px;
 $window-toolbar-size: 48px;
 $window-footer-size: 36px;
-$window-border-color: #e1e1e1;
 $window-content-padding: 2px;
 
+// Font sizes
+$error-title-font-size: 90px;
+$normal-font-size: 14px;
+$large-font-size: $normal-font-size + 4;
+$medium-font-size: $normal-font-size + 2;
+$small-font-size: $normal-font-size - 1;
+$smaller-font-size: $normal-font-size - 2;
+$tiny-font-size: $normal-font-size - 4;
+
+$table-font-size: $normal-font-size;
 $table-font-weight: 400;
-$table-price-font-weight: 600;
-$table-font-size: 14px;
 $table-font-family: "Roboto", sans-serif;
 $red-x-size: $table-row-height - 6;
-

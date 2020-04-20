@@ -1,15 +1,11 @@
 import { skipTabIndexAll } from 'utils/skipTab';
 import { OrderStore } from 'mobx/stores/orderStore';
-import { User } from 'interfaces/user';
-import workareaStore from 'mobx/stores/workareaStore';
 import { OrderStatus } from 'interfaces/order';
 
 export const SizeTooSmallError = new Error('size is too small');
 
 export const onSubmitSize = (store: OrderStore) =>
   async (input: HTMLInputElement) => {
-    const user: User = workareaStore.user;
-    const personality: string | null = workareaStore.personality;
     if (store.editedSize === null || store.editedSize === store.baseSize) {
       skipTabIndexAll(input, 1);
       return;

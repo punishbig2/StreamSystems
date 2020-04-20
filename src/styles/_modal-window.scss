@@ -1,3 +1,4 @@
+
 .modal-window-container {
   position: fixed;
   display: flex;
@@ -7,8 +8,9 @@
   height: 100%;
   left: 0;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.20);
+  background-color: rgba($light-color, 0.40);
   text-align: center;
+
 
   &.hidden {
     visibility: hidden;
@@ -18,11 +20,15 @@
 
   .modal-window {
     display: inline-block;
-    background-color: white;
+    font-size: $normal-font-size;
     text-align: initial;
     line-height: normal;
     border-radius: 4px;
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.175);
+    background-color: $background-color;
+
+    max-width: min-content;
+    padding: 8px 8px 0 8px;
 
     h1 {
       margin: 0;
@@ -35,11 +41,13 @@
     .modal-title-bar {
       margin: 0 0 8px 0;
       height: 24px;
+      color: $foreground-color;
 
       .half {
         display: inline-block;
         vertical-align: middle;
         line-height: 24px;
+        color: inherit;;
         width: 50%;
 
         .item {
@@ -48,6 +56,7 @@
           margin: 0;
           font-weight: 600;
           line-height: normal;
+          color: inherit;;
 
           &:not(:last-child) {
             &::after {
@@ -83,9 +92,11 @@
     padding: 0;
     text-align: center;
     text-transform: uppercase;
+    color: $foreground-color;
 
     small {
-      color: #888;
+      color: inherit;
+      opacity: 0.5;
     }
   }
 }

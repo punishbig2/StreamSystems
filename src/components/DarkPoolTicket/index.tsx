@@ -1,6 +1,6 @@
 import strings from 'locales';
-import React, { useState, useEffect } from 'react';
-import { Select, MenuItem } from '@material-ui/core';
+import React, { useState } from 'react';
+import { Select, MenuItem, Grid, FormControl, FormLabel, Input } from '@material-ui/core';
 import { PresetSizeButton } from 'components/presetSizeButton';
 import { DarkPoolOrder, Order } from 'interfaces/order';
 import { MessageTypes } from 'interfaces/w';
@@ -31,16 +31,10 @@ const None = '';
 const presetSizes: number[] = [30, 50, 100, 500];
 
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
-  const [input, setInput] = useState<HTMLInputElement | null>(null);
   const [price, setPrice] = useState<number>(props.price);
   const [size, setSize] = useState<number>(props.size === null ? presetSizes[0] : props.size);
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
-  useEffect(() => {
-    if (input === null) return;
-    input.select();
-    input.focus();
-  }, [input]);
   const updateSize = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric: number = Number(currentTarget.value);
     if (isNaN(numeric))
@@ -105,13 +99,12 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
         </div>
       </div>
       <form onSubmit={onSubmit}>
-        <div className={'order-ticket'}>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Side</span>
-            </div>
-            <div className={'value'}>
+        <div className={'ticket'}>
+          <Grid>
+            <FormControl fullWidth margin={'normal'}>
+              <FormLabel htmlFor={'side'}>Side</FormLabel>
               <Select
+                id={'side'}
                 value={side}
                 displayEmpty={true}
                 renderValue={renderSide}
@@ -120,37 +113,33 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 <MenuItem value={'BUY'}>Buy</MenuItem>
                 <MenuItem value={'SELL'}>Sell</MenuItem>
               </Select>
-            </div>
-          </div>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Vol</span>
-            </div>
-            <div className={'value'}>
-              <input value={price} onChange={updatePrice} readOnly/>
-            </div>
-          </div>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Qty</span>
-            </div>
-            <div className={'value'}>
-              <div className={'editor'}>
-                <input value={size} onChange={updateSize} autoFocus={true} ref={setInput}/>
-              </div>
-              <div className={'buttons'}>
+            </FormControl>
+          </Grid>
+
+          <Grid>
+            <FormControl fullWidth margin={'normal'}>
+              <FormLabel htmlFor={'price'}>Vol</FormLabel>
+              <Input id={'price'} value={price} onChange={updatePrice} readOnly/>
+            </FormControl>
+          </Grid>
+
+          <Grid>
+            <FormControl fullWidth margin={'normal'}>
+              <FormLabel htmlFor={'size'}>Qty</FormLabel>
+              <Input value={size} onChange={updateSize} autoFocus={true}/>
+              <div className={'preset-buttons four'}>
                 {presetSizes.map((value: number) => (
                   <PresetSizeButton key={value} value={value} setValue={setSize}/>
                 ))}
               </div>
-            </div>
-          </div>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Inst</span>
-            </div>
-            <div className={'value'}>
+            </FormControl>
+          </Grid>
+
+          <Grid>
+            <FormControl fullWidth margin={'normal'}>
+              <FormLabel htmlFor={'inst'}>Inst</FormLabel>
               <Select
+                id={'inst'}
                 value={inst}
                 onChange={stringSelectSetter((value: string) => setInst(value))}
                 displayEmpty={true}
@@ -163,8 +152,9 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                   <sup>1</sup>/<sub>2</sub>&nbsp; AOD
                 </MenuItem>
               </Select>
-            </div>
-          </div>
+            </FormControl>
+          </Grid>
+
         </div>
         <div className={'modal-buttons'}>
           <button type={'button'} className={'cancel'} onClick={props.onCancel}>

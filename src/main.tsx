@@ -1,11 +1,8 @@
 import { Workarea } from 'components/Workarea';
 
-import 'fonts/fontawesome/css/all.min.css';
-import 'fonts/montserrat/font.css';
+import 'styles/main.scss';
 
 import React from 'react';
-import 'styles/main.scss';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core';
 import whyDidYouRender from '@welldone-software/why-did-you-render';
 
 Object.defineProperty(MouseEvent.prototype, 'ignore', {
@@ -17,24 +14,16 @@ Object.defineProperty(MouseEvent.prototype, 'ignore', {
 
 whyDidYouRender(React);
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: '#407af0',
-      dark: '#2058c0',
-    },
-    secondary: {
-      main: '#407af0',
-      dark: '#2058c0',
-    },
-  },
-});
-
 const FXOptionsUI: React.FC = () => {
+  const { classList } = document.body;
+  const theme: string | null = localStorage.getItem('theme');
+  if (theme === null) {
+    classList.add('default-theme');
+  } else {
+    classList.add(`${theme}-theme`);
+  }
   return (
-    <MuiThemeProvider theme={theme}>
-      <Workarea/>
-    </MuiThemeProvider>
+    <Workarea/>
   );
 };
 

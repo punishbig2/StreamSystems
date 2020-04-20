@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { WindowElement } from 'components/WindowManager/windowElement';
 import { MessageBlotter } from 'components/MessageBlotter';
-import getStyles, { Dimensions } from 'styles';
+import getStyles, { Styles } from 'styles';
 import { User } from 'interfaces/user';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
 import columns, { BlotterTypes } from 'columns/messageBlotter';
@@ -19,9 +19,9 @@ export const ExecutionBlotter: React.FC<OwnProps> = (props: OwnProps): ReactElem
   const type: 'normal' | 'broker' = user.isbroker ? 'broker' : 'normal';
   const width: number = getOptimalWidthFromColumnsSpec(columns(BlotterTypes.Executions)[type]);
   // Compute the ideal height
-  const styles: Dimensions = getStyles();
+  const styles: Styles = getStyles();
   const height: number = styles.windowToolbarHeight + styles.tableHeaderHeight + 4 * styles.tableRowHeight;
-  const geometry: ClientRect = new DOMRect(0, area.height - height, width, height);
+  const geometry: ClientRect = new DOMRect(0, area.height - height + 1, width, height);
   const id: string = '___EX_BLOTTER___';
   const content = (): ReactElement => {
     return (

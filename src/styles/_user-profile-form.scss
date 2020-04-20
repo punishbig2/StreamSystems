@@ -1,3 +1,55 @@
+.user-preferences-modal-title {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+
+  .user {
+    display: flex;
+    text-transform: none;
+    height: 2 * $medium-font-size;
+    line-height: $medium-font-size;
+    text-align: left;
+    color: $foreground-color;
+
+    .avatar {
+      width: 2 * $medium-font-size;
+      height: 2 * $medium-font-size;
+      margin: 0 8px 0 0;
+      border-radius: $medium-font-size;
+      overflow: hidden;
+
+      i {
+        line-height: 2 * $medium-font-size;
+        text-align: center;
+        font-size: 2 * $medium-font-size - 8;
+        background-color: $light-color;
+        width: 100%;
+        height: 100%;
+
+        &[src="images/avatar.svg"] {
+          opacity: 0.25;
+        }
+      }
+    }
+
+    .title {
+      color: inherit;
+    }
+
+    .sub-title {
+      color: inherit;
+      font-weight: 500;
+      font-size: $small-font-size;
+      line-height: $medium-font-size;
+      opacity: 0.5;
+    }
+  }
+
+  .fx-options {
+    text-align: right;
+  }
+}
+
 .user-profile-form {
   width: 640px;
   padding: 16px 16px 0 16px;
