@@ -10,6 +10,7 @@ import { priceFormatter } from 'utils/priceFormatter';
 import { sizeFormatter } from 'utils/sizeFormatter';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
+import { selectInputText } from 'utils';
 
 interface OwnProps {
   tenor: string;
@@ -129,7 +130,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               <OutlinedInput value={size}
                              onChange={updateSize}
                              labelWidth={0}
-                             inputRef={(input: HTMLInputElement) => input.select()}
+                             inputRef={selectInputText}
                              autoFocus={true}/>
               <div className={'preset-buttons four'}>
                 {presetSizes.map((value: number) => (

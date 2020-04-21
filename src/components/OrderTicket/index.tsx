@@ -5,6 +5,7 @@ import strings from 'locales';
 import { PresetSizeButton } from 'components/presetSizeButton';
 import { sizeFormatter } from 'utils/sizeFormatter';
 import { Grid, FormControl, FormLabel, OutlinedInput } from '@material-ui/core';
+import { selectInputText } from 'utils';
 
 interface Props {
   order: Order;
@@ -71,7 +72,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
               <FormLabel htmlFor={'size'}>Amt</FormLabel>
               <OutlinedInput id={'size'}
                              value={sizeFormatter(size)}
-                             inputRef={(input: HTMLInputElement) => input.select()}
+                             inputRef={selectInputText}
                              labelWidth={0}
                              onChange={updateQuantity} autoFocus={true}/>
               <div className={'preset-buttons three'}>

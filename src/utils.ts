@@ -39,3 +39,5 @@ export const updateApplicationTheme = (theme: string, colorScheme: string, font:
   // Set the body element's class
   body.setAttribute('class', `${theme || 'default'}-theme ${font}-font ${colorScheme}-color-scheme`);
 };
+
+export const selectInputText = (input: HTMLInputElement) => input && input.select();
