@@ -8,6 +8,7 @@ export enum WorkareaStatus {
   Initializing,
   Ready,
   UserNotFound,
+  MiddleOffice,
   Error
 }
 

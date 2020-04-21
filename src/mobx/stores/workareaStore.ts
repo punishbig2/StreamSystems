@@ -172,13 +172,14 @@ export class WorkareaStore {
     updateApplicationTheme(theme, colorScheme, font);
   }
 
-  private hydrate() {
+  private async hydrate() {
     const hydrate = create({
       storage: persistStorage.workarea,
       jsonify: true,
     });
-    hydrate('workarea', this)
-      .then(this.loadTheme);
+    await hydrate('workarea', this);
+    // Update styles
+    this.loadTheme();
   }
 
   private static cleanupUrl(email: string) {
@@ -195,33 +196,33 @@ export class WorkareaStore {
   @action.bound
   public async initialize(email: string) {
     try {
-      const signalRManager: SignalRManager = SignalRManager.getInstance();
-      // Start the loading mode
-      this.status = WorkareaStatus.Initializing;
-      // Load currencies
-      this.loadingMessage = strings.LoadingSymbols;
-      this.currencies = await API.getSymbols();
-      // Load strategies
-      this.loadingMessage = strings.LoadingStrategies;
-      this.strategies = await API.getProducts();
-      // Load strategies
-      this.loadingMessage = strings.LoadingTenors;
-      this.tenors = await API.getTenors();
-      // Now load users information
-      this.loadingMessage = strings.LoadingUserData;
+      this.status = WorkareaStatus.Starting;
       const users: any[] = await API.getUsers();
       // Find said user in the users array
       const user: User | undefined = users.find((each: User) => each.email === email);
       if (user === undefined) {
         this.status = WorkareaStatus.UserNotFound;
-      } else {
+      } else if (!user.ismiddleoffice) {
         await persistStorage.initialize(user);
         // Update local copy of preferences
-        this.hydrate();
+        await this.hydrate();
         // Start connecting to the websocket
         this.user = user;
         this.loadingMessage = strings.EstablishingConnection;
         WorkareaStore.cleanupUrl(user.email);
+        // Load other stuff
+        const signalRManager: SignalRManager = SignalRManager.getInstance();
+        // Start the loading mode
+        this.status = WorkareaStatus.Initializing;
+        // Load currencies
+        this.loadingMessage = strings.LoadingSymbols;
+        this.currencies = await API.getSymbols();
+        // Load strategies
+        this.loadingMessage = strings.LoadingStrategies;
+        this.strategies = await API.getProducts();
+        // Load strategies
+        this.loadingMessage = strings.LoadingTenors;
+        this.tenors = await API.getTenors();
         // Update signal R manager
         signalRManager.setUser(user);
         // Connect the signal R client
@@ -236,6 +237,8 @@ export class WorkareaStore {
           this.status = WorkareaStatus.Error;
           this.connected = false;
         });
+      } else {
+        this.status = WorkareaStatus.MiddleOffice;
       }
     } catch (error) {
       this.status = WorkareaStatus.Error;

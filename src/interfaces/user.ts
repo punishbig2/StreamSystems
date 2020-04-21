@@ -20,6 +20,7 @@ export interface ExecSound {
 }
 
 export interface User {
+  ismiddleoffice: boolean;
   email: string;
   firm: string;
   isbroker: boolean;

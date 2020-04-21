@@ -223,6 +223,11 @@ $spinner-size: $table-row-height - 6;
           font-size: ($table-font-size - 2) !important;
           text-align: center;
           pointer-events: all;
+          cursor: default;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
 
         .ref {

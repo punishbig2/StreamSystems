@@ -20,6 +20,7 @@ import { onSubmitSize } from 'columns/podColumns/OrderColumn/helpers/onSubmitSiz
 import { PodRowStore } from 'mobx/stores/podRowStore';
 import workareaStore from 'mobx/stores/workareaStore';
 import { getRelevantOrders } from 'columns/podColumns/OrderColumn/helpers/getRelevantOrders';
+import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 
 export enum PodTableType {
   Pod, Dob
@@ -80,8 +81,9 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     if (!shouldOpenOrderTicket(order, personality, user))
       return;
     const type: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
+    const size: number | null = getAggregatedSize(order, store.depth);
     // Replace the inferred type to create an opposing order
-    store.setOrderTicket({ ...order, type });
+    store.setOrderTicket({ ...order, type, size });
   };
 
   const errorHandler = (fn: (...args: any[]) => Promise<void> | void) => {

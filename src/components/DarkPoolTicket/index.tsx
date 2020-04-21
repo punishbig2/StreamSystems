@@ -1,6 +1,6 @@
 import strings from 'locales';
 import React, { useState } from 'react';
-import { Select, MenuItem, Grid, FormControl, FormLabel, Input } from '@material-ui/core';
+import { Select, MenuItem, Grid, FormControl, FormLabel, OutlinedInput } from '@material-ui/core';
 import { PresetSizeButton } from 'components/presetSizeButton';
 import { DarkPoolOrder, Order } from 'interfaces/order';
 import { MessageTypes } from 'interfaces/w';
@@ -119,14 +119,18 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
           <Grid>
             <FormControl fullWidth margin={'normal'}>
               <FormLabel htmlFor={'price'}>Vol</FormLabel>
-              <Input id={'price'} value={price} onChange={updatePrice} readOnly/>
+              <OutlinedInput id={'price'} value={price} onChange={updatePrice} labelWidth={0} readOnly/>
             </FormControl>
           </Grid>
 
           <Grid>
             <FormControl fullWidth margin={'normal'}>
               <FormLabel htmlFor={'size'}>Qty</FormLabel>
-              <Input value={size} onChange={updateSize} autoFocus={true}/>
+              <OutlinedInput value={size}
+                             onChange={updateSize}
+                             labelWidth={0}
+                             inputRef={(input: HTMLInputElement) => input.select()}
+                             autoFocus={true}/>
               <div className={'preset-buttons four'}>
                 {presetSizes.map((value: number) => (
                   <PresetSizeButton key={value} value={value} setValue={setSize}/>

@@ -5,6 +5,17 @@
     -moz-osx-font-smoothing: grayscale;
     box-sizing: border-box;
   }
+  &:not(input) {
+    user-select: none;
+  }
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border-color: rgba($foreground-color, 0.5);
+}
+
+.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: $primary-color;
 }
 
 .MuiFormLabel-root {
@@ -48,7 +59,7 @@
 
 .MuiInput-underline {
   &:before {
-    border-bottom-color: $foreground-color;
+    border-bottom-color: rgba($foreground-color, 0.5);
   }
 
   &:after {
@@ -96,7 +107,7 @@
   min-width: 300px;
 
   .MuiInputBase-root {
-    margin: 4px 0;
+    margin: 0;
 
     input {
       text-align: center;
@@ -109,6 +120,7 @@
 
   .MuiFormLabel-root {
     font-size: $medium-font-size;
+    margin: 0 0 4px 0;
   }
 }
 

@@ -12,13 +12,15 @@
   z-index: 0;
 
   .window-element {
+    position: absolute;
     display: flex;
     flex-direction: column;
-    position: absolute;
+    justify-content: space-between;
+    align-items: center;
     font-size: $normal-font-size;
     background-color: $background-color;
     min-width: min-content;
-    min-height: $window-toolbar-size + $table-header-height + $table-row-height;
+    min-height: min-content;
 
     &.fixed:hover {
       cursor: default;
@@ -35,15 +37,10 @@
     }
 
     &.minimized {
-      max-height: $title-bar-height;
+      max-height: $title-bar-height + 2;
       min-height: 0;
       overflow: hidden;
-
-      .window-buttons {
-        button:first-child {
-          display: none;
-        }
-      }
+      border-bottom: 1px solid $table-border-color;
     }
 
     &:hover {
@@ -56,51 +53,6 @@
 
       .content {
         outline: none;
-      }
-    }
-
-    .window-buttons {
-      display: flex;
-      margin: 0 0 0 auto;
-      align-self: flex-start;
-      height: $title-bar-height - 1;
-      pointer-events: initial;
-      padding: 0 4px;
-      background: none;
-
-      button {
-        display: block;
-        border-radius: $title-bar-button-size / 2;
-        width: $title-bar-height - 2;
-        height: $title-bar-height - 2;
-        background: none;
-        text-align: center;
-        border: none;
-        padding: 0;
-        margin: 0;
-        color: $foreground-color;
-
-        i {
-          display: block;
-          font-size: $smaller-font-size;
-          padding: 0;
-        }
-
-        &:not(:last-child) {
-          margin: 0 8px 0 0;
-        }
-
-        &:hover {
-          color: darken($foreground-color, 20%);
-        }
-
-        &:active {
-          -webkit-transform: translateY(1px);
-          -moz-transform: translateY(1px);
-          -ms-transform: translateY(1px);
-          -o-transform: translateY(1px);
-          transform: translateY(1px);
-        }
       }
     }
 
@@ -171,24 +123,34 @@
       justify-content: flex-start;
       position: relative;
       pointer-events: none;
-      width: 100%;
-      line-height: $title-bar-height;
+      flex-basis: $title-bar-height;
       height: $title-bar-height;
+      width: 100%;
       background: none;
       color: $foreground-color;
       border-top: 1px solid $table-border-color;
       border-right: 1px solid $table-border-color;
       border-left: 1px solid $table-border-color;
       border-bottom: none;
+      padding: 0;
+      z-index: 1;
 
       .item {
+        display: flex;
+        align-items: center;
         margin: 0 4px 0 0;
+        height: 100%;
+        line-height: $title-bar-height;
 
         button {
-          @extend %button;
-          line-height: $title-bar-height / 2;
+          background-color: $primary-color;
+          color: $button-foreground-color;
+          border-radius: 2px;
+          font-size: $smaller-font-size;
+          height: $title-bar-height - 4;
           border: none;
-          padding: 3px 8px;
+          padding: 0 8px;
+          margin: 0;
         }
       }
 
@@ -237,6 +199,56 @@
           margin: 0 4px;
         }
       }
+
+      .window-buttons {
+        display: flex;
+        align-self: flex-start;
+        align-items: center;
+        margin: 1px 0 0 auto;
+        pointer-events: initial;
+        padding: 0 4px;
+        background: none;
+
+        button {
+          border-radius: $title-bar-button-size / 2;
+          width: $title-bar-height - 2;
+          height: $title-bar-height - 2;
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          color: $foreground-color;
+
+          &:hover {
+            background: darken($background-color, 10%);
+
+            &:last-child {
+              background: rgba($danger-color, 0.6);
+            }
+          }
+
+          i {
+            display: inline-block;
+            vertical-align: top;
+            line-height: $title-bar-height - 2;
+            text-align: center;
+            font-size: $smaller-font-size;
+            padding: 0;
+          }
+
+          &:not(:last-child) {
+            margin: 0 8px 0 0;
+          }
+
+          &:active {
+            -webkit-transform: translateY(1px);
+            -moz-transform: translateY(1px);
+            -ms-transform: translateY(1px);
+            -o-transform: translateY(1px);
+            transform: translateY(1px);
+          }
+        }
+      }
     }
 
     .window-content {
@@ -244,7 +256,6 @@
       flex: 1 0;
       pointer-events: none;
       width: 100%;
-      height: 100%;
       z-index: 0;
       padding: 0;
       background: none;

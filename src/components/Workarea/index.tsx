@@ -129,7 +129,6 @@ const Workarea: React.FC = (): ReactElement | null => {
     case WorkareaStatus.UserNotFound:
       return <UserNotFound/>;
     case WorkareaStatus.Starting:
-      // Should never happen
       return null;
     case WorkareaStatus.Initializing:
       return (

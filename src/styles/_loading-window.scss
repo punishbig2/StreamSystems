@@ -8,6 +8,7 @@
   top: 0;
   height: 100%;
   width: 100%;
+  background-color: $background-color;
 
   .spinner {
     position: relative;
@@ -37,5 +38,6 @@
 
   h2 {
     font-weight: 500;
+    color: $foreground-color;
   }
 }

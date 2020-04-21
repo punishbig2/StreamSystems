@@ -237,6 +237,7 @@ export const WindowElement: React.FC<Props> = observer((props: Props): ReactElem
       return null;
     return (
       <DefaultWindowButtons isMinimized={store.minimized}
+                            isAdjusted={store.fitToContent}
                             onMinimize={onMinimize}
                             onAdjustSize={onAdjustSize}
                             onClose={onClose}/>

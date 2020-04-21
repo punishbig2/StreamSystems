@@ -1,9 +1,10 @@
 import { OrderTypes } from 'interfaces/mdEntry';
 import { Order } from 'interfaces/order';
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import strings from 'locales';
 import { PresetSizeButton } from 'components/presetSizeButton';
 import { sizeFormatter } from 'utils/sizeFormatter';
+import { Grid, FormControl, FormLabel, OutlinedInput } from '@material-ui/core';
 
 interface Props {
   order: Order;
@@ -18,13 +19,8 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const { order } = props;
   const [size, setSize] = useState<number | null>(order.size);
   const [price, setPrice] = useState<string>(formatValue(order.price, 3));
-  const [input, setInput] = useState<HTMLInputElement | null>(null);
-  useEffect(() => {
-    if (input === null) return;
-    input.select();
-    input.focus();
-  }, [input]);
-  if (!order) return null;
+  if (!order)
+    return null;
   const updateQuantity = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = Number(value);
     if (isNaN(numeric)) {
@@ -63,30 +59,28 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
         </div>
       </div>
       <form onSubmit={onSubmit}>
-        <div className={'order-ticket'}>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Vol</span>
-            </div>
-            <div className={'value'}>
-              <input value={price} onChange={updatePrice}/>
-            </div>
-          </div>
-          <div className={'row'}>
-            <div className={'label'}>
-              <span>Amt</span>
-            </div>
-            <div className={'value'}>
-              <div className={'editor'}>
-                <input value={sizeFormatter(size)} onChange={updateQuantity} autoFocus={true} ref={setInput}/>
-              </div>
-              <div className={'buttons'}>
+        <div className={'ticket'}>
+          <Grid>
+            <FormControl fullWidth margin={'normal'}>
+              <FormLabel htmlFor={'price'}>Vol</FormLabel>
+              <OutlinedInput id={'price'} value={price} onChange={updatePrice} labelWidth={0}/>
+            </FormControl>
+          </Grid>
+          <Grid>
+            <FormControl fullWidth margin={'normal'}>
+              <FormLabel htmlFor={'size'}>Amt</FormLabel>
+              <OutlinedInput id={'size'}
+                             value={sizeFormatter(size)}
+                             inputRef={(input: HTMLInputElement) => input.select()}
+                             labelWidth={0}
+                             onChange={updateQuantity} autoFocus={true}/>
+              <div className={'preset-buttons three'}>
                 {presetSizes.map((value: number) => (
                   <PresetSizeButton key={value} value={value} setValue={setSize}/>
                 ))}
               </div>
-            </div>
-          </div>
+            </FormControl>
+          </Grid>
         </div>
         <div className={'modal-buttons'}>
           <button type={'button'} className={'cancel'} onClick={props.onCancel}>
