@@ -19,7 +19,6 @@ const sideClasses: { [key: string]: string } = {
 const playBeep = async (preferences: UserPreferences) => {
   const src: string = await (async () => {
     const { execSound } = preferences;
-    console.log(execSound);
     if (execSound === 'default') {
       return '/sounds/alert.wav';
     } else {
@@ -46,7 +45,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
           {trade.Symbol} {trade.Tenor} {trade.Strategy} @ {getMessagePrice(trade)}
         </div>
         <div className={'line'}>
-          You {Side.toString() === '1' ? 'buy' : 'sell'} {getMessageSize(trade)} {direction} {trade.MDMkt}
+          You {Side.toString() === '1' ? 'buy' : 'sell'} {getMessageSize(trade)} {direction} {trade.ExecBroker}
         </div>
       </div>
     </div>

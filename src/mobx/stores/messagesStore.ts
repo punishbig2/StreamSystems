@@ -35,14 +35,20 @@ const hasLink = (messages: Message[], item: Message): boolean => {
   return link !== -1;
 };
 
+const isAcceptableFill = (message: Message, index: number, all: Message[]): boolean => {
+  const user: User = workareaStore.user;
+  if (!isFill(message))
+    return false;
+  const linkFound: boolean = hasLink(all, message);
+  if (!linkFound)
+    return true;
+  if ((message.Username !== user.email) && (message.ContraTrader !== user.email))
+    return message.Side === '1';
+  return message.Username === user.email;
+};
+
 const applyFilter = (messages: Message[]): Message[] => {
-  return messages.filter((item: Message, index: number, array: Message[]) => {
-    if (!isFill(item))
-      return false;
-    if (index !== array.findIndex((each: Message) => each.ClOrdID === item.ClOrdID))
-      return false;
-    return hasLink(array, item) && item.Side === '1';
-  });
+  return messages.filter(isAcceptableFill);
 };
 
 export class MessagesStore {
@@ -61,7 +67,7 @@ export class MessagesStore {
     if (message.Username === user.email) {
       this.entries = [message, ...this.entries];
     }
-    if (isFill(message) && !hasLink(this.executions, message)) {
+    if (isAcceptableFill(message, 0, this.executions)) {
       this.executions = [message, ...this.executions];
     }
   }
