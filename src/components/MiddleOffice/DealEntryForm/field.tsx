@@ -22,38 +22,38 @@ export const FormField: React.FC<Props> = (props: Props) => {
           // @ts-ignore
           return value.format('MM/DD/YY');
         } else {
-          throw new Error('date value must be instance of moment.Moment');
+          throw new Error(`date value must be instance of moment.Moment: ${props.name}`);
         }
       case 'time':
         if (value instanceof moment) {
           // @ts-ignore
           return value.format('HH:mm A');
         } else {
-          throw new Error('date value must be instance of moment.Moment');
+          throw new Error(`date value must be instance of moment.Moment: ${props.name}`);
         }
       case 'text':
         if (typeof value === 'string') {
           return value;
         } else {
-          throw new Error('unexpected non string value for string field');
+          throw new Error(`unexpected non string value for string field: ${props.name}`);
         }
       case 'number':
         if (typeof value === 'number') {
           return value.toFixed(props.precision);
         } else {
-          throw new Error('unexpected non numeric value for number field');
+          throw new Error(`unexpected non numeric value for number field: ${props.name}`);
         }
       case 'currency':
         if (typeof value === 'number') {
           return `$${value.toLocaleString()}`;
         } else {
-          throw new Error('unexpected non numeric value for currency field');
+          throw new Error(`unexpected non numeric value for currency field: ${props.name}`);
         }
       case 'percentage':
         if (typeof value === 'number') {
           return `$${value.toFixed(3)}%`;
         } else {
-          throw new Error('unexpected non numeric value for percentage field');
+          throw new Error(`unexpected non numeric value for percentage field: ${props.name}`);
         }
       case 'dropdown':
         return '';
