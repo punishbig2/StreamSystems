@@ -25,9 +25,13 @@ const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
   if (!isFill(message))
     return false;
-  if ((message.Username !== user.email) && (message.ContraTrader !== user.email))
+  if ((message.Username !== user.email)
+    && (message.ContraTrader !== user.email)
+    && (message.MDMkt !== user.firm)
+    && (message.ExecBroker !== user.firm)) {
     return message.Side === '1';
-  return message.Username === user.email;
+  }
+  return message.Username === user.email || message.MDMkt === user.firm;
 };
 
 const applyFilter = (messages: Message[]): Message[] => {
