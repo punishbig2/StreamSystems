@@ -131,6 +131,7 @@ type Endpoints =
   | 'tenors'
   | 'order'
   | 'bulkorders'
+  | 'allonpxchg'
   | 'messages'
   | 'all'
   | 'runorders'
@@ -403,7 +404,7 @@ export class API {
 
   static async cancelAllDarkPoolOrder(currency: string, strategy: string, tenor: string): CancellablePromise<any> {
     const user: User = workareaStore.user;
-    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'all', 'cxlall'), {
+    return post<MessageResponse>(API.buildUrl(API.DarkPool, 'allonpxchg', 'cxl'), {
       User: user.email,
       Symbol: currency,
       Strategy: strategy,
