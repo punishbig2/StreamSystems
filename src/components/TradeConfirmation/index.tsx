@@ -19,7 +19,6 @@ const sideClasses: { [key: string]: string } = {
 const playBeep = async (preferences: UserPreferences) => {
   const src: string = await (async () => {
     const { execSound } = preferences;
-    console.log(execSound);
     if (execSound === 'default') {
       return '/sounds/alert.wav';
     } else {

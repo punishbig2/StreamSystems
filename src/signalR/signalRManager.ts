@@ -315,7 +315,8 @@ export class SignalRManager<A extends Action = AnyAction> {
       case ExecTypes.PartiallyFilled:
         if (ocoMode === OCOModes.PartialEx && message.Username === user.email)
           API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side]);
-        workareaStore.addRecentExecution(message);
+        if (message.Username === user.email)
+          workareaStore.addRecentExecution(message);
         break;
       default:
         break;
