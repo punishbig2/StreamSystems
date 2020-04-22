@@ -202,7 +202,7 @@ export class WorkareaStore {
       const user: User | undefined = users.find((each: User) => each.email === email);
       if (user === undefined) {
         this.status = WorkareaStatus.UserNotFound;
-      } else if (!user.ismiddleoffice) {
+      } else {
         await persistStorage.initialize(user);
         // Update local copy of preferences
         await this.hydrate();
@@ -211,7 +211,7 @@ export class WorkareaStore {
         this.loadingMessage = strings.EstablishingConnection;
         WorkareaStore.cleanupUrl(user.email);
         // Load other stuff
-        const signalRManager: SignalRManager = SignalRManager.getInstance();
+        /*const signalRManager: SignalRManager = SignalRManager.getInstance();
         // Start the loading mode
         this.status = WorkareaStatus.Initializing;
         // Load currencies
@@ -236,9 +236,8 @@ export class WorkareaStore {
         signalRManager.setOnDisconnectedListener(() => {
           this.status = WorkareaStatus.Error;
           this.connected = false;
-        });
-      } else {
-        this.status = WorkareaStatus.MiddleOffice;
+        });*/
+        this.status = WorkareaStatus.Ready;
       }
     } catch (error) {
       this.status = WorkareaStatus.Error;

@@ -1,0 +1,106 @@
+.middle-office {
+  position: absolute;
+
+  top: $window-toolbar-size;
+  left: 0;
+  bottom: $window-footer-size;
+  width: 100%;
+
+  background-color: $light-color;
+  overflow: hidden;
+
+  z-index: 0;
+
+  .left-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 65%;
+
+    .table {
+      height: 100%;
+    }
+  }
+
+  .right-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 35%;
+    padding: 8px;
+
+    .MuiGrid-root {
+      padding: 5px;
+    }
+
+    .MuiFormControl-root {
+      width: 100%;
+
+      &.green {
+        color: #00c580;
+      }
+
+      &.orange {
+        color: #ffa409;
+      }
+
+      &.cream {
+        color: #f4e171;
+      }
+
+      &.grey {
+        color: #e0e0e0;
+      }
+
+      .MuiFormControlLabel-root {
+        line-height: $normal-font-size;
+        color: inherit;
+        margin: 0;
+
+        legend span {
+          display: none;
+        }
+
+        span {
+          font-size: $small-font-size;
+          line-height: $normal-font-size;
+          font-weight: 500;
+          flex-basis: 50%;
+          margin: 0 5px 0 0;
+          color: inherit;
+        }
+
+        .MuiInputBase-root {
+          color: inherit;
+
+          &:before {
+            content: ':';
+            line-height: 1;
+          }
+
+          fieldset {
+            border: none;
+          }
+
+          input {
+            line-height: $normal-font-size;
+            color: inherit;
+            border: none;
+          }
+        }
+      }
+    }
+  }
+
+  button {
+    display: block;
+    margin: 4px auto;
+    height: 32px;
+    background-color: $primary-color;
+    color: $button-foreground-color;
+    border: none;
+    border-radius: 3px;
+  }
+}

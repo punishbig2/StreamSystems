@@ -55,6 +55,16 @@
       &:nth-child(n + 2) {
         margin: 0 0 0 12px;
       }
+
+      &.middle {
+        background-color: $good-color;
+        margin: 0 0 0 30px;
+      }
+
+      &.front {
+        background-color: $danger-color;
+        margin: 0 0 0 30px;
+      }
     }
 
     .pin {

@@ -114,12 +114,7 @@ const Workarea: React.FC = (): ReactElement | null => {
   const renderLoadingModal = (): ReactElement => {
     const message: string = 'We are setting up your preset workspace, this will not take long. Please be patient.';
     return (
-      <MessageBox title={'Creating Workspace'}
-                  message={message}
-                  buttons={() => null}
-                  color={'good'}
-                  icon={'spinner'}/>
-
+      <MessageBox title={'Creating Workspace'} message={message} buttons={() => null} color={'good'} icon={'spinner'}/>
     );
   };
 

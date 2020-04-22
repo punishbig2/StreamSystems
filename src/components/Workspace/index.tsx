@@ -19,6 +19,7 @@ import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 import { BlotterTypes } from 'columns/messageBlotter';
 import { MessageBox } from 'components/MessageBox';
 import { User } from 'interfaces/user';
+import { MiddleOffice } from 'components/MiddleOffice';
 
 interface OwnProps {
   id: string;
@@ -97,6 +98,14 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
     store.addWindow(WindowTypes.PodTile);
   };
 
+  const onToggleMiddleOffice = () => {
+    if (store.isMiddleOfficeVisible) {
+      store.hideMiddleOffice();
+    } else {
+      store.showMiddleOffice();
+    }
+  };
+
   const onAddMessageBlotterTile = () => {
     props.onModify(id);
     store.addWindow(WindowTypes.MessageBlotter);
@@ -164,6 +173,37 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
     );
   };
 
+  const getStandardWorkspaceView = (): ReactElement => {
+    return (
+      <>
+        <WindowManager
+          isDefaultWorkspace={props.isDefault}
+          toast={store.toast}
+          windows={store.windows}
+          getTitleRenderer={getTitleRenderer}
+          getContentRenderer={getContentRenderer}
+          onLayoutModify={() => props.onModify(id)}
+          onClearToast={() => store.showToast(null)}
+          onUpdateAllGeometries={store.updateAllGeometries}
+          onWindowClose={store.removeWindow}/>
+        <ModalWindow
+          render={() => (
+            <ErrorBox title={'Oops, there was an error'} message={store.errorMessage as string}
+                      onClose={store.hideErrorModal}/>
+          )}
+          visible={store.errorMessage !== null}/>
+      </>
+    );
+  };
+
+  const getCentralView = (): ReactElement => {
+    if (store.isMiddleOfficeVisible) {
+      return <MiddleOffice/>;
+    } else {
+      return getStandardWorkspaceView();
+    }
+  };
+
   const render = () => {
     return (
       <div className={props.visible ? 'visible' : 'invisible'}>
@@ -175,29 +215,21 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
             <button onClick={onAddMessageBlotterTile}>
               <i className={'fa fa-eye'}/> Add Blotter
             </button>
+            <button className={store.isMiddleOfficeVisible ? 'middle' : 'front'} onClick={onToggleMiddleOffice}>
+              {
+                store.isMiddleOfficeVisible
+                  ? <><i className={'fa fa-arrow-left'}/> Front Office</>
+                  : <><i className={'fa fa-user-shield'}/> Middle Office</>
+              }
+            </button>
             <ExecutionBanner/>
             {getRightPanelButtons()}
           </div>
         </div>
-        <WindowManager
-          isDefaultWorkspace={props.isDefault}
-          toast={store.toast}
-          windows={store.windows}
-          getTitleRenderer={getTitleRenderer}
-          getContentRenderer={getContentRenderer}
-          onLayoutModify={() => props.onModify(id)}
-          onClearToast={() => store.showToast(null)}
-          onUpdateAllGeometries={store.updateAllGeometries}
-          onWindowClose={store.removeWindow}/>
+        {getCentralView()}
         <ModalWindow render={() => (<UserProfileModal onCancel={store.hideUserProfileModal}/>)}
                      visible={store.isUserProfileModalVisible}/>
         <ModalWindow render={renderLoadingModal} visible={!!store.busyMessage}/>
-        <ModalWindow
-          render={() => (
-            <ErrorBox title={'Oops, there was an error'} message={store.errorMessage as string}
-                      onClose={store.hideErrorModal}/>
-          )}
-          visible={store.errorMessage !== null}/>
       </div>
     );
   };

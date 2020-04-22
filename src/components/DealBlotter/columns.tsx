@@ -1,0 +1,66 @@
+import { ColumnSpec } from 'components/Table/columnSpecification';
+
+export const columns: ColumnSpec[] = [{
+  name: 'deal-id',
+  header: (props: any) => 'Deal Id',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'status',
+  header: (props: any) => 'Status',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'currency',
+  header: (props: any) => 'Currency',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'strategy',
+  header: (props: any) => 'Strategy',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'size',
+  header: (props: any) => 'Size',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'level',
+  header: (props: any) => 'Level',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'buyer',
+  header: (props: any) => 'Buyer',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'seller',
+  header: (props: any) => 'Seller',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}, {
+  name: 'venue',
+  header: (props: any) => 'Venue',
+  render: (props: any) => '',
+  filterable: true,
+  width: 4,
+  template: '12345',
+}];
