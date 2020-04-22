@@ -45,7 +45,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
           {trade.Symbol} {trade.Tenor} {trade.Strategy} @ {getMessagePrice(trade)}
         </div>
         <div className={'line'}>
-          You {Side.toString() === '1' ? 'buy' : 'sell'} {getMessageSize(trade)} {direction} {trade.MDMkt}
+          You {Side.toString() === '1' ? 'buy' : 'sell'} {getMessageSize(trade)} {direction} {trade.ExecBroker}
         </div>
       </div>
     </div>
