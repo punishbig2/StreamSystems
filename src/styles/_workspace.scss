@@ -37,7 +37,7 @@
     }
 
     &.minimized {
-      max-height: $title-bar-height + 2;
+      max-height: $title-bar-height + 1;
       min-height: 0;
       overflow: hidden;
       border-bottom: 1px solid $table-border-color;
@@ -147,10 +147,16 @@
           color: $button-foreground-color;
           border-radius: 2px;
           font-size: $smaller-font-size;
-          height: $title-bar-height - 4;
+          pointer-events: all;
+          height: $title-bar-height - 5;
+          line-height: $title-bar-height - 5;
           border: none;
           padding: 0 8px;
           margin: 0;
+
+          &:hover {
+            background-color: darken($primary-color, 10%);
+          }
         }
       }
 
