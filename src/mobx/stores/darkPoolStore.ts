@@ -123,6 +123,8 @@ export class DarkPoolStore {
     const currentValue: string | null = localStorage.getItem($$(currency, strategy, tenor, 'DPPx'));
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
+    } else {
+      this.publishedPrice = null;
     }
   }
 

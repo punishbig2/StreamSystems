@@ -21,30 +21,17 @@ const isFill = (item: Message): boolean => {
     || item.OrdStatus === ExecTypes.Filled;
 };
 
-const hasLink = (messages: Message[], item: Message): boolean => {
-  const getOrderLinkID = (message: any): string => {
-    if (message.hasOwnProperty('ClOrdLinkID')) {
-      return message.ClOrdLinkID;
-    } else {
-      return message['583'];
-    }
-  };
-  const link: number = messages.findIndex((each: Message) => {
-    return getOrderLinkID(each) === item.ClOrdID;
-  });
-  return link !== -1;
-};
-
-const isAcceptableFill = (message: Message, index: number, all: Message[]): boolean => {
+const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
   if (!isFill(message))
     return false;
-  const linkFound: boolean = hasLink(all, message);
-  if (!linkFound)
-    return true;
-  if ((message.Username !== user.email) && (message.ContraTrader !== user.email))
+  if ((message.Username !== user.email)
+    && (message.ContraTrader !== user.email)
+    && (message.MDMkt !== user.firm)
+    && (message.ExecBroker !== user.firm)) {
     return message.Side === '1';
-  return message.Username === user.email;
+  }
+  return message.Username === user.email || message.MDMkt === user.firm;
 };
 
 const applyFilter = (messages: Message[]): Message[] => {
@@ -67,7 +54,7 @@ export class MessagesStore {
     if (message.Username === user.email) {
       this.entries = [message, ...this.entries];
     }
-    if (isAcceptableFill(message, 0, this.executions)) {
+    if (isAcceptableFill(message)) {
       this.executions = [message, ...this.executions];
     }
   }

@@ -183,6 +183,12 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     return internalValue;
   })();
 
+  const onBlurEnsureMinimumSize = () => {
+    if (Number(internalValue) >= minimumSize)
+      return;
+    setInternalValue(sizeFormatter(minimumSize));
+  };
+
   const items: ReactNode[] = [
     <NumericInput
       id={$$('run-size-', order.uid(), order.type)}
@@ -193,6 +199,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       type={'size'}
       value={displayValue}
       onNavigate={props.onNavigate}
+      onBlur={onBlurEnsureMinimumSize}
       onChange={onChangeWrapper}
       onSubmit={onSubmit}
       onCancelEdit={reset}/>,
