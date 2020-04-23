@@ -4,13 +4,10 @@ import { W } from 'interfaces/w';
 import { SignalRManager } from 'signalR/signalRManager';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
-import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
+import { MDEntry } from 'interfaces/mdEntry';
 import { DarkPoolMessage } from 'interfaces/message';
 import { API } from 'API';
 import { $$ } from 'utils/stringPaster';
-import { PodTable } from 'interfaces/podTable';
-import { orderSorter } from 'components/PodTile/helpers';
-import { PodRowStatus } from 'interfaces/podRow';
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];
@@ -19,29 +16,11 @@ export class DarkPoolStore {
   @observable currentOrder: Order | null = null;
 
   @computed
-  get depth(): PodTable | null {
+  get depth(): Order[] {
     const { orders } = this;
     const user: User = workareaStore.user;
-    const mine: Order | undefined = orders.find((o: Order) => o.user === user.email);
-    if (!mine)
-      return null;
-    const filtered = orders.filter((o: Order) => o.type === mine.type);
-    // Sort according to the type
-    filtered.sort(orderSorter(mine.type));
-    // Now convert it to a PodTable
-    return filtered.reduce((table: PodTable, order: Order, index: number): PodTable => {
-      table[index] = {
-        id: index.toString(),
-        bid: order.type === OrderTypes.Bid ? order : {} as Order,
-        ofr: order.type === OrderTypes.Ofr ? order : {} as Order,
-        darkPrice: null,
-        spread: null,
-        mid: null,
-        tenor: order.tenor,
-        status: PodRowStatus.Normal,
-      };
-      return table;
-    }, {});
+    // Extract only my orders
+    return orders.filter((o: Order) => o.user === user.email);
   }
 
   @computed

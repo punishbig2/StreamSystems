@@ -2,19 +2,19 @@ import React from 'react';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { Order, OrderStatus } from 'interfaces/order';
 import { xPoints } from 'timesPolygon';
+import { OrderTypes } from 'interfaces/mdEntry';
 
-const getSide = ({ bid }: any): string => {
-  if (!bid)
+const getSide = (order: Order): string => {
+  if (order.type === OrderTypes.Ofr)
     return 'Sell';
-  return !!bid.price ? 'Buy' : 'Sell';
+  return 'Buy';
 };
 
 const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
   {
     name: 'ref',
     header: () => 'REF',
-    render: ({ bid, ofr }: any) => {
-      const order: Order = !bid || !bid.price ? ofr : bid;
+    render: (order: Order) => {
       const classes: string[] = ['times'];
       if ((order.status & OrderStatus.Owned) !== 0)
         classes.push('clickable');
@@ -34,7 +34,7 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
   {
     name: 'side',
     header: () => 'Side',
-    render: (row: any) => {
+    render: (row: Order) => {
       const side: string = getSide(row);
       return <div className={side.toLowerCase()}>{side}</div>;
     },
@@ -44,11 +44,9 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
   {
     name: 'size',
     header: () => 'Qty',
-    render: (row: any) => {
-      const { bid, ofr } = row;
-      const order: Order = !bid || !bid.price ? ofr : bid;
-      const side: string = getSide(row);
-      return <div className={side.toLowerCase()}>{order.size}</div>;
+    render: (order: Order) => {
+      const side: string = getSide(order);
+      return <div className={side.toLowerCase()} title={order.user}>{order.size}</div>;
     },
     width: 2,
     template: '99999.99',

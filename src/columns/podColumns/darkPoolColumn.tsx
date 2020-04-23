@@ -15,8 +15,6 @@ import { observer } from 'mobx-react';
 import { DarkPoolTicket } from 'components/DarkPoolTicket';
 import { Order, DarkPoolOrder } from 'interfaces/order';
 import { DarkPoolTooltip } from 'components/Table/CellRenderers/Price/darkPoolTooltip';
-import { PodTable } from 'interfaces/podTable';
-import { PodRow } from 'interfaces/podRow';
 
 type Props = PodRowProps;
 
@@ -53,14 +51,11 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   const renderTooltip = () => {
-    const depth: PodTable | null = store.depth;
-    if (depth === null)
-      return null;
-    const values: PodRow[] = Object.values(depth);
-    if (values.length === 0)
+    const depth: Order[] = store.depth;
+    if (depth.length === 0)
       return null;
     return (
-      <DarkPoolTooltip onCancelOrder={store.cancel} data={depth}/>
+      <DarkPoolTooltip onCancelOrder={store.cancel} orders={depth}/>
     );
   };
 

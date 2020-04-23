@@ -142,7 +142,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
           <Grid>
             <FormControl fullWidth margin={'normal'}>
-              <FormLabel htmlFor={'inst'}>Inst</FormLabel>
+              <FormLabel htmlFor={'inst'}>Instructions</FormLabel>
               <Select
                 id={'inst'}
                 value={inst}
