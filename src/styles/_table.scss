@@ -268,6 +268,7 @@ $spinner-size: $table-row-height - 6;
             display: block;
             font-size: $small-font-size;
             line-height: inherit;
+            margin: 0 auto;
           }
 
           &:hover {
@@ -313,8 +314,8 @@ $spinner-size: $table-row-height - 6;
             margin: 0 auto;
 
             svg {
-              display: inline-block;
-              margin: ($table-row-height - $red-x-size) / 2;
+              display: block;
+              margin: ($table-row-height - $red-x-size) / 2 0;
               width: $red-x-size;
               height: $red-x-size;
               border-radius: $red-x-size;

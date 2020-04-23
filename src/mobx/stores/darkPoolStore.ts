@@ -116,11 +116,11 @@ export class DarkPoolStore {
     const user: User = workareaStore.user;
     if (!user.isbroker)
       throw new Error('non broker users cannot publish prices');
+    // Update immediately to make it feel faster
+    this.publishedPrice = price;
     await API.cancelAllDarkPoolOrder(currency, strategy, tenor);
     // Call the API
     await API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price !== null ? price : '');
-    // Update immediately to make it feel faster
-    this.publishedPrice = price;
   }
 
   @action.bound
