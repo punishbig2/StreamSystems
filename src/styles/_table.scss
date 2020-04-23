@@ -528,7 +528,10 @@ $spinner-size: $table-row-height - 6;
 
           &.dark-pool {
             input {
-              background-color: $yellow-background;
+              background-color: $darkpool-background-color;
+            }
+            &:not(.owned) {
+              color: $darkpool-foreground-color;
             }
           }
 
