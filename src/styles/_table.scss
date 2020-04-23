@@ -239,6 +239,9 @@ $spinner-size: $table-row-height - 6;
           border-left: 1px solid $table-border-color;
         }
 
+        .padded {
+          padding: 0 5px;
+        }
 
         .tenor-layout {
           font-weight: ($table-font-weight + 300) !important;

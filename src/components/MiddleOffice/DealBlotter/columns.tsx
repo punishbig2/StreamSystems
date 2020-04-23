@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { getMessageSize, getMessagePrice, getMessageBuyer, getMessageSeller, getLink } from 'messageUtils';
 import { sizeFormatter } from 'utils/sizeFormatter';
@@ -8,7 +8,7 @@ import { Message } from 'interfaces/message';
 export const columns: ColumnSpec[] = [{
   name: 'deal-id',
   header: () => 'Deal Id',
-  render: (props: Message): string => getLink(props),
+  render: (props: Message): ReactElement => <div className={'padded'}>{getLink(props)}</div>,
   filterable: true,
   width: 4,
   template: '12345',
