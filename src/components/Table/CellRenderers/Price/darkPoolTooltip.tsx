@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { PodTable } from 'interfaces/podTable';
 import { Table } from 'components/Table/index';
 import columns from 'columns/darkPoolDepth';
 import { Cell } from 'components/Table/Cell';
@@ -8,7 +7,7 @@ import { Order } from 'interfaces/order';
 import { getCellWidth } from 'components/Table/helpers';
 
 interface OwnProps {
-  data: PodTable | null;
+  orders: Order[];
   onCancelOrder: (order: Order) => void;
 }
 
@@ -16,7 +15,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any): ReactElement => {
     const { columns, row } = props;
     return (
-      <div className={'tr'} key={row.id}>
+      <div className={'tr'} key={row.orderId}>
         {columns.map((column: ColumnSpec) => {
           const name: string = column.name;
           const width: string = getCellWidth(column.width, props.totalWidth, props.containerWidth);
@@ -27,8 +26,8 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
       </div>
     );
   };
-  if (props.data === null) return null;
   return (
-    <Table columns={columns(props.onCancelOrder)} scrollable={false} renderRow={renderRow} rows={props.data}/>
+    <Table className={'padded'} columns={columns(props.onCancelOrder)} scrollable={false} renderRow={renderRow}
+           rows={props.orders}/>
   );
 };

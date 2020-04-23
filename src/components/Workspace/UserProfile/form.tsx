@@ -70,9 +70,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <div className={'title'}>
                 {user.email}
               </div>
-              <div className={'sub-title'}>
-                {userType}/{user.firm}
-              </div>
             </div>
           </div>
           <div className={'fx-options'}>

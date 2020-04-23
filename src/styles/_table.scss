@@ -33,6 +33,11 @@ $spinner-size: $table-row-height - 6;
     flex: 1 0;
   }
 
+  &.padded {
+    border-left: 1px solid $table-border-color;
+    border-right: 1px solid $table-border-color;
+  }
+
   .thead {
     .tr {
       white-space: nowrap;
@@ -226,7 +231,6 @@ $spinner-size: $table-row-height - 6;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
-        padding: 0 8px;
 
         line-height: $table-row-height;
         height: $table-row-height;

@@ -142,7 +142,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
           <Grid>
             <FormControl fullWidth margin={'normal'}>
-              <FormLabel htmlFor={'inst'}>Inst</FormLabel>
+              <FormLabel htmlFor={'inst'}>Instructions</FormLabel>
               <Select
                 id={'inst'}
                 value={inst}
@@ -154,7 +154,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 variant={'outlined'}>
                 <MenuItem value={'G'}>AON</MenuItem>
                 <MenuItem value={'D'}>
-                  <sup>1</sup>/<sub>2</sub>&nbsp; AOD
+                  <sup>1</sup>/<sub>2</sub>&nbsp;ON
                 </MenuItem>
               </Select>
             </FormControl>

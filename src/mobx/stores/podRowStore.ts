@@ -35,11 +35,13 @@ export class PodRowStore {
   }
 
   @action.bound
-  public setError(error: Error) {
+  public setError(error: Error | null) {
     if (error === InvertedMarketsError) {
       this.internalRow = { ...this.internalRow, status: PodRowStatus.InvertedMarketsError };
     } else if (error === SizeTooSmallError) {
       this.internalRow = { ...this.internalRow, status: PodRowStatus.SizeTooSmall };
+    } else {
+      this.internalRow = { ...this.internalRow, status: PodRowStatus.Normal };
     }
   }
 }
