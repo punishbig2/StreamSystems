@@ -46,7 +46,7 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
     header: () => 'Qty',
     render: (order: Order) => {
       const side: string = getSide(order);
-      return <div className={side.toLowerCase()} title={order.user}>{order.size}</div>;
+      return <div className={side.toLowerCase()}>{order.size}</div>;
     },
     width: 2,
     template: '99999.99',
