@@ -1,0 +1,29 @@
+$floating-button-size: 48px;
+.floating-button {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: $floating-button-size / 2;
+  right: $floating-button-size / 2;
+  width: $floating-button-size;
+  height: $floating-button-size;
+  border-radius: $floating-button-size / 2;
+  background-color: $primary-color;
+  box-shadow: 0 2px 8px -3px black;
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(1px);
+  }
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+
+  i {
+    display: block;
+    color: $button-foreground-color;
+    font-size: $floating-button-size / 2;
+  }
+}

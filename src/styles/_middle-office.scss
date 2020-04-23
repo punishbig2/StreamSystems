@@ -1,11 +1,13 @@
-$cream-form-color: #f4e171;
-$green-form-color: #00c580;
-$orange-form-color: #ffa409;
-$grey-form-color: #f1f1f1;
+$cream-form-color: saturate(mix($foreground-color, yellow), 10%);
+$green-form-color: saturate(mix($foreground-color, green), 30%);
+$orange-form-color: saturate(mix($foreground-color, orange), 80%);
+$grey-form-color: $foreground-color;
 $field-height: $normal-font-size + 10;
 
 .middle-office {
   position: absolute;
+  display: flex;
+  align-items: stretch;
 
   top: $window-toolbar-size;
   left: 0;
@@ -17,11 +19,9 @@ $field-height: $normal-font-size + 10;
   z-index: 0;
 
   .left-panel {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 65%;
+    position: relative;
+    width: 50%;
+    margin-top: -1px;
 
     .table {
       height: 100%;
@@ -29,18 +29,21 @@ $field-height: $normal-font-size + 10;
   }
 
   .right-panel {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: 35%;
-    padding: 8px;
+    width: 50%;
 
-    overflow-y: auto;
-    border-left: 1px solid rgba(0, 0, 0, 0.1);
-    background-color: $dark-background-form-background-color;
+    border-left: 1px solid $table-border-color;
+    background-color: $background-color;
+
+    .legs {
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 100%;
+    }
 
     form {
+      position: relative;
+      height: 100%;
+
       fieldset {
         border: none;
         width: 100%;
@@ -52,7 +55,9 @@ $field-height: $normal-font-size + 10;
           font-size: $small-font-size;
           font-weight: 800;
           text-decoration: underline;
-          margin: 12px 0;
+          margin: 22px 0 0 0;
+          padding: 4px;
+          width: 100%;
         }
       }
     }
@@ -142,17 +147,24 @@ $field-height: $normal-font-size + 10;
 
 .form-group {
   position: relative;
-  padding: 8px;
+  border-right: 1px dashed $table-border-color;
+
+  &:not(:first-child) {
+    padding: 8px 0 0 0;
+
+    h1 {
+      border-top: 1px dashed $table-border-color;
+    }
+  }
 
   h1 {
-    font-size: $medium-font-size;
-    font-weight: 600;
-    font-style: italic;
-    text-align: center;
-    color: $orange-form-color;
+    font-size: $normal-font-size;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: $foreground-color;
     margin: 0;
-    padding: 0;
     line-height: 2em;
+    padding: 0 8px;
   }
 
   .expand-button {
@@ -164,7 +176,7 @@ $field-height: $normal-font-size + 10;
     line-height: 2em;
     width: 2em;
     height: 2em;
-    background-color: darken($dark-background-form-background-color, 5%);
+    background-color: darken($background-color, 5%);
     border-radius: 1em;
     transition: transform 0.25s;
     will-change: transform;

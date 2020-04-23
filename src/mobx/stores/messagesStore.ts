@@ -1,45 +1,14 @@
-import { Message, ExecTypes } from 'interfaces/message';
+import { Message } from 'interfaces/message';
 import { observable, action } from 'mobx';
 import { API } from 'API';
 import { SignalRManager } from 'signalR/signalRManager';
-import moment from 'moment';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
-import { getUserFromUrl } from 'utils/getUserFromUrl';
-
-const MESSAGE_TIME_FORMAT: string = 'YYYYMMDD-HH:mm:ss';
-const sortByTimeDescending = (m1: Message, m2: Message): number => {
-  const M1: moment.Moment = moment(m1.TransactTime, MESSAGE_TIME_FORMAT);
-  const M2: moment.Moment = moment(m2.TransactTime, MESSAGE_TIME_FORMAT);
-  return -M1.diff(M2);
-};
-
-const isFill = (item: Message): boolean => {
-  return item.ExecType === ExecTypes.PartiallyFilled
-    || item.ExecType === ExecTypes.Filled
-    || item.OrdStatus === ExecTypes.PartiallyFilled
-    || item.OrdStatus === ExecTypes.Filled;
-};
-
-const isAcceptableFill = (message: Message): boolean => {
-  const user: User = workareaStore.user;
-  if (!isFill(message))
-    return false;
-  if ((message.Username !== user.email)
-    && (message.ContraTrader !== user.email)
-    && (message.MDMkt !== user.firm)
-    && (message.ExecBroker !== user.firm)) {
-    return message.Side === '1';
-  }
-  return message.Username === user.email || message.MDMkt === user.firm;
-};
-
-const applyFilter = (messages: Message[]): Message[] => {
-  return messages.filter(isAcceptableFill);
-};
+import { isAcceptableFill, isFill, sortByTimeDescending, isMyMessage } from 'messageUtils';
 
 export class MessagesStore {
   @observable.ref entries: Message[] = [];
+  @observable.ref systemExecutions: Message[] = [];
   @observable.ref executions: Message[] = [];
   @observable connected: boolean = false;
   private cleanup: (() => void) | null = null;
@@ -51,12 +20,12 @@ export class MessagesStore {
   @action.bound
   public addEntry(message: Message) {
     const user: User = workareaStore.user;
-    if (message.Username === user.email) {
+    if (message.Username === user.email)
       this.entries = [message, ...this.entries];
-    }
-    if (isAcceptableFill(message)) {
+    if (isAcceptableFill(message))
       this.executions = [message, ...this.executions];
-    }
+    if (isFill(message))
+      this.systemExecutions = [message, ...this.systemExecutions];
   }
 
   @action.bound
@@ -66,9 +35,9 @@ export class MessagesStore {
     const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
 
     entries.sort(sortByTimeDescending);
-    this.executions = applyFilter(entries);
-    // Query the messages now
-    this.entries = entries.filter((entry: Message) => entry.Username === getUserFromUrl());
+    this.executions = entries.filter(isAcceptableFill);
+    this.entries = entries.filter(isMyMessage);
+    this.systemExecutions = entries.filter(isFill);
   }
 
   @action.bound

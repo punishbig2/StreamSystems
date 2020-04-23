@@ -1,6 +1,7 @@
 import { SymbolType, StrategyType, TenorType } from 'interfaces/w';
 
 export enum ExecTypes {
+  None = '',
   New = '0',
   PartiallyFilled = '1',
   Filled = '2',
@@ -51,6 +52,7 @@ export interface Message {
   ContraTrader: string;
   ExDestination?: string;
   ClOrdLinkId?: string;
+  ['583']?: string;
 }
 
 export interface DarkPoolMessage {

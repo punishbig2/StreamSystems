@@ -223,6 +223,10 @@ $spinner-size: $table-row-height - 6;
         font-weight: inherit;
         text-align: center;
         color: inherit;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0 8px;
 
         line-height: $table-row-height;
         height: $table-row-height;

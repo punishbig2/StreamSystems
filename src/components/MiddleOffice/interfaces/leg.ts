@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 export interface Leg {
+  type: string;
   notional: number;
   premium: number;
   price: number;
