@@ -135,9 +135,8 @@ export class DarkPoolStore {
 
   @action.bound
   public createOrder(order: DarkPoolOrder) {
-    const user: User = workareaStore.user;
     this.closeTicket();
-    API.createDarkPoolOrder(order, user);
+    API.createDarkPoolOrder(order);
     // Ideally we should update `currentOrder'
   }
 

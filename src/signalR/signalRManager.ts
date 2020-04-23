@@ -122,21 +122,10 @@ export class SignalRManager<A extends Action = AnyAction> {
       connection.onreconnecting((error?: Error) => {
       });
       // Install update market handler
-      connection.on('updateMarketData', this.synchronize(this.onUpdateMarketData));
-      connection.on('updateDarkPoolPx', this.synchronize(this.onUpdateDarkPoolPx));
+      connection.on('updateMarketData', this.onUpdateMarketData);
+      connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
     }
   };
-
-  /**
-   * Make these callbacks run exactly when they should, i.e. after all events have
-   * been processed in the corresponding tick of the clock
-   *
-   * @param fn
-   */
-  private synchronize = (fn: (...args: any[]) => any) =>
-    (...args: any[]) => {
-      setTimeout(() => fn(...args), 0);
-    };
 
   private onUpdateMarketData = (message: string): void => {
     const w: W = JSON.parse(message);
@@ -303,6 +292,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     const ocoMode: OCOModes = userProfile.oco;
     if (message.Username !== user.email)
       return;
+    console.log(message);
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;

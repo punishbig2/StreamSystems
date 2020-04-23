@@ -373,11 +373,15 @@ export class API {
     return get<string[]>(API.buildUrl(API.Config, 'markets', 'get'));
   }
 
-  static async createDarkPoolOrder(order: DarkPoolOrder, user: User): CancellablePromise<any> {
+  static async createDarkPoolOrder(order: DarkPoolOrder): CancellablePromise<any> {
+    const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
     if (user.isbroker && order.MDMkt === STRM) {
       throw new Error('brokers cannot create orders when in streaming mode');
     } else if (!user.isbroker) {
       order.MDMkt = user.firm;
+    } else {
+      order.MDMkt = personality;
     }
     return post<MessageResponse>(
       API.buildUrl(API.DarkPool, 'order', 'create'),
