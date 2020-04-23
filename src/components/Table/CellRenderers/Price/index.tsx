@@ -16,6 +16,7 @@ import { priceFormatter } from 'utils/priceFormatter';
 import { useValueListener } from 'components/Table/CellRenderers/Price/hooks/useValueListener';
 import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';
 import { OrderStatus } from 'interfaces/order';
+import { CircularSpinner } from 'circularSpinner';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -200,25 +201,25 @@ export const Price: React.FC<Props> = (props: Props) => {
     if ((props.status & OrderStatus.BeingCreated) !== 0) {
       return (
         <div className={'spinner'}>
-          <span>Creating&hellip;</span>
+          <CircularSpinner/><span>Creating&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
       return (
         <div className={'spinner'}>
-          <span>Cancelling&hellip;</span>
+          <CircularSpinner/><span>Cancelling&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
       return (
         <div className={'spinner'}>
-          <span>Loading&hellip;</span>
+          <CircularSpinner/><span>Loading&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.Publishing) !== 0) {
       return (
         <div className={'spinner'}>
-          <span>Pub&hellip;</span>
+          <CircularSpinner/><span>Pub&hellip;</span>
         </div>
       );
     }

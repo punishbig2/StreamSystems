@@ -14,7 +14,7 @@
     transition: transform 0.15s linear;
     font-size: $normal-font-size;
     padding: 0 16px;
-    border-bottom: 1px solid desaturate(darken($background-color, 25%), 35%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.10);
     height: $window-toolbar-size;
     line-height: $window-toolbar-size;
 
@@ -27,16 +27,17 @@
       padding: 0 8px;
 
       .execution-banner-item {
-        font-size: $table-font-size;
+        font-size: $small-font-size;
         font-weight: 500;
         font-family: $table-font-family;
         line-height: inherit;
-        padding: 0 16px;
-        border: 1px solid rgba($foreground-color, 0.10);
-        background-color: rgba($foreground-color, 0.08);
-        margin: 0 4px;
+        padding: 0 4px;
+        border: 1px solid rgba($foreground-color, 0.05);
+        background-color: rgba($foreground-color, 0.025);
+        margin: 0 2px;
         border-radius: 2px;
         color: $foreground-color;
+        word-spacing: 2px;
       }
     }
 

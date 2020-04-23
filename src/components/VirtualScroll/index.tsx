@@ -5,9 +5,7 @@ interface Props {
   itemSize: number;
 }
 
-export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
-  props: React.PropsWithChildren<Props>,
-) => {
+export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (props: React.PropsWithChildren<Props>) => {
   const { itemSize } = props;
   const [offset, setOffset] = useState<number>(0);
   const [visibleCount, setVisibleCount] = useState<number>(0);

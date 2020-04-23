@@ -1,3 +1,9 @@
+$cream-form-color: #f4e171;
+$green-form-color: #00c580;
+$orange-form-color: #ffa409;
+$grey-form-color: #f1f1f1;
+$field-height: $normal-font-size + 10;
+
 .middle-office {
   position: absolute;
 
@@ -7,7 +13,6 @@
   width: 100%;
 
   background-color: $light-color;
-  overflow: hidden;
 
   z-index: 0;
 
@@ -31,42 +36,73 @@
     width: 35%;
     padding: 8px;
 
-    .MuiGrid-root {
-      padding: 5px;
+    overflow-y: auto;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: $dark-background-form-background-color;
+
+    form {
+      fieldset {
+        border: none;
+        width: 100%;
+
+        legend {
+          display: block;
+          color: lighten($grey-form-color, 5%);
+          text-align: center;
+          font-size: $small-font-size;
+          font-weight: 800;
+          text-decoration: underline;
+          margin: 12px 0;
+        }
+      }
     }
 
     .MuiFormControl-root {
       width: 100%;
+      line-height: 1;
 
       &.green {
-        color: #00c580;
+        color: $green-form-color;
       }
 
       &.orange {
-        color: #ffa409;
+        color: $orange-form-color;
       }
 
       &.cream {
-        color: #f4e171;
+        color: $cream-form-color;
       }
 
       &.grey {
-        color: #e0e0e0;
+        color: $grey-form-color;
+      }
+
+      &.negative {
+        .MuiFormControlLabel-root {
+          .MuiInputBase-root {
+            input {
+              color: $text-color-red;
+            }
+          }
+        }
       }
 
       .MuiFormControlLabel-root {
-        line-height: $normal-font-size;
+        line-height: $field-height;
         color: inherit;
         margin: 0;
+        cursor: default;
 
-        legend span {
-          display: none;
+        legend {
+          span {
+            display: none;
+          }
         }
 
         span {
           font-size: $small-font-size;
-          line-height: $normal-font-size;
-          font-weight: 500;
+          line-height: $field-height;
+          font-weight: 600;
           flex-basis: 50%;
           margin: 0 5px 0 0;
           color: inherit;
@@ -75,19 +111,16 @@
         .MuiInputBase-root {
           color: inherit;
 
-          &:before {
-            content: ':';
-            line-height: 1;
-          }
-
           fieldset {
             border: none;
           }
 
           input {
-            line-height: $normal-font-size;
+            height: $field-height;
+            line-height: $field-height;
             color: inherit;
             border: none;
+            font-weight: 400;
           }
         }
       }
@@ -98,9 +131,52 @@
     display: block;
     margin: 4px auto;
     height: 32px;
+    width: 100%;
+    max-width: 120px;
     background-color: $primary-color;
     color: $button-foreground-color;
     border: none;
     border-radius: 3px;
   }
 }
+
+.form-group {
+  position: relative;
+  padding: 8px;
+
+  h1 {
+    font-size: $medium-font-size;
+    font-weight: 600;
+    font-style: italic;
+    text-align: center;
+    color: $orange-form-color;
+    margin: 0;
+    padding: 0;
+    line-height: 2em;
+  }
+
+  .expand-button {
+    position: absolute;
+    color: white;
+    top: 0;
+    right: 8px;
+    text-align: center;
+    line-height: 2em;
+    width: 2em;
+    height: 2em;
+    background-color: darken($dark-background-form-background-color, 5%);
+    border-radius: 1em;
+    transition: transform 0.25s;
+    will-change: transform;
+    background-image: url('/images/double-angle.svg');
+    background-size: 0.75em;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    &.expanded {
+      transform: rotate(90deg);
+      box-shadow: inset 0 1px 5px -2px black;
+    }
+  }
+}
+

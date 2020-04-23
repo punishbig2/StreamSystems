@@ -119,6 +119,12 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
 
   const getBody = (rowProps: any) => {
     const rows = rowProps;
+    if (rows.length === 0)
+      return (
+        <div className={'empty-table'}>
+          <h1>There's no data yet</h1>
+        </div>
+      );
     const sortFn = getSortFn();
     if (sortFn !== undefined)
       rows.sort(sortFn);

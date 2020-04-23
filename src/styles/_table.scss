@@ -10,6 +10,20 @@ $spinner-size: $table-row-height - 6;
   flex-direction: column;
   height: 100%;
 
+  .empty-table {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background-color: $background-color;
+    h1 {
+      font-size: 1.5 * $large-font-size;
+      font-weight: 500;
+      font-style: italic;
+      color: rgba($foreground-color, 0.25);
+    }
+  }
+
   .thead {
     flex: 0 1;
   }
@@ -321,11 +335,28 @@ $spinner-size: $table-row-height - 6;
           height: inherit;
 
           &.busy {
-            background-image: url('/images/size-spinner.gif');
-            background-size: $spinner-size;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-origin: padding-box;
+            &:before, &:after {
+              position: absolute;
+              width: 4px;
+              height: 4px;
+              border-radius: 2px;
+              background-color: $foreground-color;
+              top: $table-row-height / 2 - 2;
+              left: 50%;
+            }
+
+            &:before {
+              animation: blink 1s infinite linear 0.5s;
+              content: '';
+              margin-left: -3px;
+            }
+
+
+            &:after {
+              animation: blink 1s infinite linear;
+              content: '';
+              margin-left: 3px;
+            }
 
             input {
               color: transparent;
@@ -552,23 +583,18 @@ $spinner-size: $table-row-height - 6;
             }
 
             .spinner {
+              display: flex;
+              align-items: center;
               font-size: $table-font-size - 4;
               line-height: $table-row-height;
               height: $table-row-height;
               width: 100%;
               text-align: left;
-              background-image: url('/images/spinner.gif');
-              background-size: $spinner-size;
-              background-repeat: no-repeat;
-              background-position: 8px ($table-row-height - $spinner-size) / 2;
-              background-origin: padding-box;
               color: $text-color-black;
               opacity: 0.75;
 
               span {
                 display: block;
-                padding-left: $spinner-size + 12px;
-                line-height: $table-row-height + 1;
                 background: none;
               }
             }

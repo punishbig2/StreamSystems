@@ -1,13 +1,13 @@
 import React, { ReactElement } from 'react';
 import { Grid } from '@material-ui/core';
-import { FormField } from 'components/MiddleOffice/DealEntryForm/field';
+import { FormField } from 'components/MiddleOffice/field';
 import moment from 'moment';
 
 interface Props {
   currencies: string[],
 }
 
-export const SummaryLegDetails: React.FC<Props> = (props: Props): ReactElement | null => {
+export const SummaryLegDetailsForm: React.FC<Props> = (props: Props): ReactElement | null => {
   const ccy1Depo: string = `${props.currencies[0]}Depo`;
   const ccy2Depo: string = `${props.currencies[1]}Depo`;
   const data: any = {
@@ -31,13 +31,28 @@ export const SummaryLegDetails: React.FC<Props> = (props: Props): ReactElement |
     fwdRate: 0,
     [ccy1Depo]: 0,
     [ccy2Depo]: 2.05,
+
+    brokerage: {
+      buyerComm: 300,
+      sellerComm: 300,
+    },
+
+    dealOutput: {
+      premiumAMT: 466.35,
+      pricePercent: 0.0233175,
+      delta: 0.026147711,
+      gamma: 1221850,
+      vega: 40036,
+      hedge: -2614777,
+    }
   };
+  const { brokerage, dealOutput } = data;
   return (
     <>
       <form>
         <Grid container>
-          <Grid xs={7} container item>
-            <Grid direction={'row'}>
+          <Grid xs={6} alignItems={'stretch'} container item>
+            <fieldset>
               <FormField label={'Strategy'} color={'grey'} value={data.strategy} name={'strategy'} type={'text'}/>
               <FormField label={'Trade Date'} color={'grey'} value={data.tradeDate} name={'tradeDate'} type={'date'}/>
               <FormField label={'Spot Date'} color={'grey'} value={data.spotDate} name={'spotDate'} type={'date'}/>
@@ -64,9 +79,46 @@ export const SummaryLegDetails: React.FC<Props> = (props: Props): ReactElement |
                          type={'percentage'}/>
               <FormField label={props.currencies[1] + ' Depo'} color={'grey'} value={data[ccy2Depo]} name={ccy2Depo}
                          type={'percentage'}/>
-            </Grid>
+            </fieldset>
           </Grid>
-          <Grid xs={5} container item>
+
+          <Grid direction={'column'} xs={6} container item>
+            <Grid alignItems={'stretch'} container>
+              <fieldset>
+                <button type={'button'}>Price</button>
+                <button type={'button'}>Process</button>
+              </fieldset>
+            </Grid>
+
+            <Grid alignItems={'stretch'} container>
+              <fieldset>
+                <legend>Borkerage</legend>
+                <FormField label={'Buyer Comm'} color={'grey'} value={brokerage.buyerComm} name={'buyerComm'}
+                           type={'currency'}/>
+                <FormField label={'Seller Comm'} color={'grey'} value={brokerage.sellerComm} name={'sellerComm'}
+                           type={'currency'}/>
+                <FormField label={'Total Comm'} color={'grey'} value={brokerage.buyerComm + brokerage.sellerComm}
+                           name={'totalComm'} type={'currency'}/>
+              </fieldset>
+            </Grid>
+
+            <Grid alignItems={'stretch'} container>
+              <fieldset>
+                <legend>Deal Output</legend>
+                <FormField label={'Premium AMT'} color={'grey'} value={dealOutput.premiumAMT} name={'premiumAMT'}
+                           type={'currency'}/>
+                <FormField label={'Price %'} color={'grey'} value={dealOutput.pricePercent} name={'pricePercent'}
+                           type={'number'} precision={8}/>
+                <FormField label={'Delta'} color={'grey'} value={dealOutput.delta} name={'delta'}
+                           type={'number'} precision={8}/>
+                <FormField label={'Gamma'} color={'grey'} value={dealOutput.gamma} name={'gamma'}
+                           type={'currency'}/>
+                <FormField label={'Vega'} color={'grey'} value={dealOutput.vega} name={'vega'}
+                           type={'currency'}/>
+                <FormField label={'Hedge'} color={'grey'} value={dealOutput.hedge} name={'hedge'}
+                           type={'currency'}/>
+              </fieldset>
+            </Grid>
           </Grid>
         </Grid>
       </form>

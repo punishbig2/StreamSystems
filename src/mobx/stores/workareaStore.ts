@@ -187,10 +187,6 @@ export class WorkareaStore {
     const base: string = `${location.protocol}//${location.host}${location.pathname}`;
     // Replace the url with the same url but without parameters
     history.pushState({ email }, '', base);
-    /*window.onbeforeunload = function () {
-      window.location.href = `${base}/?user=${email}`;
-      return false;
-    };*/
   };
 
   @action.bound
@@ -211,7 +207,7 @@ export class WorkareaStore {
         this.loadingMessage = strings.EstablishingConnection;
         WorkareaStore.cleanupUrl(user.email);
         // Load other stuff
-        /*const signalRManager: SignalRManager = SignalRManager.getInstance();
+        const signalRManager: SignalRManager = SignalRManager.getInstance();
         // Start the loading mode
         this.status = WorkareaStatus.Initializing;
         // Load currencies
@@ -236,8 +232,7 @@ export class WorkareaStore {
         signalRManager.setOnDisconnectedListener(() => {
           this.status = WorkareaStatus.Error;
           this.connected = false;
-        });*/
-        this.status = WorkareaStatus.Ready;
+        });
       }
     } catch (error) {
       this.status = WorkareaStatus.Error;
