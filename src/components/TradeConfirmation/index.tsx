@@ -16,14 +16,21 @@ const sideClasses: { [key: string]: string } = {
   1: 'buy',
 };
 
-const playBeep = async (preferences: UserPreferences) => {
+const getSoundFile = async (name: string) => {
+  if (name === 'default') {
+    return '/sounds/alert.wav';
+  } else {
+    const sound: ExecSound = await getSound(name);
+    return sound.data as string;
+  }
+};
+
+const playBeep = async (preferences: UserPreferences, destination: string | undefined) => {
   const src: string = await (async () => {
-    const { execSound } = preferences;
-    if (execSound === 'default') {
-      return '/sounds/alert.wav';
+    if (destination === 'DP') {
+      return getSoundFile(preferences.darkPoolExecSound);
     } else {
-      const sound: ExecSound = await getSound(execSound);
-      return sound.data as string;
+      return getSoundFile(preferences.execSound);
     }
   })();
   const element: HTMLAudioElement = document.createElement('audio');
@@ -36,7 +43,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactEle
   const { Side } = trade;
   const direction: string = Side.toString() === '1' ? 'from' : 'to';
   useEffect(() => {
-    playBeep(userProfileStore.preferences);
+    playBeep(userProfileStore.preferences, trade.ExDestination);
   });
   return (
     <div className={[sideClasses[trade.Side], 'item'].join(' ')}>
