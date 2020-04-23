@@ -19,6 +19,11 @@ $spinner-size: $table-row-height - 6;
     flex: 1 0;
   }
 
+  &.padded {
+    border-left: 1px solid $table-border-color;
+    border-right: 1px solid $table-border-color;
+  }
+
   .thead {
     .tr {
       white-space: nowrap;

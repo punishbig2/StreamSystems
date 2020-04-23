@@ -27,6 +27,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
     );
   };
   return (
-    <Table columns={columns(props.onCancelOrder)} scrollable={false} renderRow={renderRow} rows={props.orders}/>
+    <Table className={'padded'} columns={columns(props.onCancelOrder)} scrollable={false} renderRow={renderRow}
+           rows={props.orders}/>
   );
 };

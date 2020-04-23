@@ -1,14 +1,15 @@
 .tooltip {
   position: fixed;
-  overflow: hidden;
   z-index: 2147483648;
   background-color: $background-color;
+  overflow: hidden;
+
+  box-shadow: 0 2px 8px -4px black;
+  border-radius: 2px;
 
   .tooltip-content {
     font-size: $normal-font-size;
-    border-radius: 2px;
     padding: 3px;
-    border: 2px solid $table-border-color;
     z-index: 2147483648;
   }
 }
