@@ -42,19 +42,20 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const [store] = useState<OrderStore>(new OrderStore());
   const { minimumSize, defaultSize } = props;
   const { type, tableType } = props;
-  const { rowStore } = props;
-  const orders: Order[] = getRelevantOrders(props.orders, type);
+  const { rowStore, orders } = props;
+  const { price, size } = store;
+  const relevantOrders: Order[] = getRelevantOrders(orders, type);
   // Used for the fallback order
   const { currency: symbol, strategy, tenor } = props;
   // It should never happen that this is {} as Order
-  const order: Order = orders.length > 0
-    ? orders[0]
+  const order: Order = relevantOrders.length > 0
+    ? relevantOrders[0]
     : { price: null, size: null, type, tenor, strategy, symbol } as Order;
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
   // Determine the status of the order now
-  const status: OrderStatus = getOrderStatus(order, orders, tableType);
-  // Sort sibling orders
+  const status: OrderStatus = getOrderStatus(order, relevantOrders, tableType);
+  // Sort siblings
   useEffect(() => {
     store.setOrder(order, status);
   }, [store, order, status]);
@@ -67,10 +68,14 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     store.setCurrentDepth(orders);
   }, [store, orders]);
 
+  useEffect(() => {
+    rowStore.setError(null);
+  }, [price, rowStore, size]);
+
   const resetSize = () => store.setEditedSize(store.submittedSize);
   const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
-    const filtered: Order[] = orders.filter((order: Order) => order.size !== null);
+    const filtered: Order[] = relevantOrders.filter((order: Order) => order.size !== null);
     if (filtered.length <= 1)
       return null;
     return <MiniDOB {...props} rows={filtered} orderStore={store}/>;
@@ -101,7 +106,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     <Size key={2}
           type={type}
           className={getOrderStatusClass(store.status)}
-          value={store.size}
+          value={size}
           cancellable={true}
           readOnly={readOnly}
           chevron={(store.status & OrderStatus.HasDepth) !== 0}
@@ -116,7 +121,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     <Price
       key={1}
       status={store.status}
-      value={store.price}
+      value={price}
       min={store.minimumPrice}
       max={store.maximumPrice}
       className={'pod'}

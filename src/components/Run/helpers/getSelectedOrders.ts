@@ -13,7 +13,7 @@ export const getSelectedOrders = (orders: PodTable, defaultSize: number): Order[
         return true;
       if ((bid.status & OrderStatus.Cancelled) !== 0 || (ofr.status & OrderStatus.Cancelled) !== 0)
         return true;
-      return bid.price < ofr.price;
+      return bid.price <= ofr.price;
     });
   const getSize = (order: Order, fallback: number | null): number | null => {
     const element: HTMLElement | null = document.getElementById($$('run-size-', order.uid(), order.type));
