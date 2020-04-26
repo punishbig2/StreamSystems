@@ -32,7 +32,6 @@ export class TableStore {
   @computed
   public get columns(): ColumnState[] {
     const { initialColumns, columnsOrder } = this;
-    console.log(initialColumns, columnsOrder, columnsOrder.map((i: number) => initialColumns[i]));
     return columnsOrder
       .filter((index: number) => index < initialColumns.length)
       .map((index: number) => initialColumns[index])

@@ -95,7 +95,7 @@ const Workarea: React.FC = (): ReactElement | null => {
           );
         } else {
           return (
-            <MiddleOffice visible={id === currentWorkspaceID}/>
+            <MiddleOffice key={id} visible={id === currentWorkspaceID}/>
           );
         }
       });

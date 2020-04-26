@@ -119,7 +119,6 @@ class PersistStorage {
       return;
     try {
       this.data = JSON.parse(workspace.workspace);
-      console.log(this.data);
     } catch {
       this.data = {};
     }
