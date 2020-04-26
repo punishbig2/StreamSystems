@@ -1,7 +1,6 @@
 import messageBlotterColumns, { BlotterTypes } from 'columns/messageBlotter';
 import { Table } from 'components/Table';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { User } from 'interfaces/user';
 import React, { useMemo } from 'react';
 import { Message } from 'interfaces/message';
 import { STRM } from 'stateDefs/workspaceState';
@@ -21,12 +20,9 @@ type Props = OwnProps;
 
 const MessageBlotter: React.FC<Props> = observer((props: Props) => {
   const { blotterType } = props;
-
-  const entries: Message[] = blotterType === BlotterTypes.Executions ? store.executions : store.entries;
-  const user: User = workareaStore.user;
+  const messages: Message[] = blotterType === BlotterTypes.Executions ? store.executions : store.myMessages;
   const personality: string = workareaStore.personality;
-
-  const { email, isbroker, firm } = user;
+  const { email, isbroker, firm } = workareaStore.user;
 
   const columnsMap: { [key: string]: ColumnSpec[] } = useMemo(() => messageBlotterColumns(blotterType), [blotterType]);
   const columns: ColumnSpec[] = useMemo(() => {
@@ -37,7 +33,12 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
 
   const renderRow = useMemo(() => renderRowFactory(blotterType, email, firm), [blotterType, email, firm]);
   return (
-    <Table scrollable={!!props.scrollable} columns={columns} rows={entries} renderRow={renderRow}/>
+    <Table id={`${props.id}-tbl`}
+           scrollable={!!props.scrollable}
+           columns={columns}
+           rows={messages}
+           renderRow={renderRow}
+           allowReorderColumns={true}/>
   );
 });
 

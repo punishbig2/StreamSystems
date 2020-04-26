@@ -7,8 +7,10 @@ import { Leg } from 'components/MiddleOffice/interfaces/leg';
 import moment from 'moment';
 import { Grid } from '@material-ui/core';
 import { FloatingButton } from 'components/MiddleOffice/FloatingButton';
+import { randomID } from 'randomID';
 
 interface Props {
+  visible: boolean;
 }
 
 const legs: Leg[] = [{
@@ -71,9 +73,9 @@ const legs: Leg[] = [{
 
 export const MiddleOffice: React.FC<Props> = (props: Props): ReactElement | null => {
   return (
-    <div className={'middle-office'}>
+    <div className={'middle-office' + (!props.visible ? ' hidden' : '')}>
       <div className={'left-panel'}>
-        <DealBlotter/>
+        <DealBlotter id={randomID('')}/>
         <FloatingButton icon={'plus'} onClick={() => null}/>
       </div>
       <Grid className={'right-panel'} container>

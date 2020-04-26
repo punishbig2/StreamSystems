@@ -9,15 +9,14 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { WorkareaStatus } from 'stateDefs/workareaState';
 import { Message } from 'interfaces/message';
 import { TradeConfirmation } from 'components/TradeConfirmation';
-import { CurrencyGroups } from 'interfaces/user';
 import { observer } from 'mobx-react';
 import store from 'mobx/stores/workareaStore';
-import workareaStore, { WorkspaceDef } from 'mobx/stores/workareaStore';
+import workareaStore, { WorkspaceType, WorkspaceDef } from 'mobx/stores/workareaStore';
 
-import messages from 'mobx/stores/messagesStore';
+import messagesStore from 'mobx/stores/messagesStore';
 import { MessageBox } from 'components/MessageBox';
-import { Toast } from 'components/Toast';
 import { getUserFromUrl } from 'utils/getUserFromUrl';
+import { MiddleOffice } from 'components/MiddleOffice';
 
 const Workarea: React.FC = (): ReactElement | null => {
   const { recentExecutions } = store;
@@ -36,9 +35,9 @@ const Workarea: React.FC = (): ReactElement | null => {
     if (!user)
       return;
     if (connected) {
-      messages.connect(user.email);
+      messagesStore.connect(user.email);
     } else {
-      messages.disconnect();
+      messagesStore.disconnect();
     }
   }, [connected, user]);
 
@@ -80,19 +79,25 @@ const Workarea: React.FC = (): ReactElement | null => {
     if (user === null)
       return null;
     return Object.values(workspaces)
-      .map(({ id, isDefault }: WorkspaceDef) => {
-        return (
-          <Workspace
-            id={id}
-            key={id}
-            isDefault={isDefault}
-            visible={id === currentWorkspaceID}
-            tenors={store.tenors}
-            currencies={store.currencies}
-            strategies={store.strategies}
-            banks={store.banks}
-            onModify={store.setWorkspaceModified}/>
-        );
+      .map(({ id, type, isDefault }: WorkspaceDef) => {
+        if (type === WorkspaceType.Standard) {
+          return (
+            <Workspace
+              id={id}
+              key={id}
+              isDefault={isDefault}
+              visible={id === currentWorkspaceID}
+              tenors={store.tenors}
+              currencies={store.currencies}
+              strategies={store.strategies}
+              banks={store.banks}
+              onModify={store.setWorkspaceModified}/>
+          );
+        } else {
+          return (
+            <MiddleOffice visible={id === currentWorkspaceID}/>
+          );
+        }
       });
   };
 
@@ -101,9 +106,10 @@ const Workarea: React.FC = (): ReactElement | null => {
       <div className={'footer'}>
         <TabBar
           entries={store.workspaces}
-          addTab={(group: CurrencyGroups) => store.addWorkspace(group)}
           active={store.currentWorkspaceID}
           setActiveTab={store.setWorkspace}
+          onAddStandardWorkspace={store.addStandardWorkspace}
+          onAddMiddleOfficeWorkspace={store.addMiddleOffice}
           onTabClosed={setSelectedToClose}
           onQuit={() => null}
           onWorkspaceRename={store.setWorkspaceName}/>
@@ -140,7 +146,6 @@ const Workarea: React.FC = (): ReactElement | null => {
           <ModalWindow render={renderLoadingModal} visible={store.isCreatingWorkspace}/>
           <ModalWindow render={renderCloseQuestion} visible={!!selectedToClose}/>
           <ModalWindow render={renderMessage} visible={recentExecutions.length > 0}/>
-          <Toast message={store.errorMessage} onDismiss={() => store.setError(null)}/>
         </>
       );
     default:
@@ -151,3 +156,4 @@ const Workarea: React.FC = (): ReactElement | null => {
 
 const observed = observer(Workarea);
 export { observed as Workarea };
+

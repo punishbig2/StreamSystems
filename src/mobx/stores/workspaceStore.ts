@@ -28,7 +28,6 @@ export class WorkspaceStore {
   @persist('list') @observable windows: WindowDef[] = [];
 
   @persist @observable name: string = 'Untitled';
-  @persist @observable isMiddleOfficeVisible: boolean = false;
 
   @observable isUserProfileModalVisible = false;
   @observable markets: string[] = [];
@@ -141,15 +140,5 @@ export class WorkspaceStore {
   @action.bound
   public persist(windows: WindowDef[]) {
     this.windows = windows;
-  }
-
-  @action.bound
-  public showMiddleOffice() {
-    this.isMiddleOfficeVisible = true;
-  }
-
-  @action.bound
-  public hideMiddleOffice() {
-    this.isMiddleOfficeVisible = false;
   }
 }

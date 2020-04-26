@@ -10,8 +10,8 @@ export enum UserTypes {
 }
 
 export enum CurrencyGroups {
-  Invalid = '',
-  Latam = 'LATAM'
+  Default = '',
+  Latam = 'LATAM',
 }
 
 export interface ExecSound {
@@ -57,3 +57,12 @@ export interface UserProfileState {
   preferences: UserPreferences,
 }
 
+export const isCurrencyGroup = (value: any): value is  CurrencyGroups => {
+  switch (value) {
+    case CurrencyGroups.Latam:
+    case CurrencyGroups.Default:
+      return true;
+    default:
+      return false;
+  }
+};

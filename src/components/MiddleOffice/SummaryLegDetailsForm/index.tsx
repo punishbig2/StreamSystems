@@ -92,7 +92,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (props: Props): ReactEleme
 
             <Grid alignItems={'stretch'} container>
               <fieldset>
-                <legend>Borkerage</legend>
+                <legend>Brokerage</legend>
                 <FormField label={'Buyer Comm'} color={'grey'} value={brokerage.buyerComm} name={'buyerComm'}
                            type={'currency'}/>
                 <FormField label={'Seller Comm'} color={'grey'} value={brokerage.sellerComm} name={'sellerComm'}

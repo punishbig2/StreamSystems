@@ -13,7 +13,8 @@ export default (sortable: boolean): ColumnSpec => ({
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Tenor;
     const value = original.toLowerCase();
-    return value.includes(keyword);
+    console.log(value, value.startsWith(keyword));
+    return value.startsWith(keyword);
   },
   difference: (v1: Message, v2: Message): number => {
     return tenorToNumber(v1.Tenor) - tenorToNumber(v2.Tenor);

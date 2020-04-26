@@ -1,24 +1,31 @@
-import { SortDirection } from 'components/Table/index';
 import React, { ReactElement } from 'react';
+import { SortOrder } from 'mobx/stores/tableStore';
 
 interface Props {
-  direction: SortDirection;
+  direction: SortOrder;
   onClick: () => void;
 }
 
 const SortIndicator: React.FC<Props> = (props: Props) => {
   const getIcon = (): ReactElement => {
     switch (props.direction) {
-      case SortDirection.Descending:
+      case SortOrder.Descending:
         return <i className={'fa fa-sort-down'}/>;
-      case SortDirection.Ascending:
+      case SortOrder.Ascending:
         return <i className={'fa fa-sort-up'}/>;
-      case SortDirection.None:
+      case SortOrder.None:
         return <i className={'fa fa-sort none'}/>;
     }
   };
+
+  const onClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    props.onClick();
+  };
+
   return (
-    <div className={'sort-indicator'} onClick={props.onClick}>
+    <div className={'sort-indicator'} onMouseDownCapture={onClick}>
       {getIcon()}
     </div>
   );

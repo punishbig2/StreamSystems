@@ -12,7 +12,7 @@ import { Action, AnyAction } from 'redux';
 import { API } from 'API';
 import { $$ } from 'utils/stringPaster';
 import { MDEntry } from 'interfaces/mdEntry';
-import { User, OCOModes } from 'interfaces/user';
+import { OCOModes } from 'interfaces/user';
 import { Sides } from 'interfaces/sides';
 import userProfileStore from 'mobx/stores/userPreferencesStore';
 
@@ -53,7 +53,6 @@ export class SignalRManager<A extends Action = AnyAction> {
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
-  private user: User = {} as User;
   private recordedCommands: Command[] = [];
   private pendingW: { [k: string]: W } = {};
 
@@ -69,10 +68,6 @@ export class SignalRManager<A extends Action = AnyAction> {
     // Export to class wide variable
     this.connection = connection;
   }
-
-  public setUser = (user: User) => {
-    this.user = user;
-  };
 
   static getInstance = (): SignalRManager => {
     if (SignalRManager.instance !== null)
@@ -292,7 +287,6 @@ export class SignalRManager<A extends Action = AnyAction> {
     const ocoMode: OCOModes = userProfile.oco;
     if (message.Username !== user.email)
       return;
-    console.log(message);
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;

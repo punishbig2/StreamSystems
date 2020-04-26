@@ -45,24 +45,27 @@ const getRefButton = (depth: boolean, symbol: string, strategy: string, type: Or
   return () => <RefButton type={type} symbol={symbol} strategy={strategy}/>;
 };
 
-const columns = (symbol: string, strategy: string, user: User, depth: boolean = false): ColumnSpec[] => [
-  TenorColumn(),
-  ...(user.isbroker ? [FirmColumn(OrderTypes.Bid)] : []),
-  OrderColumnWrapper(
-    strings.BidPx,
-    OrderTypes.Bid,
-    depth,
-    getRefButton(depth, symbol, strategy, OrderTypes.Bid),
-  ),
-  DarkPoolColumn(),
-  OrderColumnWrapper(
-    strings.OfrPx,
-    OrderTypes.Ofr,
-    depth,
-    getRefButton(depth, symbol, strategy, OrderTypes.Ofr),
-  ),
-  ...(user.isbroker ? [FirmColumn(OrderTypes.Ofr)] : []),
-];
+const columns = (symbol: string, strategy: string, depth: boolean = false): ColumnSpec[] => {
+  const user: User = workareaStore.user;
+  return [
+    TenorColumn(),
+    ...(user.isbroker ? [FirmColumn(OrderTypes.Bid)] : []),
+    OrderColumnWrapper(
+      strings.BidPx,
+      OrderTypes.Bid,
+      depth,
+      getRefButton(depth, symbol, strategy, OrderTypes.Bid),
+    ),
+    DarkPoolColumn(),
+    OrderColumnWrapper(
+      strings.OfrPx,
+      OrderTypes.Ofr,
+      depth,
+      getRefButton(depth, symbol, strategy, OrderTypes.Ofr),
+    ),
+    ...(user.isbroker ? [FirmColumn(OrderTypes.Ofr)] : []),
+  ];
+};
 
 export default columns;
 

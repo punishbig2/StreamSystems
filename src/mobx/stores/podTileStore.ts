@@ -106,7 +106,9 @@ export class PodTileStore {
     const tenors: string[] = Object.keys(ws);
     this.orders = tenors.reduce((depth: { [k: string]: Order[] }, tenor: string): { [k: string]: Order[] } => {
       const w: W = ws[tenor];
-      const entries: MDEntry[] = ws[tenor].Entries;
+      if (!w)
+        return depth;
+      const entries: MDEntry[] = w.Entries;
       if (entries)
         depth[tenor] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
       return depth;

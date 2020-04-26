@@ -9,6 +9,10 @@ $field-height: $normal-font-size + 10;
   display: flex;
   align-items: stretch;
 
+  &.hidden {
+    display: none;
+  }
+
   top: $window-toolbar-size;
   left: 0;
   bottom: $window-footer-size;

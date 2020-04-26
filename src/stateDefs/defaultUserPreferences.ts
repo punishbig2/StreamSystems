@@ -2,7 +2,7 @@ import { UserPreferences, CurrencyGroups, OCOModes, UserTypes } from 'interfaces
 import { findDefaultTimezone } from 'utils';
 
 export const defaultPreferences: UserPreferences = {
-  ccyGroup: CurrencyGroups.Invalid,
+  ccyGroup: CurrencyGroups.Default,
   colorScheme: 'default',
   execSound: 'default',
   darkPoolExecSound: 'default',

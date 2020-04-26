@@ -1,4 +1,4 @@
-import createTOBColumns from 'columns/podColumns';
+import createPODColumns from 'columns/podColumns';
 import { ModalWindow } from 'components/ModalWindow';
 import { Run } from 'components/Run';
 import { Table } from 'components/Table';
@@ -135,11 +135,11 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
            onTenorSelected={store.setCurrentTenor}/>
     );
   }, [currency, strategy, store.darkpool, store.orders, store.setCurrentTenor]);
-  const dobColumns = useMemo(() => createTOBColumns(currency.name, strategy, user, true),
-    [strategy, currency.name, user],
+  const dobColumns = useMemo(() => createPODColumns(currency.name, strategy, true),
+    [strategy, currency.name],
   );
-  const tobColumns = useMemo(() => createTOBColumns(currency.name, strategy, user, false),
-    [strategy, currency.name, user],
+  const tobColumns = useMemo(() => createPODColumns(currency.name, strategy, false),
+    [strategy, currency.name],
   );
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
@@ -178,14 +178,19 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
     return (
       <div className={'pod-tile-content' + (props.scrollable ? ' scrollable' : '')}>
         <div className={'pod'} data-showing-tenor={!!store.currentTenor}>
-          <Table className={loadingClass}
+          <Table id={`${props.id}-top`}
+                 className={loadingClass}
                  scrollable={!!props.scrollable}
                  columns={tobColumns}
                  rows={rows}
                  renderRow={renderPodRow}/>
         </div>
         <div className={'dob'} data-showing-tenor={!!store.currentTenor}>
-          <Table scrollable={!!props.scrollable} columns={dobColumns} rows={dobRows} renderRow={renderDoBRow}/>
+          <Table id={`${props.id}-depth`}
+                 scrollable={!!props.scrollable}
+                 columns={dobColumns}
+                 rows={dobRows}
+                 renderRow={renderDoBRow}/>
         </div>
         <ModalWindow render={renderProgress} visible={store.isProgressWindowVisible}/>
       </div>

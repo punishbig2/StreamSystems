@@ -13,8 +13,6 @@ import { SignalRManager } from 'signalR/signalRManager';
 import { randomID } from 'randomID';
 import { WindowDef } from 'mobx/stores/workspaceStore';
 import { PresetWindow } from 'groups/presetWindow';
-import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
-import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
 import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
 import persistStorage from 'persistStorage';
 import { STRM } from 'stateDefs/workspaceState';
@@ -26,11 +24,16 @@ export enum WindowTypes {
   Empty = 3
 }
 
+export enum WorkspaceType {
+  Standard, MiddleOffice
+}
+
 export interface WorkspaceDef {
   id: string;
   isDefault: boolean;
   name: string;
   personality: string;
+  type: WorkspaceType;
 }
 
 export class WorkareaStore {
@@ -48,11 +51,10 @@ export class WorkareaStore {
   @observable user: User = {} as User;
   @observable loadingMessage?: string;
   @observable isCreatingWorkspace: boolean = false;
-  @observable errorMessage: string | null = null;
 
   private static getMapForCurrencyGroup(group: CurrencyGroups) {
     switch (group) {
-      case CurrencyGroups.Invalid:
+      case CurrencyGroups.Default:
         return null;
       case CurrencyGroups.Latam:
         return latam;
@@ -115,13 +117,14 @@ export class WorkareaStore {
       isDefault: true,
       name: group,
       personality: STRM,
+      type: WorkspaceType.Standard,
     };
     this.isCreatingWorkspace = false;
     this.currentWorkspaceID = id;
   }
 
   @action.bound
-  public addWorkspace(group: CurrencyGroups) {
+  public addStandardWorkspace(group: CurrencyGroups) {
     this.isCreatingWorkspace = true;
     // Do this after the `isCreatingWorkspace' takes effect
     setTimeout(() => this.internalAddWorkspace(group), 0);
@@ -219,8 +222,6 @@ export class WorkareaStore {
         // Load strategies
         this.loadingMessage = strings.LoadingTenors;
         this.tenors = await API.getTenors();
-        // Update signal R manager
-        signalRManager.setUser(user);
         // Connect the signal R client
         signalRManager.connect();
         // Try to connect
@@ -235,6 +236,7 @@ export class WorkareaStore {
         });
       }
     } catch (error) {
+      this.loadTheme();
       this.status = WorkareaStatus.Error;
     }
   };
@@ -268,19 +270,38 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public setError(error: Error | null) {
-    if (error === InvertedMarketsError) {
-      this.errorMessage = 'Inverted markets not allowed';
-    } else if (error === SizeTooSmallError) {
-      this.errorMessage = 'You cannot create orders with less than the minimum size';
-    } else {
-      this.errorMessage = null;
-    }
+  public setPreferences(preferences: UserPreferences) {
+    this.preferences = preferences;
   }
 
   @action.bound
-  public setPreferences(preferences: UserPreferences) {
-    this.preferences = preferences;
+  private internalAddMiddleOffice() {
+    const { workspaces } = this;
+    const id: string = randomID('workspaces');
+    const middleOfficesCount: number = Object.values(workspaces)
+      .reduce((count: number, workspace: WorkspaceDef) => {
+        if (workspace.type === WorkspaceType.MiddleOffice) {
+          return count + 1;
+        } else {
+          return count;
+        }
+      }, 0);
+    // Create the workspace
+    workspaces[id] = {
+      id: id,
+      isDefault: true,
+      name: `Middle Office ${middleOfficesCount + 1}`,
+      personality: STRM,
+      type: WorkspaceType.MiddleOffice,
+    };
+    this.isCreatingWorkspace = false;
+    this.currentWorkspaceID = id;
+  }
+
+  @action.bound
+  public addMiddleOffice() {
+    this.isCreatingWorkspace = true;
+    setTimeout(this.internalAddMiddleOffice, 0);
   }
 }
 

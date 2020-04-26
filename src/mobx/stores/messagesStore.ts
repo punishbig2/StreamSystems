@@ -4,24 +4,20 @@ import { API } from 'API';
 import { SignalRManager } from 'signalR/signalRManager';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
-import { isAcceptableFill, isFill, sortByTimeDescending, isMyMessage } from 'messageUtils';
+import { isAcceptableFill, isFill, sortByTimeDescending, isMyMessage, getLink } from 'messageUtils';
 
 export class MessagesStore {
-  @observable.ref entries: Message[] = [];
+  @observable.ref myMessages: Message[] = [];
   @observable.ref systemExecutions: Message[] = [];
   @observable.ref executions: Message[] = [];
   @observable connected: boolean = false;
   private cleanup: (() => void) | null = null;
 
-  constructor() {
-    this.initialize();
-  }
-
   @action.bound
   public addEntry(message: Message) {
     const user: User = workareaStore.user;
     if (message.Username === user.email)
-      this.entries = [message, ...this.entries];
+      this.myMessages = [message, ...this.myMessages];
     if (isAcceptableFill(message))
       this.executions = [message, ...this.executions];
     if (isFill(message))
@@ -33,15 +29,23 @@ export class MessagesStore {
     const now: Date = new Date();
     const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
     const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
-
+    // Sort all entries
     entries.sort(sortByTimeDescending);
+    // Group by interest
     this.executions = entries.filter(isAcceptableFill);
-    this.entries = entries.filter(isMyMessage);
-    this.systemExecutions = entries.filter(isFill);
+    this.myMessages = entries.filter(isMyMessage);
+    this.systemExecutions = entries.filter(isFill)
+      .filter((message: Message, index: number, all: Message[]): boolean => {
+        return all.findIndex((m: Message) => getLink(m) === getLink(message)) !== index;
+      });
   }
 
   @action.bound
   public connect(email: string) {
+    // Call the initializer now, because the user email
+    // has surely been set ;)
+    this.initialize();
+    // Connect to signal R's manager
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     // First cleanup the old listener if it's here
     if (this.cleanup)

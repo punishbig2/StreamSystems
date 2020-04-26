@@ -9,6 +9,7 @@ $spinner-size: $table-row-height - 6;
   display: flex;
   flex-direction: column;
   height: 100%;
+  cursor: default;
 
   .empty-table {
     display: flex;
@@ -16,8 +17,9 @@ $spinner-size: $table-row-height - 6;
     justify-content: center;
     height: 100%;
     background-color: $background-color;
+
     h1 {
-      font-size: 1.5 * $large-font-size;
+      font-size: $large-font-size;
       font-weight: 500;
       font-style: italic;
       color: rgba($foreground-color, 0.25);
@@ -39,7 +41,19 @@ $spinner-size: $table-row-height - 6;
   }
 
   .thead {
+    &.column-moving {
+      .tr {
+        .th {
+          &:not(.fake) {
+            pointer-events: none;
+            opacity: 0.25;
+          }
+        }
+      }
+    }
+
     .tr {
+      position: relative;
       white-space: nowrap;
       border-bottom: 1px solid $table-border-color;
 
@@ -55,6 +69,27 @@ $spinner-size: $table-row-height - 6;
         text-align: center;
         background-color: darken($background-color, 5%);
         border-top: 1px solid $table-border-color;
+        cursor: default;
+
+        &.movable {
+          cursor: grab;
+        }
+
+        &.fake {
+          position: absolute;
+          border: 1px solid $table-border-color;
+
+          input.filter {
+            &:hover {
+              outline: none;
+            }
+          }
+        }
+
+        &.reordering {
+          cursor: grabbing;
+          opacity: 0.5;
+        }
 
         &:not(:first-child) {
           border-left: 1px solid $table-border-color;
@@ -533,6 +568,7 @@ $spinner-size: $table-row-height - 6;
             input {
               background-color: $darkpool-background-color;
             }
+
             &:not(.owned) {
               color: $darkpool-foreground-color;
             }

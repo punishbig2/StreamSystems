@@ -21,6 +21,6 @@ export default (sortable: boolean): ColumnSpec => ({
     return value.includes(keyword);
   },
   difference: (v1: Message, v2: Message): number => {
-    return Number(v1) - Number(v2);
+    return Number(v1.Side) - Number(v2.Side);
   },
 });

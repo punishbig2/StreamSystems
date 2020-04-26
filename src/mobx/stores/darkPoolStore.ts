@@ -4,10 +4,11 @@ import { W } from 'interfaces/w';
 import { SignalRManager } from 'signalR/signalRManager';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
-import { MDEntry } from 'interfaces/mdEntry';
+import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
 import { DarkPoolMessage } from 'interfaces/message';
 import { API } from 'API';
 import { $$ } from 'utils/stringPaster';
+import { Sides } from 'interfaces/sides';
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];
@@ -134,19 +135,25 @@ export class DarkPoolStore {
   }
 
   @action.bound
-  public createOrder(order: DarkPoolOrder) {
+  public async createOrder(order: DarkPoolOrder) {
+    const { orders } = this;
+    const user: User = workareaStore.user;
     this.closeTicket();
-    API.createDarkPoolOrder(order);
-    // Ideally we should update `currentOrder'
+    const currentOrder: Order | undefined = orders.find((o: Order) => {
+      if (o.type === OrderTypes.Bid && order.Side !== Sides.Buy)
+        return false;
+      if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell)
+        return false;
+      return user.email === o.user;
+    });
+    if (currentOrder)
+      API.cancelDarkPoolOrder(currentOrder);
+    await API.createDarkPoolOrder(order);
   }
 
   @action.bound
-  public cancel() {
-    const user: User = workareaStore.user;
-    const { orders } = this;
-    const mine: Order | undefined = orders.find((o: Order) => user.email === o.user);
-    if (mine)
-      API.cancelDarkPoolOrder(mine, user);
+  public cancel(order: Order) {
+    API.cancelDarkPoolOrder(order);
     this.currentOrder = null;
   }
 }

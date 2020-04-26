@@ -4,18 +4,27 @@ import config from 'config';
 
 import React, { ReactElement, useState, useRef } from 'react';
 import { Menu, MenuItem } from '@material-ui/core';
-import { CurrencyGroups } from 'interfaces/user';
+import { CurrencyGroups, isCurrencyGroup } from 'interfaces/user';
 import { WorkspaceDef } from 'mobx/stores/workareaStore';
 
 interface Props {
   entries: { [k: string]: WorkspaceDef };
   active: string | null;
-  addTab: (group: CurrencyGroups) => void;
+  onAddStandardWorkspace: (group: CurrencyGroups) => void;
+  onAddMiddleOfficeWorkspace: () => void;
   setActiveTab: (id: string) => void;
   onTabClosed: (id: string) => void;
   onQuit: () => void;
   onWorkspaceRename: (id: string, name: string) => void;
 }
+
+enum WorkspaceType {
+  MiddleOffice = 'MIDDLE_OFFICE',
+}
+
+const isWorkspaceType = (value: any): value is WorkspaceType => {
+  return value === WorkspaceType.MiddleOffice;
+};
 
 const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   const { active, entries } = props;
@@ -58,12 +67,19 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   const getAddWorkspaceMenu = (): ReactElement | null => {
     const groups = Object
       .values(CurrencyGroups)
-      .filter((group: CurrencyGroups) => group !== CurrencyGroups.Invalid)
-    ;
-    const addTab = (group: CurrencyGroups) => {
-      props.addTab(group);
+      .filter((group: CurrencyGroups) => group !== CurrencyGroups.Default);
+
+    const addTab = (type: WorkspaceType | CurrencyGroups) => {
+      if (isCurrencyGroup(type)) {
+        props.onAddStandardWorkspace(type);
+      } else if (isWorkspaceType(type)) {
+        if (type === WorkspaceType.MiddleOffice) {
+          props.onAddMiddleOfficeWorkspace();
+        }
+      }
       showOptions(false);
     };
+
     return (
       <Menu anchorEl={ref.current} open={isShowingOptions} onClose={() => showOptions(false)} keepMounted={false}>
         {groups.map((group: CurrencyGroups) => (
@@ -71,7 +87,8 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
             {group} Default
           </MenuItem>
         ))}
-        <MenuItem onClick={() => addTab(CurrencyGroups.Invalid)}>Empty</MenuItem>
+        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>Empty</MenuItem>
+        <MenuItem onClick={() => addTab(WorkspaceType.MiddleOffice)}>Middle Office</MenuItem>
       </Menu>
     );
   };

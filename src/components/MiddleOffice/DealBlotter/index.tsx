@@ -8,7 +8,7 @@ import { BlotterTypes } from 'columns/messageBlotter';
 import { getLink } from 'messageUtils';
 
 interface Props {
-
+  id: string;
 }
 
 export const DealBlotter: React.FC<Props> = (props: Props): ReactElement | null => {
@@ -26,5 +26,10 @@ export const DealBlotter: React.FC<Props> = (props: Props): ReactElement | null 
            blotterType={BlotterTypes.Executions}/>
     );
   };
-  return <Table columns={columns} rows={rows} renderRow={renderRow} scrollable={true}/>;
+  return <Table id={`${props.id}-dblt`}
+                columns={columns}
+                rows={rows}
+                renderRow={renderRow}
+                scrollable={true}
+                allowReorderColumns={true}/>;
 };

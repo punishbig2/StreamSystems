@@ -1,44 +1,44 @@
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { Header } from 'components/Table/Header';
 import { VirtualScroll } from 'components/VirtualScroll';
-import { SortInfo } from 'interfaces/sortInfo';
-import React, { CSSProperties, ReactElement, useState, useMemo } from 'react';
+import React, { CSSProperties, ReactElement, useState, useMemo, useEffect } from 'react';
 import getStyles from 'styles';
 import { getOptimalWidthFromColumnsSpec } from 'getOptimalWIdthFromColumnsSpec';
-
-export enum SortDirection {
-  Descending,
-  Ascending,
-  None
-}
+import { TableStore } from 'mobx/stores/tableStore';
+import { observer } from 'mobx-react';
+import { create } from 'mobx-persist';
+import persistStorage from 'persistStorage';
 
 interface Props {
+  id: string;
   columns: ColumnSpec[];
   rows?: { [id: string]: any };
   scrollable: boolean;
   renderRow: (props: any, index?: number) => ReactElement | null;
   className?: string;
+  allowReorderColumns?: boolean;
   ref?: React.Ref<HTMLDivElement>;
 }
 
-type Filters = { [key: string]: string | undefined };
-type ColumnMap = { [key: string]: ColumnSpec };
+const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement | null => {
+  const [store] = useState<TableStore>(new TableStore(props.columns));
+  const { rows: initialRows, id } = props;
+  const { rows, columns } = store;
 
-const applyFilters = (filters: Filters, columns: ColumnMap) => (props: any) => {
-  const entries: [string, string | undefined][] = Object.entries(filters);
-  return entries.every(([name, keyword]: [string, string | undefined]) => {
-    const { row } = props;
-    if (keyword === undefined) return true;
-    const column: ColumnSpec | undefined = columns[name];
-    if (!column || !column.filterByKeyword) return true;
-    return column.filterByKeyword(row, keyword.toLowerCase());
-  });
-};
+  useEffect(() => {
+    const hydrate = create({
+      storage: persistStorage.tables,
+      jsonify: true,
+    });
+    hydrate(id, store)
+      .then(() => {
+        store.preFilterAndSort();
+      });
+  }, [store, id]);
+  useEffect(() => {
+    store.setRows(initialRows);
+  }, [store, initialRows]);
 
-export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React.Ref<HTMLDivElement>): ReactElement | null => {
-  const { rows, columns } = props;
-  const [filters, setFilters] = useState<Filters>({});
-  const [sortBy, setSortBy] = useState<{ [key: string]: SortInfo }>({});
   const [optimalWidth] = useState(getOptimalWidthFromColumnsSpec(columns));
   const style = useMemo((): CSSProperties => ({ minWidth: `${optimalWidth}px` }), [optimalWidth]);
   if (!rows)
@@ -54,68 +54,8 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
     row,
   });
 
-  const columnMap: ColumnMap = columns.reduce(
-    (map: ColumnMap, column: ColumnSpec): ColumnMap => {
-      map[column.name] = column;
-      return map;
-    },
-    {},
-  );
-  // Map each order to properties
   const rowProps: { [key: string]: any }[] = entries
-    .map(propertyMapper)
-    .filter(applyFilters(filters, columnMap));
-  const getSortFn = () => {
-    const sortColumns = Object.values(sortBy);
-    if (sortColumns.length > 0) {
-      const combineSortFns = (combined: (x: any, y: any) => number, info: SortInfo) => {
-        const column: ColumnSpec = columnMap[info.column];
-        if (column) {
-          const sortFn = (direction: SortDirection) => {
-            if (direction === SortDirection.Ascending) {
-              return ({ row: row1 }: any, { row: row2 }: any) => {
-                if (!column.difference) return 0;
-                return column.difference(row1, row2);
-              };
-            } else {
-              return ({ row: row1 }: any, { row: row2 }: any) => {
-                if (!column.difference) return 0;
-                return column.difference(row2, row1);
-              };
-            }
-          };
-          return (x: any, y: any) =>
-            combined(x, y) + sortFn(info.direction)(x, y);
-        } else {
-          // FIXME: is this an error?
-          return combined;
-        }
-      };
-      return sortColumns.reduce(combineSortFns, (): number => 0);
-    } else {
-      return undefined;
-    }
-  };
-
-  const addFilter = (column: string, keyword: string) => {
-    const clean: string = keyword.trim();
-    if (clean.length === 0) {
-      setFilters({ ...filters, [column]: undefined });
-    } else {
-      setFilters({ ...filters, [column]: clean });
-    }
-  };
-
-  const addSortColumn = (info: SortInfo) => {
-    const { column, direction } = info;
-    if (direction === SortDirection.None) {
-      const copy: { [key: string]: SortInfo } = { ...sortBy };
-      delete copy[column];
-      setSortBy(copy);
-    } else {
-      setSortBy({ ...sortBy, [column]: info });
-    }
-  };
+    .map(propertyMapper);
 
   const getBody = (rowProps: any) => {
     const rows = rowProps;
@@ -125,9 +65,7 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
           <h1>There's no data yet</h1>
         </div>
       );
-    const sortFn = getSortFn();
-    if (sortFn !== undefined)
-      rows.sort(sortFn);
+
     if (props.scrollable) {
       const styles = getStyles();
       return (
@@ -141,13 +79,15 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
   };
 
   const getHeaders = () => {
+
     return (
       <Header columns={columns}
-              addSortColumn={addSortColumn}
-              sortBy={sortBy}
-              addFilter={addFilter}
+              allowReorderColumns={!!props.allowReorderColumns}
               totalWidth={total}
-              containerWidth={optimalWidth}/>
+              containerWidth={optimalWidth}
+              onSortBy={store.sortBy}
+              onFiltered={store.filterBy}
+              onColumnsOrderChange={store.updateColumnsOrder}/>
     );
   };
 
@@ -155,7 +95,7 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
   if (props.className)
     classes.push(props.className);
   return (
-    <div ref={ref} className={classes.join(' ')} style={style}>
+    <div id={props.id} ref={ref} className={classes.join(' ')} style={style}>
       {getHeaders()}
       {getBody(rowProps)}
       <div className={'loading-banner'}>
@@ -163,6 +103,10 @@ export const Table: React.FC<Props> = React.forwardRef((props: Props, ref: React
       </div>
     </div>
   );
-});
+};
 
+export const Table: React.FC<Props> = observer(React.forwardRef(BasicTable));
+Table.defaultProps = {
+  allowReorderColumns: false,
+};
 // Table.whyDidYouRender = true;

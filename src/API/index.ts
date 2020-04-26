@@ -393,7 +393,8 @@ export class API {
     return post<MessageResponse>(API.buildUrl(API.DarkPool, 'order', 'modify'), request);
   }
 
-  static async cancelDarkPoolOrder(order: Order, user: User): CancellablePromise<any> {
+  static async cancelDarkPoolOrder(order: Order): CancellablePromise<any> {
+    const user: User = workareaStore.user;
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),

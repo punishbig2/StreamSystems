@@ -37,6 +37,7 @@ class PersistStorage {
   public workspaces: Storage = new Storage(this, 'workspaces');
   public windows: Storage = new Storage(this, 'windows');
   public pods: Storage = new Storage(this, 'pods');
+  public tables: Storage = new Storage(this, 'tables');
   public data: { [k: string]: any } = {};
 
   public async getItem(domainKey: string, key: string): Promise<any> {
@@ -118,6 +119,7 @@ class PersistStorage {
       return;
     try {
       this.data = JSON.parse(workspace.workspace);
+      console.log(this.data);
     } catch {
       this.data = {};
     }

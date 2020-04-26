@@ -96,7 +96,6 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
       try {
         return fn(...args);
       } catch (error) {
-        workareaStore.setError(error);
         rowStore.setError(error);
       }
     };

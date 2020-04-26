@@ -175,14 +175,15 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   });
 
   return (
-    <div style={{minWidth: 500}}>
+    <div style={{ minWidth: 500 }}>
       <div className={'modal-title-bar'}>
         <div className={'half'}>
           <div className={'item'}>{props.symbol}</div>
           <div className={'item'}>{props.strategy}</div>
         </div>
       </div>
-      <Table scrollable={false}
+      <Table id={`${props.symbol}${props.strategy}-run`}
+             scrollable={false}
              columns={columns}
              rows={orders}
              renderRow={renderRow}

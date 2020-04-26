@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+import { SortOrder } from 'mobx/stores/tableStore';
 
 export interface ColumnSpec {
   name: string;
@@ -12,4 +13,8 @@ export interface ColumnSpec {
   difference?: (v1: any, v2: any) => number;
   template: string;
   className?: string;
+}
+
+export interface ColumnState extends ColumnSpec {
+  sortOrder: SortOrder;
 }
