@@ -63,7 +63,7 @@ $spinner-size: $table-row-height - 6;
         display: inline-block;
         vertical-align: top;
         font-weight: $table-font-weight + 300;
-        font-size: $table-font-size - 2;
+        font-size: $table-font-size - 3;
         color: lighten($foreground-color, 5%);
         text-transform: uppercase;
         text-align: center;
