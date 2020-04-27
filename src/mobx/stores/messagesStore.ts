@@ -10,7 +10,7 @@ export class MessagesStore {
   @observable.ref myMessages: Message[] = [];
   @observable.ref systemExecutions: Message[] = [];
   @observable.ref executions: Message[] = [];
-  @observable connected: boolean = false;
+  @observable loading: boolean = false;
   private cleanup: (() => void) | null = null;
 
   @action.bound
@@ -26,6 +26,8 @@ export class MessagesStore {
 
   @action.bound
   public async initialize() {
+    this.loading = true;
+    // Load the data ...
     const now: Date = new Date();
     const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
     const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
@@ -36,8 +38,11 @@ export class MessagesStore {
     this.myMessages = entries.filter(isMyMessage);
     this.systemExecutions = entries.filter(isFill)
       .filter((message: Message, index: number, all: Message[]): boolean => {
+        // Remove duplicates
         return all.findIndex((m: Message) => getLink(m) === getLink(message)) !== index;
       });
+    // We're done
+    this.loading = false;
   }
 
   @action.bound
@@ -48,19 +53,15 @@ export class MessagesStore {
     // Connect to signal R's manager
     const signalRManager: SignalRManager = SignalRManager.getInstance();
     // First cleanup the old listener if it's here
-    if (this.cleanup)
-      this.cleanup();
-    this.connected = true;
-    this.cleanup = signalRManager.setMessagesListener(email, (message: Message) => {
+    signalRManager.setMessagesListener(email, (message: Message) => {
       this.addEntry(message);
     });
   }
 
   @action.bound
   public disconnect() {
-    if (this.cleanup) {
-      this.cleanup();
-    }
+    const signalRManager: SignalRManager = SignalRManager.getInstance();
+    signalRManager.removeMessagesListener();
   }
 }
 

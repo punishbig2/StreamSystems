@@ -1,13 +1,9 @@
-import { OrderTypes } from 'interfaces/mdEntry';
 import { ExecTypes, Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 
 const getBuyer = (message: Message): string | null => {
-  if (
-    message.OrdStatus === ExecTypes.Filled ||
-    message.OrdStatus === ExecTypes.PartiallyFilled
-  )
-    return message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
+  if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
+    return message.Side === '1' ? message.MDMkt : message.ExecBroker;
   return null;
 };
 

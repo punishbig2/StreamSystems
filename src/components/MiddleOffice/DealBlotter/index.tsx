@@ -6,12 +6,13 @@ import { Message } from 'interfaces/message';
 import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { BlotterTypes } from 'columns/messageBlotter';
 import { getLink } from 'messageUtils';
+import { observer } from 'mobx-react';
 
 interface Props {
   id: string;
 }
 
-export const DealBlotter: React.FC<Props> = (props: Props): ReactElement | null => {
+export const DealBlotter: React.FC<Props> = observer((props: Props): ReactElement | null => {
   const rows: Message[] = messagesStore.systemExecutions;
   console.log(rows);
   const renderRow = (props: any): ReactElement | null => {
@@ -33,4 +34,4 @@ export const DealBlotter: React.FC<Props> = (props: Props): ReactElement | null 
                 renderRow={renderRow}
                 scrollable={true}
                 allowReorderColumns={true}/>;
-};
+});

@@ -102,10 +102,10 @@ const request = <T>(url: string, method: Method, data?: NotOfType<string>, conte
     if (data) {
       // Content type MUST be json
       if (contentType === undefined || contentType === 'application/json') {
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('content-type', 'application/json');
         xhr.send(JSON.stringify(data));
       } else if (contentType === 'application/x-www-form-urlencoded') {
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
         xhr.send(toUrlQuery(data));
       } else {
         throw new Error('unsupported media type');

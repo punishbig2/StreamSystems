@@ -50,8 +50,8 @@ interface Command {
 
 export class SignalRManager<A extends Action = AnyAction> {
   private connection: HubConnection | null;
-  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
+  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private recordedCommands: Command[] = [];
   private pendingW: { [k: string]: W } = {};
@@ -59,7 +59,8 @@ export class SignalRManager<A extends Action = AnyAction> {
   private listeners: { [k: string]: (arg: W) => void } = {};
   private static instance: SignalRManager | null = null;
 
-  private darkpoolPriceListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
+  private dpListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
+  private onMessageListener: (message: Message) => void = () => null;
 
   private constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
@@ -101,6 +102,8 @@ export class SignalRManager<A extends Action = AnyAction> {
           this.replayRecorderCommands();
         })
         .catch(console.log);
+    } else {
+      console.error('attempted to connect but the `connection\' object is `null\'');
     }
   };
 
@@ -110,15 +113,19 @@ export class SignalRManager<A extends Action = AnyAction> {
       connection.onclose((error?: Error) => {
         if (error)
           console.warn(error);
-        if (this.onDisconnectedListener) {
+        if (this.onDisconnectedListener)
           this.onDisconnectedListener(connection);
-        }
       });
       connection.onreconnecting((error?: Error) => {
+        if (error)
+          console.warn(error);
       });
-      // Install update market handler
+      connection.onreconnected(() => {
+        this.setup(connection);
+      });
       connection.on('updateMarketData', this.onUpdateMarketData);
       connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
+      connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
     }
   };
 
@@ -167,10 +174,18 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
+  private onUpdateMessageBlotter(rawMessage: string) {
+    const message: Message = JSON.parse(rawMessage);
+    // First call the internal handler
+    this.handleMessageActions(message);
+    // Now call the setup handler
+    this.onMessageListener(message);
+  }
+
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const key: string = $$(message.Symbol, message.Strategy, message.Tenor);
-    const listener: ((m: DarkPoolMessage) => void) | undefined = this.darkpoolPriceListeners[key];
+    const listener: ((m: DarkPoolMessage) => void) | undefined = this.dpListeners[key];
     if (listener) {
       listener(message);
     }
@@ -190,12 +205,7 @@ export class SignalRManager<A extends Action = AnyAction> {
   }
 
   private replayCommand(command: Command) {
-    const { connection } = this;
-    if (connection === null)
-      return;
-    if (connection.state !== HubConnectionState.Connected)
-      return;
-    connection.invoke(command.name, ...command.args);
+    this.invoke(command.name, ...command.args);
   }
 
   public removeTOBWListener(symbol: string, strategy: string, tenor: string) {
@@ -209,13 +219,10 @@ export class SignalRManager<A extends Action = AnyAction> {
     if (index === -1) {
       console.warn(`command does not exist, cannot remove it`);
     } else {
-      const { connection } = this;
       const command: Command = recordedCommands[index];
-      if (connection === null)
-        return;
-      if (connection.state !== HubConnectionState.Connected)
-        return;
-      connection.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
+      // Unsubscribe now that we know which one exactyl
+      this.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
+      // Remove the listener
       delete this.listeners[key];
       // Update recorded commands
       this.recordedCommands = [...recordedCommands.slice(0, index), ...recordedCommands.slice(index + 1)];
@@ -248,12 +255,9 @@ export class SignalRManager<A extends Action = AnyAction> {
       return;
     const key: string = $$(currency, strategy, tenor);
     // Remove it from the map
-    delete this.darkpoolPriceListeners[key];
-    // Unsubscribe
-    const { connection } = this;
-    if (connection && connection.state === HubConnectionState.Connected) {
-      connection.invoke(SignalRMethods.UnsubscribeForDarkPoolPx, currency, strategy, tenor);
-    }
+    delete this.dpListeners[key];
+    // Invoke ths Signal R method
+    this.invoke(SignalRMethods.UnsubscribeForDarkPoolPx, currency, strategy, tenor);
   };
 
   public setDarkPoolPriceListener = (currency: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
@@ -267,7 +271,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     };
     recordedCommands.push(command);
     // Update the listeners map
-    this.darkpoolPriceListeners[key] = fn;
+    this.dpListeners[key] = fn;
     // Try to execute it now
     this.replayCommand(command);
   };
@@ -307,22 +311,36 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
-    const { connection } = this;
-    if (connection) {
-      connection.invoke(SignalRMethods.SubscribeForMBMsg, '*');
-      connection.on('updateMessageBlotter', (raw: string) => {
-        const message: Message = JSON.parse(raw);
-        // First call the internal handler
-        this.handleMessageActions(message);
-        // Now call the setup handler
-        onMessage(message);
-      });
-      return () => {
-        connection.invoke(SignalRMethods.UnsubscribeFromMBMsg, useremail);
-      };
+  public removeMessagesListener() {
+    const { recordedCommands } = this;
+    const index: number = recordedCommands.findIndex((cmd: Command) => cmd.name === SignalRMethods.SubscribeForMBMsg);
+    if (index !== -1) {
+      this.recordedCommands = [
+        ...recordedCommands.slice(0, index),
+        ...recordedCommands.slice(index + 1),
+      ];
     }
-    return () => null;
+    this.invoke(SignalRMethods.UnsubscribeFromMBMsg, '*');
+  };
+
+  public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
+    const { recordedCommands } = this;
+    recordedCommands.push({
+      name: SignalRMethods.SubscribeForMBMsg,
+      args: ['*'],
+    });
+    this.onMessageListener = onMessage;
+  }
+
+  private invoke(name: string, ...args: any[]) {
+    const { connection } = this;
+    if (connection === null)
+      return;
+    if (connection.state !== HubConnectionState.Connected) {
+      console.warn('attempting to invoke a signal R command with an inactive connection');
+      return;
+    }
+    connection.invoke(name, ...args);
   }
 }
 
