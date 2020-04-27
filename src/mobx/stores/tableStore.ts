@@ -21,12 +21,7 @@ export class TableStore {
   private columnsMap: { [columnName: string]: ColumnSpec } = {};
 
   constructor(columns: ColumnSpec[]) {
-    this.initialColumns = columns;
-    this.columnsMap = columns.reduce((map: { [name: string]: ColumnSpec }, spec: ColumnSpec) => {
-      map[spec.name] = spec;
-      return map;
-    }, {});
-    this.columnsOrder = columns.map((column: ColumnSpec, index: number) => index);
+    this.setInitialColumns(columns);
   }
 
   @computed
@@ -146,6 +141,16 @@ export class TableStore {
     ];
     newColumnsOrder.splice(targetIndex, 0, columnIndex);
     this.columnsOrder = newColumnsOrder;
+  }
+
+  @action.bound
+  public setInitialColumns(columns: ColumnSpec[]) {
+    this.initialColumns = columns;
+    this.columnsMap = columns.reduce((map: { [name: string]: ColumnSpec }, spec: ColumnSpec) => {
+      map[spec.name] = spec;
+      return map;
+    }, {});
+    this.columnsOrder = columns.map((column: ColumnSpec, index: number) => index);
   }
 }
 

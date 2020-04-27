@@ -22,7 +22,7 @@ interface Props {
 
 const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement | null => {
   const [store] = useState<TableStore>(new TableStore(props.columns));
-  const { rows: initialRows, id } = props;
+  const { rows: initialRows, columns: initialColumns, id } = props;
   const { rows, columns } = store;
 
   useEffect(() => {
@@ -38,6 +38,10 @@ const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement 
   useEffect(() => {
     store.setRows(initialRows);
   }, [store, initialRows]);
+
+  useEffect(() => {
+    store.setInitialColumns(initialColumns);
+  }, [store, initialColumns]);
 
   const [optimalWidth] = useState(getOptimalWidthFromColumnsSpec(columns));
   const style = useMemo((): CSSProperties => ({ minWidth: `${optimalWidth}px` }), [optimalWidth]);
