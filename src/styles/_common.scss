@@ -96,7 +96,8 @@
   }
 
   &:disabled {
-    opacity: 0.5;
+    background-color: lighten($background-color, 10%);
+    color: darken($button-foreground-color, 50%);
   }
 }
 

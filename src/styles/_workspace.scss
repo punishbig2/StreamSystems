@@ -154,8 +154,13 @@
           padding: 0 8px;
           margin: 0;
 
-          &:hover {
+          &:not(:disabled):hover {
             background-color: darken($primary-color, 10%);
+          }
+
+          &:disabled {
+            background-color: lighten($background-color, 10%);
+            color: darken($button-foreground-color, 50%);
           }
         }
       }

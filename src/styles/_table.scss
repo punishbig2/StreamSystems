@@ -200,12 +200,17 @@ $spinner-size: $table-row-height - 6;
                 outline: none;
                 margin: 0;
 
-                &:hover {
+                &:not(:disabled):hover {
                   background-color: darken($primary-color, 10%);
                 }
 
                 &:active {
                   transform: translateY(1px);
+                }
+
+                &:disabled {
+                  background-color: lighten($background-color, 10%);
+                  color: darken($button-foreground-color, 50%);
                 }
               }
             }

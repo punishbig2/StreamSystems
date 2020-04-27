@@ -14,7 +14,7 @@ import workareaStore from 'mobx/stores/workareaStore';
 interface RefButtonProps {
   type: OrderTypes;
   strategy: string;
-  symbol: string;
+  currency: string;
 }
 
 const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
@@ -22,9 +22,12 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
     [OrderTypes.Bid]: strings.RefBids,
     [OrderTypes.Ofr]: strings.RefOfrs,
   };
+  const isDisabled: boolean = props.currency === '' || props.strategy === '';
   return (
     <div className={'button-container'}>
-      <button onClick={cancelAll(props.type, props.symbol, props.strategy)}>{labels[props.type]}</button>
+      <button onClick={cancelAll(props.type, props.currency, props.strategy)} disabled={isDisabled}>
+        {labels[props.type]}
+      </button>
     </div>
   );
 };
@@ -39,13 +42,14 @@ const cancelAll = (type: OrderTypes, symbol: string, strategy: string) =>
     }
   };
 
-const getRefButton = (depth: boolean, symbol: string, strategy: string, type: OrderTypes): (() => ReactElement | null) => {
+const getRefButton = (depth: boolean, currency: string, strategy: string, type: OrderTypes): (() => ReactElement | null) => {
   if (depth)
     return () => null;
-  return () => <RefButton type={type} symbol={symbol} strategy={strategy}/>;
+  return () => <RefButton type={type} currency={currency} strategy={strategy}/>;
 };
 
-const columns = (symbol: string, strategy: string, depth: boolean = false): ColumnSpec[] => {
+const columns = (currency: string, strategy: string, depth: boolean = false): ColumnSpec[] => {
+  console.log(currency, strategy);
   const user: User = workareaStore.user;
   return [
     TenorColumn(),
@@ -54,14 +58,14 @@ const columns = (symbol: string, strategy: string, depth: boolean = false): Colu
       strings.BidPx,
       OrderTypes.Bid,
       depth,
-      getRefButton(depth, symbol, strategy, OrderTypes.Bid),
+      getRefButton(depth, currency, strategy, OrderTypes.Bid),
     ),
     DarkPoolColumn(),
     OrderColumnWrapper(
       strings.OfrPx,
       OrderTypes.Ofr,
       depth,
-      getRefButton(depth, symbol, strategy, OrderTypes.Ofr),
+      getRefButton(depth, currency, strategy, OrderTypes.Ofr),
     ),
     ...(user.isbroker ? [FirmColumn(OrderTypes.Ofr)] : []),
   ];

@@ -37,7 +37,7 @@ export const columns: ColumnSpec[] = [{
       if (props.ExDestination === 'DP') {
         return 'Dark Pool';
       } else {
-        return 'Executions';
+        return 'Execution';
       }
     },
     filterable: true,

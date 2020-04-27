@@ -5,7 +5,7 @@ import { Table } from 'components/Table';
 import { useInitializer } from 'components/PodTile/hooks/useInitializer';
 import { Row } from 'components/PodTile/Row';
 import { Order } from 'interfaces/order';
-import React, { ReactElement, useEffect, useMemo, CSSProperties, useCallback } from 'react';
+import React, { ReactElement, useEffect, CSSProperties, useCallback, useMemo } from 'react';
 import { Currency } from 'interfaces/currency';
 import { observer } from 'mobx-react';
 import { User } from 'interfaces/user';
@@ -135,12 +135,9 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
            onTenorSelected={store.setCurrentTenor}/>
     );
   }, [currency, strategy, store.darkpool, store.orders, store.setCurrentTenor]);
-  const dobColumns = useMemo(() => createPODColumns(currency.name, strategy, true),
-    [strategy, currency.name],
-  );
-  const tobColumns = useMemo(() => createPODColumns(currency.name, strategy, false),
-    [strategy, currency.name],
-  );
+
+  const dobColumns = useMemo(() => createPODColumns(currency.name, strategy, true), [currency, strategy]);
+  const podColumns = useMemo(() => createPODColumns(currency.name, strategy, false), [currency, strategy]);
   // In case we lost the dob please reset this so that double
   // clicking the tenor keeps working
   useEffect(() => {
@@ -160,7 +157,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const getWindowContent = () => {
     if (props.minimized) {
       const style: CSSProperties = {
-        width: getOptimalWidthFromColumnsSpec(tobColumns),
+        width: getOptimalWidthFromColumnsSpec(podColumns),
         height: 1, // We need a minimal height or else it wont be rendered at all
       };
       return <div style={style}/>;
@@ -181,7 +178,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
           <Table id={`${props.id}-top`}
                  className={loadingClass}
                  scrollable={!!props.scrollable}
-                 columns={tobColumns}
+                 columns={podColumns}
                  rows={rows}
                  renderRow={renderPodRow}/>
         </div>
