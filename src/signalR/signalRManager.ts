@@ -8,7 +8,6 @@ import {
 import config from 'config';
 import { Message, DarkPoolMessage, ExecTypes } from 'interfaces/message';
 import { W, isPodW } from 'interfaces/w';
-import { Action, AnyAction } from 'redux';
 import { API } from 'API';
 import { $$ } from 'utils/stringPaster';
 import { MDEntry } from 'interfaces/mdEntry';
@@ -32,23 +31,12 @@ export enum SignalRMethods {
   UnsubscribeForDarkPoolPx = 'UnsubscribeForDarkPoolPx',
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-enum SignalRMessageTypes {
-  Invocation = 1,
-  StreamItem = 2,
-  Completion = 3,
-  StreamInvocation = 4,
-  CancelInvocation = 5,
-  Ping = 6,
-  Close = 7
-}
-
 interface Command {
   name: string;
   args: any[];
 }
 
-export class SignalRManager<A extends Action = AnyAction> {
+export class SignalRManager {
   private connection: HubConnection | null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onConnectedListener: ((connection: HubConnection) => void) | null = null;
@@ -57,25 +45,17 @@ export class SignalRManager<A extends Action = AnyAction> {
   private pendingW: { [k: string]: W } = {};
 
   private listeners: { [k: string]: (arg: W) => void } = {};
-  private static instance: SignalRManager | null = null;
 
   private dpListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
   private onMessageListener: (message: Message) => void = () => null;
 
-  private constructor() {
+  constructor() {
     const connection: HubConnection = SignalRManager.createConnection();
     connection.serverTimeoutInMilliseconds = 3600000;
     connection.keepAliveIntervalInMilliseconds = 8000;
     // Export to class wide variable
     this.connection = connection;
   }
-
-  static getInstance = (): SignalRManager => {
-    if (SignalRManager.instance !== null)
-      return SignalRManager.instance;
-    SignalRManager.instance = new SignalRManager();
-    return SignalRManager.instance;
-  };
 
   static createConnection = () =>
     new HubConnectionBuilder()
@@ -98,8 +78,6 @@ export class SignalRManager<A extends Action = AnyAction> {
           if (this.onConnectedListener !== null)
             this.onConnectedListener(connection);
           this.reconnectDelay = INITIAL_RECONNECT_DELAY;
-          // Replay recorded commands
-          this.replayRecorderCommands();
         })
         .catch(console.log);
     } else {
@@ -123,18 +101,16 @@ export class SignalRManager<A extends Action = AnyAction> {
       connection.onreconnected(() => {
         this.setup(connection);
       });
+      // Listen to installed combinations
+      this.replayRecordedCommands();
+      // Install listeners
       connection.on('updateMarketData', this.onUpdateMarketData);
       connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
       connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
     }
   };
 
-  private onUpdateMarketData = (message: string): void => {
-    const w: W = JSON.parse(message);
-    this.handleWMessage(w);
-  };
-
-  private static isEmptyW(w: W): boolean {
+  private static isEmptyW = (w: W): boolean => {
     const entries: MDEntry[] = w.Entries;
     if (!entries || entries.length < 2)
       return true;
@@ -152,8 +128,7 @@ export class SignalRManager<A extends Action = AnyAction> {
     return full;
   };
 
-  public handleWMessage(w: W) {
-
+  public handleWMessage = (w: W) => {
     if (w.ExDestination === undefined) {
       const key: string = $$(w.Symbol, w.Strategy, w.Tenor);
       if (!this.pendingW[key]) {
@@ -174,13 +149,20 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  private onUpdateMessageBlotter(rawMessage: string) {
+  private onUpdateMessageBlotter = (rawMessage: string) => {
     const message: Message = JSON.parse(rawMessage);
+    console.log(message);
     // First call the internal handler
     this.handleMessageActions(message);
     // Now call the setup handler
+    console.log(this.onMessageListener);
     this.onMessageListener(message);
-  }
+  };
+
+  private onUpdateMarketData = (message: string): void => {
+    const w: W = JSON.parse(message);
+    this.handleWMessage(w);
+  };
 
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
@@ -199,16 +181,16 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.onDisconnectedListener = fn;
   };
 
-  private replayRecorderCommands() {
+  private replayRecordedCommands = () => {
     const { recordedCommands } = this;
     recordedCommands.forEach(this.replayCommand);
-  }
+  };
 
-  private replayCommand(command: Command) {
+  private replayCommand = (command: Command) => {
     this.invoke(command.name, ...command.args);
-  }
+  };
 
-  public removeTOBWListener(symbol: string, strategy: string, tenor: string) {
+  public removeTOBWListener = (symbol: string, strategy: string, tenor: string) => {
     const { recordedCommands } = this;
     const key: string = $$(symbol, strategy, tenor);
     const index: number = recordedCommands.findIndex((command: Command) => {
@@ -220,16 +202,16 @@ export class SignalRManager<A extends Action = AnyAction> {
       console.warn(`command does not exist, cannot remove it`);
     } else {
       const command: Command = recordedCommands[index];
-      // Unsubscribe now that we know which one exactyl
+      // Unsubscribe now that we know which one exactly
       this.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
       // Remove the listener
       delete this.listeners[key];
       // Update recorded commands
       this.recordedCommands = [...recordedCommands.slice(0, index), ...recordedCommands.slice(index + 1)];
     }
-  }
+  };
 
-  public setMarketListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+  public setMarketListener = (symbol: string, strategy: string, tenor: string, listener: (w: W) => void) => {
     const { recordedCommands } = this;
     const key: string = $$(symbol, strategy, tenor);
     // Just add the listener, the rest is done elsewhere
@@ -242,13 +224,13 @@ export class SignalRManager<A extends Action = AnyAction> {
     recordedCommands.push(command);
     // Try to run the command now
     this.replayCommand(command);
-  }
+  };
 
-  public setTOBWListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+  public setTOBWListener = (symbol: string, strategy: string, tenor: string, listener: (w: W) => void) => {
     const key: string = $$(symbol, strategy, tenor);
     // We always save the listener
     this.listeners[key] = listener;
-  }
+  };
 
   public removeDarkPoolPriceListener = (currency: string, strategy: string, tenor: string) => {
     if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
@@ -276,14 +258,14 @@ export class SignalRManager<A extends Action = AnyAction> {
     this.replayCommand(command);
   };
 
-  public setDarkPoolOrderListener(symbol: string, strategy: string, tenor: string, listener: (w: W) => void) {
+  public setDarkPoolOrderListener = (symbol: string, strategy: string, tenor: string, listener: (w: W) => void) => {
     const key: string = $$(symbol, strategy, tenor, 'Dp');
     // Commands already exists as this is the same as the market update
     this.listeners[key] = listener;
     return () => {
       delete this.listeners[key];
     };
-  }
+  };
 
   private handleMessageActions = (message: Message) => {
     const { preferences: userProfile } = userProfileStore;
@@ -311,28 +293,28 @@ export class SignalRManager<A extends Action = AnyAction> {
     }
   };
 
-  public removeMessagesListener() {
+  public removeMessagesListener = () => {
     const { recordedCommands } = this;
-    const index: number = recordedCommands.findIndex((cmd: Command) => cmd.name === SignalRMethods.SubscribeForMBMsg);
-    if (index !== -1) {
-      this.recordedCommands = [
-        ...recordedCommands.slice(0, index),
-        ...recordedCommands.slice(index + 1),
-      ];
-    }
+    this.recordedCommands = recordedCommands.filter((command: Command) => {
+      return command.name === SignalRMethods.SubscribeForMBMsg;
+    });
     this.invoke(SignalRMethods.UnsubscribeFromMBMsg, '*');
   };
 
-  public setMessagesListener(useremail: any, onMessage: (message: Message) => void) {
+  public setMessagesListener = (onMessage: (message: Message) => void) => {
     const { recordedCommands } = this;
-    recordedCommands.push({
+    const command: Command = {
       name: SignalRMethods.SubscribeForMBMsg,
       args: ['*'],
-    });
+    };
     this.onMessageListener = onMessage;
-  }
+    // Add it to the list
+    recordedCommands.push(command);
+    // Execute it
+    this.replayCommand(command);
+  };
 
-  private invoke(name: string, ...args: any[]) {
+  private invoke = (name: string, ...args: any[]) => {
     const { connection } = this;
     if (connection === null)
       return;
@@ -340,10 +322,13 @@ export class SignalRManager<A extends Action = AnyAction> {
       console.warn('attempting to invoke a signal R command with an inactive connection');
       return;
     }
-    connection.invoke(name, ...args);
-  }
+    connection.invoke(name, ...args)
+      .then((result: any) => {
+        if (result !== 'success') {
+          console.warn(`there was a problem invoking \`${name}' with \`${args}': `, result);
+        }
+      });
+  };
 }
 
-// Call this to initialize it
-SignalRManager.getInstance();
-
+export default new SignalRManager();

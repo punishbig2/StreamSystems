@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { SignalRManager } from 'signalR/signalRManager';
+import signalRManager from 'signalR/signalRManager';
 import { W } from 'interfaces/w';
 import { PodRow } from 'interfaces/podRow';
 import { toPodRow } from 'utils/dataParser';
@@ -12,7 +12,6 @@ export const useWListener = (symbol: string, strategy: string, tenor: string, st
     const user: User = workareaStore.user;
     if (!symbol || !strategy || symbol === '' || strategy === '')
       return;
-    const signalRManager: SignalRManager = SignalRManager.getInstance();
     const listener = async (w: W) => {
       const row: PodRow = toPodRow(w, user);
       // Update the dark price

@@ -6,7 +6,7 @@ import { W } from 'interfaces/w';
 import { PodTable } from 'interfaces/podTable';
 import { toPodRow } from 'utils/dataParser';
 import { User } from 'interfaces/user';
-import { SignalRManager } from 'signalR/signalRManager';
+import signalRManager from 'signalR/signalRManager';
 import { tenorToNumber } from 'utils/dataGenerators';
 import { Order } from 'interfaces/order';
 import { MDEntry } from 'interfaces/mdEntry';
@@ -65,7 +65,6 @@ export class PodTileStore {
 
   @action.bound
   private initializeFromSnapshot(snapshot: { [k: string]: W }, darkpool: { [k: string]: W }, user: User) {
-    const signalRManger: SignalRManager = SignalRManager.getInstance();
     if (snapshot !== null) {
       const keys: string[] = Object.keys(snapshot);
       // Sort by tenor
@@ -73,7 +72,7 @@ export class PodTileStore {
       // Update the rows object
       this.rows = keys.reduce((table: PodTable, tenor: string): PodTable => {
         // Set the darkpool order per row
-        signalRManger.handleWMessage({ ...darkpool[tenor], ExDestination: 'DP' });
+        signalRManager.handleWMessage({ ...darkpool[tenor], ExDestination: 'DP' });
         // Now create the row in the table
         table[tenor] = toPodRow(snapshot[tenor], user);
         return table;
@@ -117,7 +116,6 @@ export class PodTileStore {
   }
 
   public addMarketListener(currency: string, strategy: string, tenor: string) {
-    const signalRManager: SignalRManager = SignalRManager.getInstance();
     signalRManager.setMarketListener(currency, strategy, tenor, (w: W) => {
       this.updateSingleDepth(tenor, w);
     });

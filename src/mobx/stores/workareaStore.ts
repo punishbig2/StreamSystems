@@ -9,7 +9,7 @@ import { API } from 'API';
 import latam from 'groups/latam';
 
 import strings from 'locales';
-import { SignalRManager } from 'signalR/signalRManager';
+import signalRManager from 'signalR/signalRManager';
 import { randomID } from 'randomID';
 import { WindowDef } from 'mobx/stores/workspaceStore';
 import { PresetWindow } from 'groups/presetWindow';
@@ -209,8 +209,6 @@ export class WorkareaStore {
         this.user = user;
         this.loadingMessage = strings.EstablishingConnection;
         WorkareaStore.cleanupUrl(user.email);
-        // Load other stuff
-        const signalRManager: SignalRManager = SignalRManager.getInstance();
         // Start the loading mode
         this.status = WorkareaStatus.Initializing;
         // Load currencies

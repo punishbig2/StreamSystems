@@ -14,7 +14,6 @@ interface Props {
 
 export const DealBlotter: React.FC<Props> = observer((props: Props): ReactElement | null => {
   const rows: Message[] = messagesStore.systemExecutions;
-  console.log(rows);
   const renderRow = (props: any): ReactElement | null => {
     const message: Message = props.row;
     return (

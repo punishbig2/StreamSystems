@@ -1,7 +1,7 @@
 import { Message } from 'interfaces/message';
 import { observable, action } from 'mobx';
 import { API } from 'API';
-import { SignalRManager } from 'signalR/signalRManager';
+import signalRManager from 'signalR/signalRManager';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
 import { isAcceptableFill, isFill, sortByTimeDescending, isMyMessage, getLink } from 'messageUtils';
@@ -46,21 +46,19 @@ export class MessagesStore {
   }
 
   @action.bound
-  public connect(email: string) {
+  public connect() {
     // Call the initializer now, because the user email
     // has surely been set ;)
     this.initialize();
     // Connect to signal R's manager
-    const signalRManager: SignalRManager = SignalRManager.getInstance();
     // First cleanup the old listener if it's here
-    signalRManager.setMessagesListener(email, (message: Message) => {
+    signalRManager.setMessagesListener((message: Message) => {
       this.addEntry(message);
     });
   }
 
   @action.bound
   public disconnect() {
-    const signalRManager: SignalRManager = SignalRManager.getInstance();
     signalRManager.removeMessagesListener();
   }
 }

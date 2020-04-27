@@ -1,7 +1,7 @@
 import { observable, computed, action } from 'mobx';
 import { Order, OrderStatus, DarkPoolOrder } from 'interfaces/order';
 import { W } from 'interfaces/w';
-import { SignalRManager } from 'signalR/signalRManager';
+import signalRManager from 'signalR/signalRManager';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
 import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
@@ -96,7 +96,6 @@ export class DarkPoolStore {
 
   @action.bound
   public connect(currency: string, strategy: string, tenor: string) {
-    const signalRManager = SignalRManager.getInstance();
     signalRManager.setDarkPoolPriceListener(currency, strategy, tenor, this.onDarkPoolPricePublished);
     signalRManager.setDarkPoolOrderListener(currency, strategy, tenor, this.onOrderReceived);
     // Read saved value
@@ -109,7 +108,6 @@ export class DarkPoolStore {
   }
 
   public static disconnect(currency: string, strategy: string, tenor: string) {
-    const signalRManager = SignalRManager.getInstance();
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }
 
