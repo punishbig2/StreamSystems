@@ -49,7 +49,6 @@ const getRefButton = (depth: boolean, currency: string, strategy: string, type: 
 };
 
 const columns = (currency: string, strategy: string, depth: boolean = false): ColumnSpec[] => {
-  console.log(currency, strategy);
   const user: User = workareaStore.user;
   return [
     TenorColumn(),

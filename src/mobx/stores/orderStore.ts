@@ -7,6 +7,7 @@ import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -193,6 +194,13 @@ export class OrderStore {
     if (!depth)
       return;
     this.depth = depth.filter((order: Order) => order.size !== null);
+  }
+
+  public shouldCancelReplace(size: number | null) {
+    const changed: boolean = sizeFormatter(size) !== sizeFormatter(this.baseSize);
+    if ((this.baseStatus & OrderStatus.Owned) !== 0)
+      return changed;
+    return true;
   }
 }
 
