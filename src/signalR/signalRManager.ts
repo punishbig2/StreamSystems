@@ -151,11 +151,9 @@ export class SignalRManager {
 
   private onUpdateMessageBlotter = (rawMessage: string) => {
     const message: Message = JSON.parse(rawMessage);
-    console.log(message);
     // First call the internal handler
     this.handleMessageActions(message);
     // Now call the setup handler
-    console.log(this.onMessageListener);
     this.onMessageListener(message);
   };
 

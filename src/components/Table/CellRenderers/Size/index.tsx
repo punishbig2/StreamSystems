@@ -1,7 +1,7 @@
 import { NumericInput } from 'components/NumericInput';
 import { Chevron } from 'components/Table/CellRenderers/Price/chevron';
 import { OrderTypes } from 'interfaces/mdEntry';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { sizeFormatter } from 'utils/sizeFormatter';
 import { NavigateDirection } from 'components/NumericInput/navigateDirection';
 import { xPoints } from 'timesPolygon';
@@ -9,20 +9,19 @@ import { xPoints } from 'timesPolygon';
 interface OwnProps {
   type: OrderTypes;
   value: number | null;
-  onChange: (value: string | null) => void;
+  // onChange: (value: string | null) => void;
   cancellable?: boolean;
   onCancel?: () => void;
   className?: string;
   chevron?: boolean;
   tabIndex?: number;
   readOnly?: boolean;
-  onSubmit: (target: HTMLInputElement) => void;
+  onSubmit: (target: HTMLInputElement, value: number | null) => void;
   onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const defaultProps: OwnProps = {
-  onChange: () => null,
+  // onChange: () => null,
   onCancel: () => null,
   onSubmit: () => null,
   type: OrderTypes.Invalid,
@@ -33,20 +32,47 @@ const defaultProps: OwnProps = {
 
 export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
   const { value } = props;
-
+  const [internalValue, setInternalValue] = useState<number | null>(value);
   const classes: string[] = ['times'];
+
+  // If value prop changes, change our internal representation too
+  useEffect(() => {
+    setInternalValue(value);
+  }, [value]);
+
+  const onChange = (value: string | null) => {
+    if (value === null) {
+      setInternalValue(value);
+    } else {
+      const numeric: number = Number(value);
+      if (isNaN(numeric)) {
+        setInternalValue(null);
+      } else {
+        setInternalValue(numeric);
+      }
+    }
+  };
+
+  const onSubmit = (input: HTMLInputElement) => {
+    props.onSubmit(input, internalValue);
+  };
+
+  const onBlur = () => {
+    setInternalValue(value);
+  };
+
   const children: ReactNode[] = [
     <NumericInput
       key={1}
-      value={value !== undefined ? sizeFormatter(value) : ''}
+      value={sizeFormatter(internalValue)}
       type={'size'}
       className={props.className}
       tabIndex={props.tabIndex}
       readOnly={props.readOnly}
-      onBlur={props.onBlur}
-      onChange={props.onChange}
       onNavigate={props.onNavigate}
-      onSubmit={props.onSubmit}/>,
+      onBlur={onBlur}
+      onChange={onChange}
+      onSubmit={onSubmit}/>,
   ];
 
   if (props.cancellable)

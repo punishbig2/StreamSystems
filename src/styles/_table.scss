@@ -333,6 +333,10 @@ $spinner-size: $table-row-height - 6;
           height: $table-row-height;
           color: inherit;
 
+          &.modified {
+            color: $foreground-color;
+          }
+
           &:focus {
             outline: 2px solid $primary-color;
             outline-offset: -2px;

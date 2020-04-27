@@ -11,16 +11,8 @@ export const reducer = (state: State, action: FXOAction<PriceActions>): State =>
       return { ...state, tooltipVisible: false };
     case PriceActions.MoveTooltip:
       return { ...state, ...data };
-    case PriceActions.SetStatus:
-      return { ...state, status: data };
     case PriceActions.SetValue:
-      return {
-        ...state,
-        internalValue: data.value,
-        status: state.status | data.status,
-      };
-    case PriceActions.ResetValue:
-      return { ...state, internalValue: data.value, status: data.status };
+      return { ...state, internalValue: data.value };
     case PriceActions.Flash:
       return { ...state, flash: true };
     case PriceActions.Unflash:

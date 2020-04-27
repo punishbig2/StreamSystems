@@ -21,18 +21,23 @@ export class OrderStore {
   @observable currentStatus: OrderStatus = OrderStatus.None;
   @observable baseStatus: OrderStatus = OrderStatus.None;
 
-  @observable submittedSize: number | null = null;
-  @observable editedSize: number | null = null;
   @observable defaultSize: number = 0;
   @observable minimumSize: number = 0;
   @observable orderTicket: Order | null = null;
 
   @observable.ref depth: Order[] = [];
 
+  get myOrder(): Order | null {
+    const { depth } = this;
+    const user: User = workareaStore.user;
+    const found: Order | undefined = depth.find((o: Order) => o.user === user.email);
+    if (found !== undefined)
+      return found;
+    return null;
+  }
+
   @computed
   get size() {
-    if (this.editedSize !== null)
-      return this.editedSize;
     if ((this.baseStatus & OrderStatus.InDepth) !== 0 || (this.baseSize === null))
       return this.baseSize;
     return getAggregatedSize(this, this.depth);
@@ -48,18 +53,24 @@ export class OrderStore {
     return 0;
   }
 
-  public getCreateSize() {
-    if ((this.status & OrderStatus.Owned) === 0)
-      return this.defaultSize !== undefined ? this.defaultSize : this.minimumSize;
-    // If a size was submitted use it
-    if (this.editedSize !== null)
-      return this.editedSize;
-    // Otherwise use current order's size
-    if (this.baseSize !== null)
-      return this.baseSize;
-    // Finally use the default size
+  public getCreatorPrice(editedPrice: number | null): number | null {
+    const { myOrder } = this;
+    if (editedPrice !== null)
+      return editedPrice;
+    if (myOrder === null)
+      return null;
+    return myOrder.price;
+  }
+
+  public getCreatorSize(editedSize: number | null): number | null {
+    const { myOrder } = this;
     if (this.defaultSize === undefined)
       throw new Error('impossible to determine order creation size');
+    if (editedSize !== null)
+      return editedSize;
+    if (myOrder !== null && myOrder.size !== null)
+      return myOrder.size;
+    // Finally use the default size
     return this.defaultSize;
   }
 
@@ -69,16 +80,12 @@ export class OrderStore {
   }
 
   @action.bound
-  public resetAllSizes() {
-    this.submittedSize = null;
-    this.editedSize = null;
-  }
-
-  @action.bound
-  public async create() {
-    const price: number | null = this.price;
-    const size: number | null = this.getCreateSize();
-    if (price === null || size === null)
+  public async create(inputPrice: number | null, inputSize: number | null) {
+    const price: number | null = this.getCreatorPrice(inputPrice);
+    const size: number | null = this.getCreatorSize(inputSize);
+    if (price === null) /* in this case just ignore this */
+      return;
+    if (size === null)
       throw new Error('cannot create orders when the user has not initialized the cell');
     // First cancel previous orders if any
     if ((this.status & OrderStatus.Cancelled) === 0)
@@ -137,26 +144,17 @@ export class OrderStore {
   }
 
   @action.bound
-  public setEditedSize(value: number | null) {
-    this.editedSize = value;
-  }
-
-  @action.bound
   public setOrder(order: Order | undefined, status: OrderStatus) {
     if (order) {
       this.price = order.price;
       this.baseSize = order.size;
       this.orderID = order.orderId;
-      this.submittedSize = null;
-      this.editedSize = null;
       this.type = order.type;
       this.symbol = order.symbol;
       this.strategy = order.strategy;
       this.tenor = order.tenor;
     }
     this.baseStatus = status;
-    this.submittedSize = null;
-    this.editedSize = null;
   }
 
   @action.bound

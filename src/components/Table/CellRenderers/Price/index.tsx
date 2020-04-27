@@ -10,7 +10,7 @@ import { reducer } from 'components/Table/CellRenderers/Price/reducer';
 import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
 import { OrderTypes } from 'interfaces/mdEntry';
 import { ArrowDirection } from 'interfaces/w';
-import React, { useCallback, useReducer, ReactElement, useState } from 'react';
+import React, { useCallback, useReducer, ReactElement, useState, useEffect } from 'react';
 import { createAction } from 'actionCreator';
 import { priceFormatter } from 'utils/priceFormatter';
 import { useValueListener } from 'components/Table/CellRenderers/Price/hooks/useValueListener';
@@ -52,26 +52,25 @@ export const Price: React.FC<Props> = (props: Props) => {
   const { timestamp, value, tooltip } = props;
   if (value === undefined)
     throw new Error('value is not optional');
+
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
   const [state, dispatch] = useReducer(reducer, {
     tooltipX: 0,
     tooltipY: 0,
     tooltipVisible: false,
     flash: false,
-    initialStatus: props.status,
-    status: props.status || OrderStatus.None,
-    internalValue: priceFormatter(value),
+    internalValue: ((props.status & OrderStatus.Cancelled) === 0) ? priceFormatter(value) : '',
   });
   const { tooltipVisible } = state;
 
   const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
-  const setInternalValue = useCallback((value: string, status: OrderStatus) => {
-    dispatch(createAction(PriceActions.SetValue, { value, status }));
+  const setInternalValue = useCallback((value: string) => {
+    dispatch(createAction(PriceActions.SetValue, { value }));
   }, []);
 
-  const resetValue = useCallback((value: string, status: OrderStatus) => {
+  /*const resetValue = useCallback((value: string, status: OrderStatus) => {
     dispatch(createAction(PriceActions.ResetValue, { value, status }));
-  }, []);
+  }, []);*/
 
   const showTooltip = tooltip ? (event: React.MouseEvent<HTMLDivElement>) => {
     dispatch(createAction(PriceActions.ShowTooltip));
@@ -86,11 +85,26 @@ export const Price: React.FC<Props> = (props: Props) => {
   };
   const stopFlashing = () => dispatch(createAction(PriceActions.Unflash));
 
+  useEffect(() => {
+    if ((props.status & OrderStatus.Cancelled) === 0)
+      return;
+    setInternalValue('');
+  }, [props.status, setInternalValue]);
   useStatusUpdater(props.status, setStatus);
   useFlasher(state.flash, stopFlashing);
   useValueComparator(value, startFlashing, props.status);
   useValueListener(value, timestamp, setInternalValue);
-
+  useEffect(() => {
+    if (props.value === null) {
+      setInternalValue('');
+    } else {
+      if ((props.status & OrderStatus.Cancelled) === 0) {
+        setInternalValue(priceFormatter(props.value));
+      } else {
+        setInternalValue('');
+      }
+    }
+  }, [props, setInternalValue]);
   const getTooltip = (): ReactElement | null => {
     if (!tooltip || !tooltipVisible)
       return null;
@@ -109,13 +123,13 @@ export const Price: React.FC<Props> = (props: Props) => {
       const trimmed: string = value.trim();
       const numeric: number = Number(`${trimmed}0`);
       if (trimmed.length === 0) {
-        setInternalValue('', OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+        setInternalValue('');
       } else if (!isNaN(numeric)) {
-        setInternalValue(trimmed, OrderStatus.PriceEdited & ~OrderStatus.PreFilled);
+        setInternalValue(trimmed);
       }
     } else {
       // Reset the input item
-      setInternalValue(priceFormatter(value), props.status);
+      setInternalValue(priceFormatter(value));
     }
   };
 
@@ -129,7 +143,7 @@ export const Price: React.FC<Props> = (props: Props) => {
     // Stop the event
     event.stopPropagation();
     event.preventDefault();
-    if (props.onDoubleClick && isOpenOrderTicketStatus(state.status)) {
+    if (props.onDoubleClick && isOpenOrderTicketStatus(props.status)) {
       const target: HTMLInputElement = event.currentTarget;
       // Remove focus and selection
       target.setSelectionRange(0, 0);
@@ -139,61 +153,38 @@ export const Price: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const finalValue = (status: OrderStatus): string => {
+  const isModified = (): boolean => {
     const { internalValue } = state;
-    if (internalValue === null || ((status & OrderStatus.Cancelled) !== 0 && (status & OrderStatus.PriceEdited) === 0))
-      return '';
-    return internalValue;
+    const trimmedValue: string = internalValue.trim();
+    const numeric: number | null = trimmedValue === '' ? null : Number(trimmedValue);
+    if (internalValue.trim() === '')
+      return false;
+    return priceFormatter(numeric) !== priceFormatter(value);
   };
 
   const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
-    if ((state.status & OrderStatus.PriceEdited) === 0) {
-      props.onSubmit(input, null, false, tabDirection);
-      return;
-    }
-    // Ignore the submission if the user has not "modified" the value
-    const internalValue: string | null = state.internalValue;
-    if ((state.status & OrderStatus.Cancelled) !== 0 && (state.status & OrderStatus.PriceEdited) === 0)
-      return;
-    if (internalValue === null || internalValue.trim() === '') {
+    const { internalValue } = state;
+    const trimmedValue: string = internalValue.trim();
+    const numeric: number | null = trimmedValue === '' ? null : Number(trimmedValue);
+    if ((numeric !== null) && isNaN(numeric))
+      throw new Error('unexpected problem with non numeric price');
+    const changed: boolean = isModified();
+    if (numeric === 0 && !props.allowZero) {
       props.onSubmit(input, null, false, tabDirection);
     } else {
-      const numeric: number = Number(internalValue);
-      // If it's non-numeric also ignore this
-      if (isNaN(numeric) || (numeric === 0 && !props.allowZero)) {
-        props.onSubmit(input, null, false, tabDirection);
-      } else {
-        const changed: boolean = (() => {
-          if ((props.status & OrderStatus.Owned) === 0 || (props.status & OrderStatus.Cancelled) !== 0)
-            return true;
-          return priceFormatter(numeric) !== priceFormatter(value);
-        })();
-        // Update the internal value
-        setInternalValue(priceFormatter(numeric), state.status);
-        if (props.min !== null && props.min !== undefined) {
-          if (props.min >= numeric && typeof props.onError === 'function') {
-            props.onError(PriceErrors.LessThanMin, input);
-          } else {
-            props.onSubmit(input, numeric, changed, tabDirection);
-          }
-        } else if (props.max !== null && props.max !== undefined) {
-          if (props.max <= numeric && typeof props.onError === 'function') {
-            props.onError(PriceErrors.GreaterThanMax, input);
-          } else {
-            props.onSubmit(input, numeric, changed, tabDirection);
-          }
-        } else {
-          props.onSubmit(input, numeric, changed, tabDirection);
-        }
-      }
+      props.onSubmit(input, numeric, changed, tabDirection);
     }
   };
 
   const onCancelEdit = () => {
-    resetValue(priceFormatter(props.value), props.status);
+    if ((props.status & OrderStatus.Cancelled) === 0) {
+      setInternalValue(priceFormatter(props.value));
+    } else {
+      setInternalValue('');
+    }
   };
 
-  const getPlaceholder = (status: OrderStatus, value: number | null) => {
+  const getPlaceholder = (value: number | null) => {
     return priceFormatter(value);
   };
 
@@ -239,9 +230,9 @@ export const Price: React.FC<Props> = (props: Props) => {
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
           title={props.title}
-          value={finalValue(state.status)}
-          className={getOrderStatusClass(state.status, props.className)}
-          placeholder={getPlaceholder(state.status, props.value)}
+          value={state.internalValue}
+          className={isModified() ? 'modified' : 'initial'}
+          placeholder={getPlaceholder(props.value)}
           type={'price'}
           onCancelEdit={onCancelEdit}
           onBlur={onCancelEdit}

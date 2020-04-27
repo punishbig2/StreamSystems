@@ -72,8 +72,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
     rowStore.setError(null);
   }, [price, rowStore, size]);
 
-  const resetSize = () => store.setEditedSize(store.submittedSize);
-  const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
+  // const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
   const renderTooltip = (): ReactElement | null => {
     const filtered: Order[] = relevantOrders.filter((order: Order) => order.size !== null);
     if (filtered.length <= 1)
@@ -110,9 +109,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
           readOnly={readOnly}
           chevron={(store.status & OrderStatus.HasDepth) !== 0}
           onCancel={store.cancel}
-          onBlur={resetSize}
           onNavigate={onNavigate}
-          onChange={onChangeSize}
           onSubmit={errorHandler(onSubmitSize(store))}/>
   );
 
@@ -123,7 +120,6 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
       value={price}
       min={store.minimumPrice}
       max={store.maximumPrice}
-      className={'pod'}
       readOnly={readOnly}
       arrow={(store.status & OrderStatus.HasDepth) ? order.arrowDirection : ArrowDirection.None}
       tooltip={renderTooltip}

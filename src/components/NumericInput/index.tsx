@@ -100,6 +100,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
       id={props.id}
       title={props.title}
       data-input-type={props.type}
+      className={props.className}
       placeholder={props.placeholder}
       onKeyDown={onKeyPress}
       onChange={onChangeWrapper}
