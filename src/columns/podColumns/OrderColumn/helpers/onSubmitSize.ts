@@ -1,6 +1,5 @@
 import { skipTabIndexAll } from 'utils/skipTab';
 import { OrderStore } from 'mobx/stores/orderStore';
-import { Order } from 'interfaces/order';
 
 export const SizeTooSmallError = new Error('size is too small');
 

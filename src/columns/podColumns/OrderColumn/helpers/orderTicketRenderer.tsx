@@ -2,6 +2,8 @@ import React, { ReactElement } from 'react';
 import { Order } from 'interfaces/order';
 import { OrderTicket } from 'components/OrderTicket';
 import { OrderStore } from 'mobx/stores/orderStore';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { getSideFromType } from 'utils';
 
 export const orderTicketRenderer = (store: OrderStore) =>
   (): ReactElement | null => {
@@ -9,7 +11,8 @@ export const orderTicketRenderer = (store: OrderStore) =>
       return null;
     const onSubmit = (order: Order) => {
       if (store.orderTicket) {
-        store.create(order.price, order.size);
+        const oldStoreType: OrderTypes = store.type;
+        store.createWithType(order.price, order.size, order.type);
       }
       store.unsetOrderTicket();
     };

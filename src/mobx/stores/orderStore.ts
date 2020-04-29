@@ -81,7 +81,7 @@ export class OrderStore {
   }
 
   @action.bound
-  public async create(inputPrice: number | null, inputSize: number | null) {
+  public async createWithType(inputPrice: number | null, inputSize: number | null, type: OrderTypes) {
     const price: number | null = this.getCreatorPrice(inputPrice);
     const size: number | null = this.getCreatorSize(inputSize);
     if (price === null) /* in this case just ignore this */
@@ -97,7 +97,7 @@ export class OrderStore {
     if (user === null || personality === null)
       throw new Error('store not properly initialized');
     // Set "creating status"
-    this.currentStatus = this.currentStatus | OrderStatus.BeingCreated;
+    this.currentStatus = this.currentStatus | (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
     // Create the request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
@@ -106,7 +106,7 @@ export class OrderStore {
       Symbol: this.symbol,
       Strategy: this.strategy,
       Tenor: this.tenor,
-      Side: getSideFromType(this.type),
+      Side: getSideFromType(type),
       Quantity: size.toString(),
       Price: price.toString(),
       MDMkt: user.isbroker ? personality : undefined,
@@ -117,6 +117,11 @@ export class OrderStore {
     } else {
       this.currentStatus = (this.currentStatus & ~OrderStatus.BeingCreated) | OrderStatus.ActionError;
     }
+  }
+
+  @action.bound
+  public async create(inputPrice: number | null, inputSize: number | null) {
+    return this.createWithType(inputPrice, inputSize, this.type);
   }
 
   @action.bound

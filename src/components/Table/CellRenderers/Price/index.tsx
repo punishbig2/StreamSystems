@@ -224,15 +224,11 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     } else {
       props.onSubmit(input, numericValue, changed, tabDirection);
     }
+    store.setInternalValue(null);
   };
 
   const onCancelEdit = () => {
     store.setInternalValue(null);
-    /*if ((props.status & OrderStatus.Cancelled) === 0) {
-      store.setInternalValue(priceFormatter(props.value));
-    } else {
-      store.setInternalValue(null);
-    }*/
   };
 
   const getPlaceholder = (value: number | null) => {

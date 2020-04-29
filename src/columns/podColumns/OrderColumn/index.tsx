@@ -84,7 +84,7 @@ export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): React
   const onDoubleClick = () => {
     if (!shouldOpenOrderTicket(order, personality, user))
       return;
-    const type: OrderTypes = order.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
+    const type: OrderTypes = store.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
     const size: number | null = getAggregatedSize(order, store.depth);
     // Replace the inferred type to create an opposing order
     store.setOrderTicket({ ...order, type, size });

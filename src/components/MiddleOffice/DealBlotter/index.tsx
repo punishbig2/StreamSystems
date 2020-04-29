@@ -7,6 +7,7 @@ import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { BlotterTypes } from 'columns/messageBlotter';
 import { getLink } from 'messageUtils';
 import { observer } from 'mobx-react';
+import { randomID } from 'randomID';
 
 interface Props {
   id: string;
@@ -17,7 +18,7 @@ export const DealBlotter: React.FC<Props> = observer((props: Props): ReactElemen
   const renderRow = (props: any): ReactElement | null => {
     const message: Message = props.row;
     return (
-      <Row key={getLink(message)}
+      <Row key={getLink(message) + randomID('row')}
            columns={props.columns}
            row={message}
            weight={props.weight}
