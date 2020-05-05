@@ -39,10 +39,8 @@ type OwnProps = {
 }
 
 export const OrderColumn: React.FC<OwnProps> = observer((props: OwnProps): ReactElement | null => {
+  const { type, tableType, minimumSize, defaultSize, rowStore, orders } = props;
   const [store] = useState<OrderStore>(new OrderStore());
-  const { minimumSize, defaultSize } = props;
-  const { type, tableType } = props;
-  const { rowStore, orders } = props;
   const { price, size } = store;
   const relevantOrders: Order[] = getRelevantOrders(orders, type);
   // Used for the fallback order

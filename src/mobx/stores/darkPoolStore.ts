@@ -20,8 +20,14 @@ export class DarkPoolStore {
   get depth(): Order[] {
     const { orders } = this;
     const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
     // Extract only my orders
-    return orders.filter((o: Order) => o.user === user.email);
+    return orders.filter((o: Order) => {
+      if (user.isbroker) {
+        return o.firm === personality && o.user === user.email;
+      }
+      return o.user === user.email;
+    });
   }
 
   @computed
@@ -35,6 +41,7 @@ export class DarkPoolStore {
   @computed
   get status(): OrderStatus {
     const user: User | null = workareaStore.user;
+    const personality: string = workareaStore.personality;
     if (user === null)
       return OrderStatus.None;
     const { currentOrder } = this;
@@ -42,10 +49,11 @@ export class DarkPoolStore {
       return OrderStatus.None;
     if (currentOrder.size === null)
       return OrderStatus.None;
-    if (currentOrder.user === user.email)
+    if (currentOrder.user === user.email) {
+      if (user.isbroker && currentOrder.firm !== personality)
+        return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
       return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned;
-    if (currentOrder.firm === user.firm)
-      return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned;
+    }
     return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
   }
 

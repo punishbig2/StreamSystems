@@ -1,0 +1,67 @@
+import { observable, computed, action } from 'mobx';
+import { OrderStatus } from 'interfaces/order';
+import { priceFormatter } from 'utils/priceFormatter';
+
+export class PriceStore {
+  @observable tooltipX: number = 0;
+  @observable tooltipY: number = 0;
+  @observable tooltipVisible: boolean = false;
+  @observable flashing: boolean = false;
+  @observable internalValue: string | null = null;
+  @observable baseValue: number | null = null;
+  @observable status: OrderStatus = OrderStatus.None;
+
+  @computed
+  get numericValue(): number | null {
+    const { internalValue } = this;
+    if (internalValue === null || internalValue.trim() === '')
+      return null;
+    return Number(internalValue);
+  }
+
+  @computed
+  get value(): string {
+    const { internalValue } = this;
+    if (internalValue !== null)
+      return internalValue.toString();
+    if ((this.status & OrderStatus.Cancelled) !== 0)
+      return '';
+    return priceFormatter(this.baseValue);
+  }
+
+  @computed
+  get placeholder(): string {
+    return priceFormatter(this.baseValue);
+  }
+
+  @action.bound
+  public setBaseValue(value: number | null) {
+    this.internalValue = null;
+    this.baseValue = value;
+  }
+
+  @action.bound
+  public setStatus(status: OrderStatus) {
+    this.status = status;
+  }
+
+  @action.bound
+  public showTooltip() {
+    this.tooltipVisible = true;
+  }
+
+  @action.bound
+  public hideTooltip() {
+    this.tooltipVisible = false;
+  }
+
+  @action.bound
+  public setFlashing(value: boolean) {
+    this.flashing = value;
+  }
+
+  @action.bound
+  public setInternalValue(value: string | null) {
+    this.internalValue = value;
+  }
+}

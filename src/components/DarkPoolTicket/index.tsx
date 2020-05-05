@@ -17,7 +17,7 @@ interface OwnProps {
   currency: string;
   strategy: string;
   price: number;
-  size: number | null;
+  minimumSize: number;
   onCancel: () => void;
   onSubmit: (order: DarkPoolOrder) => void;
 }
@@ -33,7 +33,7 @@ const presetSizes: number[] = [30, 50, 100, 500];
 
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const [price, setPrice] = useState<number>(props.price);
-  const [size, setSize] = useState<number>(props.size === null ? presetSizes[0] : props.size);
+  const [size, setSize] = useState<number>(props.minimumSize);
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
   const updateSize = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +42,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       return;
     setSize(numeric);
   };
+
   const updatePrice = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>) => {
     const numeric: number = Number(currentTarget.value);
     if (isNaN(numeric))
@@ -69,17 +70,9 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
   const instLabels: { [key: string]: string } = { G: 'AON', D: '1/2 AON' };
   const sideLabels: { [key: string]: string } = { SELL: 'Sell', BUY: 'Buy' };
+  const canSubmit: boolean = !isNaN(Number(price)) && side !== '' && size >= props.minimumSize;
 
-  const canSubmit: boolean =
-    !isNaN(Number(price)) && !isNaN(Number(size)) && side !== '';
-
-  const renderSide = (value: any) =>
-    !value ? (
-      <span className={'invalid'}>Side</span>
-    ) : (
-      sideLabels[value as string]
-    );
-
+  const renderSide = (value: any) => !value ? (<span className={'invalid'}>Side</span>) : (sideLabels[value as string]);
   const stringSelectSetter = (fn: (value: string) => void) => (event: React.ChangeEvent<SelectEventData>) => {
     const { value } = event.target;
     fn(value as string);

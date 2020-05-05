@@ -35,18 +35,17 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   const renderTicket = (): ReactElement | null => {
-    const order: Order | null = store.currentOrder;
     if (store.price === null)
       return null;
     return (
       <DarkPoolTicket
-        onSubmit={onTicketSubmitted}
-        onCancel={() => store.closeTicket()}
         price={store.price}
-        size={order ? order.size : null}
+        minimumSize={props.minimumSize}
         tenor={tenor}
         strategy={strategy}
-        currency={currency}/>
+        currency={currency}
+        onSubmit={onTicketSubmitted}
+        onCancel={() => store.closeTicket()}/>
     );
   };
 
@@ -68,9 +67,8 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
   const onSubmit = (input: HTMLInputElement, price: number | null, changed: boolean) => {
     skipTabIndexAll(input, 5, 2);
-    if (!changed && price !== null)
+    if (!changed)
       return;
-    // Publish the price through Signal R
     store.publishPrice(currency, strategy, tenor, price);
   };
 

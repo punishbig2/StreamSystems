@@ -10,8 +10,8 @@ import { priceFormatter } from 'utils/priceFormatter';
 import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';
 import { OrderStatus } from 'interfaces/order';
 import { CircularSpinner } from 'circularSpinner';
-import { observable, computed, action } from 'mobx';
 import { observer } from 'mobx-react';
+import { PriceStore } from 'mobx/stores/priceStore';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -43,70 +43,6 @@ export interface Props {
   onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean, tabDirection: TabDirection) => void;
 }
 
-class PriceStore {
-  @observable tooltipX: number = 0;
-  @observable tooltipY: number = 0;
-  @observable tooltipVisible: boolean = false;
-  @observable flashing: boolean = false;
-  @observable internalValue: string | null = null;
-  @observable baseValue: number | null = null;
-  @observable status: OrderStatus = OrderStatus.None;
-
-  @computed
-  get numericValue(): number | null {
-    const { internalValue } = this;
-    if (internalValue === null)
-      return null;
-    return Number(internalValue);
-  }
-
-  @computed
-  get value(): string {
-    const { internalValue } = this;
-    if (internalValue !== null)
-      return internalValue.toString();
-    if ((this.status & OrderStatus.Cancelled) !== 0)
-      return '';
-    return priceFormatter(this.baseValue);
-  }
-
-  @computed
-  get placeholder(): string {
-    return priceFormatter(this.baseValue);
-  }
-
-  @action.bound
-  public setBaseValue(value: number | null) {
-    this.internalValue = null;
-    this.baseValue = value;
-  }
-
-  @action.bound
-  public setStatus(status: OrderStatus) {
-    this.status = status;
-  }
-
-  @action.bound
-  public showTooltip() {
-    this.tooltipVisible = true;
-  }
-
-  @action.bound
-  public hideTooltip() {
-    this.tooltipVisible = false;
-  }
-
-  @action.bound
-  public setFlashing(value: boolean) {
-    this.flashing = value;
-  }
-
-  @action.bound
-  public setInternalValue(value: string | null) {
-    this.internalValue = value;
-  }
-}
-
 export const Price: React.FC<Props> = observer((props: Props) => {
   const [store] = useState<PriceStore>(new PriceStore());
   const { value, status, tooltip } = props;
@@ -122,22 +58,6 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   }, [store, status]);
 
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
-  /*const [state, dispatch] = useReducer(reducer, {
-    tooltipX: 0,
-    tooltipY: 0,
-    tooltipVisible: false,
-    flash: false,
-    internalValue: ((props.status & OrderStatus.Cancelled) === 0) ? priceFormatter(value) : '',
-  });*/
-
-  // const setStatus = useCallback((status: OrderStatus) => dispatch(createAction(PriceActions.SetStatus, status)), []);
-  /*const setInternalValue = useCallback((value: string) => {
-    dispatch(createAction(PriceActions.SetValue, { value }));
-  }, []);
-
-  const resetValue = useCallback((value: string, status: OrderStatus) => {
-    dispatch(createAction(PriceActions.ResetValue, { value, status }));
-  }, []);*/
 
   const showTooltip = tooltip ? (event: React.MouseEvent<HTMLDivElement>) => {
     store.showTooltip();
@@ -145,28 +65,13 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   const hideTooltip = () => store.hideTooltip();
 
-  const startFlashing = () => {
+  /*const startFlashing = () => {
     if (!props.animated)
       return;
     store.setFlashing(true);
   };
-  const stopFlashing = () => store.setFlashing(false);
+  const stopFlashing = () => store.setFlashing(false);*/
 
-  // useStatusUpdater(props.status, setStatus);
-  // useFlasher(state.flash, stopFlashing);
-  // useValueComparator(value, startFlashing, props.status);
-  // useValueListener(value, timestamp, setInternalValue);
-  /*useEffect(() => {
-    if (props.value === null) {
-      setInternalValue('');
-    } else {
-      if ((props.status & OrderStatus.Cancelled) === 0) {
-        setInternalValue(priceFormatter(props.value));
-      } else {
-        setInternalValue('');
-      }
-    }
-  }, [props, setInternalValue]);*/
   const getTooltip = (): ReactElement | null => {
     if (!tooltip || !store.tooltipVisible)
       return null;
@@ -183,7 +88,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const onChange = (value: string | null) => {
     if (value !== null) {
       const trimmed: string = value.trim();
-      const numeric: number = Number(trimmed);
+      const numeric: number = Number(`0${trimmed}`);
       if (!isNaN(numeric)) {
         store.setInternalValue(trimmed);
       }
