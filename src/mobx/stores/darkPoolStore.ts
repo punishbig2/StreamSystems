@@ -106,6 +106,8 @@ export class DarkPoolStore {
 
   @action.bound
   public connect(currency: string, strategy: string, tenor: string) {
+    this.currentOrder = null;
+    this.orders = [];
     signalRManager.setDarkPoolPriceListener(currency, strategy, tenor, this.onDarkPoolPricePublished);
     signalRManager.setDarkPoolOrderListener(currency, strategy, tenor, this.onOrderReceived);
     // Read saved value
