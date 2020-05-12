@@ -49,10 +49,10 @@ const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement 
   if (!rows)
     return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
-  const total: number = columns.reduce((total: number, column: ColumnSpec) => total + column.width, 0);
+  const totalWidth: number = columns.reduce((total: number, column: ColumnSpec) => total + column.width, 0);
   const propertyMapper = ([key, row]: [string, any]) => ({
     id: key,
-    totalWidth: total,
+    totalWidth: totalWidth,
     containerWidth: optimalWidth,
     key,
     columns,
@@ -66,8 +66,12 @@ const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement 
     const id: string = '__INSERT_ROW__';
     if (props.showInsertRow === false)
       return null;
-    console.log('rendering insert row');
-    return props.renderRow({ columns, id });
+    return props.renderRow({
+      id: id,
+      columns: columns,
+      containerWidth: optimalWidth,
+      totalWidth: totalWidth,
+    });
   };
 
   const getBody = (rowProps: any) => {
@@ -101,7 +105,7 @@ const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement 
     return (
       <Header columns={columns}
               allowReorderColumns={!!props.allowReorderColumns}
-              totalWidth={total}
+              totalWidth={totalWidth}
               containerWidth={optimalWidth}
               onSortBy={store.sortBy}
               onFiltered={store.filterBy}

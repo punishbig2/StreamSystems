@@ -9,6 +9,7 @@ import { STRM } from 'stateDefs/workspaceState';
 import { Sides } from 'interfaces/sides';
 import config from 'config';
 import workareaStore from 'mobx/stores/workareaStore';
+import { Strategy } from '../interfaces/strategy';
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -174,8 +175,8 @@ export class API {
     return currencies;
   }
 
-  static getProducts(): CancellablePromise<string[]> {
-    return get<string[]>(API.buildUrl(API.Config, 'products', 'get'));
+  static getProducts(): CancellablePromise<Strategy[]> {
+    return get<Strategy[]>(API.buildUrl(API.Config, 'products', 'get'));
   }
 
   static getTenors(): CancellablePromise<string[]> {

@@ -120,6 +120,8 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const isModified = (): boolean => {
     if (store.internalValue === null)
       return false;
+    if ((store.status & OrderStatus.Cancelled) !== 0)
+      return true;
     return store.internalValue !== priceFormatter(props.value);
   };
 

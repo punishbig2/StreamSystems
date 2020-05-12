@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
 import { getMessagePrice } from 'messageUtils';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { ReactElement } from 'react';
+import { Price } from '../../components/Table/CellRenderers/Price';
+import { ArrowDirection } from '../../interfaces/w';
+import { OrderStatus } from '../../interfaces/order';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Price',
@@ -15,7 +17,7 @@ export default (sortable: boolean): ColumnSpec => ({
     if (message) {
       return priceFormatter(getMessagePrice(message))
     } else {
-      return <input/>;
+      return <Price arrow={ArrowDirection.None} value={null} status={OrderStatus.None} onSubmit={() => null}/>
     }
   },
   width: 3,

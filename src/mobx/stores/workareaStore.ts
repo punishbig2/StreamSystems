@@ -17,6 +17,7 @@ import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
 import persistStorage from 'persistStorage';
 import { STRM } from 'stateDefs/workspaceState';
 import { updateApplicationTheme } from 'utils';
+import { Strategy } from '../../interfaces/strategy';
 
 export enum WindowTypes {
   PodTile = 1,
@@ -41,8 +42,8 @@ export class WorkareaStore {
   @persist @observable currentWorkspaceID: string | null = null;
 
   @observable.ref currencies: Currency[] = [];
+  @observable.ref strategies: Strategy[] = [];
   @observable.ref tenors: string[] = [];
-  @observable.ref strategies: string[] = [];
   @observable.ref banks: string[] = [];
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
@@ -220,6 +221,9 @@ export class WorkareaStore {
         // Load strategies
         this.loadingMessage = strings.LoadingTenors;
         this.tenors = await API.getTenors();
+        // Load banks
+        this.loadingMessage = strings.LoadingBanks;
+        this.banks = await API.getBanks();
         // Connect the signal R client
         signalRManager.connect();
         // Try to connect

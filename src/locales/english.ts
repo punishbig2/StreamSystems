@@ -38,6 +38,7 @@ export default {
   LoadingStrategies: 'Loading Strategies',
   LoadingMessages: 'Loading System Messages',
   LoadingTenors: 'Loading Tenors',
+  LoadingBanks: 'Loading Banks',
   LoadingUserData: 'Loading User Data',
   EstablishingConnection: 'Connecting\u2026',
   Connected: 'Connected\u2026',

@@ -9,11 +9,12 @@ import { observer } from 'mobx-react';
 import { STRM } from 'stateDefs/workspaceState';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
+import { Strategy } from '../../interfaces/strategy';
 
 interface Props {
   store: PodTileStore;
   currencies: Currency[];
-  strategies: string[];
+  strategies: Strategy[];
 }
 
 export const PodTileTitle: React.FC<Props> = observer((props: Props): ReactElement => {

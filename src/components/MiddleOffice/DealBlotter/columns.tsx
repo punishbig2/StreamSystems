@@ -17,7 +17,9 @@ export const columns: ColumnSpec[] = [{
     if (message) {
       return <div className={'padded'}>{getLink(message)}</div>
     } else {
-      return <input/>;
+      return (
+        <button><i className={'fa fa-plus'}/> <span>Add</span></button>
+      );
     }
   },
   filterable: true,

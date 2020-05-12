@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { getMessageSize } from 'messageUtils';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { ReactElement } from 'react';
+import { Size } from '../../components/Table/CellRenderers/Size';
+import { OrderTypes } from '../../interfaces/mdEntry';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Size',
@@ -12,7 +13,7 @@ export default (sortable: boolean): ColumnSpec => ({
   header: () => 'Size',
   render: (message: Message): ReactElement | string => {
     if (!message) {
-      return <input/>;
+      return <Size value={null} type={OrderTypes.Invalid} onSubmit={() => null}/>
     } else {
       const size: number = getMessageSize(message);
       return size.toString();

@@ -19,12 +19,13 @@ import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 import { BlotterTypes } from 'columns/messageBlotter';
 import { MessageBox } from 'components/MessageBox';
 import { User } from 'interfaces/user';
+import { Strategy } from '../../interfaces/strategy';
 
 interface OwnProps {
   id: string;
   tenors: string[];
   currencies: Currency[];
-  strategies: string[];
+  strategies: Strategy[];
   banks: string[];
   isDefault: boolean;
   visible: boolean;
@@ -39,13 +40,6 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
     setStore(new WorkspaceStore(id));
   }, [id]);
 
-  useEffect(() => {
-    if (store !== null) {
-      // Fist hydrate the store
-      store.loadMarkets();
-    }
-  }, [store]);
-
   if (store === null)
     return null;
   const onPersonalityChange = ({ target }: React.ChangeEvent<SelectEventData>) => {
@@ -55,11 +49,11 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
   const getRightPanelButtons = (): ReactElement | null => {
     const user: User = workareaStore.user;
     if (user.isbroker) {
-      const { markets } = store;
+      const { banks } = workareaStore;
       const renderValue = (value: unknown): React.ReactNode => {
         return value as string;
       };
-      if (markets.length === 0) return null;
+      if (banks.length === 0) return null;
       return (
         <div className={'broker-buttons'}>
           <Select value={workareaStore.personality} autoWidth={true} renderValue={renderValue}
@@ -67,7 +61,7 @@ const Workspace: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => 
             <MenuItem key={STRM} value={STRM}>
               None
             </MenuItem>
-            {markets.map((market: string) => (
+            {banks.map((market: string) => (
               <MenuItem key={market} value={market}>
                 {market}
               </MenuItem>

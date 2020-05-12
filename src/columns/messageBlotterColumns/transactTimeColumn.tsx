@@ -1,4 +1,3 @@
-import React from 'react';
 import { Message } from 'interfaces/message';
 import moment, { Moment } from 'moment';
 import { Globals } from 'golbals';
@@ -37,7 +36,10 @@ export default (): ColumnSpec => ({
         timeZone: Globals.timezone || undefined,
       });
     } else {
-      return <input/>;
+      const date: Date = new Date();
+      return date.toLocaleString('en-US', {
+        timeZone: Globals.timezone || undefined,
+      });
     }
   },
   width: 6,

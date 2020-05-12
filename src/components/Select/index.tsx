@@ -7,6 +7,7 @@ interface OwnProps {
   value: any;
   empty?: string;
   searchable?: boolean;
+  fit?: boolean;
   onChange: (value: string) => void;
 }
 
@@ -153,7 +154,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   return (
-    <div className={'select-container'} ref={setContainer} onMouseDown={showDropdown}>
+    <div className={'select-container' + (props.fit ? ' fit' : '')} ref={setContainer} onMouseDown={showDropdown}>
       <select value={props.value}
               className={'select'}
               onChange={onChange}
@@ -173,4 +174,8 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       {renderDropdown()}
     </div>
   );
+};
+
+Select.defaultProps = {
+  fit: false,
 };

@@ -282,6 +282,36 @@ $spinner-size: $table-row-height - 6;
         line-height: $table-row-height;
         height: $table-row-height;
 
+        button {
+          font-size: $smaller-font-size;
+          color: $primary-color;
+          background: none;
+          height: $table-row-height;
+          line-height: $table-row-height;
+          margin: 0;
+          text-transform: none;
+          padding: 0;
+          cursor: pointer;
+
+          span, i {
+            height: $table-row-height;
+            line-height: $table-row-height;
+            display: inline-block;
+            vertical-align: top;
+          }
+
+          span:not(.fa) {
+            font-size: $smaller-font-size;
+            font-family: $table-font-family;
+            font-weight: $table-font-weight + 200;
+            padding: 0 4px;
+          }
+
+          i {
+            font-size: $smaller-font-size - 2;
+          }
+        }
+
         &:not(:first-child) {
           border-left: 1px solid $table-border-color;
         }

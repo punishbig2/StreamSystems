@@ -30,7 +30,6 @@ export class WorkspaceStore {
   @persist @observable name: string = 'Untitled';
 
   @observable isUserProfileModalVisible = false;
-  @observable markets: string[] = [];
   @observable errorMessage: string | null = null;
   @observable busyMessage: BusyMessage | null = null;
   @observable toast: string | null = null;
@@ -101,14 +100,6 @@ export class WorkspaceStore {
     const { windows } = this;
     // Update all geometries
     this.windows = windows.map((window: WindowDef) => ({ ...window, geometry: geometries[window.id] }));
-  }
-
-  @action.bound
-  public loadMarkets() {
-    API.getBanks()
-      .then((markets: string[]) => {
-        this.markets = markets;
-      });
   }
 
   @action.bound
