@@ -8,6 +8,7 @@ import { BlotterTypes } from 'columns/messageBlotter';
 import { getLink } from 'messageUtils';
 import { observer } from 'mobx-react';
 import { randomID } from 'randomID';
+import { DealInsertStore } from '../../../mobx/stores/dealInsertStore';
 
 interface Props {
   id: string;
@@ -23,6 +24,7 @@ export const DealBlotter: React.FC<Props> = observer((props: Props): ReactElemen
              row={null}
              weight={props.weight}
              type={BlotterRowTypes.Normal}
+             insertStore={new DealInsertStore()}
              containerWidth={props.containerWidth}
              totalWidth={props.totalWidth}
              blotterType={BlotterTypes.Executions}/>

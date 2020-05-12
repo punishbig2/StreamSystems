@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { StrategyCell } from './strategyCell';
+import { CellProps } from './cellProps';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Strategy',
@@ -9,7 +10,7 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Strategy',
-  render: (message: Message): ReactElement => <StrategyCell message={message}/>,
+  render: (props: CellProps): ReactElement => <StrategyCell {...props}/>,
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;

@@ -118,6 +118,10 @@ export class SignalRManager {
   };
 
   private combineWs = (w1: W, w2: W) => {
+    const isW1PodW: boolean = isPodW(w1);
+    const isW2PodW: boolean = isPodW(w2);
+    if ((isW1PodW && isW2PodW) || (!isW1PodW && !isW2PodW))
+      throw new Error('inconsistent w set, cannot combine unrelated w\'s with same symbol/strategy/tenor');
     const [pod, full] = isPodW(w1) ? [w1, w2] : [w2, w1];
     if (full.Entries) {
       const { Entries } = pod;

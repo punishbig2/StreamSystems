@@ -13,6 +13,7 @@ interface OwnProps {
   cancellable?: boolean;
   onCancel?: () => void;
   className?: string;
+  hideCancelButton?: boolean;
   chevron?: boolean;
   tabIndex?: number;
   readOnly?: boolean;
@@ -21,9 +22,9 @@ interface OwnProps {
 }
 
 const defaultProps: OwnProps = {
-  // onChange: () => null,
   onCancel: () => null,
   onSubmit: () => null,
+  hideCancelButton: false,
   type: OrderTypes.Invalid,
   value: null,
   cancellable: false,
@@ -77,7 +78,7 @@ export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
 
   if (props.cancellable)
     classes.push('clickable');
-  if (props.value === null)
+  if (props.value === null || props.hideCancelButton)
     classes.push('empty');
   const button = (
     <div key={2} className={classes.join(' ')} onClick={props.onCancel}>

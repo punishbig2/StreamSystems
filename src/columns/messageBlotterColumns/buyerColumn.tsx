@@ -2,6 +2,8 @@ import React, { ReactElement } from 'react';
 import { ExecTypes, Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { BankCell } from './banksCell';
+import { CellProps } from './cellProps';
+import { Observer } from 'mobx-react';
 
 const getBuyer = (message: Message): string | null => {
   if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
@@ -24,11 +26,12 @@ export const buyerColumn = (sortable: boolean): ColumnSpec => ({
     return buyer.includes(keyword);
   },
   header: () => 'Buyer',
-  render: (message: Message): ReactElement | string | null => {
+  render: (props: CellProps): ReactElement | string | null => {
+    const { store, message } = props;
     if (message) {
       return getBuyer(message);
     } else {
-      return <BankCell message={message}/>
+      return <Observer children={() => <BankCell message={message} value={store.buyer} onChange={store.setBuyer}/>}/>;
     }
   },
   filterable: true,

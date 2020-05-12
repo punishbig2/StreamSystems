@@ -1,11 +1,9 @@
 import React, { ReactElement } from 'react';
 import { Message } from 'interfaces/message';
 import { priceFormatter } from 'utils/priceFormatter';
-import { getMessagePrice } from 'messageUtils';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { Price } from '../../components/Table/CellRenderers/Price';
-import { ArrowDirection } from '../../interfaces/w';
-import { OrderStatus } from '../../interfaces/order';
+import { PriceCell } from './priceCell';
+import { CellProps } from './cellProps';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Price',
@@ -13,13 +11,7 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Level',
-  render: (message: Message): ReactElement | string => {
-    if (message) {
-      return priceFormatter(getMessagePrice(message))
-    } else {
-      return <Price arrow={ArrowDirection.None} value={null} status={OrderStatus.None} onSubmit={() => null}/>
-    }
-  },
+  render: (props: CellProps): ReactElement => <PriceCell {...props}/>,
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);

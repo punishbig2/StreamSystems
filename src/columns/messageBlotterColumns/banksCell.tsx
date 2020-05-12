@@ -1,11 +1,16 @@
-import React, { ReactElement, useState } from 'react';
-import { Message } from '../../interfaces/message';
+import React, { ReactElement } from 'react';
 import workareaStore from '../../mobx/stores/workareaStore';
 import { Select } from '../../components/Select';
+import { Message } from '../../interfaces/message';
 
-export const BankCell: React.FC<{ message: Message }> = ({ message }: { message: Message }): ReactElement | null => {
+type Props = {
+  message: Message;
+  value: string;
+  onChange: (value: string) => void;
+}
+export const BankCell: React.FC<Props> = (props: Props): ReactElement | null => {
+  const { message } = props;
   const { banks } = workareaStore;
-  const [value, setValue] = useState<string>('');
   if (message) {
     return null;
   } else {
@@ -16,7 +21,7 @@ export const BankCell: React.FC<{ message: Message }> = ({ message }: { message:
         };
       });
     return (
-      <Select fit={true} list={list} value={value} onChange={setValue}/>
+      <Select fit={true} list={list} value={props.value} onChange={props.onChange}/>
     );
   }
 };

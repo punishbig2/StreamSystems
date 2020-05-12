@@ -7,13 +7,14 @@
   &:after {
     position: absolute;
     content: '';
-    border: 3px solid rgba($foreground-color, 0.15);
+    border: 3px solid $text-color-grey;
     width: $table-row-height - 11;
     height: $table-row-height - 11;
     top: 2px;
     left: 2px;
 
     border-top-color: $primary-color;
+    border--color: $primary-color;
     border-radius: $table-row-height;
     animation: spin 1s infinite linear;
   }

@@ -1,13 +1,14 @@
-import React, { ReactElement, useState } from 'react';
-import { Message } from '../../interfaces/message';
+import React, { ReactElement } from 'react';
 import workareaStore from '../../mobx/stores/workareaStore';
 import { Currency } from '../../interfaces/currency';
 import { Select } from '../../components/Select';
 import { compareCurrencies } from './utils';
+import { CellProps } from './cellProps';
+import { observer } from 'mobx-react';
 
-export const SymbolCell: React.FC<{ message: Message }> = ({ message }: { message: Message }): ReactElement => {
+export const SymbolCell: React.FC<CellProps> = observer((props: CellProps): ReactElement => {
+  const { store, message } = props;
   const { currencies } = workareaStore;
-  const [value, setValue] = useState<string>('');
   if (message) {
     return <div>{message.Symbol}</div>;
   } else {
@@ -20,7 +21,7 @@ export const SymbolCell: React.FC<{ message: Message }> = ({ message }: { messag
         };
       });
     return (
-      <Select fit={true} list={list} value={value} onChange={setValue}/>
+      <Select fit={true} list={list} value={store.currency} onChange={store.setCurrency}/>
     );
   }
-};
+});

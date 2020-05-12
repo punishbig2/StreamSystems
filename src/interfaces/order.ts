@@ -68,6 +68,7 @@ export enum OrderStatus {
   AtTop = 1 << 20,
   InDepth = 1 << 21,
   ActionError = 1 << 22,
+  JustCreated = 1 << 23,
 }
 
 export interface OrderMessage {

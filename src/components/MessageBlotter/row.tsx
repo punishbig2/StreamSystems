@@ -4,6 +4,7 @@ import { $$ } from 'utils/stringPaster';
 import { getCellWidth } from 'components/Table/helpers';
 import { DarkPool } from 'interfaces/w';
 import { BlotterTypes } from 'columns/messageBlotter';
+import { DealInsertStore } from '../../mobx/stores/dealInsertStore';
 
 export enum BlotterRowTypes {
   Normal,
@@ -20,6 +21,7 @@ interface Props {
   blotterType: BlotterTypes;
   totalWidth: number;
   containerWidth: number;
+  insertStore?: DealInsertStore;
 }
 
 const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, executed: boolean, isDarkPool: boolean): string => {
@@ -81,7 +83,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
       const id: string = $$(column.name, rowID);
       return (
         <div className={'td'} id={id} key={id} style={style}>
-          {column.render(row)}
+          {column.render({ message: row, store: props.insertStore })}
         </div>
       );
     };

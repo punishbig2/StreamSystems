@@ -8,7 +8,6 @@ import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
 import { sizeFormatter } from 'utils/sizeFormatter';
-import { randomID } from 'randomID';
 import { $$ } from 'utils/stringPaster';
 
 export class OrderStore {
@@ -117,22 +116,28 @@ export class OrderStore {
     if (response.Status === 'Success') {
       this.currentStatus = this.currentStatus & ~OrderStatus.BeingCreated;
       const newOrder: Order = {
+        // Current user owns this order of course
         firm: user.firm,
         user: user.email,
-        size: size,
+        // Status should obviously be like the following
         status: OrderStatus.Owned | OrderStatus.Active,
-        timestamp: Date.now(),
+        // Response received from the server
+        timestamp: response.TransactTime,
+        orderId: response.OrderID,
         type: this.type,
-        orderId: randomID('order'),
-        price: this.price,
+        // Price and size set in this function
+        size: size,
+        price: price,
+        // Combination
         strategy: this.strategy,
         tenor: this.tenor,
         symbol: this.symbol,
+        // We cannot know this, or can we?
         arrowDirection: ArrowDirection.None,
         uid: () => $$(this.symbol, this.strategy, this.tenor),
       };
       // Update current order
-      this.setOrder(newOrder, OrderStatus.None);
+      this.setOrder(newOrder, newOrder.status | OrderStatus.JustCreated);
     } else {
       this.currentStatus = (this.currentStatus & ~OrderStatus.BeingCreated) | OrderStatus.ActionError;
     }
@@ -170,6 +175,7 @@ export class OrderStore {
 
   @action.bound
   public setOrder(order: Order | undefined, status: OrderStatus) {
+    this.baseStatus = OrderStatus.None;
     if (order) {
       this.price = order.price;
       this.baseSize = order.size;
@@ -178,8 +184,8 @@ export class OrderStore {
       this.symbol = order.symbol;
       this.strategy = order.strategy;
       this.tenor = order.tenor;
+      this.baseStatus = status;
     }
-    this.baseStatus = status;
   }
 
   @action.bound

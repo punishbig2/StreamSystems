@@ -1,12 +1,13 @@
-import React, { ReactElement, useState } from 'react';
-import { Message } from '../../interfaces/message';
+import React, { ReactElement } from 'react';
 import workareaStore from '../../mobx/stores/workareaStore';
 import { Strategy } from '../../interfaces/strategy';
 import { Select } from '../../components/Select';
+import { CellProps } from './cellProps';
+import { observer } from 'mobx-react';
 
-export const StrategyCell: React.FC<{ message: Message }> = ({ message }: { message: Message }): ReactElement => {
+export const StrategyCell: React.FC<CellProps> = observer((props: CellProps): ReactElement => {
+  const { store, message } = props;
   const { strategies } = workareaStore;
-  const [value, setValue] = useState<string>('');
   if (message) {
     return <div>{message.Strategy}</div>;
   } else {
@@ -17,7 +18,7 @@ export const StrategyCell: React.FC<{ message: Message }> = ({ message }: { mess
         };
       });
     return (
-      <Select fit={true} list={list} value={value} onChange={setValue}/>
+      <Select fit={true} list={list} value={store.strategy} onChange={store.setStrategy}/>
     );
   }
-};
+});
