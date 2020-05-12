@@ -2,12 +2,14 @@ import { observable, action, computed } from 'mobx';
 import { OrderStatus, Order, CreateOrder } from 'interfaces/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
 import { OrderTypes } from 'interfaces/mdEntry';
-import { MessageTypes } from 'interfaces/w';
+import { MessageTypes, ArrowDirection } from 'interfaces/w';
 import { getSideFromType, getCurrentTime } from 'utils';
 import { User } from 'interfaces/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
 import { sizeFormatter } from 'utils/sizeFormatter';
+import { randomID } from 'randomID';
+import { $$ } from 'utils/stringPaster';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -31,7 +33,7 @@ export class OrderStore {
   get myOrder(): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
-    const found: Order | undefined = depth.find((o: Order) => o.user === user.email);
+    const found: Order | undefined = depth.find((o: Order) => o.user === user.email && o.type === this.type);
     if (found !== undefined)
       return found;
     return null;
@@ -114,6 +116,23 @@ export class OrderStore {
     const response = await API.executeCreateOrderRequest(request);
     if (response.Status === 'Success') {
       this.currentStatus = this.currentStatus & ~OrderStatus.BeingCreated;
+      const newOrder: Order = {
+        firm: user.firm,
+        user: user.email,
+        size: size,
+        status: OrderStatus.Owned | OrderStatus.Active,
+        timestamp: Date.now(),
+        type: this.type,
+        orderId: randomID('order'),
+        price: this.price,
+        strategy: this.strategy,
+        tenor: this.tenor,
+        symbol: this.symbol,
+        arrowDirection: ArrowDirection.None,
+        uid: () => $$(this.symbol, this.strategy, this.tenor),
+      };
+      // Update current order
+      this.setOrder(newOrder, OrderStatus.None);
     } else {
       this.currentStatus = (this.currentStatus & ~OrderStatus.BeingCreated) | OrderStatus.ActionError;
     }

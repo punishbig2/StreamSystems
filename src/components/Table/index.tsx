@@ -15,8 +15,9 @@ interface Props {
   rows?: { [id: string]: any };
   scrollable: boolean;
   renderRow: (props: any, index?: number) => ReactElement | null;
-  className?: string;
+  showInsertRow?: boolean;
   allowReorderColumns?: boolean;
+  className?: string;
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -61,24 +62,37 @@ const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement 
   const rowProps: { [key: string]: any }[] = entries
     .map(propertyMapper);
 
+  const getInsertRow = (): ReactElement | null => {
+    const id: string = '__INSERT_ROW__';
+    if (props.showInsertRow === false)
+      return null;
+    console.log('rendering insert row');
+    return props.renderRow({ columns, id });
+  };
+
   const getBody = (rowProps: any) => {
     const rows = rowProps;
-    if (rows.length === 0)
+    if (rows.length === 0 && props.showInsertRow === false) {
       return (
         <div className={'empty-table'}>
           <h1>There's no data yet</h1>
         </div>
       );
+    }
 
     if (props.scrollable) {
       const styles = getStyles();
       return (
         <VirtualScroll itemSize={styles.tableRowHeight} className={'tbody'}>
           {rows.map(props.renderRow)}
+          {getInsertRow()}
         </VirtualScroll>
       );
     } else {
-      return <div className={'tbody'}>{rows.map(props.renderRow)}</div>;
+      return <div className={'tbody'}>
+        {rows.map(props.renderRow)}
+        {getInsertRow()}
+      </div>;
     }
   };
 
@@ -112,5 +126,6 @@ const BasicTable = (props: Props, ref: React.Ref<HTMLDivElement>): ReactElement 
 export const Table: React.FC<Props> = observer(React.forwardRef(BasicTable));
 Table.defaultProps = {
   allowReorderColumns: false,
+  showInsertRow: false,
 };
 // Table.whyDidYouRender = true;

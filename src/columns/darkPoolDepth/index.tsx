@@ -1,8 +1,10 @@
 import React from 'react';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { Order, OrderStatus } from 'interfaces/order';
+import { Order } from 'interfaces/order';
 import { xPoints } from 'timesPolygon';
 import { OrderTypes } from 'interfaces/mdEntry';
+import workareaStore from '../../mobx/stores/workareaStore';
+import { User } from '../../interfaces/user';
 
 const getSide = (order: Order): string => {
   if (order.type === OrderTypes.Ofr)
@@ -16,7 +18,9 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
     header: () => 'REF',
     render: (order: Order) => {
       const classes: string[] = ['times'];
-      if ((order.status & OrderStatus.Owned) !== 0)
+      const user: User = workareaStore.user;
+      const personality: string = workareaStore.personality;
+      if (order.user === user.email || (user.isbroker && personality === user.firm))
         classes.push('clickable');
       return (
         <div key={2} className={classes.join(' ')} onClick={() => onCancelOrder(order)}>
@@ -34,9 +38,15 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
   {
     name: 'side',
     header: () => 'Side',
-    render: (row: Order) => {
-      const side: string = getSide(row);
-      return <div className={side.toLowerCase()}>{side}</div>;
+    render: (order: Order) => {
+      const side: string = getSide(order);
+      const classes: string[] = [side.toLowerCase(), 'cell'];
+      const user: User = workareaStore.user;
+      if (order.firm === user.firm)
+        classes.push('same-bank');
+      if (order.user === user.email)
+        classes.push('owned');
+      return <div className={classes.join(' ')}>{side}</div>;
     },
     width: 2,
     template: '9999999.99',
@@ -46,7 +56,13 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => [
     header: () => 'Qty',
     render: (order: Order) => {
       const side: string = getSide(order);
-      return <div className={side.toLowerCase()}>{order.size}</div>;
+      const classes: string[] = [side.toLowerCase(), 'cell'];
+      const user: User = workareaStore.user;
+      if (order.firm === user.firm)
+        classes.push('same-bank');
+      if (order.user === user.email)
+        classes.push('owned');
+      return <div className={classes.join(' ')}>{order.size}</div>;
     },
     width: 2,
     template: '99999.99',

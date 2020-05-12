@@ -88,7 +88,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const onChange = (value: string | null) => {
     if (value !== null) {
       const trimmed: string = value.trim();
-      const numeric: number = Number(`0${trimmed}`);
+      const numeric: number = Number(trimmed + '0');
       if (!isNaN(numeric)) {
         store.setInternalValue(trimmed);
       }
@@ -118,18 +118,24 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   };
 
   const isModified = (): boolean => {
-    return store.internalValue !== null;
+    if (store.internalValue === null)
+      return false;
+    return store.internalValue !== priceFormatter(props.value);
   };
 
   const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
-    const { numericValue } = store;
-    const changed: boolean = isModified();
-    if (numericValue === 0 && !props.allowZero) {
-      props.onSubmit(input, null, false, tabDirection);
+    if (!input.readOnly) {
+      const { numericValue } = store;
+      const changed: boolean = isModified();
+      if (numericValue === 0 && !props.allowZero) {
+        props.onSubmit(input, null, false, tabDirection);
+      } else {
+        props.onSubmit(input, numericValue, changed, tabDirection);
+      }
+      setTimeout(() => store.setInternalValue(null), 0);
     } else {
-      props.onSubmit(input, numericValue, changed, tabDirection);
+      props.onSubmit(input, null, false, tabDirection);
     }
-    store.setInternalValue(null);
   };
 
   const onCancelEdit = () => {
@@ -183,7 +189,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
           tabIndex={props.tabIndex}
           title={props.title}
           value={store.value}
-          className={isModified() ? 'modified' : 'initial'}
+          className={store.internalValue !== null ? 'modified' : 'initial'}
           placeholder={getPlaceholder(props.value)}
           type={'price'}
           onCancelEdit={onCancelEdit}

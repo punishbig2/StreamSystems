@@ -24,6 +24,8 @@ export const renderRowFactory = (blotterType: BlotterTypes, email: string, firm:
   (props: any): ReactElement | null => {
     const message: Message = props.row;
     const rowType = ((): BlotterRowTypes => {
+      if (!message)
+        return BlotterRowTypes.Normal;
       if (!isExecution(message)) {
         if (isBusted(message))
           return BlotterRowTypes.Busted;

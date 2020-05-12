@@ -80,6 +80,7 @@ export const useRunInitializer = (tenors: string[], symbol: string, strategy: st
           }, {});
         dispatch(createAction<RunActions>(RunActions.SetTable, table));
       });
-  }, [tenors, symbol, strategy, visible, dispatch, depth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenors, symbol, strategy, visible, dispatch]);
 };
 

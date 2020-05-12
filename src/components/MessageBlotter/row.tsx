@@ -14,7 +14,7 @@ export enum BlotterRowTypes {
 
 interface Props {
   columns: ColumnSpec[];
-  row: { [key: string]: any };
+  row: { [key: string]: any } | null;
   weight: number;
   type: BlotterRowTypes;
   blotterType: BlotterTypes;
@@ -48,10 +48,12 @@ const getClassFromRowType = (baseClassName: string, rowType: BlotterRowTypes, ex
 const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const { columns, blotterType, row } = props;
   const [executed, setExecuted] = useState<boolean>(false);
-  const { ExecID } = row;
+  const ExecID: string | null = row !== null ? row.ExecID : null;
 
   useEffect(() => {
     setExecuted(false);
+    if (ExecID === null)
+      return;
     if (blotterType === BlotterTypes.Executions) {
       /*let timer: number | null = null;
       const onExecuted = () => {
@@ -71,22 +73,30 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     }
   }, [ExecID, blotterType]);
 
-  const columnMapper = (column: ColumnSpec): ReactElement => {
-    const style: CSSProperties = {
-      width: getCellWidth(column.width, props.totalWidth, props.containerWidth),
+  const columnMapper = (rowID: string) =>
+    (column: ColumnSpec): ReactElement => {
+      const style: CSSProperties = {
+        width: getCellWidth(column.width, props.totalWidth, props.containerWidth),
+      };
+      const id: string = $$(column.name, rowID);
+      return (
+        <div className={'td'} id={id} key={id} style={style}>
+          {column.render(row)}
+        </div>
+      );
     };
+  if (!row) {
     return (
-      <div className={'td'} key={$$(column.name, row.id)} style={style}>
-        {column.render(row)}
+      <div className={getClassFromRowType('tr', props.type, executed, false)} id={'__INSERT_ROW__'}
+           key={'__INSERT_ROW__'}>
+        {columns.map(columnMapper('__INSERT_ROW__'))}
       </div>
     );
-  };
-  if (!row)
-    return null;
+  }
   const isDarkPool: boolean = row.ExDestination === DarkPool;
   return (
     <div className={getClassFromRowType('tr', props.type, executed, isDarkPool)} id={row.id} key={row.id}>
-      {columns.map(columnMapper)}
+      {columns.map(columnMapper(row.id))}
     </div>
   );
 };

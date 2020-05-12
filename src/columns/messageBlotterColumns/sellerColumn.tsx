@@ -1,5 +1,7 @@
+import React from 'react';
 import { ExecTypes, Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { ReactElement } from 'react';
 
 const getSeller = (message: Message): string | null => {
   if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
@@ -22,7 +24,13 @@ export const sellerColumn = (sortable: boolean): ColumnSpec => ({
     return seller.includes(keyword);
   },
   header: () => 'Seller',
-  render: (message: Message) => getSeller(message),
+  render: (message: Message): ReactElement | string | null => {
+    if (message) {
+      return getSeller(message);
+    } else {
+      return <input/>;
+    }
+  },
   filterable: true,
   sortable: sortable,
   template: 'SELLER',

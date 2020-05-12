@@ -5,7 +5,7 @@ import { $$ } from 'utils/stringPaster';
 import { compareTenors } from 'utils/dataGenerators';
 import { PodTable } from 'interfaces/podTable';
 
-export const createEmptyTable = (symbol: string, strategy: string, tenors: string[]) => {
+export const createEmptyTable = (symbol: string, strategy: string, tenors: string[]): PodTable => {
   const rows: PodRow[] = tenors.map((tenor: string) => {
     const order: Order = new Order(tenor, symbol, strategy, '', 0, OrderTypes.Invalid);
     return {

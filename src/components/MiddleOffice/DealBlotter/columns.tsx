@@ -13,7 +13,13 @@ import { sellerColumn } from 'columns/messageBlotterColumns/sellerColumn';
 export const columns: ColumnSpec[] = [{
   name: 'deal-id',
   header: () => 'Deal Id',
-  render: (props: Message): ReactElement => <div className={'padded'}>{getLink(props)}</div>,
+  render: (message: Message): ReactElement => {
+    if (message) {
+      return <div className={'padded'}>{getLink(message)}</div>
+    } else {
+      return <input/>;
+    }
+  },
   filterable: true,
   width: 3,
   template: '12345',
@@ -33,11 +39,15 @@ export const columns: ColumnSpec[] = [{
   sellerColumn(true), {
     name: 'venue',
     header: () => 'Venue',
-    render: (props: Message) => {
-      if (props.ExDestination === 'DP') {
-        return 'Dark Pool';
+    render: (message: Message): ReactElement | string => {
+      if (message) {
+        if (message.ExDestination === 'DP') {
+          return 'Dark Pool';
+        } else {
+          return 'Execution';
+        }
       } else {
-        return 'Execution';
+        return <input/>;
       }
     },
     filterable: true,

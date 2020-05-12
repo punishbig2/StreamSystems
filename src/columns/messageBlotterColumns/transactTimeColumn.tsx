@@ -1,7 +1,9 @@
+import React from 'react';
 import { Message } from 'interfaces/message';
 import moment, { Moment } from 'moment';
 import { Globals } from 'golbals';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { ReactElement } from 'react';
 
 const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
 
@@ -28,11 +30,15 @@ export default (): ColumnSpec => ({
   header: () => 'Time',
   filterable: true,
   sortable: true,
-  render: (data: Message) => {
-    const date: Date = parse(data.TransactTime, Globals.timezone);
-    return date.toLocaleString('en-US', {
-      timeZone: Globals.timezone || undefined,
-    });
+  render: (message: Message): ReactElement | string => {
+    if (message) {
+      const date: Date = parse(message.TransactTime, Globals.timezone);
+      return date.toLocaleString('en-US', {
+        timeZone: Globals.timezone || undefined,
+      });
+    } else {
+      return <input/>;
+    }
   },
   width: 6,
   difference: (v1: Message, v2: Message): number => {

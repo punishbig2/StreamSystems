@@ -1,5 +1,7 @@
+import React from 'react';
 import { Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { ReactElement } from 'react';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Strategy',
@@ -7,7 +9,13 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Strategy',
-  render: ({ Strategy }: Message) => Strategy,
+  render: (message: Message): ReactElement | string => {
+    if (message) {
+      return message.Strategy;
+    } else {
+      return <input/>;
+    }
+  },
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;

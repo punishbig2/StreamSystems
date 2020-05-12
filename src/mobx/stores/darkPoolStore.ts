@@ -26,7 +26,7 @@ export class DarkPoolStore {
       if (user.isbroker) {
         return o.firm === personality && o.user === user.email;
       }
-      return o.user === user.email;
+      return o.user === user.email || o.firm === user.firm;
     });
   }
 
@@ -53,6 +53,8 @@ export class DarkPoolStore {
       if (user.isbroker && currentOrder.firm !== personality)
         return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
       return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned;
+    } else if (currentOrder.firm === user.firm) {
+      return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.SameBank;
     }
     return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
   }

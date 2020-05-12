@@ -1,5 +1,7 @@
+import React from 'react';
 import { Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { ReactElement } from 'react';
 
 const currencyToNumber = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
@@ -11,7 +13,13 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Currency',
-  render: ({ Symbol }: Message) => Symbol,
+  render: (message: Message): ReactElement | string => {
+    if (message) {
+      return message.Symbol;
+    } else {
+      return <input/>;
+    }
+  },
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Symbol;

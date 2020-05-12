@@ -187,7 +187,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
              columns={columns}
              rows={orders}
              renderRow={renderRow}
-             className={state.isLoading ? 'loading' : ''}/>
+             className={(state.isLoading ? 'loading' : '') + ' run-table'}/>
       <div className={'modal-buttons'}>
         <button className={'cancel pull-left'} onClick={activateCancelledOrders} disabled={state.isLoading}>
           {strings.ActivateAll}
