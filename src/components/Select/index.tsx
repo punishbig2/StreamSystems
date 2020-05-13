@@ -139,13 +139,16 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     return ReactDOM.createPortal(
       <ul className={'dropdown'} style={positionToStyle(position)} onMouseDownCapture={swallowMouse} ref={setDropdown}>
         {props.searchable && searchBox}
-        {filtered.map((item: { name: string }, index: number) => (
-          <li key={item.name}
-              onClick={() => onItemClick(item.name)}
-              className={currentItem === index ? 'selected' : undefined}>
-            <span>{item.name}</span>
-          </li>
-        ))}
+        {filtered.map((item: { name: string }, index: number) => {
+          const classes = [];
+          if (currentItem === index)
+            classes.push('selected');
+          return (
+            <li key={item.name} onClick={() => onItemClick(item.name)} className={classes.join(' ')}>
+              <span>{item.name}</span>
+            </li>
+          );
+        })}
       </ul>, document.body);
   };
 
@@ -156,7 +159,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   return (
     <div className={'select-container' + (props.fit ? ' fit' : '')} ref={setContainer} onMouseDown={showDropdown}>
       <select value={props.value}
-              className={'select'}
+              className={'select' + (props.value === '' ? ' no-selection' : '')}
               onChange={onChange}
               onKeyPressCapture={ignoreKeyboard}
               onKeyDownCapture={ignoreKeyboard}
@@ -168,7 +171,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
           </option>
         ))}
       </select>
-      <div className={'arrow'}>
+      <div className={'arrow' + (props.value === '' ? ' no-selection' : '')}>
         <i className={'fa fa-caret-down'}/>
       </div>
       {renderDropdown()}
@@ -179,3 +182,4 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 Select.defaultProps = {
   fit: false,
 };
+

@@ -14,7 +14,6 @@ export const PriceCell: React.FC<CellProps> = observer((props: CellProps): React
     if (changed) {
       store.setPrice(value);
     }
-    skipTabIndexAll(input, 1);
   };
   if (message) {
     return <div>{priceFormatter(getMessagePrice(message))}</div>;

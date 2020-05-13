@@ -38,6 +38,8 @@ $field-height: $normal-font-size + 10;
 
     border-left: 1px solid $table-border-color;
     background-color: $background-color;
+    border-top: 1px solid $table-border-color;
+    margin-top: -1px;
 
     .legs {
       overflow-y: auto;
@@ -50,8 +52,14 @@ $field-height: $normal-font-size + 10;
       height: 100%;
 
       fieldset {
-        border: none;
+        display: block;
         width: 100%;
+        margin: 0;
+        border: none;
+
+        &.full-height {
+          height: 100%;
+        }
 
         legend {
           display: block;

@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { getLink } from 'messageUtils';
 import transactTimeColumn from 'columns/messageBlotterColumns/transactTimeColumn';
 import symbolColumn from 'columns/messageBlotterColumns/symbolColumn';
 import strategyColumn from 'columns/messageBlotterColumns/strategyColumn';
@@ -9,17 +8,23 @@ import priceColumn from 'columns/messageBlotterColumns/priceColumn';
 import { buyerColumn } from 'columns/messageBlotterColumns/buyerColumn';
 import { sellerColumn } from 'columns/messageBlotterColumns/sellerColumn';
 import { CellProps } from '../../../columns/messageBlotterColumns/cellProps';
+import { extractDealId } from '../../../messageUtils';
+import { Observer } from 'mobx-react';
 
 export const columns: ColumnSpec[] = [{
   name: 'deal-id',
   header: () => 'Deal Id',
   render: (props: CellProps): ReactElement => {
-    const { message } = props;
+    const { store, message } = props;
     if (message) {
-      return <div className={'padded'}>{getLink(message)}</div>;
+      return <div className={'padded'}>{extractDealId(message)}</div>;
     } else {
       return (
-        <button><i className={'fa fa-plus'}/> <span>Add</span></button>
+        <Observer children={() => (
+          <button disabled={!store.isReady} onClick={store.addDeal}>
+            <i className={'fa fa-plus'}/> <span>Add</span>
+          </button>
+        )}/>
       );
     }
   },
@@ -47,6 +52,10 @@ export const columns: ColumnSpec[] = [{
       if (message) {
         if (message.ExDestination === 'DP') {
           return 'Dark Pool';
+        } else if (message.ExDestination === 'MANUAL') {
+          return 'Manual';
+        } else if (message.ExDestination === 'CLONE') {
+          return 'Clone';
         } else {
           return 'Execution';
         }

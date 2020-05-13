@@ -33,18 +33,12 @@ export const getMessageBuyer = (message: Message): string => {
   }
 };
 
-export const getLink = (message: Message): string => {
-  if (message['583'])
-    return message['583'];
-  return message.ClOrdLinkId ? message.ClOrdLinkId : '';
-};
-
-export const getMessageSeller = (message: Message): string => {
-  if (message.Side === '2') {
-    return message.MDMkt;
-  } else {
-    return message.ExecBroker;
-  }
+export const extractDealId = (message: Message): string => {
+  const id: string = message.ExecID;
+  const parts: string[] = id.split('-');
+  if (parts.length === 0)
+    return '?';
+  return parts[0];
 };
 
 export const sortByTimeDescending = (m1: Message, m2: Message): number => {
@@ -53,7 +47,7 @@ export const sortByTimeDescending = (m1: Message, m2: Message): number => {
   return -M1.diff(M2);
 };
 
-export const isFill = (item: Message): boolean => {
+const isFill = (item: Message): boolean => {
   return item.ExecType === ExecTypes.PartiallyFilled
     || item.ExecType === ExecTypes.Filled
     || item.OrdStatus === ExecTypes.PartiallyFilled

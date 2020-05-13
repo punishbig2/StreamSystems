@@ -5,7 +5,6 @@ import messagesStore from 'mobx/stores/messagesStore';
 import { Message } from 'interfaces/message';
 import { Row, BlotterRowTypes } from 'components/MessageBlotter/row';
 import { BlotterTypes } from 'columns/messageBlotter';
-import { getLink } from 'messageUtils';
 import { observer } from 'mobx-react';
 import { randomID } from 'randomID';
 import { DealInsertStore } from '../../../mobx/stores/dealInsertStore';
@@ -15,7 +14,7 @@ interface Props {
 }
 
 export const DealBlotter: React.FC<Props> = observer((props: Props): ReactElement | null => {
-  const rows: Message[] = messagesStore.systemExecutions;
+  const rows: Message[] = messagesStore.executions;
   const renderRow = (props: any): ReactElement | null => {
     if (!props.row) {
       return (
@@ -32,7 +31,7 @@ export const DealBlotter: React.FC<Props> = observer((props: Props): ReactElemen
     } else {
       const message: Message = props.row;
       return (
-        <Row key={getLink(message) + randomID('row')}
+        <Row key={message.ClOrdID + randomID('row')}
              columns={props.columns}
              row={message}
              weight={props.weight}

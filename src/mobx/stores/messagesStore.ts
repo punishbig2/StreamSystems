@@ -4,14 +4,12 @@ import { API } from 'API';
 import signalRManager from 'signalR/signalRManager';
 import workareaStore from 'mobx/stores/workareaStore';
 import { User } from 'interfaces/user';
-import { isAcceptableFill, isFill, sortByTimeDescending, isMyMessage, getLink } from 'messageUtils';
+import { isAcceptableFill,  sortByTimeDescending, isMyMessage } from 'messageUtils';
 
 export class MessagesStore {
   @observable.ref myMessages: Message[] = [];
-  @observable.ref systemExecutions: Message[] = [];
   @observable.ref executions: Message[] = [];
   @observable loading: boolean = false;
-  private cleanup: (() => void) | null = null;
 
   @action.bound
   public addEntry(message: Message) {
@@ -20,8 +18,6 @@ export class MessagesStore {
       this.myMessages = [message, ...this.myMessages];
     if (isAcceptableFill(message))
       this.executions = [message, ...this.executions];
-    if (isFill(message))
-      this.systemExecutions = [message, ...this.systemExecutions];
   }
 
   @action.bound
@@ -36,11 +32,6 @@ export class MessagesStore {
     // Group by interest
     this.executions = entries.filter(isAcceptableFill);
     this.myMessages = entries.filter(isMyMessage);
-    this.systemExecutions = entries.filter(isFill)
-      .filter((message: Message, index: number, all: Message[]): boolean => {
-        // Remove duplicates
-        return all.findIndex((m: Message) => getLink(m) === getLink(message)) !== index;
-      });
     // We're done
     this.loading = false;
   }

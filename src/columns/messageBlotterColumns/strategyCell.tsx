@@ -18,7 +18,7 @@ export const StrategyCell: React.FC<CellProps> = observer((props: CellProps): Re
         };
       });
     return (
-      <Select fit={true} list={list} value={store.strategy} onChange={store.setStrategy}/>
+      <Select fit={true} list={list} value={store.strategy} empty={'Strategy'} onChange={store.setStrategy}/>
     );
   }
 });

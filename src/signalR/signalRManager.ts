@@ -321,7 +321,6 @@ export class SignalRManager {
     if (connection === null)
       return;
     if (connection.state !== HubConnectionState.Connected) {
-      console.warn('attempting to invoke a signal R command with an inactive connection');
       return;
     }
     connection.invoke(name, ...args)

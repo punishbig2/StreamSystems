@@ -14,6 +14,7 @@
 
   &.fit {
     width: 100%;
+    padding-right: 0;
   }
 
   select {
@@ -26,18 +27,22 @@
     flex: 1;
     margin-right: -20px;
     color: $foreground-color;
+
+    &.no-selection {
+      color: rgba($foreground-color, 0.5);
+    }
   }
 
   .arrow {
-    display: inline-block;
-    vertical-align: top;
-    float: right;
     width: $title-bar-height;
     height: $title-bar-height;
     line-height: $title-bar-height;
     text-align: center;
     background: none;
     color: $foreground-color;
+    &.no-selection {
+      color: rgba($foreground-color, 0.5);
+    }
   }
 }
 

@@ -21,7 +21,7 @@ export const SymbolCell: React.FC<CellProps> = observer((props: CellProps): Reac
         };
       });
     return (
-      <Select fit={true} list={list} value={store.currency} onChange={store.setCurrency}/>
+      <Select fit={true} list={list} value={store.currency} empty={'Currency'} onChange={store.setCurrency}/>
     );
   }
 });

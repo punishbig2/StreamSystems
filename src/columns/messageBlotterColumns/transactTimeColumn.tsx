@@ -1,8 +1,9 @@
+import React, { useCallback, ReactElement, useEffect, useState } from 'react';
 import { Message } from 'interfaces/message';
 import moment, { Moment } from 'moment';
 import { Globals } from 'golbals';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { ReactElement } from 'react';
+import { CellProps } from './cellProps';
 
 const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
 
@@ -22,6 +23,28 @@ const parse = (date: string, tz: string | null): Date => {
     ),
   );
 };
+const useTimer = (): Date => {
+  const [date, setDate] = useState<Date>(new Date());
+  const tick = useCallback(() => {
+    setDate(new Date());
+  }, []);
+  useEffect(() => {
+    const timer = setTimeout(tick, 1000);
+    return () => clearTimeout(timer);
+  });
+  return date;
+};
+
+const CurrentTime: React.FC = (): ReactElement => {
+  const date: Date = useTimer();
+  return (
+    <div>
+      {date.toLocaleString('en-US', {
+        timeZone: Globals.timezone || undefined,
+      })}
+    </div>
+  );
+};
 
 export default (): ColumnSpec => ({
   name: 'TransactTime',
@@ -29,17 +52,15 @@ export default (): ColumnSpec => ({
   header: () => 'Time',
   filterable: true,
   sortable: true,
-  render: (message: Message): ReactElement | string => {
+  render: (props: CellProps): ReactElement | string => {
+    const { message } = props;
     if (message) {
       const date: Date = parse(message.TransactTime, Globals.timezone);
       return date.toLocaleString('en-US', {
         timeZone: Globals.timezone || undefined,
       });
     } else {
-      const date: Date = new Date();
-      return date.toLocaleString('en-US', {
-        timeZone: Globals.timezone || undefined,
-      });
+      return <CurrentTime/>;
     }
   },
   width: 6,

@@ -32,7 +32,7 @@ const Workarea: React.FC = (): ReactElement | null => {
   }, [email]);
 
   useEffect(() => {
-    if (!user)
+    if (!user || !connected)
       return;
     messagesStore.connect();
     return () => {

@@ -31,7 +31,9 @@ export const buyerColumn = (sortable: boolean): ColumnSpec => ({
     if (message) {
       return getBuyer(message);
     } else {
-      return <Observer children={() => <BankCell message={message} value={store.buyer} onChange={store.setBuyer}/>}/>;
+      return <Observer children={() => (
+        <BankCell message={message} value={store.buyer} onChange={store.setBuyer} label={'Buyer'}/>
+      )}/>;
     }
   },
   filterable: true,

@@ -6,6 +6,7 @@ import { Message } from '../../interfaces/message';
 type Props = {
   message: Message;
   value: string;
+  label: string;
   onChange: (value: string) => void;
 }
 export const BankCell: React.FC<Props> = (props: Props): ReactElement | null => {
@@ -21,7 +22,7 @@ export const BankCell: React.FC<Props> = (props: Props): ReactElement | null => 
         };
       });
     return (
-      <Select fit={true} list={list} value={props.value} onChange={props.onChange}/>
+      <Select fit={true} list={list} empty={props.label} value={props.value} onChange={props.onChange}/>
     );
   }
 };
