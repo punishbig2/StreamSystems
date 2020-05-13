@@ -104,8 +104,7 @@ export class WorkspaceStore {
 
   @action.bound
   public superRefAll() {
-    const user: User = workareaStore.user;
-    API.brokerRefAll(user.email);
+    API.brokerRefAll();
   }
 
   @action.bound

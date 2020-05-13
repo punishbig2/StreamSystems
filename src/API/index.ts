@@ -447,16 +447,21 @@ export class API {
     return post<any>(API.buildUrl(API.UserApi, 'UserJson', 'save'), { useremail, workspace }, contentType);
   }
 
-  static async brokerRefAll(user: string) {
+  static async brokerRefAll() {
+    const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     const request = {
       MsgType: MessageTypes.F,
-      User: user,
+      User: user.email,
       MDMkt: personality === STRM ? undefined : personality,
       TransactTime: getCurrentTime(),
     };
-    return post<MessageResponse>(
+    await post<MessageResponse>(
       API.buildUrl(API.Oms, 'all', 'cxlall'),
+      request,
+    );
+    await post<MessageResponse>(
+      API.buildUrl(API.DarkPool, 'all', 'cxlall'),
       request,
     );
   }

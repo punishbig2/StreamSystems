@@ -6,6 +6,7 @@ import { CellProps } from './cellProps';
 import { Observer } from 'mobx-react';
 
 const getBuyer = (message: Message): string | null => {
+  console.log(message);
   if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
     return message.Side === '1' ? message.MDMkt : message.ExecBroker;
   return null;

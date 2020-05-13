@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react';
-import { skipTabIndexAll } from '../../utils/skipTab';
 import { priceFormatter } from '../../utils/priceFormatter';
 import { getMessagePrice } from '../../messageUtils';
 import { Price } from '../../components/Table/CellRenderers/Price';

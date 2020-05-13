@@ -2,6 +2,7 @@ import React from 'react';
 import { Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { DarkPool } from 'interfaces/w';
+import { CellProps } from './cellProps';
 
 export const poolColumn = (sortable: boolean): ColumnSpec => ({
   name: 'pool',
@@ -12,9 +13,12 @@ export const poolColumn = (sortable: boolean): ColumnSpec => ({
     return false;
   },
   header: () => 'Venue',
-  render: ({ ExDestination }: Message) => (
-    <div className={'message-blotter-cell normal'}>{ExDestination === DarkPool ? 'Dark Pool' : ''}&nbsp;</div>
-  ),
+  render: (props: CellProps) => {
+    const { ExDestination } = props.message;
+    return (
+      <div className={'message-blotter-cell normal'}>{ExDestination === DarkPool ? 'Dark Pool' : ''}&nbsp;</div>
+    )
+  },
   filterable: true,
   sortable: sortable,
   template: 'MAKE_IT_WIDE_AND_WIDER',

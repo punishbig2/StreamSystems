@@ -1,4 +1,5 @@
 import { ExecTypes, Message } from 'interfaces/message';
+import { CellProps } from './cellProps';
 
 const TransTypes: { [key: string]: string } = {
   [ExecTypes.New]: 'New',
@@ -15,7 +16,8 @@ export default (sortable: boolean) => ({
   header: () => 'Type',
   filterable: true,
   sortable: sortable,
-  render: (data: Message) => {
+  render: (props: CellProps) => {
+    const { message: data } = props;
     if (TransTypes[data.OrdStatus]) {
       return TransTypes[data.OrdStatus];
     } else {

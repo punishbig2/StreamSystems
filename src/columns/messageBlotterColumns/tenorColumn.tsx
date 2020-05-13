@@ -1,6 +1,7 @@
 import { Message } from 'interfaces/message';
 import { tenorToNumber } from 'utils/dataGenerators';
 import { ColumnSpec } from 'components/Table/columnSpecification';
+import { CellProps } from './cellProps';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Tenor',
@@ -8,7 +9,7 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Tenor',
-  render: ({ Tenor }: Message) => Tenor,
+  render: ({ message: { Tenor } }: CellProps) => Tenor,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Tenor;
