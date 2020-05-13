@@ -464,5 +464,9 @@ export class API {
       API.buildUrl(API.DarkPool, 'all', 'cxlall'),
       request,
     );
+    await post<MessageResponse>(
+      API.buildUrl(API.DarkPool, 'price', 'publish'),
+      request,
+    );
   }
 }

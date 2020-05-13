@@ -2,6 +2,7 @@ import React from 'react';
 import { Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { involved } from 'columns/messageBlotterColumns/helpers';
+import { CellProps } from './cellProps';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'Side',
@@ -9,7 +10,8 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => 'Side',
-  render: (message: Message) => {
+  render: (props: CellProps) => {
+    const { message } = props;
     const { Side } = message;
     if (!involved(message))
       return <div/>;

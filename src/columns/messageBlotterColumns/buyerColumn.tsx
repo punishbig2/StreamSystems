@@ -4,9 +4,10 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 import { BankCell } from './banksCell';
 import { CellProps } from './cellProps';
 import { Observer } from 'mobx-react';
+import { User } from '../../interfaces/user';
+import workareaStore from '../../mobx/stores/workareaStore';
 
 const getBuyer = (message: Message): string | null => {
-  console.log(message);
   if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
     return message.Side === '1' ? message.MDMkt : message.ExecBroker;
   return null;
@@ -29,7 +30,11 @@ export const buyerColumn = (sortable: boolean): ColumnSpec => ({
   header: () => 'Buyer',
   render: (props: CellProps): ReactElement | string | null => {
     const { store, message } = props;
+    const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
     if (message) {
+      if (message.Username !== user.email && (message.MDMkt === user.firm || message.MDMkt !== personality))
+        return null;
       return getBuyer(message);
     } else {
       return <Observer children={() => (

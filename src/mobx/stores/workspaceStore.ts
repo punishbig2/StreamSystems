@@ -4,7 +4,6 @@ import { API } from 'API';
 import { randomID } from 'randomID';
 import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
 import persistStorage from 'persistStorage';
-import { User } from 'interfaces/user';
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch

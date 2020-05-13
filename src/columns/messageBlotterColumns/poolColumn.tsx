@@ -1,5 +1,4 @@
 import React from 'react';
-import { Message } from 'interfaces/message';
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { DarkPool } from 'interfaces/w';
 import { CellProps } from './cellProps';
@@ -17,7 +16,7 @@ export const poolColumn = (sortable: boolean): ColumnSpec => ({
     const { ExDestination } = props.message;
     return (
       <div className={'message-blotter-cell normal'}>{ExDestination === DarkPool ? 'Dark Pool' : ''}&nbsp;</div>
-    )
+    );
   },
   filterable: true,
   sortable: sortable,
