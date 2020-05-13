@@ -3,6 +3,7 @@ import { OrderTypes } from 'interfaces/mdEntry';
 import { BlotterTypes } from 'columns/messageBlotter';
 import React, { ReactElement } from 'react';
 import { BlotterRowTypes, Row } from 'components/MessageBlotter/row';
+import { Sides } from '../../interfaces/sides';
 
 export const isExecution = (message: Message): boolean => {
   return (
@@ -12,8 +13,7 @@ export const isExecution = (message: Message): boolean => {
 };
 
 export const isMyBankMessage = (message: Message, firm: string): boolean => {
-  const targetUser: string = message.Side === OrderTypes.Ofr ? message.MDMkt : message.ExecBroker;
-  return targetUser === firm;
+  return message.MDMkt === firm;
 };
 
 export const isMyMessage = (message: Message, email: string): boolean => {
