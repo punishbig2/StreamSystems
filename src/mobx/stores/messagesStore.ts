@@ -11,6 +11,7 @@ import {
 } from "messageUtils";
 
 export class MessagesStore {
+  private entries: Message[] = [];
   @observable.ref myMessages: Message[] = [];
   @observable.ref executions: Message[] = [];
   @observable loading: boolean = false;
@@ -22,6 +23,7 @@ export class MessagesStore {
       this.myMessages = [message, ...this.myMessages];
     if (isAcceptableFill(message))
       this.executions = [message, ...this.executions];
+    this.entries = [message, ...this.entries];
   }
 
   @action.bound
@@ -42,12 +44,18 @@ export class MessagesStore {
       midnight.getTime()
     );
     // Sort all entries
-    entries.sort(sortByTimeDescending);
-    // Group by interest
-    this.executions = entries.filter(isAcceptableFill);
-    this.myMessages = entries.filter(isMyMessage);
+    this.entries = entries.sort(sortByTimeDescending);
+    this.reapplyFilters();
     // We're done
     this.loading = false;
+  }
+
+  @action.bound
+  public reapplyFilters() {
+    const { entries } = this;
+
+    this.executions = entries.filter(isAcceptableFill);
+    this.myMessages = entries.filter(isMyMessage);
   }
 
   @action.bound

@@ -27,6 +27,7 @@ const Workarea: React.FC = (): ReactElement | null => {
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const { CloseWorkspace } = strings;
   const email: string | null = getUserFromUrl();
+  const personality: string = workareaStore.personality;
 
   useEffect(() => {
     if (email === null) return;
@@ -40,6 +41,11 @@ const Workarea: React.FC = (): ReactElement | null => {
       messagesStore.disconnect();
     };
   }, [connected, user]);
+
+
+  useEffect(() => {
+    messagesStore.reapplyFilters();
+  }, [personality]);
 
   const cancelCloseWorkspace = () => setSelectedToClose(null);
   const closeWorkspace = () => {

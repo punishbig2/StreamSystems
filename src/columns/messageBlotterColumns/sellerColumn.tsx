@@ -38,7 +38,8 @@ export const sellerColumn = (sortable: boolean): ColumnSpec => ({
     if (message) {
       if (
         message.Username !== user.email &&
-        (message.MDMkt === user.firm || message.MDMkt !== personality)
+        (message.MDMkt === user.firm || message.MDMkt !== personality) &&
+        !user.isbroker
       )
         return null;
       return getSeller(message);

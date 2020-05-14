@@ -2,6 +2,7 @@ import { Message, ExecTypes } from "interfaces/message";
 import { User } from "interfaces/user";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
+import { STRM } from "./stateDefs/workspaceState";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
 
@@ -63,16 +64,21 @@ export const isMyMessage = (message: Message): boolean => {
   return user.email === message.Username;
 };
 
+const isTraderInvolved = (message: Message, trader: string): boolean => {
+  return message.Username === trader || message.ContraTrader === trader;
+};
+
+const isBrokerInvolved = (message: Message, bank: string): boolean => {
+  return message.MDMkt === bank || message.ExecBroker === bank;
+};
+
 export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
   if (!isFill(message)) return false;
-  if (
-    message.Username !== user.email &&
-    message.ContraTrader !== user.email &&
-    message.MDMkt !== user.firm &&
-    message.ExecBroker !== user.firm
-  ) {
-    return message.Side === "1";
+  if (user.isbroker) {
+    if (personality === STRM) return message.Side === "1";
+    return (!isBrokerInvolved(message, personality) && message.Side === "1") || message.MDMkt === personality;
   }
-  return message.Username === user.email || message.MDMkt === user.firm;
+  return (!isTraderInvolved(message, user.email) && message.Side === "1") || message.Username === user.email;
 };
