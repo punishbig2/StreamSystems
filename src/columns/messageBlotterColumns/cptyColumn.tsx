@@ -12,13 +12,8 @@ export default (sortable: boolean, isExecBlotter: boolean): ColumnSpec => ({
   header: () => "CPTY",
   render: (props: CellProps) => {
     const { message } = props;
-    const { ExecBroker, OrdStatus } = message;
+    const { ExecBroker } = message;
     if (!involved(message)) return <div />;
-    if (
-      OrdStatus !== ExecTypes.Filled &&
-      OrdStatus !== ExecTypes.PartiallyFilled
-    )
-      return <div />;
     return (
       <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
         {ExecBroker}
