@@ -2,6 +2,9 @@ import { Message, ExecTypes } from "interfaces/message";
 import { BlotterTypes } from "columns/messageBlotter";
 import React, { ReactElement } from "react";
 import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
+import workareaStore from "../../mobx/stores/workareaStore";
+import { STRM } from "../../stateDefs/workspaceState";
+import { User } from "../../interfaces/user";
 
 export const isExecution = (message: Message): boolean => {
   return (
@@ -10,19 +13,30 @@ export const isExecution = (message: Message): boolean => {
   );
 };
 
-export const isMyBankMessage = (message: Message, firm: string): boolean => {
-  return message.MDMkt === firm;
+export const isMyBankMessage = (message: Message): boolean => {
+  const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
+  if (user.isbroker) return message.MDMkt === personality;
+  return message.MDMkt === user.firm;
 };
 
-export const isMyMessage = (message: Message, email: string): boolean => {
-  return message.Username === email || message.ContraTrader === email;
+export const isMyMessage = (message: Message): boolean => {
+  const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
+  if (user.isbroker) {
+    if (personality === STRM) return false;
+    return (
+      (message.Username === user.email ||
+        message.ContraTrader === user.email) &&
+      (message.MDMkt === personality || message.ExecBroker === personality)
+    );
+  }
+  return message.Username === user.email || message.ContraTrader === user.email;
 };
 
-export const renderRowFactory = (
-  blotterType: BlotterTypes,
-  email: string,
-  firm: string
-) => (props: any): ReactElement | null => {
+export const renderRowFactory = (blotterType: BlotterTypes) => (
+  props: any
+): ReactElement | null => {
   const message: Message = props.row;
   const rowType = ((): BlotterRowTypes => {
     if (!message) return BlotterRowTypes.Normal;
@@ -30,9 +44,9 @@ export const renderRowFactory = (
       if (isBusted(message)) return BlotterRowTypes.Busted;
       return BlotterRowTypes.Normal;
     }
-    if (isMyMessage(message, email)) {
+    if (isMyMessage(message)) {
       return BlotterRowTypes.MyFill;
-    } else if (isMyBankMessage(message, firm)) {
+    } else if (isMyBankMessage(message)) {
       return BlotterRowTypes.MyBankFill;
     }
     return BlotterRowTypes.Normal;
