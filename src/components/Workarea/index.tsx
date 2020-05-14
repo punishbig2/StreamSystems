@@ -44,7 +44,9 @@ const Workarea: React.FC = (): ReactElement | null => {
 
 
   useEffect(() => {
-    messagesStore.reapplyFilters();
+    setTimeout(() => {
+      messagesStore.reapplyFilters();
+    }, 0);
   }, [personality]);
 
   const cancelCloseWorkspace = () => setSelectedToClose(null);

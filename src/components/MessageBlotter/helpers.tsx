@@ -16,8 +16,8 @@ export const isExecution = (message: Message): boolean => {
 export const isMyBankMessage = (message: Message): boolean => {
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
-  if (user.isbroker) return message.MDMkt === personality;
-  return message.MDMkt === user.firm;
+  if (user.isbroker) return message.MDMkt === personality || message.ExecBroker === personality;
+  return message.MDMkt === user.firm || message.ExecBroker === user.firm;
 };
 
 export const isMyMessage = (message: Message): boolean => {
