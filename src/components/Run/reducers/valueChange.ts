@@ -88,10 +88,7 @@ export const valueChange = (
       ...original,
       // Update the price
       price: price,
-      size:
-        (status & OrderStatus.PriceEdited) !== 0 && !original.size
-          ? defaultSize
-          : null,
+      size: ((original.status & OrderStatus.Cancelled) !== 0) ? defaultSize : original.size,
       // Update the status and set it as edited/modified
       status: status,
     };

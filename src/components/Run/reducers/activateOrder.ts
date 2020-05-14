@@ -22,6 +22,10 @@ export const activateOrder = (
         [key]: {
           ...order,
           status: activateOrderIfPossible(order.status),
+          size:
+            order.type === OrderTypes.Bid
+              ? state.defaultBidSize
+              : state.defaultOfrSize,
         },
       }),
     },

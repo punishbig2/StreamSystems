@@ -18,8 +18,16 @@ export const activateRow = (state: RunState, rowID: string): RunState => {
   const { bid, ofr } = row;
   const newRow: PodRow = fillSpreadAndMid({
     ...row,
-    bid: { ...bid, status: activateOrderIfPossible(bid.status) },
-    ofr: { ...ofr, status: activateOrderIfPossible(ofr.status) },
+    bid: {
+      ...bid,
+      status: activateOrderIfPossible(bid.status),
+      size: state.defaultBidSize,
+    },
+    ofr: {
+      ...ofr,
+      status: activateOrderIfPossible(ofr.status),
+      size: state.defaultOfrSize,
+    },
   });
   return {
     ...state,
