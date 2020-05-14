@@ -1,19 +1,19 @@
-import { ExecTypes, Message } from 'interfaces/message';
-import { CellProps } from './cellProps';
+import { ExecTypes, Message } from "interfaces/message";
+import { CellProps } from "./cellProps";
 
 const TransTypes: { [key: string]: string } = {
-  [ExecTypes.New]: 'New',
-  [ExecTypes.Canceled]: 'Cancel',
-  [ExecTypes.PartiallyFilled]: 'Partially Filled',
-  [ExecTypes.Filled]: 'Filled',
-  [ExecTypes.Replace]: 'Replace',
-  [ExecTypes.PendingCancel]: 'Pending Cancel',
+  [ExecTypes.New]: "New",
+  [ExecTypes.Canceled]: "Cancel",
+  [ExecTypes.PartiallyFilled]: "Partially Filled",
+  [ExecTypes.Filled]: "Filled",
+  [ExecTypes.Replace]: "Replace",
+  [ExecTypes.PendingCancel]: "Pending Cancel",
 };
 
 export default (sortable: boolean) => ({
-  name: 'ExecTransType',
-  template: 'Long String to Fit the content',
-  header: () => 'Type',
+  name: "ExecTransType",
+  template: "Long String to Fit the content",
+  header: () => "Type",
   filterable: true,
   sortable: sortable,
   render: (props: CellProps) => {

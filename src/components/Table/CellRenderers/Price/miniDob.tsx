@@ -1,13 +1,13 @@
-import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { Order, OrderStatus } from 'interfaces/order';
-import React, { ReactNode } from 'react';
-import { priceFormatter } from 'utils/priceFormatter';
-import { User } from 'interfaces/user';
-import { OrderStore } from 'mobx/stores/orderStore';
-import workareaStore from 'mobx/stores/workareaStore';
-import { getOrderStatus } from 'columns/podColumns/OrderColumn/helpers/getOrderStatus';
-import { PodTableType } from 'columns/podColumns/OrderColumn';
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { OrderTypes } from "interfaces/mdEntry";
+import { Order, OrderStatus } from "interfaces/order";
+import React, { ReactNode } from "react";
+import { priceFormatter } from "utils/priceFormatter";
+import { User } from "interfaces/user";
+import { OrderStore } from "mobx/stores/orderStore";
+import workareaStore from "mobx/stores/workareaStore";
+import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderStatus";
+import { PodTableType } from "columns/podColumns/OrderColumn";
 
 interface Props {
   rows?: Order[];
@@ -18,46 +18,55 @@ interface Props {
 export const MiniDOB: React.FC<Props> = (props: Props) => {
   const user: User = workareaStore.user;
   const { rows, orderStore } = props;
-  if (!rows)
-    return null;
-  const children = rows.map(
-    (order: Order, index: number) => {
-      const { price, size, firm } = order;
-      const status: OrderStatus = getOrderStatus(order, orderStore.depth, PodTableType.Dob);
-      const priceElement: ReactNode = (() => {
-        return (
-          <div className={getOrderStatusClass(status, 'mini-price')} key={1}>
-            {priceFormatter(price)}
+  if (!rows) return null;
+  const children = rows.map((order: Order, index: number) => {
+    const { price, size, firm } = order;
+    const status: OrderStatus = getOrderStatus(
+      order,
+      orderStore.depth,
+      PodTableType.Dob
+    );
+    const priceElement: ReactNode = (() => {
+      return (
+        <div className={getOrderStatusClass(status, "mini-price")} key={1}>
+          {priceFormatter(price)}
+        </div>
+      );
+    })();
+    const elements: ReactNode[] = [priceElement];
+    const sizeElement = (
+      <div className={getOrderStatusClass(status, "mini-size")} key={2}>
+        {size}
+      </div>
+    );
+    if (props.type === OrderTypes.Bid) {
+      elements.unshift(sizeElement);
+      if (user.isbroker) {
+        elements.unshift(
+          <div key={3} className={"mini-firm"}>
+            {firm}
           </div>
         );
-      })();
-      const elements: ReactNode[] = [priceElement];
-      const sizeElement = (
-        <div className={getOrderStatusClass(status, 'mini-size')} key={2}>
-          {size}
-        </div>
-      );
-      if (props.type === OrderTypes.Bid) {
-        elements.unshift(sizeElement);
-        if (user.isbroker) {
-          elements.unshift(<div key={3} className={'mini-firm'}>{firm}</div>);
-        }
-      } else {
-        elements.push(sizeElement);
-        if (user.isbroker) {
-          elements.push(<div key={3} className={'mini-firm'}>{firm}</div>);
-        }
       }
-      return (
-        <div className={'row'} key={index}>
-          {elements}
-        </div>
-      );
-    },
-  );
+    } else {
+      elements.push(sizeElement);
+      if (user.isbroker) {
+        elements.push(
+          <div key={3} className={"mini-firm"}>
+            {firm}
+          </div>
+        );
+      }
+    }
+    return (
+      <div className={"row"} key={index}>
+        {elements}
+      </div>
+    );
+  });
   return (
     <>
-      <div className={'mini-dob'}>{children}</div>
+      <div className={"mini-dob"}>{children}</div>
     </>
   );
 };

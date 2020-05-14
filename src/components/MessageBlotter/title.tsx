@@ -1,11 +1,13 @@
-import React, { ReactElement } from 'react';
-import { BlotterTypes } from 'columns/messageBlotter';
+import React, { ReactElement } from "react";
+import { BlotterTypes } from "columns/messageBlotter";
 
 interface Props {
   type: BlotterTypes;
 }
 
-export const MessageBlotterTitle: React.FC<Props> = (props: Props): ReactElement | null => {
+export const MessageBlotterTitle: React.FC<Props> = (
+  props: Props
+): ReactElement | null => {
   switch (props.type) {
     case BlotterTypes.Regular:
       return <h1>Blotter</h1>;

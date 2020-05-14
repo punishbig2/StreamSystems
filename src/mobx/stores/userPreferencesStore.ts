@@ -1,13 +1,18 @@
-import { UserPreferences, UserProfileStatus, UserProfileModalTypes } from 'interfaces/user';
-import { observable, action } from 'mobx';
-import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
-import workareaStore from 'mobx/stores/workareaStore';
-import { Globals } from 'golbals';
-import { updateApplicationTheme } from 'utils';
+import {
+  UserPreferences,
+  UserProfileStatus,
+  UserProfileModalTypes,
+} from "interfaces/user";
+import { observable, action } from "mobx";
+import { defaultPreferences } from "stateDefs/defaultUserPreferences";
+import workareaStore from "mobx/stores/workareaStore";
+import { Globals } from "golbals";
+import { updateApplicationTheme } from "utils";
 
 export class UserPreferencesStore {
   @observable status: UserProfileStatus = UserProfileStatus.Initial;
-  @observable currentModalType: UserProfileModalTypes = UserProfileModalTypes.Form;
+  @observable currentModalType: UserProfileModalTypes =
+    UserProfileModalTypes.Form;
   @observable.ref preferences: UserPreferences = defaultPreferences;
   public initialPreferences: UserPreferences = defaultPreferences;
 
@@ -37,7 +42,7 @@ export class UserPreferencesStore {
   @action.bound
   public setFieldValue(name: string, value: any) {
     this.preferences = { ...this.preferences, [name]: value };
-    if (name === 'theme' || name === 'colorScheme' || name === 'font') {
+    if (name === "theme" || name === "colorScheme" || name === "font") {
       const { theme, colorScheme, font } = this.preferences;
       updateApplicationTheme(theme, colorScheme, font);
     }

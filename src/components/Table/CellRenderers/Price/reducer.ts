@@ -1,8 +1,11 @@
-import { PriceActions } from 'components/Table/CellRenderers/Price/constants';
-import { State } from 'components/Table/CellRenderers/Price/state';
-import { FXOAction } from 'actionCreator';
+import { PriceActions } from "components/Table/CellRenderers/Price/constants";
+import { State } from "components/Table/CellRenderers/Price/state";
+import { FXOAction } from "actionCreator";
 
-export const reducer = (state: State, action: FXOAction<PriceActions>): State => {
+export const reducer = (
+  state: State,
+  action: FXOAction<PriceActions>
+): State => {
   const { type, data } = action;
   switch (type) {
     case PriceActions.ShowTooltip:

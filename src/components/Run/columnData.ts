@@ -1,6 +1,6 @@
-import { NavigateDirection } from 'components/NumericInput/navigateDirection';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { TabDirection } from 'components/NumericInput';
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import { OrderTypes } from "interfaces/mdEntry";
+import { TabDirection } from "components/NumericInput";
 
 export interface SizeHeaderProps {
   minimum: number;
@@ -10,7 +10,11 @@ export interface SizeHeaderProps {
   onSubmit: (input: HTMLInputElement, value: number) => void;
 }
 
-type ChangeFn<T> = (tenor: string, value: T | null, changed: boolean) => boolean | void;
+type ChangeFn<T> = (
+  tenor: string,
+  value: T | null,
+  changed: boolean
+) => boolean | void;
 
 export interface RunColumnData {
   onBidChanged: ChangeFn<number>;
@@ -21,7 +25,11 @@ export interface RunColumnData {
   onBidQtyChanged: ChangeFn<number>;
   defaultOfrSize: SizeHeaderProps;
   defaultBidSize: SizeHeaderProps;
-  focusNext: (target: HTMLInputElement, tabDirection: TabDirection, action?: string) => void;
+  focusNext: (
+    target: HTMLInputElement,
+    tabDirection: TabDirection,
+    action?: string
+  ) => void;
   onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onDeactivateOrder: (rowID: string, orderType: OrderTypes) => void;
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;

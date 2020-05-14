@@ -1,12 +1,12 @@
-import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import { Order, OrderStatus } from 'interfaces/order';
-import React, { useEffect, useState, useCallback, ReactNode } from 'react';
-import { NumericInput, TabDirection } from 'components/NumericInput';
-import { sizeFormatter } from 'utils/sizeFormatter';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { usePrevious } from 'hooks/usePrevious';
-import { NavigateDirection } from 'components/NumericInput/navigateDirection';
-import { $$ } from 'utils/stringPaster';
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { Order, OrderStatus } from "interfaces/order";
+import React, { useEffect, useState, useCallback, ReactNode } from "react";
+import { NumericInput, TabDirection } from "components/NumericInput";
+import { sizeFormatter } from "utils/sizeFormatter";
+import { OrderTypes } from "interfaces/mdEntry";
+import { usePrevious } from "hooks/usePrevious";
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import { $$ } from "utils/stringPaster";
 
 interface Props {
   defaultValue: number;
@@ -17,23 +17,38 @@ interface Props {
   visible: boolean;
   onActivateOrder: (id: string, orderType: OrderTypes) => void;
   onDeactivateOrder: (id: string, orderType: OrderTypes) => void;
-  onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection, action?: string) => void;
+  onTabbedOut?: (
+    input: HTMLInputElement,
+    tabDirection: TabDirection,
+    action?: string
+  ) => void;
   onChange: (id: string, value: number | null, changed: boolean) => void;
   onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 enum ActivationStatus {
-  Active, Inactive, Empty
+  Active,
+  Inactive,
+  Empty,
 }
 
 export const RunSize: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
-  const { order, defaultValue, onChange, id, minimumSize, visible, value } = props;
-  const [internalValue, setInternalValue] = useState<string>(sizeFormatter(value));
+  const {
+    order,
+    defaultValue,
+    onChange,
+    id,
+    minimumSize,
+    visible,
+    value,
+  } = props;
+  const [internalValue, setInternalValue] = useState<string>(
+    sizeFormatter(value)
+  );
 
   useEffect(() => {
-    if (value === null)
-      return;
+    if (value === null) return;
     setLocallyModified(false);
     setInternalValue(sizeFormatter(value));
   }, [value]);
@@ -51,8 +66,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   }, [value, visible]);
 
   const onChangeWrapper = (value: string | null) => {
-    if (!locallyModified)
-      setLocallyModified(true);
+    if (!locallyModified) setLocallyModified(true);
     if (value === null) {
       setInternalValue(sizeFormatter(order.size || defaultValue));
     } else if (value.length === 0) {
@@ -62,22 +76,25 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const sendOnChange = useCallback((value: number | null) => {
-    if (value === null) {
-      onChange(id, value, true);
-    } else {
-      const numeric: number = Number(value);
-      if (numeric < minimumSize) {
-        onChange(id, minimumSize, true);
+  const sendOnChange = useCallback(
+    (value: number | null) => {
+      if (value === null) {
+        onChange(id, value, true);
       } else {
-        onChange(id, numeric, true);
+        const numeric: number = Number(value);
+        if (numeric < minimumSize) {
+          onChange(id, minimumSize, true);
+        } else {
+          onChange(id, numeric, true);
+        }
       }
-    }
-  }, [onChange, id, minimumSize]);
+    },
+    [onChange, id, minimumSize]
+  );
 
   const tabOut = (input: HTMLInputElement, tabDirection: TabDirection) => {
     if (props.onTabbedOut) {
-      props.onTabbedOut(input, tabDirection, $$(order.type, 'size'));
+      props.onTabbedOut(input, tabDirection, $$(order.type, "size"));
     }
   };
 
@@ -99,10 +116,8 @@ export const RunSize: React.FC<Props> = (props: Props) => {
 
   const oldDefaultValue: number | undefined = usePrevious<number>(defaultValue);
   useEffect(() => {
-    if (defaultValue === null || locallyModified)
-      return;
-    if (!oldDefaultValue || oldDefaultValue === defaultValue)
-      return;
+    if (defaultValue === null || locallyModified) return;
+    if (!oldDefaultValue || oldDefaultValue === defaultValue) return;
     sendOnChange(defaultValue);
     // eslint-disable-next-line
   }, [defaultValue, oldDefaultValue, locallyModified]);
@@ -120,9 +135,11 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   };
 
   const getActivationStatus = (): ActivationStatus => {
-    if (order.price === null)
-      return ActivationStatus.Empty;
-    if ((order.status & OrderStatus.PriceEdited) === 0 && (order.status & OrderStatus.Active) === 0) {
+    if (order.price === null) return ActivationStatus.Empty;
+    if (
+      (order.status & OrderStatus.PriceEdited) === 0 &&
+      (order.status & OrderStatus.Active) === 0
+    ) {
       return ActivationStatus.Inactive;
     } else if ((order.status & OrderStatus.PriceEdited) !== 0) {
       return ActivationStatus.Active;
@@ -144,20 +161,28 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     switch (getActivationStatus()) {
       case ActivationStatus.Inactive:
         return (
-          <div key={'3'} className={'plus-sign inactive'} onClick={onActivateOrder}>
-            <i className={'fa fa-plus-circle'}/>
+          <div
+            key={"3"}
+            className={"plus-sign inactive"}
+            onClick={onActivateOrder}
+          >
+            <i className={"fa fa-plus-circle"} />
           </div>
         );
       case ActivationStatus.Active:
         return (
-          <div key={'3'} className={'plus-sign active'} onClick={onActivateOrder}>
-            <i className={'fa fa-minus-circle'}/>
+          <div
+            key={"3"}
+            className={"plus-sign active"}
+            onClick={onActivateOrder}
+          >
+            <i className={"fa fa-minus-circle"} />
           </div>
         );
       case ActivationStatus.Empty:
         return (
-          <div key={'3'} className={'plus-sign empty'}>
-            <i className={'far fa-circle'}/>
+          <div key={"3"} className={"plus-sign empty"}>
+            <i className={"far fa-circle"} />
           </div>
         );
       default:
@@ -168,41 +193,41 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   const plusSign = getActivationButton();
 
   const displayValue: string = (() => {
-    if (locallyModified)
-      return internalValue;
-    if (order.price === null)
-      return '';
-    if ((order.status & OrderStatus.Cancelled) !== 0 && (order.status & OrderStatus.SizeEdited) === 0)
-      return '';
+    if (locallyModified) return internalValue;
+    if (order.price === null) return "";
+    if (
+      (order.status & OrderStatus.Cancelled) !== 0 &&
+      (order.status & OrderStatus.SizeEdited) === 0
+    )
+      return "";
     return internalValue;
   })();
 
   const placeholder: string = (() => {
-    if (order.price === null)
-      return '';
+    if (order.price === null) return "";
     return internalValue;
   })();
 
   const onBlurEnsureMinimumSize = () => {
-    if (Number(internalValue) >= minimumSize)
-      return;
+    if (Number(internalValue) >= minimumSize) return;
     setInternalValue(sizeFormatter(minimumSize));
   };
 
   const items: ReactNode[] = [
     <NumericInput
-      id={$$('run-size-', order.uid(), order.type)}
+      id={$$("run-size-", order.uid(), order.type)}
       key={0}
       tabIndex={-1}
-      className={getOrderStatusClass(status, 'size')}
+      className={getOrderStatusClass(status, "size")}
       placeholder={placeholder}
-      type={'size'}
+      type={"size"}
       value={displayValue}
       onNavigate={props.onNavigate}
       onBlur={onBlurEnsureMinimumSize}
       onChange={onChangeWrapper}
       onSubmit={onSubmit}
-      onCancelEdit={reset}/>,
+      onCancelEdit={reset}
+    />,
   ];
 
   if (order.type === OrderTypes.Bid) {
@@ -211,9 +236,5 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     items.unshift(plusSign);
   }
 
-  return (
-    <div className={'size-layout'}>
-      {items}
-    </div>
-  );
+  return <div className={"size-layout"}>{items}</div>;
 };

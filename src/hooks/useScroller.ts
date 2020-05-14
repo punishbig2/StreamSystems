@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
-import { createAction } from 'actionCreator';
+import React, { useCallback, useEffect, useReducer } from "react";
+import { createAction } from "actionCreator";
 
 const cancelEvent = (event: Event | React.SyntheticEvent) => {
   event.stopPropagation();
@@ -14,12 +14,12 @@ interface State {
 enum ScrollerActions {
   Update,
   Grab,
-  Release
+  Release,
 }
 
 const reducer = (
   state: State,
-  { type, data }: { type: ScrollerActions; data: any },
+  { type, data }: { type: ScrollerActions; data: any }
 ): State => {
   switch (type) {
     case ScrollerActions.Update:
@@ -36,7 +36,7 @@ const reducer = (
 const useMoveHandler = (
   grabbedAt: number | null,
   onUpdated: (value: number) => void,
-  onReleased: () => void,
+  onReleased: () => void
 ) => {
   useEffect(() => {
     let offset: number | null = grabbedAt;
@@ -63,25 +63,25 @@ const useMoveHandler = (
       // Cancel the original event please
       cancelEvent(event);
       // Disconnect listeners
-      document.removeEventListener('mouseup', onRelease);
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseleave', onRelease);
+      document.removeEventListener("mouseup", onRelease);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onRelease);
       // Release the slider
       onReleased();
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseleave', onRelease);
-    document.addEventListener('mouseup', onRelease);
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseleave", onRelease);
+    document.addEventListener("mouseup", onRelease);
     return () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onRelease);
-      document.removeEventListener('mouseleave', onRelease);
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onRelease);
+      document.removeEventListener("mouseleave", onRelease);
     };
   }, [grabbedAt, onReleased, onUpdated]);
 };
 
 export const useScroller = (
-  reference: React.MutableRefObject<HTMLDivElement | null>,
+  reference: React.MutableRefObject<HTMLDivElement | null>
 ): [number, number] => {
   const [state, dispatch] = useReducer(reducer, { value: 0, grabbedAt: null });
   const { grabbedAt } = state;
@@ -111,11 +111,11 @@ export const useScroller = (
 
   const onUpdated = useCallback(
     (value: number) => dispatch(createAction(ScrollerActions.Update, value)),
-    [],
+    []
   );
   const onReleased = useCallback(
     () => dispatch(createAction(ScrollerActions.Release)),
-    [],
+    []
   );
   // Add the move effect
   useMoveHandler(grabbedAt, onUpdated, onReleased);
@@ -127,8 +127,8 @@ export const useScroller = (
       // Update internal state
       dispatch(createAction(ScrollerActions.Grab, event.clientY));
     };
-    slider.addEventListener('mousedown', onGrab, true);
-    return () => slider.removeEventListener('mousedown', onGrab, true);
+    slider.addEventListener("mousedown", onGrab, true);
+    return () => slider.removeEventListener("mousedown", onGrab, true);
   }, [slider]);
 
   const max: number = getMax();

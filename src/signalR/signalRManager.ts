@@ -4,47 +4,50 @@ import {
   HubConnectionBuilder,
   LogLevel,
   HubConnectionState,
-} from '@microsoft/signalr';
-import config from 'config';
-import { Message, DarkPoolMessage, ExecTypes } from 'interfaces/message';
-import { W, isPodW } from 'interfaces/w';
-import { API } from 'API';
-import { $$ } from 'utils/stringPaster';
-import { MDEntry } from 'interfaces/mdEntry';
-import { OCOModes } from 'interfaces/user';
-import { Sides } from 'interfaces/sides';
-import userProfileStore from 'mobx/stores/userPreferencesStore';
+} from "@microsoft/signalr";
+import config from "config";
+import { Message, DarkPoolMessage, ExecTypes } from "interfaces/message";
+import { W, isPodW } from "interfaces/w";
+import { API } from "API";
+import { $$ } from "utils/stringPaster";
+import { MDEntry } from "interfaces/mdEntry";
+import { OCOModes } from "interfaces/user";
+import { Sides } from "interfaces/sides";
+import userProfileStore from "mobx/stores/userPreferencesStore";
 
-import workareaStore from 'mobx/stores/workareaStore';
+import workareaStore from "mobx/stores/workareaStore";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
-const SidesMap: { [key: string]: Sides } = { '1': Sides.Buy, '2': Sides.Sell };
+const SidesMap: { [key: string]: Sides } = { "1": Sides.Buy, "2": Sides.Sell };
 
 export enum SignalRMethods {
   // Messages
-  SubscribeForMarketData = 'SubscribeForMarketData',
-  UnsubscribeFromMarketData = 'UnsubscribeForMarketData',
-  SubscribeForMBMsg = 'SubscribeForMBMsg',
-  UnsubscribeFromMBMsg = 'UnsubscribeForMBMsg',
-  SubscribeForDarkPoolPx = 'SubscribeForDarkPoolPx',
-  UnsubscribeForDarkPoolPx = 'UnsubscribeForDarkPoolPx',
+  SubscribeForMarketData = "SubscribeForMarketData",
+  UnsubscribeFromMarketData = "UnsubscribeForMarketData",
+  SubscribeForMBMsg = "SubscribeForMBMsg",
+  UnsubscribeFromMBMsg = "UnsubscribeForMBMsg",
+  SubscribeForDarkPoolPx = "SubscribeForDarkPoolPx",
+  UnsubscribeForDarkPoolPx = "UnsubscribeForDarkPoolPx",
 }
 
 interface Command {
   name: string;
   args: any[];
+  refCount: number;
 }
 
 export class SignalRManager {
   private connection: HubConnection | null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
+  private onConnectedListener:
+    | ((connection: HubConnection) => void)
+    | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private recordedCommands: Command[] = [];
   private pendingW: { [k: string]: W } = {};
 
-  private listeners: { [k: string]: (arg: W) => void } = {};
+  // private listeners: { [k: string]: (arg: W) => void } = {};
 
   private dpListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
   private onMessageListener: (message: Message) => void = () => null;
@@ -61,7 +64,7 @@ export class SignalRManager {
     new HubConnectionBuilder()
       .withUrl(
         `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
-        HttpTransportType.WebSockets,
+        HttpTransportType.WebSockets
       )
       .withAutomaticReconnect([5, 60, 120])
       .configureLogging(LogLevel.None)
@@ -81,7 +84,9 @@ export class SignalRManager {
         })
         .catch(console.log);
     } else {
-      console.error('attempted to connect but the `connection\' object is `null\'');
+      console.error(
+        "attempted to connect but the `connection' object is `null'"
+      );
     }
   };
 
@@ -89,14 +94,12 @@ export class SignalRManager {
     if (connection !== null) {
       // Install close handler
       connection.onclose((error?: Error) => {
-        if (error)
-          console.warn(error);
+        if (error) console.warn(error);
         if (this.onDisconnectedListener)
           this.onDisconnectedListener(connection);
       });
       connection.onreconnecting((error?: Error) => {
-        if (error)
-          console.warn(error);
+        if (error) console.warn(error);
       });
       connection.onreconnected(() => {
         this.setup(connection);
@@ -104,32 +107,50 @@ export class SignalRManager {
       // Listen to installed combinations
       this.replayRecordedCommands();
       // Install listeners
-      connection.on('updateMarketData', this.onUpdateMarketData);
-      connection.on('updateDarkPoolPx', this.onUpdateDarkPoolPx);
-      connection.on('updateMessageBlotter', this.onUpdateMessageBlotter);
+      connection.on("updateMarketData", this.onUpdateMarketData);
+      connection.on("updateDarkPoolPx", this.onUpdateDarkPoolPx);
+      connection.on("updateMessageBlotter", this.onUpdateMessageBlotter);
     }
   };
 
   private static isEmptyW = (w: W): boolean => {
     const entries: MDEntry[] = w.Entries;
-    if (!entries || entries.length < 2)
-      return true;
-    return (!entries[0].MDEntryPx && !entries[1].MDEntryPx);
+    if (!entries || entries.length < 2) return true;
+    return !entries[0].MDEntryPx && !entries[1].MDEntryPx;
   };
 
   private combineWs = (w1: W, w2: W) => {
     const isW1PodW: boolean = isPodW(w1);
     const isW2PodW: boolean = isPodW(w2);
     if ((isW1PodW && isW2PodW) || (!isW1PodW && !isW2PodW))
-      throw new Error('inconsistent w set, cannot combine unrelated w\'s with same symbol/strategy/tenor');
+      throw new Error(
+        "inconsistent w set, cannot combine unrelated w's with same symbol/strategy/tenor"
+      );
     const [pod, full] = isPodW(w1) ? [w1, w2] : [w2, w1];
     if (full.Entries) {
       const { Entries } = pod;
-      full.Entries = [...full.Entries, ...Entries.filter((entry: MDEntry) => entry.MDEntrySize === undefined)];
+      full.Entries = [
+        ...full.Entries,
+        ...Entries.filter((entry: MDEntry) => entry.MDEntrySize === undefined),
+      ];
     } else {
       full.Entries = pod.Entries;
     }
     return full;
+  };
+
+  private dispatchW = (w: W, isDarkPool: boolean) => {
+    const key: string = $$(
+      w.Symbol,
+      w.Strategy,
+      w.Tenor,
+      isDarkPool ? "Dp" : ""
+    );
+    const detail: W = this.combineWs(w, this.pendingW[key]);
+    const event: CustomEvent<W> = new CustomEvent<W>(key, {
+      detail,
+    });
+    document.dispatchEvent(event);
   };
 
   public handleWMessage = (w: W) => {
@@ -138,18 +159,17 @@ export class SignalRManager {
       if (!this.pendingW[key]) {
         this.pendingW[key] = w;
       } else {
-        const listener: ((w: W) => void) | undefined = this.listeners[key];
-        if (listener) {
-          listener(this.combineWs(w, this.pendingW[key]));
-          // Remove it
-          delete this.pendingW[key];
-        }
+        this.dispatchW(w, false);
+        delete this.pendingW[key];
       }
-    } else if (w.ExDestination === 'DP' && !SignalRManager.isEmptyW(w)) {
-      const listener: ((w: W) => void) | undefined = this.listeners[$$(w.Symbol, w.Strategy, w.Tenor, 'Dp')];
+    } else if (w.ExDestination === "DP" && !SignalRManager.isEmptyW(w)) {
+      this.dispatchW(w, true);
+      /*const listener: ((w: W) => void) | undefined = this.listeners[
+        $$(w.Symbol, w.Strategy, w.Tenor, 'Dp')
+        ];
       if (listener) {
         listener(w);
-      }
+      }*/
     }
   };
 
@@ -169,7 +189,8 @@ export class SignalRManager {
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const key: string = $$(message.Symbol, message.Strategy, message.Tenor);
-    const listener: ((m: DarkPoolMessage) => void) | undefined = this.dpListeners[key];
+    const listener: ((m: DarkPoolMessage) => void) | undefined = this
+      .dpListeners[key];
     if (listener) {
       listener(message);
     }
@@ -192,66 +213,128 @@ export class SignalRManager {
     this.invoke(command.name, ...command.args);
   };
 
-  public removeTOBWListener = (symbol: string, strategy: string, tenor: string) => {
+  public removeMarketListener = (
+    symbol: string,
+    strategy: string,
+    tenor: string,
+    eventListener: (e: any) => void
+  ) => {
     const { recordedCommands } = this;
-    const key: string = $$(symbol, strategy, tenor);
     const index: number = recordedCommands.findIndex((command: Command) => {
-      if (command.name !== SignalRMethods.SubscribeForMarketData)
-        return false;
-      return command.args[0] === symbol && command.args[1] === strategy && command.args[2] === tenor;
+      if (command.name !== SignalRMethods.SubscribeForMarketData) return false;
+      return (
+        command.args[0] === symbol &&
+        command.args[1] === strategy &&
+        command.args[2] === tenor
+      );
     });
+    const key: string = $$(symbol, strategy, tenor);
     if (index === -1) {
       console.warn(`command does not exist, cannot remove it`);
     } else {
       const command: Command = recordedCommands[index];
-      // Unsubscribe now that we know which one exactly
-      this.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
-      // Remove the listener
-      delete this.listeners[key];
-      // Update recorded commands
-      this.recordedCommands = [...recordedCommands.slice(0, index), ...recordedCommands.slice(index + 1)];
+      console.log(command.refCount);
+      if (--command.refCount === 1) {
+        // Unsubscribe now that we know which one exactly
+        this.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
+        // Update recorded commands
+        this.recordedCommands = [
+          ...recordedCommands.slice(0, index),
+          ...recordedCommands.slice(index + 1),
+        ];
+      }
+      console.log(`removing listener for: ${key}`);
     }
+    // Remove event listener, this is always done as there is 1
+    // per added listener
+    document.removeEventListener(key, eventListener);
   };
 
-  public setMarketListener = (symbol: string, strategy: string, tenor: string, listener: (w: W) => void) => {
+  public addMarketListener = (
+    symbol: string,
+    strategy: string,
+    tenor: string,
+    listener: (w: W) => void
+  ) => {
     const { recordedCommands } = this;
     const key: string = $$(symbol, strategy, tenor);
+    const eventListener = (e: any) => {
+      const event: CustomEvent<W> = e;
+      listener(event.detail);
+    };
     // Just add the listener, the rest is done elsewhere
-    this.listeners[key] = listener;
+    document.addEventListener(key, eventListener);
     const command: Command = {
       name: SignalRMethods.SubscribeForMarketData,
       args: [symbol, strategy, tenor],
+      refCount: 1,
     };
-    // Record the command
-    recordedCommands.push(command);
+    const existingCommand: Command | undefined = recordedCommands.find(
+      (cmd: Command) => {
+        return cmd.name === command.name;
+      }
+    );
+    if (existingCommand === undefined) {
+      // Record the command, but only if it's not already there
+      recordedCommands.push(command);
+    } else {
+      existingCommand.refCount += 1;
+    }
     // Try to run the command now
     this.replayCommand(command);
+    return () => {
+      console.log("calling remove for", key);
+      this.removeMarketListener(symbol, strategy, tenor, eventListener);
+    };
   };
 
-  public setTOBWListener = (symbol: string, strategy: string, tenor: string, listener: (w: W) => void) => {
-    const key: string = $$(symbol, strategy, tenor);
-    // We always save the listener
-    this.listeners[key] = listener;
-  };
-
-  public removeDarkPoolPriceListener = (currency: string, strategy: string, tenor: string) => {
-    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
+  public removeDarkPoolPriceListener = (
+    currency: string,
+    strategy: string,
+    tenor: string
+  ) => {
+    if (
+      currency === "" ||
+      strategy === "" ||
+      tenor === "" ||
+      !currency ||
+      !strategy ||
+      !tenor
+    )
       return;
     const key: string = $$(currency, strategy, tenor);
     // Remove it from the map
     delete this.dpListeners[key];
     // Invoke ths Signal R method
-    this.invoke(SignalRMethods.UnsubscribeForDarkPoolPx, currency, strategy, tenor);
+    this.invoke(
+      SignalRMethods.UnsubscribeForDarkPoolPx,
+      currency,
+      strategy,
+      tenor
+    );
   };
 
-  public setDarkPoolPriceListener = (currency: string, strategy: string, tenor: string, fn: (message: DarkPoolMessage) => void) => {
-    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
+  public setDarkPoolPriceListener = (
+    currency: string,
+    strategy: string,
+    tenor: string,
+    fn: (message: DarkPoolMessage) => void
+  ) => {
+    if (
+      currency === "" ||
+      strategy === "" ||
+      tenor === "" ||
+      !currency ||
+      !strategy ||
+      !tenor
+    )
       return;
     const { recordedCommands } = this;
     const key: string = $$(currency, strategy, tenor);
     const command: Command = {
       name: SignalRMethods.SubscribeForDarkPoolPx,
       args: [currency, strategy, tenor],
+      refCount: 1,
     };
     recordedCommands.push(command);
     // Update the listeners map
@@ -260,12 +343,22 @@ export class SignalRManager {
     this.replayCommand(command);
   };
 
-  public setDarkPoolOrderListener = (symbol: string, strategy: string, tenor: string, listener: (w: W) => void) => {
-    const key: string = $$(symbol, strategy, tenor, 'Dp');
+  public setDarkPoolOrderListener = (
+    symbol: string,
+    strategy: string,
+    tenor: string,
+    listener: (w: W) => void
+  ) => {
+    const key: string = $$(symbol, strategy, tenor, "Dp");
+    const eventListener = (e: any) => {
+      const event: CustomEvent<W> = e;
+      listener(event.detail);
+    };
     // Commands already exists as this is the same as the market update
-    this.listeners[key] = listener;
+    // this.listeners[key] = listener;
+    document.addEventListener(key, eventListener);
     return () => {
-      delete this.listeners[key];
+      document.removeEventListener(key, eventListener);
     };
   };
 
@@ -273,8 +366,7 @@ export class SignalRManager {
     const { preferences: userProfile } = userProfileStore;
     const { user } = workareaStore;
     const ocoMode: OCOModes = userProfile.oco;
-    if (message.Username !== user.email)
-      return;
+    if (message.Username !== user.email) return;
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;
@@ -282,11 +374,19 @@ export class SignalRManager {
         break;
       case ExecTypes.Filled:
         if (ocoMode !== OCOModes.Disabled && message.Username === user.email)
-          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side]);
+          API.cancelAll(
+            message.Symbol,
+            message.Strategy,
+            SidesMap[message.Side]
+          );
       // eslint-disable-next-line no-fallthrough
       case ExecTypes.PartiallyFilled:
         if (ocoMode === OCOModes.PartialEx && message.Username === user.email)
-          API.cancelAll(message.Symbol, message.Strategy, SidesMap[message.Side]);
+          API.cancelAll(
+            message.Symbol,
+            message.Strategy,
+            SidesMap[message.Side]
+          );
         if (message.Username === user.email)
           workareaStore.addRecentExecution(message);
         break;
@@ -300,14 +400,15 @@ export class SignalRManager {
     this.recordedCommands = recordedCommands.filter((command: Command) => {
       return command.name === SignalRMethods.SubscribeForMBMsg;
     });
-    this.invoke(SignalRMethods.UnsubscribeFromMBMsg, '*');
+    this.invoke(SignalRMethods.UnsubscribeFromMBMsg, "*");
   };
 
   public setMessagesListener = (onMessage: (message: Message) => void) => {
     const { recordedCommands } = this;
     const command: Command = {
       name: SignalRMethods.SubscribeForMBMsg,
-      args: ['*'],
+      args: ["*"],
+      refCount: 1,
     };
     this.onMessageListener = onMessage;
     // Add it to the list
@@ -318,17 +419,18 @@ export class SignalRManager {
 
   private invoke = (name: string, ...args: any[]) => {
     const { connection } = this;
-    if (connection === null)
-      return;
+    if (connection === null) return;
     if (connection.state !== HubConnectionState.Connected) {
       return;
     }
-    connection.invoke(name, ...args)
-      .then((result: any) => {
-        if (result !== 'success') {
-          console.warn(`there was a problem invoking \`${name}' with \`${args}': `, result);
-        }
-      });
+    connection.invoke(name, ...args).then((result: any) => {
+      if (result !== "success") {
+        console.warn(
+          `there was a problem invoking \`${name}' with \`${args}': `,
+          result
+        );
+      }
+    });
   };
 }
 

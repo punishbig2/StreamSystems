@@ -3,13 +3,15 @@ export const getUserFromUrl = (): string | null => {
   if (history.state) {
     const { email } = history.state;
     if (!email) {
-      const urlParameters: URLSearchParams = new URLSearchParams(location.search);
-      return urlParameters.get('user');
+      const urlParameters: URLSearchParams = new URLSearchParams(
+        location.search
+      );
+      return urlParameters.get("user");
     } else {
       return email;
     }
   } else {
     const urlParameters: URLSearchParams = new URLSearchParams(location.search);
-    return urlParameters.get('user');
+    return urlParameters.get("user");
   }
 };

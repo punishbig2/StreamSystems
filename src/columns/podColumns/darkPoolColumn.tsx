@@ -1,20 +1,20 @@
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { PodRowProps } from 'columns/podColumns/common';
-import { Price } from 'components/Table/CellRenderers/Price';
-import { ArrowDirection } from 'interfaces/w';
-import { PriceTypes } from 'components/Table/CellRenderers/Price/priceTypes';
-import React, { useState, useEffect, ReactElement } from 'react';
-import { STRM } from 'stateDefs/workspaceState';
-import { ModalWindow } from 'components/ModalWindow';
-import { onNavigate } from 'components/PodTile/helpers';
-import { DarkPoolStore } from 'mobx/stores/darkPoolStore';
-import workareaStore from 'mobx/stores/workareaStore';
-import { User } from 'interfaces/user';
-import { skipTabIndexAll } from 'utils/skipTab';
-import { observer } from 'mobx-react';
-import { DarkPoolTicket } from 'components/DarkPoolTicket';
-import { Order, DarkPoolOrder } from 'interfaces/order';
-import { DarkPoolTooltip } from 'components/Table/CellRenderers/Price/darkPoolTooltip';
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { PodRowProps } from "columns/podColumns/common";
+import { Price } from "components/Table/CellRenderers/Price";
+import { ArrowDirection } from "interfaces/w";
+import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
+import React, { useState, useEffect, ReactElement } from "react";
+import { STRM } from "stateDefs/workspaceState";
+import { ModalWindow } from "components/ModalWindow";
+import { onNavigate } from "components/PodTile/helpers";
+import { DarkPoolStore } from "mobx/stores/darkPoolStore";
+import workareaStore from "mobx/stores/workareaStore";
+import { User } from "interfaces/user";
+import { skipTabIndexAll } from "utils/skipTab";
+import { observer } from "mobx-react";
+import { DarkPoolTicket } from "components/DarkPoolTicket";
+import { Order, DarkPoolOrder } from "interfaces/order";
+import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
 
 type Props = PodRowProps;
 
@@ -25,8 +25,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const personality: string = workareaStore.personality;
 
   useEffect(() => {
-    if (!darkpool)
-      return;
+    if (!darkpool) return;
     store.onOrderReceived(darkpool);
   }, [store, darkpool, user]);
 
@@ -35,8 +34,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   const renderTicket = (): ReactElement | null => {
-    if (store.price === null)
-      return null;
+    if (store.price === null) return null;
     return (
       <DarkPoolTicket
         price={store.price}
@@ -45,17 +43,15 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         strategy={strategy}
         currency={currency}
         onSubmit={onTicketSubmitted}
-        onCancel={() => store.closeTicket()}/>
+        onCancel={() => store.closeTicket()}
+      />
     );
   };
 
   const renderTooltip = () => {
     const depth: Order[] = store.depth;
-    if (depth.length === 0)
-      return null;
-    return (
-      <DarkPoolTooltip onCancelOrder={store.cancel} orders={depth}/>
-    );
+    if (depth.length === 0) return null;
+    return <DarkPoolTooltip onCancelOrder={store.cancel} orders={depth} />;
   };
 
   useEffect(() => {
@@ -65,27 +61,31 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     };
   }, [currency, store, strategy, tenor]);
 
-  const onSubmit = (input: HTMLInputElement, price: number | null, changed: boolean) => {
+  const onSubmit = (
+    input: HTMLInputElement,
+    price: number | null,
+    changed: boolean
+  ) => {
     skipTabIndexAll(input, 5, 2);
-    if (!changed)
-      return;
+    if (!changed) return;
     store.publishPrice(currency, strategy, tenor, price);
   };
 
   const onDoubleClick = () => {
-    if (user.isbroker && personality === STRM)
-      return;
+    if (user.isbroker && personality === STRM) return;
     store.openTicket();
   };
 
   if (user === null)
-    throw new Error('cannot show a dark pool column if there is no authenticated user');
+    throw new Error(
+      "cannot show a dark pool column if there is no authenticated user"
+    );
   return (
     <>
       <Price
         arrow={ArrowDirection.None}
         priceType={PriceTypes.DarkPool}
-        className={'dark-pool-base'}
+        className={"dark-pool-base"}
         value={store.price}
         tooltip={renderTooltip}
         readOnly={(personality !== STRM && user.isbroker) || !user.isbroker}
@@ -93,22 +93,22 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         allowZero={true}
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
-        onNavigate={onNavigate}/>
-      <ModalWindow render={renderTicket} visible={store.isTicketOpen}/>
+        onNavigate={onNavigate}
+      />
+      <ModalWindow render={renderTicket} visible={store.isTicketOpen} />
     </>
   );
 });
 
 export const DarkPoolColumn = (): ColumnSpec => ({
-  name: 'dark-pool',
+  name: "dark-pool",
   header: () => (
-    <div className={'dark-pool-header'}>
+    <div className={"dark-pool-header"}>
       <div>Dark</div>
       <div>Pool</div>
     </div>
   ),
   render: (row: PodRowProps) => <DarkPoolColumnComponent {...row} />,
-  template: '999999.99',
+  template: "999999.99",
   width: 5,
 });
-

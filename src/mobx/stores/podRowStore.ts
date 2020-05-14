@@ -1,10 +1,10 @@
-import { observable, action } from 'mobx';
-import { PodRow, PodRowStatus } from 'interfaces/podRow';
-import { createRow } from 'components/PodTile/Row/helpers/emptyRowCreator';
-import { Order } from 'interfaces/order';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { InvertedMarketsError } from 'columns/podColumns/OrderColumn/helpers/onSubmitPrice';
-import { SizeTooSmallError } from 'columns/podColumns/OrderColumn/helpers/onSubmitSize';
+import { observable, action } from "mobx";
+import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { createRow } from "components/PodTile/Row/helpers/emptyRowCreator";
+import { Order } from "interfaces/order";
+import { OrderTypes } from "interfaces/mdEntry";
+import { InvertedMarketsError } from "columns/podColumns/OrderColumn/helpers/onSubmitPrice";
+import { SizeTooSmallError } from "columns/podColumns/OrderColumn/helpers/onSubmitSize";
 
 export class PodRowStore {
   @observable internalRow: PodRow;
@@ -37,9 +37,15 @@ export class PodRowStore {
   @action.bound
   public setError(error: Error | null) {
     if (error === InvertedMarketsError) {
-      this.internalRow = { ...this.internalRow, status: PodRowStatus.InvertedMarketsError };
+      this.internalRow = {
+        ...this.internalRow,
+        status: PodRowStatus.InvertedMarketsError,
+      };
     } else if (error === SizeTooSmallError) {
-      this.internalRow = { ...this.internalRow, status: PodRowStatus.SizeTooSmall };
+      this.internalRow = {
+        ...this.internalRow,
+        status: PodRowStatus.SizeTooSmall,
+      };
     } else {
       this.internalRow = { ...this.internalRow, status: PodRowStatus.Normal };
     }

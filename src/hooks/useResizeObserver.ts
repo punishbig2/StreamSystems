@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-export const useResizeObserver = (element: HTMLDivElement | null): [number, number] => {
+export const useResizeObserver = (
+  element: HTMLDivElement | null
+): [number, number] => {
   const [containerSize, setContainerSize] = useState<number>(0);
   const [contentSize, setContentSize] = useState<number>(0);
   useEffect(() => {
     if (element === null) return;
-    if (window.hasOwnProperty('ResizeObserver')) {
+    if (window.hasOwnProperty("ResizeObserver")) {
       const callback = () => {
         // Update all
         setContainerSize(element.offsetHeight);
@@ -21,7 +23,7 @@ export const useResizeObserver = (element: HTMLDivElement | null): [number, numb
         mutateObserver.disconnect();
       };
     } else {
-      throw new Error('please use a recent browser');
+      throw new Error("please use a recent browser");
     }
   }, [element, contentSize]);
   return [containerSize, contentSize];

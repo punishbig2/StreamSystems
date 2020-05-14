@@ -1,11 +1,11 @@
-import { Cell } from 'components/Table/Cell';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { NavigateDirection } from 'components/NumericInput/navigateDirection';
-import { PodRow, PodRowStatus } from 'interfaces/podRow';
-import { User } from 'interfaces/user';
-import React, { useEffect } from 'react';
-import { RowState } from 'stateDefs/rowState';
-import { getCellWidth } from 'components/Table/helpers';
+import { Cell } from "components/Table/Cell";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { User } from "interfaces/user";
+import React, { useEffect } from "react";
+import { RowState } from "stateDefs/rowState";
+import { getCellWidth } from "components/Table/helpers";
 
 interface OwnProps {
   id: string;
@@ -26,18 +26,29 @@ const Row = (props: OwnProps & RowState) => {
     // TODO: show an error message within the run and set it by using a browser custom event
   }, [status]);
   return (
-    <div className={'tr' + (row.status === PodRowStatus.InvertedMarketsError ? ' error' : '')}
-         data-row-number={props.rowNumber}>
+    <div
+      className={
+        "tr" +
+        (row.status === PodRowStatus.InvertedMarketsError ? " error" : "")
+      }
+      data-row-number={props.rowNumber}
+    >
       {columns.map((column: ColumnSpec, index: number) => {
-        const width: string = getCellWidth(column.width, totalWidth, containerWidth);
+        const width: string = getCellWidth(
+          column.width,
+          totalWidth,
+          containerWidth
+        );
         const name: string = column.name;
         return (
-          <Cell key={name}
-                width={width}
-                user={user}
-                render={column.render}
-                colNumber={index}
-                {...(fixedRow || row)}/>
+          <Cell
+            key={name}
+            width={width}
+            user={user}
+            render={column.render}
+            colNumber={index}
+            {...(fixedRow || row)}
+          />
         );
       })}
     </div>

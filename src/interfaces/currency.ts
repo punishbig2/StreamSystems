@@ -3,4 +3,3 @@ export interface Currency {
   defaultqty: number;
   minqty: number;
 }
-

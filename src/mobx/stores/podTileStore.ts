@@ -1,27 +1,27 @@
-import { PodRow } from 'interfaces/podRow';
-import { observable, action } from 'mobx';
-import { persist, create } from 'mobx-persist';
-import { API } from 'API';
-import { W } from 'interfaces/w';
-import { PodTable } from 'interfaces/podTable';
-import { toPodRow } from 'utils/dataParser';
-import { User } from 'interfaces/user';
-import signalRManager from 'signalR/signalRManager';
-import { tenorToNumber } from 'utils/dataGenerators';
-import { Order } from 'interfaces/order';
-import { MDEntry } from 'interfaces/mdEntry';
+import { PodRow } from "interfaces/podRow";
+import { observable, action } from "mobx";
+import { persist, create } from "mobx-persist";
+import { API } from "API";
+import { W } from "interfaces/w";
+import { PodTable } from "interfaces/podTable";
+import { toPodRow } from "utils/dataParser";
+import { User } from "interfaces/user";
+import signalRManager from "signalR/signalRManager";
+import { tenorToNumber } from "utils/dataGenerators";
+import { Order } from "interfaces/order";
+import { MDEntry } from "interfaces/mdEntry";
 
-import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
-import persistStorage from 'persistStorage';
+import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
+import persistStorage from "persistStorage";
 
 export class PodTileStore {
-  public id: string = '';
+  public id: string = "";
 
-  @persist @observable strategy: string = '';
-  @persist @observable currency: string = '';
+  @persist @observable strategy: string = "";
+  @persist @observable currency: string = "";
 
   @observable type: WindowTypes = WindowTypes.Empty;
-  @observable title: string = '';
+  @observable title: string = "";
   @observable loading: boolean = false;
   @observable currentTenor: string | null = null;
 
@@ -35,6 +35,7 @@ export class PodTileStore {
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
   public progressMax: number = 100;
+  private resetFns: (() => void)[] = [];
 
   constructor(windowID: string) {
     const tenors: string[] = workareaStore.tenors;
@@ -44,7 +45,10 @@ export class PodTileStore {
       jsonify: true,
     });
     hydrate(this.id, this);
-    const reducer = (depth: { [tenor: string]: Order[] }, tenor: string): { [tenor: string]: Order[] } => {
+    const reducer = (
+      depth: { [tenor: string]: Order[] },
+      tenor: string
+    ): { [tenor: string]: Order[] } => {
       depth[tenor] = [];
       return depth;
     };
@@ -64,15 +68,24 @@ export class PodTileStore {
   }
 
   @action.bound
-  private initializeFromSnapshot(snapshot: { [k: string]: W }, darkpool: { [k: string]: W }, user: User) {
+  private initializeFromSnapshot(
+    snapshot: { [k: string]: W },
+    darkpool: { [k: string]: W },
+    user: User
+  ) {
     if (snapshot !== null) {
       const keys: string[] = Object.keys(snapshot);
       // Sort by tenor
-      keys.sort((t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2));
+      keys.sort(
+        (t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2)
+      );
       // Update the rows object
       this.rows = keys.reduce((table: PodTable, tenor: string): PodTable => {
         // Set the darkpool order per row
-        signalRManager.handleWMessage({ ...darkpool[tenor], ExDestination: 'DP' });
+        signalRManager.handleWMessage({
+          ...darkpool[tenor],
+          ExDestination: "DP",
+        });
         // Now create the row in the table
         table[tenor] = toPodRow(snapshot[tenor], user);
         return table;
@@ -86,9 +99,10 @@ export class PodTileStore {
     const entries: MDEntry[] = w.Entries;
     if (entries) {
       const user: User | null = workareaStore.user;
-      if (user === null)
-        return;
-      const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
+      if (user === null) return;
+      const orders: Order[] = entries.map((entry: MDEntry) =>
+        Order.fromWAndMDEntry(w, entry, user)
+      );
       this.orders = { ...this.orders, [tenor]: orders };
     } else {
       this.orders = { ...this.orders, [tenor]: [] };
@@ -97,32 +111,54 @@ export class PodTileStore {
 
   @action.bound
   private initializeDepthFromSnapshot(ws: { [tenor: string]: W } | null) {
-    if (ws === null)
-      return;
+    if (ws === null) return;
     const user: User | null = workareaStore.user;
-    if (user === null)
-      return;
+    if (user === null) return;
     const tenors: string[] = Object.keys(ws);
-    this.orders = tenors.reduce((depth: { [k: string]: Order[] }, tenor: string): { [k: string]: Order[] } => {
-      const w: W = ws[tenor];
-      if (!w)
+    this.orders = tenors.reduce(
+      (
+        depth: { [k: string]: Order[] },
+        tenor: string
+      ): { [k: string]: Order[] } => {
+        const w: W = ws[tenor];
+        if (!w) return depth;
+        const entries: MDEntry[] = w.Entries;
+        if (entries)
+          depth[tenor] = entries.map((entry: MDEntry) =>
+            Order.fromWAndMDEntry(w, entry, user)
+          );
         return depth;
-      const entries: MDEntry[] = w.Entries;
-      if (entries)
-        depth[tenor] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
-      return depth;
-    }, {});
+      },
+      {}
+    );
     this.loading = false;
   }
 
-  public addMarketListener(currency: string, strategy: string, tenor: string) {
-    signalRManager.setMarketListener(currency, strategy, tenor, (w: W) => {
-      this.updateSingleDepth(tenor, w);
-    });
+  public addMarketListener(
+    currency: string,
+    strategy: string,
+    tenor: string
+  ): () => void {
+    return signalRManager.addMarketListener(
+      currency,
+      strategy,
+      tenor,
+      (w: W) => {
+        this.updateSingleDepth(tenor, w);
+      }
+    );
   }
 
-  private async combineSnapshots(currency: string, strategy: string, tenors: string[], depth: { [k: string]: W }) {
-    const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(currency, strategy);
+  private async combineSnapshots(
+    currency: string,
+    strategy: string,
+    tenors: string[],
+    depth: { [k: string]: W }
+  ) {
+    const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(
+      currency,
+      strategy
+    );
     if (snapshot === null)
       throw new Error(`cannot get snapshot for ${currency} ${strategy}`);
     return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
@@ -132,7 +168,9 @@ export class PodTileStore {
         if (snapshot[tenor]) {
           const tob: W = snapshot[tenor];
           const entries: MDEntry[] = tob.Entries;
-          const old: MDEntry[] = entries.filter((entry: MDEntry) => entry.MDEntrySize === undefined);
+          const old: MDEntry[] = entries.filter(
+            (entry: MDEntry) => entry.MDEntrySize === undefined
+          );
           if (w.Entries) {
             w.Entries = [...w.Entries, ...old];
           } else {
@@ -152,25 +190,44 @@ export class PodTileStore {
   }
 
   private async loadDarkPoolSnapshot(currency: string, strategy: string) {
-    const snapshot: { [tenor: string]: W } | null = await API.getDarkPoolSnapshot(currency, strategy);
+    const snapshot: {
+      [tenor: string]: W;
+    } | null = await API.getDarkPoolSnapshot(currency, strategy);
     if (snapshot !== null) {
       this.initializeDarkPoolFromSnapshot(snapshot);
     }
   }
 
+  private reset() {
+    const { resetFns } = this;
+    resetFns.forEach((fn: () => void) => fn());
+  }
+
   public async initialize(currency: string, strategy: string) {
+    this.reset();
+    // Now initialize it
     this.loading = true;
     this.currency = currency;
     this.strategy = strategy;
     // Load depth
-    const snapshot: { [k: string]: W } | null = await API.getSnapshot(currency, strategy);
+    const snapshot: { [k: string]: W } | null = await API.getSnapshot(
+      currency,
+      strategy
+    );
     if (snapshot === null)
       throw new Error(`cannot get snapshot for ${currency} ${strategy}`);
     const tenors: string[] = workareaStore.tenors;
     // Combine TOB and full snapshots
-    const combined: { [k: string]: W } = await this.combineSnapshots(currency, strategy, tenors, snapshot);
+    const combined: { [k: string]: W } = await this.combineSnapshots(
+      currency,
+      strategy,
+      tenors,
+      snapshot
+    );
     // Install a listener for each tenor
-    tenors.forEach((tenor: string) => this.addMarketListener(currency, strategy, tenor));
+    this.resetFns = tenors.map((tenor: string) =>
+      this.addMarketListener(currency, strategy, tenor)
+    );
     // Initialize from depth snapshot
     this.initializeDepthFromSnapshot(combined);
     this.loadDarkPoolSnapshot(currency, strategy);

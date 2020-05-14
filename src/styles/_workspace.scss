@@ -20,7 +20,8 @@
     font-size: $normal-font-size;
     background-color: $background-color;
     min-width: min-content;
-    min-height: $title-bar-height + 2 * $table-header-height + 3 * $table-row-height;
+    min-height: $title-bar-height + 2 * $table-header-height + 3 *
+      $table-row-height;
 
     &.fixed:hover {
       cursor: default;

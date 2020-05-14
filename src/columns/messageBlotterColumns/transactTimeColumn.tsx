@@ -1,17 +1,16 @@
-import React, { useCallback, ReactElement, useEffect, useState } from 'react';
-import { Message } from 'interfaces/message';
-import moment, { Moment } from 'moment';
-import { Globals } from 'golbals';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { CellProps } from './cellProps';
+import React, { useCallback, ReactElement, useEffect, useState } from "react";
+import { Message } from "interfaces/message";
+import moment, { Moment } from "moment";
+import { Globals } from "golbals";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { CellProps } from "./cellProps";
 
-const INCOMING_DATE_FORMAT: string = 'YYYYMMDD-hh:mm:ss';
+const INCOMING_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
 
 const parse = (date: string, tz: string | null): Date => {
   const regex: RegExp = /(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})/;
   const match: RegExpExecArray | null = regex.exec(date);
-  if (match === null)
-    return new Date();
+  if (match === null) return new Date();
   return new Date(
     Date.UTC(
       Number(match[1]),
@@ -19,8 +18,8 @@ const parse = (date: string, tz: string | null): Date => {
       Number(match[3]),
       Number(match[4]),
       Number(match[5]),
-      Number(match[6]),
-    ),
+      Number(match[6])
+    )
   );
 };
 const useTimer = (): Date => {
@@ -39,7 +38,7 @@ const CurrentTime: React.FC = (): ReactElement => {
   const date: Date = useTimer();
   return (
     <div>
-      {date.toLocaleString('en-US', {
+      {date.toLocaleString("en-US", {
         timeZone: Globals.timezone || undefined,
       })}
     </div>
@@ -47,20 +46,20 @@ const CurrentTime: React.FC = (): ReactElement => {
 };
 
 export default (): ColumnSpec => ({
-  name: 'TransactTime',
-  template: 'MM/DD/YYYY 00:00:00 pm',
-  header: () => 'Time',
+  name: "TransactTime",
+  template: "MM/DD/YYYY 00:00:00 pm",
+  header: () => "Time",
   filterable: true,
   sortable: true,
   render: (props: CellProps): ReactElement | string => {
     const { message } = props;
     if (message) {
       const date: Date = parse(message.TransactTime, Globals.timezone);
-      return date.toLocaleString('en-US', {
+      return date.toLocaleString("en-US", {
         timeZone: Globals.timezone || undefined,
       });
     } else {
-      return <CurrentTime/>;
+      return <CurrentTime />;
     }
   },
   width: 6,

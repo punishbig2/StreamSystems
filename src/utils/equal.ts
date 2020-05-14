@@ -1,4 +1,4 @@
-import deepEqual from 'deep-equal';
+import deepEqual from "deep-equal";
 
 export const equal = (A: any, B: any) => {
   if (A instanceof DOMRect) {

@@ -1,9 +1,9 @@
-import { Message, ExecTypes } from 'interfaces/message';
-import { User } from 'interfaces/user';
-import workareaStore from 'mobx/stores/workareaStore';
-import moment from 'moment';
+import { Message, ExecTypes } from "interfaces/message";
+import { User } from "interfaces/user";
+import workareaStore from "mobx/stores/workareaStore";
+import moment from "moment";
 
-const MESSAGE_TIME_FORMAT: string = 'YYYYMMDD-HH:mm:ss';
+const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
 
 export const getMessageSize = (message: Message): number => {
   switch (message.OrdStatus) {
@@ -18,7 +18,10 @@ export const getMessageSize = (message: Message): number => {
 };
 
 export const getMessagePrice = (message: Message): number => {
-  if (message.OrdStatus === ExecTypes.PartiallyFilled || message.OrdStatus === ExecTypes.Filled) {
+  if (
+    message.OrdStatus === ExecTypes.PartiallyFilled ||
+    message.OrdStatus === ExecTypes.Filled
+  ) {
     return Number(message.LastPx);
   } else {
     return Number(message.Price);
@@ -26,7 +29,7 @@ export const getMessagePrice = (message: Message): number => {
 };
 
 export const getMessageBuyer = (message: Message): string => {
-  if (message.Side === '1') {
+  if (message.Side === "1") {
     return message.MDMkt;
   } else {
     return message.ExecBroker;
@@ -35,9 +38,8 @@ export const getMessageBuyer = (message: Message): string => {
 
 export const extractDealId = (message: Message): string => {
   const id: string = message.ExecID;
-  const parts: string[] = id.split('-');
-  if (parts.length === 0)
-    return '?';
+  const parts: string[] = id.split("-");
+  if (parts.length === 0) return "?";
   return parts[0];
 };
 
@@ -48,10 +50,12 @@ export const sortByTimeDescending = (m1: Message, m2: Message): number => {
 };
 
 const isFill = (item: Message): boolean => {
-  return item.ExecType === ExecTypes.PartiallyFilled
-    || item.ExecType === ExecTypes.Filled
-    || item.OrdStatus === ExecTypes.PartiallyFilled
-    || item.OrdStatus === ExecTypes.Filled;
+  return (
+    item.ExecType === ExecTypes.PartiallyFilled ||
+    item.ExecType === ExecTypes.Filled ||
+    item.OrdStatus === ExecTypes.PartiallyFilled ||
+    item.OrdStatus === ExecTypes.Filled
+  );
 };
 
 export const isMyMessage = (message: Message): boolean => {
@@ -61,14 +65,14 @@ export const isMyMessage = (message: Message): boolean => {
 
 export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
-  if (!isFill(message))
-    return false;
-  if ((message.Username !== user.email)
-    && (message.ContraTrader !== user.email)
-    && (message.MDMkt !== user.firm)
-    && (message.ExecBroker !== user.firm)) {
-    return message.Side === '1';
+  if (!isFill(message)) return false;
+  if (
+    message.Username !== user.email &&
+    message.ContraTrader !== user.email &&
+    message.MDMkt !== user.firm &&
+    message.ExecBroker !== user.firm
+  ) {
+    return message.Side === "1";
   }
   return message.Username === user.email || message.MDMkt === user.firm;
 };
-

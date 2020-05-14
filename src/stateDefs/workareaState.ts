@@ -1,14 +1,14 @@
-import { Currency } from 'interfaces/currency';
-import { Message } from 'interfaces/message';
-import { Strategy } from 'interfaces/strategy';
-import { User, UserPreferences } from 'interfaces/user';
+import { Currency } from "interfaces/currency";
+import { Message } from "interfaces/message";
+import { Strategy } from "interfaces/strategy";
+import { User, UserPreferences } from "interfaces/user";
 
 export enum WorkareaStatus {
   Starting,
   Initializing,
   Ready,
   UserNotFound,
-  Error
+  Error,
 }
 
 export interface WorkareaState {

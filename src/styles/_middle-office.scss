@@ -193,7 +193,7 @@ $field-height: $normal-font-size + 10;
     border-radius: 1em;
     transition: transform 0.25s;
     will-change: transform;
-    background-image: url('/images/double-angle.svg');
+    background-image: url("/images/double-angle.svg");
     background-size: 0.75em;
     background-position: center;
     background-repeat: no-repeat;
@@ -204,4 +204,3 @@ $field-height: $normal-font-size + 10;
     }
   }
 }
-

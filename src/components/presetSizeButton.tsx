@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface OwnProps {
   value: number;
@@ -7,7 +7,7 @@ interface OwnProps {
 
 export const PresetSizeButton: React.FC<OwnProps> = (props: OwnProps) => {
   return (
-    <button type={'button'} onClick={() => props.setValue(props.value)}>
+    <button type={"button"} onClick={() => props.setValue(props.value)}>
       {props.value}
     </button>
   );

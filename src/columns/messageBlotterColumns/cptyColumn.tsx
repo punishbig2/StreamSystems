@@ -1,24 +1,26 @@
-import { ExecTypes, Message } from 'interfaces/message';
-import React from 'react';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { involved } from 'columns/messageBlotterColumns/helpers';
-import { CellProps } from './cellProps';
+import { ExecTypes, Message } from "interfaces/message";
+import React from "react";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { involved } from "columns/messageBlotterColumns/helpers";
+import { CellProps } from "./cellProps";
 
 export default (sortable: boolean, isExecBlotter: boolean): ColumnSpec => ({
-  name: 'CPTY',
-  template: 'WWWWWW',
+  name: "CPTY",
+  template: "WWWWWW",
   filterable: true,
   sortable: sortable,
-  header: () => 'CPTY',
+  header: () => "CPTY",
   render: (props: CellProps) => {
     const { message } = props;
     const { ExecBroker, OrdStatus } = message;
-    if (!involved(message))
-      return <div/>;
-    if (OrdStatus !== ExecTypes.Filled && OrdStatus !== ExecTypes.PartiallyFilled)
-      return <div/>;
+    if (!involved(message)) return <div />;
+    if (
+      OrdStatus !== ExecTypes.Filled &&
+      OrdStatus !== ExecTypes.PartiallyFilled
+    )
+      return <div />;
     return (
-      <div className={'normal cpty ' + (isExecBlotter ? 'exec-blotter' : '')}>
+      <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
         {ExecBroker}
       </div>
     );

@@ -1,21 +1,21 @@
-import { observable, action, computed } from 'mobx';
-import { OrderStatus, Order, CreateOrder } from 'interfaces/order';
-import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { MessageTypes, ArrowDirection } from 'interfaces/w';
-import { getSideFromType, getCurrentTime } from 'utils';
-import { User } from 'interfaces/user';
-import { API } from 'API';
-import workareaStore from 'mobx/stores/workareaStore';
-import { sizeFormatter } from 'utils/sizeFormatter';
-import { $$ } from 'utils/stringPaster';
+import { observable, action, computed } from "mobx";
+import { OrderStatus, Order, CreateOrder } from "interfaces/order";
+import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
+import { OrderTypes } from "interfaces/mdEntry";
+import { MessageTypes, ArrowDirection } from "interfaces/w";
+import { getSideFromType, getCurrentTime } from "utils";
+import { User } from "interfaces/user";
+import { API } from "API";
+import workareaStore from "mobx/stores/workareaStore";
+import { sizeFormatter } from "utils/sizeFormatter";
+import { $$ } from "utils/stringPaster";
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
 
-  public symbol: string = '';
-  public strategy: string = '';
-  public tenor: string = '';
+  public symbol: string = "";
+  public strategy: string = "";
+  public tenor: string = "";
 
   @observable orderID: string | undefined;
   @observable baseSize: number | null = null;
@@ -32,15 +32,16 @@ export class OrderStore {
   get myOrder(): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
-    const found: Order | undefined = depth.find((o: Order) => o.user === user.email && o.type === this.type);
-    if (found !== undefined)
-      return found;
+    const found: Order | undefined = depth.find(
+      (o: Order) => o.user === user.email && o.type === this.type
+    );
+    if (found !== undefined) return found;
     return null;
   }
 
   @computed
   get size() {
-    if ((this.baseStatus & OrderStatus.InDepth) !== 0 || (this.baseSize === null))
+    if ((this.baseStatus & OrderStatus.InDepth) !== 0 || this.baseSize === null)
       return this.baseSize;
     return getAggregatedSize(this, this.depth);
   }
@@ -57,21 +58,17 @@ export class OrderStore {
 
   public getCreatorPrice(editedPrice: number | null): number | null {
     const { myOrder } = this;
-    if (editedPrice !== null)
-      return editedPrice;
-    if (myOrder === null)
-      return null;
+    if (editedPrice !== null) return editedPrice;
+    if (myOrder === null) return null;
     return myOrder.price;
   }
 
   public getCreatorSize(editedSize: number | null): number | null {
     const { myOrder } = this;
     if (this.defaultSize === undefined)
-      throw new Error('impossible to determine order creation size');
-    if (editedSize !== null)
-      return editedSize;
-    if (myOrder !== null && myOrder.size !== null)
-      return myOrder.size;
+      throw new Error("impossible to determine order creation size");
+    if (editedSize !== null) return editedSize;
+    if (myOrder !== null && myOrder.size !== null) return myOrder.size;
     // Finally use the default size
     return this.defaultSize;
   }
@@ -82,23 +79,29 @@ export class OrderStore {
   }
 
   @action.bound
-  public async createWithType(inputPrice: number | null, inputSize: number | null, type: OrderTypes) {
+  public async createWithType(
+    inputPrice: number | null,
+    inputSize: number | null,
+    type: OrderTypes
+  ) {
     const price: number | null = this.getCreatorPrice(inputPrice);
     const size: number | null = this.getCreatorSize(inputSize);
-    if (price === null) /* in this case just ignore this */
-      return;
+    if (price === null) /* in this case just ignore this */ return;
     if (size === null)
-      throw new Error('cannot create orders when the user has not initialized the cell');
+      throw new Error(
+        "cannot create orders when the user has not initialized the cell"
+      );
     // First cancel previous orders if any
-    if ((this.status & OrderStatus.Cancelled) === 0)
-      await this.cancel();
+    if ((this.status & OrderStatus.Cancelled) === 0) await this.cancel();
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     // Now attempt to create the new order
     if (user === null || personality === null)
-      throw new Error('store not properly initialized');
+      throw new Error("store not properly initialized");
     // Set "creating status"
-    this.currentStatus = this.currentStatus | (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
+    this.currentStatus =
+      this.currentStatus |
+      (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
     // Create the request
     const request: CreateOrder = {
       MsgType: MessageTypes.D,
@@ -113,7 +116,7 @@ export class OrderStore {
       MDMkt: user.isbroker ? personality : undefined,
     };
     const response = await API.executeCreateOrderRequest(request);
-    if (response.Status === 'Success') {
+    if (response.Status === "Success") {
       this.currentStatus = this.currentStatus & ~OrderStatus.BeingCreated;
       const newOrder: Order = {
         // Current user owns this order of course
@@ -139,7 +142,9 @@ export class OrderStore {
       // Update current order
       this.setOrder(newOrder, newOrder.status | OrderStatus.JustCreated);
     } else {
-      this.currentStatus = (this.currentStatus & ~OrderStatus.BeingCreated) | OrderStatus.ActionError;
+      this.currentStatus =
+        (this.currentStatus & ~OrderStatus.BeingCreated) |
+        OrderStatus.ActionError;
     }
   }
 
@@ -155,19 +160,19 @@ export class OrderStore {
     const personality: string = workareaStore.personality;
     if (user !== null) {
       const order: Order | undefined = depth.find((o: Order) => {
-        if (o.type !== this.type)
-          return false;
-        if (user.isbroker)
-          return o.firm === personality;
+        if (o.type !== this.type) return false;
+        if (user.isbroker) return o.firm === personality;
         return o.user === user.email;
       });
       if (!!order && !!order.orderId && !!order.size) {
         this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
         const response = await API.cancelOrder(order, user);
-        if (response.Status === 'Success') {
+        if (response.Status === "Success") {
           this.currentStatus = this.currentStatus & ~OrderStatus.BeingCancelled;
         } else {
-          this.currentStatus = (this.currentStatus & ~OrderStatus.BeingCancelled) | OrderStatus.ActionError;
+          this.currentStatus =
+            (this.currentStatus & ~OrderStatus.BeingCancelled) |
+            OrderStatus.ActionError;
         }
       }
     }
@@ -221,16 +226,14 @@ export class OrderStore {
 
   @action.bound
   public setCurrentDepth(depth: Order[]) {
-    if (!depth)
-      return;
+    if (!depth) return;
     this.depth = depth.filter((order: Order) => order.size !== null);
   }
 
   public shouldCancelReplace(size: number | null) {
-    const changed: boolean = sizeFormatter(size) !== sizeFormatter(this.baseSize);
-    if ((this.baseStatus & OrderStatus.Owned) !== 0)
-      return changed;
+    const changed: boolean =
+      sizeFormatter(size) !== sizeFormatter(this.baseSize);
+    if ((this.baseStatus & OrderStatus.Owned) !== 0) return changed;
     return true;
   }
 }
-

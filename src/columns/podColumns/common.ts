@@ -1,7 +1,7 @@
-import { Order } from 'interfaces/order';
-import { PodRow, PodRowStatus } from 'interfaces/podRow';
-import { PodRowStore } from 'mobx/stores/podRowStore';
-import { W } from 'interfaces/w';
+import { Order } from "interfaces/order";
+import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { PodRowStore } from "mobx/stores/podRowStore";
+import { W } from "interfaces/w";
 
 export type PodRowProps = PodRow & {
   orders: Order[];
@@ -16,4 +16,3 @@ export type PodRowProps = PodRow & {
   // Event handlers
   onTenorSelected: (tenor: string) => void;
 };
-

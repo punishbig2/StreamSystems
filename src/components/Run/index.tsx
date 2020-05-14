@@ -1,22 +1,22 @@
-import createColumns from 'columns/run';
-import { NavigateDirection } from 'components/NumericInput/navigateDirection';
-import reducer, { RunActions } from 'components/Run/reducer';
-import { Row } from 'components/Run/row';
-import { Table } from 'components/Table';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { Order } from 'interfaces/order';
-import { PodRow } from 'interfaces/podRow';
-import strings from 'locales';
-import React, { ReactElement, useEffect, useReducer, Reducer } from 'react';
-import { skipTabIndex, skipTabIndexAll } from 'utils/skipTab';
-import { RunState } from 'stateDefs/runState';
-import { useRunInitializer } from 'components/Run/hooks/useRunInitializer';
-import { createEmptyTable } from 'components/Run/helpers/createEmptyTable';
-import { getSelectedOrders } from 'components/Run/helpers/getSelectedOrders';
-import { $$ } from 'utils/stringPaster';
-import { onPriceChange } from 'components/Run/helpers/onPriceChange';
-import { TabDirection } from 'components/NumericInput';
-import { createAction } from 'actionCreator';
+import createColumns from "columns/run";
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import reducer, { RunActions } from "components/Run/reducer";
+import { Row } from "components/Run/row";
+import { Table } from "components/Table";
+import { OrderTypes } from "interfaces/mdEntry";
+import { Order } from "interfaces/order";
+import { PodRow } from "interfaces/podRow";
+import strings from "locales";
+import React, { ReactElement, useEffect, useReducer, Reducer } from "react";
+import { skipTabIndex, skipTabIndexAll } from "utils/skipTab";
+import { RunState } from "stateDefs/runState";
+import { useRunInitializer } from "components/Run/hooks/useRunInitializer";
+import { createEmptyTable } from "components/Run/helpers/createEmptyTable";
+import { getSelectedOrders } from "components/Run/helpers/getSelectedOrders";
+import { $$ } from "utils/stringPaster";
+import { onPriceChange } from "components/Run/helpers/onPriceChange";
+import { TabDirection } from "components/NumericInput";
+import { createAction } from "actionCreator";
 
 interface OwnProps {
   visible: boolean;
@@ -39,14 +39,30 @@ const initialState: RunState = {
 };
 
 const Run: React.FC<OwnProps> = (props: OwnProps) => {
-  const { symbol, strategy, tenors, defaultSize, minimumSize, visible, orders: allOrders } = props;
-  const [state, dispatch] = useReducer<Reducer<RunState, RunActions>>(reducer, initialState);
+  const {
+    symbol,
+    strategy,
+    tenors,
+    defaultSize,
+    minimumSize,
+    visible,
+    orders: allOrders,
+  } = props;
+  const [state, dispatch] = useReducer<Reducer<RunState, RunActions>>(
+    reducer,
+    initialState
+  );
   const { orders } = state;
 
   useEffect(() => {
     // Very initial initialization ... this runs even when not visible
     // to pre-populate the table
-    dispatch(createAction<RunActions>(RunActions.SetTable, createEmptyTable(symbol, strategy, tenors)));
+    dispatch(
+      createAction<RunActions>(
+        RunActions.SetTable,
+        createEmptyTable(symbol, strategy, tenors)
+      )
+    );
   }, [symbol, strategy, tenors]);
 
   useRunInitializer(tenors, symbol, strategy, allOrders, visible, dispatch);
@@ -59,8 +75,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const activateCancelledOrders = () => {
-    if (!orders)
-      return;
+    if (!orders) return;
     const values: PodRow[] = Object.values(orders);
     values.forEach(activateOrders);
   };
@@ -78,12 +93,14 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any, index?: number): ReactElement | null => {
     const { row } = props;
     return (
-      <Row {...props}
-           user={props.user}
-           row={row}
-           defaultBidSize={props.defaultBidSize}
-           defaultOfrSize={props.defaultOfrSize}
-           rowNumber={index}/>
+      <Row
+        {...props}
+        user={props.user}
+        row={row}
+        defaultBidSize={props.defaultBidSize}
+        defaultOfrSize={props.defaultOfrSize}
+        rowNumber={index}
+      />
     );
   };
 
@@ -91,44 +108,78 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   const columns = createColumns({
     onBidChanged: onPriceChange(dispatch)(orders, OrderTypes.Bid),
     onOfrChanged: onPriceChange(dispatch)(orders, OrderTypes.Ofr),
-    onMidChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Mid, {
-      id,
-      value,
-    })),
-    onSpreadChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.Spread, {
-      id,
-      value,
-    })),
-    onBidQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.BidSizeChanged, {
-      id,
-      value,
-    })),
-    onOfrQtyChanged: (id: string, value: number | null) => dispatch(createAction<RunActions>(RunActions.OfrSizeChanged, {
-      id,
-      value,
-    })),
-    onActivateOrder: (rowID: string, type: OrderTypes) => dispatch(createAction<RunActions>(RunActions.ActivateOrder, {
-      rowID,
-      type,
-    })),
-    onDeactivateOrder: (rowID: string, type: OrderTypes) => dispatch(createAction<RunActions>(RunActions.DeactivateOrder, {
-      rowID,
-      type,
-    })),
+    onMidChanged: (id: string, value: number | null) =>
+      dispatch(
+        createAction<RunActions>(RunActions.Mid, {
+          id,
+          value,
+        })
+      ),
+    onSpreadChanged: (id: string, value: number | null) =>
+      dispatch(
+        createAction<RunActions>(RunActions.Spread, {
+          id,
+          value,
+        })
+      ),
+    onBidQtyChanged: (id: string, value: number | null) =>
+      dispatch(
+        createAction<RunActions>(RunActions.BidSizeChanged, {
+          id,
+          value,
+        })
+      ),
+    onOfrQtyChanged: (id: string, value: number | null) =>
+      dispatch(
+        createAction<RunActions>(RunActions.OfrSizeChanged, {
+          id,
+          value,
+        })
+      ),
+    onActivateOrder: (rowID: string, type: OrderTypes) =>
+      dispatch(
+        createAction<RunActions>(RunActions.ActivateOrder, {
+          rowID,
+          type,
+        })
+      ),
+    onDeactivateOrder: (rowID: string, type: OrderTypes) =>
+      dispatch(
+        createAction<RunActions>(RunActions.DeactivateOrder, {
+          rowID,
+          type,
+        })
+      ),
     defaultBidSize: {
       minimum: props.minimumSize,
       value: state.defaultBidSize,
       onSubmit: (input: HTMLInputElement, value: number | null) =>
-        dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, value)),
-      onReset: () => dispatch(createAction<RunActions>(RunActions.UpdateDefaultBidSize, props.defaultSize)),
+        dispatch(
+          createAction<RunActions>(RunActions.UpdateDefaultBidSize, value)
+        ),
+      onReset: () =>
+        dispatch(
+          createAction<RunActions>(
+            RunActions.UpdateDefaultBidSize,
+            props.defaultSize
+          )
+        ),
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
       minimum: props.minimumSize,
       value: state.defaultOfrSize,
       onSubmit: (input: HTMLInputElement, value: number | null) =>
-        dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, value)),
-      onReset: () => dispatch(createAction<RunActions>(RunActions.UpdateDefaultOfrSize, props.defaultSize)),
+        dispatch(
+          createAction<RunActions>(RunActions.UpdateDefaultOfrSize, value)
+        ),
+      onReset: () =>
+        dispatch(
+          createAction<RunActions>(
+            RunActions.UpdateDefaultOfrSize,
+            props.defaultSize
+          )
+        ),
       type: OrderTypes.Ofr,
     },
     defaultSize: defaultSize,
@@ -137,20 +188,24 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:
-          skipTabIndexAll(target, -6, 'last-row');
+          skipTabIndexAll(target, -6, "last-row");
           break;
         case NavigateDirection.Left:
           skipTabIndexAll(target, -1);
           break;
         case NavigateDirection.Down:
-          skipTabIndexAll(target, 6, 'first-row');
+          skipTabIndexAll(target, 6, "first-row");
           break;
         case NavigateDirection.Right:
           skipTabIndexAll(target, 1);
           break;
       }
     },
-    focusNext: (target: HTMLInputElement, tabDirection: TabDirection, action?: string) => {
+    focusNext: (
+      target: HTMLInputElement,
+      tabDirection: TabDirection,
+      action?: string
+    ) => {
       switch (action) {
         case RunActions.Bid:
           skipTabIndex(target, 1 * tabDirection, 0);
@@ -164,7 +219,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
         case RunActions.Mid:
           skipTabIndex(target, 4 * tabDirection, 2);
           break;
-        case $$('1', 'size'):
+        case $$("1", "size"):
           skipTabIndexAll(target, 4 * tabDirection, 2);
           break;
         default:
@@ -176,27 +231,37 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <div style={{ minWidth: 500 }}>
-      <div className={'modal-title-bar'}>
-        <div className={'half'}>
-          <div className={'item'}>{props.symbol}</div>
-          <div className={'item'}>{props.strategy}</div>
+      <div className={"modal-title-bar"}>
+        <div className={"half"}>
+          <div className={"item"}>{props.symbol}</div>
+          <div className={"item"}>{props.strategy}</div>
         </div>
       </div>
-      <Table id={`${props.symbol}${props.strategy}-run`}
-             scrollable={false}
-             columns={columns}
-             rows={orders}
-             renderRow={renderRow}
-             className={(state.isLoading ? 'loading' : '') + ' run-table'}/>
-      <div className={'modal-buttons'}>
-        <button className={'cancel pull-left'} onClick={activateCancelledOrders} disabled={state.isLoading}>
+      <Table
+        id={`${props.symbol}${props.strategy}-run`}
+        scrollable={false}
+        columns={columns}
+        rows={orders}
+        renderRow={renderRow}
+        className={(state.isLoading ? "loading" : "") + " run-table"}
+      />
+      <div className={"modal-buttons"}>
+        <button
+          className={"cancel pull-left"}
+          onClick={activateCancelledOrders}
+          disabled={state.isLoading}
+        >
           {strings.ActivateAll}
         </button>
-        <div className={'pull-right'}>
-          <button className={'cancel'} onClick={props.onClose}>
+        <div className={"pull-right"}>
+          <button className={"cancel"} onClick={props.onClose}>
             {strings.Close}
           </button>
-          <button className={'success'} onClick={onSubmit} disabled={!isSubmitEnabled()}>
+          <button
+            className={"success"}
+            onClick={onSubmit}
+            disabled={!isSubmitEnabled()}
+          >
             {strings.Submit}
           </button>
         </div>
@@ -206,4 +271,3 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
 };
 
 export { Run };
-

@@ -31,7 +31,8 @@
   border-color: $primary-color;
 }
 
-.MuiFormLabel-root, .MuiFormControlLabel-root {
+.MuiFormLabel-root,
+.MuiFormControlLabel-root {
   font-weight: 600;
   font-size: $small-font-size;
   color: $foreground-color;
@@ -44,7 +45,7 @@
 }
 
 .MuiButtonBase-root {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: $medium-font-size;
 }
 
@@ -58,9 +59,10 @@
 }
 
 .MuiInputBase-root {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 
-  input, .MuiSelect-root {
+  input,
+  .MuiSelect-root {
     font-family: inherit;
     font-size: $medium-font-size;
     line-height: 2em;
@@ -132,7 +134,8 @@
     margin: 5px 0;
   }
 
-  .MuiFormLabel-root, .MuiFormControlLabel-root {
+  .MuiFormLabel-root,
+  .MuiFormControlLabel-root {
     font-size: $medium-font-size;
     margin: 0 0 5px 0;
   }

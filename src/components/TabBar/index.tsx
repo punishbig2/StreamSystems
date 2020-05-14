@@ -1,11 +1,11 @@
-import { Tab } from 'components/Tab';
-import { TabLabel } from 'components/TabLabel';
-import config from 'config';
+import { Tab } from "components/Tab";
+import { TabLabel } from "components/TabLabel";
+import config from "config";
 
-import React, { ReactElement, useState, useRef } from 'react';
-import { Menu, MenuItem } from '@material-ui/core';
-import { CurrencyGroups, isCurrencyGroup } from 'interfaces/user';
-import { WorkspaceDef } from 'mobx/stores/workareaStore';
+import React, { ReactElement, useState, useRef } from "react";
+import { Menu, MenuItem } from "@material-ui/core";
+import { CurrencyGroups, isCurrencyGroup } from "interfaces/user";
+import { WorkspaceDef } from "mobx/stores/workareaStore";
 
 interface Props {
   entries: { [k: string]: WorkspaceDef };
@@ -19,7 +19,7 @@ interface Props {
 }
 
 enum WorkspaceType {
-  MiddleOffice = 'MIDDLE_OFFICE',
+  MiddleOffice = "MIDDLE_OFFICE",
 }
 
 const isWorkspaceType = (value: any): value is WorkspaceType => {
@@ -35,8 +35,8 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
     props.onTabClosed(id);
   };
   // Map the entries to an array
-  const tabs: ReactElement[] = Object.values(entries)
-    .map<ReactElement>((workspace: WorkspaceDef) => {
+  const tabs: ReactElement[] = Object.values(entries).map<ReactElement>(
+    (workspace: WorkspaceDef) => {
       const onClosed = (event: React.MouseEvent) => {
         event.stopPropagation();
         event.preventDefault();
@@ -45,29 +45,40 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
       };
       const onClick = () => props.setActiveTab(workspace.id);
       const label = (
-        <TabLabel label={workspace.name}
-                  isDefault={workspace.isDefault}
-                  onRenamed={(name: string) => props.onWorkspaceRename(workspace.id, name)}
-                  onClosed={onClosed}/>
+        <TabLabel
+          label={workspace.name}
+          isDefault={workspace.isDefault}
+          onRenamed={(name: string) =>
+            props.onWorkspaceRename(workspace.id, name)
+          }
+          onClosed={onClosed}
+        />
       );
       return (
-        <Tab key={workspace.id} id={workspace.id} onClick={onClick} active={workspace.id === active} label={label}/>
+        <Tab
+          key={workspace.id}
+          id={workspace.id}
+          onClick={onClick}
+          active={workspace.id === active}
+          label={label}
+        />
       );
-    });
+    }
+  );
   // Add WorkspaceActions label
   const addWorkspaceLabel: ReactElement = (
-    <button className={'new-workspace'}>
+    <button className={"new-workspace"}>
       <span>
-        <i className={'fa fa-plus-circle'}/>
+        <i className={"fa fa-plus-circle"} />
       </span>
       <span>New Workspace</span>
     </button>
   );
 
   const getAddWorkspaceMenu = (): ReactElement | null => {
-    const groups = Object
-      .values(CurrencyGroups)
-      .filter((group: CurrencyGroups) => group !== CurrencyGroups.Default);
+    const groups = Object.values(CurrencyGroups).filter(
+      (group: CurrencyGroups) => group !== CurrencyGroups.Default
+    );
 
     const addTab = (type: WorkspaceType | CurrencyGroups) => {
       if (isCurrencyGroup(type)) {
@@ -81,25 +92,40 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
     };
 
     return (
-      <Menu anchorEl={ref.current} open={isShowingOptions} onClose={() => showOptions(false)} keepMounted={false}>
+      <Menu
+        anchorEl={ref.current}
+        open={isShowingOptions}
+        onClose={() => showOptions(false)}
+        keepMounted={false}
+      >
         {groups.map((group: CurrencyGroups) => (
           <MenuItem key={group} onClick={() => addTab(group)}>
             {group} Default
           </MenuItem>
         ))}
-        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>Empty</MenuItem>
-        <MenuItem onClick={() => addTab(WorkspaceType.MiddleOffice)}>Middle Office</MenuItem>
+        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>
+          Empty
+        </MenuItem>
+        <MenuItem onClick={() => addTab(WorkspaceType.MiddleOffice)}>
+          Middle Office
+        </MenuItem>
       </Menu>
     );
   };
   // Render the bar
   return (
-    <div className={'tab-layout'}>
+    <div className={"tab-layout"}>
       {tabs}
-      <Tab id={''} onClick={() => showOptions(true)} active={false} label={addWorkspaceLabel} ref={ref}/>
+      <Tab
+        id={""}
+        onClick={() => showOptions(true)}
+        active={false}
+        label={addWorkspaceLabel}
+        ref={ref}
+      />
       {getAddWorkspaceMenu()}
-      <a className={'sign-out'} href={config.SignOutUrl}>
-        <i className={'fa fa-sign-out-alt'}/>
+      <a className={"sign-out"} href={config.SignOutUrl}>
+        <i className={"fa fa-sign-out-alt"} />
         <span>Logout</span>
       </a>
     </div>

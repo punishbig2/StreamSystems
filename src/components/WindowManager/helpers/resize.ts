@@ -1,6 +1,19 @@
-export const resize = (x: number, y: number, width: number, height: number, r: ClientRect, minWidth: number): DOMRect => {
-  const left: number = Math.min(Math.max(x, r.left), r.right - Math.min(width, r.width));
-  const top: number = Math.min(Math.max(y, r.top), r.bottom - Math.min(height, r.height));
+export const resize = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  r: ClientRect,
+  minWidth: number
+): DOMRect => {
+  const left: number = Math.min(
+    Math.max(x, r.left),
+    r.right - Math.min(width, r.width)
+  );
+  const top: number = Math.min(
+    Math.max(y, r.top),
+    r.bottom - Math.min(height, r.height)
+  );
   if (minWidth > 0 && width < minWidth) {
     width = minWidth;
   }

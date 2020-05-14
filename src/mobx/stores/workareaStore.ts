@@ -1,32 +1,33 @@
-import { Currency } from 'interfaces/currency';
-import { Message } from 'interfaces/message';
-import { User, UserPreferences, CurrencyGroups } from 'interfaces/user';
-import { WorkareaStatus } from 'stateDefs/workareaState';
-import { observable, action, computed } from 'mobx';
-import { persist, create } from 'mobx-persist';
-import { API } from 'API';
+import { Currency } from "interfaces/currency";
+import { Message } from "interfaces/message";
+import { User, UserPreferences, CurrencyGroups } from "interfaces/user";
+import { WorkareaStatus } from "stateDefs/workareaState";
+import { observable, action, computed } from "mobx";
+import { persist, create } from "mobx-persist";
+import { API } from "API";
 
-import latam from 'groups/latam';
+import latam from "groups/latam";
 
-import strings from 'locales';
-import signalRManager from 'signalR/signalRManager';
-import { randomID } from 'randomID';
-import { WindowDef } from 'mobx/stores/workspaceStore';
-import { PresetWindow } from 'groups/presetWindow';
-import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
-import persistStorage from 'persistStorage';
-import { STRM } from 'stateDefs/workspaceState';
-import { updateApplicationTheme } from 'utils';
-import { Strategy } from '../../interfaces/strategy';
+import strings from "locales";
+import signalRManager from "signalR/signalRManager";
+import { randomID } from "randomID";
+import { WindowDef } from "mobx/stores/workspaceStore";
+import { PresetWindow } from "groups/presetWindow";
+import { defaultPreferences } from "stateDefs/defaultUserPreferences";
+import persistStorage from "persistStorage";
+import { STRM } from "stateDefs/workspaceState";
+import { updateApplicationTheme } from "utils";
+import { Strategy } from "../../interfaces/strategy";
 
 export enum WindowTypes {
   PodTile = 1,
   MessageBlotter = 2,
-  Empty = 3
+  Empty = 3,
 }
 
 export enum WorkspaceType {
-  Standard, MiddleOffice
+  Standard,
+  MiddleOffice,
 }
 
 export interface WorkspaceDef {
@@ -38,7 +39,7 @@ export interface WorkspaceDef {
 }
 
 export class WorkareaStore {
-  @persist('object') @observable workspaces: { [k: string]: WorkspaceDef } = {};
+  @persist("object") @observable workspaces: { [k: string]: WorkspaceDef } = {};
   @persist @observable currentWorkspaceID: string | null = null;
 
   @observable.ref currencies: Currency[] = [];
@@ -48,7 +49,9 @@ export class WorkareaStore {
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
   @observable recentExecutions: Message[] = [];
-  @persist('object') @observable preferences: UserPreferences = defaultPreferences;
+  @persist("object")
+  @observable
+  preferences: UserPreferences = defaultPreferences;
   @observable user: User = {} as User;
   @observable loadingMessage?: string;
   @observable isCreatingWorkspace: boolean = false;
@@ -65,51 +68,53 @@ export class WorkareaStore {
   @computed
   public get personality(): string {
     const { workspaces, currentWorkspaceID: id } = this;
-    if (id === null)
-      return STRM;
-    if (!workspaces[id])
-      throw new Error('this is completely unreasonable');
+    if (id === null) return STRM;
+    if (!workspaces[id]) throw new Error("this is completely unreasonable");
     return workspaces[id].personality;
   }
 
   @action.bound
   public setWorkspacePersonality(id: string, personality: string) {
     const { workspaces } = this;
-    if (!workspaces[id])
-      return;
+    if (!workspaces[id]) return;
     workspaces[id].personality = personality;
   }
 
   private populateDefaultWorkspace(id: string, group: CurrencyGroups) {
-    const map: { [k: string]: PresetWindow[] } | null = WorkareaStore.getMapForCurrencyGroup(group);
-    if (map === null)
-      return;
+    const map: {
+      [k: string]: PresetWindow[];
+    } | null = WorkareaStore.getMapForCurrencyGroup(group);
+    if (map === null) return;
     const { workspaces } = persistStorage;
     const currencies: string[] = Object.keys(map);
-    const windows: WindowDef[] = currencies.reduce((accumulator: WindowDef[], currency: string): WindowDef[] => {
-      const { pods } = persistStorage;
-      const windowList: WindowDef[] = map[currency]
-        .map(({ strategy, minimized, position }: PresetWindow): WindowDef => {
-          const id: string = randomID('pods');
-          // Force the initialization of a pod structure
-          pods.setItem(id, JSON.stringify({ currency, strategy }));
-          return {
-            id: id,
-            minimized: minimized,
-            type: WindowTypes.PodTile,
-            position: position,
-            fitToContent: true,
-          };
-        });
-      return [...accumulator, ...windowList];
-    }, []);
+    const windows: WindowDef[] = currencies.reduce(
+      (accumulator: WindowDef[], currency: string): WindowDef[] => {
+        const { pods } = persistStorage;
+        const windowList: WindowDef[] = map[currency].map(
+          ({ strategy, minimized, position }: PresetWindow): WindowDef => {
+            const id: string = randomID("pods");
+            // Force the initialization of a pod structure
+            pods.setItem(id, JSON.stringify({ currency, strategy }));
+            return {
+              id: id,
+              minimized: minimized,
+              type: WindowTypes.PodTile,
+              position: position,
+              fitToContent: true,
+            };
+          }
+        );
+        return [...accumulator, ...windowList];
+      },
+      []
+    );
     workspaces.setItem(id, JSON.stringify({ windows }));
   }
 
   @action.bound
   private internalAddWorkspace(group: CurrencyGroups) {
     const { workspaces } = this;
-    const id: string = randomID('workspaces');
+    const id: string = randomID("workspaces");
     // Populate the default stuff if needed
     this.populateDefaultWorkspace(id, group);
     // Create the workspace
@@ -133,9 +138,10 @@ export class WorkareaStore {
 
   @computed
   get currentWorkspace() {
-    if (this.currentWorkspaceID === null)
-      return null;
-    const found: WorkspaceDef | undefined = this.workspaces[this.currentWorkspaceID];
+    if (this.currentWorkspaceID === null) return null;
+    const found: WorkspaceDef | undefined = this.workspaces[
+      this.currentWorkspaceID
+    ];
     if (found) {
       return found;
     } else {
@@ -150,8 +156,7 @@ export class WorkareaStore {
 
   private updateCurrentWorkspaceID() {
     const { workspaces } = this;
-    if (this.currentWorkspaceID === null)
-      return;
+    if (this.currentWorkspaceID === null) return;
     const keys: string[] = Object.keys(workspaces);
     if (keys.length === 0) {
       this.currentWorkspaceID = null;
@@ -164,8 +169,7 @@ export class WorkareaStore {
   public async closeWorkspace(id: string) {
     const { workspaces } = this;
     const copy: { [k: string]: WorkspaceDef } = { ...workspaces };
-    if (copy[id] !== undefined)
-      delete copy[id];
+    if (copy[id] !== undefined) delete copy[id];
     this.workspaces = copy;
     this.updateCurrentWorkspaceID();
   }
@@ -181,7 +185,7 @@ export class WorkareaStore {
       storage: persistStorage.workarea,
       jsonify: true,
     });
-    await hydrate('workarea', this);
+    await hydrate("workarea", this);
     // Update styles
     this.loadTheme();
   }
@@ -190,8 +194,8 @@ export class WorkareaStore {
     const { history, location } = window;
     const base: string = `${location.protocol}//${location.host}${location.pathname}`;
     // Replace the url with the same url but without parameters
-    history.pushState({ email }, '', base);
-  };
+    history.pushState({ email }, "", base);
+  }
 
   @action.bound
   public async initialize(email: string) {
@@ -199,7 +203,9 @@ export class WorkareaStore {
       this.status = WorkareaStatus.Starting;
       const users: any[] = await API.getUsers();
       // Find said user in the users array
-      const user: User | undefined = users.find((each: User) => each.email === email);
+      const user: User | undefined = users.find(
+        (each: User) => each.email === email
+      );
       if (user === undefined) {
         this.status = WorkareaStatus.UserNotFound;
       } else {
@@ -241,7 +247,7 @@ export class WorkareaStore {
       this.loadTheme();
       this.status = WorkareaStatus.Error;
     }
-  };
+  }
 
   @action.bound
   public setWorkspace(id: string) {
@@ -260,8 +266,7 @@ export class WorkareaStore {
   public setWorkspaceModified(id: string) {
     const { workspaces } = this;
     const workspace: WorkspaceDef = workspaces[id];
-    if (workspace === undefined || !workspace.isDefault)
-      return;
+    if (workspace === undefined || !workspace.isDefault) return;
     workspaces[id].isDefault = false;
   }
 
@@ -279,15 +284,17 @@ export class WorkareaStore {
   @action.bound
   private internalAddMiddleOffice() {
     const { workspaces } = this;
-    const id: string = randomID('workspaces');
-    const middleOfficesCount: number = Object.values(workspaces)
-      .reduce((count: number, workspace: WorkspaceDef) => {
+    const id: string = randomID("workspaces");
+    const middleOfficesCount: number = Object.values(workspaces).reduce(
+      (count: number, workspace: WorkspaceDef) => {
         if (workspace.type === WorkspaceType.MiddleOffice) {
           return count + 1;
         } else {
           return count;
         }
-      }, 0);
+      },
+      0
+    );
     // Create the workspace
     workspaces[id] = {
       id: id,

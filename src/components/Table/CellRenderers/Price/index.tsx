@@ -1,21 +1,21 @@
-import { NumericInput, TabDirection } from 'components/NumericInput';
-import { NavigateDirection } from 'components/NumericInput/navigateDirection';
-import { Direction } from 'components/Table/CellRenderers/Price/direction';
-import { PriceTypes } from 'components/Table/CellRenderers/Price/priceTypes';
-import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { ArrowDirection } from 'interfaces/w';
-import React, { ReactElement, useState, useEffect } from 'react';
-import { priceFormatter } from 'utils/priceFormatter';
-import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';
-import { OrderStatus } from 'interfaces/order';
-import { CircularSpinner } from 'circularSpinner';
-import { observer } from 'mobx-react';
-import { PriceStore } from 'mobx/stores/priceStore';
+import { NumericInput, TabDirection } from "components/NumericInput";
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import { Direction } from "components/Table/CellRenderers/Price/direction";
+import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { OrderTypes } from "interfaces/mdEntry";
+import { ArrowDirection } from "interfaces/w";
+import React, { ReactElement, useState, useEffect } from "react";
+import { priceFormatter } from "utils/priceFormatter";
+import { Tooltip } from "components/Table/CellRenderers/Price/tooltip";
+import { OrderStatus } from "interfaces/order";
+import { CircularSpinner } from "circularSpinner";
+import { observer } from "mobx-react";
+import { PriceStore } from "mobx/stores/priceStore";
 
 export enum PriceErrors {
   GreaterThanMax,
-  LessThanMin
+  LessThanMin,
 }
 
 export interface Props {
@@ -40,14 +40,18 @@ export interface Props {
   onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
   onError?: (error: PriceErrors, input: HTMLInputElement) => void;
   onDoubleClick?: () => void;
-  onSubmit: (input: HTMLInputElement, value: number | null, changed: boolean, tabDirection: TabDirection) => void;
+  onSubmit: (
+    input: HTMLInputElement,
+    value: number | null,
+    changed: boolean,
+    tabDirection: TabDirection
+  ) => void;
 }
 
 export const Price: React.FC<Props> = observer((props: Props) => {
   const [store] = useState<PriceStore>(new PriceStore());
   const { value, status, tooltip } = props;
-  if (value === undefined)
-    throw new Error('value is not optional');
+  if (value === undefined) throw new Error("value is not optional");
 
   useEffect(() => {
     store.setBaseValue(value);
@@ -59,9 +63,11 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
 
-  const showTooltip = tooltip ? (event: React.MouseEvent<HTMLDivElement>) => {
-    store.showTooltip();
-  } : undefined;
+  const showTooltip = tooltip
+    ? (event: React.MouseEvent<HTMLDivElement>) => {
+        store.showTooltip();
+      }
+    : undefined;
 
   const hideTooltip = () => store.hideTooltip();
 
@@ -73,11 +79,10 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const stopFlashing = () => store.setFlashing(false);*/
 
   const getTooltip = (): ReactElement | null => {
-    if (!tooltip || !store.tooltipVisible)
-      return null;
-    const content: ReactElement | string | null = typeof tooltip === 'function' ? tooltip({}) : tooltip;
-    if (!content)
-      return null;
+    if (!tooltip || !store.tooltipVisible) return null;
+    const content: ReactElement | string | null =
+      typeof tooltip === "function" ? tooltip({}) : tooltip;
+    if (!content) return null;
     return (
       <Tooltip target={target} onClose={hideTooltip}>
         {content}
@@ -88,7 +93,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const onChange = (value: string | null) => {
     if (value !== null) {
       const trimmed: string = value.trim();
-      const numeric: number = Number(trimmed + '0');
+      const numeric: number = Number(trimmed + "0");
       if (!isNaN(numeric)) {
         store.setInternalValue(trimmed);
       }
@@ -98,9 +103,11 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   };
 
   const isOpenOrderTicketStatus = (status: OrderStatus): boolean => {
-    if ((status & OrderStatus.DarkPool) !== 0)
-      return true;
-    return ((status & OrderStatus.Owned) === 0 && (status & OrderStatus.SameBank) === 0);
+    if ((status & OrderStatus.DarkPool) !== 0) return true;
+    return (
+      (status & OrderStatus.Owned) === 0 &&
+      (status & OrderStatus.SameBank) === 0
+    );
   };
 
   const onDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {
@@ -118,10 +125,8 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   };
 
   const isModified = (): boolean => {
-    if (store.internalValue === null)
-      return false;
-    if ((store.status & OrderStatus.Cancelled) !== 0)
-      return true;
+    if (store.internalValue === null) return false;
+    if ((store.status & OrderStatus.Cancelled) !== 0) return true;
     return store.internalValue !== priceFormatter(props.value);
   };
 
@@ -151,56 +156,66 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const getSpinner = () => {
     if ((props.status & OrderStatus.BeingCreated) !== 0) {
       return (
-        <div className={'spinner'}>
-          <CircularSpinner/><span>Creating&hellip;</span>
+        <div className={"spinner"}>
+          <CircularSpinner />
+          <span>Creating&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
       return (
-        <div className={'spinner'}>
-          <CircularSpinner/><span>Cancelling&hellip;</span>
+        <div className={"spinner"}>
+          <CircularSpinner />
+          <span>Cancelling&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
       return (
-        <div className={'spinner'}>
-          <CircularSpinner/><span>Loading&hellip;</span>
+        <div className={"spinner"}>
+          <CircularSpinner />
+          <span>Loading&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.Publishing) !== 0) {
       return (
-        <div className={'spinner'}>
-          <CircularSpinner/><span>Pub&hellip;</span>
+        <div className={"spinner"}>
+          <CircularSpinner />
+          <span>Pub&hellip;</span>
         </div>
       );
     }
   };
-  const classes = ['price-layout', 'cell'];
-  if (props.className)
-    classes.push(props.className);
-  if (store.flashing)
-    classes.push('flash');
+  const classes = ["price-layout", "cell"];
+  if (props.className) classes.push(props.className);
+  if (store.flashing) classes.push("flash");
   classes.push(getOrderStatusClass(props.status));
   return (
     <>
-      <div className={classes.join(' ')} onMouseLeave={hideTooltip} onMouseEnter={showTooltip} ref={setTarget}>
-        {value !== null && props.arrow !== ArrowDirection.None && <Direction direction={props.arrow}/>}
+      <div
+        className={classes.join(" ")}
+        onMouseLeave={hideTooltip}
+        onMouseEnter={showTooltip}
+        ref={setTarget}
+      >
+        {value !== null && props.arrow !== ArrowDirection.None && (
+          <Direction direction={props.arrow} />
+        )}
         <NumericInput
           id={props.uid}
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
           title={props.title}
           value={store.value}
-          className={store.internalValue !== null ? 'modified' : 'initial'}
+          className={store.internalValue !== null ? "modified" : "initial"}
           placeholder={getPlaceholder(props.value)}
-          type={'price'}
+          type={"price"}
           onCancelEdit={onCancelEdit}
           onBlur={onCancelEdit}
           onDoubleClick={onDoubleClick}
           onChange={onChange}
           onSubmit={onSubmit}
           onTabbedOut={props.onTabbedOut}
-          onNavigate={props.onNavigate}/>
+          onNavigate={props.onNavigate}
+        />
         {/* The floating object */}
         {getTooltip()}
         {getSpinner()}

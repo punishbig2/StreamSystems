@@ -1,16 +1,16 @@
-import React, { ReactElement } from 'react';
-import { Message } from 'interfaces/message';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { StrategyCell } from './strategyCell';
-import { CellProps } from './cellProps';
+import React, { ReactElement } from "react";
+import { Message } from "interfaces/message";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { StrategyCell } from "./strategyCell";
+import { CellProps } from "./cellProps";
 
 export default (sortable: boolean): ColumnSpec => ({
-  name: 'Strategy',
-  template: 'WWWWWW',
+  name: "Strategy",
+  template: "WWWWWW",
   filterable: true,
   sortable: sortable,
-  header: () => 'Strategy',
-  render: (props: CellProps): ReactElement => <StrategyCell {...props}/>,
+  header: () => "Strategy",
+  render: (props: CellProps): ReactElement => <StrategyCell {...props} />,
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;

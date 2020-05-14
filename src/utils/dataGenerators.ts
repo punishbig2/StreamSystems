@@ -1,4 +1,4 @@
-import { PodRow } from 'interfaces/podRow';
+import { PodRow } from "interfaces/podRow";
 
 /*export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes): Order => {
   return new Order(tenor, symbol, strategy, user, size, type);
@@ -17,11 +17,11 @@ export const tenorToNumber = (value: string) => {
   const multiplier: number = Number(value.substr(0, 1));
   const unit: string = value.substr(1);
   switch (unit) {
-    case 'W':
+    case "W":
       return multiplier;
-    case 'M':
+    case "M":
       return 5 * multiplier;
-    case 'Y':
+    case "Y":
       return 60 * multiplier;
   }
   return 0;

@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { SortOrder } from 'mobx/stores/tableStore';
+import { ReactElement } from "react";
+import { SortOrder } from "mobx/stores/tableStore";
 
 export interface ColumnSpec {
   name: string;

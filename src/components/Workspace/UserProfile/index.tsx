@@ -1,10 +1,10 @@
-import React, { useEffect, ReactElement } from 'react';
-import { UserProfileModalTypes } from 'interfaces/user';
-import { UserProfileForm } from 'components/Workspace/UserProfile/form';
-import { ErrorBox } from 'components/ErrorBox';
-import { MessageBox } from 'components/MessageBox';
-import store from 'mobx/stores/userPreferencesStore';
-import { observer } from 'mobx-react';
+import React, { useEffect, ReactElement } from "react";
+import { UserProfileModalTypes } from "interfaces/user";
+import { UserProfileForm } from "components/Workspace/UserProfile/form";
+import { ErrorBox } from "components/ErrorBox";
+import { MessageBox } from "components/MessageBox";
+import store from "mobx/stores/userPreferencesStore";
+import { observer } from "mobx-react";
 
 interface OwnProps {
   onCancel: () => void;
@@ -34,37 +34,51 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
   };
 
   const closeButton = (): ReactElement => (
-    <button className={'cancel'} onClick={onClose}>Close</button>
+    <button className={"cancel"} onClick={onClose}>
+      Close
+    </button>
   );
 
   switch (store.currentModalType) {
     case UserProfileModalTypes.Form:
-      return <UserProfileForm profile={store.preferences}
-                              original={store.initialPreferences}
-                              onChange={onChange}
-                              onSubmit={onSubmit}
-                              onCancel={onClose}/>;
+      return (
+        <UserProfileForm
+          profile={store.preferences}
+          original={store.initialPreferences}
+          onChange={onChange}
+          onSubmit={onSubmit}
+          onCancel={onClose}
+        />
+      );
     case UserProfileModalTypes.Saving:
       return (
-        <MessageBox title={'Saving your profile'}
-                    message={'Please wait while we\'re saving your profile'}
-                    icon={'spinner'}
-                    color={'good'}
-                    buttons={() => null}/>
+        <MessageBox
+          title={"Saving your profile"}
+          message={"Please wait while we're saving your profile"}
+          icon={"spinner"}
+          color={"good"}
+          buttons={() => null}
+        />
       );
     case UserProfileModalTypes.Success:
       return (
-        <MessageBox title={'Looks Good'}
-                    message={'Looks like your settings were saved successfully, great!'}
-                    icon={'check-circle'}
-                    color={'good'}
-                    buttons={closeButton}/>
+        <MessageBox
+          title={"Looks Good"}
+          message={"Looks like your settings were saved successfully, great!"}
+          icon={"check-circle"}
+          color={"good"}
+          buttons={closeButton}
+        />
       );
     case UserProfileModalTypes.Error:
       return (
-        <ErrorBox message={'Something went wrong, we are sorry. This is quite unexpected.'}
-                  onClose={onClose}
-                  title={'Oops, an error happened'}/>
+        <ErrorBox
+          message={
+            "Something went wrong, we are sorry. This is quite unexpected."
+          }
+          onClose={onClose}
+          title={"Oops, an error happened"}
+        />
       );
     default:
       return null;
@@ -72,4 +86,3 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
 });
 
 export { UserProfileModal };
-

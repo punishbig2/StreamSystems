@@ -1,14 +1,14 @@
-import { observable, computed, action } from 'mobx';
-import { Order, OrderStatus, DarkPoolOrder } from 'interfaces/order';
-import { W } from 'interfaces/w';
-import signalRManager from 'signalR/signalRManager';
-import workareaStore from 'mobx/stores/workareaStore';
-import { User } from 'interfaces/user';
-import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
-import { DarkPoolMessage } from 'interfaces/message';
-import { API } from 'API';
-import { $$ } from 'utils/stringPaster';
-import { Sides } from 'interfaces/sides';
+import { observable, computed, action } from "mobx";
+import { Order, OrderStatus, DarkPoolOrder } from "interfaces/order";
+import { W } from "interfaces/w";
+import signalRManager from "signalR/signalRManager";
+import workareaStore from "mobx/stores/workareaStore";
+import { User } from "interfaces/user";
+import { MDEntry, OrderTypes } from "interfaces/mdEntry";
+import { DarkPoolMessage } from "interfaces/message";
+import { API } from "API";
+import { $$ } from "utils/stringPaster";
+import { Sides } from "interfaces/sides";
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];
@@ -33,8 +33,7 @@ export class DarkPoolStore {
   @computed
   get price(): number | null {
     const { currentOrder } = this;
-    if (currentOrder === null)
-      return this.publishedPrice;
+    if (currentOrder === null) return this.publishedPrice;
     return currentOrder.price;
   }
 
@@ -42,19 +41,20 @@ export class DarkPoolStore {
   get status(): OrderStatus {
     const user: User | null = workareaStore.user;
     const personality: string = workareaStore.personality;
-    if (user === null)
-      return OrderStatus.None;
+    if (user === null) return OrderStatus.None;
     const { currentOrder } = this;
-    if (!currentOrder)
-      return OrderStatus.None;
-    if (currentOrder.size === null)
-      return OrderStatus.None;
+    if (!currentOrder) return OrderStatus.None;
+    if (currentOrder.size === null) return OrderStatus.None;
     if (currentOrder.user === user.email) {
       if (user.isbroker && currentOrder.firm !== personality)
         return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
-      return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned;
+      return (
+        OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned
+      );
     } else if (currentOrder.firm === user.firm) {
-      return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.SameBank;
+      return (
+        OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.SameBank
+      );
     }
     return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
   }
@@ -68,17 +68,27 @@ export class DarkPoolStore {
       this.currentOrder = null;
       return;
     }
-    const entries: MDEntry[] = originalEntries.filter((entry: MDEntry) => !!entry.MDEntrySize);
-    const orders: Order[] = entries.map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user));
+    const entries: MDEntry[] = originalEntries.filter(
+      (entry: MDEntry) => !!entry.MDEntrySize
+    );
+    const orders: Order[] = entries.map((entry: MDEntry) =>
+      Order.fromWAndMDEntry(w, entry, user)
+    );
     if (orders.length > 0) {
-      const mine: Order | undefined = orders.find((order: Order) => order.user === user.email);
-      const bank: Order | undefined = orders.find((order: Order) => order.firm === user.firm);
+      const mine: Order | undefined = orders.find(
+        (order: Order) => order.user === user.email
+      );
+      const bank: Order | undefined = orders.find(
+        (order: Order) => order.firm === user.firm
+      );
       if (mine) {
         this.currentOrder = mine;
       } else if (bank) {
         this.currentOrder = bank;
       } else {
-        const index: number = orders.findIndex((o: Order) => o.price !== null && o.size !== null);
+        const index: number = orders.findIndex(
+          (o: Order) => o.price !== null && o.size !== null
+        );
         if (index !== -1) {
           this.currentOrder = orders[index];
         } else {
@@ -93,8 +103,13 @@ export class DarkPoolStore {
 
   @action.bound
   public onDarkPoolPricePublished(message: DarkPoolMessage) {
-    const key: string = $$(message.Symbol, message.Strategy, message.Tenor, 'DPPx');
-    if (message.DarkPrice !== '') {
+    const key: string = $$(
+      message.Symbol,
+      message.Strategy,
+      message.Tenor,
+      "DPPx"
+    );
+    if (message.DarkPrice !== "") {
       this.publishedPrice = Number(message.DarkPrice);
       // Save to the database
       localStorage.setItem(key, message.DarkPrice);
@@ -108,10 +123,22 @@ export class DarkPoolStore {
   public connect(currency: string, strategy: string, tenor: string) {
     this.currentOrder = null;
     this.orders = [];
-    signalRManager.setDarkPoolPriceListener(currency, strategy, tenor, this.onDarkPoolPricePublished);
-    signalRManager.setDarkPoolOrderListener(currency, strategy, tenor, this.onOrderReceived);
+    signalRManager.setDarkPoolPriceListener(
+      currency,
+      strategy,
+      tenor,
+      this.onDarkPoolPricePublished
+    );
+    signalRManager.setDarkPoolOrderListener(
+      currency,
+      strategy,
+      tenor,
+      this.onOrderReceived
+    );
     // Read saved value
-    const currentValue: string | null = localStorage.getItem($$(currency, strategy, tenor, 'DPPx'));
+    const currentValue: string | null = localStorage.getItem(
+      $$(currency, strategy, tenor, "DPPx")
+    );
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
     } else {
@@ -123,15 +150,26 @@ export class DarkPoolStore {
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }
 
-  public async publishPrice(currency: string, strategy: string, tenor: string, price: number | null) {
+  public async publishPrice(
+    currency: string,
+    strategy: string,
+    tenor: string,
+    price: number | null
+  ) {
     const user: User = workareaStore.user;
     if (!user.isbroker)
-      throw new Error('non broker users cannot publish prices');
+      throw new Error("non broker users cannot publish prices");
     // Update immediately to make it feel faster
     this.publishedPrice = price;
     await API.cancelAllDarkPoolOrder(currency, strategy, tenor);
     // Call the API
-    await API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price !== null ? price : '');
+    await API.publishDarkPoolPrice(
+      user.email,
+      currency,
+      strategy,
+      tenor,
+      price !== null ? price : ""
+    );
   }
 
   @action.bound
@@ -150,14 +188,11 @@ export class DarkPoolStore {
     const user: User = workareaStore.user;
     this.closeTicket();
     const currentOrder: Order | undefined = orders.find((o: Order) => {
-      if (o.type === OrderTypes.Bid && order.Side !== Sides.Buy)
-        return false;
-      if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell)
-        return false;
+      if (o.type === OrderTypes.Bid && order.Side !== Sides.Buy) return false;
+      if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell) return false;
       return user.email === o.user;
     });
-    if (currentOrder)
-      API.cancelDarkPoolOrder(currentOrder);
+    if (currentOrder) API.cancelDarkPoolOrder(currentOrder);
     await API.createDarkPoolOrder(order);
   }
 

@@ -12,7 +12,8 @@ $spinner-size: $table-row-height - 6;
   cursor: default;
 
   &.run-table {
-    .tbody, .thead {
+    .tbody,
+    .thead {
       border-left: 1px solid $table-border-color;
       border-right: 1px solid $table-border-color;
     }
@@ -129,7 +130,8 @@ $spinner-size: $table-row-height - 6;
           color: inherit;
           font-weight: 500;
 
-          &:hover, &:focus {
+          &:hover,
+          &:focus {
             outline: 2px solid $primary-color;
             outline-offset: -2px;
           }
@@ -169,7 +171,8 @@ $spinner-size: $table-row-height - 6;
           .twin-header {
             height: $table-header-height;
 
-            .size, .price {
+            .size,
+            .price {
               display: inline-block;
               height: $table-header-height;
             }
@@ -242,7 +245,7 @@ $spinner-size: $table-row-height - 6;
       }
 
       &.error {
-        background-color: rgba($text-color-red, 0.10);
+        background-color: rgba($text-color-red, 0.1);
 
         .td {
           .error-cell {
@@ -297,7 +300,8 @@ $spinner-size: $table-row-height - 6;
             color: $text-color-grey;
           }
 
-          span, i {
+          span,
+          i {
             height: $table-row-height;
             line-height: $table-row-height;
             display: inline-block;
@@ -434,7 +438,8 @@ $spinner-size: $table-row-height - 6;
           height: inherit;
 
           &.busy {
-            &:before, &:after {
+            &:before,
+            &:after {
               position: absolute;
               width: 4px;
               height: 4px;
@@ -446,14 +451,13 @@ $spinner-size: $table-row-height - 6;
 
             &:before {
               animation: blink 1s infinite linear 0.5s;
-              content: '';
+              content: "";
               margin-left: -3px;
             }
 
-
             &:after {
               animation: blink 1s infinite linear;
-              content: '';
+              content: "";
               margin-left: 3px;
             }
 
@@ -461,7 +465,8 @@ $spinner-size: $table-row-height - 6;
               color: transparent;
             }
 
-            .times, .chevron {
+            .times,
+            .chevron {
               display: none;
             }
           }
@@ -495,7 +500,9 @@ $spinner-size: $table-row-height - 6;
           }
 
           &:not(.in-depth) {
-            &.among, &.owned, &.owned-by-broker {
+            &.among,
+            &.owned,
+            &.owned-by-broker {
               .times {
                 pointer-events: all;
 
@@ -649,11 +656,11 @@ $spinner-size: $table-row-height - 6;
               // border-left: 1px solid $table-border-color;
             }
 
-
             &.joined {
               color: $text-color-black;
 
-              &.among, &.owned {
+              &.among,
+              &.owned {
                 .chevron {
                   color: $text-color-red;
                 }
@@ -789,7 +796,8 @@ $spinner-size: $table-row-height - 6;
     position: relative;
     pointer-events: none;
 
-    .tbody, .thead {
+    .tbody,
+    .thead {
       opacity: 0.4;
       filter: blur(1px) grayscale(100%);
     }
@@ -803,7 +811,7 @@ $spinner-size: $table-row-height - 6;
       top: 50%;
       margin-top: -$spinner-size / 2;
       margin-left: -$spinner-size / 2;
-      content: '';
+      content: "";
       width: $spinner-size;
       height: $spinner-size;
       border-width: 6px;
@@ -815,4 +823,3 @@ $spinner-size: $table-row-height - 6;
     }
   }
 }
-

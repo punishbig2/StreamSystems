@@ -1,17 +1,19 @@
 export enum OCOModes {
-  Disabled, FullEx, PartialEx,
+  Disabled,
+  FullEx,
+  PartialEx,
 }
 
 export enum UserTypes {
-  Broker = 'BROKER',
-  Bank = 'BANK',
-  MarketMaker = 'MARKET_MAKER',
-  Unset = '',
+  Broker = "BROKER",
+  Bank = "BANK",
+  MarketMaker = "MARKET_MAKER",
+  Unset = "",
 }
 
 export enum CurrencyGroups {
-  Default = '',
-  Latam = 'LATAM',
+  Default = "",
+  Latam = "LATAM",
 }
 
 export interface ExecSound {
@@ -27,11 +29,16 @@ export interface User {
 }
 
 export enum UserProfileStatus {
-  Loading, Error, Initial
+  Loading,
+  Error,
+  Initial,
 }
 
 export enum UserProfileModalTypes {
-  Form, Success, Error, Saving
+  Form,
+  Success,
+  Error,
+  Saving,
 }
 
 export interface UserPreferences {
@@ -53,11 +60,11 @@ export interface UserPreferences {
 export interface UserProfileState {
   status: UserProfileStatus;
   currentModalType: UserProfileModalTypes;
-  initialPreferences: UserPreferences,
-  preferences: UserPreferences,
+  initialPreferences: UserPreferences;
+  preferences: UserPreferences;
 }
 
-export const isCurrencyGroup = (value: any): value is  CurrencyGroups => {
+export const isCurrencyGroup = (value: any): value is CurrencyGroups => {
   switch (value) {
     case CurrencyGroups.Latam:
     case CurrencyGroups.Default:

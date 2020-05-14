@@ -1,10 +1,14 @@
-import { Message } from 'interfaces/message';
-import { observable, action } from 'mobx';
-import { API } from 'API';
-import signalRManager from 'signalR/signalRManager';
-import workareaStore from 'mobx/stores/workareaStore';
-import { User } from 'interfaces/user';
-import { isAcceptableFill,  sortByTimeDescending, isMyMessage } from 'messageUtils';
+import { Message } from "interfaces/message";
+import { observable, action } from "mobx";
+import { API } from "API";
+import signalRManager from "signalR/signalRManager";
+import workareaStore from "mobx/stores/workareaStore";
+import { User } from "interfaces/user";
+import {
+  isAcceptableFill,
+  sortByTimeDescending,
+  isMyMessage,
+} from "messageUtils";
 
 export class MessagesStore {
   @observable.ref myMessages: Message[] = [];
@@ -25,8 +29,18 @@ export class MessagesStore {
     this.loading = true;
     // Load the data ...
     const now: Date = new Date();
-    const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const entries: Message[] = await API.getMessagesSnapshot('*', midnight.getTime());
+    const midnight: Date = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0
+    );
+    const entries: Message[] = await API.getMessagesSnapshot(
+      "*",
+      midnight.getTime()
+    );
     // Sort all entries
     entries.sort(sortByTimeDescending);
     // Group by interest

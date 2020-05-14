@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties } from "react";
 
 export class Geometry {
   public x: number;
@@ -10,7 +10,7 @@ export class Geometry {
     x: number = 0,
     y: number = 0,
     width: number = 360,
-    height: number = 360,
+    height: number = 360
   ) {
     this.x = x;
     this.width = width;
@@ -46,7 +46,7 @@ export class Geometry {
       this.x,
       this.y,
       this.width + amountX,
-      this.height + amountY,
+      this.height + amountY
     );
   }
 }

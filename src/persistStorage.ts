@@ -1,6 +1,6 @@
-import { User } from 'interfaces/user';
-import { API } from 'API';
-import { WindowDef } from 'mobx/stores/workspaceStore';
+import { User } from "interfaces/user";
+import { API } from "API";
+import { WindowDef } from "mobx/stores/workspaceStore";
 
 class Storage {
   private engine: PersistStorage;
@@ -14,8 +14,7 @@ class Storage {
   public async getItem(key: string): Promise<string | null> {
     const { engine, domain } = this;
     const item: any | null = await engine.getItem(domain, key);
-    if (item === null)
-      return null;
+    if (item === null) return null;
     return JSON.stringify(item);
   }
 
@@ -25,7 +24,7 @@ class Storage {
   }
 
   public async removeItem(key: string): Promise<void> {
-    throw new Error('this is not needed');
+    throw new Error("this is not needed");
   }
 }
 
@@ -33,11 +32,11 @@ class PersistStorage {
   private user: User | null = null;
   private pendingOperation: number = setTimeout(() => null, 0);
 
-  public workarea: Storage = new Storage(this, 'workarea');
-  public workspaces: Storage = new Storage(this, 'workspaces');
-  public windows: Storage = new Storage(this, 'windows');
-  public pods: Storage = new Storage(this, 'pods');
-  public tables: Storage = new Storage(this, 'tables');
+  public workarea: Storage = new Storage(this, "workarea");
+  public workspaces: Storage = new Storage(this, "workspaces");
+  public windows: Storage = new Storage(this, "windows");
+  public pods: Storage = new Storage(this, "pods");
+  public tables: Storage = new Storage(this, "tables");
   public data: { [k: string]: any } = {};
 
   public async getItem(domainKey: string, key: string): Promise<any> {
@@ -49,7 +48,11 @@ class PersistStorage {
     return null;
   }
 
-  public async setItem(domainKey: string, key: string, object: any): Promise<void> {
+  public async setItem(
+    domainKey: string,
+    key: string,
+    object: any
+  ): Promise<void> {
     const { data } = this;
     const domain: any = data[domainKey] || {};
     // Update the local memory item so that if it's queried
@@ -62,29 +65,36 @@ class PersistStorage {
   private getCleanedData() {
     // Create a local copy
     const cleanData = { ...this.data };
-    const { workarea: { workspaces } } = cleanData.workarea;
+    const {
+      workarea: { workspaces },
+    } = cleanData.workarea;
     if (workspaces && cleanData.workspaces) {
       const list: any[] = Object.values(workspaces);
-      cleanData.workspaces = list.reduce((cleanedUpWorkspaces: any, workspace: any): any => {
-        cleanedUpWorkspaces[workspace.id] = cleanData.workspaces[workspace.id];
-        return cleanedUpWorkspaces;
-      }, {});
+      cleanData.workspaces = list.reduce(
+        (cleanedUpWorkspaces: any, workspace: any): any => {
+          cleanedUpWorkspaces[workspace.id] =
+            cleanData.workspaces[workspace.id];
+          return cleanedUpWorkspaces;
+        },
+        {}
+      );
     }
     if (cleanData.workspaces) {
       const list: any[] = Object.values(cleanData.workspaces);
       const ids = list.reduce((list: string[], workspace: any): string[] => {
-        if (!workspace)
-          return list;
+        if (!workspace) return list;
         const { windows } = workspace;
-        if (!windows)
-          return list;
+        if (!windows) return list;
         return [...list, ...windows.map((w: WindowDef) => w.id)];
       }, []);
       if (cleanData.windows) {
-        cleanData.windows = ids.reduce((cleanedUpWindows: any, id: string): any => {
-          cleanedUpWindows[id] = cleanData.windows[id];
-          return cleanedUpWindows;
-        }, {});
+        cleanData.windows = ids.reduce(
+          (cleanedUpWindows: any, id: string): any => {
+            cleanedUpWindows[id] = cleanData.windows[id];
+            return cleanedUpWindows;
+          },
+          {}
+        );
       }
       if (cleanData.pods) {
         cleanData.pods = ids.reduce((cleanedUpPods: any, id: string): any => {
@@ -113,10 +123,11 @@ class PersistStorage {
   }
 
   public async initialize(user: User) {
-    const [workspace]: [{ workspace: any }] = await API.getUserProfile(user.email);
+    const [workspace]: [{ workspace: any }] = await API.getUserProfile(
+      user.email
+    );
     this.user = user;
-    if (!workspace)
-      return;
+    if (!workspace) return;
     try {
       this.data = JSON.parse(workspace.workspace);
     } catch {

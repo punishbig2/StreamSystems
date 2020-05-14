@@ -1,14 +1,17 @@
-import { MDEntry, OrderTypes } from 'interfaces/mdEntry';
-import { Order } from 'interfaces/order';
-import { PodRow, PodRowStatus } from 'interfaces/podRow';
-import { PodTable } from 'interfaces/podTable';
-import { User } from 'interfaces/user';
-import { W } from 'interfaces/w';
-import { $$ } from 'utils/stringPaster';
+import { MDEntry, OrderTypes } from "interfaces/mdEntry";
+import { Order } from "interfaces/order";
+import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { PodTable } from "interfaces/podTable";
+import { User } from "interfaces/user";
+import { W } from "interfaces/w";
+import { $$ } from "utils/stringPaster";
 
-type E = 'bid' | 'ofr';
+type E = "bid" | "ofr";
 
-export const mdEntryToTOBEntry = (w: W, user: User) => (entry: MDEntry, fallbackType: OrderTypes): Order => {
+export const mdEntryToTOBEntry = (w: W, user: User) => (
+  entry: MDEntry,
+  fallbackType: OrderTypes
+): Order => {
   if (entry) {
     return Order.fromWAndMDEntry(w, entry, user);
   } else {
@@ -18,21 +21,29 @@ export const mdEntryToTOBEntry = (w: W, user: User) => (entry: MDEntry, fallback
       w.Strategy,
       user.email,
       null,
-      fallbackType,
+      fallbackType
     );
   }
 };
 
-const reshape = (w: W, user: User, bids: MDEntry[], offers: MDEntry[]): PodTable => {
+const reshape = (
+  w: W,
+  user: User,
+  bids: MDEntry[],
+  offers: MDEntry[]
+): PodTable => {
   const reducer = (table: PodTable, row: PodRow): PodTable => {
     table[row.id] = row;
     return table;
   };
-  const createMapper = (key1: E, key2: E, user: User) => (other: MDEntry[]) => (entry: MDEntry, index: number): PodRow => {
+  const createMapper = (key1: E, key2: E, user: User) => (other: MDEntry[]) => (
+    entry: MDEntry,
+    index: number
+  ): PodRow => {
     const transform = mdEntryToTOBEntry(w, user);
-    if (key1 === 'ofr' && key2 === 'bid') {
+    if (key1 === "ofr" && key2 === "bid") {
       return {
-        id: $$('__DOB', index, w.Tenor, w.Symbol, w.Strategy),
+        id: $$("__DOB", index, w.Tenor, w.Symbol, w.Strategy),
         tenor: w.Tenor,
         ofr: transform(entry, OrderTypes.Ofr),
         bid: transform(other[index], OrderTypes.Bid),
@@ -41,9 +52,9 @@ const reshape = (w: W, user: User, bids: MDEntry[], offers: MDEntry[]): PodTable
         darkPrice: null,
         status: PodRowStatus.Normal,
       };
-    } else if (key1 === 'bid' && key2 === 'ofr') {
+    } else if (key1 === "bid" && key2 === "ofr") {
       return {
-        id: $$('__DOB', index, w.Tenor, w.Symbol, w.Strategy),
+        id: $$("__DOB", index, w.Tenor, w.Symbol, w.Strategy),
         tenor: w.Tenor,
         bid: transform(entry, OrderTypes.Bid),
         ofr: transform(other[index], OrderTypes.Ofr),
@@ -53,14 +64,14 @@ const reshape = (w: W, user: User, bids: MDEntry[], offers: MDEntry[]): PodTable
         status: PodRowStatus.Normal,
       };
     } else {
-      throw new Error('I cannot understand this combination');
+      throw new Error("I cannot understand this combination");
     }
   };
   if (bids.length > offers.length) {
-    const mapperSelector = createMapper('bid', 'ofr', user);
+    const mapperSelector = createMapper("bid", "ofr", user);
     return bids.map(mapperSelector(offers)).reduce(reducer, {});
   } else {
-    const mapperSelector = createMapper('ofr', 'bid', user);
+    const mapperSelector = createMapper("ofr", "bid", user);
     return offers.map(mapperSelector(bids)).reduce(reducer, {});
   }
 };
@@ -75,35 +86,41 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
     return [
       {
         MDEntryType: OrderTypes.Bid,
-        MDEntryPx: '0',
-        MDEntrySize: '0',
-        MDEntryOriginator: '',
+        MDEntryPx: "0",
+        MDEntrySize: "0",
+        MDEntryOriginator: "",
         MDEntryTime: now.toString(),
       },
       {
         MDEntryType: OrderTypes.Ofr,
-        MDEntryPx: '0',
-        MDEntrySize: '0',
-        MDEntryOriginator: '',
+        MDEntryPx: "0",
+        MDEntrySize: "0",
+        MDEntryOriginator: "",
         MDEntryTime: now.toString(),
       },
     ];
   } else if (e1 === undefined) {
-    return [{
-      MDEntryType: OrderTypes.Bid,
-      MDEntryPx: '0',
-      MDEntrySize: '0',
-      MDEntryOriginator: '',
-      MDEntryTime: now.toString(),
-    }, e2];
+    return [
+      {
+        MDEntryType: OrderTypes.Bid,
+        MDEntryPx: "0",
+        MDEntrySize: "0",
+        MDEntryOriginator: "",
+        MDEntryTime: now.toString(),
+      },
+      e2,
+    ];
   } else if (e2 === undefined) {
-    return [e1, {
-      MDEntryType: OrderTypes.Ofr,
-      MDEntryPx: '0',
-      MDEntrySize: '0',
-      MDEntryOriginator: '',
-      MDEntryTime: now.toString(),
-    }];
+    return [
+      e1,
+      {
+        MDEntryType: OrderTypes.Ofr,
+        MDEntryPx: "0",
+        MDEntrySize: "0",
+        MDEntryOriginator: "",
+        MDEntryTime: now.toString(),
+      },
+    ];
   }
   if (e1.MDEntryType === OrderTypes.Bid) {
     return [e1, e2];
@@ -130,21 +147,18 @@ export const toPodRow = (w: W, user: User): PodRow => {
 export const extractDepth = (w: W, user: User): PodTable => {
   const entries: MDEntry[] = w.Entries || [];
   const bids: MDEntry[] = entries.filter(
-    (entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid,
+    (entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid
   );
   const ofrs: MDEntry[] = entries.filter(
-    (entry: MDEntry) => entry.MDEntryType === OrderTypes.Ofr,
+    (entry: MDEntry) => entry.MDEntryType === OrderTypes.Ofr
   );
   const compareEntries = (sign: number) => (a: MDEntry, b: MDEntry) => {
     let value: number = sign * (Number(a.MDEntryPx) - Number(b.MDEntryPx));
-    if (value !== 0)
-      return value;
+    if (value !== 0) return value;
     value = Number(a.MDEntryTime) - Number(b.MDEntryTime);
-    if (value !== 0)
-      return value;
+    if (value !== 0) return value;
     value = Number(a.MDEntrySize) - Number(b.MDEntrySize);
-    if (value !== 0)
-      return value;
+    if (value !== 0) return value;
     return 0;
   };
   // Sort bids
@@ -155,8 +169,12 @@ export const extractDepth = (w: W, user: User): PodTable => {
 };
 
 export const orderArrayToPodTableReducer = (table: PodTable, order: Order) => {
-  const currentBid: Order = table[order.tenor] ? table[order.tenor].bid : {} as Order;
-  const currentOfr: Order = table[order.tenor] ? table[order.tenor].ofr : {} as Order;
+  const currentBid: Order = table[order.tenor]
+    ? table[order.tenor].bid
+    : ({} as Order);
+  const currentOfr: Order = table[order.tenor]
+    ? table[order.tenor].ofr
+    : ({} as Order);
   table[order.tenor] = {
     id: order.tenor,
     tenor: order.tenor,
@@ -169,4 +187,3 @@ export const orderArrayToPodTableReducer = (table: PodTable, order: Order) => {
   };
   return table;
 };
-

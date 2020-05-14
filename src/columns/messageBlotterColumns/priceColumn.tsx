@@ -1,17 +1,17 @@
-import React, { ReactElement } from 'react';
-import { Message } from 'interfaces/message';
-import { priceFormatter } from 'utils/priceFormatter';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { PriceCell } from './priceCell';
-import { CellProps } from './cellProps';
+import React, { ReactElement } from "react";
+import { Message } from "interfaces/message";
+import { priceFormatter } from "utils/priceFormatter";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { PriceCell } from "./priceCell";
+import { CellProps } from "./cellProps";
 
 export default (sortable: boolean): ColumnSpec => ({
-  name: 'Price',
-  template: '999999.99',
+  name: "Price",
+  template: "999999.99",
   filterable: true,
   sortable: sortable,
-  header: () => 'Level',
-  render: (props: CellProps): ReactElement => <PriceCell {...props}/>,
+  header: () => "Level",
+  render: (props: CellProps): ReactElement => <PriceCell {...props} />,
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);

@@ -3,26 +3,26 @@
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined'
+  typeof exports === "object" && typeof module !== "undefined"
     ? factory(exports)
-    : typeof define === 'function' && define.amd
-    ? define(['exports'], factory)
-    : factory((global['fontawesome-free-conflict-detection'] = {}));
+    : typeof define === "function" && define.amd
+    ? define(["exports"], factory)
+    : factory((global["fontawesome-free-conflict-detection"] = {}));
 })(this, function (exports) {
-  'use strict';
+  "use strict";
 
   function _typeof(obj) {
-    if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
       };
     } else {
       _typeof = function (obj) {
         return obj &&
-        typeof Symbol === 'function' &&
-        obj.constructor === Symbol &&
-        obj !== Symbol.prototype
-          ? 'symbol'
+          typeof Symbol === "function" &&
+          obj.constructor === Symbol &&
+          obj !== Symbol.prototype
+          ? "symbol"
           : typeof obj;
       };
     }
@@ -50,11 +50,11 @@
       var source = arguments[i] != null ? arguments[i] : {};
       var ownKeys = Object.keys(source);
 
-      if (typeof Object.getOwnPropertySymbols === 'function') {
+      if (typeof Object.getOwnPropertySymbols === "function") {
         ownKeys = ownKeys.concat(
           Object.getOwnPropertySymbols(source).filter(function (sym) {
             return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-          }),
+          })
         );
       }
 
@@ -70,14 +70,13 @@
   var _DOCUMENT = {};
 
   try {
-    if (typeof window !== 'undefined') _WINDOW = window;
-    if (typeof document !== 'undefined') _DOCUMENT = document;
-  } catch (e) {
-  }
+    if (typeof window !== "undefined") _WINDOW = window;
+    if (typeof document !== "undefined") _DOCUMENT = document;
+  } catch (e) {}
 
   var _ref = _WINDOW.navigator || {},
     _ref$userAgent = _ref.userAgent,
-    userAgent = _ref$userAgent === void 0 ? '' : _ref$userAgent;
+    userAgent = _ref$userAgent === void 0 ? "" : _ref$userAgent;
 
   var WINDOW = _WINDOW;
   var DOCUMENT = _DOCUMENT;
@@ -85,14 +84,14 @@
   var IS_DOM =
     !!DOCUMENT.documentElement &&
     !!DOCUMENT.head &&
-    typeof DOCUMENT.addEventListener === 'function' &&
-    typeof DOCUMENT.createElement === 'function';
-  var IS_IE = ~userAgent.indexOf('MSIE') || ~userAgent.indexOf('Trident/');
+    typeof DOCUMENT.addEventListener === "function" &&
+    typeof DOCUMENT.createElement === "function";
+  var IS_IE = ~userAgent.indexOf("MSIE") || ~userAgent.indexOf("Trident/");
 
   var functions = [];
 
   var listener = function listener() {
-    DOCUMENT.removeEventListener('DOMContentLoaded', listener);
+    DOCUMENT.removeEventListener("DOMContentLoaded", listener);
     loaded = 1;
     functions.map(function (fn) {
       return fn();
@@ -103,10 +102,10 @@
 
   if (IS_DOM) {
     loaded = (DOCUMENT.documentElement.doScroll
-        ? /^loaded|^c/
-        : /^loaded|^i|^c/
+      ? /^loaded|^c/
+      : /^loaded|^i|^c/
     ).test(DOCUMENT.readyState);
-    if (!loaded) DOCUMENT.addEventListener('DOMContentLoaded', listener);
+    if (!loaded) DOCUMENT.addEventListener("DOMContentLoaded", listener);
   }
 
   function domready(fn) {
@@ -129,8 +128,8 @@
 
     if (conflictsCount > 0) {
       console.info(
-        '%cConflict'.concat(conflictsCount > 1 ? 's' : '', ' found:'),
-        'color: darkred; font-size: large',
+        "%cConflict".concat(conflictsCount > 1 ? "s" : "", " found:"),
+        "color: darkred; font-size: large"
       );
       var data = {};
 
@@ -138,11 +137,11 @@
         var item = nodesTested.conflict[_key];
         data[_key] = {
           tagName: item.tagName,
-          'href': item.src || item.href || 'n/a',
-          'innerText excerpt':
-            item.innerText && item.innerText !== ''
-              ? item.innerText.slice(0, 200) + '...'
-              : '(empty)',
+          href: item.src || item.href || "n/a",
+          "innerText excerpt":
+            item.innerText && item.innerText !== ""
+              ? item.innerText.slice(0, 200) + "..."
+              : "(empty)",
         };
       }
 
@@ -153,10 +152,10 @@
 
     if (noConflictsCount > 0) {
       console.info(
-        '%cNo conflict'
-          .concat(noConflictsCount > 1 ? 's' : '', ' found with ')
-          .concat(noConflictsCount == 1 ? 'this' : 'these', ':'),
-        'color: green; font-size: large',
+        "%cNo conflict"
+          .concat(noConflictsCount > 1 ? "s" : "", " found with ")
+          .concat(noConflictsCount == 1 ? "this" : "these", ":"),
+        "color: green; font-size: large"
       );
       var _data = {};
 
@@ -164,11 +163,11 @@
         var _item = nodesTested.noConflict[_key2];
         _data[_key2] = {
           tagName: _item.tagName,
-          'href': _item.src || _item.href || 'n/a',
-          'innerText excerpt':
-            _item.innerText && _item.innerText !== ''
-              ? _item.innerText.slice(0, 200) + '...'
-              : '(empty)',
+          href: _item.src || _item.href || "n/a",
+          "innerText excerpt":
+            _item.innerText && _item.innerText !== ""
+              ? _item.innerText.slice(0, 200) + "..."
+              : "(empty)",
         };
       }
 
@@ -179,11 +178,11 @@
 
     if (timeOutCount > 0) {
       console.info(
-        '%cLeftovers--we timed out before collecting test results for '.concat(
-          timeOutCount == 1 ? 'this' : 'these',
-          ':',
+        "%cLeftovers--we timed out before collecting test results for ".concat(
+          timeOutCount == 1 ? "this" : "these",
+          ":"
         ),
-        'color: blue; font-size: large',
+        "color: blue; font-size: large"
       );
       var _data2 = {};
 
@@ -191,11 +190,11 @@
         var _item2 = timedOutTests[_key3];
         _data2[_key3] = {
           tagName: _item2.tagName,
-          'href': _item2.src || _item2.href || 'n/a',
-          'innerText excerpt':
-            _item2.innerText && _item2.innerText !== ''
-              ? _item2.innerText.slice(0, 200) + '...'
-              : '(empty)',
+          href: _item2.src || _item2.href || "n/a",
+          "innerText excerpt":
+            _item2.innerText && _item2.innerText !== ""
+              ? _item2.innerText.slice(0, 200) + "..."
+              : "(empty)",
         };
       }
 
@@ -204,13 +203,13 @@
   }
 
   var commonjsGlobal =
-    typeof window !== 'undefined'
+    typeof window !== "undefined"
       ? window
-      : typeof global !== 'undefined'
+      : typeof global !== "undefined"
       ? global
-      : typeof self !== 'undefined'
-        ? self
-        : {};
+      : typeof self !== "undefined"
+      ? self
+      : {};
 
   function createCommonjsModule(fn, module) {
     return (
@@ -262,7 +261,7 @@
       function md5cmn(q, a, b, x, s, t) {
         return safeAdd(
           bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s),
-          b,
+          b
         );
       }
 
@@ -443,7 +442,7 @@
 
       function binl2rstr(input) {
         var i;
-        var output = '';
+        var output = "";
         var length32 = input.length * 32;
 
         for (i = 0; i < length32; i += 8) {
@@ -527,8 +526,8 @@
        */
 
       function rstr2hex(input) {
-        var hexTab = '0123456789abcdef';
-        var output = '';
+        var hexTab = "0123456789abcdef";
+        var output = "";
         var x;
         var i;
 
@@ -633,13 +632,13 @@
   });
 
   function md5ForNode(node) {
-    if (null === node || 'object' !== _typeof(node)) return undefined;
+    if (null === node || "object" !== _typeof(node)) return undefined;
 
     if (node.src) {
       return md5(node.src);
     } else if (node.href) {
       return md5(node.href);
-    } else if (node.innerText && '' !== node.innerText) {
+    } else if (node.innerText && "" !== node.innerText) {
       // eslint-disable-line yoda
       return md5(node.innerText);
     } else {
@@ -647,21 +646,21 @@
     }
   }
 
-  var diagScriptId = 'fa-kits-diag';
-  var nodeUnderTestId = 'fa-kits-node-under-test';
-  var md5Attr = 'data-md5';
-  var detectionIgnoreAttr = 'data-fa-detection-ignore';
-  var timeoutAttr = 'data-fa-detection-timeout';
+  var diagScriptId = "fa-kits-diag";
+  var nodeUnderTestId = "fa-kits-node-under-test";
+  var md5Attr = "data-md5";
+  var detectionIgnoreAttr = "data-fa-detection-ignore";
+  var timeoutAttr = "data-fa-detection-timeout";
   var resultsCollectionMaxWaitAttr =
-    'data-fa-detection-results-collection-max-wait';
+    "data-fa-detection-results-collection-max-wait";
 
   function pollUntil(_ref) {
     var _ref$fn = _ref.fn,
       fn =
         _ref$fn === void 0
           ? function () {
-            return true;
-          }
+              return true;
+            }
           : _ref$fn,
       _ref$initialDuration = _ref.initialDuration,
       initialDuration =
@@ -694,7 +693,7 @@
             if (nextCumulativeDuration <= maxDuration) {
               poll(nextDuration, nextCumulativeDuration);
             } else {
-              reject('timeout'); // eslint-disable-line prefer-promise-reject-errors
+              reject("timeout"); // eslint-disable-line prefer-promise-reject-errors
             }
           }
         }, duration);
@@ -705,12 +704,12 @@
   }
 
   function detectWebfontConflicts() {
-    var linkTags = Array.from(DOCUMENT.getElementsByTagName('link')).filter(
+    var linkTags = Array.from(DOCUMENT.getElementsByTagName("link")).filter(
       function (t) {
         return !t.hasAttribute(detectionIgnoreAttr);
-      },
+      }
     );
-    var styleTags = Array.from(DOCUMENT.getElementsByTagName('style')).filter(
+    var styleTags = Array.from(DOCUMENT.getElementsByTagName("style")).filter(
       function (t) {
         if (t.hasAttribute(detectionIgnoreAttr)) {
           return false;
@@ -722,33 +721,33 @@
           WINDOW.FontAwesomeConfig &&
           t.innerText.match(
             new RegExp(
-              'svg:not\\(:root\\)\\.'.concat(
-                WINDOW.FontAwesomeConfig.replacementClass,
-              ),
-            ),
+              "svg:not\\(:root\\)\\.".concat(
+                WINDOW.FontAwesomeConfig.replacementClass
+              )
+            )
           )
         ) {
           return false;
         }
 
         return true;
-      },
+      }
     );
 
     function runDiag(scriptOrLinkTag, md5) {
-      var diagFrame = DOCUMENT.createElement('iframe'); // Using "visibility: hidden; position: absolute" instead of "display: none;" because
+      var diagFrame = DOCUMENT.createElement("iframe"); // Using "visibility: hidden; position: absolute" instead of "display: none;" because
       // Firefox will not return the expected results for getComputedStyle if our iframe has display: none.
 
       diagFrame.setAttribute(
-        'style',
-        'visibility: hidden; position: absolute; height: 0; width: 0;',
+        "style",
+        "visibility: hidden; position: absolute; height: 0; width: 0;"
       );
-      var testIconId = 'fa-test-icon-' + md5;
-      var iTag = DOCUMENT.createElement('i');
-      iTag.setAttribute('class', 'fa fa-coffee');
-      iTag.setAttribute('id', testIconId);
-      var diagScript = DOCUMENT.createElement('script');
-      diagScript.setAttribute('id', diagScriptId); // WARNING: this function will be toString()'d and assigned to innerText of the diag script
+      var testIconId = "fa-test-icon-" + md5;
+      var iTag = DOCUMENT.createElement("i");
+      iTag.setAttribute("class", "fa fa-coffee");
+      iTag.setAttribute("id", testIconId);
+      var diagScript = DOCUMENT.createElement("script");
+      diagScript.setAttribute("id", diagScriptId); // WARNING: this function will be toString()'d and assigned to innerText of the diag script
       // element that we'll be putting into a diagnostic iframe.
       // That means that this code won't compile until after the outer script has run and injected
       // this code into the iframe. There are some compile time errors that might occur there.
@@ -760,52 +759,52 @@
         nodeUnderTestId,
         testIconId,
         md5,
-        parentOrigin,
+        parentOrigin
       ) {
         parent.FontAwesomeDetection.__pollUntil({
-            fn: function fn() {
-              var iEl = document.getElementById(testIconId);
-              var computedStyle = window.getComputedStyle(iEl);
-              var fontFamily = computedStyle.getPropertyValue('font-family');
+          fn: function fn() {
+            var iEl = document.getElementById(testIconId);
+            var computedStyle = window.getComputedStyle(iEl);
+            var fontFamily = computedStyle.getPropertyValue("font-family");
 
-              if (
-                !!fontFamily.match(/FontAwesome/) ||
-                !!fontFamily.match(/Font Awesome 5/)
-              ) {
-                return true;
-              } else {
-                return false;
-              }
-            },
-          })
+            if (
+              !!fontFamily.match(/FontAwesome/) ||
+              !!fontFamily.match(/Font Awesome 5/)
+            ) {
+              return true;
+            } else {
+              return false;
+            }
+          },
+        })
           .then(function () {
             var node = document.getElementById(nodeUnderTestId);
             parent.postMessage(
               {
-                type: 'fontawesome-conflict',
-                technology: 'webfont',
+                type: "fontawesome-conflict",
+                technology: "webfont",
                 href: node.href,
                 innerText: node.innerText,
                 tagName: node.tagName,
                 md5: md5,
               },
-              parentOrigin,
+              parentOrigin
             );
           })
           .catch(function (e) {
             var node = document.getElementById(nodeUnderTestId);
 
-            if (e === 'timeout') {
+            if (e === "timeout") {
               parent.postMessage(
                 {
-                  type: 'no-conflict',
-                  technology: 'webfont',
+                  type: "no-conflict",
+                  technology: "webfont",
                   href: node.src,
                   innerText: node.innerText,
                   tagName: node.tagName,
                   md5: md5,
                 },
-                parentOrigin,
+                parentOrigin
               );
             } else {
               console.error(e);
@@ -814,13 +813,13 @@
       };
 
       var parentOrigin =
-        WINDOW.location.origin === 'file://' ? '*' : WINDOW.location.origin;
-      diagScript.innerText = '('
-        .concat(diagScriptFun.toString(), ')(\'')
-        .concat(nodeUnderTestId, '\', \'')
-        .concat(testIconId || 'foo', '\', \'')
-        .concat(md5, '\', \'')
-        .concat(parentOrigin, '\');');
+        WINDOW.location.origin === "file://" ? "*" : WINDOW.location.origin;
+      diagScript.innerText = "("
+        .concat(diagScriptFun.toString(), ")('")
+        .concat(nodeUnderTestId, "', '")
+        .concat(testIconId || "foo", "', '")
+        .concat(md5, "', '")
+        .concat(parentOrigin, "');");
 
       diagFrame.onload = function () {
         diagFrame.contentDocument.head.appendChild(diagScript);
@@ -836,10 +835,10 @@
     var cssByMD5 = {};
 
     for (var i = 0; i < linkTags.length; i++) {
-      var linkUnderTest = DOCUMENT.createElement('link');
-      linkUnderTest.setAttribute('id', nodeUnderTestId);
-      linkUnderTest.setAttribute('href', linkTags[i].href);
-      linkUnderTest.setAttribute('rel', linkTags[i].rel);
+      var linkUnderTest = DOCUMENT.createElement("link");
+      linkUnderTest.setAttribute("id", nodeUnderTestId);
+      linkUnderTest.setAttribute("href", linkTags[i].href);
+      linkUnderTest.setAttribute("rel", linkTags[i].rel);
       var md5ForLink = md5ForNode(linkTags[i]);
       linkUnderTest.setAttribute(md5Attr, md5ForLink);
       cssByMD5[md5ForLink] = linkTags[i];
@@ -847,8 +846,8 @@
     }
 
     for (var _i = 0; _i < styleTags.length; _i++) {
-      var styleUnderTest = DOCUMENT.createElement('style');
-      styleUnderTest.setAttribute('id', nodeUnderTestId);
+      var styleUnderTest = DOCUMENT.createElement("style");
+      styleUnderTest.setAttribute("id", nodeUnderTestId);
       var md5ForStyle = md5ForNode(styleTags[_i]);
       styleUnderTest.setAttribute(md5Attr, md5ForStyle);
       styleUnderTest.innerText = styleTags[_i].innerText;
@@ -866,65 +865,65 @@
     var scriptsByMD5 = {};
 
     var _loop = function _loop(scriptIdx) {
-      var diagFrame = DOCUMENT.createElement('iframe');
-      diagFrame.setAttribute('style', 'display:none;');
-      var scriptUnderTest = DOCUMENT.createElement('script');
-      scriptUnderTest.setAttribute('id', nodeUnderTestId);
+      var diagFrame = DOCUMENT.createElement("iframe");
+      diagFrame.setAttribute("style", "display:none;");
+      var scriptUnderTest = DOCUMENT.createElement("script");
+      scriptUnderTest.setAttribute("id", nodeUnderTestId);
       var md5ForScript = md5ForNode(scripts[scriptIdx]);
       scriptUnderTest.setAttribute(md5Attr, md5ForScript);
       scriptsByMD5[md5ForScript] = scripts[scriptIdx];
 
-      if (scripts[scriptIdx].src !== '') {
+      if (scripts[scriptIdx].src !== "") {
         scriptUnderTest.src = scripts[scriptIdx].src;
       }
 
-      if (scripts[scriptIdx].innerText !== '') {
+      if (scripts[scriptIdx].innerText !== "") {
         scriptUnderTest.innerText = scripts[scriptIdx].innerText;
       }
 
       scriptUnderTest.async = true;
-      var diagScript = DOCUMENT.createElement('script');
-      diagScript.setAttribute('id', diagScriptId);
+      var diagScript = DOCUMENT.createElement("script");
+      diagScript.setAttribute("id", diagScriptId);
       var parentOrigin =
-        WINDOW.location.origin === 'file://' ? '*' : WINDOW.location.origin;
+        WINDOW.location.origin === "file://" ? "*" : WINDOW.location.origin;
 
       var diagScriptFun = function diagScriptFun(
         nodeUnderTestId,
         md5,
-        parentOrigin,
+        parentOrigin
       ) {
         parent.FontAwesomeDetection.__pollUntil({
-            fn: function fn() {
-              return !!window.FontAwesomeConfig;
-            },
-          })
+          fn: function fn() {
+            return !!window.FontAwesomeConfig;
+          },
+        })
           .then(function () {
             var scriptNode = document.getElementById(nodeUnderTestId);
             parent.postMessage(
               {
-                type: 'fontawesome-conflict',
-                technology: 'js',
+                type: "fontawesome-conflict",
+                technology: "js",
                 src: scriptNode.src,
                 innerText: scriptNode.innerText,
                 tagName: scriptNode.tagName,
                 md5: md5,
               },
-              parentOrigin,
+              parentOrigin
             );
           })
           .catch(function (e) {
             var scriptNode = document.getElementById(nodeUnderTestId);
 
-            if (e === 'timeout') {
+            if (e === "timeout") {
               parent.postMessage(
                 {
-                  type: 'no-conflict',
+                  type: "no-conflict",
                   src: scriptNode.src,
                   innerText: scriptNode.innerText,
                   tagName: scriptNode.tagName,
                   md5: md5,
                 },
-                parentOrigin,
+                parentOrigin
               );
             } else {
               console.error(e);
@@ -932,11 +931,11 @@
           });
       };
 
-      diagScript.innerText = '('
-        .concat(diagScriptFun.toString(), ')(\'')
-        .concat(nodeUnderTestId, '\', \'')
-        .concat(md5ForScript, '\', \'')
-        .concat(parentOrigin, '\');');
+      diagScript.innerText = "("
+        .concat(diagScriptFun.toString(), ")('")
+        .concat(nodeUnderTestId, "', '")
+        .concat(md5ForScript, "', '")
+        .concat(parentOrigin, "');");
 
       diagFrame.onload = function () {
         diagFrame.contentDocument.head.appendChild(diagScript);
@@ -968,8 +967,7 @@
     var report$$1 =
       arguments.length > 0 && arguments[0] !== undefined
         ? arguments[0]
-        : function () {
-        };
+        : function () {};
     var nodesTested = {
       conflict: {},
       noConflict: {},
@@ -977,13 +975,13 @@
 
     WINDOW.onmessage = function (e) {
       if (
-        WINDOW.location.origin === 'file://' ||
+        WINDOW.location.origin === "file://" ||
         e.origin === WINDOW.location.origin
       ) {
         if (e && e.data) {
-          if (e.data.type === 'fontawesome-conflict') {
+          if (e.data.type === "fontawesome-conflict") {
             nodesTested.conflict[e.data.md5] = e.data;
-          } else if (e.data.type === 'no-conflict') {
+          } else if (e.data.type === "no-conflict") {
             nodesTested.noConflict[e.data.md5] = e.data;
           }
         }
@@ -1006,62 +1004,62 @@
     var masterTimeout =
       WINDOW.FontAwesomeDetection.timeout +
       WINDOW.FontAwesomeDetection.resultsCollectionMaxWait;
-    console.group('Font Awesome Detector');
+    console.group("Font Awesome Detector");
 
     if (testCount === 0) {
-      console.info('%cAll Good!', 'color: green; font-size: large');
+      console.info("%cAll Good!", "color: green; font-size: large");
       console.info(
-        'We didn\'t find anything that needs testing for conflicts. Ergo, no conflicts.',
+        "We didn't find anything that needs testing for conflicts. Ergo, no conflicts."
       );
     } else {
-      console.info('Testing '.concat(testCount, ' possible conflicts.'));
+      console.info("Testing ".concat(testCount, " possible conflicts."));
       console.info(
-        'We\'ll wait about '.concat(
+        "We'll wait about ".concat(
           Math.round(WINDOW.FontAwesomeDetection.timeout / 10) / 100,
-          ' seconds while testing these and\n',
+          " seconds while testing these and\n"
         ) +
-        'then up to another '.concat(
-          Math.round(
-            WINDOW.FontAwesomeDetection.resultsCollectionMaxWait / 10,
-          ) / 100,
-          ' to allow the browser time\n',
-        ) +
-        'to accumulate the results. But we\'ll probably be outta here way before then.\n\n',
+          "then up to another ".concat(
+            Math.round(
+              WINDOW.FontAwesomeDetection.resultsCollectionMaxWait / 10
+            ) / 100,
+            " to allow the browser time\n"
+          ) +
+          "to accumulate the results. But we'll probably be outta here way before then.\n\n"
       );
       console.info(
-        'You can adjust those durations by assigning values to these attributes on the <script> element that loads this detection:',
+        "You can adjust those durations by assigning values to these attributes on the <script> element that loads this detection:"
       );
       console.info(
-        '\t%c'.concat(
+        "\t%c".concat(
           timeoutAttr,
-          '%c: milliseconds to wait for each test before deciding whether it\'s a conflict.',
+          "%c: milliseconds to wait for each test before deciding whether it's a conflict."
         ),
-        'font-weight: bold;',
-        'font-size: normal;',
+        "font-weight: bold;",
+        "font-size: normal;"
       );
       console.info(
-        '\t%c'.concat(
+        "\t%c".concat(
           resultsCollectionMaxWaitAttr,
-          '%c: milliseconds to wait for the browser to accumulate test results before giving up.',
+          "%c: milliseconds to wait for the browser to accumulate test results before giving up."
         ),
-        'font-weight: bold;',
-        'font-size: normal;',
+        "font-weight: bold;",
+        "font-size: normal;"
       );
       pollUntil({
         // Give this overall timer a little extra cushion
         maxDuration: masterTimeout,
         showProgress: true,
-        progressIndicator: 'waiting...',
+        progressIndicator: "waiting...",
         fn: function fn() {
           return (
             Object.keys(nodesTested.conflict).length +
-            Object.keys(nodesTested.noConflict).length >=
+              Object.keys(nodesTested.noConflict).length >=
             testCount
           );
         },
       })
         .then(function () {
-          console.info('DONE!');
+          console.info("DONE!");
           setDoneResults({
             nodesTested: nodesTested,
             nodesFound: nodesFound,
@@ -1073,9 +1071,9 @@
           console.groupEnd();
         })
         .catch(function (e) {
-          if (e === 'timeout') {
+          if (e === "timeout") {
             console.info(
-              'TIME OUT! We waited until we got tired. Here\'s what we found:',
+              "TIME OUT! We waited until we got tired. Here's what we found:"
             );
             setDoneResults({
               nodesTested: nodesTested,
@@ -1086,8 +1084,8 @@
               nodesFound: nodesFound,
             });
           } else {
-            console.info('Whoops! We hit an error:', e);
-            console.info('Here\'s what we\'d found up until that error:');
+            console.info("Whoops! We hit an error:", e);
+            console.info("Here's what we'd found up until that error:");
             setDoneResults({
               nodesTested: nodesTested,
               nodesFound: nodesFound,
@@ -1107,10 +1105,10 @@
 
   var _default = {
     report: report,
-    timeout: +(DOCUMENT.currentScript.getAttribute(timeoutAttr) || '2000'),
+    timeout: +(DOCUMENT.currentScript.getAttribute(timeoutAttr) || "2000"),
     resultsCollectionMaxWait: +(
       DOCUMENT.currentScript.getAttribute(resultsCollectionMaxWaitAttr) ||
-      '5000'
+      "5000"
     ),
   };
 
@@ -1127,7 +1125,7 @@
 
   var PRODUCTION = (function () {
     try {
-      return process.env.NODE_ENV === 'production';
+      return process.env.NODE_ENV === "production";
     } catch (e) {
       return false;
     }
@@ -1151,5 +1149,5 @@
 
   exports.conflictDetection = conflictDetection;
 
-  Object.defineProperty(exports, '__esModule', { value: true });
+  Object.defineProperty(exports, "__esModule", { value: true });
 });

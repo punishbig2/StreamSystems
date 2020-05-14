@@ -1,4 +1,10 @@
-import React, { ChangeEvent, KeyboardEvent, useState, useEffect, useRef } from 'react';
+import React, {
+  ChangeEvent,
+  KeyboardEvent,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 interface Props {
   label: string;
@@ -14,7 +20,8 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   const [value, setValue] = useState<string | null>(null);
 
   const getLabel = () => {
-    const finalLabel: string = value === null ? (label !== '' ? label : 'Untitled') : value;
+    const finalLabel: string =
+      value === null ? (label !== "" ? label : "Untitled") : value;
     if (isDefault && value === null) {
       return `${finalLabel} (default)`;
     } else {
@@ -23,8 +30,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
 
   useEffect(() => {
-    if (ref.current === null || !editable)
-      return;
+    if (ref.current === null || !editable) return;
     const input: HTMLInputElement = ref.current;
     input.select();
   }, [ref, editable]);
@@ -41,10 +47,10 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   const onBlur = () => reset();
   const onKeyDown = ({ key }: KeyboardEvent<HTMLInputElement>) => {
     switch (key) {
-      case 'Escape':
+      case "Escape":
         reset();
         break;
-      case 'Enter':
+      case "Enter":
         if (value !== null) {
           props.onRenamed(value);
         }
@@ -55,7 +61,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
   const onDoubleClick = () => setEditable(true);
   return (
-    <div className={'tab-label'}>
+    <div className={"tab-label"}>
       <input
         ref={ref}
         value={getLabel()}
@@ -63,9 +69,10 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
         onChange={onChange}
         onBlur={onBlur}
         onDoubleClick={onDoubleClick}
-        onKeyDown={onKeyDown}/>
+        onKeyDown={onKeyDown}
+      />
       <button onClick={props.onClosed}>
-        <i className={'fa fa-times'}/>
+        <i className={"fa fa-times"} />
       </button>
     </div>
   );

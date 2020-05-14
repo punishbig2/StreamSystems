@@ -1,9 +1,9 @@
-import { observable, action } from 'mobx';
-import { persist, create } from 'mobx-persist';
-import { API } from 'API';
-import { randomID } from 'randomID';
-import workareaStore, { WindowTypes } from 'mobx/stores/workareaStore';
-import persistStorage from 'persistStorage';
+import { observable, action } from "mobx";
+import { persist, create } from "mobx-persist";
+import { API } from "API";
+import { randomID } from "randomID";
+import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
+import persistStorage from "persistStorage";
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch
@@ -22,11 +22,11 @@ export interface BusyMessage {
 }
 
 export class WorkspaceStore {
-  public id: string = '';
+  public id: string = "";
 
-  @persist('list') @observable windows: WindowDef[] = [];
+  @persist("list") @observable windows: WindowDef[] = [];
 
-  @persist @observable name: string = 'Untitled';
+  @persist @observable name: string = "Untitled";
 
   @observable isUserProfileModalVisible = false;
   @observable errorMessage: string | null = null;
@@ -39,10 +39,12 @@ export class WorkspaceStore {
       storage: persistStorage.workspaces,
       jsonify: true,
     });
-    this.setBusyMessage('Loading workspace', 'Please wait while we load and initialize all your windows');
+    this.setBusyMessage(
+      "Loading workspace",
+      "Please wait while we load and initialize all your windows"
+    );
     setTimeout(() => {
-      hydrate(id, this)
-        .then(() => this.unsetBusyMessage());
+      hydrate(id, this).then(() => this.unsetBusyMessage());
     }, 0);
   }
 
@@ -64,7 +66,7 @@ export class WorkspaceStore {
   @action.bound
   public addWindow(type: WindowTypes) {
     const { windows } = this;
-    const id: string = randomID('windows');
+    const id: string = randomID("windows");
     const fitToContent: boolean = type === WindowTypes.PodTile;
     const minimized: boolean = false;
     const position: number = windows.length;
@@ -72,11 +74,14 @@ export class WorkspaceStore {
       case WindowTypes.PodTile:
       case WindowTypes.MessageBlotter:
         // Add the window to the window list
-        this.windows = [...windows, { id, type, minimized, position, fitToContent }];
+        this.windows = [
+          ...windows,
+          { id, type, minimized, position, fitToContent },
+        ];
         break;
       case WindowTypes.Empty:
       default:
-        throw new Error('cannot add this kind of window');
+        throw new Error("cannot add this kind of window");
     }
   }
 
@@ -88,9 +93,10 @@ export class WorkspaceStore {
   @action.bound
   public removeWindow(windowID: string) {
     const { windows } = this;
-    const index: number = windows.findIndex(({ id }: WindowDef) => id === windowID);
-    if (index === -1)
-      return; // Perhaps error here?
+    const index: number = windows.findIndex(
+      ({ id }: WindowDef) => id === windowID
+    );
+    if (index === -1) return; // Perhaps error here?
     this.windows = [...windows.slice(0, index), ...windows.slice(index + 1)];
   }
 
@@ -98,7 +104,10 @@ export class WorkspaceStore {
   public updateAllGeometries(geometries: { [id: string]: ClientRect }) {
     const { windows } = this;
     // Update all geometries
-    this.windows = windows.map((window: WindowDef) => ({ ...window, geometry: geometries[window.id] }));
+    this.windows = windows.map((window: WindowDef) => ({
+      ...window,
+      geometry: geometries[window.id],
+    }));
   }
 
   @action.bound

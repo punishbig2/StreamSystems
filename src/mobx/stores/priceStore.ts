@@ -1,6 +1,6 @@
-import { observable, computed, action } from 'mobx';
-import { OrderStatus } from 'interfaces/order';
-import { priceFormatter } from 'utils/priceFormatter';
+import { observable, computed, action } from "mobx";
+import { OrderStatus } from "interfaces/order";
+import { priceFormatter } from "utils/priceFormatter";
 
 export class PriceStore {
   @observable tooltipX: number = 0;
@@ -14,18 +14,15 @@ export class PriceStore {
   @computed
   get numericValue(): number | null {
     const { internalValue } = this;
-    if (internalValue === null || internalValue.trim() === '')
-      return null;
+    if (internalValue === null || internalValue.trim() === "") return null;
     return Number(internalValue);
   }
 
   @computed
   get value(): string {
     const { internalValue } = this;
-    if (internalValue !== null)
-      return internalValue.toString();
-    if ((this.status & OrderStatus.Cancelled) !== 0)
-      return '';
+    if (internalValue !== null) return internalValue.toString();
+    if ((this.status & OrderStatus.Cancelled) !== 0) return "";
     return priceFormatter(this.baseValue);
   }
 

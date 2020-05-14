@@ -1,15 +1,23 @@
-import { observable, action, computed } from 'mobx';
-import { persist, create } from 'mobx-persist';
-import { WindowTypes } from 'mobx/stores/workareaStore';
-import persistStorage from 'persistStorage';
+import { observable, action, computed } from "mobx";
+import { persist, create } from "mobx-persist";
+import { WindowTypes } from "mobx/stores/workareaStore";
+import persistStorage from "persistStorage";
 
 export class WindowStore {
-  public id: string = '';
+  public id: string = "";
 
   @persist @observable type: WindowTypes = WindowTypes.Empty;
   // Persist this for fewer calls to the storage
-  @persist('object') @observable persistedGeometry: ClientRect = new DOMRect(0, 0, 0, 0);
-  @persist('object') @observable size: { width: number, height: number } = { width: 0, height: 0 };
+  @persist("object") @observable persistedGeometry: ClientRect = new DOMRect(
+    0,
+    0,
+    0,
+    0
+  );
+  @persist("object") @observable size: { width: number; height: number } = {
+    width: 0,
+    height: 0,
+  };
   // Use this for instant updates
   @observable localGeometry: ClientRect | null = null;
   @persist @observable minimized: boolean = false;
@@ -29,8 +37,7 @@ export class WindowStore {
 
   @computed
   public get geometry() {
-    if (this.localGeometry === null)
-      return this.persistedGeometry;
+    if (this.localGeometry === null) return this.persistedGeometry;
     return this.localGeometry;
   }
 
@@ -67,6 +74,5 @@ export class WindowStore {
   }
 
   @action.bound
-  public setTitle() {
-  }
+  public setTitle() {}
 }

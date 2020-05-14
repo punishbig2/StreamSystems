@@ -1,21 +1,21 @@
-import { observable, action, computed } from 'mobx';
-import messagesStore from './messagesStore';
-import workareaStore from './workareaStore';
-import { User } from '../../interfaces/user';
-import { Sides } from '../../interfaces/sides';
-import { priceFormatter } from '../../utils/priceFormatter';
-import { sizeFormatter } from '../../utils/sizeFormatter';
-import { ExecTypes } from '../../interfaces/message';
+import { observable, action, computed } from "mobx";
+import messagesStore from "./messagesStore";
+import workareaStore from "./workareaStore";
+import { User } from "../../interfaces/user";
+import { Sides } from "../../interfaces/sides";
+import { priceFormatter } from "../../utils/priceFormatter";
+import { sizeFormatter } from "../../utils/sizeFormatter";
+import { ExecTypes } from "../../interfaces/message";
 
-import { uuid } from 'uuidv4';
+import { uuid } from "uuidv4";
 
 export class DealInsertStore {
   @observable price: number | null = null;
   @observable size: number | null = null;
-  @observable currency: string = '';
-  @observable strategy: string = '';
-  @observable buyer: string = '';
-  @observable seller: string = '';
+  @observable currency: string = "";
+  @observable strategy: string = "";
+  @observable buyer: string = "";
+  @observable seller: string = "";
 
   @action.bound
   public setPrice(price: number | null) {
@@ -49,12 +49,13 @@ export class DealInsertStore {
 
   @computed
   public get isReady(): boolean {
-    if (this.seller !== ''
-      && this.buyer !== ''
-      && this.currency !== ''
-      && this.strategy !== ''
-      && this.price !== null
-      && this.size !== null
+    if (
+      this.seller !== "" &&
+      this.buyer !== "" &&
+      this.currency !== "" &&
+      this.strategy !== "" &&
+      this.price !== null &&
+      this.size !== null
     ) {
       return this.buyer !== this.seller;
     }
@@ -68,11 +69,11 @@ export class DealInsertStore {
     const size: string = sizeFormatter(this.size);
     const id: string = uuid();
     messagesStore.addEntry({
-      '583': '',
-      Account: '',
-      ContraTrader: '',
+      "583": "",
+      Account: "",
+      ContraTrader: "",
       CumQty: size,
-      LeavesQty: '0',
+      LeavesQty: "0",
       OrderQty: size,
       LastQty: size,
       LastPx: price,
@@ -80,7 +81,7 @@ export class DealInsertStore {
       AvgPx: price,
       Price: price,
       Currency: this.currency,
-      ExDestination: 'MANUAL',
+      ExDestination: "MANUAL",
 
       ExecBroker: this.buyer,
       MDMkt: this.seller,
@@ -97,9 +98,8 @@ export class DealInsertStore {
       Side: Sides.Sell,
       Strategy: this.strategy,
       Symbol: this.currency,
-      Tenor: '1W',
-      TransactTime: Date.now()
-        .toString(),
+      Tenor: "1W",
+      TransactTime: Date.now().toString(),
       Username: user.email,
     });
   }

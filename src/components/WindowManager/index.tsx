@@ -1,19 +1,31 @@
-import { WindowElement } from 'components/WindowManager/windowElement';
-import React, { ReactElement, useState, useEffect } from 'react';
-import getStyles from 'styles';
-import { getOptimalSize } from 'windowUtils';
-import { ExecutionBlotter } from 'components/WindowManager/executionBlotter';
-import { WindowDef } from 'mobx/stores/workspaceStore';
-import { PodTileStore } from 'mobx/stores/podTileStore';
-import { MessagesStore } from 'mobx/stores/messagesStore';
-import { WindowTypes } from 'mobx/stores/workareaStore';
+import { WindowElement } from "components/WindowManager/windowElement";
+import React, { ReactElement, useState, useEffect } from "react";
+import getStyles from "styles";
+import { getOptimalSize } from "windowUtils";
+import { ExecutionBlotter } from "components/WindowManager/executionBlotter";
+import { WindowDef } from "mobx/stores/workspaceStore";
+import { PodTileStore } from "mobx/stores/podTileStore";
+import { MessagesStore } from "mobx/stores/messagesStore";
+import { WindowTypes } from "mobx/stores/workareaStore";
 
 interface Props {
   toast: string | null;
   windows: WindowDef[];
   isDefaultWorkspace: boolean;
-  getContentRenderer: (id: string, type: WindowTypes) => ((props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null);
-  getTitleRenderer: (id: string, type: WindowTypes) => ((props: any, store: PodTileStore | MessagesStore | null) => ReactElement | string | null);
+  getContentRenderer: (
+    id: string,
+    type: WindowTypes
+  ) => (
+    props: any,
+    store: PodTileStore | MessagesStore | null
+  ) => ReactElement | string | null;
+  getTitleRenderer: (
+    id: string,
+    type: WindowTypes
+  ) => (
+    props: any,
+    store: PodTileStore | MessagesStore | null
+  ) => ReactElement | string | null;
   onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   onWindowClose: (id: string) => void;
   onClearToast: () => void;
@@ -26,7 +38,12 @@ interface Size {
   height: number;
 }
 
-const BodyRectangle: ClientRect = new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+const BodyRectangle: ClientRect = new DOMRect(
+  0,
+  0,
+  window.innerWidth,
+  window.innerHeight
+);
 
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const { isDefaultWorkspace, windows } = props;
@@ -35,8 +52,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const styles: any = getStyles();
 
   useEffect(() => {
-    if (element === null)
-      return;
+    if (element === null) return;
     const updateArea = () => {
       const { width, height } = element.getBoundingClientRect();
       setArea(new DOMRect(0, 0, width, height));
@@ -52,69 +68,109 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
   const [layoutCompleted, setLayoutCompleted] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!isDefaultWorkspace || layoutCompleted || windows.length === 0)
-      return;
+    if (!isDefaultWorkspace || layoutCompleted || windows.length === 0) return;
     const limits: DOMRect | ClientRect = document.body.getBoundingClientRect();
     setTimeout(() => {
       const sorted: WindowDef[] = [...windows];
       sorted.sort((w1: WindowDef, w2: WindowDef) => w1.position - w2.position);
       const sizes: Size[] = sorted.map((windowDef: WindowDef) => {
-        const element: HTMLElement | null = document.getElementById(windowDef.id);
+        const element: HTMLElement | null = document.getElementById(
+          windowDef.id
+        );
         if (element instanceof HTMLDivElement) {
           return getOptimalSize(element);
         } else {
           return { width: 0, height: 0 };
         }
       });
-      const reducer = (result: ClientRect[], size: Size, index: number): ClientRect[] => {
+      const reducer = (
+        result: ClientRect[],
+        size: Size,
+        index: number
+      ): ClientRect[] => {
         const { width, height } = size;
         if (index === 0) {
           result.push(new DOMRect(0, 0, width, height));
         } else {
-          const { left, top, width: offsetWidth, height: offsetHeight } = result[index - 1];
+          const {
+            left,
+            top,
+            width: offsetWidth,
+            height: offsetHeight,
+          } = result[index - 1];
           if (top + offsetHeight + height >= limits.bottom) {
-            result.push(new DOMRect(left + offsetWidth + 1, 0, size.width, size.height));
+            result.push(
+              new DOMRect(left + offsetWidth + 1, 0, size.width, size.height)
+            );
           } else {
-            result.push(new DOMRect(left, top + offsetHeight + 1, size.width, size.height));
+            result.push(
+              new DOMRect(left, top + offsetHeight + 1, size.width, size.height)
+            );
           }
         }
         return result;
       };
       const geometries: ClientRect[] = sizes.reduce(reducer, []);
-      onUpdateAllGeometries(geometries.reduce((map: { [k: string]: ClientRect }, geometry: ClientRect, index: number) => {
-        const window: WindowDef = sorted[index];
-        map[window.id] = geometry;
-        return map;
-      }, {}));
+      onUpdateAllGeometries(
+        geometries.reduce(
+          (
+            map: { [k: string]: ClientRect },
+            geometry: ClientRect,
+            index: number
+          ) => {
+            const window: WindowDef = sorted[index];
+            map[window.id] = geometry;
+            return map;
+          },
+          {}
+        )
+      );
     }, 0);
     setLayoutCompleted(true);
-  }, [styles, windows, isDefaultWorkspace, onUpdateAllGeometries, layoutCompleted, area]);
+  }, [
+    styles,
+    windows,
+    isDefaultWorkspace,
+    onUpdateAllGeometries,
+    layoutCompleted,
+    area,
+  ]);
 
   const windowMapper = (window: WindowDef): ReactElement => {
     return (
-      <WindowElement id={window.id}
-                     type={window.type}
-                     content={props.getContentRenderer(window.id, window.type)}
-                     title={props.getTitleRenderer(window.id, window.type)}
-                     key={window.id}
-                     minimized={window.minimized}
-                     geometry={window.geometry}
-                     fitToContent={window.fitToContent}
-                     area={area}
-                     isDefaultWorkspace={isDefaultWorkspace}
-                     onLayoutModify={props.onLayoutModify}
-                     onClose={props.onWindowClose}/>
+      <WindowElement
+        id={window.id}
+        type={window.type}
+        content={props.getContentRenderer(window.id, window.type)}
+        title={props.getTitleRenderer(window.id, window.type)}
+        key={window.id}
+        minimized={window.minimized}
+        geometry={window.geometry}
+        fitToContent={window.fitToContent}
+        area={area}
+        isDefaultWorkspace={isDefaultWorkspace}
+        onLayoutModify={props.onLayoutModify}
+        onClose={props.onWindowClose}
+      />
     );
   };
-  const classes = ['workspace'];
+  const classes = ["workspace"];
   return (
-    <div className={classes.join(' ')} onMouseLeave={props.onMouseLeave} ref={setElement}>
+    <div
+      className={classes.join(" ")}
+      onMouseLeave={props.onMouseLeave}
+      ref={setElement}
+    >
       {windows.map(windowMapper)}
-      <ExecutionBlotter area={area}/>
-      <div className={['toast', props.toast !== null ? 'visible' : 'hidden'].join(' ')}>
-        <div className={'message'}>{props.toast}</div>
-        <div className={'close-button'} onClick={props.onClearToast}>
-          <i className={'fa fa-times'}/>
+      <ExecutionBlotter area={area} />
+      <div
+        className={["toast", props.toast !== null ? "visible" : "hidden"].join(
+          " "
+        )}
+      >
+        <div className={"message"}>{props.toast}</div>
+        <div className={"close-button"} onClick={props.onClearToast}>
+          <i className={"fa fa-times"} />
         </div>
       </div>
     </div>

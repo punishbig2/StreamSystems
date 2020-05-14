@@ -1,2 +1,1 @@
-export const STRM: string = 'None';
-
+export const STRM: string = "None";
