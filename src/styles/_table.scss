@@ -242,6 +242,7 @@ $spinner-size: $table-row-height - 6;
 
       &.flash {
         animation: flash 1s infinite linear;
+        font-weight: bold;
       }
 
       &.dark-pool {
