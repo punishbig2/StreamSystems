@@ -362,6 +362,13 @@ export class SignalRManager {
     };
   };
 
+  private dispatchExecutedMessageEvent = (message: Message) => {
+    const type: string = $$(message.ExecID, "executed");
+    setTimeout(() => {
+      document.dispatchEvent(new CustomEvent(type));
+    }, 0);
+  };
+
   private handleMessageActions = (message: Message) => {
     const { preferences: userProfile } = userProfileStore;
     const { user } = workareaStore;
@@ -379,7 +386,11 @@ export class SignalRManager {
             SidesMap[message.Side]
           );
         }
-        if (message.Username === user.email || (message.ContraTrader !== user.email && message.Side === "1"))
+        this.dispatchExecutedMessageEvent(message);
+        if (
+          message.Username === user.email ||
+          (message.ContraTrader !== user.email && message.Side === "1")
+        )
           workareaStore.addRecentExecution(message);
         break;
       case ExecTypes.PartiallyFilled:
@@ -390,7 +401,11 @@ export class SignalRManager {
             SidesMap[message.Side]
           );
         }
-        if (message.Username === user.email || (message.ContraTrader !== user.email && message.Side === "1"))
+        this.dispatchExecutedMessageEvent(message);
+        if (
+          message.Username === user.email ||
+          (message.ContraTrader !== user.email && message.Side === "1")
+        )
           workareaStore.addRecentExecution(message);
         break;
       default:

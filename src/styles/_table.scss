@@ -240,6 +240,10 @@ $spinner-size: $table-row-height - 6;
       font-size: inherit;
       color: $text-color-black;
 
+      &.flash {
+        animation: flash 1s infinite linear;
+      }
+
       &.dark-pool {
         background-color: rgba($good-color, 0.15);
       }

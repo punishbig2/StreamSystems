@@ -26,7 +26,6 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       : store.myMessages;
   const personality: string = workareaStore.personality;
   const { isbroker } = workareaStore.user;
-
   const columnsMap: { [key: string]: ColumnSpec[] } = useMemo(
     () => messageBlotterColumns(blotterType),
     [blotterType]
@@ -36,7 +35,6 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       ? columnsMap.broker
       : columnsMap.normal;
   }, [columnsMap.broker, columnsMap.normal, personality, isbroker]);
-
   const renderRow = useMemo(() => renderRowFactory(blotterType), [blotterType]);
   return (
     <Table
