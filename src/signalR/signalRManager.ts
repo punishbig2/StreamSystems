@@ -366,28 +366,31 @@ export class SignalRManager {
     const { preferences: userProfile } = userProfileStore;
     const { user } = workareaStore;
     const ocoMode: OCOModes = userProfile.oco;
-    if (message.Username !== user.email) return;
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;
       case ExecTypes.PendingCancel:
         break;
       case ExecTypes.Filled:
-        if (ocoMode !== OCOModes.Disabled && message.Username === user.email)
+        if (ocoMode !== OCOModes.Disabled && message.Username === user.email) {
           API.cancelAll(
             message.Symbol,
             message.Strategy,
             SidesMap[message.Side]
           );
-      // eslint-disable-next-line no-fallthrough
+        }
+        if (message.Username === user.email || (message.ContraTrader !== user.email && message.Side === "1"))
+          workareaStore.addRecentExecution(message);
+        break;
       case ExecTypes.PartiallyFilled:
-        if (ocoMode === OCOModes.PartialEx && message.Username === user.email)
+        if (ocoMode === OCOModes.PartialEx && message.Username === user.email) {
           API.cancelAll(
             message.Symbol,
             message.Strategy,
             SidesMap[message.Side]
           );
-        if (message.Username === user.email)
+        }
+        if (message.Username === user.email || (message.ContraTrader !== user.email && message.Side === "1"))
           workareaStore.addRecentExecution(message);
         break;
       default:

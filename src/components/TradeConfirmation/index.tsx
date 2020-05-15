@@ -1,9 +1,10 @@
 import React, { ReactElement, useEffect } from "react";
 import { Message } from "interfaces/message";
 import { getMessageSize, getMessagePrice } from "messageUtils";
-import { UserPreferences, ExecSound } from "interfaces/user";
+import { UserPreferences, ExecSound, User } from 'interfaces/user';
 import { getSound } from "beep-sound";
 import userProfileStore from "mobx/stores/userPreferencesStore";
+import workareaStore from '../../mobx/stores/workareaStore';
 
 interface OwnProps {
   trade: Message;
@@ -21,6 +22,8 @@ const getSoundFile = async (name: string) => {
     return "/sounds/alert.wav";
   } else {
     const sound: ExecSound = await getSound(name);
+    if (sound === undefined)
+      return "/sounds/alert.wav";
     return sound.data as string;
   }
 };
@@ -47,9 +50,16 @@ export const TradeConfirmation: React.FC<OwnProps> = (
   const { trade } = props;
   const { Side } = trade;
   const direction: string = Side.toString() === "1" ? "from" : "to";
+  const verb: string = direction === "from" ? "buy" : "sell";
   useEffect(() => {
     playBeep(userProfileStore.preferences, trade.ExDestination);
   });
+  const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
+  const firm: string = user.isbroker ? personality : user.firm;
+  const subject1: string = trade.MDMkt === firm ? 'You' : trade.MDMkt;
+  const subject2: string = trade.ExecBroker;
+  const size: number = getMessageSize(trade);
   return (
     <div className={[sideClasses[trade.Side], "item"].join(" ")}>
       <div className={"content"}>
@@ -58,8 +68,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (
           {getMessagePrice(trade)}
         </div>
         <div className={"line"}>
-          You {Side.toString() === "1" ? "buy" : "sell"} {getMessageSize(trade)}{" "}
-          {direction} {trade.ExecBroker}
+          {subject1} {verb} {size} {" "} {direction} {subject2}
         </div>
       </div>
     </div>
