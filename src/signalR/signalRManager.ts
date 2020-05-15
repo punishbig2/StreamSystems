@@ -366,7 +366,7 @@ export class SignalRManager {
     const type: string = $$(message.ExecID, "executed");
     setTimeout(() => {
       document.dispatchEvent(new CustomEvent(type));
-    }, 0);
+    }, 500);
   };
 
   private handleMessageActions = (message: Message) => {
