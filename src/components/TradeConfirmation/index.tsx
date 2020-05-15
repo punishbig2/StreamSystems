@@ -7,7 +7,7 @@ import userProfileStore from "mobx/stores/userPreferencesStore";
 
 interface OwnProps {
   trade: Message;
-  userProfile: UserPreferences;
+  preferences: UserPreferences;
   onClose: () => void;
 }
 

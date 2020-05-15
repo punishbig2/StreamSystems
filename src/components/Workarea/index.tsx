@@ -67,7 +67,7 @@ const Workarea: React.FC = (): ReactElement | null => {
     const { recentExecutions } = store;
     const mapTrade = (trade: Message) => (
       <TradeConfirmation
-        userProfile={store.preferences}
+        preferences={store.preferences}
         trade={trade}
         key={trade.ClOrdID}
         onClose={store.clearLastExecution}
