@@ -1,10 +1,10 @@
 import React, { ReactElement, useEffect } from "react";
 import { Message } from "interfaces/message";
 import { getMessageSize, getMessagePrice } from "messageUtils";
-import { UserPreferences, ExecSound, User } from 'interfaces/user';
+import { UserPreferences, ExecSound, User } from "interfaces/user";
 import { getSound } from "beep-sound";
 import userProfileStore from "mobx/stores/userPreferencesStore";
-import workareaStore from '../../mobx/stores/workareaStore';
+import workareaStore from "../../mobx/stores/workareaStore";
 
 interface OwnProps {
   trade: Message;
@@ -22,8 +22,7 @@ const getSoundFile = async (name: string) => {
     return "/sounds/alert.wav";
   } else {
     const sound: ExecSound = await getSound(name);
-    if (sound === undefined)
-      return "/sounds/alert.wav";
+    if (sound === undefined) return "/sounds/alert.wav";
     return sound.data as string;
   }
 };
@@ -57,19 +56,25 @@ export const TradeConfirmation: React.FC<OwnProps> = (
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
   const firm: string = user.isbroker ? personality : user.firm;
-  const subject1: string = trade.MDMkt === firm ? 'You' : trade.MDMkt;
+  const subject1: string = trade.MDMkt === firm ? "You" : trade.MDMkt;
   const subject2: string = trade.ExecBroker;
   const size: number = getMessageSize(trade);
+  const price: number = getMessagePrice(trade);
+  const line1: string = `${trade.Symbol} ${trade.Tenor} ${trade.Strategy} @ ${price}`;
+  const line2: string = `${subject1} ${verb} ${size} ${direction} ${subject2}`;
+  Notification.requestPermission().then(() => {
+    const notification = new Notification(`${line1}\n${line2}`);
+    notification.onshow = () => {
+      console.log("showing notification");
+    };
+  });
   return (
     <div className={[sideClasses[trade.Side], "item"].join(" ")}>
       <div className={"content"}>
         <div className={"line"}>
-          {trade.Symbol} {trade.Tenor} {trade.Strategy} @{" "}
-          {getMessagePrice(trade)}
+          {line1}
         </div>
-        <div className={"line"}>
-          {subject1} {verb} {size} {" "} {direction} {subject2}
-        </div>
+        <div className={"line"}>{line2}</div>
       </div>
     </div>
   );
