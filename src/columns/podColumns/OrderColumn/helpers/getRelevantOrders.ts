@@ -8,6 +8,6 @@ export const getRelevantOrders = (
 ): Order[] => {
   if (!orders) return [];
   return orders
-    .filter((order: Order) => order.type === type)
+    .filter((order: Order) => order.type === type && order.size !== null)
     .sort(orderSorter(type));
 };
