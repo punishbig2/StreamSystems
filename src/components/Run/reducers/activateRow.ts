@@ -21,12 +21,12 @@ export const activateRow = (state: RunState, rowID: string): RunState => {
     bid: {
       ...bid,
       status: activateOrderIfPossible(bid.status),
-      size: state.defaultBidSize,
+      size: !!bid.size ? bid.size : state.defaultBidSize,
     },
     ofr: {
       ...ofr,
       status: activateOrderIfPossible(ofr.status),
-      size: state.defaultOfrSize,
+      size: !!ofr.size ? ofr.size : state.defaultOfrSize,
     },
   });
   return {
