@@ -72,6 +72,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   const onDoubleClick = () => {
+    if (!store.publishedPrice) return;
     if (user.isbroker && personality === STRM) return;
     store.openTicket();
   };
