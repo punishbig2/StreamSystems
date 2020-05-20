@@ -25,7 +25,6 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const personality: string = workareaStore.personality;
 
   useEffect(() => {
-    console.log(darkpool);
     if (!darkpool) return;
     store.onOrderReceived(darkpool);
   }, [store, darkpool, user]);
@@ -58,7 +57,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   useEffect(() => {
     store.connect(currency, strategy, tenor);
     return () => {
-      DarkPoolStore.disconnect(currency, strategy, tenor);
+      store.disconnect(currency, strategy, tenor);
     };
   }, [currency, store, strategy, tenor]);
 

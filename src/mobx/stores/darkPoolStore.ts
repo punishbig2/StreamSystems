@@ -16,6 +16,8 @@ export class DarkPoolStore {
   @observable isTicketOpen: boolean = false;
   @observable currentOrder: Order | null = null;
 
+  private removeOrderListener: () => void  = () => null;
+
   @computed
   get depth(): Order[] {
     const { orders } = this;
@@ -129,7 +131,7 @@ export class DarkPoolStore {
       tenor,
       this.onDarkPoolPricePublished
     );
-    signalRManager.setDarkPoolOrderListener(
+    this.removeOrderListener = signalRManager.setDarkPoolOrderListener(
       currency,
       strategy,
       tenor,
@@ -146,7 +148,8 @@ export class DarkPoolStore {
     }
   }
 
-  public static disconnect(currency: string, strategy: string, tenor: string) {
+  public disconnect(currency: string, strategy: string, tenor: string) {
+    this.removeOrderListener();
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }
 

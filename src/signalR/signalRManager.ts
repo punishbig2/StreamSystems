@@ -113,12 +113,6 @@ export class SignalRManager {
     }
   };
 
-  /*private static isEmptyW = (w: W): boolean => {
-    const entries: MDEntry[] = w.Entries;
-    if (!entries || entries.length < 2) return true;
-    return !entries[0].MDEntryPx && !entries[1].MDEntryPx;
-  };*/
-
   private combineWs = (w1: W, w2: W) => {
     const isW1PodW: boolean = isPodW(w1);
     const isW2PodW: boolean = isPodW(w2);
@@ -168,12 +162,6 @@ export class SignalRManager {
       }
     } else if (w.ExDestination === "DP") {
       this.dispatchW(w, "Dp");
-      /*const listener: ((w: W) => void) | undefined = this.listeners[
-        $$(w.Symbol, w.Strategy, w.Tenor, 'Dp')
-        ];
-      if (listener) {
-        listener(w);
-      }*/
     }
   };
 
