@@ -113,20 +113,23 @@ export class SignalRManager {
     }
   };
 
-  private static isEmptyW = (w: W): boolean => {
+  /*private static isEmptyW = (w: W): boolean => {
     const entries: MDEntry[] = w.Entries;
     if (!entries || entries.length < 2) return true;
     return !entries[0].MDEntryPx && !entries[1].MDEntryPx;
-  };
+  };*/
 
   private combineWs = (w1: W, w2: W) => {
     const isW1PodW: boolean = isPodW(w1);
     const isW2PodW: boolean = isPodW(w2);
-    if ((isW1PodW && isW2PodW) || (!isW1PodW && !isW2PodW))
+    if ((isW1PodW && isW2PodW) || (!isW1PodW && !isW2PodW)) {
       throw new Error(
         "inconsistent w set, cannot combine unrelated w's with same symbol/strategy/tenor"
       );
-    const [pod, full] = isPodW(w1) ? [w1, w2] : [w2, w1];
+    }
+    const [pod, full] = isW1PodW ? [w1, w2] : [w2, w1];
+    if (full === undefined)
+      return pod;
     if (full.Entries) {
       const { Entries } = pod;
       full.Entries = [
@@ -136,15 +139,16 @@ export class SignalRManager {
     } else {
       full.Entries = pod.Entries;
     }
+    console.log(full);
     return full;
   };
 
-  private dispatchW = (w: W, isDarkPool: boolean) => {
+  private dispatchW = (w: W, keySuffix: string = "") => {
     const key: string = $$(
       w.Symbol,
       w.Strategy,
       w.Tenor,
-      isDarkPool ? "Dp" : ""
+      keySuffix,
     );
     const detail: W = this.combineWs(w, this.pendingW[key]);
     const event: CustomEvent<W> = new CustomEvent<W>(key, {
@@ -159,11 +163,11 @@ export class SignalRManager {
       if (!this.pendingW[key]) {
         this.pendingW[key] = w;
       } else {
-        this.dispatchW(w, false);
+        this.dispatchW(w);
         delete this.pendingW[key];
       }
-    } else if (w.ExDestination === "DP" && !SignalRManager.isEmptyW(w)) {
-      this.dispatchW(w, true);
+    } else if (w.ExDestination === "DP") {
+      this.dispatchW(w, "Dp");
       /*const listener: ((w: W) => void) | undefined = this.listeners[
         $$(w.Symbol, w.Strategy, w.Tenor, 'Dp')
         ];

@@ -25,6 +25,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const personality: string = workareaStore.personality;
 
   useEffect(() => {
+    console.log(darkpool);
     if (!darkpool) return;
     store.onOrderReceived(darkpool);
   }, [store, darkpool, user]);
