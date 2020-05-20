@@ -11,11 +11,12 @@ import { W, isPodW } from "interfaces/w";
 import { API } from "API";
 import { $$ } from "utils/stringPaster";
 import { MDEntry } from "interfaces/mdEntry";
-import { OCOModes } from "interfaces/user";
+import { OCOModes, UserPreferences, User, ExecSound } from "interfaces/user";
 import { Sides } from "interfaces/sides";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
+import { getSound } from "../beep-sound";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -30,6 +31,32 @@ export enum SignalRMethods {
   SubscribeForDarkPoolPx = "SubscribeForDarkPoolPx",
   UnsubscribeForDarkPoolPx = "UnsubscribeForDarkPoolPx",
 }
+
+const getSoundFile = async (name: string) => {
+  if (name === "default") {
+    return "/sounds/alert.wav";
+  } else {
+    const sound: ExecSound = await getSound(name);
+    if (sound === undefined) return "/sounds/alert.wav";
+    return sound.data as string;
+  }
+};
+
+const playBeep = async (
+  preferences: UserPreferences,
+  destination: string | undefined
+) => {
+  const src: string = await (async () => {
+    if (destination === "DP") {
+      return getSoundFile(preferences.darkPoolExecSound);
+    } else {
+      return getSoundFile(preferences.execSound);
+    }
+  })();
+  const element: HTMLAudioElement = document.createElement("audio");
+  element.src = src;
+  element.play();
+};
 
 interface Command {
   name: string;
@@ -122,8 +149,7 @@ export class SignalRManager {
       );
     }
     const [pod, full] = isW1PodW ? [w1, w2] : [w2, w1];
-    if (full === undefined)
-      return pod;
+    if (full === undefined) return pod;
     if (full.Entries) {
       const { Entries } = pod;
       full.Entries = [
@@ -138,12 +164,7 @@ export class SignalRManager {
   };
 
   private dispatchW = (w: W, keySuffix: string = "") => {
-    const key: string = $$(
-      w.Symbol,
-      w.Strategy,
-      w.Tenor,
-      keySuffix,
-    );
+    const key: string = $$(w.Symbol, w.Strategy, w.Tenor, keySuffix);
     const detail: W = this.combineWs(w, this.pendingW[key]);
     const event: CustomEvent<W> = new CustomEvent<W>(key, {
       detail,
@@ -354,8 +375,16 @@ export class SignalRManager {
     };
   };
 
+  private static shouldShowPopup = (message: Message): boolean => {
+    const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
+    if (user.isbroker) return personality === message.MDMkt;
+    return message.Username === user.email || message.MDMkt === user.firm;
+  };
+
   private dispatchExecutedMessageEvent = (message: Message) => {
     const type: string = $$(message.ExecID, "executed");
+    playBeep(userProfileStore.preferences, message.ExDestination);
     setTimeout(() => {
       document.dispatchEvent(new CustomEvent(type));
     }, 500);
@@ -379,11 +408,9 @@ export class SignalRManager {
           );
         }
         this.dispatchExecutedMessageEvent(message);
-        if (
-          message.Username === user.email ||
-          (message.ContraTrader !== user.email && message.Side === "1")
-        )
+        if (SignalRManager.shouldShowPopup(message)) {
           workareaStore.addRecentExecution(message);
+        }
         break;
       case ExecTypes.PartiallyFilled:
         if (ocoMode === OCOModes.PartialEx && message.Username === user.email) {
@@ -394,11 +421,9 @@ export class SignalRManager {
           );
         }
         this.dispatchExecutedMessageEvent(message);
-        if (
-          message.Username === user.email ||
-          (message.ContraTrader !== user.email && message.Side === "1")
-        )
+        if (SignalRManager.shouldShowPopup(message)) {
           workareaStore.addRecentExecution(message);
+        }
         break;
       default:
         break;
