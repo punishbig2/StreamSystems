@@ -378,8 +378,10 @@ export class SignalRManager {
   private static shouldShowPopup = (message: Message): boolean => {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
-    if (user.isbroker) return personality === message.MDMkt;
-    return message.Username === user.email || message.MDMkt === user.firm;
+    if (user.isbroker) {
+      return personality === message.MDMkt && message.Username === user.email;
+    }
+    return message.Username === user.email;
   };
 
   private dispatchExecutedMessageEvent = (message: Message) => {
