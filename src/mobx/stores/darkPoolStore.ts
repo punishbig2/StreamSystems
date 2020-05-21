@@ -122,6 +122,11 @@ export class DarkPoolStore {
   }
 
   @action.bound
+  public clearDarkPoolPrice() {
+    this.publishedPrice = null;
+  }
+
+  @action.bound
   public connect(currency: string, strategy: string, tenor: string) {
     this.currentOrder = null;
     this.orders = [];
@@ -141,6 +146,7 @@ export class DarkPoolStore {
     const currentValue: string | null = localStorage.getItem(
       $$(currency, strategy, tenor, "DPPx")
     );
+    document.addEventListener('cleardarkpoolprice', this.clearDarkPoolPrice);
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
     } else {
@@ -149,6 +155,7 @@ export class DarkPoolStore {
   }
 
   public disconnect(currency: string, strategy: string, tenor: string) {
+    document.removeEventListener('cleardarkpoolprice', this.clearDarkPoolPrice);
     this.removeOrderListener();
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }

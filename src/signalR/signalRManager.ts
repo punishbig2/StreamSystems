@@ -109,12 +109,18 @@ export class SignalRManager {
             this.onConnectedListener(connection);
           this.reconnectDelay = INITIAL_RECONNECT_DELAY;
         })
-        .catch(console.log);
+        .catch(console.error);
     } else {
       console.error(
         "attempted to connect but the `connection' object is `null'"
       );
     }
+  };
+
+  private onClearDarkPoolPx = (message: string) => {
+    console.log(message);
+    localStorage.clear();
+    document.dispatchEvent(new CustomEvent("cleardarkpoolprice"));
   };
 
   private setup = (connection: HubConnection) => {
@@ -137,6 +143,7 @@ export class SignalRManager {
       connection.on("updateMarketData", this.onUpdateMarketData);
       connection.on("updateDarkPoolPx", this.onUpdateDarkPoolPx);
       connection.on("updateMessageBlotter", this.onUpdateMessageBlotter);
+      connection.on("clearDarkPoolPx", this.onClearDarkPoolPx)
     }
   };
 
@@ -159,7 +166,6 @@ export class SignalRManager {
     } else {
       full.Entries = pod.Entries;
     }
-    console.log(full);
     return full;
   };
 
@@ -252,7 +258,6 @@ export class SignalRManager {
       console.warn(`command does not exist, cannot remove it`);
     } else {
       const command: Command = recordedCommands[index];
-      console.log(command.refCount);
       if (--command.refCount === 1) {
         // Unsubscribe now that we know which one exactly
         this.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
@@ -262,7 +267,6 @@ export class SignalRManager {
           ...recordedCommands.slice(index + 1),
         ];
       }
-      console.log(`removing listener for: ${key}`);
     }
     // Remove event listener, this is always done as there is 1
     // per added listener
@@ -302,7 +306,6 @@ export class SignalRManager {
     // Try to run the command now
     this.replayCommand(command);
     return () => {
-      console.log("calling remove for", key);
       this.removeMarketListener(symbol, strategy, tenor, eventListener);
     };
   };

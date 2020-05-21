@@ -176,6 +176,7 @@ type Verb =
   | "publish"
   | "save"
   | "cxlall"
+  | "clear"
   | "create";
 
 export class API {
@@ -626,9 +627,6 @@ export class API {
       API.buildUrl(API.DarkPool, "all", "cxlall"),
       request
     );
-    await post<MessageResponse>(
-      API.buildUrl(API.DarkPool, "price", "publish"),
-      request
-    );
+    await post<any>(API.buildUrl(API.DarkPool, "price", "clear"), {});
   }
 }
