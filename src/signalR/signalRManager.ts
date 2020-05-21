@@ -182,7 +182,13 @@ export class SignalRManager {
         delete this.pendingW[key];
       }
     } else if (w.ExDestination === "DP") {
-      this.dispatchW(w, "Dp");
+      const key: string = $$(w.Symbol, w.Strategy, w.Tenor, "Dp");
+      if (!this.pendingW[key]) {
+        this.pendingW[key] = w;
+      } else {
+        this.dispatchW(w, "Dp");
+        delete this.pendingW[key];
+      }
     }
   };
 

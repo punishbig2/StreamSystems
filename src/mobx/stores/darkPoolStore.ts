@@ -76,8 +76,6 @@ export class DarkPoolStore {
     const orders: Order[] = entries.map((entry: MDEntry) =>
       Order.fromWAndMDEntry(w, entry, user)
     );
-    if (this.currentOrder)
-      orders.push(this.currentOrder);
     if (orders.length > 0) {
       const mine: Order | undefined = orders.find(
         (order: Order) => order.user === user.email
