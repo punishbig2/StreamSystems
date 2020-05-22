@@ -133,6 +133,8 @@ const request = <T>(
         throw new Error("unsupported media type");
       }
     } else {
+      if (method.toUpperCase() === Method.Post)
+        xhr.setRequestHeader("content-type", "application/json");
       xhr.send();
     }
   };
@@ -143,7 +145,7 @@ const { Api } = config;
 
 const post = <T>(
   url: string,
-  data: any,
+  data?: any,
   contentType?: string
 ): CancellablePromise<T> => request<T>(url, Method.Post, data, contentType);
 
@@ -627,6 +629,6 @@ export class API {
       API.buildUrl(API.DarkPool, "all", "cxlall"),
       request
     );
-    await post<any>(API.buildUrl(API.DarkPool, "price", "clear"), {});
+    await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
   }
 }
