@@ -1,14 +1,14 @@
-import { observable, action, computed } from "mobx";
-import { OrderStatus, Order, CreateOrder } from "interfaces/order";
-import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
-import { OrderTypes } from "interfaces/mdEntry";
-import { MessageTypes, ArrowDirection } from "interfaces/w";
-import { getSideFromType, getCurrentTime } from "utils";
-import { User } from "interfaces/user";
-import { API } from "API";
-import workareaStore from "mobx/stores/workareaStore";
-import { sizeFormatter } from "utils/sizeFormatter";
-import { $$ } from "utils/stringPaster";
+import { observable, action, computed } from 'mobx';
+import { OrderStatus, Order, CreateOrder } from 'interfaces/order';
+import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
+import { OrderTypes } from 'interfaces/mdEntry';
+import { MessageTypes, ArrowDirection } from 'interfaces/w';
+import { getSideFromType, getCurrentTime } from 'utils';
+import { User } from 'interfaces/user';
+import { API } from 'API';
+import workareaStore from 'mobx/stores/workareaStore';
+import { sizeFormatter } from 'utils/sizeFormatter';
+import { $$ } from 'utils/stringPaster';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -139,8 +139,9 @@ export class OrderStore {
         arrowDirection: ArrowDirection.None,
         uid: () => $$(this.symbol, this.strategy, this.tenor),
       };
+      const status: OrderStatus = (this.status & OrderStatus.HasDepth) !== 0 ? OrderStatus.HasDepth : OrderStatus.None;
       // Update current order
-      this.setOrder(newOrder, newOrder.status | OrderStatus.JustCreated);
+      this.setOrder(newOrder, newOrder.status | OrderStatus.JustCreated | status);
     } else {
       this.currentStatus =
         (this.currentStatus & ~OrderStatus.BeingCreated) |
