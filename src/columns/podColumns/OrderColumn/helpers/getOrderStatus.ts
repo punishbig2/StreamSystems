@@ -3,6 +3,7 @@ import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAgg
 import { User } from "interfaces/user";
 import { PodTableType } from "columns/podColumns/OrderColumn/index";
 import workareaStore from "mobx/stores/workareaStore";
+import { priceFormatter } from '../../../../utils/priceFormatter';
 
 export const getOrderStatus = (
   topOrder: Order | undefined,
@@ -44,6 +45,12 @@ export const getOrderStatus = (
       : ~OrderStatus.None;
   status |=
     tableType === PodTableType.Dob ? OrderStatus.InDepth : OrderStatus.None;
+  if (ownOrder) {
+    status |=
+      priceFormatter(topOrder.price) === priceFormatter(ownOrder.price)
+        ? OrderStatus.AtTop
+        : OrderStatus.None;
+  }
   // We finally have the definitive status
   return status;
 };

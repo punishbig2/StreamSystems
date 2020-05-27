@@ -607,8 +607,10 @@ $spinner-size: $table-row-height - 6;
 
           &.among {
             &.owned {
-              .chevron {
-                color: $text-color-red;
+              &.at-top {
+                .chevron {
+                  color: $text-color-red;
+                }
               }
             }
 
@@ -665,8 +667,10 @@ $spinner-size: $table-row-height - 6;
 
               &.among,
               &.owned {
-                .chevron {
-                  color: $text-color-red;
+                &.at-top {
+                  .chevron {
+                    color: $text-color-red;
+                  }
                 }
               }
             }
