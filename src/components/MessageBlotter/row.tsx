@@ -60,11 +60,10 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     if (blotterType === BlotterTypes.Executions) {
       let timer: number | null = null;
       const onExecuted = () => {
-        console.log("executed");
         setExecuted(true);
         timer = setTimeout(() => {
           setExecuted(false);
-        }, 3000);
+        }, 10000);
       };
       const type: string = $$(ExecID, "executed");
       document.addEventListener(type, onExecuted, true);
