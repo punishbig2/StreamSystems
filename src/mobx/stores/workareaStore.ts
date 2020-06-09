@@ -282,10 +282,13 @@ export class WorkareaStore {
 
   @action.bound
   public setPreferences(preferences: UserPreferences) {
+    const { ccyGroup } = this.preferences;
     this.preferences = preferences;
-    API.getSymbols(persistStorage.getCCYGroup()).then(
-      (currencies: Currency[]) => (this.currencies = currencies)
-    );
+    if (ccyGroup !== preferences.ccyGroup) {
+      API.getSymbols(persistStorage.getCCYGroup()).then(
+        (currencies: Currency[]) => (this.currencies = currencies)
+      );
+    }
   }
 
   @action.bound
