@@ -14,15 +14,17 @@ export const emptyBid = (tenor: string, symbol: string, strategy: string, user: 
 
 export const tenorToNumber = (value: string) => {
   // FIXME: probably search the number boundary
-  const multiplier: number = Number(value.substr(0, 1));
-  const unit: string = value.substr(1);
+  const multiplier: number = Number(value.substr(0, value.length - 1));
+  const unit: string = value.substr(-1, 1);
   switch (unit) {
-    case "W":
+    case "D":
       return multiplier;
+    case "W":
+      return 7 * multiplier;
     case "M":
-      return 5 * multiplier;
+      return 30 * multiplier;
     case "Y":
-      return 60 * multiplier;
+      return 365 * multiplier;
   }
   return 0;
 };

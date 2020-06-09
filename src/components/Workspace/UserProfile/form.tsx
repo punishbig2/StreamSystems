@@ -63,6 +63,8 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const userType: string = user.isbroker ? "Broker" : "Bank";
+  const regions: string[] = user.regions || [];
+  if (!regions.includes("LATAM")) regions.push("LATAM");
   return (
     <>
       <div className={"modal-title"}>
@@ -216,7 +218,9 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 displayEmpty={true}
                 renderValue={renderCCYGroup}
               >
-                <MenuItem value={"LATAM"}>{"LATAM"}</MenuItem>
+                {regions.map((region: string) => (
+                  <MenuItem value={region}>{region}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>

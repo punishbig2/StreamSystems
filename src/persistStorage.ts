@@ -134,6 +134,21 @@ class PersistStorage {
       this.data = {};
     }
   }
+
+  public getCCYGroup() {
+    const {
+      workarea: { workarea },
+    } = this.data;
+    if (!workarea) return "LATAM";
+    const { preferences } = workarea;
+    if (!preferences) return "LATAM";
+    const { ccyGroup } = preferences;
+    if (!ccyGroup)
+      return "LATAM";
+    if (ccyGroup.trim() === "")
+      return "LATAM";
+    return ccyGroup;
+  }
 }
 
 export default new PersistStorage();

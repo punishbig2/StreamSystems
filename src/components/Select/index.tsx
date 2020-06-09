@@ -1,4 +1,5 @@
 import { Currency } from "interfaces/currency";
+import styles from "styles";
 import React, { useState, ReactElement, useEffect } from "react";
 import ReactDOM from "react-dom";
 
@@ -56,6 +57,8 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       width: `${position.width}px`,
       left: `${position.left}px`,
       height: "auto",
+      maxHeight:
+        window.innerHeight - position.top - styles().windowToolbarHeight + "px",
     };
   };
 
@@ -91,13 +94,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     return lowerName.startsWith(keyword.toLowerCase());
   });
 
-  const updateKeyword = (event: React.FormEvent<HTMLInputElement>) => {
+  const onSearchChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     setKeyword(value);
-    setCurrentItem(0);
   };
 
-  const onItemClick = (value: string) => {
+  const setSelectedItem = (value: string) => {
     setDropdownVisible(false);
     props.onChange(value);
   };
@@ -110,7 +112,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       event.preventDefault();
     };
 
-    const moveCursor = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const onSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
       event.stopPropagation();
       switch (event.key) {
         case "ArrowUp":
@@ -128,7 +130,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
           }
           break;
         case "Enter":
-          onItemClick(list[currentItem].name);
+          setSelectedItem(list[currentItem].name);
           break;
         case "Escape":
           setDropdownVisible(false);
@@ -137,38 +139,35 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     };
 
     const searchBox: ReactElement = (
-      <li>
+      <div>
         <input
           ref={setInput}
           placeholder={"Search"}
           value={keyword}
-          onChange={updateKeyword}
-          onKeyDown={moveCursor}
+          onChange={onSearchChange}
+          onKeyDown={onSearchKeyDown}
         />
-      </li>
+      </div>
     );
     return ReactDOM.createPortal(
-      <ul
-        className={"dropdown"}
-        style={positionToStyle(position)}
-        onMouseDownCapture={swallowMouse}
-        ref={setDropdown}
-      >
+      <div className={"dropdown"} style={positionToStyle(position)}>
         {props.searchable && searchBox}
-        {filtered.map((item: { name: string }, index: number) => {
-          const classes = [];
-          if (currentItem === index) classes.push("selected");
-          return (
-            <li
-              key={item.name}
-              onClick={() => onItemClick(item.name)}
-              className={classes.join(" ")}
-            >
-              <span>{item.name}</span>
-            </li>
-          );
-        })}
-      </ul>,
+        <ul onMouseDownCapture={swallowMouse} ref={setDropdown}>
+          {filtered.map((item: { name: string }, index: number) => {
+            const classes = [];
+            if (currentItem === index) classes.push("selected");
+            return (
+              <li
+                key={item.name}
+                onClick={() => setSelectedItem(item.name)}
+                className={classes.join(" ")}
+              >
+                <span>{item.name}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>,
       document.body
     );
   };

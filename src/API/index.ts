@@ -167,6 +167,7 @@ type Endpoints =
   | "UserJson"
   | "markets"
   | "allextended"
+  | "userregions"
   | "price";
 
 type Verb =
@@ -210,9 +211,9 @@ export class API {
     }${section}/${verb}${object}?${toUrlQuery(args)}`;
   }
 
-  static async getSymbols(): CancellablePromise<Currency[]> {
+  static async getSymbols(region?: string): CancellablePromise<Currency[]> {
     const currencies: Currency[] = await get<Currency[]>(
-      API.buildUrl(API.Config, "symbols", "get")
+      API.buildUrl(API.Config, "symbols", "get", region ? {region} : undefined)
     );
     currencies.sort((c1: Currency, c2: Currency): number => {
       const { name: n1 } = c1;
@@ -230,7 +231,9 @@ export class API {
   }
 
   static getTenors(): CancellablePromise<string[]> {
-    return get<string[]>(API.buildUrl(API.Config, "tenors", "get"));
+    return get<string[]>(
+      API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" })
+    );
   }
 
   static async executeCreateOrderRequest(
@@ -630,5 +633,12 @@ export class API {
       request
     );
     await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
+  }
+
+  // http://localhost:6001/api/fxopt/config/getuserregions?useremail=asharnisar@yahoo.com
+  static async getUserRegions(useremail: string) {
+    return get<any>(
+      API.buildUrl(API.Config, "userregions", "get", { useremail })
+    );
   }
 }

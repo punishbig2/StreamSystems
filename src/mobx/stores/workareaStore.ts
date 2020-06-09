@@ -209,18 +209,22 @@ export class WorkareaStore {
       if (user === undefined) {
         this.status = WorkareaStatus.UserNotFound;
       } else {
+        // Get user region
+        user.regions = await API.getUserRegions(user.email);
+        // Initialize the persistStorage object
         await persistStorage.initialize(user);
         // Update local copy of preferences
         await this.hydrate();
         // Start connecting to the websocket
         this.user = user;
         this.loadingMessage = strings.EstablishingConnection;
+        // This is just for eye candy :)
         WorkareaStore.cleanupUrl(user.email);
         // Start the loading mode
         this.status = WorkareaStatus.Initializing;
         // Load currencies
         this.loadingMessage = strings.LoadingSymbols;
-        this.currencies = await API.getSymbols();
+        this.currencies = await API.getSymbols(persistStorage.getCCYGroup());
         // Load strategies
         this.loadingMessage = strings.LoadingStrategies;
         this.strategies = await API.getProducts();
