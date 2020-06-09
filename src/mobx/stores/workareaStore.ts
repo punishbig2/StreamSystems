@@ -283,6 +283,9 @@ export class WorkareaStore {
   @action.bound
   public setPreferences(preferences: UserPreferences) {
     this.preferences = preferences;
+    API.getSymbols(persistStorage.getCCYGroup()).then(
+      (currencies: Currency[]) => (this.currencies = currencies)
+    );
   }
 
   @action.bound
