@@ -219,7 +219,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 renderValue={renderCCYGroup}
               >
                 {regions.map((region: string) => (
-                  <MenuItem value={region}>{region}</MenuItem>
+                  <MenuItem key={region} value={region}>{region}</MenuItem>
                 ))}
               </Select>
             </FormControl>
