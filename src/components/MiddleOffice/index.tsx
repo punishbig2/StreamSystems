@@ -84,7 +84,7 @@ export const MiddleOffice: React.FC<Props> = (
         <DealBlotter id={randomID("")} />
       </div>
       <Grid className={"right-panel"} container>
-        <Grid xs={8} item>
+        <Grid xs={7} className={"container"} item>
           <div className={"form-group"}>
             <h1>Deal Entry</h1>
             <DealEntryForm />
@@ -94,7 +94,9 @@ export const MiddleOffice: React.FC<Props> = (
             <SummaryLegDetailsForm currencies={["USD", "BRL"]} />
           </div>
         </Grid>
-        <LegDetailsForm legs={legs} />
+        <Grid xs={5} className={"container"} item>
+          <LegDetailsForm legs={legs} />
+        </Grid>
       </Grid>
     </div>
   );

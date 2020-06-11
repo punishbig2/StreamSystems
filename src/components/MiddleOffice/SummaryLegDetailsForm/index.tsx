@@ -7,40 +7,53 @@ interface Props {
   currencies: string[];
 }
 
+interface SummaryLegDetails {
+  strategy: string;
+  tradeDate: moment.Moment;
+  spotDate: moment.Moment;
+  spot: number;
+  spread: string;
+  cutCity: string;
+  cutTime: moment.Moment;
+  source: string;
+  delivery: string;
+  usi: number;
+  brokerage: {
+    buyerComm: number;
+    sellerComm: number;
+  };
+  dealOutput: {
+    netPremium: number;
+    pricePercent: number;
+    delta: number;
+    gamma: number;
+    vega: number;
+    hedge: number;
+  };
+}
+
 export const SummaryLegDetailsForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
   const ccy1Depo: string = `${props.currencies[0]}Depo`;
   const ccy2Depo: string = `${props.currencies[1]}Depo`;
-  const data: any = {
+  const data: SummaryLegDetails = {
     strategy: "ATMF Straddle",
     tradeDate: moment(),
     spotDate: moment(),
-    premiumDate: moment(),
-    strike: "",
-    volSpread: "N/A",
-    expiryDate: moment(),
-    deliveryDate: moment(),
-    delivery: "NFD",
-    buyer: "MSCO",
-    seller: "Equal",
-    days: 92,
+    spot: 221,
+    spread: "N/A",
     cutCity: "Sao Paulo",
     cutTime: moment(),
-    source: "PTAX",
-    spot: 221,
-    fwdPts: 4,
-    fwdRate: 0,
-    [ccy1Depo]: 0,
-    [ccy2Depo]: 2.05,
-
+    source: "",
+    delivery: "",
+    usi: 456789,
     brokerage: {
       buyerComm: 300,
       sellerComm: 300,
     },
-
     dealOutput: {
-      premiumAMT: 466.35,
+      netPremium: 466.35,
       pricePercent: 0.0233175,
       delta: 0.026147711,
       gamma: 1221850,
@@ -53,7 +66,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
     <>
       <form>
         <Grid container>
-          <Grid xs={6} alignItems={"stretch"} container item>
+          <Grid alignItems={"stretch"} container item>
             <fieldset>
               <FormField
                 label={"Strategy"}
@@ -77,61 +90,14 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
                 type={"date"}
               />
               <FormField
-                label={"Premium Date"}
+                label={"Spot"}
                 color={"grey"}
-                value={data.premiumDate}
-                name={"premiumDate"}
-                type={"date"}
-              />
-              <FormField
-                label={"Strike"}
-                color={"grey"}
-                value={data.strike}
-                name={"strike"}
-                type={"text"}
-              />
-              <FormField
-                label={"Vol/Spread"}
-                color={"grey"}
-                value={data.volSpread}
-                name={"volSpread"}
-                type={"text"}
-              />
-              <FormField
-                label={"Expiry Date"}
-                color={"grey"}
-                value={data.expiryDate}
-                name={"expiryDate"}
-                type={"date"}
-              />
-              <FormField
-                label={"Delivery Date"}
-                color={"grey"}
-                value={data.deliveryDate}
-                name={"deliveryDate"}
-                type={"date"}
-              />
-              <FormField
-                label={"Buyer"}
-                color={"grey"}
-                value={data.buyer}
-                name={"buyer"}
-                type={"text"}
-              />
-              <FormField
-                label={"Seller"}
-                color={"grey"}
-                value={data.seller}
-                name={"seller"}
-                type={"text"}
-              />
-              <FormField
-                label={"Days"}
-                color={"grey"}
-                value={data.days}
-                name={"days"}
+                value={data.spot}
+                name={"spot"}
                 type={"number"}
+                precision={4}
               />
+
               <FormField
                 label={"Cut City"}
                 color={"grey"}
@@ -160,130 +126,75 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
                 name={"delivery"}
                 type={"text"}
               />
+            </fieldset>
+          </Grid>
+          <Grid alignItems={"stretch"} container>
+            <fieldset>
+              <legend>Brokerage</legend>
               <FormField
-                label={"Spot"}
+                label={"Buyer Comm"}
                 color={"grey"}
-                value={data.spot}
-                name={"spot"}
-                type={"number"}
-                precision={4}
+                value={brokerage.buyerComm}
+                name={"buyerComm"}
+                type={"currency"}
               />
               <FormField
-                label={"Fwd Pts"}
+                label={"Seller Comm"}
                 color={"grey"}
-                value={data.fwdPts}
-                name={"fwdPts"}
-                type={"number"}
+                value={brokerage.sellerComm}
+                name={"sellerComm"}
+                type={"currency"}
               />
               <FormField
-                label={"Fwd Rate"}
+                label={"Total Comm"}
                 color={"grey"}
-                value={data.fwdRate}
-                name={"fwdRate"}
-                type={"number"}
-                precision={4}
-              />
-              <FormField
-                label={props.currencies[0] + " Depo"}
-                color={"grey"}
-                value={data[ccy1Depo]}
-                name={ccy1Depo}
-                type={"percentage"}
-              />
-              <FormField
-                label={props.currencies[1] + " Depo"}
-                color={"grey"}
-                value={data[ccy2Depo]}
-                name={ccy2Depo}
-                type={"percentage"}
+                value={brokerage.buyerComm + brokerage.sellerComm}
+                name={"totalComm"}
+                type={"currency"}
               />
             </fieldset>
           </Grid>
-
-          <Grid direction={"column"} xs={6} container item>
-            <Grid alignItems={"stretch"} container>
-              <fieldset>
-                <button type={"button"}>Price</button>
-                <button type={"button"}>Process</button>
-              </fieldset>
-            </Grid>
-
-            <Grid alignItems={"stretch"} container>
-              <fieldset>
-                <legend>Brokerage</legend>
-                <FormField
-                  label={"Buyer Comm"}
-                  color={"grey"}
-                  value={brokerage.buyerComm}
-                  name={"buyerComm"}
-                  type={"currency"}
-                />
-                <FormField
-                  label={"Seller Comm"}
-                  color={"grey"}
-                  value={brokerage.sellerComm}
-                  name={"sellerComm"}
-                  type={"currency"}
-                />
-                <FormField
-                  label={"Total Comm"}
-                  color={"grey"}
-                  value={brokerage.buyerComm + brokerage.sellerComm}
-                  name={"totalComm"}
-                  type={"currency"}
-                />
-              </fieldset>
-            </Grid>
-
-            <Grid alignItems={"stretch"} container>
-              <fieldset>
-                <legend>Deal Output</legend>
-                <FormField
-                  label={"Premium AMT"}
-                  color={"grey"}
-                  value={dealOutput.premiumAMT}
-                  name={"premiumAMT"}
-                  type={"currency"}
-                />
-                <FormField
-                  label={"Price %"}
-                  color={"grey"}
-                  value={dealOutput.pricePercent}
-                  name={"pricePercent"}
-                  type={"number"}
-                  precision={8}
-                />
-                <FormField
-                  label={"Delta"}
-                  color={"grey"}
-                  value={dealOutput.delta}
-                  name={"delta"}
-                  type={"number"}
-                  precision={8}
-                />
-                <FormField
-                  label={"Gamma"}
-                  color={"grey"}
-                  value={dealOutput.gamma}
-                  name={"gamma"}
-                  type={"currency"}
-                />
-                <FormField
-                  label={"Vega"}
-                  color={"grey"}
-                  value={dealOutput.vega}
-                  name={"vega"}
-                  type={"currency"}
-                />
-                <FormField
-                  label={"Hedge"}
-                  color={"grey"}
-                  value={dealOutput.hedge}
-                  name={"hedge"}
-                  type={"currency"}
-                />
-              </fieldset>
-            </Grid>
+          <Grid alignItems={"stretch"} container>
+            <fieldset>
+              <legend>Deal Output</legend>
+              <FormField
+                label={"Price %"}
+                color={"grey"}
+                value={dealOutput.pricePercent}
+                name={"pricePercent"}
+                type={"number"}
+                precision={8}
+              />
+              <FormField
+                label={"Delta"}
+                color={"grey"}
+                value={dealOutput.delta}
+                name={"delta"}
+                type={"number"}
+                precision={8}
+              />
+              <FormField
+                label={"Gamma"}
+                color={"grey"}
+                value={dealOutput.gamma}
+                name={"gamma"}
+                type={"currency"}
+              />
+              <FormField
+                label={"Vega"}
+                color={"grey"}
+                value={dealOutput.vega}
+                name={"vega"}
+                type={"currency"}
+              />
+              <FormField
+                label={"Hedge"}
+                color={"grey"}
+                value={dealOutput.hedge}
+                name={"hedge"}
+                type={"currency"}
+              />
+            </fieldset>
           </Grid>
         </Grid>
       </form>

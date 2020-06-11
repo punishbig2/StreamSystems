@@ -168,7 +168,11 @@ type Endpoints =
   | "markets"
   | "allextended"
   | "userregions"
-  | "price";
+  | "price"
+  | "valumodel"
+  | "optexstyle"
+  | "cuts"
+  | "optionsproducts";
 
 type Verb =
   | "get"
@@ -213,7 +217,12 @@ export class API {
 
   static async getSymbols(region?: string): CancellablePromise<Currency[]> {
     const currencies: Currency[] = await get<Currency[]>(
-      API.buildUrl(API.Config, "symbols", "get", region ? {region} : undefined)
+      API.buildUrl(
+        API.Config,
+        "symbols",
+        "get",
+        region ? { region } : undefined
+      )
     );
     currencies.sort((c1: Currency, c2: Currency): number => {
       const { name: n1 } = c1;
@@ -635,10 +644,36 @@ export class API {
     await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
   }
 
-  // http://localhost:6001/api/fxopt/config/getuserregions?useremail=asharnisar@yahoo.com
   static async getUserRegions(useremail: string) {
     return get<any>(
       API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
+  }
+
+  // Middle middle office
+  static async getOptionsProducts(currency?: string): Promise<any> {
+    if (currency) {
+      return get<any>(
+        API.buildUrl(API.Config, "optionsproducts", "get", { currency })
+      );
+    } else {
+      return get<any>(API.buildUrl(API.Config, "optionsproducts", "get"));
+    }
+  }
+
+  static async getCuts(currency?: string): Promise<any> {
+    if (currency) {
+      return get<any>(API.buildUrl(API.Config, "cuts", "get", { currency }));
+    } else {
+      return get<any>(API.buildUrl(API.Config, "cuts", "get"));
+    }
+  }
+
+  static async getOptexStyle(): Promise<any> {
+    return get<any>(API.buildUrl(API.Config, "optexstyle", "get"));
+  }
+
+  static async getValuModel(): Promise<any> {
+    return get<any>(API.buildUrl(API.Config, "valumodel", "get"));
   }
 }

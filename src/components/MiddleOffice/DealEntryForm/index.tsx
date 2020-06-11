@@ -1,259 +1,247 @@
-import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
+import { API } from "API";
+import {
+  VolSpreadRel,
+  volSpreadRelationships,
+} from "components/MiddleOffice/DealEntryForm/data";
+import { FormField, Validity } from "components/MiddleOffice/field";
+import { FieldType } from "components/MiddleOffice/helpers";
+import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
-import { FormField } from "components/MiddleOffice/field";
+import React, { ReactElement, useEffect, useState } from "react";
+import { DealEntry, DealStatus } from "structures/dealEntry";
+import { MOStrategy } from "structures/moStrategy";
+import { Currency } from "interfaces/currency";
 
 interface Props {}
 
-interface DealEntry {
-  time: moment.Moment;
-  dealId: string;
-  status: "Pending" | "Others";
-  buyer: string;
-  seller: string;
-  legAdj: "Equal" | "Others";
-  spot: number;
-  forwardPts: number;
-  forward: number;
-
-  style: string;
-  model: string;
-  currency: string;
-  strategy: string;
-  notional: number;
-  expiry: string;
-  strike: string;
-  vol: number;
-  spread: string;
-  usi: number;
+interface FieldDef {
+  type: FieldType;
+  color: "green" | "orange" | "cream" | "grey";
+  name: keyof DealEntry;
+  label: string;
+  editable: boolean;
+  placeholder?: string;
+  data?: { value: any; label: string }[];
+  mask?: string;
+  emptyValue?: string;
+  validate?: (value: string) => Validity;
 }
 
 export const DealEntryForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
-  const entry: DealEntry = {
-    time: moment(),
-    dealId: "12345",
-    status: "Pending",
-    buyer: "GSCO",
-    seller: "MSCO",
-    legAdj: "Equal",
-    spot: 4.13,
-    forwardPts: 221,
-    forward: 4.1521,
-
+  const [entry, setEntry] = useState<DealEntry>({
+    currency: "",
+    strategy: "",
+    legs: 0,
+    notional: 20e6,
+    legAdj: true,
+    buyer: "MSCO",
+    seller: "",
+    tradeDate: moment(),
+    dealId: "123456",
+    status: DealStatus.Pending,
     style: "European",
     model: "Blacks",
-    currency: "USDBRL",
-    strategy: "ATMF Straddle",
-    notional: 20000000,
-    expiry: "3MO",
-    strike: "ATMF",
-    vol: 13,
-    spread: "N/A",
-    usi: 456789,
+  });
+  const [strategies, setStrategies] = useState<any[]>([]);
+  useEffect(() => {
+    API.getOptionsProducts().then((result: any) => {
+      setStrategies(result);
+    });
+  }, []);
+  const banks: string[] = workareaStore.banks;
+  const currencies: Currency[] = workareaStore.currencies;
+  const fields: FieldDef[] = [
+    {
+      label: "CCYPair",
+      type: "dropdown",
+      name: "currency",
+      color: "orange",
+      editable: true,
+      data: currencies.map((currency: Currency) => ({
+        value: currency.name,
+        label: currency.name,
+      })),
+    },
+    {
+      label: "Strategy",
+      type: "dropdown",
+      name: "strategy",
+      color: "orange",
+      editable: true,
+      data: strategies.map((strategy: MOStrategy) => ({
+        value: strategy.value,
+        label: strategy.value
+          .split(/(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])/)
+          .join(" "),
+      })),
+    },
+    {
+      label: "Spread",
+      name: "spread",
+      type: "text",
+      placeholder: "0D",
+      color: "orange",
+      editable: true,
+      validate: (value: string): Validity => {
+        const regexp: RegExp = /^([0-9]+(\.[0-9]){0,1}D)/;
+        console.log(regexp.test(value), value);
+        if (value.length === 0) return Validity.Intermediate;
+        if (regexp.test(value)) return Validity.Valid;
+        return Validity.Invalid;
+      },
+      emptyValue: "N/A",
+      data: [],
+    },
+    {
+      label: "Vol",
+      type: "percentage",
+      name: "vol",
+      color: "orange",
+      editable: false,
+      emptyValue: "N/A",
+    },
+    {
+      label: "Notional",
+      type: "currency",
+      name: "notional",
+      color: "orange",
+      editable: true,
+    },
+    {
+      label: "Leg Adj",
+      type: "dropdown",
+      name: "legAdj",
+      color: "orange",
+      editable: true,
+      data: [
+        {
+          value: true,
+          label: "TRUE",
+        },
+        {
+          value: false,
+          label: "FALSE",
+        },
+      ],
+    },
+    {
+      label: "Buyer",
+      type: "dropdown",
+      name: "buyer",
+      color: "cream",
+      editable: true,
+      data: banks.map((name: string) => ({
+        value: name,
+        label: name,
+      })),
+    },
+    {
+      label: "Seller",
+      type: "dropdown",
+      name: "seller",
+      color: "cream",
+      editable: true,
+      data: banks.map((name: string) => ({
+        value: name,
+        label: name,
+      })),
+    },
+    {
+      label: "Legs",
+      type: "number",
+      name: "legs",
+      color: "green",
+      editable: false,
+    },
+    {
+      label: "Trade Date",
+      type: "date",
+      name: "tradeDate",
+      color: "green",
+      editable: false,
+    },
+    {
+      label: "Timestamp",
+      type: "time",
+      name: "tradeDate",
+      color: "green",
+      editable: false,
+    },
+    {
+      label: "Deal Id",
+      name: "dealId",
+      type: "text",
+      color: "green",
+      editable: false,
+    },
+    {
+      label: "Status",
+      name: "status",
+      type: "text",
+      color: "green",
+      editable: false,
+    },
+    {
+      label: "Style",
+      name: "style",
+      type: "text",
+      color: "green",
+      editable: false,
+    },
+    {
+      label: "Model",
+      name: "model",
+      type: "text",
+      color: "green",
+      editable: false,
+    },
+  ];
+
+  const onChange = (name: keyof DealEntry, value: any) => {
+    if (name === "strategy") {
+      const newStrategy: MOStrategy | undefined = strategies.find(
+        (strategy: MOStrategy) => strategy.value === value
+      );
+      if (newStrategy) {
+        const volSpreadRel: VolSpreadRel =
+          volSpreadRelationships[newStrategy.value];
+        setEntry({
+          ...entry,
+          ...volSpreadRel,
+          legs: newStrategy.legs,
+          [name]: value,
+        });
+      } else {
+        setEntry({ ...entry, [name]: value });
+      }
+    } else {
+      setEntry({ ...entry, [name]: value });
+    }
   };
 
   return (
     <form>
       <Grid alignItems={"stretch"} container>
-        <Grid xs={9} alignItems={"stretch"} container item>
-          <Grid xs={6} item>
-            <fieldset className={"full-height"}>
+        <Grid xs={12} item>
+          <fieldset className={"full-height"}>
+            {fields.map((field: FieldDef) => (
               <FormField
-                type={"date"}
-                name={"tradeDate"}
-                label={"Date"}
-                value={entry.time}
-                color={"green"}
-                readOnly
+                key={field.name + field.type}
+                {...field}
+                onChange={onChange}
+                value={entry[field.name]}
               />
-              <FormField
-                type={"time"}
-                name={"tradeTime"}
-                label={"Time"}
-                value={entry.time}
-                color={"green"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"dealId"}
-                label={"Deal Id"}
-                value={entry.dealId}
-                color={"green"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"status"}
-                label={"Status"}
-                value={entry.status}
-                color={"green"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"buyer"}
-                label={"Buyer"}
-                value={entry.buyer}
-                color={"cream"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"seller"}
-                label={"Seller"}
-                value={entry.seller}
-                color={"cream"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"legAdj"}
-                label={"Leg Adj"}
-                value={entry.legAdj}
-                color={"green"}
-                readOnly
-              />
-              <FormField
-                type={"number"}
-                name={"spot"}
-                label={"Spot"}
-                value={entry.spot}
-                precision={4}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"number"}
-                name={"forwardPts"}
-                label={"Forward Pts"}
-                value={entry.forwardPts}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"number"}
-                name={"forward"}
-                label={"Forward"}
-                value={entry.spot}
-                precision={4}
-                color={"orange"}
-                readOnly
-              />
-            </fieldset>
-          </Grid>
-          <Grid xs={6} item>
-            <fieldset className={"full-height"}>
-              <FormField
-                type={"text"}
-                name={"style"}
-                label={"Style"}
-                value={entry.style}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"model"}
-                label={"Model"}
-                value={entry.model}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"currency"}
-                label={"CCY Pair"}
-                value={entry.currency}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"strategy"}
-                label={"Strategy"}
-                value={entry.strategy}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"currency"}
-                name={"notional"}
-                label={"Notional"}
-                value={entry.notional}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"expiry"}
-                label={"Expiry"}
-                value={entry.expiry}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"strike"}
-                label={"Strike"}
-                value={entry.strike}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"percentage"}
-                name={"vol"}
-                label={"Vol"}
-                value={entry.vol}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"text"}
-                name={"spread"}
-                label={"Spread"}
-                value={entry.spread}
-                color={"orange"}
-                readOnly
-              />
-              <FormField
-                type={"number"}
-                name={"usi"}
-                label={"USI#"}
-                value={entry.usi}
-                color={"orange"}
-                readOnly
-              />
-            </fieldset>
-          </Grid>
+            ))}
+          </fieldset>
         </Grid>
-
-        <Grid
-          xs={3}
-          direction={"column"}
-          justify={"space-between"}
-          alignItems={"stretch"}
-          container
-          item
-        >
-          <Grid item>
-            <fieldset>
-              <Grid direction={"column"} alignItems={"stretch"} container item>
-                <button type={"button"}>Price</button>
-                <button type={"button"}>Submit</button>
-              </Grid>
-            </fieldset>
-          </Grid>
-          <Grid item>
-            <fieldset>
-              <Grid direction={"column"} alignItems={"stretch"} container item>
-                <button type={"button"}>Save</button>
-              </Grid>
-            </fieldset>
-          </Grid>
-        </Grid>
+      </Grid>
+      <Grid justify={"space-around"} alignItems={"stretch"} container item>
+        <button type={"button"}>Price</button>
+        <button type={"button"}>Submit</button>
+        <button type={"button"}>Save</button>
       </Grid>
     </form>
   );

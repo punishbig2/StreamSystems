@@ -1,8 +1,7 @@
 $cream-form-color: saturate(mix($foreground-color, yellow), 10%);
 $green-form-color: saturate(mix($foreground-color, green), 30%);
-$orange-form-color: saturate(mix($foreground-color, orange), 80%);
+$orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
-$field-height: $normal-font-size + 10;
 
 .middle-office {
   position: absolute;
@@ -23,8 +22,8 @@ $field-height: $normal-font-size + 10;
   z-index: 0;
 
   .left-panel {
+    flex: 1;
     position: relative;
-    width: 50%;
     margin-top: -1px;
 
     .table {
@@ -34,12 +33,16 @@ $field-height: $normal-font-size + 10;
   }
 
   .right-panel {
-    width: 50%;
-
+    flex-basis: 800px;
     border-left: 1px solid $table-border-color;
     background-color: $background-color;
     border-top: 1px solid $table-border-color;
     margin-top: -1px;
+
+    .container {
+      height: 100%;
+      overflow-y: auto;
+    }
 
     .legs {
       overflow-y: auto;
@@ -77,7 +80,6 @@ $field-height: $normal-font-size + 10;
 
     .MuiFormControl-root {
       width: 100%;
-      line-height: 1;
 
       &.green {
         color: $green-form-color;
@@ -106,7 +108,6 @@ $field-height: $normal-font-size + 10;
       }
 
       .MuiFormControlLabel-root {
-        line-height: $field-height;
         color: inherit;
         margin: 0;
         cursor: default;
@@ -119,7 +120,6 @@ $field-height: $normal-font-size + 10;
 
         span {
           font-size: $small-font-size;
-          line-height: $field-height;
           font-weight: 600;
           flex-basis: 50%;
           margin: 0 5px 0 0;
@@ -128,14 +128,24 @@ $field-height: $normal-font-size + 10;
 
         .MuiInputBase-root {
           color: inherit;
+          width: 50%;
+          font-weight: 400;
 
           fieldset {
             border: none;
           }
 
+          &.invalid {
+            color: #f15460;
+            outline: 1px solid #f15460;
+          }
+
+          &.empty {
+            color: $foreground-color;
+            opacity: 0.25;
+          }
+
           input {
-            height: $field-height;
-            line-height: $field-height;
             color: inherit;
             border: none;
             font-weight: 400;

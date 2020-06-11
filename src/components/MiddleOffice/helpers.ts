@@ -11,13 +11,15 @@ export type FieldType =
   | "currency"
   | "number"
   | "percentage"
-  | "dropdown";
+  | "dropdown"
+  | "boolean";
 export const getValue = (
   type: FieldType,
   name: string,
-  value: string | number | Moment,
+  value: string | boolean | number | Moment | undefined,
   precision?: number
-): string => {
+): string | undefined => {
+  if (value === undefined) return undefined;
   switch (type) {
     case "date":
       if (isMoment(value)) {
@@ -73,6 +75,8 @@ export const getValue = (
       }
     case "dropdown":
       return "";
+    case "boolean":
+      return value === true ? "TRUE" : "FALSE";
     default:
       return "";
   }
