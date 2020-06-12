@@ -22,6 +22,7 @@ interface Props {
   totalWidth: number;
   containerWidth: number;
   insertStore?: DealInsertStore;
+  onClick?: (deal: any) => void;
 }
 
 const getClassFromRowType = (
@@ -55,7 +56,6 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const [executed, setExecuted] = useState<boolean>(false);
   const ExecID: string | null = row !== null ? row.ExecID : null;
   useEffect(() => {
-    setExecuted(false);
     if (ExecID === null) return;
     if (blotterType === BlotterTypes.Executions) {
       let timer: number | null = null;
@@ -84,7 +84,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     const id: string = $$(column.name, rowID);
     return (
       <div className={"td"} id={id} key={id} style={style}>
-        {column.render({ message: row, store: props.insertStore })}
+        {column.render({ message: row, deal: row, store: props.insertStore })}
       </div>
     );
   };
@@ -100,9 +100,14 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     );
   }
   const isDarkPool: boolean = row.ExDestination === DarkPool;
+  const onClick = !!props.onClick ? (() => props.onClick!(row)) : undefined;
   return (
     <div
-      className={getClassFromRowType("tr", props.type, executed, isDarkPool)}
+      onClick={onClick}
+      className={[
+        getClassFromRowType("tr", props.type, executed, isDarkPool),
+        !!props.onClick ? "clickable" : "",
+      ].join(" ")}
       id={row.id}
       key={row.id}
     >

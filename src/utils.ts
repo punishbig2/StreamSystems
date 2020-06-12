@@ -29,13 +29,13 @@ export const findDefaultTimezone = () => {
   }
 };
 
-export const percentage = (
+export const percent = (
   numerator: number,
   denominator: number,
   base: number
 ): string => {
-  const percentage: number = numerator / denominator;
-  return `${percentage * base}ex`;
+  const percent: number = numerator / denominator;
+  return `${percent * base}ex`;
 };
 
 export const getCurrentTime = (): string => Math.round(Date.now()).toString();

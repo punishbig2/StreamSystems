@@ -1,15 +1,14 @@
 import React, { ReactElement } from "react";
-import { priceFormatter } from "../../utils/priceFormatter";
-import { getMessagePrice } from "../../messageUtils";
-import { Price } from "../../components/Table/CellRenderers/Price";
-import { ArrowDirection } from "../../interfaces/w";
-import { OrderStatus } from "../../interfaces/order";
-import { CellProps } from "./cellProps";
 import { observer } from "mobx-react";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import { priceFormatter } from "utils/priceFormatter";
+import { Price } from "components/Table/CellRenderers/Price";
+import { ArrowDirection } from "interfaces/w";
+import { OrderStatus } from "interfaces/order";
 
 export const PriceCell: React.FC<CellProps> = observer(
   (props: CellProps): ReactElement => {
-    const { store, message } = props;
+    const { store, deal } = props;
     const onSubmit = (
       input: HTMLInputElement,
       value: number | null,
@@ -19,8 +18,8 @@ export const PriceCell: React.FC<CellProps> = observer(
         store.setPrice(value);
       }
     };
-    if (message) {
-      return <div>{priceFormatter(getMessagePrice(message))}</div>;
+    if (deal) {
+      return <div>{priceFormatter(deal.lastPrice)}</div>;
     } else {
       return (
         <Price

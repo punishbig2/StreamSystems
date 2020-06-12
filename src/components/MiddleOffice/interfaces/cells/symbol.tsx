@@ -1,17 +1,17 @@
 import React, { ReactElement } from "react";
-import workareaStore from "../../mobx/stores/workareaStore";
-import { Currency } from "../../interfaces/currency";
-import { Select } from "../../components/Select";
-import { compareCurrencies } from "./utils";
-import { CellProps } from "./cellProps";
+import workareaStore from "../../../../mobx/stores/workareaStore";
+import { Currency } from "../../../../interfaces/currency";
+import { Select } from "../../../Select";
+import { compareCurrencies } from "../../../../columns/messageBlotterColumns/utils";
 import { observer } from "mobx-react";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
 export const SymbolCell: React.FC<CellProps> = observer(
   (props: CellProps): ReactElement => {
-    const { store, message } = props;
+    const { store, deal } = props;
     const { currencies } = workareaStore;
-    if (message) {
-      return <div>{message.Symbol}</div>;
+    if (deal) {
+      return <div>{deal.symbol}</div>;
     } else {
       const list: any[] = currencies
         .map((currency: Currency): string => currency.name)

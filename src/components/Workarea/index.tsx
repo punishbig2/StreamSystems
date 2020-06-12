@@ -42,7 +42,6 @@ const Workarea: React.FC = (): ReactElement | null => {
     };
   }, [connected, user]);
 
-
   useEffect(() => {
     setTimeout(() => {
       messagesStore.reapplyFilters();

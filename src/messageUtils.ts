@@ -5,6 +5,14 @@ import moment from "moment";
 import { STRM } from "./stateDefs/workspaceState";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
+export const TransTypes: { [key: string]: string } = {
+  [ExecTypes.New]: "New",
+  [ExecTypes.Canceled]: "Cancel",
+  [ExecTypes.PartiallyFilled]: "Partially Filled",
+  [ExecTypes.Filled]: "Filled",
+  [ExecTypes.Replace]: "Replace",
+  [ExecTypes.PendingCancel]: "Pending Cancel",
+};
 
 export const getMessageSize = (message: Message): number => {
   switch (message.OrdStatus) {
@@ -29,19 +37,22 @@ export const getMessagePrice = (message: Message): number => {
   }
 };
 
-export const getMessageBuyer = (message: Message): string => {
-  if (message.Side === "1") {
-    return message.MDMkt;
-  } else {
-    return message.ExecBroker;
-  }
+export const getBuyer = (message: Message): string | null => {
+  if (
+    message.OrdStatus === ExecTypes.Filled ||
+    message.OrdStatus === ExecTypes.PartiallyFilled
+  )
+    return message.Side === "1" ? message.MDMkt : message.ExecBroker;
+  return null;
 };
 
-export const extractDealId = (message: Message): string => {
-  const id: string = message.ExecID;
-  const parts: string[] = id.split("-");
-  if (parts.length === 0) return "?";
-  return parts[0];
+export const getSeller = (message: Message): string | null => {
+  if (
+    message.OrdStatus === ExecTypes.Filled ||
+    message.OrdStatus === ExecTypes.PartiallyFilled
+  )
+    return message.Side === "1" ? message.ExecBroker : message.MDMkt;
+  return null;
 };
 
 export const sortByTimeDescending = (m1: Message, m2: Message): number => {
@@ -78,7 +89,13 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (!isFill(message)) return false;
   if (user.isbroker) {
     if (personality === STRM) return message.Side === "1";
-    return (!isBrokerInvolved(message, personality) && message.Side === "1") || message.MDMkt === personality;
+    return (
+      (!isBrokerInvolved(message, personality) && message.Side === "1") ||
+      message.MDMkt === personality
+    );
   }
-  return (!isTraderInvolved(message, user.email) && message.Side === "1") || message.Username === user.email;
+  return (
+    (!isTraderInvolved(message, user.email) && message.Side === "1") ||
+    message.Username === user.email
+  );
 };

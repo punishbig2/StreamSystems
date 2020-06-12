@@ -1,7 +1,7 @@
-import React, { ReactElement } from "react";
-import { Grid } from "@material-ui/core";
-import { FormField } from "components/MiddleOffice/field";
-import moment from "moment";
+import React, { ReactElement } from 'react';
+import { Grid } from '@material-ui/core';
+import { FormField } from 'components/MiddleOffice/field';
+import moment from 'moment';
 
 interface Props {
   currencies: string[];
@@ -33,20 +33,18 @@ interface SummaryLegDetails {
 }
 
 export const SummaryLegDetailsForm: React.FC<Props> = (
-  props: Props
+  props: Props,
 ): ReactElement | null => {
-  const ccy1Depo: string = `${props.currencies[0]}Depo`;
-  const ccy2Depo: string = `${props.currencies[1]}Depo`;
   const data: SummaryLegDetails = {
-    strategy: "ATMF Straddle",
+    strategy: 'ATMF Straddle',
     tradeDate: moment(),
     spotDate: moment(),
     spot: 221,
-    spread: "N/A",
-    cutCity: "Sao Paulo",
+    spread: 'N/A',
+    cutCity: 'Sao Paulo',
     cutTime: moment(),
-    source: "",
-    delivery: "",
+    source: '',
+    delivery: '',
     usi: 456789,
     brokerage: {
       buyerComm: 300,
@@ -66,133 +64,133 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
     <>
       <form>
         <Grid container>
-          <Grid alignItems={"stretch"} container item>
+          <Grid alignItems={'stretch'} container item>
             <fieldset>
               <FormField
-                label={"Strategy"}
-                color={"grey"}
+                label={'Strategy'}
+                color={'grey'}
                 value={data.strategy}
-                name={"strategy"}
-                type={"text"}
+                name={'strategy'}
+                type={'text'}
               />
               <FormField
-                label={"Trade Date"}
-                color={"grey"}
+                label={'Trade Date'}
+                color={'grey'}
                 value={data.tradeDate}
-                name={"tradeDate"}
-                type={"date"}
+                name={'tradeDate'}
+                type={'date'}
               />
               <FormField
-                label={"Spot Date"}
-                color={"grey"}
+                label={'Spot Date'}
+                color={'grey'}
                 value={data.spotDate}
-                name={"spotDate"}
-                type={"date"}
+                name={'spotDate'}
+                type={'date'}
               />
               <FormField
-                label={"Spot"}
-                color={"grey"}
+                label={'Spot'}
+                color={'grey'}
                 value={data.spot}
-                name={"spot"}
-                type={"number"}
+                name={'spot'}
+                type={'number'}
                 precision={4}
               />
 
               <FormField
-                label={"Cut City"}
-                color={"grey"}
+                label={'Cut City'}
+                color={'grey'}
                 value={data.cutCity}
-                name={"cutCity"}
-                type={"text"}
+                name={'cutCity'}
+                type={'text'}
               />
               <FormField
-                label={"Cut Time"}
-                color={"grey"}
+                label={'Cut Time'}
+                color={'grey'}
                 value={data.cutTime}
-                name={"cutTime"}
-                type={"time"}
+                name={'cutTime'}
+                type={'time'}
               />
               <FormField
-                label={"Source"}
-                color={"grey"}
+                label={'Source'}
+                color={'grey'}
                 value={data.source}
-                name={"source"}
-                type={"text"}
+                name={'source'}
+                type={'text'}
               />
               <FormField
-                label={"Delivery"}
-                color={"grey"}
+                label={'Delivery'}
+                color={'grey'}
                 value={data.delivery}
-                name={"delivery"}
-                type={"text"}
+                name={'delivery'}
+                type={'text'}
               />
             </fieldset>
           </Grid>
-          <Grid alignItems={"stretch"} container>
+          <Grid alignItems={'stretch'} container>
             <fieldset>
               <legend>Brokerage</legend>
               <FormField
-                label={"Buyer Comm"}
-                color={"grey"}
+                label={'Buyer Comm'}
+                color={'grey'}
                 value={brokerage.buyerComm}
-                name={"buyerComm"}
-                type={"currency"}
+                name={'buyerComm'}
+                type={'currency'}
               />
               <FormField
-                label={"Seller Comm"}
-                color={"grey"}
+                label={'Seller Comm'}
+                color={'grey'}
                 value={brokerage.sellerComm}
-                name={"sellerComm"}
-                type={"currency"}
+                name={'sellerComm'}
+                type={'currency'}
               />
               <FormField
-                label={"Total Comm"}
-                color={"grey"}
+                label={'Total Comm'}
+                color={'grey'}
                 value={brokerage.buyerComm + brokerage.sellerComm}
-                name={"totalComm"}
-                type={"currency"}
+                name={'totalComm'}
+                type={'currency'}
               />
             </fieldset>
           </Grid>
-          <Grid alignItems={"stretch"} container>
+          <Grid alignItems={'stretch'} container>
             <fieldset>
               <legend>Deal Output</legend>
               <FormField
-                label={"Price %"}
-                color={"grey"}
+                label={'Price %'}
+                color={'grey'}
                 value={dealOutput.pricePercent}
-                name={"pricePercent"}
-                type={"number"}
+                name={'pricePercent'}
+                type={'number'}
                 precision={8}
               />
               <FormField
-                label={"Delta"}
-                color={"grey"}
+                label={'Delta'}
+                color={'grey'}
                 value={dealOutput.delta}
-                name={"delta"}
-                type={"number"}
+                name={'delta'}
+                type={'number'}
                 precision={8}
               />
               <FormField
-                label={"Gamma"}
-                color={"grey"}
+                label={'Gamma'}
+                color={'grey'}
                 value={dealOutput.gamma}
-                name={"gamma"}
-                type={"currency"}
+                name={'gamma'}
+                type={'currency'}
               />
               <FormField
-                label={"Vega"}
-                color={"grey"}
+                label={'Vega'}
+                color={'grey'}
                 value={dealOutput.vega}
-                name={"vega"}
-                type={"currency"}
+                name={'vega'}
+                type={'currency'}
               />
               <FormField
-                label={"Hedge"}
-                color={"grey"}
+                label={'Hedge'}
+                color={'grey'}
                 value={dealOutput.hedge}
-                name={"hedge"}
-                type={"currency"}
+                name={'hedge'}
+                type={'currency'}
               />
             </fieldset>
           </Grid>

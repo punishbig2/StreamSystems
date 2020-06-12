@@ -17,6 +17,7 @@ import { Sides } from "interfaces/sides";
 import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
 import { Strategy } from "../interfaces/strategy";
+import { Deal } from "../components/MiddleOffice/DealBlotter/deal";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -25,6 +26,9 @@ const toUrlQuery = (obj: { [key: string]: string } | any): string => {
     .join("&");
 };
 
+enum ProductSource {
+  Electronic = "Electronic",
+}
 enum Method {
   Get = "GET",
   Post = "POST",
@@ -172,7 +176,10 @@ type Endpoints =
   | "valumodel"
   | "optexstyle"
   | "cuts"
-  | "optionsproducts";
+  | "optionsproducts"
+  | "deals"
+  | "optionlegsdef"
+  | "exproducts";
 
 type Verb =
   | "get"
@@ -193,6 +200,9 @@ export class API {
   static UserApi: string = "/api/UserApi";
   static Config: string = `${API.FxOpt}/config`;
   static DarkPool: string = `${API.FxOpt}/darkpool`;
+  // Middle office
+  static Mlo: string = "/api/mlo";
+  static Deal: string = `${API.Mlo}/deal`;
 
   static getRawUrl(section: string, rest: string, args?: any): string {
     if (args === undefined)
@@ -675,5 +685,42 @@ export class API {
 
   static async getValuModel(): Promise<any> {
     return get<any>(API.buildUrl(API.Config, "valumodel", "get"));
+  }
+
+  static async getProductsEx(
+    source: ProductSource = ProductSource.Electronic,
+    bAllFields = true
+  ) {
+    return get<any>(
+      API.buildUrl(API.Config, "exproducts", "get", {
+        source,
+        bAllFields,
+      })
+    );
+  }
+
+  static async getOptionLegsDef() {
+    return get<any>(API.buildUrl(API.Config, "optionlegsdef", "get"));
+  }
+
+  static async getDeals(): Promise<Deal[]> {
+    const array: any[] = await get<Deal[]>(
+      API.buildUrl(API.Deal, "deals", "get")
+    );
+    return array.map(
+      (item: any): Deal => ({
+        dealID: item.transid,
+        buyer: item.buyer,
+        seller: item.seller,
+        cumulativeQuantity: item.cumqty,
+        currency: item.currency,
+        lastPrice: item.lastpx,
+        leavesQuantity: item.lvsqty,
+        lastQuantity: item.lastqty,
+        strategy: item.strategy,
+        symbol: item.symbol,
+        transactionTime: item.transacttime,
+      })
+    );
   }
 }

@@ -883,7 +883,7 @@ finance:
     - money-bill-wave-alt
     - money-check
     - money-check-alt
-    - percentage
+    - percent
     - piggy-bank
     - receipt
     - stamp
@@ -1503,7 +1503,7 @@ mathematics:
     - less-than-equal
     - minus
     - not-equal
-    - percentage
+    - percent
     - plus
     - square-root-alt
     - subscript

@@ -112,8 +112,8 @@ checkBrowsers(paths.appPath, isInteractive)
     }
   )
   .catch(err => {
-    if (err && err.message) {
-      console.log(err.message);
+    if (err && err.deal) {
+      console.log(err.deal);
     }
     process.exit(1);
   });
@@ -139,11 +139,11 @@ function build(previousFileSizes) {
     compiler.run((err, stats) => {
       let messages;
       if (err) {
-        if (!err.message) {
+        if (!err.deal) {
           return reject(err);
         }
         messages = formatWebpackMessages({
-          errors: [err.message],
+          errors: [err.deal],
           warnings: [],
         });
       } else {

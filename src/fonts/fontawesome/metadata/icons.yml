@@ -13232,10 +13232,10 @@ percent:
     - solid
   unicode: f295
   voted: false
-percentage:
+percent:
   changes:
     - 5.0.13
-  label: Percentage
+  label: percent
   search:
     terms:
       - discount

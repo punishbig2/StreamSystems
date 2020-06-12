@@ -84,7 +84,10 @@ export const valueChange = (
         : state.defaultOfrSize;
     const price = coalesce(computed, starting);
     const status = getOrderStatus(original.status, original.price, price);
-    const size = ((original.status & OrderStatus.Cancelled) !== 0) ? defaultSize : original.size;
+    const size =
+      (original.status & OrderStatus.Cancelled) !== 0
+        ? defaultSize
+        : original.size;
     return {
       ...original,
       // Update the price

@@ -1,14 +1,15 @@
-import moment from "moment";
+import moment from 'moment';
 
 export enum DealStatus {
-  Pending = "Pending",
+  Pending = 'Pending',
 }
 
 export interface DealEntry {
   currency: string;
   strategy: string;
   legs: number;
-  spread?: string;
+  strike?: string;
+  spread?: number;
   vol?: number;
   notional: number;
   legAdj: boolean;

@@ -2,6 +2,7 @@ import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FormField } from "components/MiddleOffice/field";
+import { Sides } from "interfaces/sides";
 
 type Props = Leg;
 
@@ -11,11 +12,39 @@ export const LegDetailsFields: React.FC<Props> = (
   return (
     <Grid container>
       <FormField
-        label={"Notional"}
+        label={"Option"}
         color={"grey"}
+        value={props.option}
+        name={"option"}
+        type={"text"}
+      />
+      <FormField
+        label={"Side"}
+        color={"grey"}
+        value={props.side === Sides.Buy ? "Buy" : "Sell"}
+        name={"side"}
+        type={"text"}
+      />
+      <FormField
+        label={"Party"}
+        color={"grey"}
+        value={props.party}
+        name={"party"}
+        type={"text"}
+      />
+      <FormField
+        label={"Notional"}
+        color={"orange"}
         value={props.notional}
         name={"notional"}
         type={"currency"}
+      />
+      <FormField
+        label={"Premium Date"}
+        color={"grey"}
+        value={props.premiumDate}
+        name={"premiumDate"}
+        type={"date"}
       />
       <FormField
         label={"Premium"}
@@ -29,7 +58,7 @@ export const LegDetailsFields: React.FC<Props> = (
         color={"grey"}
         value={props.price}
         name={"price"}
-        type={"percentage"}
+        type={"percent"}
       />
       <FormField
         label={"Strike"}
@@ -44,7 +73,7 @@ export const LegDetailsFields: React.FC<Props> = (
         color={"grey"}
         value={props.vol}
         name={"vol"}
-        type={"percentage"}
+        type={"percent"}
       />
       <FormField
         label={"Expiry Date"}
@@ -52,6 +81,37 @@ export const LegDetailsFields: React.FC<Props> = (
         value={props.expiryDate}
         name={"expiryDate"}
         type={"date"}
+      />
+      <FormField
+        label={"Delivery Date"}
+        color={"grey"}
+        value={props.deliveryDate}
+        name={"deliveryDate"}
+        type={"date"}
+      />
+      <FormField
+        label={"Days"}
+        color={"grey"}
+        value={props.days}
+        name={"days"}
+        type={"number"}
+        precision={0}
+      />
+      <FormField
+        label={"Fwd Pts"}
+        color={"grey"}
+        value={props.fwdPts}
+        name={"fwdPts"}
+        type={"number"}
+        precision={0}
+      />
+      <FormField
+        label={"Fwd Rate"}
+        color={"grey"}
+        value={props.fwdRate}
+        name={"fwdRate"}
+        type={"number"}
+        precision={4}
       />
       <FormField
         label={"Delta"}
@@ -76,25 +136,25 @@ export const LegDetailsFields: React.FC<Props> = (
         type={"currency"}
       />
       <FormField
-        label={"hedge"}
+        label={"Hedge"}
         color={"grey"}
         value={props.hedge}
         name={"hedge"}
         type={"currency"}
       />
       <FormField
-        label={"Deal Id"}
+        label={"CCY1 Depo"}
         color={"grey"}
-        value={props.dealId}
-        name={"dealId"}
-        type={"text"}
+        value={props.ccy1Depo}
+        name={"ccy1Depo"}
+        type={"percent"}
       />
       <FormField
-        label={"USI#"}
+        label={"CCY2 Depo"}
         color={"grey"}
-        value={props.usi}
-        name={"usi"}
-        type={"number"}
+        value={props.ccy2Depo}
+        name={"ccy2Depo"}
+        type={"percent"}
       />
     </Grid>
   );

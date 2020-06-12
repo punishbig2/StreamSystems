@@ -138,8 +138,8 @@ checkBrowsers(paths.appPath, isInteractive)
     });
   })
   .catch(err => {
-    if (err && err.message) {
-      console.log(err.message);
+    if (err && err.deal) {
+      console.log(err.deal);
     }
     process.exit(1);
   });

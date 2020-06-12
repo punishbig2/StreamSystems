@@ -1,16 +1,16 @@
-import React, { ReactElement } from "react";
-import workareaStore from "../../mobx/stores/workareaStore";
-import { Strategy } from "../../interfaces/strategy";
-import { Select } from "../../components/Select";
-import { CellProps } from "./cellProps";
-import { observer } from "mobx-react";
+import React, { ReactElement } from 'react';
+import { Strategy } from 'interfaces/strategy';
+import { observer } from 'mobx-react';
+import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
+import workareaStore from 'mobx/stores/workareaStore';
+import { Select } from 'components/Select';
 
 export const StrategyCell: React.FC<CellProps> = observer(
   (props: CellProps): ReactElement => {
-    const { store, message } = props;
+    const { store, deal } = props;
     const { strategies } = workareaStore;
-    if (message) {
-      return <div>{message.Strategy}</div>;
+    if (deal) {
+      return <div>{deal.strategy}</div>;
     } else {
       const list: any[] = strategies.map(({ name }: Strategy) => {
         return {
@@ -23,10 +23,10 @@ export const StrategyCell: React.FC<CellProps> = observer(
           fit={true}
           list={list}
           value={store.strategy}
-          empty={"Strategy"}
+          empty={'Strategy'}
           onChange={store.setStrategy}
         />
       );
     }
-  }
+  },
 );

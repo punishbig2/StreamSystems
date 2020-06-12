@@ -22381,7 +22381,7 @@
     },
     "free": ["solid"]
   },
-  "percentage": {
+  "percent": {
     "changes": ["5.0.13"],
     "ligatures": [],
     "search": {
@@ -22389,7 +22389,7 @@
     },
     "styles": ["solid"],
     "unicode": "f541",
-    "label": "Percentage",
+    "label": "percent",
     "voted": true,
     "svg": {
       "solid": {

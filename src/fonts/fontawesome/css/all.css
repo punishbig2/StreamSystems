@@ -3786,7 +3786,7 @@ readers do not read off random characters that represent icons */
   content: "\f295";
 }
 
-.fa-percentage:before {
+.fa-percent:before {
   content: "\f541";
 }
 

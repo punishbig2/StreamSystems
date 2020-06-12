@@ -10,7 +10,7 @@ export type FieldType =
   | "text"
   | "currency"
   | "number"
-  | "percentage"
+  | "percent"
   | "dropdown"
   | "boolean";
 export const getValue = (
@@ -65,12 +65,12 @@ export const getValue = (
           `unexpected non numeric value for currency field: ${name}`
         );
       }
-    case "percentage":
+    case "percent":
       if (typeof value === "number") {
         return `${value.toFixed(3)}%`;
       } else {
         throw new Error(
-          `unexpected non numeric value for percentage field: ${name}`
+          `unexpected non numeric value for percent field: ${name}`
         );
       }
     case "dropdown":

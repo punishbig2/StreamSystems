@@ -1,13 +1,15 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Table } from "components/Table";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
-import messagesStore from "mobx/stores/messagesStore";
 import { Message } from "interfaces/message";
 import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
 import { BlotterTypes } from "columns/messageBlotter";
 import { observer } from "mobx-react";
 import { randomID } from "randomID";
-import { DealInsertStore } from "../../../mobx/stores/dealInsertStore";
+import { DealInsertStore } from 'mobx/stores/dealInsertStore';
+import { API } from 'API';
+import { Deal } from 'components/MiddleOffice/DealBlotter/deal';
+import middleOfficeStore from 'mobx/stores/middleOfficeStore';
 
 interface Props {
   id: string;
@@ -15,7 +17,15 @@ interface Props {
 
 export const DealBlotter: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const rows: Message[] = messagesStore.executions;
+    const [rows, setRows] = useState<Message[]>([]);
+    useEffect(() => {
+      API.getDeals().then((deals: any) => {
+        setRows(deals);
+      });
+    }, []);
+    const onRowClicked = (deal: Deal) => {
+      middleOfficeStore.setDeal(deal);
+    };
     const renderRow = (props: any): ReactElement | null => {
       if (!props.row) {
         return (
@@ -42,7 +52,9 @@ export const DealBlotter: React.FC<Props> = observer(
             type={BlotterRowTypes.Normal}
             containerWidth={props.containerWidth}
             totalWidth={props.totalWidth}
+            insertStore={new DealInsertStore()}
             blotterType={BlotterTypes.Executions}
+            onClick={onRowClicked}
           />
         );
       }
