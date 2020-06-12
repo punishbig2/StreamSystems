@@ -19,5 +19,5 @@ export interface DealEntry {
   dealId: string;
   status: DealStatus;
   style: string;
-  model: string;
+  model: number;
 }

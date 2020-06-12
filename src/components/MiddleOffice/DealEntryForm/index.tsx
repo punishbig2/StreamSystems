@@ -6,13 +6,14 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState, useCallback } from "react";
 import { DealEntry, DealStatus } from "structures/dealEntry";
-import { MOStrategy } from "structures/moStrategy";
+import { MOStrategy } from "interfaces/moStrategy";
 import { Currency } from "interfaces/currency";
 import { observer } from "mobx-react";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { parseTime } from "timeUtils";
 import { Globals } from "golbals";
 import { Sides } from "interfaces/sides";
+import { ValuationModel } from 'interfaces/valuationModel';
 
 interface Props {}
 
@@ -42,7 +43,7 @@ const initialDealEntry: DealEntry = {
   dealId: "",
   status: DealStatus.Pending,
   style: "European",
-  model: "Blacks",
+  model: 3,
 };
 
 export const DealEntryForm: React.FC<Props> = observer(
@@ -52,6 +53,8 @@ export const DealEntryForm: React.FC<Props> = observer(
     const [strategies, setStrategies] = useState<{
       [name: string]: MOStrategy;
     }>({});
+    const [styles, setStyles] = useState<string[]>([]);
+    const [models, setModels] = useState<ValuationModel[]>([]);
 
     const getDerivedFieldsFromStrategy = useCallback(
       (strategy: MOStrategy | null | undefined, price: number): any => {
@@ -93,7 +96,13 @@ export const DealEntryForm: React.FC<Props> = observer(
     useEffect(() => {
       const moStrategy: MOStrategy | undefined = strategies[strategy];
       if (!moStrategy) return;
-      middleOfficeStore.createStubLegs(price, notional, buyer, Sides.Buy, moStrategy);
+      middleOfficeStore.createStubLegs(
+        price,
+        notional,
+        buyer,
+        Sides.Buy,
+        moStrategy
+      );
       // eslint-disable-next-line
     }, [strategy, notional, buyer, price, strategies]);
 
@@ -111,6 +120,8 @@ export const DealEntryForm: React.FC<Props> = observer(
           )
         );
       });
+      API.getOptexStyle().then(setStyles);
+      API.getValuModel().then(setModels)
     }, []);
     const banks: string[] = workareaStore.banks;
     const currencies: Currency[] = workareaStore.currencies;
@@ -251,16 +262,24 @@ export const DealEntryForm: React.FC<Props> = observer(
       {
         label: "Style",
         name: "style",
-        type: "text",
+        type: "dropdown",
         color: "green",
         editable: false,
+        data: styles.map((name: string) => ({
+          value: name,
+          label: name,
+        })),
       },
       {
         label: "Model",
         name: "model",
-        type: "text",
+        type: "dropdown",
         color: "green",
         editable: false,
+        data: models.map((model: ValuationModel) => ({
+          value: model.ValuationModelID,
+          label: model.OptionModelDesc,
+        })),
       },
     ];
 

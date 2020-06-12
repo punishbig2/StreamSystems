@@ -4,7 +4,7 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 
 import moment from "moment";
 import { Sides } from "interfaces/sides";
-import { MOStrategy } from "structures/moStrategy";
+import { MOStrategy } from "interfaces/moStrategy";
 
 class MiddleOfficeStore {
   @observable deal: Deal | null = null;
