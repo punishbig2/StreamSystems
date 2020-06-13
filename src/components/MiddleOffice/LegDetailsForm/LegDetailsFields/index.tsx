@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { FormField } from "components/MiddleOffice/field";
+import { FormField } from "components/field";
 import { Sides } from "interfaces/sides";
 
 type Props = Leg;
@@ -9,6 +9,7 @@ type Props = Leg;
 export const LegDetailsFields: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
+  const { depo } = props;
   return (
     <Grid container>
       <FormField
@@ -144,16 +145,16 @@ export const LegDetailsFields: React.FC<Props> = (
         type={"currency"}
       />
       <FormField
-        label={"CCY1 Depo"}
+        label={depo[0].currency + " Depo"}
         color={"grey"}
-        value={props.ccy1Depo}
+        value={depo[0].value}
         name={"ccy1Depo"}
         type={"percent"}
       />
       <FormField
-        label={"CCY2 Depo"}
+        label={depo[1].currency + " Depo"}
         color={"grey"}
-        value={props.ccy2Depo}
+        value={depo[1].value}
         name={"ccy2Depo"}
         type={"percent"}
       />

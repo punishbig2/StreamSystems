@@ -3,6 +3,19 @@ $green-form-color: saturate(mix($foreground-color, green), 30%);
 $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
 
+.empty-section {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  .text {
+    opacity: 0.25;
+    font-weight: 600;
+    font-style: italic;
+  }
+}
+
 .middle-office {
   position: absolute;
   display: flex;
@@ -41,11 +54,11 @@ $grey-form-color: $foreground-color;
 
     .container {
       height: 100%;
-      overflow-y: auto;
+      overflow-y: scroll;
     }
 
     .legs {
-      overflow-y: auto;
+      overflow-y: scroll;
       overflow-x: hidden;
       height: 100%;
     }

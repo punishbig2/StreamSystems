@@ -18,6 +18,7 @@ interface Props {
   row: { [key: string]: any } | null;
   weight: number;
   type: BlotterRowTypes;
+  isSelected?: boolean;
   blotterType: BlotterTypes;
   totalWidth: number;
   containerWidth: number;
@@ -29,9 +30,11 @@ const getClassFromRowType = (
   baseClassName: string,
   rowType: BlotterRowTypes,
   executed: boolean,
-  isDarkPool: boolean
+  isDarkPool: boolean,
+  isSelected: boolean
 ): string => {
   const classes: string[] = [baseClassName];
+  if (isSelected) classes.push("selected");
   if (executed) classes.push("flash");
   if (isDarkPool) classes.push("dark-pool");
   switch (rowType) {
@@ -91,7 +94,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   if (!row) {
     return (
       <div
-        className={getClassFromRowType("tr", props.type, executed, false)}
+        className={getClassFromRowType("tr", props.type, executed, false, false)}
         id={"__INSERT_ROW__"}
         key={"__INSERT_ROW__"}
       >
@@ -99,13 +102,14 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
       </div>
     );
   }
+  const isSelected: boolean = props.isSelected !== undefined && props.isSelected;
   const isDarkPool: boolean = row.ExDestination === DarkPool;
-  const onClick = !!props.onClick ? (() => props.onClick!(row)) : undefined;
+  const onClick = !!props.onClick ? () => props.onClick!(row) : undefined;
   return (
     <div
       onClick={onClick}
       className={[
-        getClassFromRowType("tr", props.type, executed, isDarkPool),
+        getClassFromRowType("tr", props.type, executed, isDarkPool, isSelected),
         !!props.onClick ? "clickable" : "",
       ].join(" ")}
       id={row.id}

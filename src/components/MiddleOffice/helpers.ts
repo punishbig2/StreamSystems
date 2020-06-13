@@ -1,18 +1,11 @@
 import moment, { Moment } from "moment";
+import { FieldType } from 'forms/fieldType';
 
 const isMoment = (value: any): value is Moment => {
   return value instanceof moment;
 };
 
-export type FieldType =
-  | "date"
-  | "time"
-  | "text"
-  | "currency"
-  | "number"
-  | "percent"
-  | "dropdown"
-  | "boolean";
+
 export const getValue = (
   type: FieldType,
   name: string,

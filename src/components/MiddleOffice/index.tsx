@@ -26,7 +26,7 @@ export const MiddleOffice: React.FC<Props> = (
           </div>
           <div className={"form-group"}>
             <h1>Summary Leg Details</h1>
-            <SummaryLegDetailsForm currencies={["USD", "BRL"]} />
+            <SummaryLegDetailsForm />
           </div>
         </Grid>
         <Grid xs={5} className={"container"} item>

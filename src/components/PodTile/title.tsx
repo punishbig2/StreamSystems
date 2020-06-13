@@ -1,4 +1,4 @@
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import strings from "locales";
 import React, { ReactElement } from "react";
 import { Select } from "components/Select";
@@ -13,7 +13,7 @@ import { Strategy } from "../../interfaces/strategy";
 
 interface Props {
   store: PodTileStore;
-  currencies: Currency[];
+  currencies: Symbol[];
   strategies: Strategy[];
 }
 

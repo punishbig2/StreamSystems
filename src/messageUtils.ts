@@ -3,6 +3,7 @@ import { User } from "interfaces/user";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { STRM } from "./stateDefs/workspaceState";
+import { Deal } from 'components/MiddleOffice/DealBlotter/deal';
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
 export const TransTypes: { [key: string]: string } = {
@@ -99,3 +100,5 @@ export const isAcceptableFill = (message: Message): boolean => {
     message.Username === user.email
   );
 };
+
+export const isMessage = (row: Message | Deal): row is Message => "ClOrdID" in row;

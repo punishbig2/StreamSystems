@@ -1,4 +1,4 @@
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import { Message } from "interfaces/message";
 import { User, UserPreferences, CurrencyGroups } from "interfaces/user";
 import { WorkareaStatus } from "stateDefs/workareaState";
@@ -17,7 +17,7 @@ import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import persistStorage from "persistStorage";
 import { STRM } from "stateDefs/workspaceState";
 import { updateApplicationTheme } from "utils";
-import { Strategy } from "../../interfaces/strategy";
+import { Strategy } from "interfaces/strategy";
 
 export enum WindowTypes {
   PodTile = 1,
@@ -42,7 +42,7 @@ export class WorkareaStore {
   @persist("object") @observable workspaces: { [k: string]: WorkspaceDef } = {};
   @persist @observable currentWorkspaceID: string | null = null;
 
-  @observable.ref currencies: Currency[] = [];
+  @observable.ref symbols: Symbol[] = [];
   @observable.ref strategies: Strategy[] = [];
   @observable.ref tenors: string[] = [];
   @observable.ref banks: string[] = [];
@@ -224,7 +224,7 @@ export class WorkareaStore {
         this.status = WorkareaStatus.Initializing;
         // Load currencies
         this.loadingMessage = strings.LoadingSymbols;
-        this.currencies = await API.getSymbols(persistStorage.getCCYGroup());
+        this.symbols = await API.getSymbols(persistStorage.getCCYGroup());
         // Load strategies
         this.loadingMessage = strings.LoadingStrategies;
         this.strategies = await API.getProducts();
@@ -286,7 +286,7 @@ export class WorkareaStore {
     this.preferences = preferences;
     if (ccyGroup !== preferences.ccyGroup) {
       API.getSymbols(persistStorage.getCCYGroup()).then(
-        (currencies: Currency[]) => (this.currencies = currencies)
+        (currencies: Symbol[]) => (this.symbols = currencies)
       );
     }
   }
@@ -321,6 +321,11 @@ export class WorkareaStore {
   public addMiddleOffice() {
     this.isCreatingWorkspace = true;
     setTimeout(this.internalAddMiddleOffice, 0);
+  }
+
+  public findSymbolById(id: string): Symbol | undefined {
+    const { symbols } = this;
+    return symbols.find((symbol: Symbol): boolean => id === symbol.symbolID);
   }
 }
 

@@ -9,7 +9,7 @@ import { observer } from "mobx-react";
 import { WorkspaceStore } from "mobx/stores/workspaceStore";
 import { MenuItem, Select } from "@material-ui/core";
 import { SelectEventData } from "interfaces/selectEventData";
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import { PodTileStore } from "mobx/stores/podTileStore";
 import { MessagesStore } from "mobx/stores/messagesStore";
 import { PodTile } from "components/PodTile";
@@ -24,7 +24,7 @@ import { Strategy } from "../../interfaces/strategy";
 interface OwnProps {
   id: string;
   tenors: string[];
-  currencies: Currency[];
+  currencies: Symbol[];
   strategies: Strategy[];
   banks: string[];
   isDefault: boolean;

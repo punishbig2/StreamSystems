@@ -1,4 +1,4 @@
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import { Message } from "interfaces/message";
 import { Strategy } from "interfaces/strategy";
 import { User, UserPreferences } from "interfaces/user";
@@ -12,7 +12,7 @@ export enum WorkareaStatus {
 }
 
 export interface WorkareaState {
-  currencies: Currency[];
+  currencies: Symbol[];
   tenors: string[];
   strategies: Strategy[];
   banks: string[];

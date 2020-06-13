@@ -12,7 +12,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import { observer } from "mobx-react";
 import { User } from "interfaces/user";
 import { InvalidCurrency } from "stateDefs/windowState";
@@ -30,16 +30,16 @@ interface OwnProps {
   tenors: string[];
   store: PodTileStore;
   strategies: string[];
-  currencies: Currency[];
+  currencies: Symbol[];
   connected: boolean;
   scrollable?: boolean;
   minimized?: boolean;
   onClose?: () => void;
 }
 
-const getCurrencyFromName = (list: Currency[], name: string): Currency => {
-  const found: Currency | undefined = list.find(
-    (each: Currency) => each.name === name
+const getCurrencyFromName = (list: Symbol[], name: string): Symbol => {
+  const found: Symbol | undefined = list.find(
+    (each: Symbol) => each.name === name
   );
   if (found === undefined) return InvalidCurrency;
   return found;
@@ -50,7 +50,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const { currencies, tenors } = props;
   const { strategy } = store;
   const { rows } = store;
-  const currency: Currency | undefined = getCurrencyFromName(
+  const currency: Symbol | undefined = getCurrencyFromName(
     currencies,
     store.currency
   );

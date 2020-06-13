@@ -4,34 +4,75 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 
 import moment from "moment";
 import { Sides } from "interfaces/sides";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { Cut } from "components/MiddleOffice/interfaces/cut";
+import { parseTime } from "timeUtils";
+import { Globals } from "golbals";
+import { Symbol } from "interfaces/symbol";
+
+export interface StubLegInfo {
+  notional: number | null;
+  party: string;
+  side: Sides;
+  vol: number | undefined;
+  strike: string | undefined;
+  option: string;
+  currencies: [string, string];
+}
 
 class MiddleOfficeStore {
   @observable deal: Deal | null = null;
   @observable legs: Leg[] = [];
+  @observable summaryLeg: SummaryLeg | null = null;
+
+  @action.bound
+  public createSummaryLeg(cut: Cut, symbol: Symbol): void {
+    const { legs, deal } = this;
+    if (legs.length === 0 || deal === null) return;
+    this.summaryLeg = {
+      brokerage: { buyerComm: null, sellerComm: null },
+      cutCity: cut.City,
+      cutTime: cut.LocalTime,
+      dealOutput: {
+        delta: null,
+        gamma: null,
+        hedge: null,
+        netPremium: null,
+        pricePercent: null,
+        vega: null,
+      },
+      delivery: "",
+      source: symbol.FixingSource,
+      spot: null,
+      spotDate: moment(),
+      spread: "",
+      tradeDate: moment(parseTime(deal.transactionTime, Globals.timezone)),
+      usi: null,
+      strategy: legs[0].option,
+    };
+  }
 
   @action.bound
   public setDeal(deal: Deal) {
     this.deal = deal;
-  }
-
-  @action.bound
-  public clearStubLegs() {
+    this.summaryLeg = null;
     this.legs = [];
   }
 
   @action.bound
-  public addStubLeg(info: {
-    notional: number;
-    party: string;
-    side: Sides;
-    vol: number | undefined;
-    strike: string | undefined;
-    option: string;
-  }) {
+  public addStubLeg(info: StubLegInfo) {
+    const { legs } = this;
     const stub: Leg = {
-      ccy1Depo: null,
-      ccy2Depo: null,
+      depo: [
+        {
+          currency: info.currencies[0],
+          value: 0,
+        },
+        {
+          currency: info.currencies[1],
+          value: 0,
+        },
+      ],
       days: null,
       deliveryDate: moment(),
       delta: null,
@@ -40,7 +81,7 @@ class MiddleOfficeStore {
       fwdRate: null,
       gamma: null,
       hedge: null,
-      notional: info.notional * 0.5,
+      notional: info.notional,
       option: info.option,
       party: info.party,
       premium: null,
@@ -51,7 +92,7 @@ class MiddleOfficeStore {
       vega: null,
       vol: info.vol || null,
     };
-    this.legs.push(stub);
+    legs.push(stub);
   }
 }
 

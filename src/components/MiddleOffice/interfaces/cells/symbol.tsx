@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import workareaStore from "../../../../mobx/stores/workareaStore";
-import { Currency } from "../../../../interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import { Select } from "../../../Select";
 import { compareCurrencies } from "../../../../columns/messageBlotterColumns/utils";
 import { observer } from "mobx-react";
@@ -9,12 +9,12 @@ import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 export const SymbolCell: React.FC<CellProps> = observer(
   (props: CellProps): ReactElement => {
     const { store, deal } = props;
-    const { currencies } = workareaStore;
+    const { symbols } = workareaStore;
     if (deal) {
       return <div>{deal.symbol}</div>;
     } else {
-      const list: any[] = currencies
-        .map((currency: Currency): string => currency.name)
+      const list: any[] = symbols
+        .map((currency: Symbol): string => currency.name)
         .sort(compareCurrencies)
         .map((name: string) => {
           return {

@@ -7,11 +7,11 @@ export enum DealStatus {
 export interface DealEntry {
   currency: string;
   strategy: string;
-  legs: number;
+  legs: number | null;
   strike?: string;
   spread?: number;
   vol?: number;
-  notional: number;
+  notional: number | null;
   legAdj: boolean;
   buyer: string;
   seller: string;
@@ -19,5 +19,5 @@ export interface DealEntry {
   dealId: string;
   status: DealStatus;
   style: string;
-  model: number;
+  model: number | "";
 }

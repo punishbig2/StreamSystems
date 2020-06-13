@@ -9,6 +9,13 @@ interface Props {}
 export const LegDetailsForm: React.FC<Props> = observer(
   (): ReactElement | null => {
     const { legs } = middleOfficeStore;
+    if (legs.length === 0) {
+      return (
+        <div className={"empty-section"}>
+          <div className={"text"}>There's no data yet!</div>
+        </div>
+      );
+    }
     return (
       <form>
         {legs.map((leg: Leg, index: number) => {

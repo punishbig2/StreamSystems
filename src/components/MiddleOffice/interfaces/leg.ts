@@ -20,6 +20,14 @@ export interface Leg {
   gamma: number | null;
   vega: number | null;
   hedge: number | null;
-  ccy1Depo: number | null;
-  ccy2Depo: number | null;
+  depo: [
+    {
+      currency: string;
+      value: number;
+    },
+    {
+      currency: string;
+      value: number;
+    }
+  ];
 }

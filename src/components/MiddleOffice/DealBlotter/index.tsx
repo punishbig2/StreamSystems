@@ -6,10 +6,11 @@ import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
 import { BlotterTypes } from "columns/messageBlotter";
 import { observer } from "mobx-react";
 import { randomID } from "randomID";
-import { DealInsertStore } from 'mobx/stores/dealInsertStore';
-import { API } from 'API';
-import { Deal } from 'components/MiddleOffice/DealBlotter/deal';
-import middleOfficeStore from 'mobx/stores/middleOfficeStore';
+import { DealInsertStore } from "mobx/stores/dealInsertStore";
+import { API } from "API";
+import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import { isMessage } from "messageUtils";
 
 interface Props {
   id: string;
@@ -42,14 +43,18 @@ export const DealBlotter: React.FC<Props> = observer(
           />
         );
       } else {
-        const message: Message = props.row;
+        const row: Message | Deal = props.row;
+        const id: string = isMessage(row) ? row.ClOrdID : row.dealID;
+        const isSelected =
+          middleOfficeStore.deal !== null && middleOfficeStore.deal === row;
         return (
           <Row
-            key={message.ClOrdID + randomID("row")}
+            key={id + randomID("row")}
             columns={props.columns}
-            row={message}
+            row={row}
             weight={props.weight}
             type={BlotterRowTypes.Normal}
+            isSelected={isSelected}
             containerWidth={props.containerWidth}
             totalWidth={props.totalWidth}
             insertStore={new DealInsertStore()}

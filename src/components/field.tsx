@@ -7,15 +7,11 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import { Moment } from "moment";
-import { FieldType, getValue } from "components/MiddleOffice/helpers";
+import { getValue } from "components/MiddleOffice/helpers";
 import { DealEntry } from "structures/dealEntry";
 import { randomID } from "randomID";
-
-export enum Validity {
-  Valid,
-  Intermediate,
-  Invalid,
-}
+import { FieldType } from "forms/fieldType";
+import { Validity } from 'forms/validity';
 
 interface Props {
   label: string;
@@ -39,7 +35,7 @@ export const FormField: React.FC<Props> = (props: Props) => {
     props.type,
     props.name,
     props.value,
-    props.precision,
+    props.precision
   );
   const classes: string[] = [props.color];
   if (typeof props.value === "number" && props.value < 0)

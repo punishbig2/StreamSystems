@@ -1,4 +1,4 @@
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import { Message } from "interfaces/message";
 import {
   CreateOrder,
@@ -225,8 +225,8 @@ export class API {
     }${section}/${verb}${object}?${toUrlQuery(args)}`;
   }
 
-  static async getSymbols(region?: string): CancellablePromise<Currency[]> {
-    const currencies: Currency[] = await get<Currency[]>(
+  static async getSymbols(region?: string): CancellablePromise<Symbol[]> {
+    const currencies: Symbol[] = await get<Symbol[]>(
       API.buildUrl(
         API.Config,
         "symbols",
@@ -234,7 +234,7 @@ export class API {
         region ? { region } : undefined
       )
     );
-    currencies.sort((c1: Currency, c2: Currency): number => {
+    currencies.sort((c1: Symbol, c2: Symbol): number => {
       const { name: n1 } = c1;
       const { name: n2 } = c2;
       return (
@@ -713,7 +713,7 @@ export class API {
         buyer: item.buyer,
         seller: item.seller,
         cumulativeQuantity: item.cumqty,
-        currency: item.currency,
+        currency: item.symbol,
         lastPrice: item.lastpx,
         leavesQuantity: item.lvsqty,
         lastQuantity: item.lastqty,

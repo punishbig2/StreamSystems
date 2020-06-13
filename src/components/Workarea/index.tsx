@@ -98,7 +98,7 @@ const Workarea: React.FC = (): ReactElement | null => {
               isDefault={isDefault}
               visible={id === currentWorkspaceID}
               tenors={store.tenors}
-              currencies={store.currencies}
+              currencies={store.symbols}
               strategies={store.strategies}
               banks={store.banks}
               onModify={store.setWorkspaceModified}

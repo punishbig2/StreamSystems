@@ -1,4 +1,4 @@
-import { Currency } from "interfaces/currency";
+import { Symbol } from "interfaces/symbol";
 import styles from "styles";
 import React, { useState, ReactElement, useEffect } from "react";
 import ReactDOM from "react-dom";
@@ -195,7 +195,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
             {props.empty}
           </option>
         ) : null}
-        {filtered.map((item: Currency) => (
+        {filtered.map((item: Symbol) => (
           <option key={item.name} value={item.name}>
             {item.name}
           </option>
