@@ -63,15 +63,17 @@ export const DealEntryForm: React.FC<Props> = observer(
     const getDerivedFieldsFromStrategy = useCallback(
       (strategy: MOStrategy | null | undefined, price: number): any => {
         if (!strategy) return {};
-        console.log(strategy);
+        const legDefinitions: LegOptionsDef[] = legOptionsDefs[strategy.name];
+        if (!legDefinitions)
+          throw new Error("invalid state, strategy has no legs definitions");
         return {
-          legs: strategy.pricerlegs,
+          legs: legDefinitions.length,
           strike: strategy.strike,
           vol: strategy.spreadvsvol === "vol" ? price : undefined,
           spread: strategy.spreadvsvol === "spread" ? price : undefined,
         };
       },
-      []
+      [legOptionsDefs]
     );
 
     useEffect(() => {
@@ -98,19 +100,19 @@ export const DealEntryForm: React.FC<Props> = observer(
     const { strategy, notional, buyer, seller, vol, strike } = entry;
     const { lastPrice: price } = deal ? deal : { lastPrice: 0 };
     useEffect(() => {
-      const definitions: LegOptionsDef[] | undefined = legOptionsDefs[strategy];
-      if (!definitions) return;
+      const legDefinitions: LegOptionsDef[] | undefined = legOptionsDefs[strategy];
+      if (!legDefinitions) return;
       middleOfficeStore.clearStubLegs();
-      for (const definition of definitions) {
+      for (const legDefinition of legDefinitions) {
         const side: Sides =
-          definition.ReturnSide === "buy" ? Sides.Buy : Sides.Sell;
+          legDefinition.ReturnSide === "buy" ? Sides.Buy : Sides.Sell;
         middleOfficeStore.addStubLeg({
-          notional: notional * definition.notional_ratio,
+          notional: notional * legDefinition.notional_ratio,
           party: side === Sides.Buy ? buyer : seller,
           side: side,
           vol: vol,
           strike: strike,
-          option: definition.OptionLegIn,
+          option: legDefinition.OptionLegIn,
         });
       }
       // eslint-disable-next-line
