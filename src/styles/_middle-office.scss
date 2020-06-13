@@ -9,6 +9,7 @@ $grey-form-color: $foreground-color;
   justify-content: center;
   align-items: center;
   padding: 48px;
+
   .text {
     opacity: 0.25;
     font-weight: 600;
@@ -20,6 +21,35 @@ $grey-form-color: $foreground-color;
   position: absolute;
   display: flex;
   align-items: stretch;
+
+  .button-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+
+    button {
+      display: block;
+      margin: 8px 4px;
+
+      &:last-child {
+        margin-right: 8px;
+      }
+
+      &:first-child:not(:only-child) {
+        margin-right: auto;
+        margin-left: 8px;
+      }
+
+      &.primary {
+        background-color: $primary-color;
+      }
+
+      &.secondary {
+        background-color: rgba(0, 0, 0, 0.15);
+        color: $foreground-color;
+      }
+    }
+  }
 
   &.hidden {
     display: none;
@@ -186,7 +216,7 @@ $grey-form-color: $foreground-color;
   border-right: 1px dashed $table-border-color;
 
   &:not(:first-child) {
-    padding: 8px 0 0 0;
+    padding: 0;
 
     h1 {
       border-top: 1px dashed $table-border-color;

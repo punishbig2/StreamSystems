@@ -56,6 +56,8 @@ export class WorkareaStore {
   @observable loadingMessage?: string;
   @observable isCreatingWorkspace: boolean = false;
 
+  private symbolsMap: { [key: string]: Symbol } = {};
+
   private static getMapForCurrencyGroup(group: CurrencyGroups) {
     switch (group) {
       case CurrencyGroups.Default:
@@ -197,6 +199,20 @@ export class WorkareaStore {
     history.pushState({ email }, "", base);
   }
 
+  private mapSymbolsWithIds() {
+    const { symbols } = this;
+    return symbols.reduce(
+      (
+        map: { [key: string]: Symbol },
+        symbol: Symbol
+      ): { [key: string]: Symbol } => {
+        map[symbol.symbolID] = symbol;
+        return map;
+      },
+      {}
+    );
+  }
+
   @action.bound
   public async initialize(email: string) {
     try {
@@ -225,6 +241,8 @@ export class WorkareaStore {
         // Load currencies
         this.loadingMessage = strings.LoadingSymbols;
         this.symbols = await API.getSymbols(persistStorage.getCCYGroup());
+        // Create symbols map
+        this.symbolsMap = this.mapSymbolsWithIds();
         // Load strategies
         this.loadingMessage = strings.LoadingStrategies;
         this.strategies = await API.getProducts();
@@ -324,8 +342,8 @@ export class WorkareaStore {
   }
 
   public findSymbolById(id: string): Symbol | undefined {
-    const { symbols } = this;
-    return symbols.find((symbol: Symbol): boolean => id === symbol.symbolID);
+    const { symbolsMap } = this;
+    return symbolsMap[id];
   }
 }
 

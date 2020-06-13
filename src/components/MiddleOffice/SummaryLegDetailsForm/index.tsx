@@ -154,6 +154,9 @@ export const SummaryLegDetailsForm: React.FC<{}> = observer(
               </fieldset>
             </Grid>
           </Grid>
+          <div className={"button-box"}>
+            <button type={"button"} className={"primary"}>Add Leg</button>
+          </div>
         </form>
       </>
     );

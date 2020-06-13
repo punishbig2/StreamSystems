@@ -8,7 +8,7 @@ import { DealEntry, DealStatus } from "structures/dealEntry";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Symbol } from "interfaces/symbol";
 import { observer } from "mobx-react";
-import middleOfficeStore, { StubLegInfo } from 'mobx/stores/middleOfficeStore';
+import middleOfficeStore, { StubLegInfo } from "mobx/stores/middleOfficeStore";
 import { parseTime } from "timeUtils";
 import { Globals } from "golbals";
 import { Sides } from "interfaces/sides";
@@ -215,11 +215,17 @@ export const DealEntryForm: React.FC<Props> = observer(
             <fieldset className={"full-height"}>{fields.map(mapper)}</fieldset>
           </Grid>
         </Grid>
-        <Grid justify={"space-around"} alignItems={"stretch"} container item>
-          <button type={"button"}>Price</button>
-          <button type={"button"}>Submit</button>
-          <button type={"button"}>Save</button>
-        </Grid>
+        <div className={"button-box"}>
+          <button type={"button"} className={"primary"}>
+            Price
+          </button>
+          <button type={"button"} className={"primary"}>
+            Submit
+          </button>
+          <button type={"button"} className={"secondary"}>
+            Save
+          </button>
+        </div>
       </form>
     );
   }
