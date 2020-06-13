@@ -20,7 +20,7 @@ export enum Validity {
 interface Props {
   label: string;
   name: string;
-  value: string | boolean | number | Moment | undefined;
+  value: string | boolean | number | Moment | undefined | null;
   editable?: boolean;
   type: FieldType;
   items?: (string | number)[];
@@ -39,7 +39,7 @@ export const FormField: React.FC<Props> = (props: Props) => {
     props.type,
     props.name,
     props.value,
-    props.precision
+    props.precision,
   );
   const classes: string[] = [props.color];
   if (typeof props.value === "number" && props.value < 0)

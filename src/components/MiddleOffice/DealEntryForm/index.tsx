@@ -6,14 +6,15 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import React, { ReactElement, useEffect, useState, useCallback } from "react";
 import { DealEntry, DealStatus } from "structures/dealEntry";
-import { MOStrategy } from "interfaces/moStrategy";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Currency } from "interfaces/currency";
 import { observer } from "mobx-react";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { parseTime } from "timeUtils";
 import { Globals } from "golbals";
 import { Sides } from "interfaces/sides";
-import { ValuationModel } from 'interfaces/valuationModel';
+import { ValuationModel } from "components/MiddleOffice/interfaces/valuationModel";
+import { LegOptionsDef } from "components/MiddleOffice/interfaces/legOptionsDef";
 
 interface Props {}
 
@@ -53,6 +54,9 @@ export const DealEntryForm: React.FC<Props> = observer(
     const [strategies, setStrategies] = useState<{
       [name: string]: MOStrategy;
     }>({});
+    const [legOptionsDefs, setLegOptionsDefs] = useState<{
+      [strategy: string]: LegOptionsDef[];
+    }>({});
     const [styles, setStyles] = useState<string[]>([]);
     const [models, setModels] = useState<ValuationModel[]>([]);
 
@@ -91,18 +95,24 @@ export const DealEntryForm: React.FC<Props> = observer(
       setEntry(newEntry);
     }, [deal, strategies, getDerivedFieldsFromStrategy]);
 
-    const { strategy, notional, buyer } = entry;
+    const { strategy, notional, buyer, seller, vol, strike } = entry;
     const { lastPrice: price } = deal ? deal : { lastPrice: 0 };
     useEffect(() => {
-      const moStrategy: MOStrategy | undefined = strategies[strategy];
-      if (!moStrategy) return;
-      middleOfficeStore.createStubLegs(
-        price,
-        notional,
-        buyer,
-        Sides.Buy,
-        moStrategy
-      );
+      const definitions: LegOptionsDef[] | undefined = legOptionsDefs[strategy];
+      if (!definitions) return;
+      middleOfficeStore.clearStubLegs();
+      for (const definition of definitions) {
+        const side: Sides =
+          definition.ReturnSide === "buy" ? Sides.Buy : Sides.Sell;
+        middleOfficeStore.addStubLeg({
+          notional: notional * definition.notional_ratio,
+          party: side === Sides.Buy ? buyer : seller,
+          side: side,
+          vol: vol,
+          strike: strike,
+          option: definition.OptionLegIn,
+        });
+      }
       // eslint-disable-next-line
     }, [strategy, notional, buyer, price, strategies]);
 
@@ -121,7 +131,26 @@ export const DealEntryForm: React.FC<Props> = observer(
         );
       });
       API.getOptexStyle().then(setStyles);
-      API.getValuModel().then(setModels)
+      API.getValuModel().then(setModels);
+      API.getOptionLegsDef().then((result: any) => {
+        const legOptionsDefs = result.reduce(
+          (
+            groups: { [strategy: string]: LegOptionsDef[] },
+            option: LegOptionsDef
+          ) => {
+            const key: string = option.productid;
+            const group: LegOptionsDef[] = groups[key];
+            if (group === undefined) {
+              groups[key] = [option];
+            } else {
+              group.push(option);
+            }
+            return groups;
+          },
+          {}
+        );
+        setLegOptionsDefs(legOptionsDefs);
+      });
     }, []);
     const banks: string[] = workareaStore.banks;
     const currencies: Currency[] = workareaStore.currencies;
@@ -171,8 +200,8 @@ export const DealEntryForm: React.FC<Props> = observer(
       },
       {
         label: "Vol",
-        type: "percent",
-        placeholder: "0%",
+        type: "number",
+        placeholder: "0",
         name: "vol",
         color: "orange",
         editable: false,
@@ -180,7 +209,9 @@ export const DealEntryForm: React.FC<Props> = observer(
       },
       {
         label: "Notional",
-        type: "currency",
+        type: "number",
+        placeholder: "0",
+        precision: 0,
         name: "notional",
         color: "orange",
         editable: true,
@@ -227,6 +258,7 @@ export const DealEntryForm: React.FC<Props> = observer(
       {
         label: "Legs",
         type: "number",
+        placeholder: "0",
         name: "legs",
         color: "green",
         editable: false,

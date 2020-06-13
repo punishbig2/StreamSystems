@@ -37,7 +37,7 @@ export const LegDetailsFields: React.FC<Props> = (
         color={"orange"}
         value={props.notional}
         name={"notional"}
-        type={"currency"}
+        type={"number"}
       />
       <FormField
         label={"Premium Date"}
@@ -58,7 +58,8 @@ export const LegDetailsFields: React.FC<Props> = (
         color={"grey"}
         value={props.price}
         name={"price"}
-        type={"percent"}
+        type={"number"}
+        precision={2}
       />
       <FormField
         label={"Strike"}

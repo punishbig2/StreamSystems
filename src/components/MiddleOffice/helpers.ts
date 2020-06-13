@@ -16,9 +16,10 @@ export type FieldType =
 export const getValue = (
   type: FieldType,
   name: string,
-  value: string | boolean | number | Moment | undefined,
+  value: string | boolean | number | Moment | undefined | null,
   precision?: number
 ): string | undefined => {
+  if (value === null) return "";
   if (value === undefined) return undefined;
   switch (type) {
     case "date":

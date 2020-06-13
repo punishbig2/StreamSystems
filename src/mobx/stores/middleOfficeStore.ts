@@ -4,11 +4,11 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 
 import moment from "moment";
 import { Sides } from "interfaces/sides";
-import { MOStrategy } from "interfaces/moStrategy";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 
 class MiddleOfficeStore {
   @observable deal: Deal | null = null;
-  @observable.ref legs: Leg[] = [];
+  @observable legs: Leg[] = [];
 
   @action.bound
   public setDeal(deal: Deal) {
@@ -16,40 +16,42 @@ class MiddleOfficeStore {
   }
 
   @action.bound
-  public createStubLegs(
-    price: number,
-    notional: number,
-    party: string,
-    side: Sides,
-    strategy: MOStrategy
-  ) {
+  public clearStubLegs() {
+    this.legs = [];
+  }
+
+  @action.bound
+  public addStubLeg(info: {
+    notional: number;
+    party: string;
+    side: Sides;
+    vol: number | undefined;
+    strike: string | undefined;
+    option: string;
+  }) {
     const stub: Leg = {
-      ccy1Depo: 0,
-      ccy2Depo: 0,
-      days: 0,
+      ccy1Depo: null,
+      ccy2Depo: null,
+      days: null,
       deliveryDate: moment(),
-      delta: 0,
+      delta: null,
       expiryDate: moment(),
-      fwdPts: 0,
-      fwdRate: 0,
-      gamma: 0,
-      hedge: 0,
-      notional: notional * 0.5,
-      option: strategy.OptionProductType,
-      party: party,
-      premium: 0,
+      fwdPts: null,
+      fwdRate: null,
+      gamma: null,
+      hedge: null,
+      notional: info.notional * 0.5,
+      option: info.option,
+      party: info.party,
+      premium: null,
       premiumDate: moment(),
-      price: price,
-      side: side,
-      strike: 0,
-      vega: 0,
-      vol: 0,
+      price: null,
+      side: info.side,
+      strike: null,
+      vega: null,
+      vol: info.vol || null,
     };
-    const legs = [];
-    for (let i: number = 0; i < strategy.pricerlegs; ++i) {
-      legs.push(stub);
-    }
-    this.legs = legs;
+    this.legs.push(stub);
   }
 }
 
