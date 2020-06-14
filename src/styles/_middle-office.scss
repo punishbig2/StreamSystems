@@ -22,6 +22,15 @@ $grey-form-color: $foreground-color;
   display: flex;
   align-items: stretch;
 
+  top: 0;
+  left: 0;
+  bottom: $window-footer-size;
+  width: 100%;
+
+  background-color: $light-color;
+
+  z-index: 0;
+
   .button-box {
     display: flex;
     flex-direction: row;
@@ -48,6 +57,10 @@ $grey-form-color: $foreground-color;
         background-color: rgba(0, 0, 0, 0.15);
         color: $foreground-color;
       }
+
+      &:disabled {
+        opacity: 0.25;
+      }
     }
   }
 
@@ -55,14 +68,6 @@ $grey-form-color: $foreground-color;
     display: none;
   }
 
-  top: $window-toolbar-size;
-  left: 0;
-  bottom: $window-footer-size;
-  width: 100%;
-
-  background-color: $light-color;
-
-  z-index: 0;
 
   .left-panel {
     flex: 1;
@@ -257,3 +262,4 @@ $grey-form-color: $foreground-color;
     }
   }
 }
+

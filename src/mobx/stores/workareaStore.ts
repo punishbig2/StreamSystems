@@ -54,9 +54,11 @@ export class WorkareaStore {
   preferences: UserPreferences = defaultPreferences;
   @observable user: User = {} as User;
   @observable loadingMessage?: string;
+  @observable loadingProgress: number = 0;
   @observable isCreatingWorkspace: boolean = false;
 
   private symbolsMap: { [key: string]: Symbol } = {};
+  private loadingStep: number = 0;
 
   private static getMapForCurrencyGroup(group: CurrencyGroups) {
     switch (group) {
@@ -201,73 +203,128 @@ export class WorkareaStore {
 
   private mapSymbolsWithIds() {
     const { symbols } = this;
-    return symbols.reduce(
-      (
-        map: { [key: string]: Symbol },
-        symbol: Symbol
-      ): { [key: string]: Symbol } => {
-        map[symbol.symbolID] = symbol;
-        return map;
-      },
-      {}
-    );
+    return symbols.reduce((map: { [key: string]: Symbol }, symbol: Symbol): {
+      [key: string]: Symbol;
+    } => {
+      map[symbol.symbolID] = symbol;
+      return map;
+    }, {});
   }
 
   @action.bound
+  private updateLoadingProgress(message: string) {
+    this.loadingMessage = message;
+    this.loadingProgress += this.loadingStep;
+    if (this.loadingProgress > 100) this.loadingProgress = 100;
+  }
+
+  @action.bound
+  private async loadUser(email: string): Promise<User | undefined> {
+    this.updateLoadingProgress(strings.StartingUp);
+    // Get the list of all users
+    const users: any[] = await API.getUsers();
+    // Find said user in the users array
+    return users.find((each: User) => each.email === email);
+  }
+
+  private async loadUserRegions(email: string): Promise<string[]> {
+    this.updateLoadingProgress(strings.LoadingRegions);
+    return API.getUserRegions(email);
+  }
+
+  private async initializePersistStorage(user: User): Promise<void> {
+    this.updateLoadingProgress(strings.LoadingRegions);
+    // Initialize the persistStorage object
+    await persistStorage.initialize(user);
+    // Update local copy of preferences
+    await this.hydrate();
+  }
+
+  private async loadSystemSymbols(): Promise<void> {
+    this.updateLoadingProgress(strings.LoadingSymbols);
+    this.symbols = await API.getSymbols(persistStorage.getCCYGroup());
+  }
+
+  private async createSymbolsMap(): Promise<void> {
+    this.symbolsMap = this.mapSymbolsWithIds();
+  }
+
+  private async loadSystemStrategies(): Promise<void> {
+    this.updateLoadingProgress(strings.LoadingStrategies);
+    this.strategies = await API.getProducts();
+  }
+
+  private async loadSystemTenors(): Promise<void> {
+    this.updateLoadingProgress(strings.LoadingTenors);
+    this.tenors = await API.getTenors();
+  }
+
+  private async loadSystemBanks(): Promise<void> {
+    this.updateLoadingProgress(strings.LoadingBanks);
+    this.banks = await API.getBanks();
+  }
+
+  private async connectToSignalR(): Promise<void> {
+    this.updateLoadingProgress(strings.EstablishingConnection);
+    signalRManager.connect();
+    // Try to connect
+    signalRManager.setOnConnectedListener(() => {
+      this.status = WorkareaStatus.Ready;
+      this.loadingMessage = strings.Connected;
+      this.connected = true;
+    });
+    signalRManager.setOnDisconnectedListener(() => {
+      this.status = WorkareaStatus.Error;
+      this.connected = false;
+    });
+  }
+
+  @action.bound
+  private setStatus(status: WorkareaStatus) {
+    this.status = status;
+  }
+
   public async initialize(email: string) {
+    this.loadingStep = 100 / 9;
+    this.setStatus(WorkareaStatus.Starting);
     try {
-      this.status = WorkareaStatus.Starting;
-      const users: any[] = await API.getUsers();
-      // Find said user in the users array
-      const user: User | undefined = users.find(
-        (each: User) => each.email === email
-      );
+      const user: User | undefined = await this.loadUser(email);
       if (user === undefined) {
-        this.status = WorkareaStatus.UserNotFound;
+        this.setStatus(WorkareaStatus.UserNotFound);
       } else {
-        // Get user region
-        user.regions = await API.getUserRegions(user.email);
-        // Initialize the persistStorage object
-        await persistStorage.initialize(user);
-        // Update local copy of preferences
-        await this.hydrate();
-        // Start connecting to the websocket
+        user.regions = await this.loadUserRegions(user.email);
+        // Now the user object is complete
         this.user = user;
-        this.loadingMessage = strings.EstablishingConnection;
         // This is just for eye candy :)
         WorkareaStore.cleanupUrl(user.email);
-        // Start the loading mode
-        this.status = WorkareaStatus.Initializing;
-        // Load currencies
-        this.loadingMessage = strings.LoadingSymbols;
-        this.symbols = await API.getSymbols(persistStorage.getCCYGroup());
-        // Create symbols map
-        this.symbolsMap = this.mapSymbolsWithIds();
-        // Load strategies
-        this.loadingMessage = strings.LoadingStrategies;
-        this.strategies = await API.getProducts();
-        // Load strategies
-        this.loadingMessage = strings.LoadingTenors;
-        this.tenors = await API.getTenors();
-        // Load banks
-        this.loadingMessage = strings.LoadingBanks;
-        this.banks = await API.getBanks();
-        // Connect the signal R client
-        signalRManager.connect();
-        // Try to connect
-        signalRManager.setOnConnectedListener(() => {
-          this.status = WorkareaStatus.Ready;
-          this.loadingMessage = strings.Connected;
-          this.connected = true;
-        });
-        signalRManager.setOnDisconnectedListener(() => {
-          this.status = WorkareaStatus.Error;
-          this.connected = false;
-        });
+        // Load the saved state
+        await this.initializePersistStorage(user);
+        // Set the loading mode
+        this.setStatus(WorkareaStatus.Initializing);
+        // Start loading stuff
+        await this.loadSystemSymbols();
+        await this.createSymbolsMap();
+        await this.loadSystemStrategies();
+        await this.loadSystemTenors();
+        await this.loadSystemBanks();
+        await this.connectToSignalR();
+        // We are done now
+        this.updateLoadingProgress(strings.Connected);
+        // Please wait until progress shows 100%
+        setTimeout(() => {
+          // Notify the user that we're done
+          this.setStatus(WorkareaStatus.Welcome);
+          // We want to show a welcome message first
+          setTimeout(() => {
+            // Switch the the normal view
+            this.setStatus(WorkareaStatus.Ready);
+          }, 800);
+        }, 0);
       }
     } catch (error) {
       this.loadTheme();
-      this.status = WorkareaStatus.Error;
+      this.setStatus(WorkareaStatus.Error);
+      console.warn(error);
     }
   }
 

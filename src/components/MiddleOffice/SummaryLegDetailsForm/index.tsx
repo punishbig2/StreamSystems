@@ -3,16 +3,13 @@ import { Grid } from "@material-ui/core";
 import { FormField } from "components/field";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
+import { NoDataMessage } from "components/noDataMessage";
 
 export const SummaryLegDetailsForm: React.FC<{}> = observer(
   (): ReactElement | null => {
     const data = middleOfficeStore.summaryLeg;
     if (data === null) {
-      return (
-        <div className={"empty-section"}>
-          <div className={"text"}>There's no data yet!</div>
-        </div>
-      );
+      return <NoDataMessage />;
     }
     const { brokerage, dealOutput } = data;
     const totalComm: number | null =
@@ -54,7 +51,13 @@ export const SummaryLegDetailsForm: React.FC<{}> = observer(
                   type={"number"}
                   precision={4}
                 />
-
+                <FormField
+                  label={"Spread"}
+                  color={"grey"}
+                  value={data.spread}
+                  name={"spread"}
+                  type={"number"}
+                />
                 <FormField
                   label={"Cut City"}
                   color={"grey"}
@@ -82,6 +85,13 @@ export const SummaryLegDetailsForm: React.FC<{}> = observer(
                   value={data.delivery}
                   name={"delivery"}
                   type={"text"}
+                />
+                <FormField
+                  label={"USI#"}
+                  color={"grey"}
+                  value={data.usi}
+                  name={"usi"}
+                  type={"number"}
                 />
               </fieldset>
             </Grid>
@@ -114,6 +124,13 @@ export const SummaryLegDetailsForm: React.FC<{}> = observer(
             <Grid alignItems={"stretch"} container>
               <fieldset>
                 <legend>Deal Output</legend>
+                <FormField
+                  label={"Net Premium"}
+                  color={"grey"}
+                  value={dealOutput.netPremium}
+                  name={"netPremium"}
+                  type={"currency"}
+                />
                 <FormField
                   label={"Price %"}
                   color={"grey"}
@@ -155,7 +172,9 @@ export const SummaryLegDetailsForm: React.FC<{}> = observer(
             </Grid>
           </Grid>
           <div className={"button-box"}>
-            <button type={"button"} className={"primary"}>Add Leg</button>
+            <button type={"button"} className={"primary"}>
+              Add Leg
+            </button>
           </div>
         </form>
       </>

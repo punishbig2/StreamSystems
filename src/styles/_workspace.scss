@@ -1,3 +1,25 @@
+.welcome {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: rgba($foreground-color, 0.25);
+
+  top: $window-toolbar-size - 1;
+  left: -1px;
+  bottom: $window-footer-size;
+  right: -1px;
+
+  background-color: $light-color;
+  overflow: hidden;
+
+  z-index: 0;
+
+  h3, h5 {
+    margin: 0;
+  }
+}
 .workspace {
   position: absolute;
 

@@ -3,8 +3,9 @@ import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/valuationModel";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntry } from "structures/dealEntry";
+import { MiddleOfficeStore } from 'mobx/stores/middleOfficeStore';
 
-const fields: FieldDef<DealEntry>[] = [
+const fields: FieldDef<DealEntry, MiddleOfficeStore>[] = [
   {
     name: "currency",
     label: "CCYPair",
@@ -18,7 +19,7 @@ const fields: FieldDef<DealEntry>[] = [
           label: currency.name,
         })
       ),
-    dataSource: "currencies",
+    dataSource: "symbols",
   },
   {
     name: "strategy",
@@ -89,7 +90,6 @@ const fields: FieldDef<DealEntry>[] = [
         label: "FALSE",
       },
     ],
-    dataSource: "",
   },
   {
     name: "buyer",

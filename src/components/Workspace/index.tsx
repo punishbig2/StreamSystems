@@ -19,7 +19,7 @@ import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import { BlotterTypes } from "columns/messageBlotter";
 import { MessageBox } from "components/MessageBox";
 import { User } from "interfaces/user";
-import { Strategy } from "../../interfaces/strategy";
+import { Strategy } from "interfaces/strategy";
 
 interface OwnProps {
   id: string;

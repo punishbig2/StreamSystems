@@ -26,7 +26,7 @@ export interface User {
   email: string;
   firm: string;
   isbroker: boolean;
-  regions?: any[];
+  regions?: string[];
 }
 
 export enum UserProfileStatus {

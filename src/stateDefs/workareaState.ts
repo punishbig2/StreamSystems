@@ -6,6 +6,7 @@ import { User, UserPreferences } from "interfaces/user";
 export enum WorkareaStatus {
   Starting,
   Initializing,
+  Welcome,
   Ready,
   UserNotFound,
   Error,

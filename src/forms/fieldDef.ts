@@ -6,7 +6,7 @@ export interface SelectItem {
   label: string;
 }
 
-export interface FieldDef<T> {
+export interface FieldDef<T, S> {
   type: FieldType;
   color: "green" | "orange" | "cream" | "grey";
   name: keyof T;
@@ -19,5 +19,5 @@ export interface FieldDef<T> {
   precision?: number;
   // Only for dropdown (for now)
   transformData?: (item: any) => SelectItem[];
-  dataSource?: string;
+  dataSource?: keyof S;
 }

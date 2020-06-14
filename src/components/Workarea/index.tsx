@@ -11,15 +11,14 @@ import { Message } from "interfaces/message";
 import { TradeConfirmation } from "components/TradeConfirmation";
 import { observer } from "mobx-react";
 import store from "mobx/stores/workareaStore";
-import workareaStore, {
-  WorkspaceType,
-  WorkspaceDef,
-} from "mobx/stores/workareaStore";
+import workareaStore, { WorkspaceType, WorkspaceDef } from "mobx/stores/workareaStore";
 
 import messagesStore from "mobx/stores/messagesStore";
 import { MessageBox } from "components/MessageBox";
 import { getUserFromUrl } from "utils/getUserFromUrl";
 import { MiddleOffice } from "components/MiddleOffice";
+import { ProgressView } from "components/progressView";
+import { Welcome } from "components/weolcome";
 
 const Workarea: React.FC = (): ReactElement | null => {
   const { recentExecutions } = store;
@@ -87,6 +86,7 @@ const Workarea: React.FC = (): ReactElement | null => {
 
   const getActiveWorkspace = () => {
     const { workspaces, user, currentWorkspaceID } = store;
+    if (store.status === WorkareaStatus.Welcome) return <Welcome />;
     if (user === null) return null;
     return Object.values(workspaces).map(
       ({ id, type, isDefault }: WorkspaceDef) => {
@@ -150,12 +150,15 @@ const Workarea: React.FC = (): ReactElement | null => {
     case WorkareaStatus.Starting:
       return null;
     case WorkareaStatus.Initializing:
+      if (!store.loadingMessage) return null;
       return (
-        <div className={"loading-window"}>
-          <div className={"spinner"} />
-          <h2>{store.loadingMessage}</h2>
-        </div>
+        <ProgressView
+          value={store.loadingProgress}
+          message={store.loadingMessage}
+          title={"Loading: Application"}
+        />
       );
+    case WorkareaStatus.Welcome:
     case WorkareaStatus.Ready:
       return (
         <>

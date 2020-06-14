@@ -131,14 +131,14 @@ export const LegDetailsFields: React.FC<Props> = (
         type={"currency"}
       />
       <FormField
-        label={"Vega"}
+        label={"Net Vega"}
         color={"grey"}
         value={props.vega}
         name={"vega"}
         type={"currency"}
       />
       <FormField
-        label={"Hedge"}
+        label={"Net Hedge"}
         color={"grey"}
         value={props.hedge}
         name={"hedge"}
