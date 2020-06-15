@@ -16,7 +16,9 @@ import { Sides } from "interfaces/sides";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { getSound } from "../beep-sound";
+import { getSound } from "beep-sound";
+import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -29,7 +31,9 @@ export enum SignalRMethods {
   SubscribeForMBMsg = "SubscribeForMBMsg",
   UnsubscribeFromMBMsg = "UnsubscribeForMBMsg",
   SubscribeForDarkPoolPx = "SubscribeForDarkPoolPx",
-  UnsubscribeForDarkPoolPx = "UnsubscribeForDarkPoolPx",
+  UnsubscribeFromDarkPoolPx = "UnsubscribeForDarkPoolPx",
+  SubscribeForDeals = "SubscribeForDeals",
+  UnsubscribeFromDeals = "UnSubscribeForDeals",
 }
 
 const getSoundFile = async (name: string) => {
@@ -71,7 +75,13 @@ export class SignalRManager {
     | ((connection: HubConnection) => void)
     | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
-  private recordedCommands: Command[] = [];
+  private recordedCommands: Command[] = [
+    {
+      name: SignalRMethods.SubscribeForDeals,
+      args: [],
+      refCount: 1,
+    },
+  ];
   private pendingW: { [k: string]: W } = {};
 
   // private listeners: { [k: string]: (arg: W) => void } = {};
@@ -118,7 +128,6 @@ export class SignalRManager {
   };
 
   private onClearDarkPoolPx = (message: string) => {
-    console.log(message);
     localStorage.clear();
     document.dispatchEvent(new CustomEvent("cleardarkpoolprice"));
   };
@@ -143,7 +152,8 @@ export class SignalRManager {
       connection.on("updateMarketData", this.onUpdateMarketData);
       connection.on("updateDarkPoolPx", this.onUpdateDarkPoolPx);
       connection.on("updateMessageBlotter", this.onUpdateMessageBlotter);
-      connection.on("clearDarkPoolPx", this.onClearDarkPoolPx)
+      connection.on("clearDarkPoolPx", this.onClearDarkPoolPx);
+      connection.on("updateDealsBlotter", this.onUpdateDeals);
     }
   };
 
@@ -204,6 +214,13 @@ export class SignalRManager {
     this.handleMessageActions(message);
     // Now call the setup handler
     this.onMessageListener(message);
+  };
+
+  private onUpdateDeals = (message: string): void => {
+    const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
+      detail: createDealFromBackendMessage(message),
+    });
+    document.dispatchEvent(event);
   };
 
   private onUpdateMarketData = (message: string): void => {
@@ -273,6 +290,17 @@ export class SignalRManager {
     document.removeEventListener(key, eventListener);
   };
 
+  public addDealListener = (listener: (deal: Deal) => void) => {
+    const listenerWrapper = (event: Event) => {
+      const customEvent: CustomEvent<Deal> = event as CustomEvent<Deal>;
+      listener(customEvent.detail);
+    };
+    document.addEventListener("ondeal", listenerWrapper, true);
+    return () => {
+      document.removeEventListener("ondeal", listenerWrapper, true);
+    };
+  };
+
   public addMarketListener = (
     symbol: string,
     strategy: string,
@@ -329,7 +357,7 @@ export class SignalRManager {
     delete this.dpListeners[key];
     // Invoke ths Signal R method
     this.invoke(
-      SignalRMethods.UnsubscribeForDarkPoolPx,
+      SignalRMethods.UnsubscribeFromDarkPoolPx,
       currency,
       strategy,
       tenor

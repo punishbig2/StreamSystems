@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { Message } from "interfaces/message";
-import { getMessageSize } from "messageUtils";
+import { getMessageSize } from "utils/messageUtils";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { SizeCell } from "components/MiddleOffice/interfaces/cells/size";

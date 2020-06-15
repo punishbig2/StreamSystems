@@ -18,6 +18,7 @@ import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
 import { Strategy } from "../interfaces/strategy";
 import { Deal } from "../components/MiddleOffice/DealBlotter/deal";
+import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -707,20 +708,6 @@ export class API {
     const array: any[] = await get<Deal[]>(
       API.buildUrl(API.Deal, "deals", "get")
     );
-    return array.map(
-      (item: any): Deal => ({
-        dealID: item.transid,
-        buyer: item.buyer,
-        seller: item.seller,
-        cumulativeQuantity: item.cumqty,
-        currency: item.symbol,
-        lastPrice: item.lastpx,
-        leavesQuantity: item.lvsqty,
-        lastQuantity: item.lastqty,
-        strategy: item.strategy,
-        symbol: item.symbol,
-        transactionTime: item.transacttime,
-      })
-    );
+    return array.map(createDealFromBackendMessage);
   }
 }

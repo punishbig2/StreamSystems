@@ -5,7 +5,7 @@ import { compareCurrencies } from './messageBlotterColumns/utils';
 import { CellProps } from './messageBlotterColumns/cellProps';
 import { tenorToNumber } from '../utils/dataGenerators';
 import { priceFormatter } from '../utils/priceFormatter';
-import { getMessagePrice, getMessageSize, getBuyer, getSeller, TransTypes } from '../messageUtils';
+import { getMessagePrice, getMessageSize, getBuyer, getSeller, TransTypes } from 'utils/messageUtils';
 import { involved } from './messageBlotterColumns/helpers';
 import { User } from '../interfaces/user';
 import workareaStore from '../mobx/stores/workareaStore';

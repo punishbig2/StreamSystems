@@ -8,7 +8,7 @@ import {
   isAcceptableFill,
   sortByTimeDescending,
   isMyMessage,
-} from "messageUtils";
+} from "utils/messageUtils";
 
 export class MessagesStore {
   private entries: Message[] = [];

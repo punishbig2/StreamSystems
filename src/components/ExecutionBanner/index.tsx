@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { Message } from "interfaces/message";
 import { priceFormatter } from "utils/priceFormatter";
 import store from "mobx/stores/messagesStore";
-import { getMessagePrice } from "messageUtils";
+import { getMessagePrice } from "utils/messageUtils";
 import { observer } from "mobx-react";
 
 const ExecutionBanner: React.FC<{}> = observer((): ReactElement | null => {

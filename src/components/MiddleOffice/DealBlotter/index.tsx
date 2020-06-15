@@ -10,7 +10,7 @@ import { DealInsertStore } from "mobx/stores/dealInsertStore";
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
-import { isMessage } from "messageUtils";
+import { isMessage } from "utils/messageUtils";
 
 interface Props {
   id: string;
