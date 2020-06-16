@@ -162,14 +162,14 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   type={"currency"}
                 />
                 <FormField
-                  label={"Vega"}
+                  label={"Net Vega"}
                   color={"grey"}
                   value={dealOutput.vega}
                   name={"vega"}
                   type={"currency"}
                 />
                 <FormField
-                  label={"Hedge"}
+                  label={"Net Hedge"}
                   color={"grey"}
                   value={dealOutput.hedge}
                   name={"hedge"}
