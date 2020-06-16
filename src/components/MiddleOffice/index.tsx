@@ -10,6 +10,7 @@ import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
 import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
+import middleOfficeStore from "mobx/stores/middleOfficeStore";
 
 interface Props {
   visible: boolean;
@@ -24,6 +25,9 @@ export const MiddleOffice: React.FC<Props> = observer(
     useEffect(() => {
       store.loadReferenceData();
     }, []);
+    useEffect(() => {
+      setPricingResult(null);
+    }, [middleOfficeStore.deal]);
     useEffect(() => {
       return signalRManager.addPricingResponseListener((response: any) => {
         console.log(response);
