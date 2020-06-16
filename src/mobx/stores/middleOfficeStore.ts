@@ -139,7 +139,7 @@ export class MiddleOfficeStore {
         delta: null,
         gamma: null,
         hedge: null,
-        netPremium: null,
+        premiumAMT: null,
         pricePercent: null,
         vega: null,
       },

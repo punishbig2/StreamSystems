@@ -13,7 +13,7 @@ export default (
   legOptionsDefs: { [strategy: string]: LegOptionsDef[] }
 ) => {
   useEffect(() => {
-    const { strategy, notional, buyer, seller, vol, strike, currency } = entry;
+    const { strategy, notional, buyer, vol, strike, currency } = entry;
     const legDefinitions: LegOptionsDef[] | undefined =
       legOptionsDefs[strategy];
     if (!legDefinitions) return;
@@ -26,7 +26,7 @@ export default (
       const legData: StubLegInfo = {
         notional:
           notional === null ? null : notional * legDefinition.notional_ratio,
-        party: side === Sides.Buy ? buyer : seller,
+        party: buyer,
         side: side,
         vol: vol,
         strike: strike,

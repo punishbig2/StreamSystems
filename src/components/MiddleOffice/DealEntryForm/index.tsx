@@ -13,6 +13,7 @@ import fields from "components/MiddleOffice/DealEntryForm/fields";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import deepEqual from "deep-equal";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
+import { API } from "API";
 
 interface Props {}
 
@@ -129,7 +130,12 @@ export const DealEntryForm: React.FC<Props> = observer(
           </Grid>
         </Grid>
         <div className={"button-box"}>
-          <button type={"button"} className={"primary"}>
+          <button
+            type={"button"}
+            className={"primary"}
+            onClick={() => API.sendPricingRequest(entry)}
+            disabled={deal === null}
+          >
             Price
           </button>
           <button type={"button"} className={"primary"}>

@@ -16,7 +16,7 @@ export interface SummaryLeg {
     sellerComm: number | null;
   };
   dealOutput: {
-    netPremium: number | null;
+    premiumAMT: number | null;
     pricePercent: number | null;
     delta: number | null;
     gamma: number | null;

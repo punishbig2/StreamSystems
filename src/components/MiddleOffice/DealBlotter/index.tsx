@@ -1,16 +1,20 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement } from "react";
 import { Table } from "components/Table";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { Message } from "interfaces/message";
-import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
+import {
+  Row,
+  BlotterRowTypes,
+  ContextMenuItem,
+} from "components/MessageBlotter/row";
 import { BlotterTypes } from "columns/messageBlotter";
 import { observer } from "mobx-react";
 import { randomID } from "randomID";
 import { DealInsertStore } from "mobx/stores/dealInsertStore";
-import { API } from "API";
 import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { isMessage } from "utils/messageUtils";
+import dealsStore from "mobx/stores/dealsStore";
 
 interface Props {
   id: string;
@@ -18,12 +22,7 @@ interface Props {
 
 export const DealBlotter: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const [rows, setRows] = useState<Message[]>([]);
-    useEffect(() => {
-      API.getDeals().then((deals: any) => {
-        setRows(deals);
-      });
-    }, []);
+    const deals: Deal[] = dealsStore.deals;
     const onRowClicked = (deal: Deal) => {
       middleOfficeStore.setDeal(deal);
     };
@@ -47,6 +46,14 @@ export const DealBlotter: React.FC<Props> = observer(
         const id: string = isMessage(row) ? row.ClOrdID : row.dealID;
         const isSelected =
           middleOfficeStore.deal !== null && middleOfficeStore.deal === row;
+        const contextMenu: ContextMenuItem[] = [
+          {
+            label: "Clone",
+            action: () => {
+              console.log("should clone");
+            },
+          },
+        ];
         return (
           <Row
             key={id + randomID("row")}
@@ -57,6 +64,7 @@ export const DealBlotter: React.FC<Props> = observer(
             isSelected={isSelected}
             containerWidth={props.containerWidth}
             totalWidth={props.totalWidth}
+            contextMenu={contextMenu}
             insertStore={new DealInsertStore()}
             blotterType={BlotterTypes.Executions}
             onClick={onRowClicked}
@@ -68,7 +76,7 @@ export const DealBlotter: React.FC<Props> = observer(
       <Table
         id={`${props.id}-dblt`}
         columns={columns}
-        rows={rows}
+        rows={deals}
         renderRow={renderRow}
         scrollable={true}
         showInsertRow={true}
@@ -77,3 +85,4 @@ export const DealBlotter: React.FC<Props> = observer(
     );
   }
 );
+

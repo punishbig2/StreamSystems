@@ -4,14 +4,21 @@ import { FormField } from "components/field";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
+import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
 
-export const SummaryLegDetailsForm: React.FC<{}> = observer(
-  (): ReactElement | null => {
+interface Props {
+  pricingResult: PricingResult | null;
+}
+
+export const SummaryLegDetailsForm: React.FC<Props> = observer(
+  (props: Props): ReactElement | null => {
+    const { pricingResult } = props;
     const data = middleOfficeStore.summaryLeg;
     if (data === null) {
       return <NoDataMessage />;
     }
-    const { brokerage, dealOutput } = data;
+    const { brokerage } = data;
+    const dealOutput = pricingResult != null ? pricingResult : (data.dealOutput as PricingResult);
     const totalComm: number | null =
       brokerage.buyerComm !== null && brokerage.sellerComm !== null
         ? brokerage.buyerComm + brokerage.sellerComm
@@ -127,7 +134,7 @@ export const SummaryLegDetailsForm: React.FC<{}> = observer(
                 <FormField
                   label={"Net Premium"}
                   color={"grey"}
-                  value={dealOutput.netPremium}
+                  value={dealOutput.premiumAMT}
                   name={"netPremium"}
                   type={"currency"}
                 />

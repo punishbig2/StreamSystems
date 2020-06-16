@@ -11,20 +11,20 @@ import { W, isPodW } from "interfaces/w";
 import { API } from "API";
 import { $$ } from "utils/stringPaster";
 import { MDEntry } from "interfaces/mdEntry";
-import { OCOModes, UserPreferences, User, ExecSound } from "interfaces/user";
+import { OCOModes, User } from "interfaces/user";
 import { Sides } from "interfaces/sides";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { getSound } from "beep-sound";
 import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import { createDealFromBackendMessage } from "utils/dealUtils";
+import { playBeep } from "signalR/helpers";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { "1": Sides.Buy, "2": Sides.Sell };
 
-export enum SignalRMethods {
+export enum Methods {
   // Messages
   SubscribeForMarketData = "SubscribeForMarketData",
   UnsubscribeFromMarketData = "UnsubscribeForMarketData",
@@ -34,33 +34,18 @@ export enum SignalRMethods {
   UnsubscribeFromDarkPoolPx = "UnsubscribeForDarkPoolPx",
   SubscribeForDeals = "SubscribeForDeals",
   UnsubscribeFromDeals = "UnSubscribeForDeals",
+  SubscribeForPricingResponse = "SubscribeForPricingResponse",
+  UnsubscribeFromPricingResponse = "UnSubscribeForPricing",
 }
 
-const getSoundFile = async (name: string) => {
-  if (name === "default") {
-    return "/sounds/alert.wav";
-  } else {
-    const sound: ExecSound = await getSound(name);
-    if (sound === undefined) return "/sounds/alert.wav";
-    return sound.data as string;
-  }
-};
-
-const playBeep = async (
-  preferences: UserPreferences,
-  destination: string | undefined
-) => {
-  const src: string = await (async () => {
-    if (destination === "DP") {
-      return getSoundFile(preferences.darkPoolExecSound);
-    } else {
-      return getSoundFile(preferences.execSound);
-    }
-  })();
-  const element: HTMLAudioElement = document.createElement("audio");
-  element.src = src;
-  element.play();
-};
+enum Events {
+  UpdateMarketData = "updateMarketData",
+  UpdateDarkPoolPrice = "updateDarkPoolPx",
+  UpdateMessageBlotter = "updateMessageBlotter",
+  ClearDarkPoolPrice = "clearDarkPoolPx",
+  UpdateDealsBlotter = "updateDealsBlotter",
+  OnPricingResponse = "onPricingResponse",
+}
 
 interface Command {
   name: string;
@@ -77,10 +62,15 @@ export class SignalRManager {
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private recordedCommands: Command[] = [
     {
-      name: SignalRMethods.SubscribeForDeals,
-      args: [],
+      name: Methods.SubscribeForDeals,
+      args: ["*"],
       refCount: 1,
     },
+    {
+      name: Methods.SubscribeForPricingResponse,
+      args: ["*"],
+      refCount: 1,
+    }
   ];
   private pendingW: { [k: string]: W } = {};
 
@@ -149,11 +139,13 @@ export class SignalRManager {
       // Listen to installed combinations
       this.replayRecordedCommands();
       // Install listeners
-      connection.on("updateMarketData", this.onUpdateMarketData);
-      connection.on("updateDarkPoolPx", this.onUpdateDarkPoolPx);
-      connection.on("updateMessageBlotter", this.onUpdateMessageBlotter);
-      connection.on("clearDarkPoolPx", this.onClearDarkPoolPx);
-      connection.on("updateDealsBlotter", this.onUpdateDeals);
+
+      connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
+      connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
+      connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
+      connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
+      connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
+      connection.on(Events.OnPricingResponse, this.onPricingResponse);
     }
   };
 
@@ -216,6 +208,13 @@ export class SignalRManager {
     this.onMessageListener(message);
   };
 
+  private onPricingResponse = (message: string): void => {
+    const event: CustomEvent<Deal> = new CustomEvent<Deal>("onpricingresponse", {
+      detail: JSON.parse(message),
+    });
+    document.dispatchEvent(event);
+  };
+
   private onUpdateDeals = (message: string): void => {
     const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
       detail: createDealFromBackendMessage(message),
@@ -263,7 +262,7 @@ export class SignalRManager {
   ) => {
     const { recordedCommands } = this;
     const index: number = recordedCommands.findIndex((command: Command) => {
-      if (command.name !== SignalRMethods.SubscribeForMarketData) return false;
+      if (command.name !== Methods.SubscribeForMarketData) return false;
       return (
         command.args[0] === symbol &&
         command.args[1] === strategy &&
@@ -277,7 +276,7 @@ export class SignalRManager {
       const command: Command = recordedCommands[index];
       if (--command.refCount === 1) {
         // Unsubscribe now that we know which one exactly
-        this.invoke(SignalRMethods.UnsubscribeFromMarketData, ...command.args);
+        this.invoke(Methods.UnsubscribeFromMarketData, ...command.args);
         // Update recorded commands
         this.recordedCommands = [
           ...recordedCommands.slice(0, index),
@@ -288,6 +287,17 @@ export class SignalRManager {
     // Remove event listener, this is always done as there is 1
     // per added listener
     document.removeEventListener(key, eventListener);
+  };
+
+  public addPricingResponseListener = (listener: (response: any) => void) => {
+    const listenerWrapper = (event: Event) => {
+      const customEvent: CustomEvent<any> = event as CustomEvent<any>;
+      listener(customEvent.detail);
+    };
+    document.addEventListener("onpricingresponse", listenerWrapper, true);
+    return () => {
+      document.removeEventListener("onpricingresponse", listenerWrapper, true);
+    };
   };
 
   public addDealListener = (listener: (deal: Deal) => void) => {
@@ -316,7 +326,7 @@ export class SignalRManager {
     // Just add the listener, the rest is done elsewhere
     document.addEventListener(key, eventListener);
     const command: Command = {
-      name: SignalRMethods.SubscribeForMarketData,
+      name: Methods.SubscribeForMarketData,
       args: [symbol, strategy, tenor],
       refCount: 1,
     };
@@ -356,12 +366,7 @@ export class SignalRManager {
     // Remove it from the map
     delete this.dpListeners[key];
     // Invoke ths Signal R method
-    this.invoke(
-      SignalRMethods.UnsubscribeFromDarkPoolPx,
-      currency,
-      strategy,
-      tenor
-    );
+    this.invoke(Methods.UnsubscribeFromDarkPoolPx, currency, strategy, tenor);
   };
 
   public setDarkPoolPriceListener = (
@@ -382,7 +387,7 @@ export class SignalRManager {
     const { recordedCommands } = this;
     const key: string = $$(currency, strategy, tenor);
     const command: Command = {
-      name: SignalRMethods.SubscribeForDarkPoolPx,
+      name: Methods.SubscribeForDarkPoolPx,
       args: [currency, strategy, tenor],
       refCount: 1,
     };
@@ -472,15 +477,15 @@ export class SignalRManager {
   public removeMessagesListener = () => {
     const { recordedCommands } = this;
     this.recordedCommands = recordedCommands.filter((command: Command) => {
-      return command.name === SignalRMethods.SubscribeForMBMsg;
+      return command.name === Methods.SubscribeForMBMsg;
     });
-    this.invoke(SignalRMethods.UnsubscribeFromMBMsg, "*");
+    this.invoke(Methods.UnsubscribeFromMBMsg, "*");
   };
 
   public setMessagesListener = (onMessage: (message: Message) => void) => {
     const { recordedCommands } = this;
     const command: Command = {
-      name: SignalRMethods.SubscribeForMBMsg,
+      name: Methods.SubscribeForMBMsg,
       args: ["*"],
       refCount: 1,
     };

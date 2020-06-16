@@ -16,9 +16,10 @@ import { STRM } from "stateDefs/workspaceState";
 import { Sides } from "interfaces/sides";
 import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
-import { Strategy } from "../interfaces/strategy";
-import { Deal } from "../components/MiddleOffice/DealBlotter/deal";
+import { Strategy } from "interfaces/strategy";
+import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import { createDealFromBackendMessage } from "utils/dealUtils";
+import { DealEntry } from "structures/dealEntry";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -110,10 +111,14 @@ const request = <T>(
           } else if (xhr.status >= 200 && xhr.status < 300) {
             const { responseText } = xhr;
             if (responseText.length > 0) {
-              // TODO: throw an exception or handle the one thrown here
-              const object: any = JSON.parse(responseText);
-              // Return the object converted to the correct type
-              resolve(object as T);
+              try {
+                const object: any = JSON.parse(responseText);
+                // Return the object converted to the correct type
+                resolve(object as T);
+              } catch {
+                // @ts-ignore
+                resolve(responseText);
+              }
             } else {
               resolve((null as unknown) as T);
             }
@@ -180,7 +185,8 @@ type Endpoints =
   | "optionsproducts"
   | "deals"
   | "optionlegsdef"
-  | "exproducts";
+  | "exproducts"
+  | "request";
 
 type Verb =
   | "get"
@@ -192,7 +198,8 @@ type Verb =
   | "save"
   | "cxlall"
   | "clear"
-  | "create";
+  | "create"
+  | "pricing";
 
 export class API {
   static FxOpt: string = "/api/fxopt";
@@ -709,5 +716,21 @@ export class API {
       API.buildUrl(API.Deal, "deals", "get")
     );
     return array.map(createDealFromBackendMessage);
+  }
+
+  static async sendPricingRequest(entry: DealEntry) {
+    const user: User = workareaStore.user;
+    return post<any>(API.buildUrl(API.Deal, "request", "pricing"), {
+      MsgType: "PR",
+      TransactTime: Date.now() / 1000,
+      User: user.email,
+      Symbol: entry.currency,
+      Strategy: entry.strategy,
+      Tenor: "1W",
+      Side: "BUY",
+      Quantity: entry.notional,
+      Price: entry.vol,
+      ExecInst: "D",
+    });
   }
 }

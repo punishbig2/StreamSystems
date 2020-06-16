@@ -4,12 +4,17 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
+import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
 
-interface Props {}
+interface Props {
+  pricingResult: PricingResult | null;
+}
 
 export const LegDetailsForm: React.FC<Props> = observer(
-  (): ReactElement | null => {
+  (props: Props): ReactElement | null => {
     const { legs } = middleOfficeStore;
+    const { pricingResult } = props;
+    const pricingResultLegs = pricingResult !== null ? pricingResult.legs : [];
     if (legs.length === 0) {
       return <NoDataMessage />;
     }
@@ -19,7 +24,7 @@ export const LegDetailsForm: React.FC<Props> = observer(
           return (
             <fieldset key={index}>
               <legend className={"leg-legend"}>Leg {index + 1}</legend>
-              <LegDetailsFields {...leg} />
+              <LegDetailsFields {...leg} {...pricingResultLegs[index]} />
             </fieldset>
           );
         })}
