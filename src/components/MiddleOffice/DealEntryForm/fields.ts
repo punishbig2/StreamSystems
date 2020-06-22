@@ -1,9 +1,8 @@
 import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { ValuationModel } from "components/MiddleOffice/interfaces/valuationModel";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntry } from "structures/dealEntry";
-import { MiddleOfficeStore } from 'mobx/stores/middleOfficeStore';
+import { MiddleOfficeStore, InternalValuationModel } from "mobx/stores/middleOfficeStore";
 
 const fields: FieldDef<DealEntry, MiddleOfficeStore>[] = [
   {
@@ -178,9 +177,9 @@ const fields: FieldDef<DealEntry, MiddleOfficeStore>[] = [
     type: "dropdown",
     color: "green",
     editable: false,
-    transformData: (list: ValuationModel[]): SelectItem[] =>
+    transformData: (list: InternalValuationModel[]): SelectItem[] =>
       list.map(
-        (model: ValuationModel): SelectItem => ({
+        (model: InternalValuationModel): SelectItem => ({
           value: model.ValuationModelID,
           label: model.OptionModelDesc,
         })

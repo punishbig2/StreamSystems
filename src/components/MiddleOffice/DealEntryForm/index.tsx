@@ -14,6 +14,8 @@ import { FieldDef, SelectItem } from "forms/fieldDef";
 import deepEqual from "deep-equal";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { API } from "API";
+import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import { Symbol } from "interfaces/symbol";
 
 interface Props {}
 
@@ -81,8 +83,32 @@ export const DealEntryForm: React.FC<Props> = observer(
       setReferenceEntry(newEntry);
       setEntry(newEntry);
     }, [deal, strategies, legOptionsDefinitions]);
-    useLegs(cuts, entry, legOptionsDefinitions);
-    useEffect(() => {}, []);
+    const symbol: Symbol | undefined = useLegs(
+      cuts,
+      entry,
+      legOptionsDefinitions
+    );
+    const sendPricingRequest = () => {
+      if (deal === null) throw new Error("no deal to get a pricing for");
+      if (deal.strategy === undefined) throw new Error("invalid deal found");
+      if (entry.model === "") throw new Error("node model specified");
+      if (symbol === undefined)
+        throw new Error("cannot get the symbol information");
+      const valuationModel: ValuationModel = store.getValuationModelById(
+        entry.model as number
+      );
+      const strategy: MOStrategy = strategies[deal.strategy];
+      API.sendPricingRequest(
+        deal,
+        entry,
+        store.legs,
+        valuationModel,
+        strategy,
+        symbol
+      );
+    };
+    if (deal && deal.strategy)
+      console.log(strategies[deal.strategy].OptionProductType);
 
     const onChange = (name: keyof DealEntry, value: any) => {
       if (name === "strategy") {
@@ -133,7 +159,7 @@ export const DealEntryForm: React.FC<Props> = observer(
           <button
             type={"button"}
             className={"primary"}
-            onClick={() => API.sendPricingRequest(entry)}
+            onClick={sendPricingRequest}
             disabled={deal === null}
           >
             Price

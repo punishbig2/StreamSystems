@@ -15,7 +15,7 @@ export const LegDetailsFields: React.FC<Props> = (
       <FormField
         label={"Option"}
         color={"grey"}
-        value={props.option}
+        value={props.optionOut}
         name={"option"}
         type={"text"}
       />

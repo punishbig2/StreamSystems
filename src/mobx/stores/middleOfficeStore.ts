@@ -10,12 +10,12 @@ import { parseTime } from "timeUtils";
 import { Globals } from "golbals";
 import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { ValuationModel } from "components/MiddleOffice/interfaces/valuationModel";
 import { API } from "API";
 
 import workareaStore from "mobx/stores/workareaStore";
 import { LegOptionsDef } from "components/MiddleOffice/interfaces/legOptionsDef";
 import { DealEntry } from "structures/dealEntry";
+import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 
 export interface StubLegInfo {
   notional: number | null;
@@ -23,8 +23,16 @@ export interface StubLegInfo {
   side: Sides;
   vol: number | undefined;
   strike: string | undefined;
-  option: string;
+  optionOut: string;
+  optionIn: string;
   currencies: [string, string];
+}
+
+export interface InternalValuationModel {
+  ValuationModelID: number;
+  OptionModel: string;
+  OptionModelDesc: string;
+  OptionModelParameters: string;
 }
 
 export class MiddleOfficeStore {
@@ -36,7 +44,7 @@ export class MiddleOfficeStore {
 
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
-  public models: ValuationModel[] = [];
+  public models: InternalValuationModel[] = [];
   public legOptionsDefinitions: { [strategy: string]: LegOptionsDef[] } = {};
   public cuts: Cut[] = [];
 
@@ -91,7 +99,7 @@ export class MiddleOfficeStore {
   }
 
   @action.bound
-  private setModels(models: ValuationModel[]): void {
+  private setModels(models: InternalValuationModel[]): void {
     this.models = models;
     this.setProgress(80);
   }
@@ -150,7 +158,7 @@ export class MiddleOfficeStore {
       spread: entry.spread,
       tradeDate: moment(parseTime(deal.transactionTime, Globals.timezone)),
       usi: null,
-      strategy: legs[0].option,
+      strategy: legs[0].optionOut,
     };
   }
 
@@ -180,16 +188,17 @@ export class MiddleOfficeStore {
           value: 0,
         },
       ],
-      days: null,
-      deliveryDate: moment(),
-      delta: null,
       expiryDate: moment(),
+      deliveryDate: moment(),
+      days: null,
+      delta: null,
       fwdPts: null,
       fwdRate: null,
       gamma: null,
       hedge: null,
       notional: info.notional,
-      option: info.option,
+      optionOut: info.optionOut,
+      optionIn: info.optionIn,
       party: info.party,
       premium: null,
       premiumDate: moment(),
@@ -200,6 +209,21 @@ export class MiddleOfficeStore {
       vol: info.vol || null,
     };
     legs.push(stub);
+  }
+
+  public getValuationModelById(id: number): ValuationModel {
+    const { models } = this;
+    console.log(models, id);
+    const model: InternalValuationModel | undefined = models.find(
+      (model: InternalValuationModel): boolean => {
+        return model.ValuationModelID === id;
+      }
+    );
+    if (model === undefined) throw new Error("cannot find the valuation model");
+    return {
+      OptionModelType: model.OptionModel,
+      OptionModelParamaters: model.OptionModelParameters,
+    };
   }
 }
 

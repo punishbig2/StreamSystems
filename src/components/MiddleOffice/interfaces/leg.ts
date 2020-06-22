@@ -2,7 +2,8 @@ import moment from "moment";
 import { Sides } from "interfaces/sides";
 
 export interface Leg {
-  option: string;
+  optionOut: string;
+  optionIn: string;
   side: Sides;
   party: string;
   notional: number | null;

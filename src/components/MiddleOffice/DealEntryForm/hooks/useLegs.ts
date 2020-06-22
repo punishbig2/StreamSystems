@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { LegOptionsDef } from "components/MiddleOffice/interfaces/legOptionsDef";
 import middleOfficeStore, { StubLegInfo } from "mobx/stores/middleOfficeStore";
 import { Sides } from "interfaces/sides";
@@ -11,7 +11,8 @@ export default (
   cuts: Cut[],
   entry: DealEntry,
   legOptionsDefs: { [strategy: string]: LegOptionsDef[] }
-) => {
+): Symbol | undefined => {
+  const [symbol, setSymbol] = useState<Symbol | undefined>(undefined);
   useEffect(() => {
     const { strategy, notional, buyer, vol, strike, currency } = entry;
     const legDefinitions: LegOptionsDef[] | undefined =
@@ -30,7 +31,8 @@ export default (
         side: side,
         vol: vol,
         strike: strike,
-        option: legDefinition.OptionLegIn,
+        optionOut: legDefinition.ReturnLegOut,
+        optionIn: legDefinition.OptionLegIn,
         currencies: [currency.slice(0, 3), currency.slice(3)],
       };
       middleOfficeStore.addStubLeg(legData);
@@ -49,5 +51,7 @@ export default (
         console.warn("cannot determine the cut city for this deal");
       }
     }
+    setSymbol(symbol);
   }, [cuts, entry, legOptionsDefs]);
+  return symbol;
 };
