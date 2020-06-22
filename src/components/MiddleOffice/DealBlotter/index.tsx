@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { Table } from "components/Table";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { Message } from "interfaces/message";
@@ -15,6 +15,7 @@ import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { isMessage } from "utils/messageUtils";
 import dealsStore from "mobx/stores/dealsStore";
+import signalRManager from "signalR/signalRManager";
 
 interface Props {
   id: string;
@@ -26,6 +27,9 @@ export const DealBlotter: React.FC<Props> = observer(
     const onRowClicked = (deal: Deal) => {
       middleOfficeStore.setDeal(deal);
     };
+    useEffect(() => {
+      signalRManager.addDealListener(dealsStore.addDeal)
+    }, []);
     const renderRow = (props: any): ReactElement | null => {
       if (!props.row) {
         return (

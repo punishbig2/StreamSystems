@@ -1,14 +1,19 @@
 import { Deal } from "components/MiddleOffice/DealBlotter/deal";
-import { observable } from "mobx";
+import { observable, action } from "mobx";
 import { API } from "API";
 
 export class DealsStore {
-  @observable deals: Deal[] = [];
+  @observable.ref deals: Deal[] = [];
 
   constructor() {
     API.getDeals().then((deals: any) => {
-      this.deals = deals;
+      this.deals = deals.sort((d1: Deal, d2: Deal) => Number(d2.transactionTime) - Number(d1.transactionTime));
     });
+  }
+
+  @action.bound
+  public addDeal(deal: Deal) {
+    this.deals = [deal, ...this.deals];
   }
 }
 
