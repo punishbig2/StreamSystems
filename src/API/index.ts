@@ -1,6 +1,13 @@
 import { Symbol } from "interfaces/symbol";
 import { Message } from "interfaces/message";
-import { CreateOrder, Order, UpdateOrder, DarkPoolOrder, OrderMessage, CreateOrderBulk } from "interfaces/order";
+import {
+  CreateOrder,
+  Order,
+  UpdateOrder,
+  DarkPoolOrder,
+  OrderMessage,
+  CreateOrderBulk,
+} from "interfaces/order";
 import { MessageResponse } from "interfaces/messageResponse";
 import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
@@ -13,9 +20,15 @@ import { Strategy } from "interfaces/strategy";
 import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { DealEntry } from "structures/dealEntry";
-import { VolMessageIn, OptionLeg, ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import {
+  VolMessageIn,
+  OptionLeg,
+  ValuationModel,
+} from "components/MiddleOffice/interfaces/pricer";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
+import middleOfficeStore from "mobx/stores/middleOfficeStore";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -57,11 +70,11 @@ export class HTTPError {
 type CancelFn = () => void;
 type PromiseExecutor<T> = (
   resolve: (value?: T | PromiseLike<T>) => void,
-  reject: (reason?: any) => void,
+  reject: (reason?: any) => void
 ) => void;
 
 export class CancellablePromise<T> extends Promise<T> {
-  private cancelFn: CancelFn = () => null;
+  private readonly cancelFn: CancelFn = () => null;
 
   constructor(executor: PromiseExecutor<T>, cancelFn?: CancelFn) {
     super(executor);
@@ -82,14 +95,14 @@ const request = <T>(
   url: string,
   method: Method,
   data?: NotOfType<string>,
-  contentType?: string,
+  contentType?: string
 ): CancellablePromise<T> => {
   // This should be accessible from outside the executor/promise to allow cancellation
   const xhr = new XMLHttpRequest();
   // Executor
   const executor: PromiseExecutor<T> = (
     resolve: (data: T) => void,
-    reject: (error?: any) => void,
+    reject: (error?: any) => void
   ): void => {
     xhr.open(method, url, true);
     xhr.onreadystatechange = (): void => {
@@ -133,7 +146,7 @@ const request = <T>(
       } else if (contentType === "application/x-www-form-urlencoded") {
         xhr.setRequestHeader(
           "content-type",
-          "application/x-www-form-urlencoded",
+          "application/x-www-form-urlencoded"
         );
         xhr.send(toUrlQuery(data));
       } else {
@@ -153,7 +166,7 @@ const { Api } = config;
 const post = <T>(
   url: string,
   data?: any,
-  contentType?: string,
+  contentType?: string
 ): CancellablePromise<T> => request<T>(url, Method.Post, data, contentType);
 
 const get = <T>(url: string, args?: any): CancellablePromise<T> =>
@@ -181,9 +194,11 @@ type Endpoints =
   | "cuts"
   | "optionsproducts"
   | "deals"
-  | "optionlegsdef"
   | "exproducts"
-  | "request";
+  | "request"
+  | "legs"
+  | "optionlegsdefin"
+  | "optionlegsdefout";
 
 type Verb =
   | "get"
@@ -208,12 +223,13 @@ export class API {
   // Middle office
   static Mlo: string = "/api/mlo";
   static Deal: string = `${API.Mlo}/deal`;
+  static Legs: string = `${API.Mlo}/legs`;
 
   static getRawUrl(section: string, rest: string, args?: any): string {
     if (args === undefined)
       return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
     return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toUrlQuery(
-      args,
+      args
     )}`;
   }
 
@@ -221,13 +237,13 @@ export class API {
     section: string,
     object: Endpoints,
     verb: Verb,
-    args?: any,
+    args?: any
   ): string {
     if (args === undefined)
       return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
     return `${Api.Protocol}://${
       Api.Host
-      }${section}/${verb}${object}?${toUrlQuery(args)}`;
+    }${section}/${verb}${object}?${toUrlQuery(args)}`;
   }
 
   static async getSymbols(region?: string): CancellablePromise<Symbol[]> {
@@ -236,8 +252,8 @@ export class API {
         API.Config,
         "symbols",
         "get",
-        region ? { region } : undefined,
-      ),
+        region ? { region } : undefined
+      )
     );
     currencies.sort((c1: Symbol, c2: Symbol): number => {
       const { name: n1 } = c1;
@@ -256,16 +272,16 @@ export class API {
 
   static getTenors(): CancellablePromise<string[]> {
     return get<string[]>(
-      API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" }),
+      API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" })
     );
   }
 
   static async executeCreateOrderRequest(
-    request: CreateOrder,
+    request: CreateOrder
   ): CancellablePromise<MessageResponse> {
     const result: MessageResponse = await post<MessageResponse>(
       API.buildUrl(API.Oms, "order", "create"),
-      request,
+      request
     );
     if (result.Status !== "Success")
       console.warn(`error creating an order ${result.Response}`);
@@ -277,7 +293,7 @@ export class API {
     symbol: string,
     strategy: string,
     user: User,
-    minimumSize: number,
+    minimumSize: number
   ): CancellablePromise<MessageResponse> {
     const personality: string = workareaStore.personality;
     // Build a create order request
@@ -306,7 +322,7 @@ export class API {
     };
     const result: MessageResponse = await post<MessageResponse>(
       API.buildUrl(API.Oms, "bulkorders", "create"),
-      request,
+      request
     );
     if (result.Status !== "Success")
       console.warn(`error creating an order ${result.Response}`);
@@ -316,7 +332,7 @@ export class API {
   static async createOrder(
     order: Order,
     user: User,
-    minimumSize: number,
+    minimumSize: number
   ): CancellablePromise<MessageResponse> {
     if (order.price === null || order.size === null)
       throw new Error("price and size MUST be specified");
@@ -344,7 +360,7 @@ export class API {
 
   static async updateOrder(
     entry: Order,
-    user: User,
+    user: User
   ): CancellablePromise<MessageResponse> {
     if (entry.price === null || entry.size === null || !entry.orderId)
       throw new Error("price, size and order id MUST be specified");
@@ -363,14 +379,14 @@ export class API {
     };
     return post<MessageResponse>(
       API.buildUrl(API.Oms, "order", "modify"),
-      request,
+      request
     );
   }
 
   static async cancelAllExtended(
     symbol: string | undefined,
     strategy: string | undefined,
-    side: Sides,
+    side: Sides
   ): CancellablePromise<MessageResponse> {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
@@ -385,14 +401,14 @@ export class API {
     };
     return post<MessageResponse>(
       API.buildUrl(API.Oms, "allextended", "cxl"),
-      request,
+      request
     );
   }
 
   static async cancelAll(
     symbol: string | undefined,
     strategy: string | undefined,
-    side: Sides,
+    side: Sides
   ): CancellablePromise<MessageResponse> {
     const user: User = workareaStore.user;
     const request = {
@@ -405,17 +421,17 @@ export class API {
     };
     return post<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cancel"),
-      request,
+      request
     );
   }
 
   static async cancelOrder(
     order: Order,
-    user: User,
+    user: User
   ): CancellablePromise<MessageResponse> {
     if (order.user !== user.email && !user.isbroker)
       throw new Error(
-        `cancelling someone else's order: ${order.user} -> ${user.email}`,
+        `cancelling someone else's order: ${order.user} -> ${user.email}`
       );
     const request = {
       MsgType: MessageTypes.F,
@@ -428,7 +444,7 @@ export class API {
     };
     const result: MessageResponse = await post<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
-      request,
+      request
     );
     if (result.Status !== "Success") {
       console.warn("error cancelling an order");
@@ -438,7 +454,7 @@ export class API {
 
   static async getDarkTOBPoolSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): CancellablePromise<{ [k: string]: W } | null> {
     if (!symbol || !strategy) return null;
     const url: string = API.getRawUrl(API.DarkPool, "tiletobsnapshot", {
@@ -451,7 +467,7 @@ export class API {
 
   static async getDarkPoolSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): CancellablePromise<{ [k: string]: W } | null> {
     if (!symbol || !strategy) return null;
     const url: string = API.getRawUrl(API.DarkPool, "tilesnapshot", {
@@ -464,11 +480,11 @@ export class API {
 
   static getTOBSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): CancellablePromise<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       throw new Error(
-        "you have to tell me which symbol, strategy and tenor you want",
+        "you have to tell me which symbol, strategy and tenor you want"
       );
     const url: string = API.getRawUrl(API.MarketData, "tiletobsnapshot", {
       symbol,
@@ -480,11 +496,11 @@ export class API {
 
   static getSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): CancellablePromise<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       throw new Error(
-        "you have to tell me which symbol, strategy and tenor you want",
+        "you have to tell me which symbol, strategy and tenor you want"
       );
     const url: string = API.getRawUrl(API.MarketData, "tilesnapshot", {
       symbol,
@@ -496,14 +512,14 @@ export class API {
 
   static async getMessagesSnapshot(
     useremail: string,
-    timestamp: number,
+    timestamp: number
   ): CancellablePromise<Message[]> {
     const query: any = { timestamp };
     const darkpool: Message[] = await get<Message[]>(
-      API.buildUrl(API.DarkPool, "messages", "get", query),
+      API.buildUrl(API.DarkPool, "messages", "get", query)
     );
     const normal: Message[] = await get<Message[]>(
-      API.buildUrl(API.Oms, "messages", "get", query),
+      API.buildUrl(API.Oms, "messages", "get", query)
     );
     return [...darkpool, ...normal];
   }
@@ -511,18 +527,18 @@ export class API {
   static async getRunOrders(
     useremail: string,
     symbol: string,
-    strategy: string,
+    strategy: string
   ): CancellablePromise<OrderMessage[]> {
     return get<OrderMessage[]>(
-      API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail }),
+      API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail })
     );
   }
 
   static async getUserGroupSymbol(
-    useremail: string,
+    useremail: string
   ): CancellablePromise<any[]> {
     return get<any[]>(
-      API.buildUrl(API.Oms, "UserGroupSymbol", "get", { useremail }),
+      API.buildUrl(API.Oms, "UserGroupSymbol", "get", { useremail })
     );
   }
 
@@ -535,7 +551,7 @@ export class API {
   }
 
   static async createDarkPoolOrder(
-    order: DarkPoolOrder,
+    order: DarkPoolOrder
   ): CancellablePromise<any> {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
@@ -548,14 +564,14 @@ export class API {
     }
     return post<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "create"),
-      order,
+      order
     );
   }
 
   static async modifyDarkPoolOrder(request: any): CancellablePromise<any> {
     return post<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "modify"),
-      request,
+      request
     );
   }
 
@@ -572,14 +588,14 @@ export class API {
     };
     return post<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "cancel"),
-      request,
+      request
     );
   }
 
   static async cancelAllDarkPoolOrder(
     currency: string,
     strategy: string,
-    tenor: string,
+    tenor: string
   ): CancellablePromise<any> {
     const user: User = workareaStore.user;
     return post<MessageResponse>(
@@ -589,16 +605,16 @@ export class API {
         Symbol: currency,
         Strategy: strategy,
         Tenor: tenor,
-      },
+      }
     );
   }
 
   static async getDarkPoolMessages(
     useremail: string,
-    timestamp: number,
+    timestamp: number
   ): CancellablePromise<any> {
     return get<MessageResponse>(
-      API.buildUrl(API.DarkPool, "messages", "get", { useremail, timestamp }),
+      API.buildUrl(API.DarkPool, "messages", "get", { useremail, timestamp })
     );
   }
 
@@ -611,7 +627,7 @@ export class API {
     symbol: string,
     strategy: string,
     tenor: string,
-    price: number | "",
+    price: number | ""
   ): CancellablePromise<any> {
     const data = {
       User: user,
@@ -625,7 +641,7 @@ export class API {
 
   static async getUserProfile(email: string): Promise<[{ workspace: any }]> {
     return get<any>(
-      API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email }),
+      API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email })
     );
   }
 
@@ -635,7 +651,7 @@ export class API {
     return post<any>(
       API.buildUrl(API.UserApi, "UserJson", "save"),
       { useremail, workspace },
-      contentType,
+      contentType
     );
   }
 
@@ -650,18 +666,18 @@ export class API {
     };
     await post<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cxlall"),
-      request,
+      request
     );
     await post<MessageResponse>(
       API.buildUrl(API.DarkPool, "all", "cxlall"),
-      request,
+      request
     );
     await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
   }
 
   static async getUserRegions(useremail: string) {
     return get<any>(
-      API.buildUrl(API.Config, "userregions", "get", { useremail }),
+      API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
   }
 
@@ -669,7 +685,7 @@ export class API {
   static async getOptionsProducts(currency?: string): Promise<any> {
     if (currency) {
       return get<any>(
-        API.buildUrl(API.Config, "optionsproducts", "get", { currency }),
+        API.buildUrl(API.Config, "optionsproducts", "get", { currency })
       );
     } else {
       return get<any>(API.buildUrl(API.Config, "optionsproducts", "get"));
@@ -694,23 +710,19 @@ export class API {
 
   static async getProductsEx(
     source: ProductSource = ProductSource.Electronic,
-    bAllFields = true,
+    bAllFields = true
   ) {
     return get<any>(
       API.buildUrl(API.Config, "exproducts", "get", {
         source,
         bAllFields,
-      }),
+      })
     );
-  }
-
-  static async getOptionLegsDef() {
-    return get<any>(API.buildUrl(API.Config, "optionlegsdef", "get"));
   }
 
   static async getDeals(): Promise<Deal[]> {
     const array: any[] = await get<Deal[]>(
-      API.buildUrl(API.Deal, "deals", "get"),
+      API.buildUrl(API.Deal, "deals", "get")
     );
     return array.map(createDealFromBackendMessage);
   }
@@ -720,54 +732,56 @@ export class API {
     entry: DealEntry,
     legs: Leg[],
     valuationModel: ValuationModel,
-    strategy: MOStrategy,
-    symbol: Symbol,
+    strategy: MOStrategy
   ) {
-    const { symbol: ccyPair } = deal;
-    if (ccyPair.length !== 6) throw new Error(`unsupported currency ${ccyPair}`);
-    const ccy1: string = ccyPair.slice(0, 3);
-    const ccy2: string = ccyPair.slice(3);
+    const { currencyPair, tradeDate, symbol } = deal;
+    const legDefinitions: { in: LegOptionsDefIn[] } =
+      middleOfficeStore.legDefinitions[deal.strategy];
+    if (!legDefinitions) throw new Error(`invalid strategy ${deal.strategy}`);
+    if (currencyPair.length !== 6)
+      throw new Error(`unsupported currency ${currencyPair}`);
+    const snapTime: Date = tradeDate.toDate();
+    const definitions: LegOptionsDefIn[] = legDefinitions.in;
     const request: VolMessageIn = {
       id: deal.dealID,
       Option: {
-        ccyPair: ccyPair,
-        ccy1: ccy1,
-        ccy2: ccy2,
+        ccyPair: currencyPair,
+        ccy1: currencyPair.slice(0, 3),
+        ccy2: currencyPair.slice(3),
         OptionProductType: strategy.OptionProductType,
         vegaAdjust: false,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
-        OptionLegs: legs.map(
-          (leg: Leg): OptionLeg => ({
-            OptionLegType: leg.optionIn,
-            SideType: leg.side === Sides.Sell ? "Sell" : "Buy",
-            strike: entry.strike,
-            notional: leg.notional !== null ? leg.notional : 0,
-            spreadVolatiltyOffset: 0,
+        OptionLegs: definitions.map(
+          (definition: LegOptionsDefIn): OptionLeg => ({
+            notional: deal.lastPrice,
+            expiryDate: deal.expiryDate,
+            deliveryDate: deal.deliveryDate,
+            strike: "",
             volatilty: null,
             barrier: null,
             barrierLower: null,
             barrierUpper: null,
-            MonitorType: null,
             barrierRebate: null,
-            expiryDate: new Date(2025, 1, 1),
-            deliveryDate: new Date(),
-          }),
+            OptionLegType: definition.OptionLegType,
+            SideType: definition.SideType,
+            MonitorType: null,
+          })
         ),
       },
       ValuationData: {
         valuationDate: new Date(),
         VOL: {
-          ccyPair: ccyPair,
+          ccyPair: currencyPair,
           premiumAdjustDelta: false,
-          snapTime: new Date(),
+          snapTime: snapTime,
           DateCountBasisType: symbol["DayCountBasis-VOL"],
           VolSurface: [], // To be filled by the pre-pricer
         },
         FX: {
-          ccyPair: ccyPair,
-          snapTime: new Date(),
+          ccyPair: currencyPair,
+          snapTime: snapTime,
           DateCountBasisType: symbol["DayCountBasis-FX"],
         },
         RATES: [],
@@ -777,6 +791,20 @@ export class API {
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
+    console.log(request);
+    console.log(API.buildUrl(API.Deal, "request", "pricing"));
     return post<any>(API.buildUrl(API.Deal, "request", "pricing"), request);
+  }
+
+  static async getLegs(dealid: string): Promise<any> {
+    return get<any>(API.buildUrl(API.Legs, "legs", "get", { dealid }));
+  }
+
+  static async getOptionLegsDefIn(): Promise<any> {
+    return get<any>(API.buildUrl(API.Config, "optionlegsdefin", "get"));
+  }
+
+  static async getOptionLegsDefOut(): Promise<any> {
+    return get<any>(API.buildUrl(API.Config, "optionlegsdefout", "get"));
   }
 }

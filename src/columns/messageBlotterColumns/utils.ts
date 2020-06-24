@@ -2,7 +2,7 @@ export const currencyToNumber = (value: string) => {
   return 1000 * value.charCodeAt(0) + value.charCodeAt(3);
 };
 
-export const compareCurrencies = (
+export const compareCurrencyPairs = (
   s1: string | undefined,
   s2: string | undefined
 ): number => {

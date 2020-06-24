@@ -59,13 +59,6 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   precision={4}
                 />
                 <FormField
-                  label={"Spread"}
-                  color={"grey"}
-                  value={data.spread}
-                  name={"spread"}
-                  type={"number"}
-                />
-                <FormField
                   label={"Cut City"}
                   color={"grey"}
                   value={data.cutCity}

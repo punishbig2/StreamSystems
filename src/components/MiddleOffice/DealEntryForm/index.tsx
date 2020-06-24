@@ -5,22 +5,20 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { DealEntry, DealStatus } from "structures/dealEntry";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { observer } from "mobx-react";
-import store, { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { parseTime } from "timeUtils";
-import { Globals } from "golbals";
-import { LegOptionsDef } from "components/MiddleOffice/interfaces/legOptionsDef";
+import store from "mobx/stores/middleOfficeStore";
+import MO, { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import fields from "components/MiddleOffice/DealEntryForm/fields";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import deepEqual from "deep-equal";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { API } from "API";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
-import { Symbol } from "interfaces/symbol";
 
-interface Props {}
+interface Props {
+}
 
 const initialDealEntry: DealEntry = {
-  currency: "",
+  currencyPair: "",
   strategy: "",
   legs: null,
   notional: null,
@@ -28,24 +26,27 @@ const initialDealEntry: DealEntry = {
   buyer: "",
   seller: "",
   tradeDate: moment(),
+  expiryDate: moment(),
+  deliveryDate: moment(),
   dealId: "",
   status: DealStatus.Pending,
   style: "",
   model: "",
+  tenor: "",
 };
 
 export const DealEntryForm: React.FC<Props> = observer(
   (): ReactElement | null => {
-    const { strategies, cuts, legOptionsDefinitions, deal } = store;
+    const { strategies, cuts, deal } = store;
     const [referenceEntry, setReferenceEntry] = useState<DealEntry | null>(
-      null
+      null,
     );
     const [entry, setEntry] = useState<DealEntry>(initialDealEntry);
 
     const getDerivedFieldsFromStrategy = (
       strategy: MOStrategy | null | undefined,
       price: number,
-      legs: number
+      legs: number,
     ): any => {
       if (!strategy) return {};
       return {
@@ -60,70 +61,60 @@ export const DealEntryForm: React.FC<Props> = observer(
       if (deal === null) return;
       const strategy: MOStrategy = strategies[deal.strategy];
       const id: string = deal.dealID;
-      const legsDef: LegOptionsDef[] =
-        legOptionsDefinitions[strategy.name] || [];
+      const legsCount: number = MO.getOutLegsCount(deal.strategy);
       const newEntry: DealEntry = {
-        currency: deal.symbol,
+        currencyPair: deal.currencyPair,
         strategy: deal.strategy,
         notional: deal.lastQuantity,
         legAdj: true,
         buyer: deal.buyer,
         seller: deal.seller,
-        tradeDate: moment(parseTime(deal.transactionTime, Globals.timezone)),
+        tradeDate: deal.tradeDate,
+        expiryDate: deal.expiryDate,
+        deliveryDate: deal.deliveryDate,
+        spotDate: deal.spotDate,
         dealId: id.toString(),
         status: DealStatus.Pending,
         style: "European",
+        tenor: deal.tenor,
         model: 3,
-        ...getDerivedFieldsFromStrategy(
-          strategy,
-          deal.lastPrice,
-          legsDef.length
-        ),
+        ...getDerivedFieldsFromStrategy(strategy, deal.lastPrice, legsCount),
       };
       setReferenceEntry(newEntry);
       setEntry(newEntry);
-    }, [deal, strategies, legOptionsDefinitions]);
-    const symbol: Symbol | undefined = useLegs(
-      cuts,
-      entry,
-      legOptionsDefinitions
-    );
+    }, [deal, strategies]);
+    useLegs(cuts, deal);
     const sendPricingRequest = () => {
       if (deal === null) throw new Error("no deal to get a pricing for");
       if (deal.strategy === undefined) throw new Error("invalid deal found");
       if (entry.model === "") throw new Error("node model specified");
-      if (symbol === undefined)
-        throw new Error("cannot get the symbol information");
       const valuationModel: ValuationModel = store.getValuationModelById(
-        entry.model as number
+        entry.model as number,
       );
       const strategy: MOStrategy = strategies[deal.strategy];
+      MO.setSendingPricingRequest(true);
       API.sendPricingRequest(
         deal,
         entry,
         store.legs,
         valuationModel,
         strategy,
-        symbol
-      );
+      ).then(() => {
+        MO.setSendingPricingRequest(false);
+      });
     };
-    if (deal && deal.strategy)
-      console.log(strategies[deal.strategy].OptionProductType);
-
     const onChange = (name: keyof DealEntry, value: any) => {
       if (name === "strategy") {
         const strategy: MOStrategy = strategies[value];
         const price: number = entry.vol
           ? entry.vol
           : entry.spread
-          ? entry.spread
-          : 0;
-        const legsDef: LegOptionsDef[] =
-          legOptionsDefinitions[strategy.productid] || [];
+            ? entry.spread
+            : 0;
         setEntry({
           ...entry,
           [name]: value,
-          ...getDerivedFieldsFromStrategy(strategy, price, legsDef.length),
+          ...getDerivedFieldsFromStrategy(strategy, price, MO.getOutLegsCount(strategy.productid)),
         });
       } else {
         setEntry({ ...entry, [name]: value });
@@ -131,7 +122,7 @@ export const DealEntryForm: React.FC<Props> = observer(
     };
 
     const mapper = (
-      fieldDef: FieldDef<DealEntry, MiddleOfficeStore>
+      fieldDef: FieldDef<DealEntry, MiddleOfficeStore>,
     ): ReactElement => {
       const { transformData, dataSource, ...field } = fieldDef;
       const source: any = !!dataSource ? store[dataSource] : undefined;
@@ -177,5 +168,5 @@ export const DealEntryForm: React.FC<Props> = observer(
         </div>
       </form>
     );
-  }
+  },
 );

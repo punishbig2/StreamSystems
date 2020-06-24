@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import workareaStore from "../../../../mobx/stores/workareaStore";
 import { Symbol } from "interfaces/symbol";
 import { Select } from "../../../Select";
-import { compareCurrencies } from "../../../../columns/messageBlotterColumns/utils";
+import { compareCurrencyPairs } from "../../../../columns/messageBlotterColumns/utils";
 import { observer } from "mobx-react";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
@@ -15,7 +15,7 @@ export const SymbolCell: React.FC<CellProps> = observer(
     } else {
       const list: any[] = symbols
         .map((currency: Symbol): string => currency.name)
-        .sort(compareCurrencies)
+        .sort(compareCurrencyPairs)
         .map((name: string) => {
           return {
             name: name,

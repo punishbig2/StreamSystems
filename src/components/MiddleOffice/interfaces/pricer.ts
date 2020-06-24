@@ -1,10 +1,10 @@
-import { Float } from "float";
+import moment from "moment";
 
 export interface OptionLeg {
   strike?: string;
   notional: number;
-  expiryDate: Date;
-  deliveryDate: Date;
+  expiryDate: moment.Moment;
+  deliveryDate: moment.Moment;
   spreadVolatiltyOffset?: number;
   volatilty: number | null;
   barrier: number | null;

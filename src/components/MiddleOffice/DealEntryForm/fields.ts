@@ -6,7 +6,7 @@ import { MiddleOfficeStore, InternalValuationModel } from "mobx/stores/middleOff
 
 const fields: FieldDef<DealEntry, MiddleOfficeStore>[] = [
   {
-    name: "currency",
+    name: "currencyPair",
     label: "CCYPair",
     type: "dropdown",
     color: "orange",

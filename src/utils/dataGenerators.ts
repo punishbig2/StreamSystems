@@ -1,16 +1,16 @@
 import { PodRow } from "interfaces/podRow";
+import moment from "moment";
 
-/*export const emptyEntry = (tenor: string, symbol: string, strategy: string, user: string, size: number | null, type: OrderTypes): Order => {
-  return new Order(tenor, symbol, strategy, user, size, type);
+export const tenorToDuration = (tenor: string): moment.Duration => {
+  const regexp: RegExp = /([0-9])+([DWMY])/;
+  if (!regexp.test(tenor))
+    return moment.duration(0, 'd');
+  const match: RegExpMatchArray = tenor.match(regexp)!;
+  const count: number = Number(match[1]);
+  const unit: string = match[2];
+  if (unit === "M") return moment.duration(count, unit);
+  return moment.duration(count, unit.toLowerCase() as "d" | "w" | "y");
 };
-
-export const emptyOffer = (tenor: string, symbol: string, strategy: string, user: string, size: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, size, OrderTypes.Offer);
-};
-
-export const emptyBid = (tenor: string, symbol: string, strategy: string, user: string, size: number | null = null): Order => {
-  return emptyEntry(tenor, symbol, strategy, user, size, OrderTypes.Bid);
-};*/
 
 export const tenorToNumber = (value: string) => {
   // FIXME: probably search the number boundary

@@ -1,31 +1,23 @@
 import { Deal } from "components/MiddleOffice/DealBlotter/deal";
 import { observable, action, computed } from "mobx";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-
-import moment from "moment";
-import { Sides } from "interfaces/sides";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { parseTime } from "timeUtils";
-import { Globals } from "golbals";
-import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API } from "API";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { LegOptionsDef } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { DealEntry } from "structures/dealEntry";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/interfaces/legOptionsDef";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 
-export interface StubLegInfo {
-  notional: number | null;
-  party: string;
-  side: Sides;
-  vol: number | undefined;
-  strike: string | undefined;
-  optionOut: string;
-  optionIn: string;
-  currencies: [string, string];
+interface LegDefinitions {
+  [strategy: string]: {
+    in: LegOptionsDefIn[];
+    out: LegOptionsDefOut[];
+  };
 }
 
 export interface InternalValuationModel {
@@ -41,11 +33,12 @@ export class MiddleOfficeStore {
   @observable summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
   @observable loadingReferenceDataProgress: number = 0;
+  @observable isSendingPricingRequest: boolean = false;
 
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
   public models: InternalValuationModel[] = [];
-  public legOptionsDefinitions: { [strategy: string]: LegOptionsDef[] } = {};
+  public legDefinitions: LegDefinitions = {};
   public cuts: Cut[] = [];
 
   public async loadReferenceData(): Promise<void> {
@@ -54,8 +47,46 @@ export class MiddleOfficeStore {
       this.setStrategies(await API.getProductsEx());
       this.setStyles(await API.getOptexStyle());
       this.setModels(await API.getValuModel());
-      this.setLegOptionsDefinitions(await API.getOptionLegsDef());
-      // Update this is initialized
+      // Load leg definitions
+      const inDefs: {
+        [strategy: string]: LegOptionsDefIn[];
+      } = this.legOptionsReducer<LegOptionsDefIn>(
+        await API.getOptionLegsDefIn()
+      );
+      const outDefs: {
+        [strategy: string]: LegOptionsDefOut[];
+      } = this.legOptionsReducer<LegOptionsDefOut>(
+        await API.getOptionLegsDefOut()
+      );
+      const keys: string[] = Array.from(
+        new Set<string>([...Object.keys(inDefs), ...Object.keys(outDefs)])
+      );
+      this.legDefinitions = keys.reduce(
+        (
+          item: {
+            [strategy: string]: {
+              in: LegOptionsDefIn[];
+              out: LegOptionsDefOut[];
+            };
+          },
+          key: string
+        ): {
+          [strategy: string]: {
+            in: LegOptionsDefIn[];
+            out: LegOptionsDefOut[];
+          };
+        } => {
+          return {
+            ...item,
+            [key]: {
+              in: inDefs[key],
+              out: outDefs[key],
+            },
+          };
+        },
+        {}
+      );
+      this.setProgress(100);
       setTimeout(() => {
         this.setInitialized();
       }, 0);
@@ -104,25 +135,19 @@ export class MiddleOfficeStore {
     this.setProgress(80);
   }
 
-  @action.bound
-  private setLegOptionsDefinitions(array: any[]) {
-    this.legOptionsDefinitions = array.reduce(
-      (
-        groups: { [strategy: string]: LegOptionsDef[] },
-        option: LegOptionsDef
-      ) => {
-        const key: string = option.productid;
-        const group: LegOptionsDef[] = groups[key];
-        if (group === undefined) {
-          groups[key] = [option];
-        } else {
-          group.push(option);
-        }
-        return groups;
-      },
-      {}
-    );
-    this.setProgress(100);
+  private legOptionsReducer<T extends LegOptionsDefIn | LegOptionsDefOut>(
+    array: any[]
+  ): { [id: string]: T[] } {
+    return array.reduce((groups: { [strategy: string]: T[] }, option: T) => {
+      const key: string = option.productid;
+      const group: T[] = groups[key];
+      if (group === undefined) {
+        groups[key] = [option];
+      } else {
+        group.push(option);
+      }
+      return groups;
+    }, {});
   }
 
   @computed
@@ -136,9 +161,10 @@ export class MiddleOfficeStore {
   }
 
   @action.bound
-  public createSummaryLeg(entry: DealEntry, cut: Cut, symbol: Symbol): void {
+  public createSummaryLeg(cut: Cut, spot: number): void {
     const { legs, deal } = this;
     if (legs.length === 0 || deal === null) return;
+    const { symbol } = deal;
     this.summaryLeg = {
       brokerage: { buyerComm: null, sellerComm: null },
       cutCity: cut.City,
@@ -153,67 +179,33 @@ export class MiddleOfficeStore {
       },
       delivery: symbol.SettlementType,
       source: symbol.FixingSource,
-      spot: null,
-      spotDate: moment(),
-      spread: entry.spread,
-      tradeDate: moment(parseTime(deal.transactionTime, Globals.timezone)),
+      spot: spot,
+      spotDate: deal.spotDate,
+      tradeDate: deal.tradeDate,
       usi: null,
-      strategy: legs[0].optionOut,
+      strategy: legs[0].option,
     };
   }
 
   @action.bound
   public setDeal(deal: Deal) {
     this.deal = deal;
-    this.resetLegs();
-  }
-
-  @action.bound
-  public resetLegs() {
-    this.summaryLeg = null;
     this.legs = [];
+    this.summaryLeg = null;
   }
 
   @action.bound
-  public addStubLeg(info: StubLegInfo) {
-    const { legs } = this;
-    const stub: Leg = {
-      depo: [
-        {
-          currency: info.currencies[0],
-          value: 0,
-        },
-        {
-          currency: info.currencies[1],
-          value: 0,
-        },
-      ],
-      expiryDate: moment(),
-      deliveryDate: moment(),
-      days: null,
-      delta: null,
-      fwdPts: null,
-      fwdRate: null,
-      gamma: null,
-      hedge: null,
-      notional: info.notional,
-      optionOut: info.optionOut,
-      optionIn: info.optionIn,
-      party: info.party,
-      premium: null,
-      premiumDate: moment(),
-      price: null,
-      side: info.side,
-      strike: null,
-      vega: null,
-      vol: info.vol || null,
-    };
-    legs.push(stub);
+  public setLegs(legs: Leg[], summary: SummaryLeg | null) {
+    this.summaryLeg = summary;
+    this.legs = legs;
+  }
+
+  public getStrategyById(id: string): MOStrategy | undefined {
+    return this.strategies[id];
   }
 
   public getValuationModelById(id: number): ValuationModel {
     const { models } = this;
-    console.log(models, id);
     const model: InternalValuationModel | undefined = models.find(
       (model: InternalValuationModel): boolean => {
         return model.ValuationModelID === id;
@@ -224,6 +216,22 @@ export class MiddleOfficeStore {
       OptionModelType: model.OptionModel,
       OptionModelParamaters: model.OptionModelParameters,
     };
+  }
+
+  @action.bound
+  public setSendingPricingRequest(value: boolean) {
+    this.isSendingPricingRequest = value;
+  }
+
+  public getOutLegsCount(strategy: string): number {
+    if (!!this.legDefinitions[strategy]) {
+      const { out }: { out: LegOptionsDefOut[] } = this.legDefinitions[
+        strategy
+      ];
+      return out.length;
+    } else {
+      return 0;
+    }
   }
 }
 

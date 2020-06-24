@@ -5,7 +5,6 @@ export interface SummaryLeg {
   tradeDate: moment.Moment;
   spotDate: moment.Moment;
   spot: number | null;
-  spread?: number;
   cutCity: string;
   cutTime: string;
   source: string | null;

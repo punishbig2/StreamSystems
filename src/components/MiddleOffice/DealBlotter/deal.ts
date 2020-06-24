@@ -1,3 +1,6 @@
+import moment from "moment";
+import { Symbol } from "interfaces/symbol";
+
 export interface Deal {
   dealID: string;
   buyer: string;
@@ -8,6 +11,13 @@ export interface Deal {
   lastQuantity: number;
   leavesQuantity: number;
   strategy: string;
-  symbol: string;
+  currencyPair: string;
+  symbol: Symbol;
   transactionTime: string;
+  tenor: string;
+
+  tradeDate: moment.Moment;
+  spotDate: moment.Moment;
+  deliveryDate: moment.Moment;
+  expiryDate: moment.Moment;
 }

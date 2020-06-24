@@ -1,7 +1,11 @@
-export interface LegOptionsDef {
+export interface LegOptionsDefOut {
   productid: string;
-  OptionLegIn: string;
   ReturnLegOut: string;
   ReturnSide: string;
   notional_ratio: number;
+}
+export interface LegOptionsDefIn {
+  productid: string;
+  OptionLegType: string;
+  SideType: string;
 }

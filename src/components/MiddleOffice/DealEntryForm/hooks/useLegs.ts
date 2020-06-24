@@ -1,57 +1,55 @@
-import { useEffect, useState } from "react";
-import { LegOptionsDef } from "components/MiddleOffice/interfaces/legOptionsDef";
-import middleOfficeStore, { StubLegInfo } from "mobx/stores/middleOfficeStore";
-import { Sides } from "interfaces/sides";
-import { Symbol } from "interfaces/symbol";
-import workareaStore from "mobx/stores/workareaStore";
+import { useEffect } from "react";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { DealEntry } from "structures/dealEntry";
+import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { API } from "API";
+import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
+import MO from "mobx/stores/middleOfficeStore";
+import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { createLegsFromDefinition } from "legsUtils";
 
-export default (
-  cuts: Cut[],
-  entry: DealEntry,
-  legOptionsDefs: { [strategy: string]: LegOptionsDef[] }
-): Symbol | undefined => {
-  const [symbol, setSymbol] = useState<Symbol | undefined>(undefined);
+const PLACEHOLDER_DATA = {
+  Output: {
+    Inputs: {
+      strike: null,
+      spot: null,
+      forward: null,
+    },
+  },
+};
+
+const createStubLegs = async (deal: Deal, cuts: Cut[]): Promise<void> => {
+  const { symbol } = deal;
+  // const strategy: MOStrategy = MO.getStrategyById(deal.strategy);
+  const legDefinitions: { out: LegOptionsDefOut[] } | undefined =
+    MO.legDefinitions[deal.strategy];
+  if (!legDefinitions) return;
+  const data = (await API.getLegs(deal.dealID)) || PLACEHOLDER_DATA;
+  const {
+    Output: { Inputs: inputs },
+  } = data;
+  const legs: Leg[] = createLegsFromDefinition(
+    deal,
+    legDefinitions.out,
+    inputs
+  );
+  // Update the MO store
+  MO.setLegs(legs, null);
+  const cut: Cut | undefined = cuts.find((cut: Cut) => {
+    return (
+      cut.Code === symbol.PrimaryCutCode &&
+      cut.UTCTime === symbol.PrimaryUTCTime
+    );
+  });
+  if (cut !== undefined) {
+    MO.createSummaryLeg(cut, inputs.spot);
+  } else {
+    console.warn("cannot determine the cut city for this deal");
+  }
+};
+
+export default (cuts: Cut[], deal: Deal | null) => {
   useEffect(() => {
-    const { strategy, notional, buyer, vol, strike, currency } = entry;
-    const legDefinitions: LegOptionsDef[] | undefined =
-      legOptionsDefs[strategy];
-    if (!legDefinitions) return;
-    // First clean it up
-    middleOfficeStore.resetLegs();
-    // Now fill the stub legs
-    for (const legDefinition of legDefinitions) {
-      const side: Sides =
-        legDefinition.ReturnSide === "buy" ? Sides.Buy : Sides.Sell;
-      const legData: StubLegInfo = {
-        notional:
-          notional === null ? null : notional * legDefinition.notional_ratio,
-        party: buyer,
-        side: side,
-        vol: vol,
-        strike: strike,
-        optionOut: legDefinition.ReturnLegOut,
-        optionIn: legDefinition.OptionLegIn,
-        currencies: [currency.slice(0, 3), currency.slice(3)],
-      };
-      middleOfficeStore.addStubLeg(legData);
-    }
-    const symbol: Symbol | undefined = workareaStore.findSymbolById(currency);
-    if (symbol !== undefined) {
-      const cut: Cut | undefined = cuts.find((cut: Cut) => {
-        return (
-          cut.Code === symbol.PrimaryCutCode &&
-          cut.UTCTime === symbol.PrimaryUTCTime
-        );
-      });
-      if (cut !== undefined) {
-        middleOfficeStore.createSummaryLeg(entry, cut, symbol);
-      } else {
-        console.warn("cannot determine the cut city for this deal");
-      }
-    }
-    setSymbol(symbol);
-  }, [cuts, entry, legOptionsDefs]);
-  return symbol;
+    if (deal === null) return;
+    createStubLegs(deal, cuts).then(() => {});
+  }, [cuts, deal]);
 };

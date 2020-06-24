@@ -1,7 +1,7 @@
 import { ColumnSpec } from 'components/Table/columnSpecification';
 import { Message } from '../interfaces/message';
 import React, { ReactElement } from 'react';
-import { compareCurrencies } from './messageBlotterColumns/utils';
+import { compareCurrencyPairs } from './messageBlotterColumns/utils';
 import { CellProps } from './messageBlotterColumns/cellProps';
 import { tenorToNumber } from '../utils/dataGenerators';
 import { priceFormatter } from '../utils/priceFormatter';
@@ -55,7 +55,7 @@ const symbol = (sortable: boolean): ColumnSpec => ({
     return value.includes(keyword);
   },
   difference: (v1: Message, v2: Message): number => {
-    return compareCurrencies(v1.Symbol, v2.Symbol);
+    return compareCurrencyPairs(v1.Symbol, v2.Symbol);
   },
 });
 

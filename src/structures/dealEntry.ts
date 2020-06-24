@@ -5,7 +5,7 @@ export enum DealStatus {
 }
 
 export interface DealEntry {
-  currency: string;
+  currencyPair: string;
   strategy: string;
   legs: number | null;
   strike?: string;
@@ -16,8 +16,11 @@ export interface DealEntry {
   buyer: string;
   seller: string;
   tradeDate: moment.Moment;
+  expiryDate: moment.Moment;
+  deliveryDate: moment.Moment;
   dealId: string;
   status: DealStatus;
   style: string;
   model: number | "";
+  tenor: string;
 }
