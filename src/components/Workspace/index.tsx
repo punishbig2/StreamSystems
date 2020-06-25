@@ -20,6 +20,7 @@ import { BlotterTypes } from "columns/messageBlotter";
 import { MessageBox } from "components/MessageBox";
 import { User } from "interfaces/user";
 import { Strategy } from "interfaces/strategy";
+import { ProgressView } from "components/progressView";
 
 interface OwnProps {
   id: string;
@@ -213,6 +214,16 @@ const Workspace: React.FC<OwnProps> = (
     );
   };
 
+  if (!!store.busyMessage) {
+    return (
+      <ProgressView
+        value={50}
+        message={"Please wait while we load your workspace"}
+        title={"Loading: Workspace"}
+      />
+    );
+  }
+
   return (
     <div className={props.visible ? "visible" : "invisible"}>
       <div className={"toolbar"}>
@@ -234,10 +245,10 @@ const Workspace: React.FC<OwnProps> = (
         )}
         visible={store.isUserProfileModalVisible}
       />
-      <ModalWindow render={renderLoadingModal} visible={!!store.busyMessage} />
     </div>
   );
 };
+// <!-- ModalWindow render={renderLoadingModal} visible={!!store.busyMessage} /-->
 
 const observed = observer(Workspace);
 export { observed as Workspace };

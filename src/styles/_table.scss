@@ -255,6 +255,12 @@ $spinner-size: $table-row-height - 6;
         background-color: rgba($primary-color, 0.1);
       }
 
+      &.showing-context-menu {
+        outline: 1px solid rgba($background-color, 0.5);
+        outline-offset: -1px 1px 0 1px;
+        background-color: rgba($background-color, 0.1);
+      }
+
       &.dark-pool {
         background-color: rgba($good-color, 0.15);
       }

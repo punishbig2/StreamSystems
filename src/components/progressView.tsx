@@ -13,18 +13,17 @@ export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {
     throw new Error("value can only be in the range [0, 100]");
   return (
     <div className={"loading-view"}>
+      <div className={"image"} />
       <div className={"content"}>
         <div className={"application-brand"}>
-          <h1>FX Options</h1>
+          <h1>Stream</h1>
         </div>
         <div className={"title"}>
           <div className={"label"}>{props.title}</div>
           <div className={"percent"}>{value.toFixed(0)}%</div>
         </div>
         <ProgressBar value={value} />
-        <div className={"message"}>
-          {props.message}&hellip;
-        </div>
+        <div className={"message"}>{props.message}&hellip;</div>
       </div>
     </div>
   );

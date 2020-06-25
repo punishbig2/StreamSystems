@@ -161,7 +161,7 @@ export class MiddleOfficeStore {
   }
 
   @action.bound
-  public createSummaryLeg(cut: Cut, spot: number): void {
+  public createSummaryLeg(cut: Cut): void {
     const { legs, deal } = this;
     if (legs.length === 0 || deal === null) return;
     const { symbol } = deal;
@@ -179,7 +179,7 @@ export class MiddleOfficeStore {
       },
       delivery: symbol.SettlementType,
       source: symbol.FixingSource,
-      spot: spot,
+      spot: null,
       spotDate: deal.spotDate,
       tradeDate: deal.tradeDate,
       usi: null,

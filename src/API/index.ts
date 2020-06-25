@@ -763,7 +763,7 @@ export class API {
         premiumCCY: symbol.premiumCCY,
         OptionLegs: definitions.map(
           (definition: LegOptionsDefIn): OptionLeg => ({
-            notional: deal.lastPrice,
+            notional: deal.lastQuantity,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
             strike: strike,

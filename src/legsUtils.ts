@@ -15,8 +15,7 @@ interface Inputs {
 
 export const createLegsFromDefinition = (
   deal: Deal,
-  definitions: LegOptionsDefOut[] | LegOptionsDefIn[],
-  inputs: Inputs
+  definitions: LegOptionsDefOut[] | LegOptionsDefIn[]
 ): Leg[] => {
   const legs: Leg[] = [];
   const { symbol } = deal;
@@ -51,14 +50,11 @@ export const createLegsFromDefinition = (
       days: expiryDate.diff(deal.tradeDate, "d"),
       delta: null,
       vega: null,
-      fwdPts:
-        inputs.forward !== null && inputs.spot !== null
-          ? 1000 * (inputs.forward - inputs.spot)
-          : null,
-      fwdRate: inputs.forward,
+      fwdPts: null,
+      fwdRate: null,
       gamma: null,
       hedge: null,
-      strike: inputs.strike,
+      strike: null,
       premiumDate: deal.spotDate,
       option:
         "ReturnLegOut" in definition

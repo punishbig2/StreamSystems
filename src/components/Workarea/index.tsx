@@ -141,7 +141,6 @@ const Workarea: React.FC = (): ReactElement | null => {
       />
     );
   };
-
   switch (store.status) {
     case WorkareaStatus.Error:
       return <WorkareaError />;
