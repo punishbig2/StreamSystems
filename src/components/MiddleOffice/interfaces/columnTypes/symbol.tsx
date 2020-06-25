@@ -1,7 +1,9 @@
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
+import { SymbolCell } from "../cells/symbol";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
 export default (sortable: boolean): ColumnSpec => ({
   name: "Currency",
@@ -9,8 +11,11 @@ export default (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => "Currency",
-  render: ({ deal }: { deal: Deal }): ReactElement | null => {
-    if (deal === null) return null;
+  render: (props: CellProps): ReactElement | null => {
+    const { deal } = props;
+    if (deal === null) {
+      return <SymbolCell deal={deal} store={props.store} />;
+    }
     return <span>{deal.currencyPair}</span>;
   },
   width: 3,

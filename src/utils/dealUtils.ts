@@ -1,4 +1,4 @@
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { parseTime } from "timeUtils";
 import { Globals } from "golbals";
 import moment from "moment";

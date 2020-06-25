@@ -5,6 +5,7 @@ import { priceFormatter } from "utils/priceFormatter";
 import { Price } from "components/Table/CellRenderers/Price";
 import { ArrowDirection } from "interfaces/w";
 import { OrderStatus } from "interfaces/order";
+import { skipTabIndexAll } from "utils/skipTab";
 
 export const PriceCell: React.FC<CellProps> = observer(
   (props: CellProps): ReactElement => {
@@ -16,6 +17,7 @@ export const PriceCell: React.FC<CellProps> = observer(
     ) => {
       if (changed) {
         store.setPrice(value);
+        skipTabIndexAll(input, 1);
       }
     };
     if (deal) {

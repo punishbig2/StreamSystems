@@ -16,7 +16,7 @@ import { Sides } from "interfaces/sides";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { playBeep } from "signalR/helpers";
 
@@ -215,9 +215,9 @@ export class SignalRManager {
     document.dispatchEvent(event);
   };
 
-  private onUpdateDeals = (message: string): void => {
+  public addDeal = (deal: any): void => {
     try {
-      const detail: Deal = createDealFromBackendMessage(JSON.parse(message));
+      const detail: Deal = createDealFromBackendMessage(deal);
       const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
         detail: detail,
       });
@@ -225,6 +225,10 @@ export class SignalRManager {
     } catch (error) {
       console.warn(error);
     }
+  };
+
+  private onUpdateDeals = (message: string): void => {
+    this.addDeal(JSON.parse(message));
   };
 
   private onUpdateMarketData = (message: string): void => {
@@ -310,10 +314,8 @@ export class SignalRManager {
       const customEvent: CustomEvent<Deal> = event as CustomEvent<Deal>;
       listener(customEvent.detail);
     };
-    console.log("added event listener");
     document.addEventListener("ondeal", listenerWrapper);
     return () => {
-      console.log("removed event listener");
       document.removeEventListener("ondeal", listenerWrapper);
     };
   };

@@ -1,13 +1,9 @@
 import { observable, action, computed } from "mobx";
-import messagesStore from "./messagesStore";
-import workareaStore from "./workareaStore";
-import { User } from "../../interfaces/user";
-import { Sides } from "../../interfaces/sides";
-import { priceFormatter } from "../../utils/priceFormatter";
-import { sizeFormatter } from "../../utils/sizeFormatter";
-import { ExecTypes } from "../../interfaces/message";
+import { priceFormatter } from "utils/priceFormatter";
+import { sizeFormatter } from "utils/sizeFormatter";
 
 import { uuid } from "uuidv4";
+import { API } from "API";
 
 export class DealInsertStore {
   @observable price: number | null = null;
@@ -64,43 +60,16 @@ export class DealInsertStore {
 
   @action.bound
   public addDeal() {
-    const user: User = workareaStore.user;
-    const price: string = priceFormatter(this.price);
-    const size: string = sizeFormatter(this.size);
-    const id: string = uuid();
-    messagesStore.addEntry({
-      "583": "",
-      Account: "",
-      ContraTrader: "",
-      CumQty: size,
-      LeavesQty: "0",
-      OrderQty: size,
-      LastQty: size,
-      LastPx: price,
-      LastShares: size,
-      AvgPx: price,
-      Price: price,
-      Currency: this.currency,
-      ExDestination: "MANUAL",
-
-      ExecBroker: this.buyer,
-      MDMkt: this.seller,
-
-      ExecID: id,
-      OrderID: id,
-      ClOrdID: id,
-      ClOrdLinkId: id,
-
-      ExecTransType: ExecTypes.Filled,
-      ExecType: ExecTypes.Filled,
-      OrdStatus: ExecTypes.Filled,
-      OrdType: ExecTypes.Filled,
-      Side: Sides.Sell,
-      Strategy: this.strategy,
-      Symbol: this.currency,
-      Tenor: "1W",
-      TransactTime: Date.now().toString(),
-      Username: user.email,
+    API.createDeal({
+      linkid: uuid(),
+      price: priceFormatter(this.price),
+      size: sizeFormatter(this.size),
+      strategy: this.strategy,
+      symbol: this.currency,
+      seller: this.seller,
+      buyer: this.buyer,
+    }).then((response: any) => {
+      console.log(response);
     });
   }
 }

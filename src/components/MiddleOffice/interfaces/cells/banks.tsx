@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import workareaStore from 'mobx/stores/workareaStore';
 import { Select } from 'components/Select';
-import { Deal } from 'components/MiddleOffice/DealBlotter/deal';
+import { Deal } from 'components/MiddleOffice/interfaces/deal';
 
 type Props = {
   deal: Deal;

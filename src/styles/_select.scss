@@ -8,6 +8,11 @@
   padding: 0 4px;
   pointer-events: all;
 
+  &:focus {
+    background-color: darken($background-color, 6%);
+    outline: 1px solid $primary-color;
+  }
+
   &:hover {
     background-color: darken($background-color, 4%);
   }

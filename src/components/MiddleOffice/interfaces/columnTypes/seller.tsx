@@ -3,7 +3,7 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 import { BankCell } from '../cells/banks';
 import { Observer } from 'mobx-react';
 import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
-import { Deal } from 'components/MiddleOffice/DealBlotter/deal';
+import { Deal } from 'components/MiddleOffice/interfaces/deal';
 
 export default (sortable: boolean): ColumnSpec => ({
   name: 'seller',

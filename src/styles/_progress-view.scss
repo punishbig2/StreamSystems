@@ -10,10 +10,12 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: white;
+  background-color: $background-color;
+  color: $foreground-color;
 
   .content {
     width: 350px;
+    color: inherit;
 
     .title {
       display: flex;
@@ -22,14 +24,15 @@
       text-transform: uppercase;
       font-weight: bold;
       margin: 8px 0;
+      color: inherit;
     }
 
     .message {
       font-size: 14px;
       margin: 8px 0;
       font-weight: 500;
-      color: $foreground-color;
       opacity: 0.75;
+      color: inherit;
     }
   }
 }
@@ -44,7 +47,7 @@
     width: 100%;
     background: rgba($foreground-color, 0.25);
     border-radius: 3px;
-    box-shadow: 0 2px 4px -2px rgba($foreground-color, 0.75);
+    box-shadow: 0 2px 4px -2px rgba(black, 0.75);
     overflow: hidden;
 
     .value {

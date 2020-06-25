@@ -17,7 +17,7 @@ import { Sides } from "interfaces/sides";
 import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
 import { Strategy } from "interfaces/strategy";
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { DealEntry } from "structures/dealEntry";
 import {
@@ -29,6 +29,7 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import signalRManager from "signalR/signalRManager";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -172,7 +173,11 @@ const post = <T>(
 const get = <T>(url: string, args?: any): CancellablePromise<T> =>
   request<T>(url, Method.Get, args);
 
+const httpDelete = <T>(url: string, args?: any): CancellablePromise<T> =>
+  request<T>(url, Method.Delete, args);
+
 type Endpoints =
+  | "deal"
   | "symbols"
   | "products"
   | "tenors"
@@ -211,6 +216,8 @@ type Verb =
   | "cxlall"
   | "clear"
   | "create"
+  | "clone"
+  | "remove"
   | "pricing";
 
 export class API {
@@ -788,11 +795,59 @@ export class API {
         RATES: [],
       },
       ValuationModel: valuationModel,
-      description: `FXO-${strategy.OptionProductType}-${2 * definitions.length}-Legs`,
+      description: `FXO-${strategy.OptionProductType}-${
+        2 * definitions.length
+      }-Legs`,
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
     return post<any>(API.buildUrl(API.Deal, "request", "pricing"), request);
+  }
+
+  static async removeDeal(id: string) {
+    const user: User = workareaStore.user;
+    return httpDelete<any>(
+      API.buildUrl(API.Deal, "deal", "remove", {
+        linkid: id,
+        useremail: user.email,
+      })
+    );
+  }
+
+  static async cloneDeal(data: any) {
+    const user: User = workareaStore.user;
+    const newDeal = {
+      linkid: data.linkid,
+      strategy: data.strategy,
+      symbol: data.symbol,
+      lastpx: data.price,
+      lastqty: data.size,
+      lvsqty: 0,
+      cumqty: 0,
+      buyer: data.buyer,
+      seller: data.seller,
+      useremail: user.email,
+    };
+    await post<any>(API.buildUrl(API.Deal, "deal", "clone"), newDeal);
+    signalRManager.addDeal(newDeal);
+  }
+
+  static async createDeal(data: any) {
+    const user: User = workareaStore.user;
+    const newDeal = {
+      linkid: data.linkid,
+      strategy: data.strategy,
+      symbol: data.symbol,
+      lastpx: data.price,
+      lastqty: data.size,
+      lvsqty: 0,
+      cumqty: 0,
+      buyer: data.buyer,
+      seller: data.seller,
+      useremail: user.email,
+    };
+    await post<any>(API.buildUrl(API.Deal, "deal", "create"), newDeal);
+    signalRManager.addDeal(newDeal);
   }
 
   static async getLegs(dealid: string): Promise<any> {

@@ -62,9 +62,10 @@ $grey-form-color: $foreground-color;
   padding: 48px;
 
   .text {
-    opacity: 0.25;
+    opacity: 0.15;
     font-weight: 600;
     font-style: italic;
+    color: $foreground-color;
   }
 }
 

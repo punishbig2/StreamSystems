@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { API } from "API";
 import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
 import MO from "mobx/stores/middleOfficeStore";

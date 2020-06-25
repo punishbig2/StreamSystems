@@ -11,11 +11,13 @@ import { BlotterTypes } from "columns/messageBlotter";
 import { observer } from "mobx-react";
 import { randomID } from "randomID";
 import { DealInsertStore } from "mobx/stores/dealInsertStore";
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { isMessage } from "utils/messageUtils";
 import dealsStore from "mobx/stores/dealsStore";
 import signalRManager from "signalR/signalRManager";
+import { API } from "API";
+import { uuid } from "uuidv4";
 
 interface Props {
   id: string;
@@ -31,7 +33,7 @@ export const DealBlotter: React.FC<Props> = observer(
       signalRManager.addDealListener((deal: Deal) => {
         console.log(deal);
         dealsStore.addDeal(deal);
-      })
+      });
     }, []);
     const renderRow = (props: any): ReactElement | null => {
       if (!props.row) {
@@ -51,13 +53,29 @@ export const DealBlotter: React.FC<Props> = observer(
       } else {
         const row: Message | Deal = props.row;
         const id: string = isMessage(row) ? row.ClOrdID : row.dealID;
-        const isSelected =
-          middleOfficeStore.deal !== null && middleOfficeStore.deal === row;
+        const { deal } = middleOfficeStore;
+        const isSelected = deal !== null && deal.dealID === id;
         const contextMenu: ContextMenuItem[] = [
           {
             label: "Clone",
-            action: () => {
-              console.log("should clone");
+            action: (deal: Deal) => {
+              API.cloneDeal({
+                linkid: uuid(),
+                strategy: deal.strategy,
+                symbol: deal.currencyPair,
+                price: deal.lastPrice,
+                size: deal.lastQuantity,
+                buyer: deal.buyer,
+                seller: deal.seller,
+              }).then(() => {});
+            },
+          },
+          {
+            label: "Delete",
+            action: (deal: Deal) => {
+              API.removeDeal(deal.dealID).then(() => {
+                dealsStore.removeDeal(deal.dealID);
+              });
             },
           },
         ];
@@ -92,4 +110,3 @@ export const DealBlotter: React.FC<Props> = observer(
     );
   }
 );
-

@@ -178,6 +178,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <div
+      tabIndex={0}
       className={"select-container" + (props.fit ? " fit" : "")}
       ref={setContainer}
       onMouseDown={showDropdown}

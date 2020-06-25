@@ -1,4 +1,4 @@
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { observable, action, computed } from "mobx";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";

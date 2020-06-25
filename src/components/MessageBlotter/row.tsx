@@ -6,6 +6,7 @@ import { DarkPool } from "interfaces/w";
 import { BlotterTypes } from "columns/messageBlotter";
 import { DealInsertStore } from "mobx/stores/dealInsertStore";
 import { Menu, MenuItem } from "@material-ui/core";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export enum BlotterRowTypes {
   Normal,
@@ -16,7 +17,7 @@ export enum BlotterRowTypes {
 
 export interface ContextMenuItem {
   label: string;
-  action: () => void;
+  action: (deal: Deal) => void;
 }
 
 interface MenuSpec {
@@ -43,11 +44,9 @@ const getClassFromRowType = (
   baseClassName: string,
   rowType: BlotterRowTypes,
   executed: boolean,
-  isDarkPool: boolean,
-  isSelected: boolean
+  isDarkPool: boolean
 ): string => {
   const classes: string[] = [baseClassName];
-  if (isSelected) classes.push("selected");
   if (executed) classes.push("flash");
   if (isDarkPool) classes.push("dark-pool");
   switch (rowType) {
@@ -112,13 +111,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   if (!row) {
     return (
       <div
-        className={getClassFromRowType(
-          "tr",
-          props.type,
-          executed,
-          false,
-          false
-        )}
+        className={getClassFromRowType("tr", props.type, executed, false)}
         id={"__INSERT_ROW__"}
         key={"__INSERT_ROW__"}
       >
@@ -129,10 +122,13 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const isSelected: boolean =
     props.isSelected !== undefined && props.isSelected;
   const isDarkPool: boolean = row.ExDestination === DarkPool;
-  const onClick = !!props.onClick ? () => props.onClick!(row) : undefined;
+  const onClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!props.onClick) return;
+    props.onClick(row);
+  };
   const onContextMenu = (event: React.MouseEvent<HTMLDivElement>): void => {
     event.preventDefault();
-    if (props.contextMenu && isSelected) {
+    if (props.contextMenu) {
       setMenu({
         x: event.clientX,
         y: event.clientY,
@@ -156,7 +152,9 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
           }}
         >
           {contextMenu.map((item: ContextMenuItem) => (
-            <MenuItem onClick={item.action} key={item.label}>{item.label}</MenuItem>
+            <MenuItem onClick={() => item.action(row as Deal)} key={item.label}>
+              {item.label}
+            </MenuItem>
           ))}
         </Menu>
       );
@@ -169,8 +167,10 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
       onClick={onClick}
       onContextMenu={onContextMenu}
       className={[
-        getClassFromRowType("tr", props.type, executed, isDarkPool, isSelected),
+        getClassFromRowType("tr", props.type, executed, isDarkPool),
         !!props.onClick ? "clickable" : "",
+        menu.visible ? "showing-context-menu" : "",
+        isSelected ? "selected" : "",
       ].join(" ")}
       id={row.id}
       key={row.id}

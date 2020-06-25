@@ -3,6 +3,7 @@ import { ColumnSpec } from 'components/Table/columnSpecification';
 import transactTimeColumn from 'components/MiddleOffice/interfaces/columnTypes/transactionTime';
 import { Observer } from 'mobx-react';
 import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
+import strategyColumn from 'components/MiddleOffice/interfaces/columnTypes/strategy';
 import symbolColumn from 'components/MiddleOffice/interfaces/columnTypes/symbol';
 import priceColumn from 'components/MiddleOffice/interfaces/columnTypes/price';
 import sizeColumn from 'components/MiddleOffice/interfaces/columnTypes/size';
@@ -34,6 +35,7 @@ export const columns: ColumnSpec[] = [
     template: '12345',
   },
   transactTimeColumn(),
+  strategyColumn(true),
   {
     name: 'status',
     header: () => 'Status',
@@ -50,8 +52,8 @@ export const columns: ColumnSpec[] = [
   {
     name: 'venue',
     header: () => 'Venue',
-    render: (props: CellProps): ReactElement | string => {
-      return '?';
+    render: (props: CellProps): ReactElement | string | null => {
+      return null;
     },
     filterable: true,
     width: 3,

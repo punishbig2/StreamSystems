@@ -125,6 +125,14 @@ export const MiddleOffice: React.FC<Props> = observer(
             </Grid>
           </div>
           <ModalWindow visible={error !== null} render={renderError} />
+          <div
+            className={[
+              "spinner ",
+              middleOfficeStore.isSendingPricingRequest ? "visible" : "hidden",
+            ].join(" ")}
+          >
+            <h1>Loading</h1>
+          </div>
         </>
       );
     }

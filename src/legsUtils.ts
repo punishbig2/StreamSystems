@@ -1,4 +1,4 @@
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import {
   LegOptionsDefOut,
   LegOptionsDefIn,
@@ -40,7 +40,6 @@ export const createLegsFromDefinition = (
       "notional_ratio" in definition ? definition.notional_ratio : 0;
     const notional: number | null =
       deal.lastQuantity === null ? null : deal.lastQuantity * notionalRatio;
-    console.log(inputs);
     const leg: Leg = {
       premium: null,
       price: deal.lastPrice,

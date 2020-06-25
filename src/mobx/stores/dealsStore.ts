@@ -1,4 +1,4 @@
-import { Deal } from "components/MiddleOffice/DealBlotter/deal";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { observable, action, observe } from "mobx";
 import { API } from "API";
 import { parseTime } from "timeUtils";
@@ -22,8 +22,15 @@ export class DealsStore {
 
   @action.bound
   public addDeal(deal: Deal) {
-    console.log(deal);
     this.deals = [deal, ...this.deals];
+  }
+
+  @action.bound
+  public removeDeal(id: string) {
+    const { deals } = this;
+    const index: number = deals.findIndex((deal: Deal) => deal.dealID === id);
+    if (index === -1) return;
+    this.deals = [...deals.slice(0, index), ...deals.slice(index + 1)];
   }
 }
 
