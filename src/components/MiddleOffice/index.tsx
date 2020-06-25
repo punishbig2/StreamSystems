@@ -20,13 +20,34 @@ export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const [error, setError] = useState<{
       message: string;
-      code: number;
+      error: string;
+      status: number;
     } | null>(null);
     const classes: string[] = ["middle-office"];
     const { deal } = store;
     const [pricingResult, setPricingResult] = useState<PricingResult | null>(
       null
     );
+    const renderError = (): ReactElement | null => {
+      if (error === null) return null;
+      return (
+        <div className={"middle-office-error"}>
+          <div className={"header"}>
+            <div className={"fa fa-exclamation-triangle icon"} />
+            <h3>Oops, an error happened</h3>
+          </div>
+          <p className={"message"}>{error.message}</p>
+          <p className={"tag"}>
+            error code: {error.status} ({error.error})
+          </p>
+          <div className={"button-box"}>
+            <button type={"button"} onClick={() => setError(null)}>
+              Close
+            </button>
+          </div>
+        </div>
+      );
+    };
     useEffect(() => {
       store.loadReferenceData().then(() => {});
     }, []);
@@ -62,8 +83,8 @@ export const MiddleOffice: React.FC<Props> = observer(
             })),
           });
         } else {
-          const { message, code } = response.data;
-          setError({ message, code });
+          const { data } = response;
+          setError(data);
         }
       });
     });
@@ -99,20 +120,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               </Grid>
             </Grid>
           </div>
-          <ModalWindow
-            visible={error !== null}
-            render={(): ReactElement | null => {
-              if (error === null) return null;
-              return (
-                <div className={"middle-office-error"}>
-                  <h3>Oops, an error happened</h3>
-                  <p>{error.message}</p>
-                  <p>error code: {error.code}</p>
-                  <button type={"button"}>Close</button>
-                </div>
-              );
-            }}
-          />
+          <ModalWindow visible={error !== null} render={renderError} />
         </>
       );
     }

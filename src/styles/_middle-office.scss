@@ -3,6 +3,55 @@ $green-form-color: saturate(mix($foreground-color, green), 30%);
 $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
 
+.middle-office-error {
+  width: 450px;
+  padding: 0 0 10px 0;
+
+  .header {
+    display: flex;
+    margin: 10px;
+
+    .icon {
+      color: crimson;
+      width: 36px;
+      height: 36px;
+      text-align: center;
+      line-height: 36px;
+      font-size: 32px;
+    }
+
+    h3 {
+      margin: 0;
+      padding: 10px;
+    }
+  }
+
+  p {
+    font-weight: 500;
+    padding: 0 10px;
+    margin: 0 46px;
+    &:last-of-type {
+      margin-top: 20px;
+      opacity: 0.5;
+    }
+  }
+
+  .button-box {
+    text-align: right;
+
+    button {
+      background: none;
+      color: $primary-color;
+      border: none;
+      padding: 10px 20px;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+      }
+    }
+  }
+}
+
 .empty-section {
   height: 100%;
   display: flex;
