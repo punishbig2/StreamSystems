@@ -214,7 +214,7 @@ export class MiddleOfficeStore {
     if (model === undefined) throw new Error("cannot find the valuation model");
     return {
       OptionModelType: model.OptionModel,
-      OptionModelParamaters: model.OptionModelParameters,
+      OptionModelParamaters: !!model.OptionModelParameters ? model.OptionModelParameters : "",
     };
   }
 

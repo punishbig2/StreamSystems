@@ -99,6 +99,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         store.legs,
         valuationModel,
         strategy,
+        entry.strike,
       ).then(() => {
         MO.setSendingPricingRequest(false);
       });

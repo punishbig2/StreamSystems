@@ -732,7 +732,8 @@ export class API {
     entry: DealEntry,
     legs: Leg[],
     valuationModel: ValuationModel,
-    strategy: MOStrategy
+    strategy: MOStrategy,
+    strike?: string
   ) {
     const { currencyPair, tradeDate, symbol } = deal;
     const legDefinitions: { in: LegOptionsDefIn[] } =
@@ -740,7 +741,7 @@ export class API {
     if (!legDefinitions) throw new Error(`invalid strategy ${deal.strategy}`);
     if (currencyPair.length !== 6)
       throw new Error(`unsupported currency ${currencyPair}`);
-    const snapTime: Date = tradeDate.toDate();
+    const tradeDateAsDate: Date = tradeDate.toDate();
     const definitions: LegOptionsDefIn[] = legDefinitions.in;
     const request: VolMessageIn = {
       id: deal.dealID,
@@ -758,7 +759,7 @@ export class API {
             notional: deal.lastPrice,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
-            strike: "",
+            strike: strike,
             volatilty: null,
             barrier: null,
             barrierLower: null,
@@ -775,24 +776,22 @@ export class API {
         VOL: {
           ccyPair: currencyPair,
           premiumAdjustDelta: false,
-          snapTime: snapTime,
+          snapTime: tradeDateAsDate,
           DateCountBasisType: symbol["DayCountBasis-VOL"],
           VolSurface: [], // To be filled by the pre-pricer
         },
         FX: {
           ccyPair: currencyPair,
-          snapTime: snapTime,
+          snapTime: tradeDateAsDate,
           DateCountBasisType: symbol["DayCountBasis-FX"],
         },
         RATES: [],
       },
       ValuationModel: valuationModel,
-      description: "",
+      description: `FXO-${strategy.OptionProductType}-${2 * definitions.length}-Legs`,
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
-    console.log(request);
-    console.log(API.buildUrl(API.Deal, "request", "pricing"));
     return post<any>(API.buildUrl(API.Deal, "request", "pricing"), request);
   }
 

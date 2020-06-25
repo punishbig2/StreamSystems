@@ -18,7 +18,6 @@ export const createLegsFromDefinition = (
   definitions: LegOptionsDefOut[] | LegOptionsDefIn[],
   inputs: Inputs
 ): Leg[] => {
-  console.log(definitions);
   const legs: Leg[] = [];
   const { symbol } = deal;
   // Now fill the stub legs
