@@ -233,6 +233,11 @@ export class MiddleOfficeStore {
       return 0;
     }
   }
+
+  @action.bound
+  public setSpot(spot: number | null) {
+    this.summaryLeg = { ...this.summaryLeg, spot } as SummaryLeg;
+  }
 }
 
 export default new MiddleOfficeStore();

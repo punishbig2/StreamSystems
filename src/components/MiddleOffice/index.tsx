@@ -11,6 +11,7 @@ import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
 import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
+import middleOfficeStore from "mobx/stores/middleOfficeStore";
 
 interface Props {
   visible: boolean;
@@ -61,7 +62,7 @@ export const MiddleOffice: React.FC<Props> = observer(
           const {
             Output: {
               Results: { Premium, Gamma, Vega, Forward_Delta },
-              Inputs: { strike, putVol, callVol },
+              Inputs: { strike, putVol, callVol, forward, spot },
             },
           } = response.data;
           setPricingResult({
@@ -80,8 +81,11 @@ export const MiddleOffice: React.FC<Props> = observer(
               gamma: Gamma["%_CCY1"][index],
               vega: Vega["%_CCY1"][index],
               hedge: Forward_Delta.CCY1[index],
+              fwdPts: 1000 * (forward - spot),
+              fwdRate: forward,
             })),
           });
+          middleOfficeStore.setSpot(spot);
         } else {
           const { data } = response;
           setError(data);

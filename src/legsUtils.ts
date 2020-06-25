@@ -40,9 +40,9 @@ export const createLegsFromDefinition = (
       "notional_ratio" in definition ? definition.notional_ratio : 0;
     const notional: number | null =
       deal.lastQuantity === null ? null : deal.lastQuantity * notionalRatio;
+    console.log(inputs);
     const leg: Leg = {
       premium: null,
-      premiumDate: null,
       price: deal.lastPrice,
       vol: deal.lastPrice,
       depo: depo,
@@ -60,6 +60,7 @@ export const createLegsFromDefinition = (
       gamma: null,
       hedge: null,
       strike: inputs.strike,
+      premiumDate: deal.spotDate,
       option:
         "ReturnLegOut" in definition
           ? definition.ReturnLegOut
