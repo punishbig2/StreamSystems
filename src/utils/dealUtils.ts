@@ -7,6 +7,7 @@ import { tenorToDuration } from "utils/dataGenerators";
 import workareaStore from "mobx/stores/workareaStore";
 
 export const createDealFromBackendMessage = (source: any): Deal => {
+  console.log(source);
   const symbol: Symbol | undefined = workareaStore.findSymbolById(source.symbol);
   if (symbol === undefined)
     throw new Error("symbol not found in symbols list " + source.symbol);

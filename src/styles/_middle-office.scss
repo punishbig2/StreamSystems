@@ -21,12 +21,14 @@ $grey-form-color: $foreground-color;
     }
 
     h3 {
+      color: $foreground-color;
       margin: 0;
       padding: 10px;
     }
   }
 
   p {
+    color: $foreground-color;
     font-weight: 500;
     padding: 0 10px;
     margin: 0 46px;

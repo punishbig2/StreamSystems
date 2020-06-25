@@ -216,10 +216,15 @@ export class SignalRManager {
   };
 
   private onUpdateDeals = (message: string): void => {
-    const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
-      detail: createDealFromBackendMessage(message),
-    });
-    document.dispatchEvent(event);
+    try {
+      const detail: Deal = createDealFromBackendMessage(JSON.parse(message));
+      const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
+        detail: detail,
+      });
+      document.dispatchEvent(event);
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   private onUpdateMarketData = (message: string): void => {
@@ -305,9 +310,11 @@ export class SignalRManager {
       const customEvent: CustomEvent<Deal> = event as CustomEvent<Deal>;
       listener(customEvent.detail);
     };
-    document.addEventListener("ondeal", listenerWrapper, true);
+    console.log("added event listener");
+    document.addEventListener("ondeal", listenerWrapper);
     return () => {
-      document.removeEventListener("ondeal", listenerWrapper, true);
+      console.log("removed event listener");
+      document.removeEventListener("ondeal", listenerWrapper);
     };
   };
 

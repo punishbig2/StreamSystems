@@ -28,7 +28,10 @@ export const DealBlotter: React.FC<Props> = observer(
       middleOfficeStore.setDeal(deal);
     };
     useEffect(() => {
-      signalRManager.addDealListener(dealsStore.addDeal)
+      signalRManager.addDealListener((deal: Deal) => {
+        console.log(deal);
+        dealsStore.addDeal(deal);
+      })
     }, []);
     const renderRow = (props: any): ReactElement | null => {
       if (!props.row) {
