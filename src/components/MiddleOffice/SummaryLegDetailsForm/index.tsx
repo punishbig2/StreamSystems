@@ -50,14 +50,14 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Spot Date"}
                   color={"grey"}
-                  value={spotDate}
+                  value={data.spotDate}
                   name={"spotDate"}
                   type={"date"}
                 />
                 <FormField
                   label={"Spot"}
                   color={"grey"}
-                  value={data.spot}
+                  value={spot}
                   name={"spot"}
                   type={"number"}
                   precision={4}
