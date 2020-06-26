@@ -760,7 +760,6 @@ export class API {
     const definitions: LegOptionsDefIn[] = legDefinitions.in;
     const request: VolMessageIn = {
       id: deal.dealID,
-      spreadVsVol: strategy.spreadvsvol,
       Option: {
         ccyPair: currencyPair,
         ccy1: ccy1,
@@ -811,7 +810,7 @@ export class API {
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
-    return post<any>(API.buildUrl(API.Deal, "request", "pricing"), request);
+    return post<any>(config.PricingRequestUrl, request);
   }
 
   static async getDeals(): Promise<Deal[]> {
