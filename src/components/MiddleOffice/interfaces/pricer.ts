@@ -6,7 +6,7 @@ export interface OptionLeg {
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;
   spreadVolatiltyOffset?: number | null;
-  volatilty: number | null;
+  volatilty?: number | null;
   barrier: number | null;
   barrierLower: number | null;
   barrierUpper: number | null;

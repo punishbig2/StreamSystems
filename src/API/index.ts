@@ -29,7 +29,6 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
-import signalRManager from "signalR/signalRManager";
 import { splitCurrencyPair } from "symbolUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -767,12 +766,12 @@ export class API {
         premiumCCY: symbol.premiumCCY,
         OptionLegs: definitions.map(
           (definition: LegOptionsDefIn): OptionLeg => ({
-            notional: 1E6 * deal.lastQuantity,
+            notional: 1e6 * deal.lastQuantity,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
-            spreadVolatiltyOffset: entry.spread ? entry.spread : entry.vol,
+            spreadVolatiltyOffset: entry.spread,
             strike: entry.strike,
-            volatilty: null,
+            volatilty: entry.vol,
             barrier: null,
             barrierLower: null,
             barrierUpper: null,
@@ -801,8 +800,8 @@ export class API {
       },
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${
-      2 * definitions.length
-        }-Legs`,
+        2 * definitions.length
+      }-Legs`,
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
@@ -834,14 +833,13 @@ export class API {
       symbol: data.symbol,
       lastpx: data.price,
       lastqty: data.size,
-      lvsqty: 0,
-      cumqty: 0,
+      lvsqty: "0",
+      cumqty: "0",
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
     };
     await post<any>(API.buildUrl(API.Deal, "deal", "clone"), newDeal);
-    signalRManager.addDeal(newDeal);
   }
 
   static async createDeal(data: any) {
@@ -852,14 +850,13 @@ export class API {
       symbol: data.symbol,
       lastpx: data.price,
       lastqty: data.size,
-      lvsqty: 0,
-      cumqty: 0,
+      lvsqty: "0",
+      cumqty: "0",
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
     };
     await post<any>(API.buildUrl(API.Deal, "deal", "create"), newDeal);
-    signalRManager.addDeal(newDeal);
   }
 
   static async getLegs(dealid: string): Promise<any> {
