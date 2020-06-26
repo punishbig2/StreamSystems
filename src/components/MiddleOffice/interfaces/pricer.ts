@@ -82,6 +82,7 @@ export interface ValuationModel {
 
 export interface VolMessageIn {
   id: string;
+  spreadVsVol: string;
   timeStamp: Date;
   version: string;
   description: string;

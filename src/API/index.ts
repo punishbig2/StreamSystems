@@ -760,6 +760,7 @@ export class API {
     const definitions: LegOptionsDefIn[] = legDefinitions.in;
     const request: VolMessageIn = {
       id: deal.dealID,
+      spreadVsVol: strategy.spreadvsvol,
       Option: {
         ccyPair: currencyPair,
         ccy1: ccy1,

@@ -42,20 +42,6 @@ export const DealEntryForm: React.FC<Props> = observer(
     );
     const [entry, setEntry] = useState<DealEntry>(initialDealEntry);
 
-    /*const getDerivedFieldsFromStrategy = (
-      strategy: MOStrategy | null | undefined,
-      price: number,
-      legs: number
-    ): any => {
-      if (!strategy) return {};
-      return {
-        legs: legs,
-        strike: strategy.strike,
-        vol: strategy.spreadvsvol === "vol" ? price : undefined,
-        spread: strategy.spreadvsvol === "spread" ? price : undefined,
-      };
-    };*/
-
     useEffect(() => {
       if (deal === null) return;
       const strategy: MOStrategy = strategies[deal.strategy];
