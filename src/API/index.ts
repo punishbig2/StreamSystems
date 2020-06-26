@@ -769,7 +769,7 @@ export class API {
             notional: 1e6 * deal.lastQuantity,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
-            spreadVolatiltyOffset: entry.spread,
+            spreadVolatiltyOffset: (entry.spread !== null && entry.spread !== undefined) ? entry.spread / 100.0 : null,
             strike: entry.strike,
             volatilty: entry.vol,
             barrier: null,

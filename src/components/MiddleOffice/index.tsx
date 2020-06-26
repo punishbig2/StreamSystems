@@ -68,7 +68,9 @@ export const MiddleOffice: React.FC<Props> = observer(
               MarketSnap,
               Inputs: { strike, putVol, callVol, forward, spot },
             },
+            id,
           } = response.data;
+          if (id !== deal.dealID) return;
           const currencies: [string, string] = splitCurrencyPair(deal.currencyPair);
           const rates: Rates = [{
             currency: currencies[0],
