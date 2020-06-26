@@ -7,11 +7,9 @@ import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API } from "API";
 
 import workareaStore from "mobx/stores/workareaStore";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/interfaces/legOptionsDef";
+import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import { Sides } from "interfaces/sides";
 
 interface LegDefinitions {
   [strategy: string]: {
@@ -170,6 +168,11 @@ export class MO {
       cutCity: cut.City,
       cutTime: cut.LocalTime,
       dealOutput: {
+        premiumDate: deal.spotDate,
+        deliveryDate: deal.deliveryDate,
+        expiryDate: deal.expiryDate,
+        side: Sides.Buy,
+        price: null,
         option: "",
         vol: null,
         fwdPts: null,

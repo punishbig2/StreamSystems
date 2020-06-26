@@ -2,6 +2,7 @@ import { Rates, Leg } from "components/MiddleOffice/interfaces/leg";
 import { splitCurrencyPair } from "symbolUtils";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { Sides } from "interfaces/sides";
 
 export interface PricingResult {
   summary: Partial<SummaryLeg>;
@@ -9,7 +10,7 @@ export interface PricingResult {
 }
 
 export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
-  const { symbol } = deal;
+  const { symbol, expiryDate } = deal;
   const {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
@@ -45,6 +46,15 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
         fwdRate: forward,
         premiumCurrency: symbol.premiumCCY,
         rates: rates,
+        // Inserted members
+        deliveryDate: deal.deliveryDate,
+        days: expiryDate.diff(deal.tradeDate, "d"),
+        expiryDate: expiryDate,
+        notional: 1E6 * deal.lastQuantity,
+        party: deal.buyer,
+        premiumDate: deal.spotDate,
+        price: deal.lastPrice,
+        side: option.includes("Call") ? Sides.Buy : Sides.Sell,
       };
     }
   );
