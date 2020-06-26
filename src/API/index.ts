@@ -737,6 +737,11 @@ export class API {
     }
   }
 
+  private static divideBy100(value: number | null | undefined): number | null {
+    if (value === null || value === undefined) return null;
+    return value / 100.0;
+  }
+
   static async sendPricingRequest(
     deal: Deal,
     entry: DealEntry,
@@ -769,9 +774,9 @@ export class API {
             notional: 1e6 * deal.lastQuantity,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
-            spreadVolatiltyOffset: (entry.spread !== null && entry.spread !== undefined) ? entry.spread / 100.0 : null,
+            spreadVolatiltyOffset: API.divideBy100(entry.spread),
             strike: entry.strike,
-            volatilty: entry.vol,
+            volatilty: API.divideBy100(entry.vol),
             barrier: null,
             barrierLower: null,
             barrierUpper: null,
