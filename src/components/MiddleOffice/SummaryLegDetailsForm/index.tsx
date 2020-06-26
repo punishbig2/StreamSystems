@@ -4,7 +4,7 @@ import { FormField } from "components/field";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
-import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
+import { PricingResult, ResultLeg } from "components/MiddleOffice/interfaces/pricingResult";
 
 interface Props {
   pricingResult: PricingResult | null;
@@ -18,7 +18,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
       return <NoDataMessage />;
     }
     const { brokerage } = data;
-    const dealOutput = pricingResult != null ? pricingResult : (data.dealOutput as PricingResult);
+    const dealOutput: ResultLeg = !!pricingResult ? pricingResult.summary : data.dealOutput;
     const totalComm: number | null =
       brokerage.buyerComm !== null && brokerage.sellerComm !== null
         ? brokerage.buyerComm + brokerage.sellerComm
@@ -104,6 +104,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={brokerage.buyerComm}
                   name={"buyerComm"}
                   type={"currency"}
+                  currency={"USD"}
                 />
                 <FormField
                   label={"Seller Comm"}
@@ -111,6 +112,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={brokerage.sellerComm}
                   name={"sellerComm"}
                   type={"currency"}
+                  currency={"USD"}
                 />
                 <FormField
                   label={"Total Comm"}
@@ -118,6 +120,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={totalComm}
                   name={"totalComm"}
                   type={"currency"}
+                  currency={"USD"}
                 />
               </fieldset>
             </Grid>
@@ -127,9 +130,10 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Net Premium"}
                   color={"grey"}
-                  value={dealOutput.premiumAMT}
+                  value={dealOutput.premium}
                   name={"netPremium"}
                   type={"currency"}
+                  currency={dealOutput.premiumCurrency}
                 />
                 <FormField
                   label={"Price %"}
@@ -137,7 +141,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={dealOutput.pricePercent}
                   name={"pricePercent"}
                   type={"number"}
-                  precision={8}
+                  precision={4}
                 />
                 <FormField
                   label={"Delta"}
@@ -153,6 +157,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={dealOutput.gamma}
                   name={"gamma"}
                   type={"currency"}
+                  currency={dealOutput.premiumCurrency}
                 />
                 <FormField
                   label={"Net Vega"}
@@ -160,6 +165,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={dealOutput.vega}
                   name={"vega"}
                   type={"currency"}
+                  currency={dealOutput.premiumCurrency}
                 />
                 <FormField
                   label={"Net Hedge"}
@@ -167,6 +173,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={dealOutput.hedge}
                   name={"hedge"}
                   type={"currency"}
+                  currency={dealOutput.premiumCurrency}
                 />
               </fieldset>
             </Grid>

@@ -17,7 +17,6 @@ import { MessageBlotter } from "components/MessageBlotter";
 import { PodTileTitle } from "components/PodTile/title";
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import { BlotterTypes } from "columns/messageBlotter";
-import { MessageBox } from "components/MessageBox";
 import { User } from "interfaces/user";
 import { Strategy } from "interfaces/strategy";
 import { ProgressView } from "components/progressView";
@@ -170,20 +169,6 @@ const Workspace: React.FC<OwnProps> = (
         return () => <h1>Blotter</h1>;
     }
     return () => null;
-  };
-
-  const renderLoadingModal = (): ReactElement | null => {
-    const { busyMessage } = store;
-    if (busyMessage === null) return null;
-    return (
-      <MessageBox
-        title={busyMessage.title}
-        message={busyMessage.detail}
-        buttons={() => null}
-        color={"good"}
-        icon={"spinner"}
-      />
-    );
   };
 
   const getWorkspaceContentView = (): ReactElement => {

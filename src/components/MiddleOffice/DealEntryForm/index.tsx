@@ -64,7 +64,7 @@ export const DealEntryForm: React.FC<Props> = observer(
       const newEntry: DealEntry = {
         currencyPair: deal.currencyPair,
         strategy: deal.strategy,
-        notional: deal.lastQuantity,
+        notional: 1E6 * deal.lastQuantity,
         legAdj: true,
         buyer: deal.buyer,
         seller: deal.seller,

@@ -3,47 +3,43 @@ import {
   LegOptionsDefOut,
   LegOptionsDefIn,
 } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { Leg, Depo } from "components/MiddleOffice/interfaces/leg";
+import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
 import { Sides } from "interfaces/sides";
 import moment from "moment";
-
-interface Inputs {
-  strike: number | null;
-  spot: number | null;
-  forward: number | null;
-}
+import { splitCurrencyPair } from "symbolUtils";
 
 export const createLegsFromDefinition = (
   deal: Deal,
   definitions: LegOptionsDefOut[] | LegOptionsDefIn[]
 ): Leg[] => {
   const legs: Leg[] = [];
-  const { symbol } = deal;
   // Now fill the stub legs
-  const depo: Depo = [
+  const [ccy1, ccy2] = splitCurrencyPair(deal.currencyPair);
+  const rates: Rates = [
     {
-      currency: symbol.notionalCCY,
+      currency: ccy1,
       value: 0,
     },
     {
-      currency: symbol.riskCCY,
+      currency: ccy2,
       value: 0,
     },
   ];
+  const expiryDate: moment.Moment = deal.expiryDate;
   for (const definition of definitions) {
     const sideType: string =
       "ReturnSide" in definition ? definition.ReturnSide : definition.SideType;
     const side: Sides = sideType === "buy" ? Sides.Buy : Sides.Sell;
-    const expiryDate: moment.Moment = deal.expiryDate;
     const notionalRatio: number =
       "notional_ratio" in definition ? definition.notional_ratio : 0;
     const notional: number | null =
-      deal.lastQuantity === null ? null : deal.lastQuantity * notionalRatio;
+      deal.lastQuantity === null ? null : 1E6 * deal.lastQuantity * notionalRatio;
+    const { symbol } = deal;
     const leg: Leg = {
       premium: null,
       price: deal.lastPrice,
       vol: deal.lastPrice,
-      depo: depo,
+      rates: rates,
       notional: notional,
       party: deal.buyer,
       side: side,
@@ -56,6 +52,7 @@ export const createLegsFromDefinition = (
       hedge: null,
       strike: null,
       premiumDate: deal.spotDate,
+      premiumCurrency: symbol.premiumCCY,
       option:
         "ReturnLegOut" in definition
           ? definition.ReturnLegOut

@@ -58,7 +58,8 @@ const fields: FieldDef<DealEntry, MiddleOfficeStore>[] = [
   {
     name: "vol",
     label: "Vol",
-    type: "number",
+    type: "percent",
+    precision: 0,
     placeholder: "0",
     color: "orange",
     editable: false,

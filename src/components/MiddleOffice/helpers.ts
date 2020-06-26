@@ -10,10 +10,17 @@ export const getValue = (
   type: FieldType,
   name: string,
   value: string | boolean | number | Moment | undefined | null,
-  precision?: number
+  precision?: number,
+  currency?: string,
 ): string | undefined => {
   if (value === null) return "";
   if (value === undefined) return undefined;
+  const numberOptions = {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
+    style: type === "currency" ? "currency" : undefined,
+    currency: type === "currency" ? currency : undefined,
+  };
   switch (type) {
     case "date":
       if (isMoment(value)) {
@@ -41,7 +48,10 @@ export const getValue = (
       }
     case "number":
       if (typeof value === "number") {
-        return value.toFixed(precision);
+        if (value < 0) {
+          return `(${(-value).toLocaleString(undefined, numberOptions)})`;
+        }
+        return value.toLocaleString(undefined, numberOptions);
       } else {
         throw new Error(
           `unexpected non numeric value for number field: ${name}`
@@ -50,9 +60,9 @@ export const getValue = (
     case "currency":
       if (typeof value === "number") {
         if (value < 0) {
-          return `($${(-value).toLocaleString()})`;
+          return `(${(-value).toLocaleString(undefined, numberOptions)})`;
         } else {
-          return `$${value.toLocaleString()}`;
+          return value.toLocaleString(undefined, numberOptions);
         }
       } else {
         throw new Error(
@@ -61,7 +71,7 @@ export const getValue = (
       }
     case "percent":
       if (typeof value === "number") {
-        return `${value.toFixed(3)}%`;
+        return `${value.toLocaleString(undefined, numberOptions)}%`;
       } else {
         throw new Error(
           `unexpected non numeric value for percent field: ${name}`

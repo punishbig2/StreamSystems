@@ -1,9 +1,9 @@
 .loading-view {
   position: absolute;
 
-  top: $window-toolbar-size - 1;
+  top: 0;
   left: -1px;
-  bottom: $window-footer-size;
+  bottom: 0;
   right: -1px;
 
   display: flex;
@@ -12,6 +12,7 @@
   align-items: center;
   background-color: $background-color;
   color: $foreground-color;
+
   .image {
     width: 300px;
     height: 300px;

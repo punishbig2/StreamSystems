@@ -14,7 +14,7 @@ export const LegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { legs } = middleOfficeStore;
     const { pricingResult } = props;
-    const pricingResultLegs = pricingResult !== null ? pricingResult.legs : [];
+    const priced = pricingResult !== null ? pricingResult.legs : [];
     if (legs.length === 0) {
       return <NoDataMessage />;
     }
@@ -24,7 +24,7 @@ export const LegDetailsForm: React.FC<Props> = observer(
           return (
             <fieldset key={index}>
               <legend className={"leg-legend"}>Leg {index + 1}</legend>
-              <LegDetailsFields {...leg} {...pricingResultLegs[index]} />
+              <LegDetailsFields {...leg} {...priced[index]} />
             </fieldset>
           );
         })}

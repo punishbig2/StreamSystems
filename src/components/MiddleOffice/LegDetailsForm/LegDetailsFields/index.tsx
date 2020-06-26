@@ -9,7 +9,7 @@ type Props = Leg;
 export const LegDetailsFields: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
-  const { depo } = props;
+  const { rates } = props;
   return (
     <Grid container>
       <FormField
@@ -53,8 +53,9 @@ export const LegDetailsFields: React.FC<Props> = (
         value={props.premium}
         name={"premium"}
         type={"currency"}
+        currency={props.premiumCurrency}
       />
-      <FormField
+        <FormField
         label={"Price"}
         color={"grey"}
         value={props.price}
@@ -129,34 +130,39 @@ export const LegDetailsFields: React.FC<Props> = (
         value={props.gamma}
         name={"premium"}
         type={"currency"}
+        currency={props.premiumCurrency}
       />
       <FormField
-        label={"Net Vega"}
+        label={"Vega"}
         color={"grey"}
         value={props.vega}
         name={"vega"}
         type={"currency"}
+        currency={props.premiumCurrency}
       />
       <FormField
-        label={"Net Hedge"}
+        label={"Hedge"}
         color={"grey"}
         value={props.hedge}
         name={"hedge"}
         type={"currency"}
+        currency={props.premiumCurrency}
       />
       <FormField
-        label={depo[0].currency + " Depo"}
+        label={rates[0].currency + " Rate"}
         color={"grey"}
-        value={depo[0].value}
-        name={"ccy1Depo"}
+        value={rates[0].value}
+        name={"ccy1Rate"}
         type={"percent"}
+        precision={4}
       />
       <FormField
-        label={depo[1].currency + " Depo"}
+        label={rates[1].currency + " Rate"}
         color={"grey"}
-        value={depo[1].value}
-        name={"ccy2Depo"}
+        value={rates[1].value}
+        name={"ccy2Rate"}
         type={"percent"}
+        precision={4}
       />
     </Grid>
   );

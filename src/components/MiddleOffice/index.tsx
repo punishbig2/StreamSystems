@@ -9,9 +9,11 @@ import store from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
-import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
+import { PricingResult, ResultLeg } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import { Rates } from "components/MiddleOffice/interfaces/leg";
+import { splitCurrencyPair } from "symbolUtils";
 
 interface Props {
   visible: boolean;
@@ -56,34 +58,46 @@ export const MiddleOffice: React.FC<Props> = observer(
       setPricingResult(null);
     }, [deal]);
     useEffect(() => {
+      if (deal === null) return;
+      const { symbol } = deal;
       return signalRManager.addPricingResponseListener((response: any) => {
-        console.log(response);
         if (response.status === 200) {
           const {
             Output: {
-              Results: { Premium, Gamma, Vega, Forward_Delta },
+              Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
+              MarketSnap,
               Inputs: { strike, putVol, callVol, forward, spot },
             },
           } = response.data;
-          setPricingResult({
-            premiumAMT: Premium.CCY1[0],
-            pricePercent: Premium["%_CCY1"][0],
-            delta: Forward_Delta["%_CCY1"][0],
-            gamma: Gamma["%_CCY1"][0],
-            vega: Vega["%_CCY1"][0],
-            hedge: Forward_Delta.CCY1[0],
-            legs: Premium.CCY1.slice(1).map((cc1: number, index: number) => ({
-              premium: cc1,
+          const currencies: [string, string] = splitCurrencyPair(deal.currencyPair);
+          const rates: Rates = [{
+            currency: currencies[0],
+            value: 100 * MarketSnap.ccy1Zero,
+          }, {
+            currency: currencies[1],
+            value: 100 * MarketSnap.ccy2Zero,
+          }];
+          const legs = Legs.map((name: string, index: number): ResultLeg => {
+            const option: string = name.split("|")[1];
+            return {
+              option: option,
+              premium: Premium["CCY1"][index],
               pricePercent: Premium["%_CCY1"][index],
               strike: strike,
-              vol: index % 2 !== 0 ? putVol : callVol,
+              vol: option.toLowerCase() === "put" ? putVol : callVol,
               delta: Forward_Delta["%_CCY1"][index],
-              gamma: Gamma["%_CCY1"][index],
-              vega: Vega["%_CCY1"][index],
+              gamma: Gamma["CCY1"][index],
+              vega: Vega["CCY1"][index],
               hedge: Forward_Delta.CCY1[index],
               fwdPts: 1000 * (forward - spot),
               fwdRate: forward,
-            })),
+              premiumCurrency: symbol.premiumCCY,
+              rates: rates,
+            };
+          });
+          setPricingResult({
+            summary: legs[0],
+            legs: legs.slice(1),
           });
           middleOfficeStore.setSpot(spot);
         } else {
@@ -91,7 +105,7 @@ export const MiddleOffice: React.FC<Props> = observer(
           setError(data);
         }
       });
-    });
+    }, [deal]);
     if (!props.visible) classes.push("hidden");
     if (!store.isInitialized) {
       return (

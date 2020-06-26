@@ -162,20 +162,33 @@ export class MiddleOfficeStore {
 
   @action.bound
   public createSummaryLeg(cut: Cut): void {
-    const { legs, deal } = this;
-    if (legs.length === 0 || deal === null) return;
+    const { deal } = this;
+    if (deal === null) return;
     const { symbol } = deal;
     this.summaryLeg = {
       brokerage: { buyerComm: null, sellerComm: null },
       cutCity: cut.City,
       cutTime: cut.LocalTime,
       dealOutput: {
+        option: "",
+        vol: null,
+        fwdPts: null,
+        fwdRate: null,
+        premium: null,
+        strike: null,
         delta: null,
         gamma: null,
         hedge: null,
-        premiumAMT: null,
         pricePercent: null,
         vega: null,
+        premiumCurrency: "USD",
+        rates: [{
+          currency: "",
+          value: 0,
+        }, {
+          currency: "",
+          value: 0,
+        }],
       },
       delivery: symbol.SettlementType,
       source: symbol.FixingSource,
@@ -183,7 +196,7 @@ export class MiddleOfficeStore {
       spotDate: deal.spotDate,
       tradeDate: deal.tradeDate,
       usi: null,
-      strategy: legs[0].option,
+      strategy: this.strategies[deal.strategy]!.description,
     };
   }
 
@@ -200,10 +213,6 @@ export class MiddleOfficeStore {
     this.legs = legs;
   }
 
-  public getStrategyById(id: string): MOStrategy | undefined {
-    return this.strategies[id];
-  }
-
   public getValuationModelById(id: number): ValuationModel {
     const { models } = this;
     const model: InternalValuationModel | undefined = models.find(
@@ -214,7 +223,9 @@ export class MiddleOfficeStore {
     if (model === undefined) throw new Error("cannot find the valuation model");
     return {
       OptionModelType: model.OptionModel,
-      OptionModelParamaters: !!model.OptionModelParameters ? model.OptionModelParameters : "",
+      OptionModelParamaters: !!model.OptionModelParameters
+        ? model.OptionModelParameters
+        : "",
     };
   }
 

@@ -30,6 +30,7 @@ import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import signalRManager from "signalR/signalRManager";
+import { splitCurrencyPair } from "symbolUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -727,6 +728,16 @@ export class API {
     );
   }
 
+  private static getVegaAdjust(type: string, symbol: Symbol): boolean {
+    if (type === "Butterfly") {
+      return symbol.vegaAdjustBF;
+    } else if (type === "RiskReversal") {
+      return symbol.vegaAdjustRR;
+    } else {
+      return false;
+    }
+  }
+
   static async sendPricingRequest(
     deal: Deal,
     entry: DealEntry,
@@ -740,22 +751,23 @@ export class API {
     if (!legDefinitions) throw new Error(`invalid strategy ${deal.strategy}`);
     if (currencyPair.length !== 6)
       throw new Error(`unsupported currency ${currencyPair}`);
+    const [ccy1, ccy2] = splitCurrencyPair(currencyPair);
     const tradeDateAsDate: Date = tradeDate.toDate();
     const definitions: LegOptionsDefIn[] = legDefinitions.in;
     const request: VolMessageIn = {
       id: deal.dealID,
       Option: {
         ccyPair: currencyPair,
-        ccy1: currencyPair.slice(0, 3),
-        ccy2: currencyPair.slice(3),
+        ccy1: ccy1,
+        ccy2: ccy2,
         OptionProductType: strategy.OptionProductType,
-        vegaAdjust: false,
+        vegaAdjust: API.getVegaAdjust(strategy.OptionProductType, symbol),
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
         OptionLegs: definitions.map(
           (definition: LegOptionsDefIn): OptionLeg => ({
-            notional: deal.lastQuantity,
+            notional: 1E6 * deal.lastQuantity,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
             spreadVolatiltyOffset: entry.spread ? entry.spread : entry.vol,
