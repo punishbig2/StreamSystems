@@ -22,6 +22,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
     const { dealOutput }: SummaryLeg = !!pricingResult
       ? pricingResult.summary as SummaryLeg
       : data;
+    const { spot } = !!pricingResult ? pricingResult.summary : data;
     const totalComm: number | null =
       brokerage.buyerComm !== null && brokerage.sellerComm !== null
         ? brokerage.buyerComm + brokerage.sellerComm
@@ -49,7 +50,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Spot Date"}
                   color={"grey"}
-                  value={data.spotDate}
+                  value={spotDate}
                   name={"spotDate"}
                   type={"date"}
                 />
