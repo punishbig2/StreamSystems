@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState, useCallback } from "react";
 import { DealBlotter } from "components/MiddleOffice/DealBlotter";
 import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
@@ -6,14 +6,17 @@ import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { Grid } from "@material-ui/core";
 import { randomID } from "randomID";
 import store from "mobx/stores/middleOfficeStore";
+import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
-import { PricingResult, ResultLeg } from "components/MiddleOffice/interfaces/pricingResult";
+import {
+  PricingResult,
+  buildPricingResult,
+} from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
-import { Rates } from "components/MiddleOffice/interfaces/leg";
-import { splitCurrencyPair } from "symbolUtils";
+import { API } from "API";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 interface Props {
   visible: boolean;
@@ -57,51 +60,24 @@ export const MiddleOffice: React.FC<Props> = observer(
     useEffect(() => {
       setPricingResult(null);
     }, [deal]);
+    const setLegs = useCallback((response: any) => {
+      if (deal === null) return;
+      const { data } = response;
+      // If this is not the deal we're showing, it's too late
+      if (data.id !== deal.dealID) return;
+      const pricingResult: PricingResult = buildPricingResult(data, deal);
+      setPricingResult(pricingResult);
+    }, [deal]);
     useEffect(() => {
       if (deal === null) return;
-      const { symbol } = deal;
+      API.getLegs(deal.dealID).then((response: any) => {
+        if (response !== null) {
+          setLegs(response);
+        }
+      });
       return signalRManager.addPricingResponseListener((response: any) => {
         if (response.status === 200) {
-          const {
-            Output: {
-              Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
-              MarketSnap,
-              Inputs: { strike, putVol, callVol, forward, spot },
-            },
-            id,
-          } = response.data;
-          if (id !== deal.dealID) return;
-          const currencies: [string, string] = splitCurrencyPair(deal.currencyPair);
-          const rates: Rates = [{
-            currency: currencies[0],
-            value: 100 * MarketSnap.ccy1Zero,
-          }, {
-            currency: currencies[1],
-            value: 100 * MarketSnap.ccy2Zero,
-          }];
-          const legs = Legs.map((name: string, index: number): ResultLeg => {
-            const option: string = name.split("|")[1];
-            return {
-              option: option,
-              premium: Premium["CCY1"][index],
-              pricePercent: Premium["%_CCY1"][index],
-              strike: strike,
-              vol: option.toLowerCase() === "put" ? putVol : callVol,
-              delta: Forward_Delta["%_CCY1"][index],
-              gamma: Gamma["CCY1"][index],
-              vega: Vega["CCY1"][index],
-              hedge: Forward_Delta.CCY1[index],
-              fwdPts: 1000 * (forward - spot),
-              fwdRate: forward,
-              premiumCurrency: symbol.premiumCCY,
-              rates: rates,
-            };
-          });
-          setPricingResult({
-            summary: legs[0],
-            legs: legs.slice(1),
-          });
-          middleOfficeStore.setSpot(spot);
+          setLegs(response);
         } else {
           const { data } = response;
           setError(data);

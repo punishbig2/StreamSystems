@@ -4,7 +4,8 @@ import { FormField } from "components/field";
 import middleOfficeStore from "mobx/stores/middleOfficeStore";
 import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
-import { PricingResult, ResultLeg } from "components/MiddleOffice/interfaces/pricingResult";
+import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 
 interface Props {
   pricingResult: PricingResult | null;
@@ -18,7 +19,9 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
       return <NoDataMessage />;
     }
     const { brokerage } = data;
-    const dealOutput: ResultLeg = !!pricingResult ? pricingResult.summary : data.dealOutput;
+    const { dealOutput }: SummaryLeg = !!pricingResult
+      ? pricingResult.summary as SummaryLeg
+      : data;
     const totalComm: number | null =
       brokerage.buyerComm !== null && brokerage.sellerComm !== null
         ? brokerage.buyerComm + brokerage.sellerComm
