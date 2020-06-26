@@ -28,7 +28,7 @@ import {
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import MO from "mobx/stores/MO";
 import { splitCurrencyPair } from "symbolUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -751,7 +751,7 @@ export class API {
   ) {
     const { currencyPair, tradeDate, symbol } = deal;
     const legDefinitions: { in: LegOptionsDefIn[] } =
-      middleOfficeStore.legDefinitions[deal.strategy];
+      MO.legDefinitions[deal.strategy];
     if (!legDefinitions) throw new Error(`invalid strategy ${deal.strategy}`);
     if (currencyPair.length !== 6)
       throw new Error(`unsupported currency ${currencyPair}`);

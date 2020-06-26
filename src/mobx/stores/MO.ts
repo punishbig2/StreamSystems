@@ -27,7 +27,7 @@ export interface InternalValuationModel {
   OptionModelParameters: string;
 }
 
-export class MiddleOfficeStore {
+export class MO {
   @observable deal: Deal | null = null;
   @observable legs: Leg[] = [];
   @observable summaryLeg: SummaryLeg | null = null;
@@ -246,4 +246,4 @@ export class MiddleOfficeStore {
   }
 }
 
-export default new MiddleOfficeStore();
+export default new MO();

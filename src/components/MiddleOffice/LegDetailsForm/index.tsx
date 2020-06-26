@@ -1,9 +1,8 @@
 import React, { ReactElement } from "react";
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import MO from "mobx/stores/MO";
 import { observer } from "mobx-react";
-import { NoDataMessage } from "components/noDataMessage";
 import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
 
 interface Props {
@@ -12,23 +11,19 @@ interface Props {
 
 export const LegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const { legs } = middleOfficeStore;
     const { pricingResult } = props;
-    const priced = pricingResult !== null ? pricingResult.legs : [];
-    if (legs.length === 0) {
-      return <NoDataMessage />;
-    }
+    const { legs } = !!pricingResult ? pricingResult : MO;
     return (
       <form>
         {legs.map((leg: Leg, index: number) => {
           return (
             <fieldset key={index}>
               <legend className={"leg-legend"}>Leg {index + 1}</legend>
-              <LegDetailsFields {...leg} {...priced[index]} />
+              <LegDetailsFields {...leg} />
             </fieldset>
           );
         })}
       </form>
     );
-  }
+  },
 );

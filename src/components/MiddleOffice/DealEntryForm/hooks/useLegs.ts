@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
-import MO from "mobx/stores/middleOfficeStore";
+import MO from "mobx/stores/MO";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { createLegsFromDefinition } from "legsUtils";
 

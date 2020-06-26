@@ -5,8 +5,8 @@ import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetails
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { Grid } from "@material-ui/core";
 import { randomID } from "randomID";
-import store from "mobx/stores/middleOfficeStore";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import store from "mobx/stores/MO";
+import MO from "mobx/stores/MO";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
@@ -120,7 +120,7 @@ export const MiddleOffice: React.FC<Props> = observer(
           <div
             className={[
               "spinner ",
-              middleOfficeStore.isSendingPricingRequest ? "visible" : "hidden",
+              MO.isSendingPricingRequest ? "visible" : "hidden",
             ].join(" ")}
           >
             <h1>Loading</h1>

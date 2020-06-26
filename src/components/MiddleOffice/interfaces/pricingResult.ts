@@ -1,27 +1,11 @@
-import { Rates } from "components/MiddleOffice/interfaces/leg";
+import { Rates, Leg } from "components/MiddleOffice/interfaces/leg";
 import { splitCurrencyPair } from "symbolUtils";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 
-export interface ResultLeg {
-  option: string;
-  premium: number | null;
-  pricePercent: number | null;
-  strike: number | null;
-  vol: number | null;
-  delta: number | null;
-  gamma: number | null;
-  vega: number | null;
-  hedge: number | null;
-  fwdPts: number | null;
-  fwdRate: number | null;
-  premiumCurrency: string;
-  rates: Rates;
-}
-
 export interface PricingResult {
   summary: Partial<SummaryLeg>;
-  legs: ResultLeg[];
+  legs: Leg[];
 }
 
 export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
@@ -44,8 +28,8 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
       value: 100 * MarketSnap.ccy2Zero,
     },
   ];
-  const legs = Legs.map(
-    (name: string, index: number): ResultLeg => {
+  const legs: Leg[] = Legs.map(
+    (name: string, index: number): Leg => {
       const option: string = name.split("|")[1];
       return {
         option: option,

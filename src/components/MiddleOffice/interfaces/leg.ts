@@ -15,8 +15,8 @@ export type Rates = [
 export interface Leg {
   option: string;
   side: Sides;
-  party: string;
-  notional: number | null;
+  party?: string;
+  notional?: number | null;
   premiumDate: moment.Moment | null;
   premium: number | null;
   price: number | null;
@@ -24,7 +24,7 @@ export interface Leg {
   vol: number | null;
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;
-  days: number | null;
+  days?: number | null;
   fwdPts: number | null;
   fwdRate: number | null;
   delta: number | null;
@@ -32,5 +32,6 @@ export interface Leg {
   vega: number | null;
   hedge: number | null;
   rates: Rates;
+  pricePercent: number | null;
   premiumCurrency: string;
 }
