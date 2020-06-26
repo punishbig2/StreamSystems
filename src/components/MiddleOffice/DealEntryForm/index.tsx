@@ -5,8 +5,8 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { DealEntry, DealStatus } from "structures/dealEntry";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { observer } from "mobx-react";
-import store from "mobx/stores/middleOfficeStore";
-import MO, { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
+import store from "mobx/stores/MO";
+import mo, { MO } from "mobx/stores/MO";
 import fields from "components/MiddleOffice/DealEntryForm/fields";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import deepEqual from "deep-equal";
@@ -46,7 +46,7 @@ export const DealEntryForm: React.FC<Props> = observer(
       if (deal === null) return;
       const strategy: MOStrategy = strategies[deal.strategy];
       const id: string = deal.dealID;
-      const legsCount: number = MO.getOutLegsCount(deal.strategy);
+      const legsCount: number = mo.getOutLegsCount(deal.strategy);
       const newEntry: DealEntry = {
         currencyPair: deal.currencyPair,
         strategy: deal.strategy,
@@ -79,7 +79,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         entry.model as number
       );
       const strategy: MOStrategy = strategies[deal.strategy];
-      MO.setSendingPricingRequest(true);
+      mo.setSendingPricingRequest(true);
       API.sendPricingRequest(
         deal,
         entry,
@@ -87,7 +87,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         valuationModel,
         strategy
       ).then(() => {
-        MO.setSendingPricingRequest(false);
+        mo.setSendingPricingRequest(false);
       });
     };
     const onChange = (name: keyof DealEntry, value: any) => {
@@ -98,7 +98,7 @@ export const DealEntryForm: React.FC<Props> = observer(
           : entry.spread
           ? entry.spread
           : 0;*/
-        const legsCount: number = MO.getOutLegsCount(value);
+        const legsCount: number = mo.getOutLegsCount(value);
         const price: number | null = !!deal ? deal.lastPrice : null;
         setEntry({
           ...entry,
@@ -114,7 +114,7 @@ export const DealEntryForm: React.FC<Props> = observer(
     };
 
     const mapper = (
-      fieldDef: FieldDef<DealEntry, MiddleOfficeStore>
+      fieldDef: FieldDef<DealEntry, MO>
     ): ReactElement => {
       const { transformData, dataSource, ...field } = fieldDef;
       const source: any = !!dataSource ? store[dataSource] : undefined;

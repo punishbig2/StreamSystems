@@ -5,8 +5,8 @@ import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetails
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { Grid } from "@material-ui/core";
 import { randomID } from "randomID";
-import store from "mobx/stores/middleOfficeStore";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import store from "mobx/stores/MO";
+import MO from "mobx/stores/MO";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
@@ -16,7 +16,6 @@ import {
 } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
 import { API } from "API";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 interface Props {
   visible: boolean;
@@ -60,14 +59,17 @@ export const MiddleOffice: React.FC<Props> = observer(
     useEffect(() => {
       setPricingResult(null);
     }, [deal]);
-    const setLegs = useCallback((response: any) => {
-      if (deal === null) return;
-      const { data } = response;
-      // If this is not the deal we're showing, it's too late
-      if (data.id !== deal.dealID) return;
-      const pricingResult: PricingResult = buildPricingResult(data, deal);
-      setPricingResult(pricingResult);
-    }, [deal]);
+    const setLegs = useCallback(
+      (response: any) => {
+        if (deal === null) return;
+        const { data } = response;
+        // If this is not the deal we're showing, it's too late
+        if (data.id !== deal.dealID) return;
+        const pricingResult: PricingResult = buildPricingResult(data, deal);
+        setPricingResult(pricingResult);
+      },
+      [deal]
+    );
     useEffect(() => {
       if (deal === null) return;
       API.getLegs(deal.dealID).then((response: any) => {
@@ -83,7 +85,7 @@ export const MiddleOffice: React.FC<Props> = observer(
           setError(data);
         }
       });
-    }, [deal]);
+    }, [deal, setLegs]);
     if (!props.visible) classes.push("hidden");
     if (!store.isInitialized) {
       return (
@@ -120,7 +122,7 @@ export const MiddleOffice: React.FC<Props> = observer(
           <div
             className={[
               "spinner ",
-              middleOfficeStore.isSendingPricingRequest ? "visible" : "hidden",
+              MO.isSendingPricingRequest ? "visible" : "hidden",
             ].join(" ")}
           >
             <h1>Loading</h1>

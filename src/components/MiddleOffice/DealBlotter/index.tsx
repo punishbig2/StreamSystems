@@ -12,7 +12,7 @@ import { observer } from "mobx-react";
 import { randomID } from "randomID";
 import { DealInsertStore } from "mobx/stores/dealInsertStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import MO from "mobx/stores/MO";
 import { isMessage } from "utils/messageUtils";
 import dealsStore from "mobx/stores/dealsStore";
 import signalRManager from "signalR/signalRManager";
@@ -27,7 +27,7 @@ export const DealBlotter: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const deals: Deal[] = dealsStore.deals;
     const onRowClicked = (deal: Deal) => {
-      middleOfficeStore.setDeal(deal);
+      MO.setDeal(deal);
     };
     useEffect(() => {
       signalRManager.addDealListener((deal: Deal) => {
@@ -53,7 +53,7 @@ export const DealBlotter: React.FC<Props> = observer(
       } else {
         const row: Message | Deal = props.row;
         const id: string = isMessage(row) ? row.ClOrdID : row.dealID;
-        const { deal } = middleOfficeStore;
+        const { deal } = MO;
         const isSelected = deal !== null && deal.dealID === id;
         const contextMenu: ContextMenuItem[] = [
           {

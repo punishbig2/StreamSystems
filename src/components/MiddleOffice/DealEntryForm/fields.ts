@@ -2,9 +2,9 @@ import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntry } from "structures/dealEntry";
-import { MiddleOfficeStore, InternalValuationModel } from "mobx/stores/middleOfficeStore";
+import { MO, InternalValuationModel } from "mobx/stores/MO";
 
-const fields: FieldDef<DealEntry, MiddleOfficeStore>[] = [
+const fields: FieldDef<DealEntry, MO>[] = [
   {
     name: "currencyPair",
     label: "CCYPair",

@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/field";
-import middleOfficeStore from "mobx/stores/middleOfficeStore";
+import MO from "mobx/stores/MO";
 import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
 import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
@@ -14,7 +14,7 @@ interface Props {
 export const SummaryLegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { pricingResult } = props;
-    const data = middleOfficeStore.summaryLeg;
+    const data = MO.summaryLeg;
     if (data === null) {
       return <NoDataMessage />;
     }
@@ -22,6 +22,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
     const { dealOutput }: SummaryLeg = !!pricingResult
       ? pricingResult.summary as SummaryLeg
       : data;
+    const { spot } = !!pricingResult ? pricingResult.summary : data;
     const totalComm: number | null =
       brokerage.buyerComm !== null && brokerage.sellerComm !== null
         ? brokerage.buyerComm + brokerage.sellerComm
@@ -56,7 +57,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Spot"}
                   color={"grey"}
-                  value={data.spot}
+                  value={spot}
                   name={"spot"}
                   type={"number"}
                   precision={4}

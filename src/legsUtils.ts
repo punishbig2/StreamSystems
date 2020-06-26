@@ -59,6 +59,7 @@ export const createLegsFromDefinition = (
           : definition.OptionLegType,
       deliveryDate: deal.deliveryDate,
       expiryDate: deal.expiryDate,
+      pricePercent: null,
     };
     legs.push(leg);
   }

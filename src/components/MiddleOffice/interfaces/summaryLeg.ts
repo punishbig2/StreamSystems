@@ -1,5 +1,5 @@
 import moment from "moment";
-import { ResultLeg } from "components/MiddleOffice/interfaces/pricingResult";
+import { Leg } from "components/MiddleOffice/interfaces/leg";
 
 export interface SummaryLeg {
   strategy: string;
@@ -15,5 +15,5 @@ export interface SummaryLeg {
     buyerComm: number | null;
     sellerComm: number | null;
   };
-  dealOutput: ResultLeg;
+  dealOutput: Leg;
 }
