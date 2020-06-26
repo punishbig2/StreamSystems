@@ -727,20 +727,12 @@ export class API {
     );
   }
 
-  static async getDeals(): Promise<Deal[]> {
-    const array: any[] = await get<Deal[]>(
-      API.buildUrl(API.Deal, "deals", "get")
-    );
-    return array.map(createDealFromBackendMessage);
-  }
-
   static async sendPricingRequest(
     deal: Deal,
     entry: DealEntry,
     legs: Leg[],
     valuationModel: ValuationModel,
-    strategy: MOStrategy,
-    strike?: string
+    strategy: MOStrategy
   ) {
     const { currencyPair, tradeDate, symbol } = deal;
     const legDefinitions: { in: LegOptionsDefIn[] } =
@@ -766,7 +758,8 @@ export class API {
             notional: deal.lastQuantity,
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
-            strike: strike,
+            spreadVolatiltyOffset: entry.spread ? entry.spread : entry.vol,
+            strike: entry.strike,
             volatilty: null,
             barrier: null,
             barrierLower: null,
@@ -796,12 +789,19 @@ export class API {
       },
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${
-        2 * definitions.length
-      }-Legs`,
+      2 * definitions.length
+        }-Legs`,
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
     return post<any>(API.buildUrl(API.Deal, "request", "pricing"), request);
+  }
+
+  static async getDeals(): Promise<Deal[]> {
+    const array: any[] = await get<Deal[]>(
+      API.buildUrl(API.Deal, "deals", "get")
+    );
+    return array.map(createDealFromBackendMessage);
   }
 
   static async removeDeal(id: string) {

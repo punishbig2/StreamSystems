@@ -16,7 +16,7 @@ export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {
       <div className={"image"} />
       <div className={"content"}>
         <div className={"application-brand"}>
-          <h1>Stream</h1>
+          <h1>FX Options</h1>
         </div>
         <div className={"title"}>
           <div className={"label"}>{props.title}</div>

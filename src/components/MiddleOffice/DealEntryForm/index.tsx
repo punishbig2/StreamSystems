@@ -14,8 +14,7 @@ import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { API } from "API";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 
-interface Props {
-}
+interface Props {}
 
 const initialDealEntry: DealEntry = {
   currencyPair: "",
@@ -39,14 +38,14 @@ export const DealEntryForm: React.FC<Props> = observer(
   (): ReactElement | null => {
     const { strategies, cuts, deal } = store;
     const [referenceEntry, setReferenceEntry] = useState<DealEntry | null>(
-      null,
+      null
     );
     const [entry, setEntry] = useState<DealEntry>(initialDealEntry);
 
-    const getDerivedFieldsFromStrategy = (
+    /*const getDerivedFieldsFromStrategy = (
       strategy: MOStrategy | null | undefined,
       price: number,
-      legs: number,
+      legs: number
     ): any => {
       if (!strategy) return {};
       return {
@@ -55,7 +54,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         vol: strategy.spreadvsvol === "vol" ? price : undefined,
         spread: strategy.spreadvsvol === "spread" ? price : undefined,
       };
-    };
+    };*/
 
     useEffect(() => {
       if (deal === null) return;
@@ -72,13 +71,15 @@ export const DealEntryForm: React.FC<Props> = observer(
         tradeDate: deal.tradeDate,
         expiryDate: deal.expiryDate,
         deliveryDate: deal.deliveryDate,
-        spotDate: deal.spotDate,
         dealId: id.toString(),
         status: DealStatus.Pending,
         style: "European",
         tenor: deal.tenor,
         model: 3,
-        ...getDerivedFieldsFromStrategy(strategy, deal.lastPrice, legsCount),
+        legs: legsCount,
+        strike: strategy.strike,
+        vol: strategy.spreadvsvol === "vol" ? deal.lastPrice : undefined,
+        spread: strategy.spreadvsvol === "spread" ? deal.lastPrice : undefined,
       };
       setReferenceEntry(newEntry);
       setEntry(newEntry);
@@ -89,7 +90,7 @@ export const DealEntryForm: React.FC<Props> = observer(
       if (deal.strategy === undefined) throw new Error("invalid deal found");
       if (entry.model === "") throw new Error("node model specified");
       const valuationModel: ValuationModel = store.getValuationModelById(
-        entry.model as number,
+        entry.model as number
       );
       const strategy: MOStrategy = strategies[deal.strategy];
       MO.setSendingPricingRequest(true);
@@ -98,8 +99,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         entry,
         store.legs,
         valuationModel,
-        strategy,
-        entry.strike,
+        strategy
       ).then(() => {
         MO.setSendingPricingRequest(false);
       });
@@ -107,15 +107,20 @@ export const DealEntryForm: React.FC<Props> = observer(
     const onChange = (name: keyof DealEntry, value: any) => {
       if (name === "strategy") {
         const strategy: MOStrategy = strategies[value];
-        const price: number = entry.vol
+        /*const price: number = entry.vol
           ? entry.vol
           : entry.spread
-            ? entry.spread
-            : 0;
+          ? entry.spread
+          : 0;*/
+        const legsCount: number = MO.getOutLegsCount(value);
+        const price: number | null = !!deal ? deal.lastPrice : null;
         setEntry({
           ...entry,
           [name]: value,
-          ...getDerivedFieldsFromStrategy(strategy, price, MO.getOutLegsCount(strategy.productid)),
+          legs: legsCount,
+          strike: strategy.strike,
+          spread: strategy.spreadvsvol === "spread" ? price : undefined,
+          vol: strategy.spreadvsvol === "vol" ? price : undefined
         });
       } else {
         setEntry({ ...entry, [name]: value });
@@ -123,7 +128,7 @@ export const DealEntryForm: React.FC<Props> = observer(
     };
 
     const mapper = (
-      fieldDef: FieldDef<DealEntry, MiddleOfficeStore>,
+      fieldDef: FieldDef<DealEntry, MiddleOfficeStore>
     ): ReactElement => {
       const { transformData, dataSource, ...field } = fieldDef;
       const source: any = !!dataSource ? store[dataSource] : undefined;
@@ -169,5 +174,5 @@ export const DealEntryForm: React.FC<Props> = observer(
         </div>
       </form>
     );
-  },
+  }
 );

@@ -9,8 +9,8 @@ export interface DealEntry {
   strategy: string;
   legs: number | null;
   strike?: string;
-  spread?: number;
-  vol?: number;
+  spread?: number | null;
+  vol?: number | null;
   notional: number | null;
   legAdj: boolean;
   buyer: string;
