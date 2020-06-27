@@ -1,5 +1,5 @@
-$cream-form-color: saturate(mix($foreground-color, yellow), 10%);
-$green-form-color: saturate(mix($foreground-color, green), 30%);
+$cream-form-color: saturate(mix($foreground-color, yellow), 20%);
+$green-form-color: saturate(mix($foreground-color, green), 10%);
 $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
 
@@ -32,6 +32,7 @@ $grey-form-color: $foreground-color;
     font-weight: 500;
     padding: 0 10px;
     margin: 0 46px;
+
     &:last-of-type {
       margin-top: 20px;
       opacity: 0.5;
@@ -119,7 +120,6 @@ $grey-form-color: $foreground-color;
   &.hidden {
     display: none;
   }
-
 
   .left-panel {
     flex: 1;
@@ -275,19 +275,93 @@ $grey-form-color: $foreground-color;
   &:not(:first-child) {
     padding: 0;
 
-    h1 {
-      border-top: 1px dashed $table-border-color;
+    .heading {
+      h1 {
+        border-top: 1px dashed $table-border-color;
+      }
     }
   }
 
-  h1 {
-    font-size: $normal-font-size;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: $foreground-color;
-    margin: 0;
-    line-height: 2em;
-    padding: 0 8px;
+  .heading {
+    display: flex;
+    height: 38px;
+    align-items: center;
+
+    .actions {
+      display: flex;
+      align-items: center;
+      margin: 0 0 0 auto;
+
+      .gap {
+        flex-basis: 30px;
+        width: 20px;
+      }
+
+      button {
+        flex-basis: 25%;
+        display: flex;
+        align-items: center;
+        padding: 4px 12px 4px 8px;
+        margin: 0 4px;
+        height: auto;
+        border-radius: 0;
+        background: none;
+        border-width: 1px;
+        border-style: solid;
+        color: $foreground-color;
+        transition: background-color 0.2s;
+
+        &:disabled {
+          &.primary &.danger {
+            color: $foreground-color;
+          }
+          opacity: 0.25;
+        }
+
+        &:last-child {
+          margin-right: 8px;
+        }
+
+        &:hover {
+          background-color: darken($background-color, 5%);
+        }
+
+        &.primary:not(:disabled) {
+          color: #05c140;
+        }
+
+        &:not(.primary) {
+          border-color: transparent;
+        }
+
+        &.danger:not(:disabled) {
+          color: $text-color-red;
+        }
+
+        &.secondary {
+        }
+
+        span {
+          display: block;
+          flex: 1;
+        }
+
+        i {
+          display: block;
+          margin: 0 8px 0 0;
+        }
+      }
+    }
+
+    h1 {
+      font-size: $normal-font-size;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: $foreground-color;
+      margin: 0;
+      line-height: 2em;
+      padding: 0 0 0 10px;
+    }
   }
 
   .expand-button {
@@ -314,4 +388,3 @@ $grey-form-color: $foreground-color;
     }
   }
 }
-

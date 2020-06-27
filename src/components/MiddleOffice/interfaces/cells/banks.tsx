@@ -1,36 +1,13 @@
-import React, { ReactElement } from 'react';
-import workareaStore from 'mobx/stores/workareaStore';
-import { Select } from 'components/Select';
-import { Deal } from 'components/MiddleOffice/interfaces/deal';
+import React, { ReactElement } from "react";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
-type Props = {
-  deal: Deal;
-  value: string;
-  label: string;
-  onChange: (value: string) => void;
-};
-export const BankCell: React.FC<Props> = (
-  props: Props,
+export const BankCell: React.FC<CellProps> = (
+  props: CellProps
 ): ReactElement | null => {
   const { deal } = props;
-  const { banks } = workareaStore;
   if (deal) {
     return null;
   } else {
-    const list: any[] = banks.map((name: string) => {
-      return {
-        name: name,
-        value: name,
-      };
-    });
-    return (
-      <Select
-        fit={true}
-        list={list}
-        empty={props.label}
-        value={props.value}
-        onChange={props.onChange}
-      />
-    );
+    return <div />;
   }
 };

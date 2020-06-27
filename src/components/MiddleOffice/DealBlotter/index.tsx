@@ -2,11 +2,7 @@ import React, { ReactElement, useEffect } from "react";
 import { Table } from "components/Table";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { Message } from "interfaces/message";
-import {
-  Row,
-  BlotterRowTypes,
-  ContextMenuItem,
-} from "components/MessageBlotter/row";
+import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
 import { BlotterTypes } from "columns/messageBlotter";
 import { observer } from "mobx-react";
 import { randomID } from "randomID";
@@ -16,8 +12,6 @@ import MO from "mobx/stores/MO";
 import { isMessage } from "utils/messageUtils";
 import dealsStore from "mobx/stores/dealsStore";
 import signalRManager from "signalR/signalRManager";
-import { API } from "API";
-import { uuid } from "uuidv4";
 
 interface Props {
   id: string;
@@ -55,30 +49,6 @@ export const DealBlotter: React.FC<Props> = observer(
         const id: string = isMessage(row) ? row.ClOrdID : row.dealID;
         const { deal } = MO;
         const isSelected = deal !== null && deal.dealID === id;
-        const contextMenu: ContextMenuItem[] = [
-          {
-            label: "Clone",
-            action: (deal: Deal) => {
-              API.cloneDeal({
-                linkid: uuid(),
-                strategy: deal.strategy,
-                symbol: deal.currencyPair,
-                price: deal.lastPrice,
-                size: deal.lastQuantity,
-                buyer: deal.buyer,
-                seller: deal.seller,
-              }).then(() => {});
-            },
-          },
-          {
-            label: "Delete",
-            action: (deal: Deal) => {
-              API.removeDeal(deal.dealID).then(() => {
-                dealsStore.removeDeal(deal.dealID);
-              });
-            },
-          },
-        ];
         return (
           <Row
             key={id + randomID("row")}
@@ -89,7 +59,6 @@ export const DealBlotter: React.FC<Props> = observer(
             isSelected={isSelected}
             containerWidth={props.containerWidth}
             totalWidth={props.totalWidth}
-            contextMenu={contextMenu}
             insertStore={new DealInsertStore()}
             blotterType={BlotterTypes.Executions}
             onClick={onRowClicked}

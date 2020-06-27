@@ -5,25 +5,12 @@ import { getCellWidth } from "components/Table/helpers";
 import { DarkPool } from "interfaces/w";
 import { BlotterTypes } from "columns/messageBlotter";
 import { DealInsertStore } from "mobx/stores/dealInsertStore";
-import { Menu, MenuItem } from "@material-ui/core";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export enum BlotterRowTypes {
   Normal,
   MyFill,
   MyBankFill,
   Busted,
-}
-
-export interface ContextMenuItem {
-  label: string;
-  action: (deal: Deal) => void;
-}
-
-interface MenuSpec {
-  x: number;
-  y: number;
-  visible: boolean;
 }
 
 interface Props {
@@ -37,7 +24,6 @@ interface Props {
   containerWidth: number;
   insertStore?: DealInsertStore;
   onClick?: (deal: any) => void;
-  contextMenu?: ContextMenuItem[];
 }
 
 const getClassFromRowType = (
@@ -69,11 +55,6 @@ const getClassFromRowType = (
 const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const { columns, blotterType, row } = props;
   const [executed, setExecuted] = useState<boolean>(false);
-  const [menu, setMenu] = useState<MenuSpec>({
-    x: 0,
-    y: 0,
-    visible: false,
-  });
   const ExecID: string | null = row !== null ? row.ExecID : null;
   useEffect(() => {
     if (ExecID === null) return;
@@ -122,61 +103,22 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const isSelected: boolean =
     props.isSelected !== undefined && props.isSelected;
   const isDarkPool: boolean = row.ExDestination === DarkPool;
-  const onClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const onClick = () => {
     if (!props.onClick) return;
     props.onClick(row);
-  };
-  const onContextMenu = (event: React.MouseEvent<HTMLDivElement>): void => {
-    event.preventDefault();
-    if (props.contextMenu) {
-      setMenu({
-        x: event.clientX,
-        y: event.clientY,
-        visible: true,
-      });
-    }
-  };
-  const hideMenu = () => setMenu({ x: 0, y: 0, visible: false });
-  const getContextMenu = (): ReactElement | null => {
-    const { contextMenu } = props;
-    if (contextMenu) {
-      return (
-        <Menu
-          open={menu.visible}
-          onClose={hideMenu}
-          onClick={hideMenu}
-          anchorReference={"anchorPosition"}
-          anchorPosition={{
-            top: menu.y,
-            left: menu.x,
-          }}
-        >
-          {contextMenu.map((item: ContextMenuItem) => (
-            <MenuItem onClick={() => item.action(row as Deal)} key={item.label}>
-              {item.label}
-            </MenuItem>
-          ))}
-        </Menu>
-      );
-    } else {
-      return null;
-    }
   };
   return (
     <div
       onClick={onClick}
-      onContextMenu={onContextMenu}
       className={[
         getClassFromRowType("tr", props.type, executed, isDarkPool),
         !!props.onClick ? "clickable" : "",
-        menu.visible ? "showing-context-menu" : "",
         isSelected ? "selected" : "",
       ].join(" ")}
       id={row.id}
       key={row.id}
     >
       {columns.map(columnMapper(row.id))}
-      {getContextMenu()}
     </div>
   );
 };

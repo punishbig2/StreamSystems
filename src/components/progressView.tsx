@@ -13,7 +13,9 @@ export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {
     throw new Error("value can only be in the range [0, 100]");
   return (
     <div className={"loading-view"}>
-      <div className={"image"} />
+      <div className={"image"}>
+        <img alt={""} src={"/images/stream-logo.png"} />
+      </div>
       <div className={"content"}>
         <div className={"application-brand"}>
           <h1>FX Options</h1>

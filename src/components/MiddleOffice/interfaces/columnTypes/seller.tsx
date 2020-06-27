@@ -1,12 +1,11 @@
-import React, { ReactElement } from 'react';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { BankCell } from '../cells/banks';
-import { Observer } from 'mobx-react';
-import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
-import { Deal } from 'components/MiddleOffice/interfaces/deal';
+import React, { ReactElement } from "react";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { BankCell } from "../cells/banks";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export default (sortable: boolean): ColumnSpec => ({
-  name: 'seller',
+  name: "seller",
   difference: (m1: Deal, m2: Deal) => {
     const s1: string | null = m1.seller;
     const s2: string | null = m2.seller;
@@ -19,28 +18,17 @@ export default (sortable: boolean): ColumnSpec => ({
     if (seller === null) return false;
     return seller.includes(keyword);
   },
-  header: () => 'Seller',
+  header: () => "Seller",
   render: (props: CellProps): ReactElement | string | null => {
-    const { store, deal } = props;
+    const { deal } = props;
     if (deal === null) {
-      return (
-        <Observer
-          children={() => (
-            <BankCell
-              deal={deal}
-              value={store.seller}
-              onChange={store.setSeller}
-              label={'Seller'}
-            />
-          )}
-        />
-      );
+      return <BankCell deal={deal} />;
     } else {
       return <span>{deal.seller}</span>;
     }
   },
   filterable: true,
   sortable: sortable,
-  template: 'BUYER',
+  template: "BUYER",
   width: 2,
 });

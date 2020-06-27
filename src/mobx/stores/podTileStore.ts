@@ -160,7 +160,7 @@ export class PodTileStore {
       strategy
     );
     if (snapshot === null)
-      throw new Error(`cannot get snapshot for ${currency} ${strategy}`);
+      return depth;
     return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
       const w: W = depth[tenor];
       if (w) {
@@ -215,7 +215,7 @@ export class PodTileStore {
       strategy
     );
     if (snapshot === null)
-      throw new Error(`cannot get snapshot for ${currency} ${strategy}`);
+      return;
     const tenors: string[] = workareaStore.tenors;
     // Combine TOB and full snapshots
     const combined: { [k: string]: W } = await this.combineSnapshots(

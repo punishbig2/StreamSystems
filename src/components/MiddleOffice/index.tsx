@@ -105,11 +105,30 @@ export const MiddleOffice: React.FC<Props> = observer(
             <Grid className={"right-panel"} container>
               <Grid xs={7} className={"container"} item>
                 <div className={"form-group"}>
-                  <h1>Deal Entry</h1>
+                  <div className={"heading"}>
+                    <h1>Deal Entry</h1>
+                    <div className={"actions"}>
+                      <button className={"danger"} disabled={deal === null}>
+                        <i className={"fa fa-trash"} />
+                        <span>Delete</span>
+                      </button>
+                      <div className={"gap"} />
+                      <button className={"secondary"} disabled={deal === null}>
+                        <i className={"fa fa-clone"} />
+                        <span>Clone</span>
+                      </button>
+                      <button className={"primary"}>
+                        <i className={"fa fa-plus"} />
+                        <span>New</span>
+                      </button>
+                    </div>
+                  </div>
                   <DealEntryForm />
                 </div>
                 <div className={"form-group"}>
-                  <h1>Summary Leg Details</h1>
+                  <div className={"heading"}>
+                    <h1>Summary Leg Details</h1>
+                  </div>
                   <SummaryLegDetailsForm pricingResult={pricingResult} />
                 </div>
               </Grid>

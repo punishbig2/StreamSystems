@@ -14,7 +14,7 @@ export default (sortable: boolean): ColumnSpec => ({
   render: (props: CellProps): ReactElement | null => {
     const { deal } = props;
     if (deal === null) {
-      return <SymbolCell deal={deal} store={props.store} />;
+      return <SymbolCell deal={deal}/>;
     }
     return <span>{deal.currencyPair}</span>;
   },
