@@ -20,6 +20,7 @@ import { API, Task } from "API";
 import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import dealsStore from "mobx/stores/dealsStore";
+import { QuestionBox } from "components/QuestionBox";
 
 interface Props {
   visible: boolean;
@@ -28,6 +29,9 @@ interface Props {
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const [deStore] = useState<DealEntryStore>(new DealEntryStore());
+    const [removeQuestionModalOpen, setRemoveQuestionModalOpen] = useState<
+      boolean
+    >(false);
     const [error, setError] = useState<{
       message: string;
       error: string;
@@ -129,9 +133,13 @@ export const MiddleOffice: React.FC<Props> = observer(
           .then(() => null)
           .catch((error: any) => {
             console.warn(error);
+          })
+          .finally(() => {
+            setRemoveQuestionModalOpen(false);
           });
       };
       const removeDeal = () => {
+        setRemoveQuestionModalOpen(true);
       };
       const getActionButton = (): ReactElement | null => {
         switch (deStore.entryType) {
@@ -208,6 +216,21 @@ export const MiddleOffice: React.FC<Props> = observer(
             </Grid>
           </div>
           <ModalWindow visible={error !== null} render={renderError} />
+          <ModalWindow
+            visible={removeQuestionModalOpen}
+            render={(): ReactElement => {
+              return (
+                <QuestionBox
+                  title={"Delete Deal"}
+                  content={
+                    "Are you sure you want to remove this deal? This is irreversible"
+                  }
+                  onNo={() => setRemoveQuestionModalOpen(false)}
+                  onYes={doRemoveDeal}
+                />
+              );
+            }}
+          />
           <div
             className={[
               "spinner ",
