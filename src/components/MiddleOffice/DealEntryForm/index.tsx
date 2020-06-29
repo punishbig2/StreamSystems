@@ -35,6 +35,7 @@ const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
       mo.setSendingPricingRequest(false);
     }
   );
+  mo.setSendingPricingRequest(false);
 };
 
 export const DealEntryForm: React.FC<Props> = observer(

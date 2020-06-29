@@ -7,6 +7,7 @@ import { Grid } from "@material-ui/core";
 import { randomID } from "randomID";
 import store from "mobx/stores/moStore";
 import MO from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
@@ -16,9 +17,7 @@ import {
 } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
 import { API, Task } from "API";
-import { OptionsButton, MenuItemSpec } from "components/OptionsButton";
 import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
-import moStore from "mobx/stores/moStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 interface Props {
@@ -117,37 +116,35 @@ export const MiddleOffice: React.FC<Props> = observer(
         />
       );
     } else {
-      const menuItems: MenuItemSpec[] = [
-        {
-          label: "Clone",
-          action: () => null,
-        },
-        {
-          label: "Remove",
-          action: () => null,
-        },
-      ];
       const addNewDeal = () => {
         deStore.addNewDeal();
       };
-      const getActionButton = (): ReactElement => {
-        if (deStore.entryType === EntryType.Empty) {
-          return (
-            <button className={"primary"} onClick={addNewDeal}>
-              <i className={"fa fa-plus"} />
-              <span>New</span>
-            </button>
-          );
-        } else {
-          return (
-            <button
-              className={"danger"}
-              onClick={() => moStore.setDeal(null, deStore)}
-            >
-              <i className={"fa fa-times-circle"} />
-              <span>Close</span>
-            </button>
-          );
+      const removeDeal = () => {};
+      const cloneDeal = () => {};
+      const getActionButton = (): ReactElement | null => {
+        switch (deStore.entryType) {
+          case EntryType.Empty:
+            return (
+              <button className={"primary"} onClick={addNewDeal}>
+                <i className={"fa fa-plus"} />
+                <span>New</span>
+              </button>
+            );
+          case EntryType.ExistingDeal:
+            return (
+              <>
+                <button className={"primary"} onClick={cloneDeal}>
+                  <i className={"fa fa-clone"} />
+                  <span>Clone</span>
+                </button>
+                <button className={"danger"} onClick={removeDeal}>
+                  <i className={"fa fa-trash"} />
+                  <span>Remove</span>
+                </button>
+              </>
+            );
+          case EntryType.New:
+            return null;
         }
       };
       return (
@@ -168,10 +165,13 @@ export const MiddleOffice: React.FC<Props> = observer(
                     <h1>Deal Entry</h1>
                     <div className={"actions"}>
                       {getActionButton()}
-                      <OptionsButton
-                        items={menuItems}
-                        disabled={deal === null}
-                      />
+                      <button
+                        className={"no-label"}
+                        disabled={deStore.entryType === EntryType.Empty}
+                        onClick={() => moStore.setDeal(null, deStore)}
+                      >
+                        <div className={"close-x"} />
+                      </button>
                     </div>
                   </div>
                   <DealEntryForm store={deStore} />

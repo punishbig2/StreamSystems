@@ -840,7 +840,9 @@ export class API {
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
-    return post<any>(config.PricingRequestUrl, request);
+    console.log("sending");
+    const task: Task<any> = post<any>(config.PricingRequestUrl, request);
+    return task.execute();
   }
 
   static async getDeals(): Promise<Deal[]> {

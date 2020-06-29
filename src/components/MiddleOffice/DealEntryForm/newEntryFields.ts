@@ -78,7 +78,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     label: "Leg Adj",
     type: "dropdown",
     color: "orange",
-    editable: true,
+    editable: false,
     transformData: (): SelectItem[] => [
       {
         value: true,
