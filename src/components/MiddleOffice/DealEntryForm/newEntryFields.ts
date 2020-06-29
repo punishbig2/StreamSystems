@@ -131,14 +131,14 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
   {
     name: "tradeDate",
     label: "Trade Date",
-    type: "date",
+    type: "current:date",
     color: "green",
     editable: false,
   },
   {
     name: "tradeDate",
     label: "Timestamp",
-    type: "time",
+    type: "current:time",
     color: "green",
     editable: false,
   },

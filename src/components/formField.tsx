@@ -12,6 +12,7 @@ import { randomID } from "randomID";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { DealEntry } from "structures/dealEntry";
+import { CurrentTime } from "components/currentTime";
 
 interface Props<T> {
   label: string;
@@ -78,42 +79,56 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
         validity !== Validity.Invalid ? "valid" : "invalid",
         props.value === undefined ? "empty" : "non-empty",
       ];
-      if (props.type === "dropdown") {
-        if (!data) throw new Error("cannot have a dropdown with no data");
-        return (
-          <Select
-            value={value}
-            className={classes.join(" ")}
-            renderValue={renderSelectValue}
-            displayEmpty={true}
-            onChange={onSelectChange}
-            readOnly={!props.editable}
-          >
-            {data.map((item: { label: string; value: any }) => (
-              <MenuItem key={item.value} value={item.value}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </Select>
-        );
-      } else {
-        if (props.editable) {
+      console.log(props.type);
+      switch (props.type) {
+        case "current:time":
           return (
-            <OutlinedInput
-              name={randomID(props.name)}
+            <div className={"readonly-field"}>
+              <CurrentTime timeOnly={true} />
+            </div>
+          );
+        case "current:date":
+          return (
+            <div className={"readonly-field"}>
+              <CurrentTime dateOnly={true} />
+            </div>
+          );
+        case "dropdown":
+          if (!data) throw new Error("cannot have a dropdown with no data");
+          return (
+            <Select
               value={value}
               className={classes.join(" ")}
-              placeholder={props.placeholder}
+              renderValue={renderSelectValue}
+              displayEmpty={true}
+              onChange={onSelectChange}
               readOnly={!props.editable}
-              labelWidth={0}
-              autoComplete={"new-password"}
-              onChange={onInputChange}
-            />
+            >
+              {data.map((item: { label: string; value: any }) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Select>
           );
-        } else {
-          classes.push("readonly-field");
-          return <div className={classes.join(" ")}>{value}</div>;
-        }
+        default:
+          if (props.editable) {
+            return (
+              <OutlinedInput
+                name={randomID(props.name)}
+                value={value}
+                className={classes.join(" ")}
+                placeholder={props.placeholder}
+                readOnly={!props.editable}
+                labelWidth={0}
+                autoComplete={"new-password"}
+                onChange={onInputChange}
+              />
+            );
+          } else {
+            classes.push("readonly-field");
+            return <div className={classes.join(" ")}>{value}</div>;
+          }
       }
     })();
     return (

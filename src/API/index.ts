@@ -48,7 +48,6 @@ enum Method {
   Get = "GET",
   Post = "POST",
   Delete = "DELETE",
-  Put = "PUT",
 }
 
 enum ReadyState {
@@ -184,9 +183,6 @@ const { Api } = config;
 
 const post = <T>(url: string, data?: any, contentType?: string): Task<T> =>
   request<T>(url, Method.Post, data, contentType);
-
-const put = <T>(url: string, data?: any, contentType?: string): Task<T> =>
-  request<T>(url, Method.Put, data, contentType);
 
 const get = <T>(url: string, args?: any): Task<T> =>
   request<T>(url, Method.Get, args);

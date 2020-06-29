@@ -43,7 +43,7 @@ export const MiddleOffice: React.FC<Props> = observer(
         dealsStore.removeDeal(dealId);
         moStore.setDeal(null, deStore);
       });
-    }, []);
+    }, [deStore]);
     const renderError = (): ReactElement | null => {
       if (error === null) return null;
       return (
@@ -123,13 +123,15 @@ export const MiddleOffice: React.FC<Props> = observer(
         />
       );
     } else {
-      const removeDeal = () => {
+      const doRemoveDeal = () => {
         if (deal === null) return;
         API.removeDeal(deal.dealID)
           .then(() => null)
           .catch((error: any) => {
             console.warn(error);
           });
+      };
+      const removeDeal = () => {
       };
       const getActionButton = (): ReactElement | null => {
         switch (deStore.entryType) {

@@ -248,7 +248,7 @@ $grey-form-color: $foreground-color;
           height: 2em;
           line-height: 2;
           font-size: $normal-font-size;
-          font-weight: 400;
+          font-weight: 500;
           font-family: 'Roboto', sans-serif;
           padding: 0;
 
@@ -328,11 +328,12 @@ $grey-form-color: $foreground-color;
         margin: 0 4px;
         height: 24px;
         width: auto;
+        border-radius: 12px;
         background: none;
         border: none;
-        color: lighten($foreground-color, 5%);
+        color: $button-foreground-color;
         transition: background-color 0.2s;
-        padding: 0 8px;
+        padding: 0 12px;
 
         &.no-label {
           width: 24px;
@@ -387,11 +388,11 @@ $grey-form-color: $foreground-color;
         }
 
         &.primary:not(:disabled) {
-          color: #05c140;
+          background-color: $primary-color;
         }
 
         &.danger:not(:disabled) {
-          color: $text-color-red;
+          background-color: $text-color-red;
         }
 
         span {

@@ -1,38 +1,15 @@
-import React, { useCallback, ReactElement, useEffect, useState } from 'react';
-import { Message } from 'interfaces/message';
-import moment, { Moment } from 'moment';
-import { Globals } from 'golbals';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { parseTime, INCOMING_DATE_FORMAT } from 'timeUtils';
-import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
-
-const useTimer = (): Date => {
-  const [date, setDate] = useState<Date>(new Date());
-  const tick = useCallback(() => {
-    setDate(new Date());
-  }, []);
-  useEffect(() => {
-    const timer = setTimeout(tick, 1000);
-    return () => clearTimeout(timer);
-  });
-  return date;
-};
-
-const CurrentTime: React.FC = (): ReactElement => {
-  const date: Date = useTimer();
-  return (
-    <div>
-      {date.toLocaleString('en-US', {
-        timeZone: Globals.timezone || undefined,
-      })}
-    </div>
-  );
-};
+import { ReactElement } from "react";
+import { Message } from "interfaces/message";
+import moment, { Moment } from "moment";
+import { Globals } from "golbals";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { parseTime, INCOMING_DATE_FORMAT } from "timeUtils";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
 export default (): ColumnSpec => ({
-  name: 'TransactTime',
-  template: 'MM/DD/YYYY 00:00:00 pm',
-  header: () => 'Time',
+  name: "TransactTime",
+  template: "MM/DD/YYYY 00:00:00 pm",
+  header: () => "Time",
   filterable: true,
   sortable: true,
   render: (props: CellProps): ReactElement | null | string => {

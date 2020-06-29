@@ -8,6 +8,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import mo from "mobx/stores/moStore";
 import { DealEntry, DealStatus } from "structures/dealEntry";
+import { getVegaAdjust } from "legsUtils";
 
 export const createDealFromBackendMessage = (source: any): Deal => {
   const symbol: Symbol | undefined = workareaStore.findSymbolById(
@@ -56,7 +57,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     currencyPair: deal.currencyPair,
     strategy: deal.strategy,
     notional: 1e6 * deal.lastQuantity,
-    legAdj: true,
+    legAdj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
     buyer: deal.buyer,
     seller: deal.seller,
     tradeDate: deal.tradeDate,

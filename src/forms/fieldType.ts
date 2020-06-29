@@ -6,4 +6,6 @@ export type FieldType =
   | "number"
   | "percent"
   | "dropdown"
-  | "boolean";
+  | "boolean"
+  | "current:date"
+  | "current:time";
