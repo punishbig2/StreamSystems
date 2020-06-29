@@ -34,6 +34,7 @@ interface Props<T> {
 export class FormField<T = DealEntry> extends Component<Props<T>> {
   static defaultProps = {
     precision: 0,
+    emptyValue: "",
   };
 
   render() {
@@ -44,6 +45,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
       props.value,
       props.precision,
       props.currency,
+      props.emptyValue
     );
     const { data } = props;
     const classes: string[] = [props.color];
@@ -63,8 +65,8 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
       };
       const mappedLabels = data
         ? data.reduce((obj: any, item: { label: string; value: string }) => {
-          return { ...obj, [item.value]: item.label };
-        }, {})
+            return { ...obj, [item.value]: item.label };
+          }, {})
         : {};
       const renderSelectValue = (value: any) => {
         if (value === undefined) return " Select a " + props.label;
@@ -76,17 +78,16 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
         validity !== Validity.Invalid ? "valid" : "invalid",
         props.value === undefined ? "empty" : "non-empty",
       ];
-      const displayValue: string | undefined =
-        value !== undefined ? value : props.emptyValue;
       if (props.type === "dropdown") {
         if (!data) throw new Error("cannot have a dropdown with no data");
         return (
           <Select
-            value={props.value}
+            value={value}
             className={classes.join(" ")}
             renderValue={renderSelectValue}
             displayEmpty={true}
             onChange={onSelectChange}
+            readOnly={!props.editable}
           >
             {data.map((item: { label: string; value: any }) => (
               <MenuItem key={item.value} value={item.value}>
@@ -96,33 +97,22 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
           </Select>
         );
       } else {
-        if (props.mask) {
+        if (props.editable) {
           return (
             <OutlinedInput
               name={randomID(props.name)}
-              value={displayValue}
+              value={value}
               className={classes.join(" ")}
-              labelWidth={0}
-              spellCheck={false}
               placeholder={props.placeholder}
               readOnly={!props.editable}
+              labelWidth={0}
               autoComplete={"new-password"}
               onChange={onInputChange}
             />
           );
         } else {
-          return (
-            <OutlinedInput
-              name={randomID(props.name)}
-              value={displayValue}
-              className={classes.join(" ")}
-              placeholder={props.placeholder}
-              readOnly={!props.editable}
-              labelWidth={0}
-              autoComplete={"new-password"}
-              onChange={onInputChange}
-            />
-          );
+          classes.push("readonly-field");
+          return <div className={classes.join(" ")}>{value}</div>;
         }
       }
     })();
@@ -137,5 +127,3 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
     );
   }
 }
-
-

@@ -35,7 +35,6 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
               addSound(newFile)
                 .then(() => getSoundsList())
                 .then((sounds: ExecSound[]) => {
-                  console.log(sounds);
                   // First update the list
                   setSounds(sounds);
                   setTimeout(() => {

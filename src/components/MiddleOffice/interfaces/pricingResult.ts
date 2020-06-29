@@ -3,6 +3,8 @@ import { splitCurrencyPair } from "symbolUtils";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { Sides } from "interfaces/sides";
+import moStore from "mobx/stores/moStore";
+import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
 
 export interface PricingResult {
   summary: Partial<SummaryLeg>;
@@ -29,19 +31,21 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
       value: 100 * MarketSnap.ccy2Zero,
     },
   ];
+  const definitions: LegOptionsDefOut[] = moStore.getOutLegsDefinitions(deal.strategy);
+  const notionalRatio: number = definitions[0].notional_ratio;
   const legs: Leg[] = Legs.map(
     (name: string, index: number): Leg => {
       const option: string = name.split("|")[1];
       return {
         option: option,
-        premium: Premium["CCY1"][index],
         pricePercent: Premium["%_CCY1"][index],
         strike: strike,
         vol: option.toLowerCase() === "put" ? putVol : callVol,
         delta: Forward_Delta["%_CCY1"][index],
-        gamma: Gamma["CCY1"][index],
-        vega: Vega["CCY1"][index],
-        hedge: Forward_Delta.CCY1[index],
+        premium: Premium["CCY1"][index] * notionalRatio,
+        gamma: Gamma["CCY1"][index] * notionalRatio,
+        vega: Vega["CCY1"][index] * notionalRatio,
+        hedge: Forward_Delta.CCY1[index] * notionalRatio,
         fwdPts: 1000 * (forward - spot),
         fwdRate: forward,
         premiumCurrency: symbol.premiumCCY,
@@ -50,7 +54,7 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
         deliveryDate: deal.deliveryDate,
         days: expiryDate.diff(deal.tradeDate, "d"),
         expiryDate: expiryDate,
-        notional: 1E6 * deal.lastQuantity,
+        notional: 1e6 * deal.lastQuantity * notionalRatio,
         party: deal.buyer,
         premiumDate: deal.spotDate,
         price: deal.lastPrice,

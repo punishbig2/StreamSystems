@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
-import { FormField } from "components/field";
-import MO from "mobx/stores/MO";
+import { FormField } from "components/formField";
+import MO from "mobx/stores/moStore";
 import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
 import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";

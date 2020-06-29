@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import MO from "mobx/stores/MO";
+import MO from "mobx/stores/moStore";
 import { observer } from "mobx-react";
 import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
 

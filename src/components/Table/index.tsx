@@ -74,17 +74,6 @@ const BasicTable = (
 
   const rowProps: { [key: string]: any }[] = entries.map(propertyMapper);
 
-  const getInsertRow = (): ReactElement | null => {
-    const id: string = "__INSERT_ROW__";
-    if (props.showInsertRow === false) return null;
-    return props.renderRow({
-      id: id,
-      columns: columns,
-      containerWidth: optimalWidth,
-      totalWidth: totalWidth,
-    });
-  };
-
   const getBody = (rowProps: any) => {
     const rows = rowProps;
     if (rows.length === 0 && props.showInsertRow === false) {
@@ -100,14 +89,12 @@ const BasicTable = (
       return (
         <VirtualScroll itemSize={styles.tableRowHeight} className={"tbody"}>
           {rows.map(props.renderRow)}
-          {getInsertRow()}
         </VirtualScroll>
       );
     } else {
       return (
         <div className={"tbody"}>
           {rows.map(props.renderRow)}
-          {getInsertRow()}
         </div>
       );
     }

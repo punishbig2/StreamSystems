@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { FormField } from "components/field";
+import { FormField } from "components/formField";
 import { Sides } from "interfaces/sides";
 
 type Props = Leg;

@@ -7,6 +7,7 @@ import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
 import { Sides } from "interfaces/sides";
 import moment from "moment";
 import { splitCurrencyPair } from "symbolUtils";
+import { Symbol } from "interfaces/symbol";
 
 export const createLegsFromDefinition = (
   deal: Deal,
@@ -33,7 +34,9 @@ export const createLegsFromDefinition = (
     const notionalRatio: number =
       "notional_ratio" in definition ? definition.notional_ratio : 0;
     const notional: number | null =
-      deal.lastQuantity === null ? null : 1E6 * deal.lastQuantity * notionalRatio;
+      deal.lastQuantity === null
+        ? null
+        : 1e6 * deal.lastQuantity * notionalRatio;
     const { symbol } = deal;
     const leg: Leg = {
       premium: null,
@@ -64,4 +67,14 @@ export const createLegsFromDefinition = (
     legs.push(leg);
   }
   return legs;
+};
+
+export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {
+  if (type === "Butterfly") {
+    return symbol.vegaAdjustBF;
+  } else if (type === "RiskReversal") {
+    return symbol.vegaAdjustRR;
+  } else {
+    return false;
+  }
 };

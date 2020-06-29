@@ -20,4 +20,6 @@ export interface Deal {
   spotDate: moment.Moment;
   deliveryDate: moment.Moment;
   expiryDate: moment.Moment;
+
+  source: string;
 }

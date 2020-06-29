@@ -32,18 +32,6 @@ export type DarkPoolOrder = CreateOrder & {
   ExecInst?: string;
 };
 
-export interface UpdateOrder {
-  MsgType: MessageTypes;
-  TransactTime: string;
-  User: string;
-  OrderID: string;
-  Quantity: string;
-  Price: string;
-  Symbol: string;
-  Strategy: string;
-  Tenor: string;
-}
-
 export enum OrderStatus {
   None = 0,
   Active = 1 << 1,

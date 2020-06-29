@@ -1,10 +1,9 @@
 import moment, { Moment } from "moment";
-import { FieldType } from 'forms/fieldType';
+import { FieldType } from "forms/fieldType";
 
 const isMoment = (value: any): value is Moment => {
   return value instanceof moment;
 };
-
 
 export const getValue = (
   type: FieldType,
@@ -12,9 +11,11 @@ export const getValue = (
   value: string | boolean | number | Moment | undefined | null,
   precision?: number,
   currency?: string,
-): string | undefined => {
-  if (value === null) return "";
-  if (value === undefined) return undefined;
+  emptyValue?: string
+): string => {
+  if (value === null || value === undefined) {
+    return emptyValue === undefined ? "" : emptyValue;
+  }
   const numberOptions = {
     minimumFractionDigits: precision,
     maximumFractionDigits: precision,
@@ -78,7 +79,7 @@ export const getValue = (
         );
       }
     case "dropdown":
-      return "";
+      return value as string;
     case "boolean":
       return value === true ? "TRUE" : "FALSE";
     default:

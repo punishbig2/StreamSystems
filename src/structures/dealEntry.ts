@@ -1,7 +1,7 @@
-import moment from 'moment';
+import moment from "moment";
 
 export enum DealStatus {
-  Pending = 'Pending',
+  Pending = "Pending",
 }
 
 export interface DealEntry {
@@ -24,3 +24,21 @@ export interface DealEntry {
   model: number | "";
   tenor: string;
 }
+
+export const emptyDealEntry: DealEntry = {
+  currencyPair: "",
+  strategy: "",
+  legs: null,
+  notional: null,
+  legAdj: true,
+  buyer: "",
+  seller: "",
+  expiryDate: moment(),
+  deliveryDate: moment(),
+  tradeDate: moment(),
+  dealId: "",
+  status: DealStatus.Pending,
+  style: "",
+  model: "",
+  tenor: "",
+};

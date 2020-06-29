@@ -44,7 +44,9 @@ export const columns: ColumnSpec[] = [
     name: "venue",
     header: () => "Venue",
     render: (props: CellProps): ReactElement | string | null => {
-      return null;
+      const { deal } = props;
+      if (!deal) return null;
+      return deal.source;
     },
     filterable: true,
     width: 3,

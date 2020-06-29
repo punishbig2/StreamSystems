@@ -154,6 +154,10 @@ $grey-form-color: $foreground-color;
       position: relative;
       height: 100%;
 
+      &.invisible {
+        visibility: hidden;
+      }
+
       fieldset {
         display: block;
         width: 100%;
@@ -178,7 +182,7 @@ $grey-form-color: $foreground-color;
       }
     }
 
-    .MuiFormControl-root {
+    .MuiFormControl-root, .readonly-field {
       width: 100%;
 
       &.green {
@@ -198,10 +202,16 @@ $grey-form-color: $foreground-color;
       }
 
       &.negative {
+        color: $text-color-red;
+
         .MuiFormControlLabel-root {
+          color: inherit;
+
           .MuiInputBase-root {
+            color: inherit;
+
             input {
-              color: $text-color-red;
+              color: inherit;
             }
           }
         }
@@ -226,10 +236,21 @@ $grey-form-color: $foreground-color;
           color: inherit;
         }
 
-        .MuiInputBase-root {
+        .MuiInputBase-root, .readonly-field {
+          flex-basis: 50%;
+        }
+
+        .MuiInputBase-root, .MuiSelect-root, .readonly-field {
           color: inherit;
-          width: 50%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          height: 2em;
+          line-height: 2;
+          font-size: $normal-font-size;
           font-weight: 400;
+          font-family: 'Roboto', sans-serif;
+          padding: 0;
 
           fieldset {
             border: none;
@@ -246,10 +267,16 @@ $grey-form-color: $foreground-color;
           }
 
           input {
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
             color: inherit;
             border: none;
-            font-weight: 400;
           }
+        }
+
+        .MuiSelect-root, .readonly-field, .MuiInputBase-root input {
+          padding: 0 10px;
         }
       }
     }
@@ -289,32 +316,39 @@ $grey-form-color: $foreground-color;
 
     .actions {
       display: flex;
+      flex: 1;
       align-items: center;
-      margin: 0 0 0 auto;
-
-      .gap {
-        flex-basis: 30px;
-        width: 20px;
-      }
+      margin: 0 0 0 8px;
+      justify-content: flex-end;
 
       button {
-        flex-basis: 25%;
         display: flex;
         align-items: center;
-        padding: 4px 12px 4px 8px;
+        justify-content: center;
         margin: 0 4px;
-        height: auto;
-        border-radius: 0;
+        height: 24px;
+        width: auto;
         background: none;
-        border-width: 1px;
-        border-style: solid;
-        color: $foreground-color;
+        border: none;
+        color: lighten($foreground-color, 5%);
         transition: background-color 0.2s;
+        padding: 0 8px;
+
+        &.no-label {
+          width: 24px;
+          padding: 0;
+
+          i {
+            font-size: 16px;
+          }
+        }
 
         &:disabled {
-          &.primary &.danger {
+          &.primary,
+          &.danger {
             color: $foreground-color;
           }
+
           opacity: 0.25;
         }
 
@@ -330,25 +364,12 @@ $grey-form-color: $foreground-color;
           color: #05c140;
         }
 
-        &:not(.primary) {
-          border-color: transparent;
-        }
-
         &.danger:not(:disabled) {
           color: $text-color-red;
         }
 
-        &.secondary {
-        }
-
         span {
-          display: block;
-          flex: 1;
-        }
-
-        i {
-          display: block;
-          margin: 0 8px 0 0;
+          margin: 0 0 0 8px;
         }
       }
     }

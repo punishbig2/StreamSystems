@@ -57,7 +57,6 @@ export class HeaderStore {
     };
 
     const onRelease = () => {
-      console.log("mouse released!");
       document.removeEventListener("mouseup", onRelease, true);
       document.removeEventListener("mousemove", onMove, true);
       // Try to compute the position now?

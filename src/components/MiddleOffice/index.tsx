@@ -5,8 +5,8 @@ import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetails
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { Grid } from "@material-ui/core";
 import { randomID } from "randomID";
-import store from "mobx/stores/MO";
-import MO from "mobx/stores/MO";
+import store from "mobx/stores/moStore";
+import MO from "mobx/stores/moStore";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
 import signalRManager from "signalR/signalRManager";
@@ -15,7 +15,11 @@ import {
   buildPricingResult,
 } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
-import { API } from "API";
+import { API, Task } from "API";
+import { OptionsButton, MenuItemSpec } from "components/OptionsButton";
+import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
+import moStore from "mobx/stores/moStore";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 interface Props {
   visible: boolean;
@@ -23,6 +27,7 @@ interface Props {
 
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const [deStore] = useState<DealEntryStore>(new DealEntryStore());
     const [error, setError] = useState<{
       message: string;
       error: string;
@@ -72,19 +77,35 @@ export const MiddleOffice: React.FC<Props> = observer(
     );
     useEffect(() => {
       if (deal === null) return;
-      API.getLegs(deal.dealID).then((response: any) => {
-        if (response !== null) {
-          setLegs(response);
+      const task: Task<any> = API.getLegs(deal.dealID);
+      task
+        .execute()
+        .then((response: any) => {
+          if (response !== null) {
+            setLegs(response);
+          }
+        })
+        .catch((reason: any) => {
+          if (reason === "aborted") {
+            return;
+          } else {
+            console.warn(reason);
+          }
+        });
+      const removePricingListener: () => void = signalRManager.addPricingResponseListener(
+        (response: any) => {
+          if (response.status === 200) {
+            setLegs(response);
+          } else {
+            const { data } = response;
+            setError(data);
+          }
         }
-      });
-      return signalRManager.addPricingResponseListener((response: any) => {
-        if (response.status === 200) {
-          setLegs(response);
-        } else {
-          const { data } = response;
-          setError(data);
-        }
-      });
+      );
+      return () => {
+        removePricingListener();
+        task.cancel();
+      };
     }, [deal, setLegs]);
     if (!props.visible) classes.push("hidden");
     if (!store.isInitialized) {
@@ -96,11 +117,49 @@ export const MiddleOffice: React.FC<Props> = observer(
         />
       );
     } else {
+      const menuItems: MenuItemSpec[] = [
+        {
+          label: "Clone",
+          action: () => null,
+        },
+        {
+          label: "Remove",
+          action: () => null,
+        },
+      ];
+      const addNewDeal = () => {
+        deStore.addNewDeal();
+      };
+      const getActionButton = (): ReactElement => {
+        if (deStore.entryType === EntryType.Empty) {
+          return (
+            <button className={"primary"} onClick={addNewDeal}>
+              <i className={"fa fa-plus"} />
+              <span>New</span>
+            </button>
+          );
+        } else {
+          return (
+            <button
+              className={"danger"}
+              onClick={() => moStore.setDeal(null, deStore)}
+            >
+              <i className={"fa fa-times-circle"} />
+              <span>Close</span>
+            </button>
+          );
+        }
+      };
       return (
         <>
           <div className={classes.join(" ")}>
             <div className={"left-panel"}>
-              <DealBlotter id={randomID("")} />
+              <DealBlotter
+                id={randomID("")}
+                onDealSelected={(deal: Deal | null) =>
+                  moStore.setDeal(deal, deStore)
+                }
+              />
             </div>
             <Grid className={"right-panel"} container>
               <Grid xs={7} className={"container"} item>
@@ -108,22 +167,14 @@ export const MiddleOffice: React.FC<Props> = observer(
                   <div className={"heading"}>
                     <h1>Deal Entry</h1>
                     <div className={"actions"}>
-                      <button className={"danger"} disabled={deal === null}>
-                        <i className={"fa fa-trash"} />
-                        <span>Delete</span>
-                      </button>
-                      <div className={"gap"} />
-                      <button className={"secondary"} disabled={deal === null}>
-                        <i className={"fa fa-clone"} />
-                        <span>Clone</span>
-                      </button>
-                      <button className={"primary"}>
-                        <i className={"fa fa-plus"} />
-                        <span>New</span>
-                      </button>
+                      {getActionButton()}
+                      <OptionsButton
+                        items={menuItems}
+                        disabled={deal === null}
+                      />
                     </div>
                   </div>
-                  <DealEntryForm />
+                  <DealEntryForm store={deStore} />
                 </div>
                 <div className={"form-group"}>
                   <div className={"heading"}>

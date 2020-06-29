@@ -2,15 +2,15 @@ import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntry } from "structures/dealEntry";
-import { MO, InternalValuationModel } from "mobx/stores/MO";
+import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
 
-const fields: FieldDef<DealEntry, MO>[] = [
+const fields: FieldDef<DealEntry, MoStore>[] = [
   {
     name: "currencyPair",
     label: "CCYPair",
     type: "dropdown",
     color: "orange",
-    editable: true,
+    editable: false,
     transformData: (array: Symbol[]): SelectItem[] =>
       array.map(
         (currency: Symbol): SelectItem => ({
@@ -25,7 +25,7 @@ const fields: FieldDef<DealEntry, MO>[] = [
     label: "Strategy",
     type: "dropdown",
     color: "orange",
-    editable: true,
+    editable: false,
     transformData: (data: { [key: string]: MOStrategy }): SelectItem[] => {
       return Object.values(data).map(
         (strategy: MOStrategy): SelectItem => ({
@@ -42,7 +42,7 @@ const fields: FieldDef<DealEntry, MO>[] = [
     type: "text",
     placeholder: "0D",
     color: "orange",
-    editable: true,
+    editable: false,
     emptyValue: "N/A",
   },
   {
@@ -51,7 +51,7 @@ const fields: FieldDef<DealEntry, MO>[] = [
     type: "number",
     placeholder: "0",
     color: "orange",
-    editable: true,
+    editable: false,
     emptyValue: "N/A",
     precision: 2,
   },
@@ -72,14 +72,14 @@ const fields: FieldDef<DealEntry, MO>[] = [
     placeholder: "0",
     precision: 0,
     color: "orange",
-    editable: true,
+    editable: false,
   },
   {
     name: "legAdj",
     label: "Leg Adj",
     type: "dropdown",
     color: "orange",
-    editable: true,
+    editable: false,
     transformData: (): SelectItem[] => [
       {
         value: true,
@@ -96,7 +96,7 @@ const fields: FieldDef<DealEntry, MO>[] = [
     label: "Buyer",
     type: "dropdown",
     color: "cream",
-    editable: true,
+    editable: false,
     transformData: (list: string[]): SelectItem[] =>
       list.map(
         (name: string): SelectItem => ({
@@ -111,7 +111,7 @@ const fields: FieldDef<DealEntry, MO>[] = [
     label: "Seller",
     type: "dropdown",
     color: "cream",
-    editable: true,
+    editable: false,
     transformData: (list: string[]): SelectItem[] =>
       list.map(
         (name: string): SelectItem => ({

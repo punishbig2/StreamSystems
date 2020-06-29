@@ -13,8 +13,8 @@ export class DealsStore {
       API.getDeals().then((deals: Deal[]) => {
         this.deals = deals.sort(
           (d1: Deal, d2: Deal) =>
-            parseTime(d2.transactionTime, "Z").getTime() -
-            parseTime(d1.transactionTime, "Z").getTime()
+            parseTime(d2.transactionTime, "UTC").getTime() -
+            parseTime(d1.transactionTime, "UTC").getTime()
         );
       });
     });

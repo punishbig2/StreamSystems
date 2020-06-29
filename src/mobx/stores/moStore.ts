@@ -7,9 +7,13 @@ import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API } from "API";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/interfaces/legOptionsDef";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { Sides } from "interfaces/sides";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
 interface LegDefinitions {
   [strategy: string]: {
@@ -25,7 +29,7 @@ export interface InternalValuationModel {
   OptionModelParameters: string;
 }
 
-export class MO {
+export class MoStore {
   @observable deal: Deal | null = null;
   @observable legs: Leg[] = [];
   @observable summaryLeg: SummaryLeg | null = null;
@@ -185,13 +189,16 @@ export class MO {
         pricePercent: null,
         vega: null,
         premiumCurrency: "USD",
-        rates: [{
-          currency: "",
-          value: 0,
-        }, {
-          currency: "",
-          value: 0,
-        }],
+        rates: [
+          {
+            currency: "",
+            value: 0,
+          },
+          {
+            currency: "",
+            value: 0,
+          },
+        ],
       },
       delivery: symbol.SettlementType,
       source: symbol.FixingSource,
@@ -204,16 +211,24 @@ export class MO {
   }
 
   @action.bound
-  public setDeal(deal: Deal) {
+  public setDeal(deal: Deal | null, deStore: DealEntryStore | null = null) {
     this.deal = deal;
     this.legs = [];
     this.summaryLeg = null;
+    // Update the deal entry store
+    if (deStore !== null) {
+      deStore.setDeal(deal);
+    }
   }
 
   @action.bound
   public setLegs(legs: Leg[], summary: SummaryLeg | null) {
     this.summaryLeg = summary;
     this.legs = legs;
+  }
+
+  public getStrategyById(id: string): MOStrategy {
+    return this.strategies[id];
   }
 
   public getValuationModelById(id: number): ValuationModel {
@@ -237,11 +252,26 @@ export class MO {
     this.isSendingPricingRequest = value;
   }
 
+  public getOutLegsDefinitions(strategy: string): LegOptionsDefOut[] {
+    const definition:
+      | { in: LegOptionsDefIn[]; out: LegOptionsDefOut[] }
+      | undefined = this.legDefinitions[strategy];
+    if (definition !== undefined) {
+      const { out }: { out: LegOptionsDefOut[] } = definition;
+      if (!out) return [];
+      return out;
+    } else {
+      return [];
+    }
+  };
+
   public getOutLegsCount(strategy: string): number {
-    if (!!this.legDefinitions[strategy]) {
-      const { out }: { out: LegOptionsDefOut[] } = this.legDefinitions[
-        strategy
-      ];
+    const definition:
+      | { in: LegOptionsDefIn[]; out: LegOptionsDefOut[] }
+      | undefined = this.legDefinitions[strategy];
+    if (definition !== undefined) {
+      const { out }: { out: LegOptionsDefOut[] } = definition;
+      if (!out) return 0;
       return out.length;
     } else {
       return 0;
@@ -249,4 +279,4 @@ export class MO {
   }
 }
 
-export default new MO();
+export default new MoStore();
