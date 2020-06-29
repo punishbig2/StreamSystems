@@ -38,10 +38,10 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
       const option: string = name.split("|")[1];
       return {
         option: option,
-        pricePercent: Premium["%_CCY1"][index],
+        pricePercent: 100 * Premium["%_CCY1"][index],
         strike: strike,
         vol: option.toLowerCase() === "put" ? putVol : callVol,
-        delta: Forward_Delta["%_CCY1"][index],
+        delta: 100 * Forward_Delta["%_CCY1"][index],
         premium: Premium["CCY1"][index] * notionalRatio,
         gamma: Gamma["CCY1"][index] * notionalRatio,
         vega: Vega["CCY1"][index] * notionalRatio,
@@ -57,7 +57,6 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
         notional: 1e6 * deal.lastQuantity * notionalRatio,
         party: deal.buyer,
         premiumDate: deal.spotDate,
-        price: deal.lastPrice,
         side: option.includes("Call") ? Sides.Buy : Sides.Sell,
       };
     }

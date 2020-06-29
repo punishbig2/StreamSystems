@@ -59,7 +59,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     name: "vol",
     label: "Vol",
     type: "percent",
-    precision: 0,
+    precision: 4,
     placeholder: "0",
     color: "orange",
     editable: false,

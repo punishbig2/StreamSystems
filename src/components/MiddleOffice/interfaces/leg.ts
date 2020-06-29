@@ -19,7 +19,6 @@ export interface Leg {
   notional?: number | null;
   premiumDate: moment.Moment | null;
   premium: number | null;
-  price: number | null;
   strike: number | null;
   vol: number | null;
   expiryDate: moment.Moment;

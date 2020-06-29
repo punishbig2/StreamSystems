@@ -176,7 +176,6 @@ export class MoStore {
         deliveryDate: deal.deliveryDate,
         expiryDate: deal.expiryDate,
         side: Sides.Buy,
-        price: null,
         option: "",
         vol: null,
         fwdPts: null,
@@ -263,7 +262,7 @@ export class MoStore {
     } else {
       return [];
     }
-  };
+  }
 
   public getOutLegsCount(strategy: string): number {
     const definition:

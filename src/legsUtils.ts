@@ -40,7 +40,7 @@ export const createLegsFromDefinition = (
     const { symbol } = deal;
     const leg: Leg = {
       premium: null,
-      price: deal.lastPrice,
+      pricePercent: deal.lastPrice,
       vol: deal.lastPrice,
       rates: rates,
       notional: notional,
@@ -62,7 +62,6 @@ export const createLegsFromDefinition = (
           : definition.OptionLegType,
       deliveryDate: deal.deliveryDate,
       expiryDate: deal.expiryDate,
-      pricePercent: null,
     };
     legs.push(leg);
   }
