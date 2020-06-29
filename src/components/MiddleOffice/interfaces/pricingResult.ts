@@ -2,7 +2,6 @@ import { Rates, Leg } from "components/MiddleOffice/interfaces/leg";
 import { splitCurrencyPair } from "symbolUtils";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { Sides } from "interfaces/sides";
 import moStore from "mobx/stores/moStore";
 import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
 
@@ -17,7 +16,7 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
       MarketSnap,
-      Inputs: { strike, putVol, callVol, forward, spot, LegInputs },
+      Inputs: { forward, spot, LegInputs },
     },
   } = data;
   const currencies: [string, string] = splitCurrencyPair(deal.currencyPair);
@@ -42,8 +41,8 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
         option: option,
         pricePercent: 100 * Premium["%_CCY1"][index],
         strike: LegInputs.Strike[index],
-        vol: LegInputs.Vol[index],
-        delta: 100 * Forward_Delta["%_CCY1"][index],
+        vol: 100 * LegInputs.Vol[index],
+        delta: Forward_Delta["%_CCY1"][index],
         premium: Premium["CCY1"][index] * notionalRatio,
         gamma: Gamma["CCY1"][index] * notionalRatio,
         vega: Vega["CCY1"][index] * notionalRatio,

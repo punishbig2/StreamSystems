@@ -21,6 +21,7 @@ import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import dealsStore from "mobx/stores/dealsStore";
 import { QuestionBox } from "components/QuestionBox";
+import { GenericScrollArea } from "components/GenericScrollArea";
 
 interface Props {
   visible: boolean;
@@ -201,13 +202,17 @@ export const MiddleOffice: React.FC<Props> = observer(
                       </button>
                     </div>
                   </div>
-                  <DealEntryForm store={deStore} />
+                  <GenericScrollArea>
+                    <DealEntryForm store={deStore} />
+                  </GenericScrollArea>
                 </div>
                 <div className={"form-group"}>
                   <div className={"heading"}>
                     <h1>Summary Leg Details</h1>
                   </div>
-                  <SummaryLegDetailsForm pricingResult={pricingResult} />
+                  <GenericScrollArea>
+                    <SummaryLegDetailsForm pricingResult={pricingResult} />
+                  </GenericScrollArea>
                 </div>
               </Grid>
               <Grid xs={5} className={"container"} item>

@@ -56,12 +56,12 @@ export const LegDetailsFields: React.FC<Props> = (
         currency={props.premiumCurrency}
       />
         <FormField
-        label={"Price"}
+        label={"Price %"}
         color={"grey"}
         value={props.pricePercent}
         name={"price"}
         type={"number"}
-        precision={2}
+        precision={4}
       />
       <FormField
         label={"Strike"}
