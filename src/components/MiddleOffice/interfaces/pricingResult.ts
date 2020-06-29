@@ -17,7 +17,7 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
       MarketSnap,
-      Inputs: { strike, putVol, callVol, forward, spot },
+      Inputs: { strike, putVol, callVol, forward, spot, LegInputs },
     },
   } = data;
   const currencies: [string, string] = splitCurrencyPair(deal.currencyPair);
@@ -31,7 +31,9 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
       value: 100 * MarketSnap.ccy2Zero,
     },
   ];
-  const definitions: LegOptionsDefOut[] = moStore.getOutLegsDefinitions(deal.strategy);
+  const definitions: LegOptionsDefOut[] = moStore.getOutLegsDefinitions(
+    deal.strategy
+  );
   const notionalRatio: number = definitions[0].notional_ratio;
   const legs: Leg[] = Legs.map(
     (name: string, index: number): Leg => {
@@ -39,8 +41,8 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
       return {
         option: option,
         pricePercent: 100 * Premium["%_CCY1"][index],
-        strike: strike,
-        vol: option.toLowerCase() === "put" ? putVol : callVol,
+        strike: LegInputs.Strike[index],
+        vol: LegInputs.Vol[index],
         delta: 100 * Forward_Delta["%_CCY1"][index],
         premium: Premium["CCY1"][index] * notionalRatio,
         gamma: Gamma["CCY1"][index] * notionalRatio,
@@ -54,10 +56,10 @@ export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
         deliveryDate: deal.deliveryDate,
         days: expiryDate.diff(deal.tradeDate, "d"),
         expiryDate: expiryDate,
-        notional: 1e6 * deal.lastQuantity * notionalRatio,
+        notional: LegInputs.Not[index] * notionalRatio,
         party: deal.buyer,
         premiumDate: deal.spotDate,
-        side: option.includes("Call") ? Sides.Buy : Sides.Sell,
+        side: LegInputs.Side[index],
       };
     }
   );
