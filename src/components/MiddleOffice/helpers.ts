@@ -54,6 +54,8 @@ export const getValue = (
         }
         return value.toLocaleString(undefined, numberOptions);
       } else {
+        if (typeof value === "string" && value === "")
+          return value;
         throw new Error(
           `unexpected non numeric value for number field: ${name}`
         );

@@ -45,6 +45,7 @@ enum Events {
   ClearDarkPoolPrice = "clearDarkPoolPx",
   UpdateDealsBlotter = "updateDealsBlotter",
   OnPricingResponse = "onPricingResponse",
+  OnDealDeleted = "onDealDeleted",
 }
 
 interface Command {
@@ -70,7 +71,7 @@ export class SignalRManager {
       name: Methods.SubscribeForPricingResponse,
       args: ["*"],
       refCount: 1,
-    }
+    },
   ];
   private pendingW: { [k: string]: W } = {};
 
@@ -146,6 +147,7 @@ export class SignalRManager {
       connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
       connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
       connection.on(Events.OnPricingResponse, this.onPricingResponse);
+      connection.on(Events.OnDealDeleted, this.onDealDeleted);
     }
   };
 
@@ -208,12 +210,33 @@ export class SignalRManager {
     this.onMessageListener(message);
   };
 
-  private onPricingResponse = (message: string): void => {
-    const event: CustomEvent<Deal> = new CustomEvent<Deal>("onpricingresponse", {
-      detail: JSON.parse(message),
+  private onDealDeleted = (message: string): void => {
+    const event: CustomEvent<string> = new CustomEvent("ondealdeleted", {
+      detail: message,
     });
     document.dispatchEvent(event);
   };
+
+  private onPricingResponse = (message: string): void => {
+    const event: CustomEvent<Deal> = new CustomEvent<Deal>(
+      "onpricingresponse",
+      {
+        detail: JSON.parse(message),
+      }
+    );
+    document.dispatchEvent(event);
+  };
+
+  public addDealDeletedListener(listener: (id: string) => void): (() => void) {
+    const proxyListener = (event: Event) => {
+      const customEvent: CustomEvent<string> = event as CustomEvent<string>;
+      listener(customEvent.detail);
+    };
+    document.addEventListener("ondealdeleted", proxyListener);
+    return () => {
+      document.removeEventListener("ondealdeleted", proxyListener);
+    }
+  }
 
   public addDeal = (deal: any): void => {
     try {

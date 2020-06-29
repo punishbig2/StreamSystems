@@ -48,6 +48,7 @@ enum Method {
   Get = "GET",
   Post = "POST",
   Delete = "DELETE",
+  Put = "PUT",
 }
 
 enum ReadyState {
@@ -183,6 +184,9 @@ const { Api } = config;
 
 const post = <T>(url: string, data?: any, contentType?: string): Task<T> =>
   request<T>(url, Method.Post, data, contentType);
+
+const put = <T>(url: string, data?: any, contentType?: string): Task<T> =>
+  request<T>(url, Method.Put, data, contentType);
 
 const get = <T>(url: string, args?: any): Task<T> =>
   request<T>(url, Method.Get, args);
@@ -864,7 +868,7 @@ export class API {
     return task.execute();
   }
 
-  static async cloneDeal(data: any): Promise<any> {
+  static async cloneDeal(data: any): Promise<string> {
     const user: User = workareaStore.user;
     const newDeal = {
       linkid: data.linkid,
@@ -874,18 +878,19 @@ export class API {
       lastqty: data.size,
       lvsqty: "0",
       cumqty: "0",
+      transacttime: Date.now() / 1000,
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
     };
-    const task: Task<any> = post<any>(
+    const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
       newDeal
     );
-    await task.execute();
+    return task.execute();
   }
 
-  static async createDeal(data: any) {
+  static async createDeal(data: any): Promise<string> {
     const user: User = workareaStore.user;
     const newDeal = {
       linkid: data.linkid,
@@ -895,11 +900,13 @@ export class API {
       lastqty: data.size,
       lvsqty: "0",
       cumqty: "0",
+      transacttime: Date.now() / 1000,
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
     };
-    await post<any>(API.buildUrl(API.Deal, "deal", "create"), newDeal);
+    const task: Task<string> = post<string>(API.buildUrl(API.Deal, "deal", "create"), newDeal);
+    return task.execute();
   }
 
   static getLegs(dealid: string): Task<any> {

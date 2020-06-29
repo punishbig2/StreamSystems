@@ -62,7 +62,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     precision: 0,
     placeholder: "0",
     color: "orange",
-    editable: false,
+    editable: true,
   },
   {
     name: "notional",

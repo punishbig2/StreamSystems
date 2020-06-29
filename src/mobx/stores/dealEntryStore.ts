@@ -5,11 +5,13 @@ import moStore from "mobx/stores/moStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { createDealEntry } from "utils/dealUtils";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { uuid } from "uuidv4";
 
 export enum EntryType {
   Empty,
   ExistingDeal,
   New,
+  Clone,
 }
 
 export class DealEntryStore {
@@ -19,12 +21,20 @@ export class DealEntryStore {
 
   @computed
   public get isModified(): boolean {
-    return deepEqual(this.entry, this.originalEntry);
+    return !deepEqual(this.entry, this.originalEntry);
   }
 
   @computed
   public get isReadyForSubmission(): boolean {
-    return false;
+    const { entry } = this;
+    if (!this.isModified) return false;
+    if (entry.currencyPair === "") return false;
+    if (entry.strategy === "") return false;
+    if (entry.buyer === "") return false;
+    if (entry.seller === "") return false;
+    if (entry.model === "") return false;
+    if (entry.vol === null) return false;
+    return entry.notional !== null;
   }
 
   @action.bound
@@ -48,15 +58,24 @@ export class DealEntryStore {
   }
 
   @action.bound
+  public cloneDeal(): void {
+    if (moStore.deal === null) return;
+    this.entry = { ...createDealEntry(moStore.deal), dealId: uuid() };
+    this.originalEntry = { ...this.entry };
+    this.entryType = EntryType.Clone;
+    moStore.setDeal(null);
+  }
+
+  @action.bound
   public addNewDeal(): void {
-    this.entry = { ...emptyDealEntry };
+    this.entry = { ...emptyDealEntry, dealId: uuid() };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
     moStore.setDeal(null);
   }
 
   @action.bound
-  public updateEntry(name: keyof DealEntry, value: string): void {
+  public updateEntry(name: keyof DealEntry, value: any): void {
     if (name === "strategy") {
       const { deal } = moStore;
       const strategy: MOStrategy = moStore.getStrategyById(value);

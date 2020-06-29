@@ -35,15 +35,15 @@ export default (): ColumnSpec => ({
   header: () => 'Time',
   filterable: true,
   sortable: true,
-  render: (props: CellProps): ReactElement | string => {
+  render: (props: CellProps): ReactElement | null | string => {
     const { deal } = props;
     if (deal) {
       const date: Date = parseTime(deal.transactionTime, Globals.timezone);
-      return date.toLocaleString('en-US', {
+      return date.toLocaleString(undefined, {
         timeZone: Globals.timezone || undefined,
       });
     } else {
-      return <CurrentTime/>;
+      return null;
     }
   },
   width: 6,

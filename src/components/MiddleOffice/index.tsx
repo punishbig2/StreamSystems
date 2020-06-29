@@ -19,6 +19,7 @@ import { ModalWindow } from "components/ModalWindow";
 import { API, Task } from "API";
 import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
+import dealsStore from "mobx/stores/dealsStore";
 
 interface Props {
   visible: boolean;
@@ -37,6 +38,12 @@ export const MiddleOffice: React.FC<Props> = observer(
     const [pricingResult, setPricingResult] = useState<PricingResult | null>(
       null
     );
+    useEffect(() => {
+      return signalRManager.addDealDeletedListener((dealId: string) => {
+        dealsStore.removeDeal(dealId);
+        moStore.setDeal(null, deStore);
+      });
+    }, []);
     const renderError = (): ReactElement | null => {
       if (error === null) return null;
       return (
@@ -116,16 +123,22 @@ export const MiddleOffice: React.FC<Props> = observer(
         />
       );
     } else {
-      const addNewDeal = () => {
-        deStore.addNewDeal();
+      const removeDeal = () => {
+        if (deal === null) return;
+        API.removeDeal(deal.dealID)
+          .then(() => null)
+          .catch((error: any) => {
+            console.warn(error);
+          });
       };
-      const removeDeal = () => {};
-      const cloneDeal = () => {};
       const getActionButton = (): ReactElement | null => {
         switch (deStore.entryType) {
           case EntryType.Empty:
             return (
-              <button className={"primary"} onClick={addNewDeal}>
+              <button
+                className={"primary"}
+                onClick={() => deStore.addNewDeal()}
+              >
                 <i className={"fa fa-plus"} />
                 <span>New</span>
               </button>
@@ -133,7 +146,10 @@ export const MiddleOffice: React.FC<Props> = observer(
           case EntryType.ExistingDeal:
             return (
               <>
-                <button className={"primary"} onClick={cloneDeal}>
+                <button
+                  className={"primary"}
+                  onClick={() => deStore.cloneDeal()}
+                >
                   <i className={"fa fa-clone"} />
                   <span>Clone</span>
                 </button>
@@ -143,6 +159,7 @@ export const MiddleOffice: React.FC<Props> = observer(
                 </button>
               </>
             );
+          case EntryType.Clone:
           case EntryType.New:
             return null;
         }

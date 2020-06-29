@@ -15,6 +15,7 @@ import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryB
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import existingEntryFields from "components/MiddleOffice/DealEntryForm/existingEntryFields";
 import newEntryFields from "components/MiddleOffice/DealEntryForm/newEntryFields";
+import moStore from "mobx/stores/moStore";
 
 interface Props {
   store: DealEntryStore;
@@ -58,15 +59,95 @@ export const DealEntryForm: React.FC<Props> = observer(
       if (field.name === "style") {
         return null;
       }
+      const onChange = (name: keyof DealEntry, value: string) => {
+        const convertedValue: any = (() => {
+          if (field.type === "number") {
+            if (value.length === 0) return null;
+            const candidate: number = Number(value.replaceAll(/[,.]*/g, ""));
+            if (isNaN(candidate)) {
+              return undefined;
+            }
+            return candidate;
+          } else {
+            return value;
+          }
+        })();
+        // Ignore it!
+        if (convertedValue === undefined) return;
+        store.updateEntry(name, convertedValue);
+      };
       return (
         <FormField
           key={field.name + field.type}
           {...field}
           data={data}
-          onChange={store.updateEntry}
+          onChange={onChange}
           value={value}
         />
       );
+    };
+
+    const createOrClone = () => {
+      const {
+        buyer,
+        seller,
+        strategy,
+        currencyPair,
+        model,
+        vol,
+        notional,
+        dealId,
+      } = store.entry;
+      if (
+        vol === null ||
+        vol === undefined ||
+        notional === null ||
+        notional === undefined
+      )
+        throw new Error("vol and notional must be set");
+      switch (store.entryType) {
+        case EntryType.Empty:
+        case EntryType.ExistingDeal:
+          throw new Error(
+            "this function should not be called in current state"
+          );
+        case EntryType.New:
+          API.createDeal({
+            linkid: dealId,
+            buyer: buyer,
+            seller: seller,
+            strategy: strategy,
+            symbol: currencyPair,
+            model: model,
+            price: vol.toString(),
+            size: Math.round(notional / 1e6).toString(),
+          })
+            .then(() => {
+              moStore.setDeal(null, store);
+            })
+            .catch((reason: any) => {
+              console.warn(reason);
+            });
+          break;
+        case EntryType.Clone:
+          API.cloneDeal({
+            linkid: dealId,
+            buyer: buyer,
+            seller: seller,
+            strategy: strategy,
+            symbol: currencyPair,
+            model: model,
+            price: vol.toString(),
+            size: Math.round(notional / 1e6).toString(),
+          })
+            .then(() => {
+              moStore.setDeal(null, store);
+            })
+            .catch((reason: any) => {
+              console.warn(reason);
+            });
+          break;
+      }
     };
 
     const getActionButtons = (): ReactElement | null => {
@@ -82,12 +163,20 @@ export const DealEntryForm: React.FC<Props> = observer(
             />
           );
         case EntryType.New:
-          return <NewEntryButtons />;
+        case EntryType.Clone:
+          return (
+            <NewEntryButtons
+              onSubmitted={createOrClone}
+              canSubmit={store.isReadyForSubmission}
+            />
+          );
       }
     };
 
     const fields =
-      store.entryType === EntryType.New ? newEntryFields : existingEntryFields;
+      store.entryType === EntryType.New || store.entryType === EntryType.Clone
+        ? newEntryFields
+        : existingEntryFields;
     return (
       <form
         className={
