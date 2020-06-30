@@ -32,13 +32,155 @@ interface Props<T> {
   validate?: (value: string) => Validity;
 }
 
-export class FormField<T = DealEntry> extends Component<Props<T>> {
+interface State {
+  labels: string[] | null;
+}
+
+export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   static defaultProps = {
     precision: 0,
     emptyValue: "",
   };
 
-  render() {
+  public state: State = {
+    labels: null,
+  };
+
+  public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
+    const { data } = this.props;
+    if (data !== prevProps.data) {
+      this.setState({
+        labels: this.extractLabelsFromData(data),
+      });
+    }
+  };
+
+  private extractLabelsFromData = (data: any) => {
+    return data
+      ? data.reduce((obj: any, item: { label: string; value: string }) => {
+          return { ...obj, [item.value]: item.label };
+        }, {})
+      : {};
+  };
+
+  private onInputChange = (event: any) => {
+    const { props } = this;
+    const { value } = event.target;
+    if (!props.onChange) return;
+    props.onChange(props.name as keyof T, value);
+  };
+
+  private onSelectChange = (event: any) => {
+    const { props } = this;
+    const { value } = event.target;
+    if (!props.onChange) return;
+    props.onChange(props.name as keyof T, value);
+  };
+
+  private renderSelectValue = (value: any) => {
+    const { props, state } = this;
+    const { labels } = state;
+    if (value === undefined) return " Select a " + props.label;
+    if (labels === null) return "Error";
+    return labels[value];
+  };
+
+  private copyToClipboard = (
+    event: React.MouseEvent<HTMLDivElement>,
+    value: string
+  ) => {
+    const input: HTMLInputElement = document.createElement("input");
+    const { body } = document;
+    const { style } = input;
+    // Make it invisible
+    style.height = "0";
+    style.width = "0";
+    // Flash it ...
+    const target: HTMLDivElement = event.target as HTMLDivElement;
+    const html: string = target.innerHTML;
+    target.innerHTML = "Copied...";
+    setTimeout(() => {
+      target.innerHTML = html;
+    }, 600);
+    // Attach it
+    body.appendChild(input);
+    input.value = value;
+    input.select();
+    document.execCommand("copy");
+    body.removeChild(input);
+  };
+
+  private createControl = (value: any): ReactElement => {
+    const { props } = this;
+    const { data } = props;
+    const validity: Validity =
+      !!props.validate && !!value ? props.validate(value) : Validity.Valid;
+    const classes: string[] = [
+      validity !== Validity.Invalid ? "valid" : "invalid",
+      props.value === undefined ? "empty" : "non-empty",
+    ];
+    switch (props.type) {
+      case "current:time":
+        return (
+          <div className={"readonly-field"}>
+            <CurrentTime timeOnly={true} />
+          </div>
+        );
+      case "current:date":
+        return (
+          <div className={"readonly-field"}>
+            <CurrentTime dateOnly={true} />
+          </div>
+        );
+      case "dropdown":
+        if (!data) throw new Error("cannot have a dropdown with no data");
+        return (
+          <Select
+            value={value}
+            className={classes.join(" ")}
+            renderValue={this.renderSelectValue}
+            displayEmpty={true}
+            onChange={this.onSelectChange}
+            readOnly={!props.editable}
+          >
+            {data.map((item: { label: string; value: any }) => (
+              <MenuItem key={item.value} value={item.value}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </Select>
+        );
+      default:
+        if (props.editable) {
+          return (
+            <OutlinedInput
+              name={randomID(props.name)}
+              value={value}
+              className={classes.join(" ")}
+              placeholder={props.placeholder}
+              readOnly={!props.editable}
+              labelWidth={0}
+              autoComplete={"new-password"}
+              onChange={this.onInputChange}
+            />
+          );
+        } else {
+          classes.push("readonly-field");
+          return (
+            <div
+              className={classes.join(" ")}
+              onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+                this.copyToClipboard(event, value)
+              }
+            >
+              {value}
+            </div>
+          );
+        }
+    }
+  };
+
+  public render(): ReactElement {
     const { props } = this;
     const value: string | undefined = getValue(
       props.type,
@@ -48,88 +190,11 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
       props.currency,
       props.emptyValue
     );
-    const { data } = props;
     const classes: string[] = [props.color];
     if (typeof props.value === "number" && props.value < 0) {
       classes.push("negative");
     }
-    const control: ReactElement = ((): ReactElement => {
-      const onInputChange = (event: any) => {
-        const { value } = event.target;
-        if (!props.onChange) return;
-        props.onChange(props.name as keyof T, value);
-      };
-      const onSelectChange = (event: any) => {
-        const { value } = event.target;
-        if (!props.onChange) return;
-        props.onChange(props.name as keyof T, value);
-      };
-      const mappedLabels = data
-        ? data.reduce((obj: any, item: { label: string; value: string }) => {
-            return { ...obj, [item.value]: item.label };
-          }, {})
-        : {};
-      const renderSelectValue = (value: any) => {
-        if (value === undefined) return " Select a " + props.label;
-        return mappedLabels[value];
-      };
-      const validity: Validity =
-        !!props.validate && !!value ? props.validate(value) : Validity.Valid;
-      const classes: string[] = [
-        validity !== Validity.Invalid ? "valid" : "invalid",
-        props.value === undefined ? "empty" : "non-empty",
-      ];
-      switch (props.type) {
-        case "current:time":
-          return (
-            <div className={"readonly-field"}>
-              <CurrentTime timeOnly={true} />
-            </div>
-          );
-        case "current:date":
-          return (
-            <div className={"readonly-field"}>
-              <CurrentTime dateOnly={true} />
-            </div>
-          );
-        case "dropdown":
-          if (!data) throw new Error("cannot have a dropdown with no data");
-          return (
-            <Select
-              value={value}
-              className={classes.join(" ")}
-              renderValue={renderSelectValue}
-              displayEmpty={true}
-              onChange={onSelectChange}
-              readOnly={!props.editable}
-            >
-              {data.map((item: { label: string; value: any }) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </Select>
-          );
-        default:
-          if (props.editable) {
-            return (
-              <OutlinedInput
-                name={randomID(props.name)}
-                value={value}
-                className={classes.join(" ")}
-                placeholder={props.placeholder}
-                readOnly={!props.editable}
-                labelWidth={0}
-                autoComplete={"new-password"}
-                onChange={onInputChange}
-              />
-            );
-          } else {
-            classes.push("readonly-field");
-            return <div className={classes.join(" ")}>{value}</div>;
-          }
-      }
-    })();
+    const control: ReactElement = this.createControl(value);
     return (
       <FormControl className={classes.join(" ")} margin={"none"}>
         <FormControlLabel
