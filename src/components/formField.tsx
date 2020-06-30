@@ -93,8 +93,11 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     const { body } = document;
     const { style } = input;
     // Make it invisible
-    style.height = "0";
-    style.width = "0";
+    style.position = "absolute";
+    style.top = "-1";
+    style.left = "-1";
+    style.height = "1";
+    style.width = "1";
     // Flash it ...
     const target: HTMLDivElement = event.target as HTMLDivElement;
     const html: string = target.innerHTML;
@@ -119,6 +122,18 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
       validity !== Validity.Invalid ? "valid" : "invalid",
       props.value === undefined ? "empty" : "non-empty",
     ];
+    if (!props.editable) {
+      return (
+        <div
+          className={[...classes, "readonly-field"].join(" ")}
+          onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+            this.copyToClipboard(event, value)
+          }
+        >
+          {value}
+        </div>
+      );
+    }
     switch (props.type) {
       case "current:time":
         return (
@@ -151,32 +166,18 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
           </Select>
         );
       default:
-        if (props.editable) {
-          return (
-            <OutlinedInput
-              name={randomID(props.name)}
-              value={value}
-              className={classes.join(" ")}
-              placeholder={props.placeholder}
-              readOnly={!props.editable}
-              labelWidth={0}
-              autoComplete={"new-password"}
-              onChange={this.onInputChange}
-            />
-          );
-        } else {
-          classes.push("readonly-field");
-          return (
-            <div
-              className={classes.join(" ")}
-              onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-                this.copyToClipboard(event, value)
-              }
-            >
-              {value}
-            </div>
-          );
-        }
+        return (
+          <OutlinedInput
+            name={randomID(props.name)}
+            value={value}
+            className={classes.join(" ")}
+            placeholder={props.placeholder}
+            readOnly={!props.editable}
+            labelWidth={0}
+            autoComplete={"new-password"}
+            onChange={this.onInputChange}
+          />
+        );
     }
   };
 
