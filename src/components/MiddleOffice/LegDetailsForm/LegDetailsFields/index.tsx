@@ -55,7 +55,7 @@ export const LegDetailsFields: React.FC<Props> = (
         type={"currency"}
         currency={props.premiumCurrency}
       />
-        <FormField
+      <FormField
         label={"Price %"}
         color={"grey"}
         value={props.pricePercent}
@@ -76,6 +76,7 @@ export const LegDetailsFields: React.FC<Props> = (
         color={"grey"}
         value={props.vol}
         name={"vol"}
+        precision={4}
         type={"percent"}
       />
       <FormField

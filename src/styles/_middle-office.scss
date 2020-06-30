@@ -1,4 +1,4 @@
-$cream-form-color: saturate(mix($foreground-color, yellow), 20%);
+$cream-form-color: saturate(mix($foreground-color, #f1c012), 10%);
 $green-form-color: saturate(mix($foreground-color, green), 10%);
 $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
@@ -140,8 +140,19 @@ $grey-form-color: $foreground-color;
     margin-top: -1px;
 
     .container {
+      position: relative;
       height: 100%;
-      overflow-y: scroll;
+      &:first-child {
+        .form-group {
+          background-color: $background-color;
+          &:last-child {
+            transition: transform 0.25s;
+          }
+        }
+      }
+      &:last-child {
+        overflow-y: scroll;
+      }
     }
 
     .legs {
@@ -182,7 +193,8 @@ $grey-form-color: $foreground-color;
       }
     }
 
-    .MuiFormControl-root, .readonly-field {
+    .MuiFormControl-root,
+    .readonly-field {
       width: 100%;
 
       &.green {
@@ -236,11 +248,14 @@ $grey-form-color: $foreground-color;
           color: inherit;
         }
 
-        .MuiInputBase-root, .readonly-field {
+        .MuiInputBase-root,
+        .readonly-field {
           flex-basis: 50%;
         }
 
-        .MuiInputBase-root, .MuiSelect-root, .readonly-field {
+        .MuiInputBase-root,
+        .MuiSelect-root,
+        .readonly-field {
           color: inherit;
           white-space: nowrap;
           overflow: hidden;
@@ -249,7 +264,7 @@ $grey-form-color: $foreground-color;
           line-height: 2;
           font-size: $normal-font-size;
           font-weight: 500;
-          font-family: 'Roboto', sans-serif;
+          font-family: "Roboto", sans-serif;
           padding: 0;
 
           fieldset {
@@ -275,7 +290,9 @@ $grey-form-color: $foreground-color;
           }
         }
 
-        .MuiSelect-root, .readonly-field, .MuiInputBase-root input {
+        .MuiSelect-root,
+        .readonly-field,
+        .MuiInputBase-root input {
           padding: 0 10px;
         }
       }
@@ -303,9 +320,7 @@ $grey-form-color: $foreground-color;
     padding: 0;
 
     .heading {
-      h1 {
-        border-top: 1px dashed $table-border-color;
-      }
+      border-top: 1px dashed $table-border-color;
     }
   }
 
@@ -341,6 +356,7 @@ $grey-form-color: $foreground-color;
 
           i {
             font-size: 16px;
+            color: $foreground-color;
           }
 
           .close-x {
@@ -353,12 +369,13 @@ $grey-form-color: $foreground-color;
               cursor: none;
             }
 
-            &::after, &::before {
+            &::after,
+            &::before {
               position: absolute;
               top: 0;
               transform: translateY(11.3px) rotate(45deg);
               left: 4px;
-              content: '';
+              content: "";
               background-color: $foreground-color;
               height: 2px;
               width: 16px;

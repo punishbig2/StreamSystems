@@ -79,7 +79,6 @@ export class FormField<T = DealEntry> extends Component<Props<T>> {
         validity !== Validity.Invalid ? "valid" : "invalid",
         props.value === undefined ? "empty" : "non-empty",
       ];
-      console.log(props.type);
       switch (props.type) {
         case "current:time":
           return (

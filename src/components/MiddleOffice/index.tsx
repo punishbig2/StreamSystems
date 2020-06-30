@@ -1,4 +1,10 @@
-import React, { ReactElement, useEffect, useState, useCallback } from "react";
+import React, {
+  ReactElement,
+  useEffect,
+  useState,
+  useCallback,
+  CSSProperties,
+} from "react";
 import { DealBlotter } from "components/MiddleOffice/DealBlotter";
 import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
@@ -21,7 +27,6 @@ import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import dealsStore from "mobx/stores/dealsStore";
 import { QuestionBox } from "components/QuestionBox";
-import { GenericScrollArea } from "components/GenericScrollArea";
 
 interface Props {
   visible: boolean;
@@ -30,6 +35,13 @@ interface Props {
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const [deStore] = useState<DealEntryStore>(new DealEntryStore());
+    const [
+      summaryContainer,
+      setSummaryContainer,
+    ] = useState<HTMLDivElement | null>(null);
+    const [summaryStyle, setSummaryStyle] = useState<
+      CSSProperties | undefined
+    >();
     const [removeQuestionModalOpen, setRemoveQuestionModalOpen] = useState<
       boolean
     >(false);
@@ -77,6 +89,7 @@ export const MiddleOffice: React.FC<Props> = observer(
     }, [deal]);
     const setLegs = useCallback(
       (response: any) => {
+        setSummaryStyle(undefined);
         if (deal === null) return;
         const { data } = response;
         // If this is not the deal we're showing, it's too late
@@ -175,6 +188,23 @@ export const MiddleOffice: React.FC<Props> = observer(
             return null;
         }
       };
+
+      const toggleSummary = () => {
+        if (summaryContainer === null) return;
+        if (summaryStyle !== undefined) {
+          setSummaryStyle(undefined);
+        } else {
+          const parent: HTMLDivElement = summaryContainer.parentNode as HTMLDivElement;
+          if (parent === null) return;
+          const boundingRect: DOMRect = summaryContainer.getBoundingClientRect();
+          const top: number = boundingRect.bottom - parent.offsetHeight;
+          setSummaryStyle({
+            transform: `translateY(-${top}px)`,
+            boxShadow: "0 -4px 8px -8px black",
+          });
+        }
+      };
+
       return (
         <>
           <div className={classes.join(" ")}>
@@ -202,17 +232,29 @@ export const MiddleOffice: React.FC<Props> = observer(
                       </button>
                     </div>
                   </div>
-                  <GenericScrollArea>
-                    <DealEntryForm store={deStore} />
-                  </GenericScrollArea>
+                  <DealEntryForm store={deStore} />
                 </div>
-                <div className={"form-group"}>
+                <div
+                  className={"form-group"}
+                  ref={setSummaryContainer}
+                  style={summaryStyle}
+                >
                   <div className={"heading"}>
                     <h1>Summary Leg Details</h1>
+                    <div className={"actions"}>
+                      <button
+                        className={"no-label"}
+                        onClick={() => toggleSummary()}
+                      >
+                        {summaryStyle ? (
+                          <i className={"fa fa-angle-double-down"} />
+                        ) : (
+                          <i className={"fa fa-angle-double-up"} />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <GenericScrollArea>
-                    <SummaryLegDetailsForm pricingResult={pricingResult} />
-                  </GenericScrollArea>
+                  <SummaryLegDetailsForm pricingResult={pricingResult} />
                 </div>
               </Grid>
               <Grid xs={5} className={"container"} item>
