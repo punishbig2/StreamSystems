@@ -11,8 +11,6 @@ import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetails
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { Grid } from "@material-ui/core";
 import { randomID } from "randomID";
-import store from "mobx/stores/moStore";
-import MO from "mobx/stores/moStore";
 import moStore from "mobx/stores/moStore";
 import { observer } from "mobx-react";
 import { ProgressView } from "components/progressView";
@@ -27,6 +25,8 @@ import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import dealsStore from "mobx/stores/dealsStore";
 import { QuestionBox } from "components/QuestionBox";
+import { MessageBox } from "components/MessageBox";
+import strings from "locales";
 
 interface Props {
   visible: boolean;
@@ -45,13 +45,8 @@ export const MiddleOffice: React.FC<Props> = observer(
     const [removeQuestionModalOpen, setRemoveQuestionModalOpen] = useState<
       boolean
     >(false);
-    const [error, setError] = useState<{
-      message: string;
-      error: string;
-      status: number;
-    } | null>(null);
     const classes: string[] = ["middle-office"];
-    const { deal } = store;
+    const { deal, error } = moStore;
     const [pricingResult, setPricingResult] = useState<PricingResult | null>(
       null
     );
@@ -64,34 +59,45 @@ export const MiddleOffice: React.FC<Props> = observer(
     const renderError = (): ReactElement | null => {
       if (error === null) return null;
       return (
-        <div className={"middle-office-error"}>
-          <div className={"header"}>
-            <div className={"fa fa-exclamation-triangle icon"} />
-            <h3>Oops, an error happened</h3>
-          </div>
-          <p className={"message"}>{error.message}</p>
-          <p className={"tag"}>
-            error code: {error.status} ({error.error})
-          </p>
-          <div className={"button-box"}>
-            <button type={"button"} onClick={() => setError(null)}>
-              Close
-            </button>
-          </div>
-        </div>
+        <MessageBox
+          title={strings.ErrorModalTitle}
+          message={() => {
+            return (
+              <div className={"pricer-error"}>
+                <p className={"message"}>{error.message}</p>
+                <p className={"tag"}>
+                  error code: {error.status} ({error.error})
+                </p>
+              </div>
+            );
+          }}
+          icon={"exclamation-triangle"}
+          buttons={() => {
+            return (
+              <>
+                <button
+                  className={"cancel"}
+                  onClick={() => moStore.setError(null)}
+                >
+                  {strings.Close}
+                </button>
+              </>
+            );
+          }}
+          color={"bad"}
+        />
       );
     };
     useEffect(() => {
-      store.loadReferenceData().then(() => {});
+      moStore.loadReferenceData().then(() => {});
     }, []);
     useEffect(() => {
       setPricingResult(null);
     }, [deal]);
     const setLegs = useCallback(
-      (response: any) => {
+      (data: any) => {
         setSummaryStyle(undefined);
         if (deal === null) return;
-        const { data } = response;
         // If this is not the deal we're showing, it's too late
         if (data.id !== deal.dealID) return;
         const pricingResult: PricingResult = buildPricingResult(data, deal);
@@ -118,12 +124,7 @@ export const MiddleOffice: React.FC<Props> = observer(
         });
       const removePricingListener: () => void = signalRManager.addPricingResponseListener(
         (response: any) => {
-          if (response.status === 200) {
-            setLegs(response);
-          } else {
-            const { data } = response;
-            setError(data);
-          }
+          setLegs(response);
         }
       );
       return () => {
@@ -132,12 +133,12 @@ export const MiddleOffice: React.FC<Props> = observer(
       };
     }, [deal, setLegs]);
     if (!props.visible) classes.push("hidden");
-    if (!store.isInitialized) {
+    if (!moStore.isInitialized) {
       return (
         <ProgressView
           title={"Loading: Middle Office"}
           message={"Please wait, we are loading some data"}
-          value={store.loadingReferenceDataProgress}
+          value={moStore.loadingReferenceDataProgress}
         />
       );
     } else {
@@ -281,7 +282,7 @@ export const MiddleOffice: React.FC<Props> = observer(
           <div
             className={[
               "spinner ",
-              MO.isSendingPricingRequest ? "visible" : "hidden",
+              moStore.isSendingPricingRequest ? "visible" : "hidden",
             ].join(" ")}
           >
             <h1>Loading</h1>

@@ -7,7 +7,7 @@ import { observer } from "mobx-react";
 import mo, { MoStore } from "mobx/stores/moStore";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
-import { API } from "API";
+import { API, HTTPError } from "API";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
 import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
@@ -31,12 +31,18 @@ const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
   );
   const strategy: MOStrategy = mo.getStrategyById(deal.strategy);
   mo.setSendingPricingRequest(true);
-  API.sendPricingRequest(deal, entry, mo.legs, valuationModel, strategy).then(
-    () => {
+  API.sendPricingRequest(deal, entry, mo.legs, valuationModel, strategy)
+    .then(() => {})
+    .catch((error: HTTPError) => {
+      const message: string = error.getMessage();
+      moStore.setError({
+        code: error.getCode(),
+        ...JSON.parse(message),
+      });
+    })
+    .finally(() => {
       mo.setSendingPricingRequest(false);
-    }
-  );
-  mo.setSendingPricingRequest(false);
+    });
 };
 
 export const DealEntryForm: React.FC<Props> = observer(

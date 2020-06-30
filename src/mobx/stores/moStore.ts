@@ -22,6 +22,13 @@ interface LegDefinitions {
   };
 }
 
+interface Error {
+  error: string;
+  code: number;
+  message: string;
+  status: string;
+}
+
 export interface InternalValuationModel {
   ValuationModelID: number;
   OptionModel: string;
@@ -36,6 +43,7 @@ export class MoStore {
   @observable isInitialized: boolean = false;
   @observable loadingReferenceDataProgress: number = 0;
   @observable isSendingPricingRequest: boolean = false;
+  @observable error: Error | null = null;
 
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
@@ -275,6 +283,11 @@ export class MoStore {
     } else {
       return 0;
     }
+  }
+
+  @action.bound
+  public setError(error: Error | null) {
+    this.error = error;
   }
 }
 

@@ -5,6 +5,7 @@ import { ErrorBox } from "components/ErrorBox";
 import { MessageBox } from "components/MessageBox";
 import store from "mobx/stores/userPreferencesStore";
 import { observer } from "mobx-react";
+import strings from "locales";
 
 interface OwnProps {
   onCancel: () => void;
@@ -77,7 +78,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
             "Something went wrong, we are sorry. This is quite unexpected."
           }
           onClose={onClose}
-          title={"Oops, an error happened"}
+          title={strings.ErrorModalTitle}
         />
       );
     default:

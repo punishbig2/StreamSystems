@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 
 interface Props {
   title: string;
-  message: string;
+  message: string | (() => ReactElement);
   icon: "exclamation-triangle" | "question-circle" | "check-circle" | "spinner";
   buttons: () => ReactElement | null;
   color: "good" | "bad" | "neutral";
@@ -15,6 +15,12 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
       return (
         <div className={classes.join(" ")}>
           <i className={"spinner"} />
+        </div>
+      );
+    } else if (props.icon === "exclamation-triangle") {
+      return (
+        <div className={classes.join(" ")}>
+          <i className={`fa fa-exclamation-circle`} />
         </div>
       );
     } else {
@@ -33,7 +39,13 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
           <h1>{props.title}</h1>
         </div>
       </div>
-      <p>{props.message}</p>
+      <div className={"content"}>
+        {typeof props.message === "string" ? (
+          <p>props.message</p>
+        ) : (
+          props.message()
+        )}
+      </div>
       <div className={"message-box-footer"}>
         <div className={"modal-buttons"}>{props.buttons()}</div>
       </div>

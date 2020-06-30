@@ -45,4 +45,5 @@ export default {
   LoadingWorkspaces: "Loading workspaces",
   StartingUp: "Starting up",
   LoadingRegions: "Loading user regions",
+  ErrorModalTitle: "There was an error",
 };

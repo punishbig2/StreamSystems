@@ -38,8 +38,6 @@ const toUrlQuery = (obj: { [key: string]: string } | any): string => {
     .join("&");
 };
 
-type Generic = { [key: string]: any };
-
 enum ProductSource {
   Electronic = "Electronic",
 }
@@ -66,6 +64,14 @@ export class HTTPError {
     this.code = code;
     this.message = message;
   }
+
+  public getMessage = (): string => {
+    return this.message;
+  };
+
+  public getCode = (): number => {
+    return this.code;
+  };
 }
 
 export interface Task<T> {
@@ -840,7 +846,6 @@ export class API {
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
-    console.log("sending");
     const task: Task<any> = post<any>(config.PricingRequestUrl, request);
     return task.execute();
   }
@@ -901,7 +906,10 @@ export class API {
       seller: data.seller,
       useremail: user.email,
     };
-    const task: Task<string> = post<string>(API.buildUrl(API.Deal, "deal", "create"), newDeal);
+    const task: Task<string> = post<string>(
+      API.buildUrl(API.Deal, "deal", "create"),
+      newDeal
+    );
     return task.execute();
   }
 

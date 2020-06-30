@@ -20,6 +20,7 @@ import { BlotterTypes } from "columns/messageBlotter";
 import { User } from "interfaces/user";
 import { Strategy } from "interfaces/strategy";
 import { ProgressView } from "components/progressView";
+import strings from "locales";
 
 interface OwnProps {
   id: string;
@@ -188,7 +189,7 @@ const Workspace: React.FC<OwnProps> = (
         <ModalWindow
           render={() => (
             <ErrorBox
-              title={"Oops, there was an error"}
+              title={strings.ErrorModalTitle}
               message={store.errorMessage as string}
               onClose={store.hideErrorModal}
             />
