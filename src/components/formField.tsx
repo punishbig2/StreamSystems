@@ -122,18 +122,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
       validity !== Validity.Invalid ? "valid" : "invalid",
       props.value === undefined ? "empty" : "non-empty",
     ];
-    if (!props.editable) {
-      return (
-        <div
-          className={[...classes, "readonly-field"].join(" ")}
-          onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-            this.copyToClipboard(event, value)
-          }
-        >
-          {value}
-        </div>
-      );
-    }
+
     switch (props.type) {
       case "current:time":
         return (
@@ -166,6 +155,18 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
           </Select>
         );
       default:
+        if (!props.editable) {
+          return (
+            <div
+              className={[...classes, "readonly-field"].join(" ")}
+              onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+                this.copyToClipboard(event, value)
+              }
+            >
+              {value}
+            </div>
+          );
+        }
         return (
           <OutlinedInput
             name={randomID(props.name)}
