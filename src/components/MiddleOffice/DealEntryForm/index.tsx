@@ -34,11 +34,13 @@ const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
   API.sendPricingRequest(deal, entry, mo.legs, valuationModel, strategy)
     .then(() => {})
     .catch((error: HTTPError) => {
-      const message: string = error.getMessage();
-      moStore.setError({
-        code: error.getCode(),
-        ...JSON.parse(message),
-      });
+      if (error !== undefined) {
+        const message: string = error.getMessage();
+        moStore.setError({
+          code: error.getCode(),
+          ...JSON.parse(message),
+        });
+      } console.log("an error just happened", error);
     })
     .finally(() => {
       mo.setSendingPricingRequest(false);
