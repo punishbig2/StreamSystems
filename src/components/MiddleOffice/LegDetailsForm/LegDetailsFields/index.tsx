@@ -2,7 +2,6 @@ import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FormField } from "components/formField";
-import { Sides } from "interfaces/sides";
 
 type Props = Leg;
 
@@ -22,7 +21,7 @@ export const LegDetailsFields: React.FC<Props> = (
       <FormField
         label={"Side"}
         color={"grey"}
-        value={props.side === Sides.Buy ? "Buy" : "Sell"}
+        value={props.side}
         name={"side"}
         type={"text"}
       />
