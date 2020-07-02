@@ -4,6 +4,9 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FormField } from "components/formField";
 
 type Props = Leg;
+const capitalize = (str: string): string => {
+  return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
+};
 
 export const LegDetailsFields: React.FC<Props> = (
   props: Props
@@ -21,7 +24,7 @@ export const LegDetailsFields: React.FC<Props> = (
       <FormField
         label={"Side"}
         color={"grey"}
-        value={props.side}
+        value={capitalize(props.side)}
         name={"side"}
         type={"text"}
       />
