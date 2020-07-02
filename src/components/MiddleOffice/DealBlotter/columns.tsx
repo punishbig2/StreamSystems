@@ -8,6 +8,8 @@ import priceColumn from "components/MiddleOffice/interfaces/columnTypes/price";
 import sizeColumn from "components/MiddleOffice/interfaces/columnTypes/size";
 import sellerColumn from "components/MiddleOffice/interfaces/columnTypes/seller";
 import buyerColumn from "components/MiddleOffice/interfaces/columnTypes/buyer";
+import { Message } from "interfaces/message";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export const columns: ColumnSpec[] = [
   {
@@ -20,6 +22,13 @@ export const columns: ColumnSpec[] = [
       } else {
         return null;
       }
+    },
+    filterByKeyword: (v1: Deal, keyword: string): boolean => {
+      return v1.dealID.includes(keyword.toLowerCase());
+    },
+    difference: (v1: Deal, v2: Deal) => {
+      const s1: string = v1.dealID;
+      return s1.localeCompare(v2.dealID);
     },
     filterable: true,
     width: 3,
@@ -51,5 +60,13 @@ export const columns: ColumnSpec[] = [
     filterable: true,
     width: 3,
     template: "12345",
+    filterByKeyword: (v1: Deal, keyword: string): boolean => {
+      const lowerCaseSource: string = v1.source.toLowerCase();
+      return lowerCaseSource.includes(keyword.toLowerCase());
+    },
+    difference: (v1: Deal, v2: Deal) => {
+      const s1: string = v1.source;
+      return s1.localeCompare(v2.source);
+    },
   },
 ];

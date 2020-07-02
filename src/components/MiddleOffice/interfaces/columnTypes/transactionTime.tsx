@@ -33,6 +33,6 @@ export default (): ColumnSpec => ({
     const original: string = v1.TransactTime;
     if (!original) return false;
     const value: string = origin.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
 });

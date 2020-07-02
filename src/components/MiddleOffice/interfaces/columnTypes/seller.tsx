@@ -16,7 +16,8 @@ export default (sortable: boolean): ColumnSpec => ({
   filterByKeyword: (deal: Deal, keyword: string) => {
     const seller: string | null = deal.seller;
     if (seller === null) return false;
-    return seller.includes(keyword);
+    const lowerCaseSeller: string = seller.toLowerCase();
+    return lowerCaseSeller.includes(keyword.toLowerCase());
   },
   header: () => "Seller",
   render: (props: CellProps): ReactElement | string | null => {

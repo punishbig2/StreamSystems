@@ -23,7 +23,7 @@ export default (sortable: boolean): ColumnSpec => ({
     const original: string = v1.currencyPair;
     if (!original) return false;
     const value = original.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
   difference: (v1: Deal, v2: Deal): number => {
     return compareCurrencyPairs(v1.currencyPair, v2.currencyPair);

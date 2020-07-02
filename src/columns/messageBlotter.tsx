@@ -51,7 +51,7 @@ const symbol = (sortable: boolean): ColumnSpec => ({
     const original: string = v1.Symbol;
     if (!original) return false;
     const value = original.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
   difference: (v1: Message, v2: Message): number => {
     return compareCurrencyPairs(v1.Symbol, v2.Symbol);
@@ -71,7 +71,7 @@ const strategy = (sortable: boolean): ColumnSpec => ({
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;
     const value = original.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
   difference: (v1: Message, v2: Message) => {
     const s1: string = v1.Strategy;
@@ -114,7 +114,7 @@ const side = (sortable: boolean): ColumnSpec => ({
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: string = v1.Side === '1' ? 'buy' : 'sell';
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
   difference: (v1: Message, v2: Message): number => {
     return Number(v1.Side) - Number(v2.Side);
@@ -157,7 +157,7 @@ const buyerOrSeller = (
   filterByKeyword: (message: Message, keyword: string) => {
     const buyer: string | null = getBuyer(message);
     if (buyer === null) return false;
-    return buyer.includes(keyword);
+    return buyer.includes(keyword.toLowerCase());
   },
   header: () => type.substr(0, 1) + type.substr(1),
   render: ({ message }: CellProps): string | null => {
@@ -200,7 +200,7 @@ const transactTime = (): ColumnSpec => ({
     const original: string = v1.TransactTime;
     if (!original) return false;
     const value: string = origin.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
 });
 
@@ -226,7 +226,7 @@ const transactType = (sortable: boolean) => ({
     const original: string = TransTypes[v1.OrdStatus];
     if (!original) return false;
     const value = original.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
 });
 

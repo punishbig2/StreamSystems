@@ -1,8 +1,8 @@
 import React, { ReactElement } from "react";
-import { Message } from "interfaces/message";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { StrategyCell } from "components/MiddleOffice/interfaces/cells/strategy";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export default (sortable: boolean): ColumnSpec => ({
   name: "Strategy",
@@ -12,13 +12,13 @@ export default (sortable: boolean): ColumnSpec => ({
   header: () => "Strategy",
   render: (props: CellProps): ReactElement => <StrategyCell {...props} />,
   width: 3,
-  filterByKeyword: (v1: Message, keyword: string): boolean => {
-    const original: string = v1.Strategy;
+  filterByKeyword: (v1: Deal, keyword: string): boolean => {
+    const original: string = v1.strategy;
     const value = original.toLowerCase();
-    return value.includes(keyword);
+    return value.includes(keyword.toLowerCase());
   },
-  difference: (v1: Message, v2: Message) => {
-    const s1: string = v1.Strategy;
-    return s1.localeCompare(v2.Strategy);
+  difference: (v1: Deal, v2: Deal) => {
+    const s1: string = v1.strategy;
+    return s1.localeCompare(v2.strategy);
   },
 });

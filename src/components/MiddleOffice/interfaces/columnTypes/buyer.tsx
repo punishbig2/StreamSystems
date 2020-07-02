@@ -6,7 +6,7 @@ import { BankCell } from "components/MiddleOffice/interfaces/cells/banks";
 
 export default (sortable: boolean): ColumnSpec => ({
   name: "buyer",
-  difference: (m1: any, m2: any) => {
+  difference: (m1: Deal, m2: Deal) => {
     const s1: string | null = m1.buyer;
     const s2: string | null = m2.buyer;
     if (s1 === null) return Number.MIN_SAFE_INTEGER;
@@ -16,7 +16,8 @@ export default (sortable: boolean): ColumnSpec => ({
   filterByKeyword: (deal: Deal, keyword: string) => {
     const buyer: string | null = deal.buyer;
     if (buyer === null) return false;
-    return buyer.includes(keyword);
+    const lowerCaseBuyer: string = buyer.toLowerCase();
+    return lowerCaseBuyer.includes(keyword.toLowerCase());
   },
   header: () => "Buyer",
   render: (props: CellProps): ReactElement | string | null => {
