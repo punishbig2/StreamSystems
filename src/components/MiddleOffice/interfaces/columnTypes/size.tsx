@@ -4,14 +4,14 @@ import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { SizeCell } from "components/MiddleOffice/interfaces/cells/size";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
-export default (sortable: boolean): ColumnSpec => ({
+export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   name: "Size",
   template: "999999",
   filterable: true,
   sortable: sortable,
   header: () => "Size",
   render: (props: CellProps): ReactElement => <SizeCell {...props} />,
-  width: 3,
+  width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
     const value: number = v1.lastQuantity;
     const numeric: number = Number(keyword);

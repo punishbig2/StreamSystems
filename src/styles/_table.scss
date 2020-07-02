@@ -109,9 +109,10 @@ $spinner-size: $table-row-height - 6;
             cursor: default;
             position: absolute;
             top: 0;
-            height: $table-row-height;
-            right: 6px;
-            background: none;
+            height: $table-header-height;
+            line-height: $table-header-height;
+            right: 2px;
+            text-align: center;
 
             &:hover {
               color: $primary-color;
@@ -299,6 +300,23 @@ $spinner-size: $table-row-height - 6;
 
         line-height: $table-row-height;
         height: $table-row-height;
+
+        .date-time-cell {
+          span {
+            line-height: $table-row-height;
+            display: inline-block;
+            width: 50%;
+            text-align: right;
+
+            &.time {
+              padding: 0 8px 0 0;
+            }
+
+            &.date {
+              padding: 0 0 0 8px;
+            }
+          }
+        }
 
         button {
           font-size: $smaller-font-size;

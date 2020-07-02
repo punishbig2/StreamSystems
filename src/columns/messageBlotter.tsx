@@ -1,18 +1,18 @@
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { Message } from '../interfaces/message';
 import React, { ReactElement } from 'react';
-import { compareCurrencyPairs } from './messageBlotterColumns/utils';
-import { CellProps } from './messageBlotterColumns/cellProps';
-import { tenorToNumber } from '../utils/dataGenerators';
-import { priceFormatter } from '../utils/priceFormatter';
+import { ColumnSpec } from 'components/Table/columnSpecification';
+import { Message } from "interfaces/message";
+import { compareCurrencyPairs } from 'columns/messageBlotterColumns/utils';
+import { CellProps } from 'columns/messageBlotterColumns/cellProps';
+import { tenorToNumber } from "utils/dataGenerators";
+import { priceFormatter } from "utils/priceFormatter";
 import { getMessagePrice, getMessageSize, getBuyer, getSeller, TransTypes } from 'utils/messageUtils';
 import { involved } from './messageBlotterColumns/helpers';
-import { User } from '../interfaces/user';
+import { User } from "interfaces/user";
 import workareaStore from '../mobx/stores/workareaStore';
-import { Globals } from '../golbals';
+import { Globals } from "golbals";
 import moment, { Moment } from 'moment';
-import { parseTime, INCOMING_DATE_FORMAT } from '../timeUtils';
-import { DarkPool } from '../interfaces/w';
+import { parseTime, INCOMING_DATE_FORMAT, formatters } from "timeUtils";
+import { DarkPool } from "interfaces/w";
 
 export enum BlotterTypes {
   Executions,
@@ -78,6 +78,7 @@ const strategy = (sortable: boolean): ColumnSpec => ({
     return s1.localeCompare(v2.Strategy);
   },
 });
+
 const price = (sortable: boolean): ColumnSpec => ({
   name: 'Price',
   template: '999999.99',
@@ -186,9 +187,12 @@ const transactTime = (): ColumnSpec => ({
   render: (props: CellProps): ReactElement | string => {
     const { message } = props;
     const date: Date = parseTime(message.TransactTime, Globals.timezone);
-    return date.toLocaleString('en-US', {
-      timeZone: Globals.timezone || undefined,
-    });
+    return (
+      <div className={"date-time-cell"}>
+        <span className={"date"}>{formatters.date.format(date)}</span>
+        <span className={"time"}>{formatters.time.format(date)}</span>
+      </div>
+    );
   },
   width: 6,
   difference: (v1: Message, v2: Message): number => {

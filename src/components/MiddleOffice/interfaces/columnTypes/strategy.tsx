@@ -4,14 +4,14 @@ import { StrategyCell } from "components/MiddleOffice/interfaces/cells/strategy"
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
-export default (sortable: boolean): ColumnSpec => ({
+export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   name: "Strategy",
   template: "WWWWWW",
   filterable: true,
   sortable: sortable,
   header: () => "Strategy",
   render: (props: CellProps): ReactElement => <StrategyCell {...props} />,
-  width: 3,
+  width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
     const original: string = v1.strategy;
     const value = original.toLowerCase();

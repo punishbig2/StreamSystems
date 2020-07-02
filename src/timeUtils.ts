@@ -1,4 +1,21 @@
+import { Globals } from "golbals";
+
 export const INCOMING_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
+
+export const formatters = {
+  date: new Intl.DateTimeFormat(undefined, {
+    timeZone: Globals.timezone || undefined,
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  }),
+  time: new Intl.DateTimeFormat(undefined, {
+    timeZone: Globals.timezone || undefined,
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+  }),
+};
 
 export const parseTime = (date: string, tz: string | null): Date => {
   const regex: RegExp = /(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})/;

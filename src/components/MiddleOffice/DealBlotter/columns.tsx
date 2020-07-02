@@ -30,11 +30,11 @@ export const columns: ColumnSpec[] = [
       return s1.localeCompare(v2.dealID);
     },
     filterable: true,
-    width: 3,
+    width: 9,
     template: "12345",
   },
-  transactTimeColumn(),
-  strategyColumn(true),
+  transactTimeColumn(6),
+  strategyColumn(true, 3),
   {
     name: "status",
     header: () => "Status",
@@ -44,8 +44,18 @@ export const columns: ColumnSpec[] = [
     template: "12345",
   },
   symbolColumn(true),
-  priceColumn(true),
-  sizeColumn(true),
+  {
+    name: "tenor",
+    header: () => "Tenor",
+    render: ({ deal }: CellProps) => {
+      return <div>{deal.tenor}</div>;
+    },
+    filterable: true,
+    width: 2,
+    template: "XX",
+  },
+  priceColumn(true, 2),
+  sizeColumn(true, 2),
   buyerColumn(true),
   sellerColumn(true),
   {

@@ -51,6 +51,11 @@ export class MoStore {
   public legDefinitions: LegDefinitions = {};
   public cuts: Cut[] = [];
 
+  @computed
+  public get tenors(): string[] {
+    return workareaStore.tenors;
+  }
+
   public async loadReferenceData(): Promise<void> {
     if (!this.isInitialized) {
       this.setCuts(await API.getCuts());

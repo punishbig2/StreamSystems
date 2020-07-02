@@ -37,6 +37,22 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     dataSource: "strategies",
   },
   {
+    name: "tenor",
+    label: "Tenor",
+    type: "dropdown",
+    color: "orange",
+    editable: false,
+    transformData: (data: string[]): SelectItem[] => {
+      return data.map(
+        (tenor: string): SelectItem => ({
+          value: tenor,
+          label: tenor,
+        })
+      );
+    },
+    dataSource: "tenors",
+  },
+  {
     name: "strike",
     label: "Strike",
     type: "text",

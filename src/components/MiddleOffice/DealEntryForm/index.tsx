@@ -70,11 +70,11 @@ export const DealEntryForm: React.FC<Props> = observer(
         const convertedValue: any = (() => {
           if (field.type === "number") {
             if (value.length === 0) return null;
-            const candidate: number = Number(value.replaceAll(/[,.]*/g, ""));
+            const candidate: number = Number(value);
             if (isNaN(candidate)) {
               return undefined;
             }
-            return candidate;
+            return value;
           } else {
             return value;
           }
@@ -102,13 +102,18 @@ export const DealEntryForm: React.FC<Props> = observer(
         strategy,
         currencyPair,
         model,
-        vol,
         notional,
+        tenor,
+        vol,
+        spread,
       } = store.entry;
       if (notional === null || notional === undefined)
         throw new Error("notional must be set");
+      const moStrategy: MOStrategy = moStore.strategies[strategy];
+      if (moStrategy === undefined)
+        throw new Error("invalid strategy, how did you pick it?");
       const price: number | null | undefined =
-        entry.vol !== null ? entry.vol : entry.spread;
+        moStrategy.spreadvsvol === "vol" ? vol : spread;
       if (price === null || price === undefined)
         throw new Error("vol or spread must be set");
       switch (store.entryType) {
@@ -126,6 +131,7 @@ export const DealEntryForm: React.FC<Props> = observer(
             model: model,
             price: price.toString(),
             size: Math.round(notional / 1e6).toString(),
+            tenor: tenor,
           })
             .then(() => {
               moStore.setDeal(null, store);
@@ -143,6 +149,7 @@ export const DealEntryForm: React.FC<Props> = observer(
             model: model,
             price: price.toString(),
             size: Math.round(notional / 1e6).toString(),
+            tenor: tenor,
           })
             .then(() => {
               moStore.setDeal(null, store);
@@ -198,4 +205,3 @@ export const DealEntryForm: React.FC<Props> = observer(
     );
   }
 );
-

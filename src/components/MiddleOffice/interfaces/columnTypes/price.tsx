@@ -5,14 +5,14 @@ import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
 import { PriceCell } from 'components/MiddleOffice/interfaces/cells/price';
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
-export default (sortable: boolean): ColumnSpec => ({
+export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   name: 'Price',
   template: '999999.99',
   filterable: true,
   sortable: sortable,
   header: () => 'Level',
   render: (props: CellProps): ReactElement => <PriceCell {...props} />,
-  width: 3,
+  width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
     const value: number = Number(v1.lastPrice);
     const numeric: number = Number(keyword);

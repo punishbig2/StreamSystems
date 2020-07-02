@@ -878,6 +878,7 @@ export class API {
   static async cloneDeal(data: any): Promise<string> {
     const user: User = workareaStore.user;
     const newDeal = {
+      tenor: data.tenor,
       strategy: data.strategy,
       symbol: data.symbol,
       lastpx: data.price,
@@ -899,6 +900,7 @@ export class API {
   static async createDeal(data: any): Promise<string> {
     const user: User = workareaStore.user;
     const newDeal = {
+      tenor: data.tenor,
       strategy: data.strategy,
       symbol: data.symbol,
       lastpx: data.price,
