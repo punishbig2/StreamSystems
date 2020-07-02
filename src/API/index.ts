@@ -30,6 +30,12 @@ import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDe
 import MO from "mobx/stores/moStore";
 import { splitCurrencyPair } from "symbolUtils";
 import { getVegaAdjust } from "legsUtils";
+import moment from "moment";
+
+const currentTimestampFIXFormat = (): string => {
+  const now: moment.Moment = moment();
+  return now.format("YYYYMMDD-HH:mm:ss.SSS");
+};
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -879,7 +885,7 @@ export class API {
       lastqty: data.size,
       lvsqty: "0",
       cumqty: "0",
-      transacttime: Date.now() / 1000,
+      transacttime: currentTimestampFIXFormat(),
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
@@ -901,7 +907,7 @@ export class API {
       lastqty: data.size,
       lvsqty: "0",
       cumqty: "0",
-      transacttime: Date.now() / 1000,
+      transacttime: currentTimestampFIXFormat(),
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,

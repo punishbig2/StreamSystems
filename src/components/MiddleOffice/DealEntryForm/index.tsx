@@ -40,7 +40,8 @@ const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
           code: error.getCode(),
           ...JSON.parse(message),
         });
-      } console.log("an error just happened", error);
+      }
+      console.log("an error just happened", error);
     })
     .finally(() => {
       mo.setSendingPricingRequest(false);
@@ -174,6 +175,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         case EntryType.Clone:
           return (
             <NewEntryButtons
+              onCancelled={() => moStore.setDeal(null, store)}
               onSubmitted={createOrClone}
               canSubmit={store.isReadyForSubmission}
             />

@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const ExistingEntryButtons: React.FC<Props> = (
-  props: Props
+  props: Props,
 ): ReactElement => {
   return (
     <>
@@ -23,19 +23,19 @@ export const ExistingEntryButtons: React.FC<Props> = (
       </button>
       <button
         type={"button"}
-        className={"primary"}
-        onClick={props.onSubmitted}
-        disabled={!props.isPriced}
-      >
-        Submit
-      </button>
-      <button
-        type={"button"}
         className={"secondary"}
         onClick={props.onSaved}
         disabled={!props.isModified}
       >
         Save
+      </button>
+      <button
+        type={"button"}
+        className={"primary"}
+        onClick={props.onSubmitted}
+        disabled={!props.isPriced}
+      >
+        Submit
       </button>
     </>
   );

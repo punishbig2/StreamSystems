@@ -41,7 +41,7 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
       </div>
       <div className={"content"}>
         {typeof props.message === "string" ? (
-          <p>props.message</p>
+          <p>{props.message}</p>
         ) : (
           props.message()
         )}

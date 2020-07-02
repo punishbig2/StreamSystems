@@ -173,6 +173,13 @@ export const MiddleOffice: React.FC<Props> = observer(
               <>
                 <button
                   className={"primary"}
+                  onClick={() => deStore.addNewDeal()}
+                >
+                  <i className={"fa fa-plus"} />
+                  <span>New</span>
+                </button>
+                <button
+                  className={"primary"}
                   onClick={() => deStore.cloneDeal()}
                 >
                   <i className={"fa fa-clone"} />
@@ -222,16 +229,7 @@ export const MiddleOffice: React.FC<Props> = observer(
                 <div className={"form-group"}>
                   <div className={"heading"}>
                     <h1>Deal Entry</h1>
-                    <div className={"actions"}>
-                      {getActionButton()}
-                      <button
-                        className={"no-label"}
-                        disabled={deStore.entryType === EntryType.Empty}
-                        onClick={() => moStore.setDeal(null, deStore)}
-                      >
-                        <div className={"close-x"} />
-                      </button>
-                    </div>
+                    <div className={"actions"}>{getActionButton()}</div>
                   </div>
                   <DealEntryForm store={deStore} />
                 </div>
