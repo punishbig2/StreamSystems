@@ -60,7 +60,7 @@ export class DealEntryStore {
   @action.bound
   public cloneDeal(): void {
     if (moStore.deal === null) return;
-    this.entry = { ...createDealEntry(moStore.deal), dealId: uuid() };
+    this.entry = { ...createDealEntry(moStore.deal) };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     moStore.setDeal(null);
@@ -68,7 +68,7 @@ export class DealEntryStore {
 
   @action.bound
   public addNewDeal(): void {
-    this.entry = { ...emptyDealEntry, dealId: uuid() };
+    this.entry = { ...emptyDealEntry };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
     moStore.setDeal(null);

@@ -122,7 +122,6 @@ export const DealEntryForm: React.FC<Props> = observer(
           );
         case EntryType.New:
           API.createDeal({
-            linkid: dealId,
             buyer: buyer,
             seller: seller,
             strategy: strategy,
@@ -140,7 +139,6 @@ export const DealEntryForm: React.FC<Props> = observer(
           break;
         case EntryType.Clone:
           API.cloneDeal({
-            linkid: dealId,
             buyer: buyer,
             seller: seller,
             strategy: strategy,
