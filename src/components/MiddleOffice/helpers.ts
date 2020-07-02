@@ -1,19 +1,17 @@
-import moment, { Moment } from "moment";
 import { FieldType } from "forms/fieldType";
-
-const isMoment = (value: any): value is Moment => {
-  return value instanceof moment;
-};
+import moment, { Moment } from "moment";
 
 export const getValue = (
   type: FieldType,
   name: string,
   value: string | boolean | number | Moment | undefined | null,
+  editable: boolean,
   precision?: number,
   currency?: string,
   emptyValue?: string
 ): string => {
   if (value === null || value === undefined) {
+    if (editable) return "";
     return emptyValue === undefined ? "" : emptyValue;
   }
   const numberOptions = {
@@ -48,14 +46,15 @@ export const getValue = (
         );
       }
     case "number":
+      if (editable)
+        return value.toString();
       if (typeof value === "number") {
         if (value < 0) {
           return `(${(-value).toLocaleString(undefined, numberOptions)})`;
         }
         return value.toLocaleString(undefined, numberOptions);
       } else {
-        if (typeof value === "string" && value === "")
-          return value;
+        if (typeof value === "string" && value === "") return value;
         throw new Error(
           `unexpected non numeric value for number field: ${name}`
         );
@@ -87,4 +86,8 @@ export const getValue = (
     default:
       return "";
   }
+};
+
+const isMoment = (value: any): value is Moment => {
+  return value instanceof moment;
 };

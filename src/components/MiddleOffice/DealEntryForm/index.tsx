@@ -4,7 +4,8 @@ import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { observer } from "mobx-react";
-import mo, { MoStore } from "mobx/stores/moStore";
+import mo from "mobx/stores/moStore";
+import moStore, { MoStore } from "mobx/stores/moStore";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { API, HTTPError } from "API";
@@ -15,7 +16,6 @@ import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryB
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import existingEntryFields from "components/MiddleOffice/DealEntryForm/existingEntryFields";
 import newEntryFields from "components/MiddleOffice/DealEntryForm/newEntryFields";
-import moStore from "mobx/stores/moStore";
 
 interface Props {
   store: DealEntryStore;
@@ -59,15 +59,13 @@ export const DealEntryForm: React.FC<Props> = observer(
     const onPriced =
       deal === null ? undefined : () => sendPricingRequest(deal, entry);
     const mapper = (
-      fieldDef: FieldDef<DealEntry, MoStore>
+      fieldDef: FieldDef<DealEntry, MoStore>,
+      index: number
     ): ReactElement | null => {
       const { transformData, dataSource, ...field } = fieldDef;
       const source: any = !!dataSource ? mo[dataSource] : undefined;
       const data: SelectItem[] = !!transformData ? transformData(source) : [];
       const value: any = !!entry ? entry[field.name] : null;
-      if (field.name === "style") {
-        return null;
-      }
       const onChange = (name: keyof DealEntry, value: string) => {
         const convertedValue: any = (() => {
           if (field.type === "number") {
@@ -87,8 +85,9 @@ export const DealEntryForm: React.FC<Props> = observer(
       };
       return (
         <FormField
-          key={field.name + field.type}
+          key={field.name + index}
           {...field}
+          formData={entry}
           data={data}
           onChange={onChange}
           value={value}
@@ -105,15 +104,13 @@ export const DealEntryForm: React.FC<Props> = observer(
         model,
         vol,
         notional,
-        dealId,
       } = store.entry;
-      if (
-        vol === null ||
-        vol === undefined ||
-        notional === null ||
-        notional === undefined
-      )
-        throw new Error("vol and notional must be set");
+      if (notional === null || notional === undefined)
+        throw new Error("notional must be set");
+      const price: number | null | undefined =
+        entry.vol !== null ? entry.vol : entry.spread;
+      if (price === null || price === undefined)
+        throw new Error("vol or spread must be set");
       switch (store.entryType) {
         case EntryType.Empty:
         case EntryType.ExistingDeal:
@@ -127,7 +124,7 @@ export const DealEntryForm: React.FC<Props> = observer(
             strategy: strategy,
             symbol: currencyPair,
             model: model,
-            price: vol.toString(),
+            price: price.toString(),
             size: Math.round(notional / 1e6).toString(),
           })
             .then(() => {
@@ -144,7 +141,7 @@ export const DealEntryForm: React.FC<Props> = observer(
             strategy: strategy,
             symbol: currencyPair,
             model: model,
-            price: vol.toString(),
+            price: price.toString(),
             size: Math.round(notional / 1e6).toString(),
           })
             .then(() => {
@@ -201,3 +198,4 @@ export const DealEntryForm: React.FC<Props> = observer(
     );
   }
 );
+

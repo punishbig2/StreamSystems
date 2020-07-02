@@ -13,20 +13,21 @@ import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { DealEntry } from "structures/dealEntry";
 import { CurrentTime } from "components/currentTime";
+import { SelectItem } from "forms/fieldDef";
 
 interface Props<T> {
+  formData?: T;
   label: string;
   name: string;
   value: string | boolean | number | Moment | undefined | null;
-  editable?: boolean;
+  editable?: boolean | ((data: any, formData?: T) => boolean);
   currency?: string;
   type: FieldType;
   items?: (string | number)[];
   color: "green" | "orange" | "cream" | "grey";
   placeholder?: string;
   precision?: number;
-  data?: any[];
-  mask?: string;
+  data?: SelectItem[] | any;
   emptyValue?: string;
   onChange?: (name: keyof T, value: any) => void;
   validate?: (value: string) => Validity;
@@ -49,6 +50,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { data } = this.props;
     if (data !== prevProps.data) {
+      if (!(data instanceof Array)) return;
       this.setState({
         labels: this.extractLabelsFromData(data),
       });
@@ -113,16 +115,17 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     body.removeChild(input);
   };
 
-  private createControl = (value: any): ReactElement => {
+  private createControl = (value: any, editable: boolean): ReactElement => {
     const { props } = this;
     const { data } = props;
+
     const validity: Validity =
       !!props.validate && !!value ? props.validate(value) : Validity.Valid;
     const classes: string[] = [
       validity !== Validity.Invalid ? "valid" : "invalid",
       props.value === undefined ? "empty" : "non-empty",
+      editable ? "editable" : "read-only",
     ];
-
     switch (props.type) {
       case "current:time":
         return (
@@ -145,7 +148,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
             renderValue={this.renderSelectValue}
             displayEmpty={true}
             onChange={this.onSelectChange}
-            readOnly={!props.editable}
+            readOnly={!editable}
           >
             {data.map((item: { label: string; value: any }) => (
               <MenuItem key={item.value} value={item.value}>
@@ -155,7 +158,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
           </Select>
         );
       default:
-        if (!props.editable) {
+        if (!editable) {
           return (
             <div
               className={[...classes, "readonly-field"].join(" ")}
@@ -173,8 +176,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
             value={value}
             className={classes.join(" ")}
             placeholder={props.placeholder}
-            readOnly={!props.editable}
-            labelWidth={0}
+            labelWidth={30}
             autoComplete={"new-password"}
             onChange={this.onInputChange}
           />
@@ -184,10 +186,17 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
 
   public render(): ReactElement {
     const { props } = this;
+    const editable: boolean =
+      props.editable === undefined
+        ? false
+        : typeof props.editable === "function"
+        ? props.editable(props.data, props.formData)
+        : props.editable;
     const value: string | undefined = getValue(
       props.type,
       props.name,
       props.value,
+      !!props.editable,
       props.precision,
       props.currency,
       props.emptyValue
@@ -196,7 +205,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     if (typeof props.value === "number" && props.value < 0) {
       classes.push("negative");
     }
-    const control: ReactElement = this.createControl(value);
+    const control: ReactElement = this.createControl(value, editable);
     return (
       <FormControl className={classes.join(" ")} margin={"none"}>
         <FormControlLabel

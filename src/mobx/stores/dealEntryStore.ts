@@ -5,7 +5,6 @@ import moStore from "mobx/stores/moStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { createDealEntry } from "utils/dealUtils";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { uuid } from "uuidv4";
 
 export enum EntryType {
   Empty,

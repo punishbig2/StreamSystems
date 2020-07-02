@@ -90,14 +90,17 @@ $grey-form-color: $foreground-color;
     .container {
       position: relative;
       height: 100%;
+
       &:first-child {
         .form-group {
           background-color: $background-color;
+
           &:last-child {
             transition: transform 0.25s;
           }
         }
       }
+
       &:last-child {
         overflow-y: scroll;
       }
@@ -179,7 +182,7 @@ $grey-form-color: $foreground-color;
 
       .MuiFormControlLabel-root {
         color: inherit;
-        margin: 0;
+        margin: 3px 0;
         cursor: default;
 
         legend {
@@ -199,6 +202,29 @@ $grey-form-color: $foreground-color;
         .MuiInputBase-root,
         .readonly-field {
           flex-basis: 50%;
+        }
+
+        .MuiOutlinedInput-root {
+          border-radius: 0;
+
+          &.editable {
+            .MuiOutlinedInput-input {
+              border-width: 1px;
+              border-style: solid;
+              border-radius: 2px;
+              box-shadow: 0 2px 10px -4px black inset;
+
+              &:focus {
+                border-color: $primary-color;
+              }
+            }
+          }
+        }
+
+        .MuiInputBase-root {
+          &::before {
+            border-color: inherit;
+          }
         }
 
         .MuiInputBase-root,

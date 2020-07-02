@@ -8,7 +8,6 @@ import priceColumn from "components/MiddleOffice/interfaces/columnTypes/price";
 import sizeColumn from "components/MiddleOffice/interfaces/columnTypes/size";
 import sellerColumn from "components/MiddleOffice/interfaces/columnTypes/seller";
 import buyerColumn from "components/MiddleOffice/interfaces/columnTypes/buyer";
-import { Message } from "interfaces/message";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export const columns: ColumnSpec[] = [

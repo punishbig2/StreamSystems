@@ -3,7 +3,6 @@ import { Workarea } from "components/Workarea";
 import "styles/main.scss";
 
 import React from "react";
-import whyDidYouRender from "@welldone-software/why-did-you-render";
 
 Object.defineProperty(MouseEvent.prototype, "ignore", {
   value: function () {
@@ -11,8 +10,6 @@ Object.defineProperty(MouseEvent.prototype, "ignore", {
     this.stopImmediatePropagation();
   },
 });
-
-whyDidYouRender(React);
 
 const FXOptionsUI: React.FC = () => {
   const { classList } = document.body;

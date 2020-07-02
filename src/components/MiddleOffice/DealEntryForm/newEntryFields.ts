@@ -51,7 +51,19 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     type: "number",
     placeholder: "0",
     color: "orange",
-    editable: false,
+    editable: (
+      data: { [key: string]: MOStrategy },
+      entry?: DealEntry
+    ): boolean => {
+      if (entry === undefined) return false;
+      const strategy: MOStrategy | undefined = data[entry.strategy];
+      if (strategy === undefined) return false;
+      return strategy.spreadvsvol === "spread";
+    },
+    transformData: (data: { [key: string]: MOStrategy }): any => {
+      return data;
+    },
+    dataSource: "strategies",
     emptyValue: "N/A",
     precision: 2,
   },
@@ -62,7 +74,19 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     precision: 0,
     placeholder: "0",
     color: "orange",
-    editable: true,
+    editable: (
+      data: { [key: string]: MOStrategy },
+      entry?: DealEntry
+    ): boolean => {
+      if (entry === undefined) return false;
+      const strategy: MOStrategy | undefined = data[entry.strategy];
+      if (strategy === undefined) return false;
+      return strategy.spreadvsvol === "vol";
+    },
+    transformData: (data: { [key: string]: MOStrategy }): any => {
+      return data;
+    },
+    dataSource: "strategies",
   },
   {
     name: "notional",

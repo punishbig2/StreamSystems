@@ -11,13 +11,13 @@ export interface FieldDef<T, S> {
   color: "green" | "orange" | "cream" | "grey";
   name: keyof T;
   label: string;
-  editable: boolean;
+  editable: boolean | ((data: any, entry?: T) => boolean);
   placeholder?: string;
   mask?: string;
   emptyValue?: string;
   validate?: (value: string) => Validity;
   precision?: number;
   // Only for dropdown (for now)
-  transformData?: (item: any) => SelectItem[];
+  transformData?: (item: any) => SelectItem[] | any;
   dataSource?: keyof S;
 }
