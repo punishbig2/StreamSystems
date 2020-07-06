@@ -11,7 +11,7 @@ import { User } from "interfaces/user";
 import workareaStore from '../mobx/stores/workareaStore';
 import { Globals } from "golbals";
 import moment, { Moment } from 'moment';
-import { parseTime, INCOMING_DATE_FORMAT, formatters } from "timeUtils";
+import { parseTime, FIX_DATE_FORMAT, formatters } from "timeUtils";
 import { DarkPool } from "interfaces/w";
 
 export enum BlotterTypes {
@@ -196,8 +196,8 @@ const transactTime = (): ColumnSpec => ({
   },
   width: 6,
   difference: (v1: Message, v2: Message): number => {
-    const m1: Moment = moment(v1.TransactTime, INCOMING_DATE_FORMAT);
-    const m2: Moment = moment(v2.TransactTime, INCOMING_DATE_FORMAT);
+    const m1: Moment = moment(v1.TransactTime, FIX_DATE_FORMAT);
+    const m2: Moment = moment(v2.TransactTime, FIX_DATE_FORMAT);
     return m1.diff(m2);
   },
   filterByKeyword: (v1: Message, keyword: string): boolean => {

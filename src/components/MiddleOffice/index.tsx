@@ -99,9 +99,9 @@ export const MiddleOffice: React.FC<Props> = observer(
       (data: any) => {
         setSummaryStyle(undefined);
         if (deal === null) return;
-        // If this is not the deal we're showing, it's too late
+        // If this is not the deal we're showing, it's too late and we must skip it
         if (data.id !== deal.dealID) return;
-        const pricingResult: PricingResult = buildPricingResult(data, deal);
+        const pricingResult: PricingResult = buildPricingResult(data);
         setPricingResult(pricingResult);
       },
       [deal]

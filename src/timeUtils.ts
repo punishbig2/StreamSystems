@@ -1,6 +1,7 @@
 import { Globals } from "golbals";
+import moment from "moment";
 
-export const INCOMING_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
+export const FIX_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
 
 export const formatters = {
   date: new Intl.DateTimeFormat(undefined, {
@@ -15,6 +16,12 @@ export const formatters = {
     minute: "numeric",
     second: "numeric",
   }),
+};
+
+export const parser = {
+  parse: (value: string): moment.Moment => {
+    return moment(Date.parse(value));
+  },
 };
 
 export const parseTime = (date: string, tz: string | null): Date => {

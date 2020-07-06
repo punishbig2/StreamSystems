@@ -1,70 +1,196 @@
-import { Rates, Leg } from "components/MiddleOffice/interfaces/leg";
-import { splitCurrencyPair } from "symbolUtils";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import moStore from "mobx/stores/moStore";
-import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
+import { VolSurface } from "components/MiddleOffice/interfaces/pricer";
+import { parser } from "timeUtils";
 
 export interface PricingResult {
   summary: Partial<SummaryLeg>;
   legs: Leg[];
 }
 
-export const buildPricingResult = (data: any, deal: Deal): PricingResult => {
-  const { symbol, expiryDate } = deal;
+interface OutputEntry {
+  "%_CCY1": number[];
+  "%_FOR": number[];
+  "%_USD": number[];
+  CCY1: number[];
+  FOR: number[];
+  USD: number[];
+}
+export interface LegInputs {
+  Forward: number[];
+  Legs: string[];
+  Not: number[];
+  Rd: number[];
+  Rf: number[];
+  Side: string[];
+  Spot: number[];
+  Strike: number[];
+  Time: number[];
+  Vol: number[];
+}
+
+export interface Inputs {
+  LegInputs: LegInputs;
+  forward: number;
+  isLong: boolean;
+  spot: number;
+  time: number;
+}
+
+export interface DeltaVol {
+  xPoints: number[];
+  yPoints: number[];
+}
+
+export interface StrikeVol {
+  xPoints: number[];
+  yPoints: number[];
+}
+
+export interface VolSurfaceSnap {
+  DeltaVol: DeltaVol;
+  StrikeVol: StrikeVol;
+  slope: number;
+}
+
+export interface MarketSnap {
+  VolSurfaceSnap: VolSurfaceSnap;
+  ccy1Zero: number;
+  ccy2Zero: number;
+  forward: number;
+  spot: number;
+  time: number;
+}
+
+export interface Raw {
+  Butterfly?: any;
+  CNDdm: number[];
+  CNDdp: number[];
+  Delta: number[];
+  FwdDelta: number[];
+  FwdDelta_pa: number[];
+  Gamma: number[];
+  GammaP: number[];
+  NDdm: number[];
+  NDdp: number[];
+  PV: number[];
+  PV_d: number[];
+  PV_df: number[];
+  PV_f: number[];
+  PV_fd: number[];
+  Pd: number[];
+  Pf: number[];
+  RhoRd: number[];
+  RhoRdP: number[];
+  RhoRf: number[];
+  RhoRfP: number[];
+  SpotDelta: number[];
+  SpotDelta_pa: number[];
+  Theta: number[];
+  ThetaP: number[];
+  Vanna: number[];
+  VannaP: number[];
+  Vega: number[];
+  VegaP: number[];
+  VolSlope: number[];
+  Volga: number[];
+  VolgaP: number[];
+  dm: number[];
+  dp: number[];
+}
+
+type Premium = OutputEntry & {
+  CCY2: number[];
+  CCY2_pips: number[];
+  DOM: number[];
+  DOM_pips: number[];
+  MXN: number[];
+  MXN_pips: number[];
+};
+
+export interface Results {
+  Forward_Delta: OutputEntry;
+  Gamma: OutputEntry;
+  Legs: string[];
+  Premium: Premium;
+  Product: string;
+  RhoRd: OutputEntry;
+  RhoRf: OutputEntry;
+  Smile_Delta: OutputEntry;
+  Spot_Delta: OutputEntry;
+  Theta: OutputEntry;
+  Vega: OutputEntry;
+}
+
+export interface Output {
+  Inputs: Inputs;
+  MarketSnap: MarketSnap;
+  Raw: Raw;
+  Results: Results;
+  VolSurface: VolSurface;
+}
+
+export interface PricingMessage {
+  Output: Output;
+  days: number;
+  deliveryDate: string;
+  description: string;
+  expiryDate: string;
+  fwdPts: number;
+  id: string;
+  party: string;
+  premiumCurrency: string;
+  premiumDate: string;
+  rates: Rates;
+  symbol: string;
+  timeStamp: number;
+  version: string;
+}
+
+export const buildPricingResult = (message: PricingMessage): PricingResult => {
   const {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
-      MarketSnap,
-      Inputs: { forward, spot, LegInputs },
+      Inputs: { LegInputs },
     },
-  } = data;
-  const currencies: [string, string] = splitCurrencyPair(deal.currencyPair);
-  const rates: Rates = [
-    {
-      currency: currencies[0],
-      value: 100 * MarketSnap.ccy1Zero,
-    },
-    {
-      currency: currencies[1],
-      value: 100 * MarketSnap.ccy2Zero,
-    },
-  ];
-  const definitions: LegOptionsDefOut[] = moStore.getOutLegsDefinitions(
-    deal.strategy
-  );
-  const notionalRatio: number = definitions[0].notional_ratio;
+  } = message;
+  console.log(message.rates);
   const legs: Leg[] = Legs.map(
     (name: string, index: number): Leg => {
       const option: string = name.split("|")[1];
       return {
         option: option,
-        pricePercent: 100 * Premium["%_CCY1"][index],
-        strike: LegInputs.Strike[index],
-        vol: 100 * LegInputs.Vol[index],
+        // Calculated fields
+        pricePercent: Premium["%_CCY1"][index],
         delta: Forward_Delta["%_CCY1"][index],
-        premium: Premium["CCY1"][index] * notionalRatio,
-        gamma: Gamma["CCY1"][index] * notionalRatio,
-        vega: Vega["CCY1"][index] * notionalRatio,
-        hedge: Forward_Delta.CCY1[index] * notionalRatio,
-        fwdPts: 1000 * (forward - spot),
-        fwdRate: forward,
-        premiumCurrency: symbol.premiumCCY,
-        rates: rates,
-        // Inserted members
-        deliveryDate: deal.deliveryDate,
-        days: expiryDate.diff(deal.tradeDate, "d"),
-        expiryDate: expiryDate,
-        notional: LegInputs.Not[index] * notionalRatio,
-        party: deal.buyer,
-        premiumDate: deal.spotDate,
+        premium: Premium["CCY1"][index],
+        gamma: Gamma["CCY1"][index],
+        vega: Vega["CCY1"][index],
+        hedge: Forward_Delta["CCY1"][index],
+        // Leg inputs derived fields
+        fwdRate: LegInputs.Forward[index],
+        notional: LegInputs.Not[index],
+        strike: LegInputs.Strike[index],
+        vol: LegInputs.Vol[index],
         side: LegInputs.Side[index],
+        spot: LegInputs.Spot[index],
+        // Fields inherited directly from the message
+        fwdPts: message.fwdPts,
+        premiumCurrency: message.premiumCurrency,
+        rates: message.rates,
+        days: message.days,
+        party: message.party,
+        // Inserted members
+        deliveryDate: parser.parse(message.deliveryDate),
+        expiryDate: parser.parse(message.expiryDate),
+        premiumDate: parser.parse(message.premiumDate),
       };
     }
   );
+  console.log(legs);
 
   return {
-    summary: { dealOutput: legs[0], spot },
+    summary: { dealOutput: legs[0] },
     legs: legs.slice(1),
   };
 };
