@@ -151,13 +151,12 @@ export const buildPricingResult = (message: PricingMessage): PricingResult => {
   const {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
-      Inputs: { LegInputs },
+      Inputs: { LegInputs, spot },
     },
   } = message;
-  console.log(message.rates);
+  console.log(Legs);
   const legs: Leg[] = Legs.map(
-    (name: string, index: number): Leg => {
-      const option: string = name.split("|")[1];
+    (option: string, index: number): Leg => {
       return {
         option: option,
         // Calculated fields
@@ -173,7 +172,7 @@ export const buildPricingResult = (message: PricingMessage): PricingResult => {
         strike: LegInputs.Strike[index],
         vol: LegInputs.Vol[index],
         side: LegInputs.Side[index],
-        spot: LegInputs.Spot[index],
+        spot: spot, // LegInputs.Spot[index],
         // Fields inherited directly from the message
         fwdPts: message.fwdPts,
         premiumCurrency: message.premiumCurrency,
