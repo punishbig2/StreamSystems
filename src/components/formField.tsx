@@ -34,6 +34,8 @@ interface Props<T> {
 
 interface State {
   labels: string[] | null;
+  internalValue: any;
+  internalRepresentation: string;
   focus: boolean;
 }
 
@@ -44,17 +46,46 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   };
 
   public state: State = {
+    internalRepresentation: "",
+    internalValue: "",
     labels: null,
     focus: false,
   };
 
+  private resetValue = (): void => {
+    const { props } = this;
+    this.setCurrentValue(props.value);
+  };
+
+  private setCurrentValue = (value: any): void => {
+    const { props, state } = this;
+    this.setState({
+      internalRepresentation: getValue(
+        props.type,
+        props.name,
+        value,
+        state.focus,
+        props.precision,
+        props.currency,
+        props.emptyValue
+      ),
+      internalValue: value,
+    });
+  };
+
+  public componentDidMount = (): void => {
+    this.resetValue();
+  };
+
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
-    const { dropdownData } = this.props;
-    if (dropdownData !== prevProps.dropdownData) {
-      if (!(dropdownData instanceof Array)) return;
+    const { props } = this;
+    if (props.dropdownData !== prevProps.dropdownData) {
+      if (!(props.dropdownData instanceof Array)) return;
       this.setState({
-        labels: this.extractLabelsFromData(dropdownData),
+        labels: this.extractLabelsFromData(props.dropdownData),
       });
+    } else if (props.value !== prevProps.value) {
+      this.resetValue();
     }
   };
 
@@ -121,11 +152,10 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
       currentTarget: { value },
     } = event;
     if (!props.onChange) return;
-    console.log(value);
     const unFormattedValue: any = this.getUnFormattedValue(value, props.type);
-    if (unFormattedValue === props.value)
-      return;
-    props.onChange(props.name as keyof T, unFormattedValue);
+    if (unFormattedValue === props.value) return;
+    // props.onChange(props.name as keyof T, unFormattedValue);
+    this.setCurrentValue(unFormattedValue);
   };
 
   private onSelectChange = (event: any) => {
@@ -171,16 +201,18 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     body.removeChild(input);
   };
 
-  private createControl = (value: any, editable: boolean): ReactElement => {
-    const { props } = this;
+  private createControl = (): ReactElement => {
+    const { props, state } = this;
     const { dropdownData } = props;
 
     const validity: Validity =
-      !!props.validate && !!value ? props.validate(value) : Validity.Valid;
+      !!props.validate && !!props.value
+        ? props.validate(state.internalValue)
+        : Validity.Valid;
     const classes: string[] = [
       validity !== Validity.Invalid ? "valid" : "invalid",
       props.value === undefined ? "empty" : "non-empty",
-      editable ? "editable" : "read-only",
+      props.editable ? "editable" : "read-only",
     ];
     switch (props.type) {
       case "current:time":
@@ -200,12 +232,12 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
           throw new Error("cannot have a dropdown with no data");
         return (
           <Select
-            value={value}
+            value={state.internalValue}
             className={classes.join(" ")}
             renderValue={this.renderSelectValue}
             displayEmpty={true}
             onChange={this.onSelectChange}
-            readOnly={!editable}
+            readOnly={!props.editable}
           >
             {dropdownData.map((item: { label: string; value: any }) => (
               <MenuItem key={item.value} value={item.value}>
@@ -215,22 +247,22 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
           </Select>
         );
       default:
-        if (!editable) {
+        if (!props.editable) {
           return (
             <div
               className={[...classes, "readonly-field"].join(" ")}
               onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-                this.copyToClipboard(event, value)
+                this.copyToClipboard(event, state.internalRepresentation)
               }
             >
-              {value}
+              {state.internalRepresentation}
             </div>
           );
         }
         return (
           <OutlinedInput
             name={randomID(props.name)}
-            value={value}
+            value={state.internalRepresentation}
             className={classes.join(" ")}
             placeholder={props.placeholder}
             labelWidth={30}
@@ -242,21 +274,12 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   };
 
   public render(): ReactElement {
-    const { props, state } = this;
-    const value: string | undefined = getValue(
-      props.type,
-      props.name,
-      props.value,
-      state.focus,
-      props.precision,
-      props.currency,
-      props.emptyValue
-    );
+    const { props } = this;
     const classes: string[] = [props.color];
     if (typeof props.value === "number" && props.value < 0) {
       classes.push("negative");
     }
-    const control: ReactElement = this.createControl(value, !!props.editable);
+    const control: ReactElement = this.createControl();
     return (
       <FormControl className={classes.join(" ")} margin={"none"}>
         <FormControlLabel

@@ -766,13 +766,9 @@ export class API {
     return task.execute();
   }
 
-  static async getProductsEx(
-    source: ProductSource = ProductSource.Electronic,
-    bAllFields = true
-  ): Promise<any> {
+  static async getProductsEx(bAllFields = true): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "exproducts", "get", {
-        source,
         bAllFields,
       })
     );
