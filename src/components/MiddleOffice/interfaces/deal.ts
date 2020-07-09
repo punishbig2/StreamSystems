@@ -1,5 +1,6 @@
 import moment from "moment";
 import { Symbol } from "interfaces/symbol";
+import { DealStatus } from "structures/dealEntry";
 
 export interface Deal {
   dealID: string;
@@ -22,4 +23,5 @@ export interface Deal {
   expiryDate: moment.Moment;
 
   source: string;
+  status: DealStatus;
 }

@@ -1,16 +1,27 @@
 import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry, DealType, DealStatus } from "structures/dealEntry";
 import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
-const fields: FieldDef<DealEntry, MoStore>[] = [
+const editableFilter = (types: number) => (
+  data: any,
+  store?: DealEntryStore
+): boolean => {
+  if (store === undefined) return false;
+  const { entry } = store;
+  if (entry.status === DealStatus.SEFFinal) return false;
+  return (entry.type & types) !== 0;
+};
+
+const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "currencyPair",
     label: "CCYPair",
     type: "dropdown",
     color: "orange",
-    editable: false,
+    editable: editableFilter(DealType.Voice | DealType.Multileg),
     transformData: (array: Symbol[]): SelectItem[] =>
       array.map(
         (currency: Symbol): SelectItem => ({
@@ -25,7 +36,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     label: "Strategy",
     type: "dropdown",
     color: "orange",
-    editable: false,
+    editable: editableFilter(DealType.Voice | DealType.Multileg),
     transformData: (data: { [key: string]: MOStrategy }): SelectItem[] => {
       return Object.values(data).map(
         (strategy: MOStrategy): SelectItem => ({
@@ -41,7 +52,9 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     label: "Tenor",
     type: "dropdown",
     color: "orange",
-    editable: false,
+    editable: editableFilter(
+      DealType.Voice | DealType.Multileg | DealType.Electronic
+    ),
     transformData: (data: string[]): SelectItem[] => {
       return data.map(
         (tenor: string): SelectItem => ({
@@ -58,7 +71,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     type: "text",
     placeholder: "0D",
     color: "orange",
-    editable: false,
+    editable: editableFilter(DealType.Voice | DealType.Multileg),
     emptyValue: "N/A",
   },
   {
@@ -67,7 +80,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     type: "number",
     placeholder: "0",
     color: "orange",
-    editable: false,
+    editable: editableFilter(DealType.Voice | DealType.Multileg),
     emptyValue: "N/A",
     precision: 2,
   },
@@ -78,7 +91,7 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     precision: 4,
     placeholder: "0",
     color: "orange",
-    editable: false,
+    editable: editableFilter(DealType.Voice | DealType.Multileg),
     emptyValue: "N/A",
   },
   {
@@ -88,14 +101,18 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     placeholder: "0",
     precision: 0,
     color: "orange",
-    editable: false,
+    editable: editableFilter(
+      DealType.Voice | DealType.Multileg | DealType.Electronic
+    ),
   },
   {
     name: "legAdj",
     label: "Leg Adj",
     type: "dropdown",
     color: "orange",
-    editable: false,
+    editable: editableFilter(
+      DealType.Voice | DealType.Multileg | DealType.Electronic
+    ),
     transformData: (): SelectItem[] => [
       {
         value: true,
@@ -112,7 +129,9 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     label: "Buyer",
     type: "dropdown",
     color: "cream",
-    editable: false,
+    editable: editableFilter(
+      DealType.Voice | DealType.Multileg | DealType.Electronic
+    ),
     transformData: (list: string[]): SelectItem[] =>
       list.map(
         (name: string): SelectItem => ({
@@ -127,7 +146,9 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     label: "Seller",
     type: "dropdown",
     color: "cream",
-    editable: false,
+    editable: editableFilter(
+      DealType.Voice | DealType.Multileg | DealType.Electronic
+    ),
     transformData: (list: string[]): SelectItem[] =>
       list.map(
         (name: string): SelectItem => ({

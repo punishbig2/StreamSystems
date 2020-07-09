@@ -5,13 +5,13 @@ export const getValue = (
   type: FieldType,
   name: string,
   value: string | boolean | number | Moment | undefined | null,
-  editable: boolean,
+  editMode: boolean,
   precision?: number,
   currency?: string,
   emptyValue?: string
 ): string => {
   if (value === null || value === undefined) {
-    if (editable) return "";
+    if (editMode) return "";
     return emptyValue === undefined ? "" : emptyValue;
   }
   const numberOptions = {
@@ -46,8 +46,6 @@ export const getValue = (
         );
       }
     case "number":
-      if (editable)
-        return value.toString();
       if (typeof value === "number") {
         if (value < 0) {
           return `(${(-value).toLocaleString(undefined, numberOptions)})`;

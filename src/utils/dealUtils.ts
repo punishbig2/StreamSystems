@@ -7,7 +7,7 @@ import { tenorToDuration } from "utils/dataGenerators";
 import workareaStore from "mobx/stores/workareaStore";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import mo from "mobx/stores/moStore";
-import { DealEntry, DealStatus } from "structures/dealEntry";
+import { DealEntry, DealType } from "structures/dealEntry";
 import { getVegaAdjust } from "legsUtils";
 
 export const createDealFromBackendMessage = (source: any): Deal => {
@@ -46,7 +46,21 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     expiryDate: expiryDate,
     symbol: symbol,
     source: item.source,
+    status: item.status,
   };
+};
+
+export const dealSourceToDealType = (source: string): DealType => {
+  switch (source.toLowerCase()) {
+    case "manual":
+      return DealType.Voice;
+    case "electronic":
+      return DealType.Electronic;
+    case "multileg":
+      return DealType.Multileg;
+    default:
+      return DealType.Invalid;
+  }
 };
 
 export const createDealEntry = (deal: Deal): DealEntry => {
@@ -64,7 +78,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     expiryDate: deal.expiryDate,
     deliveryDate: deal.deliveryDate,
     dealId: id.toString(),
-    status: DealStatus.Pending,
+    status: deal.status,
     style: "European",
     tenor: deal.tenor,
     model: 3,
@@ -72,5 +86,6 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     strike: strategy.strike,
     vol: strategy.spreadvsvol === "vol" ? deal.lastPrice : undefined,
     spread: strategy.spreadvsvol === "spread" ? deal.lastPrice : undefined,
+    type: dealSourceToDealType(deal.source),
   };
 };

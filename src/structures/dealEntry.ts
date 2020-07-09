@@ -2,6 +2,16 @@ import moment from "moment";
 
 export enum DealStatus {
   Pending = "Pending",
+  Priced = "Priced",
+  SEFPreliminary = "SEF Preliminary",
+  SEFFinal = "SEF Final",
+}
+
+export enum DealType {
+  Invalid = 0,
+  Electronic = 2,
+  Voice = 4,
+  Multileg = 8,
 }
 
 export interface DealEntry {
@@ -23,6 +33,7 @@ export interface DealEntry {
   style: string;
   model: number | "";
   tenor: string;
+  type: DealType;
 }
 
 export const emptyDealEntry: DealEntry = {
@@ -41,4 +52,5 @@ export const emptyDealEntry: DealEntry = {
   style: "",
   model: "",
   tenor: "",
+  type: DealType.Invalid,
 };

@@ -3,8 +3,9 @@ import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntry } from "structures/dealEntry";
 import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
-const fields: FieldDef<DealEntry, MoStore>[] = [
+const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "currencyPair",
     label: "CCYPair",
@@ -69,9 +70,11 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     color: "orange",
     editable: (
       data: { [key: string]: MOStrategy },
-      entry?: DealEntry
+      store?: DealEntryStore
     ): boolean => {
-      if (entry === undefined) return false;
+      if (store === undefined) return false;
+      const { entry } = store;
+      if (!entry) return true;
       const strategy: MOStrategy | undefined = data[entry.strategy];
       if (strategy === undefined) return false;
       return strategy.spreadvsvol === "spread";
@@ -92,9 +95,11 @@ const fields: FieldDef<DealEntry, MoStore>[] = [
     color: "orange",
     editable: (
       data: { [key: string]: MOStrategy },
-      entry?: DealEntry
+      store?: DealEntryStore
     ): boolean => {
-      if (entry === undefined) return false;
+      if (store === undefined) return false;
+      const { entry } = store;
+      if (!entry) return true;
       const strategy: MOStrategy | undefined = data[entry.strategy];
       if (strategy === undefined) return false;
       return strategy.spreadvsvol === "vol";

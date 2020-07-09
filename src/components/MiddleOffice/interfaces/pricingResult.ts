@@ -154,7 +154,6 @@ export const buildPricingResult = (message: PricingMessage): PricingResult => {
       Inputs: { LegInputs, spot },
     },
   } = message;
-  console.log(Legs);
   const legs: Leg[] = Legs.map(
     (option: string, index: number): Leg => {
       return {
@@ -186,8 +185,6 @@ export const buildPricingResult = (message: PricingMessage): PricingResult => {
       };
     }
   );
-  console.log(legs);
-
   return {
     summary: { dealOutput: legs[0] },
     legs: legs.slice(1),

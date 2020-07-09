@@ -5,6 +5,7 @@ import moStore from "mobx/stores/moStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { createDealEntry } from "utils/dealUtils";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { API } from "API";
 
 export enum EntryType {
   Empty,
@@ -91,6 +92,71 @@ export class DealEntryStore {
       };
     } else {
       this.entry = { ...this.entry, [name]: value };
+    }
+  }
+
+  @action.bound
+  public createOrClone() {
+    const {
+      buyer,
+      seller,
+      strategy,
+      currencyPair,
+      model,
+      notional,
+      tenor,
+      vol,
+      spread,
+    } = this.entry;
+    if (notional === null || notional === undefined)
+      throw new Error("notional must be set");
+    const moStrategy: MOStrategy = moStore.strategies[strategy];
+    if (moStrategy === undefined)
+      throw new Error("invalid strategy, how did you pick it?");
+    const price: number | null | undefined =
+      moStrategy.spreadvsvol === "vol" ? vol : spread;
+    if (price === null || price === undefined)
+      throw new Error("vol or spread must be set");
+    switch (this.entryType) {
+      case EntryType.Empty:
+      case EntryType.ExistingDeal:
+        throw new Error("this function should not be called in current state");
+      case EntryType.New:
+        API.createDeal({
+          buyer: buyer,
+          seller: seller,
+          strategy: strategy,
+          symbol: currencyPair,
+          model: model,
+          price: price.toString(),
+          size: Math.round(notional / 1e6).toString(),
+          tenor: tenor,
+        })
+          .then(() => {
+            moStore.setDeal(null, this);
+          })
+          .catch((reason: any) => {
+            console.warn(reason);
+          });
+        break;
+      case EntryType.Clone:
+        API.cloneDeal({
+          buyer: buyer,
+          seller: seller,
+          strategy: strategy,
+          symbol: currencyPair,
+          model: model,
+          price: price.toString(),
+          size: Math.round(notional / 1e6).toString(),
+          tenor: tenor,
+        })
+          .then(() => {
+            moStore.setDeal(null, this);
+          })
+          .catch((reason: any) => {
+            console.warn(reason);
+          });
+        break;
     }
   }
 }

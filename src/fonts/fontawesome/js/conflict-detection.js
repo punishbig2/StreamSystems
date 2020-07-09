@@ -978,11 +978,11 @@
         WINDOW.location.origin === "file://" ||
         e.origin === WINDOW.location.origin
       ) {
-        if (e && e.data) {
-          if (e.data.type === "fontawesome-conflict") {
-            nodesTested.conflict[e.data.md5] = e.data;
-          } else if (e.data.type === "no-conflict") {
-            nodesTested.noConflict[e.data.md5] = e.data;
+        if (e && e.dropdownData) {
+          if (e.dropdownData.type === "fontawesome-conflict") {
+            nodesTested.conflict[e.dropdownData.md5] = e.dropdownData;
+          } else if (e.dropdownData.type === "no-conflict") {
+            nodesTested.noConflict[e.dropdownData.md5] = e.dropdownData;
           }
         }
       }
