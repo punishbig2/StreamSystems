@@ -1,3 +1,4 @@
+import { ProductSource } from "API";
 import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
@@ -28,12 +29,16 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     color: "orange",
     editable: true,
     transformData: (data: { [key: string]: MOStrategy }): SelectItem[] => {
-      return Object.values(data).map(
-        (strategy: MOStrategy): SelectItem => ({
-          value: strategy.name,
-          label: strategy.description,
+      return Object.values(data)
+        .filter((item: MOStrategy) => {
+          return item.source !== ProductSource.Electronic;
         })
-      );
+        .map(
+          (strategy: MOStrategy): SelectItem => ({
+            value: strategy.name,
+            label: strategy.description,
+          })
+        );
     },
     dataSource: "strategies",
   },
