@@ -158,22 +158,25 @@ const addMissingInformation = (message: PricingMessage): PricingMessage => {
   const { symbol, deliveryDate, tradeDate, expiryDate } = deal;
   const missingFields = {};
   const premiumDate = moment(tradeDate).add(symbol.SettlementWindow, "d");
-  if (message.premiumCurrency === null) {
+  if (
+    message.premiumCurrency === null ||
+    message.premiumCurrency === undefined
+  ) {
     message.premiumCurrency = symbol.premiumCCY;
   }
-  if (message.premiumDate === null) {
+  if (message.premiumDate === null || message.premiumDate === undefined) {
     message.premiumDate = premiumDate.format();
   }
-  if (message.deliveryDate === null) {
+  if (message.deliveryDate === null || message.deliveryDate === undefined) {
     message.deliveryDate = deliveryDate.format();
   }
-  if (message.expiryDate === null) {
+  if (message.expiryDate === null || message.expiryDate === undefined) {
     message.expiryDate = expiryDate.format();
   }
-  if (message.days === null) {
+  if (message.days === null || message.days === undefined) {
     message.days = expiryDate.diff(tradeDate, "d");
   }
-  if (message.rates === null) {
+  if (message.rates === null || message.rates === undefined) {
     const { symbolID } = symbol;
     message.rates = [
       {
@@ -189,13 +192,16 @@ const addMissingInformation = (message: PricingMessage): PricingMessage => {
   return { ...message, ...missingFields };
 };
 
-export const buildPricingResult = (message: PricingMessage): PricingResult => {
+export const buildPricingResult = (
+  illMessage: PricingMessage
+): PricingResult => {
+  const message: PricingMessage = addMissingInformation(illMessage);
   const {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
       Inputs: { LegInputs, spot },
     },
-  } = addMissingInformation(message);
+  } = message;
   const legs: Leg[] = Legs.map(
     (option: string, index: number): Leg => {
       return {
@@ -232,6 +238,6 @@ export const buildPricingResult = (message: PricingMessage): PricingResult => {
   );
   return {
     summary: { dealOutput: legs[0] },
-    legs: legs.slice(1),
+    legs: legs.length === 1 ? legs : legs.slice(1),
   };
 };

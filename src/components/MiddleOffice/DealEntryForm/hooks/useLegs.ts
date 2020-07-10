@@ -21,7 +21,6 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
     legDefinitions.in,
     symbol
   );
-  console.log(legs);
   // Update the moStore store
   moStore.setLegs(legs, null);
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
