@@ -16,6 +16,7 @@ export interface Deal {
   symbol: Symbol;
   transactionTime: string;
   tenor: string;
+  strike: number | string;
 
   tradeDate: moment.Moment;
   spotDate: moment.Moment;

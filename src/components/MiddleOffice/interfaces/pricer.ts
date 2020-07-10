@@ -1,7 +1,7 @@
 import moment from "moment";
 
 export interface OptionLeg {
-  strike?: string;
+  strike?: string | number;
   notional: number;
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;

@@ -25,7 +25,7 @@ export interface DealEntry {
   currencyPair: string;
   strategy: string;
   legs: number | null;
-  strike?: string;
+  strike?: string | number;
   spread?: number | null;
   vol?: number | null;
   notional: number | null;

@@ -65,8 +65,8 @@ enum ReadyState {
 }
 
 export class HTTPError {
-  private code: number;
-  private message: string;
+  private readonly code: number;
+  private readonly message: string;
 
   constructor(code: number, message: string) {
     this.code = code;
@@ -887,6 +887,7 @@ export class API {
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
+      strike: data.strike,
     };
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
@@ -909,6 +910,7 @@ export class API {
       buyer: data.buyer,
       seller: data.seller,
       useremail: user.email,
+      strike: data.strike,
     };
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "create"),
