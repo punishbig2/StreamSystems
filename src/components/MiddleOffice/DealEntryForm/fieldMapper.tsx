@@ -42,7 +42,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     }
   };
   return (
-    <FormField
+    <FormField<DealEntry>
       key={field.name + index}
       {...field}
       editable={isEditable(fieldDef)}

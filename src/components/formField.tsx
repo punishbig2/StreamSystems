@@ -41,7 +41,7 @@ interface State {
   validity: Validity;
 }
 
-export class FormField<T = DealEntry> extends Component<Props<T>, State> {
+export class FormField<T> extends Component<Props<T>, State> {
   static defaultProps = {
     precision: 0,
     emptyValue: "",

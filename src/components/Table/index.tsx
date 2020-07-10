@@ -132,4 +132,3 @@ Table.defaultProps = {
   allowReorderColumns: false,
   showInsertRow: false,
 };
-// Table.whyDidYouRender = true;
