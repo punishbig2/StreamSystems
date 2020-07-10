@@ -23,6 +23,9 @@ export const fieldsMapper = (
       };
     } else if (fieldDef.name === "rates") {
       const index: number = fieldDef.data;
+      if (rates === null) {
+        return { label: "??? Rage", value: "invalid" };
+      }
       return { ...rates[index], label: rates[index].currency + " Rate" };
     } else if (fieldDef.name === "side") {
       return {

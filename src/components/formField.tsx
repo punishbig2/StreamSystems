@@ -205,7 +205,16 @@ export class FormField<T> extends Component<Props<T>, State> {
       case "Backspace":
         this.sanitizeBackspaceOnNumericFields(event);
         break;
-     /*case decimalSeparator:
+      case "M":
+      case "m":
+        this.setCurrentValue(1000 * this.state.internalValue);
+        // Move the caret to the end
+        this.setState({
+          caretPosition: state.caretPosition + 3,
+        });
+        event.preventDefault();
+        break;
+      /*case decimalSeparator:
         this.sanitizeDecimalSeparatorOnNumericFields(event, decimalSeparator);
         break;*/
     }

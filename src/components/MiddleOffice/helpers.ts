@@ -24,19 +24,31 @@ export const getDisplayValue = (
   switch (type) {
     case "date":
       if (isMoment(value)) {
-        return [value.format("MM/DD/YYYY"), Validity.Valid];
+        if (value.isValid()) {
+          return [value.format("MM/DD/YYYY"), Validity.Valid];
+        } else {
+          return ["MM/DD/YYYY", Validity.InvalidFormat];
+        }
       } else {
         return [value as string, Validity.InvalidFormat];
       }
     case "time":
       if (isMoment(value)) {
-        return [value.format("HH:mm A"), Validity.Valid];
+        if (value.isValid()) {
+          return [value.format("HH:mm A"), Validity.Valid];
+        } else {
+          return ["HH:mm A", Validity.InvalidValue];
+        }
       } else {
         return [value as string, Validity.InvalidFormat];
       }
     case "text":
       return [value as string, Validity.Valid];
     case "currency":
+      if (!numberOptions.currency) {
+        return ["0", Validity.InvalidValue];
+      }
+    // eslint-disable-next-line no-fallthrough
     case "number":
       if (typeof value === "number") {
         if (value < 0) {

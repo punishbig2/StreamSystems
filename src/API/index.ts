@@ -754,7 +754,7 @@ export class API {
             expiryDate: deal.expiryDate,
             deliveryDate: deal.deliveryDate,
             spreadVolatiltyOffset: API.divideBy100(entry.spread),
-            strike: entry.strike,
+            strike: entry.strike || strategy.strike,
             volatilty: API.divideBy100(entry.vol),
             barrier: null,
             barrierLower: null,

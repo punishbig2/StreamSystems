@@ -213,9 +213,13 @@ $grey-form-color: $foreground-color;
               border-style: solid;
               border-radius: 2px;
               box-shadow: 0 4px 10px -8px black inset;
+            }
 
-              &:focus {
-                border-color: $primary-color;
+            &:not(.invalid) {
+              .MuiOutlinedInput-input {
+                &:focus {
+                  border-color: $primary-color;
+                }
               }
             }
           }
@@ -246,7 +250,8 @@ $grey-form-color: $foreground-color;
           }
 
           &.read-only {
-            &::after, &::before {
+            &::after,
+            &::before {
               display: none;
             }
             svg {
@@ -255,8 +260,8 @@ $grey-form-color: $foreground-color;
           }
 
           &.invalid {
-            color: #f14450;
-            background-color: rgba(#f15460, 0.25);
+            color: darkorange;
+            background-color: lighten(darkorange, 42%);
           }
 
           &.empty {
