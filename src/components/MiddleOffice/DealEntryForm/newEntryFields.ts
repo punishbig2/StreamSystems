@@ -97,7 +97,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     name: "vol",
     label: "Vol",
     type: "number",
-    precision: 0,
+    precision: 4,
     placeholder: "0",
     color: "orange",
     editable: editableIfSpreadVsVolIs("vol"),
