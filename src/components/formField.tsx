@@ -112,9 +112,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     if (props.value !== prevProps.value) {
       this.resetValue();
     }
-    if (state.internalValue !== prevState.internalValue) {
-      this.ensureCaretIsInPlace();
-    }
+    this.ensureCaretIsInPlace();
   };
 
   private extractLabelsFromData = (data: any) => {
@@ -229,9 +227,9 @@ export class FormField<T> extends Component<Props<T>, State> {
       currentTarget: { value },
     } = event;
     if (!props.editable) return;
+    this.saveCaretPosition();
     const unFormattedValue: any = this.getUnFormattedValue(value, props.type);
     if (unFormattedValue === props.value) return;
-    this.saveCaretPosition();
     this.setCurrentValue(unFormattedValue);
   };
 
