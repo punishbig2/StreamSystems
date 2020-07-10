@@ -6,6 +6,18 @@ import { DealEntry } from "structures/dealEntry";
 import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
+const editableIfSpreadVsVolIs = (spreadvsvol: string) => (
+  data: { [key: string]: MOStrategy },
+  store?: DealEntryStore
+): boolean => {
+  if (store === undefined) return false;
+  const { entry } = store;
+  if (!entry) return true;
+  const strategy: MOStrategy | undefined = data[entry.strategy];
+  if (strategy === undefined) return false;
+  return strategy.spreadvsvol === spreadvsvol;
+};
+
 const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "currencyPair",
@@ -73,17 +85,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     type: "number",
     placeholder: "0",
     color: "orange",
-    editable: (
-      data: { [key: string]: MOStrategy },
-      store?: DealEntryStore
-    ): boolean => {
-      if (store === undefined) return false;
-      const { entry } = store;
-      if (!entry) return true;
-      const strategy: MOStrategy | undefined = data[entry.strategy];
-      if (strategy === undefined) return false;
-      return strategy.spreadvsvol === "spread";
-    },
+    editable: editableIfSpreadVsVolIs("spread"),
     transformData: (data: { [key: string]: MOStrategy }): any => {
       return data;
     },
@@ -98,17 +100,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     precision: 0,
     placeholder: "0",
     color: "orange",
-    editable: (
-      data: { [key: string]: MOStrategy },
-      store?: DealEntryStore
-    ): boolean => {
-      if (store === undefined) return false;
-      const { entry } = store;
-      if (!entry) return true;
-      const strategy: MOStrategy | undefined = data[entry.strategy];
-      if (strategy === undefined) return false;
-      return strategy.spreadvsvol === "vol";
-    },
+    editable: editableIfSpreadVsVolIs("vol"),
     transformData: (data: { [key: string]: MOStrategy }): any => {
       return data;
     },

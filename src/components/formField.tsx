@@ -1,19 +1,20 @@
-import React, { ReactElement, Component } from "react";
 import {
   FormControl,
   FormControlLabel,
+  FormHelperText,
+  MenuItem,
   OutlinedInput,
   Select,
-  MenuItem,
 } from "@material-ui/core";
-import { Moment } from "moment";
+import { CurrentTime } from "components/currentTime";
 import { getDisplayValue } from "components/MiddleOffice/helpers";
-import { randomID } from "randomID";
+import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
+import { Moment } from "moment";
+import { randomID } from "randomID";
+import React, { Component, ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { CurrentTime } from "components/currentTime";
-import { SelectItem } from "forms/fieldDef";
 
 interface Props<T> {
   label: string;
@@ -29,7 +30,6 @@ interface Props<T> {
   dropdownData?: SelectItem[] | any;
   emptyValue?: string;
   onChange?: (name: keyof T, value: any) => void;
-  validate?: (value: string) => Validity;
 }
 
 interface State {
@@ -37,6 +37,7 @@ interface State {
   internalValue: any;
   displayValue: string;
   focus: boolean;
+  validity: Validity;
 }
 
 export class FormField<T = DealEntry> extends Component<Props<T>, State> {
@@ -50,6 +51,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     internalValue: "",
     labels: null,
     focus: false,
+    validity: Validity.Intermediate,
   };
 
   private resetValue = (): void => {
@@ -59,18 +61,20 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
 
   private setCurrentValue = (value: any): void => {
     const { props, state } = this;
+    const [displayValue, validity] = getDisplayValue(
+      props.type,
+      props.name,
+      value,
+      state.focus,
+      props.precision,
+      props.currency,
+      props.emptyValue
+    );
     this.setState(
       {
-        displayValue: getDisplayValue(
-          props.type,
-          props.name,
-          value,
-          state.focus,
-          props.precision,
-          props.currency,
-          props.emptyValue
-        ),
+        displayValue: displayValue,
         internalValue: value,
+        validity: validity,
       },
       () => {}
     );
@@ -129,7 +133,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   private getUnFormattedValue = (value: string, type: FieldType): any => {
     switch (type) {
       case "date":
-        break;
+        return value;
       case "time":
         break;
       case "text":
@@ -166,7 +170,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     }
   };
 
-  private onInputBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
+  private onInputBlur = (/* event: React.FocusEvent<HTMLInputElement> */): void => {
     this.resetValue();
   };
 
@@ -189,11 +193,10 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     const { props } = this;
     if (!props.editable) return;
     const { value } = event.target;
-    // const { props } = this;
-    // const { value } = event.target;
-    // if (!props.onChange) return;
-    // props.onChange(props.name as keyof T, value);
     this.setCurrentValue(value);
+    // In this case, propagation of the change has to occur instantly
+    if (!props.onChange) return;
+    props.onChange(props.name as keyof T, value);
     // Child is unused
     void child;
   };
@@ -238,12 +241,8 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     const { props, state } = this;
     const { dropdownData } = props;
 
-    const validity: Validity =
-      !!props.validate && !!props.value
-        ? props.validate(state.internalValue)
-        : Validity.Valid;
     const classes: string[] = [
-      validity !== Validity.Invalid ? "valid" : "invalid",
+      state.validity !== Validity.InvalidFormat ? "valid" : "invalid",
       props.value === undefined ? "empty" : "non-empty",
       props.editable ? "editable" : "read-only",
     ];
@@ -293,31 +292,42 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
           );
         }
         return (
-          <OutlinedInput
-            name={randomID(props.name)}
-            value={state.displayValue}
-            className={classes.join(" ")}
-            placeholder={props.placeholder}
-            labelWidth={30}
-            autoComplete={"new-password"}
-            onKeyDown={this.onInputKeyUp}
-            onBlur={this.onInputBlur}
-            onChange={this.onInputChange}
-          />
+          <>
+            <OutlinedInput
+              name={randomID(props.name)}
+              value={state.displayValue}
+              className={classes.join(" ")}
+              placeholder={props.placeholder}
+              labelWidth={30}
+              autoComplete={"new-password"}
+              error={state.validity === Validity.InvalidFormat}
+              onKeyDown={this.onInputKeyUp}
+              onBlur={this.onInputBlur}
+              onChange={this.onInputChange}
+            />
+            <FormHelperText error={state.validity === Validity.InvalidFormat}>
+              {}
+            </FormHelperText>
+          </>
         );
     }
   };
 
-  public render(): ReactElement {
+  private getClassName = (): string => {
     const { props, state } = this;
     const { internalValue } = state;
     const classes: string[] = [props.color];
     if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
     }
+    return classes.join(" ");
+  };
+
+  public render(): ReactElement {
+    const { props } = this;
     const control: ReactElement = this.createControl();
     return (
-      <FormControl className={classes.join(" ")} margin={"none"}>
+      <FormControl className={this.getClassName()} margin={"none"}>
         <FormControlLabel
           labelPlacement={"start"}
           label={props.label}

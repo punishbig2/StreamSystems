@@ -255,8 +255,8 @@ $grey-form-color: $foreground-color;
           }
 
           &.invalid {
-            color: #f15460;
-            outline: 1px solid #f15460;
+            color: #f14450;
+            background-color: rgba(#f15460, 0.25);
           }
 
           &.empty {

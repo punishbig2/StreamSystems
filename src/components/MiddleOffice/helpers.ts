@@ -1,4 +1,5 @@
 import { FieldType } from "forms/fieldType";
+import { Validity } from "forms/validity";
 import moment, { Moment } from "moment";
 
 export const getDisplayValue = (
@@ -9,10 +10,10 @@ export const getDisplayValue = (
   precision?: number,
   currency?: string,
   emptyValue?: string
-): string => {
+): [string, Validity] => {
   if (value === null || value === undefined || value === "") {
-    if (editMode) return "";
-    return emptyValue === undefined ? "" : emptyValue;
+    if (editMode) return ["", Validity.Intermediate];
+    return [emptyValue === undefined ? "" : emptyValue, Validity.Intermediate];
   }
   const numberOptions = {
     minimumFractionDigits: precision,
@@ -23,66 +24,46 @@ export const getDisplayValue = (
   switch (type) {
     case "date":
       if (isMoment(value)) {
-        return value.format("MM/DD/YYYY");
+        return [value.format("MM/DD/YYYY"), Validity.Valid];
       } else {
-        throw new Error(
-          `date value must be instance of moment.Moment: ${name}`
-        );
+        return [value as string, Validity.InvalidFormat];
       }
     case "time":
       if (isMoment(value)) {
-        return value.format("HH:mm A");
+        return [value.format("HH:mm A"), Validity.Valid];
       } else {
-        throw new Error(
-          `date value must be instance of moment.Moment: ${name}`
-        );
+        return [value as string, Validity.InvalidFormat];
       }
     case "text":
-      if (typeof value === "string") {
-        return value;
-      } else {
-        throw new Error(
-          `unexpected non string value for string field: ${name}`
-        );
-      }
+      return [value as string, Validity.Valid];
+    case "currency":
     case "number":
       if (typeof value === "number") {
         if (value < 0) {
-          return `(${(-value).toLocaleString(undefined, numberOptions)})`;
+          return [
+            `(${(-value).toLocaleString(undefined, numberOptions)})`,
+            Validity.Valid,
+          ];
         }
-        return value.toLocaleString(undefined, numberOptions);
+        return [value.toLocaleString(undefined, numberOptions), Validity.Valid];
       } else {
-        if (typeof value === "string" && value === "") return value;
-        throw new Error(
-          `unexpected non numeric value for number field: ${name}`
-        );
-      }
-    case "currency":
-      if (typeof value === "number") {
-        if (value < 0) {
-          return `(${(-value).toLocaleString(undefined, numberOptions)})`;
-        } else {
-          return value.toLocaleString(undefined, numberOptions);
-        }
-      } else {
-        throw new Error(
-          `unexpected non numeric value for currency field: ${name}`
-        );
+        return [value as string, Validity.InvalidFormat];
       }
     case "percent":
       if (typeof value === "number") {
-        return `${value.toLocaleString(undefined, numberOptions)}%`;
+        return [
+          `${value.toLocaleString(undefined, numberOptions)}%`,
+          Validity.Valid,
+        ];
       } else {
-        throw new Error(
-          `unexpected non numeric value for percent field: ${name}`
-        );
+        return [value as string, Validity.InvalidFormat];
       }
     case "dropdown":
-      return value as string;
+      return [value as string, Validity.Valid];
     case "boolean":
-      return value === true ? "TRUE" : "FALSE";
+      return [value === true ? "TRUE" : "FALSE", Validity.Valid];
     default:
-      return "";
+      return ["", Validity.Valid];
   }
 };
 

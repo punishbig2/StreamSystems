@@ -1,5 +1,5 @@
 export enum Validity {
   Valid,
   Intermediate,
-  Invalid,
+  InvalidFormat,
 }
