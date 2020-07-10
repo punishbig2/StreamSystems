@@ -11,7 +11,14 @@ export enum DealType {
   Invalid = 0,
   Electronic = 2,
   Voice = 4,
-  Multileg = 8,
+  Manual = 8,
+}
+
+export enum EntryType {
+  Empty,
+  ExistingDeal,
+  New,
+  Clone,
 }
 
 export interface DealEntry {
@@ -33,7 +40,8 @@ export interface DealEntry {
   style: string;
   model: number | "";
   tenor: string;
-  type: DealType;
+  type: EntryType;
+  dealType: DealType;
 }
 
 export const emptyDealEntry: DealEntry = {
@@ -52,5 +60,6 @@ export const emptyDealEntry: DealEntry = {
   style: "",
   model: "",
   tenor: "",
-  type: DealType.Invalid,
+  type: EntryType.Empty,
+  dealType: DealType.Manual,
 };

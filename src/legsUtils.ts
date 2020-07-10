@@ -1,21 +1,22 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import {
-  LegOptionsDefOut,
-  LegOptionsDefIn,
-} from "components/MiddleOffice/interfaces/legOptionsDef";
 import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/interfaces/legOptionsDef";
 import { Sides } from "interfaces/sides";
-import moment from "moment";
-import { splitCurrencyPair } from "symbolUtils";
 import { Symbol } from "interfaces/symbol";
+import moment from "moment";
+import { DealEntry } from "structures/dealEntry";
+import { splitCurrencyPair } from "symbolUtils";
 
 export const createLegsFromDefinition = (
-  deal: Deal,
-  definitions: LegOptionsDefOut[] | LegOptionsDefIn[]
+  entry: DealEntry,
+  definitions: LegOptionsDefOut[] | LegOptionsDefIn[],
+  symbol: Symbol
 ): Leg[] => {
   const legs: Leg[] = [];
   // Now fill the stub legs
-  const [ccy1, ccy2] = splitCurrencyPair(deal.currencyPair);
+  const [ccy1, ccy2] = splitCurrencyPair(entry.currencyPair);
   const rates: Rates = [
     {
       currency: ccy1,
@@ -26,7 +27,7 @@ export const createLegsFromDefinition = (
       value: 0,
     },
   ];
-  const expiryDate: moment.Moment = deal.expiryDate;
+  const expiryDate: moment.Moment = entry.expiryDate;
   for (const definition of definitions) {
     const sideType: string =
       "ReturnSide" in definition ? definition.ReturnSide : definition.SideType;
@@ -34,19 +35,16 @@ export const createLegsFromDefinition = (
     const notionalRatio: number =
       "notional_ratio" in definition ? definition.notional_ratio : 0;
     const notional: number | null =
-      deal.lastQuantity === null
-        ? null
-        : 1e6 * deal.lastQuantity * notionalRatio;
-    const { symbol } = deal;
+      entry.notional !== null ? entry.notional * notionalRatio : null;
     const leg: Leg = {
       premium: null,
-      pricePercent: deal.lastPrice,
-      vol: deal.lastPrice,
+      pricePercent: 0 /* FIXME: what would this be? */,
+      vol: entry.vol === undefined ? null : entry.vol,
       rates: rates,
       notional: notional,
-      party: deal.buyer,
+      party: entry.buyer,
       side: side,
-      days: expiryDate.diff(deal.tradeDate, "d"),
+      days: expiryDate.diff(entry.tradeDate, "d"),
       delta: null,
       vega: null,
       fwdPts: null,
@@ -54,14 +52,14 @@ export const createLegsFromDefinition = (
       gamma: null,
       hedge: null,
       strike: null,
-      premiumDate: deal.spotDate,
+      premiumDate: moment(entry.tradeDate).add(symbol.SettlementWindow, "d"),
       premiumCurrency: symbol.premiumCCY,
       option:
         "ReturnLegOut" in definition
           ? definition.ReturnLegOut
           : definition.OptionLegType,
-      deliveryDate: deal.deliveryDate,
-      expiryDate: deal.expiryDate,
+      deliveryDate: entry.deliveryDate,
+      expiryDate: entry.expiryDate,
     };
     legs.push(leg);
   }

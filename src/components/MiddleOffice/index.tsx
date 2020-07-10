@@ -22,12 +22,13 @@ import {
 } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
 import { API, Task } from "API";
-import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
+import { DealEntryStore} from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import dealsStore from "mobx/stores/dealsStore";
 import { QuestionBox } from "components/QuestionBox";
 import { MessageBox } from "components/MessageBox";
 import strings from "locales";
+import { EntryType } from "structures/dealEntry";
 
 interface Props {
   visible: boolean;
@@ -262,11 +263,11 @@ export const MiddleOffice: React.FC<Props> = observer(
                       </button>
                     </div>
                   </div>
-                  <SummaryLegDetailsForm/>
+                  <SummaryLegDetailsForm />
                 </div>
               </Grid>
               <Grid xs={5} className={"container"} item>
-                <LegDetailsForm />
+                <LegDetailsForm dealEntryStore={deStore} />
               </Grid>
             </Grid>
           </div>
@@ -291,7 +292,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               "spinner ",
               moStore.isSendingPricingRequest ? "visible" : "hidden",
             ].join(" ")}
-          ></div>
+          />
         </>
       );
     }

@@ -7,7 +7,7 @@ import { tenorToDuration } from "utils/dataGenerators";
 import workareaStore from "mobx/stores/workareaStore";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import mo from "mobx/stores/moStore";
-import { DealEntry, DealType } from "structures/dealEntry";
+import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { getVegaAdjust } from "legsUtils";
 
 export const createDealFromBackendMessage = (source: any): Deal => {
@@ -57,7 +57,7 @@ export const dealSourceToDealType = (source: string): DealType => {
     case "electronic":
       return DealType.Electronic;
     case "multileg":
-      return DealType.Multileg;
+      return DealType.Manual;
     default:
       return DealType.Invalid;
   }
@@ -86,6 +86,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     strike: strategy.strike,
     vol: strategy.spreadvsvol === "vol" ? deal.lastPrice : undefined,
     spread: strategy.spreadvsvol === "spread" ? deal.lastPrice : undefined,
-    type: dealSourceToDealType(deal.source),
+    dealType: dealSourceToDealType(deal.source),
+    type: EntryType.ExistingDeal,
   };
 };

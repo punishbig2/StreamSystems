@@ -1,23 +1,24 @@
+import moStore from "mobx/stores/moStore";
 import { useEffect } from "react";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { LegOptionsDefOut } from "components/MiddleOffice/interfaces/legOptionsDef";
-import MO from "mobx/stores/moStore";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { createLegsFromDefinition } from "legsUtils";
+import { DealEntry } from "structures/dealEntry";
+import { Symbol } from "interfaces/symbol";
 
-const createStubLegs = async (deal: Deal, cuts: Cut[]): Promise<void> => {
-  const { symbol } = deal;
-  // const strategy: MOStrategy = MO.getStrategyById(deal.strategy);
+const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
+  const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
   const legDefinitions: { out: LegOptionsDefOut[] } | undefined =
-    MO.legDefinitions[deal.strategy];
+    moStore.legDefinitions[entry.strategy];
   if (!legDefinitions) return;
   const legs: Leg[] = createLegsFromDefinition(
-    deal,
+    entry,
     legDefinitions.out,
+    symbol
   );
-  // Update the MO store
-  MO.setLegs(legs, null);
+  // Update the moStore store
+  moStore.setLegs(legs, null);
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
       cut.Code === symbol.PrimaryCutCode &&
@@ -25,15 +26,15 @@ const createStubLegs = async (deal: Deal, cuts: Cut[]): Promise<void> => {
     );
   });
   if (cut !== undefined) {
-    MO.createSummaryLeg(cut);
+    moStore.createSummaryLeg(cut);
   } else {
     console.warn("cannot determine the cut city for this deal");
   }
 };
 
-export default (cuts: Cut[], deal: Deal | null) => {
+export default (cuts: Cut[], entry: DealEntry) => {
   useEffect(() => {
-    if (deal === null) return;
-    createStubLegs(deal, cuts).then(() => {});
-  }, [cuts, deal]);
+    if (entry.currencyPair === "") return;
+    createStubLegs(entry, cuts).then(() => {});
+  }, [cuts, entry]);
 };

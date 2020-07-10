@@ -1,9 +1,9 @@
 import { FormField } from "components/formField";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
-import moStore from "mobx/stores/moStore";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import React, { ReactElement } from "react";
+import { DealEntry } from "structures/dealEntry";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -11,14 +11,10 @@ const capitalize = (str: string): string => {
 
 export const fieldsMapper = (
   leg: Leg,
-  onValueChange: (name: keyof Leg, value: any) => void
-) => (
-  fieldDef: FieldDef<Leg, {}, Deal>,
-  index: number
-): ReactElement | null => {
+  onValueChange: (name: keyof Leg, value: any) => void,
+  store: DealEntryStore
+) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
   const { rates } = leg;
-  const { deal } = moStore;
-  if (deal === null) return null;
   const extraProps = ((): { value: any } & any => {
     if (fieldDef.type === "currency") {
       return {
@@ -38,11 +34,11 @@ export const fieldsMapper = (
       };
     }
   })();
-  const isEditable = (fieldDef: FieldDef<Leg, {}, Deal>): boolean => {
+  const isEditable = (fieldDef: FieldDef<Leg, {}, DealEntry>): boolean => {
     if (typeof fieldDef.editable !== "function") {
       return fieldDef.editable;
     } else {
-      return fieldDef.editable(null, deal);
+      return fieldDef.editable(null, store.entry);
     }
   };
   return (

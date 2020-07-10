@@ -1,18 +1,16 @@
-import { observable, action, computed } from "mobx";
-import { DealEntry, emptyDealEntry } from "structures/dealEntry";
-import deepEqual from "deep-equal";
-import moStore from "mobx/stores/moStore";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { createDealEntry } from "utils/dealUtils";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API } from "API";
-
-export enum EntryType {
-  Empty,
-  ExistingDeal,
-  New,
-  Clone,
-}
+import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import deepEqual from "deep-equal";
+import { action, computed, observable } from "mobx";
+import moStore from "mobx/stores/moStore";
+import {
+  DealEntry,
+  DealType,
+  emptyDealEntry,
+  EntryType,
+} from "structures/dealEntry";
+import { createDealEntry } from "utils/dealUtils";
 
 export class DealEntryStore {
   @observable entryType: EntryType = EntryType.Empty;

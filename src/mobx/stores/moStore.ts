@@ -5,6 +5,7 @@ import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API } from "API";
+import { Symbol } from "interfaces/symbol";
 
 import workareaStore from "mobx/stores/workareaStore";
 import {
@@ -292,6 +293,18 @@ export class MoStore {
       },
       ...legs.slice(index + 1),
     ];
+  }
+
+  public findSymbolById(currencyPair: string): Symbol {
+    const symbols: Symbol[] = this.symbols;
+    const found: Symbol | undefined = symbols.find(
+      (symbol: Symbol) => symbol.symbolID === currencyPair
+    );
+    if (found !== undefined) {
+      return found;
+    } else {
+      throw new Error(`symbol not found \`${currencyPair}'`);
+    }
   }
 }
 

@@ -1,16 +1,17 @@
 import { Grid } from "@material-ui/core";
-import React, { ReactElement } from "react";
+import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
+import existingEntryFields from "components/MiddleOffice/DealEntryForm/existingEntryFields";
+import { fieldMapper } from "components/MiddleOffice/DealEntryForm/fieldMapper";
+import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
+import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
+import newEntryFields from "components/MiddleOffice/DealEntryForm/newEntryFields";
+import { sendPricingRequest } from "components/MiddleOffice/DealEntryForm/sendPricingRequest";
 import { observer } from "mobx-react";
+import { DealEntryStore} from "mobx/stores/dealEntryStore";
 import mo from "mobx/stores/moStore";
 import moStore from "mobx/stores/moStore";
-import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
-import { DealEntryStore, EntryType } from "mobx/stores/dealEntryStore";
-import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
-import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
-import existingEntryFields from "components/MiddleOffice/DealEntryForm/existingEntryFields";
-import newEntryFields from "components/MiddleOffice/DealEntryForm/newEntryFields";
-import { fieldMapper } from "components/MiddleOffice/DealEntryForm/fieldMapper";
-import { sendPricingRequest } from "components/MiddleOffice/DealEntryForm/sendPricingRequest";
+import React, { ReactElement } from "react";
+import { EntryType } from "structures/dealEntry";
 
 interface Props {
   store: DealEntryStore;
@@ -22,7 +23,7 @@ export const DealEntryForm: React.FC<Props> = observer(
     const { cuts, deal } = mo;
     const { entry } = store;
 
-    useLegs(cuts, deal);
+    useLegs(cuts, entry);
 
     const onPriced =
       deal === null ? undefined : () => sendPricingRequest(deal, entry);
