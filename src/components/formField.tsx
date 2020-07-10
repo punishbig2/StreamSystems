@@ -98,11 +98,8 @@ export class FormField<T> extends Component<Props<T>, State> {
     input.setSelectionRange(state.caretPosition, state.caretPosition);
   };
 
-  public componentDidUpdate = (
-    prevProps: Readonly<Props<T>>,
-    prevState: Readonly<State>
-  ): void => {
-    const { props, state } = this;
+  public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
+    const { props } = this;
     if (props.dropdownData !== prevProps.dropdownData) {
       if (!(props.dropdownData instanceof Array)) return;
       this.setState({
@@ -371,6 +368,20 @@ export class FormField<T> extends Component<Props<T>, State> {
     return classes.join(" ");
   };
 
+  private onFocus = () => {
+    const caretPosition = ((): number => {
+      const { input, state } = this;
+      const { displayValue } = state;
+      if (input === null || input.selectionStart === null) return displayValue.length;
+      return input.selectionStart;
+    })();
+    this.setState({ focus: true, caretPosition: caretPosition });
+  };
+
+  private onBlur = () => {
+    this.setState({ focus: false });
+  };
+
   public render(): ReactElement {
     const { props } = this;
     const control: ReactElement = this.createControl();
@@ -380,8 +391,8 @@ export class FormField<T> extends Component<Props<T>, State> {
           labelPlacement={"start"}
           label={props.label}
           control={control}
-          onFocus={() => this.setState({ focus: true })}
-          onBlur={() => this.setState({ focus: false })}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
         />
       </FormControl>
     );

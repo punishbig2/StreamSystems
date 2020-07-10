@@ -12,7 +12,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const { transformData, dataSource, ...field } = fieldDef;
   const source: any = !!dataSource ? mo[dataSource] : undefined;
   const dropdownData: SelectItem[] = !!transformData
-    ? transformData(source)
+    ? transformData(source, entry)
     : [];
   const value: any = !!entry ? entry[field.name] : null;
   const onChange = (name: keyof DealEntry, value: string) => {

@@ -18,7 +18,7 @@ export interface FieldDef<T, S = {}, E = {}> {
   validate?: (value: string) => Validity;
   precision?: number;
   // Only for dropdown (for now)
-  transformData?: (item: any) => SelectItem[] | any;
+  transformData?: (item: any, entry?: T) => SelectItem[] | any;
   dataSource?: keyof S;
   data?: any;
 }

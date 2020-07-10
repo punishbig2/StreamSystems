@@ -5,6 +5,7 @@ import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntry, DealType, DealStatus } from "structures/dealEntry";
 import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import { dealSourceToDealType } from "utils/dealUtils";
 
 const editableFilter = (types: number) => (
   data: any,
@@ -38,10 +39,23 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     type: "dropdown",
     color: "orange",
     editable: editableFilter(DealType.Voice | DealType.Manual),
-    transformData: (data: { [key: string]: MOStrategy }): SelectItem[] => {
+    transformData: (
+      data: { [key: string]: MOStrategy },
+      entry?: DealEntry
+    ): SelectItem[] => {
       return Object.values(data)
         .filter((item: MOStrategy) => {
-          return item.source === ProductSource.Electronic;
+          if (entry === undefined) return false;
+          switch (entry.dealType) {
+            case DealType.Invalid:
+              return false;
+            case DealType.Electronic:
+              return item.source === "Electronic";
+            case DealType.Voice:
+              return item.source === "Voice";
+            case DealType.Manual:
+              return item.source === "Manual";
+          }
         })
         .map(
           (strategy: MOStrategy): SelectItem => ({
