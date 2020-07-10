@@ -25,8 +25,10 @@ export const fieldsMapper = (
       const index: number = fieldDef.data;
       if (rates === null) {
         return { label: "??? Rage", value: "invalid" };
+      } else {
+        const rate = rates[index];
+        return { ...rate, label: rate.currency + " Rate" };
       }
-      return { ...rates[index], label: rates[index].currency + " Rate" };
     } else if (fieldDef.name === "side") {
       return {
         value: capitalize(leg[fieldDef.name]),

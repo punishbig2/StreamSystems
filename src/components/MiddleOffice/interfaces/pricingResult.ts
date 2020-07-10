@@ -1,7 +1,9 @@
 import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { VolSurface } from "components/MiddleOffice/interfaces/pricer";
+import moStore from "mobx/stores/moStore";
 import { parser } from "timeUtils";
+import moment from "moment";
 
 export interface PricingResult {
   summary: Partial<SummaryLeg>;
@@ -147,13 +149,53 @@ export interface PricingMessage {
   version: string;
 }
 
+const addMissingInformation = (message: PricingMessage): PricingMessage => {
+  const {
+    Output: { MarketSnap },
+  } = message;
+  const { deal } = moStore;
+  if (deal === null) throw new Error("What the fuck?");
+  const { symbol, deliveryDate, tradeDate, expiryDate } = deal;
+  const missingFields = {};
+  const premiumDate = moment(tradeDate).add(symbol.SettlementWindow, "d");
+  if (message.premiumCurrency === null) {
+    message.premiumCurrency = symbol.premiumCCY;
+  }
+  if (message.premiumDate === null) {
+    message.premiumDate = premiumDate.format();
+  }
+  if (message.deliveryDate === null) {
+    message.deliveryDate = deliveryDate.format();
+  }
+  if (message.expiryDate === null) {
+    message.expiryDate = expiryDate.format();
+  }
+  if (message.days === null) {
+    message.days = expiryDate.diff(tradeDate, "d");
+  }
+  if (message.rates === null) {
+    const { symbolID } = symbol;
+    message.rates = [
+      {
+        currency: symbol.premiumCCY,
+        value: MarketSnap.ccy1Zero,
+      },
+      {
+        currency: symbolID.replace(symbol.premiumCCY, ""),
+        value: MarketSnap.ccy2Zero,
+      },
+    ];
+  }
+  return { ...message, ...missingFields };
+};
+
 export const buildPricingResult = (message: PricingMessage): PricingResult => {
   const {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },
       Inputs: { LegInputs, spot },
     },
-  } = message;
+  } = addMissingInformation(message);
   const legs: Leg[] = Legs.map(
     (option: string, index: number): Leg => {
       return {
