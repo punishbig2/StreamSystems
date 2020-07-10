@@ -76,7 +76,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     type: "text",
     placeholder: "0D",
     color: "orange",
-    editable: false,
+    editable: true,
     emptyValue: "N/A",
   },
   {

@@ -168,7 +168,10 @@ export const buildPricingResult = (message: PricingMessage): PricingResult => {
         // Leg inputs derived fields
         fwdRate: LegInputs.Forward[index],
         notional: LegInputs.Not[index],
-        strike: LegInputs.Strike[index],
+        strike: Number(LegInputs.Strike[index]).toLocaleString(undefined, {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4,
+        }),
         vol: LegInputs.Vol[index],
         side: LegInputs.Side[index],
         spot: spot, // LegInputs.Spot[index],

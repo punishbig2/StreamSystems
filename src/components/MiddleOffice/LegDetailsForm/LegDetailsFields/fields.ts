@@ -68,11 +68,10 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     editable: false,
   },
   {
-    type: "number",
+    type: "text",
     color: "grey",
     name: "strike",
     label: "Strike",
-    precision: 4,
     editable: editableFilter(DealType.Voice | DealType.Manual),
   },
   {

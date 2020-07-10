@@ -18,7 +18,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const onChange = (name: keyof DealEntry, value: string) => {
     const convertedValue: any = (() => {
       if (field.type === "number") {
-        if (value.length === 0) return null;
+        if (value === null || value.length === 0) return null;
         const candidate: number = Number(value);
         if (isNaN(candidate)) {
           return undefined;

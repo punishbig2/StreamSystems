@@ -47,18 +47,6 @@ export const DealBlotter: React.FC<Props> = observer(
         />
       );
     };
-    useEffect(() => {
-      if (table === null) return;
-      const handler = () => {
-        if (deal === null)
-          return;
-        onDealSelected(null);
-      };
-      table.addEventListener("click", handler, true);
-      return () => {
-        table.removeEventListener("click", handler, true);
-      };
-    }, [deal, onDealSelected, table]);
     return (
       <Table
         id={`${props.id}-dblt`}

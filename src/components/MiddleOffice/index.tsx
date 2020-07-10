@@ -190,6 +190,13 @@ export const MiddleOffice: React.FC<Props> = observer(
                 </button>
                 <button
                   className={"primary"}
+                  onClick={() => null}
+                >
+                  <i className={"fa fa-edit"} />
+                  <span>Edit</span>
+                </button>
+                <button
+                  className={"primary"}
                   onClick={() => deStore.cloneDeal()}
                 >
                   <i className={"fa fa-clone"} />

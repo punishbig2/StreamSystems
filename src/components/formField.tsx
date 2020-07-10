@@ -106,14 +106,19 @@ export class FormField<T> extends Component<Props<T>, State> {
       : {};
   };
 
+  private cleanNonDigits = (value: string): string => {
+    const digitsOnly: string = value.replace(/[^0-9]+/g, "");
+    if (digitsOnly.length === 0) return "0";
+    return digitsOnly;
+  };
+
   private parseNumber = (value: string): any => {
     const decimalSeparator: string = (0.1).toLocaleString(undefined).charAt(1);
     const fragments: string[] = value.split(decimalSeparator);
     if (fragments.length === 2) {
-      const newString: string =
-        fragments[0].replace(/[^0-9]+/g, "") +
-        decimalSeparator +
-        fragments[1].replace(/[^0-9]+/g, "");
+      const integerPart: string = this.cleanNonDigits(fragments[0]);
+      const decimalPart: string = this.cleanNonDigits(fragments[1]);
+      const newString: string = integerPart + decimalSeparator + decimalPart;
       if (newString.length === 0) {
         return "";
       } else {
@@ -127,7 +132,7 @@ export class FormField<T> extends Component<Props<T>, State> {
         return Number(newString);
       }
     } else {
-      throw new Error(`value \`${value}' cannot be parsed as a number`);
+      return value;
     }
   };
 
@@ -182,7 +187,10 @@ export class FormField<T> extends Component<Props<T>, State> {
   };
 
   private onInputBlur = (/* event: React.FocusEvent<HTMLInputElement> */): void => {
-    this.resetValue();
+    const { props, state } = this;
+    if (props.onChange) {
+      props.onChange(props.name as keyof T, state.internalValue);
+    }
   };
 
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

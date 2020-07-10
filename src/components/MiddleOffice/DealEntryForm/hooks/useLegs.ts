@@ -11,12 +11,17 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];
-  if (!legDefinitions) return;
+  if (!legDefinitions)  {
+    console.warn(`no leg definitions found for ${entry.strategy}`);
+    console.warn("available strategies are: ", moStore.legDefinitions);
+    return;
+  }
   const legs: Leg[] = createLegsFromDefinition(
     entry,
     legDefinitions.in,
     symbol
   );
+  console.log(legs);
   // Update the moStore store
   moStore.setLegs(legs, null);
   const cut: Cut | undefined = cuts.find((cut: Cut) => {

@@ -17,8 +17,8 @@ export type Rates = [
 export interface Leg {
   option: string;
   side: string | Sides;
-  strike: number | null;
-  vol: number | null;
+  strike?: string | number | null;
+  vol?: number | null;
   fwdPts: number | null;
   fwdRate: number | null;
   gamma: number | null;

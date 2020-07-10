@@ -39,7 +39,7 @@ export const createLegsFromDefinition = (
     const leg: Leg = {
       premium: null,
       pricePercent: 0 /* FIXME: what would this be? */,
-      vol: entry.vol === undefined ? null : entry.vol,
+      vol: entry.vol,
       rates: rates,
       notional: notional,
       party: entry.buyer,
@@ -51,7 +51,7 @@ export const createLegsFromDefinition = (
       fwdRate: null,
       gamma: null,
       hedge: null,
-      strike: null,
+      strike: entry.strike,
       premiumDate: moment(entry.tradeDate).add(symbol.SettlementWindow, "d"),
       premiumCurrency: symbol.premiumCCY,
       option:
