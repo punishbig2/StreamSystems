@@ -11,10 +11,11 @@ import { getDisplayValue } from "components/MiddleOffice/helpers";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
-import { Moment } from "moment";
+import { isMoment, Moment } from "moment";
 import { randomID } from "randomID";
 import React, { Component, ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
+import moment from "moment";
 
 interface Props<T> {
   label: string;
@@ -133,6 +134,16 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   private getUnFormattedValue = (value: string, type: FieldType): any => {
     switch (type) {
       case "date":
+        if (isMoment(value)) {
+          return value;
+        } else if (/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/.test(value)) {
+          const date: moment.Moment = moment(value, "MM/DD/YYYY");
+          if (date.isValid()) {
+            return date;
+          } else {
+            return value;
+          }
+        }
         return value;
       case "time":
         break;
