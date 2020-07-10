@@ -11,11 +11,9 @@ import { getDisplayValue } from "components/MiddleOffice/helpers";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
-import { isMoment, Moment } from "moment";
+import moment, { isMoment, Moment } from "moment";
 import { randomID } from "randomID";
 import React, { Component, ReactElement } from "react";
-import { DealEntry } from "structures/dealEntry";
-import moment from "moment";
 
 interface Props<T> {
   label: string;
@@ -39,9 +37,12 @@ interface State {
   displayValue: string;
   focus: boolean;
   validity: Validity;
+  caretPosition: number;
 }
 
 export class FormField<T> extends Component<Props<T>, State> {
+  private input: HTMLInputElement | null = null;
+
   static defaultProps = {
     precision: 0,
     emptyValue: "",
@@ -53,6 +54,11 @@ export class FormField<T> extends Component<Props<T>, State> {
     labels: null,
     focus: false,
     validity: Validity.Intermediate,
+    caretPosition: 0,
+  };
+
+  private setInputRef = (input: HTMLInputElement) => {
+    this.input = input;
   };
 
   private resetValue = (): void => {
@@ -85,8 +91,18 @@ export class FormField<T> extends Component<Props<T>, State> {
     this.resetValue();
   };
 
-  public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
-    const { props } = this;
+  private ensureCaretIsInPlace = () => {
+    const { input, state } = this;
+    if (input === null) return;
+    // Place the caret in the right place
+    input.setSelectionRange(state.caretPosition, state.caretPosition);
+  };
+
+  public componentDidUpdate = (
+    prevProps: Readonly<Props<T>>,
+    prevState: Readonly<State>
+  ): void => {
+    const { props, state } = this;
     if (props.dropdownData !== prevProps.dropdownData) {
       if (!(props.dropdownData instanceof Array)) return;
       this.setState({
@@ -95,6 +111,9 @@ export class FormField<T> extends Component<Props<T>, State> {
     }
     if (props.value !== prevProps.value) {
       this.resetValue();
+    }
+    if (state.internalValue !== prevState.internalValue) {
+      this.ensureCaretIsInPlace();
     }
   };
 
@@ -186,6 +205,17 @@ export class FormField<T> extends Component<Props<T>, State> {
     }
   };
 
+  private saveCaretPosition = () =>
+    /* event: React.KeyboardEvent<HTMLInputElement> */
+    {
+      const { input } = this;
+      if (input === null) return;
+      if (input.selectionStart === null) return;
+      this.setState({
+        caretPosition: input.selectionStart,
+      });
+    };
+
   private onInputBlur = (/* event: React.FocusEvent<HTMLInputElement> */): void => {
     const { props, state } = this;
     if (props.onChange) {
@@ -201,7 +231,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     if (!props.editable) return;
     const unFormattedValue: any = this.getUnFormattedValue(value, props.type);
     if (unFormattedValue === props.value) return;
-    // props.onChange(props.name as keyof T, unFormattedValue);
+    this.saveCaretPosition();
     this.setCurrentValue(unFormattedValue);
   };
 
@@ -314,6 +344,7 @@ export class FormField<T> extends Component<Props<T>, State> {
           <>
             <OutlinedInput
               name={randomID(props.name)}
+              inputRef={this.setInputRef}
               value={state.displayValue}
               className={classes.join(" ")}
               placeholder={props.placeholder}
