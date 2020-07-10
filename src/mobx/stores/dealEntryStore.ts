@@ -3,6 +3,7 @@ import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import deepEqual from "deep-equal";
 import { action, computed, observable } from "mobx";
+import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";
 import {
   DealEntry,
@@ -93,6 +94,10 @@ export class DealEntryStore {
     }
   }
 
+  private setCurrentDeal = (id: string) => {
+    dealsStore.setSelectedDeal(id);
+  };
+
   @action.bound
   public createOrClone() {
     const {
@@ -130,8 +135,8 @@ export class DealEntryStore {
           size: Math.round(notional / 1e6).toString(),
           tenor: tenor,
         })
-          .then(() => {
-            moStore.setDeal(null, this);
+          .then((id: string) => {
+            this.setCurrentDeal(id);
           })
           .catch((reason: any) => {
             console.warn(reason);
@@ -148,8 +153,8 @@ export class DealEntryStore {
           size: Math.round(notional / 1e6).toString(),
           tenor: tenor,
         })
-          .then(() => {
-            moStore.setDeal(null, this);
+          .then((id: string) => {
+            this.setCurrentDeal(id);
           })
           .catch((reason: any) => {
             console.warn(reason);

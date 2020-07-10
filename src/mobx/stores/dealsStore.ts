@@ -1,11 +1,14 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { observable, action, observe } from "mobx";
 import { API } from "API";
+import moStore from "mobx/stores/moStore";
+import signalRManager from "signalR/signalRManager";
 import { parseTime } from "timeUtils";
 import workareaStore from "mobx/stores/workareaStore";
 
 export class DealsStore {
   @observable.ref deals: Deal[] = [];
+  @observable selectedDeal: string | null = null;
 
   constructor() {
     observe(workareaStore, "symbols", (symbols: any) => {
@@ -23,6 +26,10 @@ export class DealsStore {
   @action.bound
   public addDeal(deal: Deal) {
     this.deals = [deal, ...this.deals];
+    if (deal.dealID === this.selectedDeal) {
+      this.selectedDeal = null;
+      moStore.setDeal(deal, null);
+    }
   }
 
   @action.bound
@@ -32,6 +39,18 @@ export class DealsStore {
     if (index === -1) return;
     this.deals = [...deals.slice(0, index), ...deals.slice(index + 1)];
   }
+
+  @action.bound
+  public setSelectedDeal = (id: string) => {
+    const found: Deal | undefined = this.deals.find(
+      (deal: Deal) => deal.dealID === id
+    );
+    if (found !== undefined) {
+      moStore.setDeal(found, null);
+    } else {
+      this.selectedDeal = id;
+    }
+  };
 }
 
 export default new DealsStore();

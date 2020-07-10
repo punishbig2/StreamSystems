@@ -126,8 +126,12 @@ export class FormField<T> extends Component<Props<T>, State> {
     return digitsOnly;
   };
 
+  private getDecimalSeparator = (): string => {
+    return (0.1).toLocaleString(undefined).charAt(1);
+  };
+
   private parseNumber = (value: string): any => {
-    const decimalSeparator: string = (0.1).toLocaleString(undefined).charAt(1);
+    const decimalSeparator: string = this.getDecimalSeparator();
     const fragments: string[] = value.split(decimalSeparator);
     if (fragments.length === 2) {
       const integerPart: string = this.cleanNonDigits(fragments[0]);
@@ -184,10 +188,11 @@ export class FormField<T> extends Component<Props<T>, State> {
     return null;
   };
 
-  private onInputKeyUp = (
+  private onInputKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
+    const decimalSeparator: string = this.getDecimalSeparator();
     switch (event.key) {
       case "Escape":
         this.resetValue();
@@ -196,6 +201,12 @@ export class FormField<T> extends Component<Props<T>, State> {
         if (props.onChange) {
           props.onChange(props.name as keyof T, state.internalValue);
         }
+        break;
+      case "Backspace":
+        this.sanitizeBackspaceOnNumericFields(event);
+        break;
+      case decimalSeparator:
+        this.sanitizeDecimalSeparatorOnNumericFields(event, decimalSeparator);
         break;
     }
   };
@@ -217,6 +228,53 @@ export class FormField<T> extends Component<Props<T>, State> {
       props.onChange(props.name as keyof T, state.internalValue);
     }
   };
+
+  private sanitizeDecimalSeparatorOnNumericFields(
+    event: React.KeyboardEvent<HTMLInputElement>,
+    decimalSeparator: string
+  ) {
+    const { state, input } = this;
+    const { displayValue } = state;
+    const index: number = displayValue.indexOf(decimalSeparator);
+    // Never allow the decimal separator
+    event.preventDefault();
+    if (index === -1) return;
+    if (input === null || input.selectionStart === null) return;
+    const newValue: string =
+      displayValue.slice(0, index) + displayValue.slice(index + 1);
+    const finalPosition: number =
+      input.selectionStart < index
+        ? input.selectionStart
+        : input.selectionStart + 1;
+    const finalValue: string =
+      newValue.slice(0, finalPosition) +
+      decimalSeparator +
+      newValue.slice(finalPosition);
+    this.setCurrentValue(this.parseNumber(finalValue));
+  }
+
+  private sanitizeBackspaceOnNumericFields(
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) {
+    const { input, state } = this;
+    const { displayValue } = state;
+    if (
+      input === null ||
+      input.selectionStart === null ||
+      input.selectionStart !== input.selectionEnd
+    ) {
+      return;
+    }
+    const offset: number = input.selectionStart - 1;
+    if (offset < 0) {
+      event.preventDefault();
+    } else {
+      if (displayValue[offset] === this.getDecimalSeparator()) {
+        input.setSelectionRange(offset, offset);
+        event.preventDefault();
+      }
+    }
+  }
 
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props } = this;
@@ -346,7 +404,7 @@ export class FormField<T> extends Component<Props<T>, State> {
               labelWidth={30}
               autoComplete={"new-password"}
               error={state.validity === Validity.InvalidFormat}
-              onKeyDown={this.onInputKeyUp}
+              onKeyDown={this.onInputKeyDown}
               onBlur={this.onInputBlur}
               onChange={this.onInputChange}
             />
@@ -372,7 +430,8 @@ export class FormField<T> extends Component<Props<T>, State> {
     const caretPosition = ((): number => {
       const { input, state } = this;
       const { displayValue } = state;
-      if (input === null || input.selectionStart === null) return displayValue.length;
+      if (input === null || input.selectionStart === null)
+        return displayValue.length;
       return input.selectionStart;
     })();
     this.setState({ focus: true, caretPosition: caretPosition });
