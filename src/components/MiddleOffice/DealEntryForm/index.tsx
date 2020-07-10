@@ -39,6 +39,7 @@ export const DealEntryForm: React.FC<Props> = observer(
             <ExistingEntryButtons
               isModified={store.isModified}
               isPriced={false}
+              onSaved={store.saveCurrentEntry}
               onPriced={onPriced}
             />
           );

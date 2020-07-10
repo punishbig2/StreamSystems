@@ -24,9 +24,20 @@ export class DealsStore {
 
   @action.bound
   public addDeal(deal: Deal) {
-    this.deals = [deal, ...this.deals];
+    const { deals } = this;
+    const index: number = deals.findIndex(
+      (each: Deal): boolean => each.dealID === deal.dealID
+    );
+    if (index === -1) {
+      this.deals = [deal, ...deals];
+    } else {
+      this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
+      // It was modified, so replay consequences
+      moStore.setDeal(deal, null);
+    }
     if (deal.dealID === this.selectedDeal) {
       this.selectedDeal = null;
+      // It was set before it was here, so do it now
       moStore.setDeal(deal, null);
     }
   }

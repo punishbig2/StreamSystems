@@ -1,14 +1,14 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { parseTime } from "timeUtils";
-import { Globals } from "golbals";
-import moment from "moment";
-import { Symbol } from "interfaces/symbol";
-import { tenorToDuration } from "utils/dataGenerators";
-import workareaStore from "mobx/stores/workareaStore";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import mo from "mobx/stores/moStore";
-import { DealEntry, DealType, EntryType } from "structures/dealEntry";
+import { Globals } from "golbals";
+import { Symbol } from "interfaces/symbol";
 import { getVegaAdjust } from "legsUtils";
+import mo from "mobx/stores/moStore";
+import workareaStore from "mobx/stores/workareaStore";
+import moment from "moment";
+import { DealEntry, DealType, EntryType } from "structures/dealEntry";
+import { parseTime } from "timeUtils";
+import { tenorToDuration } from "utils/dataGenerators";
 
 export const createDealFromBackendMessage = (source: any): Deal => {
   const symbol: Symbol | undefined = workareaStore.findSymbolById(
@@ -52,6 +52,8 @@ export const createDealFromBackendMessage = (source: any): Deal => {
 };
 
 export const dealSourceToDealType = (source: string): DealType => {
+  if (!source)
+    return DealType.Invalid;
   switch (source.toLowerCase()) {
     case "manual":
       return DealType.Voice;

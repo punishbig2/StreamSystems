@@ -245,22 +245,23 @@ type Verb =
   | "clear"
   | "create"
   | "clone"
+  | "update"
   | "remove"
   | "pricing";
 
 export class API {
-  static FxOpt: string = "/api/fxopt";
-  static MarketData: string = `${API.FxOpt}/marketdata`;
-  static Oms: string = `${API.FxOpt}/oms`;
-  static UserApi: string = "/api/UserApi";
-  static Config: string = `${API.FxOpt}/config`;
-  static DarkPool: string = `${API.FxOpt}/darkpool`;
+  public static FxOpt: string = "/api/fxopt";
+  public static MarketData: string = `${API.FxOpt}/marketdata`;
+  public static Oms: string = `${API.FxOpt}/oms`;
+  public static UserApi: string = "/api/UserApi";
+  public static Config: string = `${API.FxOpt}/config`;
+  public static DarkPool: string = `${API.FxOpt}/darkpool`;
   // Middle office
-  static Mlo: string = "/api/mlo";
-  static Deal: string = `${API.Mlo}/deal`;
-  static Legs: string = `${API.Mlo}/legs`;
+  public static Mlo: string = "/api/mlo";
+  public static Deal: string = `${API.Mlo}/deal`;
+  public static Legs: string = `${API.Mlo}/legs`;
 
-  static getRawUrl(section: string, rest: string, args?: any): string {
+  public static getRawUrl(section: string, rest: string, args?: any): string {
     if (args === undefined)
       return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
     return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toUrlQuery(
@@ -268,7 +269,7 @@ export class API {
     )}`;
   }
 
-  static buildUrl(
+  public static buildUrl(
     section: string,
     object: Endpoints,
     verb: Verb,
@@ -281,7 +282,7 @@ export class API {
     }${section}/${verb}${object}?${toUrlQuery(args)}`;
   }
 
-  static async getSymbols(region?: string): Promise<Symbol[]> {
+  public static async getSymbols(region?: string): Promise<Symbol[]> {
     const task: Task<Symbol[]> = get<Symbol[]>(
       API.buildUrl(
         API.Config,
@@ -303,21 +304,21 @@ export class API {
     return currencies;
   }
 
-  static getProducts(): Promise<Strategy[]> {
+  public static getProducts(): Promise<Strategy[]> {
     const task: Task<Strategy[]> = get<Strategy[]>(
       API.buildUrl(API.Config, "products", "get")
     );
     return task.execute();
   }
 
-  static getTenors(): Promise<string[]> {
+  public static getTenors(): Promise<string[]> {
     const task: Task<string[]> = get<string[]>(
       API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" })
     );
     return task.execute();
   }
 
-  static async executeCreateOrderRequest(
+  public static async executeCreateOrderRequest(
     request: CreateOrder
   ): Promise<MessageResponse> {
     const task: Task<MessageResponse> = await post<MessageResponse>(
@@ -330,7 +331,7 @@ export class API {
     return result;
   }
 
-  static async createOrdersBulk(
+  public static async createOrdersBulk(
     orders: Order[],
     symbol: string,
     strategy: string,
@@ -372,61 +373,7 @@ export class API {
     return result;
   }
 
-  /*static async createOrder(
-    order: Order,
-    user: User,
-    minimumSize: number
-  ): PromiseType<MessageResponse> {
-    if (order.price === null || order.size === null)
-      throw new Error("price and size MUST be specified");
-    if (order.size < minimumSize) order.size = minimumSize;
-    const { price, size } = order;
-    const personality: string = workareaStore.personality;
-    // Build a create order request
-    if (user.isbroker && personality === STRM)
-      throw new Error("brokers cannot create orders when in streaming mode");
-    const MDMkt: string | undefined = user.isbroker ? personality : undefined;
-    const request: CreateOrder = {
-      MsgType: MessageTypes.D,
-      TransactTime: getCurrentTime(),
-      User: user.email,
-      Symbol: order.symbol,
-      Strategy: order.strategy,
-      Tenor: order.tenor,
-      Side: getSideFromType(order.type),
-      Quantity: size.toString(),
-      Price: price.toString(),
-      MDMkt,
-    };
-    return API.executeCreateOrderRequest(request);
-  }
-
-  static async updateOrder(
-    entry: Order,
-    user: User
-  ): PromiseType<MessageResponse> {
-    if (entry.price === null || entry.size === null || !entry.orderId)
-      throw new Error("price, size and order id MUST be specified");
-    const { price, size } = entry;
-    // Build a create order request
-    const request: UpdateOrder = {
-      MsgType: MessageTypes.G,
-      TransactTime: getCurrentTime(),
-      User: user.email,
-      Quantity: size.toString(),
-      Price: price.toString(),
-      OrderID: entry.orderId,
-      Symbol: entry.symbol,
-      Strategy: entry.strategy,
-      Tenor: entry.tenor,
-    };
-    return post<MessageResponse>(
-      API.buildUrl(API.Oms, "order", "modify"),
-      request
-    );
-  }*/
-
-  static async cancelAllExtended(
+  public static async cancelAllExtended(
     symbol: string | undefined,
     strategy: string | undefined,
     side: Sides
@@ -449,7 +396,7 @@ export class API {
     return task.execute();
   }
 
-  static async cancelAll(
+  public static async cancelAll(
     symbol: string | undefined,
     strategy: string | undefined,
     side: Sides
@@ -470,7 +417,10 @@ export class API {
     return task.execute();
   }
 
-  static async cancelOrder(order: Order, user: User): Promise<MessageResponse> {
+  public static async cancelOrder(
+    order: Order,
+    user: User
+  ): Promise<MessageResponse> {
     if (order.user !== user.email && !user.isbroker)
       throw new Error(
         `cancelling someone else's order: ${order.user} -> ${user.email}`
@@ -508,7 +458,7 @@ export class API {
     return get<{ [k: string]: W } | null>(url);
   }*/
 
-  static async getDarkPoolSnapshot(
+  public static async getDarkPoolSnapshot(
     symbol: string,
     strategy: string
   ): Promise<{ [k: string]: W } | null> {
@@ -524,7 +474,7 @@ export class API {
     return task.execute();
   }
 
-  static getTOBSnapshot(
+  public static getTOBSnapshot(
     symbol: string,
     strategy: string
   ): Promise<{ [k: string]: W } | null> {
@@ -543,7 +493,7 @@ export class API {
     return task.execute();
   }
 
-  static getSnapshot(
+  public static getSnapshot(
     symbol: string,
     strategy: string
   ): Promise<{ [k: string]: W } | null> {
@@ -562,7 +512,7 @@ export class API {
     return task.execute();
   }
 
-  static async getMessagesSnapshot(
+  public static async getMessagesSnapshot(
     useremail: string,
     timestamp: number
   ): Promise<Message[]> {
@@ -578,7 +528,7 @@ export class API {
     return [...darkpool, ...normal];
   }
 
-  static async getRunOrders(
+  public static async getRunOrders(
     useremail: string,
     symbol: string,
     strategy: string
@@ -589,21 +539,21 @@ export class API {
     return task.execute();
   }
 
-  static async getUsers(): Promise<User[]> {
+  public static async getUsers(): Promise<User[]> {
     const task: Task<User[]> = get<User[]>(
       API.buildUrl(API.UserApi, "Users", "get")
     );
     return task.execute();
   }
 
-  static async getBanks(): Promise<string[]> {
+  public static async getBanks(): Promise<string[]> {
     const task: Task<string[]> = get<string[]>(
       API.buildUrl(API.Config, "markets", "get")
     );
     return task.execute();
   }
 
-  static async createDarkPoolOrder(order: DarkPoolOrder): Promise<any> {
+  public static async createDarkPoolOrder(order: DarkPoolOrder): Promise<any> {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     if (user.isbroker && order.MDMkt === STRM) {
@@ -627,7 +577,7 @@ export class API {
     );
   }*/
 
-  static async cancelDarkPoolOrder(order: Order): Promise<any> {
+  public static async cancelDarkPoolOrder(order: Order): Promise<any> {
     const user: User = workareaStore.user;
     const request = {
       MsgType: MessageTypes.F,
@@ -645,7 +595,7 @@ export class API {
     return task.execute();
   }
 
-  static async cancelAllDarkPoolOrder(
+  public static async cancelAllDarkPoolOrder(
     currency: string,
     strategy: string,
     tenor: string
@@ -663,20 +613,7 @@ export class API {
     return task.execute();
   }
 
-  /*static async getDarkPoolMessages(
-    useremail: string,
-    timestamp: number
-  ): PromiseType<any> {
-    return get<MessageResponse>(
-      API.buildUrl(API.DarkPool, "messages", "get", { useremail, timestamp })
-    );
-  }*/
-
-  /*static async getDarkPoolRunOrders(request: any): PromiseType<any> {
-    return get<MessageResponse>(API.buildUrl(API.DarkPool, "runorders", "get"));
-  }*/
-
-  static async publishDarkPoolPrice(
+  public static async publishDarkPoolPrice(
     user: string,
     symbol: string,
     strategy: string,
@@ -697,14 +634,16 @@ export class API {
     return task.execute();
   }
 
-  static async getUserProfile(email: string): Promise<[{ workspace: any }]> {
+  public static async getUserProfile(
+    email: string
+  ): Promise<[{ workspace: any }]> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email })
     );
     return task.execute();
   }
 
-  static async saveUserProfile(data: any) {
+  public static async saveUserProfile(data: any) {
     const { useremail, workspace } = data;
     const contentType = "application/x-www-form-urlencoded";
     return post<any>(
@@ -714,7 +653,7 @@ export class API {
     );
   }
 
-  static async brokerRefAll() {
+  public static async brokerRefAll() {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     const request = {
@@ -734,7 +673,7 @@ export class API {
     await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
   }
 
-  static async getUserRegions(useremail: string): Promise<any> {
+  public static async getUserRegions(useremail: string): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
@@ -742,7 +681,7 @@ export class API {
   }
 
   // Middle middle office
-  static async getCuts(currency?: string): Promise<any> {
+  public static async getCuts(currency?: string): Promise<any> {
     if (currency) {
       const task: Task<any> = get<any>(
         API.buildUrl(API.Config, "cuts", "get", { currency })
@@ -754,21 +693,21 @@ export class API {
     }
   }
 
-  static async getOptexStyle(): Promise<any> {
+  public static async getOptexStyle(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "optexstyle", "get")
     );
     return task.execute();
   }
 
-  static async getValuModel(): Promise<any> {
+  public static async getValuModel(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "valumodel", "get")
     );
     return task.execute();
   }
 
-  static async getProductsEx(): Promise<any> {
+  public static async getProductsEx(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "exproducts", "get", {
         bAllFields: true,
@@ -782,7 +721,7 @@ export class API {
     return value / 100.0;
   }
 
-  static async sendPricingRequest(
+  public static async sendPricingRequest(
     deal: Deal,
     entry: DealEntry,
     legs: Leg[],
@@ -854,7 +793,7 @@ export class API {
     return task.execute();
   }
 
-  static async getDeals(): Promise<Deal[]> {
+  public static async getDeals(): Promise<Deal[]> {
     const task: Task<Deal[]> = get<Deal[]>(
       API.buildUrl(API.Deal, "deals", "get")
     );
@@ -862,7 +801,7 @@ export class API {
     return array.map(createDealFromBackendMessage);
   }
 
-  static async removeDeal(id: string): Promise<any> {
+  public static async removeDeal(id: string): Promise<any> {
     const user: User = workareaStore.user;
     const task: Task<any> = httpDelete<any>(
       API.buildUrl(API.Deal, "deal", "remove", {
@@ -873,9 +812,10 @@ export class API {
     return task.execute();
   }
 
-  static async cloneDeal(data: any): Promise<string> {
+  private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
-    const newDeal = {
+    return {
+      linkid: data.linkid,
       tenor: data.tenor,
       strategy: data.strategy,
       symbol: data.symbol,
@@ -889,50 +829,46 @@ export class API {
       useremail: user.email,
       strike: data.strike,
     };
+  }
+
+  public static async updateDeal(data: any): Promise<string> {
+    const task: Task<string> = post<string>(
+      API.buildUrl(API.Deal, "deal", "update"),
+      API.createDealRequest(data)
+    );
+    return task.execute();
+  }
+
+  public static async cloneDeal(data: any): Promise<string> {
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
-      newDeal
+      API.createDealRequest(data)
     );
     return task.execute();
   }
 
-  static async createDeal(data: any): Promise<string> {
-    const user: User = workareaStore.user;
-    const newDeal = {
-      tenor: data.tenor,
-      strategy: data.strategy,
-      symbol: data.symbol,
-      lastpx: data.price,
-      lastqty: data.size,
-      lvsqty: "0",
-      cumqty: "0",
-      transacttime: currentTimestampFIXFormat(),
-      buyer: data.buyer,
-      seller: data.seller,
-      useremail: user.email,
-      strike: data.strike,
-    };
+  public static async createDeal(data: any): Promise<string> {
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "create"),
-      newDeal
+      API.createDealRequest(data)
     );
     return task.execute();
   }
 
-  static getLegs(dealid: string): Task<any> {
+  public static getLegs(dealid: string): Task<any> {
     // We return the task instead of it's execution promise so that
     // the caller can cancel if desired/needed
     return get<any>(API.buildUrl(API.Legs, "legs", "get", { dealid }));
   }
 
-  static async getOptionLegsDefIn(): Promise<any> {
+  public static async getOptionLegsDefIn(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "optionlegsdefin", "get")
     );
     return task.execute();
   }
 
-  static getOptionLegsDefOut(): Promise<any> {
+  public static getOptionLegsDefOut(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "optionlegsdefout", "get")
     );

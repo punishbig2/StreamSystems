@@ -5,12 +5,7 @@ import deepEqual from "deep-equal";
 import { action, computed, observable } from "mobx";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";
-import {
-  DealEntry,
-  DealType,
-  emptyDealEntry,
-  EntryType,
-} from "structures/dealEntry";
+import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { createDealEntry } from "utils/dealUtils";
 
 export class DealEntryStore {
@@ -98,8 +93,7 @@ export class DealEntryStore {
     dealsStore.setSelectedDeal(id);
   };
 
-  @action.bound
-  public createOrClone() {
+  private buildRequest() {
     const {
       buyer,
       strike,
@@ -121,22 +115,37 @@ export class DealEntryStore {
       moStrategy.spreadvsvol === "vol" ? vol : spread;
     if (price === null || price === undefined)
       throw new Error("vol or spread must be set");
+    return {
+      buyer: buyer,
+      seller: seller,
+      strike: strike,
+      strategy: strategy,
+      symbol: currencyPair,
+      model: model,
+      price: price.toString(),
+      size: Math.round(notional / 1e6).toString(),
+      tenor: tenor,
+    };
+  }
+
+  @action.bound
+  public saveCurrentEntry() {
+    const { entry } = this;
+    const request = {
+      ...this.buildRequest(),
+      linkid: entry.dealId,
+    };
+    API.updateDeal(request).then(() => {});
+  }
+
+  @action.bound
+  public createOrClone() {
     switch (this.entryType) {
       case EntryType.Empty:
       case EntryType.ExistingDeal:
         throw new Error("this function should not be called in current state");
       case EntryType.New:
-        API.createDeal({
-          buyer: buyer,
-          seller: seller,
-          strike: strike,
-          strategy: strategy,
-          symbol: currencyPair,
-          model: model,
-          price: price.toString(),
-          size: Math.round(notional / 1e6).toString(),
-          tenor: tenor,
-        })
+        API.createDeal(this.buildRequest())
           .then((id: string) => {
             this.setCurrentDeal(id);
           })
@@ -145,17 +154,7 @@ export class DealEntryStore {
           });
         break;
       case EntryType.Clone:
-        API.cloneDeal({
-          buyer: buyer,
-          seller: seller,
-          strike: strike,
-          strategy: strategy,
-          symbol: currencyPair,
-          model: model,
-          price: price.toString(),
-          size: Math.round(notional / 1e6).toString(),
-          tenor: tenor,
-        })
+        API.cloneDeal(this.buildRequest())
           .then((id: string) => {
             this.setCurrentDeal(id);
           })
