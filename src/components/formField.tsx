@@ -72,7 +72,7 @@ export class FormField<T> extends Component<Props<T>, State> {
       props.type,
       props.name,
       value,
-      state.focus,
+      !!props.editable,
       props.precision,
       props.currency,
       props.emptyValue
@@ -192,7 +192,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
-    const decimalSeparator: string = this.getDecimalSeparator();
+    // const decimalSeparator: string = this.getDecimalSeparator();
     switch (event.key) {
       case "Escape":
         this.resetValue();
@@ -205,9 +205,9 @@ export class FormField<T> extends Component<Props<T>, State> {
       case "Backspace":
         this.sanitizeBackspaceOnNumericFields(event);
         break;
-      case decimalSeparator:
+     /*case decimalSeparator:
         this.sanitizeDecimalSeparatorOnNumericFields(event, decimalSeparator);
-        break;
+        break;*/
     }
   };
 

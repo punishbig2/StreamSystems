@@ -102,6 +102,7 @@ export class DealEntryStore {
   public createOrClone() {
     const {
       buyer,
+      strike,
       seller,
       strategy,
       currencyPair,
@@ -128,6 +129,7 @@ export class DealEntryStore {
         API.createDeal({
           buyer: buyer,
           seller: seller,
+          strike: strike,
           strategy: strategy,
           symbol: currencyPair,
           model: model,
@@ -146,6 +148,7 @@ export class DealEntryStore {
         API.cloneDeal({
           buyer: buyer,
           seller: seller,
+          strike: strike,
           strategy: strategy,
           symbol: currencyPair,
           model: model,

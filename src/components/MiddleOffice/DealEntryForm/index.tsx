@@ -7,10 +7,9 @@ import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryB
 import newEntryFields from "components/MiddleOffice/DealEntryForm/newEntryFields";
 import { sendPricingRequest } from "components/MiddleOffice/DealEntryForm/sendPricingRequest";
 import { observer } from "mobx-react";
-import { DealEntryStore} from "mobx/stores/dealEntryStore";
-import mo from "mobx/stores/moStore";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect } from "react";
 import { EntryType } from "structures/dealEntry";
 
 interface Props {
@@ -20,10 +19,14 @@ interface Props {
 export const DealEntryForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { store } = props;
-    const { cuts, deal } = mo;
+    const { cuts, deal } = moStore;
     const { entry } = store;
 
     useLegs(cuts, entry);
+    useEffect(() => {
+      if (deal === null) return;
+      store.setDeal(deal);
+    }, [store, deal]);
 
     const onPriced =
       deal === null ? undefined : () => sendPricingRequest(deal, entry);

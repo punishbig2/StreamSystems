@@ -1,10 +1,9 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { observable, action, observe } from "mobx";
 import { API } from "API";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { action, observable, observe } from "mobx";
 import moStore from "mobx/stores/moStore";
-import signalRManager from "signalR/signalRManager";
-import { parseTime } from "timeUtils";
 import workareaStore from "mobx/stores/workareaStore";
+import { parseTime } from "timeUtils";
 
 export class DealsStore {
   @observable.ref deals: Deal[] = [];
