@@ -9,10 +9,16 @@ interface Props {
 }
 
 export const ExistingEntryButtons: React.FC<Props> = (
-  props: Props,
+  props: Props
 ): ReactElement => {
   return (
     <>
+      <button
+        type={"submit"}
+        style={{ display: "none" }}
+        aria-hidden={"true"}
+        disabled
+      />
       <button
         type={"button"}
         className={"primary"}

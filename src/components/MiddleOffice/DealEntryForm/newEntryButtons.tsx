@@ -12,6 +12,12 @@ export const NewEntryButtons: React.FC<Props> = (
   return (
     <>
       <button
+        type={"submit"}
+        style={{ display: "none" }}
+        aria-hidden={"true"}
+        disabled
+      />
+      <button
         type={"button"}
         className={"secondary"}
         onClick={props.onCancelled}

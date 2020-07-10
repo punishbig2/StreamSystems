@@ -264,19 +264,6 @@ export class MoStore {
     this.isSendingPricingRequest = value;
   }
 
-  public getOutLegsDefinitions(strategy: string): LegOptionsDefOut[] {
-    const definition:
-      | { in: LegOptionsDefIn[]; out: LegOptionsDefOut[] }
-      | undefined = this.legDefinitions[strategy];
-    if (definition !== undefined) {
-      const { out }: { out: LegOptionsDefOut[] } = definition;
-      if (!out) return [];
-      return out;
-    } else {
-      return [];
-    }
-  }
-
   public getOutLegsCount(strategy: string): number {
     const definition:
       | { in: LegOptionsDefIn[]; out: LegOptionsDefOut[] }
@@ -293,6 +280,18 @@ export class MoStore {
   @action.bound
   public setError(error: Error | null) {
     this.error = error;
+  }
+
+  public updateLeg(index: number, key: keyof Leg, value: any) {
+    const { legs } = this;
+    this.legs = [
+      ...legs.slice(0, index),
+      {
+        ...legs[index],
+        [key]: value,
+      },
+      ...legs.slice(index + 1),
+    ];
   }
 }
 

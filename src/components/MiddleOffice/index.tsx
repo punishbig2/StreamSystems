@@ -1,3 +1,4 @@
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import React, {
   ReactElement,
   useEffect,
@@ -51,6 +52,13 @@ export const MiddleOffice: React.FC<Props> = observer(
     const [pricingResult, setPricingResult] = useState<PricingResult | null>(
       null
     );
+    useEffect(() => {
+      if (pricingResult === null) return;
+      moStore.setLegs(pricingResult.legs, {
+        ...moStore.summaryLeg,
+        ...pricingResult.summary,
+      } as SummaryLeg);
+    }, [pricingResult]);
     useEffect(() => {
       return signalRManager.addDealDeletedListener((dealId: string) => {
         dealsStore.removeDeal(dealId);
@@ -254,11 +262,11 @@ export const MiddleOffice: React.FC<Props> = observer(
                       </button>
                     </div>
                   </div>
-                  <SummaryLegDetailsForm pricingResult={pricingResult} />
+                  <SummaryLegDetailsForm/>
                 </div>
               </Grid>
               <Grid xs={5} className={"container"} item>
-                <LegDetailsForm pricingResult={pricingResult} />
+                <LegDetailsForm />
               </Grid>
             </Grid>
           </div>
@@ -283,9 +291,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               "spinner ",
               moStore.isSendingPricingRequest ? "visible" : "hidden",
             ].join(" ")}
-          >
-            <h1>Loading</h1>
-          </div>
+          ></div>
         </>
       );
     }

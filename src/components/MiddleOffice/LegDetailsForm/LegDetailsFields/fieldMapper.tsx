@@ -1,15 +1,18 @@
-import React, { ReactElement } from "react";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
-import moStore from "mobx/stores/moStore";
 import { FormField } from "components/formField";
-import { FieldDef } from "forms/fieldDef";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { FieldDef } from "forms/fieldDef";
+import moStore from "mobx/stores/moStore";
+import React, { ReactElement } from "react";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-export const fieldsMapper = (leg: Leg) => (
+export const fieldsMapper = (
+  leg: Leg,
+  onValueChange: (name: keyof Leg, value: any) => void
+) => (
   fieldDef: FieldDef<Leg, {}, Deal>,
   index: number
 ): ReactElement | null => {
@@ -42,10 +45,9 @@ export const fieldsMapper = (leg: Leg) => (
       return fieldDef.editable(null, deal);
     }
   };
-  const onChange = (name: keyof Leg, value: any): void => {
-  };
   return (
     <FormField<Leg>
+      id={leg.option}
       key={fieldDef.name + index}
       color={fieldDef.color}
       label={fieldDef.label}
@@ -54,7 +56,7 @@ export const fieldsMapper = (leg: Leg) => (
       name={fieldDef.name}
       type={fieldDef.type}
       {...extraProps}
-      onChange={onChange}
+      onChange={onValueChange}
     />
   );
 };

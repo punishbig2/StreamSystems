@@ -7,7 +7,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import { Moment } from "moment";
-import { getValue } from "components/MiddleOffice/helpers";
+import { getDisplayValue } from "components/MiddleOffice/helpers";
 import { randomID } from "randomID";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
@@ -35,7 +35,7 @@ interface Props<T> {
 interface State {
   labels: string[] | null;
   internalValue: any;
-  internalRepresentation: string;
+  displayValue: string;
   focus: boolean;
 }
 
@@ -46,7 +46,7 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   };
 
   public state: State = {
-    internalRepresentation: "",
+    displayValue: "",
     internalValue: "",
     labels: null,
     focus: false,
@@ -59,18 +59,21 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
 
   private setCurrentValue = (value: any): void => {
     const { props, state } = this;
-    this.setState({
-      internalRepresentation: getValue(
-        props.type,
-        props.name,
-        value,
-        state.focus,
-        props.precision,
-        props.currency,
-        props.emptyValue
-      ),
-      internalValue: value,
-    });
+    this.setState(
+      {
+        displayValue: getDisplayValue(
+          props.type,
+          props.name,
+          value,
+          state.focus,
+          props.precision,
+          props.currency,
+          props.emptyValue
+        ),
+        internalValue: value,
+      },
+      () => {}
+    );
   };
 
   public componentDidMount = (): void => {
@@ -84,7 +87,8 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
       this.setState({
         labels: this.extractLabelsFromData(props.dropdownData),
       });
-    } else if (props.value !== prevProps.value) {
+    }
+    if (props.value !== prevProps.value) {
       this.resetValue();
     }
   };
@@ -146,23 +150,52 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
     return null;
   };
 
+  private onInputKeyUp = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ): void => {
+    const { props, state } = this;
+    switch (event.key) {
+      case "Escape":
+        this.resetValue();
+        break;
+      case "Enter":
+        if (props.onChange) {
+          props.onChange(props.name as keyof T, state.internalValue);
+        }
+        break;
+    }
+  };
+
+  private onInputBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
+    this.resetValue();
+  };
+
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props } = this;
     const {
       currentTarget: { value },
     } = event;
-    if (!props.onChange) return;
+    if (!props.editable) return;
     const unFormattedValue: any = this.getUnFormattedValue(value, props.type);
     if (unFormattedValue === props.value) return;
     // props.onChange(props.name as keyof T, unFormattedValue);
     this.setCurrentValue(unFormattedValue);
   };
 
-  private onSelectChange = (event: any) => {
+  private onSelectChange = (
+    event: React.ChangeEvent<{ name?: string; value: unknown }>,
+    child: React.ReactNode
+  ) => {
     const { props } = this;
+    if (!props.editable) return;
     const { value } = event.target;
-    if (!props.onChange) return;
-    props.onChange(props.name as keyof T, value);
+    // const { props } = this;
+    // const { value } = event.target;
+    // if (!props.onChange) return;
+    // props.onChange(props.name as keyof T, value);
+    this.setCurrentValue(value);
+    // Child is unused
+    void child;
   };
 
   private renderSelectValue = (value: any) => {
@@ -252,21 +285,23 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
             <div
               className={[...classes, "readonly-field"].join(" ")}
               onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-                this.copyToClipboard(event, state.internalRepresentation)
+                this.copyToClipboard(event, state.displayValue)
               }
             >
-              {state.internalRepresentation}
+              {state.displayValue}
             </div>
           );
         }
         return (
           <OutlinedInput
             name={randomID(props.name)}
-            value={state.internalRepresentation}
+            value={state.displayValue}
             className={classes.join(" ")}
             placeholder={props.placeholder}
             labelWidth={30}
             autoComplete={"new-password"}
+            onKeyDown={this.onInputKeyUp}
+            onBlur={this.onInputBlur}
             onChange={this.onInputChange}
           />
         );
@@ -274,9 +309,10 @@ export class FormField<T = DealEntry> extends Component<Props<T>, State> {
   };
 
   public render(): ReactElement {
-    const { props } = this;
+    const { props, state } = this;
+    const { internalValue } = state;
     const classes: string[] = [props.color];
-    if (typeof props.value === "number" && props.value < 0) {
+    if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
     }
     const control: ReactElement = this.createControl();

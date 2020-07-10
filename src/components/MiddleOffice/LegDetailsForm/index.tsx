@@ -1,29 +1,33 @@
-import React, { ReactElement } from "react";
-import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import MO from "mobx/stores/moStore";
+import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { observer } from "mobx-react";
-import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
+import moStore from "mobx/stores/moStore";
+import MO from "mobx/stores/moStore";
+import React, { ReactElement } from "react";
 
-interface Props {
-  pricingResult: PricingResult | null;
-}
+interface Props {}
 
 export const LegDetailsForm: React.FC<Props> = observer(
-  (props: Props): ReactElement | null => {
-    const { pricingResult } = props;
-    const { legs } = !!pricingResult ? pricingResult : MO;
+  (): ReactElement | null => {
+    const { legs } = MO;
+    const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
+      // Update the changed leg
+      moStore.updateLeg(index, key, value);
+    };
     return (
       <form>
         {legs.map((leg: Leg, index: number) => {
           return (
             <fieldset key={index}>
               <legend className={"leg-legend"}>Leg {index + 1}</legend>
-              <LegDetailsFields {...leg} />
+              <LegDetailsFields
+                leg={leg}
+                onValueChange={onValueChange(index)}
+              />
             </fieldset>
           );
         })}
       </form>
     );
-  },
+  }
 );

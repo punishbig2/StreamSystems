@@ -1,27 +1,19 @@
-import React, { ReactElement } from "react";
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/formField";
-import MO from "mobx/stores/moStore";
-import { observer } from "mobx-react";
 import { NoDataMessage } from "components/noDataMessage";
-import { PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { observer } from "mobx-react";
+import MO from "mobx/stores/moStore";
+import React, { ReactElement } from "react";
 
-interface Props {
-  pricingResult: PricingResult | null;
-}
+interface Props {}
 
 export const SummaryLegDetailsForm: React.FC<Props> = observer(
-  (props: Props): ReactElement | null => {
-    const { pricingResult } = props;
+  (): ReactElement | null => {
     const data = MO.summaryLeg;
     if (data === null) {
       return <NoDataMessage />;
     }
-    const { brokerage } = data;
-    const { dealOutput }: SummaryLeg = !!pricingResult
-      ? pricingResult.summary as SummaryLeg
-      : data;
+    const { brokerage, dealOutput } = data;
     const totalComm: number | null =
       brokerage.buyerComm !== null && brokerage.sellerComm !== null
         ? brokerage.buyerComm + brokerage.sellerComm

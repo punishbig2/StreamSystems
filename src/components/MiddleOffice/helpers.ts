@@ -1,7 +1,7 @@
 import { FieldType } from "forms/fieldType";
 import moment, { Moment } from "moment";
 
-export const getValue = (
+export const getDisplayValue = (
   type: FieldType,
   name: string,
   value: string | boolean | number | Moment | undefined | null,
@@ -10,7 +10,7 @@ export const getValue = (
   currency?: string,
   emptyValue?: string
 ): string => {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || value === "") {
     if (editMode) return "";
     return emptyValue === undefined ? "" : emptyValue;
   }

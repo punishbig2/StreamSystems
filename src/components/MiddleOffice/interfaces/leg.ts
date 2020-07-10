@@ -1,5 +1,7 @@
 import { Sides } from "interfaces/sides";
+import { action, observable } from "mobx";
 import moment from "moment";
+import { parser } from "timeUtils";
 
 export type Rates = [
   {
@@ -15,23 +17,23 @@ export type Rates = [
 export interface Leg {
   option: string;
   side: string | Sides;
-  premiumDate: moment.Moment | null;
-  premium: number | null;
   strike: number | null;
   vol: number | null;
-  expiryDate: moment.Moment;
-  deliveryDate: moment.Moment;
   fwdPts: number | null;
   fwdRate: number | null;
   gamma: number | null;
   delta: number | null;
   vega: number | null;
-  hedge: number | null;
-  rates: Rates;
   pricePercent: number | null;
   premiumCurrency: string;
   notional?: number | null;
   spot?: number;
   days?: number | null;
   party?: string;
+  premiumDate: moment.Moment | null;
+  premium: number | null;
+  expiryDate: moment.Moment;
+  deliveryDate: moment.Moment;
+  hedge: number | null;
+  rates: Rates;
 }

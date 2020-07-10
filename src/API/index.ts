@@ -44,8 +44,10 @@ const toUrlQuery = (obj: { [key: string]: string } | any): string => {
     .join("&");
 };
 
-enum ProductSource {
+export enum ProductSource {
+  Voice = "Voice",
   Electronic = "Electronic",
+  Manual = "Manual",
 }
 
 enum Method {
@@ -766,10 +768,10 @@ export class API {
     return task.execute();
   }
 
-  static async getProductsEx(bAllFields = true): Promise<any> {
+  static async getProductsEx(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "exproducts", "get", {
-        bAllFields,
+        bAllFields: true,
       })
     );
     return task.execute();
