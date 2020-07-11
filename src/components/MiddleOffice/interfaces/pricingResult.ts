@@ -189,6 +189,12 @@ const addMissingInformation = (message: PricingMessage): PricingMessage => {
       },
     ];
   }
+  if (message.party === null || message.party === undefined) {
+    message.party = deal.buyer;
+  }
+  if (message.fwdPts === null || message.fwdPts === undefined) {
+    message.fwdPts = 1000 * (message.Output.Inputs.forward - message.Output.Inputs.spot);
+  }
   return { ...message, ...missingFields };
 };
 
