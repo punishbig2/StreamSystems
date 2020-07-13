@@ -220,7 +220,15 @@ export const MiddleOffice: React.FC<Props> = observer(
             );
           case EntryType.Clone:
           case EntryType.New:
-            return null;
+            return (
+              <button
+                className={"primary"}
+                onClick={() => deStore.cancelAddOrClone()}
+              >
+                <i className={"fa fa-times"} />
+                <span>Cancel</span>
+              </button>
+            );
         }
       };
 

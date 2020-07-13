@@ -71,6 +71,13 @@ export class DealEntryStore {
   }
 
   @action.bound
+  public cancelAddOrClone(): void {
+    moStore.setDeal(null);
+    moStore.setEditMode(false);
+    this.reset();
+  }
+
+  @action.bound
   public updateEntry(name: keyof DealEntry, value: any): void {
     if (name === "strategy") {
       const { deal } = moStore;
