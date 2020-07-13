@@ -67,6 +67,7 @@ export class DealEntryStore {
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
     moStore.setDeal(null);
+    moStore.setEditMode(true);
   }
 
   @action.bound

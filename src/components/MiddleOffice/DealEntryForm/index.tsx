@@ -28,6 +28,10 @@ export const DealEntryForm: React.FC<Props> = observer(
       store.setDeal(deal);
     }, [store, deal]);
 
+    const onCancel = () => {
+      moStore.setDeal(null, store);
+      moStore.setEditMode(false);
+    };
     const onPriced =
       deal === null ? undefined : () => sendPricingRequest(deal, entry);
     const getActionButtons = (): ReactElement | null => {
@@ -47,7 +51,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         case EntryType.Clone:
           return (
             <NewEntryButtons
-              onCancelled={() => moStore.setDeal(null, store)}
+              onCancelled={() => onCancel}
               onSubmitted={store.createOrClone}
               canSubmit={store.isReadyForSubmission}
             />
