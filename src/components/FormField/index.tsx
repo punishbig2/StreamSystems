@@ -15,6 +15,7 @@ import {
 } from "components/FormField/inputHandler";
 import { NumericInputHandler } from "components/FormField/numeric";
 import { DefaultHandler } from "components/FormField/default";
+import { TenorDropdown } from "components/TenorDropdown";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
@@ -263,6 +264,18 @@ export class FormField<T> extends Component<Props<T>, State> {
           <div className={"readonly-field"}>
             <CurrentTime dateOnly={true} />
           </div>
+        );
+      case "tenor":
+        if (!dropdownData)
+          throw new Error("cannot have a dropdown with no data");
+        return (
+          <TenorDropdown
+            value={state.internalValue}
+            className={classes.join(" ")}
+            readOnly={!props.editable}
+            data={dropdownData}
+            onChange={this.onSelectChange}
+          />
         );
       case "dropdown":
         if (!dropdownData)

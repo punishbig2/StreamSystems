@@ -107,7 +107,7 @@ export class NumericInputHandler<
   ): StateReturnType<S> {
     event.preventDefault();
     const newState: StateReturnType<S> = this.buildValue(
-      1000000 * state.internalValue,
+      1000 * state.internalValue,
       event.currentTarget,
       props,
       state
@@ -116,7 +116,7 @@ export class NumericInputHandler<
     if (state.caretPosition !== null) {
       return {
         ...newState,
-        caretPosition: state.caretPosition + 8,
+        caretPosition: state.caretPosition + 4,
       } as StateReturnType<S>;
     } else {
       return newState;

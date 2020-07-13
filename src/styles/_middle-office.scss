@@ -176,6 +176,7 @@ $grey-form-color: $foreground-color;
             input {
               color: inherit;
             }
+
           }
         }
       }
@@ -229,6 +230,20 @@ $grey-form-color: $foreground-color;
           &::before {
             border-color: inherit;
           }
+
+          .expiry-date {
+            font-weight: 600;
+            padding: 0 8px;
+            color: $foreground-color;
+
+            &::before {
+              content: "(expiry: ";
+            }
+
+            &::after {
+              content: ")";
+            }
+          }
         }
 
         .MuiInputBase-root,
@@ -254,6 +269,7 @@ $grey-form-color: $foreground-color;
             &::before {
               display: none;
             }
+
             svg {
               display: none;
             }
@@ -348,6 +364,7 @@ $grey-form-color: $foreground-color;
                 font-size: 10px;
               }
             }
+
             color: $foreground-color;
           }
 

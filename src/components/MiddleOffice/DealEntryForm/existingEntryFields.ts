@@ -68,7 +68,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "tenor",
     label: "Tenor",
-    type: "dropdown",
+    type: "tenor",
     color: "orange",
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic

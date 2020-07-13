@@ -8,4 +8,5 @@ export type FieldType =
   | "dropdown"
   | "boolean"
   | "current:date"
-  | "current:time";
+  | "current:time"
+  | "tenor";

@@ -14,7 +14,6 @@ export const createLegsFromDefinition = (
   definitions: LegOptionsDefOut[] | LegOptionsDefIn[],
   symbol: Symbol
 ): Leg[] => {
-  console.log(definitions);
   const legs: Leg[] = [];
   // Now fill the stub legs
   const [ccy1, ccy2] = splitCurrencyPair(entry.currencyPair);
