@@ -19,7 +19,7 @@ interface Props {
 export const DealBlotter: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { onDealSelected } = props;
-    const [table, setTable] = useState<HTMLDivElement | null>(null);
+    const [, setTable] = useState<HTMLDivElement | null>(null);
     const { deal } = mo;
     const deals: Deal[] = dealsStore.deals;
     useEffect(() => {

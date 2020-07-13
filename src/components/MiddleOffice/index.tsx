@@ -22,7 +22,7 @@ import {
 } from "components/MiddleOffice/interfaces/pricingResult";
 import { ModalWindow } from "components/ModalWindow";
 import { API, Task } from "API";
-import { DealEntryStore} from "mobx/stores/dealEntryStore";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import dealsStore from "mobx/stores/dealsStore";
 import { QuestionBox } from "components/QuestionBox";
@@ -179,6 +179,17 @@ export const MiddleOffice: React.FC<Props> = observer(
               </button>
             );
           case EntryType.ExistingDeal:
+            if (moStore.isEditMode) {
+              return (
+                <button
+                  className={"primary"}
+                  onClick={() => moStore.setEditMode(false)}
+                >
+                  <i className={"fa fa-times"} />
+                  <span>Cancel</span>
+                </button>
+              );
+            }
             return (
               <>
                 <button
@@ -190,7 +201,7 @@ export const MiddleOffice: React.FC<Props> = observer(
                 </button>
                 <button
                   className={"primary"}
-                  onClick={() => null}
+                  onClick={() => moStore.setEditMode(true)}
                 >
                   <i className={"fa fa-edit"} />
                   <span>Edit</span>

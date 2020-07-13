@@ -1,11 +1,9 @@
-import { ProductSource } from "API";
-import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
-import { DealEntry, DealType, DealStatus } from "structures/dealEntry";
-import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
+import { Symbol } from "interfaces/symbol";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import { dealSourceToDealType } from "utils/dealUtils";
+import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
+import { DealEntry, DealStatus, DealType } from "structures/dealEntry";
 
 const editableFilter = (types: number) => (
   data: any,
@@ -44,7 +42,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
       entry?: DealEntry
     ): SelectItem[] => {
       return Object.values(data)
-        .filter((item: MOStrategy) => {
+        .filter((item: MOStrategy): boolean => {
           if (entry === undefined) return false;
           switch (entry.dealType) {
             case DealType.Invalid:
@@ -56,6 +54,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
             case DealType.Manual:
               return item.source === "Manual";
           }
+          return false;
         })
         .map(
           (strategy: MOStrategy): SelectItem => ({

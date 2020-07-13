@@ -45,6 +45,7 @@ export class MoStore {
   @observable loadingReferenceDataProgress: number = 0;
   @observable isSendingPricingRequest: boolean = false;
   @observable error: Error | null = null;
+  @observable isEditMode: boolean = false;
 
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
@@ -228,6 +229,7 @@ export class MoStore {
     this.deal = deal;
     this.legs = [];
     this.summaryLeg = null;
+    this.isEditMode = false;
     // Update the deal entry store
     if (deStore !== null) {
       deStore.setDeal(deal);
@@ -305,6 +307,11 @@ export class MoStore {
     } else {
       throw new Error(`symbol not found \`${currencyPair}'`);
     }
+  }
+
+  @action.bound
+  public setEditMode(mode: boolean) {
+    this.isEditMode = mode;
   }
 }
 

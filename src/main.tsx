@@ -1,15 +1,6 @@
 import { Workarea } from "components/Workarea";
-
 import "styles/main.scss";
-
 import React from "react";
-
-Object.defineProperty(MouseEvent.prototype, "ignore", {
-  value: function () {
-    this.preventDefault();
-    this.stopImmediatePropagation();
-  },
-});
 
 const FXOptionsUI: React.FC = () => {
   const { classList } = document.body;

@@ -1,7 +1,8 @@
-import { FormField } from "components/formField";
+import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 
@@ -40,6 +41,7 @@ export const fieldsMapper = (
     }
   })();
   const isEditable = (fieldDef: FieldDef<Leg, {}, DealEntry>): boolean => {
+    if (!moStore.isEditMode) return false;
     if (typeof fieldDef.editable !== "function") {
       return fieldDef.editable;
     } else {

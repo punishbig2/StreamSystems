@@ -7,19 +7,22 @@ import {
   Select,
 } from "@material-ui/core";
 import { CurrentTime } from "components/currentTime";
-import { getDisplayValue } from "components/MiddleOffice/helpers";
+import { DateInputHandler } from "components/FormField/date";
+import {
+  Editable,
+  InputHandler,
+  MinimalProps,
+} from "components/FormField/inputHandler";
+import { NumericInputHandler } from "components/FormField/numeric";
+import { DefaultHandler } from "components/FormField/default";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
-import moment, { isMoment, Moment } from "moment";
 import { randomID } from "randomID";
 import React, { Component, ReactElement } from "react";
 
-interface Props<T> {
+interface Props<T> extends MinimalProps {
   label: string;
-  name: string;
-  value: string | boolean | number | Moment | undefined | null;
-  editable?: boolean;
   currency?: string;
   type: FieldType;
   items?: (string | number)[];
@@ -27,21 +30,20 @@ interface Props<T> {
   placeholder?: string;
   precision?: number;
   dropdownData?: SelectItem[] | any;
-  emptyValue?: string;
   onChange?: (name: keyof T, value: any) => void;
 }
 
-interface State {
+interface State extends Editable {
   labels: string[] | null;
-  internalValue: any;
-  displayValue: string;
   focus: boolean;
-  validity: Validity;
-  caretPosition: number;
 }
 
 export class FormField<T> extends Component<Props<T>, State> {
   private input: HTMLInputElement | null = null;
+  private inputHandlers: {
+    [key: string]: InputHandler<Props<T>, State>;
+  } = {};
+  private readonly defaultHandler: InputHandler<Props<T>, State>;
 
   static defaultProps = {
     precision: 0,
@@ -54,48 +56,35 @@ export class FormField<T> extends Component<Props<T>, State> {
     labels: null,
     focus: false,
     validity: Validity.Intermediate,
-    caretPosition: 0,
+    caretPosition: null,
   };
 
-  private setInputRef = (input: HTMLInputElement) => {
-    this.input = input;
-  };
-
-  private resetValue = (): void => {
-    const { props } = this;
-    this.setCurrentValue(props.value);
-  };
-
-  private setCurrentValue = (value: any): void => {
-    const { props, state } = this;
-    const [displayValue, validity] = getDisplayValue(
-      props.type,
-      props.name,
-      value,
-      !!props.editable,
-      props.precision,
-      props.currency,
-      props.emptyValue
-    );
-    this.setState(
-      {
-        displayValue: displayValue,
-        internalValue: value,
-        validity: validity,
-      },
-      () => {}
-    );
-  };
+  constructor(props: Props<T>) {
+    super(props);
+    const numeric: InputHandler<Props<T>, State> = new NumericInputHandler<
+      Props<T>,
+      State
+    >();
+    const date: InputHandler<Props<T>, State> = new DateInputHandler<
+      Props<T>,
+      State
+    >();
+    // Use sane handler for all numeric types
+    this.inputHandlers["number"] = numeric;
+    this.inputHandlers["currency"] = numeric;
+    this.inputHandlers["percent"] = numeric;
+    this.inputHandlers["date"] = date;
+    this.inputHandlers["time"] = date;
+    // The default handler
+    this.defaultHandler = new DefaultHandler<Props<T>, State>();
+  }
 
   public componentDidMount = (): void => {
+    const { props } = this;
+    if (props.type === "currency" && props.currency === undefined) {
+      throw new Error("if type is currency you MUST specify a currency");
+    }
     this.resetValue();
-  };
-
-  private ensureCaretIsInPlace = () => {
-    const { input, state } = this;
-    if (input === null) return;
-    // Place the caret in the right place
-    input.setSelectionRange(state.caretPosition, state.caretPosition);
   };
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
@@ -112,6 +101,35 @@ export class FormField<T> extends Component<Props<T>, State> {
     this.ensureCaretIsInPlace();
   };
 
+  private setInputRef = (input: HTMLInputElement) => {
+    this.input = input;
+  };
+
+  private resetValue = (): void => {
+    const { props } = this;
+    // Reset the "props" specified value
+    this.setValue(props.value);
+  };
+
+  private setValue = (value: any): void => {
+    const { props, state, input } = this;
+    const { inputHandlers } = this;
+    const handler: InputHandler<Props<T>, State> =
+      inputHandlers[props.type] || this.defaultHandler;
+    const s = handler.buildValue(value, input, props, state);
+    if (s === null) return;
+    if (s.displayValue === undefined || s.displayValue === null) return;
+    this.setState(s);
+  };
+
+  private ensureCaretIsInPlace = () => {
+    const { input, state } = this;
+    if (input === null) return;
+    // Place the caret in the right place
+    if (state.caretPosition === null) return;
+    input.setSelectionRange(state.caretPosition, state.caretPosition);
+  };
+
   private extractLabelsFromData = (data: any) => {
     return data
       ? data.reduce((obj: any, item: { label: string; value: string }) => {
@@ -120,116 +138,35 @@ export class FormField<T> extends Component<Props<T>, State> {
       : {};
   };
 
-  private cleanNonDigits = (value: string): string => {
-    const digitsOnly: string = value.replace(/[^0-9]+/g, "");
-    if (digitsOnly.length === 0) return "0";
-    return digitsOnly;
-  };
-
-  private getDecimalSeparator = (): string => {
-    return (0.1).toLocaleString(undefined).charAt(1);
-  };
-
-  private parseNumber = (value: string): any => {
-    const decimalSeparator: string = this.getDecimalSeparator();
-    const fragments: string[] = value.split(decimalSeparator);
-    if (fragments.length === 2) {
-      const integerPart: string = this.cleanNonDigits(fragments[0]);
-      const decimalPart: string = this.cleanNonDigits(fragments[1]);
-      const newString: string = integerPart + decimalSeparator + decimalPart;
-      if (newString.length === 0) {
-        return "";
-      } else {
-        return Number(newString);
-      }
-    } else if (fragments.length === 1) {
-      const newString = fragments[0].replace(/[^0-9]+/g, "");
-      if (newString.length === 0) {
-        return "";
-      } else {
-        return Number(newString);
-      }
-    } else {
-      return value;
-    }
-  };
-
-  private getUnFormattedValue = (value: string, type: FieldType): any => {
-    switch (type) {
-      case "date":
-        if (isMoment(value)) {
-          return value;
-        } else if (/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/.test(value)) {
-          const date: moment.Moment = moment(value, "MM/DD/YYYY");
-          if (date.isValid()) {
-            return date;
-          } else {
-            return value;
-          }
-        }
-        return value;
-      case "time":
-        break;
-      case "text":
-        return value;
-      case "currency":
-      case "number":
-      case "percent":
-        return this.parseNumber(value);
-      case "dropdown":
-        break;
-      case "boolean":
-        break;
-      case "current:date":
-        break;
-      case "current:time":
-        break;
-    }
-    return null;
+  private parse = (value: string, type: FieldType): any => {
+    const { inputHandlers } = this;
+    const handler: InputHandler<Props<T>, State> =
+      inputHandlers[type] || this.defaultHandler;
+    return handler.parse(value);
   };
 
   private onInputKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
-    // const decimalSeparator: string = this.getDecimalSeparator();
-    switch (event.key) {
-      case "Escape":
-        this.resetValue();
-        break;
-      case "Enter":
-        if (props.onChange) {
-          props.onChange(props.name as keyof T, state.internalValue);
-        }
-        break;
-      case "Backspace":
-        this.sanitizeBackspaceOnNumericFields(event);
-        break;
-      case "M":
-      case "m":
-        this.setCurrentValue(1000 * this.state.internalValue);
-        // Move the caret to the end
-        this.setState({
-          caretPosition: state.caretPosition + 3,
-        });
-        event.preventDefault();
-        break;
-      /*case decimalSeparator:
-        this.sanitizeDecimalSeparatorOnNumericFields(event, decimalSeparator);
-        break;*/
+    const handler: InputHandler<Props<T>, State> =
+      this.inputHandlers[props.type] || this.defaultHandler;
+    const result: State | Pick<State, keyof State> | null = handler.onKeydown(
+      event,
+      props,
+      state
+    );
+    if (result !== null) {
+      this.setState(result);
     }
   };
 
-  private saveCaretPosition = () =>
-    /* event: React.KeyboardEvent<HTMLInputElement> */
-    {
-      const { input } = this;
-      if (input === null) return;
-      if (input.selectionStart === null) return;
-      this.setState({
-        caretPosition: input.selectionStart,
-      });
-    };
+  private saveCaretPosition = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { currentTarget } = event;
+    this.setState({
+      caretPosition: currentTarget.selectionStart,
+    });
+  };
 
   private onInputBlur = (/* event: React.FocusEvent<HTMLInputElement> */): void => {
     const { props, state } = this;
@@ -238,63 +175,21 @@ export class FormField<T> extends Component<Props<T>, State> {
     }
   };
 
-  private sanitizeDecimalSeparatorOnNumericFields(
-    event: React.KeyboardEvent<HTMLInputElement>,
-    decimalSeparator: string
-  ) {
-    const { state, input } = this;
-    const { displayValue } = state;
-    const index: number = displayValue.indexOf(decimalSeparator);
-    // Never allow the decimal separator
-    event.preventDefault();
-    if (index === -1) return;
-    if (input === null || input.selectionStart === null) return;
-    const newValue: string =
-      displayValue.slice(0, index) + displayValue.slice(index + 1);
-    const finalPosition: number =
-      input.selectionStart < index
-        ? input.selectionStart
-        : input.selectionStart + 1;
-    const finalValue: string =
-      newValue.slice(0, finalPosition) +
-      decimalSeparator +
-      newValue.slice(finalPosition);
-    this.setCurrentValue(this.parseNumber(finalValue));
-  }
-
-  private sanitizeBackspaceOnNumericFields(
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) {
-    const { input, state } = this;
-    const { displayValue } = state;
-    if (
-      input === null ||
-      input.selectionStart === null ||
-      input.selectionStart !== input.selectionEnd
-    ) {
-      return;
-    }
-    const offset: number = input.selectionStart - 1;
-    if (offset < 0) {
-      event.preventDefault();
-    } else {
-      if (displayValue[offset] === this.getDecimalSeparator()) {
-        input.setSelectionRange(offset, offset);
-        event.preventDefault();
-      }
-    }
-  }
-
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { props } = this;
+    const { props, state, inputHandlers } = this;
     const {
-      currentTarget: { value },
+      currentTarget: { value: inputContent },
     } = event;
     if (!props.editable) return;
-    this.saveCaretPosition();
-    const unFormattedValue: any = this.getUnFormattedValue(value, props.type);
-    if (unFormattedValue === props.value) return;
-    this.setCurrentValue(unFormattedValue);
+    const handler: InputHandler<Props<T>, State> =
+      inputHandlers[props.type] || this.defaultHandler;
+    if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
+      event.preventDefault();
+    } else {
+      this.saveCaretPosition(event);
+      const value: any = this.parse(inputContent, props.type);
+      this.setValue(value);
+    }
   };
 
   private onSelectChange = (
@@ -304,7 +199,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     const { props } = this;
     if (!props.editable) return;
     const { value } = event.target;
-    this.setCurrentValue(value);
+    this.setValue(value);
     // In this case, propagation of the change has to occur instantly
     if (!props.onChange) return;
     props.onChange(props.name as keyof T, value);
@@ -351,7 +246,6 @@ export class FormField<T> extends Component<Props<T>, State> {
   private createControl = (): ReactElement => {
     const { props, state } = this;
     const { dropdownData } = props;
-
     const classes: string[] = [
       state.validity !== Validity.InvalidFormat ? "valid" : "invalid",
       props.value === undefined ? "empty" : "non-empty",

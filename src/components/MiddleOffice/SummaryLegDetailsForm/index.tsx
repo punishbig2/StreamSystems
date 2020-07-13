@@ -1,5 +1,5 @@
 import { Grid } from "@material-ui/core";
-import { FormField } from "components/formField";
+import { FormField } from "components/FormField";
 import { NoDataMessage } from "components/noDataMessage";
 import { observer } from "mobx-react";
 import MO from "mobx/stores/moStore";

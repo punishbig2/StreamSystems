@@ -1,9 +1,10 @@
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import mo, { MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
-import { FormField } from "components/formField";
+import { FormField } from "components/FormField";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
@@ -35,6 +36,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const isEditable = (
     fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>
   ): boolean | undefined => {
+    if (!moStore.isEditMode) return false;
     if (typeof fieldDef.editable === "function") {
       return fieldDef.editable(fieldDef.data || dropdownData, store);
     } else {
