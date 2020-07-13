@@ -14,12 +14,6 @@ export const ExistingEntryButtons: React.FC<Props> = (
   return (
     <>
       <button
-        type={"submit"}
-        style={{ display: "none" }}
-        aria-hidden={"true"}
-        disabled
-      />
-      <button
         type={"button"}
         className={"primary"}
         onClick={props.onPriced}
@@ -29,7 +23,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
       </button>
       <button
         type={"button"}
-        className={"secondary"}
+        className={"primary"}
         onClick={props.onSaved}
         disabled={!props.isModified}
       >
@@ -43,6 +37,12 @@ export const ExistingEntryButtons: React.FC<Props> = (
       >
         Submit
       </button>
+      <button
+        type={"submit"}
+        style={{ display: "none" }}
+        aria-hidden={"true"}
+        disabled
+      />
     </>
   );
 };

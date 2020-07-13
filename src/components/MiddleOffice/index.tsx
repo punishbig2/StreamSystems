@@ -36,7 +36,6 @@ interface Props {
 
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    console.log("rendering middle office");
     const [deStore] = useState<DealEntryStore>(new DealEntryStore());
     const [
       summaryContainer,

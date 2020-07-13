@@ -4,6 +4,7 @@ import { FieldDef } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
+import { Observer } from "mobx-react";
 import { DealEntry } from "structures/dealEntry";
 
 const capitalize = (str: string): string => {
@@ -49,17 +50,20 @@ export const fieldsMapper = (
     }
   };
   return (
-    <FormField<Leg>
-      id={leg.option}
-      key={fieldDef.name + index}
-      color={fieldDef.color}
-      label={fieldDef.label}
-      editable={isEditable(fieldDef)}
-      precision={fieldDef.precision}
-      name={fieldDef.name}
-      type={fieldDef.type}
-      {...extraProps}
-      onChange={onValueChange}
-    />
+    <Observer key={fieldDef.name + index}>
+      {() => (
+        <FormField<Leg>
+          id={leg.option}
+          color={fieldDef.color}
+          label={fieldDef.label}
+          editable={isEditable(fieldDef)}
+          precision={fieldDef.precision}
+          name={fieldDef.name}
+          type={fieldDef.type}
+          {...extraProps}
+          onChange={onValueChange}
+        />
+      )}
+    </Observer>
   );
 };
