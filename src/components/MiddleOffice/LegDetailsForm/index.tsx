@@ -3,7 +3,6 @@ import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDeta
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
-import MO from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 
 interface Props {
@@ -12,7 +11,7 @@ interface Props {
 
 export const LegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const { legs } = MO;
+    const { legs } = moStore;
     const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
       // Update the changed leg
       moStore.updateLeg(index, key, value);

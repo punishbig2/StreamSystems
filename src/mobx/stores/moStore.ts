@@ -240,6 +240,7 @@ export class MoStore {
   public setLegs(legs: Leg[], summary: SummaryLeg | null) {
     this.summaryLeg = summary;
     this.legs = legs;
+    console.log(legs);
   }
 
   public getStrategyById(id: string): MOStrategy {

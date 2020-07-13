@@ -185,7 +185,6 @@ export class FormField<T> extends Component<Props<T>, State> {
       const {
         target: { value: textValue },
       } = event;
-      console.log(textValue);
       const value: any = handler.parse(textValue);
       props.onInput(event, value);
     }

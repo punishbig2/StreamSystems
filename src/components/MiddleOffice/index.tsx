@@ -1,3 +1,4 @@
+import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import React, {
   ReactElement,
@@ -103,7 +104,7 @@ export const MiddleOffice: React.FC<Props> = observer(
     useEffect(() => {
       setPricingResult(null);
     }, [deal]);
-    const setLegs = useCallback(
+    const updatePricingData = useCallback(
       (data: any) => {
         setSummaryStyle(undefined);
         if (deal === null) return;
@@ -116,31 +117,40 @@ export const MiddleOffice: React.FC<Props> = observer(
     );
     useEffect(() => {
       if (deal === null) return;
-      const task: Task<any> = API.getLegs(deal.dealID);
-      task
-        .execute()
-        .then((response: any) => {
-          if (response !== null) {
-            setLegs(response);
+      const content: string | null = localStorage.getItem(deal.dealID);
+      if (content !== null) {
+        const localLegs: {
+          legs: Leg[];
+          summary: SummaryLeg;
+        } = JSON.parse(content);
+        moStore.setLegs(localLegs.legs, localLegs.summary);
+      } else {
+        const task: Task<any> = API.getLegs(deal.dealID);
+        task
+          .execute()
+          .then((response: any) => {
+            if (response !== null) {
+              updatePricingData(response);
+            }
+          })
+          .catch((reason: any) => {
+            if (reason === "aborted") {
+              return;
+            } else {
+              console.warn(reason);
+            }
+          });
+        const removePricingListener: () => void = signalRManager.addPricingResponseListener(
+          (response: any) => {
+            updatePricingData(response);
           }
-        })
-        .catch((reason: any) => {
-          if (reason === "aborted") {
-            return;
-          } else {
-            console.warn(reason);
-          }
-        });
-      const removePricingListener: () => void = signalRManager.addPricingResponseListener(
-        (response: any) => {
-          setLegs(response);
-        }
-      );
-      return () => {
-        removePricingListener();
-        task.cancel();
-      };
-    }, [deal, setLegs]);
+        );
+        return () => {
+          removePricingListener();
+          task.cancel();
+        };
+      }
+    }, [deal, updatePricingData]);
     if (!props.visible) classes.push("hidden");
     if (!moStore.isInitialized) {
       return (

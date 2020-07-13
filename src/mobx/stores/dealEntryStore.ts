@@ -1,7 +1,6 @@
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import deepEqual from "deep-equal";
 import { action, computed, observable } from "mobx";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";
@@ -15,7 +14,7 @@ export class DealEntryStore {
 
   @computed
   public get isModified(): boolean {
-    return !deepEqual(this.entry, this.originalEntry);
+    return moStore.isEditMode; // !deepEqual(this.entry, this.originalEntry);
   }
 
   @computed

@@ -10,6 +10,7 @@ import {
 import { MessageResponse } from "interfaces/messageResponse";
 import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
+import moStore from "mobx/stores/moStore";
 import { getSideFromType, getCurrentTime } from "utils";
 import { STRM } from "stateDefs/workspaceState";
 import { Sides } from "interfaces/sides";
@@ -832,6 +833,14 @@ export class API {
   }
 
   public static async updateDeal(data: any): Promise<string> {
+    // Another api call
+    localStorage.setItem(
+      data.linkid,
+      JSON.stringify({
+        legs: moStore.legs,
+        summary: moStore.summaryLeg,
+      })
+    );
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "update"),
       API.createDealRequest(data)
