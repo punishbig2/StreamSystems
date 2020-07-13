@@ -1,41 +1,71 @@
 import { Grid, MenuItem, Select } from "@material-ui/core";
+import { FormField } from "components/FormField";
 import { SelectItem } from "forms/fieldDef";
-import moment from "moment";
-import React, { ReactElement, ReactNode, useState } from "react";
+import moment, { isMoment } from "moment";
+import React, { ReactElement, useEffect, useState } from "react";
 import { tenorToDuration } from "utils/dataGenerators";
 
-interface Props {
+interface Props<T> {
   data: SelectItem[];
   value: string;
   className: string;
   readOnly: boolean;
-  onChange: (
-    event: React.ChangeEvent<{ name?: string; value: unknown }>,
-    child: ReactNode
-  ) => void;
+  color: "green" | "orange" | "cream" | "grey";
+  name: string;
+  onChange?: (name: keyof T, value: any) => void;
 }
 
-export const TenorDropdown: React.FC<Props> = (props: Props): ReactElement => {
-  const { data } = props;
-  const [formatter] = useState<Intl.DateTimeFormat>(
-    new Intl.DateTimeFormat(undefined, {
-      day: "numeric",
-      month: "numeric",
-      year: "numeric",
-    })
-  );
-  const date: Date = moment().add(tenorToDuration(props.value)).toDate();
+const tenorToDate = (value: string): moment.Moment => {
+  const now: moment.Moment = moment();
+  const duration: moment.Duration = tenorToDuration(value);
+  return now.add(duration);
+};
+
+export function TenorDropdown<T>(props: Props<T>): ReactElement {
+  const { data, value } = props;
+  const [date, setDate] = useState<moment.Moment>(tenorToDate(value));
+  useEffect(() => {
+    setDate(tenorToDate(value));
+  }, [value]);
+  const onDateChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: moment.Moment | string
+  ): void => {
+    console.log(value);
+    if (!isMoment(value)) return;
+    if (props.onChange !== undefined) {
+      props.onChange(props.name as keyof T, value);
+    }
+  };
+  const onSelectChange = (
+    event: React.ChangeEvent<{ name?: string; value: unknown }>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    if (props.onChange !== undefined) {
+      props.onChange(props.name as keyof T, value);
+    }
+  };
   return (
-    <Grid className={"MuiInputBase-root"} container>
+    <Grid
+      className={"MuiInputBase-root tenor-dropdown"}
+      alignItems={"center"}
+      container
+    >
       <Grid xs={3} item>
         <Select
-          value={props.value}
+          value={isMoment(value) ? "SPECIFIC" : value}
           className={props.className}
           displayEmpty={true}
           readOnly={props.readOnly}
           fullWidth={true}
-          onChange={props.onChange}
+          name={props.name + "-value"}
+          onChange={onSelectChange}
         >
+          {isMoment(value) ? (
+            <MenuItem value={"SPECIFIC"}>SPECIFIC</MenuItem>
+          ) : null}
           {data.map((item: SelectItem) => (
             <MenuItem key={item.value} value={item.value}>
               {item.value}
@@ -43,9 +73,16 @@ export const TenorDropdown: React.FC<Props> = (props: Props): ReactElement => {
           ))}
         </Select>
       </Grid>
-      <Grid xs={9} item>
-        <div className={"expiry-date"}>{formatter.format(date)}</div>
+      <Grid className={"input-container"} xs={9} item>
+        <FormField<{ date: moment.Moment }>
+          color={props.color}
+          type={"date"}
+          value={date}
+          editable={!props.readOnly}
+          name={"date"}
+          onInput={onDateChange}
+        />
       </Grid>
     </Grid>
   );
-};
+}

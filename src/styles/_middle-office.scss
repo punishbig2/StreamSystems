@@ -144,8 +144,9 @@ $grey-form-color: $foreground-color;
       }
     }
 
-    .MuiFormControl-root,
+    .field,
     .readonly-field {
+      display: flex;
       width: 100%;
 
       &.green {
@@ -176,15 +177,15 @@ $grey-form-color: $foreground-color;
             input {
               color: inherit;
             }
-
           }
         }
       }
 
       .MuiFormControlLabel-root {
         color: inherit;
-        margin: 2px 0;
+        margin: 3px 0;
         cursor: default;
+        flex: 1;
 
         legend {
           span {
@@ -202,7 +203,7 @@ $grey-form-color: $foreground-color;
 
         .MuiInputBase-root,
         .readonly-field {
-          flex-basis: 50%;
+          flex: 1;
         }
 
         .MuiOutlinedInput-root {
@@ -231,17 +232,10 @@ $grey-form-color: $foreground-color;
             border-color: inherit;
           }
 
-          .expiry-date {
-            font-weight: 600;
-            padding: 0 8px;
-            color: $foreground-color;
-
-            &::before {
-              content: "(expiry: ";
-            }
-
-            &::after {
-              content: ")";
+          &.tenor-dropdown {
+            justify-content: space-between;
+            .input-container {
+              padding-left: 6px;
             }
           }
         }

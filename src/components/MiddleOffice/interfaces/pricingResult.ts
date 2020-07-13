@@ -1,9 +1,8 @@
 import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { VolSurface } from "components/MiddleOffice/interfaces/pricer";
-import moStore from "mobx/stores/moStore";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { addMissingInformationToPricingMessage } from "ensureDataIsSane";
 import { parser } from "timeUtils";
-import moment from "moment";
 
 export interface PricingResult {
   summary: Partial<SummaryLeg>;
@@ -149,59 +148,12 @@ export interface PricingMessage {
   version: string;
 }
 
-const addMissingInformation = (message: PricingMessage): PricingMessage => {
-  const {
-    Output: { MarketSnap },
-  } = message;
-  const { deal } = moStore;
-  if (deal === null) throw new Error("What the fuck?");
-  const { symbol, deliveryDate, tradeDate, expiryDate } = deal;
-  const missingFields = {};
-  const premiumDate = moment(tradeDate).add(symbol.SettlementWindow, "d");
-  if (
-    message.premiumCurrency === null ||
-    message.premiumCurrency === undefined
-  ) {
-    message.premiumCurrency = symbol.premiumCCY;
-  }
-  if (message.premiumDate === null || message.premiumDate === undefined) {
-    message.premiumDate = premiumDate.format();
-  }
-  if (message.deliveryDate === null || message.deliveryDate === undefined) {
-    message.deliveryDate = deliveryDate.format();
-  }
-  if (message.expiryDate === null || message.expiryDate === undefined) {
-    message.expiryDate = expiryDate.format();
-  }
-  if (message.days === null || message.days === undefined) {
-    message.days = expiryDate.diff(tradeDate, "d");
-  }
-  if (message.rates === null || message.rates === undefined) {
-    const { symbolID } = symbol;
-    message.rates = [
-      {
-        currency: symbol.premiumCCY,
-        value: MarketSnap.ccy1Zero,
-      },
-      {
-        currency: symbolID.replace(symbol.premiumCCY, ""),
-        value: MarketSnap.ccy2Zero,
-      },
-    ];
-  }
-  if (message.party === null || message.party === undefined) {
-    message.party = deal.buyer;
-  }
-  if (message.fwdPts === null || message.fwdPts === undefined) {
-    message.fwdPts = 1000 * (message.Output.Inputs.forward - message.Output.Inputs.spot);
-  }
-  return { ...message, ...missingFields };
-};
-
 export const buildPricingResult = (
-  illMessage: PricingMessage
+  serverMessage: PricingMessage
 ): PricingResult => {
-  const message: PricingMessage = addMissingInformation(illMessage);
+  const message: PricingMessage = addMissingInformationToPricingMessage(
+    serverMessage
+  );
   const {
     Output: {
       Results: { Premium, Gamma, Vega, Forward_Delta, Legs },

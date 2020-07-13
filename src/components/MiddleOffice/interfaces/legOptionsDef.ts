@@ -8,4 +8,5 @@ export interface LegOptionsDefIn {
   productid: string;
   OptionLegType: string;
   SideType: string;
+  notional_ratio: number;
 }

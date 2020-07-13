@@ -104,7 +104,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     type: "number",
     color: "grey",
     name: "days",
-    label: "Day",
+    label: "Days",
     precision: 0,
     editable: false,
   },

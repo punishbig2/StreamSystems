@@ -1,5 +1,4 @@
 import {
-  FormControl,
   FormControlLabel,
   FormHelperText,
   MenuItem,
@@ -8,13 +7,13 @@ import {
 } from "@material-ui/core";
 import { CurrentTime } from "components/currentTime";
 import { DateInputHandler } from "components/FormField/date";
+import { DefaultHandler } from "components/FormField/default";
 import {
   Editable,
   InputHandler,
   MinimalProps,
 } from "components/FormField/inputHandler";
 import { NumericInputHandler } from "components/FormField/numeric";
-import { DefaultHandler } from "components/FormField/default";
 import { TenorDropdown } from "components/TenorDropdown";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
@@ -23,7 +22,7 @@ import { randomID } from "randomID";
 import React, { Component, ReactElement } from "react";
 
 interface Props<T> extends MinimalProps {
-  label: string;
+  label?: string;
   currency?: string;
   type: FieldType;
   items?: (string | number)[];
@@ -32,6 +31,7 @@ interface Props<T> extends MinimalProps {
   precision?: number;
   dropdownData?: SelectItem[] | any;
   onChange?: (name: keyof T, value: any) => void;
+  onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
 }
 
 interface State extends Editable {
@@ -176,10 +176,25 @@ export class FormField<T> extends Component<Props<T>, State> {
     }
   };
 
+  private onInputInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { props } = this;
+    if (props.onInput !== undefined) {
+      const { inputHandlers } = this;
+      const handler: InputHandler<Props<T>, State> =
+        inputHandlers[props.type] || this.defaultHandler;
+      const {
+        target: { value: textValue },
+      } = event;
+      console.log(textValue);
+      const value: any = handler.parse(textValue);
+      props.onInput(event, value);
+    }
+  };
+
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props, state, inputHandlers } = this;
     const {
-      currentTarget: { value: inputContent },
+      target: { value: inputContent },
     } = event;
     if (!props.editable) return;
     const handler: InputHandler<Props<T>, State> =
@@ -269,12 +284,14 @@ export class FormField<T> extends Component<Props<T>, State> {
         if (!dropdownData)
           throw new Error("cannot have a dropdown with no data");
         return (
-          <TenorDropdown
+          <TenorDropdown<T>
             value={state.internalValue}
+            name={props.name}
+            color={props.color}
             className={classes.join(" ")}
             readOnly={!props.editable}
             data={dropdownData}
-            onChange={this.onSelectChange}
+            onChange={props.onChange}
           />
         );
       case "dropdown":
@@ -300,6 +317,7 @@ export class FormField<T> extends Component<Props<T>, State> {
         if (!props.editable) {
           return (
             <div
+              title={"Click to copy!"}
               className={[...classes, "readonly-field"].join(" ")}
               onClick={(event: React.MouseEvent<HTMLDivElement>) =>
                 this.copyToClipboard(event, state.displayValue)
@@ -318,11 +336,13 @@ export class FormField<T> extends Component<Props<T>, State> {
               className={classes.join(" ")}
               placeholder={props.placeholder}
               labelWidth={30}
+              fullWidth={true}
               autoComplete={"new-password"}
               error={state.validity === Validity.InvalidFormat}
               onKeyDown={this.onInputKeyDown}
               onBlur={this.onInputBlur}
               onChange={this.onInputChange}
+              onInput={this.onInputInput}
             />
             <FormHelperText error={state.validity === Validity.InvalidFormat}>
               {}
@@ -335,7 +355,7 @@ export class FormField<T> extends Component<Props<T>, State> {
   private getClassName = (): string => {
     const { props, state } = this;
     const { internalValue } = state;
-    const classes: string[] = [props.color];
+    const classes: string[] = ["field", props.color];
     if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
     }
@@ -360,16 +380,20 @@ export class FormField<T> extends Component<Props<T>, State> {
   public render(): ReactElement {
     const { props } = this;
     const control: ReactElement = this.createControl();
-    return (
-      <FormControl className={this.getClassName()} margin={"none"}>
-        <FormControlLabel
-          labelPlacement={"start"}
-          label={props.label}
-          control={control}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-        />
-      </FormControl>
-    );
+    if (props.label === undefined) {
+      return <div className={this.getClassName()}>{control}</div>;
+    } else {
+      return (
+        <div className={this.getClassName()}>
+          <FormControlLabel
+            labelPlacement={"start"}
+            label={props.label}
+            control={control}
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
+          />
+        </div>
+      );
+    }
   }
 }
