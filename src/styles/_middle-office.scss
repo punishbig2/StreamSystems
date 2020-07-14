@@ -2,7 +2,7 @@ $cream-form-color: saturate(mix($foreground-color, #f1c012), 10%);
 $green-form-color: saturate(mix($foreground-color, green), 10%);
 $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
-$field-size: 24px;
+$field-size: 25px;
 
 .empty-section {
   height: 100%;
@@ -291,6 +291,7 @@ $field-size: 24px;
             font-weight: inherit;
             color: inherit;
             border: none;
+            height: $field-size;
             line-height: $field-size;
           }
         }
