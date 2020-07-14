@@ -2,6 +2,11 @@ import { OrderTypes } from "interfaces/mdEntry";
 import { Sides } from "interfaces/sides";
 import timezones, { TimezoneInfo } from "data/timezones";
 
+export const coalesce = (value: any, defaultValue: any): any => {
+  if (value === null || value === undefined) return defaultValue;
+  return value;
+};
+
 export const getSideFromType = (type: OrderTypes): Sides => {
   switch (type) {
     case OrderTypes.Bid:

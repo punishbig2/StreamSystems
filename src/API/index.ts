@@ -11,7 +11,7 @@ import { MessageResponse } from "interfaces/messageResponse";
 import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
 import moStore from "mobx/stores/moStore";
-import { getSideFromType, getCurrentTime } from "utils";
+import { getSideFromType, getCurrentTime, coalesce } from "utils";
 import { STRM } from "stateDefs/workspaceState";
 import { Sides } from "interfaces/sides";
 import config from "config";
@@ -738,7 +738,6 @@ export class API {
       throw new Error(`unsupported currency ${currencyPair}`);
     const [ccy1, ccy2] = splitCurrencyPair(currencyPair);
     const tradeDateAsDate: Date = tradeDate.toDate();
-    const definitions: LegOptionsDefIn[] = legDefinitions.in;
     const request: VolMessageIn = {
       id: deal.dealID,
       Option: {
@@ -750,20 +749,23 @@ export class API {
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
-        OptionLegs: definitions.map(
-          (definition: LegOptionsDefIn): OptionLeg => ({
-            notional: 1e6 * deal.lastQuantity,
-            expiryDate: deal.expiryDate,
-            deliveryDate: deal.deliveryDate,
+        OptionLegs: legs.map(
+          (leg: Leg): OptionLeg => ({
+            notional: coalesce(leg.notional, 1e6 * deal.lastPrice),
+            expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
+            deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
             spreadVolatiltyOffset: API.divideBy100(entry.spread),
-            strike: entry.strike || strategy.strike,
-            volatilty: API.divideBy100(entry.vol),
+            strike: coalesce(
+              leg.strike,
+              coalesce(entry.strike, strategy.strike)
+            ),
+            volatilty: API.divideBy100(coalesce(leg.vol, entry.vol)),
             barrier: null,
             barrierLower: null,
             barrierUpper: null,
             barrierRebate: null,
-            OptionLegType: definition.OptionLegType,
-            SideType: definition.SideType,
+            OptionLegType: leg.option,
+            SideType: leg.side.toUpperCase(),
             MonitorType: null,
           })
         ),
@@ -785,9 +787,7 @@ export class API {
         RATES: [],
       },
       ValuationModel: valuationModel,
-      description: `FXO-${strategy.OptionProductType}-${
-        2 * definitions.length
-      }-Legs`,
+      description: `FXO-${strategy.OptionProductType}-${legs.length}-Legs`,
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
