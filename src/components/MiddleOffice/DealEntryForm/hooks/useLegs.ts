@@ -31,15 +31,14 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const expiryDate: moment.Moment = isMoment(entry.tenor)
     ? entry.tenor
     : tradeDate.add(tenorToDuration(entry.tenor));
-  const deliveryDate: moment.Moment = expiryDate.add(
-    symbol.SettlementWindow,
+  const deliveryDate: moment.Moment = moment(expiryDate).add(
+    Number(symbol.SettlementWindow),
     "d"
   );
   // Update the moStore store
   moStore.setLegs(
     legs.map(
       (leg: Leg): Leg => {
-        console.log(leg.expiryDate.format(), expiryDate.format());
         return {
           ...leg,
           notional: entry.notional,
