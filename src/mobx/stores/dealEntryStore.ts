@@ -26,7 +26,6 @@ export class DealEntryStore {
     if (entry.buyer === "") return false;
     if (entry.seller === "") return false;
     if (entry.model === "") return false;
-    if (entry.vol === null) return false;
     if (entry.tenor === "") return false;
     return entry.notional !== null;
   }
