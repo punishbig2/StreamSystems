@@ -238,7 +238,9 @@ export class MoStore {
 
   @action.bound
   public setLegs(legs: Leg[], summary: SummaryLeg | null) {
-    this.summaryLeg = summary;
+    if (summary) {
+      this.summaryLeg = summary;
+    }
     this.legs = legs;
   }
 
