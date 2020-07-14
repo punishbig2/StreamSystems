@@ -91,15 +91,12 @@ export class FormField<T> extends Component<Props<T>, State> {
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { props } = this;
-    if (props.name === "spread") console.log("updated", props.value, prevProps.value);
     if (props.dropdownData !== prevProps.dropdownData) {
       if (!(props.dropdownData instanceof Array)) return;
       this.setState({
         labels: this.extractLabelsFromData(props.dropdownData),
       });
     }
-    if (props.name === "spread")
-      console.log(props.value, prevProps.value, this.state);
     if (props.value !== prevProps.value) {
       this.resetValue();
     }

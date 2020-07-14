@@ -833,21 +833,25 @@ export class API {
     };
   }
 
-  public static async updateDeal(data: any): Promise<string> {
+  private static async saveLegs(dealId: string): Promise<string> {
     const { user } = workareaStore;
     const { legs } = moStore;
-    const legsTask = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
-      dealId: data.linkid,
+    const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
+      dealId: dealId,
       useremail: user.email,
       legs: legs,
     });
-    await legsTask.execute();
+    return task.execute();
+  }
+
+  public static async updateDeal(data: any): Promise<string> {
+    await API.saveLegs(data.linkid);
     // Save the deal now
-    const dealTask: Task<string> = post<string>(
+    const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "update"),
       API.createDealRequest(data)
     );
-    return dealTask.execute();
+    return task.execute();
   }
 
   public static async cloneDeal(data: any): Promise<string> {
@@ -855,7 +859,10 @@ export class API {
       API.buildUrl(API.Deal, "deal", "clone"),
       API.createDealRequest(data)
     );
-    return task.execute();
+    const dealId: string = await task.execute();
+    // Save the legs now
+    await API.saveLegs(dealId);
+    return dealId;
   }
 
   public static async createDeal(data: any): Promise<string> {
@@ -863,7 +870,10 @@ export class API {
       API.buildUrl(API.Deal, "deal", "create"),
       API.createDealRequest(data)
     );
-    return task.execute();
+    const dealId: string = await task.execute();
+    // Save the legs now
+    await API.saveLegs(dealId);
+    return dealId;
   }
 
   public static getLegs(dealid: string): Task<any> {
