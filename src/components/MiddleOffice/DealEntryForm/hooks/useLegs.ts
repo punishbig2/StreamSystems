@@ -1,9 +1,11 @@
 import { Cut } from "components/MiddleOffice/interfaces/cut";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
 import { Symbol } from "interfaces/symbol";
 import { createLegsFromDefinition } from "legsUtils";
 import moStore from "mobx/stores/moStore";
+import { isMoment } from "moment";
 import { useEffect } from "react";
 import { DealEntry } from "structures/dealEntry";
 
@@ -21,16 +23,19 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
     storeLegs.length > 0
       ? storeLegs
       : createLegsFromDefinition(entry, legDefinitions.in, symbol);
+  const deal: Deal | null = moStore.deal;
+  if (deal === null) return;
   // Update the moStore store
   moStore.setLegs(
     legs.map(
       (leg: Leg): Leg => {
         return {
           ...leg,
-          notional: entry.notional,
           vol: entry.vol,
+          notional: entry.notional,
           strike: entry.strike,
-          /// FIXME: Expiry date could be computed from the tenor
+          expiryDate: isMoment(entry.tenor) ? entry.tenor : entry.expiryDate,
+          deliveryDate: deal.deliveryDate,
         };
       }
     ),
