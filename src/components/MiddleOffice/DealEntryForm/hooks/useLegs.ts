@@ -38,7 +38,6 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
         console.log(leg.expiryDate.format(), expiryDate.format());
         return {
           ...leg,
-          vol: entry.vol,
           notional: entry.notional,
           strike: entry.strike,
           expiryDate: expiryDate,
