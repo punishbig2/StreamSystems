@@ -1,35 +1,34 @@
-import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { parseManualLegs } from "legsUtils";
-import React, {
-  ReactElement,
-  useEffect,
-  useState,
-  useCallback,
-  CSSProperties,
-} from "react";
+import { Grid } from "@material-ui/core";
+import { API, Task } from "API";
+import { MessageBox } from "components/MessageBox";
 import { DealBlotter } from "components/MiddleOffice/DealBlotter";
 import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
-import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
-import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
-import { Grid } from "@material-ui/core";
-import { randomID } from "randomID";
-import moStore from "mobx/stores/moStore";
-import { observer } from "mobx-react";
-import { ProgressView } from "components/progressView";
-import signalRManager from "signalR/signalRManager";
-import {
-  PricingResult,
-  buildPricingResult,
-} from "components/MiddleOffice/interfaces/pricingResult";
-import { ModalWindow } from "components/ModalWindow";
-import { API, Task } from "API";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import dealsStore from "mobx/stores/dealsStore";
+import {
+  buildPricingResult,
+  PricingResult,
+} from "components/MiddleOffice/interfaces/pricingResult";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
+import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
+import { ModalWindow } from "components/ModalWindow";
+import { ProgressView } from "components/progressView";
 import { QuestionBox } from "components/QuestionBox";
-import { MessageBox } from "components/MessageBox";
+import { parseManualLegs } from "legsUtils";
 import strings from "locales";
+import { observer } from "mobx-react";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import dealsStore from "mobx/stores/dealsStore";
+import moStore from "mobx/stores/moStore";
+import { randomID } from "randomID";
+import React, {
+  CSSProperties,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import signalRManager from "signalR/signalRManager";
 import { EntryType } from "structures/dealEntry";
 
 interface Props {
@@ -118,7 +117,6 @@ export const MiddleOffice: React.FC<Props> = observer(
     );
     useEffect(() => {
       if (deal === null) return;
-
       const task: Task<any> = API.getLegs(deal.dealID);
       task
         .execute()

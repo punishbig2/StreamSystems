@@ -71,10 +71,12 @@ export class DealEntryStore {
   @action.bound
   public cancelAddOrClone(): void {
     if (moStore.deal !== null) {
-      this.entry = createDealEntry(moStore.deal);
+      /*this.entry = createDealEntry(moStore.deal);
       this.originalEntry = { ...this.entry };
-      this.entryType = EntryType.ExistingDeal;
+      this.entryType = EntryType.ExistingDeal;*/
+      moStore.setDeal({ ...moStore.deal });
     } else {
+      moStore.setLegs([], null);
       this.reset();
     }
     moStore.setEditMode(false);

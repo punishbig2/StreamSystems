@@ -47,6 +47,11 @@ export const createLegsFromDefinition = (
       "notional_ratio" in definition ? definition.notional_ratio : 0;
     const notional: number | null =
       entry.notional !== null ? entry.notional * notionalRatio : null;
+    const option: string =
+      "ReturnLegOut" in definition
+        ? definition.ReturnLegOut
+        : definition.OptionLegType;
+    console.log(option);
     const leg: Leg = {
       premium: null,
       pricePercent: 0 /* FIXME: what would this be? */,
@@ -65,10 +70,7 @@ export const createLegsFromDefinition = (
       strike: entry.strike,
       premiumDate: moment(entry.tradeDate).add(symbol.SettlementWindow, "d"),
       premiumCurrency: symbol.premiumCCY,
-      option:
-        "ReturnLegOut" in definition
-          ? definition.ReturnLegOut
-          : definition.OptionLegType,
+      option: option,
       deliveryDate: entry.deliveryDate,
       expiryDate: entry.expiryDate,
     };
