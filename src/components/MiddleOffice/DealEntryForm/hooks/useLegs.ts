@@ -8,6 +8,7 @@ import moStore from "mobx/stores/moStore";
 import { isMoment } from "moment";
 import { useEffect } from "react";
 import { DealEntry } from "structures/dealEntry";
+import moment from "moment";
 
 const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
@@ -24,7 +25,6 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
       ? storeLegs
       : createLegsFromDefinition(entry, legDefinitions.in, symbol);
   const deal: Deal | null = moStore.deal;
-  if (deal === null) return;
   // Update the moStore store
   moStore.setLegs(
     legs.map(
@@ -35,7 +35,7 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
           notional: entry.notional,
           strike: entry.strike,
           expiryDate: isMoment(entry.tenor) ? entry.tenor : entry.expiryDate,
-          deliveryDate: deal.deliveryDate,
+          deliveryDate: deal !== null ? deal.deliveryDate : moment(),
         };
       }
     ),
