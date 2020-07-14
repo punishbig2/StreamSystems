@@ -87,6 +87,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     if (props.type === "currency" && props.currency === undefined) {
       throw new Error("if type is currency you MUST specify a currency");
     }
+    this.setValueFromProps();
   };
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
@@ -98,7 +99,7 @@ export class FormField<T> extends Component<Props<T>, State> {
       });
     }
     if (props.value !== prevProps.value) {
-      this.resetValue();
+      this.setValueFromProps();
     }
     this.ensureCaretIsInPlace();
   };
@@ -107,7 +108,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     this.input = input;
   };
 
-  private resetValue = (): void => {
+  private setValueFromProps = (): void => {
     const { props } = this;
     if (props.value === null || props.value === undefined) {
       this.setState({ ...initialState });
@@ -122,7 +123,8 @@ export class FormField<T> extends Component<Props<T>, State> {
     const { inputHandlers } = this;
     const handler: InputHandler<Props<T>, State> =
       inputHandlers[props.type] || this.defaultHandler;
-    this.setState(handler.createValue(value, input, props, state));
+    const stateUpdate = handler.createValue(value, input, props, state);
+    this.setState(stateUpdate);
   };
 
   private ensureCaretIsInPlace = () => {

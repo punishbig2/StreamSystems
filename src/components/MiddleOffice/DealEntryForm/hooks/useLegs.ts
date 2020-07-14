@@ -11,18 +11,31 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];
-  if (!legDefinitions)  {
+  if (!legDefinitions) {
     console.warn(`no leg definitions found for ${entry.strategy}`);
     console.warn("available strategies are: ", moStore.legDefinitions);
     return;
   }
-  const legs: Leg[] = createLegsFromDefinition(
-    entry,
-    legDefinitions.in,
-    symbol
-  );
+  const storeLegs: Leg[] = moStore.legs;
+  const legs: Leg[] =
+    storeLegs.length > 0
+      ? storeLegs
+      : createLegsFromDefinition(entry, legDefinitions.in, symbol);
   // Update the moStore store
-  moStore.setLegs(legs, null);
+  moStore.setLegs(
+    legs.map(
+      (leg: Leg): Leg => {
+        return {
+          ...leg,
+          notional: entry.notional,
+          vol: entry.vol,
+          strike: entry.strike,
+          /// FIXME: Expiry date could be computed from the tenor
+        };
+      }
+    ),
+    null
+  );
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
       cut.Code === symbol.PrimaryCutCode &&

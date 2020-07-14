@@ -10,12 +10,14 @@ import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "symbolUtils";
 
 export const parseManualLegs = (data: any[]): Leg[] => {
-  const mapper = (item: any): Leg => ({
-    ...item,
-    premiumDate: moment(item.premiumDate),
-    expiryDate: moment(item.expiryDate),
-    deliveryDate: moment(item.deliveryDate),
-  });
+  const mapper = (item: any): Leg => {
+    return {
+      ...item,
+      premiumDate: moment(item.premiumDate),
+      expiryDate: moment(item.expiryDate),
+      deliveryDate: moment(item.deliveryDate),
+    };
+  };
   return data.map(mapper);
 };
 
@@ -24,7 +26,6 @@ export const createLegsFromDefinition = (
   definitions: LegOptionsDefOut[] | LegOptionsDefIn[],
   symbol: Symbol
 ): Leg[] => {
-  console.log(definitions);
   const legs: Leg[] = [];
   // Now fill the stub legs
   const [ccy1, ccy2] = splitCurrencyPair(entry.currencyPair);
@@ -51,7 +52,6 @@ export const createLegsFromDefinition = (
       "ReturnLegOut" in definition
         ? definition.ReturnLegOut
         : definition.OptionLegType;
-    console.log(option);
     const leg: Leg = {
       premium: null,
       pricePercent: 0 /* FIXME: what would this be? */,
