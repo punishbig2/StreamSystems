@@ -222,6 +222,7 @@ type Endpoints =
   | "markets"
   | "allextended"
   | "userregions"
+  | "manual"
   | "price"
   | "valumodel"
   | "optexstyle"
@@ -833,19 +834,20 @@ export class API {
   }
 
   public static async updateDeal(data: any): Promise<string> {
-    // Another api call
-    localStorage.setItem(
-      data.linkid,
-      JSON.stringify({
-        legs: moStore.legs,
-        summary: moStore.summaryLeg,
-      })
-    );
-    const task: Task<string> = post<string>(
+    const { user } = workareaStore;
+    const { legs } = moStore;
+    const legsTask = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
+      dealId: data.linkid,
+      useremail: user.email,
+      legs: legs,
+    });
+    await legsTask.execute();
+    // Save the deal now
+    const dealTask: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "update"),
       API.createDealRequest(data)
     );
-    return task.execute();
+    return dealTask.execute();
   }
 
   public static async cloneDeal(data: any): Promise<string> {

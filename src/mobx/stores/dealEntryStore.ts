@@ -9,8 +9,8 @@ import { createDealEntry } from "utils/dealUtils";
 
 export class DealEntryStore {
   @observable entryType: EntryType = EntryType.Empty;
-  @observable entry: DealEntry = emptyDealEntry;
-  private originalEntry: DealEntry = emptyDealEntry;
+  @observable entry: DealEntry = { ...emptyDealEntry };
+  private originalEntry: DealEntry = { ...emptyDealEntry };
 
   @computed
   public get isModified(): boolean {
@@ -61,18 +61,23 @@ export class DealEntryStore {
 
   @action.bound
   public addNewDeal(): void {
+    moStore.setDeal(null);
     this.entry = { ...emptyDealEntry };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
-    moStore.setDeal(null);
     moStore.setEditMode(true);
   }
 
   @action.bound
   public cancelAddOrClone(): void {
-    moStore.setDeal(null);
+    if (moStore.deal !== null) {
+      this.entry = createDealEntry(moStore.deal);
+      this.originalEntry = { ...this.entry };
+      this.entryType = EntryType.ExistingDeal;
+    } else {
+      this.reset();
+    }
     moStore.setEditMode(false);
-    this.reset();
   }
 
   @action.bound

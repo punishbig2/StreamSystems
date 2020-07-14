@@ -220,13 +220,10 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     editable: false,
     transformData: (list: string[]): SelectItem[] =>
       list.map(
-        (name: string): SelectItem => {
-          console.log(name);
-          return ({
+        (name: string): SelectItem => ({
             value: name,
             label: name,
           })
-        }
       ),
     dataSource: "styles",
   },

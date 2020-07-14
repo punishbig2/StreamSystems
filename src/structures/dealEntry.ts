@@ -62,4 +62,6 @@ export const emptyDealEntry: DealEntry = {
   tenor: "",
   type: EntryType.Empty,
   dealType: DealType.Manual,
+  vol: null,
+  spread: null,
 };

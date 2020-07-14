@@ -1,5 +1,6 @@
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { parseManualLegs } from "legsUtils";
 import React, {
   ReactElement,
   useEffect,
@@ -117,39 +118,35 @@ export const MiddleOffice: React.FC<Props> = observer(
     );
     useEffect(() => {
       if (deal === null) return;
-      const content: string | null = localStorage.getItem(deal.dealID);
-      if (content !== null) {
-        const localLegs: {
-          legs: Leg[];
-          summary: SummaryLeg;
-        } = JSON.parse(content);
-        moStore.setLegs(localLegs.legs, localLegs.summary);
-      } else {
-        const task: Task<any> = API.getLegs(deal.dealID);
-        task
-          .execute()
-          .then((response: any) => {
-            if (response !== null) {
+
+      const task: Task<any> = API.getLegs(deal.dealID);
+      task
+        .execute()
+        .then((response: any) => {
+          if (response !== null) {
+            if ("dealId" in response) {
+              moStore.setLegs(parseManualLegs(response.legs), null);
+            } else {
               updatePricingData(response);
             }
-          })
-          .catch((reason: any) => {
-            if (reason === "aborted") {
-              return;
-            } else {
-              console.warn(reason);
-            }
-          });
-        const removePricingListener: () => void = signalRManager.addPricingResponseListener(
-          (response: any) => {
-            updatePricingData(response);
           }
-        );
-        return () => {
-          removePricingListener();
-          task.cancel();
-        };
-      }
+        })
+        .catch((reason: any) => {
+          if (reason === "aborted") {
+            return;
+          } else {
+            console.warn(reason);
+          }
+        });
+      const removePricingListener: () => void = signalRManager.addPricingResponseListener(
+        (response: any) => {
+          updatePricingData(response);
+        }
+      );
+      return () => {
+        removePricingListener();
+        task.cancel();
+      };
     }, [deal, updatePricingData]);
     if (!props.visible) classes.push("hidden");
     if (!moStore.isInitialized) {
@@ -175,7 +172,7 @@ export const MiddleOffice: React.FC<Props> = observer(
       const removeDeal = () => {
         setRemoveQuestionModalOpen(true);
       };
-      const getActionButton = (): ReactElement | null => {
+      const getActionButtons = (): ReactElement | null => {
         switch (deStore.entryType) {
           case EntryType.Empty:
             return (
@@ -192,7 +189,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               return (
                 <button
                   className={"primary"}
-                  onClick={() => moStore.setEditMode(false)}
+                  onClick={deStore.cancelAddOrClone}
                 >
                   <i className={"fa fa-times"} />
                   <span>Cancel</span>
@@ -274,7 +271,7 @@ export const MiddleOffice: React.FC<Props> = observer(
                 <div className={"form-group"}>
                   <div className={"heading"}>
                     <h1>Deal Entry</h1>
-                    <div className={"actions"}>{getActionButton()}</div>
+                    <div className={"actions"}>{getActionButtons()}</div>
                   </div>
                   <DealEntryForm store={deStore} />
                 </div>

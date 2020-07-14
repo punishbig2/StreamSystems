@@ -31,7 +31,7 @@ export interface InputHandler<P extends MinimalProps, S extends Editable> {
     props: P,
     state: S
   ): StateReturnType<S>;
-  buildValue(
+  createValue(
     value: any,
     input: HTMLInputElement | null,
     props: P,

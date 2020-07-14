@@ -1,8 +1,7 @@
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { FieldDef, SelectItem } from "forms/fieldDef";
-import mo, { MoStore } from "mobx/stores/moStore";
+import moStore, { MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { FormField } from "components/FormField";
 
@@ -11,7 +10,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   index: number
 ): ReactElement | null => {
   const { transformData, dataSource, ...field } = fieldDef;
-  const source: any = !!dataSource ? mo[dataSource] : undefined;
+  const source: any = !!dataSource ? moStore[dataSource] : undefined;
   const dropdownData: SelectItem[] = !!transformData
     ? transformData(source, entry)
     : [];

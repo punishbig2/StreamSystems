@@ -9,6 +9,16 @@ import moment from "moment";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "symbolUtils";
 
+export const parseManualLegs = (data: any[]): Leg[] => {
+  const mapper = (item: any): Leg => ({
+    ...item,
+    premiumDate: moment(item.premiumDate),
+    expiryDate: moment(item.expiryDate),
+    deliveryDate: moment(item.deliveryDate),
+  });
+  return data.map(mapper);
+};
+
 export const createLegsFromDefinition = (
   entry: DealEntry,
   definitions: LegOptionsDefOut[] | LegOptionsDefIn[],

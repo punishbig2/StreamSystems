@@ -82,9 +82,9 @@ export class NumericInputHandler<
           .replace(/[^0-9]+/g, "");
         const decimalPart: string = displayValue.slice(separatorPosition + 1);
         if (integerPart.length === 1 && Number(decimalPart) === 0) {
-          return this.buildValue("", event.currentTarget, props, state);
+          return this.createValue("", event.currentTarget, props, state);
         } else {
-          return this.buildValue(
+          return this.createValue(
             Number([integerPart, decimalPart].join(".")),
             event.currentTarget,
             props,
@@ -106,7 +106,7 @@ export class NumericInputHandler<
     state: S
   ): StateReturnType<S> {
     event.preventDefault();
-    const newState: StateReturnType<S> = this.buildValue(
+    const newState: StateReturnType<S> = this.createValue(
       1000 * state.internalValue,
       event.currentTarget,
       props,
@@ -137,7 +137,7 @@ export class NumericInputHandler<
     const decimalSeparator: string = NumericInputHandler.getDecimalSeparator();
     switch (event.key) {
       case "Escape":
-        return this.buildValue(props.value, event.currentTarget, props, state);
+        return this.createValue(props.value, event.currentTarget, props, state);
       case "Backspace":
         return this.onBackspace(event, props, state);
       case "M":
@@ -149,37 +149,39 @@ export class NumericInputHandler<
     return null;
   }
 
-  public buildValue(
+  public createValue(
     value: any,
     input: HTMLInputElement | null,
     props: P,
     state: S
   ): StateReturnType<S> {
-    const [displayValue, validity] = this.format(value, props);
-    const originalDisplayValue: string = state.displayValue;
-    const initialCount: number = this.countFormattingCharacters(
-      originalDisplayValue
-    );
-    const finalCount: number = this.countFormattingCharacters(displayValue);
-    const caretPosition: number | null = getCaretPosition(input);
-    // Adjust if the input has no content and it has precision defined, so
-    // that we don't consider the trailing zeroes "new" characters
-    const adjust: number =
-      props.precision === undefined || props.precision === 0
-        ? 0
-        : originalDisplayValue.length === 0
-        ? 1
-        : 0;
-    const resultingCaretPosition: number = Math.max(
-      caretPosition + (finalCount - initialCount - adjust),
-      caretPosition
-    );
-    return {
-      displayValue: displayValue,
-      internalValue: value,
-      validity: validity,
-      caretPosition: resultingCaretPosition,
-    } as StateReturnType<S>;
+    if (value === null || value === undefined) {
+      return null;
+    } else {
+      const { displayValue } = state;
+      const [newValue, validity] = this.format(value, props);
+      const initialCount: number = this.countFormattingCharacters(displayValue);
+      const finalCount: number = this.countFormattingCharacters(newValue);
+      const caretPosition: number | null = getCaretPosition(input);
+      // Adjust if the input has no content and it has precision defined, so
+      // that we don't consider the trailing zeroes "new" characters
+      const adjust: number =
+        props.precision === undefined || props.precision === 0
+          ? 0
+          : displayValue.length === 0
+          ? 1
+          : 0;
+      const resultingCaretPosition: number = Math.max(
+        caretPosition + (finalCount - initialCount - adjust),
+        caretPosition
+      );
+      return {
+        displayValue: newValue,
+        internalValue: value,
+        validity: validity,
+        caretPosition: resultingCaretPosition,
+      } as StateReturnType<S>;
+    }
   }
 
   private countFormattingCharacters = (display: string | null): number => {

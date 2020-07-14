@@ -56,7 +56,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       alignItems={"center"}
       container
     >
-      <Grid xs={3} item>
+      <Grid xs={6} item>
         <Select
           value={isMoment(value) ? "SPECIFIC" : value}
           className={props.className}
@@ -76,7 +76,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           ))}
         </Select>
       </Grid>
-      <Grid className={"input-container"} xs={9} item>
+      <Grid className={"input-container"} xs={6} item>
         <FormField<{ date: moment.Moment }>
           color={props.color}
           type={"date"}

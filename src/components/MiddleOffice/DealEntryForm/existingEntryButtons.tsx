@@ -3,9 +3,9 @@ import React, { ReactElement } from "react";
 interface Props {
   isModified: boolean;
   isPriced: boolean;
-  onPriced?: () => void;
+  onPrice?: () => void;
   onSubmitted?: () => void;
-  onSaved?: () => void;
+  onSave?: () => void;
 }
 
 export const ExistingEntryButtons: React.FC<Props> = (
@@ -16,7 +16,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
       <button
         type={"button"}
         className={"primary"}
-        onClick={props.onPriced}
+        onClick={props.onPrice}
         disabled={props.isPriced}
       >
         Price
@@ -24,7 +24,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
       <button
         type={"button"}
         className={"primary"}
-        onClick={props.onSaved}
+        onClick={props.onSave}
         disabled={!props.isModified}
       >
         Save

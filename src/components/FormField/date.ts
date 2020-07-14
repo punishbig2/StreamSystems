@@ -9,7 +9,7 @@ import moment, { isMoment, Moment } from "moment";
 
 export class DateInputHandler<P extends MinimalProps, S extends Editable>
   implements InputHandler<P, S> {
-  public buildValue(
+  public createValue(
     value: any,
     input: HTMLInputElement | null,
     props: P,

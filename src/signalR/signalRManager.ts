@@ -9,6 +9,7 @@ import config from "config";
 import { Message, DarkPoolMessage, ExecTypes } from "interfaces/message";
 import { W, isPodW } from "interfaces/w";
 import { API } from "API";
+import moStore from "mobx/stores/moStore";
 import { $$ } from "utils/stringPaster";
 import { MDEntry } from "interfaces/mdEntry";
 import { OCOModes, User } from "interfaces/user";
@@ -44,6 +45,7 @@ enum Events {
   UpdateMessageBlotter = "updateMessageBlotter",
   ClearDarkPoolPrice = "clearDarkPoolPx",
   UpdateDealsBlotter = "updateDealsBlotter",
+  UpdateLegs = "updateLegs",
   OnPricingResponse = "onPricingResponse",
   OnDealDeleted = "onDealDeleted",
 }
@@ -140,7 +142,6 @@ export class SignalRManager {
       // Listen to installed combinations
       this.replayRecordedCommands();
       // Install listeners
-
       connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
       connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
       connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
@@ -148,6 +149,7 @@ export class SignalRManager {
       connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
       connection.on(Events.OnPricingResponse, this.onPricingResponse);
       connection.on(Events.OnDealDeleted, this.onDealDeleted);
+      connection.on(Events.UpdateLegs, this.onUpdateLegs);
     }
   };
 
@@ -227,7 +229,7 @@ export class SignalRManager {
     document.dispatchEvent(event);
   };
 
-  public addDealDeletedListener(listener: (id: string) => void): (() => void) {
+  public addDealDeletedListener(listener: (id: string) => void): () => void {
     const proxyListener = (event: Event) => {
       const customEvent: CustomEvent<string> = event as CustomEvent<string>;
       listener(customEvent.detail);
@@ -235,7 +237,7 @@ export class SignalRManager {
     document.addEventListener("ondealdeleted", proxyListener);
     return () => {
       document.removeEventListener("ondealdeleted", proxyListener);
-    }
+    };
   }
 
   public addDeal = (deal: any): void => {
@@ -247,6 +249,17 @@ export class SignalRManager {
       document.dispatchEvent(event);
     } catch (error) {
       console.warn(error);
+    }
+  };
+
+  private onUpdateLegs = (message: string): void => {
+    const { deal } = moStore;
+    if (deal === null) return;
+    const data = JSON.parse(message);
+    // Only replace legs if current deal matches
+    // the updated deal
+    if (data.dealId === deal.dealID) {
+      moStore.setLegs(data.legs, data.summary);
     }
   };
 

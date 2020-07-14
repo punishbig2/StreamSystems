@@ -39,6 +39,15 @@ interface State extends Editable {
   focus: boolean;
 }
 
+const initialState: State = {
+  displayValue: "",
+  internalValue: "",
+  labels: null,
+  focus: false,
+  validity: Validity.Intermediate,
+  caretPosition: null,
+};
+
 export class FormField<T> extends Component<Props<T>, State> {
   private input: HTMLInputElement | null = null;
   private inputHandlers: {
@@ -51,14 +60,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     emptyValue: "",
   };
 
-  public state: State = {
-    displayValue: "",
-    internalValue: "",
-    labels: null,
-    focus: false,
-    validity: Validity.Intermediate,
-    caretPosition: null,
-  };
+  public state: State = { ...initialState };
 
   constructor(props: Props<T>) {
     super(props);
@@ -85,17 +87,19 @@ export class FormField<T> extends Component<Props<T>, State> {
     if (props.type === "currency" && props.currency === undefined) {
       throw new Error("if type is currency you MUST specify a currency");
     }
-    this.resetValue();
   };
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { props } = this;
+    if (props.name === "spread") console.log("updated", props.value, prevProps.value);
     if (props.dropdownData !== prevProps.dropdownData) {
       if (!(props.dropdownData instanceof Array)) return;
       this.setState({
         labels: this.extractLabelsFromData(props.dropdownData),
       });
     }
+    if (props.name === "spread")
+      console.log(props.value, prevProps.value, this.state);
     if (props.value !== prevProps.value) {
       this.resetValue();
     }
@@ -108,8 +112,12 @@ export class FormField<T> extends Component<Props<T>, State> {
 
   private resetValue = (): void => {
     const { props } = this;
-    // Reset the "props" specified value
-    this.setValue(props.value);
+    if (props.value === null || props.value === undefined) {
+      this.setState({ ...initialState });
+    } else {
+      // Reset the "props" specified value
+      this.setValue(props.value);
+    }
   };
 
   private setValue = (value: any): void => {
@@ -117,10 +125,7 @@ export class FormField<T> extends Component<Props<T>, State> {
     const { inputHandlers } = this;
     const handler: InputHandler<Props<T>, State> =
       inputHandlers[props.type] || this.defaultHandler;
-    const s = handler.buildValue(value, input, props, state);
-    if (s === null) return;
-    if (s.displayValue === undefined || s.displayValue === null) return;
-    this.setState(s);
+    this.setState(handler.createValue(value, input, props, state));
   };
 
   private ensureCaretIsInPlace = () => {

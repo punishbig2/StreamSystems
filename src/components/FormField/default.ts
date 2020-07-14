@@ -9,7 +9,7 @@ import { Validity } from "forms/validity";
 
 export class DefaultHandler<P extends MinimalProps, S extends Editable>
   implements InputHandler<P, S> {
-  public buildValue(
+  public createValue(
     value: any,
     input: HTMLInputElement | null,
     props: P,
@@ -29,7 +29,7 @@ export class DefaultHandler<P extends MinimalProps, S extends Editable>
     state: S
   ): StateReturnType<S> {
     if (event.key === "Escape") {
-      return this.buildValue(props.value, event.currentTarget, props, state);
+      return this.createValue(props.value, event.currentTarget, props, state);
     } else {
       return null;
     }
