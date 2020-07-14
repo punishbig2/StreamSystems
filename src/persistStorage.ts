@@ -136,6 +136,8 @@ class PersistStorage {
   }
 
   public getCCYGroup() {
+    const { workarea: root } = this.data;
+    if (!root) return "LATAM";
     const {
       workarea: { workarea },
     } = this.data;
