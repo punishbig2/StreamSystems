@@ -2,6 +2,7 @@ $cream-form-color: saturate(mix($foreground-color, #f1c012), 10%);
 $green-form-color: saturate(mix($foreground-color, green), 10%);
 $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
+$field-size: 24px;
 
 .empty-section {
   height: 100%;
@@ -243,7 +244,7 @@ $grey-form-color: $foreground-color;
 
         .readonly-field {
           border: 1px solid transparent;
-          line-height: 26px;
+          line-height: $field-size - 2;
         }
 
         .MuiInputBase-root,
@@ -253,7 +254,7 @@ $grey-form-color: $foreground-color;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          height: 28px;
+          height: $field-size;
           font-size: $normal-font-size;
           font-weight: 500;
           font-family: "Roboto", sans-serif;
@@ -290,7 +291,7 @@ $grey-form-color: $foreground-color;
             font-weight: inherit;
             color: inherit;
             border: none;
-            line-height: 28px;
+            line-height: $field-size;
           }
         }
 

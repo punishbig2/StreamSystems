@@ -31,6 +31,10 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const expiryDate: moment.Moment = isMoment(entry.tenor)
     ? entry.tenor
     : tradeDate.add(tenorToDuration(entry.tenor));
+  const deliveryDate: moment.Moment = expiryDate.add(
+    symbol.SettlementWindow,
+    "d"
+  );
   // Update the moStore store
   moStore.setLegs(
     legs.map(
@@ -41,7 +45,7 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
           notional: entry.notional,
           strike: entry.strike,
           expiryDate: expiryDate,
-          deliveryDate: deal !== null ? deal.deliveryDate : moment(),
+          deliveryDate: deliveryDate,
         };
       }
     ),
