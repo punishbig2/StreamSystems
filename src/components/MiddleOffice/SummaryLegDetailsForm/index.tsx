@@ -2,23 +2,27 @@ import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { NoDataMessage } from "components/noDataMessage";
 import { observer } from "mobx-react";
-import MO from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 
 interface Props {}
 
 export const SummaryLegDetailsForm: React.FC<Props> = observer(
   (): ReactElement | null => {
-    const data = MO.summaryLeg;
+    const data = moStore.summaryLeg;
     if (data === null) {
       return <NoDataMessage />;
     }
-    const { brokerage, dealOutput } = data;
+    const { dealOutput } = data;
+    const brokerage = data.brokerage
+      ? data.brokerage
+      : {
+          buyerComm: null,
+          sellerComm: null,
+        };
     const totalComm: number | null =
-      brokerage !== undefined
-        ? brokerage.buyerComm !== null && brokerage.sellerComm !== null
-          ? brokerage.buyerComm + brokerage.sellerComm
-          : null
+      brokerage.buyerComm !== null && brokerage.sellerComm !== null
+        ? brokerage.buyerComm + brokerage.sellerComm
         : null;
     return (
       <>

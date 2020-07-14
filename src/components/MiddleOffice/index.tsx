@@ -125,7 +125,10 @@ export const MiddleOffice: React.FC<Props> = observer(
             if ("dealId" in response) {
               moStore.setLegs(parseManualLegs(response.legs), null);
             } else {
-              updatePricingData(response);
+              if ("error_msg" in response) {
+              } else {
+                updatePricingData(response);
+              }
             }
           }
         })
