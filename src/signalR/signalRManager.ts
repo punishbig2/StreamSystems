@@ -259,7 +259,7 @@ export class SignalRManager {
     // Only replace legs if current deal matches
     // the updated deal
     if (data.dealId === deal.dealID) {
-      moStore.setLegs(data.legs, data.summary);
+      moStore.setLegs(data.legs, null);
     }
   };
 

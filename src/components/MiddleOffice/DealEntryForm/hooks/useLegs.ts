@@ -9,6 +9,7 @@ import { isMoment } from "moment";
 import { useEffect } from "react";
 import { DealEntry } from "structures/dealEntry";
 import moment from "moment";
+import { tenorToDuration } from "utils/dataGenerators";
 
 const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
@@ -25,16 +26,22 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
       ? storeLegs
       : createLegsFromDefinition(entry, legDefinitions.in, symbol);
   const deal: Deal | null = moStore.deal;
+  const tradeDate: moment.Moment =
+    deal !== null ? moment(deal.tradeDate) : moment();
+  const expiryDate: moment.Moment = isMoment(entry.tenor)
+    ? entry.tenor
+    : tradeDate.add(tenorToDuration(entry.tenor));
   // Update the moStore store
   moStore.setLegs(
     legs.map(
       (leg: Leg): Leg => {
+        console.log(leg.expiryDate.format(), expiryDate.format());
         return {
           ...leg,
           vol: entry.vol,
           notional: entry.notional,
           strike: entry.strike,
-          expiryDate: isMoment(entry.tenor) ? entry.tenor : entry.expiryDate,
+          expiryDate: expiryDate,
           deliveryDate: deal !== null ? deal.deliveryDate : moment(),
         };
       }
