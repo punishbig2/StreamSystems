@@ -15,8 +15,10 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
     }
     const { brokerage, dealOutput } = data;
     const totalComm: number | null =
-      brokerage.buyerComm !== null && brokerage.sellerComm !== null
-        ? brokerage.buyerComm + brokerage.sellerComm
+      brokerage !== undefined
+        ? brokerage.buyerComm !== null && brokerage.sellerComm !== null
+          ? brokerage.buyerComm + brokerage.sellerComm
+          : null
         : null;
     return (
       <>
