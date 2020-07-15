@@ -38,13 +38,6 @@ interface Props {
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const [deStore] = useState<DealEntryStore>(new DealEntryStore());
-    const [
-      summaryContainer,
-      setSummaryContainer,
-    ] = useState<HTMLDivElement | null>(null);
-    const [summaryStyle, setSummaryStyle] = useState<
-      CSSProperties | undefined
-    >();
     const [removeQuestionModalOpen, setRemoveQuestionModalOpen] = useState<
       boolean
     >(false);
@@ -106,7 +99,6 @@ export const MiddleOffice: React.FC<Props> = observer(
     }, [deal]);
     const updatePricingData = useCallback(
       (data: any) => {
-        setSummaryStyle(undefined);
         if (deal === null) return;
         // If this is not the deal we're showing, it's too late and we must skip it
         if (data.id !== deal.dealID) return;
@@ -240,22 +232,6 @@ export const MiddleOffice: React.FC<Props> = observer(
         }
       };
 
-      const toggleSummary = () => {
-        if (summaryContainer === null) return;
-        if (summaryStyle !== undefined) {
-          setSummaryStyle(undefined);
-        } else {
-          const parent: HTMLDivElement = summaryContainer.parentNode as HTMLDivElement;
-          if (parent === null) return;
-          const boundingRect: DOMRect = summaryContainer.getBoundingClientRect();
-          const top: number = boundingRect.bottom - parent.offsetHeight;
-          setSummaryStyle({
-            transform: `translateY(-${top}px)`,
-            boxShadow: "0 -4px 8px -8px black",
-          });
-        }
-      };
-
       return (
         <>
           <div className={classes.join(" ")}>
@@ -276,25 +252,9 @@ export const MiddleOffice: React.FC<Props> = observer(
                   </div>
                   <DealEntryForm store={deStore} />
                 </div>
-                <div
-                  className={"form-group"}
-                  ref={setSummaryContainer}
-                  style={summaryStyle}
-                >
+                <div className={"form-group"}>
                   <div className={"heading"}>
                     <h1>Summary Leg Details</h1>
-                    <div className={"actions"}>
-                      <button
-                        className={"no-label"}
-                        onClick={() => toggleSummary()}
-                      >
-                        {summaryStyle ? (
-                          <i className={"fa fa-angle-double-down"} />
-                        ) : (
-                          <i className={"fa fa-angle-double-up"} />
-                        )}
-                      </button>
-                    </div>
                   </div>
                   <SummaryLegDetailsForm />
                 </div>
