@@ -21,12 +21,7 @@ import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";
 import { randomID } from "randomID";
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import signalRManager from "signalR/signalRManager";
 import { EntryType } from "structures/dealEntry";
 

@@ -37,8 +37,6 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     if (convertedValue === undefined) return;
     store.updateEntry(name, convertedValue);
   };
-  if (field.name === "vol" || field.name === "spread")
-    console.log(field.name, value);
   const isEditable = (
     fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>
   ): boolean | undefined => {
@@ -55,8 +53,8 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       {...field}
       editable={isEditable(fieldDef)}
       dropdownData={dropdownData}
-      onChange={onChange}
       value={value}
+      onChange={onChange}
     />
   );
 };

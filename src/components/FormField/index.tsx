@@ -19,7 +19,7 @@ import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { randomID } from "randomID";
-import React, { Component, ReactElement } from "react";
+import React, { PureComponent, ReactElement } from "react";
 
 interface Props<T> extends MinimalProps {
   label?: string;
@@ -48,7 +48,7 @@ const initialState: State = {
   caretPosition: null,
 };
 
-export class FormField<T> extends Component<Props<T>, State> {
+export class FormField<T> extends PureComponent<Props<T>, State> {
   private input: HTMLInputElement | null = null;
   private inputHandlers: {
     [key: string]: InputHandler<Props<T>, State>;
@@ -92,18 +92,22 @@ export class FormField<T> extends Component<Props<T>, State> {
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { props } = this;
+    if (props.value !== prevProps.value) {
+      this.setValueFromProps();
+      // Since state will change stop right now and let the next
+      // update handle anything else
+      return;
+    }
     if (props.dropdownData !== prevProps.dropdownData) {
       if (!(props.dropdownData instanceof Array)) return;
       this.setState({
         labels: this.extractLabelsFromData(props.dropdownData),
       });
+      // Since state will change stop right now and let the next
+      // update handle anything else
+      return;
     }
-    if (props.value !== prevProps.value) {
-      if (props.name === "vol") {
-        console.log(props.value);
-      }
-      this.setValueFromProps();
-    }
+    // If we're here, this is the only thing to handle
     this.ensureCaretIsInPlace();
   };
 
