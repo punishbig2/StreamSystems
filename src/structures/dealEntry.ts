@@ -42,7 +42,7 @@ export const emptyDealEntry: DealEntry = {
   strategy: "",
   legs: null,
   notional: null,
-  legAdj: true,
+  legAdj: false,
   buyer: "",
   seller: "",
   expiryDate: moment(),
