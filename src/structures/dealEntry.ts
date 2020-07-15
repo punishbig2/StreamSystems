@@ -1,12 +1,5 @@
 import moment from "moment";
 
-export enum DealStatus {
-  Pending = "Pending",
-  Priced = "Priced",
-  SEFPreliminary = "SEF Preliminary",
-  SEFFinal = "SEF Final",
-}
-
 export enum DealType {
   Invalid = 0,
   Electronic = 2,
@@ -36,7 +29,7 @@ export interface DealEntry {
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;
   dealId: string;
-  status: DealStatus;
+  status: number;
   style: string;
   model: number | "";
   tenor: string;
@@ -56,7 +49,7 @@ export const emptyDealEntry: DealEntry = {
   deliveryDate: moment(),
   tradeDate: moment(),
   dealId: "",
-  status: DealStatus.Pending,
+  status: 1,
   style: "European",
   model: 3,
   tenor: "",

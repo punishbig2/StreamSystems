@@ -1,13 +1,13 @@
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
-import { DealEntry, DealStatus, DealType } from "structures/dealEntry";
+import { DealEntry, DealType } from "structures/dealEntry";
 
 const editableFilter = (types: number) => (
   data: any,
   entry?: DealEntry
 ): boolean => {
   if (entry === undefined) return false;
-  if (entry.status === DealStatus.SEFFinal) return false;
+  if (entry.status === 5) return false;
   return (entry.dealType & types) !== 0;
 };
 

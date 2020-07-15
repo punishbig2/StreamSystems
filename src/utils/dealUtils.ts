@@ -3,12 +3,20 @@ import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Globals } from "golbals";
 import { Symbol } from "interfaces/symbol";
 import { getVegaAdjust } from "legsUtils";
-import mo from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { parseTime } from "timeUtils";
 import { tenorToDuration } from "utils/dataGenerators";
+
+export const stateMap: { [key: number]: string } = {
+  1: "Pending",
+  2: "Priced",
+  3: "SEF Unconfirmed",
+  4: "STP",
+  5: "SEF Confirmed",
+};
 
 export const createDealFromBackendMessage = (source: any): Deal => {
   const symbol: Symbol | undefined = workareaStore.findSymbolById(
@@ -47,13 +55,12 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     expiryDate: expiryDate,
     symbol: symbol,
     source: item.source,
-    status: item.status,
+    status: item.state,
   };
 };
 
 export const dealSourceToDealType = (source: string): DealType => {
-  if (!source)
-    return DealType.Invalid;
+  if (!source) return DealType.Invalid;
   switch (source.toLowerCase()) {
     case "manual":
       return DealType.Voice;
@@ -68,8 +75,8 @@ export const dealSourceToDealType = (source: string): DealType => {
 
 export const createDealEntry = (deal: Deal): DealEntry => {
   const id: string = deal.dealID;
-  const legsCount: number = mo.getOutLegsCount(deal.strategy);
-  const strategy: MOStrategy = mo.getStrategyById(deal.strategy);
+  const legsCount: number = moStore.getOutLegsCount(deal.strategy);
+  const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
   return {
     currencyPair: deal.currencyPair,
     strategy: deal.strategy,

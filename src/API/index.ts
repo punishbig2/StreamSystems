@@ -1,39 +1,38 @@
-import { Symbol } from "interfaces/symbol";
-import { Message } from "interfaces/message";
-import {
-  CreateOrder,
-  Order,
-  DarkPoolOrder,
-  OrderMessage,
-  CreateOrderBulk,
-} from "interfaces/order";
-import { MessageResponse } from "interfaces/messageResponse";
-import { User } from "interfaces/user";
-import { MessageTypes, W } from "interfaces/w";
-import moStore from "mobx/stores/moStore";
-import { isMoment } from "moment";
-import { currentTimestampFIXFormat, momentToUTCFIXFormat } from "timeUtils";
-import { getSideFromType, getCurrentTime, coalesce } from "utils";
-import { STRM } from "stateDefs/workspaceState";
-import { Sides } from "interfaces/sides";
-import config from "config";
-import workareaStore from "mobx/stores/workareaStore";
-import { Strategy } from "interfaces/strategy";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { createDealFromBackendMessage } from "utils/dealUtils";
-import { DealEntry } from "structures/dealEntry";
+import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import {
-  VolMessageIn,
   OptionLeg,
   ValuationModel,
+  VolMessageIn,
 } from "components/MiddleOffice/interfaces/pricer";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
-import MO from "mobx/stores/moStore";
-import { splitCurrencyPair } from "symbolUtils";
+import config from "config";
+import { Message } from "interfaces/message";
+import { MessageResponse } from "interfaces/messageResponse";
+import {
+  CreateOrder,
+  CreateOrderBulk,
+  DarkPoolOrder,
+  Order,
+  OrderMessage,
+} from "interfaces/order";
+import { Sides } from "interfaces/sides";
+import { Strategy } from "interfaces/strategy";
+import { Symbol } from "interfaces/symbol";
+import { User } from "interfaces/user";
+import { MessageTypes, W } from "interfaces/w";
 import { getVegaAdjust } from "legsUtils";
-import moment from "moment";
+import moStore from "mobx/stores/moStore";
+import MO from "mobx/stores/moStore";
+import workareaStore from "mobx/stores/workareaStore";
+import { isMoment } from "moment";
+import { STRM } from "stateDefs/workspaceState";
+import { DealEntry } from "structures/dealEntry";
+import { splitCurrencyPair } from "symbolUtils";
+import { currentTimestampFIXFormat } from "timeUtils";
+import { coalesce, getCurrentTime, getSideFromType } from "utils";
+import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);

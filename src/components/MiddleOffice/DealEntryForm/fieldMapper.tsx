@@ -4,6 +4,7 @@ import { FieldDef, SelectItem } from "forms/fieldDef";
 import moStore, { MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { FormField } from "components/FormField";
+import { stateMap } from "utils/dealUtils";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
@@ -14,9 +15,14 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const dropdownData: SelectItem[] = !!transformData
     ? transformData(source, entry)
     : [];
-  const value: any = !!entry ? entry[field.name] : null;
+  const value: any = (() => {
+    if (!entry) return null;
+    if (field.name === "status") return stateMap[Number(entry[field.name])];
+    return entry[field.name];
+  })();
   const onChange = (name: keyof DealEntry, value: string) => {
     const convertedValue: any = (() => {
+      if (field.name === "status") return stateMap[Number(value)];
       if (field.type === "number") {
         if (value === null || value.length === 0) return null;
         const candidate: number = Number(value);
@@ -28,11 +34,11 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
         return value;
       }
     })();
-    if (name === "vol" || name === "spread") console.log(convertedValue);
-    // Ignore it!
     if (convertedValue === undefined) return;
     store.updateEntry(name, convertedValue);
   };
+  if (field.name === "vol" || field.name === "spread")
+    console.log(field.name, value);
   const isEditable = (
     fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>
   ): boolean | undefined => {

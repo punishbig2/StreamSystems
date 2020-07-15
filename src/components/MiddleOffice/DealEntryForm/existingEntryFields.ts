@@ -3,7 +3,7 @@ import { FieldDef, SelectItem } from "forms/fieldDef";
 import { Symbol } from "interfaces/symbol";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
-import { DealEntry, DealStatus, DealType } from "structures/dealEntry";
+import { DealEntry, DealType } from "structures/dealEntry";
 
 const editableFilter = (types: number) => (
   data: any,
@@ -11,7 +11,7 @@ const editableFilter = (types: number) => (
 ): boolean => {
   if (store === undefined) return false;
   const { entry } = store;
-  if (entry.status === DealStatus.SEFFinal) return false;
+  if (entry.status === 5) return false;
   return (entry.dealType & types) !== 0;
 };
 
