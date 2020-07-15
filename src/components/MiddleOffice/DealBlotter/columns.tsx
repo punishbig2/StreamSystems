@@ -41,7 +41,9 @@ export const columns: ColumnSpec[] = [
   {
     name: "status",
     header: () => "Status",
-    render: (deal: Deal) => stateMap[deal.status],
+    render: ({ deal }: CellProps) => {
+      return stateMap[deal.status];
+    },
     filterable: true,
     width: 3,
     template: "12345",
