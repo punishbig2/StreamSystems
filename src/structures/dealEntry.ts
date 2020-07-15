@@ -25,9 +25,9 @@ export interface DealEntry {
   currencyPair: string;
   strategy: string;
   legs: number | null;
-  strike?: string | number;
   spread?: number | null;
   vol?: number | null;
+  strike?: string | number;
   notional: number | null;
   legAdj: boolean;
   buyer: string;
@@ -57,8 +57,8 @@ export const emptyDealEntry: DealEntry = {
   tradeDate: moment(),
   dealId: "",
   status: DealStatus.Pending,
-  style: "",
-  model: "",
+  style: "European",
+  model: 3,
   tenor: "",
   type: EntryType.Empty,
   dealType: DealType.Manual,

@@ -11,6 +11,8 @@ import { MessageResponse } from "interfaces/messageResponse";
 import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
 import moStore from "mobx/stores/moStore";
+import { isMoment } from "moment";
+import { currentTimestampFIXFormat, momentToUTCFIXFormat } from "timeUtils";
 import { getSideFromType, getCurrentTime, coalesce } from "utils";
 import { STRM } from "stateDefs/workspaceState";
 import { Sides } from "interfaces/sides";
@@ -31,29 +33,7 @@ import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDe
 import MO from "mobx/stores/moStore";
 import { splitCurrencyPair } from "symbolUtils";
 import { getVegaAdjust } from "legsUtils";
-
-const zeroPad = (value: number, count: number): string => {
-  const digits: string[] = [];
-  let multiplier: number = Math.pow(10, count - 1);
-  while (value < Math.floor(multiplier) - 1) {
-    digits.push("0");
-    multiplier /= 10;
-  }
-  digits.push(value.toString(10));
-  return digits.join("");
-};
-
-const currentTimestampFIXFormat = (): string => {
-  const now: Date = new Date();
-  const year: string = zeroPad(now.getUTCFullYear(), 4);
-  const month: string = zeroPad(now.getUTCMonth() + 1, 2);
-  const day: string = zeroPad(now.getUTCDate(), 2);
-  const hours: string = zeroPad(now.getUTCHours(), 2);
-  const minutes: string = zeroPad(now.getUTCMinutes(), 2);
-  const seconds: string = zeroPad(now.getUTCSeconds(), 2);
-  const milliseconds: string = zeroPad(now.getUTCMilliseconds(), 3);
-  return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
-};
+import moment from "moment";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
@@ -834,9 +814,12 @@ export class API {
 
   private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
+    const tenor: string = isMoment(data.tenor)
+      ? data.tenor.format("YYYYMMDD")
+      : data.tenor;
     return {
       linkid: data.linkid,
-      tenor: data.tenor,
+      tenor: tenor,
       strategy: data.strategy,
       symbol: data.symbol,
       lastpx: data.price,

@@ -22,7 +22,6 @@ import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";
 import { randomID } from "randomID";
 import React, {
-  CSSProperties,
   ReactElement,
   useCallback,
   useEffect,

@@ -156,7 +156,12 @@ export class NumericInputHandler<
     state: S
   ): StateReturnType<S> {
     if (value === null || value === undefined) {
-      return null;
+      return {
+        displayValue: "",
+        internalValue: null,
+        validity: Validity.Intermediate,
+        caretPosition: 0,
+      } as StateReturnType<S>;
     } else {
       const { displayValue } = state;
       const [newValue, validity] = this.format(value, props);

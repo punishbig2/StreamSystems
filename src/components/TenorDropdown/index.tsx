@@ -3,11 +3,12 @@ import { FormField } from "components/FormField";
 import { SelectItem } from "forms/fieldDef";
 import moment, { isMoment } from "moment";
 import React, { ReactElement, useEffect, useState } from "react";
+import { specificTenorToDate } from "timeUtils";
 import { tenorToDuration } from "utils/dataGenerators";
 
 interface Props<T> {
   data: SelectItem[];
-  value: string;
+  value: string | moment.Moment;
   className: string;
   readOnly: boolean;
   color: "green" | "orange" | "cream" | "grey";
@@ -23,10 +24,18 @@ const tenorToDate = (value: string): moment.Moment => {
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data, value } = props;
-  const [date, setDate] = useState<moment.Moment>(tenorToDate(value));
+  const [date, setDate] = useState<moment.Moment | null>(null);
   useEffect(() => {
-    if (isMoment(value)) {
+    const parsed: Date | undefined =
+      typeof value === "string" ? specificTenorToDate(value) : undefined;
+    if (parsed !== undefined) {
+      if (props.onChange !== undefined) {
+        props.onChange(props.name as keyof T, moment(parsed));
+      }
+    } else if (isMoment(value)) {
       setDate(value);
+    } else if (value === "") {
+      setDate(null);
     } else {
       setDate(tenorToDate(value));
     }

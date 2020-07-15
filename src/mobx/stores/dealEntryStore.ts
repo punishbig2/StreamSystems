@@ -57,23 +57,21 @@ export class DealEntryStore {
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     moStore.setDeal(null);
+    moStore.setEditMode(true);
   }
 
   @action.bound
   public addNewDeal(): void {
-    moStore.setDeal(null);
     this.entry = { ...emptyDealEntry };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
+    moStore.setDeal(null);
     moStore.setEditMode(true);
   }
 
   @action.bound
   public cancelAddOrClone(): void {
     if (moStore.deal !== null) {
-      /*this.entry = createDealEntry(moStore.deal);
-      this.originalEntry = { ...this.entry };
-      this.entryType = EntryType.ExistingDeal;*/
       moStore.setDeal({ ...moStore.deal });
     } else {
       moStore.setLegs([], null);
@@ -93,8 +91,8 @@ export class DealEntryStore {
         ...this.entry,
         [name]: value,
         legs: legsCount,
-        strike: strategy.strike,
         spread: strategy.spreadvsvol === "spread" ? price : undefined,
+        strike: strategy.strike,
         vol: strategy.spreadvsvol === "vol" ? price : undefined,
       };
     } else {

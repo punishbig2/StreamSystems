@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import transactTimeColumn from "components/MiddleOffice/interfaces/columnTypes/transactionTime";
@@ -9,6 +10,7 @@ import sizeColumn from "components/MiddleOffice/interfaces/columnTypes/size";
 import sellerColumn from "components/MiddleOffice/interfaces/columnTypes/seller";
 import buyerColumn from "components/MiddleOffice/interfaces/columnTypes/buyer";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { parseTenor } from "timeUtils";
 
 export const columns: ColumnSpec[] = [
   {
@@ -48,7 +50,7 @@ export const columns: ColumnSpec[] = [
     name: "tenor",
     header: () => "Tenor",
     render: ({ deal }: CellProps) => {
-      return <div>{deal.tenor}</div>;
+      return <div>{parseTenor(deal.tenor)}</div>;
     },
     filterable: true,
     width: 2,

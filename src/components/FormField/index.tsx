@@ -99,6 +99,9 @@ export class FormField<T> extends Component<Props<T>, State> {
       });
     }
     if (props.value !== prevProps.value) {
+      if (props.name === "vol") {
+        console.log(props.value);
+      }
       this.setValueFromProps();
     }
     this.ensureCaretIsInPlace();
@@ -110,12 +113,7 @@ export class FormField<T> extends Component<Props<T>, State> {
 
   private setValueFromProps = (): void => {
     const { props } = this;
-    if (props.value === null || props.value === undefined) {
-      this.setState({ ...initialState });
-    } else {
-      // Reset the "props" specified value
-      this.setValue(props.value);
-    }
+    this.setValue(props.value);
   };
 
   private setValue = (value: any): void => {
@@ -267,7 +265,9 @@ export class FormField<T> extends Component<Props<T>, State> {
     const { dropdownData } = props;
     const classes: string[] = [
       state.validity !== Validity.InvalidFormat ? "valid" : "invalid",
-      props.value === undefined ? "empty" : "non-empty",
+      props.value === undefined && props.editable === false
+        ? "empty"
+        : "non-empty",
       props.editable ? "editable" : "read-only",
     ];
     switch (props.type) {

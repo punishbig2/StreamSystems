@@ -146,6 +146,15 @@ $field-size: 25px;
       }
     }
 
+    .readonly-field {
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+      max-width: 100%;
+    }
+
     .field,
     .readonly-field {
       display: flex;
@@ -187,7 +196,7 @@ $field-size: 25px;
         color: inherit;
         margin: 3px 0;
         cursor: default;
-        flex: 1;
+        width: 100%;
 
         legend {
           span {
@@ -252,14 +261,10 @@ $field-size: 25px;
         .MuiSelect-root,
         .readonly-field {
           color: inherit;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
           height: $field-size;
           font-size: $normal-font-size;
           font-weight: 500;
           font-family: "Roboto", sans-serif;
-          padding: 0;
 
           fieldset {
             border: none;
@@ -297,9 +302,14 @@ $field-size: 25px;
           }
         }
 
+        .MuiFormControlLabel-label {
+          flex-basis: 18ex;
+        }
+
         .MuiSelect-root,
         .readonly-field,
         .MuiInputBase-root input {
+          flex: 1;
           padding: 0 10px;
         }
       }

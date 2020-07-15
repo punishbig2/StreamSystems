@@ -1,9 +1,4 @@
-import {
-  Editable,
-  InputHandler,
-  MinimalProps,
-  StateReturnType,
-} from "components/FormField/inputHandler";
+import { Editable, InputHandler, MinimalProps, StateReturnType } from "components/FormField/inputHandler";
 import { Validity } from "forms/validity";
 import moment, { isMoment, Moment } from "moment";
 
@@ -26,7 +21,9 @@ export class DateInputHandler<P extends MinimalProps, S extends Editable>
   public format(value: any, props: P): [string, Validity] {
     switch (props.type) {
       case "date":
-        if (isMoment(value)) {
+        if (value === null) {
+          return ["MM/DD/YYYY", Validity.Intermediate];
+        } else if (isMoment(value)) {
           if (value.isValid()) {
             return [value.format("MM/DD/YYYY"), Validity.Valid];
           } else {

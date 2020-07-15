@@ -39,3 +39,46 @@ export const parseTime = (date: string, tz: string | null): Date => {
     )
   );
 };
+
+const zeroPad = (value: number, count: number): string => {
+  const digits: string[] = [];
+  let multiplier: number = Math.pow(10, count - 1);
+  while (value < Math.floor(multiplier) - 1) {
+    digits.push("0");
+    multiplier /= 10;
+  }
+  digits.push(value.toString(10));
+  return digits.join("");
+};
+
+export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
+  const date: Date = moment.toDate();
+  const year: string = zeroPad(date.getUTCFullYear(), 4);
+  const month: string = zeroPad(date.getUTCMonth() + 1, 2);
+  const day: string = zeroPad(date.getUTCDate(), 2);
+  const hours: string = zeroPad(date.getUTCHours(), 2);
+  const minutes: string = zeroPad(date.getUTCMinutes(), 2);
+  const seconds: string = zeroPad(date.getUTCSeconds(), 2);
+  const milliseconds: string = zeroPad(date.getUTCMilliseconds(), 3);
+  return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
+};
+
+export const currentTimestampFIXFormat = (): string => {
+  return momentToUTCFIXFormat(moment());
+};
+
+export const specificTenorToDate = (tenor: string): Date | undefined => {
+  const year: number = Number(tenor.substr(0, 4));
+  const month: number = Number(tenor.substr(4, 2));
+  const day: number = Number(tenor.substr(6, 2));
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return undefined;
+  if (day < 0 || day > 31) return undefined;
+  if (month < 0 || month > 12) return undefined;
+  return new Date(year, month - 1, day);
+};
+
+export const parseTenor = (tenor: string): string => {
+  const date: Date | undefined = specificTenorToDate(tenor);
+  if (date === undefined) return tenor;
+  return "SPECIFIC";
+};
