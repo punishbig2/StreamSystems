@@ -31,11 +31,28 @@ import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDe
 import MO from "mobx/stores/moStore";
 import { splitCurrencyPair } from "symbolUtils";
 import { getVegaAdjust } from "legsUtils";
-import moment from "moment";
+
+const zeroPad = (value: number, count: number): string => {
+  const digits: string[] = [];
+  let multiplier: number = Math.pow(10, count - 1);
+  while (value < Math.floor(multiplier) - 1) {
+    digits.push("0");
+    multiplier /= 10;
+  }
+  digits.push(value.toString(10));
+  return digits.join("");
+};
 
 const currentTimestampFIXFormat = (): string => {
-  const now: moment.Moment = moment();
-  return now.format("YYYYMMDD-HH:mm:ss.SSS");
+  const now: Date = new Date();
+  const year: string = zeroPad(now.getUTCFullYear(), 4);
+  const month: string = zeroPad(now.getUTCMonth() + 1, 2);
+  const day: string = zeroPad(now.getUTCDate(), 2);
+  const hours: string = zeroPad(now.getUTCHours(), 2);
+  const minutes: string = zeroPad(now.getUTCMinutes(), 2);
+  const seconds: string = zeroPad(now.getUTCSeconds(), 2);
+  const milliseconds: string = zeroPad(now.getUTCMilliseconds(), 3);
+  return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -645,14 +662,15 @@ export class API {
     return task.execute();
   }
 
-  public static async saveUserProfile(data: any) {
+  public static async saveUserProfile(data: any): Promise<any> {
     const { useremail, workspace } = data;
     const contentType = "application/x-www-form-urlencoded";
-    return post<any>(
+    const task: Task<any> = post<any>(
       API.buildUrl(API.UserApi, "UserJson", "save"),
       { useremail, workspace },
       contentType
     );
+    return task.execute();
   }
 
   public static async brokerRefAll() {

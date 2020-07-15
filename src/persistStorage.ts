@@ -117,7 +117,7 @@ class PersistStorage {
         API.saveUserProfile({
           useremail: user.email,
           workspace: JSON.stringify(finalData),
-        });
+        }).then(() => {});
       }, 150);
     }
   }
@@ -145,10 +145,8 @@ class PersistStorage {
     const { preferences } = workarea;
     if (!preferences) return "LATAM";
     const { ccyGroup } = preferences;
-    if (!ccyGroup)
-      return "LATAM";
-    if (ccyGroup.trim() === "")
-      return "LATAM";
+    if (!ccyGroup) return "LATAM";
+    if (ccyGroup.trim() === "") return "LATAM";
     return ccyGroup;
   }
 }
