@@ -72,8 +72,8 @@ export const specificTenorToDate = (tenor: string): Date | undefined => {
   const month: number = Number(tenor.substr(4, 2));
   const day: number = Number(tenor.substr(6, 2));
   if (isNaN(year) || isNaN(month) || isNaN(day)) return undefined;
-  if (day < 0 || day > 31) return undefined;
-  if (month < 0 || month > 12) return undefined;
+  if (day <= 0 || day > 31) return undefined;
+  if (month <= 0 || month > 12) return undefined;
   return new Date(year, month - 1, day);
 };
 

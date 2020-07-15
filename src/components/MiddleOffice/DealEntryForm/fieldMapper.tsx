@@ -28,6 +28,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
         return value;
       }
     })();
+    if (name === "vol" || name === "spread") console.log(convertedValue);
     // Ignore it!
     if (convertedValue === undefined) return;
     store.updateEntry(name, convertedValue);
