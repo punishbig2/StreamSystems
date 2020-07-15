@@ -11,6 +11,7 @@ import sellerColumn from "components/MiddleOffice/interfaces/columnTypes/seller"
 import buyerColumn from "components/MiddleOffice/interfaces/columnTypes/buyer";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { parseTenor } from "timeUtils";
+import { stateMap } from "utils/dealUtils";
 
 export const columns: ColumnSpec[] = [
   {
@@ -40,7 +41,7 @@ export const columns: ColumnSpec[] = [
   {
     name: "status",
     header: () => "Status",
-    render: () => "",
+    render: (deal: Deal) => stateMap[deal.status],
     filterable: true,
     width: 3,
     template: "12345",
