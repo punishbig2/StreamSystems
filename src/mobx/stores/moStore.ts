@@ -313,9 +313,6 @@ export class MoStore {
 
   @action.bound
   public setEditMode(mode: boolean) {
-    this.deal = null;
-    this.legs = [];
-    this.summaryLeg = null;
     this.isEditMode = mode;
   }
 }

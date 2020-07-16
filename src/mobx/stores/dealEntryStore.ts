@@ -56,7 +56,6 @@ export class DealEntryStore {
     this.entry = { ...createDealEntry(moStore.deal) };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
-    moStore.setDeal(null);
     moStore.setEditMode(true);
   }
 
@@ -65,6 +64,7 @@ export class DealEntryStore {
     this.entry = { ...emptyDealEntry };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
+    moStore.setDeal(null);
     moStore.setEditMode(true);
   }
 
