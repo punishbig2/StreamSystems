@@ -12,6 +12,8 @@ import moment from "moment";
 import { tenorToDuration } from "utils/dataGenerators";
 
 const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
+  if (entry.strategy === "") return;
+
   const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];

@@ -8,6 +8,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { parseTime } from "timeUtils";
+import { coalesce } from "utils";
 import { tenorToDuration } from "utils/dataGenerators";
 
 export const stateMap: { [key: number]: string } = {
@@ -93,7 +94,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     tenor: deal.tenor,
     model: 3,
     legs: legsCount,
-    strike: deal.strike,
+    strike: coalesce(deal.strike, strategy.strike),
     vol: strategy.spreadvsvol === "vol" ? deal.lastPrice : undefined,
     spread: strategy.spreadvsvol === "spread" ? deal.lastPrice : undefined,
     dealType: dealSourceToDealType(deal.source),

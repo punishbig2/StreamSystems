@@ -25,8 +25,8 @@ export const fieldsMapper = (
       };
     } else if (fieldDef.name === "rates") {
       const index: number = fieldDef.data;
-      if (rates === null) {
-        return { label: "??? Rage", value: "invalid" };
+      if (rates === null || rates === undefined) {
+        throw new Error("cannot proceed with invalid rates");
       } else {
         const rate = rates[index];
         return { ...rate, label: rate.currency + " Rate" };

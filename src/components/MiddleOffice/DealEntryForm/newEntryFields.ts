@@ -1,11 +1,10 @@
 import { ProductSource } from "API";
-import { StrikeHandler } from "components/FormField/strike";
-import { Symbol } from "interfaces/symbol";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
-import { DealEntry } from "structures/dealEntry";
-import { MoStore, InternalValuationModel } from "mobx/stores/moStore";
+import { Symbol } from "interfaces/symbol";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
+import { DealEntry } from "structures/dealEntry";
 
 const editableIfSpreadVsVolIs = (spreadvsvol: string) => (
   data: { [key: string]: MOStrategy },
@@ -79,7 +78,6 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     color: "orange",
     editable: true,
     emptyValue: "N/A",
-    handler: new StrikeHandler(),
   },
   {
     name: "spread",
