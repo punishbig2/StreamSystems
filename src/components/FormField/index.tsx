@@ -30,6 +30,7 @@ interface Props<T> extends MinimalProps {
   placeholder?: string;
   precision?: number;
   dropdownData?: SelectItem[] | any;
+  handler?: InputHandler;
   onChange?: (name: keyof T, value: any) => void;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
 }

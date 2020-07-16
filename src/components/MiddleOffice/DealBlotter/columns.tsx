@@ -1,4 +1,3 @@
-import moment from "moment";
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import transactTimeColumn from "components/MiddleOffice/interfaces/columnTypes/transactionTime";

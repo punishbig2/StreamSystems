@@ -23,14 +23,15 @@ const tenorToDate = (value: string): moment.Moment => {
 };
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
-  const { data, value } = props;
+  const { data, value, name } = props;
   const [date, setDate] = useState<moment.Moment | null>(null);
+  const { onChange } = props;
   useEffect(() => {
     const parsed: Date | undefined =
       typeof value === "string" ? specificTenorToDate(value) : undefined;
     if (parsed !== undefined) {
-      if (props.onChange !== undefined) {
-        props.onChange(props.name as keyof T, moment(parsed));
+      if (onChange !== undefined) {
+        onChange(name as keyof T, moment(parsed));
       }
     } else if (isMoment(value)) {
       setDate(value);
@@ -39,7 +40,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     } else {
       setDate(tenorToDate(value));
     }
-  }, [value]);
+  }, [value, name, onChange]);
   const onDateChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     value: moment.Moment | string
@@ -90,6 +91,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           color={props.color}
           type={"date"}
           value={date}
+          placeholder={"MM/DD/YYYY"}
           editable={!props.readOnly}
           name={"date"}
           onInput={onDateChange}

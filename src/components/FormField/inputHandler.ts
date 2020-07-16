@@ -25,7 +25,7 @@ export const getCaretPosition = (input: HTMLInputElement | null): number => {
 
 export type StateReturnType<S> = S | Pick<S, keyof S> | null;
 
-export interface InputHandler<P extends MinimalProps, S extends Editable> {
+export interface InputHandler<P extends MinimalProps = any, S extends Editable = any> {
   onKeydown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,

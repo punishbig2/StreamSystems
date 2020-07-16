@@ -1,3 +1,4 @@
+import { InputHandler } from "components/FormField/inputHandler";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 
@@ -21,4 +22,5 @@ export interface FieldDef<T, S = {}, E = {}> {
   transformData?: (item: any, entry?: T) => SelectItem[] | any;
   dataSource?: keyof S;
   data?: any;
+  handler?: InputHandler;
 }

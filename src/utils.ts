@@ -3,7 +3,7 @@ import { Sides } from "interfaces/sides";
 import timezones, { TimezoneInfo } from "data/timezones";
 
 export const coalesce = (value: any, defaultValue: any): any => {
-  if (value === null || value === undefined) return defaultValue;
+  if (value === null || value === undefined || value === "") return defaultValue;
   return value;
 };
 
@@ -60,3 +60,9 @@ export const updateApplicationTheme = (
 
 export const selectInputText = (input: HTMLInputElement) =>
   input && input.select();
+
+export const numberifyIfPossible = (value: string): string | number => {
+  const asNumber: number = Number(value);
+  if (!isNaN(asNumber)) return asNumber;
+  return value;
+};

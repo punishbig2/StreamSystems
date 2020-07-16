@@ -22,12 +22,12 @@ export class DateInputHandler<P extends MinimalProps, S extends Editable>
     switch (props.type) {
       case "date":
         if (value === null) {
-          return ["MM/DD/YYYY", Validity.Intermediate];
+          return ["", Validity.Intermediate];
         } else if (isMoment(value)) {
           if (value.isValid()) {
             return [value.format("MM/DD/YYYY"), Validity.Valid];
           } else {
-            return ["MM/DD/YYYY", Validity.InvalidFormat];
+            return ["", Validity.InvalidFormat];
           }
         } else {
           return [value as string, Validity.InvalidFormat];
@@ -37,7 +37,7 @@ export class DateInputHandler<P extends MinimalProps, S extends Editable>
           if (value.isValid()) {
             return [value.format("HH:mm A"), Validity.Valid];
           } else {
-            return ["HH:mm A", Validity.InvalidValue];
+            return ["", Validity.InvalidValue];
           }
         } else {
           return [value as string, Validity.InvalidFormat];

@@ -31,7 +31,7 @@ import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "symbolUtils";
 import { currentTimestampFIXFormat } from "timeUtils";
-import { coalesce, getCurrentTime, getSideFromType } from "utils";
+import { coalesce, getCurrentTime, getSideFromType, numberifyIfPossible } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -747,24 +747,26 @@ export class API {
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
         OptionLegs: legs.map(
-          (leg: Leg): OptionLeg => ({
-            notional: coalesce(leg.notional, 1e6 * deal.lastPrice),
-            expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
-            deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
-            spreadVolatiltyOffset: API.divideBy100(entry.spread),
-            strike: coalesce(
-              leg.strike,
-              coalesce(entry.strike, strategy.strike)
-            ),
-            volatilty: API.divideBy100(coalesce(leg.vol, entry.vol)),
-            barrier: null,
-            barrierLower: null,
-            barrierUpper: null,
-            barrierRebate: null,
-            OptionLegType: leg.option,
-            SideType: leg.side.toUpperCase(),
-            MonitorType: null,
-          })
+          (leg: Leg): OptionLeg => {
+            console.log(leg.strike, entry.strike, strategy.strike);
+            return ({
+              notional: coalesce(leg.notional, 1e6 * deal.lastPrice),
+              expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
+              deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
+              spreadVolatiltyOffset: API.divideBy100(entry.spread),
+              strike: numberifyIfPossible(
+                coalesce(leg.strike, coalesce(entry.strike, strategy.strike))
+              ),
+              volatilty: API.divideBy100(coalesce(leg.vol, entry.vol)),
+              barrier: null,
+              barrierLower: null,
+              barrierUpper: null,
+              barrierRebate: null,
+              OptionLegType: leg.option,
+              SideType: leg.side.toUpperCase(),
+              MonitorType: null,
+            })
+          }
         ),
       },
       ValuationData: {
