@@ -4,7 +4,7 @@ interface Props {
   isModified: boolean;
   isPriced: boolean;
   onPrice?: () => void;
-  onSubmitted?: () => void;
+  onSubmit?: () => void;
   onSave?: () => void;
 }
 
@@ -32,7 +32,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
       <button
         type={"button"}
         className={"primary"}
-        onClick={props.onSubmitted}
+        onClick={props.onSubmit}
         disabled={!props.isPriced}
       >
         Submit

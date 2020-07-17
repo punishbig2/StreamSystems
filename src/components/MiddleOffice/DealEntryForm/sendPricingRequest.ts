@@ -20,11 +20,15 @@ export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
     .then(() => {})
     .catch((error: HTTPError) => {
       if (error !== undefined) {
-        const message: string = error.getMessage();
-        moStore.setError({
-          code: error.getCode(),
-          ...JSON.parse(message),
-        });
+        if (typeof error.getMessage === "function") {
+          const message: string = error.getMessage();
+          moStore.setError({
+            code: error.getCode(),
+            ...JSON.parse(message),
+          });
+        } else {
+          console.log(error);
+        }
       }
       console.log("an error just happened", error);
     })

@@ -1,6 +1,5 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import {
   OptionLeg,
@@ -24,14 +23,18 @@ import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
-import MO from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { isMoment } from "moment";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "symbolUtils";
 import { currentTimestampFIXFormat } from "timeUtils";
-import { coalesce, getCurrentTime, getSideFromType, numberifyIfPossible } from "utils";
+import {
+  coalesce,
+  getCurrentTime,
+  getSideFromType,
+  numberifyIfPossible,
+} from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -224,6 +227,7 @@ type Endpoints =
   | "optexstyle"
   | "cuts"
   | "optionsproducts"
+  | "tradecapreport"
   | "deals"
   | "exproducts"
   | "request"
@@ -245,6 +249,7 @@ type Verb =
   | "clone"
   | "update"
   | "remove"
+  | "send"
   | "pricing";
 
 export class API {
@@ -257,6 +262,7 @@ export class API {
   // Middle office
   public static Mlo: string = "/api/mlo";
   public static Deal: string = `${API.Mlo}/deal`;
+  public static SEF: string = `${API.Mlo}/sef`;
   public static Legs: string = `${API.Mlo}/legs`;
 
   public static getRawUrl(section: string, rest: string, args?: any): string {
@@ -728,9 +734,6 @@ export class API {
     strategy: MOStrategy
   ) {
     const { currencyPair, tradeDate, symbol } = deal;
-    const legDefinitions: { in: LegOptionsDefIn[] } =
-      MO.legDefinitions[deal.strategy];
-    if (!legDefinitions) throw new Error(`invalid strategy ${deal.strategy}`);
     if (currencyPair.length !== 6)
       throw new Error(`unsupported currency ${currencyPair}`);
     const [ccy1, ccy2] = splitCurrencyPair(currencyPair);
@@ -749,7 +752,7 @@ export class API {
         OptionLegs: legs.map(
           (leg: Leg): OptionLeg => {
             console.log(leg.strike, entry.strike, strategy.strike);
-            return ({
+            return {
               notional: coalesce(leg.notional, 1e6 * deal.lastPrice),
               expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
               deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
@@ -765,7 +768,7 @@ export class API {
               OptionLegType: leg.option,
               SideType: leg.side.toUpperCase(),
               MonitorType: null,
-            })
+            };
           }
         ),
       },
@@ -843,6 +846,18 @@ export class API {
       useremail: user.email,
       legs: legs,
     });
+    return task.execute();
+  }
+
+  public static async sendTradeCaptureReport(dealId: string): Promise<string> {
+    const user: User = workareaStore.user;
+    const task: Task<string> = post<string>(
+      API.buildUrl(API.SEF, "tradecapreport", "send"),
+      {
+        dealId: dealId,
+        User: user.email,
+      }
+    );
     return task.execute();
   }
 

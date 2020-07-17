@@ -123,8 +123,6 @@ export class DealEntryStore {
       throw new Error("invalid strategy, how did you pick it?");
     const price: number | null | undefined =
       moStrategy.spreadvsvol === "vol" ? vol : spread;
-    if (price === null || price === undefined)
-      throw new Error("vol or spread must be set");
     return {
       buyer: buyer,
       seller: seller,
@@ -132,10 +130,16 @@ export class DealEntryStore {
       strategy: strategy,
       symbol: currencyPair,
       model: model,
-      price: price.toString(),
+      price: !!price ? price.toString() : null,
       size: Math.round(notional / 1e6).toString(),
       tenor: tenor,
     };
+  }
+
+  @action.bound
+  public submit() {
+    const { dealId } = this.entry;
+    API.sendTradeCaptureReport(dealId);
   }
 
   @action.bound
