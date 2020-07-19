@@ -1,4 +1,5 @@
 import { ProductSource } from "API";
+import { StrikeHandler } from "components/FormField/strike";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { Symbol } from "interfaces/symbol";
@@ -78,6 +79,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     color: "orange",
     editable: true,
     emptyValue: "N/A",
+    handler: new StrikeHandler(),
   },
   {
     name: "spread",

@@ -1,6 +1,7 @@
 import {
   FormControlLabel,
   FormHelperText,
+  Input,
   MenuItem,
   OutlinedInput,
   Select,
@@ -38,6 +39,7 @@ interface Props<T> extends MinimalProps {
 interface State extends Editable {
   labels: string[] | null;
   focus: boolean;
+  filterValue: string;
 }
 
 const initialState: State = {
@@ -47,6 +49,7 @@ const initialState: State = {
   focus: false,
   validity: Validity.Intermediate,
   caretPosition: null,
+  filterValue: "",
 };
 
 export class FormField<T> extends PureComponent<Props<T>, State> {
@@ -121,11 +124,20 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setValue(props.value);
   };
 
+  private getHandler = (): InputHandler => {
+    const { props, inputHandlers } = this;
+    if (props.handler) {
+      return props.handler;
+    }
+    if (props.type in inputHandlers) {
+      return inputHandlers[props.type];
+    }
+    return this.defaultHandler;
+  };
+
   private setValue = (value: any): void => {
     const { props, state, input } = this;
-    const { inputHandlers } = this;
-    const handler: InputHandler<Props<T>, State> =
-      inputHandlers[props.type] || this.defaultHandler;
+    const handler: InputHandler<Props<T>, State> = this.getHandler();
     const stateUpdate = handler.createValue(value, input, props, state);
     this.setState(stateUpdate);
   };
@@ -147,9 +159,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   private parse = (value: string, type: FieldType): any => {
-    const { inputHandlers } = this;
-    const handler: InputHandler<Props<T>, State> =
-      inputHandlers[type] || this.defaultHandler;
+    const handler: InputHandler<Props<T>, State> = this.getHandler();
     return handler.parse(value);
   };
 
@@ -157,8 +167,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
-    const handler: InputHandler<Props<T>, State> =
-      this.inputHandlers[props.type] || this.defaultHandler;
+    const handler: InputHandler<Props<T>, State> = this.getHandler();
     const result: State | Pick<State, keyof State> | null = handler.onKeydown(
       event,
       props,
@@ -186,9 +195,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private onInputInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props } = this;
     if (props.onInput !== undefined) {
-      const { inputHandlers } = this;
-      const handler: InputHandler<Props<T>, State> =
-        inputHandlers[props.type] || this.defaultHandler;
+      const handler: InputHandler<Props<T>, State> = this.getHandler();
       const {
         target: { value: textValue },
       } = event;
@@ -198,13 +205,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { props, state, inputHandlers } = this;
+    const { props, state } = this;
     const {
       target: { value: inputContent },
     } = event;
     if (!props.editable) return;
-    const handler: InputHandler<Props<T>, State> =
-      inputHandlers[props.type] || this.defaultHandler;
+    const handler: InputHandler<Props<T>, State> = this.getHandler();
     if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
       event.preventDefault();
     } else {
@@ -265,6 +271,34 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     body.removeChild(input);
   };
 
+  private onSelectFilterClick = (event: React.MouseEvent<HTMLLIElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  private onSelectFilterKeyDown = (
+    event: React.KeyboardEvent<HTMLLIElement>
+  ): void => {
+    switch (event.key) {
+      case "Escape":
+      case "ArrowDown":
+      case "ArrowUp":
+      case "Enter":
+        break;
+      default:
+        event.stopPropagation();
+    }
+  };
+
+  private onSelectFilterChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const { value } = event.target;
+    this.setState({
+      filterValue: value,
+    });
+  };
+
   private createControl = (): ReactElement => {
     const { props, state } = this;
     const { dropdownData } = props;
@@ -314,11 +348,32 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
             onChange={this.onSelectChange}
             readOnly={!props.editable}
           >
-            {dropdownData.map((item: { label: string; value: any }) => (
-              <MenuItem key={item.value} value={item.value}>
-                {item.label}
-              </MenuItem>
-            ))}
+            <MenuItem
+              onClickCapture={this.onSelectFilterClick}
+              onKeyDownCapture={this.onSelectFilterKeyDown}
+              disableRipple={true}
+              className={"search-item"}
+            >
+              <OutlinedInput
+                labelWidth={0}
+                value={state.filterValue}
+                placeholder={"Type to filter"}
+                autoFocus={true}
+                onChange={this.onSelectFilterChange}
+              />
+            </MenuItem>
+            {dropdownData
+              .filter((item: { label: string }) => {
+                const { label } = item;
+                const { filterValue } = state;
+                const lowerCaseLabel: string = label.toLowerCase();
+                return lowerCaseLabel.includes(filterValue.toLowerCase());
+              })
+              .map((item: { label: string; value: any }) => (
+                <MenuItem key={item.value} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
           </Select>
         );
       default:

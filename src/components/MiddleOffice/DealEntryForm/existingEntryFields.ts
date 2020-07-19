@@ -1,3 +1,4 @@
+import { StrikeHandler } from "components/FormField/strike";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { Symbol } from "interfaces/symbol";
@@ -91,6 +92,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     color: "orange",
     editable: editableFilter(DealType.Voice | DealType.Manual),
     emptyValue: "N/A",
+    handler: new StrikeHandler(),
   },
   {
     name: "spread",
@@ -221,9 +223,9 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     transformData: (list: string[]): SelectItem[] =>
       list.map(
         (name: string): SelectItem => ({
-            value: name,
-            label: name,
-          })
+          value: name,
+          label: name,
+        })
       ),
     dataSource: "styles",
   },

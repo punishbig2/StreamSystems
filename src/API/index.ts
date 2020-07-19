@@ -21,7 +21,6 @@ import { Strategy } from "interfaces/strategy";
 import { Symbol } from "interfaces/symbol";
 import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
-import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { isMoment } from "moment";
@@ -449,19 +448,6 @@ export class API {
     return result;
   }
 
-  /*static async getDarkTOBPoolSnapshot(
-    symbol: string,
-    strategy: string
-  ): PromiseType<{ [k: string]: W } | null> {
-    if (!symbol || !strategy) return null;
-    const url: string = API.getRawUrl(API.DarkPool, "tiletobsnapshot", {
-      symbol,
-      strategy,
-    });
-    // Execute the query
-    return get<{ [k: string]: W } | null>(url);
-  }*/
-
   public static async getDarkPoolSnapshot(
     symbol: string,
     strategy: string
@@ -573,13 +559,6 @@ export class API {
     );
     return task.execute();
   }
-
-  /*static async modifyDarkPoolOrder(request: any): PromiseType<any> {
-    return post<MessageResponse>(
-      API.buildUrl(API.DarkPool, "order", "modify"),
-      request
-    );
-  }*/
 
   public static async cancelDarkPoolOrder(order: Order): Promise<any> {
     const user: User = workareaStore.user;
@@ -745,7 +724,7 @@ export class API {
         ccy1: ccy1,
         ccy2: ccy2,
         OptionProductType: strategy.OptionProductType,
-        vegaAdjust: getVegaAdjust(strategy.OptionProductType, symbol),
+        vegaAdjust: entry.legAdj,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
