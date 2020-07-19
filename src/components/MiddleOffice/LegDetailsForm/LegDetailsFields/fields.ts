@@ -34,55 +34,6 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     editable: false,
   },
   {
-    type: "number",
-    color: "grey",
-    name: "notional",
-    label: "Notional",
-    precision: 0,
-    editable: editableFilter(DealType.Voice | DealType.Manual),
-  },
-  {
-    type: "date",
-    color: "grey",
-    name: "premiumDate",
-    label: "Premium Date",
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
-  },
-  {
-    type: "currency",
-    color: "grey",
-    name: "premium",
-    label: "Premium",
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
-  },
-  {
-    type: "percent",
-    color: "grey",
-    name: "pricePercent",
-    label: "Price %",
-    precision: 4,
-    editable: false,
-  },
-  {
-    type: "text",
-    color: "grey",
-    name: "strike",
-    label: "Strike",
-    editable: editableFilter(DealType.Voice | DealType.Manual),
-  },
-  {
-    type: "percent",
-    color: "grey",
-    name: "vol",
-    label: "Vol",
-    precision: 4,
-    editable: editableFilter(DealType.Voice | DealType.Manual),
-  },
-  {
     type: "date",
     color: "grey",
     name: "expiryDate",
@@ -111,6 +62,29 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
   {
     type: "number",
     color: "grey",
+    name: "notional",
+    label: "Notional",
+    precision: 0,
+    editable: editableFilter(DealType.Voice | DealType.Manual),
+  },
+  {
+    type: "text",
+    color: "grey",
+    name: "strike",
+    label: "Strike",
+    editable: editableFilter(DealType.Voice | DealType.Manual),
+  },
+  {
+    type: "percent",
+    color: "grey",
+    name: "vol",
+    label: "Vol",
+    precision: 4,
+    editable: editableFilter(DealType.Voice | DealType.Manual),
+  },
+  {
+    type: "number",
+    color: "grey",
     name: "fwdPts",
     label: "Fwd Pts",
     precision: 0,
@@ -121,6 +95,32 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     color: "grey",
     name: "fwdRate",
     label: "Fwd Rate",
+    precision: 4,
+    editable: false,
+  },
+  {
+    type: "date",
+    color: "grey",
+    name: "premiumDate",
+    label: "Premium Date",
+    editable: editableFilter(
+      DealType.Voice | DealType.Manual | DealType.Electronic
+    ),
+  },
+  {
+    type: "currency",
+    color: "grey",
+    name: "premium",
+    label: "Premium",
+    editable: editableFilter(
+      DealType.Voice | DealType.Manual | DealType.Electronic
+    ),
+  },
+  {
+    type: "percent",
+    color: "grey",
+    name: "pricePercent",
+    label: "Price %",
     precision: 4,
     editable: false,
   },

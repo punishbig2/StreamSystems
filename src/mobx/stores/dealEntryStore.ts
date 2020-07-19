@@ -139,7 +139,9 @@ export class DealEntryStore {
   @action.bound
   public submit() {
     const { dealId } = this.entry;
-    API.sendTradeCaptureReport(dealId);
+    API.sendTradeCaptureReport(dealId)
+      .then(() => {})
+      .catch(() => {});
   }
 
   @action.bound

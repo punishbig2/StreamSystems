@@ -13,13 +13,8 @@ export const ExistingEntryButtons: React.FC<Props> = (
 ): ReactElement => {
   return (
     <>
-      <button
-        type={"button"}
-        className={"primary"}
-        onClick={props.onPrice}
-        disabled={props.isPriced}
-      >
-        Price
+      <button type={"button"} className={"primary"} onClick={props.onPrice}>
+        {props.isPriced ? "Re-price" : "Price"}
       </button>
       <button
         type={"button"}

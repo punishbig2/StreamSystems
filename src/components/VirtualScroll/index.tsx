@@ -170,8 +170,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
   }, [height, itemSize]);
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { currentTarget } = event;
-    const offset: number = Math.round(currentTarget.scrollTop / itemSize);
-    // Clear old timeout
+    const offset: number = currentTarget.scrollTop / itemSize;
     setOffset(offset);
   };
   const preHeight: number = itemSize * (offset - 1);
