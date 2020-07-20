@@ -795,7 +795,7 @@ export class API {
       tenor: data.tenor,
       strategy: data.strategy,
       symbol: data.symbol,
-      lastpx: data.price,
+      lastpx: data.price !== null ? data.price : undefined,
       lastqty: data.size,
       lvsqty: "0",
       cumqty: "0",
