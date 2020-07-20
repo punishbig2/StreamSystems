@@ -37,7 +37,7 @@ export const createDealFromBackendMessage = (source: any): Deal => {
   if (item.tenor === "SPECIFIC") console.log(source);
   const expiryDate: moment.Moment =
     source.expirydate === null
-      ? tenorToDate(item.tenor)
+      ? addTenorToDate(tradeDate, item.tenor)
       : moment(source.expirydate, "MM/DD/YYYY");
   return {
     dealID: item.linkid,
