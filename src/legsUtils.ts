@@ -8,6 +8,7 @@ import { Symbol } from "interfaces/symbol";
 import moment from "moment";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
+import { addTenorToDate } from "utils/tenorUtils";
 
 export const parseManualLegs = (data: any[]): Leg[] => {
   const mapper = (item: any): Leg => {
@@ -39,7 +40,10 @@ export const createLegsFromDefinition = (
       value: 0,
     },
   ];
-  const expiryDate: moment.Moment = entry.expiryDate;
+  const expiryDate: moment.Moment =
+    entry.expiryDate === null
+      ? addTenorToDate(entry.tradeDate, entry.tenor)
+      : entry.expiryDate;
   for (const definition of definitions) {
     const sideType: string =
       "ReturnSide" in definition ? definition.ReturnSide : definition.SideType;
@@ -72,7 +76,7 @@ export const createLegsFromDefinition = (
       premiumCurrency: symbol.premiumCCY,
       option: option,
       deliveryDate: entry.deliveryDate,
-      expiryDate: entry.expiryDate,
+      expiryDate: expiryDate,
     };
     legs.push(leg);
   }

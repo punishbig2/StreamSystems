@@ -26,7 +26,7 @@ export interface DealEntry {
   buyer: string;
   seller: string;
   tradeDate: moment.Moment;
-  expiryDate: moment.Moment;
+  expiryDate: moment.Moment | null;
   deliveryDate: moment.Moment;
   dealId: string;
   status: number;
@@ -45,7 +45,7 @@ export const emptyDealEntry: DealEntry = {
   legAdj: false,
   buyer: "",
   seller: "",
-  expiryDate: moment(),
+  expiryDate: null,
   deliveryDate: moment(),
   tradeDate: moment(),
   dealId: "",

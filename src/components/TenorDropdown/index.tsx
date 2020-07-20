@@ -19,21 +19,6 @@ interface Props<T> {
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data } = props;
-  /*useEffect(() => {
-    const parsed: Date | undefined =
-      typeof value === "string" ? specificTenorToDate(value) : undefined;
-    if (parsed !== undefined) {
-      if (onChange !== undefined) {
-        onChange(name as keyof T, moment(parsed));
-      }
-    } else if (isMoment(value)) {
-      setDate(value);
-    } else if (value === "") {
-      setDate(null);
-    } else {
-      setDate(tenorToDate(value));
-    }
-  }, [value, name, onChange]);*/
   const onDateChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     value: moment.Moment | string
