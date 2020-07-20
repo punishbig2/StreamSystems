@@ -9,15 +9,15 @@ import { createDealEntry } from "utils/dealUtils";
 
 const savingDealError = (reason: any) => {
   const message: string =
-    typeof reason === "string" && reason !== ""
+    typeof reason === "string"
       ? reason
       : typeof reason.getMessage === "function"
       ? reason.getMessage()
-      : "Unknown reason";
+      : "Server error";
   return {
     status: "801",
     code: 801,
-    message: message,
+    message: message === "" ? "Server error" : message,
     error: "Cannot create or save the deal",
   };
 };
