@@ -23,14 +23,11 @@ $field-size: 25px;
   position: absolute;
   display: flex;
   align-items: stretch;
-
   top: 0;
   left: 0;
   bottom: $window-footer-size;
   width: 100%;
-
   background-color: $light-color;
-
   z-index: 0;
 
   .button-box {
@@ -78,6 +75,21 @@ $field-size: 25px;
     .table {
       height: 100%;
       background-color: $background-color;
+    }
+
+    .disabler {
+      position: absolute;
+      display: none;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+
+      &.disabled {
+        display: block;
+        background-color: rgba(white, 0.75);
+        pointer-events: all;
+      }
     }
   }
 
@@ -143,6 +155,12 @@ $field-size: 25px;
           padding: 4px;
           width: 100%;
         }
+
+        &:disabled {
+          legend {
+            color: $table-border-color;
+          }
+        }
       }
     }
 
@@ -160,23 +178,33 @@ $field-size: 25px;
       display: flex;
       width: 100%;
 
-      &.green {
+      &:not(.disabled).green {
         color: $green-form-color;
       }
 
-      &.orange {
+      &:not(.disabled).orange {
         color: $orange-form-color;
       }
 
-      &.cream {
+      &:not(.disabled).cream {
         color: $cream-form-color;
       }
 
-      &.grey {
+      &:not(.disabled).grey {
         color: $grey-form-color;
       }
 
-      &.negative {
+      &.disabled {
+        color: $table-border-color;
+
+        .MuiInputBase-root {
+          svg {
+            opacity: 0.25;
+          }
+        }
+      }
+
+      &:not(.disabled).negative {
         color: $text-color-red;
 
         .MuiFormControlLabel-root {
@@ -226,6 +254,15 @@ $field-size: 25px;
               border-style: solid;
               border-radius: 2px;
               box-shadow: 0 4px 10px -8px black inset;
+
+              &:disabled {
+                border-color: rgba($table-border-color, 0.5);
+                box-shadow: none;
+
+                &::placeholder {
+                  color: $table-border-color;
+                }
+              }
             }
 
             &:not(.invalid) {
@@ -315,6 +352,10 @@ $field-size: 25px;
 
         .MuiSelect-root {
           line-height: $field-size - 2;
+
+          &.Mui-disabled {
+            color: $table-border-color;
+          }
         }
       }
     }
@@ -349,6 +390,11 @@ $field-size: 25px;
     display: flex;
     height: 38px;
     align-items: center;
+    color: $foreground-color;
+
+    &.disabled {
+      color: $table-border-color;
+    }
 
     .actions {
       display: flex;
@@ -449,7 +495,7 @@ $field-size: 25px;
       font-size: $normal-font-size;
       font-weight: 800;
       text-transform: uppercase;
-      color: $foreground-color;
+      color: inherit;
       margin: 0;
       line-height: 2em;
       padding: 0 0 0 10px;

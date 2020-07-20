@@ -55,8 +55,7 @@ export class TableStore {
         const columnSpec: ColumnSpec = columnsMap[name];
         const filter: ((r: any, keyword: string) => boolean) | undefined =
           columnSpec.filterByKeyword;
-        if (filter === undefined)
-          throw new Error("attempting to filter by a non existing column");
+        if (filter === undefined) return () => true;
         return (r: any) => filter(r, keyword);
       },
       () => true

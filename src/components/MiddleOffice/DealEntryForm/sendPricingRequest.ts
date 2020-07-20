@@ -1,23 +1,27 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { DealEntry } from "structures/dealEntry";
-import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
-import mo from "mobx/stores/moStore";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API, HTTPError } from "API";
-import moStore from "mobx/stores/moStore";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import moStore, { MOStatus } from "mobx/stores/moStore";
+import { DealEntry } from "structures/dealEntry";
 
 export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
   if (deal === null || entry === null)
     throw new Error("no deal to get a pricing for");
   if (deal.strategy === undefined) throw new Error("invalid deal found");
   if (entry.model === "") throw new Error("node model specified");
-  const valuationModel: ValuationModel = mo.getValuationModelById(
+  const valuationModel: ValuationModel = moStore.getValuationModelById(
     entry.model as number
   );
-  const strategy: MOStrategy = mo.getStrategyById(deal.strategy);
-  mo.setSendingPricingRequest(true);
-  API.sendPricingRequest(deal, entry, mo.legs, valuationModel, strategy)
-    .then(() => {})
+  const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
+  // Set the status to pricing to show a loading spinner
+  moStore.setStatus(MOStatus.Pricing);
+  // Send the request
+  API.sendPricingRequest(deal, entry, moStore.legs, valuationModel, strategy)
+    .then(() => {
+      // We've got to wait for the priced message to come, because otherwise
+      // it's confusing
+    })
     .catch((error: HTTPError) => {
       if (error !== undefined) {
         if (typeof error.getMessage === "function") {
@@ -30,9 +34,5 @@ export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
           console.log(error);
         }
       }
-      console.log("an error just happened", error);
-    })
-    .finally(() => {
-      mo.setSendingPricingRequest(false);
     });
 };

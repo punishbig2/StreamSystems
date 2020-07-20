@@ -1,10 +1,10 @@
 import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import moStore from "mobx/stores/moStore";
-import React, { ReactElement } from "react";
 import { Observer } from "mobx-react";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import moStore, { MOStatus } from "mobx/stores/moStore";
+import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 
 const capitalize = (str: string): string => {
@@ -14,7 +14,7 @@ const capitalize = (str: string): string => {
 export const fieldsMapper = (
   leg: Leg,
   onValueChange: (name: keyof Leg, value: any) => void,
-  store: DealEntryStore
+  store: DealEntryStore,
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
   const { rates } = leg;
   const extraProps = ((): { value: any } & any => {
@@ -62,6 +62,7 @@ export const fieldsMapper = (
           type={fieldDef.type}
           {...extraProps}
           onChange={onValueChange}
+          disabled={moStore.status !== MOStatus.Normal}
         />
       )}
     </Observer>

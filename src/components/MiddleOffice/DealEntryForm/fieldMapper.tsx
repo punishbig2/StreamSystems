@@ -1,7 +1,7 @@
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import { DealEntry } from "structures/dealEntry";
 import { FieldDef, SelectItem } from "forms/fieldDef";
-import moStore, { MoStore } from "mobx/stores/moStore";
+import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { FormField } from "components/FormField";
 import { stateMap } from "utils/dealUtils";
@@ -55,6 +55,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       dropdownData={dropdownData}
       value={value}
       onChange={onChange}
+      disabled={moStore.status !== MOStatus.Normal}
     />
   );
 };

@@ -3,6 +3,7 @@ import { API, Task } from "API";
 import { MessageBox } from "components/MessageBox";
 import { DealBlotter } from "components/MiddleOffice/DealBlotter";
 import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
+import { Error } from "components/MiddleOffice/error";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import {
   buildPricingResult,
@@ -12,14 +13,14 @@ import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
 import { ModalWindow } from "components/ModalWindow";
+import { ProgressModalContent } from "components/ProgressModalContent";
 import { ProgressView } from "components/progressView";
 import { QuestionBox } from "components/QuestionBox";
 import { parseManualLegs } from "legsUtils";
-import strings from "locales";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import dealsStore from "mobx/stores/dealsStore";
-import moStore from "mobx/stores/moStore";
+import moStore, { messages, MOStatus } from "mobx/stores/moStore";
 import { randomID } from "randomID";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import signalRManager from "signalR/signalRManager";
@@ -37,54 +38,19 @@ export const MiddleOffice: React.FC<Props> = observer(
     >(false);
     const classes: string[] = ["middle-office"];
     const { deal, error } = moStore;
-    const [pricingResult, setPricingResult] = useState<PricingResult | null>(
-      null
-    );
-    useEffect(() => {
+    const setPricingResult = (pricingResult: PricingResult | null): void => {
       if (pricingResult === null) return;
       moStore.setLegs(pricingResult.legs, {
         ...moStore.summaryLeg,
         ...pricingResult.summary,
       } as SummaryLeg);
-    }, [pricingResult]);
+    };
     useEffect(() => {
       return signalRManager.addDealDeletedListener((dealId: string) => {
         dealsStore.removeDeal(dealId);
         moStore.setDeal(null, deStore);
       });
     }, [deStore]);
-    const renderError = (): ReactElement | null => {
-      if (error === null) return null;
-      return (
-        <MessageBox
-          title={strings.ErrorModalTitle}
-          message={() => {
-            return (
-              <div className={"pricer-error"}>
-                <p className={"message"}>{error.message}</p>
-                <p className={"tag"}>
-                  error code: {error.status} ({error.error})
-                </p>
-              </div>
-            );
-          }}
-          icon={"exclamation-triangle"}
-          buttons={() => {
-            return (
-              <>
-                <button
-                  className={"cancel"}
-                  onClick={() => moStore.setError(null)}
-                >
-                  {strings.Close}
-                </button>
-              </>
-            );
-          }}
-          color={"bad"}
-        />
-      );
-    };
     useEffect(() => {
       moStore.loadReferenceData().then(() => {});
     }, []);
@@ -97,7 +63,12 @@ export const MiddleOffice: React.FC<Props> = observer(
         // If this is not the deal we're showing, it's too late and we must skip it
         if (data.id !== deal.dealID) return;
         const pricingResult: PricingResult = buildPricingResult(data);
+        // Update pricing results to update everything
         setPricingResult(pricingResult);
+        // In case we're pricing
+        if (moStore.status === MOStatus.Pricing) {
+          moStore.setStatus(MOStatus.Normal);
+        }
       },
       [deal]
     );
@@ -112,6 +83,12 @@ export const MiddleOffice: React.FC<Props> = observer(
               moStore.setLegs(parseManualLegs(response.legs), null);
             } else {
               if ("error_msg" in response) {
+                moStore.setError({
+                  status: "Server error",
+                  error: "Unexpected Error",
+                  message: response.error_msg,
+                  code: 500,
+                });
               } else {
                 updatePricingData(response);
               }
@@ -141,7 +118,7 @@ export const MiddleOffice: React.FC<Props> = observer(
         <ProgressView
           title={"Loading: Middle Office"}
           message={"Please wait, we are loading some data"}
-          value={moStore.loadingReferenceDataProgress}
+          value={moStore.progress}
         />
       );
     } else {
@@ -165,6 +142,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             return (
               <button
                 className={"primary"}
+                disabled={moStore.status !== MOStatus.Normal}
                 onClick={() => deStore.addNewDeal()}
               >
                 <i className={"fa fa-plus"} />
@@ -176,6 +154,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               return (
                 <button
                   className={"primary"}
+                  disabled={moStore.status !== MOStatus.Normal}
                   onClick={deStore.cancelAddOrClone}
                 >
                   <i className={"fa fa-times"} />
@@ -187,6 +166,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               <>
                 <button
                   className={"primary"}
+                  disabled={moStore.status !== MOStatus.Normal}
                   onClick={() => deStore.addNewDeal()}
                 >
                   <i className={"fa fa-plus"} />
@@ -194,6 +174,7 @@ export const MiddleOffice: React.FC<Props> = observer(
                 </button>
                 <button
                   className={"primary"}
+                  disabled={moStore.status !== MOStatus.Normal}
                   onClick={() => moStore.setEditMode(true)}
                 >
                   <i className={"fa fa-edit"} />
@@ -201,12 +182,17 @@ export const MiddleOffice: React.FC<Props> = observer(
                 </button>
                 <button
                   className={"primary"}
+                  disabled={moStore.status !== MOStatus.Normal}
                   onClick={() => deStore.cloneDeal()}
                 >
                   <i className={"fa fa-clone"} />
                   <span>Clone</span>
                 </button>
-                <button className={"danger"} onClick={removeDeal}>
+                <button
+                  className={"danger"}
+                  disabled={moStore.status !== MOStatus.Normal}
+                  onClick={removeDeal}
+                >
                   <i className={"fa fa-trash"} />
                   <span>Remove</span>
                 </button>
@@ -217,6 +203,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             return (
               <button
                 className={"primary"}
+                disabled={moStore.status !== MOStatus.Normal}
                 onClick={() => deStore.cancelAddOrClone()}
               >
                 <i className={"fa fa-times"} />
@@ -226,6 +213,8 @@ export const MiddleOffice: React.FC<Props> = observer(
         }
       };
 
+      const headingClasses: string[] = ["heading"];
+      if (moStore.status !== MOStatus.Normal) headingClasses.push("disabled");
       return (
         <>
           <div className={classes.join(" ")}>
@@ -235,30 +224,57 @@ export const MiddleOffice: React.FC<Props> = observer(
                 onDealSelected={(deal: Deal | null) =>
                   moStore.setDeal(deal, deStore)
                 }
+                disabled={moStore.status !== MOStatus.Normal}
               />
             </div>
             <Grid className={"right-panel"} container>
               <Grid xs={7} className={"container"} item>
                 <div className={"form-group"}>
-                  <div className={"heading"}>
+                  <div className={headingClasses.join(" ")}>
                     <h1>Deal Entry</h1>
                     <div className={"actions"}>{getActionButtons()}</div>
                   </div>
                   <DealEntryForm store={deStore} />
                 </div>
                 <div className={"form-group"}>
-                  <div className={"heading"}>
+                  <div className={headingClasses.join(" ")}>
                     <h1>Summary Leg Details</h1>
                   </div>
-                  <SummaryLegDetailsForm />
+                  <SummaryLegDetailsForm  />
                 </div>
               </Grid>
               <Grid xs={5} className={"container"} item>
-                <LegDetailsForm dealEntryStore={deStore} />
+                <LegDetailsForm
+                  status={moStore.status}
+                  dealEntryStore={deStore}
+                />
               </Grid>
             </Grid>
           </div>
-          <ModalWindow visible={error !== null} render={renderError} />
+          <ModalWindow
+            visible={error !== null}
+            render={() => <Error error={error} />}
+          />
+          <ModalWindow
+            visible={moStore.successMessage !== null}
+            render={(): ReactElement | null => {
+              if (moStore.successMessage === null) return null;
+              const { title, text } = moStore.successMessage;
+              return (
+                <MessageBox
+                  title={title}
+                  message={text}
+                  icon={"check-circle"}
+                  buttons={() => (
+                    <button onClick={() => moStore.setSuccessMessage(null)}>
+                      Close
+                    </button>
+                  )}
+                  color={"good"}
+                />
+              );
+            }}
+          />
           <ModalWindow
             visible={removeQuestionModalOpen}
             render={(): ReactElement => {
@@ -274,11 +290,20 @@ export const MiddleOffice: React.FC<Props> = observer(
               );
             }}
           />
-          <div
-            className={[
-              "spinner ",
-              moStore.isSendingPricingRequest ? "visible" : "hidden",
-            ].join(" ")}
+          <ModalWindow
+            visible={moStore.status !== MOStatus.Normal}
+            render={(): ReactElement | null => {
+              if (moStore.status === MOStatus.Normal) return null;
+              const message: string = messages[moStore.status];
+              return (
+                <ProgressModalContent
+                  maximum={-1}
+                  progress={0}
+                  message={message}
+                  startTime={Date.now()}
+                />
+              );
+            }}
           />
         </>
       );

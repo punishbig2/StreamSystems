@@ -3,6 +3,7 @@ import React, { ReactElement } from "react";
 interface Props {
   isModified: boolean;
   isPriced: boolean;
+  disabled: boolean;
   onPrice?: () => void;
   onSubmit?: () => void;
   onSave?: () => void;
@@ -13,7 +14,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
 ): ReactElement => {
   return (
     <>
-      <button type={"button"} className={"primary"} onClick={props.onPrice}>
+      <button type={"button"} className={"primary"} onClick={props.onPrice} disabled={props.disabled}>
         {props.isPriced ? "Re-price" : "Price"}
       </button>
       <button
@@ -28,7 +29,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSubmit}
-        disabled={!props.isPriced}
+        disabled={!props.isPriced || props.disabled}
       >
         Submit
       </button>

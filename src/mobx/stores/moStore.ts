@@ -1,20 +1,28 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { observable, action, computed } from "mobx";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { API } from "API";
-import { Symbol } from "interfaces/symbol";
-
-import workareaStore from "mobx/stores/workareaStore";
+import { Cut } from "components/MiddleOffice/interfaces/cut";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Leg } from "components/MiddleOffice/interfaces/leg";
 import {
   LegOptionsDefIn,
   LegOptionsDefOut,
 } from "components/MiddleOffice/interfaces/legOptionsDef";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { Sides } from "interfaces/sides";
+import { Symbol } from "interfaces/symbol";
+import { action, computed, observable } from "mobx";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+
+import workareaStore from "mobx/stores/workareaStore";
+
+export enum MOStatus {
+  Normal,
+  Submitting,
+  Pricing,
+  CreatingDeal,
+  UpdatingDeal,
+}
 
 interface LegDefinitions {
   [strategy: string]: {
@@ -23,7 +31,7 @@ interface LegDefinitions {
   };
 }
 
-interface Error {
+export interface MOError {
   error: string;
   code: number;
   message: string;
@@ -37,15 +45,30 @@ export interface InternalValuationModel {
   OptionModelParameters: string;
 }
 
+export const messages: {
+  [key: number]: string;
+} = {
+  [MOStatus.Pricing]: "Pricing in progress",
+  [MOStatus.Submitting]: "Submitting",
+  [MOStatus.CreatingDeal]: "Creating Deal",
+  [MOStatus.UpdatingDeal]: "Updating Deal",
+};
+
+interface GenericMessage {
+  title: string;
+  text: string;
+}
+
 export class MoStore {
   @observable deal: Deal | null = null;
   @observable legs: Leg[] = [];
   @observable summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
-  @observable loadingReferenceDataProgress: number = 0;
-  @observable isSendingPricingRequest: boolean = false;
-  @observable error: Error | null = null;
+  @observable progress: number = 0;
+  @observable error: MOError | null = null;
   @observable isEditMode: boolean = false;
+  @observable status: MOStatus = MOStatus.Normal;
+  @observable successMessage: GenericMessage | null = null;
 
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
@@ -111,12 +134,12 @@ export class MoStore {
   }
 
   @action.bound
-  private setProgress(value: number) {
-    this.loadingReferenceDataProgress = value;
+  private setProgress(value: number): void {
+    this.progress = value;
   }
 
   @action.bound
-  private setInitialized() {
+  private setInitialized(): void {
     this.isInitialized = true;
   }
 
@@ -168,12 +191,12 @@ export class MoStore {
   }
 
   @computed
-  public get banks() {
+  public get banks(): string[] {
     return workareaStore.banks;
   }
 
   @computed
-  get symbols() {
+  get symbols(): Symbol[] {
     return workareaStore.symbols;
   }
 
@@ -225,7 +248,10 @@ export class MoStore {
   }
 
   @action.bound
-  public setDeal(deal: Deal | null, deStore: DealEntryStore | null = null) {
+  public setDeal(
+    deal: Deal | null,
+    deStore: DealEntryStore | null = null
+  ): void {
     this.deal = deal;
     this.legs = [];
     this.summaryLeg = null;
@@ -237,7 +263,7 @@ export class MoStore {
   }
 
   @action.bound
-  public setLegs(legs: Leg[], summary: SummaryLeg | null) {
+  public setLegs(legs: Leg[], summary: SummaryLeg | null): void {
     if (summary) {
       this.summaryLeg = summary;
     }
@@ -264,11 +290,6 @@ export class MoStore {
     };
   }
 
-  @action.bound
-  public setSendingPricingRequest(value: boolean) {
-    this.isSendingPricingRequest = value;
-  }
-
   public getOutLegsCount(strategy: string): number {
     const definition:
       | { in: LegOptionsDefIn[]; out: LegOptionsDefOut[] }
@@ -283,11 +304,12 @@ export class MoStore {
   }
 
   @action.bound
-  public setError(error: Error | null) {
+  public setError(error: MOError | null): void {
     this.error = error;
+    this.status = MOStatus.Normal;
   }
 
-  public updateLeg(index: number, key: keyof Leg, value: any) {
+  public updateLeg(index: number, key: keyof Leg, value: any): void {
     const { legs } = this;
     this.legs = [
       ...legs.slice(0, index),
@@ -312,8 +334,24 @@ export class MoStore {
   }
 
   @action.bound
-  public setEditMode(mode: boolean) {
+  public setEditMode(mode: boolean): void {
     this.isEditMode = mode;
+  }
+
+  @action.bound
+  public setStatus(status: MOStatus): void {
+    this.status = status;
+  }
+
+  @action.bound
+  public setSuccessMessage(message: GenericMessage | null): void {
+    this.successMessage = message;
+    this.status = MOStatus.Normal;
+  }
+
+  @action.bound
+  public setErrorMessage(error: MOError | null): void {
+    this.error = error;
   }
 }
 

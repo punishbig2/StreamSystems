@@ -8,7 +8,7 @@ import newEntryFields from "components/MiddleOffice/DealEntryForm/newEntryFields
 import { sendPricingRequest } from "components/MiddleOffice/DealEntryForm/sendPricingRequest";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import moStore from "mobx/stores/moStore";
+import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect } from "react";
 import { EntryType } from "structures/dealEntry";
 
@@ -37,6 +37,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         case EntryType.ExistingDeal:
           return (
             <ExistingEntryButtons
+              disabled={moStore.status !== MOStatus.Normal}
               isModified={store.isModified}
               isPriced={entry.status === 2}
               onSubmit={store.submit}
@@ -48,6 +49,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         case EntryType.Clone:
           return (
             <NewEntryButtons
+              disabled={moStore.status !== MOStatus.Normal}
               onSubmit={store.createOrClone}
               canSubmit={store.isReadyForSubmission}
             />
@@ -67,7 +69,10 @@ export const DealEntryForm: React.FC<Props> = observer(
       >
         <Grid alignItems={"stretch"} container>
           <Grid xs={12} item>
-            <fieldset className={"full-height"}>
+            <fieldset
+              className={"full-height"}
+              disabled={moStore.status !== MOStatus.Normal}
+            >
               {fields.map(fieldMapper(store, entry))}
             </fieldset>
           </Grid>

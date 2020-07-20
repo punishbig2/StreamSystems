@@ -12,12 +12,20 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
   const [offset, setOffset] = useState<number>(0);
   const [visibleCount, setVisibleCount] = useState<number>(0);
   const [height, setHeight] = useState<number>(0);
+  const [scrollTop, setScrollTop] = useState<number>(0);
+  const [contentElement, setContentElement] = useState<HTMLDivElement | null>(
+    null
+  );
 
   const reference: React.MutableRefObject<HTMLDivElement | null> = useRef<
     HTMLDivElement
   >(null);
 
   const array = Children.toArray(props.children);
+  useEffect(() => {
+    if (contentElement === null) return;
+    contentElement.scrollTop = scrollTop;
+  }, [scrollTop, contentElement]);
   useEffect(() => {
     if (reference.current === null) return;
     const element: HTMLDivElement = reference.current;
@@ -33,7 +41,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
     const scrollbar: HTMLDivElement | null = element.querySelector(
       ".scrollbar-container"
     );
-
+    setContentElement(content);
     const setupScrollbar = (
       content: HTMLDivElement,
       scrollbar: HTMLDivElement
@@ -41,6 +49,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       const ratio: number = content.offsetHeight / content.scrollHeight;
       const classes: DOMTokenList = scrollbar.classList;
       const size: number = ratio * content.offsetHeight;
+      console.log(size);
       const handle: HTMLDivElement | null = scrollbar.querySelector(".handle");
       if (handle === null) throw new Error("scrollbars MUST have a handle");
       const style: CSSStyleDeclaration = handle.style;
@@ -56,7 +65,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       if (content !== null && scrollbar !== null) {
         setupScrollbar(content, scrollbar);
       }
-    });
+    }, 0);
 
     const onMouseMove = (event: MouseEvent) => {
       event.preventDefault();
@@ -77,9 +86,10 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
           );
           style.top = `${newTop}px`;
           if (content !== null) {
-            content.scrollTop =
+            setScrollTop(
               ((newTop - padding) / (maxTop - padding - 2)) *
-              (content.scrollHeight - content.offsetHeight);
+                (content.scrollHeight - content.offsetHeight)
+            );
           }
         }
       }
@@ -128,7 +138,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       }
     };
 
-    const observer = new ResizeObserver(
+    const resizeObserver = new ResizeObserver(
       (entries: readonly ResizeObserverEntry[]) => {
         if (entries.length !== 1) return;
         if (content !== null) {
@@ -145,24 +155,15 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
         }
       }
     );
-    const mutationObserver: MutationObserver = new MutationObserver(() => {
-      if (content !== null && scrollbar !== null) {
-        setupScrollbar(content, scrollbar);
-      }
-    });
     // Start with the initial size
     setHeight(element.offsetHeight);
     // Watch for resizing ...
-    observer.observe(observable);
-    mutationObserver.observe(observable, {
-      childList: true,
-      subtree: true,
-    });
+    resizeObserver.observe(observable);
     // Install event handlers
     installMouseHandlers();
     return () => {
+      resizeObserver.disconnect();
       uninstallMouseHandlers();
-      observer.disconnect();
     };
   }, [reference]);
   useEffect(() => {
@@ -170,7 +171,7 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
   }, [height, itemSize]);
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { currentTarget } = event;
-    const offset: number = currentTarget.scrollTop / itemSize;
+    const offset: number = Math.floor(currentTarget.scrollTop / itemSize);
     setOffset(offset);
   };
   const preHeight: number = itemSize * (offset - 1);

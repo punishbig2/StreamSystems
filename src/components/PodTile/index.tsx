@@ -205,6 +205,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       return (
         <ProgressModalContent
           startTime={store.operationStartedAt}
+          message={"Creating Orders"}
           maximum={store.progressMax}
           progress={store.currentProgress}
         />

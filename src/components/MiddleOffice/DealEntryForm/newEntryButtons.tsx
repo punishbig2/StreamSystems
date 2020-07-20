@@ -1,8 +1,9 @@
 import React, { ReactElement } from "react";
 
 interface Props {
-  onSubmit: () => void;
+  disabled: boolean;
   canSubmit: boolean;
+  onSubmit: () => void;
 }
 
 export const NewEntryButtons: React.FC<Props> = (
@@ -20,7 +21,7 @@ export const NewEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSubmit}
-        disabled={!props.canSubmit}
+        disabled={!props.canSubmit || props.disabled}
       >
         Save
       </button>

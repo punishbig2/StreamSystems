@@ -13,6 +13,7 @@ interface Props<T> {
   readOnly: boolean;
   color: "green" | "orange" | "cream" | "grey";
   name: string;
+  disabled: boolean;
   onChange?: (name: keyof T, value: any) => void;
 }
 
@@ -69,6 +70,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       <Grid xs={6} item>
         <Select
           value={isMoment(value) ? "SPECIFIC" : value}
+          disabled={props.disabled}
           className={props.className}
           displayEmpty={true}
           readOnly={props.readOnly}
@@ -95,6 +97,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           editable={!props.readOnly}
           name={"date"}
           onInput={onDateChange}
+          disabled={props.disabled}
         />
       </Grid>
     </Grid>

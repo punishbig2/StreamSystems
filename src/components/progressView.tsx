@@ -9,7 +9,8 @@ interface Props {
 
 export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {
   const { value } = props;
-  if (value < 0 || value > 100)
+  const valueStr = value !== null ? `${value.toFixed(0)}%` : null;
+  if (value !== null && (value < 0 || value > 100))
     throw new Error("value can only be in the range [0, 100]");
   return (
     <div className={"loading-view"}>
@@ -22,7 +23,7 @@ export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {
         </div>
         <div className={"title"}>
           <div className={"label"}>{props.title}</div>
-          <div className={"percent"}>{value.toFixed(0)}%</div>
+          <div className={"percent"}>{valueStr}</div>
         </div>
         <ProgressBar value={value} />
         <div className={"message"}>{props.message}&hellip;</div>

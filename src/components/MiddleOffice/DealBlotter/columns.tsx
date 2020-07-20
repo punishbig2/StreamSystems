@@ -44,6 +44,17 @@ export const columns: ColumnSpec[] = [
       return stateMap[deal.status];
     },
     filterable: true,
+    filterByKeyword: (v1: Deal, keyword: string): boolean => {
+      const value: string = stateMap[v1.status];
+      const lowerCaseValue: string = value.toLowerCase();
+      return lowerCaseValue.includes(keyword.toLowerCase());
+    },
+    difference: (v1: Deal, v2: Deal) => {
+      const value1: string = stateMap[v1.status];
+      const value2: string = stateMap[v2.status];
+      return value1.localeCompare(value2);
+    },
+    sortable: true,
     width: 3,
     template: "12345",
   },

@@ -1,33 +1,32 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
+import moment from "moment";
 
 interface OwnProps {
   startTime: number;
   maximum: number;
+  message: string;
   progress: number;
 }
 
 export const ProgressModalContent: React.FC<OwnProps> = (
   props: OwnProps
 ): ReactElement | null => {
-  let remainingSeconds: number = Date.now() - props.startTime;
-  const pad = (value: number) => (value < 10 ? "0" + value : value.toString());
-
+  const [now, setNow] = useState<number>(Date.now());
   const percent: number = Math.round((100 * props.progress) / props.maximum);
-  const hours: number = Math.round(remainingSeconds / 3600000);
-  const minutes: number = Math.round(
-    (remainingSeconds - 3600000 * hours) / 60000
-  );
-  const seconds: number = Math.round(
-    (remainingSeconds - 60000 * minutes) / 1000
-  );
+  const elapsedTime: moment.Moment = moment.utc(now - props.startTime);
+  useEffect(() => {
+    setTimeout(() => {
+      setNow(Date.now());
+    }, 1000);
+  });
   return (
     <div className={"progress-dialog"}>
       <div className={"header"}>
         {props.maximum < 0 ? <div className={"spinner"} /> : null}
         <div className={"title"}>
-          <h1>Creating orders&hellip;</h1>
+          <h1>{props.message}</h1>
           <div className={"timer"}>
-            Time elapsed: {pad(hours)}:{pad(minutes)}:{pad(seconds)}
+            Time elapsed: {elapsedTime.format("HH:mm:ss")}
           </div>
         </div>
       </div>

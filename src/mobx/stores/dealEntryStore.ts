@@ -3,7 +3,7 @@ import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { action, computed, observable } from "mobx";
 import dealsStore from "mobx/stores/dealsStore";
-import moStore from "mobx/stores/moStore";
+import moStore, { MOStatus } from "mobx/stores/moStore";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { createDealEntry } from "utils/dealUtils";
 
@@ -139,9 +139,25 @@ export class DealEntryStore {
   @action.bound
   public submit() {
     const { dealId } = this.entry;
+    moStore.setStatus(MOStatus.Submitting);
     API.sendTradeCaptureReport(dealId)
-      .then(() => {})
-      .catch(() => {});
+      .then(() => {
+        moStore.setSuccessMessage({
+          title: "Submission Successful",
+          text: "The submission was successful, close this window now",
+        });
+      })
+      .catch(() => {
+        moStore.setError({
+          status: "Unknown error",
+          error: "Unexpected Error",
+          message: "Something didn't go as expected, please contact support",
+          code: 800,
+        });
+      })
+      .finally(() => {
+        moStore.setStatus(MOStatus.Normal);
+      });
   }
 
   @action.bound
@@ -151,7 +167,23 @@ export class DealEntryStore {
       ...this.buildRequest(),
       linkid: entry.dealId,
     };
-    API.updateDeal(request).then(() => {});
+    moStore.setStatus(MOStatus.UpdatingDeal);
+    // Call the backend
+    API.updateDeal(request)
+      .then(() => {
+        moStore.setSuccessMessage({
+          title: "Saved Successfully",
+          text: "The deal was correctly saved, please close this window now",
+        });
+      })
+      .catch(() => {
+        moStore.setError({
+          status: "Unknown Error",
+          code: 801,
+          message: "There was a problem saving the deal",
+          error: "Unknown Error",
+        });
+      });
   }
 
   @action.bound
@@ -161,21 +193,47 @@ export class DealEntryStore {
       case EntryType.ExistingDeal:
         throw new Error("this function should not be called in current state");
       case EntryType.New:
+        moStore.setStatus(MOStatus.CreatingDeal);
         API.createDeal(this.buildRequest())
           .then((id: string) => {
             this.setCurrentDeal(id);
+            moStore.setSuccessMessage({
+              title: "Saved Successfully",
+              text:
+                "The deal was correctly created with id `" +
+                id +
+                "', please close this window now",
+            });
           })
           .catch((reason: any) => {
-            console.warn(reason);
+            moStore.setError({
+              status: reason,
+              code: 801,
+              message: "There was a problem saving the deal",
+              error: "Unknown Error",
+            });
           });
         break;
       case EntryType.Clone:
+        moStore.setStatus(MOStatus.CreatingDeal);
         API.cloneDeal(this.buildRequest())
           .then((id: string) => {
             this.setCurrentDeal(id);
+            moStore.setSuccessMessage({
+              title: "Saved Successfully",
+              text:
+                "The deal was correctly created with id `" +
+                id +
+                "', please close this window now",
+            });
           })
           .catch((reason: any) => {
-            console.warn(reason);
+            moStore.setError({
+              status: reason,
+              code: 801,
+              message: "There was a problem saving the deal",
+              error: "Unknown Error",
+            });
           });
         break;
     }

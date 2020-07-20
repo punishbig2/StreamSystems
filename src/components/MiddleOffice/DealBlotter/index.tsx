@@ -1,18 +1,19 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { Table } from "components/Table";
-import { columns } from "components/MiddleOffice/DealBlotter/columns";
-import { Message } from "interfaces/message";
-import { Row, BlotterRowTypes } from "components/MessageBlotter/row";
 import { BlotterTypes } from "columns/messageBlotter";
-import { observer } from "mobx-react";
+import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
+import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import mo from "mobx/stores/moStore";
-import { isMessage } from "utils/messageUtils";
+import { Table } from "components/Table";
+import { Message } from "interfaces/message";
+import { observer } from "mobx-react";
 import dealsStore from "mobx/stores/dealsStore";
+import moStore from "mobx/stores/moStore";
+import React, { ReactElement, useEffect, useState } from "react";
 import signalRManager from "signalR/signalRManager";
+import { isMessage } from "utils/messageUtils";
 
 interface Props {
   id: string;
+  disabled: boolean;
   onDealSelected: (deal: Deal | null) => void;
 }
 
@@ -20,7 +21,7 @@ export const DealBlotter: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { onDealSelected } = props;
     const [, setTable] = useState<HTMLDivElement | null>(null);
-    const { deal } = mo;
+    const { deal } = moStore;
     const deals: Deal[] = dealsStore.deals;
     useEffect(() => {
       signalRManager.addDealListener((deal: Deal) => {
@@ -49,7 +50,7 @@ export const DealBlotter: React.FC<Props> = observer(
     };
     return (
       <Table
-        id={`${props.id}-dblt`}
+        id={`${props.id}-deal-blotter`}
         columns={columns}
         rows={deals}
         renderRow={renderRow}
@@ -57,6 +58,7 @@ export const DealBlotter: React.FC<Props> = observer(
         showInsertRow={true}
         ref={setTable}
         allowReorderColumns={true}
+        className={props.disabled ? "disabled" : undefined}
       />
     );
   }

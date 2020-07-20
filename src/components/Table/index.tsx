@@ -25,6 +25,7 @@ interface Props {
   allowReorderColumns?: boolean;
   className?: string;
   ref?: React.Ref<HTMLDivElement>;
+  style?: CSSProperties;
 }
 
 const BasicTable = (
@@ -54,8 +55,8 @@ const BasicTable = (
 
   const [optimalWidth] = useState(getOptimalWidthFromColumnsSpec(columns));
   const style = useMemo(
-    (): CSSProperties => ({ minWidth: `${optimalWidth}px` }),
-    [optimalWidth]
+    (): CSSProperties => ({ minWidth: `${optimalWidth}px`, ...props.style }),
+    [optimalWidth, props.style]
   );
   if (!rows) return null; // FIXME: show "No data in this depth message"
   const entries: [string, any][] = Object.entries(rows);
@@ -92,11 +93,7 @@ const BasicTable = (
         </VirtualScroll>
       );
     } else {
-      return (
-        <div className={"tbody"}>
-          {rows.map(props.renderRow)}
-        </div>
-      );
+      return <div className={"tbody"}>{rows.map(props.renderRow)}</div>;
     }
   };
 

@@ -1,7 +1,6 @@
 import {
   FormControlLabel,
   FormHelperText,
-  Input,
   MenuItem,
   OutlinedInput,
   Select,
@@ -26,8 +25,9 @@ interface Props<T> extends MinimalProps {
   label?: string;
   currency?: string;
   type: FieldType;
-  items?: (string | number)[];
   color: "green" | "orange" | "cream" | "grey";
+  disabled?: boolean;
+  items?: (string | number)[];
   placeholder?: string;
   precision?: number;
   dropdownData?: SelectItem[] | any;
@@ -62,6 +62,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   static defaultProps = {
     precision: 0,
     emptyValue: "",
+    disabled: false,
   };
 
   public state: State = { ...initialState };
@@ -111,11 +112,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       // update handle anything else
       return;
     }
-    // If we're here, this is the only thing to handle
     this.ensureCaretIsInPlace();
   };
 
-  private setInputRef = (input: HTMLInputElement) => {
+  private setInputRef = (input: HTMLInputElement): void => {
     this.input = input;
   };
 
@@ -158,7 +158,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       : {};
   };
 
-  private parse = (value: string, type: FieldType): any => {
+  private parse = (value: string): any => {
     const handler: InputHandler<Props<T>, State> = this.getHandler();
     return handler.parse(value);
   };
@@ -215,7 +215,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       event.preventDefault();
     } else {
       this.saveCaretPosition(event);
-      const value: any = this.parse(inputContent, props.type);
+      const value: any = this.parse(inputContent);
       this.setValue(value);
     }
   };
@@ -328,6 +328,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
         return (
           <TenorDropdown<T>
             value={state.internalValue}
+            disabled={!!props.disabled}
             name={props.name}
             color={props.color}
             className={classes.join(" ")}
@@ -345,14 +346,15 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
             className={classes.join(" ")}
             renderValue={this.renderSelectValue}
             displayEmpty={true}
-            onChange={this.onSelectChange}
             readOnly={!props.editable}
+            disabled={props.disabled}
+            onChange={this.onSelectChange}
           >
             <MenuItem
-              onClickCapture={this.onSelectFilterClick}
-              onKeyDownCapture={this.onSelectFilterKeyDown}
               disableRipple={true}
               className={"search-item"}
+              onClickCapture={this.onSelectFilterClick}
+              onKeyDownCapture={this.onSelectFilterKeyDown}
             >
               <OutlinedInput
                 labelWidth={0}
@@ -422,6 +424,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
     }
+    if (props.disabled) {
+      classes.push("disabled");
+    }
     return classes.join(" ");
   };
 
@@ -440,23 +445,29 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setState({ focus: false });
   };
 
-  public render(): ReactElement {
+  private content = (): ReactElement => {
     const { props } = this;
     const control: ReactElement = this.createControl();
     if (props.label === undefined) {
-      return <div className={this.getClassName()}>{control}</div>;
+      return control;
     } else {
       return (
-        <div className={this.getClassName()}>
-          <FormControlLabel
-            labelPlacement={"start"}
-            label={props.label}
-            control={control}
-            onFocus={this.onFocus}
-            onBlur={this.onBlur}
-          />
-        </div>
+        <FormControlLabel
+          labelPlacement={"start"}
+          label={props.label}
+          control={control}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
+        />
       );
     }
+  };
+
+  public render(): ReactElement {
+    return (
+      <div className={this.getClassName()}>
+        {this.content()}
+      </div>
+    );
   }
 }

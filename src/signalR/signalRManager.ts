@@ -220,10 +220,11 @@ export class SignalRManager {
   };
 
   private onPricingResponse = (message: string): void => {
+    const deal: Deal = JSON.parse(message);
     const event: CustomEvent<Deal> = new CustomEvent<Deal>(
       "onpricingresponse",
       {
-        detail: JSON.parse(message),
+        detail: deal,
       }
     );
     document.dispatchEvent(event);
