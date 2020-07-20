@@ -1,11 +1,21 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { OptionLeg, ValuationModel, VolMessageIn } from "components/MiddleOffice/interfaces/pricer";
+import {
+  OptionLeg,
+  ValuationModel,
+  VolMessageIn,
+} from "components/MiddleOffice/interfaces/pricer";
 import config from "config";
 import { Message } from "interfaces/message";
 import { MessageResponse } from "interfaces/messageResponse";
-import { CreateOrder, CreateOrderBulk, DarkPoolOrder, Order, OrderMessage } from "interfaces/order";
+import {
+  CreateOrder,
+  CreateOrderBulk,
+  DarkPoolOrder,
+  Order,
+  OrderMessage,
+} from "interfaces/order";
 import { Sides } from "interfaces/sides";
 import { Strategy } from "interfaces/strategy";
 import { Symbol } from "interfaces/symbol";
@@ -18,7 +28,12 @@ import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import { currentTimestampFIXFormat } from "utils/timeUtils";
-import { coalesce, getCurrentTime, getSideFromType, numberifyIfPossible } from "utils";
+import {
+  coalesce,
+  getCurrentTime,
+  getSideFromType,
+  numberifyIfPossible,
+} from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -776,12 +791,9 @@ export class API {
 
   private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
-    const tenor: string = isMoment(data.tenor)
-      ? data.tenor.format("YYYYMMDD")
-      : data.tenor;
     return {
       linkid: data.linkid,
-      tenor: tenor,
+      tenor: data.tenor,
       strategy: data.strategy,
       symbol: data.symbol,
       lastpx: data.price,
@@ -793,6 +805,7 @@ export class API {
       seller: data.seller,
       useremail: user.email,
       strike: data.strike,
+      expirydate: data.expiryDate,
     };
   }
 

@@ -3,10 +3,14 @@ import moment from "moment";
 
 export const SPECIFIC_TENOR = "SPECIFIC";
 
-export const tenorToDate = (value: string): moment.Moment => {
-  const now: moment.Moment = moment();
-  const duration: moment.Duration = tenorToDuration(value);
-  return now.add(duration);
+export const addTenorToDate = (date: moment.Moment, tenor: string): moment.Moment => {
+  const copy: moment.Moment = moment(date);
+  const duration: moment.Duration = tenorToDuration(tenor);
+  return copy.add(duration);
+};
+
+export const tenorToDate = (tenor: string): moment.Moment => {
+  return addTenorToDate(moment(), tenor);
 };
 
 export const tenorToDuration = (tenor: string): moment.Duration => {

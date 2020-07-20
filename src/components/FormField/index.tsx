@@ -329,10 +329,8 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
         if (!dropdownData)
           throw new Error("cannot have a dropdown with no data");
         if (value === null || value === undefined) return null;
-        if (typeof value !== "object") {
-          console.log(value);
+        if (typeof value !== "object")
           throw new Error("invalid type for tenor's value");
-        }
         if (
           !("tenor" in (value as object)) ||
           !("expiryDate" in (value as object))

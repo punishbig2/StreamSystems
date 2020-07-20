@@ -17,11 +17,8 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const dropdownData: SelectItem[] = !!transformData
     ? transformData(source, entry)
     : [];
-
-  const getValue = (): any => {
-    if (!entry) return null;
-    const entryValue: any = entry[field.name];
-    if (field.name === "status") return stateMap[Number(entryValue)];
+  const getValue = (rawValue: any): any => {
+    if (field.name === "status") return stateMap[Number(rawValue)];
     if (field.name === "tenor") {
       return {
         tenor: entry.tenor,
@@ -29,24 +26,20 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       };
     }
     if (field.type === "number") {
-      if (
-        entryValue === null ||
-        entryValue === undefined ||
-        entryValue.length === 0
-      )
+      if (rawValue === null || rawValue === undefined || rawValue.length === 0)
         return null;
-      const candidate: number = Number(entryValue);
+      const candidate: number = Number(rawValue);
       if (isNaN(candidate)) {
         return undefined;
       }
-      return entryValue;
+      return rawValue;
     } else {
-      return entryValue;
+      return rawValue;
     }
   };
 
-  const value: any = getValue();
-  const onTenorChange = (value: string) => {
+  const value: any = getValue(!!entry ? entry[field.name] : null);
+  const onTenorChange = (value: string): void => {
     if (isMoment(value)) {
       store.updateEntry("tenor", SPECIFIC_TENOR);
       store.updateEntry("expiryDate", value);
@@ -55,10 +48,9 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       store.updateEntry("expiryDate", tenorToDate(value));
     }
   };
-
-  const onChange = (name: keyof DealEntry, value: string) => {
+  const onChange = (name: keyof DealEntry, value: string): void => {
     if (name === "tenor") return onTenorChange(value);
-    const convertedValue: any = getValue();
+    const convertedValue: any = getValue(value);
     if (convertedValue === undefined) return;
     store.updateEntry(name, convertedValue);
   };

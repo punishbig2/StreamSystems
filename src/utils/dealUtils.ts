@@ -7,7 +7,7 @@ import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
-import { tenorToDuration } from "utils/tenorUtils";
+import { addTenorToDate, tenorToDate, tenorToDuration } from "utils/tenorUtils";
 import { parseTime } from "utils/timeUtils";
 import { coalesce } from "utils";
 
@@ -33,9 +33,12 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     symbol.SettlementWindow,
     "d"
   );
-  const tenorDuration: moment.Duration = tenorToDuration(item.tenor);
-  const deliveryDate: moment.Moment = moment(spotDate).add(tenorDuration);
-  const expiryDate: moment.Moment = moment(tradeDate).add(tenorDuration);
+  const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor);
+  if (item.tenor === "SPECIFIC") console.log(source);
+  const expiryDate: moment.Moment =
+    source.expirydate === null
+      ? tenorToDate(item.tenor)
+      : moment(source.expirydate, "MM/DD/YYYY");
   return {
     dealID: item.linkid,
     buyer: item.buyer,
@@ -78,6 +81,9 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   const id: string = deal.dealID;
   const legsCount: number = moStore.getOutLegsCount(deal.strategy);
   const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
+  if (strategy === undefined) {
+    throw new Error(`strategy not found: ${deal.strategy}`);
+  }
   return {
     currencyPair: deal.currencyPair,
     strategy: deal.strategy,
