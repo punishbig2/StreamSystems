@@ -65,7 +65,7 @@ export const columns: ColumnSpec[] = [
       return <div>{deal.tenor}</div>;
     },
     filterable: true,
-    width: 2,
+    width: 3,
     template: "XX",
   },
   priceColumn(true, 2),

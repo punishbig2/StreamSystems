@@ -27,7 +27,7 @@ import { isMoment } from "moment";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
-import { currentTimestampFIXFormat } from "utils/timeUtils";
+import { currentTimestampFIXFormat, momentToUTCFIXFormat } from "utils/timeUtils";
 import {
   coalesce,
   getCurrentTime,
@@ -805,7 +805,7 @@ export class API {
       seller: data.seller,
       useremail: user.email,
       strike: data.strike,
-      expirydate: data.expiryDate,
+      expirydate: momentToUTCFIXFormat(data.expiryDate),
     };
   }
 
