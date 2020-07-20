@@ -34,7 +34,6 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     "d"
   );
   const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor);
-  if (item.tenor === "SPECIFIC") console.log(source);
   const expiryDate: moment.Moment =
     source.expirydate === null
       ? addTenorToDate(tradeDate, item.tenor)

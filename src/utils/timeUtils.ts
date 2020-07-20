@@ -1,6 +1,5 @@
 import { Globals } from "golbals";
 import moment from "moment";
-import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 export const FIX_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
 

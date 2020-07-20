@@ -7,6 +7,21 @@ import moStore, { MOStatus } from "mobx/stores/moStore";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { createDealEntry } from "utils/dealUtils";
 
+const savingDealError = (reason: any) => {
+  const message: string =
+    typeof reason === "string" && reason !== ""
+      ? reason
+      : typeof reason.getMessage === "function"
+      ? reason.getMessage()
+      : "Unknown reason";
+  return {
+    status: "801",
+    code: 801,
+    message: message,
+    error: "Cannot create or save the deal",
+  };
+};
+
 export class DealEntryStore {
   @observable entryType: EntryType = EntryType.Empty;
   @observable entry: DealEntry = { ...emptyDealEntry };
@@ -149,13 +164,8 @@ export class DealEntryStore {
           text: "The submission was successful, close this window now",
         });
       })
-      .catch(() => {
-        moStore.setError({
-          status: "Unknown error",
-          error: "Unexpected Error",
-          message: "Something didn't go as expected, please contact support",
-          code: 800,
-        });
+      .catch((error: any) => {
+        moStore.setError(savingDealError(error));
       })
       .finally(() => {
         moStore.setStatus(MOStatus.Normal);
@@ -178,13 +188,8 @@ export class DealEntryStore {
           text: "The deal was correctly saved, please close this window now",
         });
       })
-      .catch(() => {
-        moStore.setError({
-          status: "Unknown Error",
-          code: 801,
-          message: "There was a problem saving the deal",
-          error: "Unknown Error",
-        });
+      .catch((error: any) => {
+        moStore.setError(savingDealError(error));
       });
   }
 
@@ -208,12 +213,7 @@ export class DealEntryStore {
             });
           })
           .catch((reason: any) => {
-            moStore.setError({
-              status: reason,
-              code: 801,
-              message: "There was a problem saving the deal",
-              error: "Unknown Error",
-            });
+            moStore.setError(savingDealError(reason));
           });
         break;
       case EntryType.Clone:
@@ -230,12 +230,7 @@ export class DealEntryStore {
             });
           })
           .catch((reason: any) => {
-            moStore.setError({
-              status: reason,
-              code: 801,
-              message: "There was a problem saving the deal",
-              error: "Unknown Error",
-            });
+            moStore.setError(savingDealError(reason));
           });
         break;
     }

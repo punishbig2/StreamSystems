@@ -23,7 +23,6 @@ import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
-import { isMoment } from "moment";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
