@@ -68,18 +68,3 @@ export const currentTimestampFIXFormat = (): string => {
   return momentToUTCFIXFormat(moment());
 };
 
-export const specificTenorToDate = (tenor: string): Date | undefined => {
-  const year: number = Number(tenor.substr(0, 4));
-  const month: number = Number(tenor.substr(4, 2));
-  const day: number = Number(tenor.substr(6, 2));
-  if (isNaN(year) || isNaN(month) || isNaN(day)) return undefined;
-  if (day <= 0 || day > 31) return undefined;
-  if (month <= 0 || month > 12) return undefined;
-  return new Date(year, month - 1, day);
-};
-
-export const parseTenor = (tenor: string): string => {
-  const date: Date | undefined = specificTenorToDate(tenor);
-  if (date === undefined) return tenor;
-  return SPECIFIC_TENOR;
-};
