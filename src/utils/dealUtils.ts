@@ -7,8 +7,8 @@ import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
-import { addTenorToDate, tenorToDate, tenorToDuration } from "utils/tenorUtils";
-import { parseTime } from "utils/timeUtils";
+import { addTenorToDate } from "utils/tenorUtils";
+import { forceParseDate, parseTime } from "utils/timeUtils";
 import { coalesce } from "utils";
 
 export const stateMap: { [key: number]: string } = {
@@ -38,7 +38,7 @@ export const createDealFromBackendMessage = (source: any): Deal => {
   const expiryDate: moment.Moment =
     source.expirydate === null
       ? addTenorToDate(tradeDate, item.tenor)
-      : moment(source.expirydate, "MM/DD/YYYY");
+      : forceParseDate(source.expirydate);
   return {
     dealID: item.linkid,
     buyer: item.buyer,

@@ -64,7 +64,15 @@ export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
   return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
 };
 
+export const forceParseDate = (value: string): moment.Moment => {
+  if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}.\d{3}/)) {
+    return moment(value, FIX_DATE_FORMAT);
+  } else {
+    // ISO format
+    return moment(value);
+  }
+};
+
 export const currentTimestampFIXFormat = (): string => {
   return momentToUTCFIXFormat(moment());
 };
-
