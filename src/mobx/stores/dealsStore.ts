@@ -31,9 +31,12 @@ export class DealsStore {
     if (index === -1) {
       this.deals = [deal, ...deals];
     } else {
+      const currentDeal: Deal | null = moStore.deal;
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // It was modified, so replay consequences
-      moStore.setDeal(deal, null);
+      if (currentDeal !== null && currentDeal.dealID === deal.dealID) {
+        moStore.setDeal(deal, null);
+      }
     }
     if (deal.dealID === this.selectedDeal) {
       this.selectedDeal = null;
