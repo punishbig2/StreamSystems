@@ -7,9 +7,9 @@ import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
-import { parseTime } from "timeUtils";
+import { tenorToDuration } from "utils/tenorUtils";
+import { parseTime } from "utils/timeUtils";
 import { coalesce } from "utils";
-import { tenorToDuration } from "utils/dataGenerators";
 
 export const stateMap: { [key: number]: string } = {
   1: "Pending",

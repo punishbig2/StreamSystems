@@ -1,6 +1,8 @@
-import { ProductSource } from "API";
 import { StrikeHandler } from "components/FormField/strike";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import {
+  MOStrategy,
+  ProductSource,
+} from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { Symbol } from "interfaces/symbol";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
@@ -43,12 +45,10 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     editable: true,
     transformData: (data: { [key: string]: MOStrategy }): SelectItem[] => {
       return Object.values(data)
-        .filter((item: MOStrategy) => {
-          return item.source !== ProductSource.Electronic;
-        })
+        .filter((item: MOStrategy) => item.source !== ProductSource.Electronic)
         .map(
           (strategy: MOStrategy): SelectItem => ({
-            value: strategy.name,
+            value: strategy.productid,
             label: strategy.description,
           })
         );

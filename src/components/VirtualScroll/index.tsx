@@ -49,7 +49,6 @@ export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (
       const ratio: number = content.offsetHeight / content.scrollHeight;
       const classes: DOMTokenList = scrollbar.classList;
       const size: number = ratio * content.offsetHeight;
-      console.log(size);
       const handle: HTMLDivElement | null = scrollbar.querySelector(".handle");
       if (handle === null) throw new Error("scrollbars MUST have a handle");
       const style: CSSStyleDeclaration = handle.style;

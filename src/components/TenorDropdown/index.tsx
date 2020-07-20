@@ -2,13 +2,13 @@ import { Grid, MenuItem, Select } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { SelectItem } from "forms/fieldDef";
 import moment, { isMoment } from "moment";
-import React, { ReactElement, useEffect, useState } from "react";
-import { specificTenorToDate } from "timeUtils";
-import { tenorToDuration } from "utils/dataGenerators";
+import React, { ReactElement } from "react";
+import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 interface Props<T> {
   data: SelectItem[];
-  value: string | moment.Moment;
+  tenor: string;
+  expiryDate: moment.Moment;
   className: string;
   readOnly: boolean;
   color: "green" | "orange" | "cream" | "grey";
@@ -17,17 +17,9 @@ interface Props<T> {
   onChange?: (name: keyof T, value: any) => void;
 }
 
-const tenorToDate = (value: string): moment.Moment => {
-  const now: moment.Moment = moment();
-  const duration: moment.Duration = tenorToDuration(value);
-  return now.add(duration);
-};
-
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
-  const { data, value, name } = props;
-  const [date, setDate] = useState<moment.Moment | null>(null);
-  const { onChange } = props;
-  useEffect(() => {
+  const { data } = props;
+  /*useEffect(() => {
     const parsed: Date | undefined =
       typeof value === "string" ? specificTenorToDate(value) : undefined;
     if (parsed !== undefined) {
@@ -41,7 +33,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     } else {
       setDate(tenorToDate(value));
     }
-  }, [value, name, onChange]);
+  }, [value, name, onChange]);*/
   const onDateChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     value: moment.Moment | string
@@ -69,7 +61,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     >
       <Grid xs={6} item>
         <Select
-          value={isMoment(value) ? "SPECIFIC" : value}
+          value={props.tenor}
           disabled={props.disabled}
           className={props.className}
           displayEmpty={true}
@@ -78,8 +70,8 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           name={props.name + "-value"}
           onChange={onSelectChange}
         >
-          {isMoment(value) ? (
-            <MenuItem value={"SPECIFIC"}>SPECIFIC</MenuItem>
+          {props.tenor === SPECIFIC_TENOR ? (
+            <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
           ) : null}
           {data.map((item: SelectItem) => (
             <MenuItem key={item.value} value={item.value}>
@@ -92,7 +84,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
         <FormField<{ date: moment.Moment }>
           color={props.color}
           type={"date"}
-          value={date}
+          value={props.expiryDate}
           placeholder={"MM/DD/YYYY"}
           editable={!props.readOnly}
           name={"date"}

@@ -9,7 +9,7 @@ import sizeColumn from "components/MiddleOffice/interfaces/columnTypes/size";
 import sellerColumn from "components/MiddleOffice/interfaces/columnTypes/seller";
 import buyerColumn from "components/MiddleOffice/interfaces/columnTypes/buyer";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { parseTenor } from "timeUtils";
+import { parseTenor } from "utils/timeUtils";
 import { stateMap } from "utils/dealUtils";
 
 export const columns: ColumnSpec[] = [

@@ -1,21 +1,11 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import {
-  OptionLeg,
-  ValuationModel,
-  VolMessageIn,
-} from "components/MiddleOffice/interfaces/pricer";
+import { OptionLeg, ValuationModel, VolMessageIn } from "components/MiddleOffice/interfaces/pricer";
 import config from "config";
 import { Message } from "interfaces/message";
 import { MessageResponse } from "interfaces/messageResponse";
-import {
-  CreateOrder,
-  CreateOrderBulk,
-  DarkPoolOrder,
-  Order,
-  OrderMessage,
-} from "interfaces/order";
+import { CreateOrder, CreateOrderBulk, DarkPoolOrder, Order, OrderMessage } from "interfaces/order";
 import { Sides } from "interfaces/sides";
 import { Strategy } from "interfaces/strategy";
 import { Symbol } from "interfaces/symbol";
@@ -26,14 +16,9 @@ import workareaStore from "mobx/stores/workareaStore";
 import { isMoment } from "moment";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
-import { splitCurrencyPair } from "symbolUtils";
-import { currentTimestampFIXFormat } from "timeUtils";
-import {
-  coalesce,
-  getCurrentTime,
-  getSideFromType,
-  numberifyIfPossible,
-} from "utils";
+import { splitCurrencyPair } from "utils/symbolUtils";
+import { currentTimestampFIXFormat } from "utils/timeUtils";
+import { coalesce, getCurrentTime, getSideFromType, numberifyIfPossible } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
@@ -42,12 +27,6 @@ const toUrlQuery = (obj: { [key: string]: string } | any): string => {
     .map(([key, value]: [string, string]) => `${key}=${encodeURI(value)}`)
     .join("&");
 };
-
-export enum ProductSource {
-  Voice = "Voice",
-  Electronic = "Electronic",
-  Manual = "Manual",
-}
 
 enum Method {
   Get = "GET",

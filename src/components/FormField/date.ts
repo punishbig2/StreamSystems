@@ -2,8 +2,8 @@ import { Editable, InputHandler, MinimalProps, StateReturnType } from "component
 import { Validity } from "forms/validity";
 import moment, { isMoment, Moment } from "moment";
 
-export class DateInputHandler<P extends MinimalProps, S extends Editable>
-  implements InputHandler<P, S> {
+export class DateInputHandler<T, P extends MinimalProps, S extends Editable>
+  implements InputHandler<T, P, S> {
   public createValue(
     value: any,
     input: HTMLInputElement | null,

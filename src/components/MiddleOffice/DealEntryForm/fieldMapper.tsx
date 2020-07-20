@@ -1,10 +1,12 @@
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import { DealEntry } from "structures/dealEntry";
-import { FieldDef, SelectItem } from "forms/fieldDef";
-import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
-import React, { ReactElement } from "react";
 import { FormField } from "components/FormField";
+import { FieldDef, SelectItem } from "forms/fieldDef";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
+import { isMoment } from "moment";
+import React, { ReactElement } from "react";
+import { DealEntry } from "structures/dealEntry";
 import { stateMap } from "utils/dealUtils";
+import { SPECIFIC_TENOR, tenorToDate } from "utils/tenorUtils";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
@@ -15,25 +17,48 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const dropdownData: SelectItem[] = !!transformData
     ? transformData(source, entry)
     : [];
-  const value: any = (() => {
+
+  const getValue = (): any => {
     if (!entry) return null;
-    if (field.name === "status") return stateMap[Number(entry[field.name])];
-    return entry[field.name];
-  })();
-  const onChange = (name: keyof DealEntry, value: string) => {
-    const convertedValue: any = (() => {
-      if (field.name === "status") return stateMap[Number(value)];
-      if (field.type === "number") {
-        if (value === null || value.length === 0) return null;
-        const candidate: number = Number(value);
-        if (isNaN(candidate)) {
-          return undefined;
-        }
-        return value;
-      } else {
-        return value;
+    const entryValue: any = entry[field.name];
+    if (field.name === "status") return stateMap[Number(entryValue)];
+    if (field.name === "tenor") {
+      return {
+        tenor: entry.tenor,
+        expiryDate: entry.expiryDate,
+      };
+    }
+    if (field.type === "number") {
+      if (
+        entryValue === null ||
+        entryValue === undefined ||
+        entryValue.length === 0
+      )
+        return null;
+      const candidate: number = Number(entryValue);
+      if (isNaN(candidate)) {
+        return undefined;
       }
-    })();
+      return entryValue;
+    } else {
+      return entryValue;
+    }
+  };
+
+  const value: any = getValue();
+  const onTenorChange = (value: string) => {
+    if (isMoment(value)) {
+      store.updateEntry("tenor", SPECIFIC_TENOR);
+      store.updateEntry("expiryDate", value);
+    } else {
+      store.updateEntry("tenor", value);
+      store.updateEntry("expiryDate", tenorToDate(value));
+    }
+  };
+
+  const onChange = (name: keyof DealEntry, value: string) => {
+    if (name === "tenor") return onTenorChange(value);
+    const convertedValue: any = getValue();
     if (convertedValue === undefined) return;
     store.updateEntry(name, convertedValue);
   };

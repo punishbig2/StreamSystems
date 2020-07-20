@@ -4,7 +4,7 @@ import { PodRow, PodRowStatus } from "interfaces/podRow";
 import { PodTable } from "interfaces/podTable";
 import { TenorType } from "interfaces/w";
 import { useEffect } from "react";
-import { compareTenors } from "utils/dataGenerators";
+import { compareTenors } from "utils/tenorUtils";
 import { User } from "interfaces/user";
 
 const buildRows = async (

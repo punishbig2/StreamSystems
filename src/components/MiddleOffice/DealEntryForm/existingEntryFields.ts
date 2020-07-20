@@ -59,7 +59,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
         })
         .map(
           (strategy: MOStrategy): SelectItem => ({
-            value: strategy.name,
+            value: strategy.productid,
             label: strategy.description,
           })
         );

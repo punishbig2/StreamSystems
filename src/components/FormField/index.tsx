@@ -21,7 +21,7 @@ import { Validity } from "forms/validity";
 import { randomID } from "randomID";
 import React, { PureComponent, ReactElement } from "react";
 
-interface Props<T> extends MinimalProps {
+interface Props<T> extends MinimalProps<T> {
   label?: string;
   currency?: string;
   type: FieldType;
@@ -31,7 +31,7 @@ interface Props<T> extends MinimalProps {
   placeholder?: string;
   precision?: number;
   dropdownData?: SelectItem[] | any;
-  handler?: InputHandler;
+  handler?: InputHandler<T>;
   onChange?: (name: keyof T, value: any) => void;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
 }
@@ -55,9 +55,9 @@ const initialState: State = {
 export class FormField<T> extends PureComponent<Props<T>, State> {
   private input: HTMLInputElement | null = null;
   private inputHandlers: {
-    [key: string]: InputHandler<Props<T>, State>;
+    [key: string]: InputHandler<T, Props<T>, State>;
   } = {};
-  private readonly defaultHandler: InputHandler<Props<T>, State>;
+  private readonly defaultHandler: InputHandler<T, Props<T>, State>;
 
   static defaultProps = {
     precision: 0,
@@ -69,11 +69,13 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
 
   constructor(props: Props<T>) {
     super(props);
-    const numeric: InputHandler<Props<T>, State> = new NumericInputHandler<
+    const numeric: InputHandler<T, Props<T>, State> = new NumericInputHandler<
+      T,
       Props<T>,
       State
     >();
-    const date: InputHandler<Props<T>, State> = new DateInputHandler<
+    const date: InputHandler<T, Props<T>, State> = new DateInputHandler<
+      T,
       Props<T>,
       State
     >();
@@ -84,7 +86,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.inputHandlers["date"] = date;
     this.inputHandlers["time"] = date;
     // The default handler
-    this.defaultHandler = new DefaultHandler<Props<T>, State>();
+    this.defaultHandler = new DefaultHandler<T, Props<T>, State>();
   }
 
   public componentDidMount = (): void => {
@@ -124,7 +126,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setValue(props.value);
   };
 
-  private getHandler = (): InputHandler => {
+  private getHandler = (): InputHandler<T> => {
     const { props, inputHandlers } = this;
     if (props.handler) {
       return props.handler;
@@ -137,7 +139,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
 
   private setValue = (value: any): void => {
     const { props, state, input } = this;
-    const handler: InputHandler<Props<T>, State> = this.getHandler();
+    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
     const stateUpdate = handler.createValue(value, input, props, state);
     this.setState(stateUpdate);
   };
@@ -159,7 +161,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   private parse = (value: string): any => {
-    const handler: InputHandler<Props<T>, State> = this.getHandler();
+    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
     return handler.parse(value);
   };
 
@@ -167,7 +169,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
-    const handler: InputHandler<Props<T>, State> = this.getHandler();
+    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
     const result: State | Pick<State, keyof State> | null = handler.onKeydown(
       event,
       props,
@@ -195,7 +197,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private onInputInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props } = this;
     if (props.onInput !== undefined) {
-      const handler: InputHandler<Props<T>, State> = this.getHandler();
+      const handler: InputHandler<T, Props<T>, State> = this.getHandler();
       const {
         target: { value: textValue },
       } = event;
@@ -210,7 +212,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       target: { value: inputContent },
     } = event;
     if (!props.editable) return;
-    const handler: InputHandler<Props<T>, State> = this.getHandler();
+    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
     if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
       event.preventDefault();
     } else {
@@ -299,9 +301,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     });
   };
 
-  private createControl = (): ReactElement => {
+  private createControl = (): ReactElement | null => {
     const { props, state } = this;
     const { dropdownData } = props;
+    const { value } = props;
     const classes: string[] = [
       state.validity !== Validity.InvalidFormat ? "valid" : "invalid",
       props.value === undefined && props.editable === false
@@ -325,11 +328,22 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       case "tenor":
         if (!dropdownData)
           throw new Error("cannot have a dropdown with no data");
+        if (value === null || value === undefined) return null;
+        if (typeof value !== "object") {
+          console.log(value);
+          throw new Error("invalid type for tenor's value");
+        }
+        if (
+          !("tenor" in (value as object)) ||
+          !("expiryDate" in (value as object))
+        )
+          throw new Error("invalid value for tenor field");
         return (
           <TenorDropdown<T>
-            value={state.internalValue}
-            disabled={!!props.disabled}
+            tenor={(value as any).tenor}
+            expiryDate={(value as any).expiryDate}
             name={props.name}
+            disabled={!!props.disabled}
             color={props.color}
             className={classes.join(" ")}
             readOnly={!props.editable}
@@ -445,12 +459,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setState({ focus: false });
   };
 
-  private content = (): ReactElement => {
+  private content = (): ReactElement | null => {
     const { props } = this;
-    const control: ReactElement = this.createControl();
+    const control: ReactElement | null = this.createControl();
     if (props.label === undefined) {
       return control;
-    } else {
+    } else if (control !== null) {
       return (
         <FormControlLabel
           labelPlacement={"start"}
@@ -460,14 +474,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           onBlur={this.onBlur}
         />
       );
+    } else {
+      return null;
     }
   };
 
   public render(): ReactElement {
-    return (
-      <div className={this.getClassName()}>
-        {this.content()}
-      </div>
-    );
+    return <div className={this.getClassName()}>{this.content()}</div>;
   }
 }

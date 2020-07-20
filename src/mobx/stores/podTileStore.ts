@@ -4,10 +4,10 @@ import { persist, create } from "mobx-persist";
 import { API } from "API";
 import { W } from "interfaces/w";
 import { PodTable } from "interfaces/podTable";
+import { tenorToNumber } from "utils/tenorUtils";
 import { toPodRow } from "utils/dataParser";
 import { User } from "interfaces/user";
 import signalRManager from "signalR/signalRManager";
-import { tenorToNumber } from "utils/dataGenerators";
 import { Order } from "interfaces/order";
 import { MDEntry } from "interfaces/mdEntry";
 

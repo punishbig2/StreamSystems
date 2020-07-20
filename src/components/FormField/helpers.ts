@@ -4,7 +4,7 @@ import { Moment } from "moment";
 
 export const getDisplayValue = (
   type: FieldType,
-  name: string,
+  name: string | string[],
   value: string | boolean | number | Moment | undefined | null,
   editMode: boolean,
   emptyValue?: string

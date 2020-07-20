@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { Moment } from "moment";
 import { Globals } from "golbals";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { parseTime, formatters } from "timeUtils";
+import { parseTime, formatters } from "utils/timeUtils";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 

@@ -9,11 +9,10 @@ import { isMoment } from "moment";
 import { useEffect } from "react";
 import { DealEntry } from "structures/dealEntry";
 import moment from "moment";
-import { tenorToDuration } from "utils/dataGenerators";
+import { tenorToDuration } from "utils/tenorUtils";
 
 const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   if (entry.strategy === "") return;
-
   const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];
@@ -66,6 +65,9 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
 };
 
 export default (cuts: Cut[], entry: DealEntry) => {
+  useEffect(() => {
+    moStore.setLegs([], null);
+  }, [entry.strategy]);
   useEffect(() => {
     if (entry.currencyPair === "") return;
     createStubLegs(entry, cuts).then(() => {});

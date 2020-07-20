@@ -3,7 +3,7 @@ import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { action, observable, observe } from "mobx";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
-import { parseTime } from "timeUtils";
+import { parseTime } from "utils/timeUtils";
 
 export class DealsStore {
   @observable.ref deals: Deal[] = [];

@@ -7,8 +7,8 @@ import {
 } from "components/FormField/inputHandler";
 import { Validity } from "forms/validity";
 
-export class DefaultHandler<P extends MinimalProps, S extends Editable>
-  implements InputHandler<P, S> {
+export class DefaultHandler<T, P extends MinimalProps, S extends Editable>
+  implements InputHandler<T, P, S> {
   public createValue(
     value: any,
     input: HTMLInputElement | null,

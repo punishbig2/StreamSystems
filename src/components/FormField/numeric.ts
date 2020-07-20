@@ -17,9 +17,10 @@ export interface NumericProps {
 }
 
 export class NumericInputHandler<
-  P extends NumericProps & MinimalProps,
+  T,
+  P extends NumericProps & MinimalProps<T>,
   S extends Editable
-> implements InputHandler<P, S> {
+> implements InputHandler<T, P, S> {
   private onDecimalSeparator(
     event: React.KeyboardEvent<HTMLInputElement>,
     decimalSeparator: string,

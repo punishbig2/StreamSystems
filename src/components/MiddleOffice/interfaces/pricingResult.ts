@@ -2,7 +2,7 @@ import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
 import { VolSurface } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { addMissingInformationToPricingMessage } from "ensureDataIsSane";
-import { parser } from "timeUtils";
+import { parser } from "utils/timeUtils";
 
 export interface PricingResult {
   summary: Partial<SummaryLeg>;

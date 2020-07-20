@@ -1,8 +1,8 @@
 import { PodRow, PodRowStatus } from "interfaces/podRow";
 import { Order } from "interfaces/order";
 import { OrderTypes } from "interfaces/mdEntry";
+import { compareTenors } from "utils/tenorUtils";
 import { $$ } from "utils/stringPaster";
-import { compareTenors } from "utils/dataGenerators";
 import { PodTable } from "interfaces/podTable";
 
 export const createEmptyTable = (

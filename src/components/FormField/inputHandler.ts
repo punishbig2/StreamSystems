@@ -10,12 +10,19 @@ export interface Editable {
   validity: Validity;
 }
 
-export interface MinimalProps {
+export interface MinimalProps<T = any> {
   type: FieldType;
   name: string;
   editable?: boolean;
   emptyValue?: string;
-  value: string | boolean | number | Moment | undefined | null;
+  value:
+    | string
+    | boolean
+    | number
+    | Moment
+    | undefined
+    | null
+    | Pick<T, keyof T>;
 }
 
 export const getCaretPosition = (input: HTMLInputElement | null): number => {
@@ -25,7 +32,11 @@ export const getCaretPosition = (input: HTMLInputElement | null): number => {
 
 export type StateReturnType<S> = S | Pick<S, keyof S> | null;
 
-export interface InputHandler<P extends MinimalProps = any, S extends Editable = any> {
+export interface InputHandler<
+  T,
+  P extends MinimalProps = any,
+  S extends Editable = any
+> {
   onKeydown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,

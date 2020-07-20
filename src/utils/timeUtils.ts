@@ -1,5 +1,6 @@
 import { Globals } from "golbals";
 import moment from "moment";
+import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 export const FIX_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
 
@@ -80,5 +81,5 @@ export const specificTenorToDate = (tenor: string): Date | undefined => {
 export const parseTenor = (tenor: string): string => {
   const date: Date | undefined = specificTenorToDate(tenor);
   if (date === undefined) return tenor;
-  return "SPECIFIC";
+  return SPECIFIC_TENOR;
 };

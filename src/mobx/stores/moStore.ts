@@ -6,7 +6,10 @@ import {
   LegOptionsDefIn,
   LegOptionsDefOut,
 } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import {
+  MOStrategy,
+  StrategyMap,
+} from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { Sides } from "interfaces/sides";
@@ -152,11 +155,8 @@ export class MoStore {
   @action.bound
   private setStrategies(array: MOStrategy[]): void {
     this.strategies = array.reduce(
-      (
-        strategies: { [name: string]: MOStrategy },
-        strategy: MOStrategy
-      ): { [name: string]: MOStrategy } => {
-        return { ...strategies, [strategy.name]: strategy };
+      (strategies: StrategyMap, next: MOStrategy): StrategyMap => {
+        return { ...strategies, [next.productid]: next };
       },
       {}
     );

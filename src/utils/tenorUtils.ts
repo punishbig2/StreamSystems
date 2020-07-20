@@ -1,10 +1,18 @@
 import { PodRow } from "interfaces/podRow";
 import moment from "moment";
 
+export const SPECIFIC_TENOR = "SPECIFIC";
+
+export const tenorToDate = (value: string): moment.Moment => {
+  const now: moment.Moment = moment();
+  const duration: moment.Duration = tenorToDuration(value);
+  return now.add(duration);
+};
+
 export const tenorToDuration = (tenor: string): moment.Duration => {
   const regexp: RegExp = /([0-9])+([DWMY])/;
   if (!regexp.test(tenor))
-    return moment.duration(0, 'd');
+    return moment.duration(0, "d");
   const match: RegExpMatchArray = tenor.match(regexp)!;
   const count: number = Number(match[1]);
   const unit: string = match[2];

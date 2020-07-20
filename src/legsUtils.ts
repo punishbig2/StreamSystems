@@ -7,7 +7,7 @@ import { Sides } from "interfaces/sides";
 import { Symbol } from "interfaces/symbol";
 import moment from "moment";
 import { DealEntry } from "structures/dealEntry";
-import { splitCurrencyPair } from "symbolUtils";
+import { splitCurrencyPair } from "utils/symbolUtils";
 
 export const parseManualLegs = (data: any[]): Leg[] => {
   const mapper = (item: any): Leg => {

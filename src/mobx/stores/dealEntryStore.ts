@@ -115,6 +115,7 @@ export class DealEntryStore {
       tenor,
       vol,
       spread,
+      expiryDate,
     } = this.entry;
     if (notional === null || notional === undefined)
       throw new Error("notional must be set");
@@ -133,6 +134,7 @@ export class DealEntryStore {
       price: !!price ? price.toString() : null,
       size: Math.round(notional / 1e6).toString(),
       tenor: tenor,
+      expiryDate: expiryDate,
     };
   }
 

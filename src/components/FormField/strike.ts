@@ -6,8 +6,8 @@ import {
 } from "components/FormField/inputHandler";
 import { Validity } from "forms/validity";
 
-export class StrikeHandler<P extends MinimalProps, S extends Editable>
-  implements InputHandler<P, S> {
+export class StrikeHandler<T, P extends MinimalProps, S extends Editable>
+  implements InputHandler<T, P, S> {
   public createValue(
     value: any,
     input: HTMLInputElement | null,
@@ -25,7 +25,6 @@ export class StrikeHandler<P extends MinimalProps, S extends Editable>
   public format(value: any, props: P): [string, Validity] {
     if (typeof value === "undefined") return ["", Validity.Intermediate];
     if (typeof value !== "string") {
-      console.log(value, typeof value);
       return ["", Validity.Intermediate];
     }
     return [value.toUpperCase(), Validity.Valid];
