@@ -31,11 +31,11 @@ export const columns: ColumnSpec[] = [
       return s1.localeCompare(v2.dealID);
     },
     filterable: true,
-    width: 9,
+    width: 10,
     template: "12345",
   },
   transactTimeColumn(6),
-  strategyColumn(true, 3),
+  strategyColumn(true, 5),
   {
     name: "status",
     header: () => "Status",

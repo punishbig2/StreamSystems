@@ -316,18 +316,30 @@ $spinner-size: $table-row-height - 6;
         height: $table-row-height;
 
         .date-time-cell {
+          display: flex;
+
+          &:not(.fa) {
+            font-size: $table-font-size - 1;
+          }
+
           span {
             line-height: $table-row-height;
-            display: inline-block;
-            width: 50%;
-            text-align: right;
+            display: block;
+            flex: 1;
+            font-size: inherit;
 
             &.time {
-              padding: 0 8px 0 0;
+              padding: 0 4px 0 0;
+              text-align: left;
+              margin: 0 0 0 4px;
+              font-size: inherit;
             }
 
             &.date {
-              padding: 0 0 0 8px;
+              padding: 0 0 0 4px;
+              text-align: right;
+              margin: 0 4px 0 0;
+              font-size: inherit;
             }
           }
         }

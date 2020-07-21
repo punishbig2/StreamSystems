@@ -21,12 +21,16 @@ import { Strategy } from "interfaces/strategy";
 import { Symbol } from "interfaces/symbol";
 import { User } from "interfaces/user";
 import { MessageTypes, W } from "interfaces/w";
+import { mergeDefinitionsAndLegs } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
-import { currentTimestampFIXFormat, momentToUTCFIXFormat } from "utils/timeUtils";
+import {
+  currentTimestampFIXFormat,
+  momentToUTCFIXFormat,
+} from "utils/timeUtils";
 import {
   coalesce,
   getCurrentTime,
@@ -709,6 +713,12 @@ export class API {
     if (currencyPair.length !== 6)
       throw new Error(`unsupported currency ${currencyPair}`);
     const [ccy1, ccy2] = splitCurrencyPair(currencyPair);
+    const mergedDefinitions: Leg[] = mergeDefinitionsAndLegs(
+      entry,
+      strategy,
+      symbol,
+      legs
+    );
     const tradeDateAsDate: Date = tradeDate.toDate();
     const request: VolMessageIn = {
       id: deal.dealID,
@@ -721,9 +731,8 @@ export class API {
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
-        OptionLegs: legs.map(
+        OptionLegs: mergedDefinitions.map(
           (leg: Leg): OptionLeg => {
-            console.log(leg.strike, entry.strike, strategy.strike);
             return {
               notional: coalesce(leg.notional, 1e6 * deal.lastPrice),
               expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
@@ -773,7 +782,9 @@ export class API {
     const task: Task<Deal[]> = get<Deal[]>(
       API.buildUrl(API.Deal, "deals", "get")
     );
-    const array: any[] = await task.execute();
+    const array: any[] | null = await task.execute();
+    if (array === null)
+      return [];
     return array.map(createDealFromBackendMessage);
   }
 
