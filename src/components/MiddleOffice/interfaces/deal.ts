@@ -7,7 +7,7 @@ export interface Deal {
   seller: string;
   cumulativeQuantity: number;
   currency: string;
-  lastPrice: number;
+  lastPrice: number | null;
   lastQuantity: number;
   leavesQuantity: number;
   strategy: string;

@@ -34,17 +34,20 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     "d"
   );
   const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor);
+  const parsedExpiryDate: moment.Moment | undefined = forceParseDate(
+    source.expirydate
+  );
   const expiryDate: moment.Moment =
-    source.expirydate === null || source.expirydate === ""
+    parsedExpiryDate === undefined
       ? addTenorToDate(tradeDate, item.tenor)
-      : forceParseDate(source.expirydate);
+      : parsedExpiryDate;
   return {
     dealID: item.linkid,
     buyer: item.buyer,
     seller: item.seller,
     cumulativeQuantity: Number(item.cumqty),
     currency: item.symbol,
-    lastPrice: Number(item.lastpx),
+    lastPrice: item.lastpx === null ? null : Number(item.lastpx),
     leavesQuantity: Number(item.lvsqty),
     lastQuantity: Number(item.lastqty),
     strategy: item.strategy,

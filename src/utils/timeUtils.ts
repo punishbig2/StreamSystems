@@ -48,12 +48,19 @@ export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
   return utc.format(FIX_DATE_FORMAT);
 };
 
-export const forceParseDate = (value: string): moment.Moment => {
+export const forceParseDate = (
+  value: string | null | undefined
+): moment.Moment | undefined => {
+  if (!value) return undefined;
   if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
-    return moment(value, FIX_DATE_FORMAT);
+    const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
+    if (!m.isValid()) return undefined;
+    return m;
   } else {
     // ISO format
-    return moment(value);
+    const m: moment.Moment = moment(value);
+    if (!m.isValid()) return undefined;
+    return m;
   }
 };
 

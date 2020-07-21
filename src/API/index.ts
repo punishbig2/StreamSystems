@@ -734,7 +734,7 @@ export class API {
         OptionLegs: mergedDefinitions.map(
           (leg: Leg): OptionLeg => {
             return {
-              notional: coalesce(leg.notional, 1e6 * deal.lastPrice),
+              notional: coalesce(leg.notional, 1e6 * deal.lastQuantity),
               expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
               deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
               spreadVolatiltyOffset: API.divideBy100(entry.spread),
@@ -801,7 +801,6 @@ export class API {
 
   private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
-    console.log(data);
     return {
       linkid: data.linkid,
       tenor: data.tenor,
