@@ -52,15 +52,11 @@ const zeroPad = (value: number, count: number): string => {
 };
 
 export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
-  const date: Date = moment.toDate();
-  const year: string = zeroPad(date.getUTCFullYear(), 4);
-  const month: string = zeroPad(date.getUTCMonth() + 1, 2);
-  const day: string = zeroPad(date.getUTCDate(), 2);
-  const hours: string = zeroPad(date.getUTCHours(), 2);
-  const minutes: string = zeroPad(date.getUTCMinutes(), 2);
-  const seconds: string = zeroPad(date.getUTCSeconds(), 2);
-  const milliseconds: string = zeroPad(date.getUTCMilliseconds(), 3);
-  return `${year}${month}${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
+  // The ridiculous moment.js library modifies the object
+  // in place, so all kinds of side effects :(
+  const utc: moment.Moment = moment.isUTC() ? moment : moment.utc();
+  // Format as FIX date
+  return utc.format(FIX_DATE_FORMAT);
 };
 
 export const forceParseDate = (value: string): moment.Moment => {
