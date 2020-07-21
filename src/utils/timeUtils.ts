@@ -40,17 +40,6 @@ export const parseTime = (date: string, tz: string | null): Date => {
   );
 };
 
-const zeroPad = (value: number, count: number): string => {
-  const digits: string[] = [];
-  let multiplier: number = Math.pow(10, count - 1);
-  while (value < Math.floor(multiplier) - 1) {
-    digits.push("0");
-    multiplier /= 10;
-  }
-  digits.push(value.toString(10));
-  return digits.join("");
-};
-
 export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
   // The ridiculous moment.js library modifies the object
   // in place, so all kinds of side effects :(
