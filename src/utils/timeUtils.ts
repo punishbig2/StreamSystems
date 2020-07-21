@@ -49,7 +49,7 @@ export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
 };
 
 export const forceParseDate = (value: string): moment.Moment => {
-  if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}.\d{3}/)) {
+  if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
     return moment(value, FIX_DATE_FORMAT);
   } else {
     // ISO format

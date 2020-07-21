@@ -801,6 +801,7 @@ export class API {
 
   private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
+    console.log(data);
     return {
       linkid: data.linkid,
       tenor: data.tenor,
