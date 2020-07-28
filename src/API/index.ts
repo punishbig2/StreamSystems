@@ -40,6 +40,8 @@ import {
 } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 
+export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
+
 const toUrlQuery = (obj: { [key: string]: string } | any): string => {
   const entries: [string, string][] = Object.entries(obj);
   return entries
@@ -682,12 +684,10 @@ export class API {
     return task.execute();
   }
 
-  public static async getBankEntities(): Promise<{
-    [firm: string]: BankEntity[];
-  }> {
-    const task: Task<{ [firm: string]: BankEntity[] }> = get<{
-      [firm: string]: BankEntity[];
-    }>(config.Api2 + "/entities");
+  public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
+    const task: Task<BankEntitiesQueryResponse> = get<
+      BankEntitiesQueryResponse
+    >(config.Api2 + "/entities");
     return task.execute();
   }
 

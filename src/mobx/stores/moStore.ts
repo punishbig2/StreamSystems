@@ -1,4 +1,4 @@
-import { API } from "API";
+import { API, BankEntitiesQueryResponse } from "API";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
@@ -12,7 +12,6 @@ import {
 } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { BankEntity } from "types/bankEntity";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { action, computed, observable } from "mobx";
@@ -74,7 +73,7 @@ export class MoStore {
   @observable status: MOStatus = MOStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
 
-  public entities: { [firm: string]: BankEntity[] } = {};
+  public entities: BankEntitiesQueryResponse = {};
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
   public models: InternalValuationModel[] = [];
@@ -173,7 +172,7 @@ export class MoStore {
   }
 
   @action.bound
-  private setBankEntities(entities: { [firm: string]: BankEntity[] }): void {
+  private setBankEntities(entities: BankEntitiesQueryResponse): void {
     this.entities = entities;
     this.setProgress(90);
   }

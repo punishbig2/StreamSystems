@@ -1,6 +1,6 @@
-import { MenuItem, Select } from "@material-ui/core";
+import { Grid, MenuItem, Select } from "@material-ui/core";
 import moStore from "mobx/stores/moStore";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { BankEntity } from "types/bankEntity";
 
 interface Props {
@@ -8,96 +8,129 @@ interface Props {
     value: string;
     label: string;
   }[];
-  bank: string;
+  value: string;
   name: string;
   readOnly: boolean;
   onChange?: (value: any) => void;
 }
 
-interface Item {
-  value: string;
-  label: {
-    primary: string;
-    secondary: string;
-    detail: string;
-  };
-}
+const DummyBankEntity: BankEntity = {
+  code: "",
+  default: false,
+  id: "",
+  name: "",
+};
 
 export const BankEntityField: React.FC<Props> = (
   props: Props
 ): ReactElement => {
-  const { bank, name, readOnly } = props;
-  const [items, setItems] = useState<{ [p: string]: Item }>({});
-  const { entities } = moStore;
+  const { value, readOnly } = props;
+  const [currentEntity, setCurrentEntity] = useState<BankEntity>(
+    DummyBankEntity
+  );
+  const [entities, setEntities] = useState<string[]>([]);
+  const [firms, setFirms] = useState<string[]>([]);
+  const [map, setMap] = useState<{ [p: string]: BankEntity }>({});
+  const { entities: storeEntities } = moStore;
 
   useEffect(() => {
-    const items: { [p: string]: Item } = Object.values(entities)
-      .reduce((flat: BankEntity[], next: BankEntity[]): BankEntity[] => [
-        ...flat,
-        ...next,
-      ])
-      .map(
-        (entity: BankEntity): Item => ({
-          value: entity.code,
-          label: {
-            primary: entity.id,
-            secondary: entity.code,
-            detail: entity.name,
-          },
-        })
+    if (value === undefined || value === null) return;
+    const entity: BankEntity | undefined = map[value];
+    if (entity !== undefined) {
+      setCurrentEntity(entity);
+    }
+  }, [map, value]);
+
+  const setCurrentFirm = useCallback(
+    (id: string) => {
+      const list: BankEntity[] | undefined = storeEntities[id];
+      if (list === undefined) return;
+      const defaultValue: BankEntity | undefined = list.find(
+        (entity: BankEntity): boolean => entity.default
+      );
+      if (defaultValue === undefined) {
+        console.warn(`${id} has no default entity`);
+      } else {
+        setEntities(list.map((entity: BankEntity): string => entity.code));
+        setCurrentEntity(defaultValue);
+      }
+    },
+    [entities]
+  );
+
+  useEffect(() => {
+    if (storeEntities === null || storeEntities === undefined) return;
+    // Extract the keys, which are the banks
+    setFirms(Object.keys(storeEntities));
+    // Flatten and save
+    const map: { [p: string]: BankEntity } = Object.values(storeEntities)
+      .reduce(
+        (accum: BankEntity[], next: BankEntity[]): BankEntity[] => [
+          ...accum,
+          ...next,
+        ],
+        []
       )
-      .reduce((map: { [p: string]: Item }, item: Item): {
-        [p: string]: Item;
+      .reduce((map: { [p: string]: BankEntity }, entity: BankEntity): {
+        [p: string]: BankEntity;
       } => {
-        return { ...map, [item.value]: item };
+        return { ...map, [entity.code]: entity };
       }, {});
-    setItems(items);
-  }, [entities]);
+    setMap(map);
+  }, [storeEntities]);
 
-  const renderValue = (value: any) => {
-    if (value === undefined || value === "")
-      return <div className={"empty-display-value"}>No selection</div>;
-    const item: Item | undefined = items[value];
-    if (item === undefined)
-      return <div className={"error"}>Old value, please update</div>;
-    const { label } = item;
-    return (
-      <>
-        <div className={"primary"}>{label.primary}</div>
-        <div className={"secondary"}>{label.secondary}</div>
-      </>
-    );
-  };
-
-  const onChange = (
+  const onBankChange = (
     event: React.ChangeEvent<{ value: unknown; name?: string }>
   ): void => {
     const { value } = event.target;
-    if (props.onChange !== undefined) {
-      props.onChange(value);
+    if (typeof value === "string") {
+      setCurrentFirm(value);
     }
   };
 
-  const values: Item[] = Object.values(items);
+  const onEntityChange = (
+    event: React.ChangeEvent<{ value: unknown; name?: string }>
+  ): void => {
+    const { value } = event.target;
+    if (typeof value === "string") {
+      if (props.onChange !== undefined) {
+        props.onChange(value);
+      }
+    }
+  };
+
   return (
-    <Select
-      name={name}
-      readOnly={readOnly}
-      className={"pretty-select-root"}
-      onChange={onChange}
-      renderValue={renderValue}
-      displayEmpty={true}
-      value={bank}
-    >
-      {values.map(({ value, label }: Item) => (
-        <MenuItem className={"pretty-menu-item"} key={value} value={value}>
-          <div className={"heading"}>
-            <div className={"primary"}>{label.primary}</div>
-            <div className={"secondary"}>{label.secondary}</div>
-          </div>
-          <div className={"sub-heading"}>{label.detail}</div>
-        </MenuItem>
-      ))}
-    </Select>
+    <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
+      <Grid container>
+        <Grid xs={6} item>
+          <Select
+            readOnly={readOnly}
+            displayEmpty={true}
+            value={currentEntity ? currentEntity.id : ""}
+            fullWidth={true}
+            onChange={onBankChange}
+          >
+            {firms.map((value: string) => (
+              <MenuItem key={value} value={value}>
+                {value}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid xs={6} item>
+          <Select
+            value={currentEntity ? currentEntity.code : ""}
+            fullWidth={true}
+            onChange={onEntityChange}
+          >
+            {entities.map((value: string) => (
+              <MenuItem key={value} value={value}>
+                {value}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };

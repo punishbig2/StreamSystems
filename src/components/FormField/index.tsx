@@ -335,7 +335,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           throw new Error("cannot have a dropdown with no data");
         return (
           <BankEntityField
-            bank={value}
+            value={value}
             list={dropdownData}
             readOnly={!props.editable}
             name={props.name}

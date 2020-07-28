@@ -241,6 +241,7 @@ $field-size: 25px;
         }
 
         .MuiInputBase-root,
+        .MuiFormControl-root,
         .readonly-field {
           flex: 1;
         }
@@ -543,7 +544,6 @@ $field-size: 25px;
       }
 
       .secondary {
-        font-family: "Roboto", sans-serif;
         font-style: italic;
         font-size: $small-font-size;
         color: $primary-color;
@@ -552,7 +552,6 @@ $field-size: 25px;
 
     .sub-heading {
       opacity: 0.5;
-      font-family: "Roboto", sans-serif;
       font-size: $small-font-size;
     }
   }
