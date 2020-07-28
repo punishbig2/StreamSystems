@@ -87,11 +87,11 @@ export class MoStore {
 
   public async loadReferenceData(): Promise<void> {
     if (!this.isInitialized) {
+      this.setBankEntities(await API.getBankEntities());
       this.setCuts(await API.getCuts());
       this.setStrategies(await API.getProductsEx());
       this.setStyles(await API.getOptexStyle());
       this.setModels(await API.getValuModel());
-      this.setBankEntities(await API.getBankEntities());
       // Load leg definitions
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];

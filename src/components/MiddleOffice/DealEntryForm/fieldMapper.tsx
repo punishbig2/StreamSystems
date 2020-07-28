@@ -5,7 +5,7 @@ import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
 import { isMoment } from "moment";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { stateMap } from "utils/dealUtils";
+import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 import { SPECIFIC_TENOR, tenorToDate } from "utils/tenorUtils";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
@@ -18,6 +18,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     ? transformData(source, entry)
     : [];
   const getValue = (rawValue: any): any => {
+    if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
     if (field.name === "status") return stateMap[Number(rawValue)];
     if (field.name === "tenor") {
       return {

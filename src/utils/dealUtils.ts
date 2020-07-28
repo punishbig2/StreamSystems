@@ -1,6 +1,7 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Globals } from "golbals";
+import { BankEntity } from "types/bankEntity";
 import { Symbol } from "types/symbol";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
@@ -17,6 +18,17 @@ export const stateMap: { [key: number]: string } = {
   3: "SEF Unconfirmed",
   4: "STP",
   5: "SEF Confirmed",
+};
+
+export const resolveBankToEntity = (source: string): string => {
+  const bank: BankEntity[] | undefined = moStore.entities[source];
+  if (bank === undefined)
+    return source /* it probably already is the entity code */;
+  const entity: BankEntity | undefined = bank.find(
+    (entity: BankEntity): boolean => entity.default
+  );
+  if (entity === undefined) return "";
+  return entity.code;
 };
 
 export const createDealFromBackendMessage = (source: any): Deal => {

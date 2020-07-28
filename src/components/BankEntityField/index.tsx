@@ -38,6 +38,8 @@ export const BankEntityField: React.FC<Props> = (
     const entity: BankEntity | undefined = map[value];
     if (entity !== undefined) {
       setCurrentEntity(entity);
+    } else {
+      setCurrentEntity(DummyBankEntity);
     }
   }, [map, value]);
 
@@ -55,7 +57,7 @@ export const BankEntityField: React.FC<Props> = (
         setCurrentEntity(defaultValue);
       }
     },
-    [entities]
+    [storeEntities]
   );
 
   useEffect(() => {
@@ -120,6 +122,8 @@ export const BankEntityField: React.FC<Props> = (
         <Grid xs={6} item>
           <Select
             value={currentEntity ? currentEntity.code : ""}
+            displayEmpty={true}
+            renderValue={(value: any) => value}
             fullWidth={true}
             onChange={onEntityChange}
           >
