@@ -3,7 +3,7 @@ import {
   CurrencyGroups,
   OCOModes,
   UserTypes,
-} from "interfaces/user";
+} from "types/user";
 import { findDefaultTimezone } from "utils";
 
 export const defaultPreferences: UserPreferences = {

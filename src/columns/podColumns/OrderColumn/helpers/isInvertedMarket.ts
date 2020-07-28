@@ -1,5 +1,5 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order, OrderStatus } from "interfaces/order";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
 import { OrderStore } from "mobx/stores/orderStore";
 
 export const isInvertedMarket = (

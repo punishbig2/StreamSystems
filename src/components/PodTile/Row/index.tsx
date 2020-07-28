@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { getCellWidth } from "components/Table/helpers";
 import { PodRowStore } from "mobx/stores/podRowStore";
 import { observer } from "mobx-react";
-import { PodRowStatus } from "interfaces/podRow";
+import { PodRowStatus } from "types/podRow";
 
 interface OwnProps {
   id: string;

@@ -1,5 +1,5 @@
-import { PodRow } from "interfaces/podRow";
-import { Order, OrderStatus } from "interfaces/order";
+import { PodRow } from "types/podRow";
+import { Order, OrderStatus } from "types/order";
 
 const isOrderAcceptableForComputation = (order: Order): boolean => {
   const status: OrderStatus = order.status;

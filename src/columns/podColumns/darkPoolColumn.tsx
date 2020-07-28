@@ -1,7 +1,7 @@
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { PodRowProps } from "columns/podColumns/common";
 import { Price } from "components/Table/CellRenderers/Price";
-import { ArrowDirection } from "interfaces/w";
+import { ArrowDirection } from "types/w";
 import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
 import React, { useState, useEffect, ReactElement } from "react";
 import { STRM } from "stateDefs/workspaceState";
@@ -9,11 +9,11 @@ import { ModalWindow } from "components/ModalWindow";
 import { onNavigate } from "components/PodTile/helpers";
 import { DarkPoolStore } from "mobx/stores/darkPoolStore";
 import workareaStore from "mobx/stores/workareaStore";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { skipTabIndexAll } from "utils/skipTab";
 import { observer } from "mobx-react";
 import { DarkPoolTicket } from "components/DarkPoolTicket";
-import { Order, DarkPoolOrder } from "interfaces/order";
+import { Order, DarkPoolOrder } from "types/order";
 import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
 
 type Props = PodRowProps;

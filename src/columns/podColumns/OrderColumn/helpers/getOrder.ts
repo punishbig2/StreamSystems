@@ -1,5 +1,5 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
+import { OrderTypes } from "types/mdEntry";
+import { Order } from "types/order";
 
 export const getOrder = (type: OrderTypes, ofr: Order, bid: Order): Order => {
   switch (type) {

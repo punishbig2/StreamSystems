@@ -9,14 +9,14 @@ import {
   OutlinedInput,
 } from "@material-ui/core";
 import { PresetSizeButton } from "components/presetSizeButton";
-import { DarkPoolOrder, Order } from "interfaces/order";
-import { MessageTypes } from "interfaces/w";
-import { SelectEventData } from "interfaces/selectEventData";
-import { Sides } from "interfaces/sides";
+import { DarkPoolOrder, Order } from "types/order";
+import { MessageTypes } from "types/w";
+import { SelectEventData } from "types/selectEventData";
+import { Sides } from "types/sides";
 import { priceFormatter } from "utils/priceFormatter";
 import { sizeFormatter } from "utils/sizeFormatter";
 import workareaStore from "mobx/stores/workareaStore";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { selectInputText } from "utils";
 
 interface OwnProps {

@@ -1,4 +1,4 @@
-import { Sides } from "interfaces/sides";
+import { Sides } from "types/sides";
 import { action, observable } from "mobx";
 import moment from "moment";
 import { parser } from "utils/timeUtils";

@@ -1,8 +1,8 @@
-import { MDEntry, OrderTypes } from "interfaces/mdEntry";
-import { User } from "interfaces/user";
-import { ArrowDirection, MessageTypes, W } from "interfaces/w";
+import { MDEntry, OrderTypes } from "types/mdEntry";
+import { User } from "types/user";
+import { ArrowDirection, MessageTypes, W } from "types/w";
 import { $$ } from "utils/stringPaster";
-import { Sides } from "interfaces/sides";
+import { Sides } from "types/sides";
 
 export interface CreateOrder {
   MsgType: MessageTypes;

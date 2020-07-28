@@ -1,6 +1,6 @@
 import { RunState } from "stateDefs/runState";
-import { OrderTypes } from "interfaces/mdEntry";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { OrderTypes } from "types/mdEntry";
+import { PodRow, PodRowStatus } from "types/podRow";
 
 export const deactivateOrder = (
   state: RunState,

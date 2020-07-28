@@ -2,7 +2,7 @@ import { Cut } from "components/MiddleOffice/interfaces/cut";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 import { createLegsFromDefinition } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import { isMoment } from "moment";

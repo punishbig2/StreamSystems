@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 
 export interface Deal {
   dealID: string;

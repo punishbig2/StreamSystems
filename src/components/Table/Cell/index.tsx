@@ -1,4 +1,4 @@
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import React, { CSSProperties, ReactElement } from "react";
 import { PodRowStore } from "mobx/stores/podRowStore";
 

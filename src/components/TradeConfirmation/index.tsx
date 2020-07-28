@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect } from "react";
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { getMessageSize, getMessagePrice } from "utils/messageUtils";
-import { UserPreferences, User } from "interfaces/user";
+import { UserPreferences, User } from "types/user";
 import workareaStore from "../../mobx/stores/workareaStore";
 
 interface OwnProps {

@@ -2,7 +2,7 @@ import { ColumnSpec } from "components/Table/columnSpecification";
 import { PodRowProps } from "columns/podColumns/common";
 import { Tenor } from "components/Table/CellRenderers/Tenor";
 import React from "react";
-import { PodRowStatus } from "interfaces/podRow";
+import { PodRowStatus } from "types/podRow";
 
 export const TenorColumn = (): ColumnSpec => ({
   name: "tenor",

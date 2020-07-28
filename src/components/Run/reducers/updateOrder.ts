@@ -1,6 +1,6 @@
 import { RunState } from "stateDefs/runState";
-import { Order, OrderStatus } from "interfaces/order";
-import { PodRow } from "interfaces/podRow";
+import { Order, OrderStatus } from "types/order";
+import { PodRow } from "types/podRow";
 import { isValidUpdate } from "components/Run/reducers/isValidUpdate";
 import { fillSpreadAndMid } from "components/Run/reducers/fillSpreadAndMid";
 import equal from "deep-equal";

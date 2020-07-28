@@ -1,4 +1,4 @@
-import { OrderStatus } from "interfaces/order";
+import { OrderStatus } from "types/order";
 
 export const activateOrderIfPossible = (status: OrderStatus): OrderStatus => {
   if ((status & OrderStatus.Cancelled) === 0) return status;

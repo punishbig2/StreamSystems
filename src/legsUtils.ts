@@ -4,8 +4,8 @@ import {
   LegOptionsDefOut,
 } from "components/MiddleOffice/interfaces/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { Sides } from "interfaces/sides";
-import { Symbol } from "interfaces/symbol";
+import { Sides } from "types/sides";
+import { Symbol } from "types/symbol";
 import moStore from "mobx/stores/moStore";
 import moment from "moment";
 import { DealEntry } from "structures/dealEntry";

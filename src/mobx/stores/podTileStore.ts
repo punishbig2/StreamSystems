@@ -1,15 +1,15 @@
-import { PodRow } from "interfaces/podRow";
+import { PodRow } from "types/podRow";
 import { observable, action } from "mobx";
 import { persist, create } from "mobx-persist";
 import { API } from "API";
-import { W } from "interfaces/w";
-import { PodTable } from "interfaces/podTable";
+import { W } from "types/w";
+import { PodTable } from "types/podTable";
 import { tenorToNumber } from "utils/tenorUtils";
 import { toPodRow } from "utils/dataParser";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import signalRManager from "signalR/signalRManager";
-import { Order } from "interfaces/order";
-import { MDEntry } from "interfaces/mdEntry";
+import { Order } from "types/order";
+import { MDEntry } from "types/mdEntry";
 
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import persistStorage from "persistStorage";

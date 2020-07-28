@@ -1,4 +1,4 @@
-import { ArrowDirection } from "interfaces/w";
+import { ArrowDirection } from "types/w";
 
 export enum OrderTypes {
   Invalid = "",

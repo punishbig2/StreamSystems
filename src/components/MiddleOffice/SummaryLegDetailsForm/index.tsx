@@ -111,6 +111,14 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
               <fieldset disabled={disabled}>
                 <legend>Brokerage</legend>
                 <FormField
+                  label={"Brokerage Rate"}
+                  color={"grey"}
+                  value={""}
+                  name={"brokerageRate"}
+                  type={"text"}
+                  disabled={disabled}
+                />
+                <FormField
                   label={"Buyer Comm"}
                   color={"grey"}
                   value={brokerage.buyerComm}

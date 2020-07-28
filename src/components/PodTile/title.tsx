@@ -1,4 +1,4 @@
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 import strings from "locales";
 import React, { ReactElement } from "react";
 import { Select } from "components/Select";
@@ -8,8 +8,8 @@ import { PodTileStore } from "mobx/stores/podTileStore";
 import { observer } from "mobx-react";
 import { STRM } from "stateDefs/workspaceState";
 import workareaStore from "mobx/stores/workareaStore";
-import { User } from "interfaces/user";
-import { Strategy } from "../../interfaces/strategy";
+import { User } from "types/user";
+import { Strategy } from "../../types/strategy";
 
 interface Props {
   store: PodTileStore;

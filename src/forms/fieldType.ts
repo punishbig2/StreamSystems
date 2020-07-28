@@ -9,4 +9,5 @@ export type FieldType =
   | "boolean"
   | "current:date"
   | "current:time"
-  | "tenor";
+  | "tenor"
+  | "bank-entity";

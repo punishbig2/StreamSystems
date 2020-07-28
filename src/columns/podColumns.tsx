@@ -5,10 +5,10 @@ import { OrderColumnWrapper } from "columns/podColumns/orderColumnWrapper";
 import { TenorColumn } from "columns/podColumns/tenorColumn";
 import { FirmColumn } from "columns/podColumns/firmColumn";
 import { DarkPoolColumn } from "columns/podColumns/darkPoolColumn";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import { API } from "API";
 import { getSideFromType } from "utils";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 
 interface RefButtonProps {

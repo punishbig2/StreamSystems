@@ -1,5 +1,5 @@
-import { Order } from "interfaces/order";
-import { OrderTypes } from "interfaces/mdEntry";
+import { Order } from "types/order";
+import { OrderTypes } from "types/mdEntry";
 import { orderSorter } from "components/PodTile/helpers";
 
 export const getRelevantOrders = (

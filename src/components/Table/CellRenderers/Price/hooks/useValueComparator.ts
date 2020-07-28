@@ -1,6 +1,6 @@
 import { usePrevious } from "hooks/usePrevious";
 import { useEffect } from "react";
-import { OrderStatus } from "interfaces/order";
+import { OrderStatus } from "types/order";
 
 export const useValueComparator = (
   propsValue: number | null,

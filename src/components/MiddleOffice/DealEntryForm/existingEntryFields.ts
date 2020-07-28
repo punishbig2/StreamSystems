@@ -1,7 +1,7 @@
 import { StrikeHandler } from "components/FormField/strike";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType } from "structures/dealEntry";
@@ -147,7 +147,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "buyer",
     label: "Buyer",
-    type: "dropdown",
+    type: "bank-entity",
     color: "cream",
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
@@ -164,7 +164,7 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "seller",
     label: "Seller",
-    type: "dropdown",
+    type: "bank-entity",
     color: "cream",
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic

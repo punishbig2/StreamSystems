@@ -1,10 +1,10 @@
-import { Message, ExecTypes } from "interfaces/message";
+import { Message, ExecTypes } from "types/message";
 import { BlotterTypes } from "columns/messageBlotter";
 import React, { ReactElement } from "react";
 import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
 import workareaStore from "../../mobx/stores/workareaStore";
 import { STRM } from "../../stateDefs/workspaceState";
-import { User } from "../../interfaces/user";
+import { User } from "../../types/user";
 
 export const isExecution = (message: Message): boolean => {
   return (

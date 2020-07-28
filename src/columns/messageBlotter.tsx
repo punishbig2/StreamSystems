@@ -1,18 +1,18 @@
 import React, { ReactElement } from 'react';
 import { ColumnSpec } from 'components/Table/columnSpecification';
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { compareCurrencyPairs } from 'columns/messageBlotterColumns/utils';
 import { CellProps } from 'columns/messageBlotterColumns/cellProps';
 import { tenorToNumber } from "utils/tenorUtils";
 import { priceFormatter } from "utils/priceFormatter";
 import { getMessagePrice, getMessageSize, getBuyer, getSeller, TransTypes } from 'utils/messageUtils';
 import { involved } from './messageBlotterColumns/helpers';
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import workareaStore from '../mobx/stores/workareaStore';
 import { Globals } from "golbals";
 import moment, { Moment } from 'moment';
 import { parseTime, FIX_DATE_FORMAT, formatters } from "utils/timeUtils";
-import { DarkPool } from "interfaces/w";
+import { DarkPool } from "types/w";
 
 export enum BlotterTypes {
   Executions,

@@ -1,14 +1,14 @@
 import { observable, computed, action } from "mobx";
-import { Order, OrderStatus, DarkPoolOrder } from "interfaces/order";
-import { W } from "interfaces/w";
+import { Order, OrderStatus, DarkPoolOrder } from "types/order";
+import { W } from "types/w";
 import signalRManager from "signalR/signalRManager";
 import workareaStore from "mobx/stores/workareaStore";
-import { User } from "interfaces/user";
-import { MDEntry, OrderTypes } from "interfaces/mdEntry";
-import { DarkPoolMessage } from "interfaces/message";
+import { User } from "types/user";
+import { MDEntry, OrderTypes } from "types/mdEntry";
+import { DarkPoolMessage } from "types/message";
 import { API } from "API";
 import { $$ } from "utils/stringPaster";
-import { Sides } from "interfaces/sides";
+import { Sides } from "types/sides";
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];

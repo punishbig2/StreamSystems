@@ -1,5 +1,5 @@
-import { OrderStatus, Order } from "interfaces/order";
-import { User } from "interfaces/user";
+import { OrderStatus, Order } from "types/order";
+import { User } from "types/user";
 
 export const getPersonalityStatus = (
   order: Order,

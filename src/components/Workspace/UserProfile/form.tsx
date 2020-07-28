@@ -8,7 +8,7 @@ import {
   MenuItem,
   Input,
 } from "@material-ui/core";
-import { UserPreferences, OCOModes, User } from "interfaces/user";
+import { UserPreferences, OCOModes, User } from "types/user";
 import timezones, { TimezoneInfo } from "data/timezones";
 import deepEqual from "deep-equal";
 import { SoundsList } from "components/Workspace/UserProfile/soundsList";

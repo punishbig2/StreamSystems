@@ -1,4 +1,4 @@
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 import styles from "styles";
 import React, { useState, ReactElement, useEffect } from "react";
 import ReactDOM from "react-dom";

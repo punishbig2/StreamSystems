@@ -1,7 +1,7 @@
-import { Order } from "interfaces/order";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { Order } from "types/order";
+import { PodRow, PodRowStatus } from "types/podRow";
 import { PodRowStore } from "mobx/stores/podRowStore";
-import { W } from "interfaces/w";
+import { W } from "types/w";
 
 export type PodRowProps = PodRow & {
   orders: Order[];

@@ -2,13 +2,13 @@ import { Dispatch, useEffect } from "react";
 import { RunActions } from "components/Run/reducer";
 import { createAction, FXOAction } from "actionCreator";
 import { API } from "API";
-import { OrderMessage, Order, OrderStatus } from "interfaces/order";
-import { PodRow } from "interfaces/podRow";
+import { OrderMessage, Order, OrderStatus } from "types/order";
+import { PodRow } from "types/podRow";
 import { $$ } from "utils/stringPaster";
-import { PodTable } from "interfaces/podTable";
-import { OrderTypes } from "interfaces/mdEntry";
+import { PodTable } from "types/podTable";
+import { OrderTypes } from "types/mdEntry";
 import { createEmptyTable } from "components/Run/helpers/createEmptyTable";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 
 export const useRunInitializer = (

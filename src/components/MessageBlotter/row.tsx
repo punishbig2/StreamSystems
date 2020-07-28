@@ -2,7 +2,7 @@ import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
 import { $$ } from "utils/stringPaster";
 import { getCellWidth } from "components/Table/helpers";
-import { DarkPool } from "interfaces/w";
+import { DarkPool } from "types/w";
 import { BlotterTypes } from "columns/messageBlotter";
 
 export enum BlotterRowTypes {

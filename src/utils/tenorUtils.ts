@@ -1,4 +1,4 @@
-import { PodRow } from "interfaces/podRow";
+import { PodRow } from "types/podRow";
 import moment from "moment";
 
 export const SPECIFIC_TENOR = "SPECIFIC";

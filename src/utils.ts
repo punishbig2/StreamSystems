@@ -1,5 +1,5 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Sides } from "interfaces/sides";
+import { OrderTypes } from "types/mdEntry";
+import { Sides } from "types/sides";
 import timezones, { TimezoneInfo } from "data/timezones";
 
 export const coalesce = (value: any, defaultValue: any): any => {

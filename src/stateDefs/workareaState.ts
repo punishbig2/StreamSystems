@@ -1,7 +1,7 @@
-import { Symbol } from "interfaces/symbol";
-import { Message } from "interfaces/message";
-import { Strategy } from "interfaces/strategy";
-import { User, UserPreferences } from "interfaces/user";
+import { Symbol } from "types/symbol";
+import { Message } from "types/message";
+import { Strategy } from "types/strategy";
+import { User, UserPreferences } from "types/user";
 
 export enum WorkareaStatus {
   Starting,

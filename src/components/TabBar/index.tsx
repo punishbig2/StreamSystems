@@ -4,7 +4,7 @@ import config from "config";
 
 import React, { ReactElement, useState, useRef } from "react";
 import { Menu, MenuItem } from "@material-ui/core";
-import { CurrencyGroups, isCurrencyGroup } from "interfaces/user";
+import { CurrencyGroups, isCurrencyGroup } from "types/user";
 import { WorkspaceDef } from "mobx/stores/workareaStore";
 
 interface Props {

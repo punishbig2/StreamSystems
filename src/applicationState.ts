@@ -1,7 +1,7 @@
 import { MessageBlotterState } from "stateDefs/messageBlotterState";
 import { WorkareaState } from "stateDefs/workareaState";
-import { UserProfileState } from "interfaces/user";
-import { Message } from "interfaces/message";
+import { UserProfileState } from "types/user";
+import { Message } from "types/message";
 
 export interface ApplicationState {
   workarea: WorkareaState;

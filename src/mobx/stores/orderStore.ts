@@ -1,10 +1,10 @@
 import { observable, action, computed } from 'mobx';
-import { OrderStatus, Order, CreateOrder } from 'interfaces/order';
+import { OrderStatus, Order, CreateOrder } from 'types/order';
 import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
-import { OrderTypes } from 'interfaces/mdEntry';
-import { MessageTypes, ArrowDirection } from 'interfaces/w';
+import { OrderTypes } from 'types/mdEntry';
+import { MessageTypes, ArrowDirection } from 'types/w';
 import { getSideFromType, getCurrentTime } from 'utils';
-import { User } from 'interfaces/user';
+import { User } from 'types/user';
 import { API } from 'API';
 import workareaStore from 'mobx/stores/workareaStore';
 import { sizeFormatter } from 'utils/sizeFormatter';

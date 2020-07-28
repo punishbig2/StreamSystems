@@ -1,4 +1,4 @@
-import { OrderStatus } from "interfaces/order";
+import { OrderStatus } from "types/order";
 
 export const getOrderStatusClass = (
   status: OrderStatus,

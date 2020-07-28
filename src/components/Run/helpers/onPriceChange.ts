@@ -1,10 +1,10 @@
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import { Dispatch } from "react";
 import { createAction } from "actionCreator";
 import { RunActions } from "components/Run/reducer";
-import { PodTable } from "interfaces/podTable";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
-import { Order, OrderStatus } from "interfaces/order";
+import { PodTable } from "types/podTable";
+import { PodRow, PodRowStatus } from "types/podRow";
+import { Order, OrderStatus } from "types/order";
 
 const isInvertedMarket = (
   smaller: number | null,

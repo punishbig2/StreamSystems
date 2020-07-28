@@ -1,4 +1,4 @@
-import { PodTable } from "interfaces/podTable";
+import { PodTable } from "types/podTable";
 
 export interface RunState {
   orders: PodTable;

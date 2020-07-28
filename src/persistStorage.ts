@@ -1,4 +1,4 @@
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { API } from "API";
 import { WindowDef } from "mobx/stores/workspaceStore";
 

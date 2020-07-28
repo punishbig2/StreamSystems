@@ -12,8 +12,9 @@ import {
 } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { Sides } from "interfaces/sides";
-import { Symbol } from "interfaces/symbol";
+import { BankEntity } from "types/bankEntity";
+import { Sides } from "types/sides";
+import { Symbol } from "types/symbol";
 import { action, computed, observable } from "mobx";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
@@ -73,6 +74,7 @@ export class MoStore {
   @observable status: MOStatus = MOStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
 
+  public entities: { [firm: string]: BankEntity[] } = {};
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
   public models: InternalValuationModel[] = [];
@@ -90,6 +92,7 @@ export class MoStore {
       this.setStrategies(await API.getProductsEx());
       this.setStyles(await API.getOptexStyle());
       this.setModels(await API.getValuModel());
+      this.setBankEntities(await API.getBankEntities());
       // Load leg definitions
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];
@@ -167,6 +170,12 @@ export class MoStore {
   private setStyles(styles: string[]): void {
     this.styles = styles;
     this.setProgress(60);
+  }
+
+  @action.bound
+  private setBankEntities(entities: { [firm: string]: BankEntity[] }): void {
+    this.entities = entities;
+    this.setProgress(90);
   }
 
   @action.bound

@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 import { OrderTicket } from "components/OrderTicket";
 import { OrderStore } from "mobx/stores/orderStore";
 

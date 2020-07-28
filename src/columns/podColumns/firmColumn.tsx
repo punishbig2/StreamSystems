@@ -1,9 +1,9 @@
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { PodRowProps } from "columns/podColumns/common";
 import React, { ReactElement } from "react";
-import { OrderStatus, Order } from "interfaces/order";
+import { OrderStatus, Order } from "types/order";
 import { getRelevantOrders } from "columns/podColumns/OrderColumn/helpers/getRelevantOrders";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 
 export const FirmColumn = (type: OrderTypes): ColumnSpec => ({
   name: `${type}-firm`,

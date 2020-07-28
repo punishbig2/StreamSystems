@@ -4,7 +4,7 @@ import { Run } from "components/Run";
 import { Table } from "components/Table";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Row } from "components/PodTile/Row";
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 import React, {
   ReactElement,
   useEffect,
@@ -12,16 +12,16 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 import { observer } from "mobx-react";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { InvalidCurrency } from "stateDefs/windowState";
 import { PodTileStore } from "mobx/stores/podTileStore";
 import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
 import { convertToDepth } from "components/PodTile/helpers";
 import { API } from "API";
-import { PodRow } from "interfaces/podRow";
-import { PodTable } from "interfaces/podTable";
+import { PodRow } from "types/podRow";
+import { PodTable } from "types/podTable";
 import { ProgressModalContent } from "components/ProgressModalContent";
 import workareaStore from "mobx/stores/workareaStore";
 

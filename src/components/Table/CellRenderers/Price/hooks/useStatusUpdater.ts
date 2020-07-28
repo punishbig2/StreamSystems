@@ -1,4 +1,4 @@
-import { OrderStatus } from "interfaces/order";
+import { OrderStatus } from "types/order";
 import { useEffect } from "react";
 
 export const useStatusUpdater = (

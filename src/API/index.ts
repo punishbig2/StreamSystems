@@ -7,20 +7,21 @@ import {
   VolMessageIn,
 } from "components/MiddleOffice/interfaces/pricer";
 import config from "config";
-import { Message } from "interfaces/message";
-import { MessageResponse } from "interfaces/messageResponse";
+import { BankEntity } from "types/bankEntity";
+import { Message } from "types/message";
+import { MessageResponse } from "types/messageResponse";
 import {
   CreateOrder,
   CreateOrderBulk,
   DarkPoolOrder,
   Order,
   OrderMessage,
-} from "interfaces/order";
-import { Sides } from "interfaces/sides";
-import { Strategy } from "interfaces/strategy";
-import { Symbol } from "interfaces/symbol";
-import { User } from "interfaces/user";
-import { MessageTypes, W } from "interfaces/w";
+} from "types/order";
+import { Sides } from "types/sides";
+import { Strategy } from "types/strategy";
+import { Symbol } from "types/symbol";
+import { User } from "types/user";
+import { MessageTypes, W } from "types/w";
 import { mergeDefinitionsAndLegs } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
@@ -681,6 +682,15 @@ export class API {
     return task.execute();
   }
 
+  public static async getBankEntities(): Promise<{
+    [firm: string]: BankEntity[];
+  }> {
+    const task: Task<{ [firm: string]: BankEntity[] }> = get<{
+      [firm: string]: BankEntity[];
+    }>(config.Api2 + "/entities");
+    return task.execute();
+  }
+
   public static async getValuModel(): Promise<any> {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "valumodel", "get")
@@ -783,8 +793,7 @@ export class API {
       API.buildUrl(API.Deal, "deals", "get")
     );
     const array: any[] | null = await task.execute();
-    if (array === null)
-      return [];
+    if (array === null) return [];
     return array.map(createDealFromBackendMessage);
   }
 

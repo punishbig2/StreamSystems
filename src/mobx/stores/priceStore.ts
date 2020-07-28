@@ -1,5 +1,5 @@
 import { observable, computed, action } from "mobx";
-import { OrderStatus } from "interfaces/order";
+import { OrderStatus } from "types/order";
 import { priceFormatter } from "utils/priceFormatter";
 
 export class PriceStore {

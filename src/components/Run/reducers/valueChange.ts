@@ -1,13 +1,13 @@
 import { RunState } from "stateDefs/runState";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { PodRow, PodRowStatus } from "types/podRow";
 import { RunEntry } from "components/Run/runEntry";
 import { computeRow } from "components/Run/reducers/computeRow";
-import { OrderStatus, Order } from "interfaces/order";
+import { OrderStatus, Order } from "types/order";
 import { priceFormatter } from "utils/priceFormatter";
 import equal from "deep-equal";
 import { RunActions } from "components/Run/reducer";
 import { FXOAction } from "actionCreator";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 
 export const valueChange = (
   state: RunState,

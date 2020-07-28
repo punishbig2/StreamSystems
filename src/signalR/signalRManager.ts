@@ -6,14 +6,14 @@ import {
   HubConnectionState,
 } from "@microsoft/signalr";
 import config from "config";
-import { Message, DarkPoolMessage, ExecTypes } from "interfaces/message";
-import { W, isPodW } from "interfaces/w";
+import { Message, DarkPoolMessage, ExecTypes } from "types/message";
+import { W, isPodW } from "types/w";
 import { API } from "API";
 import moStore from "mobx/stores/moStore";
 import { $$ } from "utils/stringPaster";
-import { MDEntry } from "interfaces/mdEntry";
-import { OCOModes, User } from "interfaces/user";
-import { Sides } from "interfaces/sides";
+import { MDEntry } from "types/mdEntry";
+import { OCOModes, User } from "types/user";
+import { Sides } from "types/sides";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";

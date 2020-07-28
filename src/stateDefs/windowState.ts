@@ -1,4 +1,4 @@
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 export const InvalidCurrency: Symbol = {
   name: "",
   minqty: 0,

@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { WindowElement } from "components/WindowManager/windowElement";
 import { MessageBlotter } from "components/MessageBlotter";
 import getStyles, { Styles } from "styles";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
 import columns, { BlotterTypes } from "columns/messageBlotter";
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";

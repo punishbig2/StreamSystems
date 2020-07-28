@@ -1,4 +1,4 @@
-import { ExecSound, UserPreferences } from "interfaces/user";
+import { ExecSound, UserPreferences } from "types/user";
 import { getSound } from "beep-sound";
 
 export const getSoundFile = async (name: string) => {

@@ -1,11 +1,11 @@
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
-import { PodTable } from "interfaces/podTable";
-import { TenorType } from "interfaces/w";
+import { OrderTypes } from "types/mdEntry";
+import { Order } from "types/order";
+import { PodRow, PodRowStatus } from "types/podRow";
+import { PodTable } from "types/podTable";
+import { TenorType } from "types/w";
 import { useEffect } from "react";
 import { compareTenors } from "utils/tenorUtils";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 
 const buildRows = async (
   tenors: string[],

@@ -2,7 +2,7 @@ import { isInvertedMarket } from "columns/podColumns/OrderColumn/helpers/isInver
 import { moveToNextPrice } from "columns/podColumns/OrderColumn/helpers/moveToNextPrice";
 import { TabDirection } from "components/NumericInput";
 import { OrderStore } from "mobx/stores/orderStore";
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 
 export const InvertedMarketsError = new Error(
   "inverted markets are not allowed"

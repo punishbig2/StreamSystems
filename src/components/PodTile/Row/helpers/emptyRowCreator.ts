@@ -1,6 +1,6 @@
-import { PodRowStatus } from "interfaces/podRow";
-import { Order } from "interfaces/order";
-import { OrderTypes } from "interfaces/mdEntry";
+import { PodRowStatus } from "types/podRow";
+import { Order } from "types/order";
+import { OrderTypes } from "types/mdEntry";
 
 export const createRow = (symbol: string, strategy: string, tenor: string) => {
   const order: Order = new Order(tenor, "", "", "", null, OrderTypes.Invalid);

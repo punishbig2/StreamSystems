@@ -1,7 +1,7 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Globals } from "golbals";
-import { Symbol } from "interfaces/symbol";
+import { Symbol } from "types/symbol";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";

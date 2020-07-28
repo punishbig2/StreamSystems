@@ -1,9 +1,9 @@
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { observable, action } from "mobx";
 import { API } from "API";
 import signalRManager from "signalR/signalRManager";
 import workareaStore from "mobx/stores/workareaStore";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import {
   isAcceptableFill,
   sortByTimeDescending,

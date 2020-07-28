@@ -1,4 +1,4 @@
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 import { priceFormatter } from "utils/priceFormatter";
 import { OrderStore } from "mobx/stores/orderStore";
 

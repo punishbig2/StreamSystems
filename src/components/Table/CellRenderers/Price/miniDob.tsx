@@ -1,9 +1,9 @@
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { OrderTypes } from "interfaces/mdEntry";
-import { Order, OrderStatus } from "interfaces/order";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
 import React, { ReactNode } from "react";
 import { priceFormatter } from "utils/priceFormatter";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { OrderStore } from "mobx/stores/orderStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderStatus";

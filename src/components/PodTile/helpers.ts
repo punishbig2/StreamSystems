@@ -1,10 +1,10 @@
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { skipTabIndexAll } from "utils/skipTab";
-import { Order } from "interfaces/order";
-import { PodTable } from "interfaces/podTable";
+import { Order } from "types/order";
+import { PodTable } from "types/podTable";
 import { priceFormatter } from "utils/priceFormatter";
-import { OrderTypes } from "interfaces/mdEntry";
-import { PodRowStatus } from "interfaces/podRow";
+import { OrderTypes } from "types/mdEntry";
+import { PodRowStatus } from "types/podRow";
 
 export const orderSorter = (type: OrderTypes) => {
   const sign: number = type === OrderTypes.Bid ? -1 : 1;

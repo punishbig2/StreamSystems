@@ -1,9 +1,9 @@
-import { MDEntry, OrderTypes } from "interfaces/mdEntry";
-import { Order } from "interfaces/order";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
-import { PodTable } from "interfaces/podTable";
-import { User } from "interfaces/user";
-import { W } from "interfaces/w";
+import { MDEntry, OrderTypes } from "types/mdEntry";
+import { Order } from "types/order";
+import { PodRow, PodRowStatus } from "types/podRow";
+import { PodTable } from "types/podTable";
+import { User } from "types/user";
+import { W } from "types/w";
 import { $$ } from "utils/stringPaster";
 
 type E = "bid" | "ofr";

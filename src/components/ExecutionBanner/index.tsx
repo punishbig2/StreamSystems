@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { priceFormatter } from "utils/priceFormatter";
 import store from "mobx/stores/messagesStore";
 import { getMessagePrice } from "utils/messageUtils";

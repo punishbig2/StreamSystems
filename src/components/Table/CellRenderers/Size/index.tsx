@@ -1,6 +1,6 @@
 import { NumericInput } from "components/NumericInput";
 import { Chevron } from "components/Table/CellRenderers/Price/chevron";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import React, { ReactNode, useState, useEffect } from "react";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";

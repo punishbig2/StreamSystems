@@ -3,7 +3,7 @@ import { Table } from "components/Table/index";
 import columns from "columns/darkPoolDepth";
 import { Cell } from "components/Table/Cell";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 import { getCellWidth } from "components/Table/helpers";
 
 interface OwnProps {

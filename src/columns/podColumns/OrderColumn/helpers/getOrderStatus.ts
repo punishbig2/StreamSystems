@@ -1,6 +1,6 @@
-import { OrderStatus, Order } from "interfaces/order";
+import { OrderStatus, Order } from "types/order";
 import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
-import { User } from "interfaces/user";
+import { User } from "types/user";
 import { PodTableType } from "columns/podColumns/OrderColumn/index";
 import workareaStore from "mobx/stores/workareaStore";
 import { priceFormatter } from '../../../../utils/priceFormatter';

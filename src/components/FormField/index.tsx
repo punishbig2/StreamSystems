@@ -5,6 +5,7 @@ import {
   OutlinedInput,
   Select,
 } from "@material-ui/core";
+import { BankEntityField } from "components/BankEntityField";
 import { CurrentTime } from "components/currentTime";
 import { DateInputHandler } from "components/FormField/date";
 import { DefaultHandler } from "components/FormField/default";
@@ -324,6 +325,26 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           <div className={"readonly-field"}>
             <CurrentTime dateOnly={true} />
           </div>
+        );
+      case "bank-entity":
+        if (typeof value !== "string")
+          throw new Error(
+            "invalid value type for bank-entity, string expected"
+          );
+        if (!dropdownData)
+          throw new Error("cannot have a dropdown with no data");
+        return (
+          <BankEntityField
+            bank={value}
+            list={dropdownData}
+            readOnly={!props.editable}
+            name={props.name}
+            onChange={(value: any): void =>
+              props.onChange !== undefined
+                ? props.onChange(props.name as keyof T, value)
+                : undefined
+            }
+          />
         );
       case "tenor":
         if (!dropdownData)

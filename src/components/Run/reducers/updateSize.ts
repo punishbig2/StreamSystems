@@ -1,6 +1,6 @@
 import { RunState } from "stateDefs/runState";
-import { PodRow } from "interfaces/podRow";
-import { Order, OrderStatus } from "interfaces/order";
+import { PodRow } from "types/podRow";
+import { Order, OrderStatus } from "types/order";
 
 export const updateSize = (
   state: RunState,

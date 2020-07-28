@@ -1,5 +1,5 @@
-import { Message, ExecTypes } from "interfaces/message";
-import { User } from "interfaces/user";
+import { Message, ExecTypes } from "types/message";
+import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { STRM } from "stateDefs/workspaceState";

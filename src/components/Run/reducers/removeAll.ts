@@ -1,7 +1,7 @@
 import { RunState } from "stateDefs/runState";
-import { PodTable } from "interfaces/podTable";
-import { PodRow } from "interfaces/podRow";
-import { Order, OrderStatus } from "interfaces/order";
+import { PodTable } from "types/podTable";
+import { PodRow } from "types/podRow";
+import { Order, OrderStatus } from "types/order";
 
 export const removeAll = (state: RunState, key: "bid" | "ofr"): RunState => {
   const orders: PodTable = { ...state.orders };

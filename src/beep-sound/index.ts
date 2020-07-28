@@ -1,4 +1,4 @@
-import { ExecSound } from "interfaces/user";
+import { ExecSound } from "types/user";
 
 const onDBUpgradeNeeded = (event: any) => {
   const { result } = event.currentTarget;

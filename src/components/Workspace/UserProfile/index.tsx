@@ -1,5 +1,5 @@
 import React, { useEffect, ReactElement } from "react";
-import { UserProfileModalTypes } from "interfaces/user";
+import { UserProfileModalTypes } from "types/user";
 import { UserProfileForm } from "components/Workspace/UserProfile/form";
 import { ErrorBox } from "components/ErrorBox";
 import { MessageBox } from "components/MessageBox";

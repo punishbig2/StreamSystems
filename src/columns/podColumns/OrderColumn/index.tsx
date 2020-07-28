@@ -1,14 +1,14 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { Order, OrderStatus } from "interfaces/order";
-import { OrderTypes } from "interfaces/mdEntry";
+import { Order, OrderStatus } from "types/order";
+import { OrderTypes } from "types/mdEntry";
 import { Size } from "components/Table/CellRenderers/Size";
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
 import { Price } from "components/Table/CellRenderers/Price";
 import { STRM } from "stateDefs/workspaceState";
 import { onNavigate } from "components/PodTile/helpers";
 import { ModalWindow } from "components/ModalWindow";
-import { ArrowDirection } from "interfaces/w";
-import { User } from "interfaces/user";
+import { ArrowDirection } from "types/w";
+import { User } from "types/user";
 import { OrderStore } from "mobx/stores/orderStore";
 import { orderTicketRenderer } from "columns/podColumns/OrderColumn/helpers/orderTicketRenderer";
 import { observer } from "mobx-react";

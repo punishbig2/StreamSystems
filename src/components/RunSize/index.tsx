@@ -1,9 +1,9 @@
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { Order, OrderStatus } from "interfaces/order";
+import { Order, OrderStatus } from "types/order";
 import React, { useEffect, useState, useCallback, ReactNode } from "react";
 import { NumericInput, TabDirection } from "components/NumericInput";
 import { sizeFormatter } from "utils/sizeFormatter";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import { usePrevious } from "hooks/usePrevious";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { $$ } from "utils/stringPaster";

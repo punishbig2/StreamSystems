@@ -1,5 +1,5 @@
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import { TabDirection } from "components/NumericInput";
 
 export interface SizeHeaderProps {

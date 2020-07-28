@@ -1,7 +1,7 @@
 /*import { useEffect } from 'react';
-import { Order, OrderStatus } from 'interfaces/order';
-import { Sides } from 'interfaces/sides';
-import { User } from 'interfaces/user';
+import { Order, OrderStatus } from 'types/order';
+import { Sides } from 'types/sides';
+import { User } from 'types/user';
 import { PodRowStore } from 'mobx/stores/podRowStore';
 
 type RowType = { [key: string]: any };

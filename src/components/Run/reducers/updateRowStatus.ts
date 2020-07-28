@@ -1,5 +1,5 @@
 import { RunState } from "stateDefs/runState";
-import { PodRowStatus, PodRow } from "interfaces/podRow";
+import { PodRowStatus, PodRow } from "types/podRow";
 
 export const updateRowStatus = (
   state: RunState,

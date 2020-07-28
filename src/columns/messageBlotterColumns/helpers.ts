@@ -1,5 +1,5 @@
-import { Message } from "interfaces/message";
-import { User } from "interfaces/user";
+import { Message } from "types/message";
+import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 
 export const involved = (message: Message): boolean => {

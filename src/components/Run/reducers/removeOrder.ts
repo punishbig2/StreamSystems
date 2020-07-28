@@ -1,6 +1,6 @@
 import { RunState } from "stateDefs/runState";
-import { PodTable } from "interfaces/podTable";
-import { PodRow } from "interfaces/podRow";
+import { PodTable } from "types/podTable";
+import { PodRow } from "types/podRow";
 import { clearIfMatches } from "components/Run/reducers/clearIfMatches";
 
 export const removeOrder = (state: RunState, id: string) => {

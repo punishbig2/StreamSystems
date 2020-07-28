@@ -1,8 +1,8 @@
 import { observable, action } from "mobx";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
+import { PodRow, PodRowStatus } from "types/podRow";
 import { createRow } from "components/PodTile/Row/helpers/emptyRowCreator";
-import { Order } from "interfaces/order";
-import { OrderTypes } from "interfaces/mdEntry";
+import { Order } from "types/order";
+import { OrderTypes } from "types/mdEntry";
 import { InvertedMarketsError } from "columns/podColumns/OrderColumn/helpers/onSubmitPrice";
 import { SizeTooSmallError } from "columns/podColumns/OrderColumn/helpers/onSubmitSize";
 

@@ -1,4 +1,4 @@
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 
 export const InvalidPrice: number = -1;
 

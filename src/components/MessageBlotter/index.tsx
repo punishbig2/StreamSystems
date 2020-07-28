@@ -2,7 +2,7 @@ import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { Table } from "components/Table";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { useMemo } from "react";
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { STRM } from "stateDefs/workspaceState";
 import store from "mobx/stores/messagesStore";
 import { observer } from "mobx-react";

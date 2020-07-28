@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from "react";
-import { ExecSound } from "interfaces/user";
+import { ExecSound } from "types/user";
 import { Select, MenuItem } from "@material-ui/core";
 import { addSound, getSoundsList, deleteSound } from "beep-sound";
 

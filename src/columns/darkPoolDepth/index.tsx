@@ -1,10 +1,10 @@
 import React from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { Order } from "interfaces/order";
+import { Order } from "types/order";
 import { xPoints } from "timesPolygon";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import workareaStore from "../../mobx/stores/workareaStore";
-import { User } from "../../interfaces/user";
+import { User } from "../../types/user";
 
 const getSide = (order: Order): string => {
   if (order.type === OrderTypes.Ofr) return "Sell";

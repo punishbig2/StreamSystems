@@ -7,7 +7,7 @@ import { Workspace } from "components/Workspace";
 import strings from "locales";
 import React, { ReactElement, useEffect, useState } from "react";
 import { WorkareaStatus } from "stateDefs/workareaState";
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { TradeConfirmation } from "components/TradeConfirmation";
 import { observer } from "mobx-react";
 import store from "mobx/stores/workareaStore";

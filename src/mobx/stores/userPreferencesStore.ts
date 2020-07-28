@@ -2,7 +2,7 @@ import {
   UserPreferences,
   UserProfileStatus,
   UserProfileModalTypes,
-} from "interfaces/user";
+} from "types/user";
 import { observable, action } from "mobx";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import workareaStore from "mobx/stores/workareaStore";

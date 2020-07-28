@@ -1,6 +1,6 @@
 import { RunState } from "stateDefs/runState";
-import { OrderTypes } from "interfaces/mdEntry";
-import { PodRow } from "interfaces/podRow";
+import { OrderTypes } from "types/mdEntry";
+import { PodRow } from "types/podRow";
 import { fillSpreadAndMid } from "components/Run/reducers/fillSpreadAndMid";
 import { activateOrderIfPossible } from "components/Run/reducers/activateOrderIfPossible";
 

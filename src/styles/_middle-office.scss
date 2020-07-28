@@ -503,7 +503,60 @@ $field-size: 25px;
   }
 }
 
+.MuiInput-root.pretty-select-root {
+  .MuiSelect-root {
+    display: flex;
+
+    .empty-display-value {
+      color: $grey-form-color;
+      opacity: 0.5;
+    }
+
+    .error {
+      color: $text-color-red;
+    }
+
+    .primary {
+      flex: 1;
+    }
+
+    .secondary {
+      color: $grey-form-color;
+      margin: 0 4ex 0 0;
+      font-style: italic;
+    }
+  }
+}
+
 .MuiListItem-root {
+  &.pretty-menu-item {
+    display: block;
+
+    .heading {
+      display: flex;
+      font-size: $normal-font-size;
+
+      .primary {
+        font-weight: 600;
+        font-size: inherit;
+        flex: 1;
+      }
+
+      .secondary {
+        font-family: "Roboto", sans-serif;
+        font-style: italic;
+        font-size: $small-font-size;
+        color: $primary-color;
+      }
+    }
+
+    .sub-heading {
+      opacity: 0.5;
+      font-family: "Roboto", sans-serif;
+      font-size: $small-font-size;
+    }
+  }
+
   &.search-item {
     background: none;
     padding: 0;

@@ -1,5 +1,5 @@
-import { Order } from "interfaces/order";
-import { User } from "interfaces/user";
+import { Order } from "types/order";
+import { User } from "types/user";
 import { STRM } from "stateDefs/workspaceState";
 
 export const shouldOpenOrderTicket = (

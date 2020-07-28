@@ -3,7 +3,7 @@ import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Table } from "components/Table";
-import { Message } from "interfaces/message";
+import { Message } from "types/message";
 import { observer } from "mobx-react";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";

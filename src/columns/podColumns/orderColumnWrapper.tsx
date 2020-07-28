@@ -1,7 +1,7 @@
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { ReactElement } from "react";
 import { PodRowProps } from "columns/podColumns/common";
-import { OrderTypes } from "interfaces/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import { OrderColumn, PodTableType } from "columns/podColumns/OrderColumn";
 
 export const OrderColumnWrapper = (

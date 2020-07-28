@@ -1,4 +1,4 @@
-import { ArrowDirection } from "interfaces/w";
+import { ArrowDirection } from "types/w";
 import React, { ReactElement } from "react";
 
 interface DirectionProps {

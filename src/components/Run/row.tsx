@@ -1,8 +1,8 @@
 import { Cell } from "components/Table/Cell";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { PodRow, PodRowStatus } from "interfaces/podRow";
-import { User } from "interfaces/user";
+import { PodRow, PodRowStatus } from "types/podRow";
+import { User } from "types/user";
 import React, { useEffect } from "react";
 import { RowState } from "stateDefs/rowState";
 import { getCellWidth } from "components/Table/helpers";

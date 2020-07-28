@@ -1,6 +1,6 @@
-import { PodTable } from "interfaces/podTable";
-import { Order, OrderStatus } from "interfaces/order";
-import { PodRow } from "interfaces/podRow";
+import { PodTable } from "types/podTable";
+import { Order, OrderStatus } from "types/order";
+import { PodRow } from "types/podRow";
 import { $$ } from "utils/stringPaster";
 
 export const getSelectedOrders = (

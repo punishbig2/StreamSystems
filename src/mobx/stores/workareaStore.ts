@@ -1,6 +1,6 @@
-import { Symbol } from "interfaces/symbol";
-import { Message } from "interfaces/message";
-import { User, UserPreferences, CurrencyGroups } from "interfaces/user";
+import { Symbol } from "types/symbol";
+import { Message } from "types/message";
+import { User, UserPreferences, CurrencyGroups } from "types/user";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { observable, action, computed } from "mobx";
 import { persist, create } from "mobx-persist";
@@ -17,7 +17,7 @@ import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import persistStorage from "persistStorage";
 import { STRM } from "stateDefs/workspaceState";
 import { updateApplicationTheme } from "utils";
-import { Strategy } from "interfaces/strategy";
+import { Strategy } from "types/strategy";
 
 export enum WindowTypes {
   PodTile = 1,
