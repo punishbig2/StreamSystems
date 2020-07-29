@@ -1,12 +1,14 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import moment from "moment";
 import {
   OptionLeg,
   ValuationModel,
   VolMessageIn,
 } from "components/MiddleOffice/interfaces/pricer";
 import config from "config";
+import { Point } from "structures/point";
 import { BankEntity } from "types/bankEntity";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
@@ -28,6 +30,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
+import { tenorToDate } from "utils/tenorUtils";
 import {
   currentTimestampFIXFormat,
   momentToUTCFIXFormat,
@@ -730,6 +733,31 @@ export class API {
       legs
     );
     const tradeDateAsDate: Date = tradeDate.toDate();
+    const buildFwdRates = (legs: Leg[]): Point[] | undefined => {
+      const legOfInterest: Leg | undefined = legs.find((leg: Leg): boolean => {
+        const { custom } = leg;
+        if (custom === undefined) return false;
+        return custom.fwdRate;
+      });
+      if (legOfInterest === undefined || legOfInterest.custom === undefined)
+        return undefined;
+      const { fwdRate: value } = legOfInterest;
+      const format = (m: moment.Moment) => m.format("YYYY-MM-DD");
+      return [
+        {
+          date: format(moment()),
+          point: value!,
+        },
+        {
+          date: format(tenorToDate("1Y")),
+          point: value!,
+        },
+        {
+          date: format(tenorToDate("5Y")),
+          point: value!,
+        },
+      ];
+    };
     const request: VolMessageIn = {
       id: deal.dealID,
       Option: {
@@ -776,6 +804,7 @@ export class API {
           ccyPair: currencyPair,
           snapTime: tradeDateAsDate,
           DateCountBasisType: symbol["DayCountBasis-FX"],
+          ForwardRates: buildFwdRates(legs),
         },
         RATES: [],
       },

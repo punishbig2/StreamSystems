@@ -1,13 +1,14 @@
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntry, DealType } from "structures/dealEntry";
+import { DealStatus, toBitwise } from "types/dealStatus";
 
-const editableFilter = (types: number) => (
-  data: any,
-  entry?: DealEntry
-): boolean => {
+const editableFilter = (
+  types: number,
+  status: number = toBitwise(DealStatus.SEFConfirmed)
+) => (data: any, entry?: DealEntry): boolean => {
   if (entry === undefined) return false;
-  if (entry.status === 5) return false;
+  if ((toBitwise(entry.status) & status) !== 0) return false;
   return (entry.dealType & types) !== 0;
 };
 
@@ -96,7 +97,10 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "fwdRate",
     label: "Fwd Rate",
     precision: 4,
-    editable: false,
+    editable: editableFilter(
+      DealType.Voice | DealType.Manual | DealType.Electronic,
+      toBitwise(DealStatus.SEFConfirmed) | toBitwise(DealStatus.Pending)
+    ),
   },
   {
     type: "date",

@@ -343,6 +343,9 @@ export class MoStore {
       {
         ...legs[index],
         [key]: value,
+        custom: {
+          fwdRate: key === "fwdRate",
+        },
       },
       ...legs.slice(index + 1),
     ];

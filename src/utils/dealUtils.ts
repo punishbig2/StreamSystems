@@ -1,23 +1,24 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Globals } from "golbals";
-import { BankEntity } from "types/bankEntity";
-import { Symbol } from "types/symbol";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
+import { BankEntity } from "types/bankEntity";
+import { DealStatus } from "types/dealStatus";
+import { Symbol } from "types/symbol";
+import { coalesce } from "utils";
 import { addTenorToDate } from "utils/tenorUtils";
 import { forceParseDate, parseTime } from "utils/timeUtils";
-import { coalesce } from "utils";
 
 export const stateMap: { [key: number]: string } = {
-  1: "Pending",
-  2: "Priced",
-  3: "SEF Unconfirmed",
-  4: "STP",
-  5: "SEF Confirmed",
+  [DealStatus.Pending]: "Pending",
+  [DealStatus.Priced]: "Priced",
+  [DealStatus.SEFUnconfirmed]: "SEF Unconfirmed",
+  [DealStatus.STP]: "STP",
+  [DealStatus.SEFConfirmed]: "SEF Confirmed",
 };
 
 export const resolveBankToEntity = (source: string): string => {

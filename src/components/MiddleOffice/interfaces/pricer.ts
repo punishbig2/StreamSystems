@@ -40,6 +40,7 @@ export interface FX {
   spotRate?: number;
   DateCountBasisType: string;
   ForwardRates?: Point[];
+  ForwardPoints?: Point[];
 }
 
 export interface VolSurface {

@@ -36,4 +36,6 @@ export interface Leg {
   deliveryDate: moment.Moment;
   hedge: number | null;
   rates: Rates;
+
+  custom?: { [p: string]: any };
 }

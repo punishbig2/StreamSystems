@@ -1,4 +1,5 @@
 import moment from "moment";
+import { DealStatus } from "types/dealStatus";
 
 export enum DealType {
   Invalid = 0,
@@ -29,7 +30,7 @@ export interface DealEntry {
   expiryDate: moment.Moment | null;
   deliveryDate: moment.Moment;
   dealId: string;
-  status: number;
+  status: DealStatus;
   style: string;
   model: number | "";
   tenor: string;
@@ -49,7 +50,7 @@ export const emptyDealEntry: DealEntry = {
   deliveryDate: moment(),
   tradeDate: moment(),
   dealId: "",
-  status: 1,
+  status: DealStatus.Pending,
   style: "European",
   model: 3,
   tenor: "",

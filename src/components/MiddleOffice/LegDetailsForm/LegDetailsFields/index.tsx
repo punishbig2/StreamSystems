@@ -11,6 +11,7 @@ type Props = {
   dealEntryStore: DealEntryStore;
   onValueChange: (key: keyof Leg, value: any) => void;
 };
+
 export const LegDetailsFields: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
