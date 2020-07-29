@@ -19,7 +19,6 @@ import { TenorDropdown } from "components/TenorDropdown";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
-import { randomID } from "randomID";
 import React, { PureComponent, ReactElement } from "react";
 
 interface Props<T> extends MinimalProps<T> {
@@ -191,7 +190,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private onInputBlur = (/* event: React.FocusEvent<HTMLInputElement> */): void => {
     const { props, state } = this;
     if (props.onChange) {
-      props.onChange(props.name as keyof T, state.internalValue);
+      props.onChange(props.name, state.internalValue);
     }
   };
 
@@ -233,7 +232,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setValue(value);
     // In this case, propagation of the change has to occur instantly
     if (!props.onChange) return;
-    props.onChange(props.name as keyof T, value);
+    props.onChange(props.name, value);
     // Child is unused
     void child;
   };
@@ -334,16 +333,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
         if (!dropdownData)
           throw new Error("cannot have a dropdown with no data");
         return (
-          <BankEntityField
+          <BankEntityField<T>
             value={value}
             list={dropdownData}
             readOnly={!props.editable}
             name={props.name}
-            onChange={(value: any): void =>
-              props.onChange !== undefined
-                ? props.onChange(props.name as keyof T, value)
-                : undefined
-            }
+            onChange={props.onChange}
           />
         );
       case "tenor":
@@ -428,7 +423,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
         return (
           <>
             <OutlinedInput
-              name={randomID(props.name)}
               inputRef={this.setInputRef}
               value={state.displayValue}
               className={classes.join(" ")}

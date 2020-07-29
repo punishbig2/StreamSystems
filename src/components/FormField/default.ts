@@ -7,7 +7,7 @@ import {
 } from "components/FormField/inputHandler";
 import { Validity } from "forms/validity";
 
-export class DefaultHandler<T, P extends MinimalProps, S extends Editable>
+export class DefaultHandler<T, P extends MinimalProps<T>, S extends Editable>
   implements InputHandler<T, P, S> {
   public createValue(
     value: any,
@@ -35,7 +35,7 @@ export class DefaultHandler<T, P extends MinimalProps, S extends Editable>
     }
   }
 
-  public format(value: any, props: P): [string, Validity] {
+  public format<T>(value: any, props: P): [string, Validity] {
     return getDisplayValue(
       props.type,
       props.name,

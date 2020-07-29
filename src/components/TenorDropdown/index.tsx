@@ -12,7 +12,7 @@ interface Props<T> {
   className: string;
   readOnly: boolean;
   color: "green" | "orange" | "cream" | "grey";
-  name: string;
+  name: keyof T;
   disabled: boolean;
   onChange?: (name: keyof T, value: any) => void;
 }

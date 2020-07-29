@@ -3,15 +3,15 @@ import moStore from "mobx/stores/moStore";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { BankEntity } from "types/bankEntity";
 
-interface Props {
+interface Props<T> {
   list: {
     value: string;
     label: string;
   }[];
   value: string;
-  name: string;
+  name: keyof T;
   readOnly: boolean;
-  onChange?: (value: any) => void;
+  onChange?: (name: keyof T, value: any) => void;
 }
 
 const DummyBankEntity: BankEntity = {
@@ -21,9 +21,7 @@ const DummyBankEntity: BankEntity = {
   name: "",
 };
 
-export const BankEntityField: React.FC<Props> = (
-  props: Props
-): ReactElement => {
+export function BankEntityField<T>(props: Props<T>): ReactElement {
   const { value, readOnly } = props;
   const [currentEntity, setCurrentEntity] = useState<BankEntity>(
     DummyBankEntity
@@ -42,6 +40,13 @@ export const BankEntityField: React.FC<Props> = (
       setCurrentEntity(DummyBankEntity);
     }
   }, [map, value]);
+
+  useEffect(() => {
+    if (currentEntity === DummyBankEntity) return;
+    if (props.onChange) {
+      props.onChange(props.name, currentEntity.code);
+    }
+  }, [currentEntity]);
 
   const setCurrentFirm = useCallback(
     (id: string) => {
@@ -94,12 +99,32 @@ export const BankEntityField: React.FC<Props> = (
     event: React.ChangeEvent<{ value: unknown; name?: string }>
   ): void => {
     const { value } = event.target;
+    const { name } = props;
     if (typeof value === "string") {
+      if (value === currentEntity.code) return;
       if (props.onChange !== undefined) {
-        props.onChange(value);
+        props.onChange(name, value);
       }
     }
   };
+
+  const entityName: string = currentEntity ? currentEntity.code : "";
+  const bankName: string = currentEntity ? currentEntity.id : "";
+
+  if (readOnly) {
+    return (
+      <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
+        <Grid container>
+          <Grid className={"MuiSelect-root"} xs={6} item>
+            <span>{bankName}</span>
+          </Grid>
+          <Grid className={"MuiSelect-root"} xs={6} item>
+            <span>{entityName}</span>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  }
 
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
@@ -108,7 +133,7 @@ export const BankEntityField: React.FC<Props> = (
           <Select
             readOnly={readOnly}
             displayEmpty={true}
-            value={currentEntity ? currentEntity.id : ""}
+            value={bankName}
             fullWidth={true}
             onChange={onBankChange}
           >
@@ -121,10 +146,11 @@ export const BankEntityField: React.FC<Props> = (
         </Grid>
         <Grid xs={6} item>
           <Select
-            value={currentEntity ? currentEntity.code : ""}
+            readOnly={readOnly}
             displayEmpty={true}
-            renderValue={(value: any) => value}
+            value={entityName}
             fullWidth={true}
+            renderValue={(value: any) => value}
             onChange={onEntityChange}
           >
             {entities.map((value: string) => (
@@ -137,4 +163,4 @@ export const BankEntityField: React.FC<Props> = (
       </Grid>
     </Grid>
   );
-};
+}

@@ -12,7 +12,7 @@ export interface Editable {
 
 export interface MinimalProps<T = any> {
   type: FieldType;
-  name: string;
+  name: keyof T;
   editable?: boolean;
   emptyValue?: string;
   value:

@@ -2,9 +2,9 @@ import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { Moment } from "moment";
 
-export const getDisplayValue = (
+export const getDisplayValue = <T>(
   type: FieldType,
-  name: string | string[],
+  name: keyof T,
   value: string | boolean | number | Moment | undefined | null,
   editMode: boolean,
   emptyValue?: string

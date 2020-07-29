@@ -301,8 +301,8 @@ $field-size: 25px;
           color: inherit;
           height: $field-size;
           font-size: $normal-font-size;
-          font-weight: 500;
-          font-family: "Roboto", sans-serif;
+          font-weight: inherit;
+          font-family: inherit;
 
           fieldset {
             border: none;
@@ -342,6 +342,21 @@ $field-size: 25px;
 
         .MuiFormControlLabel-label {
           flex-basis: 20ex;
+        }
+
+        .MuiSelect-root,
+        .readonly-field,
+        .MuiInputBase-root input {
+          font-family: "Roboto", sans-serif;
+          font-weight: 500;
+
+          div, span {
+            font-family: inherit;
+            font-weight: 500;
+            font-size: $normal-font-size;
+            line-height: inherit;
+            padding: 0;
+          }
         }
 
         .MuiSelect-root,
@@ -504,58 +519,7 @@ $field-size: 25px;
   }
 }
 
-.MuiInput-root.pretty-select-root {
-  .MuiSelect-root {
-    display: flex;
-
-    .empty-display-value {
-      color: $grey-form-color;
-      opacity: 0.5;
-    }
-
-    .error {
-      color: $text-color-red;
-    }
-
-    .primary {
-      flex: 1;
-    }
-
-    .secondary {
-      color: $grey-form-color;
-      margin: 0 4ex 0 0;
-      font-style: italic;
-    }
-  }
-}
-
 .MuiListItem-root {
-  &.pretty-menu-item {
-    display: block;
-
-    .heading {
-      display: flex;
-      font-size: $normal-font-size;
-
-      .primary {
-        font-weight: 600;
-        font-size: inherit;
-        flex: 1;
-      }
-
-      .secondary {
-        font-style: italic;
-        font-size: $small-font-size;
-        color: $primary-color;
-      }
-    }
-
-    .sub-heading {
-      opacity: 0.5;
-      font-size: $small-font-size;
-    }
-  }
-
   &.search-item {
     background: none;
     padding: 0;

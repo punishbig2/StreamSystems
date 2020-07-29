@@ -18,6 +18,7 @@ import persistStorage from "persistStorage";
 import { STRM } from "stateDefs/workspaceState";
 import { updateApplicationTheme } from "utils";
 import { Strategy } from "types/strategy";
+import { compareTenors, tenorToNumber } from "utils/tenorUtils";
 
 export enum WindowTypes {
   PodTile = 1,
@@ -256,7 +257,10 @@ export class WorkareaStore {
 
   private async loadSystemTenors(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingTenors);
-    this.tenors = await API.getTenors();
+    const tenors: string[] = await API.getTenors();
+    this.tenors = tenors.sort(
+      (t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2)
+    );
   }
 
   private async loadSystemBanks(): Promise<void> {

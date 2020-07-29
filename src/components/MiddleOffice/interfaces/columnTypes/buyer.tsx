@@ -1,8 +1,11 @@
+import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { BankCell } from "components/MiddleOffice/interfaces/cells/banks";
+import { BankEntity } from "types/bankEntity";
+import { resolveBankToEntity } from "utils/dealUtils";
 
 export default (sortable: boolean): ColumnSpec => ({
   name: "buyer",
@@ -25,7 +28,9 @@ export default (sortable: boolean): ColumnSpec => ({
     if (deal === null) {
       return <BankCell deal={deal} />;
     } else {
-      return <span>{deal.buyer}</span>;
+      const entityName: string = resolveBankToEntity(deal.buyer);
+      const entity: BankEntity = moStore.entitiesMap[entityName];
+      return <span>{entity.id}</span>;
     }
   },
   filterable: true,

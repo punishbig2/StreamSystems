@@ -12,6 +12,7 @@ import {
 } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { BankEntity } from "types/bankEntity";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { action, computed, observable } from "mobx";
@@ -74,6 +75,7 @@ export class MoStore {
   @observable successMessage: GenericMessage | null = null;
 
   public entities: BankEntitiesQueryResponse = {};
+  public entitiesMap: { [p: string]: BankEntity } = {};
   public strategies: { [id: string]: MOStrategy } = {};
   public styles: string[] = [];
   public models: InternalValuationModel[] = [];
@@ -87,11 +89,11 @@ export class MoStore {
 
   public async loadReferenceData(): Promise<void> {
     if (!this.isInitialized) {
-      this.setBankEntities(await API.getBankEntities());
       this.setCuts(await API.getCuts());
       this.setStrategies(await API.getProductsEx());
       this.setStyles(await API.getOptexStyle());
       this.setModels(await API.getValuModel());
+      this.setBankEntities(await API.getBankEntities());
       // Load leg definitions
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];
@@ -174,6 +176,23 @@ export class MoStore {
   @action.bound
   private setBankEntities(entities: BankEntitiesQueryResponse): void {
     this.entities = entities;
+    this.entitiesMap = Object.values(entities)
+      .reduce(
+        (accum: BankEntity[], next: BankEntity[]): BankEntity[] => [
+          ...accum,
+          ...next,
+        ],
+        []
+      )
+      .reduce(
+        (
+          map: { [p: string]: BankEntity },
+          entity: BankEntity
+        ): {
+          [p: string]: BankEntity;
+        } => ({ ...map, [entity.code]: entity }),
+        {}
+      );
     this.setProgress(90);
   }
 
