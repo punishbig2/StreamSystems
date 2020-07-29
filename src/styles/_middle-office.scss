@@ -281,11 +281,16 @@ $field-size: 25px;
             border-color: inherit;
           }
 
-          &.tenor-dropdown {
-            justify-content: space-between;
+          .bank-entity-field,
+          .tenor-dropdown {
+            .MuiGrid-root {
+              &:first-child {
+                padding-right: 3px;
+              }
 
-            .input-container {
-              padding-left: 6px;
+              &:last-child {
+                padding-left: 3px;
+              }
             }
           }
         }
@@ -350,7 +355,8 @@ $field-size: 25px;
           font-family: "Roboto", sans-serif;
           font-weight: 500;
 
-          div, span {
+          div,
+          span {
             font-family: inherit;
             font-weight: 500;
             font-size: $normal-font-size;

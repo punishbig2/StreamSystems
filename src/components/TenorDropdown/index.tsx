@@ -39,43 +39,41 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     }
   };
   return (
-    <Grid
-      className={"MuiInputBase-root tenor-dropdown"}
-      alignItems={"center"}
-      container
-    >
-      <Grid xs={6} item>
-        <Select
-          value={props.tenor}
-          disabled={props.disabled}
-          className={props.className}
-          displayEmpty={true}
-          readOnly={props.readOnly}
-          fullWidth={true}
-          name={props.name + "-value"}
-          onChange={onSelectChange}
-        >
-          {props.tenor === SPECIFIC_TENOR ? (
-            <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
-          ) : null}
-          {data.map((item: SelectItem) => (
-            <MenuItem key={item.value} value={item.value}>
-              {item.value}
-            </MenuItem>
-          ))}
-        </Select>
-      </Grid>
-      <Grid className={"input-container"} xs={6} item>
-        <FormField<{ date: moment.Moment }>
-          color={props.color}
-          type={"date"}
-          value={props.expiryDate}
-          placeholder={"MM/DD/YYYY"}
-          editable={!props.readOnly}
-          name={"date"}
-          onInput={onDateChange}
-          disabled={props.disabled}
-        />
+    <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
+      <Grid className={"bank-entity-field"} item container>
+        <Grid xs={6} item>
+          <Select
+            value={props.tenor}
+            disabled={props.disabled}
+            className={props.className}
+            displayEmpty={true}
+            readOnly={props.readOnly}
+            fullWidth={true}
+            name={props.name + "-value"}
+            onChange={onSelectChange}
+          >
+            {props.tenor === SPECIFIC_TENOR ? (
+              <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
+            ) : null}
+            {data.map((item: SelectItem) => (
+              <MenuItem key={item.value} value={item.value}>
+                {item.value}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid xs={6} item>
+          <FormField<{ date: moment.Moment }>
+            color={props.color}
+            type={"date"}
+            value={props.expiryDate}
+            placeholder={"MM/DD/YYYY"}
+            editable={!props.readOnly}
+            name={"date"}
+            onInput={onDateChange}
+            disabled={props.disabled}
+          />
+        </Grid>
       </Grid>
     </Grid>
   );

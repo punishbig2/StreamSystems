@@ -30,6 +30,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
   const [firms, setFirms] = useState<string[]>([]);
   const [map, setMap] = useState<{ [p: string]: BankEntity }>({});
   const { entities: storeEntities } = moStore;
+  const { id } = currentEntity;
 
   useEffect(() => {
     if (value === undefined || value === null) return;
@@ -48,6 +49,13 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
     }
   }, [currentEntity]);
 
+  useEffect(() => {
+    const list: BankEntity[] | undefined = storeEntities[currentEntity.id];
+    if (list !== undefined) {
+      setEntities(list.map((entity: BankEntity) => entity.code));
+    }
+  }, [id]);
+
   const setCurrentFirm = useCallback(
     (id: string) => {
       const list: BankEntity[] | undefined = storeEntities[id];
@@ -58,7 +66,6 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
       if (defaultValue === undefined) {
         console.warn(`${id} has no default entity`);
       } else {
-        setEntities(list.map((entity: BankEntity): string => entity.code));
         setCurrentEntity(defaultValue);
       }
     },
@@ -128,7 +135,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
 
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
-      <Grid container>
+      <Grid className={"bank-entity-field"} item container>
         <Grid xs={6} item>
           <Select
             readOnly={readOnly}
