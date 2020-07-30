@@ -28,7 +28,7 @@ $field-size: 25px;
   bottom: $window-footer-size;
   width: 100%;
   background-color: $light-color;
-  z-index: 0;
+  z-index: 1;
 
   .button-box {
     display: flex;
@@ -102,7 +102,6 @@ $field-size: 25px;
 
     .container {
       position: relative;
-      overflow-y: scroll;
       height: 100%;
 
       &:first-child {
@@ -114,14 +113,9 @@ $field-size: 25px;
           }
         }
       }
-
-      &:last-child {
-        overflow-y: scroll;
-      }
     }
 
     .legs {
-      overflow-y: scroll;
       overflow-x: hidden;
       height: 100%;
     }

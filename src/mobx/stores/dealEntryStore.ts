@@ -110,7 +110,7 @@ export class DealEntryStore {
         vol: strategy.spreadvsvol === "vol" ? price : undefined,
       };
     } else {
-      console.log(name, value);
+      if (this.entry[name] === value) return;
       this.entry = { ...this.entry, [name]: value };
     }
   }

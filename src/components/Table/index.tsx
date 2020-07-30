@@ -1,6 +1,6 @@
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { Header } from "components/Table/Header";
-import { VirtualScroll } from "components/VirtualScroll";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import React, {
   CSSProperties,
   ReactElement,
@@ -8,7 +8,6 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import getStyles from "styles";
 import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
 import { TableStore } from "mobx/stores/tableStore";
 import { observer } from "mobx-react";
@@ -86,11 +85,10 @@ const BasicTable = (
     }
 
     if (props.scrollable) {
-      const styles = getStyles();
       return (
-        <VirtualScroll itemSize={styles.tableRowHeight} className={"tbody"}>
+        <OverlayScrollbarsComponent className={"tbody"}>
           {rows.map(props.renderRow)}
-        </VirtualScroll>
+        </OverlayScrollbarsComponent>
       );
     } else {
       return <div className={"tbody"}>{rows.map(props.renderRow)}</div>;

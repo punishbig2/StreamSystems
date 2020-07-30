@@ -9,6 +9,7 @@
   height: 100%;
   width: 100%;
   background-color: $background-color;
+  z-index: 2147483647;
 
   .spinner {
     position: relative;

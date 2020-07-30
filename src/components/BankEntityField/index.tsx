@@ -22,7 +22,7 @@ const DummyBankEntity: BankEntity = {
 };
 
 export function BankEntityField<T>(props: Props<T>): ReactElement {
-  const { value, readOnly } = props;
+  const { value, readOnly, name, onChange } = props;
   const [currentEntity, setCurrentEntity] = useState<BankEntity>(
     DummyBankEntity
   );
@@ -30,31 +30,33 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
   const [firms, setFirms] = useState<string[]>([]);
   const [map, setMap] = useState<{ [p: string]: BankEntity }>({});
   const { entities: storeEntities } = moStore;
-  const { id } = currentEntity;
+  const { id, code } = currentEntity;
 
   useEffect(() => {
     if (value === undefined || value === null) return;
+    // Not really new value
+    if (code === value) return;
     const entity: BankEntity | undefined = map[value];
     if (entity !== undefined) {
       setCurrentEntity(entity);
-    } else {
+    } else if (code !== DummyBankEntity.code) {
       setCurrentEntity(DummyBankEntity);
     }
-  }, [map, value]);
+  }, [map, code, value]);
 
   useEffect(() => {
-    if (currentEntity === DummyBankEntity) return;
-    if (props.onChange) {
-      props.onChange(props.name, currentEntity.code);
+    if (code === value) return;
+    if (onChange) {
+      onChange(name, code);
     }
-  }, [currentEntity]);
+  }, [name, value, code, onChange]);
 
   useEffect(() => {
-    const list: BankEntity[] | undefined = storeEntities[currentEntity.id];
+    const list: BankEntity[] | undefined = storeEntities[id];
     if (list !== undefined) {
       setEntities(list.map((entity: BankEntity) => entity.code));
     }
-  }, [id]);
+  }, [storeEntities, id]);
 
   const setCurrentFirm = useCallback(
     (id: string) => {
@@ -108,25 +110,22 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
     const { value } = event.target;
     const { name } = props;
     if (typeof value === "string") {
-      if (value === currentEntity.code) return;
+      if (value === code) return;
       if (props.onChange !== undefined) {
         props.onChange(name, value);
       }
     }
   };
 
-  const entityName: string = currentEntity ? currentEntity.code : "";
-  const bankName: string = currentEntity ? currentEntity.id : "";
-
   if (readOnly) {
     return (
       <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
         <Grid container>
           <Grid className={"MuiSelect-root"} xs={6} item>
-            <span>{bankName}</span>
+            <span>{id}</span>
           </Grid>
           <Grid className={"MuiSelect-root"} xs={6} item>
-            <span>{entityName}</span>
+            <span>{code}</span>
           </Grid>
         </Grid>
       </Grid>
@@ -140,7 +139,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
           <Select
             readOnly={readOnly}
             displayEmpty={true}
-            value={bankName}
+            value={id}
             fullWidth={true}
             onChange={onBankChange}
           >
@@ -155,7 +154,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
           <Select
             readOnly={readOnly}
             displayEmpty={true}
-            value={entityName}
+            value={code}
             fullWidth={true}
             renderValue={(value: any) => value}
             onChange={onEntityChange}

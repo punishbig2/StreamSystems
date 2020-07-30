@@ -55,6 +55,12 @@ $spinner-size: $table-row-height - 6;
   .tbody {
     position: relative;
     flex: 1 0;
+
+    * {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+    }
   }
 
   &.padded {
@@ -797,62 +803,6 @@ $spinner-size: $table-row-height - 6;
         }
       }
     }
-  }
-
-  &:hover {
-    .scrollbar-container {
-      pointer-events: all;
-      opacity: 0.25;
-    }
-  }
-
-  .scrollbar-container {
-    transition: opacity 0.25s;
-    position: absolute;
-    display: block;
-    width: 16px;
-    background: none;
-    box-sizing: content-box;
-    pointer-events: none;
-    opacity: 0;
-    right: 0;
-    top: 0;
-    bottom: -4px;
-
-    &.grabbed {
-      pointer-events: all;
-      opacity: 1;
-    }
-
-    &.hidden {
-      display: none;
-    }
-
-    .handle {
-      position: absolute;
-      min-height: 30px;
-      left: 3px;
-      right: 3px;
-      top: 3px;
-      border-radius: 8px;
-      background-color: $foreground-color;
-      cursor: default;
-    }
-  }
-
-  .tbody-scrollable-content {
-    position: absolute;
-    font-size: inherit;
-    font-family: inherit;
-    font-weight: inherit;
-
-    top: 0;
-    width: 100%;
-    left: 0;
-    height: 100%;
-
-    pointer-events: initial;
-    overflow: hidden;
   }
 
   &.loading {

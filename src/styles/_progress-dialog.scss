@@ -4,6 +4,7 @@ $progress-spinner-size: 48px;
 .progress-dialog {
   padding: 0 8px 8px 8px;
   width: 400px;
+  z-index: 2147483647;
 
   .header {
     display: flex;

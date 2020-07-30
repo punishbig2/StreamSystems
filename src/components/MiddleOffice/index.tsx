@@ -21,6 +21,7 @@ import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore, { messages, MOStatus } from "mobx/stores/moStore";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { randomID } from "randomID";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import signalRManager from "signalR/signalRManager";
@@ -228,26 +229,30 @@ export const MiddleOffice: React.FC<Props> = observer(
               />
             </div>
             <Grid className={"right-panel"} container>
-              <Grid xs={7} className={"container"} item>
-                <div className={"form-group"}>
-                  <div className={headingClasses.join(" ")}>
-                    <h1>Deal Entry</h1>
-                    <div className={"actions"}>{getActionButtons()}</div>
+              <Grid xs={7} item>
+                <OverlayScrollbarsComponent className={"container"}>
+                  <div className={"form-group"}>
+                    <div className={headingClasses.join(" ")}>
+                      <h1>Deal Entry</h1>
+                      <div className={"actions"}>{getActionButtons()}</div>
+                    </div>
+                    <DealEntryForm store={deStore} />
                   </div>
-                  <DealEntryForm store={deStore} />
-                </div>
-                <div className={"form-group"}>
-                  <div className={headingClasses.join(" ")}>
-                    <h1>Summary Leg Details</h1>
+                  <div className={"form-group"}>
+                    <div className={headingClasses.join(" ")}>
+                      <h1>Summary Leg Details</h1>
+                    </div>
+                    <SummaryLegDetailsForm />
                   </div>
-                  <SummaryLegDetailsForm  />
-                </div>
+                </OverlayScrollbarsComponent>
               </Grid>
-              <Grid xs={5} className={"container"} item>
-                <LegDetailsForm
-                  status={moStore.status}
-                  dealEntryStore={deStore}
-                />
+              <Grid xs={5} item>
+                <OverlayScrollbarsComponent className={"container"}>
+                  <LegDetailsForm
+                    status={moStore.status}
+                    dealEntryStore={deStore}
+                  />
+                </OverlayScrollbarsComponent>
               </Grid>
             </Grid>
           </div>

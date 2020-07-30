@@ -18,7 +18,7 @@ import persistStorage from "persistStorage";
 import { STRM } from "stateDefs/workspaceState";
 import { updateApplicationTheme } from "utils";
 import { Strategy } from "types/strategy";
-import { compareTenors, tenorToNumber } from "utils/tenorUtils";
+import { tenorToNumber } from "utils/tenorUtils";
 
 export enum WindowTypes {
   PodTile = 1,

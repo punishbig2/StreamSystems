@@ -3,12 +3,12 @@ import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Table } from "components/Table";
-import { Message } from "types/message";
 import { observer } from "mobx-react";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useState } from "react";
 import signalRManager from "signalR/signalRManager";
+import { Message } from "types/message";
 import { isMessage } from "utils/messageUtils";
 
 interface Props {
@@ -31,11 +31,11 @@ export const DealBlotter: React.FC<Props> = observer(
     const renderRow = (props: any): ReactElement | null => {
       const row: Message | Deal = props.row;
       if (!row) return null;
-      const id: string = isMessage(row) ? row.ClOrdID : row.dealID;
-      const isSelected = !!deal && deal.dealID === id;
+      if (isMessage(row)) throw new Error("this renderer is for deals only");
+      const isSelected = !!deal && deal.dealID === row.dealID;
       return (
         <Row
-          key={id}
+          key={row.dealID}
           columns={props.columns}
           row={row}
           weight={props.weight}
@@ -48,6 +48,7 @@ export const DealBlotter: React.FC<Props> = observer(
         />
       );
     };
+
     return (
       <Table
         id={`${props.id}-deal-blotter`}
