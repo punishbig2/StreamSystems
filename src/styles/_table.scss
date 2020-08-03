@@ -56,7 +56,7 @@ $spinner-size: $table-row-height - 6;
     position: relative;
     flex: 1 0;
 
-    * {
+    *:not(.fa) {
       font-family: inherit;
       font-size: inherit;
       font-weight: inherit;

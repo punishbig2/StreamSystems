@@ -2,24 +2,24 @@ import {
   HttpTransportType,
   HubConnection,
   HubConnectionBuilder,
-  LogLevel,
   HubConnectionState,
+  LogLevel,
 } from "@microsoft/signalr";
-import config from "config";
-import { Message, DarkPoolMessage, ExecTypes } from "types/message";
-import { W, isPodW } from "types/w";
 import { API } from "API";
+import { Deal } from "components/MiddleOffice/interfaces/deal";
+import config from "config";
 import moStore from "mobx/stores/moStore";
-import { $$ } from "utils/stringPaster";
-import { MDEntry } from "types/mdEntry";
-import { OCOModes, User } from "types/user";
-import { Sides } from "types/sides";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { createDealFromBackendMessage } from "utils/dealUtils";
 import { playBeep } from "signalR/helpers";
+import { MDEntry } from "types/mdEntry";
+import { DarkPoolMessage, ExecTypes, Message } from "types/message";
+import { Sides } from "types/sides";
+import { OCOModes, User } from "types/user";
+import { isPodW, W } from "types/w";
+import { createDealFromBackendMessage } from "utils/dealUtils";
+import { $$ } from "utils/stringPaster";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -48,6 +48,7 @@ enum Events {
   UpdateLegs = "updateLegs",
   OnPricingResponse = "onPricingResponse",
   OnDealDeleted = "onDealDeleted",
+  OnError = "onError",
 }
 
 interface Command {
@@ -150,6 +151,7 @@ export class SignalRManager {
       connection.on(Events.OnPricingResponse, this.onPricingResponse);
       connection.on(Events.OnDealDeleted, this.onDealDeleted);
       connection.on(Events.UpdateLegs, this.onUpdateLegs);
+      connection.on(Events.OnError, this.onError);
     }
   };
 
@@ -542,7 +544,7 @@ export class SignalRManager {
     this.replayCommand(command);
   };
 
-  private invoke = (name: string, ...args: any[]) => {
+  private invoke = (name: string, ...args: any[]): void => {
     const { connection } = this;
     if (connection === null) return;
     if (connection.state !== HubConnectionState.Connected) {
@@ -556,6 +558,16 @@ export class SignalRManager {
         );
       }
     });
+  };
+
+  private onError = (data: string): void => {
+    const user: User = workareaStore.user;
+    const error: any = JSON.parse(data);
+    if (error.useremail !== user.email) {
+      // IGNORE
+      return;
+    }
+    console.log(error);
   };
 }
 

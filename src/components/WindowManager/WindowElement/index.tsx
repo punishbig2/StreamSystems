@@ -1,5 +1,15 @@
 import { DefaultWindowButtons } from "components/DefaultWindowButtons";
+import { adjustToContent } from "components/WindowManager/helpers/adjustToContent";
+import { move } from "components/WindowManager/helpers/move";
+import { resize } from "components/WindowManager/helpers/resize";
+import { toStyle } from "components/WindowManager/helpers/toStyle";
 import { useObjectGrabber } from "hooks/useObjectGrabber";
+import { observer } from "mobx-react";
+
+import messages, { MessagesStore } from "mobx/stores/messagesStore";
+import { PodTileStore } from "mobx/stores/podTileStore";
+import { WindowStore } from "mobx/stores/windowStore";
+import { WindowTypes } from "mobx/stores/workareaStore";
 import React, {
   CSSProperties,
   ReactElement,
@@ -8,17 +18,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { WindowStore } from "mobx/stores/windowStore";
-import { observer } from "mobx-react";
-import { PodTileStore } from "mobx/stores/podTileStore";
-
-import messages, { MessagesStore } from "mobx/stores/messagesStore";
-import { move } from "components/WindowManager/helpers/move";
-import { resize } from "components/WindowManager/helpers/resize";
-import { toStyle } from "components/WindowManager/helpers/toStyle";
-import { toPixels } from "components/WindowManager/helpers/toPixels";
-import { adjustToContent } from "components/WindowManager/helpers/adjustToContent";
-import { WindowTypes } from "mobx/stores/workareaStore";
+import { getOptimalSize, Size } from "windowUtils";
 
 interface OwnProps {
   id: string;
@@ -259,7 +259,10 @@ export const WindowElement: React.FC<Props> = observer(
     if (store.minimized) classes.push("minimized");
     if (fixed) classes.push("fixed");
     if (type === WindowTypes.MessageBlotter) classes.push("not-adjustable");
-    const style: CSSProperties | undefined = toStyle(store.geometry);
+    const style: CSSProperties | undefined = {
+      ...toStyle(store.geometry),
+      minWidth: minWidth,
+    };
     // Keep the min width up to date
     useEffect(() => {
       const { current: parent } = containerRef;
@@ -268,19 +271,9 @@ export const WindowElement: React.FC<Props> = observer(
         ".window-content"
       );
       if (element === null) return;
-      const { style } = parent;
-      const originalWidth = style.width;
-      // Let's force scrollWidth and scrollHeight to have the minimal internalValue
-      style.width = "1px";
-      // Update the element with the minimal size possible
-      if (element.scrollWidth + element.offsetLeft < area.width) {
-        style.width = toPixels(element.scrollWidth);
-      } else {
-        style.width = toPixels(area.width - element.offsetLeft);
-      }
-      setMinWidth(parseInt(style.width));
-      // Restore original width
-      style.width = originalWidth;
+      const size: Size = getOptimalSize(element);
+      // Save this for later reference
+      setMinWidth(size.width);
     }, [area.width]);
 
     useEffect(() => {
@@ -297,12 +290,12 @@ export const WindowElement: React.FC<Props> = observer(
       );
       if (content === null) return;
       const observer = new MutationObserver(() => {
-        adjustToContent(container, area);
+        adjustToContent(container);
       });
       // Observe changes
       observer.observe(content, { childList: true, subtree: true });
       // Do it because relevant values have changed
-      adjustToContent(container, area);
+      adjustToContent(container);
       // Cleanup by removing the observer
       return () => observer.disconnect();
     }, [containerRef, area, fixed, store.fitToContent, store.minimized]);

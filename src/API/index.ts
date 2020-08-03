@@ -664,7 +664,8 @@ export class API {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
-    return task.execute();
+    const regions = await task.execute();
+    return regions.ccyGroup;
   }
 
   // Middle middle office
@@ -874,7 +875,7 @@ export class API {
       API.buildUrl(API.SEF, "tradecapreport", "send"),
       {
         dealId: dealId,
-        User: user.email,
+        useremail: user.email,
       }
     );
     return task.execute();

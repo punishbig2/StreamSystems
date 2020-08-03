@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { WindowElement } from "components/WindowManager/windowElement";
+import { WindowElement } from "components/WindowManager/WindowElement";
 import { MessageBlotter } from "components/MessageBlotter";
 import getStyles, { Styles } from "styles";
 import { User } from "types/user";
