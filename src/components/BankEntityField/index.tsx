@@ -21,79 +21,75 @@ const DummyBankEntity: BankEntity = {
   name: "",
 };
 
+const simpleMenuItemRenderer = (value: string): ReactElement => (
+  <MenuItem key={value} value={value}>
+    {value}
+  </MenuItem>
+);
+
+const getCurrentEntity = (
+  code: string,
+  entities: { [p: string]: BankEntity[] }
+): BankEntity => {
+  const flat: BankEntity[] = Object.values(
+    entities
+  ).reduce((current: BankEntity[], next: BankEntity[]): BankEntity[] => [
+    ...current,
+    ...next,
+  ]);
+  const found: BankEntity | undefined = flat.find(
+    (entity: BankEntity): boolean => entity.code === code
+  );
+  if (found === undefined) {
+    return DummyBankEntity;
+  } else {
+    return found;
+  }
+};
+
+const getDefaultEntity = (
+  bank: string,
+  entities: { [p: string]: BankEntity[] }
+): BankEntity | undefined => {
+  const list: BankEntity[] | undefined = entities[bank];
+  if (list === undefined) return;
+  return list.find((entity: BankEntity): boolean => entity.default);
+};
+
 export function BankEntityField<T>(props: Props<T>): ReactElement {
   const { value, readOnly, name, onChange } = props;
-  const [currentEntity, setCurrentEntity] = useState<BankEntity>(
-    DummyBankEntity
-  );
   const [entities, setEntities] = useState<string[]>([]);
   const [firms, setFirms] = useState<string[]>([]);
-  const [map, setMap] = useState<{ [p: string]: BankEntity }>({});
-  const { entities: storeEntities } = moStore;
-  const { id, code } = currentEntity;
+  const { entities: mapped } = moStore;
+  // Get the entity from the value
+  const entity: BankEntity = getCurrentEntity(value, mapped);
+  // This is the bank
+  const { id: firm } = entity;
 
   useEffect(() => {
-    if (value === undefined || value === null) return;
-    // Not really new value
-    if (code === value) return;
-    const entity: BankEntity | undefined = map[value];
-    if (entity !== undefined) {
-      setCurrentEntity(entity);
-    } else if (code !== DummyBankEntity.code) {
-      setCurrentEntity(DummyBankEntity);
-    }
-  }, [map, code, value]);
-
-  useEffect(() => {
-    if (code === value) return;
-    if (onChange) {
-      onChange(name, code);
-    }
-  }, [name, value, code, onChange]);
-
-  useEffect(() => {
-    const list: BankEntity[] | undefined = storeEntities[id];
+    const list: BankEntity[] | undefined = mapped[firm];
     if (list !== undefined) {
       setEntities(list.map((entity: BankEntity) => entity.code));
     }
-  }, [storeEntities, id]);
+  }, [mapped, firm]);
 
   const setCurrentFirm = useCallback(
-    (id: string) => {
-      const list: BankEntity[] | undefined = storeEntities[id];
-      if (list === undefined) return;
-      const defaultValue: BankEntity | undefined = list.find(
-        (entity: BankEntity): boolean => entity.default
-      );
+    (firm: string) => {
+      const defaultValue: BankEntity | undefined = getDefaultEntity(firm, mapped);
       if (defaultValue === undefined) {
-        console.warn(`${id} has no default entity`);
-      } else {
-        setCurrentEntity(defaultValue);
+        console.warn(`${firm} has no default entity`);
+      } else if (onChange !== undefined) {
+        onChange(name, defaultValue.code);
       }
     },
-    [storeEntities]
+    [onChange, name, mapped]
   );
 
   useEffect(() => {
-    if (storeEntities === null || storeEntities === undefined) return;
+    if (mapped === null || mapped === undefined) return;
     // Extract the keys, which are the banks
-    setFirms(Object.keys(storeEntities));
-    // Flatten and save
-    const map: { [p: string]: BankEntity } = Object.values(storeEntities)
-      .reduce(
-        (accum: BankEntity[], next: BankEntity[]): BankEntity[] => [
-          ...accum,
-          ...next,
-        ],
-        []
-      )
-      .reduce((map: { [p: string]: BankEntity }, entity: BankEntity): {
-        [p: string]: BankEntity;
-      } => {
-        return { ...map, [entity.code]: entity };
-      }, {});
-    setMap(map);
-  }, [storeEntities]);
+    setFirms(Object.keys(mapped));
+  }, [mapped]);
 
   const onBankChange = (
     event: React.ChangeEvent<{ value: unknown; name?: string }>
@@ -110,9 +106,8 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
     const { value } = event.target;
     const { name } = props;
     if (typeof value === "string") {
-      if (value === code) return;
-      if (props.onChange !== undefined) {
-        props.onChange(name, value);
+      if (onChange !== undefined) {
+        onChange(name, value);
       }
     }
   };
@@ -122,10 +117,10 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
       <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
         <Grid container>
           <Grid className={"MuiSelect-root"} xs={6} item>
-            <span>{id}</span>
+            <span>{firm}</span>
           </Grid>
           <Grid className={"MuiSelect-root"} xs={6} item>
-            <span>{code}</span>
+            <span>{value}</span>
           </Grid>
         </Grid>
       </Grid>
@@ -139,31 +134,22 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
           <Select
             readOnly={readOnly}
             displayEmpty={true}
-            value={id}
+            value={firm}
             fullWidth={true}
             onChange={onBankChange}
           >
-            {firms.map((value: string) => (
-              <MenuItem key={value} value={value}>
-                {value}
-              </MenuItem>
-            ))}
+            {firms.map(simpleMenuItemRenderer)}
           </Select>
         </Grid>
         <Grid xs={6} item>
           <Select
             readOnly={readOnly}
             displayEmpty={true}
-            value={code}
+            value={entities.includes(value) ? value : ""}
             fullWidth={true}
-            renderValue={(value: any) => value}
             onChange={onEntityChange}
           >
-            {entities.map((value: string) => (
-              <MenuItem key={value} value={value}>
-                {value}
-              </MenuItem>
-            ))}
+            {entities.map(simpleMenuItemRenderer)}
           </Select>
         </Grid>
       </Grid>

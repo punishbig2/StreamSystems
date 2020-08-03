@@ -12,6 +12,7 @@
   align-items: center;
   background-color: $background-color;
   color: $foreground-color;
+  z-index: 2147483648;
 
   .image {
     width: 300px;
