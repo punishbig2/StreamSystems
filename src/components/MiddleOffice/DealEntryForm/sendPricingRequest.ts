@@ -2,8 +2,14 @@ import { API, HTTPError } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import config from "config";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
+
+const SOFT_ERROR: string =
+  "Timed out while waiting for the pricing result, please refresh the screen. " +
+  "If the deal is not priced yet, try again as this is a problem that should not happen and never be repeated. " +
+  "If otherwise the problem persists, please contact support.";
 
 export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
   if (deal === null || entry === null)
@@ -19,8 +25,9 @@ export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
   // Send the request
   API.sendPricingRequest(deal, entry, moStore.legs, valuationModel, strategy)
     .then(() => {
-      // We've got to wait for the priced message to come, because otherwise
-      // it's confusing
+      setTimeout(() => {
+        moStore.setSoftError(SOFT_ERROR);
+      }, config.RequestTimeout);
     })
     .catch((error: HTTPError) => {
       if (error !== undefined) {

@@ -1,10 +1,11 @@
 import { MessageBox } from "components/MessageBox";
 import strings from "locales";
-import moStore, { MOError } from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
+import { MiddleOfficeError } from "types/middleOfficeError";
 
 interface Props {
-  error: MOError | null;
+  error: MiddleOfficeError | null;
 }
 
 export const Error: React.FC<Props> = ({

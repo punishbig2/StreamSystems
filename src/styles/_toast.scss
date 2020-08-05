@@ -1,0 +1,69 @@
+.toast {
+  position: fixed;
+  z-index: 2147483648;
+
+  display: flex;
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 16px 0 16px 32px;
+  color: white;
+
+  width: 700px;
+  height: 120px;
+  right: 0;
+  bottom: 0;
+
+  &.error {
+    background-color: crimson;
+  }
+
+  .message {
+    flex-basis: 568px;
+  }
+
+  .close-button {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    text-align: center;
+    line-height: 90px;
+    margin: 0 5px 0 auto;
+    flex-basis: 90px;
+
+    &::before,
+    &::after {
+      content: "";
+      background-color: white;
+      position: absolute;
+      width: 3px;
+      height: 48px;
+      top: 21px;
+      transition: transform 0.25s;
+    }
+
+    &::before {
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      transform: rotate(-45deg);
+    }
+
+    &:hover {
+      cursor: pointer;
+
+      &::after {
+        color: green;
+        transform: rotate(45deg);
+      }
+
+      &::before {
+        transform: rotate(135deg);
+      }
+    }
+  }
+}

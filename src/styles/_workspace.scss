@@ -297,42 +297,4 @@
       border-bottom: 1px solid $table-border-color;
     }
   }
-
-  .toast {
-    position: absolute;
-    bottom: 24px;
-    left: 50%;
-    width: 400px;
-    line-height: 2em;
-    text-align: center;
-    height: 2em;
-    margin-left: -200px;
-    z-index: 1;
-    background-color: $text-color-red;
-    color: $button-foreground-color;
-    border-radius: 4px;
-    font-size: $normal-font-size;
-    font-weight: 600;
-
-    .message {
-      color: inherit;
-    }
-
-    .close-button {
-      position: absolute;
-      height: 22px;
-      width: 22px;
-      font-size: $medium-font-size;
-
-      i {
-        color: $button-foreground-color;
-      }
-
-      line-height: 22px;
-      right: 4px;
-      top: 50%;
-      margin-top: -10px;
-      cursor: pointer;
-    }
-  }
 }

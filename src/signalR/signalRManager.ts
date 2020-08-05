@@ -15,6 +15,10 @@ import workareaStore from "mobx/stores/workareaStore";
 import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, ExecTypes, Message } from "types/message";
+import {
+  MiddleOfficeError,
+  ON_MIDDLE_OFFICE_ERROR,
+} from "types/middleOfficeError";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
@@ -49,6 +53,7 @@ enum Events {
   OnPricingResponse = "onPricingResponse",
   OnDealDeleted = "onDealDeleted",
   OnError = "onError",
+  OnSEFUpdate = "onSEFUpdate",
 }
 
 interface Command {
@@ -152,6 +157,7 @@ export class SignalRManager {
       connection.on(Events.OnDealDeleted, this.onDealDeleted);
       connection.on(Events.UpdateLegs, this.onUpdateLegs);
       connection.on(Events.OnError, this.onError);
+      connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
     }
   };
 
@@ -560,14 +566,38 @@ export class SignalRManager {
     });
   };
 
+  private emitMiddleOfficeError = (error: MiddleOfficeError): void => {
+    const event: CustomEvent<MiddleOfficeError> = new CustomEvent<
+      MiddleOfficeError
+    >(ON_MIDDLE_OFFICE_ERROR, {
+      detail: error,
+    });
+    document.dispatchEvent(event);
+  };
+
+  private onSEFUpdate = (data: string): void => {
+    const object: any = JSON.parse(data);
+    if (object.error_msg !== undefined) {
+      console.log(object);
+      const error: MiddleOfficeError = {
+        status: "SEF error",
+        message: object.error_msg,
+        code: 701,
+        error: "There was a problem submitting this deal",
+      };
+      this.emitMiddleOfficeError(error);
+    }
+  };
+
   private onError = (data: string): void => {
     const user: User = workareaStore.user;
     const error: any = JSON.parse(data);
     if (error.useremail !== user.email) {
       // IGNORE
       return;
+    } else {
+      console.log(error);
     }
-    console.log(error);
   };
 }
 

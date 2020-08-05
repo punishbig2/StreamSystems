@@ -1,4 +1,5 @@
 import { API } from "API";
+import { submitToSEF } from "components/MiddleOffice/DealEntryForm/hooks/submitToSEF";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { action, computed, observable } from "mobx";
@@ -156,21 +157,7 @@ export class DealEntryStore {
 
   @action.bound
   public submit() {
-    const { dealId } = this.entry;
-    moStore.setStatus(MOStatus.Submitting);
-    API.sendTradeCaptureReport(dealId)
-      .then(() => {
-        moStore.setSuccessMessage({
-          title: "Submission Successful",
-          text: "The submission was successful, close this window now",
-        });
-      })
-      .catch((error: any) => {
-        moStore.setError(savingDealError(error));
-      })
-      .finally(() => {
-        moStore.setStatus(MOStatus.Normal);
-      });
+    submitToSEF(this.entry);
   }
 
   @action.bound

@@ -34,18 +34,14 @@ $field-size: 25px;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    padding: 0 16px;
 
     button {
       display: block;
       margin: 8px 4px;
 
-      &:last-child {
-        margin-right: 8px;
-      }
-
       &:first-child:not(:only-child) {
         margin-right: auto;
-        margin-left: 8px;
       }
 
       &.primary {

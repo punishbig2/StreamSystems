@@ -1,6 +1,5 @@
-import { Workarea } from "components/Workarea";
-import "styles/main.scss";
 import React from "react";
+import { Workarea } from "components/Workarea";
 
 const FXOptionsUI: React.FC = () => {
   const { classList } = document.body;

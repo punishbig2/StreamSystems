@@ -12,13 +12,15 @@ import {
 } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { BankEntity } from "types/bankEntity";
-import { Sides } from "types/sides";
-import { Symbol } from "types/symbol";
 import { action, computed, observable } from "mobx";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
 import workareaStore from "mobx/stores/workareaStore";
+import { toast, ToastType } from "toast";
+import { BankEntity } from "types/bankEntity";
+import { MiddleOfficeError } from "types/middleOfficeError";
+import { Sides } from "types/sides";
+import { Symbol } from "types/symbol";
 
 export enum MOStatus {
   Normal,
@@ -33,13 +35,6 @@ interface LegDefinitions {
     in: LegOptionsDefIn[];
     out: LegOptionsDefOut[];
   };
-}
-
-export interface MOError {
-  error: string;
-  code: number;
-  message: string;
-  status: string;
 }
 
 export interface InternalValuationModel {
@@ -69,7 +64,7 @@ export class MoStore {
   @observable summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
   @observable progress: number = 0;
-  @observable error: MOError | null = null;
+  @observable error: MiddleOfficeError | null = null;
   @observable isEditMode: boolean = false;
   @observable status: MOStatus = MOStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
@@ -331,7 +326,7 @@ export class MoStore {
   }
 
   @action.bound
-  public setError(error: MOError | null): void {
+  public setError(error: MiddleOfficeError | null): void {
     this.error = error;
     this.status = MOStatus.Normal;
   }
@@ -380,8 +375,20 @@ export class MoStore {
   }
 
   @action.bound
-  public setErrorMessage(error: MOError | null): void {
+  public setErrorMessage(error: MiddleOfficeError | null): void {
     this.error = error;
+  }
+
+  @action.bound
+  public setSoftError(message: string) {
+    if (
+      this.status === MOStatus.Submitting ||
+      this.status === MOStatus.Pricing
+    ) {
+      this.status = MOStatus.Normal;
+      // Show a toast message (soft error message)
+      toast.show(message, ToastType.Error, -1);
+    }
   }
 }
 
