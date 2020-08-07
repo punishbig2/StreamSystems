@@ -8,8 +8,8 @@ import React, {
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 interface Props {
-  className: string;
-  itemSize: number;
+  readonly className: string;
+  readonly itemSize: number;
 }
 
 export const VirtualScroll: React.FC<React.PropsWithChildren<Props>> = (

@@ -4,8 +4,8 @@ import React, { ReactElement } from "react";
 import { EntryType } from "structures/dealEntry";
 
 interface Props {
-  entryStore: DealEntryStore;
-  onRemoveDeal: () => void;
+  readonly entryStore: DealEntryStore;
+  readonly onRemoveDeal: () => void;
 }
 
 export const ActionButtons: React.FC<Props> = (

@@ -6,8 +6,8 @@ import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 
 interface Props {
-  dealEntryStore: DealEntryStore;
-  status: MOStatus;
+  readonly dealEntryStore: DealEntryStore;
+  readonly status: MOStatus;
 }
 
 export const LegDetailsForm: React.FC<Props> = observer(

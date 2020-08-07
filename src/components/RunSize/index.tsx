@@ -9,21 +9,28 @@ import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { $$ } from "utils/stringPaster";
 
 interface Props {
-  defaultValue: number;
-  id: string;
-  value: number | null;
-  order: Order;
-  minimumSize: number;
-  visible: boolean;
-  onActivateOrder: (id: string, orderType: OrderTypes) => void;
-  onDeactivateOrder: (id: string, orderType: OrderTypes) => void;
-  onTabbedOut?: (
+  readonly defaultValue: number;
+  readonly id: string;
+  readonly value: number | null;
+  readonly order: Order;
+  readonly minimumSize: number;
+  readonly visible: boolean;
+  readonly onActivateOrder: (id: string, orderType: OrderTypes) => void;
+  readonly onDeactivateOrder: (id: string, orderType: OrderTypes) => void;
+  readonly onTabbedOut?: (
     input: HTMLInputElement,
     tabDirection: TabDirection,
     action?: string
   ) => void;
-  onChange: (id: string, value: number | null, changed: boolean) => void;
-  onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
+  readonly onChange: (
+    id: string,
+    value: number | null,
+    changed: boolean
+  ) => void;
+  readonly onNavigate: (
+    input: HTMLInputElement,
+    direction: NavigateDirection
+  ) => void;
 }
 
 enum ActivationStatus {

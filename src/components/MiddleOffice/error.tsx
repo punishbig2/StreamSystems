@@ -5,7 +5,7 @@ import React, { ReactElement } from "react";
 import { MiddleOfficeError } from "types/middleOfficeError";
 
 interface Props {
-  error: MiddleOfficeError | null;
+  readonly error: MiddleOfficeError | null;
 }
 
 export const Error: React.FC<Props> = ({

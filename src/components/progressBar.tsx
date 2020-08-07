@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 
 interface Props {
-  value: number;
+  readonly value: number;
 }
 
 export const ProgressBar: React.FC<Props> = (props: Props): ReactElement => {

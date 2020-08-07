@@ -13,15 +13,15 @@ export enum BlotterRowTypes {
 }
 
 interface Props {
-  columns: ColumnSpec[];
-  row: { [key: string]: any } | null;
-  weight: number;
-  type: BlotterRowTypes;
-  isSelected?: boolean;
-  blotterType: BlotterTypes;
-  totalWidth: number;
-  containerWidth: number;
-  onClick?: (deal: any) => void;
+  readonly columns: ColumnSpec[];
+  readonly row: { [key: string]: any } | null;
+  readonly weight: number;
+  readonly type: BlotterRowTypes;
+  readonly isSelected?: boolean;
+  readonly blotterType: BlotterTypes;
+  readonly totalWidth: number;
+  readonly containerWidth: number;
+  readonly onClick?: (deal: any) => void;
 }
 
 const getClassFromRowType = (

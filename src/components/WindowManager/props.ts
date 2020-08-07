@@ -5,26 +5,26 @@ import { WindowDef } from "mobx/stores/workspaceStore";
 import React, { ReactElement } from "react";
 
 export interface Props {
-  toast: string | null;
-  windows: WindowDef[];
-  isDefaultWorkspace: boolean;
-  getContentRenderer: (
+  readonly toast: string | null;
+  readonly windows: WindowDef[];
+  readonly isDefaultWorkspace: boolean;
+  readonly getContentRenderer: (
     id: string,
     type: WindowTypes
   ) => (
     props: any,
     store: PodTileStore | MessagesStore | null
   ) => ReactElement | string | null;
-  getTitleRenderer: (
+  readonly getTitleRenderer: (
     id: string,
     type: WindowTypes
   ) => (
     props: any,
     store: PodTileStore | MessagesStore | null
   ) => ReactElement | string | null;
-  onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
-  onWindowClose: (id: string) => void;
-  onClearToast: () => void;
-  onUpdateAllGeometries: (geometries: { [id: string]: ClientRect }) => void;
-  onLayoutModify: () => void;
+  readonly onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  readonly onWindowClose: (id: string) => void;
+  readonly onClearToast: () => void;
+  readonly onUpdateAllGeometries: (geometries: { [id: string]: ClientRect }) => void;
+  readonly onLayoutModify: () => void;
 }

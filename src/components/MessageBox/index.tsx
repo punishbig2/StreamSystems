@@ -1,11 +1,11 @@
 import React, { ReactElement } from "react";
 
 interface Props {
-  title: string;
-  message: string | (() => ReactElement);
-  icon: "exclamation-triangle" | "question-circle" | "check-circle" | "spinner";
-  buttons: () => ReactElement | null;
-  color: "good" | "bad" | "neutral";
+  readonly title: string;
+  readonly message: string | (() => ReactElement);
+  readonly icon: "exclamation-triangle" | "question-circle" | "check-circle" | "spinner";
+  readonly buttons: () => ReactElement | null;
+  readonly color: "good" | "bad" | "neutral";
 }
 
 export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {

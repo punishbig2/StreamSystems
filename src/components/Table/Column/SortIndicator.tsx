@@ -2,8 +2,8 @@ import React, { ReactElement } from "react";
 import { SortOrder } from "mobx/stores/tableStore";
 
 interface Props {
-  direction: SortOrder;
-  onClick: () => void;
+  readonly direction: SortOrder;
+  readonly onClick: () => void;
 }
 
 const SortIndicator: React.FC<Props> = (props: Props) => {

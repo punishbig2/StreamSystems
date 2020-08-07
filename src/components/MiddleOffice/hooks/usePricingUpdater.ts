@@ -1,21 +1,26 @@
 import { API, Task } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { buildPricingResult, PricingResult } from "components/MiddleOffice/interfaces/pricingResult";
+import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { parseManualLegs } from "legsUtils";
+import { fixDates } from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
 
-const onUpdate = (deal: Deal, data: any) => {
+const onUpdate = (deal: Deal, data: { dealId: string; legs: Leg[] }) => {
   if (deal === null) return;
   // If this is not the deal we're showing, it's too late and we must skip it
-  if (data.id !== deal.dealID) return;
-  const pricingResult: PricingResult = buildPricingResult(data);
-  moStore.setLegs(pricingResult.legs, {
-    ...moStore.summaryLeg,
-    ...pricingResult.summary,
-  } as SummaryLeg);
+  if (data.dealId !== deal.dealID) return;
+  const { summaryLeg } = moStore;
+  const { legs } = data;
+  if (legs[0].option === "SumLeg") {
+    moStore.setLegs(legs.slice(1), {
+      ...summaryLeg,
+      ...{ dealOutput: legs[0] },
+    } as SummaryLeg);
+  } else {
+    moStore.setLegs(legs, null);
+  }
   // In case we're pricing
   if (moStore.status === MOStatus.Pricing) {
     moStore.setStatus(MOStatus.Normal);
@@ -25,7 +30,7 @@ const onUpdate = (deal: Deal, data: any) => {
 export const usePricingUpdater = (deal: Deal | null) => {
   useEffect(() => {
     if (deal === null) {
-      moStore.setDeal(null);
+      return;
     } else {
       const task: Task<any> = API.getLegs(deal.dealID);
       task
@@ -33,7 +38,10 @@ export const usePricingUpdater = (deal: Deal | null) => {
         .then((response: any) => {
           if (response !== null) {
             if ("dealId" in response) {
-              moStore.setLegs(parseManualLegs(response.legs), null);
+              onUpdate(deal, {
+                dealId: deal.dealID,
+                legs: fixDates(response.legs),
+              });
             } else {
               if ("error_msg" in response) {
                 moStore.setError({
@@ -43,7 +51,9 @@ export const usePricingUpdater = (deal: Deal | null) => {
                   code: 500,
                 });
               } else {
-                onUpdate(deal, response);
+                moStore.setSoftError(
+                  "There was a problem trying to deal with a response from the server, please contact support."
+                );
               }
             }
           }
@@ -56,9 +66,13 @@ export const usePricingUpdater = (deal: Deal | null) => {
           }
         });
       const removePricingListener: () => void = signalRManager.addPricingResponseListener(
-        (response: any) => {
-          onUpdate(deal, response);
-        }
+        () =>
+          /* response: any */
+          /* Ignore this now */ {
+            if (moStore.status === MOStatus.Pricing) {
+              moStore.setStatus(MOStatus.Normal);
+            }
+          }
       );
       return () => {
         removePricingListener();

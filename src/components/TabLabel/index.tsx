@@ -7,10 +7,10 @@ import React, {
 } from "react";
 
 interface Props {
-  label: string;
-  isDefault: boolean;
-  onRenamed: (name: string) => void;
-  onClosed: (event: React.MouseEvent) => void;
+  readonly label: string;
+  readonly isDefault: boolean;
+  readonly onRenamed: (name: string) => void;
+  readonly onClosed: (event: React.MouseEvent) => void;
 }
 
 export const TabLabel: React.FC<Props> = (props: Props) => {

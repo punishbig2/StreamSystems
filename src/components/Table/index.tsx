@@ -15,16 +15,16 @@ import { create } from "mobx-persist";
 import persistStorage from "persistStorage";
 
 interface Props {
-  id: string;
-  columns: ColumnSpec[];
-  rows?: { [id: string]: any };
-  scrollable: boolean;
-  renderRow: (props: any, index?: number) => ReactElement | null;
-  showInsertRow?: boolean;
-  allowReorderColumns?: boolean;
-  className?: string;
-  ref?: React.Ref<HTMLDivElement>;
-  style?: CSSProperties;
+  readonly id: string;
+  readonly columns: ColumnSpec[];
+  readonly rows?: { [id: string]: any };
+  readonly scrollable: boolean;
+  readonly renderRow: (props: any, index?: number) => ReactElement | null;
+  readonly showInsertRow?: boolean;
+  readonly allowReorderColumns?: boolean;
+  readonly className?: string;
+  readonly ref?: React.Ref<HTMLDivElement>;
+  readonly style?: CSSProperties;
 }
 
 const BasicTable = (

@@ -159,7 +159,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
 
     return (
       <>
-        <ModalWindow render={renderOrderTicket} visible={!!store.orderTicket} />
+        <ModalWindow render={renderOrderTicket} isOpen={!!store.orderTicket} />
         {items}
       </>
     );

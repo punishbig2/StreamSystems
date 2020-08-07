@@ -194,7 +194,7 @@ const Workspace: React.FC<OwnProps> = (
               onClose={store.hideErrorModal}
             />
           )}
-          visible={store.errorMessage !== null}
+          isOpen={store.errorMessage !== null}
         />
       </>
     );
@@ -229,7 +229,7 @@ const Workspace: React.FC<OwnProps> = (
         render={() => (
           <UserProfileModal onCancel={store.hideUserProfileModal} />
         )}
-        visible={store.isUserProfileModalVisible}
+        isOpen={store.isUserProfileModalVisible}
       />
     </div>
   );

@@ -13,7 +13,7 @@ import React, { ReactElement, useEffect } from "react";
 import { EntryType } from "structures/dealEntry";
 
 interface Props {
-  store: DealEntryStore;
+  readonly store: DealEntryStore;
 }
 
 export const DealEntryForm: React.FC<Props> = observer(

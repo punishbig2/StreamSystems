@@ -8,10 +8,10 @@ import { Grid, FormControl, FormLabel, OutlinedInput } from "@material-ui/core";
 import { selectInputText } from "utils";
 
 interface Props {
-  order: Order;
-  minimumSize: number;
-  onSubmit: (order: Order) => void;
-  onCancel: () => void;
+  readonly order: Order;
+  readonly minimumSize: number;
+  readonly onSubmit: (order: Order) => void;
+  readonly onCancel: () => void;
 }
 
 const formatValue = (value: number | null, precision: number): string =>

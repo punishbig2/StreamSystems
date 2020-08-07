@@ -237,7 +237,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
         </div>
         <ModalWindow
           render={renderProgress}
-          visible={store.isProgressWindowVisible}
+          isOpen={store.isProgressWindowVisible}
         />
       </div>
     );
@@ -246,7 +246,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   return (
     <>
       {getWindowContent()}
-      <ModalWindow render={runWindow} visible={store.isRunWindowVisible} />
+      <ModalWindow render={runWindow} isOpen={store.isRunWindowVisible} />
     </>
   );
 };

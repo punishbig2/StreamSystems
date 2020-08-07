@@ -7,21 +7,21 @@ export enum TabDirection {
 }
 
 interface Props {
-  id?: string;
-  value: string;
-  type: "price" | "size";
-  onChange: (value: string | null) => void;
-  onDoubleClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
-  readOnly?: boolean;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  className?: string;
-  tabIndex?: number;
-  placeholder?: string;
-  title?: string;
-  onCancelEdit?: () => void;
-  onTabbedOut?: (target: HTMLInputElement, tabDirection: TabDirection) => void;
-  onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onSubmit?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
+  readonly id?: string;
+  readonly value: string;
+  readonly type: "price" | "size";
+  readonly onChange: (value: string | null) => void;
+  readonly onDoubleClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
+  readonly readOnly?: boolean;
+  readonly onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  readonly className?: string;
+  readonly tabIndex?: number;
+  readonly placeholder?: string;
+  readonly title?: string;
+  readonly onCancelEdit?: () => void;
+  readonly onTabbedOut?: (target: HTMLInputElement, tabDirection: TabDirection) => void;
+  readonly onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  readonly onSubmit?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {

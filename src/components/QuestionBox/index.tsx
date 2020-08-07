@@ -3,10 +3,10 @@ import React, { ReactElement } from "react";
 import { MessageBox } from "components/MessageBox";
 
 interface Props {
-  title: string;
-  content: string;
-  onNo: () => void;
-  onYes: () => void;
+  readonly title: string;
+  readonly content: string;
+  readonly onNo: () => void;
+  readonly onYes: () => void;
 }
 
 export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {

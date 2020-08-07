@@ -12,9 +12,9 @@ import { Message } from "types/message";
 import { isMessage } from "utils/messageUtils";
 
 interface Props {
-  id: string;
-  disabled: boolean;
-  onDealSelected: (deal: Deal | null) => void;
+  readonly id: string;
+  readonly disabled: boolean;
+  readonly onDealSelected: (deal: Deal | null) => void;
 }
 
 export const DealBlotter: React.FC<Props> = observer(

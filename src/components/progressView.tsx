@@ -2,9 +2,9 @@ import { ProgressBar } from "components/progressBar";
 import React, { ReactElement } from "react";
 
 interface Props {
-  value: number;
-  message: string;
-  title: string;
+  readonly value: number;
+  readonly message: string;
+  readonly title: string;
 }
 
 export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {

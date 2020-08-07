@@ -1,9 +1,9 @@
 import React, { ReactElement } from "react";
 
 interface Props {
-  disabled: boolean;
-  canSubmit: boolean;
-  onSubmit: () => void;
+  readonly disabled: boolean;
+  readonly canSubmit: boolean;
+  readonly onSubmit: () => void;
 }
 
 export const NewEntryButtons: React.FC<Props> = (

@@ -1,11 +1,11 @@
 import React from "react";
 
 interface Props {
-  isMinimized: boolean;
-  isAdjusted: boolean;
-  onClose?: () => void;
-  onMinimize?: () => void;
-  onAdjustSize?: () => void;
+  readonly isMinimized: boolean;
+  readonly isAdjusted: boolean;
+  readonly onClose?: () => void;
+  readonly onMinimize?: () => void;
+  readonly onAdjustSize?: () => void;
 }
 
 export const DefaultWindowButtons: React.FC<Props> = (props: Props) => {

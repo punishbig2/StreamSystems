@@ -5,11 +5,8 @@ import { observer } from "mobx-react";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 
-interface Props {
-}
-
-export const SummaryLegDetailsForm: React.FC<Props> = observer(
-  (props: Props): ReactElement | null => {
+export const SummaryLegDetailsForm: React.FC = observer(
+  (): ReactElement | null => {
     const data = moStore.summaryLeg;
     if (data === null) {
       return <NoDataMessage />;

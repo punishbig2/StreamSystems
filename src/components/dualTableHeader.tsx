@@ -1,10 +1,10 @@
 import React, { ReactNode } from "react";
 
 interface Props {
-  action?: () => ReactNode;
-  label: string | (() => ReactNode);
-  className?: string;
-  disabled?: boolean;
+  readonly action?: () => ReactNode;
+  readonly label: string | (() => ReactNode);
+  readonly className?: string;
+  readonly disabled?: boolean;
 }
 
 export const DualTableHeader = (props: Props) => {

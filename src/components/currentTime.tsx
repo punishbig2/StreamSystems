@@ -3,8 +3,8 @@ import { Globals } from "golbals";
 import { useTimer } from "hooks/useTimer";
 
 interface Props {
-  dateOnly?: boolean;
-  timeOnly?: boolean;
+  readonly dateOnly?: boolean;
+  readonly timeOnly?: boolean;
 }
 
 export const CurrentTime: React.FC<Props> = (

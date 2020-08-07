@@ -6,13 +6,13 @@ import { observer } from "mobx-react";
 import { HeaderStore } from "mobx/stores/headerStore";
 
 interface Props {
-  columns: ColumnState[];
-  totalWidth: number;
-  allowReorderColumns: boolean;
-  containerWidth: number;
-  onFiltered: (column: string, value: string) => void;
-  onSortBy: (columnName: string) => void;
-  onColumnsOrderChange: (sourceIndex: number, targetIndex: number) => void;
+  readonly columns: ColumnState[];
+  readonly totalWidth: number;
+  readonly allowReorderColumns: boolean;
+  readonly containerWidth: number;
+  readonly onFiltered: (column: string, value: string) => void;
+  readonly onSortBy: (columnName: string) => void;
+  readonly onColumnsOrderChange: (sourceIndex: number, targetIndex: number) => void;
 }
 
 export const Header: <T extends unknown>(props: Props) => any = observer(

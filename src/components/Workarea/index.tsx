@@ -165,15 +165,15 @@ const Workarea: React.FC = (): ReactElement | null => {
           {getFooter()}
           <ModalWindow
             render={renderLoadingModal}
-            visible={store.isCreatingWorkspace}
+            isOpen={store.isCreatingWorkspace}
           />
           <ModalWindow
             render={renderCloseQuestion}
-            visible={!!selectedToClose}
+            isOpen={!!selectedToClose}
           />
           <ModalWindow
             render={renderMessage}
-            visible={recentExecutions.length > 0}
+            isOpen={recentExecutions.length > 0}
           />
         </>
       );

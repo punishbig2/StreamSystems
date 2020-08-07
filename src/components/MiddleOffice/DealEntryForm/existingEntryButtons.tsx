@@ -1,12 +1,12 @@
 import React, { ReactElement } from "react";
 
 interface Props {
-  isModified: boolean;
-  isPriced: boolean;
-  disabled: boolean;
-  onPrice?: () => void;
-  onSubmit?: () => void;
-  onSave?: () => void;
+  readonly isModified: boolean;
+  readonly isPriced: boolean;
+  readonly disabled: boolean;
+  readonly onPrice?: () => void;
+  readonly onSubmit?: () => void;
+  readonly onSave?: () => void;
 }
 
 export const ExistingEntryButtons: React.FC<Props> = (

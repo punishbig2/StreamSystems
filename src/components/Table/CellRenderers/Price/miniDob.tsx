@@ -10,9 +10,9 @@ import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderS
 import { PodTableType } from "columns/podColumns/OrderColumn";
 
 interface Props {
-  rows?: Order[];
-  type?: OrderTypes;
-  orderStore: OrderStore;
+  readonly rows?: Order[];
+  readonly type?: OrderTypes;
+  readonly orderStore: OrderStore;
 }
 
 export const MiniDOB: React.FC<Props> = (props: Props) => {

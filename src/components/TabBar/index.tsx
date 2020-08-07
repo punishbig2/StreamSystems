@@ -8,14 +8,14 @@ import { CurrencyGroups, isCurrencyGroup } from "types/user";
 import { WorkspaceDef } from "mobx/stores/workareaStore";
 
 interface Props {
-  entries: { [k: string]: WorkspaceDef };
-  active: string | null;
-  onAddStandardWorkspace: (group: CurrencyGroups) => void;
-  onAddMiddleOfficeWorkspace: () => void;
-  setActiveTab: (id: string) => void;
-  onTabClosed: (id: string) => void;
-  onQuit: () => void;
-  onWorkspaceRename: (id: string, name: string) => void;
+  readonly entries: { [k: string]: WorkspaceDef };
+  readonly active: string | null;
+  readonly onAddStandardWorkspace: (group: CurrencyGroups) => void;
+  readonly onAddMiddleOfficeWorkspace: () => void;
+  readonly setActiveTab: (id: string) => void;
+  readonly onTabClosed: (id: string) => void;
+  readonly onQuit: () => void;
+  readonly onWorkspaceRename: (id: string, name: string) => void;
 }
 
 enum WorkspaceType {

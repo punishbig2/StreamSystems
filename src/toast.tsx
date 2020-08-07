@@ -8,9 +8,9 @@ export enum ToastType {
 }
 
 interface Props {
-  message: string;
-  type: ToastType;
-  onRemove: () => void;
+  readonly message: string;
+  readonly type: ToastType;
+  readonly onRemove: () => void;
 }
 
 const Toast: React.FC<Props> = (props: Props): React.ReactElement => {

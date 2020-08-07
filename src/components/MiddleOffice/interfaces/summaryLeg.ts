@@ -10,7 +10,7 @@ export interface SummaryLeg {
   cutTime: string;
   source: string | null;
   delivery: string;
-  usi: number | null;
+  usi: string | null;
   brokerage: {
     buyerComm: number | null;
     sellerComm: number | null;

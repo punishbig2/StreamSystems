@@ -3,9 +3,9 @@ import React, { ReactElement } from "react";
 import { MessageBox } from "components/MessageBox";
 
 interface Props {
-  title: string;
-  message: string;
-  onClose: () => void;
+  readonly title: string;
+  readonly message: string;
+  readonly onClose: () => void;
 }
 
 export const ErrorBox: React.FC<Props> = (props: Props): ReactElement => {

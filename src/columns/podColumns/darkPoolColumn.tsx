@@ -96,7 +96,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         onSubmit={onSubmit}
         onNavigate={onNavigate}
       />
-      <ModalWindow render={renderTicket} visible={store.isTicketOpen} />
+      <ModalWindow render={renderTicket} isOpen={store.isTicketOpen} />
     </>
   );
 });

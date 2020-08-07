@@ -2,22 +2,29 @@ import React, { ReactElement } from "react";
 import ReactDOM from "react-dom";
 
 interface Props {
-  render: (props: any) => ReactElement | null;
-  visible: boolean;
+  readonly render: (props: any) => ReactElement | null;
+  readonly isOpen: boolean;
 }
 
 const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
-  const className = props.visible ? "visible" : "hidden";
   const container: HTMLElement | null = document.getElementById("modals");
-  if (container === null || !props.visible) return null;
-  return ReactDOM.createPortal(
-    <div className={["modal-window-container", className].join(" ")}>
-      <div className={["modal-window", className].join(" ")}>
-        {props.render(props)}
-      </div>
-    </div>,
-    container
-  );
+  if (container === null) {
+    throw new Error(
+      "this application will not be able to render modal windows"
+    );
+  }
+  const Content: React.FC = (): ReactElement | null => {
+    if (props.isOpen) {
+      return (
+        <div className={"modal-window-container"}>
+          <div className={"modal-window"}>{props.render(props)}</div>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  };
+  return ReactDOM.createPortal(<Content />, container);
 };
 
 export { ModalWindow };

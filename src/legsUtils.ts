@@ -12,7 +12,7 @@ import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import { addTenorToDate } from "utils/tenorUtils";
 
-export const parseManualLegs = (data: any[]): Leg[] => {
+export const fixDates = (data: any[]): Leg[] => {
   const mapper = (item: any): Leg => {
     return {
       ...item,
@@ -30,6 +30,7 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
   const sideType: string =
     "ReturnSide" in definition ? definition.ReturnSide : definition.SideType;
   const side: Sides = sideType === "buy" ? Sides.Buy : Sides.Sell;
+  const party: string = side === Sides.Buy ? entry.buyer : entry.seller;
   const notionalRatio: number =
     "notional_ratio" in definition ? definition.notional_ratio : 0;
   const notional: number | null =
@@ -60,7 +61,7 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
     vol: entry.vol,
     rates: rates,
     notional: notional,
-    party: entry.buyer,
+    party: party,
     side: side,
     days: expiryDate.diff(entry.tradeDate, "d"),
     delta: null,

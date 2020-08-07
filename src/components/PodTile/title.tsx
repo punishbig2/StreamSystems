@@ -12,9 +12,9 @@ import { User } from "types/user";
 import { Strategy } from "../../types/strategy";
 
 interface Props {
-  store: PodTileStore;
-  currencies: Symbol[];
-  strategies: Strategy[];
+  readonly store: PodTileStore;
+  readonly currencies: Symbol[];
+  readonly strategies: Strategy[];
 }
 
 export const PodTileTitle: React.FC<Props> = observer(

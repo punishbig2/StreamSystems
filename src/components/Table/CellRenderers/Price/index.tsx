@@ -19,28 +19,27 @@ export enum PriceErrors {
 }
 
 export interface Props {
-  value: number | null;
-  type?: OrderTypes;
-  priceType?: PriceTypes;
-  // Events
-  tabIndex?: number;
-  arrow: ArrowDirection;
-  status: OrderStatus;
-  title?: string;
-  className?: string;
-  min?: number | null;
-  max?: number | null;
-  allowZero?: boolean;
-  animated?: boolean;
-  readOnly?: boolean;
-  uid?: string;
-  timestamp?: string;
-  tooltip?: React.FC<any> | string;
-  onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
-  onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  onError?: (error: PriceErrors, input: HTMLInputElement) => void;
-  onDoubleClick?: () => void;
-  onSubmit: (
+  readonly value: number | null;
+  readonly type?: OrderTypes;
+  readonly priceType?: PriceTypes;
+  readonly tabIndex?: number;
+  readonly arrow: ArrowDirection;
+  readonly status: OrderStatus;
+  readonly title?: string;
+  readonly className?: string;
+  readonly min?: number | null;
+  readonly max?: number | null;
+  readonly allowZero?: boolean;
+  readonly animated?: boolean;
+  readonly readOnly?: boolean;
+  readonly uid?: string;
+  readonly timestamp?: string;
+  readonly tooltip?: React.FC<any> | string;
+  readonly onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
+  readonly onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  readonly onError?: (error: PriceErrors, input: HTMLInputElement) => void;
+  readonly onDoubleClick?: () => void;
+  readonly onSubmit: (
     input: HTMLInputElement,
     value: number | null,
     changed: boolean,

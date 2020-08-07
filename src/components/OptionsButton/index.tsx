@@ -2,14 +2,14 @@ import React, { ReactElement, useState } from "react";
 import { Menu, MenuItem } from "@material-ui/core";
 
 export interface MenuItemSpec {
-  label: string;
-  action: () => void;
+  readonly label: string;
+  readonly action: () => void;
 }
 
 interface Props {
-  disabled: boolean;
-  icon?: string;
-  items: MenuItemSpec[];
+  readonly disabled: boolean;
+  readonly icon?: string;
+  readonly items: MenuItemSpec[];
 }
 
 export const OptionsButton: React.FC<Props> = (props: Props): ReactElement => {
