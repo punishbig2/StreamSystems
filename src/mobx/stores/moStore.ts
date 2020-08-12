@@ -228,7 +228,6 @@ export class MoStore {
     if (deal === null) return;
     const { symbol } = deal;
     this.summaryLeg = {
-      brokerage: { buyerComm: null, sellerComm: null },
       cutCity: cut.City,
       cutTime: cut.LocalTime,
       dealOutput: {

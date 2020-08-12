@@ -10,6 +10,7 @@ import {
 import config from "config";
 import { Point } from "structures/point";
 import { BankEntity } from "types/bankEntity";
+import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
@@ -945,6 +946,16 @@ export class API {
       API.buildUrl(API.Brokerage, "width", "get", {
         ccypair,
         strategy,
+      })
+    );
+  }
+
+  public static getBrokerageCommission(
+    firm: string
+  ): Task<BrokerageCommissionResponse> {
+    return get<BrokerageCommissionResponse>(
+      API.buildUrl(API.Brokerage, "commission", "get", {
+        firm,
       })
     );
   }

@@ -11,9 +11,5 @@ export interface SummaryLeg {
   source: string | null;
   delivery: string;
   usi: string | null;
-  brokerage: {
-    buyerComm: number | null;
-    sellerComm: number | null;
-  };
   dealOutput: Leg;
 }
