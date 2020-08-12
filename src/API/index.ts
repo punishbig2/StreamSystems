@@ -10,6 +10,7 @@ import {
 import config from "config";
 import { Point } from "structures/point";
 import { BankEntity } from "types/bankEntity";
+import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import {
@@ -235,7 +236,9 @@ type Endpoints =
   | "request"
   | "legs"
   | "optionlegsdefin"
-  | "optionlegsdefout";
+  | "optionlegsdefout"
+  | "width"
+  | "commission";
 
 type Verb =
   | "get"
@@ -266,6 +269,7 @@ export class API {
   public static Deal: string = `${API.Mlo}/deal`;
   public static SEF: string = `${API.Mlo}/sef`;
   public static Legs: string = `${API.Mlo}/legs`;
+  public static Brokerage: string = `${API.Mlo}/brokerage`;
 
   public static getRawUrl(section: string, rest: string, args?: any): string {
     if (args === undefined)
@@ -931,5 +935,17 @@ export class API {
       API.buildUrl(API.Config, "optionlegsdefout", "get")
     );
     return task.execute();
+  }
+
+  public static getBrokerageWidths(
+    ccypair: string,
+    strategy: string
+  ): Task<BrokerageWidthsResponse> {
+    return get<BrokerageWidthsResponse>(
+      API.buildUrl(API.Brokerage, "width", "get", {
+        ccypair,
+        strategy,
+      })
+    );
   }
 }

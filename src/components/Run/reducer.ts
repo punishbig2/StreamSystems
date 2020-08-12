@@ -1,15 +1,16 @@
-import { RunState } from "stateDefs/runState";
+import { FXOAction } from "actionCreator";
 import { activateOrder } from "components/Run/reducers/activateOrder";
-import { valueChange } from "components/Run/reducers/valueChange";
+import { activateRow } from "components/Run/reducers/activateRow";
+import { deactivateAll } from "components/Run/reducers/deactivateAll";
+import { deactivateOrder} from "components/Run/reducers/deactivateOrder";
 import { removeAll } from "components/Run/reducers/removeAll";
 import { removeOrder } from "components/Run/reducers/removeOrder";
-import { deactivateOrder } from "components/Run/reducers/deactivateOrder";
-import { deactivateAll } from "components/Run/reducers/deactivateAll";
-import { activateRow } from "components/Run/reducers/activateRow";
+import { setSpread } from "components/Run/reducers/setSpread";
 import { updateOrder } from "components/Run/reducers/updateOrder";
-import { updateSize } from "components/Run/reducers/updateSize";
 import { updateRowStatus } from "components/Run/reducers/updateRowStatus";
-import { FXOAction } from "actionCreator";
+import { updateSize } from "components/Run/reducers/updateSize";
+import { valueChange } from "components/Run/reducers/valueChange";
+import { RunState } from "stateDefs/runState";
 
 export enum RunActions {
   Mid = "mid",
@@ -35,6 +36,7 @@ export enum RunActions {
   DeactivateOrder = "RUN_DEACTIVATE_ORDER",
   ResetAll = "RUN_RESET_ALL",
   SetRowStatus = "RUN_SET_ROW_STATUS",
+  SetSpread = "RUN_SET_SPREAD",
 }
 
 export default (
@@ -89,6 +91,8 @@ export default (
         orders: {},
         isLoading: false,
       };
+    case RunActions.SetSpread:
+      return setSpread(state, data);
     default:
       return state;
   }

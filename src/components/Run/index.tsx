@@ -1,13 +1,22 @@
+import { API, Task } from "API";
 import createColumns from "columns/run";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import reducer, { RunActions } from "components/Run/reducer";
 import { Row } from "components/Run/row";
 import { Table } from "components/Table";
+import { BrokerageWidths, Width } from "types/brokerageWidths";
+import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
 import { OrderTypes } from "types/mdEntry";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
 import strings from "locales";
-import React, { ReactElement, useEffect, useReducer, Reducer } from "react";
+import React, {
+  ReactElement,
+  useEffect,
+  useReducer,
+  Reducer,
+  useState,
+} from "react";
 import { skipTabIndex, skipTabIndexAll } from "utils/skipTab";
 import { RunState } from "stateDefs/runState";
 import { useRunInitializer } from "components/Run/hooks/useRunInitializer";
@@ -52,7 +61,41 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     reducer,
     initialState
   );
+  const [widths, setWidths] = useState<BrokerageWidths>([]);
   const { orders } = state;
+
+  const setSpread = (value: number): void => {
+    dispatch(createAction<RunActions>(RunActions.SetSpread, value));
+  };
+
+  useEffect(() => {
+    const task: Task<BrokerageWidthsResponse> = API.getBrokerageWidths(
+      symbol,
+      strategy
+    );
+    const promise: Promise<BrokerageWidthsResponse> = task.execute();
+    promise
+      .then((response: BrokerageWidthsResponse) => {
+        setWidths([
+          {
+            type: "gold",
+            value: response[0].gold,
+          },
+          {
+            type: "silver",
+            value: response[0].silver,
+          },
+          {
+            type: "bronze",
+            value: response[0].bronze,
+          },
+        ]);
+      })
+      .catch((error: any) => {
+        console.warn(error);
+      });
+    return () => task.cancel();
+  }, [strategy, symbol]);
 
   useEffect(() => {
     // Very initial initialization ... this runs even when not visible
@@ -235,6 +278,22 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
         <div className={"half"}>
           <div className={"item"}>{props.symbol}</div>
           <div className={"item"}>{props.strategy}</div>
+        </div>
+        <div className={"commission-rates"}>
+          {widths.map((width: Width<any> | undefined): ReactElement | null => {
+            if (width === undefined) return null;
+            return (
+              <button
+                key={width.type}
+                className={"rate " + width.type}
+                onClick={() => setSpread(width.value)}
+                type={"button"}
+                disabled={state.isLoading}
+              >
+                {width.value}
+              </button>
+            );
+          })}
         </div>
       </div>
       <Table

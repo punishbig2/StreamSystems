@@ -40,17 +40,15 @@
       margin: 0 0 8px 0;
       height: 24px;
       color: $foreground-color;
+      display: flex;
 
       .half {
-        display: inline-block;
-        vertical-align: middle;
-        line-height: 24px;
+        display: flex;
+        align-items: center;
         color: inherit;
         width: 50%;
 
         .item {
-          display: inline-block;
-          vertical-align: middle;
           margin: 0;
           font-weight: 600;
           line-height: normal;
@@ -79,6 +77,43 @@
 
         &:only-child {
           text-align: left;
+        }
+      }
+
+      .commission-rates {
+        display: flex;
+        align-items: center;
+        margin: 0 0 0 auto;
+
+        button.rate {
+          line-height: 18px;
+          padding: 0;
+          box-sizing: border-box;
+          width: 7ex;
+          height: 20px;
+          text-align: center;
+          font-weight: 600;
+          margin: 0 0 0 8px;
+          border-radius: 10px;
+          border: 1px solid rgba(0, 0, 0, 0.075);
+          box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+
+          &:hover {
+            filter: contrast(90%);
+          }
+
+          &.gold {
+            background-color: gold;
+          }
+
+          &.silver {
+            background-color: #e1e1e1;
+          }
+
+          &.bronze {
+            background-color: saddlebrown;
+            color: white;
+          }
         }
       }
     }
