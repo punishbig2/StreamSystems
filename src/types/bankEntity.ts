@@ -1,6 +1,6 @@
 export interface BankEntity {
-  name: string;
-  id: string;
-  code: string;
-  default: boolean;
+  readonly name: string;
+  readonly id: string;
+  readonly code: string;
+  readonly default: boolean;
 }

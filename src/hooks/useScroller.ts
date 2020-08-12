@@ -7,8 +7,8 @@ const cancelEvent = (event: Event | React.SyntheticEvent) => {
 };
 
 interface State {
-  value: number;
-  grabbedAt: number | null;
+  readonly value: number;
+  readonly grabbedAt: number | null;
 }
 
 enum ScrollerActions {

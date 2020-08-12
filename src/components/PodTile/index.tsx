@@ -26,15 +26,15 @@ import { ProgressModalContent } from "components/ProgressModalContent";
 import workareaStore from "mobx/stores/workareaStore";
 
 interface OwnProps {
-  id: string;
-  tenors: string[];
-  store: PodTileStore;
-  strategies: string[];
-  currencies: Symbol[];
-  connected: boolean;
-  scrollable?: boolean;
-  minimized?: boolean;
-  onClose?: () => void;
+  readonly id: string;
+  readonly tenors: string[];
+  readonly store: PodTileStore;
+  readonly strategies: string[];
+  readonly currencies: Symbol[];
+  readonly connected: boolean;
+  readonly scrollable?: boolean;
+  readonly minimized?: boolean;
+  readonly onClose?: () => void;
 }
 
 const getCurrencyFromName = (list: Symbol[], name: string): Symbol => {

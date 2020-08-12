@@ -3,9 +3,9 @@ import { ColumnState } from "components/Table/columnSpecification";
 import { CSSProperties } from "react";
 
 interface MovingColumn {
-  state: ColumnState;
-  style: CSSProperties;
-  offset: number;
+  readonly state: ColumnState;
+  readonly style: CSSProperties;
+  readonly offset: number;
 }
 
 export class HeaderStore {

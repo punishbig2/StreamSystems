@@ -39,7 +39,7 @@ const objectToMap = (sorted: WindowDef[]) => (
 
 export const useSnapToNeighbors = (
   styles: CSSStyleSheet,
-  windows: WindowDef[],
+  windows: ReadonlyArray<WindowDef>,
   ready: boolean,
   area: ClientRect
 ): { [id: string]: ClientRect } => {

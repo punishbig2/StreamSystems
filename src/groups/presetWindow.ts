@@ -1,5 +1,5 @@
 export interface PresetWindow {
-  strategy: string;
-  minimized: boolean;
-  position: number;
+  readonly strategy: string;
+  readonly minimized: boolean;
+  readonly position: number;
 }

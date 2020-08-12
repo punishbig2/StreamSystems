@@ -1,8 +1,8 @@
 import React from "react";
 
 interface OwnProps {
-  value: number;
-  setValue: (value: number) => void;
+  readonly value: number;
+  readonly setValue: (value: number) => void;
 }
 
 export const PresetSizeButton: React.FC<OwnProps> = (props: OwnProps) => {

@@ -4,9 +4,9 @@ import { UserProfileState } from "types/user";
 import { Message } from "types/message";
 
 export interface ApplicationState {
-  workarea: WorkareaState;
-  messageBlotter: MessageBlotterState;
+  readonly workarea: WorkareaState;
+  readonly messageBlotter: MessageBlotterState;
   // run: { [key: string]: RunState };
-  userProfile: UserProfileState;
-  executions: Message[];
+  readonly userProfile: UserProfileState;
+  readonly executions: Message[];
 }

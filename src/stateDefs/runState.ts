@@ -1,9 +1,9 @@
 import { PodTable } from "types/podTable";
 
 export interface RunState {
-  orders: PodTable;
-  original: PodTable;
-  defaultBidSize: number;
-  defaultOfrSize: number;
-  isLoading: boolean;
+  readonly orders: PodTable;
+  readonly original: PodTable;
+  readonly defaultBidSize: number;
+  readonly defaultOfrSize: number;
+  readonly isLoading: boolean;
 }

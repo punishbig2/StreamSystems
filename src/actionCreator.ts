@@ -5,8 +5,8 @@ export enum ActionKind {
 }
 
 interface __Action<T> extends Action<T> {
-  kind: ActionKind;
-  data: any;
+  readonly kind: ActionKind;
+  readonly data: any;
 }
 
 export type FXOAction<T = string, E = any> = __Action<T> & E;

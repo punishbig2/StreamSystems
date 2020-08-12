@@ -8,17 +8,17 @@ import persistStorage from "persistStorage";
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch
 export interface WindowDef {
-  id: string;
-  geometry?: ClientRect;
-  type: WindowTypes;
-  minimized: boolean;
-  position: number;
-  fitToContent: boolean;
+  readonly id: string;
+  readonly geometry?: ClientRect;
+  readonly type: WindowTypes;
+  readonly minimized: boolean;
+  readonly position: number;
+  readonly fitToContent: boolean;
 }
 
 export interface BusyMessage {
-  title: string;
-  detail: string;
+  readonly title: string;
+  readonly detail: string;
 }
 
 export class WorkspaceStore {
@@ -31,7 +31,6 @@ export class WorkspaceStore {
   @observable isUserProfileModalVisible = false;
   @observable errorMessage: string | null = null;
   @observable busyMessage: BusyMessage | null = null;
-  @observable toast: string | null = null;
 
   constructor(id: string) {
     this.id = id;
@@ -86,11 +85,6 @@ export class WorkspaceStore {
   }
 
   @action.bound
-  public showToast(toast: string | null) {
-    this.toast = toast;
-  }
-
-  @action.bound
   public removeWindow(windowID: string) {
     const { windows } = this;
     const index: number = windows.findIndex(
@@ -112,7 +106,7 @@ export class WorkspaceStore {
 
   @action.bound
   public superRefAll() {
-    API.brokerRefAll();
+    API.brokerRefAll().then(() => {});
   }
 
   @action.bound

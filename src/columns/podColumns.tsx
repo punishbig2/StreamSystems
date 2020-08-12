@@ -12,9 +12,9 @@ import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 
 interface RefButtonProps {
-  type: OrderTypes;
-  strategy: string;
-  currency: string;
+  readonly type: OrderTypes;
+  readonly strategy: string;
+  readonly currency: string;
 }
 
 const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {

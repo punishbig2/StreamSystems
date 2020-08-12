@@ -27,16 +27,16 @@ export enum WindowTypes {
 }
 
 export enum WorkspaceType {
-  Standard,
+  Trading,
   MiddleOffice,
 }
 
 export interface WorkspaceDef {
-  id: string;
-  isDefault: boolean;
-  name: string;
+  readonly id: string;
+  readonly name: string;
   personality: string;
-  type: WorkspaceType;
+  isDefault: boolean;
+  readonly type: WorkspaceType;
 }
 
 export class WorkareaStore {
@@ -128,7 +128,7 @@ export class WorkareaStore {
       isDefault: true,
       name: group,
       personality: STRM,
-      type: WorkspaceType.Standard,
+      type: WorkspaceType.Trading,
     };
     this.isCreatingWorkspace = false;
     this.currentWorkspaceID = id;

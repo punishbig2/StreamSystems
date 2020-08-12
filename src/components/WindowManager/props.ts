@@ -5,8 +5,7 @@ import { WindowDef } from "mobx/stores/workspaceStore";
 import React, { ReactElement } from "react";
 
 export interface Props {
-  readonly toast: string | null;
-  readonly windows: WindowDef[];
+  readonly windows: ReadonlyArray<WindowDef>;
   readonly isDefaultWorkspace: boolean;
   readonly getContentRenderer: (
     id: string,
@@ -24,7 +23,8 @@ export interface Props {
   ) => ReactElement | string | null;
   readonly onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   readonly onWindowClose: (id: string) => void;
-  readonly onClearToast: () => void;
-  readonly onUpdateAllGeometries: (geometries: { [id: string]: ClientRect }) => void;
+  readonly onUpdateAllGeometries: (geometries: {
+    [id: string]: ClientRect;
+  }) => void;
   readonly onLayoutModify: () => void;
 }

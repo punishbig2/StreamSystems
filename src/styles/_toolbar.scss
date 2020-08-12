@@ -18,6 +18,31 @@
     height: $window-toolbar-size;
     line-height: $window-toolbar-size;
 
+    .commission-rates-container {
+      display: flex;
+      padding: 0 24px;
+
+      .entry {
+        padding: 0 8px;
+        height: $window-toolbar-size;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        .region {
+          line-height: 1;
+          font-size: $window-toolbar-size / 4;
+          font-weight: 800;
+        }
+
+        .value {
+          line-height: normal;
+          font-size: $window-toolbar-size / 3;
+          font-family: "Roboto", sans-serif;
+        }
+      }
+    }
+
     .execution-banner {
       display: flex;
       flex: 1;

@@ -1,93 +1,93 @@
 import moment from "moment";
 
 export interface OptionLeg {
-  strike?: string | number;
-  notional: number;
-  expiryDate: moment.Moment;
-  deliveryDate: moment.Moment;
-  spreadVolatiltyOffset?: number | null;
-  volatilty?: number | null;
-  barrier: number | null;
-  barrierLower: number | null;
-  barrierUpper: number | null;
-  barrierRebate: number | null;
-  OptionLegType: string;
-  SideType: string;
-  MonitorType: string | null;
+  readonly strike?: string | number;
+  readonly notional: number;
+  readonly expiryDate: moment.Moment;
+  readonly deliveryDate: moment.Moment;
+  readonly spreadVolatiltyOffset?: number | null;
+  readonly volatilty?: number | null;
+  readonly barrier: number | null;
+  readonly barrierLower: number | null;
+  readonly barrierUpper: number | null;
+  readonly barrierRebate: number | null;
+  readonly OptionLegType: string;
+  readonly SideType: string;
+  readonly MonitorType: string | null;
 }
 
 export interface Option {
-  ccyPair: string;
-  ccy1: string;
-  ccy2: string;
-  notionalCCY: string;
-  premiumCCY: string;
-  riskCCY: string;
-  vegaAdjust?: boolean;
-  OptionProductType: string;
-  OptionLegs: OptionLeg[];
+  readonly ccyPair: string;
+  readonly ccy1: string;
+  readonly ccy2: string;
+  readonly notionalCCY: string;
+  readonly premiumCCY: string;
+  readonly riskCCY: string;
+  readonly vegaAdjust?: boolean;
+  readonly OptionProductType: string;
+  readonly OptionLegs: OptionLeg[];
 }
 
 export interface Point {
-  date: string;
-  point: number;
+  readonly date: string;
+  readonly point: number;
 }
 
 export interface FX {
-  ccyPair: string;
-  snapTime: Date;
-  spotDate?: Date;
-  spotRate?: number;
-  DateCountBasisType: string;
-  ForwardRates?: Point[];
-  ForwardPoints?: Point[];
+  readonly ccyPair: string;
+  readonly snapTime: Date;
+  readonly spotDate?: Date;
+  readonly spotRate?: number;
+  readonly DateCountBasisType: string;
+  readonly ForwardRates?: Point[];
+  readonly ForwardPoints?: Point[];
 }
 
 export interface VolSurface {
-  date: string;
-  v10dRR: number;
-  v25dRR: number;
-  v25dBFLY: number;
-  v10dBFLY: number;
-  ATMType: string;
-  DeltaType: string;
-  vATM: number;
+  readonly date: string;
+  readonly v10dRR: number;
+  readonly v25dRR: number;
+  readonly v25dBFLY: number;
+  readonly v10dBFLY: number;
+  readonly ATMType: string;
+  readonly DeltaType: string;
+  readonly vATM: number;
 }
 
 export interface VOL {
-  ccyPair: string;
-  snapTime: Date;
-  premiumAdjustDelta: boolean;
-  DateCountBasisType: string;
-  VolSurface: VolSurface[];
+  readonly ccyPair: string;
+  readonly snapTime: Date;
+  readonly premiumAdjustDelta: boolean;
+  readonly DateCountBasisType: string;
+  readonly VolSurface: VolSurface[];
 }
 
 export interface RATE {
-  ccy: string;
-  snapTime: Date;
-  DateCountBasisType: string;
-  DiscountFactors: Point[];
+  readonly ccy: string;
+  readonly snapTime: Date;
+  readonly DateCountBasisType: string;
+  readonly DiscountFactors: Point[];
 }
 
 export interface ValuationData {
-  valuationDate: Date;
-  FX: FX;
-  VOL: VOL;
-  RATES: RATE[];
+  readonly valuationDate: Date;
+  readonly FX: FX;
+  readonly VOL: VOL;
+  readonly RATES: RATE[];
 }
 
 export interface ValuationModel {
-  OptionModelType: string;
-  OptionModelParamaters?: string;
+  readonly OptionModelType: string;
+  readonly OptionModelParamaters?: string;
 }
 
 export interface VolMessageIn {
-  id: string;
-  timeStamp: Date;
-  version: string;
-  description: string;
-  Option: Option;
-  ValuationData: ValuationData;
-  ValuationModel: ValuationModel;
+  readonly id: string;
+  readonly timeStamp: Date;
+  readonly version: string;
+  readonly description: string;
+  readonly Option: Option;
+  readonly ValuationData: ValuationData;
+  readonly ValuationModel: ValuationModel;
 }
 

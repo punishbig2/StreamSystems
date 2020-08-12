@@ -1,24 +1,27 @@
+import { MessageBox } from "components/MessageBox";
+import { MiddleOffice } from "components/MiddleOffice";
 import { ModalWindow } from "components/ModalWindow";
+import { ProgressView } from "components/progressView";
 import { QuestionBox } from "components/QuestionBox";
 import { TabBar } from "components/TabBar";
+import { TradeConfirmation } from "components/TradeConfirmation";
+import { Welcome } from "components/weolcome";
 import { UserNotFound } from "components/Workarea/userNotFound";
 import { WorkareaError } from "components/Workarea/workareaError";
-import { Workspace } from "components/Workspace";
+import { TradingWorkspace } from "components/Workspace";
 import strings from "locales";
+import { observer } from "mobx-react";
+
+import messagesStore from "mobx/stores/messagesStore";
+import store from "mobx/stores/workareaStore";
+import workareaStore, {
+  WorkspaceDef,
+  WorkspaceType,
+} from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useState } from "react";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
-import { TradeConfirmation } from "components/TradeConfirmation";
-import { observer } from "mobx-react";
-import store from "mobx/stores/workareaStore";
-import workareaStore, { WorkspaceType, WorkspaceDef } from "mobx/stores/workareaStore";
-
-import messagesStore from "mobx/stores/messagesStore";
-import { MessageBox } from "components/MessageBox";
 import { getUserFromUrl } from "utils/getUserFromUrl";
-import { MiddleOffice } from "components/MiddleOffice";
-import { ProgressView } from "components/progressView";
-import { Welcome } from "components/weolcome";
 
 const Workarea: React.FC = (): ReactElement | null => {
   const { recentExecutions } = store;
@@ -90,9 +93,9 @@ const Workarea: React.FC = (): ReactElement | null => {
     if (user === null) return null;
     return Object.values(workspaces).map(
       ({ id, type, isDefault }: WorkspaceDef) => {
-        if (type === WorkspaceType.Standard) {
+        if (type === WorkspaceType.Trading) {
           return (
-            <Workspace
+            <TradingWorkspace
               id={id}
               key={id}
               isDefault={isDefault}

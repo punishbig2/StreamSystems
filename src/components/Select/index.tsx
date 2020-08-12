@@ -4,7 +4,7 @@ import React, { useState, ReactElement, useEffect } from "react";
 import ReactDOM from "react-dom";
 
 interface OwnProps {
-  list: any[];
+  list: ReadonlyArray<any>;
   value: any;
   empty?: string;
   searchable?: boolean;

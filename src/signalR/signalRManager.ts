@@ -57,8 +57,8 @@ enum Events {
 }
 
 interface Command {
-  name: string;
-  args: any[];
+  readonly name: string;
+  readonly args: any[];
   refCount: number;
 }
 

@@ -9,16 +9,16 @@ import { observer } from "mobx-react";
 import { PodRowStatus } from "types/podRow";
 
 interface OwnProps {
-  id: string;
-  columns: ColumnSpec[];
-  weight: number;
-  rowNumber: number;
-  defaultSize: number;
-  minimumSize: number;
-  connected: boolean;
-  onTenorSelected: (tenor: string) => void;
+  readonly id: string;
+  readonly columns: ColumnSpec[];
+  readonly weight: number;
+  readonly rowNumber: number;
+  readonly defaultSize: number;
+  readonly minimumSize: number;
+  readonly connected: boolean;
+  readonly onTenorSelected: (tenor: string) => void;
 
-  [key: string]: any;
+  readonly [key: string]: any;
 }
 
 type Props = OwnProps & RowFunctions;

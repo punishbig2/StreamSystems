@@ -1,41 +1,40 @@
-import { WindowManager } from "components/WindowManager";
-import React, { ReactElement, useEffect, useState } from "react";
-import { STRM } from "stateDefs/workspaceState";
-import { ModalWindow } from "components/ModalWindow";
-import { UserProfileModal } from "components/Workspace/UserProfile";
+import { MenuItem, Select } from "@material-ui/core";
+import { BlotterTypes } from "columns/messageBlotter";
+import { CommissionRates } from "components/CommissionRates";
 import { ErrorBox } from "components/ErrorBox";
 import { ExecutionBanner } from "components/ExecutionBanner";
-import { observer } from "mobx-react";
-import { WorkspaceStore } from "mobx/stores/workspaceStore";
-import { MenuItem, Select } from "@material-ui/core";
-import { SelectEventData } from "types/selectEventData";
-import { Symbol } from "types/symbol";
-import { PodTileStore } from "mobx/stores/podTileStore";
-import { MessagesStore } from "mobx/stores/messagesStore";
-import { PodTile } from "components/PodTile";
 import { MessageBlotter } from "components/MessageBlotter";
+import { ModalWindow } from "components/ModalWindow";
+import { PodTile } from "components/PodTile";
 import { PodTileTitle } from "components/PodTile/title";
-import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
-import { BlotterTypes } from "columns/messageBlotter";
-import { User } from "types/user";
-import { Strategy } from "types/strategy";
 import { ProgressView } from "components/progressView";
+import { WindowManager } from "components/WindowManager";
+import { UserProfileModal } from "components/Workspace/UserProfile";
 import strings from "locales";
+import { observer } from "mobx-react";
+import { MessagesStore } from "mobx/stores/messagesStore";
+import { PodTileStore } from "mobx/stores/podTileStore";
+import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
+import { WorkspaceStore } from "mobx/stores/workspaceStore";
+import React, { ReactElement, useEffect, useState } from "react";
+import { STRM } from "stateDefs/workspaceState";
+import { SelectEventData } from "types/selectEventData";
+import { Strategy } from "types/strategy";
+import { Symbol } from "types/symbol";
+import { User } from "types/user";
 
-interface OwnProps {
-  id: string;
-  tenors: string[];
-  currencies: Symbol[];
-  strategies: Strategy[];
-  banks: string[];
-  isDefault: boolean;
-  visible: boolean;
-  onModify: (id: string) => void;
+interface Props {
+  readonly id: string;
+  readonly tenors: ReadonlyArray<string>;
+  readonly currencies: ReadonlyArray<Symbol>;
+  readonly strategies: ReadonlyArray<Strategy>;
+  readonly banks: ReadonlyArray<string>;
+  readonly isDefault: boolean;
+  readonly visible: boolean;
+  readonly onModify: (id: string) => void;
 }
 
-const Workspace: React.FC<OwnProps> = (
-  props: OwnProps
-): ReactElement | null => {
+const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const { id } = props;
   const [store, setStore] = useState<WorkspaceStore | null>(null);
 
@@ -176,13 +175,11 @@ const Workspace: React.FC<OwnProps> = (
     return (
       <>
         <WindowManager
-          isDefaultWorkspace={props.isDefault}
-          toast={store.toast}
           windows={store.windows}
           getTitleRenderer={getTitleRenderer}
           getContentRenderer={getContentRenderer}
+          isDefaultWorkspace={props.isDefault}
           onLayoutModify={() => props.onModify(id)}
-          onClearToast={() => store.showToast(null)}
           onUpdateAllGeometries={store.updateAllGeometries}
           onWindowClose={store.removeWindow}
         />
@@ -221,6 +218,7 @@ const Workspace: React.FC<OwnProps> = (
             <i className={"fa fa-eye"} /> Add Blotter
           </button>
           <ExecutionBanner />
+          <CommissionRates />
           {getRightPanelButtons()}
         </div>
       </div>
@@ -237,4 +235,4 @@ const Workspace: React.FC<OwnProps> = (
 // <!-- ModalWindow render={renderLoadingModal} visible={!!store.busyMessage} /-->
 
 const observed = observer(Workspace);
-export { observed as Workspace };
+export { observed as TradingWorkspace };
