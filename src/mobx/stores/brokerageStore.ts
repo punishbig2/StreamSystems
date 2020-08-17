@@ -19,6 +19,7 @@ export class BrokerageStore {
     );
     const promise: Promise<BrokerageCommissionResponse> = task.execute();
     promise.then((response: BrokerageCommissionResponse): void => {
+      if (response === null) return;
       const regions: string[] = Object.keys(response);
       this.setCommissionRates(
         regions

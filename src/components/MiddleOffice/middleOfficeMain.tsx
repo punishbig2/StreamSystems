@@ -26,7 +26,7 @@ interface Props {
   readonly visible: boolean;
 }
 
-export const ReadyMiddleOfficeView: React.FC<Props> = observer(
+export const MiddleOfficeMain: React.FC<Props> = observer(
   (props: Props): ReactElement => {
     const [deleteQuestionOpen, showDeleteQuestion] = useState<boolean>(false);
     const [entryStore] = useState<DealEntryStore>(new DealEntryStore());

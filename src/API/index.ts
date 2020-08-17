@@ -771,7 +771,7 @@ export class API {
         ccy1: ccy1,
         ccy2: ccy2,
         OptionProductType: strategy.OptionProductType,
-        vegaAdjust: entry.legAdj,
+        vegaAdjust: entry.legadj,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
@@ -783,7 +783,7 @@ export class API {
               deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
               spreadVolatiltyOffset: API.divideBy100(entry.spread),
               strike: numberifyIfPossible(
-                coalesce(leg.strike, coalesce(entry.strike, strategy.strike))
+                coalesce(leg.strike, coalesce(entry.dealstrike, strategy.strike))
               ),
               volatilty: API.divideBy100(coalesce(leg.vol, entry.vol)),
               barrier: null,

@@ -34,13 +34,13 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
   const notionalRatio: number =
     "notional_ratio" in definition ? definition.notional_ratio : 0;
   const notional: number | null =
-    entry.notional !== null ? entry.notional * notionalRatio : null;
+    entry.not1 !== null ? entry.not1 * notionalRatio : null;
   const option: string =
     "ReturnLegOut" in definition
       ? definition.ReturnLegOut
       : definition.OptionLegType;
   // Now fill the stub legs
-  const [ccy1, ccy2] = splitCurrencyPair(entry.currencyPair);
+  const [ccy1, ccy2] = splitCurrencyPair(entry.ccypair);
   const rates: Rates = [
     {
       currency: ccy1,
@@ -51,10 +51,11 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
       value: 0,
     },
   ];
+  // FIXME: probably correct, but not sure as there could be more than 1 tenor
   const expiryDate: moment.Moment =
-    entry.expiryDate === null
-      ? addTenorToDate(entry.tradeDate, entry.tenor)
-      : entry.expiryDate;
+    entry.expiry1 === null
+      ? addTenorToDate(entry.tradeDate, entry.tenor1)
+      : entry.expiry1;
   return {
     premium: null,
     pricePercent: 0 /* FIXME: what would this be? */,
@@ -65,17 +66,16 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
     side: side,
     days: expiryDate.diff(entry.tradeDate, "d"),
     delta: null,
-    vega: null,
     fwdPts: null,
     fwdRate: null,
-    gamma: null,
     hedge: null,
-    strike: entry.strike,
+    strike: entry.dealstrike,
     premiumDate: moment(entry.tradeDate).add(symbol.SettlementWindow, "d"),
     premiumCurrency: symbol.premiumCCY,
     option: option,
     deliveryDate: entry.deliveryDate,
     expiryDate: expiryDate,
+    usi: null,
   };
 };
 

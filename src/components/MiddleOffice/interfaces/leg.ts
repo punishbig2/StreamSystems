@@ -21,9 +21,7 @@ export interface Leg {
   vol?: number | null;
   fwdPts: number | null;
   fwdRate: number | null;
-  gamma: number | null;
   delta: number | null;
-  vega: number | null;
   pricePercent: number | null;
   premiumCurrency: string;
   notional?: number | null;
@@ -36,6 +34,7 @@ export interface Leg {
   deliveryDate: moment.Moment;
   hedge: number | null;
   rates: Rates;
+  usi: number | null;
 
   custom?: { [p: string]: any };
 }

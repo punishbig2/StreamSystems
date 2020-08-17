@@ -13,7 +13,7 @@ import { tenorToDuration } from "utils/tenorUtils";
 
 const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   if (entry.strategy === "") return;
-  const symbol: Symbol = moStore.findSymbolById(entry.currencyPair);
+  const symbol: Symbol = moStore.findSymbolById(entry.ccypair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];
   if (!legDefinitions) {
@@ -29,9 +29,10 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   const deal: Deal | null = moStore.deal;
   const tradeDate: moment.Moment =
     deal !== null ? moment(deal.tradeDate) : moment();
-  const expiryDate: moment.Moment = isMoment(entry.tenor)
-    ? entry.tenor
-    : tradeDate.add(tenorToDuration(entry.tenor));
+  // FIXME: this is probably right, but not sure as there could be more than 1 tenor
+  const expiryDate: moment.Moment = isMoment(entry.tenor1)
+    ? entry.tenor1
+    : tradeDate.add(tenorToDuration(entry.tenor1));
   const deliveryDate: moment.Moment = moment(expiryDate).add(
     Number(symbol.SettlementWindow),
     "d"
@@ -42,8 +43,8 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
       (leg: Leg): Leg => {
         return {
           ...leg,
-          notional: entry.notional,
-          strike: entry.strike,
+          notional: entry.not1,
+          strike: entry.dealstrike,
           expiryDate: expiryDate,
           deliveryDate: deliveryDate,
         };
@@ -69,7 +70,7 @@ export default (cuts: Cut[], entry: DealEntry) => {
     moStore.setLegs([], null);
   }, [entry.strategy]);
   useEffect(() => {
-    if (entry.currencyPair === "") return;
+    if (entry.ccypair === "") return;
     createStubLegs(entry, cuts).then(() => {});
   }, [cuts, entry]);
 };

@@ -23,4 +23,5 @@ export interface FieldDef<T, S = {}, E = {}> {
   dataSource?: keyof S;
   data?: any;
   handler?: InputHandler<T>;
+  key?: string;
 }

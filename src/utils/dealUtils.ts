@@ -47,13 +47,20 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     "d"
   );
   const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor);
-  const parsedExpiryDate: moment.Moment | undefined = forceParseDate(
+  const parsedExpiryDate1: moment.Moment | undefined = forceParseDate(
     source.expirydate
   );
-  const expiryDate: moment.Moment =
-    parsedExpiryDate === undefined
+  const parsedExpiryDate2: moment.Moment | undefined = forceParseDate(
+    source.expirydate2
+  );
+  const expiryDate1: moment.Moment =
+    parsedExpiryDate1 === undefined
       ? addTenorToDate(tradeDate, item.tenor)
-      : parsedExpiryDate;
+      : parsedExpiryDate1;
+  const expiryDate2: moment.Moment =
+    parsedExpiryDate2 === undefined
+      ? addTenorToDate(tradeDate, item.tenor1)
+      : parsedExpiryDate2;
   return {
     dealID: item.linkid,
     buyer: item.buyer,
@@ -67,11 +74,13 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     currencyPair: item.symbol,
     transactionTime: item.transacttime,
     tenor: item.tenor,
+    tenor2: item.tenor1,
     tradeDate: tradeDate,
     strike: item.strike,
     spotDate: spotDate,
     deliveryDate: deliveryDate,
-    expiryDate: expiryDate,
+    expiryDate: expiryDate1,
+    expiryDate2: expiryDate2,
     symbol: symbol,
     source: item.source,
     status: item.state,
@@ -100,22 +109,26 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     throw new Error(`strategy not found: ${deal.strategy}`);
   }
   return {
-    currencyPair: deal.currencyPair,
+    ccypair: deal.currencyPair,
     strategy: deal.strategy,
-    notional: 1e6 * deal.lastQuantity,
-    legAdj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
+    premstyle: "",
+    not1: 1e6 * deal.lastQuantity,
+    not2: null,
+    legadj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
     buyer: deal.buyer,
     seller: deal.seller,
     tradeDate: deal.tradeDate,
-    expiryDate: deal.expiryDate,
+    expiry1: deal.expiryDate,
+    expiry2: deal.expiryDate2,
     deliveryDate: deal.deliveryDate,
     dealId: id.toString(),
     status: deal.status,
     style: "European",
-    tenor: deal.tenor,
+    tenor1: deal.tenor,
+    tenor2: deal.tenor2,
     model: 3,
     legs: legsCount,
-    strike: coalesce(deal.strike, strategy.strike),
+    dealstrike: coalesce(deal.strike, strategy.strike),
     vol: strategy.spreadvsvol === "vol" ? deal.lastPrice : undefined,
     spread: strategy.spreadvsvol === "spread" ? deal.lastPrice : undefined,
     dealType: dealSourceToDealType(deal.source),

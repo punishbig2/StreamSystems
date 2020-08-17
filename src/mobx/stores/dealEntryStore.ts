@@ -37,13 +37,13 @@ export class DealEntryStore {
   public get isReadyForSubmission(): boolean {
     const { entry } = this;
     if (!this.isModified) return false;
-    if (entry.currencyPair === "") return false;
+    if (entry.ccypair === "") return false;
     if (entry.strategy === "") return false;
     if (entry.buyer === "") return false;
     if (entry.seller === "") return false;
     if (entry.model === "") return false;
-    if (entry.tenor === "") return false;
-    return entry.notional !== null;
+    if (entry.tenor1 === "") return false;
+    return entry.not1 !== null;
   }
 
   @action.bound
@@ -77,7 +77,7 @@ export class DealEntryStore {
 
   @action.bound
   public addNewDeal(): void {
-    this.entry = { ...emptyDealEntry };
+    this.entry = { ...emptyDealEntry, type: EntryType.New };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
     moStore.setDeal(null);
@@ -107,7 +107,7 @@ export class DealEntryStore {
         [name]: value,
         legs: legsCount,
         spread: strategy.spreadvsvol === "spread" ? price : undefined,
-        strike: strategy.strike,
+        dealstrike: strategy.strike,
         vol: strategy.spreadvsvol === "vol" ? price : undefined,
       };
     } else {
@@ -121,7 +121,8 @@ export class DealEntryStore {
   };
 
   private buildRequest() {
-    const {
+    const { entry } = this;
+    /*const {
       buyer,
       strike,
       seller,
@@ -129,29 +130,31 @@ export class DealEntryStore {
       currencyPair,
       model,
       notional,
-      tenor,
+      tenor1,
       vol,
       spread,
       expiryDate,
-    } = this.entry;
-    if (notional === null || notional === undefined)
+    } = this.entry;*/
+    if (entry.not1 === null || entry.not1 === undefined)
       throw new Error("notional must be set");
-    const moStrategy: MOStrategy = moStore.strategies[strategy];
+    const moStrategy: MOStrategy = moStore.strategies[entry.strategy];
     if (moStrategy === undefined)
       throw new Error("invalid strategy, how did you pick it?");
     const price: number | null | undefined =
-      moStrategy.spreadvsvol === "vol" ? vol : spread;
+      moStrategy.spreadvsvol === "vol" ? entry.vol : entry.spread;
     return {
-      buyer: buyer,
-      seller: seller,
-      strike: strike,
-      strategy: strategy,
-      symbol: currencyPair,
-      model: model,
+      buyer: entry.buyer,
+      seller: entry.seller,
+      strike: entry.dealstrike,
+      strategy: entry.strategy,
+      symbol: entry.ccypair,
+      model: entry.model,
       price: !!price ? price.toString() : null,
-      size: Math.round(notional / 1e6).toString(),
-      tenor: tenor,
-      expiryDate: expiryDate,
+      size: Math.round(entry.not1 / 1e6).toString(),
+      tenor1: entry.tenor1,
+      tenor2: entry.tenor2,
+      expiryDate1: entry.expiry1,
+      expiryDate2: entry.expiry2,
     };
   }
 

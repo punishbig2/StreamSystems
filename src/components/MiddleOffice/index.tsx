@@ -1,5 +1,5 @@
 import { useMoInitializer } from "components/MiddleOffice/hooks/useMoInitializer";
-import { ReadyMiddleOfficeView } from "components/MiddleOffice/ReadyMIddleOfficeView";
+import { MiddleOfficeMain } from "components/MiddleOffice/middleOfficeMain";
 import { ProgressView } from "components/progressView";
 import { observer } from "mobx-react";
 import moStore from "mobx/stores/moStore";
@@ -21,7 +21,7 @@ export const MiddleOffice: React.FC<Props> = observer(
         />
       );
     } else {
-      return <ReadyMiddleOfficeView visible={props.visible} />;
+      return <MiddleOfficeMain visible={props.visible} />;
     }
   }
 );

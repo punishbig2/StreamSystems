@@ -11,5 +11,8 @@ export interface SummaryLeg {
   source: string | null;
   delivery: string;
   usi: string | null;
-  dealOutput: Leg;
+  dealOutput: Leg & {
+    gamma: number | null;
+    vega: number | null;
+  };
 }

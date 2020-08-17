@@ -163,6 +163,13 @@ export class NumericInputHandler<
         validity: Validity.Intermediate,
         caretPosition: 0,
       } as StateReturnType<S>;
+    } else if (value === "N/A") {
+      return {
+        displayValue: "N/A",
+        internalValue: "N/A",
+        validity: Validity.NotApplicable,
+        caretPosition: 0,
+      } as StateReturnType<S>;
     } else {
       const { displayValue } = state;
       const [newValue, validity] = this.format(value, props);

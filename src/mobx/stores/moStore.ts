@@ -234,7 +234,7 @@ export class MoStore {
         premiumDate: deal.spotDate,
         deliveryDate: deal.deliveryDate,
         expiryDate: deal.expiryDate,
-        side: Sides.Buy,
+        side: Sides.None,
         option: "",
         vol: null,
         fwdPts: null,
@@ -247,6 +247,7 @@ export class MoStore {
         pricePercent: null,
         vega: null,
         premiumCurrency: "USD",
+        usi: null,
         rates: [
           {
             currency: "",

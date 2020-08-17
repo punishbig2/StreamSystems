@@ -3,9 +3,9 @@ import { DealStatus } from "types/dealStatus";
 
 export enum DealType {
   Invalid = 0,
-  Electronic = 2,
-  Voice = 4,
-  Manual = 8,
+  Electronic = 1 << 1,
+  Voice = 1 << 2,
+  Manual = 1 << 3,
 }
 
 export enum EntryType {
@@ -16,44 +16,56 @@ export enum EntryType {
 }
 
 export interface DealEntry {
-  currencyPair: string;
-  strategy: string;
-  legs: number | null;
+  dealId: string;
+
+  ccypair: string;
+  tenor1: string;
+  expiry1: moment.Moment | null;
+  tenor2: string;
+  expiry2: moment.Moment | null;
+  dealstrike?: string | number;
   spread?: number | null;
   vol?: number | null;
-  strike?: string | number;
-  notional: number | null;
-  legAdj: boolean;
+  not1: number | null;
+  not2: number | null;
+  legadj: boolean;
+  premstyle: string;
   buyer: string;
   seller: string;
-  tradeDate: moment.Moment;
-  expiryDate: moment.Moment | null;
-  deliveryDate: moment.Moment;
-  dealId: string;
-  status: DealStatus;
   style: string;
   model: number | "";
-  tenor: string;
+
+  strategy: string;
+  legs: number | null;
+
+  status: DealStatus;
+
+  deliveryDate: moment.Moment;
+  tradeDate: moment.Moment;
   type: EntryType;
   dealType: DealType;
 }
 
 export const emptyDealEntry: DealEntry = {
-  currencyPair: "",
+  ccypair: "",
   strategy: "",
+  premstyle: "",
   legs: null,
-  notional: null,
-  legAdj: false,
+  not1: null,
+  not2: null,
+  legadj: false,
   buyer: "",
   seller: "",
-  expiryDate: null,
+  expiry1: null,
+  expiry2: null,
   deliveryDate: moment(),
   tradeDate: moment(),
   dealId: "",
   status: DealStatus.Pending,
   style: "European",
   model: 3,
-  tenor: "",
+  tenor1: "",
+  tenor2: "",
   type: EntryType.Empty,
   dealType: DealType.Manual,
   vol: null,

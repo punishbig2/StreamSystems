@@ -7,6 +7,7 @@ import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 import { SPECIFIC_TENOR, tenorToDate } from "utils/tenorUtils";
+import { MOStrategy, EditableCondition } from "../interfaces/moStrategy";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
@@ -17,13 +18,26 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   const dropdownData: SelectItem[] = !!transformData
     ? transformData(source, entry)
     : [];
+  const editableCondition: EditableCondition = (() => {
+    const strategy: MOStrategy | undefined = moStore.getStrategyById(
+      entry.strategy
+    );
+    if (strategy !== undefined) {
+      const { f1 } = strategy.fields;
+      return f1[field.name];
+    }
+    return EditableCondition.None;
+  })();
   const getValue = (rawValue: any): any => {
+    if (editableCondition === EditableCondition.NotApplicable) return "N/A";
     if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
     if (field.name === "status") return stateMap[Number(rawValue)];
-    if (field.name === "tenor") {
+    if (field.type === "tenor") {
+      const { name } = field;
+      const index: string = name.slice(-1);
       return {
-        tenor: entry.tenor,
-        expiryDate: entry.expiryDate,
+        tenor: entry[field.name],
+        expiryDate: entry[("expiryDate" + index) as keyof DealEntry],
       };
     }
     if (field.type === "number") {
@@ -40,17 +54,21 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   };
 
   const value: any = getValue(!!entry ? entry[field.name] : null);
-  const onTenorChange = (value: string): void => {
+  const onTenorChange = (name: keyof DealEntry, value: string): void => {
+    const index: string = name.slice(-1);
     if (isMoment(value)) {
-      store.updateEntry("tenor", SPECIFIC_TENOR);
-      store.updateEntry("expiryDate", value);
+      store.updateEntry(name, SPECIFIC_TENOR);
+      store.updateEntry(("expiryDate" + index) as keyof DealEntry, value);
     } else {
-      store.updateEntry("tenor", value);
-      store.updateEntry("expiryDate", tenorToDate(value));
+      store.updateEntry(name, value);
+      store.updateEntry(
+        ("expiryDate" + index) as keyof DealEntry,
+        tenorToDate(value)
+      );
     }
   };
   const onChange = (name: keyof DealEntry, value: string): void => {
-    if (name === "tenor") return onTenorChange(value);
+    if (field.type === "tenor") return onTenorChange(name, value);
     const convertedValue: any = getValue(value);
     if (convertedValue === undefined) return;
     store.updateEntry(name, convertedValue);
@@ -59,10 +77,16 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>
   ): boolean | undefined => {
     if (!moStore.isEditMode) return false;
-    if (typeof fieldDef.editable === "function") {
-      return fieldDef.editable(fieldDef.data || dropdownData, store);
+    if (editableCondition === EditableCondition.NotEditable) {
+      return false;
+    } else if (editableCondition === EditableCondition.NotApplicable) {
+      return false;
     } else {
-      return fieldDef.editable;
+      if (typeof fieldDef.editable === "function") {
+        return fieldDef.editable(fieldDef.data || dropdownData, store);
+      } else {
+        return fieldDef.editable;
+      }
     }
   };
   return (

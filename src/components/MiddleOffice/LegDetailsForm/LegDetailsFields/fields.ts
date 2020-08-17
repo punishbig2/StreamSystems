@@ -55,14 +55,6 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
   {
     type: "number",
     color: "grey",
-    name: "days",
-    label: "Days",
-    precision: 0,
-    editable: false,
-  },
-  {
-    type: "number",
-    color: "grey",
     name: "notional",
     label: "Notional",
     precision: 0,
@@ -124,30 +116,8 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     type: "percent",
     color: "grey",
     name: "pricePercent",
-    label: "Price %",
+    label: "Price % / Pips",
     precision: 4,
-    editable: false,
-  },
-  {
-    type: "number",
-    color: "grey",
-    name: "delta",
-    label: "Delta",
-    precision: 4,
-    editable: false,
-  },
-  {
-    type: "currency",
-    color: "grey",
-    name: "gamma",
-    label: "Gamma",
-    editable: false,
-  },
-  {
-    type: "currency",
-    color: "grey",
-    name: "vega",
-    label: "Vega",
     editable: false,
   },
   {
@@ -163,7 +133,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     type: "percent",
     color: "grey",
     name: "rates",
-    label: "CCY1 Rate",
+    label: "CCY1 Depo",
     data: 0,
     precision: 4,
     editable: editableFilter(
@@ -174,13 +144,29 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     type: "percent",
     color: "grey",
     name: "rates",
-    label: "CCY2 Rate",
+    label: "CCY2 Depo",
     data: 1,
     precision: 4,
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
   },
+  {
+    type: "number",
+    color: "grey",
+    name: "delta",
+    label: "Delta",
+    precision: 4,
+    editable: false,
+  },
+  {
+    type: "number",
+    color: "grey",
+    name: "usi",
+    label: "USI#",
+    precision: 0,
+    editable: false,
+  }
 ];
 
 export default fields;

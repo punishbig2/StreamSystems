@@ -134,6 +134,44 @@ export const SummaryLegDetailsForm: React.FC = observer(
                   precision={4}
                   disabled={disabled}
                 />
+
+                <FormField
+                  label={"Fwd Pts 1"}
+                  color={"grey"}
+                  value={null}
+                  name={"fwdPts1"}
+                  type={"number"}
+                  precision={4}
+                  disabled={disabled}
+                />
+                <FormField
+                  label={"Fwd Rate 1"}
+                  color={"grey"}
+                  value={null}
+                  name={"fwdRate1"}
+                  type={"number"}
+                  precision={4}
+                  disabled={disabled}
+                />
+                <FormField
+                  label={"Fwd Pts 2"}
+                  color={"grey"}
+                  value={null}
+                  name={"fwdPts2"}
+                  type={"number"}
+                  precision={4}
+                  disabled={disabled}
+                />
+                <FormField
+                  label={"Fwd Rate 2"}
+                  color={"grey"}
+                  value={null}
+                  name={"fwdRate2"}
+                  type={"number"}
+                  precision={4}
+                  disabled={disabled}
+                />
+
                 <FormField
                   label={"Cut City"}
                   color={"grey"}

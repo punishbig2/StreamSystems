@@ -26,6 +26,8 @@ export class StrikeHandler<T, P extends MinimalProps, S extends Editable>
     if (typeof value === "undefined") return ["", Validity.Intermediate];
     if (typeof value !== "string") {
       return ["", Validity.Intermediate];
+    } else if (value === "N/A") {
+      return ["N/A", Validity.NotApplicable];
     }
     return [value.toUpperCase(), Validity.Valid];
   }

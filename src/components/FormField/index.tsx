@@ -306,7 +306,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { dropdownData } = props;
     const { value } = props;
     const classes: string[] = [
-      state.validity !== Validity.InvalidFormat ? "valid" : "invalid",
+      state.validity === Validity.InvalidFormat ||
+      state.validity === Validity.InvalidValue
+        ? "invalid"
+        : "valid",
+      state.validity === Validity.NotApplicable ? "not-applicable" : "",
       props.value === undefined && props.editable === false
         ? "empty"
         : "non-empty",
@@ -345,8 +349,18 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
         if (!dropdownData)
           throw new Error("cannot have a dropdown with no data");
         if (value === null || value === undefined) return null;
-        if (typeof value !== "object")
+        if (typeof value !== "object") {
+          if (value === "N/A")
+            return (
+              <OutlinedInput
+                className={[classes, "not-applicable"].join(" ")}
+                value={"N/A"}
+                labelWidth={0}
+                readOnly={true}
+              />
+            );
           throw new Error("invalid type for tenor's value");
+        }
         if (
           !("tenor" in (value as object)) ||
           !("expiryDate" in (value as object))
