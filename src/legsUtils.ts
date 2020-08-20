@@ -17,7 +17,7 @@ export const fixDates = (data: any[]): Leg[] => {
     return {
       ...item,
       premiumDate: moment(item.premiumDate),
-      expiryDate: moment(item.expiry1),
+      expiryDate: moment(item.expiryDate),
       deliveryDate: moment(item.deliveryDate),
     };
   };

@@ -41,7 +41,7 @@ export const parseTime = (date: string, tz: string | null): Date => {
 };
 
 export const momentToUTCFIXFormat = (moment: moment.Moment): string => {
-  if (moment === undefined) return "";
+  if (moment === undefined || moment === null) return "";
   // The ridiculous moment.js library modifies the object
   // in place, so all kinds of side effects :(
   const utc: moment.Moment = moment.isUTC() ? moment : moment.utc();

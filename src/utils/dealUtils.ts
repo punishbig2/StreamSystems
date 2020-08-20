@@ -46,7 +46,7 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     symbol.SettlementWindow,
     "d"
   );
-  const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor1);
+  const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor);
   const parsedExpiryDate1: moment.Moment | undefined = forceParseDate(
     source.expirydate
   );

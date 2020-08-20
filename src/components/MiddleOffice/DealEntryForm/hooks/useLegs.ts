@@ -1,15 +1,12 @@
 import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { Symbol } from "types/symbol";
 import { createLegsFromDefinition } from "legsUtils";
 import moStore from "mobx/stores/moStore";
-import { isMoment } from "moment";
+import moment from "moment";
 import { useEffect } from "react";
 import { DealEntry } from "structures/dealEntry";
-import moment from "moment";
-import { tenorToDuration } from "utils/tenorUtils";
+import { Symbol } from "types/symbol";
 
 const createStubLegs = async (
   entry: DealEntry,
@@ -29,13 +26,8 @@ const createStubLegs = async (
     storeLegs.length > 0
       ? storeLegs
       : createLegsFromDefinition(entry, legDefinitions.in, symbol);
-  const deal: Deal | null = moStore.deal;
-  const tradeDate: moment.Moment =
-    deal !== null ? moment(deal.tradeDate) : moment();
-  // FIXME: this is probably right, but not sure as there could be more than 1 tenor
-  const expiryDate: moment.Moment = isMoment(entry.tenor1)
-    ? entry.tenor1
-    : tradeDate.add(tenorToDuration(entry.tenor1));
+  const expiryDate: moment.Moment =
+    entry.tenor1expiry !== null ? entry.tenor1expiry : moment();
   const deliveryDate: moment.Moment = moment(expiryDate).add(
     Number(symbol.SettlementWindow),
     "d"
