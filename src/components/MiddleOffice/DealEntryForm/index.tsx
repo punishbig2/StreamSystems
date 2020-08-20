@@ -5,6 +5,7 @@ import { fieldMapper } from "components/MiddleOffice/DealEntryForm/fieldMapper";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
 import { sendPricingRequest } from "components/MiddleOffice/DealEntryForm/sendPricingRequest";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -28,7 +29,14 @@ export const DealEntryForm: React.FC<Props> = observer(
     }, [store, deal]);
 
     const onPriced =
-      deal === null ? undefined : () => sendPricingRequest(deal, entry);
+      deal === null
+        ? undefined
+        : () => {
+            const summary: SummaryLeg | null = moStore.summaryLeg;
+            if (summary === null)
+              throw new Error("cannot price if summary is non existent");
+            sendPricingRequest(deal, entry, summary);
+          };
     const getActionButtons = (): ReactElement | null => {
       switch (store.entryType) {
         case EntryType.Empty:

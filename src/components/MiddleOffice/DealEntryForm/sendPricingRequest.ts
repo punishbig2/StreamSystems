@@ -2,6 +2,7 @@ import { API, HTTPError } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import config from "config";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
@@ -11,7 +12,11 @@ const SOFT_ERROR: string =
   "If the deal is not priced yet, try again as this is a problem that should not happen and never be repeated. " +
   "If otherwise the problem persists, please contact support.";
 
-export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
+export const sendPricingRequest = (
+  deal: Deal,
+  entry: DealEntry,
+  summary: SummaryLeg
+): void => {
   if (deal === null || entry === null)
     throw new Error("no deal to get a pricing for");
   if (deal.strategy === undefined) throw new Error("invalid deal found");
@@ -23,7 +28,14 @@ export const sendPricingRequest = (deal: Deal, entry: DealEntry): void => {
   // Set the status to pricing to show a loading spinner
   moStore.setStatus(MOStatus.Pricing);
   // Send the request
-  API.sendPricingRequest(deal, entry, moStore.legs, valuationModel, strategy)
+  API.sendPricingRequest(
+    deal,
+    entry,
+    moStore.legs,
+    summary,
+    valuationModel,
+    strategy
+  )
     .then(() => {
       setTimeout(() => {
         moStore.setSoftError(SOFT_ERROR);

@@ -1,14 +1,18 @@
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import moment from "moment";
 import {
   OptionLeg,
   ValuationModel,
   VolMessageIn,
 } from "components/MiddleOffice/interfaces/pricer";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import config from "config";
-import { Point } from "structures/point";
+import { mergeDefinitionsAndLegs } from "legsUtils";
+import moStore from "mobx/stores/moStore";
+import workareaStore from "mobx/stores/workareaStore";
+import { STRM } from "stateDefs/workspaceState";
+import { DealEntry } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
@@ -26,17 +30,6 @@ import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 import { MessageTypes, W } from "types/w";
-import { mergeDefinitionsAndLegs } from "legsUtils";
-import moStore from "mobx/stores/moStore";
-import workareaStore from "mobx/stores/workareaStore";
-import { STRM } from "stateDefs/workspaceState";
-import { DealEntry } from "structures/dealEntry";
-import { splitCurrencyPair } from "utils/symbolUtils";
-import { tenorToDate } from "utils/tenorUtils";
-import {
-  currentTimestampFIXFormat,
-  momentToUTCFIXFormat,
-} from "utils/timeUtils";
 import {
   coalesce,
   getCurrentTime,
@@ -44,6 +37,12 @@ import {
   numberifyIfPossible,
 } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
+import { buildFwdRates } from "utils/fwdRates";
+import { splitCurrencyPair } from "utils/symbolUtils";
+import {
+  currentTimestampFIXFormat,
+  momentToUTCFIXFormat,
+} from "utils/timeUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -728,6 +727,7 @@ export class API {
     deal: Deal,
     entry: DealEntry,
     legs: Leg[],
+    summaryLeg: SummaryLeg,
     valuationModel: ValuationModel,
     strategy: MOStrategy
   ) {
@@ -742,31 +742,7 @@ export class API {
       legs
     );
     const tradeDateAsDate: Date = tradeDate.toDate();
-    const buildFwdRates = (legs: Leg[]): Point[] | undefined => {
-      const legOfInterest: Leg | undefined = legs.find((leg: Leg): boolean => {
-        const { custom } = leg;
-        if (custom === undefined) return false;
-        return custom.fwdRate;
-      });
-      if (legOfInterest === undefined || legOfInterest.custom === undefined)
-        return undefined;
-      const { fwdRate: value } = legOfInterest;
-      const format = (m: moment.Moment) => m.format("YYYY-MM-DD");
-      return [
-        {
-          date: format(moment()),
-          point: value!,
-        },
-        {
-          date: format(tenorToDate("1Y")),
-          point: value!,
-        },
-        {
-          date: format(tenorToDate("5Y")),
-          point: value!,
-        },
-      ];
-    };
+
     const request: VolMessageIn = {
       id: deal.dealID,
       Option: {
@@ -816,7 +792,12 @@ export class API {
           ccyPair: currencyPair,
           snapTime: tradeDateAsDate,
           DateCountBasisType: symbol["DayCountBasis-FX"],
-          ForwardRates: buildFwdRates(legs),
+          ForwardRates: buildFwdRates(
+            summaryLeg,
+            strategy,
+            deal.expiry1,
+            deal.expiry2
+          ),
         },
         RATES: [],
       },
