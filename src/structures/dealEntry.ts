@@ -20,16 +20,17 @@ export interface DealEntry {
 
   ccypair: string;
   tenor1: string;
-  expiry1: moment.Moment | null;
+  tenor1expiry: moment.Moment | null;
   tenor2: string;
-  expiry2: moment.Moment | null;
+  tenor2expiry: moment.Moment | null;
   dealstrike?: string | number;
   spread?: number | null;
   vol?: number | null;
   not1: number | null;
-  not2: number | null;
+  not2?: number | null;
   legadj: boolean;
-  premstyle: string;
+  premstyle?: string;
+  deltastyle?: string;
   buyer: string;
   seller: string;
   style: string;
@@ -50,14 +51,15 @@ export const emptyDealEntry: DealEntry = {
   ccypair: "",
   strategy: "",
   premstyle: "",
+  deltastyle: "",
   legs: null,
   not1: null,
   not2: null,
   legadj: false,
   buyer: "",
   seller: "",
-  expiry1: null,
-  expiry2: null,
+  tenor1expiry: null,
+  tenor2expiry: null,
   deliveryDate: moment(),
   tradeDate: moment(),
   dealId: "",

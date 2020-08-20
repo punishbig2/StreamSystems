@@ -1,4 +1,5 @@
-import { Editable, InputHandler, MinimalProps, StateReturnType } from "components/FormField/inputHandler";
+import { Editable, InputHandler, StateReturnType } from "components/FormField/inputHandler";
+import { MinimalProps } from "components/FormField/minimalProps";
 import { Validity } from "forms/validity";
 import moment, { isMoment, Moment } from "moment";
 

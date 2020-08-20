@@ -12,10 +12,10 @@ import { DefaultHandler } from "components/FormField/default";
 import {
   Editable,
   InputHandler,
-  MinimalProps,
-} from "components/FormField/inputHandler";
+  } from "components/FormField/inputHandler";
+import { MinimalProps } from "components/FormField/minimalProps";
 import { NumericInputHandler } from "components/FormField/numeric";
-import { TenorDropdown } from "components/TenorDropdown";
+import { Tenor, TenorDropdown } from "components/TenorDropdown";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
@@ -237,7 +237,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     void child;
   };
 
-  private renderSelectValue = (value: any) => {
+  private renderSelectValue = (value: any): ReactElement | string => {
     const { props, state } = this;
     const { labels } = state;
     if (value === undefined) return " Select a " + props.label;
@@ -368,8 +368,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           throw new Error("invalid value for tenor field");
         return (
           <TenorDropdown<T>
-            tenor={(value as any).tenor}
-            expiryDate={(value as any).expiryDate}
+            value={value as Tenor}
             name={props.name}
             disabled={!!props.disabled}
             color={props.color}
@@ -382,6 +381,19 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       case "dropdown":
         if (!dropdownData)
           throw new Error("cannot have a dropdown with no data");
+        if (!props.editable) {
+          return (
+            <div
+              title={"Click to copy!"}
+              className={[...classes, "readonly-field"].join(" ")}
+              onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+                this.copyToClipboard(event, state.displayValue)
+              }
+            >
+              {this.renderSelectValue(state.internalValue)}
+            </div>
+          );
+        }
         return (
           <Select
             value={state.internalValue}

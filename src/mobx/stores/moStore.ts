@@ -72,10 +72,12 @@ export class MoStore {
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
   public strategies: { [id: string]: MOStrategy } = {};
-  public styles: string[] = [];
-  public models: InternalValuationModel[] = [];
+  public styles: ReadonlyArray<string> = [];
+  public models: ReadonlyArray<InternalValuationModel> = [];
   public legDefinitions: LegDefinitions = {};
-  public cuts: Cut[] = [];
+  public cuts: ReadonlyArray<Cut> = [];
+  public deltaStyles: ReadonlyArray<string> = [];
+  public premiumStyles: ReadonlyArray<string> = [];
 
   @computed
   public get tenors(): string[] {
@@ -89,6 +91,8 @@ export class MoStore {
       this.setStyles(await API.getOptexStyle());
       this.setModels(await API.getValuModel());
       this.setBankEntities(await API.getBankEntities());
+      this.setDeltaStyles(await API.getDeltaStyles());
+      this.setPremiumStyles(await API.getPremiumStyles());
       // Load leg definitions
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];
@@ -169,6 +173,18 @@ export class MoStore {
   }
 
   @action.bound
+  private setDeltaStyles(styles: ReadonlyArray<string>): void {
+    this.deltaStyles = styles;
+    this.setProgress(94);
+  }
+
+  @action.bound
+  private setPremiumStyles(styles: ReadonlyArray<string>): void {
+    this.premiumStyles = styles;
+    this.setProgress(98);
+  }
+
+  @action.bound
   private setBankEntities(entities: BankEntitiesQueryResponse): void {
     this.entities = entities;
     this.entitiesMap = Object.values(entities)
@@ -228,12 +244,16 @@ export class MoStore {
     if (deal === null) return;
     const { symbol } = deal;
     this.summaryLeg = {
+      fwdpts1: null,
+      fwdrate1: null,
+      fwdpts2: null,
+      fwdrate2: null,
       cutCity: cut.City,
       cutTime: cut.LocalTime,
       dealOutput: {
         premiumDate: deal.spotDate,
         deliveryDate: deal.deliveryDate,
-        expiryDate: deal.expiryDate,
+        expiryDate: deal.expiry1,
         side: Sides.None,
         option: "",
         vol: null,
@@ -389,6 +409,11 @@ export class MoStore {
       // Show a toast message (soft error message)
       toast.show(message, ToastType.Error, -1);
     }
+  }
+
+  @action.bound
+  public updateSummaryLeg(fieldName: string, value: any): void {
+    this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
   }
 }
 

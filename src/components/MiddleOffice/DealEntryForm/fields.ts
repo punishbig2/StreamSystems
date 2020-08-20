@@ -194,15 +194,28 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     label: "Premium Style",
     type: "dropdown",
     transformData: (list: string[]): SelectItem[] => {
-      return [
-        {
-          value: "Forward",
-          label: "Forward",
-        },
-      ];
+      return list.map((item: string): { value: string; label: string } => ({
+        value: item,
+        label: item,
+      }));
     },
+    dataSource: "premiumStyles",
     color: "orange",
-    editable: false,
+    editable: true,
+  },
+  {
+    name: "deltastyle",
+    label: "Delta Style",
+    type: "dropdown",
+    transformData: (list: string[]): SelectItem[] => {
+      return list.map((item: string): { value: string; label: string } => ({
+        value: item,
+        label: item,
+      }));
+    },
+    dataSource: "deltaStyles",
+    color: "orange",
+    editable: true,
   },
   {
     name: "buyer",

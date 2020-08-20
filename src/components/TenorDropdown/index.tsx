@@ -5,10 +5,14 @@ import moment, { isMoment } from "moment";
 import React, { ReactElement } from "react";
 import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
-interface Props<T> {
-  data: SelectItem[];
+export interface Tenor {
   tenor: string;
   expiryDate: moment.Moment;
+}
+
+interface Props<T> {
+  data: SelectItem[];
+  value: Tenor;
   className: string;
   readOnly: boolean;
   color: "green" | "orange" | "cream" | "grey";
@@ -18,7 +22,7 @@ interface Props<T> {
 }
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
-  const { data } = props;
+  const { data, value } = props;
   const onDateChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     value: moment.Moment | string
@@ -43,7 +47,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       <Grid className={"bank-entity-field"} item container>
         <Grid xs={6} item>
           <Select
-            value={props.tenor}
+            value={value.tenor}
             disabled={props.disabled}
             className={props.className}
             displayEmpty={true}
@@ -52,7 +56,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
             name={props.name + "-value"}
             onChange={onSelectChange}
           >
-            {props.tenor === SPECIFIC_TENOR ? (
+            {value.tenor === SPECIFIC_TENOR ? (
               <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
             ) : null}
             {data.map((item: SelectItem) => (
@@ -66,7 +70,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           <FormField<{ date: moment.Moment }>
             color={props.color}
             type={"date"}
-            value={props.expiryDate}
+            value={value.expiryDate}
             placeholder={"MM/DD/YYYY"}
             editable={!props.readOnly}
             name={"date"}

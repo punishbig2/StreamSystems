@@ -1,235 +1,95 @@
 import { Grid } from "@material-ui/core";
-import { API, Task } from "API";
 import { FormField } from "components/FormField";
+import { Commission } from "components/MiddleOffice/interfaces/deal";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { fieldMapper } from "components/MiddleOffice/SummaryLegDetailsForm/fieldMapper";
+import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { NoDataMessage } from "components/noDataMessage";
 import { observer } from "mobx-react";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useState } from "react";
-import { BankEntity } from "types/bankEntity";
-import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
-import { Symbol } from "types/symbol";
 
-interface CommissionRates {
-  buyer: number;
-  seller: number;
+interface Props {
+  dealEntryStore: DealEntryStore;
+  summaryLeg: SummaryLeg | null;
 }
 
-const getCommissionRates = (
-  buyer: BankEntity,
-  seller: BankEntity,
-  symbol: Symbol
-): Task<CommissionRates | undefined> => {
-  const task1: Task<BrokerageCommissionResponse> = API.getBrokerageCommission(
-    buyer.id
-  );
-  const task2: Task<BrokerageCommissionResponse> = API.getBrokerageCommission(
-    seller.id
-  );
-  return {
-    execute: async (): Promise<CommissionRates | undefined> => {
-      try {
-        const rates1: BrokerageCommissionResponse = await task1.execute();
-        const rates2: BrokerageCommissionResponse = await task2.execute();
-        return {
-          seller: Number(rates2[symbol.ccyGroup]),
-          buyer: Number(rates1[symbol.ccyGroup]),
-        };
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    cancel: () => {
-      task1.cancel();
-      task2.cancel();
-    },
-  };
-};
-
-interface Brokerage {
-  rate: number | null;
-  buyer: number | null;
-  seller: number | null;
-  total: number | null;
-}
-
-const initialBrokerage: Brokerage = {
+const initialCommission: Commission = {
   rate: null,
-  buyer: null,
-  seller: null,
-  total: null,
+  value: null,
 };
 
-export const SummaryLegDetailsForm: React.FC = observer(
-  (): ReactElement | null => {
+export const SummaryLegDetailsForm: React.FC<Props> = observer(
+  (props: Props): ReactElement | null => {
     const { deal } = moStore;
-    const [brokerage, setBrokerage] = useState<Brokerage>(initialBrokerage);
-
-    const data = moStore.summaryLeg;
-
+    const [buyerCommission, setBuyerCommission] = useState<Commission>(
+      initialCommission
+    );
+    const [sellerCommission, setSellerCommission] = useState<Commission>(
+      initialCommission
+    );
+    const [totalCommission, setTotalCommission] = useState<number | null>(null);
     useEffect(() => {
       if (deal === null) return;
-      const buyer: BankEntity = moStore.entitiesMap[deal.buyer];
-      const seller: BankEntity = moStore.entitiesMap[deal.seller];
-      if (buyer === undefined || seller === undefined) return;
-      const task: Task<CommissionRates | undefined> = getCommissionRates(
-        buyer,
-        seller,
-        deal.symbol
-      );
-      const promise: Promise<CommissionRates | undefined> = task.execute();
-      promise.then((rates: CommissionRates | undefined): void => {
-        if (rates === undefined) {
-          setBrokerage(initialBrokerage);
-        } else {
-          setBrokerage({
-            ...rates,
-            total: rates.buyer + rates.seller,
-            rate: rates.buyer / rates.seller,
-          });
-        }
-      });
-      return () => task.cancel();
+      const { commissions } = deal;
+      if (commissions === null || commissions === undefined) return;
+      setBuyerCommission(commissions.buyer);
+      setSellerCommission(commissions.seller);
     }, [deal]);
-    if (data === null) {
+    useEffect(() => {
+      if (buyerCommission.value === null || sellerCommission.value === null) {
+        setTotalCommission(null);
+      } else {
+        setTotalCommission(buyerCommission.value + sellerCommission.value);
+      }
+    }, [buyerCommission, sellerCommission]);
+
+    if (props.summaryLeg === null) {
       return <NoDataMessage />;
     }
-    const { dealOutput } = data;
+    const { dealOutput } = props.summaryLeg;
     const disabled: boolean = moStore.status !== MOStatus.Normal;
+    const ignore = (event: React.FormEvent<HTMLFormElement>): void => {
+      event.preventDefault();
+    };
     return (
       <>
-        <form>
+        <form onSubmit={ignore}>
           <Grid container>
             <Grid alignItems={"stretch"} container item>
               <fieldset disabled={disabled}>
-                <FormField
-                  label={"Strategy"}
-                  color={"grey"}
-                  value={data.strategy}
-                  name={"strategy"}
-                  type={"text"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Trade Date"}
-                  color={"grey"}
-                  value={data.tradeDate}
-                  name={"tradeDate"}
-                  type={"date"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Spot Date"}
-                  color={"grey"}
-                  value={data.spotDate}
-                  name={"spotDate"}
-                  type={"date"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Spot"}
-                  color={"grey"}
-                  value={dealOutput.spot}
-                  name={"spot"}
-                  type={"number"}
-                  precision={4}
-                  disabled={disabled}
-                />
-
-                <FormField
-                  label={"Fwd Pts 1"}
-                  color={"grey"}
-                  value={null}
-                  name={"fwdPts1"}
-                  type={"number"}
-                  precision={4}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Fwd Rate 1"}
-                  color={"grey"}
-                  value={null}
-                  name={"fwdRate1"}
-                  type={"number"}
-                  precision={4}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Fwd Pts 2"}
-                  color={"grey"}
-                  value={null}
-                  name={"fwdPts2"}
-                  type={"number"}
-                  precision={4}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Fwd Rate 2"}
-                  color={"grey"}
-                  value={null}
-                  name={"fwdRate2"}
-                  type={"number"}
-                  precision={4}
-                  disabled={disabled}
-                />
-
-                <FormField
-                  label={"Cut City"}
-                  color={"grey"}
-                  value={data.cutCity}
-                  name={"cutCity"}
-                  type={"text"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Cut Time"}
-                  color={"grey"}
-                  value={data.cutTime}
-                  name={"cutTime"}
-                  type={"text"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Source"}
-                  color={"grey"}
-                  value={data.source}
-                  name={"source"}
-                  type={"text"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"Delivery"}
-                  color={"grey"}
-                  value={data.delivery}
-                  name={"delivery"}
-                  type={"text"}
-                  disabled={disabled}
-                />
-                <FormField
-                  label={"USI#"}
-                  color={"grey"}
-                  value={data.usi}
-                  name={"usi"}
-                  type={"number"}
-                  disabled={disabled}
-                />
+                {fields.map(
+                  fieldMapper(props.dealEntryStore, props.summaryLeg)
+                )}
               </fieldset>
             </Grid>
             <Grid alignItems={"stretch"} container>
               <fieldset disabled={disabled}>
                 <legend>Brokerage</legend>
                 <FormField
-                  label={"Brokerage Rate"}
+                  label={"Buyer Brokerage Rate"}
                   color={"grey"}
-                  value={brokerage.rate}
+                  value={buyerCommission.rate}
                   name={"brokerageRate"}
                   type={"number"}
                   precision={4}
                   disabled={disabled}
                 />
                 <FormField
+                  label={"Seller Brokerage Rate"}
+                  color={"grey"}
+                  value={sellerCommission.rate}
+                  name={"brokerageRate"}
+                  type={"number"}
+                  precision={4}
+                  disabled={disabled}
+                />
+
+                <FormField
                   label={"Buyer Comm"}
                   color={"grey"}
-                  value={brokerage.buyer}
+                  value={buyerCommission.value}
                   name={"buyerComm"}
                   type={"currency"}
                   currency={"USD"}
@@ -239,7 +99,7 @@ export const SummaryLegDetailsForm: React.FC = observer(
                 <FormField
                   label={"Seller Comm"}
                   color={"grey"}
-                  value={brokerage.seller}
+                  value={sellerCommission.value}
                   name={"sellerComm"}
                   type={"currency"}
                   currency={"USD"}
@@ -249,7 +109,7 @@ export const SummaryLegDetailsForm: React.FC = observer(
                 <FormField
                   label={"Total Comm"}
                   color={"grey"}
-                  value={brokerage.total}
+                  value={totalCommission}
                   name={"totalComm"}
                   type={"currency"}
                   currency={"USD"}

@@ -131,7 +131,7 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
           {...rowProps}
           user={user}
           orders={orders}
-          darkpool={store.darkpool[row.tenor]}
+          darkpool={store.darkpool[row.tenor1]}
           defaultSize={defaultqty}
           minimumSize={minqty}
           onTenorSelected={() => store.setCurrentTenor(null)}

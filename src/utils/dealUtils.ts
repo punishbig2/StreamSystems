@@ -46,18 +46,18 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     symbol.SettlementWindow,
     "d"
   );
-  const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor);
+  const deliveryDate: moment.Moment = addTenorToDate(spotDate, item.tenor1);
   const parsedExpiryDate1: moment.Moment | undefined = forceParseDate(
     source.expirydate
   );
   const parsedExpiryDate2: moment.Moment | undefined = forceParseDate(
-    source.expirydate2
+    source.expirydate1
   );
-  const expiryDate1: moment.Moment =
+  const expiry1: moment.Moment =
     parsedExpiryDate1 === undefined
       ? addTenorToDate(tradeDate, item.tenor)
       : parsedExpiryDate1;
-  const expiryDate2: moment.Moment =
+  const expiry2: moment.Moment =
     parsedExpiryDate2 === undefined
       ? addTenorToDate(tradeDate, item.tenor1)
       : parsedExpiryDate2;
@@ -65,25 +65,40 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     dealID: item.linkid,
     buyer: item.buyer,
     seller: item.seller,
-    cumulativeQuantity: Number(item.cumqty),
     currency: item.symbol,
-    lastPrice: item.lastpx === null ? null : Number(item.lastpx),
-    leavesQuantity: Number(item.lvsqty),
-    lastQuantity: Number(item.lastqty),
+    price: item.lastpx === null ? null : Number(item.lastpx),
+    notional1: Number(item.lastqty) * 1e6,
+    notional2: Number(item.notional1),
     strategy: item.strategy,
     currencyPair: item.symbol,
     transactionTime: item.transacttime,
-    tenor: item.tenor,
+    tenor1: item.tenor,
+    expiry1: expiry1,
     tenor2: item.tenor1,
+    expiry2: expiry2,
     tradeDate: tradeDate,
     strike: item.strike,
     spotDate: spotDate,
     deliveryDate: deliveryDate,
-    expiryDate: expiryDate1,
-    expiryDate2: expiryDate2,
     symbol: symbol,
     source: item.source,
     status: item.state,
+    deltaStyle: item.deltastyle,
+    premiumStyle: item.premstyle,
+    fwdRate1: item.fwdrate1,
+    fwdPts1: item.fwdpts1,
+    fwdRate2: item.fwdrate2,
+    fwdPts2: item.fwdpts2,
+    commissions: {
+      buyer: {
+        rate: item.buyer_comm_rate,
+        value: item.buyer_comm,
+      },
+      seller: {
+        rate: item.seller_comm_rate,
+        value: item.seller_comm,
+      },
+    },
   };
 };
 
@@ -111,26 +126,27 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   return {
     ccypair: deal.currencyPair,
     strategy: deal.strategy,
-    premstyle: "",
-    not1: 1e6 * deal.lastQuantity,
-    not2: null,
+    premstyle: deal.premiumStyle,
+    deltastyle: deal.deltaStyle,
+    not1: deal.notional1,
+    not2: deal.notional2,
     legadj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
     buyer: deal.buyer,
     seller: deal.seller,
     tradeDate: deal.tradeDate,
-    expiry1: deal.expiryDate,
-    expiry2: deal.expiryDate2,
+    tenor1expiry: deal.expiry1,
+    tenor2expiry: deal.expiry2,
     deliveryDate: deal.deliveryDate,
     dealId: id.toString(),
     status: deal.status,
     style: "European",
-    tenor1: deal.tenor,
+    tenor1: deal.tenor1,
     tenor2: deal.tenor2,
     model: 3,
     legs: legsCount,
     dealstrike: coalesce(deal.strike, strategy.strike),
-    vol: strategy.spreadvsvol === "vol" ? deal.lastPrice : undefined,
-    spread: strategy.spreadvsvol === "spread" ? deal.lastPrice : undefined,
+    vol: strategy.spreadvsvol === "vol" ? deal.price : undefined,
+    spread: strategy.spreadvsvol === "spread" ? deal.price : undefined,
     dealType: dealSourceToDealType(deal.source),
     type: EntryType.ExistingDeal,
   };

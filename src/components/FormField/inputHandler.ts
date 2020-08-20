@@ -1,6 +1,5 @@
-import { FieldType } from "forms/fieldType";
+import { MinimalProps } from "components/FormField/minimalProps";
 import { Validity } from "forms/validity";
-import { Moment } from "moment";
 import React from "react";
 
 export interface Editable {
@@ -8,21 +7,6 @@ export interface Editable {
   internalValue: any;
   caretPosition: number | null;
   validity: Validity;
-}
-
-export interface MinimalProps<T = any> {
-  type: FieldType;
-  name: keyof T;
-  editable?: boolean;
-  emptyValue?: string;
-  value:
-    | string
-    | boolean
-    | number
-    | Moment
-    | undefined
-    | null
-    | Pick<T, keyof T>;
 }
 
 export const getCaretPosition = (input: HTMLInputElement | null): number => {

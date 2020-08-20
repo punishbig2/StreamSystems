@@ -2,6 +2,7 @@ import { API } from "API";
 import { submitToSEF } from "components/MiddleOffice/DealEntryForm/hooks/submitToSEF";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { action, computed, observable } from "mobx";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -30,7 +31,7 @@ export class DealEntryStore {
 
   @computed
   public get isModified(): boolean {
-    return moStore.isEditMode; // !deepEqual(this.entry, this.originalEntry);
+    return moStore.isEditMode;
   }
 
   @computed
@@ -43,6 +44,8 @@ export class DealEntryStore {
     if (entry.seller === "") return false;
     if (entry.model === "") return false;
     if (entry.tenor1 === "") return false;
+    if (entry.premstyle === "") return false;
+    if (entry.deltastyle === "") return false;
     return entry.not1 !== null;
   }
 
@@ -69,7 +72,8 @@ export class DealEntryStore {
   @action.bound
   public cloneDeal(): void {
     if (moStore.deal === null) return;
-    this.entry = { ...createDealEntry(moStore.deal) };
+    this.entry = createDealEntry(moStore.deal);
+    console.log(this.entry);
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     moStore.setEditMode(true);
@@ -101,7 +105,7 @@ export class DealEntryStore {
       const { deal } = moStore;
       const strategy: MOStrategy = moStore.getStrategyById(value);
       const legsCount: number = moStore.getOutLegsCount(value);
-      const price: number | null = !!deal ? deal.lastPrice : null;
+      const price: number | null = !!deal ? deal.price : null;
       this.entry = {
         ...this.entry,
         [name]: value,
@@ -122,19 +126,6 @@ export class DealEntryStore {
 
   private buildRequest() {
     const { entry } = this;
-    /*const {
-      buyer,
-      strike,
-      seller,
-      strategy,
-      currencyPair,
-      model,
-      notional,
-      tenor1,
-      vol,
-      spread,
-      expiryDate,
-    } = this.entry;*/
     if (entry.not1 === null || entry.not1 === undefined)
       throw new Error("notional must be set");
     const moStrategy: MOStrategy = moStore.strategies[entry.strategy];
@@ -142,6 +133,15 @@ export class DealEntryStore {
       throw new Error("invalid strategy, how did you pick it?");
     const price: number | null | undefined =
       moStrategy.spreadvsvol === "vol" ? entry.vol : entry.spread;
+    const rates = ((summaryLeg: SummaryLeg | null) => {
+      if (summaryLeg === null) return {};
+      return {
+        fwdrate1: summaryLeg.fwdrate1,
+        fwdpts1: summaryLeg.fwdpts1,
+        fwdrate2: summaryLeg.fwdrate2,
+        fwdpts2: summaryLeg.fwdpts2,
+      };
+    })(moStore.summaryLeg);
     return {
       buyer: entry.buyer,
       seller: entry.seller,
@@ -151,10 +151,14 @@ export class DealEntryStore {
       model: entry.model,
       price: !!price ? price.toString() : null,
       size: Math.round(entry.not1 / 1e6).toString(),
+      notional1: entry.not2,
       tenor1: entry.tenor1,
       tenor2: entry.tenor2,
-      expiryDate1: entry.expiry1,
-      expiryDate2: entry.expiry2,
+      expiry1: entry.tenor1expiry,
+      expiry2: entry.tenor2expiry,
+      deltaStyle: entry.deltastyle,
+      premiumStyle: entry.premstyle,
+      ...rates,
     };
   }
 
@@ -180,6 +184,7 @@ export class DealEntryStore {
         });
       })
       .catch((error: any) => {
+        console.log(error);
         moStore.setError(savingDealError(error));
       });
   }
@@ -204,6 +209,7 @@ export class DealEntryStore {
             });
           })
           .catch((reason: any) => {
+            console.log(reason);
             moStore.setError(savingDealError(reason));
           });
         break;

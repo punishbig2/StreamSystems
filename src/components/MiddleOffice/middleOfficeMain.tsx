@@ -90,7 +90,10 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
                   <div className={headingClasses.join(" ")}>
                     <h1>Summary Leg Details</h1>
                   </div>
-                  <SummaryLegDetailsForm />
+                  <SummaryLegDetailsForm
+                    dealEntryStore={entryStore}
+                    summaryLeg={moStore.summaryLeg}
+                  />
                 </div>
               </OverlayScrollbarsComponent>
             </Grid>

@@ -11,7 +11,10 @@ import { DealEntry } from "structures/dealEntry";
 import moment from "moment";
 import { tenorToDuration } from "utils/tenorUtils";
 
-const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
+const createStubLegs = async (
+  entry: DealEntry,
+  cuts: ReadonlyArray<Cut>
+): Promise<void> => {
   if (entry.strategy === "") return;
   const symbol: Symbol = moStore.findSymbolById(entry.ccypair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
@@ -65,7 +68,7 @@ const createStubLegs = async (entry: DealEntry, cuts: Cut[]): Promise<void> => {
   }
 };
 
-export default (cuts: Cut[], entry: DealEntry) => {
+export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
   useEffect(() => {
     moStore.setLegs([], null);
   }, [entry.strategy]);

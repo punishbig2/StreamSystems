@@ -1,9 +1,9 @@
 import {
   Editable,
   InputHandler,
-  MinimalProps,
   StateReturnType,
 } from "components/FormField/inputHandler";
+import { MinimalProps } from "components/FormField/minimalProps";
 import { Validity } from "forms/validity";
 
 export class StrikeHandler<T, P extends MinimalProps, S extends Editable>

@@ -14,12 +14,12 @@ export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   render: (props: CellProps): ReactElement => <PriceCell {...props} />,
   width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
-    const value: number = Number(v1.lastPrice);
+    const value: number = Number(v1.price);
     const numeric: number = Number(keyword);
     if (isNaN(numeric)) return false;
     return priceFormatter(value) === priceFormatter(numeric);
   },
   difference: (v1: Deal, v2: Deal) => {
-    return Number(v1.lastPrice) - Number(v2.lastPrice);
+    return Number(v1.price) - Number(v2.price);
   },
 });

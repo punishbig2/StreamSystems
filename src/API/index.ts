@@ -239,7 +239,9 @@ type Endpoints =
   | "optionlegsdefin"
   | "optionlegsdefout"
   | "width"
-  | "commission";
+  | "commission"
+  | "deltastyle"
+  | "premstyle";
 
 type Verb =
   | "get"
@@ -271,6 +273,7 @@ export class API {
   public static SEF: string = `${API.Mlo}/sef`;
   public static Legs: string = `${API.Mlo}/legs`;
   public static Brokerage: string = `${API.Mlo}/brokerage`;
+  public static MloConfig = `${API.Mlo}/config`;
 
   public static getRawUrl(section: string, rest: string, args?: any): string {
     if (args === undefined)
@@ -778,12 +781,15 @@ export class API {
         OptionLegs: mergedDefinitions.map(
           (leg: Leg): OptionLeg => {
             return {
-              notional: coalesce(leg.notional, 1e6 * deal.lastQuantity),
-              expiryDate: coalesce(leg.expiryDate, deal.expiryDate),
+              notional: coalesce(leg.notional, 1e6 * deal.notional1),
+              expiryDate: coalesce(leg.expiryDate, deal.expiry1),
               deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
               spreadVolatiltyOffset: API.divideBy100(entry.spread),
               strike: numberifyIfPossible(
-                coalesce(leg.strike, coalesce(entry.dealstrike, strategy.strike))
+                coalesce(
+                  leg.strike,
+                  coalesce(entry.dealstrike, strategy.strike)
+                )
               ),
               volatilty: API.divideBy100(coalesce(leg.vol, entry.vol)),
               barrier: null,
@@ -847,11 +853,13 @@ export class API {
     const user: User = workareaStore.user;
     return {
       linkid: data.linkid,
-      tenor: data.tenor,
+      tenor: data.tenor1,
+      tenor1: data.tenor2,
       strategy: data.strategy,
       symbol: data.symbol,
       lastpx: data.price !== null ? data.price : undefined,
       lastqty: data.size,
+      notional1: data.notional1,
       lvsqty: "0",
       cumqty: "0",
       transacttime: currentTimestampFIXFormat(),
@@ -859,7 +867,14 @@ export class API {
       seller: data.seller,
       useremail: user.email,
       strike: data.strike,
-      expirydate: momentToUTCFIXFormat(data.expiryDate),
+      expirydate: momentToUTCFIXFormat(data.expiry1),
+      expirydate1: momentToUTCFIXFormat(data.expiry2),
+      fwdrate1: data.fwdrate1,
+      fwdpts1: data.fwdpts1,
+      fwdrate2: data.fwdrate2,
+      fwdpts2: data.fwdpts2,
+      deltastyle: data.deltaStyle,
+      premstyle: data.premiumStyle,
     };
   }
 
@@ -958,5 +973,19 @@ export class API {
         firm,
       })
     );
+  }
+
+  public static getDeltaStyles(): Promise<ReadonlyArray<string>> {
+    const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
+      API.buildUrl(API.MloConfig, "deltastyle", "get")
+    );
+    return task.execute();
+  }
+
+  public static getPremiumStyles(): Promise<ReadonlyArray<string>> {
+    const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
+      API.buildUrl(API.MloConfig, "premstyle", "get")
+    );
+    return task.execute();
   }
 }

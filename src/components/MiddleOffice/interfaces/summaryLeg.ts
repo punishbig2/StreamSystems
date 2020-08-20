@@ -15,4 +15,8 @@ export interface SummaryLeg {
     gamma: number | null;
     vega: number | null;
   };
+  fwdrate1: number | null;
+  fwdpts1: number | null;
+  fwdrate2: number | null;
+  fwdpts2: number | null;
 }

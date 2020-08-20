@@ -9,7 +9,7 @@ export const SizeCell: React.FC<CellProps> = observer(
     if (!deal) {
       return <div />;
     } else {
-      return <div>{sizeFormatter(deal.lastQuantity)}</div>;
+      return <div>{sizeFormatter(deal.notional1 / 1e6)}</div>;
     }
   }
 );

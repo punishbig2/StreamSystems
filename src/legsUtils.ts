@@ -17,7 +17,7 @@ export const fixDates = (data: any[]): Leg[] => {
     return {
       ...item,
       premiumDate: moment(item.premiumDate),
-      expiryDate: moment(item.expiryDate),
+      expiryDate: moment(item.expiry1),
       deliveryDate: moment(item.deliveryDate),
     };
   };
@@ -53,9 +53,9 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
   ];
   // FIXME: probably correct, but not sure as there could be more than 1 tenor
   const expiryDate: moment.Moment =
-    entry.expiry1 === null
+    entry.tenor1expiry === null
       ? addTenorToDate(entry.tradeDate, entry.tenor1)
-      : entry.expiry1;
+      : entry.tenor1expiry;
   return {
     premium: null,
     pricePercent: 0 /* FIXME: what would this be? */,

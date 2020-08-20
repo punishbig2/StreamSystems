@@ -7,7 +7,7 @@ import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 import { SPECIFIC_TENOR, tenorToDate } from "utils/tenorUtils";
-import { MOStrategy, EditableCondition } from "../interfaces/moStrategy";
+import { EditableCondition, MOStrategy } from "../interfaces/moStrategy";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
@@ -33,11 +33,9 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
     if (field.name === "status") return stateMap[Number(rawValue)];
     if (field.type === "tenor") {
-      const { name } = field;
-      const index: string = name.slice(-1);
       return {
         tenor: entry[field.name],
-        expiryDate: entry[("expiryDate" + index) as keyof DealEntry],
+        expiryDate: entry[(field.name + "expiry") as keyof DealEntry],
       };
     }
     if (field.type === "number") {
@@ -52,19 +50,15 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       return rawValue;
     }
   };
-
   const value: any = getValue(!!entry ? entry[field.name] : null);
   const onTenorChange = (name: keyof DealEntry, value: string): void => {
-    const index: string = name.slice(-1);
+    const expiry: keyof DealEntry = (name + "expiry") as keyof DealEntry;
     if (isMoment(value)) {
       store.updateEntry(name, SPECIFIC_TENOR);
-      store.updateEntry(("expiryDate" + index) as keyof DealEntry, value);
+      store.updateEntry(expiry, value);
     } else {
       store.updateEntry(name, value);
-      store.updateEntry(
-        ("expiryDate" + index) as keyof DealEntry,
-        tenorToDate(value)
-      );
+      store.updateEntry(expiry, tenorToDate(value));
     }
   };
   const onChange = (name: keyof DealEntry, value: string): void => {
@@ -77,9 +71,10 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>
   ): boolean | undefined => {
     if (!moStore.isEditMode) return false;
-    if (editableCondition === EditableCondition.NotEditable) {
-      return false;
-    } else if (editableCondition === EditableCondition.NotApplicable) {
+    if (
+      editableCondition === EditableCondition.NotEditable ||
+      editableCondition === EditableCondition.NotApplicable
+    ) {
       return false;
     } else {
       if (typeof fieldDef.editable === "function") {

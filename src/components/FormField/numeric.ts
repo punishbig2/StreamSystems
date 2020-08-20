@@ -2,9 +2,9 @@ import {
   Editable,
   getCaretPosition,
   InputHandler,
-  MinimalProps,
   StateReturnType,
 } from "components/FormField/inputHandler";
+import { MinimalProps } from "components/FormField/minimalProps";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import React from "react";

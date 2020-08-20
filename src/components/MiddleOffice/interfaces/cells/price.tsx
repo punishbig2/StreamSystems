@@ -7,7 +7,7 @@ export const PriceCell: React.FC<CellProps> = observer(
   (props: CellProps): ReactElement => {
     const { deal } = props;
     if (deal) {
-      return <div>{priceFormatter(deal.lastPrice)}</div>;
+      return <div>{priceFormatter(deal.price)}</div>;
     } else {
       return <div />;
     }
