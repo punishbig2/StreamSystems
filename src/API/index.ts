@@ -807,7 +807,7 @@ export class API {
         valuationDate: new Date(),
         VOL: {
           ccyPair: currencyPair,
-          premiumAdjustDelta: false,
+          premiumAdjustDelta: symbol.premiumAdjustDelta,
           snapTime: tradeDateAsDate,
           DateCountBasisType: symbol["DayCountBasis-VOL"],
           VolSurface: [], // To be filled by the pre-pricer
