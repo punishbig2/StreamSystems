@@ -250,14 +250,18 @@ export class SignalRManager {
   }
 
   public addDeal = (deal: any): void => {
-    try {
-      const detail: Deal = createDealFromBackendMessage(deal);
-      const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
-        detail: detail,
-      });
-      document.dispatchEvent(event);
-    } catch (error) {
-      console.warn(error);
+    if ("dealId" in deal) {
+      console.log(deal);
+    } else {
+      try {
+        const detail: Deal = createDealFromBackendMessage(deal);
+        const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
+          detail: detail,
+        });
+        document.dispatchEvent(event);
+      } catch (error) {
+        console.warn(error);
+      }
     }
   };
 

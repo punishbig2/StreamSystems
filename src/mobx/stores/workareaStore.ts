@@ -43,7 +43,7 @@ export class WorkareaStore {
   @persist("object") @observable workspaces: { [k: string]: WorkspaceDef } = {};
   @persist @observable currentWorkspaceID: string | null = null;
 
-  @observable.ref symbols: Symbol[] = [];
+  @observable symbols: Symbol[] = [];
   @observable.ref strategies: Strategy[] = [];
   @observable.ref tenors: string[] = [];
   @observable.ref banks: string[] = [];
