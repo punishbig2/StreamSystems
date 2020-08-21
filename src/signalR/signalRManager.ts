@@ -8,6 +8,7 @@ import {
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import config from "config";
+import { CommissionRate } from "mobx/stores/brokerageStore";
 import moStore from "mobx/stores/moStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
@@ -54,6 +55,7 @@ enum Events {
   OnDealDeleted = "onDealDeleted",
   OnError = "onError",
   OnSEFUpdate = "onSEFUpdate",
+  OnCommissionUpdate = "onCommissionUpdate",
 }
 
 interface Command {
@@ -69,7 +71,7 @@ export class SignalRManager {
     | ((connection: HubConnection) => void)
     | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
-  private recordedCommands: Command[] = [
+  private readonly recordedCommands: Command[] = [
     {
       name: Methods.SubscribeForDeals,
       args: ["*"],
@@ -158,6 +160,7 @@ export class SignalRManager {
       connection.on(Events.UpdateLegs, this.onUpdateLegs);
       connection.on(Events.OnError, this.onError);
       connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
+      connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
     }
   };
 
@@ -579,6 +582,15 @@ export class SignalRManager {
     document.dispatchEvent(event);
   };
 
+  private onCommissionUpdate = (data: string): void => {
+    const object: any = JSON.parse(data);
+    const firm: string = object.firm;
+    const event: CustomEvent<ReadonlyArray<CommissionRate>> = new CustomEvent<
+      ReadonlyArray<CommissionRate>
+    >(firm + "updatecommissionrates");
+    document.dispatchEvent(event);
+  };
+
   private onSEFUpdate = (data: string): void => {
     const object: any = JSON.parse(data);
     if (object.error_msg !== undefined) {
@@ -603,6 +615,20 @@ export class SignalRManager {
       console.log(error);
     }
   };
+
+  public addCommissionRatesListener(
+    firm: string,
+    listener: (rates: ReadonlyArray<CommissionRate>) => void
+  ): () => void {
+    const handler = (rawEvent: any) => {
+      const event: CustomEvent<ReadonlyArray<CommissionRate>> = rawEvent;
+      listener(event.detail);
+    };
+    document.addEventListener(firm + "updatecommissionrates", handler);
+    return () => {
+      document.removeEventListener(firm + "updatecommissionrates", handler);
+    };
+  }
 }
 
 export default new SignalRManager();

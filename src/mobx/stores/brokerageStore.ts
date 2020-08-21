@@ -1,6 +1,7 @@
 import { API, Task } from "API";
 import { action, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
+import signalRManager from "signalR/signalRManager";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
 
@@ -39,5 +40,13 @@ export class BrokerageStore {
   @action.bound
   private setCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
     this.commissionRates = rates;
+  }
+
+  public installListener(): () => void {
+    const user: User = workareaStore.user;
+    return signalRManager.addCommissionRatesListener(
+      user.firm,
+      this.setCommissionRates
+    );
   }
 }

@@ -1,12 +1,14 @@
 import { observer } from "mobx-react";
 import { BrokerageStore, CommissionRate } from "mobx/stores/brokerageStore";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 export const CommissionRates: React.FC = observer(
   (): ReactElement => {
-    const [{ commissionRates }] = useState<BrokerageStore>(
-      new BrokerageStore()
-    );
+    const [brokerageStore] = useState<BrokerageStore>(new BrokerageStore());
+    const { commissionRates } = brokerageStore;
+    useEffect(() => {
+      return brokerageStore.installListener();
+    });
     return (
       <div className={"commission-rates-container"}>
         {commissionRates.map(
