@@ -51,6 +51,14 @@ export const fields: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>[] = [
   },
   {
     type: "number",
+    name: "spot",
+    label: "Spot",
+    color: "grey",
+    editable: false,
+    precision: 4,
+  },
+  {
+    type: "number",
     name: "fwdpts1",
     label: "Fwd Pts 1",
     color: "grey",
