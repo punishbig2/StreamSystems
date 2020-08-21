@@ -1,5 +1,58 @@
 import { RunEntry } from "components/Run/runEntry";
 import { RunActions } from "components/Run/reducer";
+import { RunState } from "stateDefs/runState";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
+import { PodRowStatus } from "types/podRow";
+import { coalesce } from "utils";
+import { priceFormatter } from "utils/priceFormatter";
+
+export const getOrderStatus = (
+  status: OrderStatus,
+  oldValue: number | null,
+  newValue: number | null
+) => {
+  if (
+    priceFormatter(newValue) === priceFormatter(oldValue) &&
+    (status & OrderStatus.Cancelled) === 0
+  )
+    return status;
+  return (
+    (status | OrderStatus.PriceEdited) &
+    ~OrderStatus.Owned &
+    ~OrderStatus.SameBank &
+    ~OrderStatus.Cancelled
+  );
+};
+
+const isActive = (order: Order, newPrice: number | null): boolean => {
+  if (newPrice !== null) return true;
+  return (order.status & OrderStatus.Cancelled) !== 0;
+};
+
+export const getRowStatus = (
+  bid: Order,
+  ofr: Order,
+  computed: RunEntry
+): PodRowStatus => {
+  if (
+    (bid.status & OrderStatus.Cancelled) !== 0 ||
+    (ofr.status & OrderStatus.Cancelled) !== 0
+  )
+    return PodRowStatus.Normal;
+  if (
+    !isActive(bid, computed.bid) ||
+    !isActive(ofr, computed.ofr) ||
+    computed.mid === null ||
+    computed.spread === null
+  )
+    return PodRowStatus.Normal;
+  if (computed.bid === null || computed.ofr === null)
+    return PodRowStatus.Normal;
+  return computed.bid > computed.ofr
+    ? PodRowStatus.InvertedMarketsError
+    : PodRowStatus.Normal;
+};
 
 export const computeRow = (
   type: string,
@@ -42,4 +95,31 @@ export const computeRow = (
     default:
       return initial;
   }
+};
+
+export const buildNewOrder = (
+  state: RunState,
+  original: Order,
+  computed: number | null,
+  starting: number | null
+): Order => {
+  if (computed === null) return original;
+  const defaultSize: number =
+    original.type === OrderTypes.Bid
+      ? state.defaultBidSize
+      : state.defaultOfrSize;
+  const price = coalesce(computed, starting);
+  const status = getOrderStatus(original.status, original.price, price);
+  const size =
+    (original.status & OrderStatus.Cancelled) !== 0
+      ? defaultSize
+      : original.size;
+  return {
+    ...original,
+    // Update the price
+    price: price,
+    size: !size ? defaultSize : size,
+    // Update the status and set it as edited/modified
+    status: status,
+  };
 };

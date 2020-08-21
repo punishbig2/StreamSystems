@@ -8,7 +8,10 @@ import {
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import config from "config";
-import { CommissionRate } from "mobx/stores/brokerageStore";
+import {
+  CommissionRate,
+  convertToCommissionRatesArray,
+} from "mobx/stores/brokerageStore";
 import moStore from "mobx/stores/moStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
@@ -587,7 +590,9 @@ export class SignalRManager {
     const firm: string = object.firm;
     const event: CustomEvent<ReadonlyArray<CommissionRate>> = new CustomEvent<
       ReadonlyArray<CommissionRate>
-    >(firm + "updatecommissionrates");
+    >(firm + "updatecommissionrates", {
+      detail: convertToCommissionRatesArray(object),
+    });
     document.dispatchEvent(event);
   };
 

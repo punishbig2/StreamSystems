@@ -1,13 +1,15 @@
-import { RunState } from "stateDefs/runState";
-import { PodRow, PodRowStatus } from "types/podRow";
-import { RunEntry } from "components/Run/runEntry";
-import { computeRow } from "components/Run/reducers/computeRow";
-import { OrderStatus, Order } from "types/order";
-import { priceFormatter } from "utils/priceFormatter";
-import equal from "deep-equal";
-import { RunActions } from "components/Run/reducer";
 import { FXOAction } from "actionCreator";
-import { OrderTypes } from "types/mdEntry";
+import { RunActions } from "components/Run/reducer";
+import {
+  buildNewOrder,
+  computeRow,
+  getRowStatus,
+} from "components/Run/reducers/computeRow";
+import { RunEntry } from "components/Run/runEntry";
+import equal from "deep-equal";
+import { RunState } from "stateDefs/runState";
+import { Order, OrderStatus } from "types/order";
+import { PodRow } from "types/podRow";
 
 export const valueChange = (
   state: RunState,
@@ -30,79 +32,18 @@ export const valueChange = (
   const computedEntry: RunEntry = computeRow(type, startingEntry, data.value);
   if (computedEntry.ofr === null) computedEntry.ofr = startingEntry.ofr;
   if (computedEntry.bid === null) computedEntry.bid = startingEntry.bid;
-  const isActive = (order: Order, newPrice: number | null): boolean => {
-    if (newPrice !== null) return true;
-    return (order.status & OrderStatus.Cancelled) !== 0;
-  };
-  const getRowStatus = (computed: RunEntry): PodRowStatus => {
-    if (
-      (bid.status & OrderStatus.Cancelled) !== 0 ||
-      (ofr.status & OrderStatus.Cancelled) !== 0
-    )
-      return PodRowStatus.Normal;
-    if (
-      !isActive(bid, computed.bid) ||
-      !isActive(ofr, computed.ofr) ||
-      computed.mid === null ||
-      computed.spread === null
-    )
-      return PodRowStatus.Normal;
-    if (computed.bid === null || computed.ofr === null)
-      return PodRowStatus.Normal;
-    return computed.bid > computed.ofr
-      ? PodRowStatus.InvertedMarketsError
-      : PodRowStatus.Normal;
-  };
-  const getOrderStatus = (
-    status: OrderStatus,
-    oldValue: number | null,
-    newValue: number | null
-  ) => {
-    if (
-      priceFormatter(newValue) === priceFormatter(oldValue) &&
-      (status & OrderStatus.Cancelled) === 0
-    )
-      return status;
-    return (
-      (status | OrderStatus.PriceEdited) &
-      ~OrderStatus.Owned &
-      ~OrderStatus.SameBank &
-      ~OrderStatus.Cancelled
-    );
-  };
+
   const coalesce = (v1: number | null, v2: number | null) =>
     v1 === null ? v2 : v1;
-  const buildNewOrder = (
-    original: Order,
-    computed: number | null,
-    starting: number | null
-  ): Order => {
-    if (computed === null) return original;
-    const defaultSize: number =
-      original.type === OrderTypes.Bid
-        ? state.defaultBidSize
-        : state.defaultOfrSize;
-    const price = coalesce(computed, starting);
-    const status = getOrderStatus(original.status, original.price, price);
-    const size =
-      (original.status & OrderStatus.Cancelled) !== 0
-        ? defaultSize
-        : original.size;
-    return {
-      ...original,
-      // Update the price
-      price: price,
-      size: !size ? defaultSize : size,
-      // Update the status and set it as edited/modified
-      status: status,
-    };
-  };
+
   const newOfr: Order = buildNewOrder(
+    state,
     ofr,
     computedEntry.ofr,
     startingEntry.ofr
   );
   const newBid: Order = buildNewOrder(
+    state,
     bid,
     computedEntry.bid,
     startingEntry.bid
@@ -163,7 +104,7 @@ export const valueChange = (
               type !== RunActions.Bid
                 ? bid
                 : newBid,
-            status: getRowStatus(computedEntry),
+            status: getRowStatus(bid, ofr, computedEntry),
           },
         },
       };

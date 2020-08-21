@@ -10,6 +10,23 @@ export interface CommissionRate {
   value: number;
 }
 
+export const convertToCommissionRatesArray = (
+  response: BrokerageCommissionResponse | null
+): ReadonlyArray<CommissionRate> => {
+  if (response === null) return [];
+  const regions: string[] = Object.keys(response);
+  return regions
+    .filter((region: string) => region !== "firm" && region !== "msgtype")
+    .map(
+      (region: string): CommissionRate => {
+        return {
+          region: region,
+          value: response[region],
+        };
+      }
+    );
+};
+
 export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
 
@@ -19,22 +36,7 @@ export class BrokerageStore {
       user.firm
     );
     const promise: Promise<BrokerageCommissionResponse> = task.execute();
-    promise.then((response: BrokerageCommissionResponse): void => {
-      if (response === null) return;
-      const regions: string[] = Object.keys(response);
-      this.setCommissionRates(
-        regions
-          .filter((region: string) => region !== "firm" && region !== "msgtype")
-          .map(
-            (region: string): CommissionRate => {
-              return {
-                region: region,
-                value: response[region],
-              };
-            }
-          )
-      );
-    });
+    promise.then(convertToCommissionRatesArray).then(this.setCommissionRates);
   }
 
   @action.bound

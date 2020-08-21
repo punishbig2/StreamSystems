@@ -1,7 +1,5 @@
 import { Order } from "types/order";
 
-export const InvalidPrice: number = -1;
-
 export enum PodRowStatus {
   Normal,
   InvertedMarketsError,
