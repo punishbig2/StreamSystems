@@ -71,7 +71,7 @@ export class SignalRManager {
     | ((connection: HubConnection) => void)
     | null = null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
-  private readonly recordedCommands: Command[] = [
+  private recordedCommands: Command[] = [
     {
       name: Methods.SubscribeForDeals,
       args: ["*"],
