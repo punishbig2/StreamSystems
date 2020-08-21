@@ -856,6 +856,7 @@ export class API {
       fwdpts2: data.fwdpts2,
       deltastyle: data.deltaStyle,
       premstyle: data.premiumStyle,
+      product_fields_changed: data.product_fields_changed,
     };
   }
 

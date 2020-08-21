@@ -34,6 +34,17 @@ export class DealEntryStore {
     return moStore.isEditMode;
   }
 
+  public getModifiedFields(): string[] {
+    const { entry } = this;
+    const fields: string[] = [];
+    for (const key of Object.keys(entry) as (keyof DealEntry)[]) {
+      if (this.originalEntry[key] !== entry[key]) {
+        fields.push(key);
+      }
+    }
+    return fields;
+  }
+
   @computed
   public get isReadyForSubmission(): boolean {
     const { entry } = this;
@@ -170,9 +181,11 @@ export class DealEntryStore {
   @action.bound
   public saveCurrentEntry() {
     const { entry } = this;
+    const modifiedFields: string[] = this.getModifiedFields();
     const request = {
       ...this.buildRequest(),
       linkid: entry.dealId,
+      product_fields_changed: modifiedFields,
     };
     moStore.setStatus(MOStatus.UpdatingDeal);
     // Call the backend
