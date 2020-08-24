@@ -199,8 +199,12 @@ export class NumericInputHandler<
 
   private countFormattingCharacters = (display: string | null): number => {
     if (display === null || display === undefined) return 0;
-    const stringified: string = display.replace(/[^0-9]+/g, "");
-    return display.length - stringified.length;
+    try {
+      const stringified: string = display.replace(/[^0-9]+/g, "");
+      return display.length - stringified.length;
+    } catch (error) {
+      return 0;
+    }
   };
 
   public parse = (value: string): any => {

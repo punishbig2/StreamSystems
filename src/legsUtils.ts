@@ -12,6 +12,38 @@ import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import { addTenorToDate } from "utils/tenorUtils";
 
+const StylesMap: { [key: string]: 0 | 1 | 2 } = {
+  Forward: 0,
+  Spot: 1,
+  Sticky: 2,
+};
+
+export const getStyledValue = (
+  values: [number | null, number | null, number | null],
+  style: string | undefined
+): number | null => {
+  if (style === undefined) {
+    console.warn("cannot get the styled value because the style is undefined");
+    return null;
+  }
+  const index: number | undefined = StylesMap[style];
+  if (index === undefined) {
+    console.warn(
+      "cannot get the styled value because the index is undefined for style `" +
+        style +
+        "'"
+    );
+    return null;
+  }
+  if (index >= values.length) {
+    console.warn(
+      "cannot get the styled value because the index is larger than the number of items"
+    );
+    return null;
+  }
+  return values[index];
+};
+
 export const fixDates = (data: any[]): Leg[] => {
   const mapper = (item: any): Leg => {
     return {
@@ -51,21 +83,20 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
       value: 0,
     },
   ];
-  // FIXME: probably correct, but not sure as there could be more than 1 tenor
   const expiryDate: moment.Moment =
     entry.tenor1expiry === null
       ? addTenorToDate(entry.tradeDate, entry.tenor1)
       : entry.tenor1expiry;
   return {
-    premium: null,
-    pricePercent: 0 /* FIXME: what would this be? */,
+    premium: [null, null, null],
+    price: [null, null, null],
     vol: entry.vol,
     rates: rates,
     notional: notional,
     party: party,
     side: side,
     days: expiryDate.diff(entry.tradeDate, "d"),
-    delta: null,
+    delta: [null, null, null],
     fwdPts: null,
     fwdRate: null,
     hedge: null,

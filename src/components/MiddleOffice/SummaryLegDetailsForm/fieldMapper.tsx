@@ -13,6 +13,15 @@ export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
     if (fieldDef.name === "dealOutput")
       throw new Error("this is not a normal value, cannot display it");
     const value: number | string | Moment | null = entry[fieldDef.name];
+    if (
+      fieldDef.type === "number" &&
+      value !== null &&
+      typeof value !== "number" &&
+      typeof value !== "string"
+    ) {
+      console.log(fieldDef.name, value);
+      return "";
+    }
     if (value === null) return "";
     return value;
   };

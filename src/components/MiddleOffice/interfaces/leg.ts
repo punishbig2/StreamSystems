@@ -21,15 +21,15 @@ export interface Leg {
   vol?: number | null;
   fwdPts: number | null;
   fwdRate: number | null;
-  delta: number | null;
-  pricePercent: number | null;
+  delta: [number | null, number | null, number | null];
+  price: [number | null, number | null, number | null];
+  premium: [number | null, number | null, number | null];
   premiumCurrency: string;
   notional?: number | null;
   spot?: number;
   days?: number | null;
   party?: string;
   premiumDate: moment.Moment | null;
-  premium: number | null;
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;
   hedge: number | null;

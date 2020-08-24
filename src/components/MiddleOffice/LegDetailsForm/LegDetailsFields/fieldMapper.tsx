@@ -1,6 +1,7 @@
 import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
+import { getStyledValue } from "legsUtils";
 import { Observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -14,15 +15,23 @@ const capitalize = (str: string): string => {
 export const fieldsMapper = (
   leg: Leg,
   onValueChange: (name: keyof Leg, value: any) => void,
-  store: DealEntryStore,
+  store: DealEntryStore
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
   const { rates } = leg;
+  const { entry } = store;
   const extraProps = ((): { value: any } & any => {
     if (fieldDef.type === "currency") {
-      return {
-        value: leg[fieldDef.name],
-        currency: leg.premiumCurrency,
-      };
+      if (fieldDef.name === "premium") {
+        return {
+          value: getStyledValue(leg[fieldDef.name], entry.premstyle),
+          currency: leg.premiumCurrency,
+        };
+      } else {
+        return {
+          value: leg[fieldDef.name],
+          currency: leg.premiumCurrency,
+        };
+      }
     } else if (fieldDef.name === "rates") {
       const index: number = fieldDef.data;
       if (rates === null || rates === undefined) {
@@ -34,6 +43,14 @@ export const fieldsMapper = (
     } else if (fieldDef.name === "side") {
       return {
         value: capitalize(leg[fieldDef.name]),
+      };
+    } else if (fieldDef.name === "price") {
+      return {
+        value: getStyledValue(leg[fieldDef.name], entry.premstyle),
+      };
+    } else if (fieldDef.name === "delta") {
+      return {
+        value: getStyledValue(leg[fieldDef.name], entry.deltastyle),
       };
     } else {
       return {

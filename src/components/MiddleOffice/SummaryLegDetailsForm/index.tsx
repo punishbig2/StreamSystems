@@ -5,6 +5,7 @@ import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { fieldMapper } from "components/MiddleOffice/SummaryLegDetailsForm/fieldMapper";
 import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { NoDataMessage } from "components/noDataMessage";
+import { getStyledValue } from "legsUtils";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -22,6 +23,7 @@ const initialCommission: Commission = {
 
 export const SummaryLegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const { entry } = props.dealEntryStore;
     const { deal } = moStore;
     const [buyerCommission, setBuyerCommission] = useState<Commission>(
       initialCommission
@@ -124,7 +126,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Net Premium"}
                   color={"grey"}
-                  value={dealOutput.premium}
+                  value={getStyledValue(dealOutput.premium, entry.premstyle)}
                   name={"netPremium"}
                   type={"currency"}
                   currency={dealOutput.premiumCurrency}
@@ -133,7 +135,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Price %"}
                   color={"grey"}
-                  value={dealOutput.pricePercent}
+                  value={getStyledValue(dealOutput.price, entry.premstyle)}
                   name={"pricePercent"}
                   type={"number"}
                   precision={4}
@@ -142,7 +144,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Delta"}
                   color={"grey"}
-                  value={dealOutput.delta}
+                  value={getStyledValue(dealOutput.delta, entry.deltastyle)}
                   name={"delta"}
                   type={"number"}
                   precision={8}
