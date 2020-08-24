@@ -50,8 +50,8 @@ export interface DealEntry {
 export const emptyDealEntry: DealEntry = {
   ccypair: "",
   strategy: "",
-  premstyle: "",
-  deltastyle: "",
+  premstyle: "Forward",
+  deltastyle: "Forward",
   legs: null,
   not1: null,
   not2: null,
