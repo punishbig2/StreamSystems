@@ -161,6 +161,11 @@ $field-size: 25px;
       white-space: nowrap;
       width: 100%;
       max-width: 100%;
+
+      .not-applicable {
+        opacity: 0.5;
+        color: $grey-form-color;
+      }
     }
 
     .field,
@@ -234,10 +239,6 @@ $field-size: 25px;
         .MuiFormControl-root,
         .readonly-field {
           flex: 1;
-          &.not-applicable {
-            opacity: 0.5;
-            color: $grey-form-color;
-          }
         }
 
         .MuiOutlinedInput-root {
@@ -305,6 +306,11 @@ $field-size: 25px;
 
           fieldset {
             border: none;
+          }
+
+          &.not-applicable {
+            opacity: 0.5;
+            color: $grey-form-color;
           }
 
           &.read-only {

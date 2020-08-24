@@ -19,7 +19,6 @@ export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
       typeof value !== "number" &&
       typeof value !== "string"
     ) {
-      console.log(fieldDef.name, value);
       return "";
     }
     if (value === null) return "";

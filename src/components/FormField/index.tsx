@@ -9,10 +9,7 @@ import { BankEntityField } from "components/BankEntityField";
 import { CurrentTime } from "components/currentTime";
 import { DateInputHandler } from "components/FormField/date";
 import { DefaultHandler } from "components/FormField/default";
-import {
-  Editable,
-  InputHandler,
-  } from "components/FormField/inputHandler";
+import { Editable, InputHandler } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
 import { NumericInputHandler } from "components/FormField/numeric";
 import { Tenor, TenorDropdown } from "components/TenorDropdown";
@@ -240,6 +237,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private renderSelectValue = (value: any): ReactElement | string => {
     const { props, state } = this;
     const { labels } = state;
+    if (value === "N/A") return <div className={"not-applicable"}>N/A</div>;
     if (value === undefined) return " Select a " + props.label;
     if (labels === null) return "Error";
     return labels[value];

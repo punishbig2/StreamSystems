@@ -38,6 +38,14 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
         expiryDate: entry[(field.name + "expiry") as keyof DealEntry],
       };
     }
+    if (field.name === "legadj") {
+      console.log(rawValue);
+      if (!!rawValue) {
+        return "true";
+      } else {
+        return "false";
+      }
+    }
     if (field.type === "number") {
       if (rawValue === null || rawValue === undefined || rawValue.length === 0)
         return null;

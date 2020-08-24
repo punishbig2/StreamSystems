@@ -180,12 +180,16 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
     ),
     transformData: (): SelectItem[] => [
       {
-        value: true,
+        value: "true",
         label: "TRUE",
       },
       {
-        value: false,
+        value: "false",
         label: "FALSE",
+      },
+      {
+        value: "N/A",
+        label: "N/A",
       },
     ],
   },
