@@ -6,6 +6,7 @@ import { fixDates } from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
+import { coalesce } from "utils";
 
 const onUpdate = (deal: Deal, data: { dealId: string; legs: Leg[] }) => {
   if (deal === null) return;
@@ -14,8 +15,15 @@ const onUpdate = (deal: Deal, data: { dealId: string; legs: Leg[] }) => {
   const { summaryLeg } = moStore;
   const { legs } = data;
   if (legs[0].option === "SumLeg") {
+    const fwdPts: number | null =
+      summaryLeg !== null ? summaryLeg.fwdpts1 : null;
+    const fwdRate: number | null =
+      summaryLeg !== null ? summaryLeg.fwdrate1 : null;
     moStore.setLegs(legs.slice(1), {
       ...summaryLeg,
+      fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
+      fwdrate1: coalesce(fwdRate, legs[0].fwdRate),
+      spot: legs[0].spot,
       ...{ dealOutput: legs[0] },
     } as SummaryLeg);
   } else {
