@@ -39,9 +39,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     color: "grey",
     name: "expiryDate",
     label: "Expiry Date",
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
+    editable: false,
   },
   {
     type: "date",
@@ -58,7 +56,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "notional",
     label: "Notional",
     precision: 0,
-    editable: editableFilter(DealType.Voice | DealType.Manual),
+    editable: false,
   },
   {
     type: "text",

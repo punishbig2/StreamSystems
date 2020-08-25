@@ -38,11 +38,13 @@ import {
 } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
+import { removeNulls } from "utils/removeNulls";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import {
   currentTimestampFIXFormat,
   momentToUTCFIXFormat,
 } from "utils/timeUtils";
+import moment from "moment";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -755,10 +757,18 @@ export class API {
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
         OptionLegs: mergedDefinitions.map(
-          (leg: Leg): OptionLeg => {
+          (leg: Leg, index: number): OptionLeg => {
+            const notional: number = coalesce(
+              index === 0 ? deal.notional1 : deal.notional2,
+              deal.notional1
+            );
+            const expiryDate: moment.Moment = coalesce(
+              index === 0 ? deal.expiry1 : deal.expiry2,
+              deal.expiry1
+            );
             return {
-              notional: coalesce(leg.notional, 1e6 * deal.notional1),
-              expiryDate: coalesce(leg.expiryDate, deal.expiry1),
+              notional: notional,
+              expiryDate: expiryDate,
               deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
               spreadVolatiltyOffset: API.divideBy100(entry.spread),
               strike: numberifyIfPossible(
@@ -832,7 +842,7 @@ export class API {
 
   private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
-    return {
+    return removeNulls({
       linkid: data.linkid,
       tenor: data.tenor1,
       tenor1: data.tenor2,
@@ -857,7 +867,7 @@ export class API {
       deltastyle: data.deltaStyle,
       premstyle: data.premiumStyle,
       product_fields_changed: data.product_fields_changed,
-    };
+    });
   }
 
   private static async saveLegs(dealId: string): Promise<string> {

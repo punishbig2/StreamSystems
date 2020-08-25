@@ -3,7 +3,9 @@ import moment from "moment";
 export interface OptionLeg {
   readonly strike?: string | number;
   readonly notional: number;
+  readonly notional2?: number;
   readonly expiryDate: moment.Moment;
+  readonly expiryDate2?: moment.Moment;
   readonly deliveryDate: moment.Moment;
   readonly spreadVolatiltyOffset?: number | null;
   readonly volatilty?: number | null;
