@@ -7,6 +7,7 @@ import moment from "moment";
 import { useEffect } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { Symbol } from "types/symbol";
+import { coalesce } from "utils";
 
 const createStubLegs = async (
   entry: DealEntry,
@@ -35,10 +36,14 @@ const createStubLegs = async (
   // Update the moStore store
   moStore.setLegs(
     legs.map(
-      (leg: Leg): Leg => {
+      (leg: Leg, index: number): Leg => {
+        const notional: number = coalesce(
+          index === 1 ? entry.not2 : entry.not1,
+          entry.not1
+        );
         return {
           ...leg,
-          notional: entry.not1,
+          notional: notional,
           strike: entry.dealstrike,
           expiryDate: expiryDate,
           deliveryDate: deliveryDate,

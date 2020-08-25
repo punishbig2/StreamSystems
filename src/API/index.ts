@@ -759,7 +759,7 @@ export class API {
         OptionLegs: mergedDefinitions.map(
           (leg: Leg, index: number): OptionLeg => {
             const notional: number = coalesce(
-              index === 0 ? deal.notional1 : deal.notional2,
+              index === 1 ? deal.notional2 : deal.notional1,
               deal.notional1
             );
             const expiryDate: moment.Moment = coalesce(
