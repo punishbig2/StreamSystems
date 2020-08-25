@@ -99,7 +99,7 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
     delta: [null, null, null],
     fwdPts: null,
     fwdRate: null,
-    hedge: null,
+    hedge: [null, null, null],
     strike: entry.dealstrike,
     premiumDate: moment(entry.tradeDate).add(symbol.SettlementWindow, "d"),
     premiumCurrency: symbol.premiumCCY,

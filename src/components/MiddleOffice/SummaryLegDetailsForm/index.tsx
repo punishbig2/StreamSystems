@@ -171,7 +171,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Net Hedge"}
                   color={"grey"}
-                  value={dealOutput.hedge}
+                  value={getStyledValue(dealOutput.hedge, entry.deltastyle)}
                   name={"hedge"}
                   type={"currency"}
                   currency={dealOutput.premiumCurrency}

@@ -21,7 +21,7 @@ export const fieldsMapper = (
   const { entry } = store;
   const extraProps = ((): { value: any } & any => {
     if (fieldDef.type === "currency") {
-      if (fieldDef.name === "premium") {
+      if (fieldDef.name === "premium" || fieldDef.name === "hedge") {
         return {
           value: getStyledValue(leg[fieldDef.name], entry.premstyle),
           currency: leg.premiumCurrency,

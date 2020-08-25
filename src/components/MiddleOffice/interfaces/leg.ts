@@ -24,6 +24,7 @@ export interface Leg {
   delta: [number | null, number | null, number | null];
   price: [number | null, number | null, number | null];
   premium: [number | null, number | null, number | null];
+  hedge: [number | null, number | null, number | null];
   premiumCurrency: string;
   notional?: number | null;
   spot?: number;
@@ -32,7 +33,6 @@ export interface Leg {
   premiumDate: moment.Moment | null;
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;
-  hedge: number | null;
   rates: Rates;
   usi: number | null;
 

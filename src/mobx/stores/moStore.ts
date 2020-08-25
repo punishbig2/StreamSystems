@@ -263,7 +263,7 @@ export class MoStore {
         strike: null,
         delta: [null, null, null],
         gamma: null,
-        hedge: null,
+        hedge: [null, null, null],
         price: [null, null, null],
         vega: null,
         premiumCurrency: "USD",
