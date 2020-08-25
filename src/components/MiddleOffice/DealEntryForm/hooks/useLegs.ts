@@ -27,12 +27,6 @@ const createStubLegs = async (
     storeLegs.length > 0
       ? storeLegs
       : createLegsFromDefinition(entry, legDefinitions.in, symbol);
-  const expiryDate: moment.Moment =
-    entry.tenor1expiry !== null ? entry.tenor1expiry : moment();
-  const deliveryDate: moment.Moment = moment(expiryDate).add(
-    Number(symbol.SettlementWindow),
-    "d"
-  );
   // Update the moStore store
   moStore.setLegs(
     legs.map(
@@ -40,6 +34,15 @@ const createStubLegs = async (
         const notional: number = coalesce(
           index === 1 ? entry.not2 : entry.not1,
           entry.not1
+        );
+        const expiryDate: moment.Moment = coalesce(
+          index === 1 ? entry.tenor2expiry : entry.tenor1expiry,
+          entry.tenor1expiry
+        );
+        console.log(index, notional, entry.not1, entry.not2);
+        const deliveryDate: moment.Moment = moment(expiryDate).add(
+          Number(symbol.SettlementWindow),
+          "d"
         );
         return {
           ...leg,
