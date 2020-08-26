@@ -20,7 +20,7 @@ export interface MOStrategy {
   productid: string;
   shortname: string;
   source: ProductSource;
-  spreadvsvol: "vol" | "spread";
+  spreadvsvol: "vol" | "spread" | "both";
   strike?: string;
   fields: { f1: { [key: string]: EditableCondition } };
 }

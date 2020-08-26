@@ -41,13 +41,15 @@ export const buildFwdRates = (
   summary: SummaryLeg,
   strategy: MOStrategy,
   expiry1: moment.Moment,
-  expiry2: moment.Moment
+  expiry2: moment.Moment | null
 ): Point[] | undefined => {
   const { fwdrate1: value } = summary;
   if (value === null) return undefined;
   const points: InternalPoint[] = generatePoints(expiry1, value, 7);
-  if (strategy.spreadvsvol === "spread") {
-    points.push(...generatePoints(expiry2, value, 7));
+  if (strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both") {
+    if (expiry2 !== null) {
+      points.push(...generatePoints(expiry2, value, 7));
+    }
   }
   return points.sort(comparePoints).map(convertToPoint);
 };

@@ -57,8 +57,10 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     parsedExpiryDate1 === undefined
       ? addTenorToDate(tradeDate, item.tenor)
       : parsedExpiryDate1;
-  const expiry2: moment.Moment =
-    parsedExpiryDate2 === undefined
+  const expiry2: moment.Moment | null =
+    item.tenor1 === "" || item.tenor1 === null
+      ? null
+      : parsedExpiryDate2 === undefined
       ? addTenorToDate(tradeDate, item.tenor1)
       : parsedExpiryDate2;
   return {
@@ -66,9 +68,10 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     buyer: item.buyer,
     seller: item.seller,
     currency: item.symbol,
-    price: item.lastpx === null ? null : Number(item.lastpx),
+    spread: item.spread,
+    vol: item.vol,
     notional1: Number(item.lastqty) * 1e6,
-    notional2: Number(item.notional1),
+    notional2: item.notional1 === null ? null : Number(item.notional1),
     strategy: item.strategy,
     currencyPair: item.symbol,
     transactionTime: item.transacttime,
@@ -145,8 +148,8 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     model: 3,
     legs: legsCount,
     dealstrike: coalesce(deal.strike, strategy.strike),
-    vol: strategy.spreadvsvol === "vol" ? deal.price : undefined,
-    spread: strategy.spreadvsvol === "spread" ? deal.price : undefined,
+    vol: deal.vol,
+    spread: deal.spread,
     dealType: dealSourceToDealType(deal.source),
     type: EntryType.ExistingDeal,
   };

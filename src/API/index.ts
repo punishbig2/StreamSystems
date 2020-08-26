@@ -762,7 +762,7 @@ export class API {
               deal.notional1
             );
             const expiryDate: moment.Moment = coalesce(
-              index === 0 ? deal.expiry1 : deal.expiry2,
+              index === 1 ? deal.expiry2 : deal.expiry1,
               deal.expiry1
             );
             return {

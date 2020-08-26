@@ -11,9 +11,8 @@ export interface Deal {
   buyer: string;
   seller: string;
   currency: string;
-  price: number | null;
   notional1: number;
-  notional2?: number;
+  notional2?: number | null;
   strategy: string;
   currencyPair: string;
   symbol: Symbol;
@@ -21,12 +20,14 @@ export interface Deal {
   tenor1: string;
   tenor2: string;
   strike: number | string;
+  vol: number | null;
+  spread: number | null;
 
   tradeDate: moment.Moment;
   spotDate: moment.Moment;
   deliveryDate: moment.Moment;
   expiry1: moment.Moment;
-  expiry2: moment.Moment;
+  expiry2: moment.Moment | null;
 
   source: string;
   status: number;

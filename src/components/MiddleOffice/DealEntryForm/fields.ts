@@ -126,7 +126,9 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
       (entry: DealEntry): boolean => {
         const strategy: MOStrategy = moStore.getStrategyById(entry.strategy);
         if (strategy === undefined) return false;
-        return strategy.spreadvsvol === "vol";
+        return (
+          strategy.spreadvsvol === "vol" || strategy.spreadvsvol === "both"
+        );
       }
     ),
     emptyValue: "N/A",
@@ -142,7 +144,9 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
       (entry: DealEntry): boolean => {
         const strategy: MOStrategy = moStore.getStrategyById(entry.strategy);
         if (strategy === undefined) return false;
-        return strategy.spreadvsvol === "spread";
+        return (
+          strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both"
+        );
       }
     ),
     emptyValue: "N/A",

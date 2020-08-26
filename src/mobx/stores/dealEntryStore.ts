@@ -113,17 +113,13 @@ export class DealEntryStore {
   @action.bound
   public updateEntry(name: keyof DealEntry, value: any): void {
     if (name === "strategy") {
-      const { deal } = moStore;
       const strategy: MOStrategy = moStore.getStrategyById(value);
       const legsCount: number = moStore.getOutLegsCount(value);
-      const price: number | null = !!deal ? deal.price : null;
       this.entry = {
         ...this.entry,
         [name]: value,
         legs: legsCount,
-        spread: strategy.spreadvsvol === "spread" ? price : undefined,
         dealstrike: strategy.strike,
-        vol: strategy.spreadvsvol === "vol" ? price : undefined,
       };
     } else {
       if (this.entry[name] === value) return;
@@ -142,8 +138,6 @@ export class DealEntryStore {
     const moStrategy: MOStrategy = moStore.strategies[entry.strategy];
     if (moStrategy === undefined)
       throw new Error("invalid strategy, how did you pick it?");
-    const price: number | null | undefined =
-      moStrategy.spreadvsvol === "vol" ? entry.vol : entry.spread;
     const rates = ((summaryLeg: SummaryLeg | null) => {
       if (summaryLeg === null) return {};
       return {
@@ -160,7 +154,8 @@ export class DealEntryStore {
       strategy: entry.strategy,
       symbol: entry.ccypair,
       model: entry.model,
-      price: !!price ? price.toString() : null,
+      vol: entry.vol,
+      spread: entry.spread,
       size: Math.round(entry.not1 / 1e6).toString(),
       notional1: entry.not2,
       tenor1: entry.tenor1,

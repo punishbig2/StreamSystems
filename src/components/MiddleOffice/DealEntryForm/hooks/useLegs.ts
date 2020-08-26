@@ -27,33 +27,34 @@ const createStubLegs = async (
     storeLegs.length > 0
       ? storeLegs
       : createLegsFromDefinition(entry, legDefinitions.in, symbol);
-  // Update the moStore store
-  moStore.setLegs(
-    legs.map(
-      (leg: Leg, index: number): Leg => {
-        const notional: number = coalesce(
-          index === 1 ? entry.not2 : entry.not1,
-          entry.not1
-        );
-        const expiryDate: moment.Moment = coalesce(
-          index === 1 ? entry.tenor2expiry : entry.tenor1expiry,
-          entry.tenor1expiry
-        );
-        const deliveryDate: moment.Moment = moment(expiryDate).add(
-          Number(symbol.SettlementWindow),
-          "d"
-        );
-        return {
-          ...leg,
-          notional: notional,
-          strike: entry.dealstrike,
-          expiryDate: expiryDate,
-          deliveryDate: deliveryDate,
-        };
+  const newLegs: Leg[] = legs.map(
+    (leg: Leg, index: number): Leg => {
+      const notional: number = coalesce(
+        index === 1 ? entry.not2 : entry.not1,
+        entry.not1
+      );
+      const expiryDate: moment.Moment = coalesce(
+        index === 1 ? entry.tenor2expiry : entry.tenor1expiry,
+        entry.tenor1expiry
+      );
+      if (index === 1) {
+        console.log("leg1", entry.not1, entry.not2, expiryDate.format());
       }
-    ),
-    null
+      const deliveryDate: moment.Moment = moment(expiryDate).add(
+        Number(symbol.SettlementWindow),
+        "d"
+      );
+      return {
+        ...leg,
+        notional: notional,
+        strike: entry.dealstrike,
+        expiryDate: expiryDate,
+        deliveryDate: deliveryDate,
+      };
+    }
   );
+  // Update the moStore store
+  moStore.setLegs(newLegs, null);
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
       cut.Code === symbol.PrimaryCutCode &&

@@ -9,7 +9,7 @@ export const addTenorToDate = (date: moment.Moment, tenor: string): moment.Momen
   return copy.add(duration);
 };
 
-export const tenorToDate = (tenor: string): moment.Moment => {
+export const tenorToDate = (tenor: string): moment.Moment | null => {
   return addTenorToDate(moment(), tenor);
 };
 

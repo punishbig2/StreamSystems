@@ -21,10 +21,8 @@ const isEditable = (name: string) => (
   if (strategy === undefined) return false;
   const { f1 } = strategy.fields;
   const editableCondition: EditableCondition = f1[name];
-  console.log(editableCondition);
   if (editableCondition === EditableCondition.NotApplicable) return false;
-  if (editableCondition === EditableCondition.NotEditable) return false;
-  return true;
+  return editableCondition !== EditableCondition.NotEditable;
 };
 
 export const fields: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>[] = [

@@ -1,25 +1,26 @@
-import React, { ReactElement } from 'react';
-import { priceFormatter } from 'utils/priceFormatter';
-import { ColumnSpec } from 'components/Table/columnSpecification';
-import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
-import { PriceCell } from 'components/MiddleOffice/interfaces/cells/price';
+import React, { ReactElement } from "react";
+import { priceFormatter } from "utils/priceFormatter";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import { PriceCell } from "components/MiddleOffice/interfaces/cells/price";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export default (sortable: boolean, width: number = 3): ColumnSpec => ({
-  name: 'Price',
-  template: '999999.99',
+  name: "Price",
+  template: "999999.99",
   filterable: true,
   sortable: sortable,
-  header: () => 'Level',
+  header: () => "Level",
   render: (props: CellProps): ReactElement => <PriceCell {...props} />,
   width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
-    const value: number = Number(v1.price);
+    // FIXME: should use the right one
+    const value: number = Number(v1.vol);
     const numeric: number = Number(keyword);
     if (isNaN(numeric)) return false;
     return priceFormatter(value) === priceFormatter(numeric);
   },
   difference: (v1: Deal, v2: Deal) => {
-    return Number(v1.price) - Number(v2.price);
+    return Number(v1.vol) - Number(v2.vol);
   },
 });
