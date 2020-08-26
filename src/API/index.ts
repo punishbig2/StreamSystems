@@ -38,7 +38,6 @@ import {
 } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
-import { removeNulls } from "utils/removeNulls";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import {
   currentTimestampFIXFormat,
@@ -842,7 +841,7 @@ export class API {
 
   private static createDealRequest(data: any) {
     const user: User = workareaStore.user;
-    return removeNulls({
+    return {
       linkid: data.linkid,
       tenor: data.tenor1,
       tenor1: data.tenor2,
@@ -867,7 +866,7 @@ export class API {
       deltastyle: data.deltaStyle,
       premstyle: data.premiumStyle,
       product_fields_changed: data.product_fields_changed,
-    });
+    };
   }
 
   private static async saveLegs(dealId: string): Promise<string> {
