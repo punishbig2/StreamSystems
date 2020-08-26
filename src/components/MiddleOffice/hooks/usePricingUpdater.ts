@@ -14,12 +14,12 @@ const onUpdate = (deal: Deal, data: { dealId: string; legs: Leg[] }) => {
   if (data.dealId !== deal.dealID) return;
   const { summaryLeg } = moStore;
   const { legs } = data;
-  if (legs[0].option === "SumLeg") {
+  if (legs[0].option === "SumLeg" || legs.length === 1) {
     const fwdPts: number | null =
       summaryLeg !== null ? summaryLeg.fwdpts1 : null;
     const fwdRate: number | null =
       summaryLeg !== null ? summaryLeg.fwdrate1 : null;
-    moStore.setLegs(legs.slice(1), {
+    moStore.setLegs(legs.slice(legs.length === 1 ? 0 : 1), {
       ...summaryLeg,
       fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
       fwdrate1: coalesce(fwdRate, legs[0].fwdRate),

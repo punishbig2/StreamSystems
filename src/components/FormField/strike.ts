@@ -24,7 +24,15 @@ export class StrikeHandler<T, P extends MinimalProps, S extends Editable>
 
   public format(value: any, props: P): [string, Validity] {
     if (typeof value === "undefined") return ["", Validity.Intermediate];
-    if (typeof value !== "string") {
+    if (typeof value === "number") {
+      return [
+        value.toLocaleString(undefined, {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4,
+        }),
+        Validity.Valid,
+      ];
+    } else if (typeof value !== "string") {
       return ["", Validity.Intermediate];
     } else if (value === "N/A") {
       return ["N/A", Validity.NotApplicable];
@@ -41,6 +49,8 @@ export class StrikeHandler<T, P extends MinimalProps, S extends Editable>
   }
 
   public parse(value: string): any {
+    const numeric: number = Number(value);
+    if (!isNaN(numeric)) return numeric;
     return value;
   }
 
