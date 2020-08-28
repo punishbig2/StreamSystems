@@ -19,9 +19,18 @@ interface Props {
   readonly placeholder?: string;
   readonly title?: string;
   readonly onCancelEdit?: () => void;
-  readonly onTabbedOut?: (target: HTMLInputElement, tabDirection: TabDirection) => void;
-  readonly onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
-  readonly onSubmit?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
+  readonly onTabbedOut?: (
+    target: HTMLInputElement,
+    tabDirection: TabDirection
+  ) => void;
+  readonly onNavigate?: (
+    target: HTMLInputElement,
+    direction: NavigateDirection
+  ) => void;
+  readonly onSubmit?: (
+    input: HTMLInputElement,
+    tabDirection: TabDirection
+  ) => void;
 }
 
 const NumericInput = <T extends any = string>(props: Props): ReactElement => {

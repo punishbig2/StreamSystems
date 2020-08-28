@@ -53,7 +53,7 @@ export interface UserPreferences {
   colorScheme: string;
   ccyGroup: CurrencyGroups;
   oco: OCOModes;
-  theme: string;
+  theme: "dark" | "light";
 
   [key: string]: any;
 }

@@ -2,7 +2,6 @@ import { Cell } from "components/Table/Cell";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { RowFunctions } from "components/PodTile/rowFunctions";
 import React, { useState, useEffect } from "react";
-// import { useWListener } from 'components/PodTile/Row/hooks/useWListener';
 import { getCellWidth } from "components/Table/helpers";
 import { PodRowStore } from "mobx/stores/podRowStore";
 import { observer } from "mobx-react";

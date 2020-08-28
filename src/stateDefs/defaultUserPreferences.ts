@@ -18,5 +18,5 @@ export const defaultPreferences: UserPreferences = {
   timezone: findDefaultTimezone(),
   userType: UserTypes.Unset,
   execSoundList: [],
-  theme: "default",
+  theme: "dark",
 };

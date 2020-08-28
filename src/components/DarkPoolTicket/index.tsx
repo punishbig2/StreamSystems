@@ -1,23 +1,25 @@
-import strings from "locales";
-import React, { useState } from "react";
 import {
-  Select,
-  MenuItem,
-  Grid,
   FormControl,
+  FormHelperText,
   FormLabel,
+  Grid,
+  MenuItem,
   OutlinedInput,
+  Select,
 } from "@material-ui/core";
 import { PresetSizeButton } from "components/presetSizeButton";
-import { DarkPoolOrder, Order } from "types/order";
-import { MessageTypes } from "types/w";
+import { useTicketClasses } from "hooks/useTicketClasses";
+import strings from "locales";
+import workareaStore from "mobx/stores/workareaStore";
+import React, { useState } from "react";
+import { DarkPoolOrder } from "types/order";
 import { SelectEventData } from "types/selectEventData";
 import { Sides } from "types/sides";
+import { User } from "types/user";
+import { MessageTypes } from "types/w";
+import { selectInputText } from "utils";
 import { priceFormatter } from "utils/priceFormatter";
 import { sizeFormatter } from "utils/sizeFormatter";
-import workareaStore from "mobx/stores/workareaStore";
-import { User } from "types/user";
-import { selectInputText } from "utils";
 
 interface OwnProps {
   tenor: string;
@@ -29,12 +31,6 @@ interface OwnProps {
   onSubmit: (order: DarkPoolOrder) => void;
 }
 
-export interface DarkPoolTicketData {
-  price: number;
-  tenor: string;
-  currentOrder: Order | null;
-}
-
 const None = "";
 const presetSizes: number[] = [30, 50, 100, 500];
 
@@ -43,6 +39,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const [size, setSize] = useState<number>(props.minimumSize);
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
+  const classes = useTicketClasses();
   const updateSize = ({
     currentTarget,
   }: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +81,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
   const renderSide = (value: any) =>
     !value ? (
-      <span className={"invalid"}>Side</span>
+      <span className={"invalid"}>Select side&hellip;</span>
     ) : (
       sideLabels[value as string]
     );
@@ -94,7 +91,8 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     const { value } = event.target;
     fn(value as string);
   };
-
+  const error =
+    size < props.minimumSize ? "Minimum Qty: " + props.minimumSize : " ";
   return (
     <div>
       <div className={"modal-title"}>
@@ -110,7 +108,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       <form onSubmit={onSubmit}>
         <div className={"ticket"}>
           <Grid>
-            <FormControl fullWidth margin={"normal"}>
+            <FormControl className={classes.formControl}>
               <FormLabel htmlFor={"side"}>Side</FormLabel>
               <Select
                 id={"side"}
@@ -119,36 +117,48 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 renderValue={renderSide}
                 onChange={stringSelectSetter((value: string) => setSide(value))}
                 variant={"outlined"}
+                className={classes.select}
               >
                 <MenuItem value={"BUY"}>Buy</MenuItem>
                 <MenuItem value={"SELL"}>Sell</MenuItem>
               </Select>
+              <FormHelperText error={true} className={classes.formHelperText}>
+                {side === "" ? "Please choose a side" : " "}
+              </FormHelperText>
             </FormControl>
           </Grid>
 
           <Grid>
-            <FormControl fullWidth margin={"normal"}>
+            <FormControl className={classes.formControl}>
               <FormLabel htmlFor={"price"}>Vol</FormLabel>
               <OutlinedInput
+                className={classes.outlinedInput}
                 id={"price"}
                 value={price}
                 onChange={updatePrice}
                 labelWidth={0}
                 readOnly
               />
+              <FormHelperText error={true}>
+                {isNaN(price) ? "Invalid price value" : " "}
+              </FormHelperText>
             </FormControl>
           </Grid>
 
           <Grid>
-            <FormControl fullWidth margin={"normal"}>
+            <FormControl className={classes.formControl}>
               <FormLabel htmlFor={"size"}>Qty</FormLabel>
               <OutlinedInput
+                className={classes.outlinedInput}
                 value={size}
                 onChange={updateSize}
                 labelWidth={0}
                 inputRef={selectInputText}
                 autoFocus={true}
               />
+              <FormHelperText error={true} className={classes.formHelperText}>
+                {error}
+              </FormHelperText>
               <div className={"preset-buttons four"}>
                 {presetSizes.map((value: number) => (
                   <PresetSizeButton
@@ -160,9 +170,8 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               </div>
             </FormControl>
           </Grid>
-
           <Grid>
-            <FormControl fullWidth margin={"normal"}>
+            <FormControl className={classes.formControl}>
               <FormLabel htmlFor={"inst"}>Instructions</FormLabel>
               <Select
                 id={"inst"}
@@ -173,12 +182,16 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                   !value ? "None" : instLabels[value as string]
                 }
                 variant={"outlined"}
+                className={classes.select}
               >
                 <MenuItem value={"G"}>AON</MenuItem>
                 <MenuItem value={"D"}>
                   <sup>1</sup>/<sub>2</sub>&nbsp;ON
                 </MenuItem>
               </Select>
+              <FormHelperText error={true} className={classes.formHelperText}>
+                {" "}
+              </FormHelperText>
             </FormControl>
           </Grid>
         </div>

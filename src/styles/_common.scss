@@ -1,10 +1,5 @@
-* {
-  &:not(.fa) {
-    font-family: "Montserrat", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    box-sizing: border-box;
-  }
+*:not(.fa) {
+  box-sizing: border-box;
   &:not(input) {
     user-select: none;
   }
@@ -23,65 +18,6 @@
   }
 }
 
-.MuiOutlinedInput-notchedOutline {
-  border-color: rgba($foreground-color, 0.5);
-}
-
-.Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: $primary-color;
-}
-
-.MuiFormLabel-root,
-.MuiFormControlLabel-root {
-  font-weight: 600;
-  font-size: $small-font-size;
-  color: $foreground-color;
-  opacity: 0.6;
-
-  &.Mui-focused {
-    color: $primary-color;
-    opacity: 1;
-  }
-}
-
-.MuiButtonBase-root {
-  font-family: "Roboto", sans-serif;
-  font-size: $medium-font-size;
-}
-
-.MuiSvgIcon-root {
-  fill: $foreground-color;
-}
-
-.MuiPaper-root {
-  background-color: $background-color;
-  color: $foreground-color;
-}
-
-.MuiInputBase-root {
-  font-family: "Roboto", sans-serif;
-
-  input,
-  .MuiSelect-root {
-    font-family: inherit;
-    font-size: $medium-font-size;
-    line-height: 2em;
-    height: 2em;
-    padding: 0 8px;
-    color: $foreground-color;
-  }
-}
-
-.MuiInput-underline {
-  &:before {
-    border-bottom-color: rgba($foreground-color, 0.5);
-  }
-
-  &:after {
-    border-bottom-color: $primary-color;
-  }
-}
-
 %button {
   pointer-events: initial;
   cursor: default;
@@ -92,6 +28,7 @@
   padding: 3px 8px 1px 8px;
   border-radius: 4px;
   border-bottom: 2px solid darken($primary-color, 15%);
+  font-family: inherit;
 
   &:not(:disabled):active {
     transform: translateY(1px);
@@ -117,24 +54,6 @@
 
 .ticket {
   min-width: 250px;
-
-  .MuiInputBase-root {
-    margin: 0;
-
-    input {
-      text-align: center;
-    }
-  }
-
-  .MuiFormControl-root {
-    margin: 5px 0;
-  }
-
-  .MuiFormLabel-root,
-  .MuiFormControlLabel-root {
-    font-size: $medium-font-size;
-    margin: 0 0 5px 0;
-  }
 }
 
 .preset-buttons {

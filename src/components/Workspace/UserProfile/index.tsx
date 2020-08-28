@@ -1,4 +1,4 @@
-import React, { useEffect, ReactElement } from "react";
+import React, { useEffect } from "react";
 import { UserProfileModalTypes } from "types/user";
 import { UserProfileForm } from "components/Workspace/UserProfile/form";
 import { ErrorBox } from "components/ErrorBox";
@@ -23,22 +23,16 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    store.saveUserProfile(store.preferences);
+    store.saveUserProfile(store.preferences).then(onClose);
   };
 
   useEffect(() => {
-    store.loadUserProfile();
+    store.loadUserProfile().then(() => undefined);
   }, []);
 
   const onChange = (name: string, value: any) => {
     store.setFieldValue(name, value);
   };
-
-  const closeButton = (): ReactElement => (
-    <button className={"cancel"} onClick={onClose}>
-      Close
-    </button>
-  );
 
   switch (store.currentModalType) {
     case UserProfileModalTypes.Form:
@@ -59,16 +53,6 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
           icon={"spinner"}
           color={"good"}
           buttons={() => null}
-        />
-      );
-    case UserProfileModalTypes.Success:
-      return (
-        <MessageBox
-          title={"Looks Good"}
-          message={"Looks like your settings were saved successfully, great!"}
-          icon={"check-circle"}
-          color={"good"}
-          buttons={closeButton}
         />
       );
     case UserProfileModalTypes.Error:

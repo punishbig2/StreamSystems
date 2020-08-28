@@ -35,8 +35,14 @@ export interface Props {
   readonly uid?: string;
   readonly timestamp?: string;
   readonly tooltip?: React.FC<any> | string;
-  readonly onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
-  readonly onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
+  readonly onTabbedOut?: (
+    input: HTMLInputElement,
+    tabDirection: TabDirection
+  ) => void;
+  readonly onNavigate?: (
+    target: HTMLInputElement,
+    direction: NavigateDirection
+  ) => void;
   readonly onError?: (error: PriceErrors, input: HTMLInputElement) => void;
   readonly onDoubleClick?: () => void;
   readonly onSubmit: (
@@ -69,13 +75,6 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     : undefined;
 
   const hideTooltip = () => store.hideTooltip();
-
-  /*const startFlashing = () => {
-    if (!props.animated)
-      return;
-    store.setFlashing(true);
-  };
-  const stopFlashing = () => store.setFlashing(false);*/
 
   const getTooltip = (): ReactElement | null => {
     if (!tooltip || !store.tooltipVisible) return null;

@@ -1,18 +1,18 @@
-import React, { ChangeEvent, FormEvent, ReactNode } from "react";
-import strings from "locales";
-import Grid from "@material-ui/core/Grid";
 import {
   FormControl,
   FormLabel,
-  Select,
-  MenuItem,
   Input,
+  MenuItem,
+  Select,
 } from "@material-ui/core";
-import { UserPreferences, OCOModes, User } from "types/user";
+import Grid from "@material-ui/core/Grid";
+import { SoundsList } from "components/Workspace/UserProfile/soundsList";
 import timezones, { TimezoneInfo } from "data/timezones";
 import deepEqual from "deep-equal";
-import { SoundsList } from "components/Workspace/UserProfile/soundsList";
+import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
+import React, { ChangeEvent, FormEvent, ReactNode } from "react";
+import { OCOModes, User, UserPreferences } from "types/user";
 
 interface OwnProps {
   profile: UserPreferences;
@@ -93,19 +93,19 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
         <Grid container direction={"column"}>
           <Grid item container spacing={2} direction={"row"}>
             <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
-                <FormLabel htmlFor={"user-type"}>User Type</FormLabel>
+              <FormControl margin={"dense"} fullWidth>
+                <FormLabel>User Type</FormLabel>
                 <Input value={userType} readOnly={true} />
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
-                <FormLabel htmlFor={"mpid"}>MPID</FormLabel>
+              <FormControl margin={"dense"} fullWidth>
+                <FormLabel>MPID</FormLabel>
                 <Input value={user.firm} readOnly={true} />
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
+              <FormControl margin={"dense"} fullWidth>
                 <FormLabel htmlFor={"oco"}>OCO</FormLabel>
                 <Select
                   id={"oco"}
@@ -123,7 +123,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
           <Grid item container spacing={2} direction={"row"}>
             <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
+              <FormControl margin={"dense"} fullWidth>
                 <FormLabel htmlFor={"font"}>Font</FormLabel>
                 <Select
                   id={"font"}
@@ -136,7 +136,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
+              <FormControl margin={"dense"} fullWidth>
                 <FormLabel htmlFor={"font-size"}>Font Size</FormLabel>
                 <Select
                   id={"font-size"}
@@ -154,15 +154,15 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl fullWidth margin={"normal"}>
-                <FormLabel htmlFor={"theme"}>Theme</FormLabel>
+              <FormControl fullWidth margin={"dense"}>
+                <FormLabel htmlFor={"theme.ts"}>Theme</FormLabel>
                 <Select
-                  id={"theme"}
+                  id={"theme.ts"}
                   onChange={onChangeWrapper}
-                  name={"theme"}
+                  name={"theme.ts"}
                   value={profile.theme}
                 >
-                  <MenuItem value={"default"}>Default</MenuItem>
+                  <MenuItem value={"light"}>Light</MenuItem>
                   <MenuItem value={"dark"}>Dark</MenuItem>
                 </Select>
               </FormControl>
@@ -171,23 +171,8 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
           <Grid item container spacing={2} direction={"row"}>
             <Grid item xs={4}>
-              <FormControl fullWidth margin={"normal"}>
-                <FormLabel htmlFor={"colorScheme"}>Color Scheme</FormLabel>
-                <Select
-                  id={"colorScheme"}
-                  onChange={onChangeWrapper}
-                  name={"colorScheme"}
-                  value={profile.colorScheme}
-                >
-                  <MenuItem value={"default"}>Default</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
-                <FormLabel htmlFor={"exec-sound"}>
-                  Dark pool exec sound
-                </FormLabel>
+              <FormControl margin={"dense"} fullWidth>
+                <FormLabel htmlFor={"exec-sound"}>Dark Sound</FormLabel>
                 <SoundsList
                   name={"darkPoolExecSound"}
                   value={profile.darkPoolExecSound}
@@ -196,7 +181,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </FormControl>
             </Grid>
             <Grid item xs={4}>
-              <FormControl margin={"normal"} fullWidth>
+              <FormControl margin={"dense"} fullWidth>
                 <FormLabel htmlFor={"exec-sound"}>Exec Sound</FormLabel>
                 <SoundsList
                   name={"execSound"}
@@ -205,10 +190,11 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 />
               </FormControl>
             </Grid>
+            <Grid item xs={4} />
           </Grid>
 
           <Grid item>
-            <FormControl margin={"normal"} fullWidth>
+            <FormControl margin={"dense"} fullWidth>
               <FormLabel htmlFor={"ccy-group"}>CCY Group</FormLabel>
               <Select
                 id={"ccy-group"}
@@ -228,7 +214,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
           </Grid>
 
           <Grid item>
-            <FormControl margin={"normal"} fullWidth>
+            <FormControl margin={"dense"} fullWidth>
               <FormLabel htmlFor={"time-zone"}>Time Zone</FormLabel>
               <Select
                 id={"time-zone"}

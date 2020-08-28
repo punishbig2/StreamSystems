@@ -27,11 +27,12 @@
     appearance: none;
     border: none;
     background: none;
-    font-weight: 500;
     font-size: $normal-font-size;
     flex: 1;
     margin-right: -20px;
     color: $foreground-color;
+    font-family: "Montserrat", sans-serif;
+    font-weight: bold;
 
     &.no-selection {
       color: rgba($foreground-color, 0.5);
@@ -41,7 +42,7 @@
   .arrow {
     width: $title-bar-height;
     height: $title-bar-height;
-    line-height: $title-bar-height;
+    margin-top: -1px;
     text-align: center;
     background: none;
     color: $foreground-color;

@@ -1,15 +1,21 @@
-import React from "react";
+import { MuiThemeProvider } from "@material-ui/core";
 import { Workarea } from "components/Workarea";
+import React from "react";
+import { theme as muiTheme } from "theme";
 
 const FXOptionsUI: React.FC = () => {
   const { classList } = document.body;
-  const theme: string | null = localStorage.getItem("theme");
+  const theme: string | null = localStorage.getItem("theme.ts");
   if (theme === null) {
-    classList.add("default-theme");
-  } else {
     classList.add(`${theme}-theme`);
+  } else {
+    classList.add("dark-theme");
   }
-  return <Workarea />;
+  return (
+    <MuiThemeProvider theme={muiTheme}>
+      <Workarea />
+    </MuiThemeProvider>
+  );
 };
 
 export default FXOptionsUI;

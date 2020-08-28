@@ -1,8 +1,8 @@
 import { MDEntry, OrderTypes } from "types/mdEntry";
+import { Sides } from "types/sides";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes, W } from "types/w";
 import { $$ } from "utils/stringPaster";
-import { Sides } from "types/sides";
 
 export interface CreateOrder {
   MsgType: MessageTypes;
@@ -71,9 +71,7 @@ export interface OrderMessage {
 
 const getNumber = (value: string | null | undefined): number | null => {
   if (!value) return null;
-  const numeric: number = Number(value);
-  if (numeric === 0) return null;
-  return numeric;
+  return Number(value);
 };
 
 const normalizeTickDirection = (

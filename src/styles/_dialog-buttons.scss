@@ -10,7 +10,7 @@
     border-radius: 3px;
     text-align: center;
     border: none;
-    line-height: 1.5;
+    height: 2em;
     text-transform: uppercase;
     font-size: $small-font-size;
     font-weight: 600;
@@ -20,6 +20,10 @@
 
     &:not(:first-child) {
       margin-left: 6px;
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
 
     &:disabled {

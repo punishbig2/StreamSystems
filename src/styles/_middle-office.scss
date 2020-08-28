@@ -216,6 +216,7 @@ $field-size: 25px;
       }
 
       .MuiFormControlLabel-root {
+        font-family: "Montserrat", sans-serif;
         color: inherit;
         margin: 3px 0;
         cursor: default;
@@ -346,7 +347,14 @@ $field-size: 25px;
         }
 
         .MuiFormControlLabel-label {
-          flex-basis: 20ex;
+          opacity: 0.8;
+          font-family: "Montserrat", sans-serif;
+          font-weight: 500;
+          flex-basis: 22ex;
+          width: 22ex;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .MuiSelect-root,

@@ -141,6 +141,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
             ? order.arrowDirection
             : ArrowDirection.None
         }
+        allowZero={true}
         tooltip={renderTooltip}
         onDoubleClick={onDoubleClick}
         onSubmit={errorHandler(onSubmitPrice(store))}
