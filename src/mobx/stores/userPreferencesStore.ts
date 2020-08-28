@@ -1,13 +1,12 @@
+import { Globals } from "golbals";
+import { action, observable } from "mobx";
+import workareaStore from "mobx/stores/workareaStore";
+import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import {
   UserPreferences,
-  UserProfileStatus,
   UserProfileModalTypes,
+  UserProfileStatus,
 } from "types/user";
-import { observable, action } from "mobx";
-import { defaultPreferences } from "stateDefs/defaultUserPreferences";
-import workareaStore from "mobx/stores/workareaStore";
-import { Globals } from "golbals";
-import { updateApplicationTheme } from "utils";
 
 export class UserPreferencesStore {
   @observable status: UserProfileStatus = UserProfileStatus.Initial;
@@ -29,9 +28,6 @@ export class UserPreferencesStore {
   @action.bound
   public resetInitialProfile() {
     this.preferences = this.initialPreferences;
-    const { theme, colorScheme, font } = this.preferences;
-    // Update the theme too
-    updateApplicationTheme(theme, colorScheme, font);
   }
 
   @action.bound
@@ -42,10 +38,6 @@ export class UserPreferencesStore {
   @action.bound
   public setFieldValue(name: string, value: any) {
     this.preferences = { ...this.preferences, [name]: value };
-    if (name === "theme" || name === "colorScheme" || name === "font") {
-      const { theme, colorScheme, font } = this.preferences;
-      updateApplicationTheme(theme, colorScheme, font);
-    }
   }
 
   @action.bound

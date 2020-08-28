@@ -13,6 +13,7 @@ import strings from "locales";
 import { observer } from "mobx-react";
 
 import messagesStore from "mobx/stores/messagesStore";
+import { themeStore } from "mobx/stores/themeStore";
 import store from "mobx/stores/workareaStore";
 import workareaStore, {
   WorkspaceDef,
@@ -30,10 +31,15 @@ const Workarea: React.FC = (): ReactElement | null => {
   const { CloseWorkspace } = strings;
   const email: string | null = getUserFromUrl();
   const personality: string = workareaStore.personality;
+  const { theme } = workareaStore.preferences;
+
+  useEffect(() => {
+    themeStore.setTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     if (email === null) return;
-    workareaStore.initialize(email);
+    workareaStore.initialize(email).then(() => {});
   }, [email]);
 
   useEffect(() => {
@@ -52,7 +58,7 @@ const Workarea: React.FC = (): ReactElement | null => {
 
   const cancelCloseWorkspace = () => setSelectedToClose(null);
   const closeWorkspace = () => {
-    store.closeWorkspace(selectedToClose as string);
+    store.closeWorkspace(selectedToClose as string).then(() => {});
     // Close the modal window
     setSelectedToClose(null);
   };

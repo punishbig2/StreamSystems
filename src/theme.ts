@@ -66,7 +66,7 @@ export const createTheme = (theme: "dark" | "light"): Theme => {
           marginBottom: 8,
         },
       },
-      MuiListItem: {
+      MuiMenuItem: {
         root: {
           fontFamily: '"Roboto", sans-serif',
           fontWeight: 500,
