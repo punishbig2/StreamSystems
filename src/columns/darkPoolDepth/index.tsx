@@ -1,8 +1,9 @@
+import { Typography } from "@material-ui/core";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React from "react";
 import { xPoints } from "timesPolygon";
 import { OrderTypes } from "types/mdEntry";
-import { Order, OrderStatus } from "types/order";
+import { Order } from "types/order";
 import { User } from "types/user";
 import workareaStore from "../../mobx/stores/workareaStore";
 
@@ -65,7 +66,9 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => {
         const user: User = workareaStore.user;
         if (order.firm === user.firm) classes.push("same-bank");
         if (order.user === user.email) classes.push("owned");
-        return <div className={classes.join(" ")}>{order.size}</div>;
+        return (
+          <Typography className={classes.join(" ")}>{order.size}</Typography>
+        );
       },
       width: 2,
       template: "99999.99",

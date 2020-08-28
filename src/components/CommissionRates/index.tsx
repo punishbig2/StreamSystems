@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import { observer } from "mobx-react";
 import { BrokerageStore, CommissionRate } from "mobx/stores/brokerageStore";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -20,8 +21,12 @@ export const CommissionRates: React.FC = observer(
             });
             return (
               <div key={region} className={"entry"}>
-                <div className={"region"}>{region}</div>
-                <div className={"value"}>{formattedValue}</div>
+                <Typography color={"textSecondary"} className={"region"}>
+                  {region}
+                </Typography>
+                <Typography color={"textPrimary"} className={"value"}>
+                  {formattedValue}
+                </Typography>
               </div>
             );
           }

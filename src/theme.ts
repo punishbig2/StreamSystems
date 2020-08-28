@@ -1,62 +1,63 @@
 import { createMuiTheme, Theme } from "@material-ui/core";
 import { palette } from "palette";
 
-export const theme: Theme = createMuiTheme({
-  palette: palette,
-  overrides: {
-    MuiFormControl: {
-      root: {
-        padding: 0,
+export const theme = (theme: "dark" | "light"): Theme =>
+  createMuiTheme({
+    palette: palette(theme),
+    overrides: {
+      MuiFormControl: {
+        root: {
+          padding: 0,
+        },
+        marginNormal: {
+          marginTop: 8,
+          marginBottom: 8,
+        },
       },
-      marginNormal: {
-        marginTop: 8,
-        marginBottom: 8,
+      MuiFormLabel: {
+        root: {
+          fontFamily: '"Montserrat", sans-serif',
+          fontSize: 13,
+          fontWeight: 500,
+          margin: 0,
+          marginBottom: 8,
+        },
       },
-    },
-    MuiFormLabel: {
-      root: {
-        fontFamily: '"Montserrat", sans-serif',
-        fontSize: 13,
-        fontWeight: 500,
-        margin: 0,
-        marginBottom: 8,
+      MuiListItem: {
+        root: {
+          fontFamily: '"Roboto", sans-serif',
+          fontWeight: 500,
+          fontSize: 15,
+        },
       },
-    },
-    MuiListItem: {
-      root: {
-        fontFamily: '"Roboto", sans-serif',
-        fontWeight: 500,
-        fontSize: 15,
+      MuiFormHelperText: {
+        root: {
+          fontFamily: '"Montserrat", sans-serif',
+        },
       },
-    },
-    MuiFormHelperText: {
-      root: {
-        fontFamily: '"Montserrat", sans-serif',
+      MuiSelect: {
+        select: {
+          "&:focus": {
+            backgroundColor: "transparent",
+          },
+        },
       },
-    },
-    MuiSelect: {
-      select: {
-        "&:focus": {
-          backgroundColor: "transparent",
+      MuiInputBase: {
+        root: {
+          font: "initial",
+          lineHeight: "30px",
+          height: 30,
+        },
+        input: {
+          fontFamily: '"Roboto", sans-serif',
+          fontWeight: 500,
+          fontSize: 15,
         },
       },
     },
-    MuiInputBase: {
-      root: {
-        font: "initial",
-        lineHeight: "30px",
-        height: 30,
-      },
-      input: {
-        fontFamily: '"Roboto", sans-serif',
-        fontWeight: 500,
-        fontSize: 15,
+    props: {
+      MuiSelect: {
+        variant: "standard",
       },
     },
-  },
-  props: {
-    MuiSelect: {
-      variant: "standard",
-    },
-  },
-});
+  });
