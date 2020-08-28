@@ -1,4 +1,7 @@
-import { PaletteOptions } from "@material-ui/core/styles/createPalette";
+import createPalette, {
+  Palette,
+  PaletteOptions,
+} from "@material-ui/core/styles/createPalette";
 
 export const light: PaletteOptions = {
   type: "light",
@@ -22,11 +25,12 @@ export const dark: PaletteOptions = {
   },
 };
 
-export const palette = (theme: "light" | "dark"): PaletteOptions => {
+export const getPalette = (theme: "light" | "dark"): Palette => {
+  console.log(theme);
   switch (theme) {
     case "light":
-      return light;
+      return createPalette(light);
     case "dark":
-      return dark;
+      return createPalette(dark);
   }
 };

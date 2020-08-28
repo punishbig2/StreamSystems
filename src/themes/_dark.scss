@@ -14,10 +14,6 @@ body.dark-theme {
   // Window colors
   $window-border-color: #e1e1e1;
 
-  &.default-color-scheme {
-    &.default-font {
-      @import "../color-schemes/default-dark";
-      @import "../styles/all";
-    }
-  }
+  @import "../color-schemes/default-dark";
+  @import "../styles/all";
 }

@@ -1,9 +1,11 @@
+import { themeStore } from "mobx/stores/themeStore";
 import { OrderTypes } from "types/mdEntry";
 import { Sides } from "types/sides";
 import timezones, { TimezoneInfo } from "data/timezones";
 
 export const coalesce = (value: any, defaultValue: any): any => {
-  if (value === null || value === undefined || value === "") return defaultValue;
+  if (value === null || value === undefined || value === "")
+    return defaultValue;
   return value;
 };
 
@@ -50,12 +52,9 @@ export const updateApplicationTheme = (
   colorScheme: string,
   font: string
 ) => {
-  const { body } = document;
-  // Set the body element's class
-  body.setAttribute(
-    "class",
-    `${theme || "default"}-theme ${font}-font ${colorScheme}-color-scheme`
-  );
+  void colorScheme;
+  void font;
+  themeStore.setTheme(theme as "light" | "dark");
 };
 
 export const selectInputText = (input: HTMLInputElement) =>

@@ -1,9 +1,52 @@
 import { createMuiTheme, Theme } from "@material-ui/core";
-import { palette } from "palette";
+import { Palette } from "@material-ui/core/styles/createPalette";
+import { getPalette } from "palette";
 
-export const theme = (theme: "dark" | "light"): Theme =>
-  createMuiTheme({
-    palette: palette(theme),
+export const createTheme = (theme: "dark" | "light"): Theme => {
+  const palette: Palette = getPalette(theme);
+  return createMuiTheme({
+    palette: palette,
+    typography: {
+      subtitle1: {
+        fontSize: 15,
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 600,
+        color: palette.text.secondary,
+      },
+      subtitle2: {
+        fontSize: 12,
+        fontFamily: '"Roboto", sans-serif',
+        fontWeight: 500,
+        color: palette.text.secondary,
+      },
+      h1: {
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 800,
+      },
+      h2: {
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 800,
+      },
+      h3: {
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 800,
+      },
+      h4: {
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 800,
+      },
+      h5: {
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 800,
+      },
+      h6: {
+        fontFamily: '"Montserrat", sans-serif',
+        fontWeight: 800,
+      },
+      body1: {
+        fontFamily: '"Montserrat", sans-serif',
+      },
+    },
     overrides: {
       MuiFormControl: {
         root: {
@@ -61,3 +104,4 @@ export const theme = (theme: "dark" | "light"): Theme =>
       },
     },
   });
+};

@@ -146,7 +146,14 @@ const Workarea: React.FC = (): ReactElement | null => {
   };
   switch (store.status) {
     case WorkareaStatus.Error:
-      return <WorkareaError />;
+      return (
+        <WorkareaError
+          title={"Oops, there was an error while loading"}
+          detail={
+            "We had trouble communicating with the data server. There might be a problem with your connection."
+          }
+        />
+      );
     case WorkareaStatus.UserNotFound:
       return <UserNotFound />;
     case WorkareaStatus.Starting:

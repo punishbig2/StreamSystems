@@ -4,6 +4,7 @@ import {
   Input,
   MenuItem,
   Select,
+  Typography,
 } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import { SoundsList } from "components/Workspace/UserProfile/soundsList";
@@ -64,7 +65,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
   const userType: string = user.isbroker ? "Broker" : "Bank";
   const regions: string[] = user.regions || [];
-  if (!regions.includes("LATAM")) regions.push("LATAM");
   return (
     <>
       <div className={"modal-title"}>
@@ -74,12 +74,20 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <i className={"fa fa-user"} />
             </div>
             <div className={"name"}>
-              <div className={"title"}>{user.email}</div>
+              <Typography
+                color={"textPrimary"}
+                variant={"subtitle1"}
+                className={"title"}
+              >
+                {user.email}
+              </Typography>
             </div>
           </div>
           <div className={"fx-options"}>
-            <div>{strings.UserProfile}</div>
-            <small>FX Options {GlobalApplicationVersion}</small>
+            <Typography variant={"subtitle1"}>{strings.UserProfile}</Typography>
+            <Typography variant={"subtitle2"}>
+              FX Options {GlobalApplicationVersion}
+            </Typography>
           </div>
         </div>
       </div>
@@ -155,11 +163,11 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             </Grid>
             <Grid item xs={4}>
               <FormControl fullWidth margin={"dense"}>
-                <FormLabel htmlFor={"theme.ts"}>Theme</FormLabel>
+                <FormLabel htmlFor={"theme"}>Theme</FormLabel>
                 <Select
-                  id={"theme.ts"}
+                  id={"theme"}
                   onChange={onChangeWrapper}
-                  name={"theme.ts"}
+                  name={"theme"}
                   value={profile.theme}
                 >
                   <MenuItem value={"light"}>Light</MenuItem>

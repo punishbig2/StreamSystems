@@ -39,7 +39,6 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       };
     }
     if (field.name === "legadj") {
-      console.log(rawValue);
       if (!!rawValue) {
         return "true";
       } else {

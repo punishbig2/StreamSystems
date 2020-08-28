@@ -1,28 +1,23 @@
 import { MuiThemeProvider } from "@material-ui/core";
 import { Workarea } from "components/Workarea";
-import React from "react";
-import { theme as muiTheme } from "theme";
+import { observer } from "mobx-react";
+import { themeStore } from "mobx/stores/themeStore";
+import React, { useEffect } from "react";
+import { createTheme } from "theme";
 
-const getTheme = (): "dark" | "light" => {
-  const cached: string | null = localStorage.getItem("theme.ts");
-  if (cached === null) {
-    return "dark";
-  } else {
-    return cached as "dark" | "light";
+const FXOptionsUI: React.FC = observer(
+  (): React.ReactElement => {
+    const { theme } = themeStore;
+    useEffect(() => {
+      const { body } = document;
+      body.setAttribute("class", theme + "-theme");
+    }, [theme]);
+    return (
+      <MuiThemeProvider theme={createTheme(theme)}>
+        <Workarea />
+      </MuiThemeProvider>
+    );
   }
-};
-
-const FXOptionsUI: React.FC = () => {
-  const { classList } = document.body;
-  const theme: "light" | "dark" = getTheme();
-  // Set the theme on the body
-  classList.add(`${theme}-theme`);
-  // Render the thing ;)
-  return (
-    <MuiThemeProvider theme={muiTheme(theme)}>
-      <Workarea />
-    </MuiThemeProvider>
-  );
-};
+);
 
 export default FXOptionsUI;

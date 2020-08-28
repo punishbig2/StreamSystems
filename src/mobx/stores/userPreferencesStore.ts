@@ -42,7 +42,7 @@ export class UserPreferencesStore {
   @action.bound
   public setFieldValue(name: string, value: any) {
     this.preferences = { ...this.preferences, [name]: value };
-    if (name === "theme.ts" || name === "colorScheme" || name === "font") {
+    if (name === "theme" || name === "colorScheme" || name === "font") {
       const { theme, colorScheme, font } = this.preferences;
       updateApplicationTheme(theme, colorScheme, font);
     }
