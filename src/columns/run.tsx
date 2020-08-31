@@ -57,6 +57,7 @@ const RunPriceColumn = (
           status={order.status}
           value={order.price}
           animated={false}
+          allowZero={true}
           onSubmit={onPriceChange(row)}
           onTabbedOut={ignoreTabbedOut}
           onNavigate={data.onNavigate}

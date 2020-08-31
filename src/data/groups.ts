@@ -40,7 +40,7 @@ export const CCYGroups: { [key: string]: string } = {
   "USDPEN10D RR": "+UC",
   "USDPEN25D RR": "+UC",
   "BRLJYP10D RR": "+BP",
-  "BRLJYP25 RR": "+BP",
+  "BRLJYP25D RR": "+BP",
   "BRLMXN10D RR": "+MP",
-  "BRLMXN25 RR": "+MP",
+  "BRLMXN25D RR": "+MP",
 };
