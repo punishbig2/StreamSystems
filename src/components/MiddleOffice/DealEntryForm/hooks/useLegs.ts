@@ -37,9 +37,6 @@ const createStubLegs = async (
         index === 1 ? entry.tenor2expiry : entry.tenor1expiry,
         entry.tenor1expiry
       );
-      if (index === 1) {
-        console.log("leg1", entry.not1, entry.not2, expiryDate.format());
-      }
       const deliveryDate: moment.Moment = moment(expiryDate).add(
         Number(symbol.SettlementWindow),
         "d"

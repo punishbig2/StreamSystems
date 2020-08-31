@@ -14,7 +14,6 @@ export interface FieldDef<T, S = {}, E = {}> {
   label: string;
   editable: boolean | ((data: any, entry?: E) => boolean);
   placeholder?: string;
-  mask?: string;
   emptyValue?: string;
   validate?: (value: string) => Validity;
   precision?: number;

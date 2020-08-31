@@ -1,14 +1,14 @@
-import { Symbol } from "types/symbol";
-import strings from "locales";
-import React, { ReactElement } from "react";
 import { Select } from "components/Select";
-import { $$ } from "utils/stringPaster";
-import { CCYGroups } from "data/groups";
-import { PodTileStore } from "mobx/stores/podTileStore";
+import { CCYGroupTags, CCYPair, RRStrategy, Tag } from "data/groups";
+import strings from "locales";
 import { observer } from "mobx-react";
-import { STRM } from "stateDefs/workspaceState";
+import { PodTileStore } from "mobx/stores/podTileStore";
 import workareaStore from "mobx/stores/workareaStore";
+import React, { ReactElement } from "react";
+import { STRM } from "stateDefs/workspaceState";
+import { Symbol } from "types/symbol";
 import { User } from "types/user";
+import { isCCYPair, isRRStrategy } from "utils/isInEnum";
 import { Strategy } from "../../types/strategy";
 
 interface Props {
@@ -24,12 +24,13 @@ export const PodTileTitle: React.FC<Props> = observer(
 
     const personality: string = workareaStore.personality;
 
-    const getGroup = (key: string): string => {
-      if (CCYGroups[key] !== undefined) {
-        return CCYGroups[key];
-      } else {
-        return " ";
-      }
+    const getTag = (pair: string, strategy: string): string => {
+      if (!isCCYPair(pair)) return " ";
+      const group: { [strategy in RRStrategy]: Tag } | undefined =
+        CCYGroupTags[pair as CCYPair];
+      if (group === undefined) return " ";
+      if (!isRRStrategy(strategy)) return " ";
+      return group[strategy];
     };
 
     const user: User = workareaStore.user;
@@ -55,7 +56,7 @@ export const PodTileTitle: React.FC<Props> = observer(
             empty={"Strategy"}
           />
         </div>
-        <div className={"ccy-group"}>{getGroup($$(currency, strategy))}</div>
+        <div className={"ccy-group"}>{getTag(currency, strategy)}</div>
         <div className={"item"}>
           <button onClick={store.showRunWindow} disabled={isRunButtonDisabled}>
             {strings.Run}

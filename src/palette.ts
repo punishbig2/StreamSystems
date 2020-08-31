@@ -26,7 +26,6 @@ export const dark: PaletteOptions = {
 };
 
 export const getPalette = (theme: "light" | "dark"): Palette => {
-  console.log(theme);
   switch (theme) {
     case "light":
       return createPalette(light);
