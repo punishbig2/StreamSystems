@@ -28,7 +28,7 @@ export const PodTileTitle: React.FC<Props> = observer(
       if (CCYGroups[key] !== undefined) {
         return CCYGroups[key];
       } else {
-        return "";
+        return " ";
       }
     };
 
