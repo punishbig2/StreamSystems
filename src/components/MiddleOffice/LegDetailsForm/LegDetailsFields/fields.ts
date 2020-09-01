@@ -80,7 +80,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     color: "grey",
     name: "fwdPts",
     label: "Fwd Pts",
-    precision: 0,
+    precision: 4,
     editable: false,
   },
   {

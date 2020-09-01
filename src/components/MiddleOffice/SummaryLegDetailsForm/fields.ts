@@ -61,7 +61,7 @@ export const fields: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>[] = [
     label: "Fwd Pts 1",
     color: "grey",
     editable: isEditable("fwdpts1"),
-    precision: 0,
+    precision: 4,
   },
   {
     type: "number",
@@ -77,7 +77,7 @@ export const fields: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>[] = [
     label: "Fwd Pts 2",
     color: "grey",
     editable: isEditable("fwdpts2"),
-    precision: 0,
+    precision: 4,
   },
   {
     type: "number",

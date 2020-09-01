@@ -23,6 +23,16 @@ const onUpdate = (deal: Deal, data: { dealId: string; legs: Leg[] }) => {
       ...summaryLeg,
       fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
       fwdrate1: coalesce(fwdRate, legs[0].fwdRate),
+      fwdpts2: coalesce(
+        fwdPts,
+        // The legs[1] generally equals legs[0]
+        legs[2] !== undefined ? legs[2].fwdPts : undefined
+      ),
+      fwdrate2: coalesce(
+        fwdRate,
+        // The legs[1] generally equals legs[0]
+        legs[2] !== undefined ? legs[2].fwdRate : undefined
+      ),
       spot: legs[0].spot,
       ...{ dealOutput: legs[0] },
     } as SummaryLeg);
