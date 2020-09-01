@@ -731,7 +731,7 @@ export class API {
     summaryLeg: SummaryLeg,
     valuationModel: ValuationModel,
     strategy: MOStrategy
-  ) {
+  ): Promise<void> {
     const { currencyPair, tradeDate, symbol } = deal;
     if (currencyPair.length !== 6)
       throw new Error(`unsupported currency ${currencyPair}`);
@@ -757,6 +757,14 @@ export class API {
         premiumCCY: symbol.premiumCCY,
         OptionLegs: mergedDefinitions.map(
           (leg: Leg, index: number): OptionLeg => {
+            const spread: number | null =
+              entry.strategy === "Butterfly-2Leg" && index > 0
+                ? null
+                : API.divideBy100(entry.spread);
+            const vol: number | null =
+              entry.strategy === "Butterfly-2Leg" && index > 0
+                ? null
+                : API.divideBy100(coalesce(leg.vol, entry.vol));
             const notional: number = coalesce(
               index === 1 ? deal.notional2 : deal.notional1,
               deal.notional1
@@ -769,14 +777,14 @@ export class API {
               notional: notional,
               expiryDate: expiryDate,
               deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
-              spreadVolatiltyOffset: API.divideBy100(entry.spread),
+              spreadVolatiltyOffset: spread,
               strike: numberifyIfPossible(
                 coalesce(
                   leg.strike,
                   coalesce(entry.dealstrike, strategy.strike)
                 )
               ),
-              volatilty: API.divideBy100(coalesce(leg.vol, entry.vol)),
+              volatilty: vol,
               barrier: null,
               barrierLower: null,
               barrierUpper: null,
