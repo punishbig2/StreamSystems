@@ -1,24 +1,35 @@
 import { RunActions } from "components/Run/reducer";
-import { buildNewOrder, computeRow, getRowStatus } from "components/Run/reducers/computeRow";
+import {
+  buildNewOrder,
+  computeRow,
+  getRowStatus,
+} from "components/Run/reducers/computeRow";
 import { RunEntry } from "components/Run/runEntry";
 import { RunState } from "stateDefs/runState";
 import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
+import deepEqual from "deep-equal";
 
 const updateSpread = (state: RunState, row: PodRow, spread: number): PodRow => {
   const { bid, ofr } = row;
-  const starting: RunEntry = {
+  const initial: RunEntry = {
     spread: spread,
     bid: bid.price,
     ofr: ofr.price,
     mid: row.mid,
   };
-  const computed: RunEntry = computeRow(RunActions.Spread, starting, spread);
+  const computed: RunEntry = computeRow(RunActions.Spread, initial, spread);
+  if (deepEqual(computed, initial)) {
+    return {
+      ...row,
+      spread: spread,
+    };
+  }
   return {
     ...row,
     status: getRowStatus(bid, ofr, computed),
-    bid: buildNewOrder(state, bid, computed.bid, starting.bid),
-    ofr: buildNewOrder(state, ofr, computed.ofr, starting.ofr),
+    bid: buildNewOrder(state, bid, computed.bid, initial.bid),
+    ofr: buildNewOrder(state, ofr, computed.ofr, initial.ofr),
     mid: computed.mid,
     spread: computed.spread,
   };

@@ -2,7 +2,7 @@ import { FXOAction } from "actionCreator";
 import { activateOrder } from "components/Run/reducers/activateOrder";
 import { activateRow } from "components/Run/reducers/activateRow";
 import { deactivateAll } from "components/Run/reducers/deactivateAll";
-import { deactivateOrder} from "components/Run/reducers/deactivateOrder";
+import { deactivateOrder } from "components/Run/reducers/deactivateOrder";
 import { removeAll } from "components/Run/reducers/removeAll";
 import { removeOrder } from "components/Run/reducers/removeOrder";
 import { setSpread } from "components/Run/reducers/setSpread";
