@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import React, { ReactElement } from "react";
 import { Message } from "types/message";
 import { User, UserPreferences } from "types/user";
@@ -35,8 +36,12 @@ export const TradeConfirmation: React.FC<OwnProps> = (
   return (
     <div className={"item"}>
       <div className={"content"}>
-        <div className={"line"}>{line1}</div>
-        <div className={"line"}>{line2}</div>
+        <Typography className={"line1"} variant={"body1"} color={"textPrimary"}>
+          {line1}
+        </Typography>
+        <Typography className={"line2"} variant={"body1"} color={"textPrimary"}>
+          {line2}
+        </Typography>
       </div>
     </div>
   );

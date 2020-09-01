@@ -827,13 +827,15 @@ export class API {
     return task.execute();
   }
 
-  public static async getDeals(): Promise<Deal[]> {
+  public static async getDeals(dealid?: string): Promise<Deal[]> {
     const task: Task<Deal[]> = get<Deal[]>(
-      API.buildUrl(API.Deal, "deals", "get")
+      API.buildUrl(API.Deal, "deals", "get"),
+      dealid !== undefined ? { dealid } : undefined
     );
     const array: any[] | null = await task.execute();
     if (array === null) return [];
-    return array.map(createDealFromBackendMessage);
+    const promises: Promise<Deal>[] = array.map(createDealFromBackendMessage);
+    return Promise.all(promises);
   }
 
   public static async removeDeal(id: string): Promise<any> {

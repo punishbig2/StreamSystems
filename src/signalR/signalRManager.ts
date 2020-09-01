@@ -255,12 +255,12 @@ export class SignalRManager {
     };
   }
 
-  public addDeal = (deal: any): void => {
+  public addDeal = async (deal: any): Promise<void> => {
     if ("dealId" in deal) {
       console.log(deal);
     } else {
       try {
-        const detail: Deal = createDealFromBackendMessage(deal);
+        const detail: Deal = await createDealFromBackendMessage(deal);
         const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
           detail: detail,
         });

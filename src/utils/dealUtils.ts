@@ -1,3 +1,4 @@
+import { API } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { Globals } from "golbals";
@@ -32,7 +33,34 @@ export const resolveBankToEntity = (source: string): string => {
   return entity.code;
 };
 
-export const createDealFromBackendMessage = (source: any): Deal => {
+const getCommissionRates = async (item: any): Promise<any> => {
+  if (
+    item.buyer_comm_rate === undefined ||
+    item.seller_comm_rate === undefined
+  ) {
+    const deals: Deal[] = await API.getDeals();
+    if (deals.length === 0) return undefined;
+    const found: Deal | undefined = deals.find(
+      (deal: Deal): boolean => deal.dealID === item.linkid
+    );
+    if (found === undefined) return undefined;
+    return found.commissions;
+  }
+  return {
+    buyer: {
+      rate: item.buyer_comm_rate,
+      value: item.buyer_comm,
+    },
+    seller: {
+      rate: item.seller_comm_rate,
+      value: item.seller_comm,
+    },
+  };
+};
+
+export const createDealFromBackendMessage = async (
+  source: any
+): Promise<Deal> => {
   const symbol: Symbol | undefined = workareaStore.findSymbolById(
     source.symbol
   );
@@ -92,16 +120,7 @@ export const createDealFromBackendMessage = (source: any): Deal => {
     fwdPts1: item.fwdpts1,
     fwdRate2: item.fwdrate2,
     fwdPts2: item.fwdpts2,
-    commissions: {
-      buyer: {
-        rate: item.buyer_comm_rate,
-        value: item.buyer_comm,
-      },
-      seller: {
-        rate: item.seller_comm_rate,
-        value: item.seller_comm,
-      },
-    },
+    commissions: await getCommissionRates(item),
   };
 };
 
