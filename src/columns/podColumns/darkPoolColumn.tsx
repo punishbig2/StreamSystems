@@ -1,20 +1,20 @@
-import { ColumnSpec } from "components/Table/columnSpecification";
 import { PodRowProps } from "columns/podColumns/common";
-import { Price } from "components/Table/CellRenderers/Price";
-import { ArrowDirection } from "types/w";
-import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
-import React, { useState, useEffect, ReactElement } from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { DarkPoolTicket } from "components/DarkPoolTicket";
 import { ModalWindow } from "components/ModalWindow";
 import { onNavigate } from "components/PodTile/helpers";
+import { Price } from "components/Table/CellRenderers/Price";
+import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
+import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { observer } from "mobx-react";
 import { DarkPoolStore } from "mobx/stores/darkPoolStore";
 import workareaStore from "mobx/stores/workareaStore";
+import React, { ReactElement, useEffect, useState } from "react";
+import { STRM } from "stateDefs/workspaceState";
+import { DarkPoolOrder, Order, OrderStatus } from "types/order";
 import { User } from "types/user";
+import { ArrowDirection } from "types/w";
 import { skipTabIndexAll } from "utils/skipTab";
-import { observer } from "mobx-react";
-import { DarkPoolTicket } from "components/DarkPoolTicket";
-import { Order, DarkPoolOrder } from "types/order";
-import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
 
 type Props = PodRowProps;
 
@@ -51,7 +51,17 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const renderTooltip = () => {
     const depth: Order[] = store.depth;
     if (depth.length === 0) return null;
-    return <DarkPoolTooltip onCancelOrder={store.cancel} orders={depth} />;
+    const showInstruction = depth.some((order: Order): boolean => {
+      if ((order.status & OrderStatus.Owned) === 0) return false;
+      return order.instruction !== undefined;
+    });
+    return (
+      <DarkPoolTooltip
+        onCancelOrder={store.cancel}
+        orders={depth}
+        showInstruction={showInstruction}
+      />
+    );
   };
 
   useEffect(() => {

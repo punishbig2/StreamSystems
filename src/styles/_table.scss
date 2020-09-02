@@ -12,9 +12,11 @@ $spinner-size: $table-row-height - 6;
   cursor: default;
 
   &.disabled {
-    .tbody, .thead {
+    .tbody,
+    .thead {
       .tr {
-        .td, .th {
+        .td,
+        .th {
           color: $table-border-color;
 
           input.filter {
@@ -320,6 +322,10 @@ $spinner-size: $table-row-height - 6;
 
         line-height: $table-row-height;
         height: $table-row-height;
+
+        .empty {
+          opacity: 0.2;
+        }
 
         .date-time-cell {
           display: flex;

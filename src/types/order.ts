@@ -112,6 +112,7 @@ export class Order {
   public user: string;
   public arrowDirection: ArrowDirection;
   public timestamp: number;
+  public instruction: string | undefined = undefined;
 
   constructor(
     tenor: string,
@@ -183,6 +184,13 @@ export class Order {
       entry.MDEntryType
     );
     // Update fields not in the constructor
+    const execInstNames: { [execInst: string]: string } = {
+      G: "AON",
+      D: "1/2",
+    };
+    if (entry.ExecInst !== undefined) {
+      order.instruction = execInstNames[entry.ExecInst];
+    }
     order.price = price;
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;

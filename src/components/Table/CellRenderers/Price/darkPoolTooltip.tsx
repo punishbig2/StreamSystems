@@ -8,6 +8,7 @@ import { getCellWidth } from "components/Table/helpers";
 
 interface OwnProps {
   orders: Order[];
+  showInstruction: boolean;
   onCancelOrder: (order: Order) => void;
 }
 
@@ -34,7 +35,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
     <Table
       id={"darkPool-tooltip"}
       className={"padded"}
-      columns={columns(props.onCancelOrder)}
+      columns={columns(props.onCancelOrder, props.showInstruction)}
       scrollable={false}
       renderRow={renderRow}
       rows={props.orders}

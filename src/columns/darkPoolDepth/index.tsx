@@ -12,7 +12,10 @@ const getSide = (order: Order): string => {
   return "Buy";
 };
 
-const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => {
+const columns = (
+  onCancelOrder: (order: Order) => void,
+  showInstruction: boolean
+): ColumnSpec[] => {
   return [
     {
       name: "ref",
@@ -73,15 +76,21 @@ const columns = (onCancelOrder: (order: Order) => void): ColumnSpec[] => {
       width: 2,
       template: "99999.99",
     },
-    {
-      name: "inst",
-      header: () => "Inst",
-      render: (order: Order) => {
-        return <div />;
-      },
-      width: 2,
-      template: "Inst",
-    },
+    ...(showInstruction
+      ? [
+          {
+            name: "inst",
+            header: () => "Inst",
+            render: (order: Order) => {
+              if (order.instruction === undefined)
+                return <div className={"empty"}>None</div>;
+              return <div>{order.instruction}</div>;
+            },
+            width: 2,
+            template: "Inst",
+          },
+        ]
+      : []),
   ];
 };
 

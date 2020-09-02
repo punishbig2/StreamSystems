@@ -119,6 +119,7 @@ export class OrderStore {
     if (response.Status === "Success") {
       this.currentStatus = this.currentStatus & ~OrderStatus.BeingCreated;
       const newOrder: Order = {
+        instruction: "",
         // Current user owns this order of course
         firm: user.firm,
         user: user.email,

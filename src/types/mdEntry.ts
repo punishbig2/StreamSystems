@@ -17,4 +17,5 @@ export interface MDEntry {
   TickDirection?: ArrowDirection;
   ExDestination?: string;
   MDEntryTime: string;
+  ExecInst?: string;
 }
