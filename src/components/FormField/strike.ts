@@ -25,13 +25,8 @@ export class StrikeHandler<T, P extends MinimalProps, S extends Editable>
   public format(value: any, props: P): [string, Validity] {
     if (typeof value === "undefined") return ["", Validity.Intermediate];
     if (typeof value === "number") {
-      return [
-        value.toLocaleString(undefined, {
-          minimumFractionDigits: 4,
-          maximumFractionDigits: 4,
-        }),
-        Validity.Valid,
-      ];
+      if (value === 0) return ["", Validity.Intermediate];
+      return [value.toString(), Validity.Valid];
     } else if (typeof value !== "string") {
       return ["", Validity.Intermediate];
     } else if (value === "N/A") {
