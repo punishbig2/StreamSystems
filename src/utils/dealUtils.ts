@@ -97,7 +97,7 @@ export const createDealFromBackendMessage = async (
     seller: item.seller,
     currency: item.symbol,
     spread: item.spread,
-    vol: item.vol,
+    vol: coalesce(item.lastpx, item.vol),
     notional1: Number(item.lastqty) * 1e6,
     notional2: item.notional1 === null ? null : Number(item.notional1),
     strategy: item.strategy,

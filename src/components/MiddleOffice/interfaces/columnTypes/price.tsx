@@ -2,7 +2,7 @@ import React, { ReactElement } from "react";
 import { priceFormatter } from "utils/priceFormatter";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { PriceCell } from "components/MiddleOffice/interfaces/cells/price";
+import { getDealPrice, PriceCell } from "components/MiddleOffice/interfaces/cells/price";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 
 export default (sortable: boolean, width: number = 3): ColumnSpec => ({
@@ -15,12 +15,17 @@ export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
     // FIXME: should use the right one
-    const value: number = Number(v1.vol);
+    const value: number | null = getDealPrice(v1);
+    if (value === null) return false;
     const numeric: number = Number(keyword);
     if (isNaN(numeric)) return false;
     return priceFormatter(value) === priceFormatter(numeric);
   },
   difference: (v1: Deal, v2: Deal) => {
-    return Number(v1.vol) - Number(v2.vol);
+    const p1: number | null = getDealPrice(v1);
+    const p2: number | null = getDealPrice(v2);
+    if (p1 === null) return -1;
+    if (p2 === null) return 1;
+    return p1 - p2;
   },
 });
