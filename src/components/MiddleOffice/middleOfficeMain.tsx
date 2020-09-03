@@ -8,7 +8,6 @@ import { Error } from "components/MiddleOffice/error";
 import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDeletedListener";
 import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
 import { usePricingUpdater } from "components/MiddleOffice/hooks/usePricingUpdater";
-import { useSEFSubmissionSuccessListener } from "components/MiddleOffice/hooks/useSEFSubmissionListener";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { ProgressView } from "components/MiddleOffice/progressView";
@@ -36,7 +35,6 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
     // Update pricing data on change
     usePricingUpdater(deal);
     useDealDeletedListener(entryStore);
-    useSEFSubmissionSuccessListener();
     useErrorListener(moStore.setError);
     useSEFUpdateListener(moStore.setStatus);
     if (!props.visible) classes.push("hidden");
