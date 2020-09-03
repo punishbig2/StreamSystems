@@ -36,7 +36,11 @@ import {
   getSideFromType,
   numberifyIfPossible,
 } from "utils";
-import { createDealFromBackendMessage } from "utils/dealUtils";
+import {
+  createDealFromBackendMessage,
+  resolveBankToEntity,
+  resolveEntityToBank,
+} from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import {
@@ -864,8 +868,10 @@ export class API {
       lvsqty: "0",
       cumqty: "0",
       transacttime: currentTimestampFIXFormat(),
-      buyer: data.buyer,
-      seller: data.seller,
+      buyerentitycode: resolveBankToEntity(data.buyer),
+      sellerentitycode: resolveBankToEntity(data.seller),
+      buyer: resolveEntityToBank(data.buyer),
+      seller: resolveEntityToBank(data.buyer),
       useremail: user.email,
       strike: data.strike,
       expirydate: momentToUTCFIXFormat(data.expiry1),

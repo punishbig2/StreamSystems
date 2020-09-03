@@ -24,7 +24,7 @@ export const submitToSEF = (entry: DealEntry) => {
         status: "Unknown problem",
         code: 1,
         error: "Unexpected error",
-        message: typeof error === "string" ? error : error.message(),
+        content: typeof error === "string" ? error : error.content(),
       });
     });
 };

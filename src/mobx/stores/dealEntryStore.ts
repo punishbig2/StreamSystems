@@ -7,9 +7,10 @@ import { action, computed, observable } from "mobx";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
+import { MiddleOfficeError } from "types/middleOfficeError";
 import { createDealEntry } from "utils/dealUtils";
 
-const savingDealError = (reason: any) => {
+const savingDealError = (reason: any): MiddleOfficeError => {
   const message: string =
     typeof reason === "string"
       ? reason
@@ -19,7 +20,7 @@ const savingDealError = (reason: any) => {
   return {
     status: "801",
     code: 801,
-    message: message === "" ? "Server error" : message,
+    content: message === "" ? "Server error" : message,
     error: "Cannot create or save the deal",
   };
 };

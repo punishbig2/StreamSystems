@@ -22,6 +22,14 @@ export const stateMap: { [key: number]: string } = {
   [DealStatus.SEFConfirmed]: "SEF Confirmed",
 };
 
+export const resolveEntityToBank = (source: string): string => {
+  const bank: BankEntity | undefined = moStore.entitiesMap[source];
+  if (bank === undefined) {
+    return source;
+  }
+  return bank.id;
+};
+
 export const resolveBankToEntity = (source: string): string => {
   const bank: BankEntity[] | undefined = moStore.entities[source];
   if (bank === undefined)
@@ -93,8 +101,8 @@ export const createDealFromBackendMessage = async (
       : parsedExpiryDate2;
   return {
     dealID: item.linkid,
-    buyer: item.buyer,
-    seller: item.seller,
+    buyer: item.buyerentitycode,
+    seller: item.sellerentitycode,
     currency: item.symbol,
     spread: item.spread,
     vol: coalesce(item.lastpx, item.vol),

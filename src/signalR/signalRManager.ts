@@ -27,11 +27,22 @@ import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
 import { createDealFromBackendMessage } from "utils/dealUtils";
+import { parseSEFError } from "utils/parseSEFError";
 import { $$ } from "utils/stringPaster";
 
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { "1": Sides.Buy, "2": Sides.Sell };
+
+export const SEF_UPDATE_EVENT = "on-sef-update";
+
+interface SEFError {
+  dealid: string;
+  error_msg: string;
+  msgtype: "AR";
+  report_status: string;
+  useremail: string;
+}
 
 export enum Methods {
   // Messages
@@ -596,18 +607,26 @@ export class SignalRManager {
     document.dispatchEvent(event);
   };
 
+  private static emitSEFUpdate(dealId: string): void {
+    const event: CustomEvent<{ id: string }> = new CustomEvent<{ id: string }>(
+      SEF_UPDATE_EVENT,
+      { detail: { id: dealId } }
+    );
+    document.dispatchEvent(event);
+  }
+
   private onSEFUpdate = (data: string): void => {
-    const object: any = JSON.parse(data);
-    if (object.error_msg !== undefined) {
+    const object: SEFError = JSON.parse(data);
+    if (object.report_status === "REJECTED") {
       const error: MiddleOfficeError = {
-        status: "SEF error",
-        message: object.error_msg,
+        status: "701",
+        content: parseSEFError(object.error_msg),
         code: 701,
-        error: "There was a problem submitting this deal",
+        error: "Could not submit to SEF",
       };
       this.emitMiddleOfficeError(error);
     } else {
-      console.log(object);
+      SignalRManager.emitSEFUpdate(object.dealid);
     }
   };
 

@@ -56,7 +56,6 @@ export const usePricingUpdater = (deal: Deal | null) => {
         .execute()
         .then((response: any) => {
           if (response !== null) {
-            console.log(response.legs);
             if ("dealId" in response) {
               onUpdate(deal, {
                 dealId: deal.dealID,
@@ -67,7 +66,7 @@ export const usePricingUpdater = (deal: Deal | null) => {
                 moStore.setError({
                   status: "Server error",
                   error: "Unexpected Error",
-                  message: response.error_msg,
+                  content: response.error_msg,
                   code: 500,
                 });
               } else {

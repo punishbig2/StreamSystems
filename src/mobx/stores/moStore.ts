@@ -347,6 +347,7 @@ export class MoStore {
 
   @action.bound
   public setError(error: MiddleOfficeError | null): void {
+    console.log(error);
     this.error = error;
     this.status = MOStatus.Normal;
   }
