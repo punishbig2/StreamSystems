@@ -599,7 +599,6 @@ export class SignalRManager {
   private onSEFUpdate = (data: string): void => {
     const object: any = JSON.parse(data);
     if (object.error_msg !== undefined) {
-      console.log(object);
       const error: MiddleOfficeError = {
         status: "SEF error",
         message: object.error_msg,
@@ -607,6 +606,8 @@ export class SignalRManager {
         error: "There was a problem submitting this deal",
       };
       this.emitMiddleOfficeError(error);
+    } else {
+      console.log(object);
     }
   };
 

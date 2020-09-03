@@ -34,6 +34,7 @@ const onUpdate = (deal: Deal, data: { dealId: string; legs: Leg[] }) => {
         legs[2] !== undefined ? legs[2].fwdRate : undefined
       ),
       spot: legs[0].spot,
+      usi: deal.usi,
       ...{ dealOutput: legs[0] },
     } as SummaryLeg);
   } else {
@@ -55,6 +56,7 @@ export const usePricingUpdater = (deal: Deal | null) => {
         .execute()
         .then((response: any) => {
           if (response !== null) {
+            console.log(response.legs);
             if ("dealId" in response) {
               onUpdate(deal, {
                 dealId: deal.dealID,

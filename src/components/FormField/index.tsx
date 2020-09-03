@@ -70,7 +70,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       T,
       Props<T>,
       State
-    >();
+    >(props);
     const date: InputHandler<T, Props<T>, State> = new DateInputHandler<
       T,
       Props<T>,

@@ -121,6 +121,7 @@ export const createDealFromBackendMessage = async (
     fwdRate2: item.fwdrate2,
     fwdPts2: item.fwdpts2,
     commissions: await getCommissionRates(item),
+    usi: item.usi_num,
   };
 };
 

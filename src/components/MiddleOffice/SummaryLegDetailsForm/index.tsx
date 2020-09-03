@@ -147,7 +147,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                   value={getStyledValue(dealOutput.delta, entry.deltastyle)}
                   name={"delta"}
                   type={"number"}
-                  precision={8}
+                  precision={20}
                   disabled={disabled}
                 />
                 <FormField

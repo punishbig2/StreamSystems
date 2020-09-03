@@ -1,7 +1,5 @@
-import { Sides } from "types/sides";
-import { action, observable } from "mobx";
 import moment from "moment";
-import { parser } from "utils/timeUtils";
+import { Sides } from "types/sides";
 
 export type Rates = [
   {

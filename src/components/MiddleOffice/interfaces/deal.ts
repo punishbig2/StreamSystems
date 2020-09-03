@@ -44,4 +44,6 @@ export interface Deal {
     buyer: Commission;
     seller: Commission;
   };
+
+  usi?: string;
 }

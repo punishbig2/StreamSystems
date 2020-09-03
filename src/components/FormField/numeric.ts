@@ -21,6 +21,16 @@ export class NumericInputHandler<
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
 > implements InputHandler<T, P, S> {
+  private formatter: Intl.NumberFormat = new Intl.NumberFormat(undefined, {});
+  constructor(props: P) {
+    this.formatter = new Intl.NumberFormat(undefined, {
+      maximumFractionDigits: props.precision,
+      minimumFractionDigits: props.precision,
+      style: props.type === "currency" ? "currency" : undefined,
+      currency: props.type === "currency" ? props.currency : undefined,
+    });
+  }
+
   private onDecimalSeparator(
     event: React.KeyboardEvent<HTMLInputElement>,
     decimalSeparator: string,
@@ -236,24 +246,15 @@ export class NumericInputHandler<
   };
 
   public format(value: any, props: P): [string, Validity] {
-    const { type, currency, precision } = props;
+    const { formatter } = this;
     if (value === "") {
       return ["", Validity.Intermediate];
     }
-    const numberOptions = {
-      minimumFractionDigits: precision,
-      maximumFractionDigits: precision,
-      style: type === "currency" ? "currency" : undefined,
-      currency: type === "currency" ? currency : undefined,
-    };
     if (typeof value === "number") {
       if (value < 0) {
-        return [
-          `(${(-value).toLocaleString(undefined, numberOptions)})`,
-          Validity.Valid,
-        ];
+        return [`(${formatter.format(-value)})`, Validity.Valid];
       }
-      return [value.toLocaleString(undefined, numberOptions), Validity.Valid];
+      return [formatter.format(value), Validity.Valid];
     } else {
       return [value as string, Validity.InvalidFormat];
     }
