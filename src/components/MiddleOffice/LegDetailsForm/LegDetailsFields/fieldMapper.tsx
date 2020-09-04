@@ -1,12 +1,15 @@
 import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
+import { Validity } from "forms/validity";
 import { getStyledValue } from "legsUtils";
 import { Observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
+import { toNumber } from "utils/isNumeric";
+import { getPremiumPrecision, roundPremium } from "utils/roundPremium";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -19,11 +22,17 @@ export const fieldsMapper = (
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
   const { rates } = leg;
   const { entry } = store;
+  const roundPremiumIdentity = (value: number | null): number | null => value;
   const extraProps = ((): { value: any } & any => {
     if (fieldDef.type === "currency") {
       if (fieldDef.name === "premium" || fieldDef.name === "hedge") {
+        const preprocess =
+          fieldDef.name === "premium" ? roundPremium : roundPremiumIdentity;
         return {
-          value: getStyledValue(leg[fieldDef.name], entry.premstyle),
+          value: preprocess(
+            getStyledValue(leg[fieldDef.name], entry.premstyle),
+            entry.ccypair
+          ),
           currency: leg.premiumCurrency,
         };
       } else {
@@ -66,6 +75,10 @@ export const fieldsMapper = (
       return fieldDef.editable(null, store.entry);
     }
   };
+  const getPrecision = (fallBack: number | undefined): number | undefined => {
+    if (fieldDef.name !== "premium") return fallBack;
+    return getPremiumPrecision(entry.ccypair);
+  };
   return (
     <Observer key={fieldDef.name + index}>
       {() => (
@@ -74,7 +87,7 @@ export const fieldsMapper = (
           color={fieldDef.color}
           label={fieldDef.label}
           editable={isEditable(fieldDef)}
-          precision={fieldDef.precision}
+          precision={getPrecision(fieldDef.precision)}
           name={fieldDef.name}
           rounding={fieldDef.rounding}
           type={fieldDef.type}

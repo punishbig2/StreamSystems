@@ -10,6 +10,7 @@ import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useState } from "react";
+import { getPremiumPrecision, roundPremium } from "utils/roundPremium";
 
 interface Props {
   dealEntryStore: DealEntryStore;
@@ -23,8 +24,11 @@ const initialCommission: Commission = {
 
 export const SummaryLegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const [premiumPrecision, setPremiumPrecision] = useState<number>(4);
+    const { summaryLeg } = props;
     const { entry } = props.dealEntryStore;
     const { deal } = moStore;
+    const { ccypair, premstyle } = entry;
     const [buyerCommission, setBuyerCommission] = useState<Commission>(
       initialCommission
     );
@@ -32,6 +36,17 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
       initialCommission
     );
     const [totalCommission, setTotalCommission] = useState<number | null>(null);
+    const [premium, setPremium] = useState<number | null>(null);
+
+    useEffect(() => {
+      if (summaryLeg === null) return;
+      const { dealOutput } = summaryLeg;
+      // Update precision if it changes (it depends on this value)
+      setPremiumPrecision(getPremiumPrecision(ccypair));
+      setPremium(
+        roundPremium(getStyledValue(dealOutput.premium, premstyle), ccypair)
+      );
+    }, [summaryLeg, premstyle, ccypair]);
     useEffect(() => {
       if (deal === null) return;
       const { commissions } = deal;
@@ -47,10 +62,10 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
       }
     }, [buyerCommission, sellerCommission]);
 
-    if (props.summaryLeg === null) {
+    if (summaryLeg === null) {
       return <NoDataMessage />;
     }
-    const { dealOutput } = props.summaryLeg;
+    const { dealOutput } = summaryLeg;
     const disabled: boolean = moStore.status !== MOStatus.Normal;
     const ignore = (event: React.FormEvent<HTMLFormElement>): void => {
       event.preventDefault();
@@ -61,9 +76,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
           <Grid container>
             <Grid alignItems={"stretch"} container item>
               <fieldset disabled={disabled}>
-                {fields.map(
-                  fieldMapper(props.dealEntryStore, props.summaryLeg)
-                )}
+                {fields.map(fieldMapper(props.dealEntryStore, summaryLeg))}
               </fieldset>
             </Grid>
             <Grid alignItems={"stretch"} container>
@@ -126,10 +139,11 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
                 <FormField
                   label={"Net Premium"}
                   color={"grey"}
-                  value={getStyledValue(dealOutput.premium, entry.premstyle)}
+                  value={premium}
                   name={"netPremium"}
                   type={"currency"}
                   currency={dealOutput.premiumCurrency}
+                  precision={premiumPrecision}
                   disabled={disabled}
                 />
                 <FormField

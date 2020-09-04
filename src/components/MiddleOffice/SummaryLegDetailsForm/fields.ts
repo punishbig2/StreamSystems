@@ -25,7 +25,11 @@ const isEditable = (name: string) => (
   return editableCondition !== EditableCondition.NotEditable;
 };
 
-export const fields: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>[] = [
+export const fields: ReadonlyArray<FieldDef<
+  SummaryLeg,
+  DealEntryStore,
+  SummaryLeg
+>> = [
   {
     type: "text",
     name: "strategy",

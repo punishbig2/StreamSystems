@@ -9,6 +9,7 @@ import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import React from "react";
 import { DecimalSeparator, toNumber } from "utils/isNumeric";
+import { roundToNearest } from "utils/roundToNearest";
 
 export interface NumericProps {
   value: any;
@@ -169,6 +170,8 @@ export class NumericInputHandler<
       return ["", Validity.Intermediate];
     }
     if (typeof value === "number") {
+      if (props.rounding !== undefined)
+        return roundToNearest(value, props.rounding);
       const formatted: string =
         value < 0 ? `(${formatter.format(-value)})` : formatter.format(value);
       return [formatted, Validity.Valid];

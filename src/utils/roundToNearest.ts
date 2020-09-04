@@ -1,6 +1,6 @@
 import { Validity } from "forms/validity";
 
-const getRoundingPrecision = (value: number): number => {
+export const getRoundingPrecision = (value: number): number => {
   const asString: string = value.toString();
   const parts: string[] = asString.split(/[^0-9]/);
   if (parts.length < 2) return 0;

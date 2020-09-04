@@ -471,7 +471,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
             </div>
           );
         }
-        if (this.props.type === "strike") console.log(state.displayValue);
         return (
           <>
             <OutlinedInput
