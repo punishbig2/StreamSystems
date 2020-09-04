@@ -23,7 +23,7 @@ export class DefaultHandler<T, P extends MinimalProps<T>, S extends Editable>
     } as StateReturnType<S>;
   }
 
-  public onKeydown(
+  public onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
     state: S

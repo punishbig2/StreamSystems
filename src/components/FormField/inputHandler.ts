@@ -21,7 +21,7 @@ export interface InputHandler<
   P extends MinimalProps = any,
   S extends Editable = any
 > {
-  onKeydown(
+  onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
     state: S

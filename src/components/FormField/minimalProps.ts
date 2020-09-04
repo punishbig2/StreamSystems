@@ -7,6 +7,7 @@ export interface MinimalProps<T = any> {
   name: keyof T;
   editable?: boolean;
   emptyValue?: string;
+  rounding?: number;
   value:
     | string
     | boolean

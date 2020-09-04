@@ -12,11 +12,13 @@ import { DefaultHandler } from "components/FormField/default";
 import { Editable, InputHandler } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
 import { NumericInputHandler } from "components/FormField/numeric";
+import { StrikeHandler } from "components/FormField/strike";
 import { Tenor, TenorDropdown } from "components/TenorDropdown";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import React, { PureComponent, ReactElement } from "react";
+import { roundToNearest } from "utils/roundToNearest";
 
 interface Props<T> extends MinimalProps<T> {
   label?: string;
@@ -28,6 +30,7 @@ interface Props<T> extends MinimalProps<T> {
   placeholder?: string;
   precision?: number;
   dropdownData?: SelectItem[] | any;
+  rounding?: number;
   handler?: InputHandler<T>;
   onChange?: (name: keyof T, value: any) => void;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
@@ -52,7 +55,7 @@ const initialState: State = {
 export class FormField<T> extends PureComponent<Props<T>, State> {
   private input: HTMLInputElement | null = null;
   private inputHandlers: {
-    [key: string]: InputHandler<T, Props<T>, State>;
+    [key in FieldType]?: InputHandler<T, Props<T>, State>;
   } = {};
   private readonly defaultHandler: InputHandler<T, Props<T>, State>;
 
@@ -82,6 +85,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.inputHandlers["percent"] = numeric;
     this.inputHandlers["date"] = date;
     this.inputHandlers["time"] = date;
+    this.inputHandlers["strike"] = new StrikeHandler(props);
     // The default handler
     this.defaultHandler = new DefaultHandler<T, Props<T>, State>();
   }
@@ -128,10 +132,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (props.handler) {
       return props.handler;
     }
-    if (props.type in inputHandlers) {
-      return inputHandlers[props.type];
+    const handler: InputHandler<T> | undefined = inputHandlers[props.type];
+    if (handler !== undefined) {
+      return handler;
+    } else {
+      return this.defaultHandler;
     }
-    return this.defaultHandler;
   };
 
   private setValue = (value: any): void => {
@@ -167,7 +173,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   ): void => {
     const { props, state } = this;
     const handler: InputHandler<T, Props<T>, State> = this.getHandler();
-    const result: State | Pick<State, keyof State> | null = handler.onKeydown(
+    const result: State | Pick<State, keyof State> | null = handler.onKeyDown(
       event,
       props,
       state
@@ -184,10 +190,31 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     });
   };
 
-  private onInputBlur = (/* event: React.FocusEvent<HTMLInputElement> */): void => {
+  private onInputBlur = (): void => {
     const { props, state } = this;
-    if (props.onChange) {
-      props.onChange(props.name, state.internalValue);
+    const { type } = props;
+    if (type === "strike") {
+      const [displayValue, validity] = roundToNearest(
+        state.internalValue,
+        props.rounding
+      );
+      if (validity === Validity.Valid) {
+        this.setState({
+          displayValue,
+          validity,
+        });
+      } else {
+        this.setState({
+          validity,
+        });
+      }
+      if (props.onChange) {
+        props.onChange(props.name, displayValue);
+      }
+    } else {
+      if (props.onChange) {
+        props.onChange(props.name, state.internalValue);
+      }
     }
   };
 
@@ -444,6 +471,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
             </div>
           );
         }
+        if (this.props.type === "strike") console.log(state.displayValue);
         return (
           <>
             <OutlinedInput

@@ -1,4 +1,3 @@
-import { StrikeHandler } from "components/FormField/strike";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntry, DealType } from "structures/dealEntry";
@@ -60,12 +59,11 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     editable: false,
   },
   {
-    type: "text",
+    type: "strike",
     color: "grey",
     name: "strike",
     label: "Strike",
     editable: editableFilter(DealType.Voice | DealType.Manual),
-    handler: new StrikeHandler(),
   },
   {
     type: "percent",

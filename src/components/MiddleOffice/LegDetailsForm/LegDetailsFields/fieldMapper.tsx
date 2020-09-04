@@ -76,6 +76,7 @@ export const fieldsMapper = (
           editable={isEditable(fieldDef)}
           precision={fieldDef.precision}
           name={fieldDef.name}
+          rounding={fieldDef.rounding}
           type={fieldDef.type}
           {...extraProps}
           onChange={onValueChange}

@@ -1,13 +1,14 @@
+import { FormattedInput } from "components/FormField/formatted";
 import {
   Editable,
   getCaretPosition,
-  InputHandler,
   StateReturnType,
 } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import React from "react";
+import { DecimalSeparator, toNumber } from "utils/isNumeric";
 
 export interface NumericProps {
   value: any;
@@ -20,9 +21,12 @@ export class NumericInputHandler<
   T,
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
-> implements InputHandler<T, P, S> {
+> extends FormattedInput<T, P, S> {
   private formatter: Intl.NumberFormat = new Intl.NumberFormat(undefined, {});
+
   constructor(props: P) {
+    super();
+
     this.formatter = new Intl.NumberFormat(undefined, {
       maximumFractionDigits: props.precision,
       minimumFractionDigits: props.precision,
@@ -79,7 +83,7 @@ export class NumericInputHandler<
     if (offset < 0) {
       event.preventDefault();
     } else {
-      if (displayValue[offset] === NumericInputHandler.getDecimalSeparator()) {
+      if (displayValue[offset] === DecimalSeparator) {
         event.preventDefault();
         return {
           caretPosition: offset,
@@ -107,10 +111,6 @@ export class NumericInputHandler<
     return null;
   }
 
-  private static getDecimalSeparator = (): string => {
-    return (1.1).toLocaleString(undefined)[1];
-  };
-
   private onM(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
@@ -134,18 +134,13 @@ export class NumericInputHandler<
     }
   }
 
-  private static cleanNonDigits = (value: string): string => {
-    const digitsOnly: string = value.replace(/[^0-9]+/g, "");
-    if (digitsOnly.length === 0) return "0";
-    return digitsOnly;
-  };
-
-  public onKeydown(
+  public onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
     state: S
   ): StateReturnType<S> {
-    const decimalSeparator: string = NumericInputHandler.getDecimalSeparator();
+    /// Reset this in order to remove it if the new character is not the
+    // decimal separator
     switch (event.key) {
       case "Escape":
         return this.createValue(props.value, event.currentTarget, props, state);
@@ -154,96 +149,19 @@ export class NumericInputHandler<
       case "M":
       case "m":
         return this.onM(event, props, state);
-      case decimalSeparator:
-        return this.onDecimalSeparator(event, decimalSeparator, props, state);
+      case DecimalSeparator:
+        console.log("what the fuck");
+        return this.onDecimalSeparator(event, DecimalSeparator, props, state);
     }
     return null;
   }
 
-  public createValue(
-    value: any,
-    input: HTMLInputElement | null,
-    props: P,
-    state: S
-  ): StateReturnType<S> {
-    if (value === null || value === undefined) {
-      return {
-        displayValue: "",
-        internalValue: null,
-        validity: Validity.Intermediate,
-        caretPosition: 0,
-      } as StateReturnType<S>;
-    } else if (value === "N/A") {
-      return {
-        displayValue: "N/A",
-        internalValue: "N/A",
-        validity: Validity.NotApplicable,
-        caretPosition: 0,
-      } as StateReturnType<S>;
-    } else {
-      const { displayValue } = state;
-      const [newValue, validity] = this.format(value, props);
-      const initialCount: number = this.countFormattingCharacters(displayValue);
-      const finalCount: number = this.countFormattingCharacters(newValue);
-      const caretPosition: number | null = getCaretPosition(input);
-      // Adjust if the input has no content and it has precision defined, so
-      // that we don't consider the trailing zeroes "new" characters
-      const adjust: number =
-        props.precision === undefined || props.precision === 0
-          ? 0
-          : displayValue.length === 0
-          ? 1
-          : 0;
-      const resultingCaretPosition: number = Math.max(
-        caretPosition + (finalCount - initialCount - adjust),
-        caretPosition
-      );
-      return {
-        displayValue: newValue,
-        internalValue: value,
-        validity: validity,
-        caretPosition: resultingCaretPosition,
-      } as StateReturnType<S>;
-    }
+  public parse(value: string): any {
+    if (value === "") return null;
+    const numeric = toNumber(value);
+    if (numeric === undefined) return value;
+    return numeric;
   }
-
-  private countFormattingCharacters = (display: string | null): number => {
-    if (display === null || display === undefined) return 0;
-    try {
-      const stringified: string = display.replace(/[^0-9]+/g, "");
-      return display.length - stringified.length;
-    } catch (error) {
-      return 0;
-    }
-  };
-
-  public parse = (value: string): any => {
-    const decimalSeparator: string = NumericInputHandler.getDecimalSeparator();
-    const fragments: string[] = value.split(decimalSeparator);
-    if (fragments.length === 2) {
-      const integerPart: string = NumericInputHandler.cleanNonDigits(
-        fragments[0]
-      );
-      const decimalPart: string = NumericInputHandler.cleanNonDigits(
-        fragments[1]
-      );
-      const newString: string = [integerPart, decimalPart].join(".");
-      if (newString.length === 0) {
-        return "";
-      } else {
-        return Number(newString);
-      }
-    } else if (fragments.length === 1) {
-      const newString = fragments[0].replace(/[^0-9]+/g, "");
-      if (newString.length === 0) {
-        return "";
-      } else {
-        return Number(newString);
-      }
-    } else {
-      return value;
-    }
-  };
 
   public format(value: any, props: P): [string, Validity] {
     const { formatter } = this;
@@ -251,10 +169,9 @@ export class NumericInputHandler<
       return ["", Validity.Intermediate];
     }
     if (typeof value === "number") {
-      if (value < 0) {
-        return [`(${formatter.format(-value)})`, Validity.Valid];
-      }
-      return [formatter.format(value), Validity.Valid];
+      const formatted: string =
+        value < 0 ? `(${formatter.format(-value)})` : formatter.format(value);
+      return [formatted, Validity.Valid];
     } else {
       return [value as string, Validity.InvalidFormat];
     }

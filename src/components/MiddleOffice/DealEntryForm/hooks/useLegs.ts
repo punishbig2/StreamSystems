@@ -14,7 +14,8 @@ const createStubLegs = async (
   cuts: ReadonlyArray<Cut>
 ): Promise<void> => {
   if (entry.strategy === "") return;
-  const symbol: Symbol = moStore.findSymbolById(entry.ccypair);
+  const symbol: Symbol | undefined = moStore.findSymbolById(entry.ccypair);
+  if (symbol === undefined) throw new Error("could not find symbol: " + entry.ccypair);
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];
   if (!legDefinitions) {

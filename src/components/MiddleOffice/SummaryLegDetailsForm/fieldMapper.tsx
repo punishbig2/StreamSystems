@@ -39,6 +39,7 @@ export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
       value={getValue()}
       type={fieldDef.type}
       color={fieldDef.color}
+      rounding={fieldDef.rounding}
       precision={fieldDef.precision}
       editable={isEditable()}
       onChange={moStore.updateSummaryLeg}

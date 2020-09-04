@@ -327,7 +327,7 @@ $field-size: 25px;
 
           &.invalid {
             color: darkorange;
-            background-color: lighten(darkorange, 42%);
+            background-color: rgba(darkorange, 0.15);
           }
 
           &.empty {

@@ -1,4 +1,3 @@
-import { StrikeHandler } from "components/FormField/strike";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { FieldDef, SelectItem } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
@@ -17,7 +16,7 @@ const editableFilter = (
   return (entry.dealType & types) !== 0;
 };
 
-const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
+const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
   {
     name: "ccypair",
     label: "CCYPair",
@@ -107,12 +106,11 @@ const fields: FieldDef<DealEntry, MoStore, DealEntryStore>[] = [
   {
     name: "dealstrike",
     label: "Strike",
-    type: "text",
+    type: "strike",
     placeholder: "0D",
     color: "orange",
     editable: editableFilter(DealType.Voice | DealType.Manual),
     emptyValue: "N/A",
-    handler: new StrikeHandler(),
   },
   {
     name: "vol",

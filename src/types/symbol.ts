@@ -28,4 +28,6 @@ export interface Symbol {
   vegaAdjustBF: boolean;
   vegaAdjustRR: boolean;
   volsource: string;
+  "premium-rounding": number | undefined,
+  "strike-rounding": number | undefined,
 }

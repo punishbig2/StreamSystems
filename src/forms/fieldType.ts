@@ -10,4 +10,5 @@ export type FieldType =
   | "current:date"
   | "current:time"
   | "tenor"
-  | "bank-entity";
+  | "bank-entity"
+  | "strike";

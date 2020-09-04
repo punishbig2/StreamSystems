@@ -243,7 +243,7 @@ export class WorkareaStore {
 
   private async loadSystemSymbols(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingSymbols);
-    this.symbols = await API.getSymbols(persistStorage.getCCYGroup());
+    this.symbols = await API.getSymbols();
   }
 
   private async createSymbolsMap(): Promise<void> {

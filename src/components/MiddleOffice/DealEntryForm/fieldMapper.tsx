@@ -28,6 +28,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     }
     return EditableCondition.None;
   })();
+
   const getValue = (rawValue: any): any => {
     if (editableCondition === EditableCondition.NotApplicable) return "N/A";
     if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
@@ -98,6 +99,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       editable={isEditable(fieldDef)}
       dropdownData={dropdownData}
       value={value}
+      rounding={fieldDef.rounding}
       onChange={onChange}
       disabled={moStore.status !== MOStatus.Normal}
     />

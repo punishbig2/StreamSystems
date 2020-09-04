@@ -366,15 +366,17 @@ export class MoStore {
     ];
   }
 
-  public findSymbolById(currencyPair: string): Symbol {
+  public findSymbolById(currencyPair: string, throwOnNotFound = true): Symbol | undefined {
     const symbols: Symbol[] = this.symbols;
     const found: Symbol | undefined = symbols.find(
       (symbol: Symbol) => symbol.symbolID === currencyPair
     );
     if (found !== undefined) {
       return found;
-    } else {
+    } else if (throwOnNotFound) {
       throw new Error(`symbol not found \`${currencyPair}'`);
+    } else {
+      return undefined;
     }
   }
 

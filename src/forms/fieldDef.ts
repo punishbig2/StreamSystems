@@ -23,4 +23,5 @@ export interface FieldDef<T, S = {}, E = {}> {
   data?: any;
   handler?: InputHandler<T>;
   key?: string;
+  rounding?: number;
 }

@@ -48,7 +48,7 @@ export class DateInputHandler<T, P extends MinimalProps, S extends Editable>
     }
   }
 
-  public onKeydown(
+  public onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
     state: S
