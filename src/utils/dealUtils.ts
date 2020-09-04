@@ -101,8 +101,8 @@ export const createDealFromBackendMessage = async (
       : parsedExpiryDate2;
   return {
     dealID: item.linkid,
-    buyer: item.buyerentitycode,
-    seller: item.sellerentitycode,
+    buyer: coalesce(item.buyerentitycode, item.buyer),
+    seller: coalesce(item.sellerentitycode, item.seller),
     currency: item.symbol,
     spread: item.spread,
     vol: coalesce(item.lastpx, item.vol),
