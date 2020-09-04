@@ -617,7 +617,9 @@ export class SignalRManager {
 
   private onSEFUpdate = (data: string): void => {
     const object: SEFError = JSON.parse(data);
+    const user: User = workareaStore.user;
     if (object.report_status === "REJECTED") {
+      if (object.useremail !== user.email) return;
       const error: MiddleOfficeError = {
         status: "701",
         content: parseSEFError(object.error_msg),
