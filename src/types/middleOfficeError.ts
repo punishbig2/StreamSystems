@@ -4,6 +4,7 @@ export const ON_MIDDLE_OFFICE_ERROR = "on-middle-office-error";
 export interface MiddleOfficeError {
   error: string;
   code: number;
-  content: string | ReadonlyArray<SEFErrorEntry>;
+  content?: string | ReadonlyArray<SEFErrorEntry>;
+  message?: string;
   status: string;
 }

@@ -7,7 +7,6 @@ const extractKey = (value: string): string => {
   const trimmed: string = value.trim();
   const contentRegex: RegExp = /^\[[^=]+=\s*(.*)\s*]$/;
   const matches: string[] | null = trimmed.match(contentRegex);
-  console.log(trimmed, matches);
   if (matches === null || matches.length === 1) return trimmed;
   const sections: string[] = matches[1]
     .split("/")
