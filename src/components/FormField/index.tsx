@@ -1,19 +1,17 @@
-import {
-  FormControlLabel,
-  FormHelperText,
-  MenuItem,
-  OutlinedInput,
-  Select,
-} from "@material-ui/core";
+import { FormHelperText, FormLabel, OutlinedInput } from "@material-ui/core";
 import { BankEntityField } from "components/BankEntityField";
 import { CurrentTime } from "components/currentTime";
 import { DateInputHandler } from "components/FormField/date";
 import { DefaultHandler } from "components/FormField/default";
+import { DropdownField } from "components/FormField/dropdownField";
+import { isTenor } from "components/FormField/helpers";
 import { Editable, InputHandler } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
+import { NotApplicableField } from "components/FormField/notApplicableField";
 import { NumericInputHandler } from "components/FormField/numeric";
+import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { StrikeHandler } from "components/FormField/strike";
-import { Tenor, TenorDropdown } from "components/TenorDropdown";
+import { TenorDropdown } from "components/TenorDropdown";
 import { SelectItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
@@ -91,16 +89,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   }
 
   public componentDidMount = (): void => {
-    const { props } = this;
-    if (props.type === "currency" && props.currency === undefined) {
-      throw new Error("if type is currency you MUST specify a currency");
-    }
     this.setValueFromProps();
   };
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { props } = this;
-    if (props.value !== prevProps.value) {
+    if (props.value !== prevProps.value || props.type !== prevProps.type) {
       this.setValueFromProps();
       // Since state will change stop right now and let the next
       // update handle anything else
@@ -142,7 +136,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
 
   private setValue = (value: any): void => {
     const { props, state, input } = this;
+    // Get a handler to format the value
     const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+    // Create a value with appropriate formatting and an
+    // internal representation of the value
     const stateUpdate = handler.createValue(value, input, props, state);
     this.setState(stateUpdate);
   };
@@ -246,252 +243,134 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     }
   };
 
-  private onSelectChange = (
-    event: React.ChangeEvent<{ name?: string; value: unknown }>,
-    child: React.ReactNode
-  ) => {
-    const { props } = this;
-    if (!props.editable) return;
-    const { value } = event.target;
-    this.setValue(value);
-    // In this case, propagation of the change has to occur instantly
-    if (!props.onChange) return;
-    props.onChange(props.name, value);
-    // Child is unused
-    void child;
-  };
-
-  private renderSelectValue = (value: any): ReactElement | string => {
+  private createDropdownField = (): ReactElement => {
     const { props, state } = this;
-    const { labels } = state;
-    if (value === "N/A") return <div className={"not-applicable"}>N/A</div>;
-    if (value === undefined) return " Select a " + props.label;
-    if (labels === null) return "Error";
-    return labels[value];
-  };
-
-  private copyToClipboard = (
-    event: React.MouseEvent<HTMLDivElement>,
-    value: string
-  ) => {
-    const input: HTMLInputElement = document.createElement("input");
-    const { body } = document;
-    const { style } = input;
-    // Make it invisible
-    style.position = "absolute";
-    style.top = "-1";
-    style.left = "-1";
-    style.height = "1";
-    style.width = "1";
-    // Flash it ...
-    const target: HTMLDivElement = event.target as HTMLDivElement;
-    const html: string = target.innerHTML;
-    target.innerHTML = "Copied...";
-    setTimeout(() => {
-      target.innerHTML = html;
-    }, 600);
-    // Attach it
-    body.appendChild(input);
-    input.value = value;
-    input.select();
-    document.execCommand("copy");
-    body.removeChild(input);
-  };
-
-  private onSelectFilterClick = (event: React.MouseEvent<HTMLLIElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  private onSelectFilterKeyDown = (
-    event: React.KeyboardEvent<HTMLLIElement>
-  ): void => {
-    switch (event.key) {
-      case "Escape":
-      case "ArrowDown":
-      case "ArrowUp":
-      case "Enter":
-        break;
-      default:
-        event.stopPropagation();
+    if (!props.dropdownData) {
+      throw new Error("cannot have a dropdown with no data");
+    }
+    if (!props.editable) {
+      return (
+        <ReadOnlyField name={props.name as string} value={state.displayValue} />
+      );
+    } else {
+      return (
+        <DropdownField<T>
+          name={props.name}
+          disabled={props.disabled}
+          editable={true}
+          value={state.internalValue}
+          items={props.dropdownData}
+          emptyMessage={
+            props.emptyValue !== undefined ? props.emptyValue : "No selection"
+          }
+          onChange={props.onChange}
+        />
+      );
     }
   };
 
-  private onSelectFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const { value } = event.target;
-    this.setState({
-      filterValue: value,
-    });
+  private createTenorField = (): ReactElement | null => {
+    const { props } = this;
+    if (!props.dropdownData) {
+      throw new Error("cannot have a dropdown with no data");
+    }
+    if (props.value === null || props.value === undefined) {
+      return null;
+    }
+    if (typeof props.value !== "object") {
+      throw new Error("invalid type for tenor's value");
+    }
+    if (!isTenor(props.value)) {
+      console.warn(props.value);
+      throw new Error("invalid value for tenor field");
+    }
+    return (
+      <TenorDropdown<T>
+        id={props.name as string}
+        value={props.value}
+        name={props.name}
+        disabled={!!props.disabled}
+        color={props.color}
+        readOnly={!props.editable}
+        data={props.dropdownData}
+        onChange={props.onChange}
+      />
+    );
+  };
+
+  private createBankEntityField = (): ReactElement => {
+    const { props } = this;
+    if (!props.dropdownData) {
+      throw new Error("cannot have a dropdown with no data");
+    }
+    if (typeof props.value !== "string") {
+      throw new Error("invalid value type for bank-entity, string expected");
+    }
+    return (
+      <BankEntityField<T>
+        color={props.color}
+        name={props.name}
+        value={props.value}
+        list={props.dropdownData}
+        readOnly={!props.editable}
+        disabled={!!props.disabled}
+        onChange={props.onChange}
+      />
+    );
+  };
+
+  private createDefaultField = (): ReactElement => {
+    const { props, state } = this;
+    if (!props.editable) {
+      return (
+        <ReadOnlyField name={props.name as string} value={state.displayValue} />
+      );
+    } else {
+      return (
+        <>
+          <OutlinedInput
+            id={props.name as string}
+            labelWidth={0}
+            readOnly={false}
+            disabled={props.disabled}
+            inputRef={this.setInputRef}
+            value={state.displayValue}
+            fullWidth={true}
+            error={state.validity === Validity.InvalidFormat}
+            placeholder={props.placeholder}
+            autoComplete={"new-password"}
+            onKeyDown={this.onInputKeyDown}
+            onBlur={this.onInputBlur}
+            onChange={this.onInputChange}
+            onInput={this.onInputInput}
+          />
+          <FormHelperText error={state.validity === Validity.InvalidFormat}>
+            {}
+          </FormHelperText>
+        </>
+      );
+    }
   };
 
   private createControl = (): ReactElement | null => {
-    const { props, state } = this;
-    const { dropdownData } = props;
+    const { props } = this;
     const { value } = props;
-    const classes: string[] = [
-      state.validity === Validity.InvalidFormat ||
-      state.validity === Validity.InvalidValue
-        ? "invalid"
-        : "valid",
-      state.validity === Validity.NotApplicable ? "not-applicable" : "",
-      props.value === undefined && props.editable === false
-        ? "empty"
-        : "non-empty",
-      props.editable ? "editable" : "read-only",
-    ];
+    // Not applicable values are common to all types
+    if (value === "N/A") return <NotApplicableField />;
+    // Check which type it is and pick
     switch (props.type) {
       case "current:time":
-        return (
-          <div className={"readonly-field"}>
-            <CurrentTime timeOnly={true} />
-          </div>
-        );
+        return <CurrentTime id={props.name as string} timeOnly={true} />;
       case "current:date":
-        return (
-          <div className={"readonly-field"}>
-            <CurrentTime dateOnly={true} />
-          </div>
-        );
+        return <CurrentTime id={props.name as string} dateOnly={true} />;
       case "bank-entity":
-        if (typeof value !== "string")
-          throw new Error(
-            "invalid value type for bank-entity, string expected"
-          );
-        if (!dropdownData)
-          throw new Error("cannot have a dropdown with no data");
-        return (
-          <BankEntityField<T>
-            value={value}
-            list={dropdownData}
-            readOnly={!props.editable}
-            name={props.name}
-            onChange={props.onChange}
-          />
-        );
+        return this.createBankEntityField();
       case "tenor":
-        if (!dropdownData)
-          throw new Error("cannot have a dropdown with no data");
-        if (value === null || value === undefined) return null;
-        if (typeof value !== "object") {
-          if (value === "N/A")
-            return (
-              <OutlinedInput
-                className={[classes, "not-applicable"].join(" ")}
-                value={"N/A"}
-                labelWidth={0}
-                readOnly={true}
-              />
-            );
-          throw new Error("invalid type for tenor's value");
-        }
-        if (
-          !("tenor" in (value as object)) ||
-          !("expiryDate" in (value as object))
-        )
-          throw new Error("invalid value for tenor field");
-        return (
-          <TenorDropdown<T>
-            value={value as Tenor}
-            name={props.name}
-            disabled={!!props.disabled}
-            color={props.color}
-            className={classes.join(" ")}
-            readOnly={!props.editable}
-            data={dropdownData}
-            onChange={props.onChange}
-          />
-        );
+        return this.createTenorField();
       case "dropdown":
-        if (!dropdownData)
-          throw new Error("cannot have a dropdown with no data");
-        if (!props.editable) {
-          return (
-            <div
-              title={"Click to copy!"}
-              className={[...classes, "readonly-field"].join(" ")}
-              onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-                this.copyToClipboard(event, state.displayValue)
-              }
-            >
-              {this.renderSelectValue(state.internalValue)}
-            </div>
-          );
-        }
-        return (
-          <Select
-            value={state.internalValue}
-            className={classes.join(" ")}
-            renderValue={this.renderSelectValue}
-            displayEmpty={true}
-            readOnly={!props.editable}
-            disabled={props.disabled}
-            onChange={this.onSelectChange}
-          >
-            <MenuItem
-              disableRipple={true}
-              className={"search-item"}
-              onClickCapture={this.onSelectFilterClick}
-              onKeyDownCapture={this.onSelectFilterKeyDown}
-            >
-              <OutlinedInput
-                labelWidth={0}
-                value={state.filterValue}
-                placeholder={"Type to filter"}
-                autoFocus={true}
-                onChange={this.onSelectFilterChange}
-              />
-            </MenuItem>
-            {dropdownData
-              .filter((item: { label: string }) => {
-                const { label } = item;
-                const { filterValue } = state;
-                const lowerCaseLabel: string = label.toLowerCase();
-                return lowerCaseLabel.includes(filterValue.toLowerCase());
-              })
-              .map((item: { label: string; value: any }) => (
-                <MenuItem key={item.value} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-          </Select>
-        );
+        return this.createDropdownField();
       default:
-        if (!props.editable) {
-          return (
-            <div
-              title={"Click to copy!"}
-              className={[...classes, "readonly-field"].join(" ")}
-              onClick={(event: React.MouseEvent<HTMLDivElement>) =>
-                this.copyToClipboard(event, state.displayValue)
-              }
-            >
-              {state.displayValue}
-            </div>
-          );
-        }
-        return (
-          <>
-            <OutlinedInput
-              inputRef={this.setInputRef}
-              value={state.displayValue}
-              className={classes.join(" ")}
-              placeholder={props.placeholder}
-              labelWidth={30}
-              fullWidth={true}
-              autoComplete={"new-password"}
-              error={state.validity === Validity.InvalidFormat}
-              onKeyDown={this.onInputKeyDown}
-              onBlur={this.onInputBlur}
-              onChange={this.onInputChange}
-              onInput={this.onInputInput}
-            />
-            <FormHelperText error={state.validity === Validity.InvalidFormat}>
-              {}
-            </FormHelperText>
-          </>
-        );
+        return this.createDefaultField();
     }
   };
 
@@ -502,25 +381,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
     }
-    if (props.disabled) {
-      classes.push("disabled");
-    }
     return classes.join(" ");
-  };
-
-  private onFocus = () => {
-    const caretPosition = ((): number => {
-      const { input, state } = this;
-      const { displayValue } = state;
-      if (input === null || input.selectionStart === null)
-        return displayValue.length;
-      return input.selectionStart;
-    })();
-    this.setState({ focus: true, caretPosition: caretPosition });
-  };
-
-  private onBlur = () => {
-    this.setState({ focus: false });
   };
 
   private content = (): ReactElement | null => {
@@ -530,13 +391,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       return control;
     } else if (control !== null) {
       return (
-        <FormControlLabel
-          labelPlacement={"start"}
-          label={props.label}
-          control={control}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-        />
+        <>
+          <FormLabel htmlFor={props.name as string}>{props.label}</FormLabel>
+          {control}
+        </>
       );
     } else {
       return null;

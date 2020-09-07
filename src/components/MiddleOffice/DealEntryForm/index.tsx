@@ -100,7 +100,7 @@ export const DealEntryForm: React.FC<Props> = observer(
         <Grid alignItems={"stretch"} container>
           <Grid xs={12} item>
             <fieldset
-              className={"full-height"}
+              className={"group full-height"}
               disabled={moStore.status !== MOStatus.Normal}
             >
               {fields.map(fieldMapper(store, entry))}

@@ -1,3 +1,4 @@
+import { Tenor } from "components/TenorDropdown";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { Moment } from "moment";
@@ -29,4 +30,8 @@ export const getDisplayValue = <T>(
     default:
       return ["", Validity.Valid];
   }
+};
+
+export const isTenor = (value: any): value is Tenor => {
+  return "tenor" in value && "expiryDate" in value;
 };

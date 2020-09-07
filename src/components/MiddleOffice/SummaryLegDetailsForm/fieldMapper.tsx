@@ -1,10 +1,10 @@
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import React, { ReactElement } from "react";
-import { FieldDef } from "forms/fieldDef";
 import { FormField } from "components/FormField";
-import { Moment } from "moment";
+import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { FieldDef } from "forms/fieldDef";
+import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
+import { Moment } from "moment";
+import React, { ReactElement } from "react";
 
 export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
   fieldDef: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>

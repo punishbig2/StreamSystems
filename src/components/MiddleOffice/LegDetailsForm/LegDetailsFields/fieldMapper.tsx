@@ -1,15 +1,15 @@
 import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
-import { Validity } from "forms/validity";
+import { FieldType } from "forms/fieldType";
 import { getStyledValue } from "legsUtils";
 import { Observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { toNumber } from "utils/isNumeric";
-import { getPremiumPrecision, roundPremium } from "utils/roundPremium";
+import { roundPremium } from "utils/roundPremium";
+import { getRoundingPrecision } from "utils/roundToNearest";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -22,17 +22,21 @@ export const fieldsMapper = (
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
   const { rates } = leg;
   const { entry } = store;
+  const { deal } = moStore;
   const roundPremiumIdentity = (value: number | null): number | null => value;
   const extraProps = ((): { value: any } & any => {
+    if (deal === null) return null;
     if (fieldDef.type === "currency") {
       if (fieldDef.name === "premium" || fieldDef.name === "hedge") {
+        const { symbol } = deal;
         const preprocess =
           fieldDef.name === "premium" ? roundPremium : roundPremiumIdentity;
         return {
           value: preprocess(
             getStyledValue(leg[fieldDef.name], entry.premstyle),
-            entry.ccypair
+            symbol
           ),
+          precision: getRoundingPrecision(symbol["premium-rounding"]),
           currency: leg.premiumCurrency,
         };
       } else {
@@ -75,10 +79,19 @@ export const fieldsMapper = (
       return fieldDef.editable(null, store.entry);
     }
   };
-  const getPrecision = (fallBack: number | undefined): number | undefined => {
-    if (fieldDef.name !== "premium") return fallBack;
-    return getPremiumPrecision(entry.ccypair);
+
+  const getType = (): FieldType => {
+    if (fieldDef.name === "price" && deal !== null) {
+      const { symbol } = deal;
+      if (symbol.premiumCCYpercent) {
+        return "percent";
+      } else {
+        return "number";
+      }
+    }
+    return fieldDef.type;
   };
+
   return (
     <Observer key={fieldDef.name + index}>
       {() => (
@@ -87,10 +100,10 @@ export const fieldsMapper = (
           color={fieldDef.color}
           label={fieldDef.label}
           editable={isEditable(fieldDef)}
-          precision={getPrecision(fieldDef.precision)}
+          precision={fieldDef.precision}
           name={fieldDef.name}
           rounding={fieldDef.rounding}
-          type={fieldDef.type}
+          type={getType()}
           {...extraProps}
           onChange={onValueChange}
           disabled={moStore.status !== MOStatus.Normal}

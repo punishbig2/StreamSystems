@@ -22,8 +22,10 @@ export interface Symbol {
   premiumAdjustDelta: boolean;
   premiumCCY: string;
   premiumCCYformat: string;
+  premiumCCYpercent: boolean;
   riskCCY: string;
   riskCCYformat: string;
+  riskCCYpercent: boolean;
   symbolID: string;
   vegaAdjustBF: boolean;
   vegaAdjustRR: boolean;

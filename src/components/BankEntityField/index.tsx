@@ -1,4 +1,5 @@
-import { Grid, MenuItem, Select } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
+import { FormField } from "components/FormField";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { BankEntity } from "types/bankEntity";
@@ -10,7 +11,9 @@ interface Props<T> {
   }[];
   value: string;
   name: keyof T;
+  disabled: boolean;
   readOnly: boolean;
+  color: "green" | "orange" | "cream" | "grey";
   onChange?: (name: keyof T, value: any) => void;
 }
 
@@ -20,12 +23,6 @@ const DummyBankEntity: BankEntity = {
   id: "",
   name: "",
 };
-
-const simpleMenuItemRenderer = (value: string): ReactElement => (
-  <MenuItem key={value} value={value}>
-    {value}
-  </MenuItem>
-);
 
 const getCurrentEntity = (
   code: string,
@@ -57,7 +54,7 @@ const getDefaultEntity = (
 };
 
 export function BankEntityField<T>(props: Props<T>): ReactElement {
-  const { value, readOnly, name, onChange } = props;
+  const { value, disabled, readOnly, name, onChange } = props;
   const [entities, setEntities] = useState<string[]>([]);
   const [firms, setFirms] = useState<string[]>([]);
   const { entities: mapped } = moStore;
@@ -75,7 +72,10 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
 
   const setCurrentFirm = useCallback(
     (firm: string) => {
-      const defaultValue: BankEntity | undefined = getDefaultEntity(firm, mapped);
+      const defaultValue: BankEntity | undefined = getDefaultEntity(
+        firm,
+        mapped
+      );
       if (defaultValue === undefined) {
         console.warn(`${firm} has no default entity`);
       } else if (onChange !== undefined) {
@@ -91,66 +91,52 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
     setFirms(Object.keys(mapped));
   }, [mapped]);
 
-  const onBankChange = (
-    event: React.ChangeEvent<{ value: unknown; name?: string }>
-  ): void => {
-    const { value } = event.target;
+  const onBankChange = (name: keyof T, value: any): void => {
     if (typeof value === "string") {
       setCurrentFirm(value);
     }
   };
 
-  const onEntityChange = (
-    event: React.ChangeEvent<{ value: unknown; name?: string }>
-  ): void => {
-    const { value } = event.target;
-    const { name } = props;
+  const onEntityChange = (name: keyof T, value: any): void => {
     if (typeof value === "string") {
       if (onChange !== undefined) {
-        onChange(name, value);
+        onChange(props.name, value);
       }
     }
   };
 
-  if (readOnly) {
-    return (
-      <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
-        <Grid container>
-          <Grid className={"MuiSelect-root"} xs={6} item>
-            <span>{firm}</span>
-          </Grid>
-          <Grid className={"MuiSelect-root"} xs={6} item>
-            <span>{value}</span>
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-  }
-
   return (
-    <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
-      <Grid className={"bank-entity-field"} item container>
+    <Grid container>
+      <Grid className={"bank-entity-field"} spacing={1} item container>
         <Grid xs={6} item>
-          <Select
-            readOnly={readOnly}
-            displayEmpty={true}
+          <FormField
+            color={props.color}
+            name={props.name}
             value={firm}
-            fullWidth={true}
+            dropdownData={firms.map((item: string) => ({
+              label: item,
+              value: item,
+            }))}
             onChange={onBankChange}
-          >
-            {firms.map(simpleMenuItemRenderer)}
-          </Select>
+            disabled={disabled}
+            editable={!readOnly}
+            type={"dropdown"}
+          />
         </Grid>
         <Grid xs={6} item>
-          <Select
-            readOnly={readOnly}
-            displayEmpty={true}
+          <FormField
+            color={props.color}
+            name={props.name}
             value={entities.includes(value) ? value : ""}
-            fullWidth={true}
+            dropdownData={entities.map((item: string) => ({
+              label: item,
+              value: item,
+            }))}
             onChange={onEntityChange}
-          >
-            {entities.map(simpleMenuItemRenderer)}
-          </Select>
+            disabled={disabled}
+            editable={!readOnly}
+            type={"dropdown"}
+          />
         </Grid>
       </Grid>
     </Grid>

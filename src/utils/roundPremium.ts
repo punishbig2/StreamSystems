@@ -14,11 +14,9 @@ export const getPremiumPrecision = (ccypair: string): number => {
 
 export const roundPremium = (
   value: number | null,
-  ccypair: string
+  symbol: Symbol
 ): number | null => {
   if (value === null) return null;
-  const symbol: Symbol | undefined = moStore.findSymbolById(ccypair, false);
-  if (symbol === undefined) return value;
   const rounding: number | undefined = symbol["premium-rounding"];
   if (rounding === undefined) return value;
   const [displayValue, validity] = roundToNearest(

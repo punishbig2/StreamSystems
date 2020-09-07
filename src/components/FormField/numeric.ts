@@ -18,6 +18,17 @@ export interface NumericProps {
   currency?: string;
 }
 
+const typeToStyle = (type: FieldType): string | undefined => {
+  switch (type) {
+    case "percent":
+      return "percent";
+    case "currency":
+      return "currency";
+    default:
+      return "decimal";
+  }
+};
+
 export class NumericInputHandler<
   T,
   P extends NumericProps & MinimalProps<T>,
@@ -27,13 +38,18 @@ export class NumericInputHandler<
 
   constructor(props: P) {
     super();
-
-    this.formatter = new Intl.NumberFormat(undefined, {
-      maximumFractionDigits: props.precision,
-      minimumFractionDigits: props.precision,
-      style: props.type === "currency" ? "currency" : undefined,
-      currency: props.type === "currency" ? props.currency : undefined,
-    });
+    if (props.type === "currency" && props.currency === undefined) {
+      this.formatter = new Intl.NumberFormat(undefined, {});
+    } else {
+      const options = {
+        maximumFractionDigits: props.precision,
+        minimumFractionDigits: props.precision,
+        useGrouping: true,
+        style: typeToStyle(props.type),
+        currency: props.type === "currency" ? props.currency : undefined,
+      };
+      this.formatter = new Intl.NumberFormat(undefined, options);
+    }
   }
 
   private onDecimalSeparator(

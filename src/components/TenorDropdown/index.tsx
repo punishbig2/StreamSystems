@@ -1,5 +1,6 @@
 import { Grid, MenuItem, Select } from "@material-ui/core";
 import { FormField } from "components/FormField";
+import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { SelectItem } from "forms/fieldDef";
 import moment, { isMoment } from "moment";
 import React, { ReactElement } from "react";
@@ -11,13 +12,14 @@ export interface Tenor {
 }
 
 interface Props<T> {
+  id: string;
   data: SelectItem[];
   value: Tenor;
-  className: string;
-  readOnly: boolean;
+  className?: string;
   color: "green" | "orange" | "cream" | "grey";
   name: keyof T;
   disabled: boolean;
+  readOnly: boolean;
   onChange?: (name: keyof T, value: any) => void;
 }
 
@@ -42,31 +44,42 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       props.onChange(props.name as keyof T, value);
     }
   };
+  const tenorControl = (): ReactElement => {
+    if (props.readOnly) {
+      return <ReadOnlyField name={props.name + "-value"} value={value.tenor} />;
+    }
+    return (
+      <Select
+        id={props.id}
+        value={value.tenor}
+        disabled={props.disabled}
+        className={props.className}
+        displayEmpty={true}
+        readOnly={props.readOnly}
+        fullWidth={true}
+        name={props.name + "-value"}
+        onChange={onSelectChange}
+      >
+        {value.tenor === SPECIFIC_TENOR ? (
+          <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
+        ) : null}
+        {data.map((item: SelectItem) => (
+          <MenuItem key={item.value} value={item.value}>
+            {item.value}
+          </MenuItem>
+        ))}
+      </Select>
+    );
+  };
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
-      <Grid className={"bank-entity-field"} item container>
+      <Grid className={"bank-entity-field"} spacing={1} item container>
         <Grid xs={6} item>
-          <Select
-            value={value.tenor}
-            disabled={props.disabled}
-            className={props.className}
-            displayEmpty={true}
-            readOnly={props.readOnly}
-            fullWidth={true}
-            name={props.name + "-value"}
-            onChange={onSelectChange}
-          >
-            {value.tenor === SPECIFIC_TENOR ? (
-              <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
-            ) : null}
-            {data.map((item: SelectItem) => (
-              <MenuItem key={item.value} value={item.value}>
-                {item.value}
-              </MenuItem>
-            ))}
-          </Select>
+          {tenorControl()}
+          <div style={{ width: 2 }} />
         </Grid>
         <Grid xs={6} item>
+          <div style={{ width: 2 }} />
           <FormField<{ date: moment.Moment }>
             color={props.color}
             type={"date"}
