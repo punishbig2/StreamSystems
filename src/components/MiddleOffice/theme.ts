@@ -30,8 +30,8 @@ export default createMuiTheme({
       input: {
         paddingTop: 0,
         paddingBottom: 0,
-        paddingLeft: 4,
-        paddingRight: 4,
+        paddingLeft: 8,
+        paddingRight: 8,
         height: fieldSize,
         lineHeight: fieldSize + "px",
       },

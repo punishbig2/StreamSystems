@@ -352,7 +352,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
             inputRef={this.setInputRef}
             value={state.displayValue}
             fullWidth={true}
-            error={state.validity === Validity.InvalidFormat}
+            error={
+              state.validity === Validity.InvalidFormat ||
+              state.validity === Validity.InvalidValue
+            }
             placeholder={props.placeholder}
             autoComplete={"new-password"}
             onKeyDown={this.onInputKeyDown}

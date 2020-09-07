@@ -58,7 +58,8 @@ export class StrikeHandler<
       const match: string[] | null = value.match(regex);
       if (match === null) {
         if (isNumeric(value)) {
-          if (value.endsWith(DecimalSeparator)) return value;
+          if (value.endsWith(DecimalSeparator) || value.endsWith("0"))
+            return value;
           return super.parse(value);
         } else {
           return value;
