@@ -116,7 +116,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     name: "vol",
     label: "Vol",
     type: "percent",
-    precision: 4,
+    precision: 3,
     placeholder: "0",
     color: "orange",
     editable: editableFilter(

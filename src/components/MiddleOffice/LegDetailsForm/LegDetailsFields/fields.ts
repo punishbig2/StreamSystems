@@ -70,7 +70,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     color: "grey",
     name: "vol",
     label: "Vol",
-    precision: 4,
+    precision: 3,
     editable: editableFilter(DealType.Voice | DealType.Manual),
   },
   {

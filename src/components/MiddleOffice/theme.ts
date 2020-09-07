@@ -16,6 +16,9 @@ export default createMuiTheme({
     background: {
       paper: "#333333",
     },
+    error: {
+      main: "#ff8030",
+    },
   },
   overrides: {
     MuiMenuItem: {
