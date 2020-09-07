@@ -176,7 +176,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     model: 3,
     legs: legsCount,
     dealstrike: coalesce(deal.strike, strategy.strike),
-    vol: deal.vol !== null ? deal.vol / 100 : null,
+    vol: deal.vol,
     spread: deal.spread,
     dealType: dealSourceToDealType(deal.source),
     type: EntryType.ExistingDeal,

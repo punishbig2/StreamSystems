@@ -1,4 +1,5 @@
 import moment from "moment";
+import { DealStatus } from "types/dealStatus";
 import { Symbol } from "types/symbol";
 
 export interface Commission {
@@ -30,7 +31,7 @@ export interface Deal {
   expiry2: moment.Moment | null;
 
   source: string;
-  status: number;
+  status: DealStatus;
 
   premiumStyle?: string;
   deltaStyle?: string;

@@ -38,7 +38,7 @@ export class PodTileStore {
   private resetFns: (() => void)[] = [];
 
   constructor(windowID: string) {
-    const tenors: string[] = workareaStore.tenors;
+    const tenors: ReadonlyArray<string> = workareaStore.tenors;
     this.id = windowID;
     const hydrate = create({
       storage: persistStorage.pods,
@@ -152,15 +152,14 @@ export class PodTileStore {
   private async combineSnapshots(
     currency: string,
     strategy: string,
-    tenors: string[],
+    tenors: ReadonlyArray<string>,
     depth: { [k: string]: W }
   ) {
     const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(
       currency,
       strategy
     );
-    if (snapshot === null)
-      return depth;
+    if (snapshot === null) return depth;
     return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
       const w: W = depth[tenor];
       if (w) {
@@ -214,9 +213,8 @@ export class PodTileStore {
       currency,
       strategy
     );
-    if (snapshot === null)
-      return;
-    const tenors: string[] = workareaStore.tenors;
+    if (snapshot === null) return;
+    const tenors: ReadonlyArray<string> = workareaStore.tenors;
     // Combine TOB and full snapshots
     const combined: { [k: string]: W } = await this.combineSnapshots(
       currency,
@@ -230,7 +228,7 @@ export class PodTileStore {
     );
     // Initialize from depth snapshot
     this.initializeDepthFromSnapshot(combined);
-    this.loadDarkPoolSnapshot(currency, strategy);
+    this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
   }
 
   @action.bound

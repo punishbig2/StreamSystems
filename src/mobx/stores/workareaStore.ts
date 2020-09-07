@@ -1,23 +1,24 @@
-import { Symbol } from "types/symbol";
-import { Message } from "types/message";
-import { User, UserPreferences, CurrencyGroups } from "types/user";
-import { WorkareaStatus } from "stateDefs/workareaState";
-import { observable, action, computed } from "mobx";
-import { persist, create } from "mobx-persist";
 import { API } from "API";
 
 import latam from "groups/latam";
+import { PresetWindow } from "groups/presetWindow";
 
 import strings from "locales";
-import signalRManager from "signalR/signalRManager";
-import { randomID } from "randomID";
+import { action, computed, observable } from "mobx";
+import { create, persist } from "mobx-persist";
+import dealsStore from "mobx/stores/dealsStore";
 import { WindowDef } from "mobx/stores/workspaceStore";
-import { PresetWindow } from "groups/presetWindow";
-import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import persistStorage from "persistStorage";
+import { randomID } from "randomID";
+import signalRManager from "signalR/signalRManager";
+import { defaultPreferences } from "stateDefs/defaultUserPreferences";
+import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";
-import { updateApplicationTheme } from "utils";
+import { Message } from "types/message";
 import { Strategy } from "types/strategy";
+import { Symbol } from "types/symbol";
+import { CurrencyGroups, User, UserPreferences } from "types/user";
+import { updateApplicationTheme } from "utils";
 import { tenorToNumber } from "utils/tenorUtils";
 
 export enum WindowTypes {
@@ -43,13 +44,13 @@ export class WorkareaStore {
   @persist("object") @observable workspaces: { [k: string]: WorkspaceDef } = {};
   @persist @observable currentWorkspaceID: string | null = null;
 
-  @observable symbols: Symbol[] = [];
-  @observable.ref strategies: Strategy[] = [];
-  @observable.ref tenors: string[] = [];
-  @observable.ref banks: string[] = [];
+  @observable symbols: ReadonlyArray<Symbol> = [];
+  @observable.ref strategies: ReadonlyArray<Strategy> = [];
+  @observable.ref tenors: ReadonlyArray<string> = [];
+  @observable.ref banks: ReadonlyArray<string> = [];
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
-  @observable recentExecutions: Message[] = [];
+  @observable recentExecutions: Array<Message> = [];
   @persist("object")
   @observable
   preferences: UserPreferences = defaultPreferences;
@@ -79,13 +80,13 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public setWorkspacePersonality(id: string, personality: string) {
+  public setWorkspacePersonality(id: string, personality: string): void {
     const { workspaces } = this;
     if (!workspaces[id]) return;
     workspaces[id].personality = personality;
   }
 
-  private populateDefaultWorkspace(id: string, group: CurrencyGroups) {
+  private populateDefaultWorkspace(id: string, group: CurrencyGroups): void {
     const map: {
       [k: string]: PresetWindow[];
     } | null = WorkareaStore.getMapForCurrencyGroup(group);
@@ -99,7 +100,9 @@ export class WorkareaStore {
           ({ strategy, minimized, position }: PresetWindow): WindowDef => {
             const id: string = randomID("pods");
             // Force the initialization of a pod structure
-            pods.setItem(id, JSON.stringify({ currency, strategy }));
+            pods
+              .setItem(id, JSON.stringify({ currency, strategy }))
+              .then(() => {});
             return {
               id: id,
               minimized: minimized,
@@ -113,7 +116,7 @@ export class WorkareaStore {
       },
       []
     );
-    workspaces.setItem(id, JSON.stringify({ windows }));
+    workspaces.setItem(id, JSON.stringify({ windows })).then(() => {});
   }
 
   @action.bound
@@ -244,6 +247,8 @@ export class WorkareaStore {
   private async loadSystemSymbols(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingSymbols);
     this.symbols = await API.getSymbols();
+    // Update deals list
+    dealsStore.loadDeals();
   }
 
   private async createSymbolsMap(): Promise<void> {

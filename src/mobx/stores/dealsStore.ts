@@ -1,25 +1,26 @@
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { action, observable, observe } from "mobx";
+import { action, observable } from "mobx";
 import moStore from "mobx/stores/moStore";
-import workareaStore from "mobx/stores/workareaStore";
 import { parseTime } from "utils/timeUtils";
 
 export class DealsStore {
   @observable.ref deals: Deal[] = [];
   @observable selectedDeal: string | null = null;
 
-  constructor() {
-    observe(workareaStore, "symbols", (symbols: any) => {
-      if (!symbols) return;
-      API.getDeals().then((deals: Deal[]) => {
-        this.deals = deals.sort(
-          (d1: Deal, d2: Deal) =>
-            parseTime(d2.transactionTime, "UTC").getTime() -
-            parseTime(d1.transactionTime, "UTC").getTime()
-        );
-      });
+  public loadDeals(): void {
+    API.getDeals().then((deals: Deal[]) => {
+      this.deals = deals.sort(
+        (d1: Deal, d2: Deal) =>
+          parseTime(d2.transactionTime, "UTC").getTime() -
+          parseTime(d1.transactionTime, "UTC").getTime()
+      );
     });
+  }
+
+  public findDeal(id: string): Deal | undefined {
+    const { deals } = this;
+    return deals.find((deal: Deal): boolean => deal.dealID === id);
   }
 
   @action.bound

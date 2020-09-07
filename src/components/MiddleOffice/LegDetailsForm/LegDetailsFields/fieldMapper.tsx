@@ -8,8 +8,6 @@ import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { roundPremium } from "utils/roundPremium";
-import { getRoundingPrecision } from "utils/roundToNearest";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -23,20 +21,12 @@ export const fieldsMapper = (
   const { rates } = leg;
   const { entry } = store;
   const { deal } = moStore;
-  const roundPremiumIdentity = (value: number | null): number | null => value;
   const extraProps = ((): { value: any } & any => {
     if (deal === null) return null;
     if (fieldDef.type === "currency") {
       if (fieldDef.name === "premium" || fieldDef.name === "hedge") {
-        const { symbol } = deal;
-        const preprocess =
-          fieldDef.name === "premium" ? roundPremium : roundPremiumIdentity;
         return {
-          value: preprocess(
-            getStyledValue(leg[fieldDef.name], entry.premstyle),
-            symbol
-          ),
-          precision: getRoundingPrecision(symbol["premium-rounding"]),
+          value: getStyledValue(leg[fieldDef.name], entry.premstyle),
           currency: leg.premiumCurrency,
         };
       } else {

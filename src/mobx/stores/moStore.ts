@@ -80,7 +80,7 @@ export class MoStore {
   public premiumStyles: ReadonlyArray<string> = [];
 
   @computed
-  public get tenors(): string[] {
+  public get tenors(): ReadonlyArray<string> {
     return workareaStore.tenors;
   }
 
@@ -229,12 +229,12 @@ export class MoStore {
   }
 
   @computed
-  public get banks(): string[] {
+  public get banks(): ReadonlyArray<string> {
     return workareaStore.banks;
   }
 
   @computed
-  get symbols(): Symbol[] {
+  get symbols(): ReadonlyArray<Symbol> {
     return workareaStore.symbols;
   }
 
@@ -366,8 +366,11 @@ export class MoStore {
     ];
   }
 
-  public findSymbolById(currencyPair: string, throwOnNotFound = true): Symbol | undefined {
-    const symbols: Symbol[] = this.symbols;
+  public findSymbolById(
+    currencyPair: string,
+    throwOnNotFound = true
+  ): Symbol | undefined {
+    const { symbols } = this;
     const found: Symbol | undefined = symbols.find(
       (symbol: Symbol) => symbol.symbolID === currencyPair
     );

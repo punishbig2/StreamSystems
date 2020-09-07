@@ -14,7 +14,6 @@ import { ProgressView } from "components/MiddleOffice/progressView";
 import { SuccessMessage } from "components/MiddleOffice/successMessage";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
 import { ModalWindow } from "components/ModalWindow";
-import { useSEFUpdateListener } from "hooks/useSEFUpdateListener";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -36,7 +35,6 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
     usePricingUpdater(deal);
     useDealDeletedListener(entryStore);
     useErrorListener(moStore.setError);
-    useSEFUpdateListener(moStore.setStatus);
     if (!props.visible) classes.push("hidden");
     const dontDelete = () => {
       showDeleteQuestion(false);

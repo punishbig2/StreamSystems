@@ -12,7 +12,8 @@ import {
   CommissionRate,
   convertToCommissionRatesArray,
 } from "mobx/stores/brokerageStore";
-import moStore from "mobx/stores/moStore";
+import dealsStore from "mobx/stores/dealsStore";
+import moStore, { MOStatus } from "mobx/stores/moStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -33,8 +34,6 @@ import { $$ } from "utils/stringPaster";
 const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { "1": Sides.Buy, "2": Sides.Sell };
-
-export const SEF_UPDATE_EVENT = "on-sef-update";
 
 interface SEFError {
   dealid: string;
@@ -268,7 +267,10 @@ export class SignalRManager {
 
   public addDeal = async (deal: any): Promise<void> => {
     if ("dealId" in deal) {
-      console.log(deal);
+      const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
+        detail: deal,
+      });
+      document.dispatchEvent(event);
     } else {
       try {
         const detail: Deal = await createDealFromBackendMessage(deal);
@@ -294,7 +296,7 @@ export class SignalRManager {
   };
 
   private onUpdateDeals = (message: string): void => {
-    this.addDeal(JSON.parse(message));
+    this.addDeal(JSON.parse(message)).then(() => {});
   };
 
   private onUpdateMarketData = (message: string): void => {
@@ -607,12 +609,23 @@ export class SignalRManager {
     document.dispatchEvent(event);
   };
 
-  private static emitSEFUpdate(dealId: string): void {
-    const event: CustomEvent<{ id: string }> = new CustomEvent<{ id: string }>(
-      SEF_UPDATE_EVENT,
-      { detail: { id: dealId } }
-    );
+  private static emitSEFUpdate(data: any): void {
+    const existingDeal: Deal | undefined = dealsStore.findDeal(data.dealid);
+    if (existingDeal === undefined) {
+      return;
+    }
+    const deal: Deal = {
+      ...existingDeal,
+      // Update the updated values
+      status: Number(data.deal_state),
+      usi: data.usi_no,
+    };
+    const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
+      detail: deal,
+    });
     document.dispatchEvent(event);
+    // Reset the status to normal
+    moStore.setStatus(MOStatus.Normal);
   }
 
   private onSEFUpdate = (data: string): void => {
@@ -628,7 +641,7 @@ export class SignalRManager {
       };
       this.emitMiddleOfficeError(error);
     } else {
-      SignalRManager.emitSEFUpdate(object.dealid);
+      SignalRManager.emitSEFUpdate(object);
     }
   };
 

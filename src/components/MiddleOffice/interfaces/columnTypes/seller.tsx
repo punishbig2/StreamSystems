@@ -30,7 +30,7 @@ export default (sortable: boolean): ColumnSpec => ({
     } else {
       const entityName: string = resolveBankToEntity(deal.seller);
       const entity: BankEntity = moStore.entitiesMap[entityName];
-      return <span>{entity.id}</span>;
+      return <span>{entity !== undefined ? entity.id : deal.seller}</span>;
     }
   },
   filterable: true,

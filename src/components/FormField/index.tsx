@@ -96,7 +96,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { props } = this;
     if (
       props.type !== prevProps.type ||
-      props.editable !== prevProps.editable
+      props.editable !== prevProps.editable ||
+      props.precision !== prevProps.precision ||
+      props.currency !== prevProps.currency
     ) {
       const handler: InputHandler<T, Props<T>, State> = this.getHandler();
       // Reset the formatter

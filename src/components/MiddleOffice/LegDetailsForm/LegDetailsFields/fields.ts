@@ -114,7 +114,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     type: "percent",
     color: "grey",
     name: "price",
-    label: "Price % / Pips",
+    label: "Price %/Pips",
     precision: 4,
     editable: false,
   },
