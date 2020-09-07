@@ -267,7 +267,7 @@ export class MoStore {
         price: [null, null, null],
         vega: null,
         premiumCurrency: "USD",
-        usi: null,
+        usi_num: null,
         rates: [
           {
             currency: "",

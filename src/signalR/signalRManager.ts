@@ -267,10 +267,7 @@ export class SignalRManager {
 
   public addDeal = async (deal: any): Promise<void> => {
     if ("dealId" in deal) {
-      const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
-        detail: deal,
-      });
-      document.dispatchEvent(event);
+      // IGNORE THIS INTENTIONALLY
     } else {
       try {
         const detail: Deal = await createDealFromBackendMessage(deal);

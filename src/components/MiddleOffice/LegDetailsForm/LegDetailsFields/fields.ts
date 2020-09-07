@@ -160,7 +160,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
   {
     type: "number",
     color: "grey",
-    name: "usi",
+    name: "usi_num",
     label: "USI#",
     precision: 0,
     editable: false,

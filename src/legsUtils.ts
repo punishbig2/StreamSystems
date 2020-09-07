@@ -106,7 +106,7 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
     option: option,
     deliveryDate: entry.deliveryDate,
     expiryDate: expiryDate,
-    usi: null,
+    usi_num: null,
   };
 };
 

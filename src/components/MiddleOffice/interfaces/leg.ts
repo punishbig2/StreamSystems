@@ -32,7 +32,7 @@ export interface Leg {
   expiryDate: moment.Moment;
   deliveryDate: moment.Moment;
   rates: Rates;
-  usi: number | null;
+  usi_num: number | null;
 
   custom?: { [p: string]: any };
 }
