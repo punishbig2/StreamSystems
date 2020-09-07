@@ -5,7 +5,8 @@ export const DecimalSeparator = (0.1)
   })
   .substr(-2, 1);
 
-export const toNumber = (value: string): number | undefined => {
+export const toNumber = (value: string | null): number | null | undefined => {
+  if (value === null) return null;
   const fragments: string[] = value.split(DecimalSeparator);
   if (fragments.length === 2) {
     const integer: string = fragments[0].replace(/[^0-9]+/g, "");

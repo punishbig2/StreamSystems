@@ -1,29 +1,30 @@
 import { createMuiTheme } from "@material-ui/core";
+import { fade } from "@material-ui/core/styles";
+import { Palette } from "@material-ui/core/styles/createPalette";
+import workareaStore from "mobx/stores/workareaStore";
+import { getPalette } from "palette";
+
+const { preferences } = workareaStore;
 
 const labelWidth: string = "35%";
 const fieldSize: number = 25;
+const palette: Palette = getPalette(preferences.theme);
 
 export default createMuiTheme({
   spacing: 4,
   palette: {
+    ...palette,
     primary: {
+      ...palette.primary,
       main: "#a0a0a0",
       light: "#808080",
-    },
-    text: {
-      primary: "#ffffff",
-    },
-    background: {
-      paper: "#333333",
-    },
-    error: {
-      main: "#ff8030",
     },
   },
   overrides: {
     MuiMenuItem: {
       root: {
         fontSize: 13,
+        fontWeight: 600,
       },
     },
     MuiOutlinedInput: {
@@ -65,6 +66,10 @@ export default createMuiTheme({
         flex: 1,
         marginTop: 3,
         marginBottom: 3,
+        "&$error": {
+          backgroundColor: fade(palette.error.main, 0.1),
+          color: palette.error.main,
+        },
       },
       input: {
         paddingTop: 0,

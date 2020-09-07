@@ -12,6 +12,13 @@ export const light: PaletteOptions = {
     primary: "#333333",
     secondary: "#555555",
   },
+  error: {
+    main: "#f13951",
+  },
+  background: {
+    default: "#ffffff",
+    paper: "#ffffff",
+  },
 };
 
 export const dark: PaletteOptions = {
@@ -22,6 +29,13 @@ export const dark: PaletteOptions = {
   text: {
     primary: "#ffffff",
     secondary: "#e1e1e1",
+  },
+  error: {
+    main: "#f13951",
+  },
+  background: {
+    default: "#212121",
+    paper: "#313131",
   },
 };
 

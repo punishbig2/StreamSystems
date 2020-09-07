@@ -13,8 +13,8 @@ export const roundPremium = (
   if (rounding === undefined) return value;
   const [displayValue, validity] = roundToNearest(value, rounding);
   if (validity === Validity.Valid) {
-    const numeric: number | undefined = toNumber(displayValue);
-    if (numeric === undefined) return value;
+    const numeric: number | null | undefined = toNumber(displayValue);
+    if (numeric === undefined || numeric === null) return value;
     return numeric;
   } else {
     return value;

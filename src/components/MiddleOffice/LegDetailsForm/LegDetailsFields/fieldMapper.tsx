@@ -28,10 +28,10 @@ export const fieldsMapper = (
     if (deal === null) return null;
     if (fieldDef.type === "strike") {
       const { symbol } = deal;
-      const numeric: number | undefined = toNumber(
+      const numeric: number | null | undefined = toNumber(
         leg[fieldDef.name] as string
       );
-      if (numeric === undefined) {
+      if (numeric === undefined || numeric === null) {
         return {
           value: null,
         };
