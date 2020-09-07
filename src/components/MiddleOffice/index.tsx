@@ -4,9 +4,10 @@ import { MiddleOfficeMain } from "components/MiddleOffice/middleOfficeMain";
 import { ProgressView } from "components/progressView";
 import { observer } from "mobx-react";
 import moStore from "mobx/stores/moStore";
+import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 
-import theme from "./theme";
+import { createTheme } from "./theme";
 
 interface Props {
   readonly visible: boolean;
@@ -14,6 +15,7 @@ interface Props {
 
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const { preferences } = workareaStore;
     useMoInitializer();
     if (!moStore.isInitialized) {
       return (
@@ -25,7 +27,7 @@ export const MiddleOffice: React.FC<Props> = observer(
       );
     } else {
       return (
-        <MuiThemeProvider theme={theme}>
+        <MuiThemeProvider theme={createTheme(preferences.theme)}>
           <MiddleOfficeMain visible={props.visible} />
         </MuiThemeProvider>
       );

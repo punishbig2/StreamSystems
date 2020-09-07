@@ -35,7 +35,7 @@ export const dark: PaletteOptions = {
   },
   background: {
     default: "#212121",
-    paper: "#313131",
+    paper: "#323232",
   },
 };
 
