@@ -57,12 +57,6 @@ export const DealOutputSection: React.FC<Props> = (
     }
   }, [symbol]);
   if (dealOutput === null) return null;
-  const price = ((value: number | null): number | null => {
-    if (value === null) return null;
-    return 100 * value;
-  })(getStyledValue(dealOutput.price, entry.premstyle));
-
-  console.log(priceType, dealOutput.price);
   return (
     <Grid alignItems={"stretch"} container>
       <fieldset className={"group"} disabled={props.disabled}>
@@ -80,7 +74,7 @@ export const DealOutputSection: React.FC<Props> = (
         <FormField
           label={"Price %/Pips"}
           color={"grey"}
-          value={price}
+          value={getStyledValue(dealOutput.price, entry.premstyle)}
           name={"pricePercent"}
           type={priceType}
           precision={4}

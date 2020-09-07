@@ -1,10 +1,9 @@
-import { Grid, MenuItem, Select } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { ReadOnlyField } from "components/FormField/readOnlyField";
-import { SelectItem } from "forms/fieldDef";
+import { DropdownItem } from "forms/fieldDef";
 import moment, { isMoment } from "moment";
 import React, { ReactElement } from "react";
-import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 export interface Tenor {
   tenor: string;
@@ -13,7 +12,7 @@ export interface Tenor {
 
 interface Props<T> {
   id: string;
-  data: SelectItem[];
+  data: DropdownItem[];
   value: Tenor;
   className?: string;
   color: "green" | "orange" | "cream" | "grey";
@@ -34,42 +33,28 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       props.onChange(props.name as keyof T, value);
     }
   };
-  const onSelectChange = (
-    event: React.ChangeEvent<{ name?: string; value: unknown }>
-  ) => {
-    const {
-      target: { value },
-    } = event;
+  const onSelectChange = (name: keyof T, value: any) => {
     if (props.onChange !== undefined) {
-      props.onChange(props.name as keyof T, value);
+      props.onChange(name, value);
     }
   };
   const tenorControl = (): ReactElement => {
     if (props.readOnly) {
       return <ReadOnlyField name={props.name + "-value"} value={value.tenor} />;
+    } else {
+      return (
+        <FormField
+          dropdownData={data}
+          color={props.color}
+          value={value.tenor}
+          name={props.name}
+          type={"dropdown"}
+          editable={!props.readOnly}
+          disabled={props.disabled}
+          onChange={onSelectChange}
+        />
+      );
     }
-    return (
-      <Select
-        id={props.id}
-        value={value.tenor}
-        disabled={props.disabled}
-        className={props.className}
-        displayEmpty={true}
-        readOnly={props.readOnly}
-        fullWidth={true}
-        name={props.name + "-value"}
-        onChange={onSelectChange}
-      >
-        {value.tenor === SPECIFIC_TENOR ? (
-          <MenuItem value={SPECIFIC_TENOR}>{SPECIFIC_TENOR}</MenuItem>
-        ) : null}
-        {data.map((item: SelectItem) => (
-          <MenuItem key={item.value} value={item.value}>
-            {item.value}
-          </MenuItem>
-        ))}
-      </Select>
-    );
   };
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>

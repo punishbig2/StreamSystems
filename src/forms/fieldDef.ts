@@ -2,7 +2,7 @@ import { InputHandler } from "components/FormField/inputHandler";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 
-export interface SelectItem {
+export interface DropdownItem {
   value: any;
   label: string;
 }
@@ -18,7 +18,7 @@ export interface FieldDef<T, S = {}, E = {}> {
   validate?: (value: string) => Validity;
   precision?: number;
   // Only for dropdown (for now)
-  transformData?: (item: any, entry?: T) => SelectItem[] | any;
+  transformData?: (item: any, entry?: T) => DropdownItem[] | any;
   dataSource?: keyof S;
   data?: any;
   handler?: InputHandler<T>;

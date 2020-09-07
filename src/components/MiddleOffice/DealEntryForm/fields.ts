@@ -1,5 +1,5 @@
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { FieldDef, SelectItem } from "forms/fieldDef";
+import { FieldDef, DropdownItem } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
@@ -23,9 +23,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     type: "dropdown",
     color: "orange",
     editable: editableFilter(DealType.Voice | DealType.Manual),
-    transformData: (array: Symbol[]): SelectItem[] =>
+    transformData: (array: Symbol[]): DropdownItem[] =>
       array.map(
-        (currency: Symbol): SelectItem => ({
+        (currency: Symbol): DropdownItem => ({
           value: currency.name,
           label: currency.name,
         })
@@ -41,7 +41,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     transformData: (
       data: { [key: string]: MOStrategy },
       entry?: DealEntry
-    ): SelectItem[] => {
+    ): DropdownItem[] => {
       return Object.values(data)
         .filter((item: MOStrategy): boolean => {
           if (entry === undefined) return false;
@@ -59,7 +59,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
           return false;
         })
         .map(
-          (strategy: MOStrategy): SelectItem => ({
+          (strategy: MOStrategy): DropdownItem => ({
             value: strategy.productid,
             label: strategy.description,
           })
@@ -75,9 +75,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
-    transformData: (data: string[]): SelectItem[] => {
+    transformData: (data: string[]): DropdownItem[] => {
       return data.map(
-        (tenor: string): SelectItem => ({
+        (tenor: string): DropdownItem => ({
           value: tenor,
           label: tenor,
         })
@@ -93,9 +93,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
-    transformData: (data: string[]): SelectItem[] => {
+    transformData: (data: string[]): DropdownItem[] => {
       return data.map(
-        (tenor: string): SelectItem => ({
+        (tenor: string): DropdownItem => ({
           value: tenor,
           label: tenor,
         })
@@ -180,7 +180,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
-    transformData: (): SelectItem[] => [
+    transformData: (): DropdownItem[] => [
       {
         value: "true",
         label: "TRUE",
@@ -199,7 +199,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     name: "premstyle",
     label: "Premium Style",
     type: "dropdown",
-    transformData: (list: string[]): SelectItem[] => {
+    transformData: (list: string[]): DropdownItem[] => {
       return list.map((item: string): { value: string; label: string } => ({
         value: item,
         label: item,
@@ -213,7 +213,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     name: "deltastyle",
     label: "Delta Style",
     type: "dropdown",
-    transformData: (list: string[]): SelectItem[] => {
+    transformData: (list: string[]): DropdownItem[] => {
       return list.map((item: string): { value: string; label: string } => ({
         value: item,
         label: item,
@@ -231,9 +231,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
-    transformData: (list: string[]): SelectItem[] =>
+    transformData: (list: string[]): DropdownItem[] =>
       list.map(
-        (name: string): SelectItem => ({
+        (name: string): DropdownItem => ({
           value: name,
           label: name,
         })
@@ -248,9 +248,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
-    transformData: (list: string[]): SelectItem[] =>
+    transformData: (list: string[]): DropdownItem[] =>
       list.map(
-        (name: string): SelectItem => ({
+        (name: string): DropdownItem => ({
           value: name,
           label: name,
         })
@@ -287,21 +287,14 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     editable: false,
   },
   {
-    name: "status",
-    label: "Status",
-    type: "text",
-    color: "green",
-    editable: false,
-  },
-  {
     name: "style",
     label: "Style",
     type: "dropdown",
     color: "green",
-    editable: false,
-    transformData: (list: string[]): SelectItem[] =>
+    editable: true,
+    transformData: (list: string[]): DropdownItem[] =>
       list.map(
-        (name: string): SelectItem => ({
+        (name: string): DropdownItem => ({
           value: name,
           label: name,
         })
@@ -313,15 +306,22 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
     label: "Model",
     type: "dropdown",
     color: "green",
-    editable: false,
-    transformData: (list: InternalValuationModel[]): SelectItem[] =>
+    editable: true,
+    transformData: (list: InternalValuationModel[]): DropdownItem[] =>
       list.map(
-        (model: InternalValuationModel): SelectItem => ({
+        (model: InternalValuationModel): DropdownItem => ({
           value: model.ValuationModelID,
           label: model.OptionModelDesc,
         })
       ),
     dataSource: "models",
+  },
+  {
+    name: "status",
+    label: "Status",
+    type: "text",
+    color: "green",
+    editable: false,
   },
 ];
 

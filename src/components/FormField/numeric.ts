@@ -18,10 +18,13 @@ export interface NumericProps {
   currency?: string;
 }
 
-const typeToStyle = (type: FieldType): string | undefined => {
+const typeToStyle = (
+  type: FieldType,
+  editable?: boolean
+): string | undefined => {
   switch (type) {
     case "percent":
-      return "percent";
+      return !!editable ? "decimal" : "percent";
     case "currency":
       return "currency";
     default:
@@ -38,17 +41,21 @@ export class NumericInputHandler<
 
   constructor(props: P) {
     super();
+    this.formatter = this.createFormatter(props);
+  }
+
+  private createFormatter(props: P): Intl.NumberFormat {
     if (props.type === "currency" && props.currency === undefined) {
-      this.formatter = new Intl.NumberFormat(undefined, {});
+      return new Intl.NumberFormat(undefined, {});
     } else {
       const options = {
         maximumFractionDigits: props.precision,
         minimumFractionDigits: props.precision,
         useGrouping: true,
-        style: typeToStyle(props.type),
+        style: typeToStyle(props.type, props.editable),
         currency: props.type === "currency" ? props.currency : undefined,
       };
-      this.formatter = new Intl.NumberFormat(undefined, options);
+      return new Intl.NumberFormat(undefined, options);
     }
   }
 
@@ -175,6 +182,13 @@ export class NumericInputHandler<
 
   public parse(value: string): any {
     if (value === "") return null;
+    if (value.includes("%")) {
+      console.log(value);
+      const internalValue: any = this.parse(value.replace(/%/g, ""));
+      if (typeof internalValue !== "number") {
+        throw new Error("unexpected value for a percent type");
+      }
+    }
     const numeric = toNumber(value);
     if (numeric === undefined) return value;
     return numeric;
@@ -214,5 +228,10 @@ export class NumericInputHandler<
       }
     }
     return true;
+  }
+
+  public reset(props: P) {
+    super.reset(props);
+    this.formatter = this.createFormatter(props);
   }
 }

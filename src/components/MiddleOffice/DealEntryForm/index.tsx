@@ -73,7 +73,8 @@ export const DealEntryForm: React.FC<Props> = observer(
             <ExistingEntryButtons
               disabled={moStore.status !== MOStatus.Normal}
               isModified={store.isModified}
-              isPriced={entry.status === 2}
+              isEditMode={moStore.isEditMode}
+              status={entry.status}
               onSubmit={store.submit}
               onSave={store.saveCurrentEntry}
               onPrice={onPriced}

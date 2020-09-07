@@ -12,7 +12,7 @@ import { NumericInputHandler } from "components/FormField/numeric";
 import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { StrikeHandler } from "components/FormField/strike";
 import { TenorDropdown } from "components/TenorDropdown";
-import { SelectItem } from "forms/fieldDef";
+import { DropdownItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import React, { PureComponent, ReactElement } from "react";
@@ -27,7 +27,7 @@ interface Props<T> extends MinimalProps<T> {
   items?: (string | number)[];
   placeholder?: string;
   precision?: number;
-  dropdownData?: SelectItem[] | any;
+  dropdownData?: DropdownItem[] | any;
   rounding?: number;
   handler?: InputHandler<T>;
   onChange?: (name: keyof T, value: any) => void;
@@ -94,6 +94,16 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { props } = this;
+    if (
+      props.type !== prevProps.type ||
+      props.editable !== prevProps.editable
+    ) {
+      const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+      // Reset the formatter
+      handler.reset(props);
+      // Update the value
+      this.setValueFromProps();
+    }
     if (props.value !== prevProps.value || props.type !== prevProps.type) {
       this.setValueFromProps();
       // Since state will change stop right now and let the next
@@ -191,22 +201,26 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { props, state } = this;
     const { type } = props;
     if (type === "strike") {
-      const [displayValue, validity] = roundToNearest(
-        state.internalValue,
-        props.rounding
-      );
-      if (validity === Validity.Valid) {
-        this.setState({
-          displayValue,
-          validity,
-        });
-      } else {
-        this.setState({
-          validity,
-        });
-      }
-      if (props.onChange) {
-        props.onChange(props.name, displayValue);
+      if (typeof state.internalValue === "number") {
+        const [displayValue, validity] = roundToNearest(
+          state.internalValue,
+          props.rounding
+        );
+        if (validity === Validity.Valid) {
+          this.setState({
+            displayValue,
+            validity,
+          });
+        } else {
+          this.setState({
+            validity,
+          });
+        }
+        if (props.onChange) {
+          props.onChange(props.name, displayValue);
+        }
+      } else if (props.onChange) {
+        props.onChange(props.name, state.internalValue);
       }
     } else {
       if (props.onChange) {
@@ -248,25 +262,19 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (!props.dropdownData) {
       throw new Error("cannot have a dropdown with no data");
     }
-    if (!props.editable) {
-      return (
-        <ReadOnlyField name={props.name as string} value={state.displayValue} />
-      );
-    } else {
-      return (
-        <DropdownField<T>
-          name={props.name}
-          disabled={props.disabled}
-          editable={true}
-          value={state.internalValue}
-          items={props.dropdownData}
-          emptyMessage={
-            props.emptyValue !== undefined ? props.emptyValue : "No selection"
-          }
-          onChange={props.onChange}
-        />
-      );
-    }
+    return (
+      <DropdownField<T>
+        name={props.name}
+        disabled={props.disabled}
+        editable={props.editable}
+        value={state.internalValue}
+        items={props.dropdownData}
+        emptyMessage={
+          props.emptyValue !== undefined ? props.emptyValue : "No selection"
+        }
+        onChange={props.onChange}
+      />
+    );
   };
 
   private createTenorField = (): ReactElement | null => {

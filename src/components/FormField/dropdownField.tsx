@@ -1,17 +1,14 @@
 import { MenuItem, Select } from "@material-ui/core";
+import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { SearchItem } from "components/FormField/searchItem";
-import React, { Component, ReactElement } from "react";
-
-export interface DropdownItem {
-  readonly label: string;
-  readonly value: any;
-}
+import { DropdownItem } from "forms/fieldDef";
+import React, { Component } from "react";
 
 interface Props<T> {
   readonly disabled?: boolean;
   readonly value: any;
   readonly name: keyof T;
-  readonly editable: boolean;
+  readonly editable?: boolean;
   readonly items: DropdownItem[];
   readonly onChange?: (name: keyof T, value: any) => void;
   readonly emptyMessage: string;
@@ -34,9 +31,11 @@ export class DropdownField<T> extends Component<Props<T>, State> {
     if (!props.editable) return;
     const { value } = event.target;
     // Call the callback
-    if (props.onChange !== undefined) {
-      props.onChange(props.name, value);
-    }
+    setTimeout(() => {
+      if (props.onChange !== undefined) {
+        props.onChange(props.name, value);
+      }
+    }, 0);
     // Child is unused
     void child;
   };
@@ -59,7 +58,7 @@ export class DropdownField<T> extends Component<Props<T>, State> {
     return normalizedValue.includes(normalizedKeyword);
   };
 
-  private renderSelectValue = (value: any): ReactElement | string => {
+  private renderSelectValue = (value: any): string => {
     const { props } = this;
     const { items } = props;
     const item: DropdownItem | undefined = items.find(
@@ -86,6 +85,14 @@ export class DropdownField<T> extends Component<Props<T>, State> {
   public render(): React.ReactElement {
     const { props } = this;
     const { items } = props;
+    if (!props.editable) {
+      return (
+        <ReadOnlyField
+          name={props.name as string}
+          value={this.renderSelectValue(props.value)}
+        />
+      );
+    }
     return (
       <Select
         id={props.name as string}

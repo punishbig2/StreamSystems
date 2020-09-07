@@ -13,7 +13,7 @@ export abstract class FormattedInput<
   T,
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
-> implements InputHandler<T, P, S> {
+> extends InputHandler<T, P, S> {
   public abstract parse(value: string): any;
   public abstract format(value: any, props: P): [string, Validity];
   public abstract onKeyDown(

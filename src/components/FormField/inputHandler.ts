@@ -16,23 +16,28 @@ export const getCaretPosition = (input: HTMLInputElement | null): number => {
 
 export type StateReturnType<S> = S | Pick<S, keyof S> | null;
 
-export interface InputHandler<
+export abstract class InputHandler<
   T,
   P extends MinimalProps = any,
   S extends Editable = any
 > {
-  onKeyDown(
+  public abstract onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
     state: S
   ): StateReturnType<S>;
-  createValue(
+  public abstract createValue(
     value: any,
     input: HTMLInputElement | null,
     props: P,
     state: S
   ): StateReturnType<S>;
-  format(value: any, props: P): [string, Validity];
-  parse(value: string): any;
-  shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean;
+  public abstract format(value: any, props: P): [string, Validity];
+  public abstract parse(value: string): any;
+  public abstract shouldAcceptInput(
+    input: HTMLInputElement,
+    props: P,
+    state: S
+  ): boolean;
+  public reset(props: P) {}
 }

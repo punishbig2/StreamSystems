@@ -1,16 +1,7 @@
 import { Validity } from "forms/validity";
-import moStore from "mobx/stores/moStore";
 import { Symbol } from "types/symbol";
 import { toNumber } from "utils/isNumeric";
-import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
-
-export const getPremiumPrecision = (ccypair: string): number => {
-  const symbol: Symbol | undefined = moStore.findSymbolById(ccypair, false);
-  if (symbol === undefined) return 0;
-  const rounding: number | undefined = symbol["premium-rounding"];
-  if (rounding === undefined) return 0;
-  return getRoundingPrecision(rounding);
-};
+import { roundToNearest } from "utils/roundToNearest";
 
 export const roundPremium = (
   value: number | null,

@@ -1,5 +1,5 @@
 import { FormField } from "components/FormField";
-import { FieldDef, SelectItem } from "forms/fieldDef";
+import { FieldDef, DropdownItem } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
 import { isMoment } from "moment";
@@ -15,7 +15,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
 ): ReactElement | null => {
   const { transformData, dataSource, ...field } = fieldDef;
   const source: any = !!dataSource ? moStore[dataSource] : undefined;
-  const dropdownData: SelectItem[] = !!transformData
+  const dropdownData: DropdownItem[] = !!transformData
     ? transformData(source, entry)
     : [];
   const editableCondition: EditableCondition = (() => {

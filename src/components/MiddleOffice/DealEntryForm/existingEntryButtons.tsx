@@ -1,8 +1,10 @@
 import React, { ReactElement } from "react";
+import { DealStatus } from "types/dealStatus";
 
 interface Props {
   readonly isModified: boolean;
-  readonly isPriced: boolean;
+  readonly isEditMode: boolean;
+  readonly status: DealStatus;
   readonly disabled: boolean;
   readonly onPrice?: () => void;
   readonly onSubmit?: () => void;
@@ -14,8 +16,13 @@ export const ExistingEntryButtons: React.FC<Props> = (
 ): ReactElement => {
   return (
     <>
-      <button type={"button"} className={"primary"} onClick={props.onPrice} disabled={props.disabled}>
-        {props.isPriced ? "Re-price" : "Price"}
+      <button
+        type={"button"}
+        className={"primary"}
+        onClick={props.onPrice}
+        disabled={props.disabled || props.status === DealStatus.SEFConfirmed}
+      >
+        {props.status === DealStatus.Priced ? "Re-price" : "Price"}
       </button>
       <button
         type={"button"}
@@ -29,10 +36,15 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSubmit}
-        disabled={!props.isPriced || props.disabled}
+        disabled={
+          props.status === DealStatus.Pending ||
+          props.disabled ||
+          props.isEditMode
+        }
       >
         Submit
       </button>
+      {/* Trick to prevent accidental submission */}
       <button
         type={"submit"}
         style={{ display: "none" }}
