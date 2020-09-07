@@ -339,7 +339,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { props, state } = this;
     if (!props.editable) {
       return (
-        <ReadOnlyField name={props.name as string} value={state.displayValue} />
+        <ReadOnlyField
+          name={props.name as string}
+          value={state.displayValue}
+          disabled={props.disabled}
+        />
       );
     } else {
       return (

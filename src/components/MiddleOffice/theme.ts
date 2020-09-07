@@ -1,6 +1,6 @@
 import { createMuiTheme } from "@material-ui/core";
 
-const labelWidth: string = "22ex";
+const labelWidth: string = "35%";
 const fieldSize: number = 25;
 
 export default createMuiTheme({

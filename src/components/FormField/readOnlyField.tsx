@@ -7,6 +7,7 @@ interface Props {
   readonly name: string;
   readonly value: string;
   readonly endAdornment?: string;
+  readonly disabled?: boolean;
 }
 
 export const ReadOnlyField: React.FC<Props> = (
@@ -27,6 +28,7 @@ export const ReadOnlyField: React.FC<Props> = (
       }}
       tabIndex={-1}
       readOnly={true}
+      disabled={props.disabled}
       title={"Click to copy!"}
       value={value}
       onClick={onCopy}

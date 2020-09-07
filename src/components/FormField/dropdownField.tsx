@@ -89,6 +89,7 @@ export class DropdownField<T> extends Component<Props<T>, State> {
       return (
         <ReadOnlyField
           name={props.name as string}
+          disabled={props.disabled}
           value={this.renderSelectValue(props.value)}
         />
       );
