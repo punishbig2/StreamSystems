@@ -2,12 +2,15 @@ import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
+import { Validity } from "forms/validity";
 import { getStyledValue } from "legsUtils";
 import { Observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
+import { toNumber } from "utils/isNumeric";
+import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -23,7 +26,35 @@ export const fieldsMapper = (
   const { deal } = moStore;
   const extraProps = ((): { value: any } & any => {
     if (deal === null) return null;
-    if (fieldDef.type === "currency") {
+    if (fieldDef.type === "strike") {
+      const { symbol } = deal;
+      const numeric: number | undefined = toNumber(
+        leg[fieldDef.name] as string
+      );
+      if (numeric === undefined) {
+        return {
+          value: null,
+        };
+      }
+      const rounding: number | undefined = symbol["strike-rounding"];
+      if (rounding === undefined) {
+        return {
+          value: null,
+        };
+      }
+      const [value, validity] = roundToNearest(numeric, rounding);
+      if (validity !== Validity.Valid) {
+        return {
+          value: null,
+        };
+      } else {
+        return {
+          value: value,
+          precision: getRoundingPrecision(rounding),
+          rounding: rounding,
+        };
+      }
+    } else if (fieldDef.type === "currency") {
       if (fieldDef.name === "premium" || fieldDef.name === "hedge") {
         return {
           value: getStyledValue(leg[fieldDef.name], entry.premstyle),
@@ -81,7 +112,6 @@ export const fieldsMapper = (
     }
     return fieldDef.type;
   };
-
   return (
     <Observer key={fieldDef.name + index}>
       {() => (

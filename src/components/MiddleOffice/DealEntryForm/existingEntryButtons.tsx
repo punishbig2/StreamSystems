@@ -20,7 +20,11 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onPrice}
-        disabled={props.disabled || props.status === DealStatus.SEFConfirmed}
+        disabled={
+          props.disabled ||
+          props.status === DealStatus.SEFConfirmed ||
+          props.isEditMode
+        }
       >
         {props.status === DealStatus.Priced ? "Re-price" : "Price"}
       </button>

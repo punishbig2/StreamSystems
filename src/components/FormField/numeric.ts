@@ -174,7 +174,6 @@ export class NumericInputHandler<
       case "m":
         return this.onM(event, props, state);
       case DecimalSeparator:
-        console.log("what the fuck");
         return this.onDecimalSeparator(event, DecimalSeparator, props, state);
     }
     return null;

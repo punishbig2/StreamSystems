@@ -13,7 +13,10 @@ export const roundToNearest = (
   reference: number | undefined
 ): [string, Validity] => {
   if (value === null) return ["", Validity.Intermediate];
-  if (reference === undefined) return [value.toString(), Validity.Valid];
+  if (reference === undefined) {
+    console.log("What the fuck!!!!????");
+    return [value.toString(), Validity.Valid];
+  }
   const precision: number = getRoundingPrecision(reference);
   const multiplier: number = Math.pow(10, precision);
   const multiplied: number = value * multiplier;

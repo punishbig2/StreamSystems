@@ -199,31 +199,37 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     });
   };
 
+  private handleStrikeTypeOnBlurEvent = (): void => {
+    const { props, state } = this;
+    if (typeof state.internalValue === "number") {
+      const [displayValue, validity] = roundToNearest(
+        state.internalValue,
+        props.rounding
+      );
+      if (validity === Validity.Valid) {
+        this.setState({
+          displayValue: displayValue,
+          internalValue: Number(displayValue),
+          validity: validity,
+        });
+      } else {
+        this.setState({
+          validity: validity,
+        });
+      }
+      if (props.onChange) {
+        props.onChange(props.name, displayValue);
+      }
+    } else if (props.onChange) {
+      props.onChange(props.name, state.internalValue);
+    }
+  };
+
   private onInputBlur = (): void => {
     const { props, state } = this;
     const { type } = props;
     if (type === "strike") {
-      if (typeof state.internalValue === "number") {
-        const [displayValue, validity] = roundToNearest(
-          state.internalValue,
-          props.rounding
-        );
-        if (validity === Validity.Valid) {
-          this.setState({
-            displayValue,
-            validity,
-          });
-        } else {
-          this.setState({
-            validity,
-          });
-        }
-        if (props.onChange) {
-          props.onChange(props.name, displayValue);
-        }
-      } else if (props.onChange) {
-        props.onChange(props.name, state.internalValue);
-      }
+      this.handleStrikeTypeOnBlurEvent();
     } else {
       if (props.onChange) {
         props.onChange(props.name, state.internalValue);
