@@ -1,5 +1,6 @@
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
+import { StylesMap } from "legsUtils";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -12,10 +13,27 @@ interface Props {
 
 export const LegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const { entry } = props.dealEntryStore;
     const { legs } = moStore;
     const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
-      // Update the changed leg
-      moStore.updateLeg(index, key, value);
+      switch (key) {
+        case "rates":
+          break;
+        case "hedge":
+        case "premium":
+          if (entry.premstyle === undefined) {
+            moStore.updateLeg(index, key, [null, null, null]);
+          } else {
+            const array: [number | null, number | null, number | null] = [
+              ...legs[index][key],
+            ];
+            array[StylesMap[entry.premstyle]] = value;
+            moStore.updateLeg(index, key, array);
+          }
+          break;
+        default:
+          moStore.updateLeg(index, key, value);
+      }
     };
     return (
       <form>

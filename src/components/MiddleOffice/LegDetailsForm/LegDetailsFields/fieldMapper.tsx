@@ -4,7 +4,7 @@ import {
   getCurrencyValue,
   getRatesValue,
   getStrikeValue,
-} from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getStrikeValue";
+} from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { getStyledValue } from "legsUtils";
@@ -18,7 +18,7 @@ const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-export const fieldsMapper = (
+export const fieldMapper = (
   leg: Leg,
   onValueChange: (name: keyof Leg, value: any) => void,
   store: DealEntryStore,
@@ -84,9 +84,8 @@ export const fieldsMapper = (
       rounding={fieldDef.rounding}
       type={getType()}
       disabled={disabled}
-      onChange={onValueChange}
-      value={null}
       {...extraProps}
+      onChange={onValueChange}
     />
   );
 };

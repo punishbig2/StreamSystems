@@ -19,7 +19,6 @@ import workareaStore from "mobx/stores/workareaStore";
 import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
 import { MiddleOfficeError } from "types/middleOfficeError";
-import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 
 export enum MOStatus {
@@ -134,9 +133,9 @@ export class MoStore {
         },
         {}
       );
-      this.setProgress(this.progress + 100 / this.operationsCount);
       setTimeout(() => {
         this.setInitialized();
+        this.setProgress(100);
       }, 0);
     }
   }
@@ -246,54 +245,8 @@ export class MoStore {
   }
 
   @action.bound
-  public createSummaryLeg(cut: Cut): void {
-    const { deal } = this;
-    if (deal === null) return;
-    const { symbol } = deal;
-    this.summaryLeg = {
-      fwdpts1: null,
-      fwdrate1: null,
-      fwdpts2: null,
-      fwdrate2: null,
-      cutCity: cut.City,
-      cutTime: cut.LocalTime,
-      dealOutput: {
-        premiumDate: deal.spotDate,
-        deliveryDate: deal.deliveryDate,
-        expiryDate: deal.expiry1,
-        side: Sides.None,
-        option: "",
-        vol: null,
-        fwdPts: null,
-        fwdRate: null,
-        premium: [null, null, null],
-        strike: null,
-        delta: [null, null, null],
-        gamma: null,
-        hedge: [null, null, null],
-        price: [null, null, null],
-        vega: null,
-        premiumCurrency: "USD",
-        usi_num: null,
-        rates: [
-          {
-            currency: "",
-            value: 0,
-          },
-          {
-            currency: "",
-            value: 0,
-          },
-        ],
-      },
-      delivery: symbol.SettlementType,
-      source: symbol.FixingSource,
-      spot: null,
-      spotDate: deal.spotDate,
-      tradeDate: deal.tradeDate,
-      usi: null,
-      strategy: this.strategies[deal.strategy]!.description,
-    };
+  public setSummaryLeg(summaryLeg: SummaryLeg | null): void {
+    this.summaryLeg = summaryLeg;
   }
 
   @action.bound
@@ -377,7 +330,8 @@ export class MoStore {
     currencyPair: string,
     throwOnNotFound = true
   ): Symbol | undefined {
-    const { symbols } = this;
+    // Search all system symbols
+    const { symbols } = workareaStore;
     const found: Symbol | undefined = symbols.find(
       (symbol: Symbol) => symbol.symbolID === currencyPair
     );

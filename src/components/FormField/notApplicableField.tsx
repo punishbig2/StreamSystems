@@ -10,7 +10,7 @@ export const NotApplicableField: React.FC = (): React.ReactElement => {
         notchedOutline: "borderless",
       }}
       readOnly={true}
-      tabIndex={-1}
+      inputProps={{ tabIndex: -1 }}
       value={"N/A"}
     />
   );

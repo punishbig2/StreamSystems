@@ -85,7 +85,6 @@ export class DealEntryStore {
   public cloneDeal(): void {
     if (moStore.deal === null) return;
     this.entry = createDealEntry(moStore.deal);
-    console.log(this.entry);
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     moStore.setEditMode(true);
@@ -97,7 +96,9 @@ export class DealEntryStore {
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
     moStore.setDeal(null);
-    moStore.setEditMode(true);
+    setTimeout(() => {
+      moStore.setEditMode(true);
+    }, 0);
   }
 
   @action.bound

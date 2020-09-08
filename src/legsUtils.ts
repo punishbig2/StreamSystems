@@ -12,7 +12,7 @@ import { DealEntry } from "structures/dealEntry";
 import { splitCurrencyPair } from "utils/symbolUtils";
 import { addTenorToDate } from "utils/tenorUtils";
 
-const StylesMap: { [key: string]: 0 | 1 | 2 } = {
+export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
   Spot: 1,
   Sticky: 2,

@@ -1,6 +1,6 @@
 import { Grid } from "@material-ui/core";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { fieldsMapper } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/fieldMapper";
+import { fieldMapper } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/fieldMapper";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -21,7 +21,7 @@ export const LegDetailsFields: React.FC<Props> = observer(
     return (
       <Grid container>
         {fields.map(
-          fieldsMapper(
+          fieldMapper(
             props.leg,
             props.onValueChange,
             props.dealEntryStore,

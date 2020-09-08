@@ -60,6 +60,7 @@ export const getRatesValue = (leg: Leg, index: number): any => {
     throw new Error("cannot proceed with invalid rates");
   } else {
     const rate = rates[index];
+    if (rate === undefined) return {};
     return { ...rate, label: rate.currency + " Rate" };
   }
 };

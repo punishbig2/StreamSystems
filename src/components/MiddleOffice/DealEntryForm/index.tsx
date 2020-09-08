@@ -60,8 +60,6 @@ export const DealEntryForm: React.FC<Props> = observer(
         ? undefined
         : () => {
             const summary: SummaryLeg | null = moStore.summaryLeg;
-            if (summary === null)
-              throw new Error("cannot price if summary is non existent");
             sendPricingRequest(deal, entry, summary);
           };
     const getActionButtons = (): ReactElement | null => {

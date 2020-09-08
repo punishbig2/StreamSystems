@@ -27,7 +27,9 @@ export const ReadOnlyField: React.FC<Props> = (
       classes={{
         notchedOutline: "borderless",
       }}
-      tabIndex={-1}
+      inputProps={{
+        tabIndex: -1,
+      }}
       readOnly={true}
       disabled={props.disabled}
       title={"Click to copy!"}

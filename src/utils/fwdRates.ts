@@ -38,11 +38,12 @@ const comparePoints = (
 };
 
 export const buildFwdRates = (
-  summary: SummaryLeg,
+  summary: SummaryLeg | null,
   strategy: MOStrategy,
   expiry1: moment.Moment,
   expiry2: moment.Moment | null
 ): Point[] | undefined => {
+  if (summary === null) return undefined;
   const { fwdrate1: value } = summary;
   if (value === null) return undefined;
   const points: InternalPoint[] = generatePoints(expiry1, value, 7);

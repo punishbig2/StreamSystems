@@ -2,6 +2,7 @@ import { API, Task } from "API";
 import { Cut } from "components/MiddleOffice/interfaces/cut";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
+import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
 import { createLegsFromDefinition, fixDates } from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
@@ -9,23 +10,107 @@ import moment from "moment";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
+import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { coalesce } from "utils";
 
+const buildSummaryLegFromCut = (
+  cut: Cut,
+  strategyId: string,
+  symbol: Symbol,
+  tradeDate: moment.Moment,
+  spotDate: moment.Moment,
+  deliveryDate: moment.Moment,
+  expiryDate: moment.Moment
+): SummaryLeg => {
+  const strategy: MOStrategy = moStore.getStrategyById(strategyId);
+  return {
+    fwdpts1: null,
+    fwdrate1: null,
+    fwdpts2: null,
+    fwdrate2: null,
+    cutCity: cut.City,
+    cutTime: cut.LocalTime,
+    dealOutput: {
+      premiumDate: spotDate,
+      deliveryDate: deliveryDate,
+      expiryDate: expiryDate,
+      side: Sides.None,
+      option: "",
+      vol: null,
+      fwdPts: null,
+      fwdRate: null,
+      premium: [null, null, null],
+      strike: null,
+      delta: [null, null, null],
+      gamma: null,
+      hedge: [null, null, null],
+      price: [null, null, null],
+      vega: null,
+      premiumCurrency: "USD",
+      usi_num: null,
+      rates: [
+        {
+          currency: "",
+          value: 0,
+        },
+        {
+          currency: "",
+          value: 0,
+        },
+      ],
+    },
+    delivery: symbol.SettlementType,
+    source: symbol.FixingSource,
+    spot: null,
+    spotDate: spotDate,
+    tradeDate: tradeDate,
+    usi: null,
+    strategy: strategy.description,
+  };
+};
+
+const createSummaryLeg = (
+  cuts: ReadonlyArray<Cut>,
+  strategyId: string,
+  symbol: Symbol,
+  tradeDate: moment.Moment,
+  spotDate: moment.Moment,
+  deliveryDate: moment.Moment,
+  expiryDate: moment.Moment
+): SummaryLeg | null => {
+  const cut: Cut | undefined = cuts.find((cut: Cut) => {
+    return (
+      cut.Code === symbol.PrimaryCutCode &&
+      cut.UTCTime === symbol.PrimaryUTCTime
+    );
+  });
+  if (cut !== undefined) {
+    return buildSummaryLegFromCut(
+      cut,
+      strategyId,
+      symbol,
+      tradeDate,
+      spotDate,
+      deliveryDate,
+      expiryDate
+    );
+  } else {
+    return null;
+  }
+};
+
 const createStubLegs = async (
   entry: DealEntry,
-  cuts: ReadonlyArray<Cut>
-): Promise<void> => {
-  if (entry.strategy === "") return;
-  const symbol: Symbol | undefined = moStore.findSymbolById(entry.ccypair);
-  if (symbol === undefined)
-    throw new Error("could not find symbol: " + entry.ccypair);
+  cuts: ReadonlyArray<Cut>,
+  symbol: Symbol
+): Promise<SummaryLeg | null> => {
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[entry.strategy];
   if (!legDefinitions) {
     console.warn(`no leg definitions found for ${entry.strategy}`);
     console.warn("available strategies are: ", moStore.legDefinitions);
-    return;
+    return null;
   }
   const storeLegs: Leg[] = moStore.legs;
   const legs: Leg[] =
@@ -58,27 +143,46 @@ const createStubLegs = async (
   );
   // Update the moStore store
   moStore.setLegs(newLegs, null);
-  const cut: Cut | undefined = cuts.find((cut: Cut) => {
-    return (
-      cut.Code === symbol.PrimaryCutCode &&
-      cut.UTCTime === symbol.PrimaryUTCTime
+  // Update the stub summary leg
+  if (entry.tenor1expiry !== null) {
+    const tradeDate: moment.Moment = entry.tradeDate;
+    return createSummaryLeg(
+      cuts,
+      entry.strategy,
+      symbol,
+      tradeDate,
+      moment(tradeDate).add(symbol.SettlementWindow, "d"),
+      entry.deliveryDate,
+      entry.tenor1expiry
     );
-  });
-  if (cut !== undefined) {
-    moStore.createSummaryLeg(cut);
   } else {
-    console.warn("cannot determine the cut city for this deal");
+    return null;
   }
 };
 
-const handleLegsResponse = (legs: Leg[]): void => {
+const handleLegsResponse = (
+  legs: Leg[],
+  cuts: ReadonlyArray<Cut>,
+  symbol: Symbol
+): void => {
   const { summaryLeg, deal } = moStore;
+  // FIXME: probably should throw
+  if (deal === null) return;
   if (legs[0].option === "SumLeg" || legs.length === 1) {
     const fwdPts: number | null =
       summaryLeg !== null ? summaryLeg.fwdpts1 : null;
     const fwdRate: number | null =
       summaryLeg !== null ? summaryLeg.fwdrate1 : null;
     moStore.setLegs(legs.slice(legs.length === 1 ? 0 : 1), {
+      ...createSummaryLeg(
+        cuts,
+        deal.strategy,
+        symbol,
+        deal.tradeDate,
+        deal.spotDate,
+        deal.deliveryDate,
+        deal.expiry1
+      ),
       ...summaryLeg,
       fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
       fwdrate1: coalesce(fwdRate, legs[0].fwdRate),
@@ -93,7 +197,7 @@ const handleLegsResponse = (legs: Leg[]): void => {
         legs[2] !== undefined ? legs[2].fwdRate : undefined
       ),
       spot: legs[0].spot,
-      usi: deal !== null ? deal.usi : null,
+      usi: deal.usi,
       ...{ dealOutput: legs[0] },
     } as SummaryLeg);
   } else {
@@ -106,9 +210,13 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
     moStore.setLegs([], null);
   }, [entry.strategy]);
   useEffect(() => {
+    if (entry.strategy === "") return;
+    const symbol: Symbol | undefined = moStore.findSymbolById(entry.ccypair);
+    if (symbol === undefined)
+      throw new Error("could not find symbol: " + entry.ccypair);
     if (entry.ccypair === "") return;
     if (entry.dealId === "") {
-      createStubLegs(entry, cuts).then(() => {});
+      createStubLegs(entry, cuts, symbol).then(moStore.setSummaryLeg);
       return;
     }
     const task: Task<any> = API.getLegs(entry.dealId);
@@ -117,7 +225,7 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
       .then((response: any) => {
         if (response !== null) {
           if ("dealId" in response) {
-            handleLegsResponse(fixDates(response.legs));
+            handleLegsResponse(fixDates(response.legs), cuts, symbol);
           } else {
             // If there's an error, we must show it
             if ("error_msg" in response) {
@@ -137,7 +245,7 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
         } else {
           if (reason.code === 404) {
             // No legs were found, so we can generate them from here
-            createStubLegs(entry, cuts).then(() => {});
+            createStubLegs(entry, cuts, symbol).then(moStore.setSummaryLeg);
           }
         }
       });

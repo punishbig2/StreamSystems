@@ -15,7 +15,7 @@ const SOFT_ERROR: string =
 export const sendPricingRequest = (
   deal: Deal,
   entry: DealEntry,
-  summary: SummaryLeg
+  summary: SummaryLeg | null
 ): void => {
   if (deal === null || entry === null)
     throw new Error("no deal to get a pricing for");

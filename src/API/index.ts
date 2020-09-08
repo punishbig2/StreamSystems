@@ -731,7 +731,7 @@ export class API {
     deal: Deal,
     entry: DealEntry,
     legs: Leg[],
-    summaryLeg: SummaryLeg,
+    summaryLeg: SummaryLeg | null,
     valuationModel: ValuationModel,
     strategy: MOStrategy
   ): Promise<void> {
