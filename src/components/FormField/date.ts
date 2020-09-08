@@ -29,19 +29,22 @@ export class DateInputHandler<
   public format(value: any, props: P): [string, Validity] {
     switch (props.type) {
       case "date":
-        if (value === null) {
+        if (value === null || value === "") {
           return ["", Validity.Intermediate];
         } else if (isMoment(value)) {
           if (value.isValid()) {
             return [value.format("MM/DD/YYYY"), Validity.Valid];
           } else {
+            console.log(value);
             return ["", Validity.InvalidFormat];
           }
         } else {
           return [value as string, Validity.InvalidFormat];
         }
       case "time":
-        if (isMoment(value)) {
+        if (value === null || value === "") {
+          return ["", Validity.Intermediate];
+        } else if (isMoment(value)) {
           if (value.isValid()) {
             return [value.format("HH:mm A"), Validity.Valid];
           } else {

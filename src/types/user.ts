@@ -17,16 +17,16 @@ export enum CurrencyGroups {
 }
 
 export interface ExecSound {
-  data: ArrayBuffer | string;
-  name: string;
+  readonly data: ArrayBuffer | string;
+  readonly name: string;
 }
 
 export interface User {
-  ismiddleoffice: boolean;
-  email: string;
-  firm: string;
-  isbroker: boolean;
-  regions?: string[];
+  readonly ismiddleoffice: boolean;
+  readonly email: string;
+  readonly firm: string;
+  readonly isbroker: boolean;
+  readonly regions: ReadonlyArray<string>;
 }
 
 export enum UserProfileStatus {
@@ -43,26 +43,26 @@ export enum UserProfileModalTypes {
 }
 
 export interface UserPreferences {
-  userType: UserTypes;
-  mpid: string;
-  fontSize: string;
-  font: string;
-  execSound: string;
-  darkPoolExecSound: string;
-  timezone: string;
-  colorScheme: string;
-  ccyGroup: CurrencyGroups;
-  oco: OCOModes;
-  theme: "dark" | "light";
+  readonly userType: UserTypes;
+  readonly mpid: string;
+  readonly fontSize: string;
+  readonly font: string;
+  readonly execSound: string;
+  readonly darkPoolExecSound: string;
+  readonly timezone: string;
+  readonly colorScheme: string;
+  readonly ccyGroup: CurrencyGroups;
+  readonly oco: OCOModes;
+  readonly theme: "dark" | "light";
 
   [key: string]: any;
 }
 
 export interface UserProfileState {
-  status: UserProfileStatus;
-  currentModalType: UserProfileModalTypes;
-  initialPreferences: UserPreferences;
-  preferences: UserPreferences;
+  readonly status: UserProfileStatus;
+  readonly currentModalType: UserProfileModalTypes;
+  readonly initialPreferences: UserPreferences;
+  readonly preferences: UserPreferences;
 }
 
 export const isCurrencyGroup = (value: any): value is CurrencyGroups => {

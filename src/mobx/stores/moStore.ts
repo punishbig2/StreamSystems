@@ -69,6 +69,8 @@ export class MoStore {
   @observable status: MOStatus = MOStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
 
+  private operationsCount = 8;
+
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
   public strategies: { [id: string]: MOStrategy } = {};
@@ -132,7 +134,7 @@ export class MoStore {
         },
         {}
       );
-      this.setProgress(100);
+      this.setProgress(this.progress + 100 / this.operationsCount);
       setTimeout(() => {
         this.setInitialized();
       }, 0);
@@ -141,7 +143,7 @@ export class MoStore {
 
   @action.bound
   private setProgress(value: number): void {
-    this.progress = value;
+    this.progress = Math.min(Math.max(value, 0), 100);
   }
 
   @action.bound
@@ -152,7 +154,7 @@ export class MoStore {
   @action.bound
   private setCuts(cuts: Cut[]): void {
     this.cuts = cuts;
-    this.setProgress(20);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   @action.bound
@@ -163,25 +165,25 @@ export class MoStore {
       },
       {}
     );
-    this.setProgress(40);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   @action.bound
   private setStyles(styles: string[]): void {
     this.styles = styles;
-    this.setProgress(60);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   @action.bound
   private setDeltaStyles(styles: ReadonlyArray<string>): void {
     this.deltaStyles = styles;
-    this.setProgress(94);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   @action.bound
   private setPremiumStyles(styles: ReadonlyArray<string>): void {
     this.premiumStyles = styles;
-    this.setProgress(98);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   @action.bound
@@ -204,13 +206,13 @@ export class MoStore {
         } => ({ ...map, [entity.code]: entity }),
         {}
       );
-    this.setProgress(90);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   @action.bound
   private setModels(models: InternalValuationModel[]): void {
     this.models = models;
-    this.setProgress(80);
+    this.setProgress(this.progress + 100 / this.operationsCount);
   }
 
   private legOptionsReducer<T extends LegOptionsDefIn | LegOptionsDefOut>(
@@ -235,7 +237,12 @@ export class MoStore {
 
   @computed
   get symbols(): ReadonlyArray<Symbol> {
-    return workareaStore.symbols;
+    const { symbols, user } = workareaStore;
+    return symbols.filter((symbol: Symbol): boolean => {
+      const { regions } = user;
+      if (regions === undefined) return false;
+      return regions.includes(symbol.ccyGroup);
+    });
   }
 
   @action.bound

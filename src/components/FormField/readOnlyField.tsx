@@ -1,6 +1,7 @@
 import { OutlinedInput } from "@material-ui/core";
 import { NotApplicableField } from "components/FormField/notApplicableField";
 import React, { useCallback } from "react";
+import { coalesce } from "utils";
 import { copyToClipboard } from "utils/copyToClipboard";
 
 interface Props {
@@ -30,7 +31,7 @@ export const ReadOnlyField: React.FC<Props> = (
       readOnly={true}
       disabled={props.disabled}
       title={"Click to copy!"}
-      value={value}
+      value={coalesce(value, "")}
       onClick={onCopy}
     />
   );

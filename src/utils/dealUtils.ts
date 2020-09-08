@@ -105,7 +105,10 @@ export const createDealFromBackendMessage = async (
     seller: coalesce(item.sellerentitycode, item.seller),
     currency: item.symbol,
     spread: item.spread,
-    vol: coalesce(item.lastpx, item.vol),
+    vol:
+      item.lastpx !== null && item.lastpx !== undefined
+        ? item.lastpx / 100
+        : item.vol,
     notional1: Number(item.lastqty) * 1e6,
     notional2: item.notional1 === null ? null : Number(item.notional1),
     strategy: item.strategy,
@@ -176,8 +179,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     model: 3,
     legs: legsCount,
     dealstrike: coalesce(deal.strike, strategy.strike),
-    vol:
-      deal.vol !== undefined && deal.vol !== null ? deal.vol / 100 : deal.vol,
+    vol: deal.vol,
     spread: deal.spread,
     dealType: dealSourceToDealType(deal.source),
     type: EntryType.ExistingDeal,

@@ -231,7 +231,7 @@ export class WorkareaStore {
     return users.find((each: User) => each.email === email);
   }
 
-  private async loadUserRegions(email: string): Promise<string[]> {
+  private async loadUserRegions(email: string): Promise<ReadonlyArray<string>> {
     this.updateLoadingProgress(strings.LoadingRegions);
     return API.getUserRegions(email);
   }
@@ -301,9 +301,11 @@ export class WorkareaStore {
       if (user === undefined) {
         this.setStatus(WorkareaStatus.UserNotFound);
       } else {
-        user.regions = await this.loadUserRegions(user.email);
+        const regions: ReadonlyArray<string> = await this.loadUserRegions(
+          user.email
+        );
         // Now the user object is complete
-        this.user = user;
+        this.user = { ...user, regions };
         // This is just for eye candy :)
         WorkareaStore.cleanupUrl(user.email);
         // Load the saved state

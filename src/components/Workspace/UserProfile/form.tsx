@@ -64,7 +64,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const userType: string = user.isbroker ? "Broker" : "Bank";
-  const regions: string[] = user.regions || [];
+  const regions: ReadonlyArray<string> = user.regions;
   return (
     <>
       <div className={"modal-title"}>

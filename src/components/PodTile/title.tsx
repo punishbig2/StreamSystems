@@ -9,7 +9,7 @@ import { STRM } from "stateDefs/workspaceState";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 import { isCCYPair, isRRStrategy } from "utils/isInEnum";
-import { Strategy } from "../../types/strategy";
+import { Strategy } from "types/strategy";
 
 interface Props {
   readonly store: PodTileStore;

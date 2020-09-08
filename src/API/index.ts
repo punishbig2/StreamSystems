@@ -672,12 +672,16 @@ export class API {
     await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
   }
 
-  public static async getUserRegions(useremail: string): Promise<any> {
-    const task: Task<any> = get<any>(
+  public static async getUserRegions(
+    useremail: string
+  ): Promise<ReadonlyArray<string>> {
+    const task: Task<ReadonlyArray<{ ccyGroup: string }>> = get<any>(
       API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
     const regions = await task.execute();
-    return regions.ccyGroup;
+    return regions.map(
+      (region: { ccyGroup: string }): string => region.ccyGroup
+    );
   }
 
   // Middle middle office
@@ -723,11 +727,6 @@ export class API {
     return task.execute();
   }
 
-  private static divideBy100(value: number | null | undefined): number | null {
-    if (value === null || value === undefined) return null;
-    return value / 100.0;
-  }
-
   public static async sendPricingRequest(
     deal: Deal,
     entry: DealEntry,
@@ -764,11 +763,11 @@ export class API {
             const spread: number | null =
               entry.strategy === "Butterfly-2Leg" && index > 0
                 ? null
-                : API.divideBy100(entry.spread);
+                : coalesce(entry.spread, null);
             const vol: number | null =
               entry.strategy === "Butterfly-2Leg" && index > 0
                 ? null
-                : API.divideBy100(coalesce(leg.vol, entry.vol));
+                : coalesce(leg.vol, entry.vol);
             const notional: number = coalesce(
               index === 1 ? deal.notional2 : deal.notional1,
               deal.notional1

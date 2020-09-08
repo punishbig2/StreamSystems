@@ -21,7 +21,11 @@ export const LegDetailsForm: React.FC<Props> = observer(
       <form>
         {legs.map((leg: Leg, index: number) => {
           return (
-            <fieldset className={"group"} key={index} disabled={props.status !== MOStatus.Normal}>
+            <fieldset
+              className={"group"}
+              key={index}
+              disabled={props.status !== MOStatus.Normal}
+            >
               <legend className={"leg-legend"}>Leg {index + 1}</legend>
               <LegDetailsFields
                 leg={leg}

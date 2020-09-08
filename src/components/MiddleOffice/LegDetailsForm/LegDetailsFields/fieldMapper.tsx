@@ -1,16 +1,18 @@
 import { FormField } from "components/FormField";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
+import {
+  getCurrencyValue,
+  getRatesValue,
+  getStrikeValue,
+} from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getStrikeValue";
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
-import { Validity } from "forms/validity";
 import { getStyledValue } from "legsUtils";
-import { Observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import moStore, { MOStatus } from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { toNumber } from "utils/isNumeric";
-import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
+import { Symbol } from "types/symbol";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -19,61 +21,20 @@ const capitalize = (str: string): string => {
 export const fieldsMapper = (
   leg: Leg,
   onValueChange: (name: keyof Leg, value: any) => void,
-  store: DealEntryStore
+  store: DealEntryStore,
+  disabled: boolean
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
-  const { rates } = leg;
   const { entry } = store;
   const { deal } = moStore;
   const extraProps = ((): { value: any } & any => {
-    if (deal === null) return null;
+    const symbol: Symbol | undefined = moStore.findSymbolById(entry.ccypair);
     if (fieldDef.type === "strike") {
-      const { symbol } = deal;
-      const numeric: number | null | undefined = toNumber(
-        leg[fieldDef.name] as string
-      );
-      if (numeric === undefined || numeric === null) {
-        return {
-          value: null,
-        };
-      }
-      const rounding: number | undefined = symbol["strike-rounding"];
-      if (rounding === undefined) {
-        return {
-          value: null,
-        };
-      }
-      const [value, validity] = roundToNearest(numeric, rounding);
-      if (validity !== Validity.Valid) {
-        return {
-          value: null,
-        };
-      } else {
-        return {
-          value: value,
-          precision: getRoundingPrecision(rounding),
-          rounding: rounding,
-        };
-      }
+      if (symbol === undefined) return null;
+      return getStrikeValue(leg, symbol, fieldDef.name);
     } else if (fieldDef.type === "currency") {
-      if (fieldDef.name === "premium" || fieldDef.name === "hedge") {
-        return {
-          value: getStyledValue(leg[fieldDef.name], entry.premstyle),
-          currency: leg.premiumCurrency,
-        };
-      } else {
-        return {
-          value: leg[fieldDef.name],
-          currency: leg.premiumCurrency,
-        };
-      }
+      return getCurrencyValue(leg, fieldDef.name, entry.premstyle);
     } else if (fieldDef.name === "rates") {
-      const index: number = fieldDef.data;
-      if (rates === null || rates === undefined) {
-        throw new Error("cannot proceed with invalid rates");
-      } else {
-        const rate = rates[index];
-        return { ...rate, label: rate.currency + " Rate" };
-      }
+      return getRatesValue(leg, fieldDef.data);
     } else if (fieldDef.name === "side") {
       return {
         value: capitalize(leg[fieldDef.name]),
@@ -100,7 +61,6 @@ export const fieldsMapper = (
       return fieldDef.editable(null, store.entry);
     }
   };
-
   const getType = (): FieldType => {
     if (fieldDef.name === "price" && deal !== null) {
       const { symbol } = deal;
@@ -113,22 +73,20 @@ export const fieldsMapper = (
     return fieldDef.type;
   };
   return (
-    <Observer key={fieldDef.name + index}>
-      {() => (
-        <FormField<Leg>
-          id={leg.option}
-          color={fieldDef.color}
-          label={fieldDef.label}
-          editable={isEditable(fieldDef)}
-          precision={fieldDef.precision}
-          name={fieldDef.name}
-          rounding={fieldDef.rounding}
-          type={getType()}
-          {...extraProps}
-          onChange={onValueChange}
-          disabled={moStore.status !== MOStatus.Normal}
-        />
-      )}
-    </Observer>
+    <FormField<Leg>
+      key={index}
+      id={leg.option}
+      color={fieldDef.color}
+      label={fieldDef.label}
+      editable={isEditable(fieldDef)}
+      precision={fieldDef.precision}
+      name={fieldDef.name}
+      rounding={fieldDef.rounding}
+      type={getType()}
+      disabled={disabled}
+      onChange={onValueChange}
+      value={null}
+      {...extraProps}
+    />
   );
 };

@@ -90,10 +90,7 @@ const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
   return {
     premium: [null, null, null],
     price: [null, null, null],
-    vol:
-      entry.vol !== null && entry.vol !== undefined
-        ? entry.vol / 100
-        : entry.vol,
+    vol: entry.vol,
     rates: rates,
     notional: notional,
     party: party,

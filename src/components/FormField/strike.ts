@@ -54,7 +54,7 @@ export class StrikeHandler<
     if (value === "ATMF" || value === "ATMS") {
       return value;
     } else {
-      const regex: RegExp = /([0-9]+[dD]).*/;
+      const regex: RegExp = /^([0-9]+[dD]).*$/;
       const match: string[] | null = value.match(regex);
       if (match === null) {
         if (isNumeric(value)) {

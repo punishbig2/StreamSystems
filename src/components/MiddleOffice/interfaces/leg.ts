@@ -29,8 +29,8 @@ export interface Leg {
   days?: number | null;
   party?: string;
   premiumDate: moment.Moment | null;
-  expiryDate: moment.Moment;
-  deliveryDate: moment.Moment;
+  expiryDate: moment.Moment | null;
+  deliveryDate: moment.Moment | null;
   rates: Rates;
   usi_num: number | null;
 

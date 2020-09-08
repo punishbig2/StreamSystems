@@ -22,6 +22,7 @@ import workareaStore, {
 import React, { ReactElement, useEffect, useState } from "react";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
+import { Symbol } from "types/symbol";
 import { getUserFromUrl } from "utils/getUserFromUrl";
 
 const Workarea: React.FC = (): ReactElement | null => {
@@ -97,6 +98,14 @@ const Workarea: React.FC = (): ReactElement | null => {
     const { workspaces, user, currentWorkspaceID } = store;
     if (store.status === WorkareaStatus.Welcome) return <Welcome />;
     if (user === null) return null;
+    const symbols: ReadonlyArray<Symbol> = (() => {
+      const { symbols, user } = workareaStore;
+      return symbols.filter((symbol: Symbol): boolean => {
+        const { regions } = user;
+        if (regions === undefined) return false;
+        return regions.includes(symbol.ccyGroup);
+      });
+    })();
     return Object.values(workspaces).map(
       ({ id, type, isDefault }: WorkspaceDef) => {
         if (type === WorkspaceType.Trading) {
@@ -107,7 +116,8 @@ const Workarea: React.FC = (): ReactElement | null => {
               isDefault={isDefault}
               visible={id === currentWorkspaceID}
               tenors={store.tenors}
-              currencies={store.symbols}
+              /* Only filtered symbols */
+              currencies={symbols}
               strategies={store.strategies}
               banks={store.banks}
               onModify={store.setWorkspaceModified}
