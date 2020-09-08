@@ -3,7 +3,8 @@ import { getStyledValue } from "legsUtils";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
-import { getRoundingPrecision } from "utils/roundToNearest";
+import { isNumeric } from "utils/isNumeric";
+import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
 import moment from "moment";
 import { addTenorToDate } from "utils/tenorUtils";
 
@@ -91,8 +92,16 @@ export const getStrikeValue = (
   if (rounding === undefined) {
     return { value: null, precision: 0, rounding: undefined };
   }
+  if (!isNumeric(value)) {
+    return {
+      value: value,
+      precision: 0,
+      rounding: undefined,
+    };
+  }
+  const [formattedValue] = roundToNearest(value, rounding);
   return {
-    value: value,
+    value: formattedValue,
     precision: getRoundingPrecision(rounding),
     rounding: rounding,
   };
