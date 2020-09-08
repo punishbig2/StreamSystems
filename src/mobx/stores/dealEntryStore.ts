@@ -127,6 +127,7 @@ export class DealEntryStore {
       if (this.entry[name] === value) return;
       this.entry = { ...this.entry, [name]: value };
     }
+    moStore.updateLegs(this.entry, name);
   }
 
   private setCurrentDeal = (id: string) => {

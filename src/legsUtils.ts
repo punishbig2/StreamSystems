@@ -1,21 +1,22 @@
 import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/interfaces/legOptionsDef";
+import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { Sides } from "types/sides";
-import { Symbol } from "types/symbol";
 import moStore from "mobx/stores/moStore";
 import moment from "moment";
 import { DealEntry } from "structures/dealEntry";
-import { splitCurrencyPair } from "utils/symbolUtils";
-import { addTenorToDate } from "utils/tenorUtils";
+import { Sides } from "types/sides";
+import { Symbol } from "types/symbol";
 
 export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
   Spot: 1,
   Sticky: 2,
+};
+
+const sideToSide = (side: string): Sides => {
+  if (side === "buy") return Sides.Buy;
+  if (side === "sell") return Sides.Sell;
+  return Sides.None;
 };
 
 export const getStyledValue = (
@@ -56,66 +57,45 @@ export const fixDates = (data: any[]): Leg[] => {
   return data.map(mapper);
 };
 
-const legDefMapper = (entry: DealEntry, symbol: Symbol) => (
-  definition: LegOptionsDefIn | LegOptionsDefOut
-): Leg => {
-  const sideType: string =
-    "ReturnSide" in definition ? definition.ReturnSide : definition.SideType;
-  const side: Sides = sideType === "buy" ? Sides.Buy : Sides.Sell;
-  const party: string = side === Sides.Buy ? entry.buyer : entry.seller;
-  const notionalRatio: number =
-    "notional_ratio" in definition ? definition.notional_ratio : 0;
-  const notional: number | null =
-    entry.not1 !== null ? entry.not1 * notionalRatio : null;
-  const option: string =
-    "ReturnLegOut" in definition
-      ? definition.ReturnLegOut
-      : definition.OptionLegType;
-  // Now fill the stub legs
-  const [ccy1, ccy2] = splitCurrencyPair(entry.ccypair);
+const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
   const rates: Rates = [
     {
-      currency: ccy1,
+      currency: symbol.premiumCCY,
       value: 0,
     },
     {
-      currency: ccy2,
+      currency: symbol.riskCCY,
       value: 0,
     },
   ];
-  const expiryDate: moment.Moment =
-    entry.tenor1expiry === null
-      ? addTenorToDate(entry.tradeDate, entry.tenor1)
-      : entry.tenor1expiry;
   return {
     premium: [null, null, null],
     price: [null, null, null],
-    vol: entry.vol,
+    vol: null,
     rates: rates,
-    notional: notional,
-    party: party,
-    side: side,
-    days: expiryDate.diff(entry.tradeDate, "d"),
+    notional: null,
+    party: "",
+    side: sideToSide(definition.SideType),
+    days: null, // ,
     delta: [null, null, null],
     fwdPts: null,
     fwdRate: null,
     hedge: [null, null, null],
-    strike: entry.dealstrike,
-    premiumDate: moment(entry.tradeDate).add(symbol.SettlementWindow, "d"),
+    strike: null,
+    premiumDate: null,
     premiumCurrency: symbol.premiumCCY,
-    option: option,
-    deliveryDate: entry.deliveryDate,
-    expiryDate: expiryDate,
+    option: definition.OptionLegType,
+    deliveryDate: null,
+    expiryDate: null,
     usi_num: null,
   };
 };
 
 export const createLegsFromDefinition = (
-  entry: DealEntry,
-  definitions: (LegOptionsDefOut | LegOptionsDefIn)[],
+  definitions: LegOptionsDefIn[],
   symbol: Symbol
 ): Leg[] => {
-  return definitions.map(legDefMapper(entry, symbol));
+  return definitions.map(legDefMapper(symbol));
 };
 
 export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {
@@ -139,7 +119,7 @@ export const mergeDefinitionsAndLegs = (
     return [];
   }
   const { in: list } = definitions;
-  const mapper = legDefMapper(entry, symbol);
+  const mapper = legDefMapper(symbol);
   return list.map(
     (def: LegOptionsDefIn): Leg => {
       const stub: Leg = mapper(def);

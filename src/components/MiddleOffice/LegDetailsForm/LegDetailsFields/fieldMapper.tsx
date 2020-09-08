@@ -8,7 +8,6 @@ import {
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { getStyledValue } from "legsUtils";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
@@ -21,16 +20,18 @@ const capitalize = (str: string): string => {
 export const fieldMapper = (
   leg: Leg,
   onValueChange: (name: keyof Leg, value: any) => void,
-  store: DealEntryStore,
-  disabled: boolean
+  disabled: boolean,
+  entry: DealEntry
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
-  const { entry } = store;
   const { deal } = moStore;
-  const extraProps = ((): { value: any } & any => {
+  const getExtraPropsAndValue = (entry: DealEntry): any => {
     const symbol: Symbol | undefined = moStore.findSymbolById(entry.ccypair);
     if (fieldDef.type === "strike") {
-      if (symbol === undefined) return null;
-      return getStrikeValue(leg, symbol, fieldDef.name);
+      if (symbol === undefined) {
+        return { value: null, precision: 0, rounding: undefined };
+      } else {
+        return getStrikeValue(leg, symbol, fieldDef.name);
+      }
     } else if (fieldDef.type === "currency") {
       return getCurrencyValue(leg, fieldDef.name, entry.premstyle);
     } else if (fieldDef.name === "rates") {
@@ -48,17 +49,18 @@ export const fieldMapper = (
         value: getStyledValue(leg[fieldDef.name], entry.deltastyle),
       };
     } else {
+      const value: any = leg[fieldDef.name];
       return {
-        value: leg[fieldDef.name],
+        value: value,
       };
     }
-  })();
+  };
   const isEditable = (fieldDef: FieldDef<Leg, {}, DealEntry>): boolean => {
     if (!moStore.isEditMode) return false;
     if (typeof fieldDef.editable !== "function") {
       return fieldDef.editable;
     } else {
-      return fieldDef.editable(null, store.entry);
+      return fieldDef.editable(null, entry);
     }
   };
   const getType = (): FieldType => {
@@ -74,8 +76,8 @@ export const fieldMapper = (
   };
   return (
     <FormField<Leg>
-      key={index}
       id={leg.option}
+      key={fieldDef.name + index}
       color={fieldDef.color}
       label={fieldDef.label}
       editable={isEditable(fieldDef)}
@@ -84,7 +86,7 @@ export const fieldMapper = (
       rounding={fieldDef.rounding}
       type={getType()}
       disabled={disabled}
-      {...extraProps}
+      {...getExtraPropsAndValue(entry)}
       onChange={onValueChange}
     />
   );

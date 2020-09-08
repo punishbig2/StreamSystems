@@ -18,7 +18,12 @@ export const SuccessMessage: React.FC = (): ReactElement | null => {
       message={text}
       icon={"check-circle"}
       buttons={() => (
-        <button onClick={() => moStore.setSuccessMessage(null)}>Close</button>
+        <button
+          className={"cancel"}
+          onClick={() => moStore.setSuccessMessage(null)}
+        >
+          Close
+        </button>
       )}
       color={"good"}
     />

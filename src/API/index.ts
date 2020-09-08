@@ -776,10 +776,14 @@ export class API {
               index === 1 ? deal.expiry2 : deal.expiry1,
               deal.expiry1
             );
+            const deliveryDate: moment.Moment = coalesce(
+              leg.deliveryDate,
+              deal.deliveryDate
+            );
             return {
               notional: notional,
-              expiryDate: expiryDate,
-              deliveryDate: coalesce(leg.deliveryDate, deal.deliveryDate),
+              expiryDate: expiryDate.format("YYYY-MM-DD"),
+              deliveryDate: deliveryDate.format("YYYY-MM-DD"),
               spreadVolatiltyOffset: spread,
               strike: numberifyIfPossible(
                 coalesce(

@@ -63,5 +63,5 @@ export const selectInputText = (input: HTMLInputElement) =>
 export const numberifyIfPossible = (value: string): string | number => {
   const asNumber: number = Number(value);
   if (!isNaN(asNumber)) return asNumber;
-  return value;
+  return value.toUpperCase();
 };

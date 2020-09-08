@@ -1,34 +1,26 @@
 import { Grid } from "@material-ui/core";
 import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { fieldMapper } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/fieldMapper";
-import { observer } from "mobx-react";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
+import { DealEntry } from "structures/dealEntry";
 
 import fields from "./fields";
 
 type Props = {
   leg: Leg;
-  dealEntryStore: DealEntryStore;
+  disabled: boolean;
+  entry: DealEntry;
   onValueChange: (key: keyof Leg, value: any) => void;
 };
 
-export const LegDetailsFields: React.FC<Props> = observer(
-  (props: Props): ReactElement | null => {
-    const { status } = moStore;
-    const disabled: boolean = status !== MOStatus.Normal;
-    return (
-      <Grid container>
-        {fields.map(
-          fieldMapper(
-            props.leg,
-            props.onValueChange,
-            props.dealEntryStore,
-            disabled
-          )
-        )}
-      </Grid>
-    );
-  }
-);
+export const LegDetailsFields: React.FC<Props> = (
+  props: Props
+): ReactElement | null => {
+  return (
+    <Grid container>
+      {fields.map(
+        fieldMapper(props.leg, props.onValueChange, props.disabled, props.entry)
+      )}
+    </Grid>
+  );
+};

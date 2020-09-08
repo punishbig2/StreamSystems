@@ -2,19 +2,20 @@ import { Leg } from "components/MiddleOffice/interfaces/leg";
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { StylesMap } from "legsUtils";
 import { observer } from "mobx-react";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
+import { DealEntry } from "structures/dealEntry";
 
 interface Props {
-  readonly dealEntryStore: DealEntryStore;
+  readonly entry: DealEntry;
   readonly status: MOStatus;
 }
 
 export const LegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const { entry } = props.dealEntryStore;
-    const { legs } = moStore;
+    const { entry } = props;
+    const { status, legs } = moStore;
+    const disabled: boolean = status !== MOStatus.Normal;
     const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
       switch (key) {
         case "rates":
@@ -47,7 +48,8 @@ export const LegDetailsForm: React.FC<Props> = observer(
               <legend className={"leg-legend"}>Leg {index + 1}</legend>
               <LegDetailsFields
                 leg={leg}
-                dealEntryStore={props.dealEntryStore}
+                disabled={disabled}
+                entry={entry}
                 onValueChange={onValueChange(index)}
               />
             </fieldset>

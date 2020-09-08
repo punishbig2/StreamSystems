@@ -12,10 +12,12 @@ import {
 } from "components/MiddleOffice/interfaces/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
 import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { mapToLeg } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
 import { action, computed, observable } from "mobx";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 
 import workareaStore from "mobx/stores/workareaStore";
+import { DealEntry } from "structures/dealEntry";
 import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
 import { MiddleOfficeError } from "types/middleOfficeError";
@@ -265,11 +267,14 @@ export class MoStore {
   }
 
   @action.bound
-  public setLegs(legs: Leg[], summaryLeg: SummaryLeg | null): void {
+  public setLegs(
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null
+  ): void {
     if (summaryLeg) {
       this.summaryLeg = summaryLeg;
     }
-    this.legs = legs;
+    this.legs = [...legs];
   }
 
   public getStrategyById(id: string): MOStrategy {
@@ -311,6 +316,33 @@ export class MoStore {
     this.status = MOStatus.Normal;
   }
 
+  @action.bound
+  public updateLegs(entry: DealEntry, name: keyof DealEntry): void {
+    const { legs } = this;
+    const symbol: Symbol | undefined = this.findSymbolById(entry.ccypair);
+    if (symbol === undefined) return;
+    this.legs = legs.map(
+      (each: Leg, index: number): Leg => {
+        const result: [keyof Leg, any][] = mapToLeg(
+          entry,
+          name,
+          each,
+          symbol,
+          index
+        );
+        return result.reduce(
+          (
+            all: { [k in keyof Leg]: any },
+            [key, value]: [keyof Leg, any]
+          ): { [k in keyof Leg]: any } => {
+            return { ...all, [key]: value };
+          },
+          each
+        );
+      }
+    );
+  }
+
   public updateLeg(index: number, key: keyof Leg, value: any): void {
     const { legs } = this;
     this.legs = [
@@ -318,9 +350,6 @@ export class MoStore {
       {
         ...legs[index],
         [key]: value,
-        custom: {
-          fwdRate: key === "fwdRate",
-        },
       },
       ...legs.slice(index + 1),
     ];

@@ -19,6 +19,7 @@ import React, { PureComponent, ReactElement } from "react";
 import { roundToNearest } from "utils/roundToNearest";
 
 interface Props<T> extends MinimalProps<T> {
+  id?: string;
   label?: string;
   currency?: string;
   type: FieldType;
@@ -212,13 +213,17 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           internalValue: Number(displayValue),
           validity: validity,
         });
+        if (props.onChange) {
+          console.log("on-change:", displayValue);
+          props.onChange(props.name, displayValue);
+        }
       } else {
         this.setState({
           validity: validity,
         });
-      }
-      if (props.onChange) {
-        props.onChange(props.name, displayValue);
+        if (props.onChange) {
+          props.onChange(props.name, state.internalValue);
+        }
       }
     } else if (props.onChange) {
       props.onChange(props.name, state.internalValue);

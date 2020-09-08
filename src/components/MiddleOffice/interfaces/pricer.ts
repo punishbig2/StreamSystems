@@ -3,10 +3,8 @@ import moment from "moment";
 export interface OptionLeg {
   readonly strike?: string | number;
   readonly notional: number;
-  readonly notional2?: number;
-  readonly expiryDate: moment.Moment;
-  readonly expiryDate2?: moment.Moment;
-  readonly deliveryDate: moment.Moment;
+  readonly expiryDate: string;
+  readonly deliveryDate: string;
   readonly spreadVolatiltyOffset?: number | null;
   readonly volatilty?: number | null;
   readonly barrier: number | null;
@@ -92,4 +90,3 @@ export interface VolMessageIn {
   readonly ValuationData: ValuationData;
   readonly ValuationModel: ValuationModel;
 }
-

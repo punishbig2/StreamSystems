@@ -99,7 +99,7 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
               <OverlayScrollbarsComponent className={"container"}>
                 <LegDetailsForm
                   status={moStore.status}
-                  dealEntryStore={entryStore}
+                  entry={entryStore.entry}
                 />
               </OverlayScrollbarsComponent>
             </Grid>
