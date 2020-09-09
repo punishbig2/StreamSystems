@@ -328,7 +328,7 @@ export class MoStore {
   @action.bound
   public updateLegs(entry: DealEntry, name: keyof DealEntry): void {
     const { legs } = this;
-    const symbol: Symbol | undefined = this.findSymbolById(entry.ccypair);
+    const symbol: Symbol | undefined = this.findSymbolById(entry.ccypair, false);
     if (symbol === undefined) return;
     this.legs = legs.map(
       (each: Leg, index: number): Leg => {

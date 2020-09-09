@@ -16,18 +16,28 @@ export const ThousandsSeparator = (1000)
  * The dot is a special value in regular expression engines so we are making
  * sure that when appropriate the correct regular expression is generated
  * @param value
+ * @param greedy
  */
-const getSeparatorRegexp = (value: string): string | RegExp => {
-  if (value === ".") return /\./;
-  return value;
+const getSeparatorRegexp = (
+  value: string,
+  greedy: boolean
+): string | RegExp => {
+  if (value === ".") {
+    if (greedy) {
+      return /\./g;
+    } else {
+      return /\./g;
+    }
+  }
+  return new RegExp(value, "g");
 };
 
 const getDecimalSeparatorForRegexp = (): string | RegExp => {
-  return getSeparatorRegexp(DecimalSeparator);
+  return getSeparatorRegexp(DecimalSeparator, false);
 };
 
 const getThousandsSeparatorRegexp = (): string | RegExp => {
-  return getSeparatorRegexp(ThousandsSeparator);
+  return getSeparatorRegexp(ThousandsSeparator, true);
 };
 
 export const toNumber = (value: string | null): number | null | undefined => {
