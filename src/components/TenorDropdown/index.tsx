@@ -11,7 +11,6 @@ export interface Tenor {
 }
 
 interface Props<T> {
-  id: string;
   data: DropdownItem[];
   value: Tenor;
   className?: string;

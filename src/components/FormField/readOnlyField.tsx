@@ -22,7 +22,6 @@ export const ReadOnlyField: React.FC<Props> = (
   if (value === "N/A") return <NotApplicableField />;
   return (
     <OutlinedInput
-      id={props.name}
       labelWidth={0}
       classes={{
         notchedOutline: "borderless",

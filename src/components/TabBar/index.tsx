@@ -117,11 +117,10 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
     <div className={"tab-layout"}>
       {tabs}
       <Tab
-        id={""}
-        onClick={() => showOptions(true)}
+        ref={ref}
         active={false}
         label={addWorkspaceLabel}
-        ref={ref}
+        onClick={() => showOptions(true)}
       />
       {getAddWorkspaceMenu()}
       <a className={"sign-out"} href={config.SignOutUrl}>

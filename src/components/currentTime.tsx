@@ -4,14 +4,12 @@ import { Globals } from "golbals";
 import { useTimer } from "hooks/useTimer";
 
 interface Props {
-  readonly id: string;
   readonly dateOnly?: boolean;
   readonly timeOnly?: boolean;
 }
 
 export const CurrentTime: React.FC<Props> = (
   props: Props = {
-    id: "",
     dateOnly: false,
     timeOnly: false,
   }
@@ -49,7 +47,6 @@ export const CurrentTime: React.FC<Props> = (
 
   return (
     <TextField
-      id={props.id}
       style={{
         fontFamily: "inherit",
         fontSize: "inherit",

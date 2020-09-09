@@ -307,7 +307,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     }
     return (
       <TenorDropdown<T>
-        id={props.name as string}
         value={props.value}
         name={props.name}
         disabled={!!props.disabled}
@@ -354,7 +353,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       return (
         <>
           <OutlinedInput
-            id={props.name as string}
             labelWidth={0}
             readOnly={false}
             disabled={props.disabled}
@@ -388,9 +386,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     // Check which type it is and pick
     switch (props.type) {
       case "current:time":
-        return <CurrentTime id={props.name as string} timeOnly={true} />;
+        return <CurrentTime timeOnly={true} />;
       case "current:date":
-        return <CurrentTime id={props.name as string} dateOnly={true} />;
+        return <CurrentTime dateOnly={true} />;
       case "bank-entity":
         return this.createBankEntityField();
       case "tenor":

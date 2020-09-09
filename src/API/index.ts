@@ -195,6 +195,7 @@ const request = <T>(
       const { status } = taskHandler;
       if (status === PromiseStatus.Pending) {
         taskHandler.reject("aborted");
+        console.log("aborting");
         xhr.abort();
       }
     },

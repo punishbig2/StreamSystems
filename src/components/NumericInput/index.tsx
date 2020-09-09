@@ -111,7 +111,6 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <input
       {...otherProps}
-      id={props.id}
       title={props.title}
       data-input-type={props.type}
       className={props.className}

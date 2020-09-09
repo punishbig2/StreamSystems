@@ -96,7 +96,6 @@ export class DropdownField<T> extends Component<Props<T>, State> {
     }
     return (
       <Select
-        id={props.name as string}
         value={props.value}
         renderValue={this.renderSelectValue}
         displayEmpty={true}

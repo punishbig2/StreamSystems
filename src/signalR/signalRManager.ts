@@ -27,6 +27,7 @@ import {
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
+import { coalesce } from "utils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { parseSEFError } from "utils/parseSEFError";
 import { $$ } from "utils/stringPaster";
@@ -293,11 +294,14 @@ export class SignalRManager {
   };
 
   private onUpdateDeals = (message: string): void => {
-    this.addDeal({
-      ...JSON.parse(message),
-      premiumStyle: "Forward",
-      deltaStyle: "Forward",
-    }).then(() => {});
+    const deal: any = JSON.parse(message);
+    const dealWithDefaults: any = {
+      ...deal,
+      premstyle: coalesce(deal.premstyle, "Forward"),
+      deltastyle: coalesce(deal.deltastyle, "Forward"),
+    };
+    console.log(dealWithDefaults);
+    this.addDeal(dealWithDefaults).then(() => {});
   };
 
   private onUpdateMarketData = (message: string): void => {
