@@ -14,7 +14,7 @@ export abstract class FormattedInput<
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
 > extends InputHandler<T, P, S> {
-  public abstract parse(value: string): any;
+  public abstract parse(value: string, props: P): any;
   public abstract format(value: any, props: P): [string, Validity];
   public abstract onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,

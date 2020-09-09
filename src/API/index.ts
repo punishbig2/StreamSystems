@@ -195,7 +195,6 @@ const request = <T>(
       const { status } = taskHandler;
       if (status === PromiseStatus.Pending) {
         taskHandler.reject("aborted");
-        console.log("aborting");
         xhr.abort();
       }
     },
@@ -866,7 +865,7 @@ export class API {
       strategy: data.strategy,
       symbol: data.symbol,
       spread: data.spread,
-      vol: data.vol !== null ? data.vol / 100 : null,
+      vol: data.vol,
       lastqty: data.size,
       notional1: data.notional1,
       lvsqty: "0",

@@ -300,7 +300,6 @@ export class SignalRManager {
       premstyle: coalesce(deal.premstyle, "Forward"),
       deltastyle: coalesce(deal.deltastyle, "Forward"),
     };
-    console.log(dealWithDefaults);
     this.addDeal(dealWithDefaults).then(() => {});
   };
 

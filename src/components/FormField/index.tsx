@@ -175,7 +175,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
 
   private parse = (value: string): any => {
     const handler: InputHandler<T, Props<T>, State> = this.getHandler();
-    return handler.parse(value);
+    return handler.parse(value, this.props);
   };
 
   private onInputKeyDown = (
@@ -245,11 +245,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private onInputInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props } = this;
     if (props.onInput !== undefined) {
-      const handler: InputHandler<T, Props<T>, State> = this.getHandler();
       const {
         target: { value: textValue },
       } = event;
-      const value: any = handler.parse(textValue);
+      const value: any = this.parse(textValue);
       props.onInput(event, value);
     }
   };

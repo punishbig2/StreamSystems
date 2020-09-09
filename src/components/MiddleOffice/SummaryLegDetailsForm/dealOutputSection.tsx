@@ -44,7 +44,6 @@ export const DealOutputSection: React.FC<Props> = (
   useEffect(() => {
     if (symbol === undefined) return;
     setCurrencies([symbol.premiumCCY, symbol.riskCCY]);
-    console.log(symbol.premiumCCY, symbol.riskCCY);
     if (symbol.premiumCCYpercent) {
       setPriceType("percent");
     } else {

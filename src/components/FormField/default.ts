@@ -48,7 +48,7 @@ export class DefaultHandler<
     );
   }
 
-  public parse(value: string): any {
+  public parse(value: string, props: P): any {
     return value;
   }
 

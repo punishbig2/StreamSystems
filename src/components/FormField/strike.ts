@@ -50,7 +50,7 @@ export class StrikeHandler<
     return null;
   }
 
-  public parse(value: string): any {
+  public parse(value: string, props: P): any {
     if (value === "ATMF" || value === "ATMS") {
       return value;
     } else {
@@ -60,7 +60,7 @@ export class StrikeHandler<
         if (isNumeric(value)) {
           if (value.endsWith(DecimalSeparator) || value.endsWith("0"))
             return value;
-          return super.parse(value);
+          return super.parse(value, props);
         } else {
           return value;
         }

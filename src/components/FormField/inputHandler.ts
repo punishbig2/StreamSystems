@@ -33,7 +33,7 @@ export abstract class InputHandler<
     state: S
   ): StateReturnType<S>;
   public abstract format(value: any, props: P): [string, Validity];
-  public abstract parse(value: string): any;
+  public abstract parse(value: string, props: P): any;
   public abstract shouldAcceptInput(
     input: HTMLInputElement,
     props: P,

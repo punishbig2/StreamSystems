@@ -74,7 +74,7 @@ const getSpread = (item: any): number | null => {
     item.strategy
   );
   if (strategy === undefined || strategy.spreadvsvol === "vol") return null;
-  return item.lastpx;
+  return item.lastpx / 100;
 };
 
 const getVol = (item: any): number | null => {
@@ -84,7 +84,7 @@ const getVol = (item: any): number | null => {
     item.strategy
   );
   if (strategy === undefined || strategy.spreadvsvol === "spread") return null;
-  return item.lastpx;
+  return item.lastpx / 100;
 };
 
 export const createDealFromBackendMessage = async (

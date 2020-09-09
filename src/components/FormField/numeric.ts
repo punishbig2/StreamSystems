@@ -179,17 +179,11 @@ export class NumericInputHandler<
     return null;
   }
 
-  public parse(value: string): any {
+  public parse(value: string, props: P): any {
     if (value === "") return null;
-    if (value.includes("%")) {
-      console.log(value);
-      const internalValue: any = this.parse(value.replace(/%/g, ""));
-      if (typeof internalValue !== "number") {
-        throw new Error("unexpected value for a percent type");
-      }
-    }
     const numeric = toNumber(value);
-    if (numeric === undefined) return value;
+    if (numeric === undefined || numeric === null) return value;
+    if (props.type === "percent") return numeric / 100;
     return numeric;
   }
 
@@ -199,6 +193,13 @@ export class NumericInputHandler<
       return ["", Validity.Intermediate];
     }
     if (typeof value === "number") {
+      if (props.type === "percent" && props.editable) {
+        const formatted: string =
+          value < 0
+            ? `(${formatter.format(-100 * value)})`
+            : formatter.format(100 * value);
+        return [formatted, Validity.Valid];
+      }
       if (props.rounding !== undefined)
         return roundToNearest(value, props.rounding);
       const formatted: string =

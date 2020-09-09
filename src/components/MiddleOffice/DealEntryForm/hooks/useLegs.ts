@@ -220,6 +220,7 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
       .execute()
       .then((response: any) => {
         if (response !== null) {
+          console.log(response);
           if ("dealId" in response) {
             const legs: ReadonlyArray<Leg> = fixDates(response.legs);
             // Handle legs and populate from response
