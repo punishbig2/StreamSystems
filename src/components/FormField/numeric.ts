@@ -124,7 +124,8 @@ export class NumericInputHandler<
           return this.createValue("", event.currentTarget, props, state);
         } else {
           return this.createValue(
-            Number([integerPart, decimalPart].join(".")),
+            Number([integerPart, decimalPart].join(".")) /
+              (props.type === "percent" ? 100 : 1),
             event.currentTarget,
             props,
             state

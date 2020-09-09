@@ -245,26 +245,22 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private onInputInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props } = this;
     if (props.onInput !== undefined) {
-      const {
-        target: { value: textValue },
-      } = event;
-      const value: any = this.parse(textValue);
+      const { target } = event;
+      const value: any = this.parse(target.value);
       props.onInput(event, value);
     }
   };
 
   private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { props, state } = this;
-    const {
-      target: { value: inputContent },
-    } = event;
+    const { target } = event;
     if (!props.editable) return;
     const handler: InputHandler<T, Props<T>, State> = this.getHandler();
     if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
       event.preventDefault();
     } else {
       this.saveCaretPosition(event);
-      const value: any = this.parse(inputContent);
+      const value: any = this.parse(target.value);
       this.setValue(value);
     }
   };
