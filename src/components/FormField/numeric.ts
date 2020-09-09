@@ -38,10 +38,12 @@ export class NumericInputHandler<
   S extends Editable
 > extends FormattedInput<T, P, S> {
   private formatter: Intl.NumberFormat = new Intl.NumberFormat(undefined, {});
+  private divider: number = 1;
 
   constructor(props: P) {
     super();
     this.formatter = this.createFormatter(props);
+    this.divider = props.type === "percent" ? 100 : 1;
   }
 
   private createFormatter(props: P): Intl.NumberFormat {
@@ -124,8 +126,7 @@ export class NumericInputHandler<
           return this.createValue("", event.currentTarget, props, state);
         } else {
           return this.createValue(
-            Number([integerPart, decimalPart].join(".")) /
-              (props.type === "percent" ? 100 : 1),
+            Number([integerPart, decimalPart].join(".")) / this.divider,
             event.currentTarget,
             props,
             state
@@ -184,7 +185,7 @@ export class NumericInputHandler<
     if (value === "") return null;
     const numeric = toNumber(value);
     if (numeric === undefined || numeric === null) return value;
-    if (props.type === "percent") return numeric / 100;
+    if (props.type === "percent") return numeric / this.divider;
     return numeric;
   }
 
@@ -234,5 +235,6 @@ export class NumericInputHandler<
   public reset(props: P) {
     super.reset(props);
     this.formatter = this.createFormatter(props);
+    this.divider = props.type === "percent" ? 100 : 1;
   }
 }

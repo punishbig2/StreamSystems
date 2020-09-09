@@ -8,7 +8,10 @@ export const useDealDeletedListener = (entryStore: DealEntryStore) => {
   useEffect(() => {
     return signalRManager.addDealDeletedListener((dealId: string) => {
       dealsStore.removeDeal(dealId);
-      moStore.setDeal(null, entryStore);
+      const { deal } = moStore;
+      if (deal !== null && deal.dealID === dealId) {
+        moStore.setDeal(null, entryStore);
+      }
     });
   }, [entryStore]);
 };
