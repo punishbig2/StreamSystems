@@ -865,7 +865,7 @@ export class API {
       strategy: data.strategy,
       symbol: data.symbol,
       spread: data.spread,
-      vol: data.vol,
+      vol: data.vol !== null ? data.vol / 100 : null,
       lastqty: data.size,
       notional1: data.notional1,
       lvsqty: "0",
