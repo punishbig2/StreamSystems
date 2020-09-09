@@ -1,3 +1,4 @@
+import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg, Rates } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
@@ -57,6 +58,25 @@ export const fixDates = (data: any[]): Leg[] => {
   return data.map(mapper);
 };
 
+const getLegDefaultsFromDeal = (
+  deal: Deal | null,
+  index: number
+): Partial<Leg> => {
+  if (deal === null || deal === undefined) return {};
+  const { symbol } = deal;
+  const leg: Partial<Leg> = {};
+  if (deal.expiry1) leg.expiryDate = deal.expiry1;
+  if (deal.tradeDate)
+    leg.premiumDate = moment(deal.tradeDate).add(symbol.SettlementWindow, "d");
+  if (deal.deliveryDate) leg.deliveryDate = deal.deliveryDate;
+  leg.notional =
+    index === 1 && deal.notional2 !== null ? deal.notional2 : deal.notional1;
+  leg.vol = deal.vol;
+  leg.strike = deal.strike;
+  leg.party = deal.buyer;
+  return leg;
+};
+
 const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
   const rates: Rates = [
     {
@@ -76,7 +96,7 @@ const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
     notional: null,
     party: "",
     side: sideToSide(definition.SideType),
-    days: null, // ,
+    days: null,
     delta: [null, null, null],
     fwdPts: null,
     fwdRate: null,
@@ -91,10 +111,26 @@ const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
   };
 };
 
-export const createLegsFromDefinition = (
+export const createLegsFromDefinitionAndDeal = (
+  definitions: LegOptionsDefIn[],
+  deal: Deal
+): ReadonlyArray<Leg> => {
+  return definitions.map(
+    (definition: LegOptionsDefIn, index: number): Leg => {
+      const mapper = legDefMapper(deal.symbol);
+      const base: Leg = mapper(definition);
+      return {
+        ...base,
+        ...getLegDefaultsFromDeal(deal, index),
+      };
+    }
+  );
+};
+
+export const createLegsFromDefinitionAndSymbol = (
   definitions: LegOptionsDefIn[],
   symbol: Symbol
-): Leg[] => {
+): ReadonlyArray<Leg> => {
   return definitions.map(legDefMapper(symbol));
 };
 

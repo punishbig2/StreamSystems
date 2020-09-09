@@ -5,7 +5,11 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { createLegsFromDefinition, fixDates } from "legsUtils";
+import {
+  createLegsFromDefinitionAndDeal,
+  createLegsFromDefinitionAndSymbol,
+  fixDates,
+} from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import moment from "moment";
 import { useEffect } from "react";
@@ -103,7 +107,6 @@ const createSummaryLeg = (
 
 const createStubLegs = (
   strategy: string,
-  cuts: ReadonlyArray<Cut>,
   symbol: Symbol
 ): ReadonlyArray<Leg> | null => {
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
@@ -116,7 +119,7 @@ const createStubLegs = (
   const storeLegs: Leg[] = moStore.legs;
   return storeLegs.length > 0
     ? storeLegs
-    : createLegsFromDefinition(legDefinitions.in, symbol);
+    : createLegsFromDefinitionAndSymbol(legDefinitions.in, symbol);
 };
 
 const handleLegsResponse = (
@@ -163,10 +166,41 @@ const handleLegsResponse = (
   }
 };
 
+const createDefaultLegsFromDeal = (deal: Deal): void => {
+  const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
+    moStore.legDefinitions[deal.strategy];
+  if (!legDefinitions) {
+    console.warn(`no leg definitions found for ${deal.strategy}`);
+    console.warn("available strategies are: ", moStore.legDefinitions);
+    return;
+  }
+  const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(
+    legDefinitions.in,
+    deal
+  );
+  moStore.setLegs(legs, null);
+};
+
+const createDefaultLegs = (ccypair: string, strategy: string): void => {
+  // Then ... do our thing
+  if (ccypair === "" || strategy === "") return;
+  const symbol: Symbol | undefined = moStore.findSymbolById(ccypair);
+  if (symbol === undefined) {
+    throw new Error("could not find symbol: " + ccypair);
+  }
+  const legs: ReadonlyArray<Leg> | null = createStubLegs(strategy, symbol);
+  if (legs !== null) {
+    moStore.setLegs(legs, null);
+  }
+};
+
 export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
   const { deal } = moStore;
   useEffect(() => {
     if (deal === null) return;
+    // Reset
+    moStore.setLegs([], null);
+    // Query the legs, they could not exist too
     const task: Task<any> = API.getLegs(deal.dealID);
     task
       .execute()
@@ -185,13 +219,17 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
                 content: response.error_msg,
                 code: 500,
               });
+            } else {
+              createDefaultLegsFromDeal(deal);
             }
           }
+        } else {
+          createDefaultLegsFromDeal(deal);
         }
       })
       .catch((reason: any) => {
-        if (reason === "aborted") {
-          return;
+        if (reason !== "aborted") {
+          createDefaultLegsFromDeal(deal);
         }
       });
     const removePricingListener: () => void = signalRManager.addPricingResponseListener(
@@ -205,25 +243,16 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
       removePricingListener();
       task.cancel();
     };
-  }, [deal, cuts]);
-
+  }, [cuts, deal]);
+  /**
+   * The following only works for new deals that are being created, or for existing
+   * deals that are being edited
+   */
   const { ccypair, strategy } = entry;
   useEffect(() => {
     // Reset
     moStore.setLegs([], null);
-    // Then ... do our thing
-    if (ccypair === "" || strategy === "") return;
-    const symbol: Symbol | undefined = moStore.findSymbolById(ccypair);
-    if (symbol === undefined) {
-      throw new Error("could not find symbol: " + ccypair);
-    }
-    const legs: ReadonlyArray<Leg> | null = createStubLegs(
-      strategy,
-      cuts,
-      symbol
-    );
-    if (legs !== null) {
-      moStore.setLegs(legs, null);
-    }
+    // Create defaults
+    createDefaultLegs(ccypair, strategy);
   }, [cuts, ccypair, strategy]);
 };
