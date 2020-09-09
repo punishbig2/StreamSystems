@@ -166,7 +166,10 @@ const handleLegsResponse = (
   }
 };
 
-const createDefaultLegsFromDeal = (deal: Deal): void => {
+const createDefaultLegsFromDeal = (
+  cuts: ReadonlyArray<Cut>,
+  deal: Deal
+): void => {
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[deal.strategy];
   if (!legDefinitions) {
@@ -178,7 +181,18 @@ const createDefaultLegsFromDeal = (deal: Deal): void => {
     legDefinitions.in,
     deal
   );
-  moStore.setLegs(legs, null);
+  moStore.setLegs(
+    legs,
+    createSummaryLeg(
+      cuts,
+      deal.strategy,
+      deal.symbol,
+      deal.tradeDate,
+      deal.spotDate,
+      deal.deliveryDate,
+      deal.expiry1
+    )
+  );
 };
 
 const createDefaultLegs = (ccypair: string, strategy: string): void => {
@@ -220,16 +234,16 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
                 code: 500,
               });
             } else {
-              createDefaultLegsFromDeal(deal);
+              createDefaultLegsFromDeal(cuts, deal);
             }
           }
         } else {
-          createDefaultLegsFromDeal(deal);
+          createDefaultLegsFromDeal(cuts, deal);
         }
       })
       .catch((reason: any) => {
         if (reason !== "aborted") {
-          createDefaultLegsFromDeal(deal);
+          createDefaultLegsFromDeal(cuts, deal);
         }
       });
     const removePricingListener: () => void = signalRManager.addPricingResponseListener(
