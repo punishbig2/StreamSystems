@@ -1,8 +1,8 @@
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { StrategyCell } from "components/MiddleOffice/interfaces/cells/strategy";
+import { StrategyCell } from "components/MiddleOffice/types/cells/strategy";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 
 export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   name: "Strategy",

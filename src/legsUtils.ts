@@ -1,6 +1,6 @@
-import { Leg, Rates } from "components/MiddleOffice/interfaces/leg";
-import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { Leg, Rates } from "components/MiddleOffice/types/leg";
+import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import moStore from "mobx/stores/moStore";
 import moment from "moment";
 import { DealEntry } from "structures/dealEntry";

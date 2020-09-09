@@ -1,6 +1,6 @@
 import { Grid } from "@material-ui/core";
-import { Commission } from "components/MiddleOffice/interfaces/deal";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { Commission } from "components/MiddleOffice/types/deal";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { BrokerSection } from "components/MiddleOffice/SummaryLegDetailsForm/brokerSection";
 import { DealOutputSection } from "components/MiddleOffice/SummaryLegDetailsForm/dealOutputSection";
 import { fieldMapper } from "components/MiddleOffice/SummaryLegDetailsForm/fieldMapper";

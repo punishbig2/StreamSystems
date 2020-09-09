@@ -1,4 +1,4 @@
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { StylesMap } from "legsUtils";
 import { observer } from "mobx-react";

@@ -1,20 +1,21 @@
 import { API, BankEntitiesQueryResponse } from "API";
-import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Cut } from "components/MiddleOffice/types/cut";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { Leg } from "components/MiddleOffice/types/leg";
 import {
   LegOptionsDefIn,
   LegOptionsDefOut,
-} from "components/MiddleOffice/interfaces/legOptionsDef";
+} from "components/MiddleOffice/types/legOptionsDef";
 import {
   MOStrategy,
   StrategyMap,
-} from "components/MiddleOffice/interfaces/moStrategy";
-import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+} from "components/MiddleOffice/types/moStrategy";
+import { ValuationModel } from "components/MiddleOffice/types/pricer";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { mapToLeg } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
 import { action, computed, observable } from "mobx";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import dealsStore from "mobx/stores/dealsStore";
 
 import workareaStore from "mobx/stores/workareaStore";
 import { DealEntry } from "structures/dealEntry";
@@ -70,7 +71,7 @@ export class MoStore {
   @observable status: MOStatus = MOStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
 
-  private operationsCount = 8;
+  private operationsCount = 10;
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
@@ -96,6 +97,7 @@ export class MoStore {
       this.setBankEntities(await API.getBankEntities());
       this.setDeltaStyles(await API.getDeltaStyles());
       this.setPremiumStyles(await API.getPremiumStyles());
+      await this.loadDeals();
       // Load leg definitions
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];
@@ -136,8 +138,8 @@ export class MoStore {
         {}
       );
       setTimeout(() => {
-        this.setInitialized();
         this.setProgress(100);
+        this.setInitialized();
       }, 0);
     }
   }
@@ -249,6 +251,13 @@ export class MoStore {
   @action.bound
   public setSummaryLeg(summaryLeg: SummaryLeg | null): void {
     this.summaryLeg = summaryLeg;
+  }
+
+  @action.bound
+  private async loadDeals(): Promise<void> {
+    this.setProgress(this.progress + 100 / this.operationsCount);
+    // Update deals list
+    return dealsStore.loadDeals();
   }
 
   @action.bound

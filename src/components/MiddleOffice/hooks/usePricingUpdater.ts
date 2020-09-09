@@ -1,4 +1,4 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { useEffect } from "react";
 

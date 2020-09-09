@@ -7,7 +7,7 @@ import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 import { SPECIFIC_TENOR, tenorToDate } from "utils/tenorUtils";
-import { EditableCondition, MOStrategy } from "../interfaces/moStrategy";
+import { EditableCondition, MOStrategy } from "../types/moStrategy";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,

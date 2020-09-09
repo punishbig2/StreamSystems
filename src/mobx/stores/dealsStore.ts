@@ -1,5 +1,5 @@
 import { API } from "API";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { action, observable } from "mobx";
 import moStore from "mobx/stores/moStore";
 import { parseTime } from "utils/timeUtils";
@@ -8,14 +8,13 @@ export class DealsStore {
   @observable.ref deals: Deal[] = [];
   @observable selectedDeal: string | null = null;
 
-  public loadDeals(): void {
-    API.getDeals().then((deals: Deal[]) => {
-      this.deals = deals.sort(
-        (d1: Deal, d2: Deal) =>
-          parseTime(d2.transactionTime, "UTC").getTime() -
-          parseTime(d1.transactionTime, "UTC").getTime()
-      );
-    });
+  public async loadDeals(): Promise<void> {
+    const deals: Deal[] = await API.getDeals();
+    this.deals = deals.sort(
+      (d1: Deal, d2: Deal) =>
+        parseTime(d2.transactionTime, "UTC").getTime() -
+        parseTime(d1.transactionTime, "UTC").getTime()
+    );
   }
 
   public findDeal(id: string): Deal | undefined {

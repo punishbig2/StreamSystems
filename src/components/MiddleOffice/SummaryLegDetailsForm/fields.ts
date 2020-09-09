@@ -1,12 +1,12 @@
 import { FieldDef } from "forms/fieldDef";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import {
   MOStrategy,
   EditableCondition,
-} from "components/MiddleOffice/interfaces/moStrategy";
+} from "components/MiddleOffice/types/moStrategy";
 
 const isEditable = (name: string) => (
   data: any,

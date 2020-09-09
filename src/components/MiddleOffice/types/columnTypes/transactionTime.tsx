@@ -4,7 +4,7 @@ import { Globals } from "golbals";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { parseTime, formatters } from "utils/timeUtils";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 
 
 export default (width: number = 6): ColumnSpec => ({

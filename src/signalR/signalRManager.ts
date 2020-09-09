@@ -6,7 +6,7 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import { API } from "API";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import config from "config";
 import {
   CommissionRate,

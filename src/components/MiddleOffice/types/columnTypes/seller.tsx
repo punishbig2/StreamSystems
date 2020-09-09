@@ -5,7 +5,7 @@ import { BankEntity } from "types/bankEntity";
 import { resolveBankToEntity } from "utils/dealUtils";
 import { BankCell } from "../cells/banks";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 
 export default (sortable: boolean): ColumnSpec => ({
   name: "seller",

@@ -1,4 +1,4 @@
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Leg } from "components/MiddleOffice/types/leg";
 
 export type DealOutput = Leg & {
   gamma: number | null;

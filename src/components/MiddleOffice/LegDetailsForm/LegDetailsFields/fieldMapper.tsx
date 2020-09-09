@@ -1,5 +1,5 @@
 import { FormField } from "components/FormField";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Leg } from "components/MiddleOffice/types/leg";
 import {
   getCurrencyValue,
   getRatesValue,
@@ -33,7 +33,8 @@ export const fieldMapper = (
         return getStrikeValue(leg, symbol, fieldDef.name);
       }
     } else if (fieldDef.type === "currency") {
-      return getCurrencyValue(leg, fieldDef.name, entry.premstyle);
+      if (symbol === undefined) return null;
+      return getCurrencyValue(leg, fieldDef.name, symbol, entry.premstyle);
     } else if (fieldDef.name === "rates") {
       return getRatesValue(leg, fieldDef.data);
     } else if (fieldDef.name === "side") {

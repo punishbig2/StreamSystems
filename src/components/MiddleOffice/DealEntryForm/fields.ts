@@ -1,4 +1,4 @@
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { FieldDef, DropdownItem } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { InternalValuationModel, MoStore } from "mobx/stores/moStore";

@@ -29,27 +29,23 @@ export const DealOutputSection: React.FC<Props> = (
     (): Symbol | undefined => (deal !== null ? deal.symbol : undefined),
     [deal]
   );
-  const [premiumCurrency, setPremiumCurrency] = useState<string>("USD");
-  useEffect(() => {
-    if (dealOutput === null || dealOutput.premiumCurrency === undefined) {
-      if (symbol !== undefined) {
-        setPremiumCurrency(symbol.premiumCCY);
-      }
-    } else {
-      setPremiumCurrency(dealOutput.premiumCurrency);
-    }
-  }, [symbol, dealOutput]);
+  const [[premiumCurrency, riskCurrency], setCurrencies] = useState<
+    [string, string]
+  >(["USD", "USD"]);
   useEffect(() => {
     if (deal === null || dealOutput === null) return;
     const { symbol } = deal;
     // Update precision if it changes (it depends on this value)
-    setPremiumPrecision(getRoundingPrecision(symbol["premium-rounding"]));
+    // FIXME: it seems we need to ignore this
+    setPremiumPrecision(0); // (getRoundingPrecision(symbol["premium-rounding"]));
     setPremium(
       roundPremium(getStyledValue(dealOutput.premium, premiumStyle), symbol)
     );
   }, [deal, dealOutput, premiumStyle]);
   useEffect(() => {
     if (symbol === undefined) return;
+    setCurrencies([symbol.premiumCCY, symbol.riskCCY]);
+    console.log(symbol.premiumCCY, symbol.riskCCY);
     if (symbol.premiumCCYpercent) {
       setPriceType("percent");
     } else {
@@ -95,7 +91,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={dealOutput.gamma}
           name={"gamma"}
           type={"currency"}
-          currency={premiumCurrency}
+          currency={riskCurrency}
           disabled={props.disabled}
         />
         <FormField
@@ -104,7 +100,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={dealOutput.vega}
           name={"vega"}
           type={"currency"}
-          currency={premiumCurrency}
+          currency={riskCurrency}
           disabled={props.disabled}
         />
         <FormField
@@ -113,7 +109,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={getStyledValue(dealOutput.hedge, entry.deltastyle)}
           name={"hedge"}
           type={"currency"}
-          currency={premiumCurrency}
+          currency={riskCurrency}
           disabled={props.disabled}
         />
       </fieldset>

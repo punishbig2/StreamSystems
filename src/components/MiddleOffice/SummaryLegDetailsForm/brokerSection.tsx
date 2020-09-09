@@ -1,6 +1,6 @@
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
-import { Commission } from "components/MiddleOffice/interfaces/deal";
+import { Commission } from "components/MiddleOffice/types/deal";
 import React, { useEffect, useState } from "react";
 
 interface Props {

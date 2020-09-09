@@ -5,12 +5,18 @@ export const DecimalSeparator = (0.1)
   })
   .substr(-2, 1);
 
+const getDecimalSeparatorForSplit = (): string | RegExp => {
+  if (DecimalSeparator === ".") return /\\./;
+  return DecimalSeparator;
+};
+
 export const toNumber = (value: string | null): number | null | undefined => {
   if (value === null) return null;
-  const fragments: string[] = value.split(DecimalSeparator);
+  const separator: string | RegExp = getDecimalSeparatorForSplit();
+  const fragments: string[] = value.split(separator);
   if (fragments.length === 2) {
-    const integer: string = fragments[0].replace(/[^0-9]+/g, "");
-    const decimal: string = fragments[1].replace(/[^0-9]+/g, "");
+    const integer: string = fragments[0];
+    const decimal: string = fragments[1];
     if (integer.length === 0) return undefined;
     if (decimal.length === 0) {
       const numeric: number = Number(integer);
@@ -22,8 +28,7 @@ export const toNumber = (value: string | null): number | null | undefined => {
       return numeric;
     }
   } else if (fragments.length === 1) {
-    const integer: string = fragments[0].replace(/[^0-9]+/g, "");
-    if (integer.length === 0) return undefined;
+    const integer: string = fragments[0];
     const numeric: number = Number(integer);
     if (isNaN(numeric)) return undefined;
     return numeric;

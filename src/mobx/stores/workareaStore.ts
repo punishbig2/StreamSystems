@@ -6,7 +6,6 @@ import { PresetWindow } from "groups/presetWindow";
 import strings from "locales";
 import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
-import dealsStore from "mobx/stores/dealsStore";
 import { WindowDef } from "mobx/stores/workspaceStore";
 import persistStorage from "persistStorage";
 import { randomID } from "randomID";
@@ -247,8 +246,6 @@ export class WorkareaStore {
   private async loadSystemSymbols(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingSymbols);
     this.symbols = await API.getSymbols();
-    // Update deals list
-    dealsStore.loadDeals();
   }
 
   private async createSymbolsMap(): Promise<void> {
@@ -319,6 +316,7 @@ export class WorkareaStore {
         await this.loadSystemTenors();
         await this.loadSystemBanks();
         await this.connectToSignalR();
+
         // We are done now
         this.updateLoadingProgress(strings.Connected);
         // Please wait until progress shows 100%

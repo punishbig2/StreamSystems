@@ -1,5 +1,5 @@
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import moment from "moment";
 import { Point } from "structures/point";
 

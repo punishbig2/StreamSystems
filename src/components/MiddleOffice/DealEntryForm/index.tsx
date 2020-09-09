@@ -5,7 +5,7 @@ import originalFields from "components/MiddleOffice/DealEntryForm/fields";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
 import { sendPricingRequest } from "components/MiddleOffice/DealEntryForm/sendPricingRequest";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";

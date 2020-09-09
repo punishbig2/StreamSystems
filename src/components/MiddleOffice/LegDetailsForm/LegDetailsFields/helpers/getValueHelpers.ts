@@ -1,4 +1,4 @@
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { getStyledValue } from "legsUtils";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
@@ -110,17 +110,24 @@ export const getStrikeValue = (
 export const getCurrencyValue = (
   leg: Leg,
   name: keyof Leg,
+  symbol: Symbol,
   style?: string
 ): any => {
+  const currencies: { [key: string]: string } = {
+    premium: symbol.premiumCCY,
+    hedge: symbol.riskCCY,
+    gamma: symbol.riskCCY,
+    vega: symbol.riskCCY,
+  };
   if (name === "premium" || name === "hedge") {
     return {
       value: getStyledValue(leg[name], style),
-      currency: leg.premiumCurrency,
+      currency: currencies[name],
     };
   } else {
     return {
       value: leg[name],
-      currency: leg.premiumCurrency,
+      currency: currencies[name],
     };
   }
 };

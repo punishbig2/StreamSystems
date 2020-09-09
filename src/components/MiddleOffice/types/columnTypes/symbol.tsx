@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
 import { SymbolCell } from "../cells/symbol";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";

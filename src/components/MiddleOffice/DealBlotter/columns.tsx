@@ -1,14 +1,14 @@
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import transactTimeColumn from "components/MiddleOffice/interfaces/columnTypes/transactionTime";
+import transactTimeColumn from "components/MiddleOffice/types/columnTypes/transactionTime";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import strategyColumn from "components/MiddleOffice/interfaces/columnTypes/strategy";
-import symbolColumn from "components/MiddleOffice/interfaces/columnTypes/symbol";
-import priceColumn from "components/MiddleOffice/interfaces/columnTypes/price";
-import sizeColumn from "components/MiddleOffice/interfaces/columnTypes/size";
-import sellerColumn from "components/MiddleOffice/interfaces/columnTypes/seller";
-import buyerColumn from "components/MiddleOffice/interfaces/columnTypes/buyer";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import strategyColumn from "components/MiddleOffice/types/columnTypes/strategy";
+import symbolColumn from "components/MiddleOffice/types/columnTypes/symbol";
+import priceColumn from "components/MiddleOffice/types/columnTypes/price";
+import sizeColumn from "components/MiddleOffice/types/columnTypes/size";
+import sellerColumn from "components/MiddleOffice/types/columnTypes/seller";
+import buyerColumn from "components/MiddleOffice/types/columnTypes/buyer";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { stateMap } from "utils/dealUtils";
 
 export const columns: ColumnSpec[] = [

@@ -1,8 +1,8 @@
 import { API, HTTPError } from "API";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { ValuationModel } from "components/MiddleOffice/interfaces/pricer";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { ValuationModel } from "components/MiddleOffice/types/pricer";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";

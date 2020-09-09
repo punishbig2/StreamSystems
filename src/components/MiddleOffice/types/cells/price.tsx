@@ -1,10 +1,10 @@
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { observer } from "mobx-react";
 import React, { ReactElement } from "react";
 
 export const getDealPrice = (deal: Deal): number | null => {
-  if (deal.vol !== undefined && deal.vol !== null) return deal.vol;
+  if (deal.vol !== undefined && deal.vol !== null) return 100 * deal.vol;
   if (deal.spread !== undefined && deal.spread !== null) return deal.spread;
   return null;
 };

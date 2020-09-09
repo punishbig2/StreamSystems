@@ -1,12 +1,12 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { Leg } from "components/MiddleOffice/types/leg";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import {
   OptionLeg,
   ValuationModel,
   VolMessageIn,
-} from "components/MiddleOffice/interfaces/pricer";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+} from "components/MiddleOffice/types/pricer";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
 import { mergeDefinitionsAndLegs } from "legsUtils";
 import moStore from "mobx/stores/moStore";

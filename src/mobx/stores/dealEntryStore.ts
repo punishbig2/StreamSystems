@@ -1,8 +1,8 @@
 import { API } from "API";
 import { submitToSEF } from "components/MiddleOffice/DealEntryForm/hooks/submitToSEF";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { action, computed, observable } from "mobx";
 import dealsStore from "mobx/stores/dealsStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";

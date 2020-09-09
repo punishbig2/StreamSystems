@@ -1,5 +1,5 @@
 import { FormField } from "components/FormField";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";

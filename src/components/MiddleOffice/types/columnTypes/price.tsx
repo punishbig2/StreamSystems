@@ -2,8 +2,8 @@ import React, { ReactElement } from "react";
 import { priceFormatter } from "utils/priceFormatter";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { getDealPrice, PriceCell } from "components/MiddleOffice/interfaces/cells/price";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { getDealPrice, PriceCell } from "components/MiddleOffice/types/cells/price";
+import { Deal } from "components/MiddleOffice/types/deal";
 
 export default (sortable: boolean, width: number = 3): ColumnSpec => ({
   name: "Price",

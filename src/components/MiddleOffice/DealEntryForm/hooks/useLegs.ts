@@ -1,10 +1,10 @@
 import { API, Task } from "API";
-import { Cut } from "components/MiddleOffice/interfaces/cut";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
-import { LegOptionsDefIn } from "components/MiddleOffice/interfaces/legOptionsDef";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
-import { SummaryLeg } from "components/MiddleOffice/interfaces/summaryLeg";
+import { Cut } from "components/MiddleOffice/types/cut";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { Leg } from "components/MiddleOffice/types/leg";
+import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { createLegsFromDefinition, fixDates } from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import moment from "moment";

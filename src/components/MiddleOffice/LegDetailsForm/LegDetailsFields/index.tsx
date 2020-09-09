@@ -1,5 +1,5 @@
 import { Grid } from "@material-ui/core";
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { fieldMapper } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/fieldMapper";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";

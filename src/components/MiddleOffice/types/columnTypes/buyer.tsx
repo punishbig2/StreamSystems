@@ -2,8 +2,8 @@ import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { BankCell } from "components/MiddleOffice/interfaces/cells/banks";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { BankCell } from "components/MiddleOffice/types/cells/banks";
 import { BankEntity } from "types/bankEntity";
 import { resolveBankToEntity } from "utils/dealUtils";
 

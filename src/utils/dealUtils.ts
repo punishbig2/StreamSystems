@@ -1,6 +1,6 @@
 import { API } from "API";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
-import { MOStrategy } from "components/MiddleOffice/interfaces/moStrategy";
+import { Deal } from "components/MiddleOffice/types/deal";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
@@ -11,6 +11,7 @@ import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
 import { Symbol } from "types/symbol";
 import { coalesce } from "utils";
+import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
 import { addTenorToDate } from "utils/tenorUtils";
 import { forceParseDate, parseTime } from "utils/timeUtils";
 
@@ -66,6 +67,26 @@ const getCommissionRates = async (item: any): Promise<any> => {
   };
 };
 
+const getSpread = (item: any): number | null => {
+  if (item.spread !== "" && item.spread !== null && item.spread !== undefined)
+    return item.spread;
+  const strategy: MOStrategy | undefined = moStore.getStrategyById(
+    item.strategy
+  );
+  if (strategy === undefined || strategy.spreadvsvol === "vol") return null;
+  return item.lastpx;
+};
+
+const getVol = (item: any): number | null => {
+  if (item.vol !== "" && item.vol !== null && item.vol !== undefined)
+    return item.vol;
+  const strategy: MOStrategy | undefined = moStore.getStrategyById(
+    item.strategy
+  );
+  if (strategy === undefined || strategy.spreadvsvol === "spread") return null;
+  return item.lastpx;
+};
+
 export const createDealFromBackendMessage = async (
   source: any
 ): Promise<Deal> => {
@@ -99,16 +120,17 @@ export const createDealFromBackendMessage = async (
       : parsedExpiryDate2 === undefined
       ? addTenorToDate(tradeDate, item.tenor1)
       : parsedExpiryDate2;
+  const strike: string = coalesce(
+    item.strike,
+    getDefaultStrikeForStrategy(item.strategy)
+  );
   return {
     dealID: item.linkid,
     buyer: coalesce(item.buyerentitycode, item.buyer),
     seller: coalesce(item.sellerentitycode, item.seller),
     currency: item.symbol,
-    spread: item.spread,
-    vol:
-      item.lastpx !== null && item.lastpx !== undefined
-        ? item.lastpx
-        : item.vol,
+    spread: getSpread(item),
+    vol: getVol(item),
     notional1: Number(item.lastqty) * 1e6,
     notional2: item.notional1 === null ? null : Number(item.notional1),
     strategy: item.strategy,
@@ -119,7 +141,7 @@ export const createDealFromBackendMessage = async (
     tenor2: item.tenor1,
     expiry2: expiry2,
     tradeDate: tradeDate,
-    strike: item.strike,
+    strike: strike,
     spotDate: spotDate,
     deliveryDate: deliveryDate,
     symbol: symbol,

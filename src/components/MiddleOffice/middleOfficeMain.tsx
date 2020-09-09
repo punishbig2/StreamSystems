@@ -8,7 +8,7 @@ import { Error } from "components/MiddleOffice/error";
 import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDeletedListener";
 import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
 import { usePricingUpdater } from "components/MiddleOffice/hooks/usePricingUpdater";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { ProgressView } from "components/MiddleOffice/progressView";
 import { SuccessMessage } from "components/MiddleOffice/successMessage";

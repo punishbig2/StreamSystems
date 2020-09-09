@@ -1,4 +1,4 @@
-import { Leg } from "components/MiddleOffice/interfaces/leg";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntry, DealType } from "structures/dealEntry";
 import { DealStatus, toBitwise } from "types/dealStatus";

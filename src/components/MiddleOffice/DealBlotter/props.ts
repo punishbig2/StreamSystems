@@ -1,4 +1,4 @@
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 
 export interface CellProps {
   deal: Deal;

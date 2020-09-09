@@ -1,7 +1,7 @@
 import { BlotterTypes } from "columns/messageBlotter";
 import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
 import { columns } from "components/MiddleOffice/DealBlotter/columns";
-import { Deal } from "components/MiddleOffice/interfaces/deal";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { Table } from "components/Table";
 import { observer } from "mobx-react";
 import dealsStore from "mobx/stores/dealsStore";
