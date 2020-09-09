@@ -29,7 +29,7 @@ const getSeparatorRegexp = (
       return /\./g;
     }
   }
-  return new RegExp(value, "g");
+  return new RegExp(value, greedy ? "g" : undefined);
 };
 
 const getDecimalSeparatorForRegexp = (): string | RegExp => {
