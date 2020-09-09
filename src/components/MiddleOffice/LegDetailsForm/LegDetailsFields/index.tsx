@@ -10,6 +10,7 @@ type Props = {
   leg: Leg;
   disabled: boolean;
   entry: DealEntry;
+  isEditMode: boolean;
   onValueChange: (key: keyof Leg, value: any) => void;
 };
 
@@ -19,7 +20,13 @@ export const LegDetailsFields: React.FC<Props> = (
   return (
     <Grid container>
       {fields.map(
-        fieldMapper(props.leg, props.onValueChange, props.disabled, props.entry)
+        fieldMapper(
+          props.leg,
+          props.onValueChange,
+          props.disabled,
+          props.entry,
+          props.isEditMode
+        )
       )}
     </Grid>
   );

@@ -21,7 +21,8 @@ export const fieldMapper = (
   leg: Leg,
   onValueChange: (name: keyof Leg, value: any) => void,
   disabled: boolean,
-  entry: DealEntry
+  entry: DealEntry,
+  isEditMode: boolean
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
   const { deal } = moStore;
   const getExtraPropsAndValue = (entry: DealEntry): any => {
@@ -56,8 +57,11 @@ export const fieldMapper = (
       };
     }
   };
-  const isEditable = (fieldDef: FieldDef<Leg, {}, DealEntry>): boolean => {
-    if (!moStore.isEditMode) return false;
+  const isEditable = (
+    fieldDef: FieldDef<Leg, {}, DealEntry>,
+    isEditMode: boolean
+  ): boolean => {
+    if (!isEditMode) return false;
     if (typeof fieldDef.editable !== "function") {
       return fieldDef.editable;
     } else {
@@ -81,7 +85,7 @@ export const fieldMapper = (
       key={fieldDef.name + index}
       color={fieldDef.color}
       label={fieldDef.label}
-      editable={isEditable(fieldDef)}
+      editable={isEditable(fieldDef, isEditMode)}
       precision={fieldDef.precision}
       name={fieldDef.name}
       rounding={fieldDef.rounding}

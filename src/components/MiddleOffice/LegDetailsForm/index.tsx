@@ -13,8 +13,8 @@ interface Props {
 
 export const LegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const { status, legs, isEditMode } = moStore;
     const { entry } = props;
-    const { status, legs } = moStore;
     const disabled: boolean = status !== MOStatus.Normal;
     const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
       switch (key) {
@@ -50,6 +50,7 @@ export const LegDetailsForm: React.FC<Props> = observer(
                 leg={leg}
                 disabled={disabled}
                 entry={entry}
+                isEditMode={isEditMode}
                 onValueChange={onValueChange(index)}
               />
             </fieldset>
