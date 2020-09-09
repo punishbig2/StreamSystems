@@ -8,7 +8,6 @@ import { DealEntry } from "structures/dealEntry";
 import { DealOutput } from "types/dealOutput";
 import { Symbol } from "types/symbol";
 import { roundPremium } from "utils/roundPremium";
-import { getRoundingPrecision } from "utils/roundToNearest";
 
 interface Props {
   premiumStyle: string | undefined;
