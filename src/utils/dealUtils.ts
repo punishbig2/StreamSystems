@@ -107,7 +107,7 @@ export const createDealFromBackendMessage = async (
     spread: item.spread,
     vol:
       item.lastpx !== null && item.lastpx !== undefined
-        ? item.lastpx / 100
+        ? item.lastpx
         : item.vol,
     notional1: Number(item.lastqty) * 1e6,
     notional2: item.notional1 === null ? null : Number(item.notional1),
