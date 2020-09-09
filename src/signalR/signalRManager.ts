@@ -293,7 +293,11 @@ export class SignalRManager {
   };
 
   private onUpdateDeals = (message: string): void => {
-    this.addDeal(JSON.parse(message)).then(() => {});
+    this.addDeal({
+      ...JSON.parse(message),
+      premiumStyle: "Forward",
+      deltaStyle: "Forward",
+    }).then(() => {});
   };
 
   private onUpdateMarketData = (message: string): void => {
@@ -366,6 +370,7 @@ export class SignalRManager {
   public addPricingResponseListener = (listener: (response: any) => void) => {
     const listenerWrapper = (event: Event) => {
       const customEvent: CustomEvent<any> = event as CustomEvent<any>;
+      // Call the actual listener
       listener(customEvent.detail);
     };
     document.addEventListener("onpricingresponse", listenerWrapper, true);
@@ -377,6 +382,7 @@ export class SignalRManager {
   public addDealListener = (listener: (deal: Deal) => void) => {
     const listenerWrapper = (event: Event) => {
       const customEvent: CustomEvent<Deal> = event as CustomEvent<Deal>;
+      // Call the actual listener
       listener(customEvent.detail);
     };
     document.addEventListener("ondeal", listenerWrapper);
