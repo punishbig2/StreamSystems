@@ -15,10 +15,12 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { ModalWindow } from "components/ModalWindow";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
+import dealsStore from "mobx/stores/dealsStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { randomID } from "randomID";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
+import signalRManager from "signalR/signalRManager";
 
 interface Props {
   readonly visible: boolean;
@@ -33,6 +35,11 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
     const { entry } = entryStore;
     useDealDeletedListener(entryStore);
     useErrorListener(moStore.setError);
+    useEffect(() => {
+      signalRManager.addDealListener((deal: Deal) => {
+        dealsStore.addDeal(deal);
+      });
+    }, []);
     if (!props.visible) classes.push("hidden");
     const dontDelete = () => {
       showDeleteQuestion(false);
@@ -66,10 +73,12 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
           <div className={"left-panel"}>
             <DealBlotter
               id={randomID("")}
+              disabled={moStore.status !== MOStatus.Normal}
+              deals={dealsStore.deals}
+              selectedRow={moStore.selectedDealID}
               onDealSelected={(deal: Deal | null) =>
                 moStore.setDeal(deal, entryStore)
               }
-              disabled={moStore.status !== MOStatus.Normal}
             />
           </div>
           <Grid className={"right-panel"} container>

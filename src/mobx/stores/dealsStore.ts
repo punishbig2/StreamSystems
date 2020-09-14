@@ -17,14 +17,14 @@ export class DealsStore {
 
   public findDeal(id: string): Deal | undefined {
     const { deals } = this;
-    return deals.find((deal: Deal): boolean => deal.dealID === id);
+    return deals.find((deal: Deal): boolean => deal.id === id);
   }
 
   @action.bound
   public addDeal(deal: Deal) {
     const { deals } = this;
     const index: number = deals.findIndex(
-      (each: Deal): boolean => each.dealID === deal.dealID
+      (each: Deal): boolean => each.id === deal.id
     );
     if (index === -1) {
       this.deals = [deal, ...deals];
@@ -32,11 +32,11 @@ export class DealsStore {
       const currentDealID: string | null = moStore.selectedDealID;
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // It was modified, so replay consequences
-      if (currentDealID !== null && currentDealID === deal.dealID) {
+      if (currentDealID !== null && currentDealID === deal.id) {
         moStore.setDeal(deal, null);
       }
     }
-    if (deal.dealID === this.selectedDeal) {
+    if (deal.id === this.selectedDeal) {
       this.selectedDeal = null;
       // It was set before it was here, so do it now
       moStore.setDeal(deal, null);
@@ -46,7 +46,7 @@ export class DealsStore {
   @action.bound
   public removeDeal(id: string) {
     const { deals } = this;
-    const index: number = deals.findIndex((deal: Deal) => deal.dealID === id);
+    const index: number = deals.findIndex((deal: Deal) => deal.id === id);
     if (index === -1) return;
     this.deals = [...deals.slice(0, index), ...deals.slice(index + 1)];
   }
@@ -54,7 +54,7 @@ export class DealsStore {
   @action.bound
   public setSelectedDeal = (id: string) => {
     const found: Deal | undefined = this.deals.find(
-      (deal: Deal) => deal.dealID === id
+      (deal: Deal) => deal.id === id
     );
     if (found !== undefined) {
       moStore.setDeal(found, null);

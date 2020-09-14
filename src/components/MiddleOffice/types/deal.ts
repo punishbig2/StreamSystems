@@ -8,7 +8,7 @@ export interface Commission {
 }
 
 export interface Deal {
-  dealID: string;
+  id: string;
   buyer: string;
   seller: string;
   currency: string;

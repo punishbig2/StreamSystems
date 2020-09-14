@@ -288,7 +288,7 @@ export class SignalRManager {
     const data = JSON.parse(message);
     // Only replace legs if current deal matches
     // the updated deal
-    if (data.dealID === selectedDealID) {
+    if (data.id === selectedDealID) {
       moStore.setLegs(data.legs, null);
     }
   };

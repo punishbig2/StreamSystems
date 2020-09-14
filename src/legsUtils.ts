@@ -2,12 +2,12 @@ import { Leg, Rates } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import moStore from "mobx/stores/moStore";
-import moment from "moment";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { Tenor } from "types/tenor";
 import { getTenor } from "utils/dealUtils";
+import { forceParseDate } from "utils/timeUtils";
 
 export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
@@ -47,16 +47,16 @@ export const getStyledValue = (
   return values[index];
 };
 
-export const fixDates = (data: any[]): Leg[] => {
-  const mapper = (item: any): Leg => {
+export const parseDates = (legs: ReadonlyArray<any>): ReadonlyArray<Leg> => {
+  const mapper = (leg: any): Leg => {
     return {
-      ...item,
-      premiumDate: moment(item.premiumDate),
-      expiryDate: moment(item.expiryDate),
-      deliveryDate: moment(item.deliveryDate),
+      ...leg,
+      premiumDate: forceParseDate(leg.premiumDate),
+      expiryDate: forceParseDate(leg.expiryDate),
+      deliveryDate: forceParseDate(leg.deliveryDate),
     };
   };
-  return data.map(mapper);
+  return legs.map(mapper);
 };
 
 const getLegDefaultsFromDeal = (

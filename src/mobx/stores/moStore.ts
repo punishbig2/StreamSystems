@@ -225,11 +225,10 @@ export class MoStore {
   ): { [id: string]: T[] } {
     return array.reduce((groups: { [strategy: string]: T[] }, option: T) => {
       const key: string = option.productid;
-      const group: T[] = groups[key];
-      if (group === undefined) {
+      if (groups[key] === undefined) {
         groups[key] = [option];
       } else {
-        group.push(option);
+        groups[key].push(option);
       }
       return groups;
     }, {});
@@ -267,19 +266,26 @@ export class MoStore {
     deal: Deal | null,
     deStore: DealEntryStore | null = null
   ): void {
-    if (deal === null) {
-      this.selectedDealID = null;
-      this.legs = [];
-      this.summaryLeg = null;
-    } else {
-      withDatesResolved(deal).then((deal: Deal): void =>
-        this.internalSetDeal(deal, deStore)
-      );
+    this.selectedDealID = null;
+    this.legs = [];
+    this.summaryLeg = null;
+    if (deal !== null) {
+      this.selectedDealID = deal.id;
+      withDatesResolved(deal)
+        .then((deal: Deal): void =>
+          this.updateDealStoreAndResetLegs(deal, deStore)
+        )
+        .catch(() => {
+          this.selectedDealID = null;
+        });
     }
   }
 
-  private internalSetDeal(deal: Deal, deStore: DealEntryStore | null) {
-    this.selectedDealID = deal.dealID;
+  @action.bound
+  private updateDealStoreAndResetLegs(
+    deal: Deal,
+    deStore: DealEntryStore | null
+  ) {
     this.legs = [];
     this.summaryLeg = null;
     this.isEditMode = false;
@@ -299,8 +305,7 @@ export class MoStore {
   }
 
   public getStrategyById(id: string): MOStrategy {
-    if (this.strategies[id] !== undefined)
-      return this.strategies[id];
+    if (this.strategies[id] !== undefined) return this.strategies[id];
     return InvalidStrategy;
   }
 

@@ -17,7 +17,7 @@ interface Props {
   readonly row: { [key: string]: any } | null;
   readonly weight: number;
   readonly type: BlotterRowTypes;
-  readonly isSelected?: boolean;
+  readonly selected?: boolean;
   readonly blotterType: BlotterTypes;
   readonly totalWidth: number;
   readonly containerWidth: number;
@@ -98,8 +98,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
       </div>
     );
   }
-  const isSelected: boolean =
-    props.isSelected !== undefined && props.isSelected;
+  const isSelected: boolean = props.selected !== undefined && props.selected;
   const isDarkPool: boolean = row.ExDestination === DarkPool;
   const onClick = () => {
     if (!props.onClick) return;

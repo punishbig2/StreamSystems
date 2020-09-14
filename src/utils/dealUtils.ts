@@ -52,7 +52,7 @@ const getCommissionRates = async (item: any): Promise<any> => {
     const deals: Deal[] = await API.getDeals();
     if (deals.length === 0) return undefined;
     const found: Deal | undefined = deals.find(
-      (deal: Deal): boolean => deal.dealID === item.linkid
+      (deal: Deal): boolean => deal.id === item.linkid
     );
     if (found === undefined) return undefined;
     return found.commissions;
@@ -102,7 +102,7 @@ export const createDealFromBackendMessage = async (
   );
   const premiumDate: Date = addToDate(tradeDate, symbol.SettlementWindow, "d");
   return {
-    dealID: object.linkid,
+    id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
     seller: coalesce(object.sellerentitycode, object.seller),
     currency: object.symbol,
@@ -160,7 +160,7 @@ export const dealSourceToDealType = (source: string): DealType => {
 };
 
 export const createDealEntry = (deal: Deal): DealEntry => {
-  const id: string = deal.dealID;
+  const id: string = deal.id;
   const legsCount: number = moStore.getOutLegsCount(deal.strategy);
   const symbol: Symbol = moStore.findSymbolById(deal.currencyPair);
   if (symbol === InvalidSymbol)

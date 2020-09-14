@@ -4,7 +4,7 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { createLegsFromDefinitionAndDeal, fixDates } from "legsUtils";
+import { createLegsFromDefinitionAndDeal, parseDates } from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
@@ -190,8 +190,8 @@ const populateExistingDealLegs = (
     .execute()
     .then((response: any) => {
       if (response !== null) {
-        if ("dealID" in response) {
-          const legs: ReadonlyArray<Leg> = fixDates(response.legs);
+        if ("dealId" in response) {
+          const legs: ReadonlyArray<Leg> = parseDates(response.legs);
           // Handle legs and populate from response
           handleLegsResponse(entry, legs, cuts);
         } else {

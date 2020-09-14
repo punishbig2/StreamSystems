@@ -20,8 +20,8 @@ interface Props {
   readonly rows?: { [id: string]: any };
   readonly scrollable: boolean;
   readonly renderRow: (props: any, index?: number) => ReactElement | null;
-  readonly showInsertRow?: boolean;
   readonly allowReorderColumns?: boolean;
+  readonly selectedRow?: string | null;
   readonly className?: string;
   readonly ref?: React.Ref<HTMLDivElement>;
   readonly style?: CSSProperties;
@@ -76,7 +76,7 @@ const BasicTable = (
 
   const getBody = (rowProps: any) => {
     const rows = rowProps;
-    if (rows.length === 0 && props.showInsertRow === false) {
+    if (rows.length === 0) {
       return (
         <div className={"empty-table"}>
           <h1>There's no data yet</h1>
@@ -87,11 +87,29 @@ const BasicTable = (
     if (props.scrollable) {
       return (
         <OverlayScrollbarsComponent className={"tbody"}>
-          {rows.map(props.renderRow)}
+          {rows.map((data: any): any => {
+            const { row } = data;
+            const rowProps = {
+              ...data,
+              selected: row.id === props.selectedRow,
+            };
+            return props.renderRow(rowProps);
+          })}
         </OverlayScrollbarsComponent>
       );
     } else {
-      return <div className={"tbody"}>{rows.map(props.renderRow)}</div>;
+      return (
+        <div className={"tbody"}>
+          {rows.map((data: any): any => {
+            const { row } = data;
+            const rowProps = {
+              ...data,
+              selected: row.id === props.selectedRow,
+            };
+            return props.renderRow(rowProps);
+          })}
+        </div>
+      );
     }
   };
 
@@ -125,5 +143,5 @@ const BasicTable = (
 export const Table: React.FC<Props> = observer(React.forwardRef(BasicTable));
 Table.defaultProps = {
   allowReorderColumns: false,
-  showInsertRow: false,
+  selectedRow: null,
 };

@@ -18,17 +18,17 @@ export const columns: ColumnSpec[] = [
     render: (props: CellProps): ReactElement | null => {
       const { deal } = props;
       if (deal) {
-        return <div className={"padded"}>{deal.dealID}</div>;
+        return <div className={"padded"}>{deal.id}</div>;
       } else {
         return null;
       }
     },
     filterByKeyword: (v1: Deal, keyword: string): boolean => {
-      return v1.dealID.includes(keyword.toLowerCase());
+      return v1.id.includes(keyword.toLowerCase());
     },
     difference: (v1: Deal, v2: Deal) => {
-      const s1: string = v1.dealID;
-      return s1.localeCompare(v2.dealID);
+      const s1: string = v1.id;
+      return s1.localeCompare(v2.id);
     },
     filterable: true,
     width: 10,
