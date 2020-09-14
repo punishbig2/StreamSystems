@@ -1,4 +1,4 @@
-import moment from "moment";
+import { Tenor } from "types/tenor";
 import { DealStatus } from "types/dealStatus";
 import { Symbol } from "types/symbol";
 
@@ -17,24 +17,22 @@ export interface Deal {
   strategy: string;
   currencyPair: string;
   symbol: Symbol;
-  transactionTime: string;
-  tenor1: string;
-  tenor2: string;
   strike: number | string;
   vol: number | null;
   spread: number | null;
 
-  tradeDate: moment.Moment;
-  spotDate: moment.Moment;
-  deliveryDate: moment.Moment;
-  expiry1: moment.Moment;
-  expiry2: moment.Moment | null;
+  tradeDate: Date;
+  spotDate: Date;
+  premiumDate: Date;
+
+  tenor1: Tenor;
+  tenor2: Tenor | null;
 
   source: string;
   status: DealStatus;
 
-  premiumStyle?: string;
-  deltaStyle?: string;
+  premiumStyle: string;
+  deltaStyle: string;
   // Summary stuff
   fwdRate1?: number;
   fwdPts1?: number;

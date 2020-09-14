@@ -2,26 +2,27 @@ import { InputHandler } from "components/FormField/inputHandler";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 
-export interface DropdownItem {
-  value: any;
-  label: string;
+export interface DropdownItem<T = any> {
+  readonly internalValue: T;
+  readonly value: string | number;
+  readonly label: string;
 }
 
 export interface FieldDef<T, S = {}, E = {}> {
-  type: FieldType;
-  color: "green" | "orange" | "cream" | "grey";
-  name: keyof T;
-  label: string;
-  editable: boolean | ((data: any, entry?: E) => boolean);
-  placeholder?: string;
-  emptyValue?: string;
-  validate?: (value: string) => Validity;
-  precision?: number;
+  readonly type: FieldType;
+  readonly color: "green" | "orange" | "cream" | "grey";
+  readonly name: keyof T;
+  readonly label: string;
+  readonly editable: boolean | ((data: any, entry?: E) => boolean);
+  readonly placeholder?: string;
+  readonly emptyValue?: string;
+  readonly validate?: (value: string) => Validity;
+  readonly precision?: number;
   // Only for dropdown (for now)
-  transformData?: (item: any, entry?: T) => DropdownItem[] | any;
-  dataSource?: keyof S;
-  data?: any;
-  handler?: InputHandler<T>;
-  key?: string;
-  rounding?: number;
+  readonly transformData?: (item: any, entry?: T) => DropdownItem[];
+  readonly dataSource?: keyof S;
+  readonly data?: any;
+  readonly handler?: InputHandler<T>;
+  readonly key?: string;
+  readonly rounding?: number;
 }

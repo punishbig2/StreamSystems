@@ -12,7 +12,6 @@ import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "structures/dealEntry";
-import { Symbol } from "types/symbol";
 
 interface Props {
   readonly store: DealEntryStore;
@@ -21,14 +20,10 @@ interface Props {
 export const DealEntryForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { store } = props;
-    const { cuts, deal } = moStore;
+    const { cuts } = moStore;
     const { entry } = store;
-    const { ccypair } = entry;
+    const { symbol } = entry;
     useLegs(cuts, entry);
-    useEffect(() => {
-      if (deal === null) return;
-      store.setDeal(deal);
-    }, [store, deal]);
     const fieldsRef: React.MutableRefObject<ReadonlyArray<
       FieldDef<DealEntry, MoStore, DealEntryStore>
     >> = useRef<ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>>>(
@@ -40,8 +35,6 @@ export const DealEntryForm: React.FC<Props> = observer(
         MoStore,
         DealEntryStore
       >> = fieldsRef.current;
-      const symbol: Symbol | undefined = moStore.findSymbolById(ccypair, false);
-      if (symbol === undefined) return;
       const index: number = fields.findIndex(
         (field: FieldDef<DealEntry, MoStore, DealEntryStore>): boolean =>
           field.name === "dealstrike"
@@ -51,17 +44,14 @@ export const DealEntryForm: React.FC<Props> = observer(
         { ...fields[index], rounding: symbol["strike-rounding"] },
         ...fields.slice(index + 1),
       ];
-    }, [ccypair]);
+    }, [symbol]);
     const fields: ReadonlyArray<
       FieldDef<DealEntry, MoStore, DealEntryStore>
     > | null = fieldsRef.current;
-    const onPriced =
-      deal === null
-        ? undefined
-        : () => {
-            const summary: SummaryLeg | null = moStore.summaryLeg;
-            sendPricingRequest(deal, entry, summary);
-          };
+    const onPriced = () => {
+      const summary: SummaryLeg | null = moStore.summaryLeg;
+      sendPricingRequest(entry, summary);
+    };
     const getActionButtons = (): ReactElement | null => {
       switch (store.entryType) {
         case EntryType.Empty:

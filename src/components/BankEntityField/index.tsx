@@ -1,14 +1,16 @@
 import { Grid } from "@material-ui/core";
+import {
+  getCurrentEntity,
+  getDefaultEntity,
+} from "components/BankEntityField/helpers";
 import { FormField } from "components/FormField";
+import { DropdownItem } from "forms/fieldDef";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { BankEntity } from "types/bankEntity";
 
 interface Props<T> {
-  list: {
-    value: string;
-    label: string;
-  }[];
+  list: DropdownItem[];
   value: string;
   name: keyof T;
   disabled: boolean;
@@ -16,42 +18,6 @@ interface Props<T> {
   color: "green" | "orange" | "cream" | "grey";
   onChange?: (name: keyof T, value: any) => void;
 }
-
-const DummyBankEntity: BankEntity = {
-  code: "",
-  default: false,
-  id: "",
-  name: "",
-};
-
-const getCurrentEntity = (
-  code: string,
-  entities: { [p: string]: BankEntity[] }
-): BankEntity => {
-  const flat: BankEntity[] = Object.values(
-    entities
-  ).reduce((current: BankEntity[], next: BankEntity[]): BankEntity[] => [
-    ...current,
-    ...next,
-  ]);
-  const found: BankEntity | undefined = flat.find(
-    (entity: BankEntity): boolean => entity.code === code
-  );
-  if (found === undefined) {
-    return DummyBankEntity;
-  } else {
-    return found;
-  }
-};
-
-const getDefaultEntity = (
-  bank: string,
-  entities: { [p: string]: BankEntity[] }
-): BankEntity | undefined => {
-  const list: BankEntity[] | undefined = entities[bank];
-  if (list === undefined) return;
-  return list.find((entity: BankEntity): boolean => entity.default);
-};
 
 export function BankEntityField<T>(props: Props<T>): ReactElement {
   const { value, disabled, readOnly, name, onChange } = props;
@@ -113,10 +79,13 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
             color={props.color}
             name={props.name}
             value={firm}
-            dropdownData={firms.map((item: string) => ({
-              label: item,
-              value: item,
-            }))}
+            dropdownData={firms.map(
+              (item: string): DropdownItem => ({
+                label: item,
+                internalValue: item,
+                value: item,
+              })
+            )}
             onChange={onBankChange}
             disabled={disabled}
             editable={!readOnly}
@@ -128,10 +97,13 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
             color={props.color}
             name={props.name}
             value={entities.includes(value) ? value : ""}
-            dropdownData={entities.map((item: string) => ({
-              label: item,
-              value: item,
-            }))}
+            dropdownData={entities.map(
+              (item: string): DropdownItem => ({
+                label: item,
+                internalValue: item,
+                value: item,
+              })
+            )}
             onChange={onEntityChange}
             disabled={disabled}
             editable={!readOnly}

@@ -1,4 +1,3 @@
-import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg, Rates } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
@@ -7,6 +6,8 @@ import moment from "moment";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
+import { getTenor } from "utils/dealUtils";
 
 export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
@@ -59,21 +60,20 @@ export const fixDates = (data: any[]): Leg[] => {
 };
 
 const getLegDefaultsFromDeal = (
-  deal: Deal | null,
+  entry: DealEntry | null,
   index: number
 ): Partial<Leg> => {
-  if (deal === null || deal === undefined) return {};
-  const { symbol } = deal;
+  if (entry === null || entry === undefined) return {};
+  // const { symbol } = deal;
   const leg: Partial<Leg> = {};
-  if (deal.expiry1) leg.expiryDate = deal.expiry1;
-  if (deal.tradeDate)
-    leg.premiumDate = moment(deal.tradeDate).add(symbol.SettlementWindow, "d");
-  if (deal.deliveryDate) leg.deliveryDate = deal.deliveryDate;
-  leg.notional =
-    index === 1 && deal.notional2 !== null ? deal.notional2 : deal.notional1;
-  leg.vol = deal.vol;
-  leg.strike = deal.strike;
-  leg.party = deal.buyer;
+  const tenor: Tenor = getTenor(entry, index);
+  leg.premiumDate = entry.premiumDate;
+  leg.deliveryDate = tenor.deliveryDate;
+  leg.expiryDate = tenor.expiryDate;
+  leg.notional = index === 1 && entry.not2 !== null ? entry.not1 : entry.not1;
+  leg.vol = entry.vol;
+  leg.strike = entry.dealstrike;
+  leg.party = entry.buyer;
   return leg;
 };
 
@@ -113,25 +113,18 @@ const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
 
 export const createLegsFromDefinitionAndDeal = (
   definitions: LegOptionsDefIn[],
-  deal: Deal
+  entry: DealEntry
 ): ReadonlyArray<Leg> => {
   return definitions.map(
     (definition: LegOptionsDefIn, index: number): Leg => {
-      const mapper = legDefMapper(deal.symbol);
+      const mapper = legDefMapper(entry.symbol);
       const base: Leg = mapper(definition);
       return {
         ...base,
-        ...getLegDefaultsFromDeal(deal, index),
+        ...getLegDefaultsFromDeal(entry, index),
       };
     }
   );
-};
-
-export const createLegsFromDefinitionAndSymbol = (
-  definitions: LegOptionsDefIn[],
-  symbol: Symbol
-): ReadonlyArray<Leg> => {
-  return definitions.map(legDefMapper(symbol));
 };
 
 export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {

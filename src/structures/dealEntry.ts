@@ -1,5 +1,11 @@
-import moment from "moment";
+import { Commission } from "components/MiddleOffice/types/deal";
+import {
+  InvalidStrategy,
+  MOStrategy,
+} from "components/MiddleOffice/types/moStrategy";
 import { DealStatus } from "types/dealStatus";
+import { InvalidSymbol, Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
 
 export enum DealType {
   Invalid = 0,
@@ -16,40 +22,57 @@ export enum EntryType {
 }
 
 export interface DealEntry {
-  dealId: string;
+  readonly dealID?: string;
 
-  ccypair: string;
-  tenor1: string;
-  tenor1expiry: moment.Moment | null;
-  tenor2: string;
-  tenor2expiry: moment.Moment | null;
-  dealstrike?: string | number;
-  spread?: number | null;
-  vol?: number | null;
-  not1: number | null;
-  not2?: number | null;
-  legadj: boolean;
-  premstyle?: string;
-  deltastyle?: string;
-  buyer: string;
-  seller: string;
-  style: string;
-  model: number | "";
+  readonly symbol: Symbol;
+  readonly strategy: MOStrategy;
 
-  strategy: string;
-  legs: number | null;
+  readonly tenor1: Tenor;
+  readonly tenor2: Tenor | null;
 
-  status: DealStatus;
+  readonly dealstrike?: string | number;
+  readonly spread?: number | null;
+  readonly vol?: number | null;
+  readonly not1: number | null;
+  readonly not2?: number | null;
+  readonly legadj: boolean;
+  readonly premstyle: string;
+  readonly deltastyle: string;
+  readonly buyer: string;
+  readonly seller: string;
+  readonly style: string;
+  readonly model: number | "";
 
-  deliveryDate: moment.Moment;
-  tradeDate: moment.Moment;
-  type: EntryType;
-  dealType: DealType;
+  readonly legs: number | null;
+
+  readonly status: DealStatus;
+
+  readonly spotDate: Date;
+  readonly premiumDate: Date;
+  readonly tradeDate: Date;
+
+  readonly type: EntryType;
+  readonly dealType: DealType;
+
+  readonly fwdrate1?: number;
+  readonly fwdpts1?: number;
+  readonly fwdrate2?: number;
+  readonly fwdpts2?: number;
+  readonly size: number;
+
+  readonly usi?: string;
+
+  readonly commissions:
+    | {
+        buyer: Commission;
+        seller: Commission;
+      }
+    | undefined;
 }
 
 export const emptyDealEntry: DealEntry = {
-  ccypair: "",
-  strategy: "",
+  symbol: InvalidSymbol,
+  strategy: InvalidStrategy,
   premstyle: "Forward",
   deltastyle: "Forward",
   legs: null,
@@ -58,18 +81,65 @@ export const emptyDealEntry: DealEntry = {
   legadj: false,
   buyer: "",
   seller: "",
-  tenor1expiry: null,
-  tenor2expiry: null,
-  deliveryDate: moment(),
-  tradeDate: moment(),
-  dealId: "",
+  tenor1: {
+    expiryDate: new Date(),
+    deliveryDate: new Date(),
+    spotDate: new Date(),
+    name: "",
+  },
+  tenor2: null,
+  spotDate: new Date(),
+  premiumDate: new Date(),
+  tradeDate: new Date(),
+  dealID: "",
   status: DealStatus.Pending,
   style: "European",
   model: 3,
-  tenor1: "",
-  tenor2: "",
   type: EntryType.Empty,
   dealType: DealType.Manual,
   vol: null,
   spread: null,
+
+  size: 0,
+  commissions: {
+    buyer: {
+      rate: 0,
+      value: 0,
+    },
+    seller: {
+      rate: 0,
+      value: 0,
+    },
+  },
 };
+
+export interface ServerDealQuery {
+  readonly linkid?: string;
+  readonly tenor: string;
+  readonly tenor1: string | null;
+  readonly strategy: string;
+  readonly symbol: string;
+  readonly spread?: number | null;
+  readonly vol?: number | null;
+  readonly lastqty: number;
+  readonly notional1: number | null;
+  readonly size: number; // Notional / 1e6
+  readonly lvsqty: "0";
+  readonly cumqty: "0";
+  readonly transacttime: string;
+  readonly buyerentitycode: string;
+  readonly sellerentitycode: string;
+  readonly buyer: string;
+  readonly seller: string;
+  readonly useremail: string;
+  readonly strike?: string | number;
+  readonly expirydate: string;
+  readonly expirydate1: string | null;
+  readonly fwdrate1?: number;
+  readonly fwdpts1?: number;
+  readonly fwdrate2?: number;
+  readonly fwdpts2?: number;
+  readonly deltastyle: string;
+  readonly premstyle: string;
+  readonly product_fields_changed?: string[];
+}

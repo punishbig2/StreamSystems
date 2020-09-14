@@ -21,7 +21,7 @@ import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, ExecTypes, Message } from "types/message";
 import {
-  MiddleOfficeError,
+  MOErrorMessage,
   ON_MIDDLE_OFFICE_ERROR,
 } from "types/middleOfficeError";
 import { Sides } from "types/sides";
@@ -53,9 +53,9 @@ export enum Methods {
   SubscribeForDarkPoolPx = "SubscribeForDarkPoolPx",
   UnsubscribeFromDarkPoolPx = "UnsubscribeForDarkPoolPx",
   SubscribeForDeals = "SubscribeForDeals",
-  UnsubscribeFromDeals = "UnSubscribeForDeals",
+  // UnsubscribeFromDeals = "UnSubscribeForDeals",
   SubscribeForPricingResponse = "SubscribeForPricingResponse",
-  UnsubscribeFromPricingResponse = "UnSubscribeForPricing",
+  // UnsubscribeFromPricingResponse = "UnSubscribeForPricing",
 }
 
 enum Events {
@@ -267,7 +267,7 @@ export class SignalRManager {
   }
 
   public addDeal = async (deal: any): Promise<void> => {
-    if ("dealId" in deal) {
+    if ("dealID" in deal) {
       // IGNORE THIS INTENTIONALLY
     } else {
       try {
@@ -283,12 +283,12 @@ export class SignalRManager {
   };
 
   private onUpdateLegs = (message: string): void => {
-    const { deal } = moStore;
-    if (deal === null) return;
+    const { selectedDealID } = moStore;
+    if (selectedDealID === null) return;
     const data = JSON.parse(message);
     // Only replace legs if current deal matches
     // the updated deal
-    if (data.dealId === deal.dealID) {
+    if (data.dealID === selectedDealID) {
       moStore.setLegs(data.legs, null);
     }
   };
@@ -595,12 +595,13 @@ export class SignalRManager {
     });
   };
 
-  private emitMiddleOfficeError = (error: MiddleOfficeError): void => {
-    const event: CustomEvent<MiddleOfficeError> = new CustomEvent<
-      MiddleOfficeError
-    >(ON_MIDDLE_OFFICE_ERROR, {
-      detail: error,
-    });
+  private emitMiddleOfficeError = (error: MOErrorMessage): void => {
+    const event: CustomEvent<MOErrorMessage> = new CustomEvent<MOErrorMessage>(
+      ON_MIDDLE_OFFICE_ERROR,
+      {
+        detail: error,
+      }
+    );
     document.dispatchEvent(event);
   };
 
@@ -639,7 +640,7 @@ export class SignalRManager {
     const user: User = workareaStore.user;
     if (object.report_status === "REJECTED") {
       if (object.useremail !== user.email) return;
-      const error: MiddleOfficeError = {
+      const error: MOErrorMessage = {
         status: "701",
         content: parseSEFError(object.error_msg),
         code: 701,

@@ -2,13 +2,8 @@ import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { DropdownItem } from "forms/fieldDef";
-import moment, { isMoment } from "moment";
 import React, { ReactElement } from "react";
-
-export interface Tenor {
-  tenor: string;
-  expiryDate: moment.Moment;
-}
+import { Tenor } from "types/tenor";
 
 interface Props<T> {
   data: DropdownItem[];
@@ -25,9 +20,9 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data, value } = props;
   const onDateChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    value: moment.Moment | string
+    value: Date | string
   ): void => {
-    if (!isMoment(value)) return;
+    if (value instanceof Date) return;
     if (props.onChange !== undefined) {
       props.onChange(props.name as keyof T, value);
     }
@@ -39,13 +34,13 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
   };
   const tenorControl = (): ReactElement => {
     if (props.readOnly) {
-      return <ReadOnlyField name={props.name + "-value"} value={value.tenor} />;
+      return <ReadOnlyField name={props.name + "-value"} value={value.name} />;
     } else {
       return (
         <FormField
           dropdownData={data}
           color={props.color}
-          value={value.tenor}
+          value={value.name}
           name={props.name}
           type={"dropdown"}
           editable={!props.readOnly}
@@ -64,15 +59,15 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
         </Grid>
         <Grid xs={6} item>
           <div style={{ width: 2 }} />
-          <FormField<{ date: moment.Moment }>
+          <FormField<{ date: Date }>
             color={props.color}
             type={"date"}
             value={value.expiryDate}
             placeholder={"MM/DD/YYYY"}
             editable={!props.readOnly}
             name={"date"}
-            onInput={onDateChange}
             disabled={props.disabled}
+            onInput={onDateChange}
           />
         </Grid>
       </Grid>

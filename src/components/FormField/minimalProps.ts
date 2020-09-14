@@ -1,6 +1,5 @@
-import { Tenor } from "components/TenorDropdown";
+import { Tenor } from "types/tenor";
 import { FieldType } from "forms/fieldType";
-import { Moment } from "moment";
 
 export interface MinimalProps<T = any> {
   type: FieldType;
@@ -12,7 +11,7 @@ export interface MinimalProps<T = any> {
     | string
     | boolean
     | number
-    | Moment
+    | Date
     | undefined
     | null
     | Tenor

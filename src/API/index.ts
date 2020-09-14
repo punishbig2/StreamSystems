@@ -12,10 +12,14 @@ import { mergeDefinitionsAndLegs } from "legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { STRM } from "stateDefs/workspaceState";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry, ServerDealQuery } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
+import {
+  CalendarFXPairQuery,
+  CalendarFXPairResponse,
+} from "types/calendarFXPair";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import {
@@ -28,6 +32,7 @@ import {
 import { Sides } from "types/sides";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
 import { User } from "types/user";
 import { MessageTypes, W } from "types/w";
 import {
@@ -38,16 +43,17 @@ import {
 } from "utils";
 import {
   createDealFromBackendMessage,
+  getDealId,
+  getTenor,
   resolveBankToEntity,
   resolveEntityToBank,
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
-import { splitCurrencyPair } from "utils/symbolUtils";
 import {
   currentTimestampFIXFormat,
   momentToUTCFIXFormat,
+  toIsoDate,
 } from "utils/timeUtils";
-import moment from "moment";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -728,31 +734,28 @@ export class API {
   }
 
   public static async sendPricingRequest(
-    deal: Deal,
     entry: DealEntry,
     legs: Leg[],
     summaryLeg: SummaryLeg | null,
     valuationModel: ValuationModel,
     strategy: MOStrategy
   ): Promise<void> {
-    const { currencyPair, tradeDate, symbol } = deal;
-    if (currencyPair.length !== 6)
-      throw new Error(`unsupported currency ${currencyPair}`);
-    const [ccy1, ccy2] = splitCurrencyPair(currencyPair);
+    const { tradeDate, symbol } = entry;
+    if (entry.dealID === undefined)
+      throw new Error("cannot price an transient deal");
     const mergedDefinitions: Leg[] = mergeDefinitionsAndLegs(
       entry,
       strategy,
       symbol,
       legs
     );
-    const tradeDateAsDate: Date = tradeDate.toDate();
-
+    const ccyPair: string = symbol.symbolID;
     const request: VolMessageIn = {
-      id: deal.dealID,
+      id: entry.dealID,
       Option: {
-        ccyPair: currencyPair,
-        ccy1: ccy1,
-        ccy2: ccy2,
+        ccyPair: ccyPair,
+        ccy1: symbol.notionalCCY,
+        ccy2: ccyPair.replace(symbol.notionalCCY, ""),
         OptionProductType: strategy.OptionProductType,
         vegaAdjust: entry.legadj,
         notionalCCY: symbol.notionalCCY,
@@ -760,30 +763,25 @@ export class API {
         premiumCCY: symbol.premiumCCY,
         OptionLegs: mergedDefinitions.map(
           (leg: Leg, index: number): OptionLeg => {
+            const { strategy } = entry;
+            const tenor: Tenor = getTenor(entry, index);
             const spread: number | null =
-              entry.strategy === "Butterfly-2Leg" && index > 0
+              strategy.productid === "Butterfly-2Leg" && index > 0
                 ? null
                 : coalesce(entry.spread, null);
             const vol: number | null =
-              entry.strategy === "Butterfly-2Leg" && index > 0
+              strategy.productid === "Butterfly-2Leg" && index > 0
                 ? null
                 : coalesce(leg.vol, entry.vol);
             const notional: number = coalesce(
-              index === 1 ? deal.notional2 : deal.notional1,
-              deal.notional1
+              index === 1 ? entry.not2 : entry.not1,
+              entry.not1
             );
-            const expiryDate: moment.Moment = coalesce(
-              index === 1 ? deal.expiry2 : deal.expiry1,
-              deal.expiry1
-            );
-            const deliveryDate: moment.Moment = coalesce(
-              leg.deliveryDate,
-              deal.deliveryDate
-            );
+            const { expiryDate, deliveryDate } = tenor;
             return {
               notional: notional,
-              expiryDate: expiryDate.format("YYYY-MM-DD"),
-              deliveryDate: deliveryDate.format("YYYY-MM-DD"),
+              expiryDate: toIsoDate(expiryDate),
+              deliveryDate: toIsoDate(deliveryDate),
               spreadVolatiltyOffset: spread,
               strike: numberifyIfPossible(
                 coalesce(
@@ -806,21 +804,21 @@ export class API {
       ValuationData: {
         valuationDate: new Date(),
         VOL: {
-          ccyPair: currencyPair,
+          ccyPair: ccyPair,
           premiumAdjustDelta: symbol.premiumAdjustDelta,
-          snapTime: tradeDateAsDate,
+          snapTime: tradeDate,
           DateCountBasisType: symbol["DayCountBasis-VOL"],
           VolSurface: [], // To be filled by the pre-pricer
         },
         FX: {
-          ccyPair: currencyPair,
-          snapTime: tradeDateAsDate,
+          ccyPair: ccyPair,
+          snapTime: tradeDate,
           DateCountBasisType: symbol["DayCountBasis-FX"],
           ForwardRates: buildFwdRates(
             summaryLeg,
             strategy,
-            deal.expiry1,
-            deal.expiry2
+            entry.tenor1,
+            entry.tenor2
           ),
         },
         RATES: [],
@@ -831,6 +829,7 @@ export class API {
       version: "arcfintech-volMessage-0.2.2",
     };
     const task: Task<any> = post<any>(config.PricingRequestUrl, request);
+    console.log(entry, request);
     return task.execute();
   }
 
@@ -856,95 +855,117 @@ export class API {
     return task.execute();
   }
 
-  private static createDealRequest(data: any) {
+  private static createDealRequest(
+    deal: DealEntry,
+    changed: string[]
+  ): ServerDealQuery {
     const user: User = workareaStore.user;
+    const { symbol, strategy, tenor1, tenor2 } = deal;
     return {
-      linkid: data.linkid,
-      tenor: data.tenor1,
-      tenor1: data.tenor2,
-      strategy: data.strategy,
-      symbol: data.symbol,
-      spread: data.spread,
-      vol: data.vol,
-      lastqty: data.size,
-      notional1: data.notional1,
+      linkid: getDealId(deal),
+      tenor: tenor1.name,
+      tenor1: tenor2 !== null ? tenor2.name : null,
+      strategy: strategy.productid,
+      symbol: symbol.symbolID,
+      spread: deal.spread,
+      vol: deal.vol,
+      lastqty: deal.size,
+      notional1: deal.not1,
+      size: deal.size,
       lvsqty: "0",
       cumqty: "0",
       transacttime: currentTimestampFIXFormat(),
-      buyerentitycode: resolveBankToEntity(data.buyer),
-      sellerentitycode: resolveBankToEntity(data.seller),
-      buyer: resolveEntityToBank(data.buyer),
-      seller: resolveEntityToBank(data.buyer),
+      buyerentitycode: resolveBankToEntity(deal.buyer),
+      sellerentitycode: resolveBankToEntity(deal.seller),
+      buyer: resolveEntityToBank(deal.buyer),
+      seller: resolveEntityToBank(deal.seller),
       useremail: user.email,
-      strike: data.strike,
-      expirydate: momentToUTCFIXFormat(data.expiry1),
-      expirydate1: momentToUTCFIXFormat(data.expiry2),
-      fwdrate1: data.fwdrate1,
-      fwdpts1: data.fwdpts1,
-      fwdrate2: data.fwdrate2,
-      fwdpts2: data.fwdpts2,
-      deltastyle: data.deltaStyle,
-      premstyle: data.premiumStyle,
-      product_fields_changed: data.product_fields_changed,
+      strike: deal.dealstrike,
+      expirydate: momentToUTCFIXFormat(tenor1.expiryDate),
+      expirydate1:
+        tenor2 !== null ? momentToUTCFIXFormat(tenor2.expiryDate) : null,
+      fwdrate1: deal.fwdrate1,
+      fwdpts1: deal.fwdpts1,
+      fwdrate2: deal.fwdrate2,
+      fwdpts2: deal.fwdpts2,
+      deltastyle: deal.deltastyle,
+      premstyle: deal.premstyle,
+      product_fields_changed: changed,
     };
   }
 
-  private static async saveLegs(dealId: string): Promise<string> {
+  private static async saveLegs(dealID: string): Promise<string> {
     const { user } = workareaStore;
     const { legs } = moStore;
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
-      dealId: dealId,
+      dealID: dealID,
       useremail: user.email,
       legs: legs,
     });
     return task.execute();
   }
 
-  public static async sendTradeCaptureReport(dealId: string): Promise<string> {
+  public static async sendTradeCaptureReport(dealID: string): Promise<string> {
     const user: User = workareaStore.user;
     const task: Task<string> = post<string>(
       API.buildUrl(API.SEF, "tradecapreport", "send"),
       {
-        dealId: dealId,
+        dealID: dealID,
         useremail: user.email,
       }
     );
     return task.execute();
   }
 
-  public static async updateDeal(data: any): Promise<string> {
-    await API.saveLegs(data.linkid);
+  public static async updateDeal(
+    data: DealEntry,
+    changed: string[]
+  ): Promise<string> {
+    if (data.dealID === undefined)
+      throw new Error("to save an existing deal please provide an id");
+    await API.saveLegs(data.dealID);
     // Save the deal now
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "update"),
-      API.createDealRequest(data)
+      API.createDealRequest(data, changed)
     );
     return task.execute();
   }
 
-  public static async cloneDeal(data: any): Promise<string> {
+  public static async cloneDeal(
+    data: DealEntry,
+    changed: string[]
+  ): Promise<string> {
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
-      API.createDealRequest(data)
+      API.createDealRequest(data, changed)
     );
-    const dealId: string = await task.execute();
+    const dealID: string = await task.execute();
     // Save the legs now
-    await API.saveLegs(dealId);
-    return dealId;
+    await API.saveLegs(dealID);
+    return dealID;
   }
 
-  public static async createDeal(data: any): Promise<string> {
+  public static async createDeal(
+    data: DealEntry,
+    changed: string[]
+  ): Promise<string> {
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "create"),
-      API.createDealRequest(data)
+      API.createDealRequest(data, changed)
     );
-    const dealId: string = await task.execute();
+    const dealID: string = await task.execute();
     // Save the legs now
-    await API.saveLegs(dealId);
-    return dealId;
+    await API.saveLegs(dealID);
+    return dealID;
   }
 
-  public static getLegs(dealid: string): Task<any> {
+  public static getLegs(dealid: string | undefined): Task<Leg[] | null> {
+    if (dealid === undefined)
+      return {
+        execute: async (): Promise<null> => null,
+        cancel: () => undefined,
+      };
     // We return the task instead of it's execution promise so that
     // the caller can cancel if desired/needed
     return get<any>(API.buildUrl(API.Legs, "legs", "get", { dealid }));
@@ -996,6 +1017,17 @@ export class API {
   public static getPremiumStyles(): Promise<ReadonlyArray<string>> {
     const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
       API.buildUrl(API.MloConfig, "premstyle", "get")
+    );
+    return task.execute();
+  }
+
+  public static calendarFxPair(
+    query: CalendarFXPairQuery
+  ): Promise<CalendarFXPairResponse> {
+    const url: string = config.VolServer + "/api/calendar/fxpair";
+    const task: Task<CalendarFXPairResponse> = post<CalendarFXPairResponse>(
+      url,
+      query
     );
     return task.execute();
   }

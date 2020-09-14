@@ -1,13 +1,12 @@
 import { FormField } from "components/FormField";
-import { FieldDef, DropdownItem } from "forms/fieldDef";
+import { DropdownItem, FieldDef } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
-import { isMoment } from "moment";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
-import { SPECIFIC_TENOR, tenorToDate } from "utils/tenorUtils";
-import { EditableCondition, MOStrategy } from "../types/moStrategy";
+import { deriveTenor } from "utils/tenorUtils";
+import { EditableCondition } from "../types/moStrategy";
 
 export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
   fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
@@ -19,31 +18,30 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     ? transformData(source, entry)
     : [];
   const editableCondition: EditableCondition = (() => {
-    const strategy: MOStrategy | undefined = moStore.getStrategyById(
-      entry.strategy
-    );
-    if (strategy !== undefined) {
+    const { strategy } = entry;
+    if (strategy !== undefined && strategy.fields !== undefined) {
       const { f1 } = strategy.fields;
       return f1[field.name];
     }
     return EditableCondition.None;
   })();
 
-  const getValue = (rawValue: any): any => {
+  const getValue = (rawValue: any, internal: boolean): any => {
     if (editableCondition === EditableCondition.NotApplicable) return "N/A";
     if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
     if (field.name === "status") return stateMap[Number(rawValue)];
-    if (field.type === "tenor") {
-      return {
-        tenor: entry[field.name],
-        expiryDate: entry[(field.name + "expiry") as keyof DealEntry],
-      };
-    }
     if (field.name === "legadj") {
       if (!!rawValue) {
         return "true";
       } else {
         return "false";
+      }
+    }
+    if (!internal) {
+      if (field.name === "symbol") {
+        return rawValue.symbolID;
+      } else if (field.name === "strategy") {
+        return rawValue.productid;
       }
     }
     if (field.type === "number") {
@@ -58,22 +56,28 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       return rawValue;
     }
   };
-  const value: any = getValue(!!entry ? entry[field.name] : null);
-  const onTenorChange = (name: keyof DealEntry, value: string): void => {
-    const expiry: keyof DealEntry = (name + "expiry") as keyof DealEntry;
-    if (isMoment(value)) {
-      store.updateEntry(name, SPECIFIC_TENOR);
-      store.updateEntry(expiry, value);
-    } else {
-      store.updateEntry(name, value);
-      store.updateEntry(expiry, tenorToDate(value));
-    }
+  const value: any = getValue(!!entry ? entry[field.name] : null, false);
+  const onTenorChange = async (
+    name: keyof DealEntry,
+    value: string | Date
+  ): Promise<void> => {
+    return store.updateEntry({
+      [name]: await deriveTenor(entry.symbol, value, entry.tradeDate),
+    });
   };
-  const onChange = (name: keyof DealEntry, value: string): void => {
-    if (field.type === "tenor") return onTenorChange(name, value);
-    const convertedValue: any = getValue(value);
-    if (convertedValue === undefined) return;
-    store.updateEntry(name, convertedValue);
+  const onChange = (name: keyof DealEntry, value: any): void => {
+    if (field.type === "tenor") {
+      store.setWorking(name);
+      // Execute and then stop the working mode
+      onTenorChange(name, value).finally(() => store.setWorking(null));
+    } else {
+      const convertedValue: any = getValue(value, true);
+      if (convertedValue === undefined) return;
+      store.setWorking(name);
+      store
+        .updateEntry({ [name]: convertedValue })
+        .finally(() => store.setWorking(null));
+    }
   };
   const isEditable = (
     fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>

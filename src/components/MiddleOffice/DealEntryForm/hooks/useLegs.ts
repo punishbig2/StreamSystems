@@ -1,34 +1,29 @@
 import { API, Task } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
-import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import {
-  createLegsFromDefinitionAndDeal,
-  createLegsFromDefinitionAndSymbol,
-  fixDates,
-} from "legsUtils";
+import { createLegsFromDefinitionAndDeal, fixDates } from "legsUtils";
 import moStore, { MOStatus } from "mobx/stores/moStore";
-import moment from "moment";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
 import { coalesce } from "utils";
 
 const buildSummaryLegFromCut = (
   cut: Cut,
-  strategyId: string,
+  strategy: MOStrategy,
   symbol: Symbol,
-  tradeDate: moment.Moment,
-  spotDate: moment.Moment,
-  deliveryDate: moment.Moment,
-  expiryDate: moment.Moment
+  tradeDate: Date,
+  premiumDate: Date,
+  spotDate: Date,
+  deliveryDate: Date,
+  expiryDate: Date
 ): SummaryLeg => {
-  const strategy: MOStrategy = moStore.getStrategyById(strategyId);
   return {
     fwdpts1: null,
     fwdrate1: null,
@@ -37,7 +32,7 @@ const buildSummaryLegFromCut = (
     cutCity: cut.City,
     cutTime: cut.LocalTime,
     dealOutput: {
-      premiumDate: spotDate,
+      premiumDate: premiumDate,
       deliveryDate: deliveryDate,
       expiryDate: expiryDate,
       side: Sides.None,
@@ -77,12 +72,13 @@ const buildSummaryLegFromCut = (
 
 const createSummaryLeg = (
   cuts: ReadonlyArray<Cut>,
-  strategyId: string,
+  strategy: MOStrategy,
   symbol: Symbol,
-  tradeDate: moment.Moment,
-  spotDate: moment.Moment,
-  deliveryDate: moment.Moment,
-  expiryDate: moment.Moment
+  tradeDate: Date,
+  premiumDate: Date,
+  spotDate: Date,
+  deliveryDate: Date,
+  expiryDate: Date
 ): SummaryLeg | null => {
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
@@ -93,9 +89,10 @@ const createSummaryLeg = (
   if (cut !== undefined) {
     return buildSummaryLegFromCut(
       cut,
-      strategyId,
+      strategy,
       symbol,
       tradeDate,
+      premiumDate,
       spotDate,
       deliveryDate,
       expiryDate
@@ -105,25 +102,8 @@ const createSummaryLeg = (
   }
 };
 
-const createStubLegs = (
-  strategy: string,
-  symbol: Symbol
-): ReadonlyArray<Leg> | null => {
-  const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
-    moStore.legDefinitions[strategy];
-  if (!legDefinitions) {
-    console.warn(`no leg definitions found for ${strategy}`);
-    console.warn("available strategies are: ", moStore.legDefinitions);
-    return null;
-  }
-  const storeLegs: Leg[] = moStore.legs;
-  return storeLegs.length > 0
-    ? storeLegs
-    : createLegsFromDefinitionAndSymbol(legDefinitions.in, symbol);
-};
-
 const handleLegsResponse = (
-  deal: Deal,
+  entry: DealEntry,
   legs: ReadonlyArray<Leg>,
   cuts: ReadonlyArray<Cut>
 ): void => {
@@ -134,15 +114,17 @@ const handleLegsResponse = (
       summaryLeg !== null ? summaryLeg.fwdpts1 : null;
     const fwdRate: number | null =
       summaryLeg !== null ? summaryLeg.fwdrate1 : null;
+    const tenor: Tenor = entry.tenor1;
     moStore.setLegs(legs.slice(legs.length === 1 ? 0 : 1), {
       ...createSummaryLeg(
         cuts,
-        deal.strategy,
-        deal.symbol,
-        deal.tradeDate,
-        deal.spotDate,
-        deal.deliveryDate,
-        deal.expiry1
+        entry.strategy,
+        entry.symbol,
+        entry.tradeDate,
+        entry.premiumDate,
+        entry.spotDate,
+        tenor.deliveryDate,
+        tenor.expiryDate
       ),
       ...summaryLeg,
       fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
@@ -158,7 +140,7 @@ const handleLegsResponse = (
         legs[2] !== undefined ? legs[2].fwdRate : undefined
       ),
       spot: legs[0].spot,
-      usi: deal.usi,
+      usi: entry.usi,
       ...{ dealOutput: legs[0] },
     } as SummaryLeg);
   } else {
@@ -168,106 +150,91 @@ const handleLegsResponse = (
 
 const createDefaultLegsFromDeal = (
   cuts: ReadonlyArray<Cut>,
-  deal: Deal
+  entry: DealEntry
 ): void => {
+  const { strategy } = entry;
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
-    moStore.legDefinitions[deal.strategy];
+    moStore.legDefinitions[strategy.productid];
   if (!legDefinitions) {
-    console.warn(`no leg definitions found for ${deal.strategy}`);
+    console.warn(`no leg definitions found for ${entry.strategy}`);
     console.warn("available strategies are: ", moStore.legDefinitions);
     return;
   }
   const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(
     legDefinitions.in,
-    deal
+    entry
   );
+  const tenor: Tenor = entry.tenor1;
   moStore.setLegs(
     legs,
     createSummaryLeg(
       cuts,
-      deal.strategy,
-      deal.symbol,
-      deal.tradeDate,
-      deal.spotDate,
-      deal.deliveryDate,
-      deal.expiry1
+      entry.strategy,
+      entry.symbol,
+      entry.tradeDate,
+      entry.premiumDate,
+      entry.spotDate,
+      tenor.deliveryDate,
+      tenor.expiryDate
     )
   );
 };
 
-const createDefaultLegs = (ccypair: string, strategy: string): void => {
-  // Then ... do our thing
-  if (ccypair === "" || strategy === "") return;
-  const symbol: Symbol | undefined = moStore.findSymbolById(ccypair);
-  if (symbol === undefined) {
-    throw new Error("could not find symbol: " + ccypair);
-  }
-  const legs: ReadonlyArray<Leg> | null = createStubLegs(strategy, symbol);
-  if (legs !== null) {
-    moStore.setLegs(legs, null);
-  }
+const populateExistingDealLegs = (
+  cuts: ReadonlyArray<Cut>,
+  entry: DealEntry
+): (() => void) => {
+  // Query the legs, they could not exist too
+  const task: Task<any> = API.getLegs(entry.dealID);
+  task
+    .execute()
+    .then((response: any) => {
+      if (response !== null) {
+        if ("dealID" in response) {
+          const legs: ReadonlyArray<Leg> = fixDates(response.legs);
+          // Handle legs and populate from response
+          handleLegsResponse(entry, legs, cuts);
+        } else {
+          // If there's an error, we must show it
+          if ("error_msg" in response) {
+            moStore.setError({
+              status: "Server error",
+              error: "Unexpected Error",
+              content: response.error_msg,
+              code: 500,
+            });
+          } else {
+            createDefaultLegsFromDeal(cuts, entry);
+          }
+        }
+      } else {
+        createDefaultLegsFromDeal(cuts, entry);
+      }
+    })
+    .catch((reason: any) => {
+      if (reason !== "aborted") {
+        createDefaultLegsFromDeal(cuts, entry);
+      }
+    });
+  const removePricingListener: () => void = signalRManager.addPricingResponseListener(
+    () => {
+      if (moStore.status === MOStatus.Pricing) {
+        moStore.setStatus(MOStatus.Normal);
+      }
+    }
+  );
+  return () => {
+    removePricingListener();
+    task.cancel();
+  };
 };
 
 export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
-  const { deal } = moStore;
   useEffect(() => {
-    if (deal === null) return;
-    // Reset
-    moStore.setLegs([], null);
-    // Query the legs, they could not exist too
-    const task: Task<any> = API.getLegs(deal.dealID);
-    task
-      .execute()
-      .then((response: any) => {
-        if (response !== null) {
-          console.log(response);
-          if ("dealId" in response) {
-            const legs: ReadonlyArray<Leg> = fixDates(response.legs);
-            // Handle legs and populate from response
-            handleLegsResponse(deal, legs, cuts);
-          } else {
-            // If there's an error, we must show it
-            if ("error_msg" in response) {
-              moStore.setError({
-                status: "Server error",
-                error: "Unexpected Error",
-                content: response.error_msg,
-                code: 500,
-              });
-            } else {
-              createDefaultLegsFromDeal(cuts, deal);
-            }
-          }
-        } else {
-          createDefaultLegsFromDeal(cuts, deal);
-        }
-      })
-      .catch((reason: any) => {
-        if (reason !== "aborted") {
-          createDefaultLegsFromDeal(cuts, deal);
-        }
-      });
-    const removePricingListener: () => void = signalRManager.addPricingResponseListener(
-      () => {
-        if (moStore.status === MOStatus.Pricing) {
-          moStore.setStatus(MOStatus.Normal);
-        }
-      }
-    );
-    return () => {
-      removePricingListener();
-      task.cancel();
-    };
-  }, [cuts, deal]);
-  /**
-   * The following only works for new deals that are being created, or for existing
-   * deals that are being edited
-   */
-  const { ccypair, strategy } = entry;
-  useEffect(() => {
-    // Reset
-    moStore.setLegs([], null);
-    // Create defaults
-    createDefaultLegs(ccypair, strategy);
-  }, [cuts, ccypair, strategy]);
+    if (entry.dealID === "") {
+      createDefaultLegsFromDeal(cuts, entry);
+    } else {
+      populateExistingDealLegs(cuts, entry);
+    }
+  }, [cuts, entry]);
 };

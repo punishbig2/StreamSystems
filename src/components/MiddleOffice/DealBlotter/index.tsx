@@ -21,7 +21,6 @@ export const DealBlotter: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { onDealSelected } = props;
     const [, setTable] = useState<HTMLDivElement | null>(null);
-    const { deal } = moStore;
     const deals: Deal[] = dealsStore.deals;
     useEffect(() => {
       signalRManager.addDealListener((deal: Deal) => {
@@ -32,7 +31,7 @@ export const DealBlotter: React.FC<Props> = observer(
       const row: Message | Deal = props.row;
       if (!row) return null;
       if (isMessage(row)) throw new Error("this renderer is for deals only");
-      const isSelected = !!deal && deal.dealID === row.dealID;
+      const isSelected = moStore.selectedDealID === row.dealID;
       return (
         <Row
           key={row.dealID}

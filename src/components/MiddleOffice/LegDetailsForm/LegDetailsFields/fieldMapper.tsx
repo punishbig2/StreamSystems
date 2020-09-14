@@ -1,17 +1,15 @@
 import { FormField } from "components/FormField";
-import { Leg } from "components/MiddleOffice/types/leg";
 import {
   getCurrencyValue,
   getRatesValue,
   getStrikeValue,
 } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { getStyledValue } from "legsUtils";
-import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { Symbol } from "types/symbol";
 
 const capitalize = (str: string): string => {
   return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
@@ -24,17 +22,11 @@ export const fieldMapper = (
   entry: DealEntry,
   isEditMode: boolean
 ) => (fieldDef: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => {
-  const { deal } = moStore;
   const getExtraPropsAndValue = (entry: DealEntry): any => {
-    const symbol: Symbol | undefined = moStore.findSymbolById(entry.ccypair);
+    const { symbol } = entry;
     if (fieldDef.type === "strike") {
-      if (symbol === undefined) {
-        return { value: null, precision: 0, rounding: undefined };
-      } else {
-        return getStrikeValue(leg, symbol, fieldDef.name);
-      }
+      return getStrikeValue(leg, symbol, fieldDef.name);
     } else if (fieldDef.type === "currency") {
-      if (symbol === undefined) return null;
       return getCurrencyValue(leg, fieldDef.name, symbol, entry.premstyle);
     } else if (fieldDef.name === "rates") {
       return getRatesValue(leg, fieldDef.data);
@@ -69,8 +61,8 @@ export const fieldMapper = (
     }
   };
   const getType = (): FieldType => {
-    if (fieldDef.name === "price" && deal !== null) {
-      const { symbol } = deal;
+    if (fieldDef.name === "price") {
+      const { symbol } = entry;
       if (symbol.premiumCCYpercent) {
         return "percent";
       } else {

@@ -3,11 +3,11 @@ import { MessageBox } from "components/MessageBox";
 import strings from "locales";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement, ReactNode } from "react";
-import { MiddleOfficeError } from "types/middleOfficeError";
+import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFErrorEntry } from "utils/parseSEFError";
 
 interface Props {
-  readonly error: MiddleOfficeError | null;
+  readonly error: MOErrorMessage | null;
 }
 
 const convertToElement = (entries: ReadonlyArray<SEFErrorEntry>): ReactNode => {
@@ -23,7 +23,7 @@ const convertToElement = (entries: ReadonlyArray<SEFErrorEntry>): ReactNode => {
   );
 };
 
-export const Error: React.FC<Props> = ({
+export const MiddleOfficeError: React.FC<Props> = ({
   error,
 }: Props): ReactElement | null => {
   if (error === null) return null;

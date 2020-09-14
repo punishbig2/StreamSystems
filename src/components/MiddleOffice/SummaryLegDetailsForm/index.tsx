@@ -11,14 +11,6 @@ import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore, { MOStatus } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useState } from "react";
 
-/*
-<div className={"button-box"}>
-  <button type={"button"} className={"primary"}>
-    Add Leg
-  </button>
-</div>
-*/
-
 interface Props {
   dealEntryStore: DealEntryStore;
   summaryLeg: SummaryLeg | null;
@@ -33,7 +25,6 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { summaryLeg } = props;
     const { entry } = props.dealEntryStore;
-    const { deal } = moStore;
     const { premstyle } = entry;
     const [buyerCommission, setBuyerCommission] = useState<Commission>(
       initialCommission
@@ -42,12 +33,11 @@ export const SummaryLegDetailsForm: React.FC<Props> = observer(
       initialCommission
     );
     useEffect(() => {
-      if (deal === null) return;
-      const { commissions } = deal;
+      const { commissions } = entry;
       if (commissions === null || commissions === undefined) return;
       setBuyerCommission(commissions.buyer);
       setSellerCommission(commissions.seller);
-    }, [deal]);
+    }, [entry]);
     if (summaryLeg === null) {
       return <NoDataMessage />;
     }

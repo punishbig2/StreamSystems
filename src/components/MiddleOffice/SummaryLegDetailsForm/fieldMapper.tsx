@@ -3,16 +3,15 @@ import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
-import { Moment } from "moment";
 import React, { ReactElement } from "react";
 
 export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
   fieldDef: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>
 ): ReactElement | null => {
-  const getValue = (): number | string | Moment => {
+  const getValue = (): number | string | Date => {
     if (fieldDef.name === "dealOutput")
       throw new Error("this is not a normal value, cannot display it");
-    const value: number | string | Moment | null = entry[fieldDef.name];
+    const value: number | string | Date | null = entry[fieldDef.name];
     if (
       fieldDef.type === "number" &&
       value !== null &&

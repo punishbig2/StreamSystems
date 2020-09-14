@@ -1,4 +1,3 @@
-import moment from "moment";
 import { Sides } from "types/sides";
 
 export type Rates = [
@@ -28,9 +27,9 @@ export interface Leg {
   spot?: number;
   days?: number | null;
   party?: string;
-  premiumDate: moment.Moment | null;
-  expiryDate: moment.Moment | null;
-  deliveryDate: moment.Moment | null;
+  premiumDate: Date | null;
+  expiryDate: Date | null;
+  deliveryDate: Date | null;
   rates: Rates;
   usi_num: number | null;
 

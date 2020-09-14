@@ -5,7 +5,8 @@ import {
 } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
 import { Validity } from "forms/validity";
-import moment, { isMoment, Moment } from "moment";
+import moment from "moment";
+import { DateFormatter, TimeFormatter } from "utils/timeUtils";
 
 export class DateInputHandler<
   T,
@@ -31,25 +32,16 @@ export class DateInputHandler<
       case "date":
         if (value === null || value === "") {
           return ["", Validity.Intermediate];
-        } else if (isMoment(value)) {
-          if (value.isValid()) {
-            return [value.format("MM/DD/YYYY"), Validity.Valid];
-          } else {
-            console.log(value);
-            return ["", Validity.InvalidFormat];
-          }
+        } else if (value instanceof Date) {
+          return [DateFormatter.format(value), Validity.Valid];
         } else {
           return [value as string, Validity.InvalidFormat];
         }
       case "time":
         if (value === null || value === "") {
           return ["", Validity.Intermediate];
-        } else if (isMoment(value)) {
-          if (value.isValid()) {
-            return [value.format("HH:mm A"), Validity.Valid];
-          } else {
-            return ["", Validity.InvalidValue];
-          }
+        } else if (value instanceof Date) {
+          return [TimeFormatter.format(value), Validity.Valid];
         } else {
           return [value as string, Validity.InvalidFormat];
         }
@@ -66,13 +58,13 @@ export class DateInputHandler<
     return null;
   }
 
-  public parse(value: string): any {
-    if (isMoment(value)) {
+  public parse(value: string | Date): any {
+    if (value instanceof Date) {
       return value;
     } else if (/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/.test(value)) {
-      const date: Moment = moment(value, "MM/DD/YYYY");
+      const date: moment.Moment = moment(value, "MM/DD/YYYY");
       if (date.isValid()) {
-        return date;
+        return date.toDate();
       } else {
         return value;
       }

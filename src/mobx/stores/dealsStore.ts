@@ -2,7 +2,6 @@ import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { action, observable } from "mobx";
 import moStore from "mobx/stores/moStore";
-import { parseTime } from "utils/timeUtils";
 
 export class DealsStore {
   @observable.ref deals: Deal[] = [];
@@ -11,9 +10,8 @@ export class DealsStore {
   public async loadDeals(): Promise<void> {
     const deals: Deal[] = await API.getDeals();
     this.deals = deals.sort(
-      (d1: Deal, d2: Deal) =>
-        parseTime(d2.transactionTime, "UTC").getTime() -
-        parseTime(d1.transactionTime, "UTC").getTime()
+      ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
+        d2.getTime() - d1.getTime()
     );
   }
 
@@ -31,10 +29,10 @@ export class DealsStore {
     if (index === -1) {
       this.deals = [deal, ...deals];
     } else {
-      const currentDeal: Deal | null = moStore.deal;
+      const currentDealID: string | null = moStore.selectedDealID;
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // It was modified, so replay consequences
-      if (currentDeal !== null && currentDeal.dealID === deal.dealID) {
+      if (currentDealID !== null && currentDealID === deal.dealID) {
         moStore.setDeal(deal, null);
       }
     }

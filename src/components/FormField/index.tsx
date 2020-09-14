@@ -18,7 +18,7 @@ import { Validity } from "forms/validity";
 import React, { PureComponent, ReactElement } from "react";
 import { roundToNearest } from "utils/roundToNearest";
 
-interface Props<T> extends MinimalProps<T> {
+interface Props<T, R = string> extends MinimalProps<T> {
   id?: string;
   label?: string;
   currency?: string;
@@ -28,7 +28,7 @@ interface Props<T> extends MinimalProps<T> {
   items?: (string | number)[];
   placeholder?: string;
   precision?: number;
-  dropdownData?: DropdownItem[] | any;
+  dropdownData?: DropdownItem<R>[];
   rounding?: number;
   handler?: InputHandler<T>;
   onChange?: (name: keyof T, value: any) => void;

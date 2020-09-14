@@ -61,8 +61,8 @@ export const columns: ColumnSpec[] = [
   {
     name: "tenor",
     header: () => "Tenor",
-    render: ({ deal }: CellProps) => {
-      return <div>{deal.tenor1}</div>;
+    render: ({ deal: { tenor1: tenor } }: CellProps) => {
+      return <div>{tenor.name}</div>;
     },
     filterable: true,
     width: 3,

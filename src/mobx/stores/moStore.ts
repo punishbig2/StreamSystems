@@ -7,12 +7,12 @@ import {
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
 import {
+  InvalidStrategy,
   MOStrategy,
   StrategyMap,
 } from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { mapToLeg } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
 import { action, computed, observable } from "mobx";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import dealsStore from "mobx/stores/dealsStore";
@@ -21,8 +21,10 @@ import workareaStore from "mobx/stores/workareaStore";
 import { DealEntry } from "structures/dealEntry";
 import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
-import { MiddleOfficeError } from "types/middleOfficeError";
-import { Symbol } from "types/symbol";
+import { MOErrorMessage } from "types/middleOfficeError";
+import { InvalidSymbol, Symbol } from "types/symbol";
+import { withDatesResolved } from "utils/dealUtils";
+import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 
 export enum MOStatus {
   Normal,
@@ -61,15 +63,15 @@ interface GenericMessage {
 }
 
 export class MoStore {
-  @observable deal: Deal | null = null;
   @observable legs: Leg[] = [];
   @observable summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
   @observable progress: number = 0;
-  @observable error: MiddleOfficeError | null = null;
+  @observable error: MOErrorMessage | null = null;
   @observable isEditMode: boolean = false;
   @observable status: MOStatus = MOStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
+  @observable selectedDealID: string | null = null;
 
   private operationsCount = 10;
 
@@ -265,7 +267,19 @@ export class MoStore {
     deal: Deal | null,
     deStore: DealEntryStore | null = null
   ): void {
-    this.deal = deal;
+    if (deal === null) {
+      this.selectedDealID = null;
+      this.legs = [];
+      this.summaryLeg = null;
+    } else {
+      withDatesResolved(deal).then((deal: Deal): void =>
+        this.internalSetDeal(deal, deStore)
+      );
+    }
+  }
+
+  private internalSetDeal(deal: Deal, deStore: DealEntryStore | null) {
+    this.selectedDealID = deal.dealID;
     this.legs = [];
     this.summaryLeg = null;
     this.isEditMode = false;
@@ -280,14 +294,14 @@ export class MoStore {
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null
   ): void {
-    if (summaryLeg) {
-      this.summaryLeg = summaryLeg;
-    }
+    this.summaryLeg = summaryLeg;
     this.legs = [...legs];
   }
 
   public getStrategyById(id: string): MOStrategy {
-    return this.strategies[id];
+    if (this.strategies[id] !== undefined)
+      return this.strategies[id];
+    return InvalidStrategy;
   }
 
   public getValuationModelById(id: number): ValuationModel {
@@ -320,35 +334,27 @@ export class MoStore {
   }
 
   @action.bound
-  public setError(error: MiddleOfficeError | null): void {
+  public setError(error: MOErrorMessage | null): void {
     this.error = error;
     this.status = MOStatus.Normal;
   }
 
   @action.bound
-  public updateLegs(entry: DealEntry, name: keyof DealEntry): void {
+  public async updateLegs(entry: DealEntry): Promise<void> {
     const { legs } = this;
-    const symbol: Symbol | undefined = this.findSymbolById(entry.ccypair, false);
-    if (symbol === undefined) return;
-    this.legs = legs.map(
-      (each: Leg, index: number): Leg => {
-        const result: [keyof Leg, any][] = mapToLeg(
-          entry,
-          name,
-          each,
-          symbol,
-          index
-        );
-        return result.reduce(
-          (
-            all: { [k in keyof Leg]: any },
-            [key, value]: [keyof Leg, any]
-          ): { [k in keyof Leg]: any } => {
-            return { ...all, [key]: value };
-          },
-          each
-        );
-      }
+    const { symbol } = entry;
+    this.legs = await Promise.all(
+      legs.map(
+        async (leg: Leg, index: number): Promise<Leg> => {
+          const newFields: Partial<Leg> = await initializeLegFromEntry(
+            entry,
+            leg,
+            symbol,
+            index
+          );
+          return { ...leg, ...newFields };
+        }
+      )
     );
   }
 
@@ -364,10 +370,7 @@ export class MoStore {
     ];
   }
 
-  public findSymbolById(
-    currencyPair: string,
-    throwOnNotFound = true
-  ): Symbol | undefined {
+  public findSymbolById(currencyPair: string): Symbol {
     // Search all system symbols
     const { symbols } = workareaStore;
     const found: Symbol | undefined = symbols.find(
@@ -375,10 +378,8 @@ export class MoStore {
     );
     if (found !== undefined) {
       return found;
-    } else if (throwOnNotFound) {
-      throw new Error(`symbol not found \`${currencyPair}'`);
     } else {
-      return undefined;
+      return InvalidSymbol;
     }
   }
 
@@ -399,7 +400,7 @@ export class MoStore {
   }
 
   @action.bound
-  public setErrorMessage(error: MiddleOfficeError | null): void {
+  public setErrorMessage(error: MOErrorMessage | null): void {
     this.error = error;
   }
 

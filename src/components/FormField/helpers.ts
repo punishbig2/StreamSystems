@@ -1,4 +1,4 @@
-import { Tenor } from "components/TenorDropdown";
+import { Tenor } from "types/tenor";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { Moment } from "moment";
@@ -33,5 +33,5 @@ export const getDisplayValue = <T>(
 };
 
 export const isTenor = (value: any): value is Tenor => {
-  return "tenor" in value && "expiryDate" in value;
+  return "name" in value && "expiryDate" in value;
 };

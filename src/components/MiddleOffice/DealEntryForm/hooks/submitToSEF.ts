@@ -11,9 +11,11 @@ const SOFT_ERROR: string =
 moStore.setSoftError(SOFT_ERROR);
 
 export const submitToSEF = (entry: DealEntry) => {
-  const { dealId } = entry;
+  const { dealID } = entry;
+  if (dealID === undefined)
+    throw new Error("cannot send a trade capture without a deal id");
   moStore.setStatus(MOStatus.Submitting);
-  API.sendTradeCaptureReport(dealId)
+  API.sendTradeCaptureReport(dealID)
     .then(() => {
       setTimeout(() => {
         moStore.setSoftError(SOFT_ERROR);

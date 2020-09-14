@@ -1,7 +1,7 @@
 import { TextField } from "@material-ui/core";
-import React, { ReactElement, useState, useEffect } from "react";
-import { Globals } from "golbals";
 import { useTimer } from "hooks/useTimer";
+import React, { ReactElement, useEffect, useState } from "react";
+import { DateFormatter, DateTimeFormatter, TimeFormatter } from "utils/timeUtils";
 
 interface Props {
   readonly dateOnly?: boolean;
@@ -20,28 +20,11 @@ export const CurrentTime: React.FC<Props> = (
   );
   useEffect(() => {
     if (props.dateOnly) {
-      setFormatter(
-        new Intl.DateTimeFormat(undefined, {
-          timeZone: Globals.timezone || undefined,
-          year: "numeric",
-          month: "numeric",
-          day: "numeric",
-        })
-      );
+      setFormatter(DateFormatter);
     } else if (props.timeOnly) {
-      setFormatter(
-        new Intl.DateTimeFormat(undefined, {
-          timeZone: Globals.timezone || undefined,
-          hour: "numeric",
-          minute: "numeric",
-        })
-      );
+      setFormatter(TimeFormatter);
     } else {
-      setFormatter(
-        new Intl.DateTimeFormat(undefined, {
-          timeZone: Globals.timezone || undefined,
-        })
-      );
+      setFormatter(DateTimeFormatter);
     }
   }, [props.timeOnly, props.dateOnly]);
 

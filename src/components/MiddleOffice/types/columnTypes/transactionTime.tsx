@@ -1,11 +1,10 @@
-import React, { ReactElement } from "react";
-import { Moment } from "moment";
-import { Globals } from "golbals";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { parseTime, formatters } from "utils/timeUtils";
+
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/types/deal";
-
+import { ColumnSpec } from "components/Table/columnSpecification";
+import moment, { Moment } from "moment";
+import React, { ReactElement } from "react";
+import { DateFormatter, TimeFormatter } from "utils/timeUtils";
 
 export default (width: number = 6): ColumnSpec => ({
   name: "TransactTime",
@@ -16,11 +15,11 @@ export default (width: number = 6): ColumnSpec => ({
   render: (props: CellProps): ReactElement | null | string => {
     const { deal } = props;
     if (deal) {
-      const date: Date = parseTime(deal.transactionTime, Globals.timezone);
+      const date: Date = deal.tradeDate;
       return (
         <div className={"date-time-cell"}>
-          <span className={"date"}>{formatters.date.format(date)}</span>
-          <span className={"time"}>{formatters.time.format(date)}</span>
+          <span className={"date"}>{DateFormatter.format(date)}</span>
+          <span className={"time"}>{TimeFormatter.format(date)}</span>
         </div>
       );
     } else {
@@ -29,12 +28,12 @@ export default (width: number = 6): ColumnSpec => ({
   },
   width: width,
   difference: (v1: Deal, v2: Deal): number => {
-    const m1: Moment = v1.tradeDate;
-    const m2: Moment = v2.tradeDate;
+    const m1: Moment = moment(v1.tradeDate);
+    const m2: Moment = moment(v2.tradeDate);
     return m1.diff(m2);
   },
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
-    const original: string = v1.tradeDate.format();
+    const original: string = DateFormatter.format(v1.tradeDate);
     if (!original) return false;
     const value: string = origin.toLowerCase();
     return value.includes(keyword.toLowerCase());

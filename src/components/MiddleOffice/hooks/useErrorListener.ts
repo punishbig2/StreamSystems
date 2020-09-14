@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import {
-  MiddleOfficeError,
+  MOErrorMessage,
   ON_MIDDLE_OFFICE_ERROR,
 } from "types/middleOfficeError";
 
 export const useErrorListener = (
-  setError: (error: MiddleOfficeError | null) => void
+  setError: (error: MOErrorMessage | null) => void
 ) => {
   useEffect(() => {
     const listener = (event: any) => {
-      const customEvent: CustomEvent<MiddleOfficeError> = event as CustomEvent<
-        MiddleOfficeError
+      const customEvent: CustomEvent<MOErrorMessage> = event as CustomEvent<
+        MOErrorMessage
       >;
       setError(customEvent.detail);
     };

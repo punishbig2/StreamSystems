@@ -2,11 +2,9 @@ import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { FieldType } from "forms/fieldType";
 import { getStyledValue } from "legsUtils";
-import moStore from "mobx/stores/moStore";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { DealOutput } from "types/dealOutput";
-import { Symbol } from "types/symbol";
 import { roundPremium } from "utils/roundPremium";
 
 interface Props {
@@ -20,27 +18,22 @@ export const DealOutputSection: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
   const { dealOutput, premiumStyle, entry } = props;
-  const { deal } = moStore;
   const [priceType, setPriceType] = useState<FieldType>("number");
   const [premiumPrecision, setPremiumPrecision] = useState<number>(0);
   const [premium, setPremium] = useState<number | null>(null);
-  const symbol: Symbol | undefined = useMemo(
-    (): Symbol | undefined => (deal !== null ? deal.symbol : undefined),
-    [deal]
-  );
+  const { symbol } = entry;
   const [[premiumCurrency, riskCurrency], setCurrencies] = useState<
     [string, string]
   >(["USD", "USD"]);
   useEffect(() => {
-    if (deal === null || dealOutput === null) return;
-    const { symbol } = deal;
+    if (dealOutput === null) return;
     // Update precision if it changes (it depends on this value)
     // FIXME: it seems we need to ignore this
     setPremiumPrecision(0); // (getRoundingPrecision(symbol["premium-rounding"]));
     setPremium(
       roundPremium(getStyledValue(dealOutput.premium, premiumStyle), symbol)
     );
-  }, [deal, dealOutput, premiumStyle]);
+  }, [symbol, dealOutput, premiumStyle]);
   useEffect(() => {
     if (symbol === undefined) return;
     setCurrencies([symbol.premiumCCY, symbol.riskCCY]);

@@ -4,12 +4,12 @@ import { SearchItem } from "components/FormField/searchItem";
 import { DropdownItem } from "forms/fieldDef";
 import React, { Component } from "react";
 
-interface Props<T> {
+interface Props<T, R> {
   readonly disabled?: boolean;
   readonly value: any;
   readonly name: keyof T;
   readonly editable?: boolean;
-  readonly items: DropdownItem[];
+  readonly items: DropdownItem<R>[];
   readonly onChange?: (name: keyof T, value: any) => void;
   readonly emptyMessage: string;
 }
@@ -18,7 +18,10 @@ interface State {
   readonly searchKeyword: string;
 }
 
-export class DropdownField<T> extends Component<Props<T>, State> {
+export class DropdownField<T, R = string> extends Component<
+  Props<T, R>,
+  State
+> {
   public state: State = {
     searchKeyword: "",
   };
@@ -28,12 +31,22 @@ export class DropdownField<T> extends Component<Props<T>, State> {
     child: React.ReactNode
   ) => {
     const { props } = this;
+    const { items } = props;
     if (!props.editable) return;
     const { value } = event.target;
+    const item: DropdownItem<R> | undefined = items.find(
+      (item: DropdownItem<R>): boolean => item.value === value
+    );
+    if (item === undefined) {
+      console.warn("oops, cannot find the item for: " + value);
+      return;
+    }
     // Call the callback
     setTimeout(() => {
       if (props.onChange !== undefined) {
-        props.onChange(props.name, value);
+        // We copy the object here in order to remove
+        // any proxies that it might be wrapped into
+        props.onChange(props.name, item.internalValue);
       }
     }, 0);
     // Child is unused
@@ -46,23 +59,28 @@ export class DropdownField<T> extends Component<Props<T>, State> {
     });
   };
 
-  private filterItems = (item: DropdownItem): boolean => {
+  private filterItems = (item: DropdownItem<R>): boolean => {
     const { searchKeyword } = this.state;
     const trimmed: string = searchKeyword.trim();
     if (trimmed === "") return true;
     const { value } = item;
-    // Ignore casing, as humans generally do so!
-    const normalizedValue: string = value.toLowerCase();
     const normalizedKeyword: string = trimmed.toLowerCase();
-    // Check that the value, includes the keyword
-    return normalizedValue.includes(normalizedKeyword);
+    if (typeof value === "string") {
+      // Ignore casing, as humans generally do so!
+      const normalizedValue: string = value.toLowerCase();
+      // Check that the value, includes the keyword
+      return normalizedValue.includes(normalizedKeyword);
+    } else {
+      // FIXME: unsure of this
+      return value.toString() === normalizedKeyword;
+    }
   };
 
   private renderSelectValue = (value: any): string => {
     const { props } = this;
     const { items } = props;
-    const item: DropdownItem | undefined = items.find(
-      (item: DropdownItem): boolean => {
+    const item: DropdownItem<R> | undefined = items.find(
+      (item: DropdownItem<R>): boolean => {
         return item.value === value;
       }
     );
@@ -104,13 +122,11 @@ export class DropdownField<T> extends Component<Props<T>, State> {
         onChange={this.onChange}
       >
         {this.getSearchItem()}
-        {items
-          .filter(this.filterItems)
-          .map((item: { label: string; value: any }) => (
-            <MenuItem key={item.value} value={item.value}>
-              {item.label}
-            </MenuItem>
-          ))}
+        {items.filter(this.filterItems).map((item: DropdownItem<R>) => (
+          <MenuItem key={item.value} value={item.value}>
+            {item.label}
+          </MenuItem>
+        ))}
       </Select>
     );
   }

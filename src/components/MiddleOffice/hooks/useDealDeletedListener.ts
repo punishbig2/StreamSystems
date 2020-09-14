@@ -6,10 +6,9 @@ import signalRManager from "signalR/signalRManager";
 
 export const useDealDeletedListener = (entryStore: DealEntryStore) => {
   useEffect(() => {
-    return signalRManager.addDealDeletedListener((dealId: string) => {
-      dealsStore.removeDeal(dealId);
-      const { deal } = moStore;
-      if (deal !== null && deal.dealID === dealId) {
+    return signalRManager.addDealDeletedListener((dealID: string) => {
+      dealsStore.removeDeal(dealID);
+      if (moStore.selectedDealID === dealID) {
         moStore.setDeal(null, entryStore);
       }
     });

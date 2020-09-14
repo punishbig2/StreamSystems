@@ -30,6 +30,42 @@ export interface Symbol {
   vegaAdjustBF: boolean;
   vegaAdjustRR: boolean;
   volsource: string;
-  "premium-rounding": number | undefined,
-  "strike-rounding": number | undefined,
+  "premium-rounding": number | undefined;
+  "strike-rounding": number | undefined;
 }
+
+export const InvalidSymbol: Symbol = {
+  ATMType: "",
+  "DayCountBasis-FX": "0",
+  "DayCountBasis-VOL": "0",
+  DeltaType: "Forward",
+  FixingSource: "",
+  PrimaryCutCode: "",
+  PrimaryUTCTime: "",
+  SecondaryCutCode: "",
+  SecondaryUTCTime: "",
+  SettlementType: "",
+  SettlementWindow: 0,
+  ccyGroup: "",
+  cross: false,
+  defaultqty: 0,
+  description: "",
+  forwardcode: null,
+  fxsource: null,
+  minqty: 0,
+  name: "",
+  notionalCCY: "",
+  premiumAdjustDelta: false,
+  premiumCCY: "",
+  premiumCCYformat: "",
+  riskCCYpercent: false,
+  symbolID: "",
+  vegaAdjustBF: false,
+  vegaAdjustRR: false,
+  volsource: "",
+  "premium-rounding": undefined,
+  "strike-rounding": undefined,
+  premiumCCYpercent: false,
+  riskCCY: "",
+  riskCCYformat: "",
+};

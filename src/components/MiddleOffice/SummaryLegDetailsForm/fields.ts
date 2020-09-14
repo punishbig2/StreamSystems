@@ -1,12 +1,8 @@
-import { FieldDef } from "forms/fieldDef";
+import { EditableCondition } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
+import { FieldDef } from "forms/fieldDef";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
-import { DealEntry } from "structures/dealEntry";
-import {
-  MOStrategy,
-  EditableCondition,
-} from "components/MiddleOffice/types/moStrategy";
 
 const isEditable = (name: string) => (
   data: any,
@@ -14,10 +10,7 @@ const isEditable = (name: string) => (
 ): boolean => {
   const store: DealEntryStore = data;
   if (!moStore.isEditMode) return false;
-  const entry: DealEntry = store.entry;
-  const strategy: MOStrategy | undefined = moStore.getStrategyById(
-    entry.strategy
-  );
+  const { strategy } = store.entry;
   if (strategy === undefined) return false;
   const { f1 } = strategy.fields;
   const editableCondition: EditableCondition = f1[name];

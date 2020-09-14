@@ -4,15 +4,14 @@ import { ActionButtons } from "components/MiddleOffice/actionButtons";
 import { DealBlotter } from "components/MiddleOffice/DealBlotter";
 import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
 import { DeleteQuestion } from "components/MiddleOffice/deleteQuestion";
-import { Error } from "components/MiddleOffice/error";
+import { MiddleOfficeError } from "components/MiddleOffice/error";
 import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDeletedListener";
 import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
-import { usePricingUpdater } from "components/MiddleOffice/hooks/usePricingUpdater";
-import { Deal } from "components/MiddleOffice/types/deal";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { ProgressView } from "components/MiddleOffice/progressView";
 import { SuccessMessage } from "components/MiddleOffice/successMessage";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
+import { Deal } from "components/MiddleOffice/types/deal";
 import { ModalWindow } from "components/ModalWindow";
 import { observer } from "mobx-react";
 import { DealEntryStore } from "mobx/stores/dealEntryStore";
@@ -30,25 +29,29 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
     const [deleteQuestionOpen, showDeleteQuestion] = useState<boolean>(false);
     const [entryStore] = useState<DealEntryStore>(new DealEntryStore());
     const classes: string[] = ["middle-office"];
-    const { deal, error } = moStore;
-    // Update pricing data on change
-    usePricingUpdater(deal);
+    const { error } = moStore;
+    const { entry } = entryStore;
     useDealDeletedListener(entryStore);
     useErrorListener(moStore.setError);
     if (!props.visible) classes.push("hidden");
     const dontDelete = () => {
       showDeleteQuestion(false);
     };
-    const doDelete = () => {
-      if (deal === null) return;
-      API.removeDeal(deal.dealID)
-        .then(() => null)
-        .catch((error: any) => {
-          console.warn(error);
-        })
-        .finally(() => {
-          showDeleteQuestion(false);
-        });
+    const doDelete = (): void => {
+      if (entry.dealID === undefined) {
+        throw new Error(
+          "cannot delete this entry, it has no id so it's new or data is bad"
+        );
+      } else {
+        API.removeDeal(entry.dealID)
+          .then(() => null)
+          .catch((error: any) => {
+            console.warn(error);
+          })
+          .finally(() => {
+            showDeleteQuestion(false);
+          });
+      }
     };
 
     const removeDeal = () => {
@@ -108,7 +111,7 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
         {/* Modal windows */}
         <ModalWindow
           isOpen={error !== null}
-          render={() => <Error error={error} />}
+          render={() => <MiddleOfficeError error={error} />}
         />
         <ModalWindow
           isOpen={moStore.successMessage !== null}

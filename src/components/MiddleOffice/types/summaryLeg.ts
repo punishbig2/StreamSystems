@@ -1,10 +1,9 @@
-import moment from "moment";
 import { DealOutput } from "types/dealOutput";
 
 export interface SummaryLeg {
   strategy: string;
-  tradeDate: moment.Moment;
-  spotDate: moment.Moment;
+  tradeDate: Date;
+  spotDate: Date;
   spot: number | null;
   cutCity: string;
   cutTime: string;

@@ -1,24 +1,23 @@
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import moment from "moment";
+import { Tenor } from "types/tenor";
 import { Point } from "structures/point";
+import { addToDate, dateDiff, toIsoDate } from "utils/timeUtils";
 
 interface InternalPoint {
-  date: moment.Moment;
+  date: Date;
   point: number;
 }
 
-const format = (m: moment.Moment) => m.format("YYYY-MM-DD");
 const generatePoints = (
-  when: moment.Moment,
+  when: Date,
   value: number,
   distance: number
 ): InternalPoint[] => {
   const points: InternalPoint[] = [];
   for (let days = -distance; days < distance; days += distance) {
-    const copy: moment.Moment = moment(when);
     points.push({
-      date: copy.add(days, "d"),
+      date: addToDate(when, days, "d"),
       point: value!,
     });
   }
@@ -26,7 +25,7 @@ const generatePoints = (
 };
 
 const convertToPoint = (internal: InternalPoint): Point => ({
-  date: format(internal.date),
+  date: toIsoDate(internal.date),
   point: internal.point,
 });
 
@@ -34,22 +33,22 @@ const comparePoints = (
   { date: d1 }: InternalPoint,
   { date: d2 }: InternalPoint
 ): number => {
-  return d1.diff(d2);
+  return dateDiff(d1, d2);
 };
 
 export const buildFwdRates = (
   summary: SummaryLeg | null,
   strategy: MOStrategy,
-  expiry1: moment.Moment,
-  expiry2: moment.Moment | null
+  tenor1: Tenor,
+  tenor2: Tenor | null
 ): Point[] | undefined => {
   if (summary === null) return undefined;
   const { fwdrate1: value } = summary;
   if (value === null) return undefined;
-  const points: InternalPoint[] = generatePoints(expiry1, value, 7);
+  const points: InternalPoint[] = generatePoints(tenor1.expiryDate, value, 7);
   if (strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both") {
-    if (expiry2 !== null) {
-      points.push(...generatePoints(expiry2, value, 7));
+    if (tenor2 !== null) {
+      points.push(...generatePoints(tenor2.expiryDate, value, 7));
     }
   }
   return points.sort(comparePoints).map(convertToPoint);

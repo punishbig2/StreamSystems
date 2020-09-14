@@ -25,4 +25,8 @@ export interface MOStrategy {
   fields: { f1: { [key: string]: EditableCondition } };
 }
 
+export const InvalidStrategy: MOStrategy = {
+  productid: "",
+  fields: { f1: {} },
+} as MOStrategy;
 export type StrategyMap = { [key: string]: MOStrategy };
