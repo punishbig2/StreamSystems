@@ -214,7 +214,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           validity: validity,
         });
         if (props.onChange) {
-          console.log("on-change:", displayValue);
           props.onChange(props.name, displayValue);
         }
       } else {
@@ -304,7 +303,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       <TenorDropdown<T>
         value={props.value}
         name={props.name}
-        disabled={!!props.disabled}
+        disabled={props.disabled}
         color={props.color}
         readOnly={!props.editable}
         data={props.dropdownData}

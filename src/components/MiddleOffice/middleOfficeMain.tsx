@@ -7,20 +7,20 @@ import { DeleteQuestion } from "components/MiddleOffice/deleteQuestion";
 import { MiddleOfficeError } from "components/MiddleOffice/error";
 import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDeletedListener";
 import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
+import { useNewDealListener } from "components/MiddleOffice/hooks/useNewDealListener";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { ProgressView } from "components/MiddleOffice/progressView";
 import { SuccessMessage } from "components/MiddleOffice/successMessage";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
 import { Deal } from "components/MiddleOffice/types/deal";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { ModalWindow } from "components/ModalWindow";
 import { observer } from "mobx-react";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import dealsStore from "mobx/stores/dealsStore";
-import moStore, { MOStatus } from "mobx/stores/moStore";
+import store, { MoStatus } from "mobx/stores/moStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { randomID } from "randomID";
-import React, { ReactElement, useEffect, useState } from "react";
-import signalRManager from "signalR/signalRManager";
+import React, { ReactElement, useState } from "react";
+import { DealEntry } from "structures/dealEntry";
 
 interface Props {
   readonly visible: boolean;
@@ -29,21 +29,22 @@ interface Props {
 export const MiddleOfficeMain: React.FC<Props> = observer(
   (props: Props): ReactElement => {
     const [deleteQuestionOpen, showDeleteQuestion] = useState<boolean>(false);
-    const [entryStore] = useState<DealEntryStore>(new DealEntryStore());
     const classes: string[] = ["middle-office"];
-    const { error } = moStore;
-    const { entry } = entryStore;
-    useDealDeletedListener(entryStore);
-    useErrorListener(moStore.setError);
-    useEffect(() => {
-      signalRManager.addDealListener((deal: Deal) => {
-        dealsStore.addDeal(deal);
-      });
-    }, []);
+    const { error } = store;
+    const { entry } = store;
+    // Deal event handlers
+    useNewDealListener((deal: Deal) => {
+      store.addDeal(deal);
+    });
+    useDealDeletedListener((id: string): void => store.removeDeal(id));
+    useErrorListener((error: any): void => store.setError(error));
+    // If it's hidden ... wait, what?
     if (!props.visible) classes.push("hidden");
+
     const dontDelete = () => {
       showDeleteQuestion(false);
     };
+
     const doDelete = (): void => {
       if (entry.dealID === undefined) {
         throw new Error(
@@ -65,20 +66,26 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
       showDeleteQuestion(true);
     };
 
+    const onUpdateLeg = (index: number, key: keyof Leg, value: any): void => {
+      store.updateLeg(index, key, value);
+    };
+
+    const onDealSelected = (deal: Deal | null) => {
+      store.setDeal(deal);
+    };
+
     const headingClasses: string[] = ["heading"];
-    if (moStore.status !== MOStatus.Normal) headingClasses.push("disabled");
+    if (store.status !== MoStatus.Normal) headingClasses.push("disabled");
     return (
       <>
         <div className={classes.join(" ")}>
           <div className={"left-panel"}>
             <DealBlotter
               id={randomID("")}
-              disabled={moStore.status !== MOStatus.Normal}
-              deals={dealsStore.deals}
-              selectedRow={moStore.selectedDealID}
-              onDealSelected={(deal: Deal | null) =>
-                moStore.setDeal(deal, entryStore)
-              }
+              disabled={store.status !== MoStatus.Normal}
+              selectedRow={store.selectedDealID}
+              deals={store.deals}
+              onDealSelected={onDealSelected}
             />
           </div>
           <Grid className={"right-panel"} container>
@@ -89,20 +96,51 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
                     <h1>Deal Entry</h1>
                     <div className={"actions"}>
                       <ActionButtons
-                        entryStore={entryStore}
+                        isEditMode={store.isEditMode}
+                        disabled={
+                          store.isLoadingLegs ||
+                          store.status !== MoStatus.Normal
+                        }
+                        entryType={store.entryType}
                         onRemoveDeal={removeDeal}
+                        onAddNewDeal={() => store.addNewDeal()}
+                        onCloneDeal={() => store.cloneDeal()}
+                        onCancelAddOrClone={() => store.cancelAddOrClone()}
+                        onEdit={() => store.setEditMode(true)}
                       />
                     </div>
                   </div>
-                  <DealEntryForm store={entryStore} />
+                  <DealEntryForm
+                    status={store.status}
+                    cuts={store.cuts}
+                    entryType={store.entryType}
+                    entry={store.entry}
+                    isEditMode={store.isEditMode}
+                    isModified={store.isModified}
+                    isReadyForSubmission={store.isReadyForSubmission}
+                    onPriced={() => {
+                      store.price();
+                    }}
+                    onUpdateEntry={(partial: Partial<DealEntry>) =>
+                      store.updateEntry(partial)
+                    }
+                    onSetWorking={(field: keyof DealEntry | null) =>
+                      store.setWorking(field)
+                    }
+                    onCreateOrClone={() => store.createOrClone()}
+                    onSaveCurrentEntry={() => store.saveCurrentEntry()}
+                    onSubmit={() => store.submit()}
+                  />
                 </div>
                 <div className={"form-group"}>
                   <div className={headingClasses.join(" ")}>
                     <h1>Summary Leg Details</h1>
                   </div>
                   <SummaryLegDetailsForm
-                    dealEntryStore={entryStore}
-                    summaryLeg={moStore.summaryLeg}
+                    summaryLeg={store.summaryLeg}
+                    isEditMode={store.isEditMode}
+                    isLoading={store.isLoadingLegs}
+                    dealEntry={store.entry}
                   />
                 </div>
               </OverlayScrollbarsComponent>
@@ -110,8 +148,12 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
             <Grid xs={5} item>
               <OverlayScrollbarsComponent className={"container"}>
                 <LegDetailsForm
-                  status={moStore.status}
-                  entry={entryStore.entry}
+                  status={store.status}
+                  legs={store.legs}
+                  isEditMode={store.isEditMode}
+                  isLoading={store.isLoadingLegs}
+                  entry={store.entry}
+                  onUpdateLeg={onUpdateLeg}
                 />
               </OverlayScrollbarsComponent>
             </Grid>
@@ -123,7 +165,7 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
           render={() => <MiddleOfficeError error={error} />}
         />
         <ModalWindow
-          isOpen={moStore.successMessage !== null}
+          isOpen={store.successMessage !== null}
           render={() => <SuccessMessage />}
         />
         <ModalWindow
@@ -131,7 +173,7 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
           render={() => <DeleteQuestion onNo={dontDelete} onYes={doDelete} />}
         />
         <ModalWindow
-          isOpen={moStore.status !== MOStatus.Normal}
+          isOpen={store.status !== MoStatus.Normal}
           render={() => <ProgressView />}
         />
       </>

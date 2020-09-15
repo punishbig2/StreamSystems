@@ -1,6 +1,5 @@
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
-import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { DropdownItem } from "forms/fieldDef";
 import React, { ReactElement } from "react";
 import { Tenor } from "types/tenor";
@@ -11,7 +10,7 @@ interface Props<T> {
   className?: string;
   color: "green" | "orange" | "cream" | "grey";
   name: keyof T;
-  disabled: boolean;
+  disabled?: boolean;
   readOnly: boolean;
   onChange?: (name: keyof T, value: any) => void;
 }
@@ -32,29 +31,20 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       props.onChange(name, value);
     }
   };
-  const tenorControl = (): ReactElement => {
-    if (props.readOnly) {
-      return <ReadOnlyField name={props.name + "-value"} value={value.name} />;
-    } else {
-      return (
-        <FormField
-          dropdownData={data}
-          color={props.color}
-          value={value.name}
-          name={props.name}
-          type={"dropdown"}
-          editable={!props.readOnly}
-          disabled={props.disabled}
-          onChange={onSelectChange}
-        />
-      );
-    }
-  };
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
       <Grid className={"bank-entity-field"} spacing={1} item container>
         <Grid xs={6} item>
-          {tenorControl()}
+          <FormField
+            dropdownData={data}
+            color={props.color}
+            value={value.name}
+            name={props.name}
+            type={"dropdown"}
+            editable={!props.readOnly}
+            disabled={props.disabled}
+            onChange={onSelectChange}
+          />
           <div style={{ width: 2 }} />
         </Grid>
         <Grid xs={6} item>

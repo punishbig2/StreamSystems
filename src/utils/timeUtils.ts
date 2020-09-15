@@ -1,7 +1,7 @@
 import { Globals } from "golbals";
 import moment from "moment";
 
-export const FIX_DATE_FORMAT: string = "YYYYMMDD-hh:mm:ss";
+export const FIX_DATE_FORMAT: string = "YYYYMMDD-HH:mm:ss";
 
 export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
   undefined,
@@ -52,7 +52,7 @@ export const parseTime = (date: string, tz: string | null): Date => {
 };
 
 export const momentToUTCFIXFormat = (date: Date): string => {
-  // "YYYYMMDD-hh:mm:ss"
+  // "YYYYMMDD-HH:mm:ss"
   const m: moment.Moment = moment(date);
   if (m === undefined || m === null) return "";
   // The ridiculous moment.js library modifies the object
@@ -62,18 +62,20 @@ export const momentToUTCFIXFormat = (date: Date): string => {
   return utc.format(FIX_DATE_FORMAT);
 };
 
-export const forceParseDate = (
-  value: string | null | undefined
-): Date | undefined => {
-  if (!value) return undefined;
+export const forceParseDate = (value: string | null | undefined): Date | undefined => {
+  if (value === null || value === undefined || value === "") return undefined;
   if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
-    if (!m.isValid()) return undefined;
+    if (!m.isValid()) {
+      throw new Error("invalid date string: " + value);
+    }
     return m.toDate();
   } else {
     // ISO format
     const m: moment.Moment = moment(value);
-    if (!m.isValid()) return undefined;
+    if (!m.isValid()) {
+      throw new Error("invalid date string: " + value);
+    }
     return m.toDate();
   }
 };
@@ -93,6 +95,10 @@ export const addToDate = (
 };
 
 export const toIsoDate = (date: Date): string => {
+  if (typeof date.toISOString !== "function") {
+    console.warn(date);
+    return "";
+  }
   return date.toISOString();
 };
 

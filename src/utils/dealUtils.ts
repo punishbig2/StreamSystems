@@ -14,8 +14,8 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
-import { DealDates, resolveDealDates } from "utils/tenorUtils";
-import { addToDate, parseTime } from "utils/timeUtils";
+import { deriveTenor } from "utils/tenorUtils";
+import { forceParseDate, parseTime } from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
   [DealStatus.Pending]: "Pending",
@@ -89,7 +89,26 @@ const getVol = (item: any): number | null => {
   return item.lastpx / 100;
 };
 
-// FIXME: create the deal entry directly
+const toTenor = async (
+  symbol: Symbol,
+  name: string,
+  expiry: Date | undefined,
+  delivery: Date | undefined,
+  spot: Date | undefined,
+  trade: Date
+): Promise<Tenor> => {
+  if (delivery === undefined || expiry === undefined || spot === undefined) {
+    return deriveTenor(symbol, name, trade);
+  } else {
+    return {
+      name: name,
+      deliveryDate: delivery,
+      expiryDate: expiry,
+      spotDate: new Date(),
+    };
+  }
+};
+
 export const createDealFromBackendMessage = async (
   source: any
 ): Promise<Deal> => {
@@ -100,7 +119,14 @@ export const createDealFromBackendMessage = async (
     object.strike,
     getDefaultStrikeForStrategy(object.strategy)
   );
-  const premiumDate: Date = addToDate(tradeDate, symbol.SettlementWindow, "d");
+  const tenor1: Tenor = await toTenor(
+    symbol,
+    object.tenor,
+    forceParseDate(object.expirydate),
+    forceParseDate(object.deliverydate),
+    forceParseDate(object.spotdate),
+    tradeDate
+  );
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
@@ -112,24 +138,18 @@ export const createDealFromBackendMessage = async (
     notional2: object.notional1 === null ? null : Number(object.notional1),
     strategy: object.strategy,
     currencyPair: object.symbol,
-    tenor1: {
-      name: object.tenor,
-      expiryDate: object.expirydate,
-      deliveryDate: new Date(),
-      spotDate: new Date(),
-    },
-    tenor2:
-      object.tenor1 !== null
-        ? {
-            name: object.tenor1,
-            expiryDate: object.expirydate1,
-            deliveryDate: new Date(),
-            spotDate: new Date(),
-          }
-        : null,
+    tenor1: tenor1,
+    tenor2: await toTenor(
+      symbol,
+      object.tenor1,
+      forceParseDate(object.expirydate1),
+      forceParseDate(object.deliverydate1),
+      forceParseDate(object.spotdate1),
+      tradeDate
+    ),
     tradeDate: tradeDate,
-    spotDate: new Date(),
-    premiumDate: premiumDate,
+    spotDate: tenor1.spotDate,
+    premiumDate: tenor1.spotDate,
     strike: strike,
     symbol: symbol,
     source: object.source,
@@ -209,44 +229,6 @@ export const getTenor = (
 ): Tenor => {
   if (index === 1 && deal.tenor2 !== null) return deal.tenor2;
   return deal.tenor1;
-};
-
-export const withDatesResolved = async (deal: Deal): Promise<Deal> => {
-  const { symbol, tenor1, tenor2 } = deal;
-  const dates1: DealDates = await resolveDealDates(
-    symbol,
-    tenor1.name,
-    deal.tradeDate,
-    // If tenor1.name === SPECIFIC use this
-    tenor1.expiryDate
-  );
-  const dates2: DealDates | null =
-    tenor2 !== null
-      ? await resolveDealDates(
-          symbol,
-          tenor2.name,
-          deal.tradeDate,
-          // If tenor1.name === SPECIFIC use this
-          tenor2.expiryDate
-        )
-      : null;
-  return {
-    ...deal,
-    spotDate: dates1.spot,
-    tenor1: {
-      ...tenor1,
-      expiryDate: dates1.expiry,
-      deliveryDate: dates1.delivery,
-    },
-    tenor2:
-      dates2 !== null && tenor2 !== null
-        ? {
-            ...tenor2,
-            expiryDate: dates2.expiry,
-            deliveryDate: dates2.delivery,
-          }
-        : null,
-  };
 };
 
 export const getDealId = (deal: DealEntry): string | undefined => {

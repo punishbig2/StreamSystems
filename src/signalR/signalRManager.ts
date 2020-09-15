@@ -12,8 +12,7 @@ import {
   CommissionRate,
   convertToCommissionRatesArray,
 } from "mobx/stores/brokerageStore";
-import dealsStore from "mobx/stores/dealsStore";
-import moStore, { MOStatus } from "mobx/stores/moStore";
+import moStore, { MoStatus } from "mobx/stores/moStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -24,6 +23,7 @@ import {
   MOErrorMessage,
   ON_MIDDLE_OFFICE_ERROR,
 } from "types/middleOfficeError";
+import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
@@ -370,7 +370,9 @@ export class SignalRManager {
     document.removeEventListener(key, eventListener);
   };
 
-  public addPricingResponseListener = (listener: (response: any) => void) => {
+  public addPricingResponseListener = (
+    listener: (response: PricingMessage) => void
+  ) => {
     const listenerWrapper = (event: Event) => {
       const customEvent: CustomEvent<any> = event as CustomEvent<any>;
       // Call the actual listener
@@ -617,7 +619,7 @@ export class SignalRManager {
   };
 
   private static emitSEFUpdate(data: any): void {
-    const existingDeal: Deal | undefined = dealsStore.findDeal(data.dealid);
+    const existingDeal: Deal | undefined = moStore.findDeal(data.dealid);
     if (existingDeal === undefined) {
       return;
     }
@@ -632,7 +634,7 @@ export class SignalRManager {
     });
     document.dispatchEvent(event);
     // Reset the status to normal
-    moStore.setStatus(MOStatus.Normal);
+    moStore.setStatus(MoStatus.Normal);
   }
 
   private onSEFUpdate = (data: string): void => {

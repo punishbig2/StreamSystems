@@ -12,9 +12,9 @@ interface Props {
 
 const convertToElement = (entries: ReadonlyArray<SEFErrorEntry>): ReactNode => {
   return entries.map(
-    (entry: SEFErrorEntry): ReactElement => {
+    (entry: SEFErrorEntry, index: number): ReactElement => {
       return (
-        <div style={{ marginBottom: 8 }}>
+        <div key={index} style={{ marginBottom: 8 }}>
           <Typography variant={"subtitle2"}>{entry.key}</Typography>
           <Typography variant={"subtitle1"}>{entry.value}</Typography>
         </div>
@@ -39,10 +39,12 @@ export const MiddleOfficeError: React.FC<Props> = ({
       message={() => {
         return (
           <div className={"pricer-error"}>
-            <p className={"message"}>{content}</p>
-            <p className={"tag"}>
-              error code: {error.status} ({error.error})
-            </p>
+            <div className={"message"}>{content}</div>
+            <div className={"tag"}>
+              <Typography variant={"subtitle2"}>
+                error code: {error.status} ({error.error})
+              </Typography>
+            </div>
           </div>
         );
       }}

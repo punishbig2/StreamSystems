@@ -2,15 +2,19 @@ import { API, Task } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
-import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import {
+  InvalidStrategy,
+  MOStrategy,
+} from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { createLegsFromDefinitionAndDeal, parseDates } from "legsUtils";
-import moStore, { MOStatus } from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
+import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
-import { Symbol } from "types/symbol";
+import { InvalidSymbol, Symbol } from "types/symbol";
 import { Tenor } from "types/tenor";
 import { coalesce } from "utils";
 
@@ -108,41 +112,44 @@ const handleLegsResponse = (
   cuts: ReadonlyArray<Cut>
 ): void => {
   const { summaryLeg } = moStore;
-  // FIXME: probably should throw
   if (legs[0].option === "SumLeg" || legs.length === 1) {
     const fwdPts: number | null =
       summaryLeg !== null ? summaryLeg.fwdpts1 : null;
     const fwdRate: number | null =
       summaryLeg !== null ? summaryLeg.fwdrate1 : null;
     const tenor: Tenor = entry.tenor1;
-    moStore.setLegs(legs.slice(legs.length === 1 ? 0 : 1), {
-      ...createSummaryLeg(
-        cuts,
-        entry.strategy,
-        entry.symbol,
-        entry.tradeDate,
-        entry.premiumDate,
-        entry.spotDate,
-        tenor.deliveryDate,
-        tenor.expiryDate
-      ),
-      ...summaryLeg,
-      fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
-      fwdrate1: coalesce(fwdRate, legs[0].fwdRate),
-      fwdpts2: coalesce(
-        fwdPts,
-        // The legs[1] generally equals legs[0]
-        legs[2] !== undefined ? legs[2].fwdPts : undefined
-      ),
-      fwdrate2: coalesce(
-        fwdRate,
-        // The legs[1] generally equals legs[0]
-        legs[2] !== undefined ? legs[2].fwdRate : undefined
-      ),
-      spot: legs[0].spot,
-      usi: entry.usi,
-      ...{ dealOutput: legs[0] },
-    } as SummaryLeg);
+    moStore.setLegs(
+      legs.slice(legs.length === 1 ? 0 : 1),
+      {
+        ...createSummaryLeg(
+          cuts,
+          entry.strategy,
+          entry.symbol,
+          entry.tradeDate,
+          entry.premiumDate,
+          entry.spotDate,
+          tenor.deliveryDate,
+          tenor.expiryDate
+        ),
+        ...summaryLeg,
+        fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
+        fwdrate1: coalesce(fwdRate, legs[0].fwdRate),
+        fwdpts2: coalesce(
+          fwdPts,
+          // The legs[1] generally equals legs[0]
+          legs[2] !== undefined ? legs[2].fwdPts : undefined
+        ),
+        fwdrate2: coalesce(
+          fwdRate,
+          // The legs[1] generally equals legs[0]
+          legs[2] !== undefined ? legs[2].fwdRate : undefined
+        ),
+        spot: legs[0].spot,
+        usi: entry.usi,
+        ...{ dealOutput: legs[0] },
+      } as SummaryLeg,
+      true
+    );
   } else {
     moStore.setLegs(legs, null);
   }
@@ -152,12 +159,25 @@ const createDefaultLegsFromDeal = (
   cuts: ReadonlyArray<Cut>,
   entry: DealEntry
 ): void => {
-  const { strategy } = entry;
+  const { strategy, symbol } = entry;
+  // Special ground state case (the second one is not what I expected)
+  if (
+    strategy === InvalidStrategy ||
+    strategy.productid === "" ||
+    symbol === InvalidSymbol ||
+    symbol.symbolID === ""
+  ) {
+    return;
+  }
+  // We should be able to find it now
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
     moStore.legDefinitions[strategy.productid];
   if (!legDefinitions) {
-    console.warn(`no leg definitions found for ${entry.strategy}`);
-    console.warn("available strategies are: ", moStore.legDefinitions);
+    console.warn(`no leg definitions found for ${strategy.productid}`);
+    console.warn(
+      "strategies with definitions are: ",
+      Object.keys(moStore.legDefinitions)
+    );
     return;
   }
   const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(
@@ -180,7 +200,7 @@ const createDefaultLegsFromDeal = (
   );
 };
 
-const populateExistingDealLegs = (
+const populateExistingDealLegsAndInstallListener = (
   cuts: ReadonlyArray<Cut>,
   entry: DealEntry
 ): (() => void) => {
@@ -217,9 +237,11 @@ const populateExistingDealLegs = (
       }
     });
   const removePricingListener: () => void = signalRManager.addPricingResponseListener(
-    () => {
-      if (moStore.status === MOStatus.Pricing) {
-        moStore.setStatus(MOStatus.Normal);
+    (data: PricingMessage) => {
+      if (entry.dealID === data.dealId) {
+        // It is the deal of interest so update
+        // visible legs now
+        handleLegsResponse(entry, parseDates(data.legs), cuts);
       }
     }
   );
@@ -234,7 +256,7 @@ export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
     if (entry.dealID === "") {
       createDefaultLegsFromDeal(cuts, entry);
     } else {
-      populateExistingDealLegs(cuts, entry);
+      populateExistingDealLegsAndInstallListener(cuts, entry);
     }
   }, [cuts, entry]);
 };

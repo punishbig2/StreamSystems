@@ -1,15 +1,22 @@
 import { FormField } from "components/FormField";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import moStore, { MOStatus, MoStore } from "mobx/stores/moStore";
+import moStore, { MoStatus, MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 import { deriveTenor } from "utils/tenorUtils";
 import { EditableCondition } from "../types/moStrategy";
 
-export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
-  fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>,
+export interface DealEntryEditInterface {
+  readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
+  readonly setWorking: (field: keyof DealEntry | null) => void;
+}
+
+export const fieldMapper = (
+  editor: DealEntryEditInterface,
+  entry: DealEntry
+) => (
+  fieldDef: FieldDef<DealEntry, MoStore, DealEntry>,
   index: number
 ): ReactElement | null => {
   const { transformData, dataSource, ...field } = fieldDef;
@@ -61,26 +68,26 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
     name: keyof DealEntry,
     value: string | Date
   ): Promise<void> => {
-    return store.updateEntry({
+    return editor.updateEntry({
       [name]: await deriveTenor(entry.symbol, value, entry.tradeDate),
     });
   };
   const onChange = (name: keyof DealEntry, value: any): void => {
     if (field.type === "tenor") {
-      store.setWorking(name);
+      editor.setWorking(name);
       // Execute and then stop the working mode
-      onTenorChange(name, value).finally(() => store.setWorking(null));
+      onTenorChange(name, value).finally(() => editor.setWorking(null));
     } else {
       const convertedValue: any = getValue(value, true);
       if (convertedValue === undefined) return;
-      store.setWorking(name);
-      store
+      editor.setWorking(name);
+      editor
         .updateEntry({ [name]: convertedValue })
-        .finally(() => store.setWorking(null));
+        .finally(() => editor.setWorking(null));
     }
   };
   const isEditable = (
-    fieldDef: FieldDef<DealEntry, MoStore, DealEntryStore>
+    fieldDef: FieldDef<DealEntry, MoStore, DealEntry>
   ): boolean | undefined => {
     if (!moStore.isEditMode) return false;
     if (
@@ -90,7 +97,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       return false;
     } else {
       if (typeof fieldDef.editable === "function") {
-        return fieldDef.editable(fieldDef.data || dropdownData, store);
+        return fieldDef.editable(fieldDef.data || dropdownData, entry);
       } else {
         return fieldDef.editable;
       }
@@ -105,7 +112,7 @@ export const fieldMapper = (store: DealEntryStore, entry: DealEntry) => (
       value={value}
       rounding={fieldDef.rounding}
       onChange={onChange}
-      disabled={moStore.status !== MOStatus.Normal}
+      disabled={moStore.status !== MoStatus.Normal}
     />
   );
 };

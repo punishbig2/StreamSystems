@@ -1,12 +1,12 @@
 import { FormField } from "components/FormField";
+import { IsEditableData } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 
-export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
-  fieldDef: FieldDef<SummaryLeg, DealEntryStore, SummaryLeg>
+export const fieldMapper = (data: IsEditableData, entry: SummaryLeg) => (
+  fieldDef: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>
 ): ReactElement | null => {
   const getValue = (): number | string | Date => {
     if (fieldDef.name === "dealOutput")
@@ -25,7 +25,7 @@ export const fieldMapper = (store: DealEntryStore, entry: SummaryLeg) => (
   };
   const isEditable = (): boolean => {
     if (typeof fieldDef.editable === "function") {
-      return fieldDef.editable(store, entry);
+      return fieldDef.editable(data, entry);
     } else {
       return fieldDef.editable;
     }

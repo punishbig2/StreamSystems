@@ -1,35 +1,40 @@
-import { API, BankEntitiesQueryResponse } from "API";
+import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/types/legOptionsDef";
-import {
-  InvalidStrategy,
-  MOStrategy,
-  StrategyMap,
-} from "components/MiddleOffice/types/moStrategy";
+import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
+import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
+import config from "config";
 import { action, computed, observable } from "mobx";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
-import dealsStore from "mobx/stores/dealsStore";
 
 import workareaStore from "mobx/stores/workareaStore";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
-import { withDatesResolved } from "utils/dealUtils";
+import { coalesce } from "utils";
+import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
+import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 
-export enum MOStatus {
+const SOFT_PRICING_ERROR: string =
+  "Timed out while waiting for the pricing result, please refresh the screen. " +
+  "If the deal is not priced yet, try again as this is a problem that should not happen and never be repeated. " +
+  "If otherwise the problem persists, please contact support.";
+
+const SOFT_SEF_ERROR: string =
+  "Timed out while waiting for the submission result, please refresh the screen. " +
+  "If the deal is not submitted yet, try again as this is a problem that should not happen and never be repeated. " +
+  "If otherwise the problem persists, please contact support.";
+
+export enum MoStatus {
   Normal,
   Submitting,
   Pricing,
+  LoadingDeal,
   CreatingDeal,
   UpdatingDeal,
 }
@@ -49,18 +54,35 @@ export interface InternalValuationModel {
 }
 
 export const messages: {
-  [key: number]: string;
+  [key in MoStatus]: string;
 } = {
-  [MOStatus.Pricing]: "Pricing in progress",
-  [MOStatus.Submitting]: "Submitting",
-  [MOStatus.CreatingDeal]: "Creating Deal",
-  [MOStatus.UpdatingDeal]: "Updating Deal",
+  [MoStatus.Normal]: "",
+  [MoStatus.Pricing]: "Pricing in progress",
+  [MoStatus.Submitting]: "Submitting",
+  [MoStatus.CreatingDeal]: "Creating Deal",
+  [MoStatus.UpdatingDeal]: "Updating Deal",
+  [MoStatus.LoadingDeal]: "Loading Deal",
 };
 
 interface GenericMessage {
   title: string;
   text: string;
 }
+
+const savingDealError = (reason: any): MOErrorMessage => {
+  const message: string =
+    typeof reason === "string"
+      ? reason
+      : typeof reason.getMessage === "function"
+      ? reason.getMessage()
+      : "Server error";
+  return {
+    status: "801",
+    code: 801,
+    content: message === "" ? "Server error" : message,
+    error: "Cannot create or save the deal",
+  };
+};
 
 export class MoStore {
   @observable legs: Leg[] = [];
@@ -69,10 +91,16 @@ export class MoStore {
   @observable progress: number = 0;
   @observable error: MOErrorMessage | null = null;
   @observable isEditMode: boolean = false;
-  @observable status: MOStatus = MOStatus.Normal;
+  @observable status: MoStatus = MoStatus.Normal;
   @observable successMessage: GenericMessage | null = null;
+  @observable entryType: EntryType = EntryType.Empty;
+  @observable busyField: keyof DealEntry | null = null;
+  @observable.ref entry: DealEntry = { ...emptyDealEntry };
+  @observable.ref deals: Deal[] = [];
   @observable selectedDealID: string | null = null;
+  @observable isLoadingLegs: boolean = false;
 
+  private originalEntry: DealEntry = { ...emptyDealEntry };
   private operationsCount = 10;
 
   public entities: BankEntitiesQueryResponse = {};
@@ -258,50 +286,25 @@ export class MoStore {
   private async loadDeals(): Promise<void> {
     this.setProgress(this.progress + 100 / this.operationsCount);
     // Update deals list
-    return dealsStore.loadDeals();
-  }
-
-  @action.bound
-  public setDeal(
-    deal: Deal | null,
-    deStore: DealEntryStore | null = null
-  ): void {
-    this.selectedDealID = null;
-    this.legs = [];
-    this.summaryLeg = null;
-    if (deal !== null) {
-      this.selectedDealID = deal.id;
-      withDatesResolved(deal)
-        .then((deal: Deal): void =>
-          this.updateDealStoreAndResetLegs(deal, deStore)
-        )
-        .catch(() => {
-          this.selectedDealID = null;
-        });
-    }
-  }
-
-  @action.bound
-  private updateDealStoreAndResetLegs(
-    deal: Deal,
-    deStore: DealEntryStore | null
-  ) {
-    this.legs = [];
-    this.summaryLeg = null;
-    this.isEditMode = false;
-    // Update the deal entry store
-    if (deStore !== null) {
-      deStore.setDeal(deal);
-    }
+    const deals: Deal[] = await API.getDeals();
+    this.deals = deals.sort(
+      ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
+        d2.getTime() - d1.getTime()
+    );
   }
 
   @action.bound
   public setLegs(
     legs: ReadonlyArray<Leg>,
-    summaryLeg: SummaryLeg | null
+    summaryLeg: SummaryLeg | null,
+    reset = false
   ): void {
     this.summaryLeg = summaryLeg;
-    this.legs = [...legs];
+    this.legs = legs.slice();
+    this.isLoadingLegs = false;
+    if (reset) {
+      this.status = MoStatus.Normal;
+    }
   }
 
   public getStrategyById(id: string): MOStrategy {
@@ -341,7 +344,7 @@ export class MoStore {
   @action.bound
   public setError(error: MOErrorMessage | null): void {
     this.error = error;
-    this.status = MOStatus.Normal;
+    this.status = MoStatus.Normal;
   }
 
   @action.bound
@@ -394,14 +397,14 @@ export class MoStore {
   }
 
   @action.bound
-  public setStatus(status: MOStatus): void {
+  public setStatus(status: MoStatus): void {
     this.status = status;
   }
 
   @action.bound
   public setSuccessMessage(message: GenericMessage | null): void {
     this.successMessage = message;
-    this.status = MOStatus.Normal;
+    this.status = MoStatus.Normal;
   }
 
   @action.bound
@@ -412,10 +415,10 @@ export class MoStore {
   @action.bound
   public setSoftError(message: string) {
     if (
-      this.status === MOStatus.Submitting ||
-      this.status === MOStatus.Pricing
+      this.status === MoStatus.Submitting ||
+      this.status === MoStatus.Pricing
     ) {
-      this.status = MOStatus.Normal;
+      this.status = MoStatus.Normal;
       // Show a toast message (soft error message)
       toast.show(message, ToastType.Error, -1);
     }
@@ -424,6 +427,312 @@ export class MoStore {
   @action.bound
   public updateSummaryLeg(fieldName: string, value: any): void {
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
+  }
+  @computed
+  public get isModified(): boolean {
+    return this.isEditMode;
+  }
+
+  public getModifiedFields(): string[] {
+    const { entry } = this;
+    const fields: string[] = [];
+    for (const key of Object.keys(entry) as (keyof DealEntry)[]) {
+      if (this.originalEntry[key] !== entry[key]) {
+        fields.push(key);
+      }
+    }
+    return fields;
+  }
+
+  @computed
+  public get isReadyForSubmission(): boolean {
+    const { entry } = this;
+    if (!this.isModified) return false;
+    if (entry.symbol === InvalidSymbol) return false;
+    if (entry.strategy === InvalidStrategy) return false;
+    if (entry.buyer === "") return false;
+    if (entry.seller === "") return false;
+    if (entry.model === "") return false;
+    if (entry.tenor1 === null) return false;
+    if (entry.premstyle === "") return false;
+    if (entry.deltastyle === "") return false;
+    return entry.not1 !== null;
+  }
+
+  @action.bound
+  public setDeal(deal: Deal | null): void {
+    if (deal === null) {
+      this.entry = { ...emptyDealEntry };
+      this.entryType = EntryType.Empty;
+      this.selectedDealID = null;
+      this.isEditMode = false;
+    } else {
+      this.entry = createDealEntry(deal);
+      this.entryType = EntryType.ExistingDeal;
+      this.selectedDealID = deal.id;
+      this.isEditMode = false;
+    }
+    // This is because we are going to load the legs as soon
+    // as this method returns because we're going to use the
+    // change in the `entry' object to reload the legs
+    this.originalEntry = { ...this.entry };
+    this.legs = [];
+    this.summaryLeg = null;
+    this.isLoadingLegs = true;
+  }
+
+  @action.bound
+  public reset(): void {
+    if (this.entryType === EntryType.New) {
+      this.entryType = EntryType.Empty;
+      this.entry = { ...emptyDealEntry };
+      this.originalEntry = { ...this.entry };
+      this.legs = [];
+      this.summaryLeg = null;
+    }
+    this.isEditMode = false;
+  }
+
+  @action.bound
+  public cloneDeal(): void {
+    this.entry = { ...this.entry, type: EntryType.Clone };
+    this.originalEntry = { ...this.entry };
+    this.entryType = EntryType.Clone;
+    this.isEditMode = true;
+  }
+
+  @action.bound
+  public addNewDeal(): void {
+    this.entry = { ...emptyDealEntry, type: EntryType.New };
+    this.originalEntry = { ...this.entry };
+    this.entryType = EntryType.New;
+    this.isEditMode = true;
+    this.legs = [];
+    this.summaryLeg = null;
+  }
+
+  @action.bound
+  public cancelAddOrClone(): void {
+    this.reset();
+  }
+
+  @action.bound
+  private setEntry(entry: DealEntry) {
+    this.entry = entry;
+  }
+
+  private async buildNewEntry(partial: Partial<DealEntry>): Promise<DealEntry> {
+    const { entry } = this;
+    const strategy: MOStrategy | undefined = resolveStrategyDispute(
+      partial,
+      entry
+    );
+    const not1: number | null =
+      partial.not1 !== undefined ? partial.not1 : entry.not1;
+    if (strategy !== undefined) {
+      const legsCount: number = this.getOutLegsCount(strategy.productid);
+      if (strategy.strike) {
+        console.warn("hey, this strategy has a strike: " + strategy.strike);
+      }
+      return {
+        ...entry,
+        ...partial,
+        legs: legsCount,
+        size: not1 !== null ? Math.round(not1 / 1e6) : 0,
+      };
+    } else {
+      return { ...this.entry, ...partial };
+    }
+  }
+
+  @action.bound
+  public async updateEntry(partial: Partial<DealEntry>): Promise<void> {
+    const newEntry = await this.buildNewEntry(partial);
+    // If the tenor changed get the dates, otherwise
+    // we already have them
+    await this.updateLegs(newEntry);
+    // Now that we're done
+    this.setEntry(newEntry);
+  }
+
+  private buildRequest(): DealEntry {
+    const { entry } = this;
+    if (entry.not1 === null || entry.not1 === undefined)
+      throw new Error("notional must be set");
+    const rates = ((summaryLeg: SummaryLeg | null) => {
+      if (summaryLeg === null) return {};
+      return {
+        fwdrate1: coalesce(summaryLeg.fwdrate1, undefined),
+        fwdpts1: coalesce(summaryLeg.fwdpts1, undefined),
+        fwdrate2: coalesce(summaryLeg.fwdrate2, undefined),
+        fwdpts2: coalesce(summaryLeg.fwdpts2, undefined),
+      };
+    })(this.summaryLeg);
+    return {
+      ...entry,
+      ...rates,
+    };
+  }
+
+  @action.bound
+  public submit() {
+    const { dealID } = this.entry;
+    if (dealID === undefined)
+      throw new Error("cannot send a trade capture without a deal id");
+    this.setStatus(MoStatus.Submitting);
+    API.sendTradeCaptureReport(dealID)
+      .then(() => {
+        setTimeout(() => {
+          this.setSoftError(SOFT_SEF_ERROR);
+        }, config.RequestTimeout);
+      })
+      .catch((error: any) => {
+        this.setError({
+          status: "Unknown problem",
+          code: 1,
+          error: "Unexpected error",
+          content: typeof error === "string" ? error : error.content(),
+        });
+      });
+  }
+
+  @action.bound
+  public saveCurrentEntry() {
+    const modifiedFields: string[] = this.getModifiedFields();
+    const request = {
+      ...this.buildRequest(),
+    };
+    this.setStatus(MoStatus.UpdatingDeal);
+    // Call the backend
+    API.updateDeal(request, modifiedFields)
+      .then(() => {
+        // Note: dealID must be defined here
+        this.onDealSaved(request.dealID!);
+      })
+      .catch((error: any) => {
+        this.setError(savingDealError(error));
+      });
+  }
+
+  @action.bound
+  public createOrClone() {
+    switch (this.entryType) {
+      case EntryType.Empty:
+      case EntryType.ExistingDeal:
+        throw new Error("this function should not be called in current state");
+      case EntryType.New:
+        this.setStatus(MoStatus.CreatingDeal);
+        API.createDeal(this.buildRequest(), [])
+          .then((id: string) => {
+            this.onDealSaved(id);
+          })
+          .catch((reason: any) => {
+            this.setError(savingDealError(reason));
+          });
+        break;
+      case EntryType.Clone:
+        this.setStatus(MoStatus.CreatingDeal);
+        API.cloneDeal(this.buildRequest(), [])
+          .then((id: string) => {
+            this.onDealSaved(id);
+          })
+          .catch((reason: any) => {
+            this.setError(savingDealError(reason));
+          });
+        break;
+    }
+  }
+
+  @action.bound
+  private onDealSaved(id: string): void {
+    this.isEditMode = false;
+    this.selectedDealID = id;
+    this.successMessage = {
+      title: "Saved Successfully",
+      text:
+        "The deal was correctly created with id `" +
+        id +
+        "', please close this window now",
+    };
+    this.status = MoStatus.Normal;
+  }
+
+  @action.bound
+  public setWorking(busyField: keyof DealEntry | null) {
+    this.busyField = busyField;
+  }
+
+  public findDeal(id: string): Deal | undefined {
+    const { deals } = this;
+    return deals.find((deal: Deal): boolean => deal.id === id);
+  }
+
+  @action.bound
+  public addDeal(deal: Deal) {
+    const { deals } = this;
+    const index: number = deals.findIndex(
+      (each: Deal): boolean => each.id === deal.id
+    );
+    if (index === -1) {
+      this.deals = [deal, ...deals];
+    } else {
+      const currentDealID: string | null = this.selectedDealID;
+      this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
+      // It was modified, so replay consequences
+      if (currentDealID !== null && currentDealID === deal.id) {
+        this.entry = createDealEntry(deal);
+      }
+    }
+  }
+
+  @action.bound
+  public removeDeal(id: string) {
+    const { deals, entry } = this;
+    const index: number = deals.findIndex((deal: Deal) => deal.id === id);
+    if (index === -1) return;
+    this.deals = [...deals.slice(0, index), ...deals.slice(index + 1)];
+    // Update current entry
+    if (entry.dealID === id) {
+      this.setDeal(null);
+    }
+  }
+
+  public price(): void {
+    const { entry } = this;
+    if (entry.strategy === undefined) throw new Error("invalid deal found");
+    if (entry.model === "") throw new Error("node model specified");
+    const valuationModel: ValuationModel = this.getValuationModelById(
+      entry.model as number
+    );
+    const { strategy } = entry;
+    // Set the status to pricing to show a loading spinner
+    this.status = MoStatus.Pricing;
+    // Send the request
+    API.sendPricingRequest(
+      entry,
+      this.legs,
+      this.summaryLeg,
+      valuationModel,
+      strategy
+    )
+      .then(() => {
+        setTimeout(() => {
+          this.setSoftError(SOFT_PRICING_ERROR);
+        }, config.RequestTimeout);
+      })
+      .catch((error: HTTPError | any) => {
+        if (error !== undefined) {
+          if (typeof error.getMessage === "function") {
+            const message: string = error.getMessage();
+            this.setError({
+              code: error.getCode(),
+              ...JSON.parse(message),
+            });
+          } else {
+            console.warn(error);
+          }
+        }
+      });
   }
 }
 

@@ -1,6 +1,5 @@
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
-import { DealEntryStore } from "mobx/stores/dealEntryStore";
 import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { Symbol } from "types/symbol";
@@ -8,15 +7,14 @@ import { Symbol } from "types/symbol";
 const editableFilter = (
   types: number,
   other?: (entry: DealEntry) => boolean
-) => (data: any, store?: DealEntryStore): boolean => {
-  if (store === undefined) return false;
-  const { entry } = store;
+) => (data: any, entry?: DealEntry): boolean => {
+  if (entry === undefined) return false;
   if (entry.status === 5) return false;
   if (other !== undefined && !other(entry)) return false;
   return (entry.dealType & types) !== 0;
 };
 
-const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
+const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>> = [
   {
     name: "symbol",
     label: "CCYPair",
@@ -138,7 +136,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntryStore>> = [
   {
     name: "spread",
     label: "Spread",
-    type: "number",
+    type: "percent",
     placeholder: "0",
     color: "orange",
     editable: editableFilter(

@@ -123,7 +123,7 @@ export class NumericInputHandler<
           .replace(/[^0-9]+/g, "");
         const decimalPart: string = displayValue.slice(separatorPosition + 1);
         if (integerPart.length === 1 && Number(decimalPart) === 0) {
-          return this.createValue("", event.currentTarget, props, state);
+          return this.createValue(null, event.currentTarget, props, state);
         } else {
           return this.createValue(
             Number([integerPart, decimalPart].join(".")) / this.divider,
@@ -191,7 +191,7 @@ export class NumericInputHandler<
 
   public format(value: any, props: P): [string, Validity] {
     const { formatter } = this;
-    if (value === "") {
+    if (value === "" || value === null) {
       return ["", Validity.Intermediate];
     }
     if (typeof value === "number") {

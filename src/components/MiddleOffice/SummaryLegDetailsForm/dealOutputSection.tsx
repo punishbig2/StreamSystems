@@ -9,7 +9,7 @@ import { roundPremium } from "utils/roundPremium";
 
 interface Props {
   premiumStyle: string | undefined;
-  entry: DealEntry;
+  dealEntry: DealEntry;
   disabled: boolean;
   dealOutput: DealOutput | null;
 }
@@ -17,11 +17,11 @@ interface Props {
 export const DealOutputSection: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
-  const { dealOutput, premiumStyle, entry } = props;
+  const { dealOutput, premiumStyle, dealEntry } = props;
   const [priceType, setPriceType] = useState<FieldType>("number");
   const [premiumPrecision, setPremiumPrecision] = useState<number>(0);
   const [premium, setPremium] = useState<number | null>(null);
-  const { symbol } = entry;
+  const { symbol } = dealEntry;
   const [[premiumCurrency, riskCurrency], setCurrencies] = useState<
     [string, string]
   >(["USD", "USD"]);
@@ -61,7 +61,7 @@ export const DealOutputSection: React.FC<Props> = (
         <FormField
           label={"Price %/Pips"}
           color={"grey"}
-          value={getStyledValue(dealOutput.price, entry.premstyle)}
+          value={getStyledValue(dealOutput.price, dealEntry.premstyle)}
           name={"pricePercent"}
           type={priceType}
           precision={4}
@@ -70,7 +70,7 @@ export const DealOutputSection: React.FC<Props> = (
         <FormField
           label={"Delta"}
           color={"grey"}
-          value={getStyledValue(dealOutput.delta, entry.deltastyle)}
+          value={getStyledValue(dealOutput.delta, dealEntry.deltastyle)}
           name={"delta"}
           type={"number"}
           precision={20}
@@ -97,7 +97,7 @@ export const DealOutputSection: React.FC<Props> = (
         <FormField
           label={"Net Hedge"}
           color={"grey"}
-          value={getStyledValue(dealOutput.hedge, entry.deltastyle)}
+          value={getStyledValue(dealOutput.hedge, dealEntry.deltastyle)}
           name={"hedge"}
           type={"currency"}
           currency={riskCurrency}

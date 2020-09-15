@@ -141,8 +141,8 @@ export const mergeDefinitionsAndLegs = (
   entry: DealEntry,
   strategy: MOStrategy,
   symbol: Symbol,
-  legs: Leg[]
-): Leg[] => {
+  legs: ReadonlyArray<Leg>
+): ReadonlyArray<Leg> => {
   const definitions = moStore.legDefinitions[strategy.productid];
   if (definitions === undefined) {
     return [];

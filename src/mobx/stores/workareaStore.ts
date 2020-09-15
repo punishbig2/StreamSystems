@@ -368,7 +368,6 @@ export class WorkareaStore {
   public setPreferences(preferences: UserPreferences) {
     const { ccyGroup } = this.preferences;
     this.preferences = preferences;
-    console.log(this.preferences.theme);
     if (ccyGroup !== preferences.ccyGroup) {
       API.getSymbols(persistStorage.getCCYGroup()).then(
         (currencies: Symbol[]) => (this.symbols = currencies)

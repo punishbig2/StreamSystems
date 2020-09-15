@@ -735,7 +735,7 @@ export class API {
 
   public static async sendPricingRequest(
     entry: DealEntry,
-    legs: Leg[],
+    legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null,
     valuationModel: ValuationModel,
     strategy: MOStrategy
@@ -743,7 +743,7 @@ export class API {
     const { tradeDate, symbol } = entry;
     if (entry.dealID === undefined)
       throw new Error("cannot price an transient deal");
-    const mergedDefinitions: Leg[] = mergeDefinitionsAndLegs(
+    const mergedDefinitions: ReadonlyArray<Leg> = mergeDefinitionsAndLegs(
       entry,
       strategy,
       symbol,
@@ -829,7 +829,6 @@ export class API {
       version: "arcfintech-volMessage-0.2.2",
     };
     const task: Task<any> = post<any>(config.PricingRequestUrl, request);
-    console.log(entry, request);
     return task.execute();
   }
 
