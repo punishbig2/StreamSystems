@@ -103,6 +103,7 @@ export const fieldMapper = (
       }
     }
   };
+  console.log(field, editableCondition);
   return (
     <FormField<DealEntry>
       key={field.name + index}

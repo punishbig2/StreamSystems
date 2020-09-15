@@ -80,8 +80,7 @@ const getSpread = (item: any): number | null => {
 };
 
 const getVol = (item: any): number | null => {
-  if (item.vol !== "" && item.vol !== null && item.vol !== undefined)
-    return item.vol;
+  if (item.vol !== "" && item.vol !== undefined) return item.vol;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
