@@ -896,6 +896,7 @@ export class API {
   private static async saveLegs(dealID: string): Promise<string> {
     const { user } = workareaStore;
     const { legs } = moStore;
+    console.log(legs);
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealID: dealID,
       useremail: user.email,

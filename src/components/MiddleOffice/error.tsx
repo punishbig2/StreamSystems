@@ -15,8 +15,12 @@ const convertToElement = (entries: ReadonlyArray<SEFErrorEntry>): ReactNode => {
     (entry: SEFErrorEntry, index: number): ReactElement => {
       return (
         <div key={index} style={{ marginBottom: 8 }}>
-          <Typography variant={"subtitle2"}>{entry.key}</Typography>
-          <Typography variant={"subtitle1"}>{entry.value}</Typography>
+          <Typography variant={"subtitle1"} color={"textPrimary"}>
+            {entry.key}
+          </Typography>
+          <Typography variant={"subtitle2"} color={"textPrimary"}>
+            {entry.value}
+          </Typography>
         </div>
       );
     }
@@ -39,9 +43,13 @@ export const MiddleOfficeError: React.FC<Props> = ({
       message={() => {
         return (
           <div className={"pricer-error"}>
-            <div className={"message"}>{content}</div>
+            <div className={"message"}>
+              <Typography variant={"subtitle1"} color={"textPrimary"}>
+                {content}
+              </Typography>
+            </div>
             <div className={"tag"}>
-              <Typography variant={"subtitle2"}>
+              <Typography variant={"subtitle2"} color={"textSecondary"}>
                 error code: {error.status} ({error.error})
               </Typography>
             </div>

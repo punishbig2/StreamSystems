@@ -673,10 +673,11 @@ export class MoStore {
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === deal.id
     );
+    const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
       this.deals = [deal, ...deals];
+      this.entry = createDealEntry(deal);
     } else {
-      const currentDealID: string | null = this.selectedDealID;
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // It was modified, so replay consequences
       if (currentDealID !== null && currentDealID === deal.id) {

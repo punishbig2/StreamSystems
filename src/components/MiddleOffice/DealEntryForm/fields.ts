@@ -150,7 +150,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>> = [
       }
     ),
     emptyValue: "N/A",
-    precision: 2,
+    precision: 3,
   },
   {
     name: "not1",

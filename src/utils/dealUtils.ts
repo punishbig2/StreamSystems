@@ -227,7 +227,8 @@ export const getTenor = (
   deal: Pick<Deal, "tenor1" | "tenor2"> | Pick<DealEntry, "tenor1" | "tenor2">,
   index: number
 ): Tenor => {
-  if (index === 1 && deal.tenor2 !== null) return deal.tenor2;
+  const { tenor2 } = deal;
+  if (index === 1 && tenor2 !== null && tenor2.name !== "") return tenor2;
   return deal.tenor1;
 };
 

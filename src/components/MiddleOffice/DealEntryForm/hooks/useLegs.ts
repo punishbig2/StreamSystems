@@ -178,6 +178,8 @@ const createDefaultLegsFromDeal = (
       "strategies with definitions are: ",
       Object.keys(moStore.legDefinitions)
     );
+    // Unset legs
+    moStore.setLegs([], null);
     return;
   }
   const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(

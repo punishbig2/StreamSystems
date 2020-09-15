@@ -2,6 +2,7 @@ import { createMuiTheme } from "@material-ui/core";
 import { fade } from "@material-ui/core/styles";
 import { Palette } from "@material-ui/core/styles/createPalette";
 import { getPalette } from "palette";
+import { typography } from "typography";
 
 const labelWidth: string = "35%";
 const fieldSize: number = 25;
@@ -11,6 +12,7 @@ export const createTheme = (name: string) => {
   return createMuiTheme({
     spacing: 4,
     palette: palette,
+    typography: typography(palette),
     overrides: {
       MuiMenuItem: {
         root: {
