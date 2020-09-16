@@ -1,3 +1,4 @@
+import { isInvalidTenor } from "components/FormField/helpers";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
@@ -32,7 +33,7 @@ import {
 import { Sides } from "types/sides";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { User } from "types/user";
 import { MessageTypes, W } from "types/w";
 import {
@@ -764,7 +765,11 @@ export class API {
         OptionLegs: mergedDefinitions.map(
           (leg: Leg, index: number): OptionLeg => {
             const { strategy } = entry;
-            const tenor: Tenor = getTenor(entry, index);
+            const tenor: Tenor | InvalidTenor = getTenor(entry, index);
+            if (isInvalidTenor(tenor))
+              throw new Error(
+                "cannot build pricing request without a valid tenor or expiry date for each leg"
+              );
             const spread: number | null =
               strategy.productid === "Butterfly-2Leg" && index > 0
                 ? null
@@ -778,6 +783,8 @@ export class API {
               entry.not1
             );
             const { expiryDate, deliveryDate } = tenor;
+            if (deliveryDate === undefined)
+              throw new Error("bad tenor for leg " + index);
             return {
               notional: notional,
               expiryDate: toIsoDate(expiryDate),
@@ -860,6 +867,8 @@ export class API {
   ): ServerDealQuery {
     const user: User = workareaStore.user;
     const { symbol, strategy, tenor1, tenor2 } = deal;
+    if (isInvalidTenor(tenor1))
+      throw new Error("cannot build deal query without at least 1 tenor");
     return {
       linkid: getDealId(deal),
       tenor: tenor1.name,

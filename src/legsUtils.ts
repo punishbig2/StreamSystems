@@ -5,7 +5,7 @@ import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { getTenor } from "utils/dealUtils";
 import { forceParseDate } from "utils/timeUtils";
 
@@ -66,7 +66,7 @@ const getLegDefaultsFromDeal = (
   if (entry === null || entry === undefined) return {};
   // const { symbol } = deal;
   const leg: Partial<Leg> = {};
-  const tenor: Tenor = getTenor(entry, index);
+  const tenor: Tenor | InvalidTenor = getTenor(entry, index);
   leg.premiumDate = entry.premiumDate;
   leg.deliveryDate = tenor.deliveryDate;
   leg.expiryDate = tenor.expiryDate;

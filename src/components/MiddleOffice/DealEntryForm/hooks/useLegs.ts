@@ -1,4 +1,5 @@
 import { API, Task } from "API";
+import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
@@ -15,7 +16,7 @@ import { DealEntry } from "structures/dealEntry";
 import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils";
 
 const buildSummaryLegFromCut = (
@@ -25,7 +26,7 @@ const buildSummaryLegFromCut = (
   tradeDate: Date,
   premiumDate: Date,
   spotDate: Date,
-  deliveryDate: Date,
+  deliveryDate: Date | undefined,
   expiryDate: Date
 ): SummaryLeg => {
   return {
@@ -37,7 +38,7 @@ const buildSummaryLegFromCut = (
     cutTime: cut.LocalTime,
     dealOutput: {
       premiumDate: premiumDate,
-      deliveryDate: deliveryDate,
+      deliveryDate: deliveryDate !== undefined ? deliveryDate : new Date(),
       expiryDate: expiryDate,
       side: Sides.None,
       option: "",
@@ -81,7 +82,7 @@ const createSummaryLeg = (
   tradeDate: Date,
   premiumDate: Date,
   spotDate: Date,
-  deliveryDate: Date,
+  deliveryDate: Date | undefined,
   expiryDate: Date
 ): SummaryLeg | null => {
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
@@ -117,7 +118,8 @@ const handleLegsResponse = (
       summaryLeg !== null ? summaryLeg.fwdpts1 : null;
     const fwdRate: number | null =
       summaryLeg !== null ? summaryLeg.fwdrate1 : null;
-    const tenor: Tenor = entry.tenor1;
+    const tenor: Tenor | InvalidTenor = entry.tenor1;
+    if (isInvalidTenor(tenor)) return;
     moStore.setLegs(
       legs.slice(legs.length === 1 ? 0 : 1),
       {
@@ -186,7 +188,8 @@ const createDefaultLegsFromDeal = (
     legDefinitions.in,
     entry
   );
-  const tenor: Tenor = entry.tenor1;
+  const tenor: Tenor | InvalidTenor = entry.tenor1;
+  if (isInvalidTenor(tenor)) return;
   moStore.setLegs(
     legs,
     createSummaryLeg(

@@ -2,7 +2,7 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { getTenor } from "utils/dealUtils";
 
 export const initializeLegFromEntry = async (
@@ -11,7 +11,7 @@ export const initializeLegFromEntry = async (
   symbol: Symbol,
   legIndex: number
 ): Promise<Partial<Leg>> => {
-  const tenor: Tenor = getTenor(entry, legIndex);
+  const tenor: Tenor | InvalidTenor = getTenor(entry, legIndex);
   return {
     notional: legIndex === 1 && entry.not2 !== null ? entry.not2 : entry.not1,
     vol: entry.vol,

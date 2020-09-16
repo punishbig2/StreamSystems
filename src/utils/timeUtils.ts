@@ -62,7 +62,9 @@ export const momentToUTCFIXFormat = (date: Date): string => {
   return utc.format(FIX_DATE_FORMAT);
 };
 
-export const forceParseDate = (value: string | null | undefined): Date | undefined => {
+export const forceParseDate = (
+  value: string | null | undefined
+): Date | undefined => {
   if (value === null || value === undefined || value === "") return undefined;
   if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
@@ -106,4 +108,25 @@ export const dateDiff = (d1: Date, d2: Date): number => {
   const m1: moment.Moment = moment(d1);
   const m2: moment.Moment = moment(d2);
   return m1.diff(m2);
+};
+
+export interface TenorDuration {
+  readonly count: number;
+  readonly unit: moment.DurationInputArg2;
+}
+
+export const tenorToDuration = (value: string): TenorDuration => {
+  const regexp: RegExp = new RegExp(/([0-9]+)([DWMY])/);
+  const match: string[] | null = value.match(regexp);
+  if (match === null || match.length !== 3) {
+    return {
+      count: 0,
+      unit: "d",
+    };
+  } else {
+    return {
+      count: Number(match[1]),
+      unit: match[2] as moment.DurationInputArg2,
+    };
+  }
 };

@@ -2,8 +2,15 @@ import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
+import {
+  InvalidStrategy,
+  MOStrategy,
+  StrategyMap,
+} from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
@@ -19,6 +26,7 @@ import { coalesce } from "utils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
+import { deriveTenor } from "utils/tenorUtils";
 
 const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
@@ -459,6 +467,31 @@ export class MoStore {
     return entry.not1 !== null;
   }
 
+  /*
+  const tenor1: Tenor | null = toTenor(
+    symbol,
+    deal.tenor1,
+    deal.expiryDate1,
+    deal.tradeDate
+  );
+  console.log(tenor1);
+  if (tenor1 === null)
+    throw new Error("invalid value for tenor1, at least 1 tenor needed");
+   */
+
+  private static async resolveDatesIfNeeded(
+    entry: DealEntry
+  ): Promise<DealEntry> {
+    const { tenor1, tenor2 } = entry;
+    return {
+      ...entry,
+      tenor1: await deriveTenor(entry.symbol, tenor1.name, entry.tradeDate),
+      tenor2: tenor2
+        ? await deriveTenor(entry.symbol, tenor2.name, entry.tradeDate)
+        : null,
+    };
+  }
+
   @action.bound
   public setDeal(deal: Deal | null): void {
     if (deal === null) {
@@ -467,10 +500,16 @@ export class MoStore {
       this.selectedDealID = null;
       this.isEditMode = false;
     } else {
-      this.entry = createDealEntry(deal);
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
       this.isEditMode = false;
+      this.entry = createDealEntry(deal);
+      // If we do need to resolve the dates, let's do so
+      MoStore.resolveDatesIfNeeded(this.entry).then(
+        (newEntry: DealEntry): void => {
+          this.setEntry(newEntry);
+        }
+      );
     }
     // This is because we are going to load the legs as soon
     // as this method returns because we're going to use the
@@ -668,7 +707,7 @@ export class MoStore {
   }
 
   @action.bound
-  public addDeal(deal: Deal) {
+  public async addDeal(deal: Deal): Promise<void> {
     const { deals } = this;
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === deal.id
@@ -676,25 +715,25 @@ export class MoStore {
     const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
       this.deals = [deal, ...deals];
-      this.entry = createDealEntry(deal);
+      this.entry = await createDealEntry(deal);
     } else {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // It was modified, so replay consequences
       if (currentDealID !== null && currentDealID === deal.id) {
-        this.entry = createDealEntry(deal);
+        this.entry = await createDealEntry(deal);
       }
     }
   }
 
   @action.bound
-  public removeDeal(id: string) {
+  public async removeDeal(id: string): Promise<void> {
     const { deals, entry } = this;
     const index: number = deals.findIndex((deal: Deal) => deal.id === id);
     if (index === -1) return;
     this.deals = [...deals.slice(0, index), ...deals.slice(index + 1)];
     // Update current entry
     if (entry.dealID === id) {
-      this.setDeal(null);
+      return this.setDeal(null);
     }
   }
 

@@ -1,9 +1,6 @@
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
-import {
-  InvalidStrategy,
-  MOStrategy,
-} from "components/MiddleOffice/types/moStrategy";
+import { InvalidStrategy, MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
@@ -11,11 +8,10 @@ import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
 import { InvalidSymbol, Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
-import { deriveTenor } from "utils/tenorUtils";
-import { forceParseDate, parseTime } from "utils/timeUtils";
+import { addToDate, forceParseDate, parseTime, TenorDuration, tenorToDuration } from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
   [DealStatus.Pending]: "Pending",
@@ -88,22 +84,23 @@ const getVol = (item: any): number | null => {
   return item.lastpx / 100;
 };
 
-const toTenor = async (
-  symbol: Symbol,
-  name: string,
-  expiry: Date | undefined,
-  delivery: Date | undefined,
-  spot: Date | undefined,
-  trade: Date
-): Promise<Tenor> => {
-  if (delivery === undefined || expiry === undefined || spot === undefined) {
-    return deriveTenor(symbol, name, trade);
+const partialTenor = (
+  name: string | undefined,
+  expiryDate: string | undefined,
+  tradeDate: Date
+): Tenor | null => {
+  if (name === undefined) return null;
+  const date: Date | undefined = forceParseDate(expiryDate);
+  if (date === undefined) {
+    const duration: TenorDuration = tenorToDuration(name);
+    return {
+      name: name,
+      expiryDate: addToDate(tradeDate, duration.count, duration.unit),
+    };
   } else {
     return {
       name: name,
-      deliveryDate: delivery,
-      expiryDate: expiry,
-      spotDate: new Date(),
+      expiryDate: date,
     };
   }
 };
@@ -118,14 +115,14 @@ export const createDealFromBackendMessage = async (
     object.strike,
     getDefaultStrikeForStrategy(object.strategy)
   );
-  const tenor1: Tenor = await toTenor(
-    symbol,
+  const tenor1: Tenor | null = partialTenor(
     object.tenor,
-    forceParseDate(object.expirydate),
-    forceParseDate(object.deliverydate),
-    forceParseDate(object.spotdate),
+    object.expirydate,
     tradeDate
   );
+  if (tenor1 === null) {
+    throw new Error("invalid backend message for deal, missing tenor");
+  }
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
@@ -137,18 +134,13 @@ export const createDealFromBackendMessage = async (
     notional2: object.notional1 === null ? null : Number(object.notional1),
     strategy: object.strategy,
     currencyPair: object.symbol,
-    tenor1: tenor1,
-    tenor2: await toTenor(
-      symbol,
-      object.tenor1,
-      forceParseDate(object.expirydate1),
-      forceParseDate(object.deliverydate1),
-      forceParseDate(object.spotdate1),
-      tradeDate
-    ),
+    tenor1: object.tenor,
+    expiryDate1: forceParseDate(object.expirydate)!,
+    tenor2: object.tenor1,
+    expiryDate2: forceParseDate(object.expirydate1),
     tradeDate: tradeDate,
-    spotDate: tenor1.spotDate,
-    premiumDate: tenor1.spotDate,
+    spotDate: new Date(),
+    premiumDate: new Date(),
     strike: strike,
     symbol: symbol,
     source: object.source,
@@ -187,6 +179,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
+
   return {
     symbol: symbol,
     strategy: strategy,
@@ -204,8 +197,17 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     dealID: id.toString(),
     status: deal.status,
     style: "European",
-    tenor1: deal.tenor1,
-    tenor2: deal.tenor2,
+    tenor1: {
+      name: deal.tenor1,
+      expiryDate: deal.expiryDate1,
+    },
+    tenor2:
+      deal.tenor2 !== undefined && deal.expiryDate2 !== undefined
+        ? {
+            name: deal.tenor2,
+            expiryDate: deal.expiryDate2,
+          }
+        : null,
     model: 3,
     legs: legsCount,
     dealstrike: coalesce(deal.strike, strategy.strike),
@@ -223,9 +225,9 @@ export const createDealEntry = (deal: Deal): DealEntry => {
 };
 
 export const getTenor = (
-  deal: Pick<Deal, "tenor1" | "tenor2"> | Pick<DealEntry, "tenor1" | "tenor2">,
+  deal: Pick<DealEntry, "tenor1" | "tenor2">,
   index: number
-): Tenor => {
+): Tenor | InvalidTenor => {
   const { tenor2 } = deal;
   if (index === 1 && tenor2 !== null && tenor2.name !== "") return tenor2;
   return deal.tenor1;

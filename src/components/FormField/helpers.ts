@@ -1,4 +1,4 @@
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { Moment } from "moment";
@@ -34,4 +34,13 @@ export const getDisplayValue = <T>(
 
 export const isTenor = (value: any): value is Tenor => {
   return "name" in value && "expiryDate" in value;
+};
+
+export const isInvalidTenor = (value: any): value is InvalidTenor => {
+  return (
+    value.name === "" &&
+    value.expiryDate === null &&
+    value.deliveryDate === null &&
+    value.spotDate === null
+  );
 };

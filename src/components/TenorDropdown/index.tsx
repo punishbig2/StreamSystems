@@ -6,7 +6,7 @@ import { Tenor } from "types/tenor";
 
 interface Props<T> {
   data: DropdownItem[];
-  value: Tenor;
+  value: Tenor | null;
   className?: string;
   color: "green" | "orange" | "cream" | "grey";
   name: keyof T;
@@ -31,6 +31,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       props.onChange(name, value);
     }
   };
+  const { name = "", expiryDate = null } = value !== null ? value : {};
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
       <Grid className={"bank-entity-field"} spacing={1} item container>
@@ -38,7 +39,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           <FormField
             dropdownData={data}
             color={props.color}
-            value={value.name}
+            value={name}
             name={props.name}
             type={"dropdown"}
             editable={!props.readOnly}
@@ -52,7 +53,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           <FormField<{ date: Date }>
             color={props.color}
             type={"date"}
-            value={value.expiryDate}
+            value={expiryDate}
             placeholder={"MM/DD/YYYY"}
             editable={!props.readOnly}
             name={"date"}

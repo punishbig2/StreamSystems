@@ -1,6 +1,7 @@
+import { isInvalidTenor } from "components/FormField/helpers";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { Point } from "structures/point";
 import { addToDate, dateDiff, toIsoDate } from "utils/timeUtils";
 
@@ -39,10 +40,10 @@ const comparePoints = (
 export const buildFwdRates = (
   summary: SummaryLeg | null,
   strategy: MOStrategy,
-  tenor1: Tenor,
+  tenor1: Tenor | InvalidTenor,
   tenor2: Tenor | null
 ): Point[] | undefined => {
-  if (summary === null) return undefined;
+  if (summary === null || isInvalidTenor(tenor1)) return undefined;
   const { fwdrate1: value } = summary;
   if (value === null) return undefined;
   const points: InternalPoint[] = generatePoints(tenor1.expiryDate, value, 7);

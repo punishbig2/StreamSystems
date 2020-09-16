@@ -5,7 +5,7 @@ import {
 } from "components/MiddleOffice/types/moStrategy";
 import { DealStatus } from "types/dealStatus";
 import { InvalidSymbol, Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
+import { InvalidTenor, Tenor } from "types/tenor";
 
 export enum DealType {
   Invalid = 0,
@@ -27,7 +27,7 @@ export interface DealEntry {
   readonly symbol: Symbol;
   readonly strategy: MOStrategy;
 
-  readonly tenor1: Tenor;
+  readonly tenor1: Tenor | InvalidTenor;
   readonly tenor2: Tenor | null;
 
   readonly dealstrike?: string | number;
@@ -82,9 +82,9 @@ export const emptyDealEntry: DealEntry = {
   buyer: "",
   seller: "",
   tenor1: {
-    expiryDate: new Date(),
-    deliveryDate: new Date(),
-    spotDate: new Date(),
+    expiryDate: null,
+    deliveryDate: null,
+    spotDate: null,
     name: "",
   },
   tenor2: null,

@@ -34,9 +34,13 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
     const { entry } = store;
     // Deal event handlers
     useNewDealListener((deal: Deal) => {
+      // noinspection JSIgnoredPromiseFromCall
       store.addDeal(deal);
     });
-    useDealDeletedListener((id: string): void => store.removeDeal(id));
+    useDealDeletedListener((id: string): void => {
+      // noinspection JSIgnoredPromiseFromCall
+      store.removeDeal(id);
+    });
     useErrorListener((error: any): void => store.setError(error));
     // If it's hidden ... wait, what?
     if (!props.visible) classes.push("hidden");

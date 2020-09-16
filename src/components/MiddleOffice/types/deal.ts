@@ -25,8 +25,10 @@ export interface Deal {
   spotDate: Date;
   premiumDate: Date;
 
-  tenor1: Tenor;
-  tenor2: Tenor | null;
+  tenor1: string;
+  expiryDate1: Date;
+  tenor2?: string;
+  expiryDate2?: Date;
 
   source: string;
   status: DealStatus;
