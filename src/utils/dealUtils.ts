@@ -1,6 +1,9 @@
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
-import { InvalidStrategy, MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import {
+  InvalidStrategy,
+  MOStrategy,
+} from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
@@ -11,7 +14,13 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
-import { addToDate, forceParseDate, parseTime, TenorDuration, tenorToDuration } from "utils/timeUtils";
+import {
+  addToDate,
+  forceParseDate,
+  parseTime,
+  TenorDuration,
+  tenorToDuration,
+} from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
   [DealStatus.Pending]: "Pending",
@@ -66,8 +75,7 @@ const getCommissionRates = async (item: any): Promise<any> => {
 };
 
 const getSpread = (item: any): number | null => {
-  if (item.spread !== "" && item.spread !== null && item.spread !== undefined)
-    return item.spread;
+  if (item.spread !== "" && item.spread !== undefined) return item.spread;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
