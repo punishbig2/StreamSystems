@@ -12,175 +12,199 @@ import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { ProgressView } from "components/MiddleOffice/progressView";
 import { SuccessMessage } from "components/MiddleOffice/successMessage";
 import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
+import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { ModalWindow } from "components/ModalWindow";
-import { observer } from "mobx-react";
-import store, { MoStatus } from "mobx/stores/moStore";
+import { MoGenericMessage, MoStatus } from "mobx/stores/moStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { randomID } from "randomID";
 import React, { ReactElement, useState } from "react";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry, EntryType } from "structures/dealEntry";
+import { MOErrorMessage } from "types/middleOfficeError";
 
 interface Props {
   readonly visible: boolean;
+  readonly error: MOErrorMessage | null;
+  readonly entry: DealEntry;
+  readonly removeDeal: (id: string) => Promise<void>;
+  readonly addDeal: (deal: Deal) => Promise<void>;
+  readonly setDeal: (deal: Deal | null) => void;
+  readonly setError: (error: MOErrorMessage) => void;
+  readonly updateLeg: (index: number, key: keyof Leg, value: any) => void;
+  readonly status: MoStatus;
+  readonly deals: ReadonlyArray<Deal>;
+  readonly selectedDealID: string | null;
+  readonly isEditMode: boolean;
+  readonly isLoadingLegs: boolean;
+  readonly entryType: EntryType;
+  readonly addNewDeal: () => void;
+  readonly cloneDeal: () => void;
+  readonly cancelAddOrClone: () => void;
+  readonly setEditMode: (editMode: boolean) => void;
+  readonly legs: ReadonlyArray<Leg>;
+  readonly summaryLeg: SummaryLeg | null;
+  readonly isModified: boolean;
+  readonly cuts: ReadonlyArray<Cut>;
+  readonly isReadyForSubmission: boolean;
+  readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
+  readonly price: () => void;
+  readonly createOrClone: () => void;
+  readonly setWorking: (field: keyof DealEntry | null) => void;
+  readonly saveCurrentEntry: () => void;
+  readonly submit: () => void;
+  readonly successMessage: MoGenericMessage | null;
 }
 
-export const MiddleOfficeMain: React.FC<Props> = observer(
-  (props: Props): ReactElement => {
-    const [deleteQuestionOpen, showDeleteQuestion] = useState<boolean>(false);
-    const classes: string[] = ["middle-office"];
-    const { error } = store;
-    const { entry } = store;
-    // Deal event handlers
-    useNewDealListener((deal: Deal) => {
-      // noinspection JSIgnoredPromiseFromCall
-      store.addDeal(deal);
-    });
-    useDealDeletedListener((id: string): void => {
-      // noinspection JSIgnoredPromiseFromCall
-      store.removeDeal(id);
-    });
-    useErrorListener((error: any): void => store.setError(error));
-    // If it's hidden ... wait, what?
-    if (!props.visible) classes.push("hidden");
+export const MiddleOfficeMain: React.FC<Props> = (
+  props: Props
+): ReactElement => {
+  const [deleteQuestionOpen, showDeleteQuestion] = useState<boolean>(false);
+  const classes: string[] = ["middle-office"];
+  const { error } = props;
+  const { entry } = props;
+  // Deal event handlers
+  useNewDealListener((deal: Deal) => {
+    // noinspection JSIgnoredPromiseFromCall
+    props.addDeal(deal);
+  });
+  useDealDeletedListener((id: string): void => {
+    // noinspection JSIgnoredPromiseFromCall
+    props.removeDeal(id);
+  });
+  useErrorListener((error: any): void => props.setError(error));
+  // If it's hidden ... wait, what?
+  if (!props.visible) classes.push("hidden");
 
-    const dontDelete = () => {
-      showDeleteQuestion(false);
-    };
+  const dontDelete = () => {
+    showDeleteQuestion(false);
+  };
 
-    const doDelete = (): void => {
-      if (entry.dealID === undefined) {
-        throw new Error(
-          "cannot delete this entry, it has no id so it's new or data is bad"
-        );
-      } else {
-        API.removeDeal(entry.dealID)
-          .then(() => null)
-          .catch((error: any) => {
-            console.warn(error);
-          })
-          .finally(() => {
-            showDeleteQuestion(false);
-          });
-      }
-    };
+  const doDelete = (): void => {
+    if (entry.dealID === undefined) {
+      throw new Error(
+        "cannot delete this entry, it has no id so it's new or data is bad"
+      );
+    } else {
+      API.removeDeal(entry.dealID)
+        .then(() => null)
+        .catch((error: any) => {
+          console.warn(error);
+        })
+        .finally(() => {
+          showDeleteQuestion(false);
+        });
+    }
+  };
 
-    const removeDeal = () => {
-      showDeleteQuestion(true);
-    };
+  const removeDeal = () => {
+    showDeleteQuestion(true);
+  };
 
-    const onUpdateLeg = (index: number, key: keyof Leg, value: any): void => {
-      store.updateLeg(index, key, value);
-    };
+  const onUpdateLeg = (index: number, key: keyof Leg, value: any): void => {
+    props.updateLeg(index, key, value);
+  };
 
-    const onDealSelected = (deal: Deal | null) => {
-      store.setDeal(deal);
-    };
+  const onDealSelected = (deal: Deal | null) => {
+    props.setDeal(deal);
+  };
 
-    const headingClasses: string[] = ["heading"];
-    if (store.status !== MoStatus.Normal) headingClasses.push("disabled");
-    return (
-      <>
-        <div className={classes.join(" ")}>
-          <div className={"left-panel"}>
-            <DealBlotter
-              id={randomID("")}
-              disabled={store.status !== MoStatus.Normal}
-              selectedRow={store.selectedDealID}
-              deals={store.deals}
-              onDealSelected={onDealSelected}
-            />
-          </div>
-          <Grid className={"right-panel"} container>
-            <Grid xs={7} item>
-              <OverlayScrollbarsComponent className={"container"}>
-                <div className={"form-group"}>
-                  <div className={headingClasses.join(" ")}>
-                    <h1>Deal Entry</h1>
-                    <div className={"actions"}>
-                      <ActionButtons
-                        isEditMode={store.isEditMode}
-                        disabled={
-                          store.isLoadingLegs ||
-                          store.status !== MoStatus.Normal
-                        }
-                        entryType={store.entryType}
-                        onRemoveDeal={removeDeal}
-                        onAddNewDeal={() => store.addNewDeal()}
-                        onCloneDeal={() => store.cloneDeal()}
-                        onCancelAddOrClone={() => store.cancelAddOrClone()}
-                        onEdit={() => store.setEditMode(true)}
-                      />
-                    </div>
-                  </div>
-                  <DealEntryForm
-                    status={store.status}
-                    cuts={store.cuts}
-                    entryType={store.entryType}
-                    entry={store.entry}
-                    isEditMode={store.isEditMode}
-                    isModified={store.isModified}
-                    isReadyForSubmission={store.isReadyForSubmission}
-                    onPriced={() => {
-                      store.price();
-                    }}
-                    onUpdateEntry={(partial: Partial<DealEntry>) =>
-                      store.updateEntry(partial)
-                    }
-                    onSetWorking={(field: keyof DealEntry | null) =>
-                      store.setWorking(field)
-                    }
-                    onCreateOrClone={() => store.createOrClone()}
-                    onSaveCurrentEntry={() => store.saveCurrentEntry()}
-                    onSubmit={() => store.submit()}
-                  />
-                </div>
-                <div className={"form-group"}>
-                  <div className={headingClasses.join(" ")}>
-                    <h1>Summary Leg Details</h1>
-                  </div>
-                  <SummaryLegDetailsForm
-                    summaryLeg={store.summaryLeg}
-                    isEditMode={store.isEditMode}
-                    isLoading={store.isLoadingLegs}
-                    dealEntry={store.entry}
-                  />
-                </div>
-              </OverlayScrollbarsComponent>
-            </Grid>
-            <Grid xs={5} item>
-              <OverlayScrollbarsComponent className={"container"}>
-                <LegDetailsForm
-                  status={store.status}
-                  legs={store.legs}
-                  isEditMode={store.isEditMode}
-                  isLoading={store.isLoadingLegs}
-                  entry={store.entry}
-                  onUpdateLeg={onUpdateLeg}
-                />
-              </OverlayScrollbarsComponent>
-            </Grid>
-          </Grid>
+  const headingClasses: string[] = ["heading"];
+  if (props.status !== MoStatus.Normal) headingClasses.push("disabled");
+  return (
+    <>
+      <div className={classes.join(" ")}>
+        <div className={"left-panel"}>
+          <DealBlotter
+            id={randomID("")}
+            disabled={props.status !== MoStatus.Normal}
+            selectedRow={props.selectedDealID}
+            deals={props.deals}
+            onDealSelected={onDealSelected}
+          />
         </div>
-        {/* Modal windows */}
-        <ModalWindow
-          isOpen={error !== null}
-          render={() => <MiddleOfficeError error={error} />}
-        />
-        <ModalWindow
-          isOpen={store.successMessage !== null}
-          render={() => <SuccessMessage />}
-        />
-        <ModalWindow
-          isOpen={deleteQuestionOpen}
-          render={() => <DeleteQuestion onNo={dontDelete} onYes={doDelete} />}
-        />
-        <ModalWindow
-          isOpen={store.status !== MoStatus.Normal}
-          render={() => <ProgressView />}
-        />
-      </>
-    );
-  }
-);
+        <Grid className={"right-panel"} container>
+          <Grid xs={7} item>
+            <OverlayScrollbarsComponent className={"container"}>
+              <div className={"form-group"}>
+                <div className={headingClasses.join(" ")}>
+                  <h1>Deal Entry</h1>
+                  <div className={"actions"}>
+                    <ActionButtons
+                      isEditMode={props.isEditMode}
+                      disabled={
+                        props.isLoadingLegs || props.status !== MoStatus.Normal
+                      }
+                      entryType={props.entryType}
+                      onRemoveDeal={removeDeal}
+                      onAddNewDeal={() => props.addNewDeal()}
+                      onCloneDeal={() => props.cloneDeal()}
+                      onCancelAddOrClone={() => props.cancelAddOrClone()}
+                      onEdit={() => props.setEditMode(true)}
+                    />
+                  </div>
+                </div>
+                <DealEntryForm
+                  status={props.status}
+                  cuts={props.cuts}
+                  entryType={props.entryType}
+                  entry={props.entry}
+                  isEditMode={props.isEditMode}
+                  isModified={props.isModified}
+                  isReadyForSubmission={props.isReadyForSubmission}
+                  onPriced={props.price}
+                  onUpdateEntry={props.updateEntry}
+                  onSetWorking={props.setWorking}
+                  onCreateOrClone={props.createOrClone}
+                  onSaveCurrentEntry={props.saveCurrentEntry}
+                  onSubmit={props.submit}
+                />
+              </div>
+              <div className={"form-group"}>
+                <div className={headingClasses.join(" ")}>
+                  <h1>Summary Leg Details</h1>
+                </div>
+                <SummaryLegDetailsForm
+                  summaryLeg={props.summaryLeg}
+                  isEditMode={props.isEditMode}
+                  isLoading={props.isLoadingLegs}
+                  dealEntry={props.entry}
+                />
+              </div>
+            </OverlayScrollbarsComponent>
+          </Grid>
+          <Grid xs={5} item>
+            <OverlayScrollbarsComponent className={"container"}>
+              <LegDetailsForm
+                status={props.status}
+                legs={props.legs}
+                isEditMode={props.isEditMode}
+                isLoading={props.isLoadingLegs}
+                entry={props.entry}
+                onUpdateLeg={onUpdateLeg}
+              />
+            </OverlayScrollbarsComponent>
+          </Grid>
+        </Grid>
+      </div>
+      {/* Modal windows */}
+      <ModalWindow
+        isOpen={error !== null}
+        render={() => <MiddleOfficeError error={error} />}
+      />
+      <ModalWindow
+        isOpen={props.successMessage !== null}
+        render={() => <SuccessMessage />}
+      />
+      <ModalWindow
+        isOpen={deleteQuestionOpen}
+        render={() => <DeleteQuestion onNo={dontDelete} onYes={doDelete} />}
+      />
+      <ModalWindow
+        isOpen={props.status !== MoStatus.Normal}
+        render={() => <ProgressView />}
+      />
+    </>
+  );
+};

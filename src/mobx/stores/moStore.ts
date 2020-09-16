@@ -2,18 +2,12 @@ import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/types/legOptionsDef";
-import {
-  InvalidStrategy,
-  MOStrategy,
-  StrategyMap,
-} from "components/MiddleOffice/types/moStrategy";
+import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
+import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
+import deepEqual from "deep-equal";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -72,7 +66,7 @@ export const messages: {
   [MoStatus.LoadingDeal]: "Loading Deal",
 };
 
-interface GenericMessage {
+export interface MoGenericMessage {
   title: string;
   text: string;
 }
@@ -100,7 +94,7 @@ export class MoStore {
   @observable error: MOErrorMessage | null = null;
   @observable isEditMode: boolean = false;
   @observable status: MoStatus = MoStatus.Normal;
-  @observable successMessage: GenericMessage | null = null;
+  @observable successMessage: MoGenericMessage | null = null;
   @observable entryType: EntryType = EntryType.Empty;
   @observable busyField: keyof DealEntry | null = null;
   @observable.ref entry: DealEntry = { ...emptyDealEntry };
@@ -410,7 +404,7 @@ export class MoStore {
   }
 
   @action.bound
-  public setSuccessMessage(message: GenericMessage | null): void {
+  public setSuccessMessage(message: MoGenericMessage | null): void {
     this.successMessage = message;
     this.status = MoStatus.Normal;
   }
@@ -557,6 +551,7 @@ export class MoStore {
 
   @action.bound
   private setEntry(entry: DealEntry) {
+    if (deepEqual(entry, this.entry)) return;
     this.entry = entry;
   }
 
@@ -584,7 +579,6 @@ export class MoStore {
     }
   }
 
-  @action.bound
   public async updateEntry(partial: Partial<DealEntry>): Promise<void> {
     const newEntry = await this.buildNewEntry(partial);
     // If the tenor changed get the dates, otherwise
@@ -715,12 +709,18 @@ export class MoStore {
     const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
       this.deals = [deal, ...deals];
-      this.entry = await createDealEntry(deal);
+      const newEntry = await createDealEntry(deal);
+      if (!deepEqual(newEntry, this.entry)) {
+        this.entry = newEntry;
+      }
     } else {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // It was modified, so replay consequences
       if (currentDealID !== null && currentDealID === deal.id) {
-        this.entry = await createDealEntry(deal);
+        const newEntry = await createDealEntry(deal);
+        if (!deepEqual(newEntry, this.entry)) {
+          this.entry = newEntry;
+        }
       }
     }
   }

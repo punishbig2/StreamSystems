@@ -3,10 +3,7 @@ import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
-import {
-  InvalidStrategy,
-  MOStrategy,
-} from "components/MiddleOffice/types/moStrategy";
+import { InvalidStrategy, MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { createLegsFromDefinitionAndDeal, parseDates } from "legsUtils";
 import moStore from "mobx/stores/moStore";

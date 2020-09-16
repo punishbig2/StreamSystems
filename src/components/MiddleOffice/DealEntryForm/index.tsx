@@ -1,6 +1,6 @@
 import { Grid } from "@material-ui/core";
 import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
-import { fieldMapper } from "components/MiddleOffice/DealEntryForm/fieldMapper";
+import { Field } from "components/MiddleOffice/DealEntryForm/field";
 import originalFields from "components/MiddleOffice/DealEntryForm/fields";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
@@ -91,12 +91,19 @@ export const DealEntryForm: React.FC<Props> = (
             disabled={props.status !== MoStatus.Normal}
           >
             {fields.map(
-              fieldMapper(
-                {
-                  updateEntry: props.onUpdateEntry,
-                  setWorking: props.onSetWorking,
-                },
-                entry
+              (
+                field: FieldDef<DealEntry, MoStore, DealEntry>
+              ): ReactElement => (
+                <Field
+                  key={field.name + field.type}
+                  field={field}
+                  entry={entry}
+                  // Stuff from properties
+                  isEditMode={props.isEditMode}
+                  disabled={props.status !== MoStatus.Normal}
+                  onChangeCompleted={props.onUpdateEntry}
+                  onChangeStart={props.onSetWorking}
+                />
               )
             )}
           </fieldset>

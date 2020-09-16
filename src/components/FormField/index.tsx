@@ -36,7 +36,6 @@ interface Props<T, R = string> extends MinimalProps<T> {
 }
 
 interface State extends Editable {
-  labels: string[] | null;
   focus: boolean;
   filterValue: string;
 }
@@ -44,7 +43,6 @@ interface State extends Editable {
 const initialState: State = {
   displayValue: "",
   internalValue: "",
-  labels: null,
   focus: false,
   validity: Validity.Intermediate,
   caretPosition: null,
@@ -109,15 +107,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     }
     if (props.value !== prevProps.value || props.type !== prevProps.type) {
       this.setValueFromProps();
-      // Since state will change stop right now and let the next
-      // update handle anything else
-      return;
-    }
-    if (props.dropdownData !== prevProps.dropdownData) {
-      if (!(props.dropdownData instanceof Array)) return;
-      this.setState({
-        labels: this.extractLabelsFromData(props.dropdownData),
-      });
       // Since state will change stop right now and let the next
       // update handle anything else
       return;
