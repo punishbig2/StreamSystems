@@ -8,10 +8,7 @@ import {
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
 import config from "config";
-import {
-  CommissionRate,
-  convertToCommissionRatesArray,
-} from "mobx/stores/brokerageStore";
+import { CommissionRate, convertToCommissionRatesArray } from "mobx/stores/brokerageStore";
 import moStore, { MoStatus } from "mobx/stores/moStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
@@ -19,10 +16,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, ExecTypes, Message } from "types/message";
-import {
-  MOErrorMessage,
-  ON_MIDDLE_OFFICE_ERROR,
-} from "types/middleOfficeError";
+import { MOErrorMessage, ON_MIDDLE_OFFICE_ERROR } from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
@@ -658,8 +652,21 @@ export class SignalRManager {
     const user: User = workareaStore.user;
     const error: any = JSON.parse(data);
     if (error.useremail !== user.email) {
-      // IGNORE
-      return;
+      if ("dealid" in error) {
+        if (
+          moStore.selectedDealID === error.dealid &&
+          moStore.status === MoStatus.Pricing
+        ) {
+          // This is a pricing error that belongs to our user anyway
+          moStore.setError({
+            error: error.error_msg,
+            code: 1001,
+            message: error.error_msg,
+            status: "Unable to complete",
+          });
+        }
+      }
+      console.warn(error);
     } else {
       console.log(error);
     }
