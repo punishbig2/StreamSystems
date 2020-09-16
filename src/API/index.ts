@@ -862,42 +862,42 @@ export class API {
   }
 
   private static createDealRequest(
-    deal: DealEntry,
+    entry: DealEntry,
     changed: string[]
   ): ServerDealQuery {
     const user: User = workareaStore.user;
-    const { symbol, strategy, tenor1, tenor2 } = deal;
+    const { symbol, strategy, tenor1, tenor2 } = entry;
     if (isInvalidTenor(tenor1))
       throw new Error("cannot build deal query without at least 1 tenor");
     return {
-      linkid: getDealId(deal),
+      linkid: getDealId(entry),
       tenor: tenor1.name,
       tenor1: tenor2 !== null ? tenor2.name : null,
       strategy: strategy.productid,
       symbol: symbol.symbolID,
-      spread: deal.spread,
-      vol: deal.vol,
-      lastqty: deal.size,
-      notional1: deal.not1,
-      size: deal.size,
+      spread: entry.spread,
+      vol: entry.vol,
+      lastqty: entry.size,
+      notional1: entry.not1,
+      size: entry.size,
       lvsqty: "0",
       cumqty: "0",
       transacttime: currentTimestampFIXFormat(),
-      buyerentitycode: resolveBankToEntity(deal.buyer),
-      sellerentitycode: resolveBankToEntity(deal.seller),
-      buyer: resolveEntityToBank(deal.buyer),
-      seller: resolveEntityToBank(deal.seller),
+      buyerentitycode: resolveBankToEntity(entry.buyer),
+      sellerentitycode: resolveBankToEntity(entry.seller),
+      buyer: resolveEntityToBank(entry.buyer),
+      seller: resolveEntityToBank(entry.seller),
       useremail: user.email,
-      strike: deal.dealstrike,
+      strike: entry.dealstrike,
       expirydate: momentToUTCFIXFormat(tenor1.expiryDate),
       expirydate1:
         tenor2 !== null ? momentToUTCFIXFormat(tenor2.expiryDate) : null,
-      fwdrate1: deal.fwdrate1,
-      fwdpts1: deal.fwdpts1,
-      fwdrate2: deal.fwdrate2,
-      fwdpts2: deal.fwdpts2,
-      deltastyle: deal.deltastyle,
-      premstyle: deal.premstyle,
+      fwdrate1: entry.fwdrate1,
+      fwdpts1: entry.fwdpts1,
+      fwdrate2: entry.fwdrate2,
+      fwdpts2: entry.fwdpts2,
+      deltastyle: entry.deltastyle,
+      premstyle: entry.premstyle,
       product_fields_changed: changed,
     };
   }
@@ -907,7 +907,7 @@ export class API {
     const { legs } = moStore;
     console.log(legs);
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
-      dealID: dealID,
+      dealId: dealID,
       useremail: user.email,
       legs: legs,
     });

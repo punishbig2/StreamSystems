@@ -159,6 +159,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>> = [
     placeholder: "0",
     precision: 0,
     color: "orange",
+    minimum: 100000,
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
@@ -170,6 +171,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>> = [
     placeholder: "0",
     precision: 0,
     color: "orange",
+    minimum: 100000,
     editable: editableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),

@@ -20,6 +20,8 @@ export interface FieldDef<T, S = {}, E = {}> {
   readonly precision?: number;
   // Only for dropdown (for now)
   readonly transformData?: (item: any, entry?: T) => DropdownItem[];
+  readonly minimum?: number;
+  readonly maximum?: number;
   readonly dataSource?: keyof S;
   readonly data?: any;
   readonly handler?: InputHandler<T>;
