@@ -572,7 +572,7 @@ export class MoStore {
         ...entry,
         ...partial,
         legs: legsCount,
-        size: not1 !== null ? Math.round(not1 / 1e6) : 0,
+        size: not1 !== null ? not1 / 1e6 : 0,
       };
     } else {
       return { ...this.entry, ...partial };
@@ -771,6 +771,8 @@ export class MoStore {
           } else {
             console.warn(error);
           }
+        } else {
+          console.warn("undefined error, WTF?");
         }
       });
   }

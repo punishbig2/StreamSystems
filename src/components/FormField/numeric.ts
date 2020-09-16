@@ -16,6 +16,8 @@ export interface NumericProps {
   precision?: number;
   type: FieldType;
   currency?: string;
+  minimum?: number;
+  maximum?: number;
 }
 
 const typeToStyle = (
@@ -39,11 +41,15 @@ export class NumericInputHandler<
 > extends FormattedInput<T, P, S> {
   private formatter: Intl.NumberFormat = new Intl.NumberFormat(undefined, {});
   private divider: number = 1;
+  private minimum: number | null;
+  private maximum: number | null;
 
   constructor(props: P) {
     super();
     this.formatter = this.createFormatter(props);
     this.divider = props.type === "percent" ? 100 : 1;
+    this.minimum = props.minimum === undefined ? null : props.minimum;
+    this.maximum = props.maximum === undefined ? null : props.maximum;
   }
 
   private createFormatter(props: P): Intl.NumberFormat {
@@ -96,6 +102,18 @@ export class NumericInputHandler<
         validity: validity,
         caretPosition: caretPosition,
       } as Pick<S, keyof S>;
+    }
+  }
+
+  private isInRange(value: number): boolean {
+    if (this.minimum === null && this.maximum !== null) {
+      return value <= this.maximum;
+    } else if (this.maximum === null && this.minimum !== null) {
+      return value >= this.minimum;
+    } else if (this.minimum !== null && this.maximum !== null) {
+      return value >= this.minimum && value <= this.maximum;
+    } else {
+      return true;
     }
   }
 
@@ -206,7 +224,10 @@ export class NumericInputHandler<
         return roundToNearest(value, props.rounding);
       const formatted: string =
         value < 0 ? `(${formatter.format(-value)})` : formatter.format(value);
-      return [formatted, Validity.Valid];
+      return [
+        formatted,
+        this.isInRange(value) ? Validity.Valid : Validity.InvalidValue,
+      ];
     } else {
       return [value as string, Validity.InvalidFormat];
     }

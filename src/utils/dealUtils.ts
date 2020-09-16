@@ -1,6 +1,9 @@
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
-import { InvalidStrategy, MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import {
+  InvalidStrategy,
+  MOStrategy,
+} from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
 import { getVegaAdjust } from "legsUtils";
 import moStore from "mobx/stores/moStore";
@@ -11,7 +14,13 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
-import { addToDate, forceParseDate, parseTime, TenorDuration, tenorToDuration } from "utils/timeUtils";
+import {
+  addToDate,
+  forceParseDate,
+  parseTime,
+  TenorDuration,
+  tenorToDuration,
+} from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
   [DealStatus.Pending]: "Pending",
@@ -65,24 +74,19 @@ const getCommissionRates = async (item: any): Promise<any> => {
   };
 };
 
-const getSpread = (item: any): number | null => {
-  if (item.spread !== "" && item.spread !== null && item.spread !== undefined)
-    return item.spread;
+const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
+  const value: any = item[key];
+  if (value !== "" && value !== undefined) return value;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
-  if (strategy === undefined || strategy.spreadvsvol === "vol") return null;
+  if (strategy === undefined) return null;
+  if (strategy.spreadvsvol !== key) return null;
   return item.lastpx / 100;
 };
 
-const getVol = (item: any): number | null => {
-  if (item.vol !== "" && item.vol !== undefined) return item.vol;
-  const strategy: MOStrategy | undefined = moStore.getStrategyById(
-    item.strategy
-  );
-  if (strategy === undefined || strategy.spreadvsvol === "spread") return null;
-  return item.lastpx / 100;
-};
+const getSpread = (item: any): number | null => getSpreadOrVol(item, "spread");
+const getVol = (item: any): number | null => getSpreadOrVol(item, "vol");
 
 const partialTenor = (
   name: string | undefined,
@@ -121,6 +125,7 @@ export const createDealFromBackendMessage = async (
     tradeDate
   );
   if (tenor1 === null) {
+    console.warn(object);
     throw new Error("invalid backend message for deal, missing tenor");
   }
   return {
@@ -141,6 +146,7 @@ export const createDealFromBackendMessage = async (
     tradeDate: tradeDate,
     spotDate: new Date(),
     premiumDate: new Date(),
+    price: object.lastpx,
     strike: strike,
     symbol: symbol,
     source: object.source,
@@ -179,7 +185,6 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
-
   return {
     symbol: symbol,
     strategy: strategy,
@@ -187,7 +192,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     deltastyle: deal.deltaStyle,
     not1: deal.notional1,
     not2: deal.notional2,
-    size: Math.round(deal.notional1 / 1e6),
+    size: deal.notional1 / 1e6,
     legadj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
     buyer: deal.buyer,
     seller: deal.seller,
