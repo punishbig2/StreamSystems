@@ -74,23 +74,19 @@ const getCommissionRates = async (item: any): Promise<any> => {
   };
 };
 
-const getSpread = (item: any): number | null => {
-  if (item.spread !== "" && item.spread !== undefined) return item.spread;
+const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
+  const value: any = item[key];
+  if (value !== "" && value !== undefined) return value;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
-  if (strategy === undefined || strategy.spreadvsvol === "vol") return null;
+  if (strategy === undefined || strategy.spreadvsvol !== key) return null;
   return item.lastpx / 100;
 };
 
-const getVol = (item: any): number | null => {
-  if (item.vol !== "" && item.vol !== undefined) return item.vol;
-  const strategy: MOStrategy | undefined = moStore.getStrategyById(
-    item.strategy
-  );
-  if (strategy === undefined || strategy.spreadvsvol === "spread") return null;
-  return item.lastpx / 100;
-};
+const getSpread = (item: any): number | null => getSpreadOrVol(item, "spread");
+
+const getVol = (item: any): number | null => getSpreadOrVol(item, "vol");
 
 const partialTenor = (
   name: string | undefined,
@@ -195,7 +191,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     deltastyle: deal.deltaStyle,
     not1: deal.notional1,
     not2: deal.notional2,
-    size: Math.round(deal.notional1 / 1e6),
+    size: deal.notional1 / 1e6,
     legadj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
     buyer: deal.buyer,
     seller: deal.seller,
