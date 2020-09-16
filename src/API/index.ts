@@ -50,6 +50,7 @@ import {
   resolveEntityToBank,
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
+import { deriveTenor } from "utils/tenorUtils";
 import {
   currentTimestampFIXFormat,
   momentToUTCFIXFormat,
@@ -751,6 +752,52 @@ export class API {
       legs
     );
     const ccyPair: string = symbol.symbolID;
+    const legsPromises = mergedDefinitions.map(
+      async (leg: Leg, index: number): Promise<OptionLeg> => {
+        const { strategy } = entry;
+        const tenor: Tenor | InvalidTenor = getTenor(entry, index);
+        if (isInvalidTenor(tenor))
+          throw new Error(
+            "cannot build pricing request without a valid tenor or expiry date for each leg"
+          );
+        const spread: number | null =
+          strategy.productid === "Butterfly-2Leg" && index > 0
+            ? null
+            : coalesce(entry.spread, null);
+        const vol: number | null =
+          strategy.productid === "Butterfly-2Leg" && index > 0
+            ? null
+            : coalesce(leg.vol, entry.vol);
+        const notional: number = coalesce(
+          index === 1 ? entry.not2 : entry.not1,
+          entry.not1
+        );
+        const { expiryDate, deliveryDate } = await deriveTenor(
+          symbol,
+          tenor.name,
+          tradeDate
+        );
+        if (deliveryDate === undefined)
+          throw new Error("bad tenor for leg " + index);
+        return {
+          notional: notional,
+          expiryDate: toIsoDate(expiryDate),
+          deliveryDate: toIsoDate(deliveryDate),
+          spreadVolatiltyOffset: spread,
+          strike: numberifyIfPossible(
+            coalesce(leg.strike, coalesce(entry.dealstrike, strategy.strike))
+          ),
+          volatilty: vol,
+          barrier: null,
+          barrierLower: null,
+          barrierUpper: null,
+          barrierRebate: null,
+          OptionLegType: leg.option,
+          SideType: leg.side.toUpperCase(),
+          MonitorType: null,
+        };
+      }
+    );
     const request: VolMessageIn = {
       id: entry.dealID,
       Option: {
@@ -762,51 +809,7 @@ export class API {
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
-        OptionLegs: mergedDefinitions.map(
-          (leg: Leg, index: number): OptionLeg => {
-            const { strategy } = entry;
-            const tenor: Tenor | InvalidTenor = getTenor(entry, index);
-            if (isInvalidTenor(tenor))
-              throw new Error(
-                "cannot build pricing request without a valid tenor or expiry date for each leg"
-              );
-            const spread: number | null =
-              strategy.productid === "Butterfly-2Leg" && index > 0
-                ? null
-                : coalesce(entry.spread, null);
-            const vol: number | null =
-              strategy.productid === "Butterfly-2Leg" && index > 0
-                ? null
-                : coalesce(leg.vol, entry.vol);
-            const notional: number = coalesce(
-              index === 1 ? entry.not2 : entry.not1,
-              entry.not1
-            );
-            const { expiryDate, deliveryDate } = tenor;
-            if (deliveryDate === undefined)
-              throw new Error("bad tenor for leg " + index);
-            return {
-              notional: notional,
-              expiryDate: toIsoDate(expiryDate),
-              deliveryDate: toIsoDate(deliveryDate),
-              spreadVolatiltyOffset: spread,
-              strike: numberifyIfPossible(
-                coalesce(
-                  leg.strike,
-                  coalesce(entry.dealstrike, strategy.strike)
-                )
-              ),
-              volatilty: vol,
-              barrier: null,
-              barrierLower: null,
-              barrierUpper: null,
-              barrierRebate: null,
-              OptionLegType: leg.option,
-              SideType: leg.side.toUpperCase(),
-              MonitorType: null,
-            };
-          }
-        ),
+        OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
         valuationDate: new Date(),

@@ -125,6 +125,7 @@ export const createDealFromBackendMessage = async (
     tradeDate
   );
   if (tenor1 === null) {
+    console.warn(object);
     throw new Error("invalid backend message for deal, missing tenor");
   }
   return {

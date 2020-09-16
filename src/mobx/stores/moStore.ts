@@ -771,6 +771,8 @@ export class MoStore {
           } else {
             console.warn(error);
           }
+        } else {
+          console.warn("undefined error, WTF?");
         }
       });
   }

@@ -261,7 +261,7 @@ export class SignalRManager {
   }
 
   public addDeal = async (deal: any): Promise<void> => {
-    if ("dealID" in deal) {
+    if ("dealId" in deal) {
       // IGNORE THIS INTENTIONALLY
     } else {
       try {
