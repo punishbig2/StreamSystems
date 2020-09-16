@@ -1,4 +1,3 @@
-import { Tenor } from "types/tenor";
 import { DealStatus } from "types/dealStatus";
 import { Symbol } from "types/symbol";
 
@@ -20,6 +19,7 @@ export interface Deal {
   strike: number | string;
   vol: number | null;
   spread: number | null;
+  price: number | null;
 
   tradeDate: Date;
   spotDate: Date;

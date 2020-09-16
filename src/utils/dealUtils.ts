@@ -80,12 +80,12 @@ const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
-  if (strategy === undefined || strategy.spreadvsvol !== key) return null;
+  if (strategy === undefined) return null;
+  if (strategy.spreadvsvol !== key) return null;
   return item.lastpx / 100;
 };
 
 const getSpread = (item: any): number | null => getSpreadOrVol(item, "spread");
-
 const getVol = (item: any): number | null => getSpreadOrVol(item, "vol");
 
 const partialTenor = (
@@ -146,6 +146,7 @@ export const createDealFromBackendMessage = async (
     tradeDate: tradeDate,
     spotDate: new Date(),
     premiumDate: new Date(),
+    price: object.lastpx,
     strike: strike,
     symbol: symbol,
     source: object.source,
@@ -184,7 +185,6 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
-
   return {
     symbol: symbol,
     strategy: strategy,

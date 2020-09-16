@@ -5,8 +5,9 @@ import { priceFormatter } from "utils/priceFormatter";
 
 export const getDealPrice = (deal: Deal): number | null => {
   if (deal.vol !== undefined && deal.vol !== null) return 100 * deal.vol;
-  if (deal.spread !== undefined && deal.spread !== null) return deal.spread;
-  return null;
+  if (deal.spread !== undefined && deal.spread !== null)
+    return 100 * deal.spread;
+  return deal.price;
 };
 
 export const PriceCell: React.FC<CellProps> = (
