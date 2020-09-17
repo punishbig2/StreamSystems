@@ -73,7 +73,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={getStyledValue(dealOutput.delta, dealEntry.deltastyle)}
           name={"delta"}
           type={"number"}
-          precision={20}
+          precision={4}
           disabled={props.disabled}
         />
         <FormField
