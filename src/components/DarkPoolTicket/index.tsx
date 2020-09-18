@@ -74,7 +74,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     props.onSubmit(order);
   };
 
-  const instLabels: { [key: string]: string } = { G: "AON", D: "1/2 AON" };
+  const instLabels: { [key: string]: string } = { G: "AON", D: "1/2 ON" };
   const sideLabels: { [key: string]: string } = { SELL: "Sell", BUY: "Buy" };
   const canSubmit: boolean =
     !isNaN(Number(price)) && side !== "" && size >= props.minimumSize;
