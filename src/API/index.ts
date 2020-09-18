@@ -9,7 +9,7 @@ import {
 } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
-import { mergeDefinitionsAndLegs } from "legsUtils";
+import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { STRM } from "stateDefs/workspaceState";

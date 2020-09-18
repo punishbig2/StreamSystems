@@ -1,6 +1,6 @@
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { StylesMap } from "legsUtils";
+import { StylesMap } from "utils/legsUtils";
 import { MoStatus } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
@@ -52,7 +52,7 @@ export const LegDetailsForm: React.FC<Props> = (
             <LegDetailsFields
               leg={leg}
               disabled={disabled}
-              entry={entry}
+              dealEntry={entry}
               isEditMode={props.isEditMode}
               onValueChange={onValueChange(index)}
             />

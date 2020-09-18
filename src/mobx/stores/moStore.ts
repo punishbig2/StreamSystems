@@ -16,6 +16,7 @@ import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
@@ -427,7 +428,7 @@ export class MoStore {
   }
 
   @action.bound
-  public updateSummaryLeg(fieldName: string, value: any): void {
+  public updateSummaryLeg(fieldName: keyof SummaryLeg, value: any): void {
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
   }
   @computed
@@ -461,25 +462,32 @@ export class MoStore {
     return entry.not1 !== null;
   }
 
-  /*
-  const tenor1: Tenor | null = toTenor(
-    symbol,
-    deal.tenor1,
-    deal.expiryDate1,
-    deal.tradeDate
-  );
-  console.log(tenor1);
-  if (tenor1 === null)
-    throw new Error("invalid value for tenor1, at least 1 tenor needed");
-   */
+  private static async deriveTenorIfNeeded(
+    symbol: Symbol,
+    tenor: Tenor | InvalidTenor | null,
+    tradeDate: Date
+  ): Promise<Tenor | null> {
+    if (tenor === null) return null;
+    if (tenor.name === "" || tenor.expiryDate === null) {
+      return deriveTenor(symbol, tenor.name, tradeDate);
+    } else {
+      return tenor;
+    }
+  }
 
   private static async resolveDatesIfNeeded(
     entry: DealEntry
   ): Promise<DealEntry> {
     const { tenor1, tenor2 } = entry;
+    const rootTenor = await this.deriveTenorIfNeeded(
+      entry.symbol,
+      tenor1,
+      entry.tradeDate
+    );
+    if (rootTenor === null) throw new Error("we need at least one tenor");
     return {
       ...entry,
-      tenor1: await deriveTenor(entry.symbol, tenor1.name, entry.tradeDate),
+      tenor1: rootTenor,
       tenor2: tenor2
         ? await deriveTenor(entry.symbol, tenor2.name, entry.tradeDate)
         : null,

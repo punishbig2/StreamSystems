@@ -4,7 +4,12 @@ import { Tenor } from "types/tenor";
 import { CalendarFXPairResponse } from "types/calendarFXPair";
 import { PodRow } from "types/podRow";
 import { coalesce } from "utils";
-import { forceParseDate } from "utils/timeUtils";
+import {
+  addToDate,
+  forceParseDate,
+  TenorDuration,
+  tenorToDuration,
+} from "utils/timeUtils";
 
 export const SPECIFIC_TENOR = "SPECIFIC";
 export interface DealDates {
@@ -13,23 +18,32 @@ export interface DealDates {
   readonly delivery: Date;
 }
 
+const calculateDates = (
+  symbol: Symbol,
+  tenor: string,
+  tradeDate: Date
+): DealDates => {
+  const duration: TenorDuration = tenorToDuration(tenor);
+  const spotDate: Date = addToDate(tradeDate, symbol.SettlementWindow, "d");
+  return {
+    delivery: addToDate(spotDate, symbol.SettlementWindow, "d"),
+    spot: spotDate,
+    expiry: addToDate(new Date(), duration.count, duration.unit),
+  };
+};
+
 export const resolveDealDates = async (
   symbol: Symbol,
   tenor: string,
-  trade: Date,
-  expiryDate?: Date | null
+  tradeDate: Date
 ): Promise<DealDates> => {
   if (tenor === "") {
-    return {
-      delivery: new Date(),
-      spot: new Date(),
-      expiry: new Date(),
-    };
+    return calculateDates(symbol, tenor, tradeDate);
   }
   try {
     const result: CalendarFXPairResponse = await API.calendarFxPair({
       Type: "VOL",
-      tradeDate: trade.toISOString(),
+      tradeDate: tradeDate.toISOString(),
       fxPair: symbol.symbolID,
       Tenors: [tenor],
     });
@@ -42,11 +56,7 @@ export const resolveDealDates = async (
       expiry: coalesce(expiry, new Date()),
     };
   } catch {
-    return {
-      delivery: new Date(),
-      spot: new Date(),
-      expiry: new Date(),
-    };
+    return calculateDates(symbol, tenor, tradeDate);
   }
 };
 

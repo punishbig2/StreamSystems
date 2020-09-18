@@ -5,7 +5,7 @@ import {
   MOStrategy,
 } from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
-import { getVegaAdjust } from "legsUtils";
+import { getVegaAdjust } from "utils/legsUtils";
 import moStore from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";

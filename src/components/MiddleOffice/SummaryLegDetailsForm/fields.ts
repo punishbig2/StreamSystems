@@ -1,20 +1,16 @@
 import { EditableCondition } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
-import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 
 export interface IsEditableData {
-  entry: DealEntry;
+  dealEntry: DealEntry;
   isEditMode: boolean;
 }
 
-const isEditable = (name: string) => (
-  data: IsEditableData,
-  summaryLeg?: SummaryLeg
-): boolean => {
-  if (!moStore.isEditMode) return false;
-  const { strategy } = data.entry;
+const isEditable = (name: string) => (data: IsEditableData): boolean => {
+  if (!data.isEditMode) return false;
+  const { strategy } = data.dealEntry;
   if (strategy === undefined) return false;
   const { f1 } = strategy.fields;
   const editableCondition: EditableCondition = f1[name];

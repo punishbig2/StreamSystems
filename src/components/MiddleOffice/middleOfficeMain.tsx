@@ -55,6 +55,7 @@ interface Props {
   readonly saveCurrentEntry: () => void;
   readonly submit: () => void;
   readonly successMessage: MoGenericMessage | null;
+  readonly updateSummaryLeg: (fieldName: keyof SummaryLeg, value: any) => void;
 }
 
 export const MiddleOfficeMain: React.FC<Props> = (
@@ -170,6 +171,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   isEditMode={props.isEditMode}
                   isLoading={props.isLoadingLegs}
                   dealEntry={props.entry}
+                  onUpdateSummaryLeg={props.updateSummaryLeg}
                 />
               </div>
             </OverlayScrollbarsComponent>

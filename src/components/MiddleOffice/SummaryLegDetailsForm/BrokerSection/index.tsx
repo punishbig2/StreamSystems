@@ -43,7 +43,6 @@ export const BrokerSection: React.FC<Props> = (
           precision={4}
           disabled={props.disabled}
         />
-
         <FormField
           label={"Buyer Comm"}
           color={"grey"}

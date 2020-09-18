@@ -5,7 +5,7 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { InvalidStrategy, MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { createLegsFromDefinitionAndDeal, parseDates } from "legsUtils";
+import { createLegsFromDefinitionAndDeal, parseDates } from "utils/legsUtils";
 import moStore from "mobx/stores/moStore";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";

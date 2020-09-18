@@ -1,7 +1,7 @@
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { FieldType } from "forms/fieldType";
-import { getStyledValue } from "legsUtils";
+import { getStyledValue } from "utils/legsUtils";
 import React, { useEffect, useState } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { DealOutput } from "types/dealOutput";

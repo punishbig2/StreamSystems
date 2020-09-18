@@ -3,6 +3,7 @@ import { useMoInitializer } from "components/MiddleOffice/hooks/useMoInitializer
 import { MiddleOfficeMain } from "components/MiddleOffice/middleOfficeMain";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
+import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { ProgressView } from "components/progressView";
 import { observer } from "mobx-react";
 import store from "mobx/stores/moStore";
@@ -42,6 +43,9 @@ export const MiddleOffice: React.FC<Props> = observer(
             setError={(error: MOErrorMessage): void => store.setError(error)}
             updateLeg={(index: number, key: keyof Leg, value: any): void =>
               store.updateLeg(index, key, value)
+            }
+            updateSummaryLeg={(key: keyof SummaryLeg, value: any): void =>
+              store.updateSummaryLeg(key, value)
             }
             status={store.status}
             deals={store.deals}

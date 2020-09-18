@@ -1,5 +1,5 @@
 import { Leg } from "components/MiddleOffice/types/leg";
-import { getStyledValue } from "legsUtils";
+import { getStyledValue } from "utils/legsUtils";
 import { Symbol } from "types/symbol";
 import { isNumeric } from "utils/isNumeric";
 import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
