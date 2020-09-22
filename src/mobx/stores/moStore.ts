@@ -695,6 +695,7 @@ export class MoStore {
         id +
         "', please close this window now",
     };
+    this.entryType = EntryType.ExistingDeal;
     this.status = MoStatus.Normal;
   }
 

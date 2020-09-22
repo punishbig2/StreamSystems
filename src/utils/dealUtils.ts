@@ -146,7 +146,7 @@ export const createDealFromBackendMessage = async (
     tradeDate: tradeDate,
     spotDate: new Date(),
     premiumDate: new Date(),
-    price: object.lastpx,
+    price: coalesce(object.lastpx, object.pricedvol),
     strike: strike,
     symbol: symbol,
     source: object.source,
