@@ -2,15 +2,8 @@ import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/types/legOptionsDef";
-import {
-  InvalidStrategy,
-  MOStrategy,
-  StrategyMap,
-} from "components/MiddleOffice/types/moStrategy";
+import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
+import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
@@ -693,6 +686,7 @@ export class MoStore {
         id +
         "', please close this window now",
     };
+    this.entryType = EntryType.ExistingDeal;
     this.status = MoStatus.Normal;
   }
 
