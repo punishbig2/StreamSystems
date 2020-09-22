@@ -21,7 +21,7 @@ import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
-import { coalesce } from "utils";
+import { coalesce } from "utils/commonUtils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { parseSEFError } from "utils/parseSEFError";
 import { $$ } from "utils/stringPaster";

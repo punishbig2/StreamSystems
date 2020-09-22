@@ -3,7 +3,7 @@ import { WindowElement } from "components/WindowManager/WindowElement";
 import { MessageBlotter } from "components/MessageBlotter";
 import getStyles, { Styles } from "styles";
 import { User } from "types/user";
-import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
+import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 import columns, { BlotterTypes } from "columns/messageBlotter";
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 

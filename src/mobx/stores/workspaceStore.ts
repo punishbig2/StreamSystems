@@ -1,9 +1,9 @@
 import { observable, action } from "mobx";
 import { persist, create } from "mobx-persist";
 import { API } from "API";
-import { randomID } from "randomID";
+import { randomID } from "utils/randomID";
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
-import persistStorage from "persistStorage";
+import persistStorage from "utils/persistStorage";
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch

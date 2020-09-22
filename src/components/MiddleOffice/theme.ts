@@ -1,8 +1,8 @@
 import { createMuiTheme } from "@material-ui/core";
 import { fade } from "@material-ui/core/styles";
 import { Palette } from "@material-ui/core/styles/createPalette";
-import { getPalette } from "palette";
-import { typography } from "typography";
+import { getPalette } from "styles/palette";
+import { typography } from "styles/typography";
 
 const labelWidth: string = "35%";
 const fieldSize: number = 25;
@@ -77,6 +77,9 @@ export const createTheme = (name: string) => {
           fontWeight: 500,
           fontSize: 13,
           color: "inherit",
+          "&$disabled": {
+            color: palette.text.disabled,
+          },
         },
       },
     },

@@ -1,7 +1,7 @@
 import { createMuiTheme, Theme } from "@material-ui/core";
 import { Palette } from "@material-ui/core/styles/createPalette";
-import { getPalette } from "palette";
-import { typography } from "typography";
+import { getPalette } from "styles/palette";
+import { typography } from "styles/typography";
 
 export const createTheme = (theme: "dark" | "light"): Theme => {
   const palette: Palette = getPalette(theme);

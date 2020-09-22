@@ -18,7 +18,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { getOptimalSize, Size } from "windowUtils";
+import { getOptimalSize, Size } from "utils/windowUtils";
 
 interface OwnProps {
   id: string;

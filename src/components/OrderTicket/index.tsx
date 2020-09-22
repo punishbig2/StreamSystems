@@ -6,7 +6,7 @@ import strings from "locales";
 import { PresetSizeButton } from "components/presetSizeButton";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { Grid, FormControl, FormLabel, OutlinedInput } from "@material-ui/core";
-import { selectInputText } from "utils";
+import { selectInputText } from "utils/commonUtils";
 
 interface Props {
   readonly order: Order;

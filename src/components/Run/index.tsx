@@ -25,7 +25,7 @@ import { getSelectedOrders } from "components/Run/helpers/getSelectedOrders";
 import { $$ } from "utils/stringPaster";
 import { onPriceChange } from "components/Run/helpers/onPriceChange";
 import { TabDirection } from "components/NumericInput";
-import { createAction } from "actionCreator";
+import { createAction } from "utils/actionCreator";
 
 interface OwnProps {
   visible: boolean;

@@ -1,14 +1,14 @@
-import { observable, action, computed } from 'mobx';
-import { OrderStatus, Order, CreateOrder } from 'types/order';
-import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
-import { OrderTypes } from 'types/mdEntry';
-import { MessageTypes, ArrowDirection } from 'types/w';
-import { getSideFromType, getCurrentTime } from 'utils';
-import { User } from 'types/user';
-import { API } from 'API';
-import workareaStore from 'mobx/stores/workareaStore';
-import { sizeFormatter } from 'utils/sizeFormatter';
-import { $$ } from 'utils/stringPaster';
+import { observable, action, computed } from "mobx";
+import { OrderStatus, Order, CreateOrder } from "types/order";
+import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
+import { OrderTypes } from "types/mdEntry";
+import { MessageTypes, ArrowDirection } from "types/w";
+import { getSideFromType, getCurrentTime } from "utils/commonUtils";
+import { User } from "types/user";
+import { API } from "API";
+import workareaStore from "mobx/stores/workareaStore";
+import { sizeFormatter } from "utils/sizeFormatter";
+import { $$ } from "utils/stringPaster";
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -140,9 +140,15 @@ export class OrderStore {
         arrowDirection: ArrowDirection.None,
         uid: () => $$(this.symbol, this.strategy, this.tenor),
       };
-      const status: OrderStatus = (this.status & OrderStatus.HasDepth) !== 0 ? OrderStatus.HasDepth : OrderStatus.None;
+      const status: OrderStatus =
+        (this.status & OrderStatus.HasDepth) !== 0
+          ? OrderStatus.HasDepth
+          : OrderStatus.None;
       // Update current order
-      this.setOrder(newOrder, newOrder.status | OrderStatus.JustCreated | status);
+      this.setOrder(
+        newOrder,
+        newOrder.status | OrderStatus.JustCreated | status
+      );
     } else {
       this.currentStatus =
         (this.currentStatus & ~OrderStatus.BeingCreated) |

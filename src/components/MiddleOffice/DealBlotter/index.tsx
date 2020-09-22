@@ -36,6 +36,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
   },
   (prevProps: Props, nextProps: Props) => {
     if (prevProps.selectedRow !== nextProps.selectedRow) return false;
+    if (prevProps.disabled !== nextProps.disabled) return false;
     return deepEqual(prevProps.deals, nextProps.deals);
   }
 );

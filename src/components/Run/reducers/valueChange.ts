@@ -1,4 +1,4 @@
-import { FXOAction } from "actionCreator";
+import { FXOAction } from "utils/actionCreator";
 import { RunActions } from "components/Run/reducer";
 import {
   buildNewOrder,

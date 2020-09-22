@@ -52,10 +52,6 @@ $field-size: 25px;
         background-color: rgba(0, 0, 0, 0.15);
         color: $foreground-color;
       }
-
-      &:disabled {
-        opacity: 0.25;
-      }
     }
   }
 
@@ -177,32 +173,27 @@ $field-size: 25px;
       align-items: center;
       width: 100%;
 
-      &:not(.disabled).green {
+      &.green {
         color: $green-form-color;
         fill: $green-form-color;
       }
 
-      &:not(.disabled).orange {
+      &.orange {
         color: $orange-form-color;
         fill: $orange-form-color;
       }
 
-      &:not(.disabled).cream {
+      &.cream {
         color: $cream-form-color;
         fill: $cream-form-color;
       }
 
-      &:not(.disabled).grey {
+      &.grey {
         color: $grey-form-color;
         fill: $grey-form-color;
       }
 
-      &.disabled {
-        color: $table-border-color;
-        fill: $table-border-color;
-      }
-
-      &:not(.disabled).negative {
+      &.negative {
         color: $text-color-red;
       }
     }
@@ -356,8 +347,7 @@ $field-size: 25px;
 }
 
 .not-applicable {
-  color: $grey-form-color;
-  opacity: 0.4;
+  color: $table-border-color;
 }
 
 .select-search-root {

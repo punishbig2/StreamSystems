@@ -17,7 +17,7 @@ import { observer } from "mobx-react";
 import { User } from "types/user";
 import { InvalidCurrency } from "stateDefs/windowState";
 import { PodTileStore } from "mobx/stores/podTileStore";
-import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
+import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 import { convertToDepth } from "components/PodTile/helpers";
 import { API } from "API";
 import { PodRow } from "types/podRow";

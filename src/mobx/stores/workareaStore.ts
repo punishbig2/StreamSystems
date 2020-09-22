@@ -7,8 +7,8 @@ import strings from "locales";
 import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 import { WindowDef } from "mobx/stores/workspaceStore";
-import persistStorage from "persistStorage";
-import { randomID } from "randomID";
+import persistStorage from "utils/persistStorage";
+import { randomID } from "utils/randomID";
 import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
@@ -17,7 +17,7 @@ import { Message } from "types/message";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { CurrencyGroups, User, UserPreferences } from "types/user";
-import { updateApplicationTheme } from "utils";
+import { updateApplicationTheme } from "utils/commonUtils";
 import { tenorToNumber } from "utils/tenorUtils";
 
 export enum WindowTypes {

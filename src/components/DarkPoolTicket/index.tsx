@@ -17,7 +17,7 @@ import { SelectEventData } from "types/selectEventData";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { MessageTypes } from "types/w";
-import { selectInputText } from "utils";
+import { selectInputText } from "utils/commonUtils";
 import { priceFormatter } from "utils/priceFormatter";
 import { sizeFormatter } from "utils/sizeFormatter";
 

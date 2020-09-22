@@ -1,7 +1,7 @@
 import { observable, action, computed } from "mobx";
 import { persist, create } from "mobx-persist";
 import { WindowTypes } from "mobx/stores/workareaStore";
-import persistStorage from "persistStorage";
+import persistStorage from "utils/persistStorage";
 
 export class WindowStore {
   public id: string = "";

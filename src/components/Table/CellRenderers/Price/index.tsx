@@ -9,7 +9,7 @@ import React, { ReactElement, useState, useEffect } from "react";
 import { priceFormatter } from "utils/priceFormatter";
 import { Tooltip } from "components/Table/CellRenderers/Price/tooltip";
 import { OrderStatus } from "types/order";
-import { CircularSpinner } from "circularSpinner";
+import { CircularSpinner } from "components/circularSpinner";
 import { observer } from "mobx-react";
 import { PriceStore } from "mobx/stores/priceStore";
 

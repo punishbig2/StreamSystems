@@ -1,6 +1,6 @@
 import { WindowDef } from "mobx/stores/workspaceStore";
 import { useEffect, useState } from "react";
-import { Size, getOptimalSize } from "windowUtils";
+import { Size, getOptimalSize } from "utils/windowUtils";
 
 const sizesReducer = (limits: ClientRect) => (
   result: ClientRect[],

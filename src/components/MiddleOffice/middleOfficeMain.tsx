@@ -19,10 +19,10 @@ import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { ModalWindow } from "components/ModalWindow";
 import { MoGenericMessage, MoStatus } from "mobx/stores/moStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { randomID } from "randomID";
 import React, { ReactElement, useState } from "react";
 import { DealEntry, EntryType } from "structures/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
+import { randomID } from "utils/randomID";
 
 interface Props {
   readonly visible: boolean;
@@ -113,6 +113,8 @@ export const MiddleOfficeMain: React.FC<Props> = (
 
   const headingClasses: string[] = ["heading"];
   if (props.status !== MoStatus.Normal) headingClasses.push("disabled");
+  const disabled: boolean =
+    props.isLoadingLegs || props.status !== MoStatus.Normal;
   return (
     <>
       <div className={classes.join(" ")}>
@@ -134,9 +136,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   <div className={"actions"}>
                     <ActionButtons
                       isEditMode={props.isEditMode}
-                      disabled={
-                        props.isLoadingLegs || props.status !== MoStatus.Normal
-                      }
+                      disabled={disabled}
                       entryType={props.entryType}
                       onRemoveDeal={removeDeal}
                       onAddNewDeal={() => props.addNewDeal()}
@@ -147,10 +147,10 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   </div>
                 </div>
                 <DealEntryForm
-                  status={props.status}
                   cuts={props.cuts}
                   entryType={props.entryType}
                   entry={props.entry}
+                  disabled={disabled}
                   isEditMode={props.isEditMode}
                   isModified={props.isModified}
                   isReadyForSubmission={props.isReadyForSubmission}
@@ -168,6 +168,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                 </div>
                 <SummaryLegDetailsForm
                   summaryLeg={props.summaryLeg}
+                  disabled={disabled}
                   isEditMode={props.isEditMode}
                   isLoading={props.isLoadingLegs}
                   dealEntry={props.entry}
@@ -179,11 +180,11 @@ export const MiddleOfficeMain: React.FC<Props> = (
           <Grid xs={5} item>
             <OverlayScrollbarsComponent className={"container"}>
               <LegDetailsForm
-                status={props.status}
                 legs={props.legs}
                 isEditMode={props.isEditMode}
                 isLoading={props.isLoadingLegs}
                 entry={props.entry}
+                disabled={disabled}
                 onUpdateLeg={onUpdateLeg}
               />
             </OverlayScrollbarsComponent>

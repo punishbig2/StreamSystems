@@ -6,7 +6,7 @@ import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { FieldDef } from "forms/fieldDef";
-import { MoStatus, MoStore } from "mobx/stores/moStore";
+import { MoStore } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "structures/dealEntry";
 
@@ -14,10 +14,10 @@ interface Props {
   readonly entryType: EntryType;
   readonly entry: DealEntry;
   readonly cuts: ReadonlyArray<Cut>;
-  readonly status: MoStatus;
   readonly isModified: boolean;
   readonly isEditMode: boolean;
   readonly isReadyForSubmission: boolean;
+  readonly disabled: boolean;
   readonly onUpdateEntry: (partial: Partial<DealEntry>) => Promise<void>;
   readonly onSetWorking: (field: keyof DealEntry | null) => void;
   readonly onCreateOrClone: () => void;
@@ -57,7 +57,7 @@ export const DealEntryForm: React.FC<Props> = (
       case EntryType.ExistingDeal:
         return (
           <ExistingEntryButtons
-            disabled={props.status !== MoStatus.Normal}
+            disabled={props.disabled}
             isModified={props.isModified}
             isEditMode={props.isEditMode}
             status={entry.status}
@@ -70,7 +70,7 @@ export const DealEntryForm: React.FC<Props> = (
       case EntryType.Clone:
         return (
           <NewEntryButtons
-            disabled={props.status !== MoStatus.Normal}
+            disabled={props.disabled}
             canSubmit={props.isReadyForSubmission}
             onSubmit={props.onCreateOrClone}
           />
@@ -86,10 +86,7 @@ export const DealEntryForm: React.FC<Props> = (
     >
       <Grid alignItems={"stretch"} container>
         <Grid xs={12} item>
-          <fieldset
-            className={"group full-height"}
-            disabled={props.status !== MoStatus.Normal}
-          >
+          <fieldset className={"group full-height"} disabled={props.disabled}>
             {fields.map(
               (
                 field: FieldDef<DealEntry, MoStore, DealEntry>
@@ -100,7 +97,7 @@ export const DealEntryForm: React.FC<Props> = (
                   entry={entry}
                   // Stuff from properties
                   isEditMode={props.isEditMode}
-                  disabled={props.status !== MoStatus.Normal}
+                  disabled={props.disabled}
                   onChangeCompleted={props.onUpdateEntry}
                   onChangeStart={props.onSetWorking}
                 />

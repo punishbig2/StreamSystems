@@ -14,7 +14,7 @@ import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils";
+import { coalesce } from "utils/commonUtils";
 
 const buildSummaryLegFromCut = (
   cut: Cut,
@@ -256,9 +256,9 @@ const populateExistingDealLegsAndInstallListener = (
 export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
   useEffect(() => {
     if (entry.dealID === "") {
-      createDefaultLegsFromDeal(cuts, entry);
+      return createDefaultLegsFromDeal(cuts, entry);
     } else {
-      populateExistingDealLegsAndInstallListener(cuts, entry);
+      return populateExistingDealLegsAndInstallListener(cuts, entry);
     }
   }, [cuts, entry]);
 };

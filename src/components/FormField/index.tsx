@@ -154,14 +154,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     input.setSelectionRange(state.caretPosition, state.caretPosition);
   };
 
-  private extractLabelsFromData = (data: any) => {
-    return data
-      ? data.reduce((obj: any, item: { label: string; value: string }) => {
-          return { ...obj, [item.value]: item.label };
-        }, {})
-      : {};
-  };
-
   private parse = (value: string): any => {
     const handler: InputHandler<T, Props<T>, State> = this.getHandler();
     return handler.parse(value, this.props);
@@ -394,7 +386,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     } else if (control !== null) {
       return (
         <>
-          <FormLabel htmlFor={props.name as string}>{props.label}</FormLabel>
+          <FormLabel htmlFor={props.name as string} disabled={props.disabled}>
+            {props.label}
+          </FormLabel>
           {control}
         </>
       );

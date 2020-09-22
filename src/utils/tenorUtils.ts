@@ -3,7 +3,7 @@ import { Symbol } from "types/symbol";
 import { Tenor } from "types/tenor";
 import { CalendarFXPairResponse } from "types/calendarFXPair";
 import { PodRow } from "types/podRow";
-import { coalesce } from "utils";
+import { coalesce } from "utils/commonUtils";
 import {
   addToDate,
   forceParseDate,

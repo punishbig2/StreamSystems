@@ -1,4 +1,4 @@
-import { getOptimalSize } from "windowUtils";
+import { getOptimalSize } from "utils/windowUtils";
 import { toPixels } from "components/WindowManager/helpers/toPixels";
 
 export const adjustToContent = (element: HTMLDivElement) => {

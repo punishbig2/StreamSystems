@@ -12,7 +12,7 @@ import { Order } from "types/order";
 import { MDEntry } from "types/mdEntry";
 
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
-import persistStorage from "persistStorage";
+import persistStorage from "utils/persistStorage";
 
 export class PodTileStore {
   public id: string = "";

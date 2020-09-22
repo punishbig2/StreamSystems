@@ -12,12 +12,12 @@ import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
-import { toast, ToastType } from "toast";
+import { toast, ToastType } from "components/toast";
 import { BankEntity } from "types/bankEntity";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils";
+import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";

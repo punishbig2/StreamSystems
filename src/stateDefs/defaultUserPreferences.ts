@@ -4,7 +4,7 @@ import {
   OCOModes,
   UserTypes,
 } from "types/user";
-import { findDefaultTimezone } from "utils";
+import { findDefaultTimezone } from "utils/commonUtils";
 
 export const defaultPreferences: UserPreferences = {
   ccyGroup: CurrencyGroups.Default,

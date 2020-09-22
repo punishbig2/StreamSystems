@@ -3,7 +3,7 @@ import { Workarea } from "components/Workarea";
 import { observer } from "mobx-react";
 import { themeStore } from "mobx/stores/themeStore";
 import React, { useEffect } from "react";
-import { createTheme } from "theme";
+import { createTheme } from "styles/theme";
 
 const FXOptionsUI: React.FC = observer(
   (): React.ReactElement => {

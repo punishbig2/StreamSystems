@@ -4,7 +4,7 @@ import { OrderTypes } from "types/mdEntry";
 import React, { ReactNode, useState, useEffect } from "react";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { xPoints } from "timesPolygon";
+import { xPoints } from "utils/timesPolygon";
 
 interface OwnProps {
   type: OrderTypes;

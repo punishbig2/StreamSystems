@@ -1,4 +1,4 @@
-import { FXOAction } from "actionCreator";
+import { FXOAction } from "utils/actionCreator";
 import { activateOrder } from "components/Run/reducers/activateOrder";
 import { activateRow } from "components/Run/reducers/activateRow";
 import { deactivateAll } from "components/Run/reducers/deactivateAll";

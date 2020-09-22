@@ -8,11 +8,11 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
+import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 import { TableStore } from "mobx/stores/tableStore";
 import { observer } from "mobx-react";
 import { create } from "mobx-persist";
-import persistStorage from "persistStorage";
+import persistStorage from "utils/persistStorage";
 
 interface Props {
   readonly id: string;

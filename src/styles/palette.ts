@@ -11,6 +11,7 @@ export const light: PaletteOptions = {
   text: {
     primary: "#333333",
     secondary: "#555555",
+    disabled: "#d5d5d5",
   },
   error: {
     main: "#f13951",
@@ -29,6 +30,7 @@ export const dark: PaletteOptions = {
   text: {
     primary: "#ffffff",
     secondary: "#e1e1e1",
+    disabled: "#606060",
   },
   error: {
     main: "#f13951",

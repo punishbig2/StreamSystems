@@ -9,8 +9,8 @@ import {
 import { Commission } from "components/MiddleOffice/types/deal";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { NoDataMessage } from "components/noDataMessage";
+import { LdsSpinner } from "components/ldsSpinner";
 import { FieldDef } from "forms/fieldDef";
-import moStore, { MoStatus } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useState } from "react";
 import { DealEntry } from "structures/dealEntry";
 
@@ -19,6 +19,7 @@ interface Props {
   readonly summaryLeg: SummaryLeg | null;
   readonly isEditMode: boolean;
   readonly isLoading: boolean;
+  readonly disabled: boolean;
   readonly onUpdateSummaryLeg: (
     fieldName: keyof SummaryLeg,
     value: any
@@ -47,11 +48,17 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
     setBuyerCommission(commissions.buyer);
     setSellerCommission(commissions.seller);
   }, [props.dealEntry]);
-  if (summaryLeg === null) {
+
+  if (props.isLoading) {
+    return (
+      <div className={"centered-container"}>
+        <LdsSpinner size={36} />
+      </div>
+    );
+  } else if (summaryLeg === null) {
     return <NoDataMessage />;
   }
   const { dealOutput } = summaryLeg;
-  const disabled: boolean = moStore.status !== MoStatus.Normal;
   const ignore = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
   };
@@ -60,7 +67,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
       <form onSubmit={ignore}>
         <Grid container>
           <Grid alignItems={"stretch"} container item>
-            <fieldset className={"group"} disabled={disabled}>
+            <fieldset className={"group"} disabled={props.disabled}>
               {fields.map(
                 (
                   field: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>
@@ -80,12 +87,12 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
           <BrokerSection
             buyerCommission={buyerCommission}
             sellerCommission={sellerCommission}
-            disabled={disabled}
+            disabled={props.disabled}
           />
           <DealOutputSection
             dealEntry={props.dealEntry}
             dealOutput={dealOutput}
-            disabled={disabled}
+            disabled={props.disabled}
             premiumStyle={premstyle}
           />
         </Grid>

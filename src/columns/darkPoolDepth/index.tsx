@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React from "react";
-import { xPoints } from "timesPolygon";
+import { xPoints } from "utils/timesPolygon";
 import { OrderTypes } from "types/mdEntry";
 import { Order } from "types/order";
 import { User } from "types/user";

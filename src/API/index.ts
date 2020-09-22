@@ -41,7 +41,7 @@ import {
   getCurrentTime,
   getSideFromType,
   numberifyIfPossible,
-} from "utils";
+} from "utils/commonUtils";
 import {
   createDealFromBackendMessage,
   getDealId,

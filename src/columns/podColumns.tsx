@@ -7,7 +7,7 @@ import { FirmColumn } from "columns/podColumns/firmColumn";
 import { DarkPoolColumn } from "columns/podColumns/darkPoolColumn";
 import { OrderTypes } from "types/mdEntry";
 import { API } from "API";
-import { getSideFromType } from "utils";
+import { getSideFromType } from "utils/commonUtils";
 import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 

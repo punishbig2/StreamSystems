@@ -12,7 +12,7 @@ import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils";
+import { coalesce } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
 import {
   addToDate,

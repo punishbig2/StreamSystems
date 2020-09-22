@@ -32,7 +32,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSave}
-        disabled={!props.isModified}
+        disabled={!props.isModified || props.disabled}
       >
         Save
       </button>
