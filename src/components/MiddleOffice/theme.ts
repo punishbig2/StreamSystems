@@ -1,4 +1,4 @@
-import { createMuiTheme, lighten } from "@material-ui/core";
+import { createMuiTheme } from "@material-ui/core";
 import { fade } from "@material-ui/core/styles";
 import { Palette } from "@material-ui/core/styles/createPalette";
 import { getPalette } from "styles/palette";
@@ -63,7 +63,7 @@ export const createTheme = (name: string) => {
           marginTop: 3,
           marginBottom: 3,
           "&$error": {
-            backgroundColor: palette.error.main,
+            backgroundColor: fade(palette.error.main, 0.15),
             color: palette.error.main,
           },
         },

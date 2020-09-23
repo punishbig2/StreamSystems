@@ -1,4 +1,5 @@
 import { Typography } from "@material-ui/core";
+import { Globals } from "golbals";
 import { observer } from "mobx-react";
 import { BrokerageStore, CommissionRate } from "mobx/stores/brokerageStore";
 import React, { ReactElement, useEffect, useState } from "react";
@@ -15,7 +16,7 @@ export const CommissionRates: React.FC = observer(
         {commissionRates.map(
           (entry: CommissionRate): ReactElement => {
             const { value, region } = entry;
-            const formattedValue: string = value.toLocaleString(undefined, {
+            const formattedValue: string = value.toLocaleString(Globals.locale, {
               minimumFractionDigits: 0,
               maximumFractionDigits: 2,
             });

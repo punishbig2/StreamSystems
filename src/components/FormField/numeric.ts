@@ -7,6 +7,7 @@ import {
 import { MinimalProps } from "components/FormField/minimalProps";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
+import { Globals } from "golbals";
 import React from "react";
 import { DecimalSeparator, toNumber } from "utils/isNumeric";
 import { roundToNearest } from "utils/roundToNearest";
@@ -39,7 +40,7 @@ export class NumericInputHandler<
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
 > extends FormattedInput<T, P, S> {
-  private formatter: Intl.NumberFormat = new Intl.NumberFormat(undefined, {});
+  private formatter: Intl.NumberFormat = new Intl.NumberFormat(Globals.locale, {});
   private divider: number = 1;
   private minimum: number | null;
   private maximum: number | null;
@@ -54,7 +55,7 @@ export class NumericInputHandler<
 
   private createFormatter(props: P): Intl.NumberFormat {
     if (props.type === "currency" && props.currency === undefined) {
-      return new Intl.NumberFormat(undefined, {});
+      return new Intl.NumberFormat(Globals.locale, {});
     } else {
       const options = {
         maximumFractionDigits: props.precision,
@@ -63,7 +64,7 @@ export class NumericInputHandler<
         style: typeToStyle(props.type, props.editable),
         currency: props.type === "currency" ? props.currency : undefined,
       };
-      return new Intl.NumberFormat(undefined, options);
+      return new Intl.NumberFormat(Globals.locale, options);
     }
   }
 

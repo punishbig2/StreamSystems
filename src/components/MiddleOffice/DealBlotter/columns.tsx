@@ -23,12 +23,14 @@ export const columns: ColumnSpec[] = [
         return null;
       }
     },
-    filterByKeyword: (v1: Deal, keyword: string): boolean => {
-      return v1.id.includes(keyword.toLowerCase());
+    filterByKeyword: ({ id }: Deal, keyword: string): boolean => {
+      const lowerCaseId: string = id.toLowerCase();
+      return id.includes(keyword.toLowerCase());
     },
-    difference: (v1: Deal, v2: Deal) => {
-      const s1: string = v1.id;
-      return s1.localeCompare(v2.id);
+    difference: ({ id: id1 }: Deal, { id: id2 }: Deal) => {
+      const lcId1: string = id1.toLowerCase();
+      const lcId2: string = id2.toLowerCase();
+      return lcId1.localeCompare(lcId2);
     },
     filterable: true,
     width: 10,

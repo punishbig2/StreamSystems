@@ -1,4 +1,5 @@
 import { Validity } from "forms/validity";
+import { Globals } from "golbals";
 
 export const getRoundingPrecision = (value: number | undefined): number => {
   if (value === undefined) return 0;
@@ -25,5 +26,5 @@ export const roundToNearest = (
     maximumFractionDigits: precision,
     minimumFractionDigits: precision,
   };
-  return [rounded.toLocaleString(undefined, options), Validity.Valid];
+  return [rounded.toLocaleString(Globals.locale, options), Validity.Valid];
 };

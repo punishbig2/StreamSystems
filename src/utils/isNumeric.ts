@@ -1,11 +1,13 @@
+import { Globals } from "golbals";
+
 export const DecimalSeparator = (0.1)
-  .toLocaleString(undefined, {
+  .toLocaleString(Globals.locale, {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   })
   .substr(-2, 1);
 export const ThousandsSeparator = (1000)
-  .toLocaleString(undefined, {
+  .toLocaleString(Globals.locale, {
     maximumFractionDigits: 0,
     minimumFractionDigits: 0,
     useGrouping: true,
