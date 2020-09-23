@@ -25,7 +25,7 @@ export const columns: ColumnSpec[] = [
     },
     filterByKeyword: ({ id }: Deal, keyword: string): boolean => {
       const lowerCaseId: string = id.toLowerCase();
-      return id.includes(keyword.toLowerCase());
+      return lowerCaseId.includes(keyword.toLowerCase());
     },
     difference: ({ id: id1 }: Deal, { id: id2 }: Deal) => {
       const lcId1: string = id1.toLowerCase();
