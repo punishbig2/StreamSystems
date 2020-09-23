@@ -52,7 +52,7 @@ export const LegDetailsForm: React.FC<Props> = (
             <LegDetailsFields
               leg={leg}
               disabled={disabled}
-              entry={entry}
+              dealEntry={entry}
               isEditMode={props.isEditMode}
               onValueChange={onValueChange(index)}
             />
