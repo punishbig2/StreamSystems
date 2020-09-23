@@ -19,7 +19,7 @@ interface Props {
   readonly isReadyForSubmission: boolean;
   readonly disabled: boolean;
   readonly onUpdateEntry: (partial: Partial<DealEntry>) => Promise<void>;
-  readonly onSetWorking: (field: keyof DealEntry | null) => void;
+  readonly onSetWorking: (working: boolean) => void;
   readonly onCreateOrClone: () => void;
   readonly onSaveCurrentEntry: () => void;
   readonly onSubmit: () => void;
@@ -98,8 +98,12 @@ export const DealEntryForm: React.FC<Props> = (
                   // Stuff from properties
                   isEditMode={props.isEditMode}
                   disabled={props.disabled}
-                  onChangeCompleted={props.onUpdateEntry}
-                  onChangeStart={props.onSetWorking}
+                  onChangeCompleted={(partial: Partial<DealEntry>) => {
+                    props
+                      .onUpdateEntry(partial)
+                      .finally((): void => props.onSetWorking(false));
+                  }}
+                  onChangeStart={() => props.onSetWorking(true)}
                 />
               )
             )}

@@ -37,6 +37,7 @@ interface Props {
   readonly deals: ReadonlyArray<Deal>;
   readonly selectedDealID: string | null;
   readonly isEditMode: boolean;
+  readonly isWorking: boolean;
   readonly isLoadingLegs: boolean;
   readonly entryType: EntryType;
   readonly addNewDeal: () => void;
@@ -51,7 +52,7 @@ interface Props {
   readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
   readonly price: () => void;
   readonly createOrClone: () => void;
-  readonly setWorking: (field: keyof DealEntry | null) => void;
+  readonly setWorking: (working: boolean) => void;
   readonly saveCurrentEntry: () => void;
   readonly submit: () => void;
   readonly successMessage: MoGenericMessage | null;
@@ -130,63 +131,67 @@ export const MiddleOfficeMain: React.FC<Props> = (
         <Grid className={"right-panel"} container>
           <Grid xs={7} item>
             <OverlayScrollbarsComponent className={"container"}>
-              <div className={"form-group"}>
-                <div className={headingClasses.join(" ")}>
-                  <h1>Deal Entry</h1>
-                  <div className={"actions"}>
-                    <ActionButtons
-                      isEditMode={props.isEditMode}
-                      disabled={disabled}
-                      entryType={props.entryType}
-                      onRemoveDeal={removeDeal}
-                      onAddNewDeal={() => props.addNewDeal()}
-                      onCloneDeal={() => props.cloneDeal()}
-                      onCancelAddOrClone={() => props.cancelAddOrClone()}
-                      onEdit={() => props.setEditMode(true)}
-                    />
+              <div className={"form-group-container"}>
+                <div className={"form-group"}>
+                  <div className={headingClasses.join(" ")}>
+                    <h1>Deal Entry</h1>
+                    <div className={"actions"}>
+                      <ActionButtons
+                        isEditMode={props.isEditMode}
+                        disabled={disabled}
+                        entryType={props.entryType}
+                        onRemoveDeal={removeDeal}
+                        onAddNewDeal={() => props.addNewDeal()}
+                        onCloneDeal={() => props.cloneDeal()}
+                        onCancelAddOrClone={() => props.cancelAddOrClone()}
+                        onEdit={() => props.setEditMode(true)}
+                      />
+                    </div>
                   </div>
+                  <DealEntryForm
+                    cuts={props.cuts}
+                    entryType={props.entryType}
+                    entry={props.entry}
+                    disabled={disabled}
+                    isEditMode={props.isEditMode}
+                    isModified={props.isModified}
+                    isReadyForSubmission={props.isReadyForSubmission}
+                    onPriced={props.price}
+                    onUpdateEntry={props.updateEntry}
+                    onSetWorking={props.setWorking}
+                    onCreateOrClone={props.createOrClone}
+                    onSaveCurrentEntry={props.saveCurrentEntry}
+                    onSubmit={props.submit}
+                  />
                 </div>
-                <DealEntryForm
-                  cuts={props.cuts}
-                  entryType={props.entryType}
-                  entry={props.entry}
-                  disabled={disabled}
-                  isEditMode={props.isEditMode}
-                  isModified={props.isModified}
-                  isReadyForSubmission={props.isReadyForSubmission}
-                  onPriced={props.price}
-                  onUpdateEntry={props.updateEntry}
-                  onSetWorking={props.setWorking}
-                  onCreateOrClone={props.createOrClone}
-                  onSaveCurrentEntry={props.saveCurrentEntry}
-                  onSubmit={props.submit}
-                />
-              </div>
-              <div className={"form-group"}>
-                <div className={headingClasses.join(" ")}>
-                  <h1>Summary Leg Details</h1>
+                <div className={"form-group"}>
+                  <div className={headingClasses.join(" ")}>
+                    <h1>Summary Leg Details</h1>
+                  </div>
+                  <SummaryLegDetailsForm
+                    summaryLeg={props.summaryLeg}
+                    disabled={disabled}
+                    isEditMode={props.isEditMode}
+                    isLoading={props.isLoadingLegs}
+                    dealEntry={props.entry}
+                    onUpdateSummaryLeg={props.updateSummaryLeg}
+                  />
                 </div>
-                <SummaryLegDetailsForm
-                  summaryLeg={props.summaryLeg}
-                  disabled={disabled}
-                  isEditMode={props.isEditMode}
-                  isLoading={props.isLoadingLegs}
-                  dealEntry={props.entry}
-                  onUpdateSummaryLeg={props.updateSummaryLeg}
-                />
               </div>
             </OverlayScrollbarsComponent>
           </Grid>
           <Grid xs={5} item>
             <OverlayScrollbarsComponent className={"container"}>
-              <LegDetailsForm
-                legs={props.legs}
-                isEditMode={props.isEditMode}
-                isLoading={props.isLoadingLegs}
-                entry={props.entry}
-                disabled={disabled}
-                onUpdateLeg={onUpdateLeg}
-              />
+              <div className={"form-group-container"}>
+                <LegDetailsForm
+                  legs={props.legs}
+                  isEditMode={props.isEditMode}
+                  isLoading={props.isLoadingLegs}
+                  entry={props.entry}
+                  disabled={disabled}
+                  onUpdateLeg={onUpdateLeg}
+                />
+              </div>
             </OverlayScrollbarsComponent>
           </Grid>
         </Grid>

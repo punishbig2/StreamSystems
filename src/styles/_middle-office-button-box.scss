@@ -1,0 +1,37 @@
+@mixin middle-office-button-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 0 16px;
+
+  button {
+    display: block;
+    flex: 0 0 auto;
+    margin: 8px 0 8px 8px;
+    height: 32px;
+    width: 100%;
+    max-width: 110px;
+    background-color: $primary-color;
+    color: $button-foreground-color;
+    border: none;
+    border-radius: 3px;
+
+    &:first-child:not(:only-child) {
+      margin: 8px auto 8px 0;
+    }
+
+    &.primary {
+      background-color: $primary-color;
+    }
+
+    &.secondary {
+      background-color: rgba(0, 0, 0, 0.15);
+      color: $foreground-color;
+    }
+
+    &:disabled {
+      background-color: darken($background-color, 5%);
+      color: rgba($foreground-color, 0.075);
+    }
+  }
+}

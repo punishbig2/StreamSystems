@@ -41,29 +41,37 @@ export const LegDetailsForm: React.FC<Props> = (
   };
   if (props.isLoading) {
     return (
-      <div className={"centered-container"}>
-        <LdsSpinner size={64} />
+      <div className={"form-group"}>
+        <div className={"centered-container"}>
+          <LdsSpinner size={64} />
+        </div>
       </div>
     );
   } else if (legs.length === 0) {
-    return <NoDataMessage />;
+    return (
+      <div className={"form-group"}>
+        <NoDataMessage />
+      </div>
+    );
   }
   return (
-    <form>
-      {legs.map((leg: Leg, index: number) => {
-        return (
-          <fieldset className={"group"} key={index} disabled={props.disabled}>
-            <legend className={"leg-legend"}>Leg {index + 1}</legend>
-            <LegDetailsFields
-              leg={leg}
-              disabled={props.disabled}
-              dealEntry={entry}
-              isEditMode={props.isEditMode}
-              onValueChange={onValueChange(index)}
-            />
-          </fieldset>
-        );
-      })}
-    </form>
+    <div className={"form-group"}>
+      <form>
+        {legs.map((leg: Leg, index: number) => {
+          return (
+            <fieldset className={"group"} key={index} disabled={props.disabled}>
+              <legend className={"leg-legend"}>Leg {index + 1}</legend>
+              <LegDetailsFields
+                leg={leg}
+                disabled={props.disabled}
+                dealEntry={entry}
+                isEditMode={props.isEditMode}
+                onValueChange={onValueChange(index)}
+              />
+            </fieldset>
+          );
+        })}
+      </form>
+    </div>
   );
 };

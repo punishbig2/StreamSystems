@@ -1,0 +1,133 @@
+@mixin middle-office-legend-text {
+  font-size: $normal-font-size;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: inherit;
+  margin: 0;
+  line-height: 2em;
+}
+
+@mixin middle-office-form-group-heading {
+  flex: 0 0 auto;
+  display: flex;
+  height: 38px;
+  align-items: center;
+  color: $foreground-color;
+
+  &.disabled {
+    color: $table-border-color;
+  }
+
+  .actions {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    margin: 0 0 0 8px;
+    justify-content: flex-end;
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 1px;
+      height: 24px;
+      width: auto;
+      background: none;
+      border: none;
+      color: $primary-color;
+      transition: background-color 0.2s;
+      padding: 0 12px;
+      border-radius: 40px;
+
+      &.no-label {
+        width: 16px;
+        padding: 0;
+
+        i {
+          &.fa {
+            &::before {
+              font-size: 10px;
+            }
+          }
+
+          color: $foreground-color;
+        }
+
+        .close-x {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+
+          &:disabled {
+            cursor: none;
+          }
+
+          &::after,
+          &::before {
+            position: absolute;
+            top: 0;
+            transform: translateY(11.3px) rotate(45deg);
+            left: 4px;
+            content: "";
+            background-color: $foreground-color;
+            height: 2px;
+            width: 16px;
+          }
+
+          &::before {
+            transform: translateY(11.3px) rotate(-45deg);
+          }
+        }
+      }
+
+      &:disabled {
+        &.primary,
+        &.danger {
+          color: $foreground-color;
+        }
+
+        opacity: 0.25;
+      }
+
+      &:last-child {
+        margin-right: 8px;
+      }
+
+      &:hover {
+        background-color: darken($background-color, 5%);
+      }
+
+      &.primary:not(:disabled) {
+        // background-color: $primary-color;
+      }
+
+      &.danger:not(:disabled) {
+        color: $text-color-red;
+      }
+
+      span {
+        margin: 0 0 0 4px;
+        font-size: $smaller-font-size;
+      }
+    }
+  }
+
+  .empty-section {
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+
+    .text {
+      opacity: 0.15;
+      font-weight: 600;
+      font-style: italic;
+      color: $foreground-color;
+    }
+  }
+
+  h1 {
+    @include middle-office-legend-text;
+    padding: 0 0 0 10px;
+  }
+}

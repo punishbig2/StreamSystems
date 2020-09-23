@@ -1,4 +1,4 @@
-import { createMuiTheme } from "@material-ui/core";
+import { createMuiTheme, lighten } from "@material-ui/core";
 import { fade } from "@material-ui/core/styles";
 import { Palette } from "@material-ui/core/styles/createPalette";
 import { getPalette } from "styles/palette";
@@ -46,6 +46,9 @@ export const createTheme = (name: string) => {
         },
         iconOutlined: {
           fill: "inherit",
+          "&$disabled": {
+            fill: palette.text.disabled,
+          },
         },
       },
       MuiInputBase: {
@@ -60,7 +63,7 @@ export const createTheme = (name: string) => {
           marginTop: 3,
           marginBottom: 3,
           "&$error": {
-            backgroundColor: fade(palette.error.main, 0.1),
+            backgroundColor: palette.error.main,
             color: palette.error.main,
           },
         },
@@ -78,7 +81,7 @@ export const createTheme = (name: string) => {
           fontSize: 13,
           color: "inherit",
           "&$disabled": {
-            color: palette.text.disabled,
+            color: fade(palette.text.disabled, 0.5),
           },
         },
       },

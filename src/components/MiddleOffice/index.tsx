@@ -64,14 +64,13 @@ export const MiddleOffice: React.FC<Props> = observer(
             isModified={store.isModified}
             cuts={store.cuts}
             isReadyForSubmission={store.isReadyForSubmission}
-            updateEntry={(partial: Partial<DealEntry>): Promise<void> =>
-              store.updateEntry(partial)
-            }
+            updateEntry={async (partial: Partial<DealEntry>): Promise<void> => {
+              store.updateEntry(partial);
+            }}
             price={(): void => store.price()}
             createOrClone={(): void => store.createOrClone()}
-            setWorking={(field: keyof DealEntry | null): void =>
-              store.setWorking(field)
-            }
+            setWorking={(working: boolean): void => store.setWorking(working)}
+            isWorking={store.isWorking}
             saveCurrentEntry={(): void => store.saveCurrentEntry()}
             submit={(): void => store.submit()}
             successMessage={store.successMessage}

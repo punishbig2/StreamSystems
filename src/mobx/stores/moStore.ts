@@ -2,17 +2,24 @@ import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
+import {
+  InvalidStrategy,
+  MOStrategy,
+  StrategyMap,
+} from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
+import { toast, ToastType } from "components/toast";
 import config from "config";
 import deepEqual from "deep-equal";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
-import { toast, ToastType } from "components/toast";
 import { BankEntity } from "types/bankEntity";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
@@ -97,7 +104,7 @@ export class MoStore {
   @observable status: MoStatus = MoStatus.Normal;
   @observable successMessage: MoGenericMessage | null = null;
   @observable entryType: EntryType = EntryType.Empty;
-  @observable busyField: keyof DealEntry | null = null;
+  @observable isWorking: boolean = false;
   @observable.ref entry: DealEntry = { ...emptyDealEntry };
   @observable.ref deals: Deal[] = [];
   @observable selectedDealID: string | null = null;
@@ -431,6 +438,7 @@ export class MoStore {
   public updateSummaryLeg(fieldName: keyof SummaryLeg, value: any): void {
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
   }
+
   @computed
   public get isModified(): boolean {
     return this.isEditMode;
@@ -700,8 +708,8 @@ export class MoStore {
   }
 
   @action.bound
-  public setWorking(busyField: keyof DealEntry | null) {
-    this.busyField = busyField;
+  public setWorking(isWorking: boolean) {
+    this.isWorking = isWorking;
   }
 
   public findDeal(id: string): Deal | undefined {
