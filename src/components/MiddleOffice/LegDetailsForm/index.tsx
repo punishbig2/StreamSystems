@@ -7,7 +7,7 @@ import { DealEntry } from "structures/dealEntry";
 import { StylesMap } from "utils/legsUtils";
 
 interface Props {
-  readonly entry: DealEntry;
+  readonly dealEntry: DealEntry;
   readonly isEditMode: boolean;
   readonly legs: ReadonlyArray<Leg>;
   readonly isLoading: boolean;
@@ -18,20 +18,20 @@ interface Props {
 export const LegDetailsForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
-  const { entry, legs } = props;
+  const { dealEntry, legs } = props;
   const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
     switch (key) {
       case "rates":
         break;
       case "hedge":
       case "premium":
-        if (entry.premstyle === undefined) {
+        if (dealEntry.premstyle === undefined) {
           props.onUpdateLeg(index, key, [null, null, null]);
         } else {
           const array: [number | null, number | null, number | null] = [
             ...legs[index][key],
           ];
-          array[StylesMap[entry.premstyle]] = value;
+          array[StylesMap[dealEntry.premstyle]] = value;
           props.onUpdateLeg(index, key, array);
         }
         break;
@@ -64,7 +64,7 @@ export const LegDetailsForm: React.FC<Props> = (
               <LegDetailsFields
                 leg={leg}
                 disabled={props.disabled}
-                dealEntry={entry}
+                dealEntry={dealEntry}
                 isEditMode={props.isEditMode}
                 onValueChange={onValueChange(index)}
               />

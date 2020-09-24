@@ -187,7 +187,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   legs={props.legs}
                   isEditMode={props.isEditMode}
                   isLoading={props.isLoadingLegs}
-                  entry={props.entry}
+                  dealEntry={props.entry}
                   disabled={disabled}
                   onUpdateLeg={onUpdateLeg}
                 />
