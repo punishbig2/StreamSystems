@@ -21,7 +21,7 @@ export const LegDetailsFields: React.FC<Props> = (
   return (
     <Grid container>
       {fields.map(
-        (field: FieldDef<Leg, {}, DealEntry>): ReactElement => (
+        (field: FieldDef<Leg, {}, DealEntry>, index: number): ReactElement => (
           <Field
             key={field.name + index}
             field={field}
