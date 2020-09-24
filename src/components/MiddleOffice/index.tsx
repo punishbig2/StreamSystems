@@ -44,9 +44,10 @@ export const MiddleOffice: React.FC<Props> = observer(
             updateLeg={(index: number, key: keyof Leg, value: any): void =>
               store.updateLeg(index, key, value)
             }
-            updateSummaryLeg={(key: keyof SummaryLeg, value: any): void =>
-              store.updateSummaryLeg(key, value)
-            }
+            updateSummaryLeg={async (
+              key: keyof SummaryLeg,
+              value: any
+            ): Promise<void> => store.updateSummaryLeg(key, value)}
             status={store.status}
             deals={store.deals}
             selectedDealID={store.selectedDealID}
@@ -65,7 +66,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             cuts={store.cuts}
             isReadyForSubmission={store.isReadyForSubmission}
             updateEntry={async (partial: Partial<DealEntry>): Promise<void> => {
-              store.updateEntry(partial);
+              await store.updateEntry(partial);
             }}
             price={(): void => store.price()}
             createOrClone={(): void => store.createOrClone()}

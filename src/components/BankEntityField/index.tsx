@@ -16,7 +16,7 @@ interface Props<T> {
   disabled: boolean;
   readOnly: boolean;
   color: "green" | "orange" | "cream" | "grey";
-  onChange?: (name: keyof T, value: any) => void;
+  onChange?: (name: keyof T, value: any) => Promise<void>;
 }
 
 export function BankEntityField<T>(props: Props<T>): ReactElement {
@@ -57,16 +57,16 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
     setFirms(Object.keys(mapped));
   }, [mapped]);
 
-  const onBankChange = (name: keyof T, value: any): void => {
+  const onBankChange = async (name: keyof T, value: any): Promise<void> => {
     if (typeof value === "string") {
-      setCurrentFirm(value);
+      await setCurrentFirm(value);
     }
   };
 
-  const onEntityChange = (name: keyof T, value: any): void => {
+  const onEntityChange = async (name: keyof T, value: any): Promise<void> => {
     if (typeof value === "string") {
       if (onChange !== undefined) {
-        onChange(props.name, value);
+        await onChange(props.name, value);
       }
     }
   };

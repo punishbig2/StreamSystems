@@ -4,7 +4,13 @@ import { EditableCondition } from "components/MiddleOffice/types/moStrategy";
 import deepEqual from "deep-equal";
 import { FieldDef } from "forms/fieldDef";
 import moStore, { MoStore } from "mobx/stores/moStore";
-import React, { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { DealEntry } from "structures/dealEntry";
 import { Tenor } from "types/tenor";
 import { deriveTenor } from "utils/tenorUtils";
@@ -74,10 +80,10 @@ export const Field: React.FC<Props> = React.memo(
       [onChangeCompleted, entry]
     );
     const onChange = useCallback(
-      (name: keyof DealEntry, value: any): void => {
+      async (name: keyof DealEntry, value: any): Promise<void> => {
         onChangeStart();
         if (field.type === "tenor") {
-          onTenorChange(name, value);
+          await onTenorChange(name, value);
         } else {
           const convertedValue: any = getValue(
             field,
@@ -86,7 +92,8 @@ export const Field: React.FC<Props> = React.memo(
             true
           );
           if (convertedValue === undefined) return;
-          onChangeCompleted({ [name]: convertedValue });
+          // This will also take some time presumably
+          await onChangeCompleted({ [name]: convertedValue });
         }
       },
       [

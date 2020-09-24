@@ -13,7 +13,7 @@ interface Props {
   readonly onUpdateSummaryLeg: (
     fieldName: keyof SummaryLeg,
     value: any
-  ) => void;
+  ) => Promise<void>;
 }
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {

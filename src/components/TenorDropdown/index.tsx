@@ -12,7 +12,7 @@ interface Props<T> {
   name: keyof T;
   disabled?: boolean;
   readOnly: boolean;
-  onChange?: (name: keyof T, value: any) => void;
+  onChange?: (name: keyof T, value: any) => Promise<void>;
 }
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
@@ -26,9 +26,9 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       props.onChange(props.name as keyof T, value);
     }
   };
-  const onSelectChange = (name: keyof T, value: any) => {
+  const onSelectChange = async (name: keyof T, value: any): Promise<void> => {
     if (props.onChange !== undefined) {
-      props.onChange(name, value);
+      await props.onChange(name, value);
     }
   };
   const { name = "", expiryDate = null } = value !== null ? value : {};

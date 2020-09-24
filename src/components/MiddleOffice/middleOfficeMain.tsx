@@ -56,7 +56,10 @@ interface Props {
   readonly saveCurrentEntry: () => void;
   readonly submit: () => void;
   readonly successMessage: MoGenericMessage | null;
-  readonly updateSummaryLeg: (fieldName: keyof SummaryLeg, value: any) => void;
+  readonly updateSummaryLeg: (
+    fieldName: keyof SummaryLeg,
+    value: any
+  ) => Promise<void>;
 }
 
 export const MiddleOfficeMain: React.FC<Props> = (

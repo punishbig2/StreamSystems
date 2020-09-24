@@ -23,7 +23,7 @@ interface Props {
   readonly onUpdateSummaryLeg: (
     fieldName: keyof SummaryLeg,
     value: any
-  ) => void;
+  ) => Promise<void>;
 }
 
 const initialCommission: Commission = {
