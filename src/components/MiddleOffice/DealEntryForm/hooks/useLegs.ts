@@ -134,17 +134,17 @@ const handleLegsResponse = (
           tenor.expiryDate
         ),
         ...summaryLeg,
-        fwdpts1: coalesce(fwdPts, legs[0].fwdPts),
-        fwdrate1: coalesce(fwdRate, legs[0].fwdRate),
+        fwdpts1: coalesce(legs[1].fwdPts, fwdPts),
+        fwdrate1: coalesce(legs[1].fwdRate, fwdRate),
         fwdpts2: coalesce(
-          fwdPts,
           // The legs[1] generally equals legs[0]
-          legs[2] !== undefined ? legs[2].fwdPts : undefined
+          legs[2] !== undefined ? legs[2].fwdPts : undefined,
+          fwdPts
         ),
         fwdrate2: coalesce(
-          fwdRate,
           // The legs[1] generally equals legs[0]
-          legs[2] !== undefined ? legs[2].fwdRate : undefined
+          legs[2] !== undefined ? legs[2].fwdRate : undefined,
+          fwdRate
         ),
         spot: legs[0].spot,
         usi: entry.usi,
