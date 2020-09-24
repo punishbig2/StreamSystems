@@ -300,7 +300,6 @@ export class MoStore {
     summaryLeg: SummaryLeg | null,
     reset = false
   ): void {
-    console.log(summaryLeg);
     this.summaryLeg = summaryLeg;
     this.legs = legs.slice();
     this.isLoadingLegs = false;

@@ -23,7 +23,7 @@ export const LegDetailsFields: React.FC<Props> = (
       {fields.map(
         (field: FieldDef<Leg, {}, DealEntry>): ReactElement => (
           <Field
-            key={field.name + field.type}
+            key={field.name + index}
             field={field}
             leg={props.leg}
             isEditMode={props.isEditMode}
