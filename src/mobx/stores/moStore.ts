@@ -194,10 +194,14 @@ export class MoStore {
     this.isInitialized = true;
   }
 
+  private increaseProgress(): void {
+    this.setProgress(this.progress + 100 / this.operationsCount);
+  }
+
   @action.bound
   private setCuts(cuts: Cut[]): void {
     this.cuts = cuts;
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   @action.bound
@@ -208,25 +212,25 @@ export class MoStore {
       },
       {}
     );
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   @action.bound
   private setStyles(styles: string[]): void {
     this.styles = styles;
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   @action.bound
   private setDeltaStyles(styles: ReadonlyArray<string>): void {
     this.deltaStyles = styles;
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   @action.bound
   private setPremiumStyles(styles: ReadonlyArray<string>): void {
     this.premiumStyles = styles;
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   @action.bound
@@ -249,13 +253,13 @@ export class MoStore {
         } => ({ ...map, [entity.code]: entity }),
         {}
       );
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   @action.bound
   private setModels(models: InternalValuationModel[]): void {
     this.models = models;
-    this.setProgress(this.progress + 100 / this.operationsCount);
+    this.increaseProgress();
   }
 
   private legOptionsReducer<T extends LegOptionsDefIn | LegOptionsDefOut>(
@@ -294,13 +298,13 @@ export class MoStore {
 
   @action.bound
   private async loadDeals(): Promise<void> {
-    this.setProgress(this.progress + 100 / this.operationsCount);
     // Update deals list
     const deals: Deal[] = await API.getDeals();
     this.deals = deals.sort(
       ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
         d2.getTime() - d1.getTime()
     );
+    this.increaseProgress();
   }
 
   @action.bound
