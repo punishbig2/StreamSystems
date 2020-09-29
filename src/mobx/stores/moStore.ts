@@ -15,6 +15,7 @@ import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
@@ -464,12 +465,19 @@ export class MoStore {
     entry: DealEntry
   ): Promise<DealEntry> {
     const { tenor1, tenor2 } = entry;
+    const resolvedTenor1: Tenor = await deriveTenor(entry.symbol, tenor1.name, entry.tradeDate);
+    if (resolvedTenor1.spotDate === undefined) {
+      console.warn("please be careful, the tenor was not resolved correctly")
+      return entry;
+    }
     return {
       ...entry,
-      tenor1: await deriveTenor(entry.symbol, tenor1.name, entry.tradeDate),
+      tenor1: resolvedTenor1,
       tenor2: tenor2
         ? await deriveTenor(entry.symbol, tenor2.name, entry.tradeDate)
         : null,
+      premiumDate: resolvedTenor1.spotDate,
+      spotDate: resolvedTenor1.spotDate,
     };
   }
 
