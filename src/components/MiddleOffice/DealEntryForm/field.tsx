@@ -73,6 +73,8 @@ export const Field: React.FC<Props> = React.memo(
           (tenor: Tenor): void => {
             onChangeCompleted({
               [name]: tenor,
+              premiumDate: tenor.spotDate,
+              spotDate: tenor.spotDate,
             });
           }
         );
