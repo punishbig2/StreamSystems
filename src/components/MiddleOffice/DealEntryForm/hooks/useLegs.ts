@@ -189,16 +189,19 @@ const createDefaultLegsFromDeal = (
     entry
   );
   const tenor: Tenor | InvalidTenor = entry.tenor1;
-  if (isInvalidTenor(tenor)) return;
+  if (isInvalidTenor(tenor) || tenor.spotDate === undefined) return;
+  const spotDate: Date = tenor.spotDate;
   moStore.setLegs(
-    legs,
+    legs.map((leg: Leg): Leg => ({
+      ...leg, premiumDate: spotDate
+    })),
     createSummaryLeg(
       cuts,
       entry.strategy,
       entry.symbol,
       entry.tradeDate,
-      entry.premiumDate,
-      entry.spotDate,
+      spotDate,
+      spotDate,
       tenor.deliveryDate,
       tenor.expiryDate
     )

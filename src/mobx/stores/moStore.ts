@@ -460,18 +460,6 @@ export class MoStore {
     return entry.not1 !== null;
   }
 
-  /*
-  const tenor1: Tenor | null = toTenor(
-    symbol,
-    deal.tenor1,
-    deal.expiryDate1,
-    deal.tradeDate
-  );
-  console.log(tenor1);
-  if (tenor1 === null)
-    throw new Error("invalid value for tenor1, at least 1 tenor needed");
-   */
-
   private static async resolveDatesIfNeeded(
     entry: DealEntry
   ): Promise<DealEntry> {
