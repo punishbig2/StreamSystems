@@ -68,8 +68,12 @@ export const fieldMapper = (
     name: keyof DealEntry,
     value: string | Date
   ): Promise<void> => {
+    const tenor = await deriveTenor(entry.symbol, value, entry.tradeDate);
+    const spotDate: Date | undefined = name === "tenor1" ? tenor.spotDate : undefined;
     return editor.updateEntry({
-      [name]: await deriveTenor(entry.symbol, value, entry.tradeDate),
+      [name]: tenor,
+      premiumDate: spotDate,
+      spotDate: spotDate,
     });
   };
   const onChange = (name: keyof DealEntry, value: any): void => {
