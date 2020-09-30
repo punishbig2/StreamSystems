@@ -3,7 +3,7 @@ import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { Point } from "structures/point";
-import { addToDate, dateDiff, toIsoDate } from "utils/timeUtils";
+import { addToDate, dateDiff, toUTC } from "utils/timeUtils";
 
 interface InternalPoint {
   date: Date;
@@ -26,7 +26,7 @@ const generatePoints = (
 };
 
 const convertToPoint = (internal: InternalPoint): Point => ({
-  date: toIsoDate(internal.date),
+  date: toUTC(internal.date),
   point: internal.point,
 });
 

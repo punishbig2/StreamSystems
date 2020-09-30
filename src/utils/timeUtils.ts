@@ -51,7 +51,7 @@ export const parseTime = (date: string, tz: string | null): Date => {
   );
 };
 
-export const momentToUTCFIXFormat = (date: Date): string => {
+export const toUTCFIXFormat = (date: Date): string => {
   // "YYYYMMDD-HH:mm:ss"
   const m: moment.Moment = moment(date);
   if (m === undefined || m === null) return "";
@@ -83,7 +83,7 @@ export const forceParseDate = (
 };
 
 export const currentTimestampFIXFormat = (): string => {
-  return momentToUTCFIXFormat(new Date());
+  return toUTCFIXFormat(new Date());
 };
 
 export const addToDate = (
@@ -96,7 +96,7 @@ export const addToDate = (
   return newMoment.toDate();
 };
 
-export const toIsoDate = (date: Date): string => {
+export const toUTC = (date: Date): string => {
   if (typeof date.toISOString !== "function") {
     console.warn(date);
     return "";

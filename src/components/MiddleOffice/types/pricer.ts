@@ -70,7 +70,7 @@ export interface RATE {
 }
 
 export interface ValuationData {
-  readonly valuationDate: Date;
+  readonly valuationDate: string;
   readonly FX: FX;
   readonly VOL: VOL;
   readonly RATES: RATE[];
@@ -83,10 +83,11 @@ export interface ValuationModel {
 
 export interface VolMessageIn {
   readonly id: string;
-  readonly timeStamp: Date;
+  readonly timeStamp: string;
   readonly version: string;
   readonly description: string;
   readonly Option: Option;
   readonly ValuationData: ValuationData;
   readonly ValuationModel: ValuationModel;
+  readonly spotDate: string;
 }

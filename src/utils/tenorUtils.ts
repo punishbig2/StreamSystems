@@ -1,12 +1,13 @@
 import { API } from "API";
-import { Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
 import { CalendarFXPairResponse } from "types/calendarFXPair";
 import { PodRow } from "types/podRow";
+import { Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
 import { coalesce } from "utils";
-import { forceParseDate } from "utils/timeUtils";
+import { forceParseDate, toUTC } from "utils/timeUtils";
 
 export const SPECIFIC_TENOR = "SPECIFIC";
+
 export interface DealDates {
   readonly spot: Date;
   readonly expiry: Date;
@@ -17,7 +18,6 @@ export const resolveDealDates = async (
   symbol: Symbol,
   tenor: string,
   trade: Date,
-  expiryDate?: Date | null
 ): Promise<DealDates> => {
   if (tenor === "") {
     return {
@@ -29,7 +29,7 @@ export const resolveDealDates = async (
   try {
     const result: CalendarFXPairResponse = await API.calendarFxPair({
       Type: "VOL",
-      tradeDate: trade.toISOString(),
+      tradeDate: toUTC(trade),
       fxPair: symbol.symbolID,
       Tenors: [tenor],
     });
@@ -76,7 +76,7 @@ export const compareTenors = (a: PodRow, b: PodRow) => {
 export const deriveTenor = async (
   symbol: Symbol,
   value: string | Date,
-  tradeDate: Date
+  tradeDate: Date,
 ): Promise<Tenor> => {
   if (typeof value === "string") {
     // It's a normal tenor

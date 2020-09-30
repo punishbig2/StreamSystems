@@ -6,11 +6,12 @@ import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 
 export const fieldMapper = (data: IsEditableData, entry: SummaryLeg) => (
-  fieldDef: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>
+  fieldDef: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>,
 ): ReactElement | null => {
   const getValue = (): number | string | Date => {
     if (fieldDef.name === "dealOutput")
       throw new Error("this is not a normal value, cannot display it");
+    if (fieldDef.name === "spotDate") return entry.spotDate;
     const value: number | string | Date | null = entry[fieldDef.name];
     if (
       fieldDef.type === "number" &&
