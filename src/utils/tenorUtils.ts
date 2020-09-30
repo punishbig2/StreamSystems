@@ -1,17 +1,13 @@
 import { API } from "API";
-import { Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
 import { CalendarFXPairResponse } from "types/calendarFXPair";
 import { PodRow } from "types/podRow";
-import { coalesce } from "utils/commonUtils";
-import {
-  addToDate,
-  forceParseDate,
-  TenorDuration,
-  tenorToDuration,
-} from "utils/timeUtils";
+import { Symbol } from "types/symbol";
+import { Tenor } from "types/tenor";
+import { addToDate, forceParseDate, TenorDuration, tenorToDuration, toUTC } from "utils/timeUtils";
+import { coalesce } from "./commonUtils";
 
 export const SPECIFIC_TENOR = "SPECIFIC";
+
 export interface DealDates {
   readonly spot: Date;
   readonly expiry: Date;
@@ -21,7 +17,7 @@ export interface DealDates {
 const calculateDates = (
   symbol: Symbol,
   tenor: string,
-  tradeDate: Date
+  tradeDate: Date,
 ): DealDates => {
   const duration: TenorDuration = tenorToDuration(tenor);
   const spotDate: Date = addToDate(tradeDate, symbol.SettlementWindow, "d");
@@ -35,15 +31,15 @@ const calculateDates = (
 export const resolveDealDates = async (
   symbol: Symbol,
   tenor: string,
-  tradeDate: Date
+  trade: Date,
 ): Promise<DealDates> => {
   if (tenor === "") {
-    return calculateDates(symbol, tenor, tradeDate);
+    return calculateDates(symbol, tenor, trade);
   }
   try {
     const result: CalendarFXPairResponse = await API.calendarFxPair({
       Type: "VOL",
-      tradeDate: tradeDate.toISOString(),
+      tradeDate: toUTC(trade),
       fxPair: symbol.symbolID,
       Tenors: [tenor],
     });
@@ -56,7 +52,7 @@ export const resolveDealDates = async (
       expiry: coalesce(expiry, new Date()),
     };
   } catch {
-    return calculateDates(symbol, tenor, tradeDate);
+    return calculateDates(symbol, tenor, trade);
   }
 };
 
@@ -86,7 +82,7 @@ export const compareTenors = (a: PodRow, b: PodRow) => {
 export const deriveTenor = async (
   symbol: Symbol,
   value: string | Date,
-  tradeDate: Date
+  tradeDate: Date,
 ): Promise<Tenor> => {
   if (typeof value === "string") {
     // It's a normal tenor
