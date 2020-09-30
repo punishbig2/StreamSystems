@@ -110,13 +110,13 @@ const handleLegsResponse = (
   cuts: ReadonlyArray<Cut>
 ): void => {
   const { summaryLeg } = moStore;
+  const tenor: Tenor | InvalidTenor = entry.tenor1;
+  if (isInvalidTenor(tenor)) return;
   if (legs[0].option === "SumLeg" || legs.length === 1) {
     const fwdPts: number | null =
       summaryLeg !== null ? summaryLeg.fwdpts1 : null;
     const fwdRate: number | null =
       summaryLeg !== null ? summaryLeg.fwdrate1 : null;
-    const tenor: Tenor | InvalidTenor = entry.tenor1;
-    if (isInvalidTenor(tenor)) return;
     moStore.setLegs(
       legs.slice(legs.length === 1 ? 0 : 1),
       {
@@ -150,7 +150,16 @@ const handleLegsResponse = (
       true
     );
   } else {
-    moStore.setLegs(legs, null);
+    moStore.setLegs(legs, createSummaryLeg(
+      cuts,
+      entry.strategy,
+      entry.symbol,
+      entry.tradeDate,
+      entry.premiumDate,
+      entry.spotDate,
+      tenor.deliveryDate,
+      tenor.expiryDate
+    ),);
   }
 };
 

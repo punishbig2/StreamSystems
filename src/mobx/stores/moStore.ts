@@ -491,18 +491,22 @@ export class MoStore {
     entry: DealEntry
   ): Promise<DealEntry> {
     const { tenor1, tenor2 } = entry;
-    const rootTenor = await this.deriveTenorIfNeeded(
+    const tenor = await this.deriveTenorIfNeeded(
       entry.symbol,
       tenor1,
       entry.tradeDate
     );
-    if (rootTenor === null) throw new Error("we need at least one tenor");
+    if (tenor === null) throw new Error("we need at least one tenor");
+    const spotDate: Date = tenor.spotDate !== undefined ? tenor.spotDate : entry.spotDate;
+    console.log(spotDate);
     return {
       ...entry,
-      tenor1: rootTenor,
+      tenor1: tenor,
       tenor2: tenor2
         ? await deriveTenor(entry.symbol, tenor2.name, entry.tradeDate)
         : null,
+      premiumDate: spotDate,
+      spotDate: spotDate,
     };
   }
 

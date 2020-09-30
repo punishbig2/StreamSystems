@@ -798,6 +798,9 @@ export class API {
         };
       }
     );
+    if (entry.spotDate === null) {
+      throw new Error("entry spot date is not set");
+    }
     const request: VolMessageIn = {
       id: entry.dealID,
       Option: {
@@ -835,6 +838,7 @@ export class API {
       },
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${legs.length}-Legs`,
+      spotDate: entry.spotDate,
       timeStamp: new Date(),
       version: "arcfintech-volMessage-0.2.2",
     };
