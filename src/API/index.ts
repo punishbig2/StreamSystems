@@ -13,7 +13,7 @@ import { DealEntry, ServerDealQuery } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
-import { CalendarFXPairQuery, CalendarFXPairResponse } from "types/calendarFXPair";
+import { CalendarFXTenorsQuery, CalendarFXTenorsResponse, TemporaryResponse } from "types/calendarFXPair";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import { CreateOrder, CreateOrderBulk, DarkPoolOrder, Order, OrderMessage } from "types/order";
@@ -33,7 +33,7 @@ import {
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { deriveTenor } from "utils/tenorUtils";
-import { currentTimestampFIXFormat, toUTCFIXFormat, toUTC } from "utils/timeUtils";
+import { currentTimestampFIXFormat, tenorToDateString, toUTC, toUTCFIXFormat } from "utils/timeUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -1014,14 +1014,37 @@ export class API {
     return task.execute();
   }
 
-  public static calendarFxPair(
-    query: CalendarFXPairQuery,
-  ): Promise<CalendarFXPairResponse> {
+  public static async calendarFxPair(
+    query: CalendarFXTenorsQuery,
+  ): Promise<TemporaryResponse> {
     const url: string = config.VolServer + "/api/calendar/fxpair";
-    const task: Task<CalendarFXPairResponse> = post<CalendarFXPairResponse>(
-      url,
+    const task1: Task<CalendarFXTenorsResponse> = post<CalendarFXTenorsResponse>(
+      url + "/fx/tenors",
       query,
     );
-    return task.execute();
+    const { Tenors } = query;
+    const task2: Task<TemporaryResponse> = post<TemporaryResponse>(
+      url + "/vol/dates",
+      {
+        ...query,
+        ExpiryDates: Tenors.map(tenorToDateString),
+        rollExpiryDates: true,
+      },
+    );
+    const tenors: CalendarFXTenorsResponse = await task1.execute();
+    const dates: TemporaryResponse = await task2.execute();
+    return {
+      Status: "OK",
+      TimeStamp: tenors.TimeStamp,
+      TradeDate: tenors.TradeDate,
+      HorizonDate: tenors.HorizonDate,
+      HorizonDateUTC: tenors.HorizonDateUTC,
+      Tenors: tenors.Tenors,
+      ExpiryDates: dates.ExpiryDates,
+      DeliveryDates: dates.DeliveryDates,
+      SpotDate: tenors.SpotDate,
+      SettleDates: tenors.SettleDates,
+      Holidays: tenors.Holidays,
+    };
   }
 }
