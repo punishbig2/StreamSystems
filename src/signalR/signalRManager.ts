@@ -8,7 +8,10 @@ import {
 import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
 import config from "config";
-import { CommissionRate, convertToCommissionRatesArray } from "mobx/stores/brokerageStore";
+import {
+  CommissionRate,
+  convertToCommissionRatesArray,
+} from "mobx/stores/brokerageStore";
 import moStore, { MoStatus } from "mobx/stores/moStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
@@ -16,7 +19,10 @@ import workareaStore from "mobx/stores/workareaStore";
 import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, ExecTypes, Message } from "types/message";
-import { MOErrorMessage, ON_MIDDLE_OFFICE_ERROR } from "types/middleOfficeError";
+import {
+  MOErrorMessage,
+  ON_MIDDLE_OFFICE_ERROR,
+} from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
@@ -26,7 +32,6 @@ import { createDealFromBackendMessage } from "utils/dealUtils";
 import { parseSEFError } from "utils/parseSEFError";
 import { $$ } from "utils/stringPaster";
 
-const ApiConfig = config.Api;
 const INITIAL_RECONNECT_DELAY: number = 3000;
 const SidesMap: { [key: string]: Sides } = { "1": Sides.Buy, "2": Sides.Sell };
 
@@ -109,7 +114,7 @@ export class SignalRManager {
   static createConnection = () =>
     new HubConnectionBuilder()
       .withUrl(
-        `http://${ApiConfig.Host}/liveUpdateSignalRHub`,
+        `${config.BackendUrl}/liveUpdateSignalRHub`,
         HttpTransportType.WebSockets
       )
       .withAutomaticReconnect([5, 60, 120])
