@@ -1,13 +1,11 @@
 export interface Tenor {
   name: string;
+  deliveryDate: Date;
   expiryDate: Date;
-  deliveryDate?: Date;
-  spotDate?: Date;
 }
 
 export interface InvalidTenor {
   name: string;
-  expiryDate: null;
   deliveryDate: null;
-  spotDate: null;
+  expiryDate: null;
 }

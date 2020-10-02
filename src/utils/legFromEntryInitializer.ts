@@ -18,7 +18,7 @@ export const initializeLegFromEntry = async (
     strike: entry.dealstrike,
     expiryDate: tenor.expiryDate,
     deliveryDate: tenor.deliveryDate,
-    premiumDate: tenor.spotDate,
+    premiumDate: entry.premiumDate,
     party: originalLeg.side === Sides.Buy ? entry.buyer : entry.seller,
   };
 };

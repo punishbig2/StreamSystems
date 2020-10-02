@@ -12,8 +12,15 @@ import React, {
   useState,
 } from "react";
 import { DealEntry } from "structures/dealEntry";
-import { Tenor } from "types/tenor";
-import { deriveTenor } from "utils/tenorUtils";
+import { API } from "../../../API";
+import { CalendarVolDatesResponse } from "../../../types/calendarFXPair";
+import { SPECIFIC_TENOR } from "../../../utils/tenorUtils";
+import {
+  addToDate,
+  forceParseDate,
+  naiveTenorToDate,
+  toUTC,
+} from "../../../utils/timeUtils";
 
 interface Props {
   readonly field: FieldDef<DealEntry, MoStore, DealEntry>;
@@ -69,15 +76,50 @@ export const Field: React.FC<Props> = React.memo(
     const { onChangeStart, onChangeCompleted } = props;
     const onTenorChange = useCallback(
       (name: keyof DealEntry, value: string | Date): void => {
-        deriveTenor(entry.symbol, value, entry.tradeDate).then(
-          (tenor: Tenor): void => {
-            onChangeCompleted({
-              [name]: tenor,
-              premiumDate: tenor.spotDate,
-              spotDate: tenor.spotDate,
+        const { symbol } = entry;
+        if (typeof value === "string") {
+          API.queryVolDates({
+            tradeDate: toUTC(entry.tradeDate, true),
+            fxPair: symbol.symbolID,
+            rollExpiryDates: true,
+            addHolidays: true,
+            Tenors: [value],
+          })
+            .then((dates: CalendarVolDatesResponse): void => {
+              const spotDate: Date = forceParseDate(dates.SpotDate);
+              onChangeCompleted({
+                [name]: {
+                  name: value,
+                  deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+                  expiryDate: forceParseDate(dates.ExpiryDates[0]),
+                },
+                premiumDate: spotDate,
+                spotDate: spotDate,
+              });
+            })
+            .catch((): void => {
+              const expiryDate: Date = naiveTenorToDate(value);
+              onChangeCompleted({
+                [name]: {
+                  name: value,
+                  deliveryDate: addToDate(
+                    expiryDate,
+                    symbol.SettlementWindow,
+                    "d"
+                  ),
+                  expiryDate: expiryDate,
+                },
+              });
             });
-          }
-        );
+        } else {
+          onChangeCompleted({
+            [name]: {
+              name: SPECIFIC_TENOR,
+              deliveryDate: addToDate(value, symbol.SettlementWindow, "d"),
+              expiryDate: value,
+            },
+          });
+        }
       },
       [onChangeCompleted, entry]
     );

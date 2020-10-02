@@ -1,7 +1,9 @@
 import { Grid } from "@material-ui/core";
+import { LdsSpinner } from "components/ldsSpinner";
 import { BrokerSection } from "components/MiddleOffice/SummaryLegDetailsForm/BrokerSection";
 import { DealOutputSection } from "components/MiddleOffice/SummaryLegDetailsForm/DealOutputSection";
 import { Field } from "components/MiddleOffice/SummaryLegDetailsForm/field";
+
 import {
   fields,
   IsEditableData,
@@ -9,7 +11,6 @@ import {
 import { Commission } from "components/MiddleOffice/types/deal";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { NoDataMessage } from "components/noDataMessage";
-import { LdsSpinner } from "components/ldsSpinner";
 import { FieldDef } from "forms/fieldDef";
 import React, { ReactElement, useEffect, useState } from "react";
 import { DealEntry } from "structures/dealEntry";

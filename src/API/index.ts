@@ -2,7 +2,11 @@ import { isInvalidTenor } from "components/FormField/helpers";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
-import { OptionLeg, ValuationModel, VolMessageIn } from "components/MiddleOffice/types/pricer";
+import {
+  OptionLeg,
+  ValuationModel,
+  VolMessageIn,
+} from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
 import moStore from "mobx/stores/moStore";
@@ -12,16 +16,28 @@ import { DealEntry, ServerDealQuery } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
-import { CalendarFXTenorsQuery, CalendarFXTenorsResponse, TemporaryResponse } from "types/calendarFXPair";
+import {
+  CalendarFXTenorsQuery,
+  CalendarFXTenorsResponse,
+  CalendarVolDatesQuery,
+  CalendarVolDatesResponse,
+} from "types/calendarFXPair";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
-import { CreateOrder, CreateOrderBulk, DarkPoolOrder, Order, OrderMessage } from "types/order";
+import {
+  CreateOrder,
+  CreateOrderBulk,
+  DarkPoolOrder,
+  Order,
+  OrderMessage,
+} from "types/order";
 import { Sides } from "types/sides";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { User } from "types/user";
 import { MessageTypes, W } from "types/w";
+
 import {
   createDealFromBackendMessage,
   getDealId,
@@ -31,9 +47,18 @@ import {
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
-import { deriveTenor } from "utils/tenorUtils";
-import { currentTimestampFIXFormat, tenorToDateString, toUTC, toUTCFIXFormat } from "utils/timeUtils";
-import { coalesce, getCurrentTime, getSideFromType, numberifyIfPossible } from "../utils/commonUtils";
+import {
+  currentTimestampFIXFormat,
+  naiveTenorToDateString,
+  toUTC,
+  toUTCFIXFormat,
+} from "utils/timeUtils";
+import {
+  coalesce,
+  getCurrentTime,
+  getSideFromType,
+  numberifyIfPossible,
+} from "../utils/commonUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -101,11 +126,10 @@ const request = <T>(
   url: string,
   method: Method,
   data?: NotOfType<string>,
-  contentType?: string,
+  contentType?: string
 ): Task<T> => {
   const taskHandler: TaskHandler<T> = {
-    reject: () => {
-    },
+    reject: () => {},
     status: PromiseStatus.Pending,
   };
   // This should be accessible from outside the executor/promise to allow cancellation
@@ -113,7 +137,7 @@ const request = <T>(
   // Executor
   const executor = (
     resolve: (data: T) => void,
-    reject: (error?: any) => void,
+    reject: (error?: any) => void
   ): void => {
     taskHandler.reject = reject;
     // Send the request
@@ -164,7 +188,7 @@ const request = <T>(
       } else if (contentType === "application/x-www-form-urlencoded") {
         xhr.setRequestHeader(
           "content-type",
-          "application/x-www-form-urlencoded",
+          "application/x-www-form-urlencoded"
         );
         xhr.send(toUrlQuery(data));
       } else {
@@ -187,8 +211,6 @@ const request = <T>(
     },
   };
 };
-
-const { Api } = config;
 
 const post = <T>(url: string, data?: any, contentType?: string): Task<T> =>
   request<T>(url, Method.Post, data, contentType);
@@ -266,24 +288,21 @@ export class API {
   public static MloConfig = `${API.Mlo}/config`;
 
   public static getRawUrl(section: string, rest: string, args?: any): string {
-    if (args === undefined)
-      return `${Api.Protocol}://${Api.Host}${section}/${rest}`;
-    return `${Api.Protocol}://${Api.Host}${section}/${rest}?${toUrlQuery(
-      args,
-    )}`;
+    if (args === undefined) return `${config.BackendUrl}${section}/${rest}`;
+    return `${config.BackendUrl}${section}/${rest}?${toUrlQuery(args)}`;
   }
 
   public static buildUrl(
     section: string,
     object: Endpoints,
     verb: Verb,
-    args?: any,
+    args?: any
   ): string {
     if (args === undefined)
-      return `${Api.Protocol}://${Api.Host}${section}/${verb}${object}`;
-    return `${Api.Protocol}://${
-      Api.Host
-    }${section}/${verb}${object}?${toUrlQuery(args)}`;
+      return `${config.BackendUrl}${section}/${verb}${object}`;
+    return `${config.BackendUrl}${section}/${verb}${object}?${toUrlQuery(
+      args
+    )}`;
   }
 
   public static async getSymbols(region?: string): Promise<Symbol[]> {
@@ -292,8 +311,8 @@ export class API {
         API.Config,
         "symbols",
         "get",
-        region ? { region } : undefined,
-      ),
+        region ? { region } : undefined
+      )
     );
     const currencies: Symbol[] = await task.execute();
     // Sort them and return :)
@@ -310,24 +329,24 @@ export class API {
 
   public static getProducts(): Promise<Strategy[]> {
     const task: Task<Strategy[]> = get<Strategy[]>(
-      API.buildUrl(API.Config, "products", "get"),
+      API.buildUrl(API.Config, "products", "get")
     );
     return task.execute();
   }
 
   public static getTenors(): Promise<string[]> {
     const task: Task<string[]> = get<string[]>(
-      API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" }),
+      API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" })
     );
     return task.execute();
   }
 
   public static async executeCreateOrderRequest(
-    request: CreateOrder,
+    request: CreateOrder
   ): Promise<MessageResponse> {
     const task: Task<MessageResponse> = await post<MessageResponse>(
       API.buildUrl(API.Oms, "order", "create"),
-      request,
+      request
     );
     const result: MessageResponse = await task.execute();
     if (result.Status !== "Success")
@@ -340,7 +359,7 @@ export class API {
     symbol: string,
     strategy: string,
     user: User,
-    minimumSize: number,
+    minimumSize: number
   ): Promise<MessageResponse> {
     const personality: string = workareaStore.personality;
     // Build a create order request
@@ -369,7 +388,7 @@ export class API {
     };
     const task: Task<MessageResponse> = await post<MessageResponse>(
       API.buildUrl(API.Oms, "bulkorders", "create"),
-      request,
+      request
     );
     const result: MessageResponse = await task.execute();
     if (result.Status !== "Success")
@@ -380,7 +399,7 @@ export class API {
   public static async cancelAllExtended(
     symbol: string | undefined,
     strategy: string | undefined,
-    side: Sides,
+    side: Sides
   ): Promise<MessageResponse> {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
@@ -395,7 +414,7 @@ export class API {
     };
     const task: Task<MessageResponse> = post<MessageResponse>(
       API.buildUrl(API.Oms, "allextended", "cxl"),
-      request,
+      request
     );
     return task.execute();
   }
@@ -403,7 +422,7 @@ export class API {
   public static async cancelAll(
     symbol: string | undefined,
     strategy: string | undefined,
-    side: Sides,
+    side: Sides
   ): Promise<MessageResponse> {
     const user: User = workareaStore.user;
     const request = {
@@ -416,18 +435,18 @@ export class API {
     };
     const task: Task<MessageResponse> = post<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cancel"),
-      request,
+      request
     );
     return task.execute();
   }
 
   public static async cancelOrder(
     order: Order,
-    user: User,
+    user: User
   ): Promise<MessageResponse> {
     if (order.user !== user.email && !user.isbroker)
       throw new Error(
-        `cancelling someone else's order: ${order.user} -> ${user.email}`,
+        `cancelling someone else's order: ${order.user} -> ${user.email}`
       );
     const request = {
       MsgType: MessageTypes.F,
@@ -440,7 +459,7 @@ export class API {
     };
     const task: Task<MessageResponse> = await post<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
-      request,
+      request
     );
     const result: MessageResponse = await task.execute();
     if (result.Status !== "Success") {
@@ -451,7 +470,7 @@ export class API {
 
   public static async getDarkPoolSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): Promise<{ [k: string]: W } | null> {
     if (!symbol || !strategy) return null;
     const url: string = API.getRawUrl(API.DarkPool, "tilesnapshot", {
@@ -467,11 +486,11 @@ export class API {
 
   public static getTOBSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): Promise<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       throw new Error(
-        "you have to tell me which symbol, strategy and tenor you want",
+        "you have to tell me which symbol, strategy and tenor you want"
       );
     const url: string = API.getRawUrl(API.MarketData, "tiletobsnapshot", {
       symbol,
@@ -486,11 +505,11 @@ export class API {
 
   public static getSnapshot(
     symbol: string,
-    strategy: string,
+    strategy: string
   ): Promise<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       throw new Error(
-        "you have to tell me which symbol, strategy and tenor you want",
+        "you have to tell me which symbol, strategy and tenor you want"
       );
     const url: string = API.getRawUrl(API.MarketData, "tilesnapshot", {
       symbol,
@@ -505,14 +524,14 @@ export class API {
 
   public static async getMessagesSnapshot(
     useremail: string,
-    timestamp: number,
+    timestamp: number
   ): Promise<Message[]> {
     const query: any = { timestamp };
     const task1: Task<Message[]> = get<Message[]>(
-      API.buildUrl(API.DarkPool, "messages", "get", query),
+      API.buildUrl(API.DarkPool, "messages", "get", query)
     );
     const task2: Task<Message[]> = get<Message[]>(
-      API.buildUrl(API.Oms, "messages", "get", query),
+      API.buildUrl(API.Oms, "messages", "get", query)
     );
     const darkpool: Message[] = await task1.execute();
     const normal: Message[] = await task2.execute();
@@ -522,24 +541,24 @@ export class API {
   public static async getRunOrders(
     useremail: string,
     symbol: string,
-    strategy: string,
+    strategy: string
   ): Promise<OrderMessage[]> {
     const task: Task<OrderMessage[]> = get<OrderMessage[]>(
-      API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail }),
+      API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail })
     );
     return task.execute();
   }
 
   public static async getUsers(): Promise<User[]> {
     const task: Task<User[]> = get<User[]>(
-      API.buildUrl(API.UserApi, "Users", "get"),
+      API.buildUrl(API.UserApi, "Users", "get")
     );
     return task.execute();
   }
 
   public static async getBanks(): Promise<string[]> {
     const task: Task<string[]> = get<string[]>(
-      API.buildUrl(API.Config, "markets", "get"),
+      API.buildUrl(API.Config, "markets", "get")
     );
     return task.execute();
   }
@@ -556,7 +575,7 @@ export class API {
     }
     const task: Task<MessageResponse> = post<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "create"),
-      order,
+      order
     );
     return task.execute();
   }
@@ -574,7 +593,7 @@ export class API {
     };
     const task: Task<MessageResponse> = post<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "cancel"),
-      request,
+      request
     );
     return task.execute();
   }
@@ -582,7 +601,7 @@ export class API {
   public static async cancelAllDarkPoolOrder(
     currency: string,
     strategy: string,
-    tenor: string,
+    tenor: string
   ): Promise<any> {
     const user: User = workareaStore.user;
     const task: Task<MessageResponse> = post<MessageResponse>(
@@ -592,7 +611,7 @@ export class API {
         Symbol: currency,
         Strategy: strategy,
         Tenor: tenor,
-      },
+      }
     );
     return task.execute();
   }
@@ -602,7 +621,7 @@ export class API {
     symbol: string,
     strategy: string,
     tenor: string,
-    price: number | "",
+    price: number | ""
   ): Promise<any> {
     const data = {
       User: user,
@@ -613,16 +632,16 @@ export class API {
     };
     const task: Task<any> = post<any>(
       API.buildUrl(API.DarkPool, "price", "publish"),
-      data,
+      data
     );
     return task.execute();
   }
 
   public static async getUserProfile(
-    email: string,
+    email: string
   ): Promise<[{ workspace: any }]> {
     const task: Task<any> = get<any>(
-      API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email }),
+      API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email })
     );
     return task.execute();
   }
@@ -633,7 +652,7 @@ export class API {
     const task: Task<any> = post<any>(
       API.buildUrl(API.UserApi, "UserJson", "save"),
       { useremail, workspace },
-      contentType,
+      contentType
     );
     return task.execute();
   }
@@ -649,24 +668,24 @@ export class API {
     };
     await post<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cxlall"),
-      request,
+      request
     );
     await post<MessageResponse>(
       API.buildUrl(API.DarkPool, "all", "cxlall"),
-      request,
+      request
     );
     await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
   }
 
   public static async getUserRegions(
-    useremail: string,
+    useremail: string
   ): Promise<ReadonlyArray<string>> {
     const task: Task<ReadonlyArray<{ ccyGroup: string }>> = get<any>(
-      API.buildUrl(API.Config, "userregions", "get", { useremail }),
+      API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
     const regions = await task.execute();
     return regions.map(
-      (region: { ccyGroup: string }): string => region.ccyGroup,
+      (region: { ccyGroup: string }): string => region.ccyGroup
     );
   }
 
@@ -674,7 +693,7 @@ export class API {
   public static async getCuts(currency?: string): Promise<any> {
     if (currency) {
       const task: Task<any> = get<any>(
-        API.buildUrl(API.Config, "cuts", "get", { currency }),
+        API.buildUrl(API.Config, "cuts", "get", { currency })
       );
       return task.execute();
     } else {
@@ -685,19 +704,21 @@ export class API {
 
   public static async getOptexStyle(): Promise<any> {
     const task: Task<any> = get<any>(
-      API.buildUrl(API.Config, "optexstyle", "get"),
+      API.buildUrl(API.Config, "optexstyle", "get")
     );
     return task.execute();
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> = get<BankEntitiesQueryResponse>(config.Api2 + "/entities");
+    const task: Task<BankEntitiesQueryResponse> = get<
+      BankEntitiesQueryResponse
+    >(config.PrePricerUrl + "/entities");
     return task.execute();
   }
 
   public static async getValuModel(): Promise<any> {
     const task: Task<any> = get<any>(
-      API.buildUrl(API.Config, "valumodel", "get"),
+      API.buildUrl(API.Config, "valumodel", "get")
     );
     return task.execute();
   }
@@ -706,7 +727,7 @@ export class API {
     const task: Task<any> = get<any>(
       API.buildUrl(API.Config, "exproducts", "get", {
         bAllFields: true,
-      }),
+      })
     );
     return task.execute();
   }
@@ -716,7 +737,7 @@ export class API {
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null,
     valuationModel: ValuationModel,
-    strategy: MOStrategy,
+    strategy: MOStrategy
   ): Promise<void> {
     const { tradeDate, symbol } = entry;
     if (entry.dealID === undefined)
@@ -725,7 +746,7 @@ export class API {
       entry,
       strategy,
       symbol,
-      legs,
+      legs
     );
     const ccyPair: string = symbol.symbolID;
     const legsPromises = mergedDefinitions.map(
@@ -734,7 +755,7 @@ export class API {
         const tenor: Tenor | InvalidTenor = getTenor(entry, index);
         if (isInvalidTenor(tenor))
           throw new Error(
-            "cannot build pricing request without a valid tenor or expiry date for each leg",
+            "cannot build pricing request without a valid tenor or expiry date for each leg"
           );
         const spread: number | null =
           strategy.productid === "Butterfly-2Leg" && index > 0
@@ -746,13 +767,10 @@ export class API {
             : coalesce(leg.vol, entry.vol);
         const notional: number = coalesce(
           index === 1 ? entry.not2 : entry.not1,
-          entry.not1,
+          entry.not1
         );
-        const { expiryDate, deliveryDate } = await deriveTenor(
-          symbol,
-          tenor.name,
-          tradeDate,
-        );
+        // We know that the tenor has valid dates now
+        const { expiryDate, deliveryDate } = tenor;
         if (deliveryDate === undefined)
           throw new Error("bad tenor for leg " + index);
         return {
@@ -761,7 +779,7 @@ export class API {
           deliveryDate: toUTC(deliveryDate),
           spreadVolatiltyOffset: spread,
           strike: numberifyIfPossible(
-            coalesce(leg.strike, coalesce(entry.dealstrike, strategy.strike)),
+            coalesce(leg.strike, coalesce(entry.dealstrike, strategy.strike))
           ),
           volatilty: vol,
           barrier: null,
@@ -772,10 +790,13 @@ export class API {
           SideType: leg.side.toUpperCase(),
           MonitorType: null,
         };
-      },
+      }
     );
     if (entry.spotDate === null) {
       throw new Error("entry does not have spot date");
+    }
+    if (entry.horizonDateUTC === undefined) {
+      throw new Error("for some reason horizonDateUTC was not set");
     }
     const request: VolMessageIn = {
       id: entry.dealID,
@@ -791,7 +812,8 @@ export class API {
         OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
-        valuationDate: toUTC(new Date()),
+        valuationDate: entry.horizonDateUTC,
+        valuationDateUTC: entry.horizonDateUTC,
         VOL: {
           ccyPair: ccyPair,
           premiumAdjustDelta: symbol.premiumAdjustDelta,
@@ -807,7 +829,7 @@ export class API {
             summaryLeg,
             strategy,
             entry.tenor1,
-            entry.tenor2,
+            entry.tenor2
           ),
         },
         RATES: [],
@@ -818,14 +840,14 @@ export class API {
       spotDate: toUTC(entry.spotDate),
       version: "arcfintech-volMessage-0.2.2",
     };
-    const task: Task<any> = post<any>(config.PricingRequestUrl, request);
+    const task: Task<any> = post<any>(config.PricerUrl, request);
     return task.execute();
   }
 
   public static async getDeals(dealid?: string): Promise<Deal[]> {
     const task: Task<Deal[]> = get<Deal[]>(
       API.buildUrl(API.Deal, "deals", "get"),
-      dealid !== undefined ? { dealid } : undefined,
+      dealid !== undefined ? { dealid } : undefined
     );
     const array: any[] | null = await task.execute();
     if (array === null) return [];
@@ -839,14 +861,14 @@ export class API {
       API.buildUrl(API.Deal, "deal", "remove", {
         linkid: id,
         useremail: user.email,
-      }),
+      })
     );
     return task.execute();
   }
 
   private static createDealRequest(
     entry: DealEntry,
-    changed: string[],
+    changed: string[]
   ): ServerDealQuery {
     const user: User = workareaStore.user;
     const { symbol, strategy, tenor1, tenor2 } = entry;
@@ -873,8 +895,7 @@ export class API {
       useremail: user.email,
       strike: entry.dealstrike,
       expirydate: toUTCFIXFormat(tenor1.expiryDate),
-      expirydate1:
-        tenor2 !== null ? toUTCFIXFormat(tenor2.expiryDate) : null,
+      expirydate1: tenor2 !== null ? toUTCFIXFormat(tenor2.expiryDate) : null,
       fwdrate1: entry.fwdrate1,
       fwdpts1: entry.fwdpts1,
       fwdrate2: entry.fwdrate2,
@@ -904,14 +925,14 @@ export class API {
       {
         dealID: dealID,
         useremail: user.email,
-      },
+      }
     );
     return task.execute();
   }
 
   public static async updateDeal(
     data: DealEntry,
-    changed: string[],
+    changed: string[]
   ): Promise<string> {
     if (data.dealID === undefined)
       throw new Error("to save an existing deal please provide an id");
@@ -919,18 +940,18 @@ export class API {
     // Save the deal now
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "update"),
-      API.createDealRequest(data, changed),
+      API.createDealRequest(data, changed)
     );
     return task.execute();
   }
 
   public static async cloneDeal(
     data: DealEntry,
-    changed: string[],
+    changed: string[]
   ): Promise<string> {
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
-      API.createDealRequest(data, changed),
+      API.createDealRequest(data, changed)
     );
     const dealID: string = await task.execute();
     // Save the legs now
@@ -940,11 +961,11 @@ export class API {
 
   public static async createDeal(
     data: DealEntry,
-    changed: string[],
+    changed: string[]
   ): Promise<string> {
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "create"),
-      API.createDealRequest(data, changed),
+      API.createDealRequest(data, changed)
     );
     const dealID: string = await task.execute();
     // Save the legs now
@@ -965,85 +986,80 @@ export class API {
 
   public static async getOptionLegsDefIn(): Promise<any> {
     const task: Task<any> = get<any>(
-      API.buildUrl(API.Config, "optionlegsdefin", "get"),
+      API.buildUrl(API.Config, "optionlegsdefin", "get")
     );
     return task.execute();
   }
 
   public static getOptionLegsDefOut(): Promise<any> {
     const task: Task<any> = get<any>(
-      API.buildUrl(API.Config, "optionlegsdefout", "get"),
+      API.buildUrl(API.Config, "optionlegsdefout", "get")
     );
     return task.execute();
   }
 
   public static getBrokerageWidths(
     ccypair: string,
-    strategy: string,
+    strategy: string
   ): Task<BrokerageWidthsResponse> {
     return get<BrokerageWidthsResponse>(
       API.buildUrl(API.Brokerage, "width", "get", {
         ccypair,
         strategy,
-      }),
+      })
     );
   }
 
   public static getBrokerageCommission(
-    firm: string,
+    firm: string
   ): Task<BrokerageCommissionResponse> {
     return get<BrokerageCommissionResponse>(
       API.buildUrl(API.Brokerage, "commission", "get", {
         firm,
-      }),
+      })
     );
   }
 
   public static getDeltaStyles(): Promise<ReadonlyArray<string>> {
     const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
-      API.buildUrl(API.MloConfig, "deltastyle", "get"),
+      API.buildUrl(API.MloConfig, "deltastyle", "get")
     );
     return task.execute();
   }
 
   public static getPremiumStyles(): Promise<ReadonlyArray<string>> {
     const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
-      API.buildUrl(API.MloConfig, "premstyle", "get"),
+      API.buildUrl(API.MloConfig, "premstyle", "get")
     );
     return task.execute();
   }
 
-  public static async calendarFxPair(
-    query: CalendarFXTenorsQuery,
-  ): Promise<TemporaryResponse> {
-    const url: string = config.VolServer + "/api/calendar/fxpair";
-    const task1: Task<CalendarFXTenorsResponse> = post<CalendarFXTenorsResponse>(
-      url + "/fx/tenors",
-      query,
+  public static async queryFxTenorsDates(
+    query: CalendarFXTenorsQuery
+  ): Promise<CalendarFXTenorsResponse> {
+    const url: string =
+      config.CalendarServiceBaseUrl + "/api/calendar/fxpair/fx/tenors";
+    const task: Task<CalendarFXTenorsResponse> = post<CalendarFXTenorsResponse>(
+      url,
+      query
     );
+    return task.execute();
+  }
+
+  public static async queryVolDates(
+    query: CalendarVolDatesQuery
+  ): Promise<CalendarVolDatesResponse> {
     const { Tenors } = query;
-    const task2: Task<TemporaryResponse> = post<TemporaryResponse>(
-      url + "/vol/dates",
+    const url: string =
+      config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/dates";
+    const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
+      url,
       {
         ...query,
-        ExpiryDates: Tenors.map(tenorToDateString),
+        ExpiryDates: Tenors.map(naiveTenorToDateString),
         rollExpiryDates: true,
-      },
+      }
     );
-    const tenors: CalendarFXTenorsResponse = await task1.execute();
-    const dates: TemporaryResponse = await task2.execute();
-    return {
-      Status: "OK",
-      TimeStamp: tenors.TimeStamp,
-      TradeDate: tenors.TradeDate,
-      HorizonDate: tenors.HorizonDate,
-      HorizonDateUTC: tenors.HorizonDateUTC,
-      Tenors: tenors.Tenors,
-      ExpiryDates: dates.ExpiryDates,
-      DeliveryDates: dates.DeliveryDates,
-      SpotDate: tenors.SpotDate,
-      SettleDates: tenors.SettleDates,
-      Holidays: tenors.Holidays,
-    };
+    return task.execute();
   }
 }

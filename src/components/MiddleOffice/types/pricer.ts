@@ -69,6 +69,7 @@ export interface RATE {
 
 export interface ValuationData {
   readonly valuationDate: string;
+  readonly valuationDateUTC: string;
   readonly FX: FX;
   readonly VOL: VOL;
   readonly RATES: RATE[];

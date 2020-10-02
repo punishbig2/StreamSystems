@@ -2,8 +2,15 @@ import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
+import {
+  InvalidStrategy,
+  MOStrategy,
+  StrategyMap,
+} from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { toast, ToastType } from "components/toast";
@@ -20,7 +27,8 @@ import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
-import { deriveTenor } from "utils/tenorUtils";
+import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
+import { forceParseDate, toUTC } from "../../utils/timeUtils";
 
 const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
@@ -134,15 +142,15 @@ export class MoStore {
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];
       } = this.legOptionsReducer<LegOptionsDefIn>(
-        await API.getOptionLegsDefIn(),
+        await API.getOptionLegsDefIn()
       );
       const outDefs: {
         [strategy: string]: LegOptionsDefOut[];
       } = this.legOptionsReducer<LegOptionsDefOut>(
-        await API.getOptionLegsDefOut(),
+        await API.getOptionLegsDefOut()
       );
       const keys: string[] = Array.from(
-        new Set<string>([...Object.keys(inDefs), ...Object.keys(outDefs)]),
+        new Set<string>([...Object.keys(inDefs), ...Object.keys(outDefs)])
       );
       this.legDefinitions = keys.reduce(
         (
@@ -152,7 +160,7 @@ export class MoStore {
               out: LegOptionsDefOut[];
             };
           },
-          key: string,
+          key: string
         ): {
           [strategy: string]: {
             in: LegOptionsDefIn[];
@@ -167,7 +175,7 @@ export class MoStore {
             },
           };
         },
-        {},
+        {}
       );
       setTimeout(() => {
         this.setProgress(100);
@@ -202,7 +210,7 @@ export class MoStore {
       (strategies: StrategyMap, next: MOStrategy): StrategyMap => {
         return { ...strategies, [next.productid]: next };
       },
-      {},
+      {}
     );
     this.increaseProgress();
   }
@@ -234,16 +242,16 @@ export class MoStore {
           ...accum,
           ...next,
         ],
-        [],
+        []
       )
       .reduce(
         (
           map: { [p: string]: BankEntity },
-          entity: BankEntity,
+          entity: BankEntity
         ): {
           [p: string]: BankEntity;
         } => ({ ...map, [entity.code]: entity }),
-        {},
+        {}
       );
     this.increaseProgress();
   }
@@ -255,7 +263,7 @@ export class MoStore {
   }
 
   private legOptionsReducer<T extends LegOptionsDefIn | LegOptionsDefOut>(
-    array: any[],
+    array: any[]
   ): { [id: string]: T[] } {
     return array.reduce((groups: { [strategy: string]: T[] }, option: T) => {
       const key: string = option.productid;
@@ -294,7 +302,7 @@ export class MoStore {
     const deals: Deal[] = await API.getDeals();
     this.deals = deals.sort(
       ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
-        d2.getTime() - d1.getTime(),
+        d2.getTime() - d1.getTime()
     );
     this.increaseProgress();
   }
@@ -303,7 +311,7 @@ export class MoStore {
   public setLegs(
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null,
-    reset = false,
+    reset = false
   ): void {
     this.summaryLeg = summaryLeg;
     this.legs = legs.slice();
@@ -323,7 +331,7 @@ export class MoStore {
     const model: InternalValuationModel | undefined = models.find(
       (model: InternalValuationModel): boolean => {
         return model.ValuationModelID === id;
-      },
+      }
     );
     if (model === undefined) throw new Error("cannot find the valuation model");
     return {
@@ -364,11 +372,11 @@ export class MoStore {
             entry,
             leg,
             symbol,
-            index,
+            index
           );
           return { ...leg, ...newFields };
-        },
-      ),
+        }
+      )
     );
   }
 
@@ -388,7 +396,7 @@ export class MoStore {
     // Search all system symbols
     const { symbols } = workareaStore;
     const found: Symbol | undefined = symbols.find(
-      (symbol: Symbol) => symbol.symbolID === currencyPair,
+      (symbol: Symbol) => symbol.symbolID === currencyPair
     );
     if (found !== undefined) {
       return found;
@@ -468,24 +476,36 @@ export class MoStore {
   }
 
   private static async resolveDatesIfNeeded(
-    entry: DealEntry,
+    entry: DealEntry
   ): Promise<DealEntry> {
-    const { tenor1, tenor2 } = entry;
-    const tenor = await deriveTenor(
-      entry.symbol,
-      tenor1.name,
-      entry.tradeDate,
-    );
-    if (tenor === null) throw new Error("we need at least one tenor");
-    const spotDate: Date = tenor.spotDate !== undefined ? tenor.spotDate : entry.spotDate;
+    const { tenor1, tenor2, symbol } = entry;
+    const dates: CalendarVolDatesResponse = await API.queryVolDates({
+      Tenors: [tenor1.name, ...(!!tenor2 ? [tenor2.name] : [])],
+      fxPair: symbol.symbolID,
+      addHolidays: true,
+      rollExpiryDates: true,
+      tradeDate: toUTC(entry.tradeDate, true),
+    });
+    const spotDate: Date = forceParseDate(dates.SpotDate);
+    const tradeDate: Date = forceParseDate(dates.TradeDate);
     return {
       ...entry,
-      tenor1: tenor,
-      tenor2: tenor2
-        ? await deriveTenor(entry.symbol, tenor2.name, entry.tradeDate)
+      tenor1: {
+        name: tenor1.name,
+        deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+        expiryDate: forceParseDate(dates.ExpiryDates[0]),
+      },
+      tenor2: !!tenor2
+        ? {
+            name: tenor2.name,
+            deliveryDate: forceParseDate(dates.DeliveryDates[1]),
+            expiryDate: forceParseDate(dates.ExpiryDates[1]),
+          }
         : null,
+      horizonDateUTC: dates.HorizonDateUTC,
       premiumDate: spotDate,
       spotDate: spotDate,
+      tradeDate: tradeDate,
     };
   }
 
@@ -500,13 +520,13 @@ export class MoStore {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
       this.isEditMode = false;
-      this.entry = createDealEntry(deal);
+      const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
-      MoStore.resolveDatesIfNeeded(this.entry).then(
-        (newEntry: DealEntry): void => {
-          this.setEntry(newEntry);
-        },
-      );
+      MoStore.resolveDatesIfNeeded(entry).then((newEntry: DealEntry): void => {
+        // This is mandatory or `this' would not be perfectly
+        // specified and defined
+        this.setEntry(newEntry);
+      });
     }
     // This is because we are going to load the legs as soon
     // as this method returns because we're going to use the
@@ -562,7 +582,7 @@ export class MoStore {
     const { entry } = this;
     const strategy: MOStrategy | undefined = resolveStrategyDispute(
       partial,
-      entry,
+      entry
     );
     const not1: number | null =
       partial.not1 !== undefined ? partial.not1 : entry.not1;
@@ -708,7 +728,7 @@ export class MoStore {
   public async addDeal(deal: Deal): Promise<void> {
     const { deals } = this;
     const index: number = deals.findIndex(
-      (each: Deal): boolean => each.id === deal.id,
+      (each: Deal): boolean => each.id === deal.id
     );
     const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
@@ -746,7 +766,7 @@ export class MoStore {
     if (entry.strategy === undefined) throw new Error("invalid deal found");
     if (entry.model === "") throw new Error("node model specified");
     const valuationModel: ValuationModel = this.getValuationModelById(
-      entry.model as number,
+      entry.model as number
     );
     const { strategy } = entry;
     // Set the status to pricing to show a loading spinner
@@ -757,8 +777,8 @@ export class MoStore {
       this.legs,
       this.summaryLeg,
       valuationModel,
-      strategy,
-      )
+      strategy
+    )
       .then(() => {
         setTimeout(() => {
           this.setSoftError(SOFT_PRICING_ERROR);

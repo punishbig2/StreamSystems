@@ -1,6 +1,5 @@
 import { Grid } from "@material-ui/core";
 import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
-import { Field } from "components/MiddleOffice/DealEntryForm/field";
 import originalFields from "components/MiddleOffice/DealEntryForm/fields";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
@@ -9,6 +8,7 @@ import { FieldDef } from "forms/fieldDef";
 import { MoStore } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "structures/dealEntry";
+import { Field } from "./field";
 
 interface Props {
   readonly entryType: EntryType;
@@ -107,6 +107,7 @@ export const DealEntryForm: React.FC<Props> = (
                 />
               )
             )}
+            ;
           </fieldset>
         </Grid>
       </Grid>
