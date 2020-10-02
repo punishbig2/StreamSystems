@@ -1,14 +1,18 @@
 import { Grid } from "@material-ui/core";
 import { BrokerSection } from "components/MiddleOffice/SummaryLegDetailsForm/brokerSection";
 import { DealOutputSection } from "components/MiddleOffice/SummaryLegDetailsForm/dealOutputSection";
-import { fieldMapper } from "components/MiddleOffice/SummaryLegDetailsForm/fieldMapper";
-import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
+import {
+  fields,
+  IsEditableData,
+} from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { Commission } from "components/MiddleOffice/types/deal";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { NoDataMessage } from "components/noDataMessage";
 import moStore, { MoStatus } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useState } from "react";
 import { DealEntry } from "structures/dealEntry";
+import { FieldDef } from "../../../forms/fieldDef";
+import { Field } from "./field";
 
 interface Props {
   readonly dealEntry: DealEntry;
@@ -54,12 +58,17 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
           <Grid alignItems={"stretch"} container item>
             <fieldset className={"group"} disabled={disabled}>
               {fields.map(
-                fieldMapper(
-                  {
-                    entry: props.dealEntry,
-                    isEditMode: props.isEditMode,
-                  },
-                  summaryLeg
+                (
+                  field: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>,
+                  index: number
+                ): ReactElement => (
+                  <Field
+                    key={field.name + index}
+                    field={field}
+                    summaryLeg={summaryLeg}
+                    dealEntry={props.dealEntry}
+                    isEditMode={props.isEditMode}
+                  />
                 )
               )}
             </fieldset>

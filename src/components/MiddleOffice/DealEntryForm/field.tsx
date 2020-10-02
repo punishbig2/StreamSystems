@@ -4,7 +4,10 @@ import moStore, { MoStatus, MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
-import { deriveTenor } from "utils/tenorUtils";
+import { API } from "../../../API";
+import { CalendarVolDatesResponse } from "../../../types/calendarFXPair";
+import { SPECIFIC_TENOR } from "../../../utils/tenorUtils";
+import { addToDate, forceParseDate, toUTC } from "../../../utils/timeUtils";
 import { EditableCondition } from "../types/moStrategy";
 
 export interface DealEntryEditInterface {
@@ -12,20 +15,24 @@ export interface DealEntryEditInterface {
   readonly setWorking: (field: keyof DealEntry | null) => void;
 }
 
-export const fieldMapper = (
-  editor: DealEntryEditInterface,
-  entry: DealEntry
-) => (
-  fieldDef: FieldDef<DealEntry, MoStore, DealEntry>,
-  index: number
-): ReactElement | null => {
-  const { transformData, dataSource, ...field } = fieldDef;
+interface Props {
+  readonly field: FieldDef<DealEntry, MoStore, DealEntry>;
+  readonly dealEntry: DealEntry;
+  readonly index: number;
+  readonly onUpdateEntry: (entry: Partial<DealEntry>) => Promise<void>;
+  readonly onSetWorking: (name: keyof DealEntry | null) => void;
+}
+
+export const Field: React.FC<Props> = (props: Props): ReactElement | null => {
+  const { dealEntry } = props;
+  const { transformData, dataSource, ...field } = props.field;
+  // FIXME: this should be a little bit better (no access ot moStore from here)
   const source: any = !!dataSource ? moStore[dataSource] : undefined;
   const dropdownData: DropdownItem[] = !!transformData
-    ? transformData(source, entry)
+    ? transformData(source, dealEntry)
     : [];
   const editableCondition: EditableCondition = (() => {
-    const { strategy } = entry;
+    const { strategy } = dealEntry;
     if (strategy !== undefined && strategy.fields !== undefined) {
       const { f1 } = strategy.fields;
       return f1[field.name];
@@ -63,31 +70,60 @@ export const fieldMapper = (
       return rawValue;
     }
   };
-  const value: any = getValue(!!entry ? entry[field.name] : null, false);
+  const value: any = getValue(
+    !!dealEntry ? dealEntry[field.name] : null,
+    false
+  );
   const onTenorChange = async (
     name: keyof DealEntry,
     value: string | Date
   ): Promise<void> => {
-    const tenor = await deriveTenor(entry.symbol, value, entry.tradeDate);
-    const spotDate: Date | undefined = name === "tenor1" ? tenor.spotDate : undefined;
-    return editor.updateEntry({
-      [name]: tenor,
-      premiumDate: spotDate,
-      spotDate: spotDate,
-    });
+    const { symbol } = dealEntry;
+    if (typeof value === "string") {
+      const dates: CalendarVolDatesResponse = await API.queryVolDates({
+        Tenors: [value],
+        tradeDate: toUTC(dealEntry.tradeDate, true),
+        fxPair: symbol.symbolID,
+        addHolidays: true,
+        rollExpiryDates: true,
+      });
+      return props.onUpdateEntry({
+        [name]: {
+          name: value,
+          deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+          expiryDate: forceParseDate(dates.ExpiryDates[0]),
+        },
+        // If it's tenor 2 it does not affect deal level spot/premium dates
+        // otherwise it does
+        ...(field.name === "tenor1"
+          ? {
+              spotDate: forceParseDate(dates.SpotDate),
+              premiumDate: forceParseDate(dates.SpotDate),
+            }
+          : {}),
+      });
+    } else {
+      return props.onUpdateEntry({
+        [name]: {
+          name: SPECIFIC_TENOR,
+          deliveryDate: addToDate(value, symbol.SettlementWindow, "d"),
+          expiryDate: value,
+        },
+      });
+    }
   };
   const onChange = (name: keyof DealEntry, value: any): void => {
     if (field.type === "tenor") {
-      editor.setWorking(name);
+      props.onSetWorking(name);
       // Execute and then stop the working mode
-      onTenorChange(name, value).finally(() => editor.setWorking(null));
+      onTenorChange(name, value).finally(() => props.onSetWorking(null));
     } else {
       const convertedValue: any = getValue(value, true);
       if (convertedValue === undefined) return;
-      editor.setWorking(name);
-      editor
-        .updateEntry({ [name]: convertedValue })
-        .finally(() => editor.setWorking(null));
+      props.onSetWorking(name);
+      props
+        .onUpdateEntry({ [name]: convertedValue })
+        .finally(() => props.onSetWorking(null));
     }
   };
   const isEditable = (
@@ -101,7 +137,7 @@ export const fieldMapper = (
       return false;
     } else {
       if (typeof fieldDef.editable === "function") {
-        return fieldDef.editable(fieldDef.data || dropdownData, entry);
+        return fieldDef.editable(fieldDef.data || dropdownData, dealEntry);
       } else {
         return fieldDef.editable;
       }
@@ -109,12 +145,12 @@ export const fieldMapper = (
   };
   return (
     <FormField<DealEntry>
-      key={field.name + index}
+      key={field.name + props.index}
       {...field}
-      editable={isEditable(fieldDef)}
+      editable={isEditable(field)}
       dropdownData={dropdownData}
       value={value}
-      rounding={fieldDef.rounding}
+      rounding={field.rounding}
       onChange={onChange}
       disabled={moStore.status !== MoStatus.Normal}
     />

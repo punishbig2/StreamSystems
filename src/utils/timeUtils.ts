@@ -7,7 +7,7 @@ export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
   undefined,
   {
     timeZone: Globals.timezone || undefined,
-  },
+  }
 );
 
 export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -15,9 +15,9 @@ export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
   {
     timeZone: Globals.timezone || undefined,
     year: "numeric",
-    month: "numeric",
-    day: "numeric",
-  },
+    month: "2-digit",
+    day: "2-digit",
+  }
 );
 
 export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -26,7 +26,7 @@ export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
     timeZone: Globals.timezone || undefined,
     hour: "numeric",
     minute: "numeric",
-  },
+  }
 );
 
 export const parser = {
@@ -46,8 +46,8 @@ export const parseTime = (date: string, tz: string | null): Date => {
       Number(match[3]),
       Number(match[4]),
       Number(match[5]),
-      Number(match[6]),
-    ),
+      Number(match[6])
+    )
   );
 };
 
@@ -62,10 +62,7 @@ export const toUTCFIXFormat = (date: Date): string => {
   return utc.format(FIX_DATE_FORMAT);
 };
 
-export const forceParseDate = (
-  value: string | null | undefined,
-): Date | undefined => {
-  if (value === null || value === undefined || value === "") return undefined;
+export const forceParseDate = (value: string): Date => {
   if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
     if (!m.isValid()) {
@@ -89,7 +86,7 @@ export const currentTimestampFIXFormat = (): string => {
 export const addToDate = (
   date: Date,
   value: number,
-  units: moment.DurationInputArg2,
+  units: moment.DurationInputArg2
 ): Date => {
   const asMoment: moment.Moment = moment(date);
   const newMoment: moment.Moment = asMoment.add(value, units);
@@ -97,7 +94,12 @@ export const addToDate = (
 };
 
 const zeroPad = (value: number, length: number): string => {
-  return value.toString().padStart(length, "0");
+  const str: string = value.toString();
+  if (typeof str.padStart === "function") {
+    return str.padStart(length, "0");
+  } else {
+    throw new Error("you are using an old browser");
+  }
 };
 
 export const toUTC = (date: Date, dateOnly: boolean = false): string => {
@@ -105,7 +107,10 @@ export const toUTC = (date: Date, dateOnly: boolean = false): string => {
     return "";
   }
   if (dateOnly) {
-    return `${date.getUTCFullYear()}-${zeroPad(date.getUTCMonth(), 2)}-${zeroPad(date.getUTCDate(), 2)}`;
+    return `${date.getUTCFullYear()}-${zeroPad(
+      date.getUTCMonth() + 1,
+      2
+    )}-${zeroPad(date.getUTCDate(), 2)}`;
   }
   return date.toISOString();
 };
@@ -137,8 +142,13 @@ export const tenorToDuration = (value: string): TenorDuration => {
   }
 };
 
-export const tenorToDateString = (tenor: string): string => {
+export const tenorToDate = (tenor: string): Date => {
   const duration: TenorDuration = tenorToDuration(tenor);
   const when: moment.Moment = moment().add(duration.count, duration.unit);
-  return when.format("YYYY-MM-DD");
+  return when.toDate();
+};
+
+export const tenorToDateString = (tenor: string): string => {
+  const date: Date = tenorToDate(tenor);
+  return toUTC(date, true);
 };

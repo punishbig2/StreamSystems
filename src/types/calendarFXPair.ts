@@ -17,6 +17,7 @@ export interface CalendarVolDatesQuery {
   fxPair: string;
   rollExpiryDates: boolean;
   addHolidays: boolean;
+  Tenors: string[];
 }
 
 export interface CalendarFXTenorsResponse {
@@ -31,7 +32,7 @@ export interface CalendarFXTenorsResponse {
   Holidays: string[];
 }
 
-export interface TemporaryResponse {
+export interface CalendarVolDatesResponse {
   Status: "OK" | "ERROR";
   TimeStamp: number;
   TradeDate: string;
@@ -40,7 +41,8 @@ export interface TemporaryResponse {
   Tenors: string[];
   ExpiryDates: string[];
   DeliveryDates: string[];
+  ExpiryDatesUTC: string[];
+  DeliveryDatesUTC: string[];
   SpotDate: string;
-  SettleDates: string[];
   Holidays: string[];
 }

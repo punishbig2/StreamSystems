@@ -4,10 +4,17 @@ import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
+import { DealEntry } from "../../../structures/dealEntry";
 
-export const fieldMapper = (data: IsEditableData, entry: SummaryLeg) => (
-  fieldDef: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>,
-): ReactElement | null => {
+interface Props {
+  field: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>;
+  summaryLeg: SummaryLeg;
+  dealEntry: DealEntry;
+  isEditMode: boolean;
+}
+
+export const Field: React.FC<Props> = (props: Props): ReactElement => {
+  const { field: fieldDef, summaryLeg: entry } = props;
   const getValue = (): number | string | Date => {
     if (fieldDef.name === "dealOutput")
       throw new Error("this is not a normal value, cannot display it");
@@ -26,7 +33,13 @@ export const fieldMapper = (data: IsEditableData, entry: SummaryLeg) => (
   };
   const isEditable = (): boolean => {
     if (typeof fieldDef.editable === "function") {
-      return fieldDef.editable(data, entry);
+      return fieldDef.editable(
+        {
+          dealEntry: props.dealEntry,
+          isEditMode: props.isEditMode,
+        },
+        entry
+      );
     } else {
       return fieldDef.editable;
     }

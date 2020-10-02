@@ -5,7 +5,7 @@ import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 
 export interface IsEditableData {
-  entry: DealEntry;
+  dealEntry: DealEntry;
   isEditMode: boolean;
 }
 
@@ -14,7 +14,7 @@ const isEditable = (name: string) => (
   summaryLeg?: SummaryLeg
 ): boolean => {
   if (!moStore.isEditMode) return false;
-  const { strategy } = data.entry;
+  const { strategy } = data.dealEntry;
   if (strategy === undefined) return false;
   const { f1 } = strategy.fields;
   const editableCondition: EditableCondition = f1[name];

@@ -13,7 +13,12 @@ import { DealEntry, ServerDealQuery } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
-import { CalendarFXTenorsQuery, CalendarFXTenorsResponse, TemporaryResponse } from "types/calendarFXPair";
+import {
+  CalendarFXTenorsQuery,
+  CalendarFXTenorsResponse,
+  CalendarVolDatesQuery,
+  CalendarVolDatesResponse,
+} from "types/calendarFXPair";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import { CreateOrder, CreateOrderBulk, DarkPoolOrder, Order, OrderMessage } from "types/order";
@@ -32,7 +37,6 @@ import {
   resolveEntityToBank,
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
-import { deriveTenor } from "utils/tenorUtils";
 import { currentTimestampFIXFormat, tenorToDateString, toUTC, toUTCFIXFormat } from "utils/timeUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
@@ -236,7 +240,6 @@ type Endpoints =
 
 type Verb =
   | "get"
-  | "create"
   | "cancel"
   | "modify"
   | "cxl"
@@ -749,11 +752,8 @@ export class API {
           index === 1 ? entry.not2 : entry.not1,
           entry.not1,
         );
-        const { expiryDate, deliveryDate } = await deriveTenor(
-          symbol,
-          tenor.name,
-          tradeDate,
-        );
+        // We know that the tenor has valid dates now
+        const { expiryDate, deliveryDate } = tenor;
         if (deliveryDate === undefined)
           throw new Error("bad tenor for leg " + index);
         return {
@@ -778,6 +778,9 @@ export class API {
     if (entry.spotDate === null) {
       throw new Error("entry does not have spot date");
     }
+    if (entry.horizonDateUTC === undefined) {
+      throw new Error("for some reason horizonDateUTC was not set");
+    }
     const request: VolMessageIn = {
       id: entry.dealID,
       Option: {
@@ -792,7 +795,8 @@ export class API {
         OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
-        valuationDate: toUTC(new Date()),
+        valuationDate: entry.horizonDateUTC,
+        valuationDateUTC: entry.horizonDateUTC,
         VOL: {
           ccyPair: ccyPair,
           premiumAdjustDelta: symbol.premiumAdjustDelta,
@@ -1014,37 +1018,30 @@ export class API {
     return task.execute();
   }
 
-  public static async calendarFxPair(
+  public static async queryFxTenorsDates(
     query: CalendarFXTenorsQuery,
-  ): Promise<TemporaryResponse> {
-    const url: string = config.VolServer + "/api/calendar/fxpair";
-    const task1: Task<CalendarFXTenorsResponse> = post<CalendarFXTenorsResponse>(
-      url + "/fx/tenors",
+  ): Promise<CalendarFXTenorsResponse> {
+    const url: string = config.VolServer + "/api/calendar/fxpair/fx/tenors";
+    const task: Task<CalendarFXTenorsResponse> = post<CalendarFXTenorsResponse>(
+      url,
       query,
     );
+    return task.execute();
+  }
+
+  public static async queryVolDates(
+    query: CalendarVolDatesQuery,
+  ): Promise<CalendarVolDatesResponse> {
     const { Tenors } = query;
-    const task2: Task<TemporaryResponse> = post<TemporaryResponse>(
-      url + "/vol/dates",
+    const url: string = config.VolServer + "/api/calendar/fxpair/vol/dates";
+    const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
+      url,
       {
         ...query,
         ExpiryDates: Tenors.map(tenorToDateString),
         rollExpiryDates: true,
       },
     );
-    const tenors: CalendarFXTenorsResponse = await task1.execute();
-    const dates: TemporaryResponse = await task2.execute();
-    return {
-      Status: "OK",
-      TimeStamp: tenors.TimeStamp,
-      TradeDate: tenors.TradeDate,
-      HorizonDate: tenors.HorizonDate,
-      HorizonDateUTC: tenors.HorizonDateUTC,
-      Tenors: tenors.Tenors,
-      ExpiryDates: dates.ExpiryDates,
-      DeliveryDates: dates.DeliveryDates,
-      SpotDate: tenors.SpotDate,
-      SettleDates: tenors.SettleDates,
-      Holidays: tenors.Holidays,
-    };
+    return task.execute();
   }
 }

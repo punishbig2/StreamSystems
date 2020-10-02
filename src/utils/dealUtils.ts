@@ -18,8 +18,7 @@ import {
   addToDate,
   forceParseDate,
   parseTime,
-  TenorDuration,
-  tenorToDuration,
+  tenorToDate,
 } from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
@@ -89,21 +88,24 @@ const getSpread = (item: any): number | null => getSpreadOrVol(item, "spread");
 const getVol = (item: any): number | null => getSpreadOrVol(item, "vol");
 
 const partialTenor = (
+  symbol: Symbol,
   name: string | undefined,
-  expiryDate: string | undefined,
-  tradeDate: Date
+  expiryDate: string
 ): Tenor | null => {
   if (name === undefined) return null;
-  const date: Date | undefined = forceParseDate(expiryDate);
+  const date: Date =
+    expiryDate === "" ? new Date() : forceParseDate(expiryDate);
   if (date === undefined) {
-    const duration: TenorDuration = tenorToDuration(name);
+    const expiry: Date = tenorToDate(name);
     return {
       name: name,
-      expiryDate: addToDate(tradeDate, duration.count, duration.unit),
+      deliveryDate: addToDate(expiry, symbol.SettlementWindow, "d"),
+      expiryDate: expiry,
     };
   } else {
     return {
       name: name,
+      deliveryDate: addToDate(date, symbol.SettlementWindow, "d"),
       expiryDate: date,
     };
   }
@@ -120,14 +122,18 @@ export const createDealFromBackendMessage = async (
     getDefaultStrikeForStrategy(object.strategy)
   );
   const tenor1: Tenor | null = partialTenor(
+    symbol,
     object.tenor,
-    object.expirydate,
-    tradeDate
+    object.expirydate
   );
   if (tenor1 === null) {
-    console.warn(object);
     throw new Error("invalid backend message for deal, missing tenor");
   }
+  const tenor2: Tenor | null = partialTenor(
+    symbol,
+    object.tenor1,
+    object.expirydate1
+  );
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
@@ -139,10 +145,10 @@ export const createDealFromBackendMessage = async (
     notional2: object.notional1 === null ? null : Number(object.notional1),
     strategy: object.strategy,
     currencyPair: object.symbol,
-    tenor1: object.tenor,
-    expiryDate1: forceParseDate(object.expirydate)!,
-    tenor2: object.tenor1,
-    expiryDate2: forceParseDate(object.expirydate1),
+    tenor1: tenor1.name,
+    expiryDate1: tenor1.expiryDate,
+    tenor2: !!tenor2 ? tenor2.name : undefined,
+    expiryDate2: !!tenor2 ? tenor2.expiryDate : undefined,
     tradeDate: tradeDate,
     spotDate: new Date(),
     premiumDate: new Date(),
@@ -204,12 +210,18 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     style: "European",
     tenor1: {
       name: deal.tenor1,
+      deliveryDate: addToDate(deal.expiryDate1, symbol.SettlementWindow, "d"),
       expiryDate: deal.expiryDate1,
     },
     tenor2:
       deal.tenor2 !== undefined && deal.expiryDate2 !== undefined
         ? {
             name: deal.tenor2,
+            deliveryDate: addToDate(
+              deal.expiryDate2,
+              symbol.SettlementWindow,
+              "d"
+            ),
             expiryDate: deal.expiryDate2,
           }
         : null,

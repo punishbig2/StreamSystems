@@ -2,8 +2,15 @@ import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn, LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, MOStrategy, StrategyMap } from "components/MiddleOffice/types/moStrategy";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
+import {
+  InvalidStrategy,
+  MOStrategy,
+  StrategyMap,
+} from "components/MiddleOffice/types/moStrategy";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
@@ -15,12 +22,12 @@ import { toast, ToastType } from "toast";
 import { BankEntity } from "types/bankEntity";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
-import { Tenor } from "types/tenor";
 import { coalesce } from "utils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
-import { deriveTenor } from "utils/tenorUtils";
+import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
+import { forceParseDate, toUTC } from "../../utils/timeUtils";
 
 const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
@@ -430,6 +437,7 @@ export class MoStore {
   public updateSummaryLeg(fieldName: string, value: any): void {
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
   }
+
   @computed
   public get isModified(): boolean {
     return this.isEditMode;
@@ -465,20 +473,34 @@ export class MoStore {
   private static async resolveDatesIfNeeded(
     entry: DealEntry
   ): Promise<DealEntry> {
-    const { tenor1, tenor2 } = entry;
-    const resolvedTenor1: Tenor = await deriveTenor(entry.symbol, tenor1.name, entry.tradeDate);
-    if (resolvedTenor1.spotDate === undefined) {
-      console.warn("please be careful, the tenor was not resolved correctly")
-      return entry;
-    }
+    const { tenor1, tenor2, symbol } = entry;
+    const dates: CalendarVolDatesResponse = await API.queryVolDates({
+      Tenors: [tenor1.name, ...(!!tenor2 ? [tenor2.name] : [])],
+      fxPair: symbol.symbolID,
+      addHolidays: true,
+      rollExpiryDates: true,
+      tradeDate: toUTC(entry.tradeDate, true),
+    });
+    const spotDate: Date = forceParseDate(dates.SpotDate);
+    const tradeDate: Date = forceParseDate(dates.TradeDate);
     return {
       ...entry,
-      tenor1: resolvedTenor1,
-      tenor2: tenor2
-        ? await deriveTenor(entry.symbol, tenor2.name, entry.tradeDate)
+      tenor1: {
+        name: tenor1.name,
+        deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+        expiryDate: forceParseDate(dates.ExpiryDates[0]),
+      },
+      tenor2: !!tenor2
+        ? {
+            name: tenor2.name,
+            deliveryDate: forceParseDate(dates.DeliveryDates[1]),
+            expiryDate: forceParseDate(dates.ExpiryDates[1]),
+          }
         : null,
-      premiumDate: resolvedTenor1.spotDate,
-      spotDate: resolvedTenor1.spotDate,
+      horizonDateUTC: dates.HorizonDateUTC,
+      premiumDate: spotDate,
+      spotDate: spotDate,
+      tradeDate: tradeDate,
     };
   }
 
@@ -493,13 +515,11 @@ export class MoStore {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
       this.isEditMode = false;
-      this.entry = createDealEntry(deal);
+      const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
-      MoStore.resolveDatesIfNeeded(this.entry).then(
-        (newEntry: DealEntry): void => {
-          this.setEntry(newEntry);
-        }
-      );
+      MoStore.resolveDatesIfNeeded(entry).then((newEntry: DealEntry): void => {
+        this.setEntry(newEntry);
+      });
     }
     // This is because we are going to load the legs as soon
     // as this method returns because we're going to use the

@@ -50,6 +50,7 @@ export interface DealEntry {
   readonly spotDate: Date;
   readonly premiumDate: Date;
   readonly tradeDate: Date;
+  readonly horizonDateUTC?: string;
 
   readonly type: EntryType;
   readonly dealType: DealType;
@@ -84,7 +85,6 @@ export const emptyDealEntry: DealEntry = {
   tenor1: {
     expiryDate: null,
     deliveryDate: null,
-    spotDate: null,
     name: "",
   },
   tenor2: null,

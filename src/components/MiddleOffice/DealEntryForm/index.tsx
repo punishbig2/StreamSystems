@@ -1,6 +1,5 @@
 import { Grid } from "@material-ui/core";
 import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
-import { fieldMapper } from "components/MiddleOffice/DealEntryForm/fieldMapper";
 import originalFields from "components/MiddleOffice/DealEntryForm/fields";
 import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
@@ -9,6 +8,7 @@ import { FieldDef } from "forms/fieldDef";
 import { MoStatus, MoStore } from "mobx/stores/moStore";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "structures/dealEntry";
+import { Field } from "./field";
 
 interface Props {
   readonly entryType: EntryType;
@@ -91,14 +91,21 @@ export const DealEntryForm: React.FC<Props> = (
             disabled={props.status !== MoStatus.Normal}
           >
             {fields.map(
-              fieldMapper(
-                {
-                  updateEntry: props.onUpdateEntry,
-                  setWorking: props.onSetWorking,
-                },
-                entry
+              (
+                field: FieldDef<DealEntry, MoStore, DealEntry>,
+                index: number
+              ): ReactElement => (
+                <Field
+                  key={field.name + index}
+                  field={field}
+                  index={index}
+                  onUpdateEntry={props.onUpdateEntry}
+                  onSetWorking={props.onSetWorking}
+                  dealEntry={entry}
+                />
               )
             )}
+            ;
           </fieldset>
         </Grid>
       </Grid>
