@@ -268,9 +268,9 @@ const populateExistingDealLegsAndInstallListener = (
 export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
   useEffect(() => {
     if (entry.dealID === "") {
-      createDefaultLegsFromDeal(cuts, entry);
+      return createDefaultLegsFromDeal(cuts, entry);
     } else {
-      populateExistingDealLegsAndInstallListener(cuts, entry);
+      return populateExistingDealLegsAndInstallListener(cuts, entry);
     }
   }, [cuts, entry]);
 };
