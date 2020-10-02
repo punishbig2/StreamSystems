@@ -459,6 +459,7 @@ export class MoStore {
     if (entry.strategy === InvalidStrategy) return false;
     if (entry.buyer === "") return false;
     if (entry.seller === "") return false;
+    if (entry.buyer === entry.seller) return false;
     if (entry.model === "") return false;
     if (entry.tenor1 === null) return false;
     if (entry.premstyle === "") return false;

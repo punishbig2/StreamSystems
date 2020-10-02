@@ -1,5 +1,5 @@
 import { API } from "API";
-import { CalendarFXPairResponse } from "types/calendarFXPair";
+import { TemporaryResponse } from "types/calendarFXPair";
 import { PodRow } from "types/podRow";
 import { Symbol } from "types/symbol";
 import { Tenor } from "types/tenor";
@@ -37,11 +37,11 @@ export const resolveDealDates = async (
     return calculateDates(symbol, tenor, trade);
   }
   try {
-    const result: CalendarFXPairResponse = await API.calendarFxPair({
-      Type: "VOL",
-      tradeDate: toUTC(trade),
+    const result: TemporaryResponse = await API.calendarFxPair({
+      tradeDate: toUTC(trade, true),
       fxPair: symbol.symbolID,
       Tenors: [tenor],
+      addHolidays: true,
     });
     const spot: Date | undefined = forceParseDate(result.SpotDate);
     const delivery: Date | undefined = forceParseDate(result.DeliveryDates[0]);

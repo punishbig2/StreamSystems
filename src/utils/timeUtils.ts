@@ -7,7 +7,7 @@ export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
   undefined,
   {
     timeZone: Globals.timezone || undefined,
-  }
+  },
 );
 
 export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -17,7 +17,7 @@ export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
     year: "numeric",
     month: "numeric",
     day: "numeric",
-  }
+  },
 );
 
 export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
@@ -26,7 +26,7 @@ export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
     timeZone: Globals.timezone || undefined,
     hour: "numeric",
     minute: "numeric",
-  }
+  },
 );
 
 export const parser = {
@@ -46,8 +46,8 @@ export const parseTime = (date: string, tz: string | null): Date => {
       Number(match[3]),
       Number(match[4]),
       Number(match[5]),
-      Number(match[6])
-    )
+      Number(match[6]),
+    ),
   );
 };
 
@@ -63,7 +63,7 @@ export const toUTCFIXFormat = (date: Date): string => {
 };
 
 export const forceParseDate = (
-  value: string | null | undefined
+  value: string | null | undefined,
 ): Date | undefined => {
   if (value === null || value === undefined || value === "") return undefined;
   if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
@@ -89,17 +89,23 @@ export const currentTimestampFIXFormat = (): string => {
 export const addToDate = (
   date: Date,
   value: number,
-  units: moment.DurationInputArg2
+  units: moment.DurationInputArg2,
 ): Date => {
   const asMoment: moment.Moment = moment(date);
   const newMoment: moment.Moment = asMoment.add(value, units);
   return newMoment.toDate();
 };
 
-export const toUTC = (date: Date): string => {
+const zeroPad = (value: number, length: number): string => {
+  return value.toString().padStart(length, "0");
+};
+
+export const toUTC = (date: Date, dateOnly: boolean = false): string => {
   if (typeof date.toISOString !== "function") {
-    console.warn(date);
     return "";
+  }
+  if (dateOnly) {
+    return `${date.getUTCFullYear()}-${zeroPad(date.getUTCMonth(), 2)}-${zeroPad(date.getUTCDate(), 2)}`;
   }
   return date.toISOString();
 };
@@ -129,4 +135,10 @@ export const tenorToDuration = (value: string): TenorDuration => {
       unit: match[2] as moment.DurationInputArg2,
     };
   }
+};
+
+export const tenorToDateString = (tenor: string): string => {
+  const duration: TenorDuration = tenorToDuration(tenor);
+  const when: moment.Moment = moment().add(duration.count, duration.unit);
+  return when.format("YYYY-MM-DD");
 };
