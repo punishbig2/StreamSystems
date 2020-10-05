@@ -351,7 +351,9 @@ export class SignalRManager {
     });
     const key: string = $$(symbol, strategy, tenor);
     if (index === -1) {
-      console.warn(`command does not exist, cannot remove it`);
+      console.warn(
+        `command ${symbol} ${strategy} ${tenor} does not exist, cannot remove it`
+      );
     } else {
       const command: Command = recordedCommands[index];
       if (--command.refCount === 1) {

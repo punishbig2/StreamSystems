@@ -186,7 +186,7 @@ export class Order {
     // Update fields not in the constructor
     const execInstNames: { [execInst: string]: string } = {
       G: "AON",
-      D: "1/2",
+      D: "1/2 ON",
     };
     if (entry.ExecInst !== undefined) {
       order.instruction = execInstNames[entry.ExecInst];

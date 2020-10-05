@@ -6,10 +6,10 @@ import { PodTileStore } from "mobx/stores/podTileStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { STRM } from "stateDefs/workspaceState";
+import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 import { isCCYPair, isRRStrategy } from "utils/isInEnum";
-import { Strategy } from "types/strategy";
 
 interface Props {
   readonly store: PodTileStore;
@@ -36,6 +36,7 @@ export const PodTileTitle: React.FC<Props> = observer(
     const user: User = workareaStore.user;
     const isRunButtonDisabled: boolean =
       !currency || !strategy || (personality === STRM && user.isbroker);
+    const { currencies, strategies } = props;
 
     return (
       <>
@@ -43,7 +44,7 @@ export const PodTileTitle: React.FC<Props> = observer(
           <Select
             value={currency}
             onChange={store.setCurrency}
-            list={props.currencies}
+            list={currencies.map((item: Symbol): { name: string } => ({ name: item.name }))}
             empty={"Currency"}
             searchable={true}
           />
@@ -52,7 +53,7 @@ export const PodTileTitle: React.FC<Props> = observer(
           <Select
             value={strategy}
             onChange={store.setStrategy}
-            list={props.strategies}
+            list={strategies.map((item: Strategy): { name: string } => ({ name: item.name }))}
             empty={"Strategy"}
           />
         </div>
@@ -64,5 +65,5 @@ export const PodTileTitle: React.FC<Props> = observer(
         </div>
       </>
     );
-  }
+  },
 );

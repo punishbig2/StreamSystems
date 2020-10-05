@@ -607,7 +607,6 @@ export class MoStore {
     // If the tenor changed get the dates, otherwise
     // we already have them
     await this.updateLegs(newEntry);
-    // Now that we're done
     this.setEntry(newEntry);
   }
 

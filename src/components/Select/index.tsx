@@ -1,10 +1,9 @@
-import { Symbol } from "types/symbol";
-import styles from "styles";
-import React, { useState, ReactElement, useEffect } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import styles from "styles";
 
 interface OwnProps {
-  list: ReadonlyArray<any>;
+  list: ReadonlyArray<{ name: string }>;
   value: any;
   empty?: string;
   searchable?: boolean;
@@ -19,7 +18,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [keyword, setKeyword] = useState<string>("");
   const [dropdown, setDropdown] = useState<HTMLUListElement | null>(null);
-  const [currentItem, setCurrentItem] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const onChange = (event: React.FormEvent<HTMLSelectElement>) => {
     const { currentTarget } = event;
@@ -28,6 +27,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   const showDropdown = (event: React.FormEvent<HTMLElement>) => {
     if (isDropdownVisible) return;
+    setKeyword("");
     event.preventDefault();
     event.stopPropagation();
     // Show the dropdown now
@@ -83,9 +83,10 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   }, [isDropdownVisible, dropdown]);
 
   useEffect(() => {
-    setCurrentItem(
-      list.findIndex((item: { name: string }) => item.name === value)
+    const index: number = list.findIndex(
+      (item: { name: string }) => item.name === value
     );
+    setSelectedIndex(index);
   }, [value, list]);
 
   const filtered: any[] = list.filter(({ name }: { name: string }) => {
@@ -116,21 +117,23 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       event.stopPropagation();
       switch (event.key) {
         case "ArrowUp":
-          if (currentItem === 0) {
-            setCurrentItem(filtered.length - 1);
+          if (selectedIndex === 0) {
+            setSelectedIndex(filtered.length - 1);
           } else {
-            setCurrentItem(currentItem - 1);
+            setSelectedIndex(selectedIndex - 1);
           }
           break;
         case "ArrowDown":
-          if (currentItem === filtered.length - 1) {
-            setCurrentItem(0);
+          if (selectedIndex === filtered.length - 1) {
+            setSelectedIndex(0);
           } else {
-            setCurrentItem(currentItem + 1);
+            setSelectedIndex(selectedIndex + 1);
           }
           break;
         case "Enter":
-          setSelectedItem(list[currentItem].name);
+          if (filtered[selectedIndex] !== undefined) {
+            setSelectedItem(filtered[selectedIndex].name);
+          }
           break;
         case "Escape":
           setDropdownVisible(false);
@@ -155,7 +158,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         <ul onMouseDownCapture={swallowMouse} ref={setDropdown}>
           {filtered.map((item: { name: string }, index: number) => {
             const classes = [];
-            if (currentItem === index) classes.push("selected");
+            if (selectedIndex === index) classes.push("selected");
             return (
               <li
                 key={item.name}
@@ -196,7 +199,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
             {props.empty}
           </option>
         ) : null}
-        {filtered.map((item: Symbol) => (
+        {filtered.map((item: { name: string }) => (
           <option key={item.name} value={item.name}>
             {item.name}
           </option>

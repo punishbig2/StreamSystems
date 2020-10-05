@@ -214,11 +214,16 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { props, state } = this;
     const { type } = props;
     if (type === "strike") {
-      this.handleStrikeTypeOnBlurEvent();
+      setTimeout(() => {
+        this.handleStrikeTypeOnBlurEvent();
+      }, 0);
     } else {
-      if (props.onChange) {
-        props.onChange(props.name, state.internalValue);
-      }
+      // Process the change focus event first please
+      setTimeout((): void => {
+        if (props.onChange) {
+          props.onChange(props.name, state.internalValue);
+        }
+      }, 0);
     }
   };
 

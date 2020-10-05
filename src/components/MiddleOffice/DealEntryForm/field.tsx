@@ -4,13 +4,7 @@ import { EditableCondition } from "components/MiddleOffice/types/moStrategy";
 import deepEqual from "deep-equal";
 import { FieldDef } from "forms/fieldDef";
 import moStore, { MoStore } from "mobx/stores/moStore";
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React from "react";
 import { DealEntry } from "structures/dealEntry";
 import { API } from "../../../API";
 import { CalendarVolDatesResponse } from "../../../types/calendarFXPair";
@@ -32,11 +26,11 @@ interface Props {
 }
 
 export const Field: React.FC<Props> = React.memo(
-  (props: Props): ReactElement => {
+  (props: Props): React.ReactElement => {
     const { field, entry, isEditMode } = props;
     const { transformData, dataSource } = field;
-    const [dropdownData, setDropdownData] = useState<any[]>([]);
-    useEffect(() => {
+    const [dropdownData, setDropdownData] = React.useState<any[]>([]);
+    React.useEffect(() => {
       if (!transformData) return;
       if (dataSource) {
         if (!moStore[dataSource]) return;
@@ -46,19 +40,24 @@ export const Field: React.FC<Props> = React.memo(
       }
     }, [dataSource, transformData, entry]);
     const { strategy } = entry;
-    const editableCondition: EditableCondition = useMemo(() => {
+    const editableCondition: EditableCondition = React.useMemo(() => {
       if (strategy !== undefined && strategy.fields !== undefined) {
         const { f1 } = strategy.fields;
         return f1[field.name];
       }
       return EditableCondition.None;
     }, [strategy, field]);
-    const rawValue: any = useMemo(() => entry[field.name], [entry, field]);
-    const value: any = useMemo(
+    const rawValue: any = React.useMemo(() => entry[field.name], [
+      entry,
+      field,
+    ]);
+    const value: any = React.useMemo(
       () => getValue(field, editableCondition, rawValue, false),
       [field, editableCondition, rawValue]
     );
-    const editable: boolean | undefined = useMemo((): boolean | undefined => {
+    const editable: boolean | undefined = React.useMemo(():
+      | boolean
+      | undefined => {
       if (!isEditMode) return false;
       if (
         editableCondition === EditableCondition.NotEditable ||
@@ -74,43 +73,42 @@ export const Field: React.FC<Props> = React.memo(
       }
     }, [field, isEditMode, dropdownData, entry, editableCondition]);
     const { onChangeStart, onChangeCompleted } = props;
-    const onTenorChange = useCallback(
-      (name: keyof DealEntry, value: string | Date): void => {
+    const onTenorChange = React.useCallback(
+      async (name: keyof DealEntry, value: string | Date): Promise<void> => {
         const { symbol } = entry;
         if (typeof value === "string") {
-          API.queryVolDates({
-            tradeDate: toUTC(entry.tradeDate, true),
-            fxPair: symbol.symbolID,
-            rollExpiryDates: true,
-            addHolidays: true,
-            Tenors: [value],
-          })
-            .then((dates: CalendarVolDatesResponse): void => {
-              const spotDate: Date = forceParseDate(dates.SpotDate);
-              onChangeCompleted({
-                [name]: {
-                  name: value,
-                  deliveryDate: forceParseDate(dates.DeliveryDates[0]),
-                  expiryDate: forceParseDate(dates.ExpiryDates[0]),
-                },
-                premiumDate: spotDate,
-                spotDate: spotDate,
-              });
-            })
-            .catch((): void => {
-              const expiryDate: Date = naiveTenorToDate(value);
-              onChangeCompleted({
-                [name]: {
-                  name: value,
-                  deliveryDate: addToDate(
-                    expiryDate,
-                    symbol.SettlementWindow,
-                    "d"
-                  ),
-                  expiryDate: expiryDate,
-                },
-              });
+          try {
+            const dates: CalendarVolDatesResponse = await API.queryVolDates({
+              tradeDate: toUTC(entry.tradeDate, true),
+              fxPair: symbol.symbolID,
+              rollExpiryDates: true,
+              addHolidays: true,
+              Tenors: [value],
             });
+            const spotDate: Date = forceParseDate(dates.SpotDate);
+            onChangeCompleted({
+              [name]: {
+                name: value,
+                deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+                expiryDate: forceParseDate(dates.ExpiryDates[0]),
+              },
+              premiumDate: spotDate,
+              spotDate: spotDate,
+            });
+          } catch {
+            const expiryDate: Date = naiveTenorToDate(value);
+            onChangeCompleted({
+              [name]: {
+                name: value,
+                deliveryDate: addToDate(
+                  expiryDate,
+                  symbol.SettlementWindow,
+                  "d"
+                ),
+                expiryDate: expiryDate,
+              },
+            });
+          }
         } else {
           onChangeCompleted({
             [name]: {
@@ -121,9 +119,9 @@ export const Field: React.FC<Props> = React.memo(
           });
         }
       },
-      [onChangeCompleted, entry]
+      [entry, onChangeCompleted]
     );
-    const onChange = useCallback(
+    const onChange = React.useCallback(
       async (name: keyof DealEntry, value: any): Promise<void> => {
         onChangeStart();
         if (field.type === "tenor") {
@@ -143,9 +141,9 @@ export const Field: React.FC<Props> = React.memo(
       [
         onChangeStart,
         onChangeCompleted,
+        onTenorChange,
         field,
         editableCondition,
-        onTenorChange,
       ]
     );
     return (
