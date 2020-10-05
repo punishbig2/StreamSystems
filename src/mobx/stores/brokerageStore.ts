@@ -21,7 +21,7 @@ export const convertToCommissionRatesArray = (
       (region: string): CommissionRate => {
         return {
           region: region,
-          value: response[region],
+          value: Number(response[region]),
         };
       }
     );
