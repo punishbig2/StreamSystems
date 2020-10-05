@@ -10,7 +10,6 @@ import { Validity } from "forms/validity";
 import React from "react";
 import { DecimalSeparator, toNumber } from "utils/isNumeric";
 import { roundToNearest } from "utils/roundToNearest";
-import { coalesce } from "../../utils";
 
 export interface NumericProps {
   value: any;
