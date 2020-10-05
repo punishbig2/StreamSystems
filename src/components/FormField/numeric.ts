@@ -14,6 +14,7 @@ import { roundToNearest } from "utils/roundToNearest";
 
 export interface NumericProps {
   value: any;
+  higherPrecision?: number;
   precision?: number;
   type: FieldType;
   currency?: string;

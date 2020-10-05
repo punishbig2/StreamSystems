@@ -107,7 +107,6 @@ export const DealEntryForm: React.FC<Props> = (
                 />
               )
             )}
-            ;
           </fieldset>
         </Grid>
       </Grid>
