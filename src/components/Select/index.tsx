@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import styles from "styles";
 
@@ -18,7 +18,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [keyword, setKeyword] = useState<string>("");
   const [dropdown, setDropdown] = useState<HTMLUListElement | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
   const onChange = (event: React.FormEvent<HTMLSelectElement>) => {
     const { currentTarget } = event;
@@ -83,22 +83,33 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   useEffect(() => {
     if (!isDropdownVisible) return;
-    const index: number = list.findIndex(
-      (item: { name: string }) => item.name === value
-    );
-    if (index === -1) {
-      setSelectedIndex(0);
-    } else {
-      setSelectedIndex(index);
-    }
+    setSelectedValue(value);
     setKeyword("");
   }, [isDropdownVisible, value, list]);
 
-  const filtered: any[] = list.filter(({ name }: { name: string }) => {
-    const lowerName: string = name.toLowerCase();
-    if (keyword.trim() === "") return true;
-    return lowerName.startsWith(keyword.toLowerCase());
-  });
+  const filtered: any[] = useMemo(
+    (): Array<{ name: string }> =>
+      list.filter(({ name }: { name: string }) => {
+        const lowerName: string = name.toLowerCase();
+        if (keyword.trim() === "") return true;
+        return lowerName.startsWith(keyword.toLowerCase());
+      }),
+    [list, keyword]
+  );
+
+  useEffect(() => {
+    const index: number = filtered.findIndex(
+      (item: { name: string }): boolean => item.name === selectedValue
+    );
+    if (index === -1) {
+      if (filtered.length === 0) return;
+      if (selectedValue === filtered[0].name) return;
+      setSelectedValue(filtered[0].name);
+    } else {
+      if (selectedValue === filtered[index].name) return;
+      setSelectedValue(filtered[index]);
+    }
+  }, [selectedValue, filtered]);
 
   const onSearchChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
@@ -120,24 +131,33 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
     const onSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
       event.stopPropagation();
+      const index: number = filtered.findIndex(
+        (item: { name: string }): boolean => item.name === selectedValue
+      );
       switch (event.key) {
         case "ArrowUp":
-          if (selectedIndex === 0) {
-            setSelectedIndex(filtered.length - 1);
+          if (filtered.length === 0) return;
+          if (index === 0) {
+            setSelectedValue(filtered[filtered.length - 1].name);
+          } else if (index !== -1) {
+            setSelectedValue(filtered[index - 1].name);
           } else {
-            setSelectedIndex(selectedIndex - 1);
+            setSelectedValue(filtered[0].name);
           }
           break;
         case "ArrowDown":
-          if (selectedIndex === filtered.length - 1) {
-            setSelectedIndex(0);
+          if (filtered.length === 0) return;
+          if (index === filtered.length - 1) {
+            setSelectedValue(filtered[0].name);
+          } else if (index !== -1) {
+            setSelectedValue(filtered[index + 1].name);
           } else {
-            setSelectedIndex(selectedIndex + 1);
+            setSelectedValue(filtered[0].name);
           }
           break;
         case "Enter":
-          if (filtered[selectedIndex] !== undefined) {
-            setSelectedItem(filtered[selectedIndex].name);
+          if (selectedValue !== null) {
+            setSelectedItem(selectedValue);
           }
           break;
         case "Escape":
@@ -161,9 +181,9 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       <div className={"dropdown"} style={positionToStyle(position)}>
         {props.searchable && searchBox}
         <ul onMouseDownCapture={swallowMouse} ref={setDropdown}>
-          {filtered.map((item: { name: string }, index: number) => {
+          {filtered.map((item: { name: string }) => {
             const classes = [];
-            if (selectedIndex === index) classes.push("selected");
+            if (selectedValue === item.name) classes.push("selected");
             return (
               <li
                 key={item.name}

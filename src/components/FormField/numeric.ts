@@ -11,11 +11,9 @@ import { Globals } from "golbals";
 import React from "react";
 import { DecimalSeparator, toNumber } from "utils/isNumeric";
 import { roundToNearest } from "utils/roundToNearest";
-import { coalesce } from "../../utils/commonUtils";
 
 export interface NumericProps {
   value: any;
-  higherPrecision?: number;
   precision?: number;
   type: FieldType;
   currency?: string;
@@ -63,7 +61,7 @@ export class NumericInputHandler<
       return new Intl.NumberFormat(Globals.locale, {});
     } else {
       const options = {
-        maximumFractionDigits: coalesce(props.higherPrecision, props.precision),
+        maximumFractionDigits: props.precision,
         minimumFractionDigits: props.precision,
         useGrouping: true,
         style: typeToStyle(props.type, props.editable),

@@ -27,7 +27,6 @@ interface Props<T, R = string> extends MinimalProps<T> {
   disabled?: boolean;
   items?: (string | number)[];
   placeholder?: string;
-  higherPrecision?: number;
   precision?: number;
   dropdownData?: DropdownItem<R>[];
   rounding?: number;

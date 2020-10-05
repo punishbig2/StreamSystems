@@ -17,7 +17,6 @@ export interface FieldDef<T, S = {}, E = {}> {
   readonly placeholder?: string;
   readonly emptyValue?: string;
   readonly validate?: (value: string) => Validity;
-  readonly higherPrecision?: number;
   readonly precision?: number;
   // Only for dropdown (for now)
   readonly transformData?: (item: any, entry?: T) => DropdownItem[];
