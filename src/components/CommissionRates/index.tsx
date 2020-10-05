@@ -15,7 +15,8 @@ export const CommissionRates: React.FC = observer(
         {commissionRates.map(
           (entry: CommissionRate): ReactElement => {
             const { value, region } = entry;
-            const formattedValue: string = value.toLocaleString(undefined, {
+            const numeric: number = Number(value);
+            const formattedValue: string = numeric.toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 4,
             });
