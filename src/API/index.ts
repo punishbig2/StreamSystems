@@ -349,8 +349,11 @@ export class API {
       request
     );
     const result: MessageResponse = await task.execute();
-    if (result.Status !== "Success")
+    if (result === null) {
+      console.warn("the server did not respond apparently");
+    } else if (result.Status !== "Success") {
       console.warn(`error creating an order ${result.Response}`);
+    }
     return result;
   }
 

@@ -27,7 +27,6 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   const showDropdown = (event: React.FormEvent<HTMLElement>) => {
     if (isDropdownVisible) return;
-    setKeyword("");
     event.preventDefault();
     event.stopPropagation();
     // Show the dropdown now
@@ -83,11 +82,17 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   }, [isDropdownVisible, dropdown]);
 
   useEffect(() => {
+    if (!isDropdownVisible) return;
     const index: number = list.findIndex(
       (item: { name: string }) => item.name === value
     );
-    setSelectedIndex(index);
-  }, [value, list]);
+    if (index === -1) {
+      setSelectedIndex(0);
+    } else {
+      setSelectedIndex(index);
+    }
+    setKeyword("");
+  }, [isDropdownVisible, value, list]);
 
   const filtered: any[] = list.filter(({ name }: { name: string }) => {
     const lowerName: string = name.toLowerCase();

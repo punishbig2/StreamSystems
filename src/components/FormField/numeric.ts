@@ -11,6 +11,7 @@ import { Globals } from "golbals";
 import React from "react";
 import { DecimalSeparator, toNumber } from "utils/isNumeric";
 import { roundToNearest } from "utils/roundToNearest";
+import { coalesce } from "../../utils/commonUtils";
 
 export interface NumericProps {
   value: any;
@@ -41,7 +42,10 @@ export class NumericInputHandler<
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
 > extends FormattedInput<T, P, S> {
-  private formatter: Intl.NumberFormat = new Intl.NumberFormat(Globals.locale, {});
+  private formatter: Intl.NumberFormat = new Intl.NumberFormat(
+    Globals.locale,
+    {}
+  );
   private divider: number = 1;
   private minimum: number | null;
   private maximum: number | null;
@@ -59,7 +63,7 @@ export class NumericInputHandler<
       return new Intl.NumberFormat(Globals.locale, {});
     } else {
       const options = {
-        maximumFractionDigits: props.precision,
+        maximumFractionDigits: coalesce(props.higherPrecision, props.precision),
         minimumFractionDigits: props.precision,
         useGrouping: true,
         style: typeToStyle(props.type, props.editable),
