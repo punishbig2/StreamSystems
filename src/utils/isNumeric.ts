@@ -6,7 +6,7 @@ export const DecimalSeparator = (0.1)
     maximumFractionDigits: 1,
   })
   .substr(-2, 1);
-export const ThousandsSeparator = (1000)
+export const ThousandsSeparator = (1000000)
   .toLocaleString(Globals.locale, {
     maximumFractionDigits: 0,
     minimumFractionDigits: 0,
@@ -28,7 +28,7 @@ const getSeparatorRegexp = (
     if (greedy) {
       return /\./g;
     } else {
-      return /\./g;
+      return /\./;
     }
   }
   return new RegExp(value, greedy ? "g" : undefined);
@@ -70,6 +70,7 @@ export const toNumber = (value: string | null): number | null | undefined => {
       getThousandsSeparatorRegexp(),
       ""
     );
+    console.log(fragments, integer, getThousandsSeparatorRegexp());
     const numeric: number = Number(integer);
     if (isNaN(numeric)) return undefined;
     return numeric;
