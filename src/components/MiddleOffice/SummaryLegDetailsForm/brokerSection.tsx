@@ -31,7 +31,6 @@ export const BrokerSection: React.FC<Props> = (
           value={buyerCommission.rate}
           name={"brokerageRate"}
           type={"number"}
-          higherPrecision={4}
           precision={2}
           disabled={props.disabled}
         />
@@ -41,7 +40,6 @@ export const BrokerSection: React.FC<Props> = (
           value={sellerCommission.rate}
           name={"brokerageRate"}
           type={"number"}
-          higherPrecision={4}
           precision={2}
           disabled={props.disabled}
         />

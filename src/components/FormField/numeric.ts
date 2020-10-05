@@ -14,7 +14,6 @@ import { coalesce } from "../../utils";
 
 export interface NumericProps {
   value: any;
-  higherPrecision?: number;
   precision?: number;
   type: FieldType;
   currency?: string;
@@ -59,7 +58,7 @@ export class NumericInputHandler<
       return new Intl.NumberFormat(undefined, {});
     } else {
       const options = {
-        maximumFractionDigits: coalesce(props.higherPrecision, props.precision),
+        maximumFractionDigits: props.precision,
         minimumFractionDigits: props.precision,
         useGrouping: true,
         style: typeToStyle(props.type, props.editable),

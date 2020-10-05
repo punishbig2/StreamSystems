@@ -16,8 +16,8 @@ export const CommissionRates: React.FC = observer(
           (entry: CommissionRate): ReactElement => {
             const { value, region } = entry;
             const formattedValue: string = value.toLocaleString(undefined, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 4,
             });
             return (
               <div key={region} className={"entry"}>
