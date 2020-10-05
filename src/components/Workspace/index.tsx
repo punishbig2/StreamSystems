@@ -1,4 +1,5 @@
 import { MenuItem, Select } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { BlotterTypes } from "columns/messageBlotter";
 import { CommissionRates } from "components/CommissionRates";
 import { ErrorBox } from "components/ErrorBox";
@@ -33,11 +34,17 @@ interface Props {
   readonly visible: boolean;
   readonly onModify: (id: string) => void;
 }
+const useSelectClasses = makeStyles({
+  root: {
+    height: 30,
+    lineHeight: "18px",
+  },
+});
 
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const { id } = props;
   const [store, setStore] = useState<WorkspaceStore | null>(null);
-
+  const selectClasses = useSelectClasses();
   useEffect(() => {
     setStore(new WorkspaceStore(id));
   }, [id]);
@@ -63,6 +70,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
             value={workareaStore.personality}
             autoWidth={true}
             renderValue={renderValue}
+            classes={selectClasses}
             onChange={onPersonalityChange}
           >
             <MenuItem key={STRM} value={STRM}>
