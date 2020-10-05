@@ -130,7 +130,9 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
           }
           break;
         case "Enter":
-          setSelectedItem(list[currentItem].name);
+          if (filtered[currentItem] !== undefined) {
+            setSelectedItem(filtered[currentItem].name);
+          }
           break;
         case "Escape":
           setDropdownVisible(false);

@@ -668,12 +668,12 @@ export class API {
     await post<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cxlall"),
       request
-    );
+    ).execute();
     await post<MessageResponse>(
       API.buildUrl(API.DarkPool, "all", "cxlall"),
       request
-    );
-    await post<any>(API.buildUrl(API.DarkPool, "price", "clear"));
+    ).execute();
+    await post<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
   }
 
   public static async getUserRegions(
