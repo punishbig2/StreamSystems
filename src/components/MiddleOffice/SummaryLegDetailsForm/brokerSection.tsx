@@ -31,7 +31,8 @@ export const BrokerSection: React.FC<Props> = (
           value={buyerCommission.rate}
           name={"brokerageRate"}
           type={"number"}
-          precision={4}
+          higherPrecision={4}
+          precision={2}
           disabled={props.disabled}
         />
         <FormField
@@ -40,7 +41,8 @@ export const BrokerSection: React.FC<Props> = (
           value={sellerCommission.rate}
           name={"brokerageRate"}
           type={"number"}
-          precision={4}
+          higherPrecision={4}
+          precision={2}
           disabled={props.disabled}
         />
 

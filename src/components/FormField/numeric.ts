@@ -13,6 +13,7 @@ import { roundToNearest } from "utils/roundToNearest";
 
 export interface NumericProps {
   value: any;
+  higherPrecision?: number;
   precision?: number;
   type: FieldType;
   currency?: string;
@@ -58,7 +59,10 @@ export class NumericInputHandler<
     } else {
       const options = {
         maximumFractionDigits: props.precision,
-        minimumFractionDigits: props.precision,
+        minimumFractionDigits:
+          props.higherPrecision !== undefined
+            ? props.higherPrecision
+            : props.precision,
         useGrouping: true,
         style: typeToStyle(props.type, props.editable),
         currency: props.type === "currency" ? props.currency : undefined,
