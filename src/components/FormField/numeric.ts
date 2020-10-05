@@ -10,6 +10,7 @@ import { Validity } from "forms/validity";
 import React from "react";
 import { DecimalSeparator, toNumber } from "utils/isNumeric";
 import { roundToNearest } from "utils/roundToNearest";
+import { coalesce } from "../../utils";
 
 export interface NumericProps {
   value: any;
@@ -58,11 +59,8 @@ export class NumericInputHandler<
       return new Intl.NumberFormat(undefined, {});
     } else {
       const options = {
-        maximumFractionDigits: props.precision,
-        minimumFractionDigits:
-          props.higherPrecision !== undefined
-            ? props.higherPrecision
-            : props.precision,
+        maximumFractionDigits: coalesce(props.higherPrecision, props.precision),
+        minimumFractionDigits: props.precision,
         useGrouping: true,
         style: typeToStyle(props.type, props.editable),
         currency: props.type === "currency" ? props.currency : undefined,
