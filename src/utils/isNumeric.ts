@@ -70,7 +70,6 @@ export const toNumber = (value: string | null): number | null | undefined => {
       getThousandsSeparatorRegexp(),
       ""
     );
-    console.log(fragments, integer, getThousandsSeparatorRegexp());
     const numeric: number = Number(integer);
     if (isNaN(numeric)) return undefined;
     return numeric;
