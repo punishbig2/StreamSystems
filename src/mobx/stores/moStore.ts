@@ -544,7 +544,7 @@ export class MoStore {
 
   @action.bound
   public cloneDeal(): void {
-    this.entry = { ...this.entry, type: EntryType.Clone };
+    this.entry = { ...this.entry, type: EntryType.Clone, dealID: undefined };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     this.isEditMode = true;
