@@ -711,6 +711,11 @@ export class MoStore {
     };
     this.entryType = EntryType.ExistingDeal;
     this.status = MoStatus.Normal;
+    MoStore.resolveDatesIfNeeded(this.entry).then(
+      (newEntry: DealEntry): void => {
+        this.setEntry(newEntry);
+      }
+    );
   }
 
   @action.bound
