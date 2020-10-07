@@ -1,29 +1,28 @@
 import createPODColumns from "columns/podColumns";
 import { ModalWindow } from "components/ModalWindow";
-import { Run } from "components/Run";
-import { Table } from "components/Table";
+import { convertToDepth } from "components/PodTile/helpers";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Row } from "components/PodTile/Row";
-import { Order } from "types/order";
+import { ProgressModalContent } from "components/ProgressModalContent";
+import { Run } from "components/Run";
+import { Table } from "components/Table";
+import { observer } from "mobx-react";
+import { PodTileStore } from "mobx/stores/podTileStore";
+import workareaStore from "mobx/stores/workareaStore";
 import React, {
-  ReactElement,
-  useEffect,
   CSSProperties,
+  ReactElement,
   useCallback,
+  useEffect,
   useMemo,
 } from "react";
-import { Symbol } from "types/symbol";
-import { observer } from "mobx-react";
-import { User } from "types/user";
 import { InvalidCurrency } from "stateDefs/windowState";
-import { PodTileStore } from "mobx/stores/podTileStore";
-import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import { convertToDepth } from "components/PodTile/helpers";
-import { API } from "API";
+import { Order } from "types/order";
 import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
-import { ProgressModalContent } from "components/ProgressModalContent";
-import workareaStore from "mobx/stores/workareaStore";
+import { Symbol } from "types/symbol";
+import { User } from "types/user";
+import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 
 interface OwnProps {
   readonly id: string;
@@ -56,39 +55,18 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   );
   const user: User = workareaStore.user;
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (currency === InvalidCurrency || !strategy) return;
     store.initialize(currency.name, strategy);
+    return () => {
+      store.cleanup();
+    };
   }, [store, currency, strategy, user]);
 
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   const bulkCreateOrders = async (orders: Order[]) => {
-    store.hideRunWindow();
-    store.showProgressWindow(-1);
-    const promises = orders.map(
-      async (order: Order): Promise<void> => {
-        const depth: Order[] = store.orders[order.tenor];
-        if (!depth) return;
-        const conflict: Order | undefined = depth.find((o: Order) => {
-          return (
-            o.type === order.type && o.user === user.email && o.size !== null
-          );
-        });
-        if (!conflict) return;
-        // Cancel said order
-        await API.cancelOrder(conflict, user);
-      }
-    );
-    await Promise.all(promises);
-    await API.createOrdersBulk(
-      orders,
-      currency.name,
-      strategy,
-      user,
-      currency.minqty
-    );
-    store.hideProgressWindow();
+    store.createBulkOrders(orders, currency);
   };
 
   const runWindow = (): ReactElement | null => {

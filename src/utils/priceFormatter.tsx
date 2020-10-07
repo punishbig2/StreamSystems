@@ -5,6 +5,6 @@ export const priceFormatter = (value: number | null): string => {
   return value.toLocaleString(Globals.locale, {
     useGrouping: true,
     maximumFractionDigits: 3,
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
   });
 };
