@@ -8,8 +8,9 @@ import { tenorToNumber } from "utils/tenorUtils";
 import { toPodRow } from "utils/dataParser";
 import { User } from "types/user";
 import signalRManager from "signalR/signalRManager";
-import { Order } from "types/order";
+import { Order, OrderStatus } from "types/order";
 import { MDEntry } from "types/mdEntry";
+import { Symbol } from "types/symbol";
 
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import persistStorage from "persistStorage";
@@ -35,7 +36,8 @@ export class PodTileStore {
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
   public progressMax: number = 100;
-  private resetFns: (() => void)[] = [];
+  private creatingBulk: boolean = false;
+  private cleanups: ReadonlyArray<() => void> = [];
 
   constructor(windowID: string) {
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
@@ -100,9 +102,15 @@ export class PodTileStore {
     if (entries) {
       const user: User | null = workareaStore.user;
       if (user === null) return;
-      const orders: Order[] = entries.map((entry: MDEntry) =>
-        Order.fromWAndMDEntry(w, entry, user)
-      );
+      const orders: Order[] = entries
+        .map((entry: MDEntry) => Order.fromWAndMDEntry(w, entry, user))
+        .filter((order: Order): boolean => {
+          if (this.creatingBulk) {
+            return (order.status & OrderStatus.Cancelled) === 0;
+          } else {
+            return true;
+          }
+        });
       this.orders = { ...this.orders, [tenor]: orders };
     } else {
       this.orders = { ...this.orders, [tenor]: [] };
@@ -197,13 +205,58 @@ export class PodTileStore {
     }
   }
 
-  private reset() {
-    const { resetFns } = this;
-    resetFns.forEach((fn: () => void) => fn());
+  private async executeBulkCreation(orders: Array<Order>, currency: Symbol) {
+    this.hideRunWindow();
+    this.showProgressWindow(-1);
+    const { strategy } = this;
+    const { user } = workareaStore;
+    const promises = orders.map(
+      async (order: Order): Promise<void> => {
+        const depth: Order[] = this.orders[order.tenor];
+        if (!depth) return;
+        const conflict: Order | undefined = depth.find((o: Order) => {
+          return (
+            o.type === order.type && o.user === user.email && o.size !== null
+          );
+        });
+        if (!conflict) return;
+        // Cancel said order
+        await API.cancelOrder(conflict, user);
+      }
+    );
+    await Promise.all(promises);
+    await API.createOrdersBulk(
+      orders,
+      currency.name,
+      strategy,
+      user,
+      currency.minqty
+    );
+    this.hideProgressWindow();
   }
 
-  public async initialize(currency: string, strategy: string) {
-    this.reset();
+  public async createBulkOrders(
+    orders: Array<Order>,
+    currency?: Symbol
+  ): Promise<void> {
+    if (currency === undefined) {
+      throw new Error("currency not set");
+    }
+    this.creatingBulk = true;
+    try {
+      await this.executeBulkCreation(orders, currency);
+    } finally {
+      this.creatingBulk = false;
+    }
+  }
+
+  public cleanup() {
+    const { cleanups } = this;
+    cleanups.forEach((fn: () => void) => fn());
+  }
+
+  public async initialize(currency: string, strategy: string): Promise<void> {
+    // FIXME these should tasks instead of promises
     // Now initialize it
     this.loading = true;
     this.currency = currency;
@@ -223,12 +276,13 @@ export class PodTileStore {
       snapshot
     );
     // Install a listener for each tenor
-    this.resetFns = tenors.map((tenor: string) =>
+    this.cleanups = tenors.map((tenor: string) =>
       this.addMarketListener(currency, strategy, tenor)
     );
     // Initialize from depth snapshot
     this.initializeDepthFromSnapshot(combined);
-    this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
+    this.loadDarkPoolSnapshot(currency, strategy).then((): void => {
+    });
   }
 
   @action.bound

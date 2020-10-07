@@ -56,39 +56,18 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   );
   const user: User = workareaStore.user;
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     if (currency === InvalidCurrency || !strategy) return;
     store.initialize(currency.name, strategy);
+    return () => {
+      store.cleanup();
+    };
   }, [store, currency, strategy, user]);
 
   // Initialize tile/window
   useInitializer(tenors, currency.name, strategy, user, store.setRows);
   const bulkCreateOrders = async (orders: Order[]) => {
-    store.hideRunWindow();
-    store.showProgressWindow(-1);
-    const promises = orders.map(
-      async (order: Order): Promise<void> => {
-        const depth: Order[] = store.orders[order.tenor];
-        if (!depth) return;
-        const conflict: Order | undefined = depth.find((o: Order) => {
-          return (
-            o.type === order.type && o.user === user.email && o.size !== null
-          );
-        });
-        if (!conflict) return;
-        // Cancel said order
-        await API.cancelOrder(conflict, user);
-      }
-    );
-    await Promise.all(promises);
-    await API.createOrdersBulk(
-      orders,
-      currency.name,
-      strategy,
-      user,
-      currency.minqty
-    );
-    store.hideProgressWindow();
+    store.createBulkOrders(orders, currency);
   };
 
   const runWindow = (): ReactElement | null => {
