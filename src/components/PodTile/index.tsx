@@ -1,29 +1,29 @@
+import { Task } from "API";
 import createPODColumns from "columns/podColumns";
 import { ModalWindow } from "components/ModalWindow";
-import { Run } from "components/Run";
-import { Table } from "components/Table";
+import { convertToDepth } from "components/PodTile/helpers";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Row } from "components/PodTile/Row";
-import { Order } from "types/order";
+import { ProgressModalContent } from "components/ProgressModalContent";
+import { Run } from "components/Run";
+import { Table } from "components/Table";
+import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
+import { observer } from "mobx-react";
+import { PodTileStore } from "mobx/stores/podTileStore";
+import workareaStore from "mobx/stores/workareaStore";
 import React, {
-  ReactElement,
-  useEffect,
   CSSProperties,
+  ReactElement,
   useCallback,
+  useEffect,
   useMemo,
 } from "react";
-import { Symbol } from "types/symbol";
-import { observer } from "mobx-react";
-import { User } from "types/user";
 import { InvalidCurrency } from "stateDefs/windowState";
-import { PodTileStore } from "mobx/stores/podTileStore";
-import { getOptimalWidthFromColumnsSpec } from "getOptimalWIdthFromColumnsSpec";
-import { convertToDepth } from "components/PodTile/helpers";
-import { API } from "API";
+import { Order } from "types/order";
 import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
-import { ProgressModalContent } from "components/ProgressModalContent";
-import workareaStore from "mobx/stores/workareaStore";
+import { Symbol } from "types/symbol";
+import { User } from "types/user";
 
 interface OwnProps {
   readonly id: string;
@@ -58,9 +58,18 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
 
   useEffect((): (() => void) | undefined => {
     if (currency === InvalidCurrency || !strategy) return;
-    store.initialize(currency.name, strategy);
+    const initializeTask: Task<void> = store.initialize(
+      currency.name,
+      strategy
+    );
+    const cleanUps: Array<() => void> = store.createMarketListeners(
+      currency.name,
+      strategy
+    );
+    initializeTask.execute();
     return () => {
-      store.cleanup();
+      initializeTask.cancel();
+      cleanUps.forEach((clean: () => void): void => clean());
     };
   }, [store, currency, strategy, user]);
 
@@ -85,9 +94,13 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       />
     );
   };
-  const dobRows: PodTable = !!store.currentTenor
-    ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
-    : {};
+  const dobRows: PodTable = useMemo(
+    (): PodTable =>
+      !!store.currentTenor
+        ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
+        : {},
+    [store.currentTenor, store.orders]
+  );
   const renderDoBRow = useCallback(
     (rowProps: any): ReactElement | null => {
       const { minqty, defaultqty } = currency;

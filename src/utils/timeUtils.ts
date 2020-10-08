@@ -66,14 +66,16 @@ export const forceParseDate = (value: string): Date => {
   if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
     if (!m.isValid()) {
-      throw new Error("invalid date string: " + value);
+      console.warn("invalid date string: " + value);
+      return new Date();
     }
     return m.toDate();
   } else {
     // ISO format
     const m: moment.Moment = moment(value);
     if (!m.isValid()) {
-      throw new Error("invalid date string: " + value);
+      console.warn("invalid date string: " + value);
+      return new Date();
     }
     return m.toDate();
   }
