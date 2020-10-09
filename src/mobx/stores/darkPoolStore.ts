@@ -16,7 +16,7 @@ export class DarkPoolStore {
   @observable isTicketOpen: boolean = false;
   @observable currentOrder: Order | null = null;
 
-  private removeOrderListener: () => void  = () => null;
+  private removeOrderListener: () => void = () => null;
 
   @computed
   get depth(): Order[] {
@@ -146,7 +146,7 @@ export class DarkPoolStore {
     const currentValue: string | null = localStorage.getItem(
       $$(currency, strategy, tenor, "DPPx")
     );
-    document.addEventListener('cleardarkpoolprice', this.clearDarkPoolPrice);
+    document.addEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
     } else {
@@ -155,7 +155,7 @@ export class DarkPoolStore {
   }
 
   public disconnect(currency: string, strategy: string, tenor: string) {
-    document.removeEventListener('cleardarkpoolprice', this.clearDarkPoolPrice);
+    document.removeEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
     this.removeOrderListener();
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }
@@ -202,7 +202,7 @@ export class DarkPoolStore {
       if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell) return false;
       return user.email === o.user;
     });
-    if (currentOrder) API.cancelDarkPoolOrder(currentOrder);
+    if (currentOrder) await API.cancelDarkPoolOrder(currentOrder);
     await API.createDarkPoolOrder(order);
   }
 

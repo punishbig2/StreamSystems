@@ -50,7 +50,7 @@ export interface DealEntry {
   readonly spotDate: Date;
   readonly premiumDate: Date;
   readonly tradeDate: Date;
-  readonly horizonDateUTC?: string;
+  readonly horizonDateUTC?: Date;
 
   readonly type: EntryType;
   readonly dealType: DealType;

@@ -809,8 +809,8 @@ export class API {
         OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
-        valuationDate: entry.horizonDateUTC,
-        valuationDateUTC: entry.horizonDateUTC,
+        valuationDate: toUTC(entry.horizonDateUTC, true),
+        valuationDateUTC: toUTC(entry.horizonDateUTC),
         VOL: {
           ccyPair: ccyPair,
           premiumAdjustDelta: symbol.premiumAdjustDelta,
