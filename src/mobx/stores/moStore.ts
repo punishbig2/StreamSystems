@@ -28,6 +28,7 @@ import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
+import { SPECIFIC_TENOR } from "../../utils/tenorUtils";
 import { forceParseDate, toUTC } from "../../utils/timeUtils";
 
 const SOFT_PRICING_ERROR: string =
@@ -480,7 +481,14 @@ export class MoStore {
   ): Promise<DealEntry> {
     const { tenor1, tenor2, symbol } = entry;
     const dates: CalendarVolDatesResponse = await API.queryVolDates({
-      Tenors: [tenor1.name, ...(!!tenor2 ? [tenor2.name] : [])],
+      Tenors: [
+        tenor1.name,
+        ...(!!tenor2 &&
+        tenor1.name !== tenor2.name &&
+        tenor1.name !== SPECIFIC_TENOR
+          ? [tenor2.name]
+          : []),
+      ],
       fxPair: symbol.symbolID,
       addHolidays: true,
       rollExpiryDates: true,
@@ -488,21 +496,23 @@ export class MoStore {
     });
     const spotDate: Date = forceParseDate(dates.SpotDate);
     const tradeDate: Date = forceParseDate(dates.TradeDate);
+    const first = (array: string[]): string => array[0];
+    const last = (array: string[]): string => first(array.slice(-1));
     return {
       ...entry,
       tenor1: {
         name: tenor1.name,
-        deliveryDate: forceParseDate(dates.DeliveryDates[0]),
-        expiryDate: forceParseDate(dates.ExpiryDates[0]),
+        deliveryDate: forceParseDate(first(dates.DeliveryDates)),
+        expiryDate: forceParseDate(first(dates.ExpiryDates)),
       },
       tenor2: !!tenor2
         ? {
             name: tenor2.name,
-            deliveryDate: forceParseDate(dates.DeliveryDates[1]),
-            expiryDate: forceParseDate(dates.ExpiryDates[1]),
+            deliveryDate: forceParseDate(last(dates.DeliveryDates)),
+            expiryDate: forceParseDate(last(dates.ExpiryDates)),
           }
         : null,
-      horizonDateUTC: dates.HorizonDateUTC,
+      horizonDateUTC: forceParseDate(dates.HorizonDateUTC),
       premiumDate: spotDate,
       spotDate: spotDate,
       tradeDate: tradeDate,
@@ -551,7 +561,7 @@ export class MoStore {
 
   @action.bound
   public cloneDeal(): void {
-    this.entry = { ...this.entry, dealID: undefined, type: EntryType.Clone };
+    this.entry = { ...this.entry, type: EntryType.Clone, dealID: undefined };
     this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     this.isEditMode = true;

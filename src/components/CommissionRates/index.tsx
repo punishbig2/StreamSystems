@@ -16,10 +16,13 @@ export const CommissionRates: React.FC = observer(
         {commissionRates.map(
           (entry: CommissionRate): ReactElement => {
             const { value, region } = entry;
-            const formattedValue: string = value.toLocaleString(Globals.locale, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 4,
-            });
+            const formattedValue: string = value.toLocaleString(
+              Globals.locale,
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 4,
+              }
+            );
             return (
               <div key={region} className={"entry"}>
                 <Typography color={"textSecondary"} className={"region"}>

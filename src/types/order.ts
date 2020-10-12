@@ -5,6 +5,7 @@ import { ArrowDirection, MessageTypes, W } from "types/w";
 import { $$ } from "utils/stringPaster";
 
 export interface CreateOrder {
+  OrderID?: string;
   MsgType: MessageTypes;
   TransactTime: string;
   User: string;

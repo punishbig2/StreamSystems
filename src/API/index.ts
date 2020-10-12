@@ -490,7 +490,7 @@ export class API {
   public static getTOBSnapshot(
     symbol: string,
     strategy: string
-  ): Promise<{ [k: string]: W } | null> {
+  ): Task<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       throw new Error(
         "you have to tell me which symbol, strategy and tenor you want"
@@ -499,17 +499,16 @@ export class API {
       symbol,
       strategy,
     });
-    const task: Task<{ [k: string]: W } | null> = get<{
+    // Execute the query
+    return get<{
       [k: string]: W;
     } | null>(url);
-    // Execute the query
-    return task.execute();
   }
 
   public static getSnapshot(
     symbol: string,
     strategy: string
-  ): Promise<{ [k: string]: W } | null> {
+  ): Task<{ [k: string]: W } | null> {
     if (!symbol || !strategy)
       throw new Error(
         "you have to tell me which symbol, strategy and tenor you want"
@@ -518,11 +517,10 @@ export class API {
       symbol,
       strategy,
     });
-    const task: Task<{ [p: string]: W } | null> = get<{
+    // Execute the query
+    return get<{
       [k: string]: W;
     } | null>(url);
-    // Execute the query
-    return task.execute();
   }
 
   public static async getMessagesSnapshot(
@@ -815,8 +813,8 @@ export class API {
         OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
-        valuationDate: entry.horizonDateUTC,
-        valuationDateUTC: entry.horizonDateUTC,
+        valuationDate: toUTC(entry.horizonDateUTC, true),
+        valuationDateUTC: toUTC(entry.horizonDateUTC),
         VOL: {
           ccyPair: ccyPair,
           premiumAdjustDelta: symbol.premiumAdjustDelta,
@@ -912,7 +910,6 @@ export class API {
   private static async saveLegs(dealID: string): Promise<string> {
     const { user } = workareaStore;
     const { legs } = moStore;
-    console.log(legs);
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,

@@ -1,4 +1,4 @@
-import { API } from "API";
+import { API, Task } from "API";
 import { action, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 
@@ -37,7 +37,6 @@ export class PodTileStore {
   @observable operationStartedAt: number = 0;
   public progressMax: number = 100;
   private creatingBulk: boolean = false;
-  private cleanups: ReadonlyArray<() => void> = [];
 
   constructor(windowID: string) {
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
@@ -151,44 +150,52 @@ export class PodTileStore {
       currency,
       strategy,
       tenor,
-      (w: W) => {
+      (w: W): void => {
         this.updateSingleDepth(tenor, w);
       }
     );
   }
 
-  private async combineSnapshots(
+  private combineSnapshots(
     currency: string,
     strategy: string,
     tenors: ReadonlyArray<string>,
     depth: { [k: string]: W }
-  ) {
-    const snapshot: { [k: string]: W } | null = await API.getTOBSnapshot(
+  ): Task<{ [k: string]: W }> {
+    const task: Task<{ [k: string]: W } | null> = API.getTOBSnapshot(
       currency,
       strategy
     );
-    if (snapshot === null) return depth;
-    return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
-      const w: W = depth[tenor];
-      if (w) {
-        mixed[tenor] = w;
-        if (snapshot[tenor]) {
-          const tob: W = snapshot[tenor];
-          const entries: MDEntry[] = tob.Entries;
-          const old: MDEntry[] = entries.filter(
-            (entry: MDEntry) => entry.MDEntrySize === undefined
-          );
-          if (w.Entries) {
-            w.Entries = [...w.Entries, ...old];
+    return {
+      execute: async (): Promise<{ [k: string]: W }> => {
+        const snapshot: { [k: string]: W } | null = await task.execute();
+        if (snapshot === null) return {};
+        return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
+          const w: W = depth[tenor];
+          if (w) {
+            mixed[tenor] = w;
+            if (snapshot[tenor]) {
+              const tob: W = snapshot[tenor];
+              const entries: MDEntry[] = tob.Entries;
+              const old: MDEntry[] = entries.filter(
+                (entry: MDEntry) => entry.MDEntrySize === undefined
+              );
+              if (w.Entries) {
+                w.Entries = [...w.Entries, ...old];
+              } else {
+                w.Entries = old;
+              }
+            }
           } else {
-            w.Entries = old;
+            mixed[tenor] = snapshot[tenor];
           }
-        }
-      } else {
-        mixed[tenor] = snapshot[tenor];
-      }
-      return mixed;
-    }, {});
+          return mixed;
+        }, {});
+      },
+      cancel: () => {
+        task.cancel();
+      },
+    };
   }
 
   @action.bound
@@ -250,39 +257,53 @@ export class PodTileStore {
     }
   }
 
-  public cleanup() {
-    const { cleanups } = this;
-    cleanups.forEach((fn: () => void) => fn());
+  public createMarketListeners(
+    currency: string,
+    strategy: string
+  ): Array<() => void> {
+    const tenors: ReadonlyArray<string> = workareaStore.tenors;
+    // Install a listener for each tenor
+    return tenors.map((tenor: string): (() => void) =>
+      this.addMarketListener(currency, strategy, tenor)
+    );
   }
 
-  public async initialize(currency: string, strategy: string): Promise<void> {
+  public initialize(currency: string, strategy: string): Task<void> {
+    const tenors: ReadonlyArray<string> = workareaStore.tenors;
     // FIXME these should tasks instead of promises
     // Now initialize it
     this.loading = true;
     this.currency = currency;
     this.strategy = strategy;
     // Load depth
-    const snapshot: { [k: string]: W } | null = await API.getSnapshot(
-      currency,
-      strategy
-    );
-    if (snapshot === null) return;
-    const tenors: ReadonlyArray<string> = workareaStore.tenors;
-    // Combine TOB and full snapshots
-    const combined: { [k: string]: W } = await this.combineSnapshots(
-      currency,
-      strategy,
-      tenors,
-      snapshot
-    );
-    // Install a listener for each tenor
-    this.cleanups = tenors.map((tenor: string) =>
-      this.addMarketListener(currency, strategy, tenor)
-    );
-    // Initialize from depth snapshot
-    this.initializeDepthFromSnapshot(combined);
-    this.loadDarkPoolSnapshot(currency, strategy).then((): void => {
-    });
+    const tasks: Array<Task<any>> = [API.getSnapshot(currency, strategy)];
+    return {
+      execute: async (): Promise<void> => {
+        const snapshotTask: Task<{ [k: string]: W }> = tasks[0] as Task<{
+          [k: string]: W;
+        }>;
+        const snapshot: {
+          [k: string]: W;
+        } | null = await snapshotTask.execute();
+        if (snapshot === null) return;
+        // Combine TOB and full snapshots
+        const combinedTask: Task<{ [k: string]: W }> = this.combineSnapshots(
+          currency,
+          strategy,
+          tenors,
+          snapshot
+        );
+        tasks.push(combinedTask);
+        // Initialize from depth snapshot
+        this.initializeDepthFromSnapshot(await combinedTask.execute());
+        this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
+      },
+      cancel: (): void => {
+        for (const task of tasks) {
+          task.cancel();
+        }
+      },
+    };
   }
 
   @action.bound

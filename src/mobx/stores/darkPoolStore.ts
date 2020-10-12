@@ -1,14 +1,14 @@
-import { observable, computed, action } from "mobx";
-import { Order, OrderStatus, DarkPoolOrder } from "types/order";
-import { W } from "types/w";
-import signalRManager from "signalR/signalRManager";
+import { API } from "API";
+import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
-import { User } from "types/user";
+import signalRManager from "signalR/signalRManager";
 import { MDEntry, OrderTypes } from "types/mdEntry";
 import { DarkPoolMessage } from "types/message";
-import { API } from "API";
-import { $$ } from "utils/stringPaster";
+import { DarkPoolOrder, Order, OrderStatus } from "types/order";
 import { Sides } from "types/sides";
+import { User } from "types/user";
+import { W } from "types/w";
+import { $$ } from "utils/stringPaster";
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];
@@ -16,7 +16,7 @@ export class DarkPoolStore {
   @observable isTicketOpen: boolean = false;
   @observable currentOrder: Order | null = null;
 
-  private removeOrderListener: () => void  = () => null;
+  private removeOrderListener: () => void = () => null;
 
   @computed
   get depth(): Order[] {
@@ -146,7 +146,7 @@ export class DarkPoolStore {
     const currentValue: string | null = localStorage.getItem(
       $$(currency, strategy, tenor, "DPPx")
     );
-    document.addEventListener('cleardarkpoolprice', this.clearDarkPoolPrice);
+    document.addEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
     if (currentValue !== null) {
       this.publishedPrice = Number(currentValue);
     } else {
@@ -155,7 +155,7 @@ export class DarkPoolStore {
   }
 
   public disconnect(currency: string, strategy: string, tenor: string) {
-    document.removeEventListener('cleardarkpoolprice', this.clearDarkPoolPrice);
+    document.removeEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
     this.removeOrderListener();
     signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
   }
@@ -202,8 +202,11 @@ export class DarkPoolStore {
       if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell) return false;
       return user.email === o.user;
     });
-    if (currentOrder) API.cancelDarkPoolOrder(currentOrder);
-    await API.createDarkPoolOrder(order);
+    // if (currentOrder) await API.cancelDarkPoolOrder(currentOrder);
+    await API.createDarkPoolOrder({
+      ...(currentOrder ? { OrderID: currentOrder.orderId } : {}),
+      ...order,
+    });
   }
 
   @action.bound

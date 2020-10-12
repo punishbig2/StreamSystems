@@ -1,3 +1,4 @@
+import { Task } from "API";
 import createPODColumns from "columns/podColumns";
 import { ModalWindow } from "components/ModalWindow";
 import { convertToDepth } from "components/PodTile/helpers";
@@ -57,9 +58,18 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
 
   useEffect((): (() => void) | undefined => {
     if (currency === InvalidCurrency || !strategy) return;
-    store.initialize(currency.name, strategy);
+    const initializeTask: Task<void> = store.initialize(
+      currency.name,
+      strategy
+    );
+    const cleanUps: Array<() => void> = store.createMarketListeners(
+      currency.name,
+      strategy
+    );
+    initializeTask.execute();
     return () => {
-      store.cleanup();
+      initializeTask.cancel();
+      cleanUps.forEach((clean: () => void): void => clean());
     };
   }, [store, currency, strategy, user]);
 
@@ -84,9 +94,13 @@ const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
       />
     );
   };
-  const dobRows: PodTable = !!store.currentTenor
-    ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
-    : {};
+  const dobRows: PodTable = useMemo(
+    (): PodTable =>
+      !!store.currentTenor
+        ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
+        : {},
+    [store.currentTenor, store.orders]
+  );
   const renderDoBRow = useCallback(
     (rowProps: any): ReactElement | null => {
       const { minqty, defaultqty } = currency;

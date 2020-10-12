@@ -1,14 +1,14 @@
-import { observable, action, computed } from "mobx";
-import { OrderStatus, Order, CreateOrder } from "types/order";
-import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
-import { OrderTypes } from "types/mdEntry";
-import { MessageTypes, ArrowDirection } from "types/w";
-import { getSideFromType, getCurrentTime } from "utils/commonUtils";
-import { User } from "types/user";
 import { API } from "API";
+import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
+import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
+import { OrderTypes } from "types/mdEntry";
+import { CreateOrder, Order, OrderStatus } from "types/order";
+import { User } from "types/user";
+import { ArrowDirection, MessageTypes } from "types/w";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { $$ } from "utils/stringPaster";
+import { getCurrentTime, getSideFromType } from "../../utils/commonUtils";
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -78,6 +78,13 @@ export class OrderStore {
     return this.baseStatus | this.currentStatus;
   }
 
+  private shouldCancel(): boolean {
+    // The order is not already cancelled
+    if ((this.status & OrderStatus.Cancelled) !== 0) return false;
+    // The order is mine
+    return (this.status & OrderStatus.Owned) !== 0;
+  }
+
   @action.bound
   public async createWithType(
     inputPrice: number | null,
@@ -87,12 +94,11 @@ export class OrderStore {
     const price: number | null = this.getCreatorPrice(inputPrice);
     const size: number | null = this.getCreatorSize(inputSize);
     if (price === null) /* in this case just ignore this */ return;
-    if (size === null)
+    if (size === null) {
       throw new Error(
         "cannot create orders when the user has not initialized the cell"
       );
-    // First cancel previous orders if any
-    if ((this.status & OrderStatus.Cancelled) === 0) await this.cancel();
+    }
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     // Now attempt to create the new order
@@ -104,6 +110,7 @@ export class OrderStore {
       (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
     // Create the request
     const request: CreateOrder = {
+      ...(this.shouldCancel() ? { OrderID: this.orderID } : {}),
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
       User: user.email,

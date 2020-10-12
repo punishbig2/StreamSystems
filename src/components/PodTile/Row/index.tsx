@@ -27,8 +27,6 @@ export const Row: React.FC<Props> = observer((props: Props) => {
     new PodRowStore(props.currency, props.strategy, props.tenor)
   );
   const { id, columns, row, totalWidth, containerWidth, ...rowProps } = props;
-  // Three identifying props
-  // const { currency, strategy, tenor } = rowProps;
   const { internalRow } = store;
   const classes: string[] = ["tr"];
 
