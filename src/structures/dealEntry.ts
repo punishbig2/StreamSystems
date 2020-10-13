@@ -141,5 +141,7 @@ export interface ServerDealQuery {
   readonly fwdpts2?: number;
   readonly deltastyle: string;
   readonly premstyle: string;
+  readonly style: string;
+  readonly model: number | "";
   readonly product_fields_changed?: string[];
 }

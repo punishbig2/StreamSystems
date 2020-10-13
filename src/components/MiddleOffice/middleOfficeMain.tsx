@@ -105,6 +105,7 @@ export const MiddleOfficeMain: React.FC<Props> = observer(
                           store.isLoadingLegs ||
                           store.status !== MoStatus.Normal
                         }
+                        editable={store.isDealEditable}
                         entryType={store.entryType}
                         onRemoveDeal={removeDeal}
                         onAddNewDeal={() => store.addNewDeal()}

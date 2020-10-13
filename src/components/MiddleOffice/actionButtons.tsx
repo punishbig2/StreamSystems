@@ -5,6 +5,7 @@ interface Props {
   readonly entryType: EntryType;
   readonly disabled: boolean;
   readonly isEditMode: boolean;
+  readonly editable: boolean;
   readonly onRemoveDeal: () => void;
   readonly onCancelAddOrClone: () => void;
   readonly onAddNewDeal: () => void;
@@ -53,7 +54,7 @@ export const ActionButtons: React.FC<Props> = (
           </button>
           <button
             className={"primary"}
-            disabled={props.disabled}
+            disabled={props.disabled || !props.editable}
             onClick={props.onEdit}
           >
             <i className={"fa fa-edit"} />
@@ -69,7 +70,7 @@ export const ActionButtons: React.FC<Props> = (
           </button>
           <button
             className={"danger"}
-            disabled={props.disabled}
+            disabled={props.disabled || !props.editable}
             onClick={props.onRemoveDeal}
           >
             <i className={"fa fa-trash"} />
