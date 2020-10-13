@@ -53,6 +53,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             selectedDealID={store.selectedDealID}
             isEditMode={store.isEditMode}
             isLoadingLegs={store.isLoadingLegs}
+            isDealEditable={store.isDealEditable}
             entryType={store.entryType}
             addNewDeal={(): void => store.addNewDeal()}
             cloneDeal={(): void => store.cloneDeal()}

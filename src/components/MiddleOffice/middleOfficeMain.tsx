@@ -47,6 +47,7 @@ interface Props {
   readonly legs: ReadonlyArray<Leg>;
   readonly summaryLeg: SummaryLeg | null;
   readonly isModified: boolean;
+  readonly isDealEditable: boolean;
   readonly cuts: ReadonlyArray<Cut>;
   readonly isReadyForSubmission: boolean;
   readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
@@ -143,6 +144,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                         isEditMode={props.isEditMode}
                         disabled={disabled}
                         entryType={props.entryType}
+                        editable={props.isDealEditable}
                         onRemoveDeal={removeDeal}
                         onAddNewDeal={() => props.addNewDeal()}
                         onCloneDeal={() => props.cloneDeal()}

@@ -28,6 +28,7 @@ import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
+import { DealStatus } from "../../types/dealStatus";
 import { SPECIFIC_TENOR } from "../../utils/tenorUtils";
 import { forceParseDate, toUTC } from "../../utils/timeUtils";
 
@@ -127,6 +128,20 @@ export class MoStore {
   @computed
   public get tenors(): ReadonlyArray<string> {
     return workareaStore.tenors;
+  }
+
+  @computed get isDealEditable(): boolean {
+    const { entry } = this;
+    switch (entry.status) {
+      case DealStatus.Pending:
+      case DealStatus.Priced:
+      case DealStatus.SEFUnconfirmed:
+        return true;
+      case DealStatus.STP:
+      case DealStatus.SEFConfirmed:
+      default:
+        return false;
+    }
   }
 
   public async loadReferenceData(): Promise<void> {

@@ -903,6 +903,8 @@ export class API {
       fwdpts2: entry.fwdpts2,
       deltastyle: entry.deltastyle,
       premstyle: entry.premstyle,
+      style: entry.style,
+      model: entry.model,
       product_fields_changed: changed,
     };
   }
