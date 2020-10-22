@@ -79,38 +79,46 @@ export const Field: React.FC<Props> = (props: Props): ReactElement | null => {
     value: string | Date
   ): Promise<void> => {
     const { symbol } = dealEntry;
-    if (typeof value === "string") {
-      const dates: CalendarVolDatesResponse = await API.queryVolDates({
-        Tenors: [value],
-        tradeDate: toUTC(dealEntry.tradeDate, true),
-        fxPair: symbol.symbolID,
-        addHolidays: true,
-        rollExpiryDates: true,
-      });
-      return props.onUpdateEntry({
-        [name]: {
-          name: value,
-          deliveryDate: forceParseDate(dates.DeliveryDates[0]),
-          expiryDate: forceParseDate(dates.ExpiryDates[0]),
-        },
-        // If it's tenor 2 it does not affect deal level spot/premium dates
-        // otherwise it does
-        ...(field.name === "tenor1"
-          ? {
-              spotDate: forceParseDate(dates.SpotDate),
-              premiumDate: forceParseDate(dates.SpotDate),
-            }
-          : {}),
-      });
-    } else {
-      return props.onUpdateEntry({
-        [name]: {
-          name: SPECIFIC_TENOR,
-          deliveryDate: addToDate(value, symbol.SettlementWindow, "d"),
-          expiryDate: value,
-        },
-      });
-    }
+    const dates: CalendarVolDatesResponse = await ((): Promise<
+      CalendarVolDatesResponse
+    > => {
+      if (typeof value === "string") {
+        return API.queryVolTenors(
+          {
+            tradeDate: toUTC(dealEntry.tradeDate, true),
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+          },
+          [value]
+        );
+      } else {
+        return API.queryVolDates(
+          {
+            tradeDate: toUTC(dealEntry.tradeDate, true),
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+          },
+          [toUTC(value)]
+        );
+      }
+    })();
+    return props.onUpdateEntry({
+      [name]: {
+        name: typeof value === "string" ? value : SPECIFIC_TENOR,
+        deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+        expiryDate: forceParseDate(dates.ExpiryDates[0]),
+      },
+      // If it's tenor 2 it does not affect deal level spot/premium dates
+      // otherwise it does
+      ...(field.name === "tenor1"
+        ? {
+            spotDate: forceParseDate(dates.SpotDate),
+            premiumDate: forceParseDate(dates.SpotDate),
+          }
+        : {}),
+    });
   };
   const onChange = (name: keyof DealEntry, value: any): void => {
     if (field.type === "tenor") {

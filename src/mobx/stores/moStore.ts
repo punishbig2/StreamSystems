@@ -26,9 +26,11 @@ import { coalesce } from "utils";
 import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
+import { isTenor } from "../../components/FormField/helpers";
 import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
 import { DealStatus } from "../../types/dealStatus";
-import { SPECIFIC_TENOR } from "../../utils/tenorUtils";
+import { FixTenorResult } from "../../types/fixTenorResult";
+import { InvalidTenor, Tenor } from "../../types/tenor";
 import { forceParseDate, toUTC } from "../../utils/timeUtils";
 
 const SOFT_PRICING_ERROR: string =
@@ -486,43 +488,75 @@ export class MoStore {
     return entry.not1 !== null;
   }
 
+  private static async fixTenorDates(
+    originalTenor: Tenor | InvalidTenor | undefined | null,
+    entry: DealEntry
+  ): Promise<FixTenorResult> {
+    const { symbol } = entry;
+    if (!originalTenor || !isTenor(originalTenor))
+      return {
+        tenor: null,
+        horizonDateUTC: "",
+        spotDate: "",
+        tradeDate: "",
+      };
+    const dates: CalendarVolDatesResponse = await (async (): Promise<
+      CalendarVolDatesResponse
+    > => {
+      if (originalTenor.name === "SPECIFIC") {
+        return API.queryVolDates(
+          {
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+            tradeDate: toUTC(entry.tradeDate, true),
+          },
+          [toUTC(originalTenor.expiryDate)]
+        );
+      } else {
+        return API.queryVolTenors(
+          {
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+            tradeDate: toUTC(entry.tradeDate, true),
+          },
+          [originalTenor.name]
+        );
+      }
+    })();
+    return {
+      tenor: {
+        name: originalTenor.name,
+        deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+        expiryDate: forceParseDate(dates.ExpiryDates[0]),
+      },
+      horizonDateUTC: dates.HorizonDateUTC,
+      spotDate: dates.SpotDate,
+      tradeDate: dates.TradeDate,
+    };
+  }
+
   private static async resolveDatesIfNeeded(
     entry: DealEntry
   ): Promise<DealEntry> {
-    const { tenor1, tenor2, symbol } = entry;
-    const dates: CalendarVolDatesResponse = await API.queryVolDates({
-      Tenors: [
-        tenor1.name,
-        ...(!!tenor2 &&
-        tenor1.name !== tenor2.name &&
-        tenor1.name !== SPECIFIC_TENOR
-          ? [tenor2.name]
-          : []),
-      ],
-      fxPair: symbol.symbolID,
-      addHolidays: true,
-      rollExpiryDates: true,
-      tradeDate: toUTC(entry.tradeDate, true),
-    });
-    const spotDate: Date = forceParseDate(dates.SpotDate);
-    const tradeDate: Date = forceParseDate(dates.TradeDate);
-    const first = (array: string[]): string => array[0];
-    const last = (array: string[]): string => first(array.slice(-1));
+    const { tenor1, tenor2 } = entry;
+    // Query dates for regular tenors
+    const tenor1Dates: FixTenorResult = await MoStore.fixTenorDates(
+      tenor1,
+      entry
+    );
+    const tenor2Dates: FixTenorResult = await MoStore.fixTenorDates(
+      tenor2,
+      entry
+    );
+    const spotDate: Date = forceParseDate(tenor1Dates.spotDate);
+    const tradeDate: Date = forceParseDate(tenor1Dates.tradeDate);
     return {
       ...entry,
-      tenor1: {
-        name: tenor1.name,
-        deliveryDate: forceParseDate(first(dates.DeliveryDates)),
-        expiryDate: forceParseDate(first(dates.ExpiryDates)),
-      },
-      tenor2: !!tenor2
-        ? {
-            name: tenor2.name,
-            deliveryDate: forceParseDate(last(dates.DeliveryDates)),
-            expiryDate: forceParseDate(last(dates.ExpiryDates)),
-          }
-        : null,
-      horizonDateUTC: forceParseDate(dates.HorizonDateUTC),
+      tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
+      tenor2: tenor2Dates.tenor,
+      horizonDateUTC: forceParseDate(tenor1Dates.horizonDateUTC),
       premiumDate: spotDate,
       spotDate: spotDate,
       tradeDate: tradeDate,

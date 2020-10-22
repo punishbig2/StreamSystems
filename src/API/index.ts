@@ -1059,16 +1059,33 @@ export class API {
   }
 
   public static async queryVolDates(
-    query: CalendarVolDatesQuery
+    query: CalendarVolDatesQuery,
+    dates: ReadonlyArray<string>
   ): Promise<CalendarVolDatesResponse> {
-    const { Tenors } = query;
     const url: string =
       config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/dates";
     const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
       url,
       {
         ...query,
-        ExpiryDates: Tenors.map(tenorToDateString),
+        ExpiryDates: dates,
+        rollExpiryDates: true,
+      }
+    );
+    return task.execute();
+  }
+
+  public static async queryVolTenors(
+    query: CalendarVolDatesQuery,
+    tenors: ReadonlyArray<string>
+  ): Promise<CalendarVolDatesResponse> {
+    const url: string =
+      config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/tenors";
+    const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
+      url,
+      {
+        ...query,
+        Tenors: tenors,
         rollExpiryDates: true,
       }
     );
