@@ -7,7 +7,7 @@ import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 import { API } from "../../../API";
 import { CalendarVolDatesResponse } from "../../../types/calendarFXPair";
 import { SPECIFIC_TENOR } from "../../../utils/tenorUtils";
-import { addToDate, forceParseDate, toUTC } from "../../../utils/timeUtils";
+import { forceParseDate, toUTC } from "../../../utils/timeUtils";
 import { EditableCondition } from "../types/moStrategy";
 
 export interface DealEntryEditInterface {

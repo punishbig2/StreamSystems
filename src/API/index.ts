@@ -54,7 +54,6 @@ import {
 import { buildFwdRates } from "utils/fwdRates";
 import {
   currentTimestampFIXFormat,
-  tenorToDateString,
   toUTC,
   toUTCFIXFormat,
 } from "utils/timeUtils";

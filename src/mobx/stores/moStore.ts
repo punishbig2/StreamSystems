@@ -493,7 +493,7 @@ export class MoStore {
     entry: DealEntry
   ): Promise<FixTenorResult> {
     const { symbol } = entry;
-    if (!originalTenor || !isTenor(originalTenor))
+    if (!originalTenor || !isTenor(originalTenor) || originalTenor.name === "")
       return {
         tenor: null,
         horizonDateUTC: "",
