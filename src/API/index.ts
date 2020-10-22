@@ -247,6 +247,7 @@ type Endpoints =
   | "deals"
   | "exproducts"
   | "request"
+  | "report"
   | "legs"
   | "optionlegsdefin"
   | "optionlegsdefout"
@@ -282,6 +283,7 @@ export class API {
   public static Mlo: string = "/api/mlo";
   public static Deal: string = `${API.Mlo}/deal`;
   public static SEF: string = `${API.Mlo}/sef`;
+  public static STP: string = `${API.Mlo}/stp`;
   public static Legs: string = `${API.Mlo}/legs`;
   public static Brokerage: string = `${API.Mlo}/brokerage`;
   public static MloConfig = `${API.Mlo}/config`;
@@ -913,6 +915,18 @@ export class API {
       useremail: user.email,
       legs: legs,
     });
+    return task.execute();
+  }
+
+  public static async stpSendReport(dealID: string): Promise<string> {
+    const { user } = workareaStore;
+    const task: Task<string> = post<string>(
+      API.buildUrl(API.STP, "report", "send"),
+      {
+        dealID: dealID,
+        useremail: user.email,
+      }
+    );
     return task.execute();
   }
 

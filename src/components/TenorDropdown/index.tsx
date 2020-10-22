@@ -3,6 +3,7 @@ import { FormField } from "components/FormField";
 import { DropdownItem } from "forms/fieldDef";
 import React, { ReactElement } from "react";
 import { Tenor } from "types/tenor";
+import { SPECIFIC_TENOR } from "../../utils/tenorUtils";
 
 interface Props<T> {
   data: DropdownItem[];
@@ -15,15 +16,20 @@ interface Props<T> {
   onChange?: (name: keyof T, value: any) => void;
 }
 
+const specificTenorDropdownItem: DropdownItem<string> = {
+  internalValue: SPECIFIC_TENOR,
+  value: SPECIFIC_TENOR,
+  label: SPECIFIC_TENOR,
+};
+
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data, value } = props;
   const onDateChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     value: Date | string
   ): void => {
-    if (value instanceof Date) return;
-    if (props.onChange !== undefined) {
-      props.onChange(props.name as keyof T, value);
+    if (value instanceof Date && props.onChange !== undefined) {
+      props.onChange(props.name, value);
     }
   };
   const onSelectChange = (name: keyof T, value: any) => {
@@ -37,7 +43,10 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       <Grid className={"bank-entity-field"} spacing={1} item container>
         <Grid xs={6} item>
           <FormField
-            dropdownData={data}
+            dropdownData={[
+              ...(name === SPECIFIC_TENOR ? [specificTenorDropdownItem] : []),
+              ...data,
+            ]}
             color={props.color}
             value={name}
             name={props.name}
