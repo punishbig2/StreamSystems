@@ -57,6 +57,7 @@ export class WorkareaStore {
   @observable loadingMessage?: string;
   @observable loadingProgress: number = 0;
   @observable isCreatingWorkspace: boolean = false;
+  @observable hasUpdates: boolean = false;
 
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
@@ -410,6 +411,11 @@ export class WorkareaStore {
   public findSymbolById(id: string): Symbol | undefined {
     const { symbolsMap } = this;
     return symbolsMap[id];
+  }
+
+  @action.bound
+  public setHasUpdates(): void {
+    this.hasUpdates = true;
   }
 }
 

@@ -97,6 +97,26 @@
     }
   }
 
+  .new-version {
+    display: flex;
+    align-items: center;
+    margin: 0 8px;
+    color: orange;
+    cursor: pointer;
+    justify-self: flex-end;
+    font-size: 13px;
+
+    i {
+      font-size: 13px;
+    }
+
+    p {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0 8px;
+    }
+  }
+
   .sign-out {
     display: block;
     margin: 0 12px 0 auto;

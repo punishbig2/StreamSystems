@@ -3,9 +3,9 @@ import { TabLabel } from "components/TabLabel";
 import config from "config";
 
 import React, { ReactElement, useState, useRef } from "react";
-import { Menu, MenuItem } from "@material-ui/core";
+import { Menu, MenuItem, Typography } from "@material-ui/core";
 import { CurrencyGroups, isCurrencyGroup } from "types/user";
-import { WorkspaceDef } from "mobx/stores/workareaStore";
+import workareaStore, { WorkspaceDef } from "mobx/stores/workareaStore";
 
 interface Props {
   readonly entries: { [k: string]: WorkspaceDef };
@@ -123,6 +123,15 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
         onClick={() => showOptions(true)}
       />
       {getAddWorkspaceMenu()}
+      {workareaStore.hasUpdates ? (
+        <div
+          className={"new-version"}
+          onClick={(): void => window.location.reload()}
+        >
+          <i className={"fa fa-sync"} />
+          <Typography>New version available, click to reload!</Typography>
+        </div>
+      ) : null}
       <a className={"sign-out"} href={config.SignOutUrl}>
         <i className={"fa fa-sign-out-alt"} />
         <span>Logout</span>

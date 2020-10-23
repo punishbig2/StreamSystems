@@ -41,7 +41,7 @@ export const WorkareaError: React.FC<Props> = (
         Please try to reload the page
         <a className={"link"} href={config.SignOutUrl}>
           or click here
-        </a>
+        </a>{" "}
         to go to the sign in page
       </Typography>
       <Typography color={"textPrimary"}>
