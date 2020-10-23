@@ -17,7 +17,6 @@ export interface CalendarVolDatesQuery {
   fxPair: string;
   rollExpiryDates: boolean;
   addHolidays: boolean;
-  Tenors: string[];
 }
 
 export interface CalendarFXTenorsResponse {

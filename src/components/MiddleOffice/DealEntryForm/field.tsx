@@ -9,12 +9,13 @@ import { DealEntry } from "structures/dealEntry";
 import { API } from "../../../API";
 import { CalendarVolDatesResponse } from "../../../types/calendarFXPair";
 import { SPECIFIC_TENOR } from "../../../utils/tenorUtils";
-import {
-  addToDate,
-  forceParseDate,
-  naiveTenorToDate,
-  toUTC,
-} from "../../../utils/timeUtils";
+
+import { forceParseDate, toUTC } from "../../../utils/timeUtils";
+
+export interface DealEntryEditInterface {
+  readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
+  readonly setWorking: (field: keyof DealEntry | null) => void;
+}
 
 interface Props {
   readonly field: FieldDef<DealEntry, MoStore, DealEntry>;
@@ -76,48 +77,46 @@ export const Field: React.FC<Props> = React.memo(
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
         const { symbol } = entry;
-        if (typeof value === "string") {
-          try {
-            const dates: CalendarVolDatesResponse = await API.queryVolDates({
-              tradeDate: toUTC(entry.tradeDate, true),
-              fxPair: symbol.symbolID,
-              rollExpiryDates: true,
-              addHolidays: true,
-              Tenors: [value],
-            });
-            const spotDate: Date = forceParseDate(dates.SpotDate);
-            onChangeCompleted({
-              [name]: {
-                name: value,
-                deliveryDate: forceParseDate(dates.DeliveryDates[0]),
-                expiryDate: forceParseDate(dates.ExpiryDates[0]),
+        const dates: CalendarVolDatesResponse = await ((): Promise<
+          CalendarVolDatesResponse
+        > => {
+          if (typeof value === "string") {
+            return API.queryVolTenors(
+              {
+                tradeDate: toUTC(entry.tradeDate, true),
+                fxPair: symbol.symbolID,
+                addHolidays: true,
+                rollExpiryDates: true,
               },
-              premiumDate: spotDate,
-              spotDate: spotDate,
-            });
-          } catch {
-            const expiryDate: Date = naiveTenorToDate(value);
-            onChangeCompleted({
-              [name]: {
-                name: value,
-                deliveryDate: addToDate(
-                  expiryDate,
-                  symbol.SettlementWindow,
-                  "d"
-                ),
-                expiryDate: expiryDate,
+              [value]
+            );
+          } else {
+            return API.queryVolDates(
+              {
+                tradeDate: toUTC(entry.tradeDate, true),
+                fxPair: symbol.symbolID,
+                addHolidays: true,
+                rollExpiryDates: true,
               },
-            });
+              [toUTC(value)]
+            );
           }
-        } else {
-          onChangeCompleted({
-            [name]: {
-              name: SPECIFIC_TENOR,
-              deliveryDate: addToDate(value, symbol.SettlementWindow, "d"),
-              expiryDate: value,
-            },
-          });
-        }
+        })();
+        return onChangeCompleted({
+          [name]: {
+            name: typeof value === "string" ? value : SPECIFIC_TENOR,
+            deliveryDate: forceParseDate(dates.DeliveryDates[0]),
+            expiryDate: forceParseDate(dates.ExpiryDates[0]),
+          },
+          // If it's tenor 2 it does not affect deal level spot/premium dates
+          // otherwise it does
+          ...(name === "tenor1"
+            ? {
+                spotDate: forceParseDate(dates.SpotDate),
+                premiumDate: forceParseDate(dates.SpotDate),
+              }
+            : {}),
+        });
       },
       [entry, onChangeCompleted]
     );

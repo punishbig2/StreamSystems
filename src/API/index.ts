@@ -17,8 +17,6 @@ import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
 import {
-  CalendarFXTenorsQuery,
-  CalendarFXTenorsResponse,
   CalendarVolDatesQuery,
   CalendarVolDatesResponse,
 } from "types/calendarFXPair";
@@ -49,7 +47,6 @@ import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import {
   currentTimestampFIXFormat,
-  naiveTenorToDateString,
   toUTC,
   toUTCFIXFormat,
 } from "utils/timeUtils";
@@ -248,6 +245,7 @@ type Endpoints =
   | "deals"
   | "exproducts"
   | "request"
+  | "report"
   | "legs"
   | "optionlegsdefin"
   | "optionlegsdefout"
@@ -283,6 +281,7 @@ export class API {
   public static Mlo: string = "/api/mlo";
   public static Deal: string = `${API.Mlo}/deal`;
   public static SEF: string = `${API.Mlo}/sef`;
+  public static STP: string = `${API.Mlo}/stp`;
   public static Legs: string = `${API.Mlo}/legs`;
   public static Brokerage: string = `${API.Mlo}/brokerage`;
   public static MloConfig = `${API.Mlo}/config`;
@@ -920,6 +919,18 @@ export class API {
     return task.execute();
   }
 
+  public static async stpSendReport(dealID: string): Promise<string> {
+    const { user } = workareaStore;
+    const task: Task<string> = post<string>(
+      API.buildUrl(API.STP, "report", "send"),
+      {
+        dealID: dealID,
+        useremail: user.email,
+      }
+    );
+    return task.execute();
+  }
+
   public static async sendTradeCaptureReport(dealID: string): Promise<string> {
     const user: User = workareaStore.user;
     const task: Task<string> = post<string>(
@@ -1036,29 +1047,34 @@ export class API {
     return task.execute();
   }
 
-  public static async queryFxTenorsDates(
-    query: CalendarFXTenorsQuery
-  ): Promise<CalendarFXTenorsResponse> {
-    const url: string =
-      config.CalendarServiceBaseUrl + "/api/calendar/fxpair/fx/tenors";
-    const task: Task<CalendarFXTenorsResponse> = post<CalendarFXTenorsResponse>(
-      url,
-      query
-    );
-    return task.execute();
-  }
-
   public static async queryVolDates(
-    query: CalendarVolDatesQuery
+    query: CalendarVolDatesQuery,
+    dates: ReadonlyArray<string>
   ): Promise<CalendarVolDatesResponse> {
-    const { Tenors } = query;
     const url: string =
       config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/dates";
     const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
       url,
       {
         ...query,
-        ExpiryDates: Tenors.map(naiveTenorToDateString),
+        ExpiryDates: dates,
+        rollExpiryDates: true,
+      }
+    );
+    return task.execute();
+  }
+
+  public static async queryVolTenors(
+    query: CalendarVolDatesQuery,
+    tenors: ReadonlyArray<string>
+  ): Promise<CalendarVolDatesResponse> {
+    const url: string =
+      config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/tenors";
+    const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
+      url,
+      {
+        ...query,
+        Tenors: tenors,
         rollExpiryDates: true,
       }
     );
