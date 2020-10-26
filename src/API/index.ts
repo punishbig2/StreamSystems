@@ -936,6 +936,7 @@ export class API {
       {
         dealID: dealID,
         useremail: user.email,
+        dest: "",
       }
     );
     return task.execute();

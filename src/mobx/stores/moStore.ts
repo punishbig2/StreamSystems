@@ -37,7 +37,6 @@ const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
   "If the deal is not priced yet, try again as this is a problem that should not happen and never be repeated. " +
   "If otherwise the problem persists, please contact support.";
-
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
   "If the deal is not submitted yet, try again as this is a problem that should not happen and never be repeated. " +
@@ -682,25 +681,39 @@ export class MoStore {
     };
   }
 
+  private static async doSubmit(
+    dealID: string,
+    status: DealStatus
+  ): Promise<any> {
+    if (status === DealStatus.Priced) {
+      return API.sendTradeCaptureReport(dealID);
+    } else if (status === DealStatus.SEFConfirmed) {
+      return API.stpSendReport(dealID);
+    }
+  }
+
   @action.bound
   public submit() {
-    const { dealID } = this.entry;
+    const { dealID, status } = this.entry;
     if (dealID === undefined)
       throw new Error("cannot send a trade capture without a deal id");
     this.setStatus(MoStatus.Submitting);
-    API.sendTradeCaptureReport(dealID)
-      .then(() => {
-        setTimeout(() => {
-          this.setSoftError(SOFT_SEF_ERROR);
+    MoStore.doSubmit(dealID, status)
+      .then((): void => {
+        setTimeout((): void => {
+          console.log(SOFT_SEF_ERROR);
         }, config.RequestTimeout);
       })
-      .catch((error: any) => {
+      .catch((error: any): void => {
         this.setError({
           status: "Unknown problem",
           code: 1,
           error: "Unexpected error",
           content: typeof error === "string" ? error : error.content(),
         });
+      })
+      .finally((): void => {
+        this.setStatus(MoStatus.Normal);
       });
   }
 
