@@ -183,6 +183,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 }
                 variant={"outlined"}
                 className={classes.select}
+                disabled={true}
               >
                 <MenuItem value={"G"}>AON</MenuItem>
                 <MenuItem value={"D"}>
