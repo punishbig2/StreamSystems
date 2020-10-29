@@ -564,15 +564,20 @@ export class MoStore {
 
   @action.bound
   public setDeal(deal: Deal | null): void {
+    const { entry } = this;
+    if (
+      (this.isEditMode && deal !== null && entry.dealID !== deal.id) ||
+      (this.isEditMode && deal === null)
+    ) {
+      return;
+    }
     if (deal === null) {
       this.entry = { ...emptyDealEntry };
       this.entryType = EntryType.Empty;
       this.selectedDealID = null;
-      this.isEditMode = false;
     } else {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
-      this.isEditMode = false;
       const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
       MoStore.resolveDatesIfNeeded(entry).then((newEntry: DealEntry): void => {
@@ -766,7 +771,14 @@ export class MoStore {
 
   @action.bound
   private onDealSaved(id: string): void {
+    const { deals } = this;
+    const deal: Deal | undefined = deals.find(
+      (each: Deal): boolean => each.id === id
+    );
     this.isEditMode = false;
+    if (deal !== undefined) {
+      this.entry = createDealEntry(deal);
+    }
     this.selectedDealID = id;
     this.successMessage = {
       title: "Saved Successfully",
@@ -801,9 +813,15 @@ export class MoStore {
     const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
       this.deals = [deal, ...deals];
+      if (this.isEditMode && this.selectedDealID !== deal.id) {
+        return;
+      }
       this.entry = await createDealEntry(deal);
     } else {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
+      if (this.isEditMode && this.selectedDealID !== deal.id) {
+        return;
+      }
       // It was modified, so replay consequences
       if (currentDealID !== null && currentDealID === deal.id) {
         this.entry = await createDealEntry(deal);
