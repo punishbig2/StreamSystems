@@ -18,6 +18,7 @@ const isEditable = (name: string) => (
   if (strategy === undefined) return false;
   const { f1 } = strategy.fields;
   const editableCondition: EditableCondition = f1[name];
+  if (editableCondition === undefined) return false;
   if (editableCondition === EditableCondition.NotApplicable) return false;
   return editableCondition !== EditableCondition.NotEditable;
 };
@@ -32,28 +33,28 @@ export const fields: ReadonlyArray<FieldDef<
     name: "strategy",
     label: "Strategy",
     color: "grey",
-    editable: false,
+    editable: isEditable("strategy"),
   },
   {
     type: "date",
     name: "tradeDate",
     label: "Trade Date",
     color: "grey",
-    editable: false,
+    editable: isEditable("tradeDate"),
   },
   {
     type: "date",
     name: "spotDate",
     label: "Spot Date",
     color: "grey",
-    editable: false,
+    editable: isEditable("spotDate"),
   },
   {
     type: "number",
     name: "spot",
     label: "Spot",
     color: "grey",
-    editable: false,
+    editable: isEditable("spot"),
     precision: 4,
   },
   {
@@ -93,28 +94,28 @@ export const fields: ReadonlyArray<FieldDef<
     name: "cutCity",
     label: "Cut City",
     color: "grey",
-    editable: false,
+    editable: isEditable("cutCity"),
   },
   {
     type: "text",
     name: "cutTime",
     label: "Cut Time",
     color: "grey",
-    editable: false,
+    editable: isEditable("cutTime"),
   },
   {
     type: "text",
     name: "source",
     label: "Source",
     color: "grey",
-    editable: false,
+    editable: isEditable("source"),
   },
   {
     type: "text",
     name: "delivery",
     label: "Delivery",
     color: "grey",
-    editable: false,
+    editable: isEditable("delivery"),
   },
   {
     type: "text",
