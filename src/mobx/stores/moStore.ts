@@ -7,6 +7,7 @@ import {
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
 import {
+  EditableFlag,
   InvalidStrategy,
   MOStrategy,
   StrategyMap,
@@ -28,6 +29,7 @@ import { createDealEntry } from "utils/dealUtils";
 import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 import { isTenor } from "../../components/FormField/helpers";
+import { EditableFilter, Level } from "../../forms/fieldDef";
 import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
 import { DealStatus } from "../../types/dealStatus";
 import { FixTenorResult } from "../../types/fixTenorResult";
@@ -38,7 +40,6 @@ const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
   "If the deal is not priced yet, try again as this is a problem that should not happen and never be repeated. " +
   "If otherwise the problem persists, please contact support.";
-
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
   "If the deal is not submitted yet, try again as this is a problem that should not happen and never be repeated. " +
@@ -113,6 +114,7 @@ export class MoStore {
   @observable.ref deals: Deal[] = [];
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
+  @observable isModified: boolean = false;
 
   private originalEntry: DealEntry = { ...emptyDealEntry };
   private operationsCount = 10;
@@ -461,11 +463,6 @@ export class MoStore {
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
   }
 
-  @computed
-  public get isModified(): boolean {
-    return this.isEditMode;
-  }
-
   public getModifiedFields(): string[] {
     const { entry } = this;
     const fields: string[] = [];
@@ -570,15 +567,20 @@ export class MoStore {
 
   @action.bound
   public setDeal(deal: Deal | null): void {
+    const { entry } = this;
+    if (
+      (this.isEditMode && deal !== null && entry.dealID !== deal.id) ||
+      (this.isEditMode && deal === null)
+    ) {
+      return;
+    }
     if (deal === null) {
       this.entry = { ...emptyDealEntry };
       this.entryType = EntryType.Empty;
       this.selectedDealID = null;
-      this.isEditMode = false;
     } else {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
-      this.isEditMode = false;
       const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
       MoStore.resolveDatesIfNeeded(entry).then((newEntry: DealEntry): void => {
@@ -666,6 +668,7 @@ export class MoStore {
     // If the tenor changed get the dates, otherwise
     // we already have them
     await this.updateLegs(newEntry);
+    this.isModified = true;
     this.setEntry(newEntry);
   }
 
@@ -673,40 +676,60 @@ export class MoStore {
     const { entry } = this;
     if (entry.not1 === null || entry.not1 === undefined)
       throw new Error("notional must be set");
-    const rates = ((summaryLeg: SummaryLeg | null) => {
+    const { summaryLeg } = this;
+    const otherFields = ((
+      summaryLeg: SummaryLeg | null
+    ): Partial<DealEntry> => {
       if (summaryLeg === null) return {};
       return {
         fwdrate1: coalesce(summaryLeg.fwdrate1, undefined),
         fwdpts1: coalesce(summaryLeg.fwdpts1, undefined),
         fwdrate2: coalesce(summaryLeg.fwdrate2, undefined),
         fwdpts2: coalesce(summaryLeg.fwdpts2, undefined),
+        extra_fields: {
+          spot: summaryLeg.spot,
+        },
       };
-    })(this.summaryLeg);
+    })(summaryLeg);
     return {
       ...entry,
-      ...rates,
+      ...otherFields,
     };
+  }
+
+  private static async doSubmit(
+    dealID: string,
+    status: DealStatus
+  ): Promise<any> {
+    if (status === DealStatus.Priced) {
+      return API.sendTradeCaptureReport(dealID);
+    } else if (status === DealStatus.SEFConfirmed) {
+      return API.stpSendReport(dealID);
+    }
   }
 
   @action.bound
   public submit() {
-    const { dealID } = this.entry;
+    const { dealID, status } = this.entry;
     if (dealID === undefined)
       throw new Error("cannot send a trade capture without a deal id");
     this.setStatus(MoStatus.Submitting);
-    API.sendTradeCaptureReport(dealID)
-      .then(() => {
-        setTimeout(() => {
-          this.setSoftError(SOFT_SEF_ERROR);
+    MoStore.doSubmit(dealID, status)
+      .then((): void => {
+        setTimeout((): void => {
+          console.log(SOFT_SEF_ERROR);
         }, config.RequestTimeout);
       })
-      .catch((error: any) => {
+      .catch((error: any): void => {
         this.setError({
           status: "Unknown problem",
           code: 1,
           error: "Unexpected error",
           content: typeof error === "string" ? error : error.content(),
         });
+      })
+      .finally((): void => {
+        this.setStatus(MoStatus.Normal);
       });
   }
 
@@ -759,7 +782,14 @@ export class MoStore {
 
   @action.bound
   private onDealSaved(id: string): void {
+    const { deals } = this;
+    const deal: Deal | undefined = deals.find(
+      (each: Deal): boolean => each.id === id
+    );
     this.isEditMode = false;
+    if (deal !== undefined) {
+      this.entry = createDealEntry(deal);
+    }
     this.selectedDealID = id;
     this.successMessage = {
       title: "Saved Successfully",
@@ -796,12 +826,15 @@ export class MoStore {
     const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
       this.deals = [deal, ...deals];
-      const newEntry = await createDealEntry(deal);
-      if (!deepEqual(newEntry, this.entry)) {
-        this.entry = newEntry;
+      if (this.isEditMode && this.selectedDealID !== deal.id) {
+        return;
       }
+      this.entry = await createDealEntry(deal);
     } else {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
+      if (this.isEditMode && this.selectedDealID !== deal.id) {
+        return;
+      }
       // It was modified, so replay consequences
       if (currentDealID !== null && currentDealID === deal.id) {
         const newEntry = await createDealEntry(deal);
@@ -862,6 +895,67 @@ export class MoStore {
           console.warn("undefined error, WTF?");
         }
       });
+  }
+
+  public static getFieldEditableFlag(
+    name: string,
+    strategy: MOStrategy
+  ): EditableFlag {
+    if (strategy.productid === "") return EditableFlag.Editable;
+    const { f1 } = strategy.fields;
+    const editableCondition: EditableFlag = f1[name];
+    if (editableCondition === undefined) return EditableFlag.None;
+    return editableCondition;
+  }
+
+  public static isEntryEditable(
+    allowedTypes: number,
+    entry: DealEntry,
+    next = (_: DealEntry): boolean => true
+  ): boolean {
+    if (entry.status === DealStatus.SEFConfirmed) return false;
+    if (!next(entry)) return false;
+    return (entry.dealType & allowedTypes) !== 0;
+  }
+
+  public static createEditableFilter(
+    allowedTypes: number,
+    status = 0,
+    next = (entry: DealEntry): boolean => true
+  ): EditableFilter {
+    return (
+      name: string,
+      entry: DealEntry,
+      editable: boolean,
+      level?: Level
+    ): boolean => {
+      if (!editable) return false;
+      const flag: EditableFlag = MoStore.getFieldEditableFlag(
+        name,
+        entry.strategy
+      );
+      switch (flag) {
+        case EditableFlag.Editable:
+          return true;
+        case EditableFlag.Priced:
+          return entry.status === DealStatus.Priced;
+        case EditableFlag.NotApplicable:
+        case EditableFlag.NotEditable:
+          return false;
+        case EditableFlag.Pending:
+          return entry.status === DealStatus.Pending;
+        case EditableFlag.None:
+          if (level === Level.Leg && name in entry) return false;
+          if (name === "strategy" || name === "symbol") {
+            // Always editable provided that it's a new deal
+            return (
+              entry.type === EntryType.New || entry.type === EntryType.Clone
+            );
+          }
+          return false;
+      }
+      return MoStore.isEntryEditable(allowedTypes, entry, next);
+    };
   }
 }
 

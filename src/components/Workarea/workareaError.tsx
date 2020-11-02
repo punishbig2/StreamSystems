@@ -3,20 +3,23 @@ import React from "react";
 import config from "../../config";
 
 interface Props {
-  title: string;
-  detail: string;
+  readonly shouldReload?: boolean;
+  readonly title: string;
+  readonly detail: string;
 }
 
 export const WorkareaError: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
   const [remainingTime, setRemainingTime] = React.useState<number>(30000);
+  const { shouldReload = true } = props;
   React.useEffect((): void => {
     if (remainingTime <= 0) {
       window.location.href = config.SignOutUrl;
     }
   }, [remainingTime]);
-  React.useEffect((): (() => void) => {
+  React.useEffect((): (() => void) | void => {
+    if (!shouldReload) return;
     const timer = setTimeout(
       (): void =>
         setRemainingTime((previous: number): number => previous - 1000),
@@ -37,17 +40,21 @@ export const WorkareaError: React.FC<Props> = (
       <Typography variant={"body1"} color={"textPrimary"} component={"p"}>
         {props.detail}
       </Typography>
-      <Typography variant={"body1"} color={"textPrimary"} component={"p"}>
-        Please try to reload the page
-        <a className={"link"} href={config.SignOutUrl}>
-          or click here
-        </a>{" "}
-        to go to the sign in page
-      </Typography>
-      <Typography color={"textPrimary"}>
-        You will be redirected to the sign in page in {remainingTime / 1000}{" "}
-        seconds
-      </Typography>
+      {shouldReload ? (
+        <>
+          <Typography variant={"body1"} color={"textPrimary"} component={"p"}>
+            Please try to reload the page
+            <a className={"link"} href={config.SignOutUrl}>
+              or click here
+            </a>{" "}
+            to go to the sign in page
+          </Typography>
+          <Typography color={"textPrimary"}>
+            You will be redirected to the sign in page in {remainingTime / 1000}{" "}
+            seconds
+          </Typography>
+        </>
+      ) : null}
     </div>
   );
 };

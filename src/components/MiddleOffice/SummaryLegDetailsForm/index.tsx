@@ -4,10 +4,7 @@ import { BrokerSection } from "components/MiddleOffice/SummaryLegDetailsForm/Bro
 import { DealOutputSection } from "components/MiddleOffice/SummaryLegDetailsForm/DealOutputSection";
 import { Field } from "components/MiddleOffice/SummaryLegDetailsForm/field";
 
-import {
-  fields,
-  IsEditableData,
-} from "components/MiddleOffice/SummaryLegDetailsForm/fields";
+import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { Commission } from "components/MiddleOffice/types/deal";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { NoDataMessage } from "components/noDataMessage";
@@ -70,9 +67,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
           <Grid alignItems={"stretch"} container item>
             <fieldset className={"group"} disabled={props.disabled}>
               {fields.map(
-                (
-                  field: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>
-                ): ReactElement => (
+                (field: FieldDef<SummaryLeg, SummaryLeg>): ReactElement => (
                   <Field
                     key={field.name + field.type}
                     summaryLeg={props.summaryLeg}

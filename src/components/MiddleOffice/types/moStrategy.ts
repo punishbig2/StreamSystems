@@ -4,11 +4,12 @@ export enum ProductSource {
   Manual = "Manual",
 }
 
-export enum EditableCondition {
+export enum EditableFlag {
   Priced = "Priced",
   NotEditable = "Not Editable",
   Pending = "Pending",
   NotApplicable = "N/A",
+  Editable = "Editable",
   None = "",
 }
 
@@ -22,7 +23,7 @@ export interface MOStrategy {
   source: ProductSource;
   spreadvsvol: "vol" | "spread" | "both";
   strike?: string;
-  fields: { f1: { [key: string]: EditableCondition } };
+  fields: { f1: { [key: string]: EditableFlag } };
 }
 
 export const InvalidStrategy: MOStrategy = {

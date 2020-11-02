@@ -33,15 +33,15 @@ export const DealEntryForm: React.FC<Props> = (
   const { symbol } = entry;
   useLegs(cuts, entry);
   const fieldsRef: React.MutableRefObject<ReadonlyArray<
-    FieldDef<DealEntry, MoStore, DealEntry>
-  >> = useRef<ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>>>(
+    FieldDef<DealEntry, DealEntry, MoStore>
+  >> = useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>>>(
     originalFields
   );
   useEffect((): void => {
-    const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>> =
+    const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> =
       fieldsRef.current;
     const index: number = fields.findIndex(
-      (field: FieldDef<DealEntry, MoStore, DealEntry>): boolean =>
+      (field: FieldDef<DealEntry, DealEntry, MoStore>): boolean =>
         field.name === "dealstrike"
     );
     fieldsRef.current = [
@@ -50,7 +50,7 @@ export const DealEntryForm: React.FC<Props> = (
       ...fields.slice(index + 1),
     ];
   }, [symbol]);
-  const fields: ReadonlyArray<FieldDef<DealEntry, MoStore, DealEntry>> | null =
+  const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> | null =
     fieldsRef.current;
   const getActionButtons = (): ReactElement | null => {
     switch (props.entryType) {
@@ -89,7 +89,7 @@ export const DealEntryForm: React.FC<Props> = (
           <fieldset className={"group full-height"} disabled={props.disabled}>
             {fields.map(
               (
-                field: FieldDef<DealEntry, MoStore, DealEntry>
+                field: FieldDef<DealEntry, DealEntry, MoStore>
               ): ReactElement => (
                 <Field
                   key={field.name + field.type}

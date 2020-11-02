@@ -46,5 +46,7 @@ export interface Deal {
     seller: Commission;
   };
 
+  extraFields: string | undefined;
+
   usi?: string;
 }

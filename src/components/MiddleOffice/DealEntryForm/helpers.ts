@@ -1,16 +1,16 @@
-import { EditableCondition } from "components/MiddleOffice/types/moStrategy";
+import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
 import { FieldDef } from "forms/fieldDef";
 import { MoStore } from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 
 export const getValue = (
-  field: FieldDef<DealEntry, MoStore, DealEntry>,
-  editableCondition: EditableCondition,
+  field: FieldDef<DealEntry, DealEntry, MoStore>,
+  editableCondition: EditableFlag,
   rawValue: any,
-  internal: boolean,
+  internal: boolean
 ): any => {
-  if (editableCondition === EditableCondition.NotApplicable) return "N/A";
+  if (editableCondition === EditableFlag.NotApplicable) return "N/A";
   if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
   if (field.name === "status") return stateMap[Number(rawValue)];
   if (field.name === "legadj") {

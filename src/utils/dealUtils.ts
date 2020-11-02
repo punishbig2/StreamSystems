@@ -5,7 +5,6 @@ import {
   MOStrategy,
 } from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
-import { getVegaAdjust } from "utils/legsUtils";
 import moStore from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
@@ -14,11 +13,12 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
+import { getVegaAdjust } from "utils/legsUtils";
 import {
   addToDate,
   forceParseDate,
-  parseTime,
   naiveTenorToDate,
+  parseTime,
 } from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
@@ -165,6 +165,7 @@ export const createDealFromBackendMessage = async (
     fwdPts2: object.fwdpts2,
     commissions: await getCommissionRates(object),
     usi: object.usi_num,
+    extraFields: object.extra_fields,
   };
 };
 
@@ -238,6 +239,8 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     fwdrate2: deal.fwdRate2,
     usi: deal.usi,
     commissions: deal.commissions,
+    extra_fields:
+      deal.extraFields !== undefined ? JSON.parse(deal.extraFields) : undefined,
   };
 };
 

@@ -1,5 +1,4 @@
 import { FormField } from "components/FormField";
-import { IsEditableData } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import React, { ReactElement } from "react";
@@ -8,7 +7,7 @@ import { DealEntry } from "structures/dealEntry";
 interface Props {
   readonly dealEntry: DealEntry;
   readonly summaryLeg: SummaryLeg | null;
-  readonly field: FieldDef<SummaryLeg, IsEditableData, SummaryLeg>;
+  readonly field: FieldDef<SummaryLeg, SummaryLeg>;
   readonly isEditMode: boolean;
   readonly onUpdateSummaryLeg: (
     fieldName: keyof SummaryLeg,
@@ -36,10 +35,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   };
   const isEditable = (): boolean => {
     if (typeof field.editable === "function") {
-      return field.editable({
-        dealEntry: dealEntry,
-        isEditMode: isEditMode,
-      });
+      return field.editable(field.name, dealEntry, isEditMode);
     } else {
       return field.editable;
     }

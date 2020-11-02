@@ -2,51 +2,43 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { DealEntry, DealType } from "structures/dealEntry";
 import { DealStatus, toBitwise } from "types/dealStatus";
+import { MoStore } from "../../../../mobx/stores/moStore";
 
-const editableFilter = (
-  types: number,
-  status: number = toBitwise(DealStatus.SEFConfirmed)
-) => (data: any, entry?: DealEntry): boolean => {
-  if (entry === undefined) return false;
-  if ((toBitwise(entry.status) & status) !== 0) return false;
-  return (entry.dealType & types) !== 0;
-};
-
-const fields: FieldDef<Leg, {}, DealEntry>[] = [
+const fields: FieldDef<Leg, DealEntry>[] = [
   {
     type: "text",
     color: "grey",
     name: "option",
     label: "Option",
-    editable: false,
+    editable: false /* This is grabbed from leg defs */,
   },
   {
     type: "text",
     color: "grey",
     name: "side",
     label: "Side",
-    editable: false,
+    editable: false /* This is grabbed from leg defs */,
   },
   {
     type: "text",
     color: "grey",
     name: "party",
     label: "Party",
-    editable: false,
+    editable: false /* This is grabbed from leg defs */,
   },
   {
     type: "date",
     color: "grey",
     name: "expiryDate",
     label: "Expiry Date",
-    editable: false,
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "date",
     color: "grey",
     name: "deliveryDate",
     label: "Delivery Date",
-    editable: editableFilter(
+    editable: MoStore.createEditableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic
     ),
   },
@@ -56,14 +48,16 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "notional",
     label: "Notional",
     precision: 0,
-    editable: false,
+    editable: MoStore.createEditableFilter(
+      DealType.Voice | DealType.Manual | DealType.Electronic
+    ),
   },
   {
     type: "strike",
     color: "grey",
     name: "strike",
     label: "Strike",
-    editable: editableFilter(DealType.Voice | DealType.Manual),
+    editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
   },
   {
     type: "percent",
@@ -71,7 +65,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "vol",
     label: "Vol",
     precision: 3,
-    editable: editableFilter(DealType.Voice | DealType.Manual),
+    editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
   },
   {
     type: "number",
@@ -79,7 +73,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "fwdPts",
     label: "Fwd Pts",
     precision: 4,
-    editable: false,
+    editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
   },
   {
     type: "number",
@@ -87,7 +81,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "fwdRate",
     label: "Fwd Rate",
     precision: 4,
-    editable: editableFilter(
+    editable: MoStore.createEditableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic,
       toBitwise(DealStatus.SEFConfirmed) | toBitwise(DealStatus.Pending)
     ),
@@ -97,18 +91,14 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     color: "grey",
     name: "premiumDate",
     label: "Premium Date",
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
+    editable: false /* This is computed from other dates */,
   },
   {
     type: "currency",
     color: "grey",
     name: "premium",
     label: "Premium",
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "percent",
@@ -116,16 +106,14 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "price",
     label: "Price %/Pips",
     precision: 4,
-    editable: false,
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "currency",
     color: "grey",
     name: "hedge",
     label: "Hedge",
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "percent",
@@ -134,9 +122,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     label: "CCY1 Depo",
     data: 0,
     precision: 4,
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "percent",
@@ -145,9 +131,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     label: "CCY2 Depo",
     data: 1,
     precision: 4,
-    editable: editableFilter(
-      DealType.Voice | DealType.Manual | DealType.Electronic
-    ),
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "number",
@@ -155,7 +139,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "delta",
     label: "Delta",
     precision: 4,
-    editable: false,
+    editable: MoStore.createEditableFilter(DealType.All),
   },
   {
     type: "number",
@@ -163,7 +147,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     name: "usi_num",
     label: "USI#",
     precision: 0,
-    editable: false,
+    editable: MoStore.createEditableFilter(DealType.All),
   },
 ];
 

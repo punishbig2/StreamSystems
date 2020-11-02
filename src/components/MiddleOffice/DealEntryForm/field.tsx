@@ -1,24 +1,26 @@
+import { API } from "API";
 import { FormField } from "components/FormField";
 import { getValue } from "components/MiddleOffice/DealEntryForm/helpers";
-import { EditableCondition } from "components/MiddleOffice/types/moStrategy";
+import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
 import deepEqual from "deep-equal";
 import { FieldDef } from "forms/fieldDef";
 import moStore, { MoStore } from "mobx/stores/moStore";
 import React from "react";
 import { DealEntry } from "structures/dealEntry";
-import { API } from "../../../API";
-import { CalendarVolDatesResponse } from "../../../types/calendarFXPair";
-import { SPECIFIC_TENOR } from "../../../utils/tenorUtils";
+import { CalendarVolDatesResponse } from "types/calendarFXPair";
+import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
-import { forceParseDate, toUTC } from "../../../utils/timeUtils";
+import { forceParseDate, toUTC } from "utils/timeUtils";
 
 export interface DealEntryEditInterface {
   readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
   readonly setWorking: (field: keyof DealEntry | null) => void;
 }
 
+type FieldType = FieldDef<DealEntry, DealEntry, MoStore>;
+
 interface Props {
-  readonly field: FieldDef<DealEntry, MoStore, DealEntry>;
+  readonly field: FieldType;
   readonly entry: DealEntry;
   readonly isEditMode: boolean;
   readonly disabled: boolean;
@@ -41,12 +43,12 @@ export const Field: React.FC<Props> = React.memo(
       }
     }, [dataSource, transformData, entry]);
     const { strategy } = entry;
-    const editableCondition: EditableCondition = React.useMemo(() => {
+    const editableCondition: EditableFlag = React.useMemo(() => {
       if (strategy !== undefined && strategy.fields !== undefined) {
         const { f1 } = strategy.fields;
         return f1[field.name];
       }
-      return EditableCondition.None;
+      return EditableFlag.None;
     }, [strategy, field]);
     const rawValue: any = React.useMemo(() => entry[field.name], [
       entry,
@@ -61,18 +63,18 @@ export const Field: React.FC<Props> = React.memo(
       | undefined => {
       if (!isEditMode) return false;
       if (
-        editableCondition === EditableCondition.NotEditable ||
-        editableCondition === EditableCondition.NotApplicable
+        editableCondition === EditableFlag.NotEditable ||
+        editableCondition === EditableFlag.NotApplicable
       ) {
         return false;
       } else {
         if (typeof field.editable === "function") {
-          return field.editable(field.data || dropdownData, entry);
+          return field.editable(field.name, entry, moStore.isEditMode);
         } else {
           return field.editable;
         }
       }
-    }, [field, isEditMode, dropdownData, entry, editableCondition]);
+    }, [field, isEditMode, entry, editableCondition]);
     const { onChangeStart, onChangeCompleted } = props;
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {

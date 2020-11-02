@@ -3,9 +3,11 @@ import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import {
+  InvalidStrategy,
+  MOStrategy,
+} from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { createLegsFromDefinitionAndDeal, parseDates } from "utils/legsUtils";
 import moStore from "mobx/stores/moStore";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
@@ -15,6 +17,7 @@ import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
+import { createLegsFromDefinitionAndDeal, parseDates } from "utils/legsUtils";
 
 const buildSummaryLegFromCut = (
   cut: Cut,
@@ -24,7 +27,8 @@ const buildSummaryLegFromCut = (
   premiumDate: Date,
   spotDate: Date,
   deliveryDate: Date | undefined,
-  expiryDate: Date
+  expiryDate: Date,
+  extraFields: { [key: string]: number | string | null } | undefined
 ): SummaryLeg => {
   return {
     fwdpts1: null,
@@ -64,7 +68,10 @@ const buildSummaryLegFromCut = (
     },
     delivery: symbol.SettlementType,
     source: symbol.FixingSource,
-    spot: null,
+    spot:
+      extraFields !== undefined && typeof extraFields.spot === "number"
+        ? extraFields.spot
+        : null,
     spotDate: spotDate,
     tradeDate: tradeDate,
     usi: null,
@@ -80,7 +87,8 @@ const createSummaryLeg = (
   premiumDate: Date,
   spotDate: Date,
   deliveryDate: Date | undefined,
-  expiryDate: Date
+  expiryDate: Date,
+  extraFields: { [key: string]: number | string | null } | undefined
 ): SummaryLeg | null => {
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
@@ -97,7 +105,8 @@ const createSummaryLeg = (
       premiumDate,
       spotDate,
       deliveryDate,
-      expiryDate
+      expiryDate,
+      extraFields
     );
   } else {
     return null;
@@ -128,7 +137,8 @@ const handleLegsResponse = (
           entry.premiumDate,
           entry.spotDate,
           tenor.deliveryDate,
-          tenor.expiryDate
+          tenor.expiryDate,
+          entry.extra_fields
         ),
         ...summaryLeg,
         fwdpts1: coalesce(legs[1].fwdPts, fwdPts),
@@ -150,16 +160,20 @@ const handleLegsResponse = (
       true
     );
   } else {
-    moStore.setLegs(legs, createSummaryLeg(
-      cuts,
-      entry.strategy,
-      entry.symbol,
-      entry.tradeDate,
-      entry.premiumDate,
-      entry.spotDate,
-      tenor.deliveryDate,
-      tenor.expiryDate
-    ),);
+    moStore.setLegs(
+      legs,
+      createSummaryLeg(
+        cuts,
+        entry.strategy,
+        entry.symbol,
+        entry.tradeDate,
+        entry.premiumDate,
+        entry.spotDate,
+        tenor.deliveryDate,
+        tenor.expiryDate,
+        entry.extra_fields
+      )
+    );
   }
 };
 
@@ -206,7 +220,8 @@ const createDefaultLegsFromDeal = (
       entry.premiumDate,
       entry.spotDate,
       tenor.deliveryDate,
-      tenor.expiryDate
+      tenor.expiryDate,
+      entry.extra_fields
     )
   );
 };

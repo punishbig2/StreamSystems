@@ -1,6 +1,7 @@
 import { InputHandler } from "components/FormField/inputHandler";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
+import { DealEntry } from "../structures/dealEntry";
 
 export interface DropdownItem<T = any> {
   readonly internalValue: T;
@@ -8,12 +9,25 @@ export interface DropdownItem<T = any> {
   readonly label: string;
 }
 
-export interface FieldDef<T, S = {}, E = {}> {
+export enum Level {
+  Deal,
+  Summary,
+  Leg,
+}
+
+export type EditableFilter = (
+  fieldName: string,
+  entry: DealEntry,
+  editable: boolean,
+  level?: Level
+) => boolean;
+
+export interface FieldDef<T, E = {}, S = {}> {
   readonly type: FieldType;
   readonly color: "green" | "orange" | "cream" | "grey";
   readonly name: keyof T;
   readonly label: string;
-  readonly editable: boolean | ((data: any, entry?: E) => boolean);
+  readonly editable: boolean | EditableFilter;
   readonly placeholder?: string;
   readonly emptyValue?: string;
   readonly validate?: (value: string) => Validity;

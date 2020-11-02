@@ -905,6 +905,7 @@ export class API {
       style: entry.style,
       model: entry.model,
       product_fields_changed: changed,
+      ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
     };
   }
 
@@ -938,6 +939,7 @@ export class API {
       {
         dealID: dealID,
         useremail: user.email,
+        dest: "",
       }
     );
     return task.execute();

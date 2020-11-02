@@ -6,6 +6,7 @@ import { FieldType } from "forms/fieldType";
 
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
+import moStore from "mobx/stores/moStore";
 
 interface Props {
   readonly field: FieldDef<Leg, {}, DealEntry>;
@@ -27,7 +28,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     if (typeof field.editable !== "function") {
       return field.editable;
     } else {
-      return field.editable(null, props.dealEntry);
+      return field.editable(field.name, props.dealEntry, moStore.isEditMode);
     }
   };
   const getType = (): FieldType => {

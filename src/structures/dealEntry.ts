@@ -12,6 +12,8 @@ export enum DealType {
   Electronic = 1 << 1,
   Voice = 1 << 2,
   Manual = 1 << 3,
+  All = Invalid | Electronic | Voice | Manual,
+  None = 1 << 4,
 }
 
 export enum EntryType {
@@ -69,6 +71,8 @@ export interface DealEntry {
         seller: Commission;
       }
     | undefined;
+
+  extra_fields?: { [key: string]: string | number | null };
 }
 
 export const emptyDealEntry: DealEntry = {
@@ -144,4 +148,5 @@ export interface ServerDealQuery {
   readonly style: string;
   readonly model: number | "";
   readonly product_fields_changed?: string[];
+  readonly extra_fields?: { [key: string]: string | number | null };
 }
