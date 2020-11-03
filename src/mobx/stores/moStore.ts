@@ -943,7 +943,7 @@ export class MoStore {
         case EditableFlag.NotEditable:
           return false;
         case EditableFlag.Pending:
-          return entry.status === DealStatus.Pending;
+          return true;
         case EditableFlag.None:
           if (level === Level.Leg && name in entry) return false;
           if (name === "strategy" || name === "symbol") {
