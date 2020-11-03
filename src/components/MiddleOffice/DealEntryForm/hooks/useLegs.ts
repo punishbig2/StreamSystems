@@ -69,7 +69,7 @@ const buildSummaryLegFromCut = (
     delivery: symbol.SettlementType,
     source: symbol.FixingSource,
     spot:
-      extraFields !== undefined && typeof extraFields.spot === "number"
+      !!extraFields && typeof extraFields.spot === "number"
         ? extraFields.spot
         : null,
     spotDate: spotDate,
