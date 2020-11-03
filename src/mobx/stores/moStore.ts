@@ -938,7 +938,7 @@ export class MoStore {
         case EditableFlag.Editable:
           return true;
         case EditableFlag.Priced:
-          return entry.status === DealStatus.Priced;
+          return true;
         case EditableFlag.NotApplicable:
         case EditableFlag.NotEditable:
           return false;
