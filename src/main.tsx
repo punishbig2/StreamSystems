@@ -8,7 +8,7 @@ import { WorkareaError } from "./components/Workarea/workareaError";
 import { useReloadOnVersionChange } from "./hooks/useReloadOnVersionChange";
 import { useSignOutOnIdleTimeout } from "./hooks/useSignOutOnIdleTimeout";
 
-const MIN_SCREEN_WIDTH = 1440;
+const MIN_SCREEN_WIDTH = 1024;
 
 const FXOptionsUI: React.FC = observer(
   (): React.ReactElement => {
