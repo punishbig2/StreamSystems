@@ -385,6 +385,7 @@ export class MoStore {
   public async updateLegs(entry: DealEntry): Promise<void> {
     const { legs } = this;
     const { symbol } = entry;
+    this.isModified = true;
     this.legs = await Promise.all(
       legs.map(
         async (leg: Leg, index: number): Promise<Leg> => {
@@ -460,6 +461,7 @@ export class MoStore {
 
   @action.bound
   public updateSummaryLeg(fieldName: keyof SummaryLeg, value: any): void {
+    this.isModified = true;
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
   }
 
@@ -665,9 +667,6 @@ export class MoStore {
 
   public async updateEntry(partial: Partial<DealEntry>): Promise<void> {
     const newEntry = await this.buildNewEntry(partial);
-    // If the tenor changed get the dates, otherwise
-    // we already have them
-    await this.updateLegs(newEntry);
     this.isModified = true;
     this.setEntry(newEntry);
   }
