@@ -31,10 +31,22 @@ const buildSummaryLegFromCut = (
   extraFields: { [key: string]: number | string | null } | undefined
 ): SummaryLeg => {
   return {
-    fwdpts1: null,
-    fwdrate1: null,
-    fwdpts2: null,
-    fwdrate2: null,
+    fwdpts1:
+      extraFields && typeof extraFields.fwdpts1 === "number"
+        ? extraFields.fwdpts1
+        : null,
+    fwdrate1:
+      extraFields && typeof extraFields.fwdrate1 === "number"
+        ? extraFields.fwdrate1
+        : null,
+    fwdpts2:
+      extraFields && typeof extraFields.fwdpts2 === "number"
+        ? extraFields.fwdpts2
+        : null,
+    fwdrate2:
+      extraFields && typeof extraFields.fwdrate2 === "number"
+        ? extraFields.fwdrate2
+        : null,
     cutCity: cut.City,
     cutTime: cut.LocalTime,
     dealOutput: {

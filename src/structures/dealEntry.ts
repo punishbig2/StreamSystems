@@ -57,10 +57,6 @@ export interface DealEntry {
   readonly type: EntryType;
   readonly dealType: DealType;
 
-  readonly fwdrate1?: number;
-  readonly fwdpts1?: number;
-  readonly fwdrate2?: number;
-  readonly fwdpts2?: number;
   readonly size: number;
 
   readonly usi?: string;

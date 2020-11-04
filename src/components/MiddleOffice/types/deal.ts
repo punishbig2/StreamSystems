@@ -36,17 +36,13 @@ export interface Deal {
   premiumStyle: string;
   deltaStyle: string;
   // Summary stuff
-  fwdRate1?: number;
-  fwdPts1?: number;
-  fwdRate2?: number;
-  fwdPts2?: number;
 
   commissions?: {
     buyer: Commission;
     seller: Commission;
   };
 
-  extraFields: string | undefined;
+  extraFields: { [key: string]: string | number | null } | undefined;
 
   usi?: string;
 }

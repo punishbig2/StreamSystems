@@ -89,4 +89,6 @@ export interface VolMessageIn {
   readonly ValuationData: ValuationData;
   readonly ValuationModel: ValuationModel;
   readonly spotDate: string;
+
+  readonly Spot?: number | null | undefined;
 }

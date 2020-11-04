@@ -834,6 +834,11 @@ export class API {
         },
         RATES: [],
       },
+      ...(summaryLeg !== null &&
+      summaryLeg.spot !== undefined &&
+      summaryLeg.spot !== null
+        ? { Spot: summaryLeg.spot }
+        : {}),
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${legs.length}-Legs`,
       timeStamp: toUTC(new Date()),
@@ -896,10 +901,6 @@ export class API {
       strike: entry.dealstrike,
       expirydate: toUTCFIXFormat(tenor1.expiryDate),
       expirydate1: tenor2 !== null ? toUTCFIXFormat(tenor2.expiryDate) : null,
-      fwdrate1: entry.fwdrate1,
-      fwdpts1: entry.fwdpts1,
-      fwdrate2: entry.fwdrate2,
-      fwdpts2: entry.fwdpts2,
       deltastyle: entry.deltastyle,
       premstyle: entry.premstyle,
       style: entry.style,

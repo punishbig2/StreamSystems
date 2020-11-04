@@ -134,6 +134,9 @@ export const createDealFromBackendMessage = async (
     object.tenor1,
     object.expirydate1
   );
+  if (object.extra_fields) {
+    console.log(object.extra_fields);
+  }
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
@@ -159,13 +162,11 @@ export const createDealFromBackendMessage = async (
     status: object.state,
     deltaStyle: object.deltastyle === "" ? "Forward" : object.deltastyle,
     premiumStyle: object.premstyle === "" ? "Forward" : object.premstyle,
-    fwdRate1: object.fwdrate1,
-    fwdPts1: object.fwdpts1,
-    fwdRate2: object.fwdrate2,
-    fwdPts2: object.fwdpts2,
     commissions: await getCommissionRates(object),
     usi: object.usi_num,
-    extraFields: object.extra_fields,
+    extraFields: {
+      ...JSON.parse(object.extra_fields),
+    },
   };
 };
 
@@ -233,14 +234,9 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     spread: deal.spread,
     dealType: dealSourceToDealType(deal.source),
     type: EntryType.ExistingDeal,
-    fwdpts1: deal.fwdPts1,
-    fwdpts2: deal.fwdPts2,
-    fwdrate1: deal.fwdRate1,
-    fwdrate2: deal.fwdRate2,
     usi: deal.usi,
     commissions: deal.commissions,
-    extra_fields:
-      deal.extraFields !== undefined ? JSON.parse(deal.extraFields) : undefined,
+    extra_fields: deal.extraFields,
   };
 };
 

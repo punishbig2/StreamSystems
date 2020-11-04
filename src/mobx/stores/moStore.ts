@@ -679,15 +679,15 @@ export class MoStore {
     const { summaryLeg } = this;
     const otherFields = ((
       summaryLeg: SummaryLeg | null
-    ): Partial<DealEntry> => {
+    ): { extra_fields?: { [key: string]: number | string | null } } => {
       if (summaryLeg === null) return {};
       return {
-        fwdrate1: coalesce(summaryLeg.fwdrate1, undefined),
-        fwdpts1: coalesce(summaryLeg.fwdpts1, undefined),
-        fwdrate2: coalesce(summaryLeg.fwdrate2, undefined),
-        fwdpts2: coalesce(summaryLeg.fwdpts2, undefined),
         extra_fields: {
           spot: summaryLeg.spot,
+          fwdrate1: coalesce(summaryLeg.fwdrate1, undefined),
+          fwdpts1: coalesce(summaryLeg.fwdpts1, undefined),
+          fwdrate2: coalesce(summaryLeg.fwdrate2, undefined),
+          fwdpts2: coalesce(summaryLeg.fwdpts2, undefined),
         },
       };
     })(summaryLeg);
