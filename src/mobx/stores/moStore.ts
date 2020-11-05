@@ -385,7 +385,6 @@ export class MoStore {
   public async updateLegs(entry: DealEntry): Promise<void> {
     const { legs } = this;
     const { symbol } = entry;
-    this.isModified = true;
     this.legs = await Promise.all(
       legs.map(
         async (leg: Leg, index: number): Promise<Leg> => {
@@ -403,6 +402,7 @@ export class MoStore {
 
   public updateLeg(index: number, key: keyof Leg, value: any): void {
     const { legs } = this;
+    this.isModified = true;
     this.legs = [
       ...legs.slice(0, index),
       {
