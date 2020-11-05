@@ -35,7 +35,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   };
   const isEditable = (): boolean => {
     if (typeof field.editable === "function") {
-      return field.editable(field.name, dealEntry, isEditMode);
+      return field.editable(field.name, dealEntry, isEditMode, "sum");
     } else {
       return field.editable;
     }

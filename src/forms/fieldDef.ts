@@ -19,6 +19,7 @@ export type EditableFilter = (
   fieldName: string,
   entry: DealEntry,
   editable: boolean,
+  prefix: string,
   level?: Level
 ) => boolean;
 

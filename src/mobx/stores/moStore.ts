@@ -897,12 +897,15 @@ export class MoStore {
   }
 
   public static getFieldEditableFlag(
+    prefix: string,
     name: string,
     strategy: MOStrategy
   ): EditableFlag {
     if (strategy.productid === "") return EditableFlag.Editable;
     const { f1 } = strategy.fields;
-    const editableCondition: EditableFlag = f1[name];
+    console.log(f1);
+    const editableCondition: EditableFlag =
+      f1[prefix + name.toLowerCase()] || f1[name.toLowerCase()];
     if (editableCondition === undefined) return EditableFlag.None;
     return editableCondition;
   }
@@ -926,10 +929,12 @@ export class MoStore {
       name: string,
       entry: DealEntry,
       editable: boolean,
+      prefix: string,
       level?: Level
     ): boolean => {
       if (!editable) return false;
       const flag: EditableFlag = MoStore.getFieldEditableFlag(
+        prefix,
         name,
         entry.strategy
       );
@@ -944,7 +949,6 @@ export class MoStore {
         case EditableFlag.Pending:
           return true;
         case EditableFlag.None:
-          if (level === Level.Leg && name in entry) return false;
           if (name === "strategy" || name === "symbol") {
             // Always editable provided that it's a new deal
             return (

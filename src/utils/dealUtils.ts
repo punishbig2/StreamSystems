@@ -134,9 +134,6 @@ export const createDealFromBackendMessage = async (
     object.tenor1,
     object.expirydate1
   );
-  if (object.extra_fields) {
-    console.log(object.extra_fields);
-  }
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),

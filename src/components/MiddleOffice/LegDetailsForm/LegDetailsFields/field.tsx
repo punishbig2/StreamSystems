@@ -28,7 +28,12 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     if (typeof field.editable !== "function") {
       return field.editable;
     } else {
-      return field.editable(field.name, props.dealEntry, moStore.isEditMode);
+      return field.editable(
+        field.name,
+        props.dealEntry,
+        moStore.isEditMode,
+        "leg"
+      );
     }
   };
   const getType = (): FieldType => {

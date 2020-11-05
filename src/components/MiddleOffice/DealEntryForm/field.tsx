@@ -69,7 +69,7 @@ export const Field: React.FC<Props> = React.memo(
         return false;
       } else {
         if (typeof field.editable === "function") {
-          return field.editable(field.name, entry, moStore.isEditMode);
+          return field.editable(field.name, entry, moStore.isEditMode, "");
         } else {
           return field.editable;
         }
