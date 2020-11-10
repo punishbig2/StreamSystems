@@ -22,9 +22,15 @@ const sideToSide = (side: string): Sides => {
 };
 
 export const getStyledValue = (
-  values: [number | null, number | null, number | null],
+  values: [number | null, number | null, number | null] | number,
   style: string | undefined
 ): number | null => {
+  // This is just a workaround for some value
+  // being saved as non-styled.
+  //
+  // We assume that the saved value, whatever it is, is
+  // the value that corresponds to the selected style
+  if (typeof values === "number") return values;
   if (style === undefined) {
     console.warn("cannot get the styled value because the style is undefined");
     return null;
@@ -38,6 +44,7 @@ export const getStyledValue = (
     );
     return null;
   }
+  if (values === null) return null;
   if (index >= values.length) {
     console.warn(
       "cannot get the styled value because the index is larger than the number of items"
@@ -64,7 +71,6 @@ const getLegDefaultsFromDeal = (
   index: number
 ): Partial<Leg> => {
   if (entry === null || entry === undefined) return {};
-  // const { symbol } = deal;
   const leg: Partial<Leg> = {};
   const tenor: Tenor | InvalidTenor = getTenor(entry, index);
   leg.premiumDate = entry.premiumDate;

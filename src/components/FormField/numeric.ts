@@ -205,7 +205,7 @@ export class NumericInputHandler<
 
   public parse(value: string, props: P): any {
     if (value === "") return null;
-    const numeric = toNumber(value);
+    const numeric = toNumber(value, props.currency);
     if (numeric === undefined || numeric === null) return value;
     if (props.type === "percent") return numeric / this.divider;
     return numeric;

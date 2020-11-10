@@ -42,10 +42,19 @@ const getThousandsSeparatorRegexp = (): string | RegExp => {
   return getSeparatorRegexp(ThousandsSeparator, true);
 };
 
-export const toNumber = (value: string | null): number | null | undefined => {
+export const toNumber = (
+  value: string | null,
+  currency?: string
+): number | null | undefined => {
   if (value === null) return null;
   const separator: string | RegExp = getDecimalSeparatorForRegexp();
-  const fragments: string[] = value.split(separator);
+  const fragments: string[] = value
+    .replace(
+      currency === undefined ? " " /* it seems safe to do this */ : currency,
+      ""
+    )
+    .trim()
+    .split(separator);
   if (fragments.length === 2) {
     const integer: string = fragments[0].replace(
       getThousandsSeparatorRegexp(),

@@ -1,4 +1,5 @@
 import { API, BankEntitiesQueryResponse, HTTPError } from "API";
+import { isTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
@@ -17,24 +18,22 @@ import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { toast, ToastType } from "components/toast";
 import config from "config";
 import deepEqual from "deep-equal";
+import { EditableFilter } from "forms/fieldDef";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
+import { CalendarVolDatesResponse } from "types/calendarFXPair";
+import { DealStatus } from "types/dealStatus";
+import { FixTenorResult } from "types/fixTenorResult";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { InvalidSymbol, Symbol } from "types/symbol";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
-import { initializeLegFromEntry } from "utils/legFromEntryInitializer";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
-import { isTenor } from "../../components/FormField/helpers";
-import { EditableFilter, Level } from "../../forms/fieldDef";
-import { CalendarVolDatesResponse } from "../../types/calendarFXPair";
-import { DealStatus } from "../../types/dealStatus";
-import { FixTenorResult } from "../../types/fixTenorResult";
-import { InvalidTenor, Tenor } from "../../types/tenor";
-import { forceParseDate, toUTC } from "../../utils/timeUtils";
+import { forceParseDate, toUTC } from "utils/timeUtils";
 
 const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
@@ -100,8 +99,8 @@ const savingDealError = (reason: any): MOErrorMessage => {
 };
 
 export class MoStore {
-  @observable legs: Leg[] = [];
-  @observable summaryLeg: SummaryLeg | null = null;
+  @observable.ref legs: ReadonlyArray<Leg> = [];
+  @observable.ref summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
   @observable progress: number = 0;
   @observable error: MOErrorMessage | null = null;
@@ -114,10 +113,12 @@ export class MoStore {
   @observable.ref deals: Deal[] = [];
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
-  @observable isModified: boolean = false;
 
   private originalEntry: DealEntry = { ...emptyDealEntry };
+  private originalLegs: ReadonlyArray<Leg> = [];
+  private originalSummaryLeg: SummaryLeg | null = null;
   private operationsCount = 10;
+  private modifiedFields: string[] = [];
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
@@ -334,7 +335,9 @@ export class MoStore {
     reset = false
   ): void {
     this.summaryLeg = summaryLeg;
+    this.originalSummaryLeg = summaryLeg;
     this.legs = legs.slice();
+    this.originalLegs = this.legs;
     this.isLoadingLegs = false;
     if (reset) {
       this.status = MoStatus.Normal;
@@ -381,28 +384,8 @@ export class MoStore {
     this.status = MoStatus.Normal;
   }
 
-  @action.bound
-  public async updateLegs(entry: DealEntry): Promise<void> {
-    const { legs } = this;
-    const { symbol } = entry;
-    this.legs = await Promise.all(
-      legs.map(
-        async (leg: Leg, index: number): Promise<Leg> => {
-          const newFields: Partial<Leg> = await initializeLegFromEntry(
-            entry,
-            leg,
-            symbol,
-            index
-          );
-          return { ...leg, ...newFields };
-        }
-      )
-    );
-  }
-
   public updateLeg(index: number, key: keyof Leg, value: any): void {
     const { legs } = this;
-    this.isModified = true;
     this.legs = [
       ...legs.slice(0, index),
       {
@@ -411,6 +394,7 @@ export class MoStore {
       },
       ...legs.slice(index + 1),
     ];
+    this.addModifiedField(key);
   }
 
   public findSymbolById(currencyPair: string): Symbol {
@@ -461,25 +445,25 @@ export class MoStore {
 
   @action.bound
   public updateSummaryLeg(fieldName: keyof SummaryLeg, value: any): void {
-    this.isModified = true;
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
+    this.addModifiedField(fieldName);
+  }
+
+  private addModifiedField(name: string): void {
+    const { modifiedFields } = this;
+    if (modifiedFields.includes(name)) {
+      return;
+    }
+    modifiedFields.push(name);
   }
 
   public getModifiedFields(): string[] {
-    const { entry } = this;
-    const fields: string[] = [];
-    for (const key of Object.keys(entry) as (keyof DealEntry)[]) {
-      if (this.originalEntry[key] !== entry[key]) {
-        fields.push(key);
-      }
-    }
-    return fields;
+    return this.modifiedFields;
   }
 
   @computed
   public get isReadyForSubmission(): boolean {
     const { entry } = this;
-    if (!this.isModified) return false;
     if (entry.symbol === InvalidSymbol) return false;
     if (entry.strategy === InvalidStrategy) return false;
     if (entry.buyer === "") return false;
@@ -488,8 +472,7 @@ export class MoStore {
     if (entry.model === "") return false;
     if (entry.tenor1 === null) return false;
     if (entry.premstyle === "") return false;
-    if (entry.deltastyle === "") return false;
-    return entry.not1 !== null;
+    return entry.deltastyle === "";
   }
 
   private static async fixTenorDates(
@@ -576,25 +559,32 @@ export class MoStore {
     ) {
       return;
     }
+    this.modifiedFields = [];
     if (deal === null) {
       this.entry = { ...emptyDealEntry };
       this.entryType = EntryType.Empty;
       this.selectedDealID = null;
+      this.originalEntry = this.entry;
     } else {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
       const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
-      MoStore.resolveDatesIfNeeded(entry).then((newEntry: DealEntry): void => {
-        // This is mandatory or `this' would not be perfectly
-        // specified and defined
-        this.setEntry(newEntry);
-      });
+      MoStore.resolveDatesIfNeeded(entry)
+        .then((newEntry: DealEntry): void => {
+          // This is mandatory or `this' would not be perfectly
+          // specified and defined
+          this.setEntry(newEntry);
+          this.originalEntry = newEntry;
+        })
+        .catch((): void => {
+          this.entry = emptyDealEntry;
+          this.originalEntry = { ...emptyDealEntry };
+        });
     }
     // This is because we are going to load the legs as soon
     // as this method returns because we're going to use the
     // change in the `entry' object to reload the legs
-    this.originalEntry = { ...this.entry };
     this.legs = [];
     this.summaryLeg = null;
     this.isLoadingLegs = true;
@@ -605,9 +595,18 @@ export class MoStore {
     if (this.entryType === EntryType.New) {
       this.entryType = EntryType.Empty;
       this.entry = { ...emptyDealEntry };
-      this.originalEntry = { ...this.entry };
+      this.originalEntry = this.entry;
       this.legs = [];
       this.summaryLeg = null;
+      this.modifiedFields = [];
+    } else if (this.entryType === EntryType.ExistingDeal) {
+      const { originalLegs } = this;
+      this.legs = originalLegs.slice();
+      this.summaryLeg =
+        this.originalSummaryLeg === null
+          ? null
+          : { ...this.originalSummaryLeg };
+      this.entry = this.originalEntry;
     }
     this.isEditMode = false;
   }
@@ -615,7 +614,6 @@ export class MoStore {
   @action.bound
   public cloneDeal(): void {
     this.entry = { ...this.entry, type: EntryType.Clone, dealID: undefined };
-    this.originalEntry = { ...this.entry };
     this.entryType = EntryType.Clone;
     this.isEditMode = true;
   }
@@ -623,7 +621,6 @@ export class MoStore {
   @action.bound
   public addNewDeal(): void {
     this.entry = { ...emptyDealEntry, type: EntryType.New };
-    this.originalEntry = { ...this.entry };
     this.entryType = EntryType.New;
     this.isEditMode = true;
     this.legs = [];
@@ -667,8 +664,11 @@ export class MoStore {
 
   public async updateEntry(partial: Partial<DealEntry>): Promise<void> {
     const newEntry = await this.buildNewEntry(partial);
-    this.isModified = true;
     this.setEntry(newEntry);
+    const fields: ReadonlyArray<string> = Object.keys(partial);
+    fields.forEach((field: string): void => {
+      this.addModifiedField(field);
+    });
   }
 
   private buildRequest(): DealEntry {
@@ -903,7 +903,6 @@ export class MoStore {
   ): EditableFlag {
     if (strategy.productid === "") return EditableFlag.Editable;
     const { f1 } = strategy.fields;
-    console.log(f1);
     const editableCondition: EditableFlag =
       f1[prefix + name.toLowerCase()] || f1[name.toLowerCase()];
     if (editableCondition === undefined) return EditableFlag.None;
@@ -920,6 +919,16 @@ export class MoStore {
     return (entry.dealType & allowedTypes) !== 0;
   }
 
+  @computed
+  get isModified(): boolean {
+    if (!this.isEditMode) return false;
+    return (
+      !deepEqual(this.entry, this.originalEntry) ||
+      !deepEqual(this.legs, this.originalLegs) ||
+      !deepEqual(this.summaryLeg, this.originalSummaryLeg)
+    );
+  }
+
   public static createEditableFilter(
     allowedTypes: number,
     status = 0,
@@ -929,8 +938,7 @@ export class MoStore {
       name: string,
       entry: DealEntry,
       editable: boolean,
-      prefix: string,
-      level?: Level
+      prefix: string
     ): boolean => {
       if (!editable) return false;
       const flag: EditableFlag = MoStore.getFieldEditableFlag(

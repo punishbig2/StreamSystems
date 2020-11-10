@@ -45,11 +45,7 @@ import {
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
-import {
-  currentTimestampFIXFormat,
-  toUTC,
-  toUTCFIXFormat,
-} from "utils/timeUtils";
+import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 import {
   coalesce,
   getCurrentTime,
@@ -892,7 +888,7 @@ export class API {
       size: entry.size,
       lvsqty: "0",
       cumqty: "0",
-      transacttime: currentTimestampFIXFormat(),
+      transacttime: toUTCFIXFormat(entry.tradeDate),
       buyerentitycode: resolveBankToEntity(entry.buyer),
       sellerentitycode: resolveBankToEntity(entry.seller),
       buyer: resolveEntityToBank(entry.buyer),

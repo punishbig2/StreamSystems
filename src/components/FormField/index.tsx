@@ -35,9 +35,16 @@ interface Props<T, R = string> extends MinimalProps<T> {
   onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
 }
 
+enum Editor {
+  None,
+  Auto,
+  User,
+}
+
 interface State extends Editable {
   focus: boolean;
   filterValue: string;
+  editor: Editor;
 }
 
 const initialState: State = {
@@ -47,6 +54,7 @@ const initialState: State = {
   validity: Validity.Intermediate,
   caretPosition: null,
   filterValue: "",
+  editor: Editor.None,
 };
 
 export class FormField<T> extends PureComponent<Props<T>, State> {
@@ -92,26 +100,36 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
-    const { props } = this;
-    if (
-      props.type !== prevProps.type ||
-      props.editable !== prevProps.editable ||
-      props.precision !== prevProps.precision ||
-      props.currency !== prevProps.currency
-    ) {
+    const { props, state } = this;
+    if (props.editable !== prevProps.editable && !props.editable) {
       const handler: InputHandler<T, Props<T>, State> = this.getHandler();
-      // Reset the formatter
       handler.reset(props);
-      // Update the value
       this.setValueFromProps();
+    } else {
+      if (
+        props.type !== prevProps.type ||
+        props.precision !== prevProps.precision ||
+        props.editable !== prevProps.editable ||
+        props.currency !== prevProps.currency
+      ) {
+        const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+        // Reset the formatter
+        handler.reset(props);
+        // Update the value
+        if (state.editor !== Editor.User) {
+          this.setValueFromProps();
+        }
+      }
+      if (props.value !== prevProps.value || props.type !== prevProps.type) {
+        if (state.editor !== Editor.User) {
+          this.setValueFromProps();
+        }
+        // Since state will change stop right now and let the next
+        // update handle anything else
+        return;
+      }
+      this.ensureCaretIsInPlace();
     }
-    if (props.value !== prevProps.value || props.type !== prevProps.type) {
-      this.setValueFromProps();
-      // Since state will change stop right now and let the next
-      // update handle anything else
-      return;
-    }
-    this.ensureCaretIsInPlace();
   };
 
   private setInputRef = (input: HTMLInputElement): void => {
@@ -143,7 +161,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     // Create a value with appropriate formatting and an
     // internal representation of the value
     const stateUpdate = handler.createValue(value, input, props, state);
-    this.setState(stateUpdate);
+    // Update the editor to auto so that it's clear
+    // the user "DID NOT" edit this field
+    const editorState: Pick<State, "editor"> = { editor: Editor.Auto };
+    // Update internal representation of the state
+    this.setState({ ...stateUpdate, ...editorState });
   };
 
   private ensureCaretIsInPlace = () => {
@@ -183,6 +205,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
 
   private handleStrikeTypeOnBlurEvent = (): void => {
     const { props, state } = this;
+    this.setState({
+      editor: Editor.User,
+    });
     if (typeof state.internalValue === "number") {
       const [displayValue, validity] = roundToNearest(
         state.internalValue,
@@ -221,6 +246,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       // Process the change focus event first please
       setTimeout((): void => {
         if (props.onChange) {
+          this.setState({
+            editor: Editor.User,
+          });
           props.onChange(props.name, state.internalValue);
         }
       }, 0);
