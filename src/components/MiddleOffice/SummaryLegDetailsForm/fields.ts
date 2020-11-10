@@ -1,7 +1,7 @@
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "../../../mobx/stores/moStore";
-import { DealType } from "../../../structures/dealEntry";
+import { MoStore } from "mobx/stores/moStore";
+import { DealType } from "structures/dealEntry";
 
 export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
   {

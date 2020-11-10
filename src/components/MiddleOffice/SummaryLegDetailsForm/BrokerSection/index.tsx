@@ -1,78 +1,55 @@
 import { Grid } from "@material-ui/core";
-import { FormField } from "components/FormField";
-import { Commission } from "components/MiddleOffice/types/deal";
-import React, { useEffect, useState } from "react";
+import { Field } from "components/MiddleOffice/SummaryLegDetailsForm/BrokerSection/field";
+import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/BrokerSection/fields";
+import { FieldDef } from "forms/fieldDef";
+import React, { ReactElement, useMemo } from "react";
+import { BrokerageCommission } from "types/brokerageCommission";
 
 interface Props {
   readonly disabled: boolean;
-  readonly buyerCommission: Commission;
-  readonly sellerCommission: Commission;
+  readonly buyerComm: number | null;
+  readonly buyerCommRate: number | null;
+  readonly sellerComm: number | null;
+  readonly sellerCommRate: number | null;
+  readonly onUpdateCommission: (value: BrokerageCommission) => Promise<void>;
 }
 
 export const BrokerSection: React.FC<Props> = (
   props: Props
 ): React.ReactElement<Props> => {
-  const { buyerCommission, sellerCommission } = props;
-  const [totalCommission, setTotalCommission] = useState<number | null>(null);
-  useEffect(() => {
-    if (buyerCommission.value === null || sellerCommission.value === null) {
-      setTotalCommission(null);
-    } else {
-      setTotalCommission(buyerCommission.value + sellerCommission.value);
-    }
-  }, [buyerCommission, sellerCommission]);
+  const { buyerComm, buyerCommRate, sellerComm, sellerCommRate } = props;
+  const value: BrokerageCommission = useMemo(
+    (): BrokerageCommission => ({
+      buyer_comm_rate: buyerCommRate,
+      buyer_comm: buyerComm,
+      seller_comm_rate: sellerCommRate,
+      seller_comm: sellerComm,
+      total:
+        buyerComm === null || sellerComm === null
+          ? null
+          : buyerComm + sellerComm,
+    }),
+    [buyerComm, buyerCommRate, sellerComm, sellerCommRate]
+  );
+
   return (
     <Grid alignItems={"stretch"} container>
       <fieldset className={"group"} disabled={props.disabled}>
         <legend>Brokerage</legend>
-        <FormField
-          label={"Buyer Brokerage Rate"}
-          color={"grey"}
-          value={buyerCommission.rate}
-          name={"brokerageRate"}
-          type={"number"}
-          precision={2}
-          disabled={props.disabled}
-        />
-        <FormField
-          label={"Seller Brokerage Rate"}
-          color={"grey"}
-          value={sellerCommission.rate}
-          name={"brokerageRate"}
-          type={"number"}
-          precision={2}
-          disabled={props.disabled}
-        />
-        <FormField
-          label={"Buyer Comm"}
-          color={"grey"}
-          value={buyerCommission.value}
-          name={"buyerComm"}
-          type={"currency"}
-          currency={"USD"}
-          precision={2}
-          disabled={props.disabled}
-        />
-        <FormField
-          label={"Seller Comm"}
-          color={"grey"}
-          value={sellerCommission.value}
-          name={"sellerComm"}
-          type={"currency"}
-          currency={"USD"}
-          precision={2}
-          disabled={props.disabled}
-        />
-        <FormField
-          label={"Total Comm"}
-          color={"grey"}
-          value={totalCommission}
-          name={"totalComm"}
-          type={"currency"}
-          currency={"USD"}
-          precision={2}
-          disabled={props.disabled}
-        />
+        {fields.map(
+          (
+            fieldDef: FieldDef<BrokerageCommission, BrokerageCommission>
+          ): ReactElement => {
+            return (
+              <Field
+                key={fieldDef.name}
+                {...fieldDef}
+                value={value}
+                onChange={props.onUpdateCommission}
+              />
+            );
+          }
+        )}
       </fieldset>
     </Grid>
   );

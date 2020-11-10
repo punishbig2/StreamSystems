@@ -1,5 +1,5 @@
 import { API } from "API";
-import { Deal } from "components/MiddleOffice/types/deal";
+import { Commission, Deal } from "components/MiddleOffice/types/deal";
 import {
   InvalidStrategy,
   MOStrategy,
@@ -181,6 +181,30 @@ export const dealSourceToDealType = (source: string): DealType => {
   }
 };
 
+const expandCommission = (commission?: {
+  buyer: Commission;
+  seller: Commission;
+}): Pick<
+  DealEntry,
+  "buyer_comm" | "buyer_comm_rate" | "seller_comm" | "seller_comm_rate"
+> => {
+  if (!commission) {
+    return {
+      buyer_comm: null,
+      buyer_comm_rate: null,
+      seller_comm: null,
+      seller_comm_rate: null,
+    };
+  }
+  const { buyer, seller } = commission;
+  return {
+    buyer_comm: buyer ? buyer.value : null,
+    buyer_comm_rate: buyer ? buyer.rate : null,
+    seller_comm: seller ? seller.value : null,
+    seller_comm_rate: seller ? seller.rate : null,
+  };
+};
+
 export const createDealEntry = (deal: Deal): DealEntry => {
   const id: string = deal.id;
   const legsCount: number = moStore.getOutLegsCount(deal.strategy);
@@ -232,7 +256,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     dealType: dealSourceToDealType(deal.source),
     type: EntryType.ExistingDeal,
     usi: deal.usi,
-    commissions: deal.commissions,
+    ...expandCommission(deal.commissions),
     extra_fields: deal.extraFields,
   };
 };

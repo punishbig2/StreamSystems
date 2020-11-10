@@ -1,4 +1,3 @@
-import { Commission } from "components/MiddleOffice/types/deal";
 import {
   InvalidStrategy,
   MOStrategy,
@@ -61,12 +60,10 @@ export interface DealEntry {
 
   readonly usi?: string;
 
-  readonly commissions:
-    | {
-        buyer: Commission;
-        seller: Commission;
-      }
-    | undefined;
+  readonly buyer_comm: number | null;
+  readonly buyer_comm_rate: number | null;
+  readonly seller_comm: number | null;
+  readonly seller_comm_rate: number | null;
 
   extra_fields?: { [key: string]: string | number | null };
 }
@@ -101,16 +98,10 @@ export const emptyDealEntry: DealEntry = {
   spread: null,
 
   size: 0,
-  commissions: {
-    buyer: {
-      rate: 0,
-      value: 0,
-    },
-    seller: {
-      rate: 0,
-      value: 0,
-    },
-  },
+  buyer_comm: null,
+  buyer_comm_rate: null,
+  seller_comm: null,
+  seller_comm_rate: null,
 };
 
 export interface ServerDealQuery {
@@ -143,6 +134,10 @@ export interface ServerDealQuery {
   readonly premstyle: string;
   readonly style: string;
   readonly model: number | "";
+  readonly buyer_comm: number | null;
+  readonly buyer_comm_rate: number | null;
+  readonly seller_comm: number | null;
+  readonly seller_comm_rate: number | null;
   readonly product_fields_changed?: string[];
   readonly extra_fields?: { [key: string]: string | number | null };
 }

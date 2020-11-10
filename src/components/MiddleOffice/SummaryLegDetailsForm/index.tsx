@@ -5,12 +5,13 @@ import { DealOutputSection } from "components/MiddleOffice/SummaryLegDetailsForm
 import { Field } from "components/MiddleOffice/SummaryLegDetailsForm/field";
 
 import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
-import { Commission } from "components/MiddleOffice/types/deal";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { NoDataMessage } from "components/noDataMessage";
 import { FieldDef } from "forms/fieldDef";
-import React, { ReactElement, useEffect, useState } from "react";
+import moStore from "mobx/stores/moStore";
+import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
+import { BrokerageCommission } from "types/brokerageCommission";
 
 interface Props {
   readonly dealEntry: DealEntry;
@@ -24,28 +25,11 @@ interface Props {
   ) => Promise<void>;
 }
 
-const initialCommission: Commission = {
-  rate: null,
-  value: null,
-};
-
 export const SummaryLegDetailsForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
-  const { summaryLeg } = props;
-  const { premstyle } = props.dealEntry;
-  const [buyerCommission, setBuyerCommission] = useState<Commission>(
-    initialCommission
-  );
-  const [sellerCommission, setSellerCommission] = useState<Commission>(
-    initialCommission
-  );
-  useEffect(() => {
-    const { commissions } = props.dealEntry;
-    if (commissions === null || commissions === undefined) return;
-    setBuyerCommission(commissions.buyer);
-    setSellerCommission(commissions.seller);
-  }, [props.dealEntry]);
+  const { summaryLeg, dealEntry } = props;
+  const { premstyle } = dealEntry;
 
   if (props.isLoading) {
     return (
@@ -81,8 +65,17 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
             </fieldset>
           </Grid>
           <BrokerSection
-            buyerCommission={buyerCommission}
-            sellerCommission={sellerCommission}
+            buyerComm={dealEntry.buyer_comm}
+            buyerCommRate={dealEntry.buyer_comm_rate}
+            sellerComm={dealEntry.seller_comm}
+            sellerCommRate={dealEntry.seller_comm_rate}
+            onUpdateCommission={async (
+              value: BrokerageCommission
+            ): Promise<void> => {
+              moStore.updateEntry({
+                ...value,
+              });
+            }}
             disabled={props.disabled}
           />
           <DealOutputSection

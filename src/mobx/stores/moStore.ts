@@ -472,7 +472,7 @@ export class MoStore {
     if (entry.model === "") return false;
     if (entry.tenor1 === null) return false;
     if (entry.premstyle === "") return false;
-    return entry.deltastyle === "";
+    return entry.deltastyle !== "";
   }
 
   private static async fixTenorDates(
@@ -922,6 +922,8 @@ export class MoStore {
   @computed
   get isModified(): boolean {
     if (!this.isEditMode) return false;
+    if (this.entryType === EntryType.New || this.entryType === EntryType.Clone)
+      return true;
     return (
       !deepEqual(this.entry, this.originalEntry) ||
       !deepEqual(this.legs, this.originalLegs) ||

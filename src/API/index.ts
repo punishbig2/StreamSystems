@@ -51,7 +51,7 @@ import {
   getCurrentTime,
   getSideFromType,
   numberifyIfPossible,
-} from "../utils/commonUtils";
+} from "utils/commonUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -901,6 +901,10 @@ export class API {
       premstyle: entry.premstyle,
       style: entry.style,
       model: entry.model,
+      buyer_comm: entry.buyer_comm,
+      buyer_comm_rate: entry.buyer_comm_rate,
+      seller_comm: entry.buyer_comm,
+      seller_comm_rate: entry.buyer_comm_rate,
       product_fields_changed: changed,
       ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
     };

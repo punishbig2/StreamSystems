@@ -18,7 +18,6 @@ type Props = {
 export const LegDetailsFields: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
-  console.log(props.leg);
   return (
     <Grid container>
       {fields.map(
