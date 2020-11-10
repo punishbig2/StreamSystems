@@ -46,10 +46,10 @@ export const buildFwdRates = (
   if (summary === null || isInvalidTenor(tenor1)) return undefined;
   const { fwdrate1: value } = summary;
   if (value === null) return undefined;
-  const points: InternalPoint[] = generatePoints(tenor1.expiryDate, value, 7);
+  const points: InternalPoint[] = generatePoints(tenor1.deliveryDate, value, 7);
   if (strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both") {
     if (tenor2 !== null) {
-      points.push(...generatePoints(tenor2.expiryDate, value, 7));
+      points.push(...generatePoints(tenor2.deliveryDate, value, 7));
     }
   }
   return points.sort(comparePoints).map(convertToPoint);
