@@ -155,14 +155,21 @@ export const mergeDefinitionsAndLegs = (
   }
   const { in: list } = definitions;
   const mapper = legDefMapper(symbol);
-  return list.map(
-    (def: LegOptionsDefIn): Leg => {
-      const stub: Leg = mapper(def);
-      const existingLeg: Leg | undefined = legs.find((leg: Leg) => {
-        return leg.option === stub.option && leg.side === stub.side;
-      });
-      if (existingLeg !== undefined) return existingLeg;
-      return stub;
-    }
-  );
+  if (list.length === 1) {
+    return list.map(mapper);
+  } else {
+    return list.map(
+      (def: LegOptionsDefIn, index: number): Leg => {
+        const defaultLeg: Leg = mapper(def);
+        const existingLeg: Leg | undefined = legs[index];
+        if (existingLeg !== undefined) console.log(existingLeg, defaultLeg);
+        return {
+          ...existingLeg,
+          // These need be reset or not?
+          option: defaultLeg.option,
+          side: defaultLeg.side,
+        };
+      }
+    );
+  }
 };
