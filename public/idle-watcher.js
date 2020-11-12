@@ -1,5 +1,4 @@
 const startIdleMonitor = (timeout) => {
-  console.log("waiting for: " + timeout + "ms");
   const timer = setTimeout(() => {
     self.postMessage({ type: "TIMEOUT" });
   }, timeout);

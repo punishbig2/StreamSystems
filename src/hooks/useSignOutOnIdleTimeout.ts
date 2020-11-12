@@ -22,7 +22,6 @@ export const useSignOutOnIdleTimeout = (): void => {
     });
     worker.addEventListener("message", (rawEvent: Event): void => {
       const event: ServiceWorkerMessageEvent = rawEvent as ServiceWorkerMessageEvent;
-      console.log(event.data);
       const { type } = event.data;
       if (type === "TIMEOUT") {
         const { location } = window;

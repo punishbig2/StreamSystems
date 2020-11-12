@@ -13,13 +13,6 @@ export const getValue = (
   if (editableCondition === EditableFlag.NotApplicable) return "N/A";
   if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
   if (field.name === "status") return stateMap[Number(rawValue)];
-  if (field.name === "legadj") {
-    if (!!rawValue) {
-      return "true";
-    } else {
-      return "false";
-    }
-  }
   if (!internal) {
     if (field.name === "symbol") {
       return rawValue.symbolID;
