@@ -67,7 +67,7 @@ export const buildFwdRates = (
     );
     if (strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both") {
       if (tenor2 !== null) {
-        points.push(...generatePoints(tenor2.deliveryDate, value, 7));
+        points.push(...generatePoints(tenor2.deliveryDate, value, 1));
       }
     }
     return points.sort(comparePoints).map(convertToPoint);
