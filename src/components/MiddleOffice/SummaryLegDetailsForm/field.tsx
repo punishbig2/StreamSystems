@@ -1,6 +1,8 @@
 import { FormField } from "components/FormField";
+import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
+import { MoStore } from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 
@@ -19,6 +21,12 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const { field, dealEntry, summaryLeg, isEditMode } = props;
   const getValue = (): any => {
     if (summaryLeg === null) return null;
+    if (
+      MoStore.getFieldEditableFlag("", field.name, dealEntry.strategy) ===
+      EditableFlag.NotApplicable
+    ) {
+      return "N/A";
+    }
     if (field.name === "dealOutput")
       throw new Error("this is not a normal value, cannot display it");
     const value = summaryLeg[field.name];

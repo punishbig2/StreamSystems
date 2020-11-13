@@ -5,7 +5,9 @@ import {
   getStrikeValue,
 } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
 import { Leg } from "components/MiddleOffice/types/leg";
+import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
 import { FieldDef } from "forms/fieldDef";
+import { MoStore } from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { getStyledValue } from "utils/legsUtils";
 
@@ -15,6 +17,14 @@ export const getExtraPropsAndValue = (
   entry: DealEntry
 ): any => {
   const { symbol } = entry;
+  if (
+    MoStore.getFieldEditableFlag("leg", field.name, entry.strategy) ===
+    EditableFlag.NotApplicable
+  ) {
+    return {
+      value: "N/A",
+    };
+  }
   if (field.type === "strike") {
     return getStrikeValue(leg, symbol, field.name);
   } else if (field.type === "currency") {

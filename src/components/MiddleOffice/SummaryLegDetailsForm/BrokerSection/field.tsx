@@ -1,8 +1,8 @@
 import { FormField } from "components/FormField";
 import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
 import { FieldDef } from "forms/fieldDef";
-import moStore from "mobx/stores/moStore";
-import React, { ReactElement } from "react";
+import moStore, { MoStore } from "mobx/stores/moStore";
+import React, { ReactElement, useMemo } from "react";
 import { BrokerageCommission } from "types/brokerageCommission";
 
 interface Props extends FieldDef<BrokerageCommission, BrokerageCommission> {
@@ -11,12 +11,13 @@ interface Props extends FieldDef<BrokerageCommission, BrokerageCommission> {
 }
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
+  const { value, name } = props;
   const { entry } = moStore;
   const { strategy } = entry;
   const editableCondition: EditableFlag = React.useMemo(() => {
     if (strategy !== undefined && strategy.fields !== undefined) {
       const { f1 } = strategy.fields;
-      return f1[props.name];
+      return f1[name];
     }
     return EditableFlag.None;
   }, [strategy, props]);
@@ -31,17 +32,27 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       return false;
     } else {
       if (typeof props.editable === "function") {
-        return props.editable(props.name, entry, moStore.isEditMode, "");
+        return props.editable(name, entry, moStore.isEditMode, "");
       } else {
         return props.editable;
       }
     }
   }, [props, entry, editableCondition]);
+  const computedValue: any = useMemo((): any => {
+    if (
+      MoStore.getFieldEditableFlag("", name, entry.strategy) ===
+      EditableFlag.NotApplicable
+    ) {
+      return "N/A";
+    } else {
+      return value[name];
+    }
+  }, [value, name, entry]);
   return (
     <FormField<BrokerageCommission>
-      name={props.name}
+      name={name}
       label={props.label}
-      value={props.value[props.name]}
+      value={computedValue}
       type={props.type}
       color={props.color}
       currency={"USD"}
