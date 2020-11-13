@@ -63,7 +63,7 @@ export const buildFwdRates = (
     const points: InternalPoint[] = generatePoints(
       tenor1.deliveryDate,
       value,
-      7
+      1
     );
     if (strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both") {
       if (tenor2 !== null) {
