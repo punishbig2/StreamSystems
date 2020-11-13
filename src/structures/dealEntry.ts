@@ -134,6 +134,7 @@ export interface ServerDealQuery {
   readonly premstyle: string;
   readonly style: string;
   readonly model: number | "";
+  readonly legadj: boolean;
   readonly buyer_comm: number | null;
   readonly buyer_comm_rate: number | null;
   readonly seller_comm: number | null;

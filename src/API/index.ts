@@ -35,6 +35,12 @@ import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { User } from "types/user";
 import { MessageTypes, W } from "types/w";
+import {
+  coalesce,
+  getCurrentTime,
+  getSideFromType,
+  numberifyIfPossible,
+} from "utils/commonUtils";
 
 import {
   createDealFromBackendMessage,
@@ -46,12 +52,6 @@ import {
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
-import {
-  coalesce,
-  getCurrentTime,
-  getSideFromType,
-  numberifyIfPossible,
-} from "utils/commonUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -901,6 +901,7 @@ export class API {
       premstyle: entry.premstyle,
       style: entry.style,
       model: entry.model,
+      legadj: entry.legadj,
       buyer_comm: entry.buyer_comm,
       buyer_comm_rate: entry.buyer_comm_rate,
       seller_comm: entry.buyer_comm,
