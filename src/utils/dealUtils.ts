@@ -75,7 +75,7 @@ const getCommissionRates = async (item: any): Promise<any> => {
 
 const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
   const value: any = item[key];
-  if (value !== "" && value !== undefined) return value;
+  if (value !== "" && value !== undefined && value !== null) return value;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
