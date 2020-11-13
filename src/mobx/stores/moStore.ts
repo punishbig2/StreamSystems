@@ -470,9 +470,25 @@ export class MoStore {
     if (entry.seller === "") return false;
     if (entry.buyer === entry.seller) return false;
     if (entry.model === "") return false;
-    if (entry.tenor1 === null) return false;
+    if (entry.tenor1 === null) {
+      return false;
+    } else if (this.isFieldEditable("tenor2") && entry.tenor2 === null) {
+      return false;
+    }
     if (entry.premstyle === "") return false;
     return entry.deltastyle !== "";
+  }
+
+  private isFieldEditable(name: string): boolean {
+    const { entry } = this;
+    const flag: EditableFlag = MoStore.getFieldEditableFlag(
+      "",
+      name,
+      entry.strategy
+    );
+    return !(
+      flag === EditableFlag.NotEditable || flag === EditableFlag.NotApplicable
+    );
   }
 
   private static async fixTenorDates(
