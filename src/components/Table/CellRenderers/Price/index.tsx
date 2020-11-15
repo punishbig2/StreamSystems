@@ -145,6 +145,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     } else {
       props.onSubmit(input, null, false, tabDirection);
     }
+    setEdited(false);
   };
 
   const onCancelEdit = () => {
