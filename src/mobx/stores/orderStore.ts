@@ -8,7 +8,7 @@ import { User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { $$ } from "utils/stringPaster";
-import { getCurrentTime, getSideFromType } from "../../utils/commonUtils";
+import { getCurrentTime, getSideFromType } from "utils/commonUtils";
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -78,11 +78,12 @@ export class OrderStore {
     return this.baseStatus | this.currentStatus;
   }
 
-  private shouldCancel(): boolean {
-    // The order is not already cancelled
-    if ((this.status & OrderStatus.Cancelled) !== 0) return false;
-    // The order is mine
-    return (this.status & OrderStatus.Owned) !== 0;
+  private getCancelOrderId(): { OrderID?: string } {
+    const mine: Order | null = this.myOrder;
+    if (mine === null) {
+      return {};
+    }
+    return { OrderID: mine.orderId };
   }
 
   @action.bound
@@ -110,7 +111,7 @@ export class OrderStore {
       (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
     // Create the request
     const request: CreateOrder = {
-      ...(this.shouldCancel() ? { OrderID: this.orderID } : {}),
+      ...this.getCancelOrderId(),
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
       User: user.email,

@@ -1,7 +1,7 @@
 import { Cell } from "components/Table/Cell";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { RowFunctions } from "components/PodTile/rowFunctions";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getCellWidth } from "components/Table/helpers";
 import { PodRowStore } from "mobx/stores/podRowStore";
 import { observer } from "mobx-react";
@@ -23,9 +23,9 @@ interface OwnProps {
 type Props = OwnProps & RowFunctions;
 
 export const Row: React.FC<Props> = observer((props: Props) => {
-  const [store] = useState<PodRowStore>(
+  const store = useRef<PodRowStore>(
     new PodRowStore(props.currency, props.strategy, props.tenor)
-  );
+  ).current;
   const { id, columns, row, totalWidth, containerWidth, ...rowProps } = props;
   const { internalRow } = store;
   const classes: string[] = ["tr"];
