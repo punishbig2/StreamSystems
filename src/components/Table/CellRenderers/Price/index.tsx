@@ -60,13 +60,16 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   useEffect(() => {
     store.setBaseValue(value);
+    setEdited(false);
   }, [store, value]);
 
   useEffect(() => {
     store.setStatus(status);
+    setEdited(false);
   }, [store, status]);
 
   const [target, setTarget] = useState<HTMLDivElement | null>(null);
+  const [edited, setEdited] = useState<boolean>(false);
 
   const showTooltip = tooltip
     ? (event: React.MouseEvent<HTMLDivElement>) => {
@@ -89,6 +92,9 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   };
 
   const onChange = (value: string | null) => {
+    if (!edited) {
+      setEdited(true);
+    }
     if (value !== null) {
       const trimmed: string = value.trim();
       const numeric: number = Number(trimmed + "0");
@@ -123,10 +129,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   };
 
   const isModified = (): boolean => {
-    if (store.internalValue === null) return false;
-    if ((store.status & OrderStatus.Cancelled) !== 0) return true;
-    if ((store.status & OrderStatus.Owned) === 0) return true;
-    return store.internalValue !== priceFormatter(props.value);
+    return edited;
   };
 
   const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
@@ -146,6 +149,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   const onCancelEdit = () => {
     store.setInternalValue(null);
+    setEdited(false);
   };
 
   const getPlaceholder = (value: number | null) => {

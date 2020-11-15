@@ -20,7 +20,8 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       return f1[name];
     }
     return EditableFlag.None;
-  }, [strategy, props]);
+  }, [strategy, name]);
+  const { editable: editableProp } = props;
   const editable: boolean | undefined = React.useMemo(():
     | boolean
     | undefined => {
@@ -31,13 +32,13 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     ) {
       return false;
     } else {
-      if (typeof props.editable === "function") {
-        return props.editable(name, entry, moStore.isEditMode, "");
+      if (typeof editableProp === "function") {
+        return editableProp(name, entry, moStore.isEditMode, "");
       } else {
-        return props.editable;
+        return editableProp;
       }
     }
-  }, [props, entry, editableCondition]);
+  }, [editableCondition, editableProp, name, entry]);
   const computedValue: any = useMemo((): any => {
     if (
       MoStore.getFieldEditableFlag("", name, entry.strategy) ===
