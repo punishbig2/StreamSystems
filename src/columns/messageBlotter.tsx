@@ -1,4 +1,3 @@
-
 import React, { ReactElement } from "react";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { Message } from "types/message";
@@ -18,7 +17,12 @@ import { User } from "types/user";
 import workareaStore from "../mobx/stores/workareaStore";
 import { Globals } from "golbals";
 import moment, { Moment } from "moment";
-import { parseTime, FIX_DATE_FORMAT, DateFormatter, TimeFormatter } from "utils/timeUtils";
+import {
+  parseTime,
+  FIX_DATE_FORMAT,
+  DateFormatter,
+  TimeFormatter,
+} from "utils/timeUtils";
 import { DarkPool } from "types/w";
 
 export enum BlotterTypes {
@@ -252,11 +256,12 @@ const counterParty = (
   header: () => "CPTY",
   render: (props: CellProps) => {
     const { message } = props;
-    const { ExecBroker } = message;
+    const { ExecBroker, MDMkt } = message;
+    const { user } = workareaStore;
     if (!involved(message)) return <div />;
     return (
       <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
-        {ExecBroker}
+        {user.firm === ExecBroker ? MDMkt : ExecBroker}
       </div>
     );
   },
