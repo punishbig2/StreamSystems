@@ -30,8 +30,7 @@ export const columns: ColumnSpec[] = [
     difference: ({ id: id1 }: Deal, { id: id2 }: Deal) => {
       const lcId1: string = id1.toLowerCase();
       const lcId2: string = id2.toLowerCase();
-      return lcId1.localeCompare(lcId2)
-        ;
+      return lcId1.localeCompare(lcId2);
     },
     filterable: true,
     width: 10,

@@ -1,10 +1,10 @@
+import { RowFunctions } from "components/PodTile/rowFunctions";
 import { Cell } from "components/Table/Cell";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { RowFunctions } from "components/PodTile/rowFunctions";
-import React, { useState, useEffect, useRef } from "react";
 import { getCellWidth } from "components/Table/helpers";
-import { PodRowStore } from "mobx/stores/podRowStore";
 import { observer } from "mobx-react";
+import { PodRowStore } from "mobx/stores/podRowStore";
+import React, { useEffect, useRef } from "react";
 import { PodRowStatus } from "types/podRow";
 
 interface OwnProps {

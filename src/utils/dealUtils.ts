@@ -75,7 +75,7 @@ const getCommissionRates = async (item: any): Promise<any> => {
 
 const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
   const value: any = item[key];
-  if (value !== "" && value !== undefined && value !== null) return value;
+  if (value !== "" && value !== undefined) return value;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(
     item.strategy
   );
@@ -134,13 +134,15 @@ export const createDealFromBackendMessage = async (
     object.tenor1,
     object.expirydate1
   );
+  const spread: number | null = getSpread(object);
+  const vol: number | null = getVol(object);
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
     seller: coalesce(object.sellerentitycode, object.seller),
     currency: object.symbol,
-    spread: getSpread(object),
-    vol: getVol(object),
+    spread: spread,
+    vol: vol,
     notional1: Number(object.lastqty) * 1e6,
     notional2: object.notional1 === null ? null : Number(object.notional1),
     strategy: object.strategy,
