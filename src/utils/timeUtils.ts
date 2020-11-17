@@ -71,6 +71,9 @@ export const forceParseDate = (value: string): Date => {
     }
     return m.toDate();
   } else {
+    if (value === "Invalid date") {
+      return new Date();
+    }
     // ISO format
     const m: moment.Moment = moment(value);
     if (!m.isValid()) {

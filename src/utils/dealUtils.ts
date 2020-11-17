@@ -176,6 +176,8 @@ export const dealSourceToDealType = (source: string): DealType => {
       return DealType.Voice;
     case "electronic":
       return DealType.Electronic;
+    case "cloned":
+      return DealType.Cloned;
     case "multileg":
       return DealType.Manual;
     default:

@@ -1,7 +1,11 @@
 import { TextField } from "@material-ui/core";
 import { useTimer } from "hooks/useTimer";
 import React, { ReactElement, useEffect, useState } from "react";
-import { DateFormatter, DateTimeFormatter, TimeFormatter } from "utils/timeUtils";
+import {
+  DateFormatter,
+  DateTimeFormatter,
+  TimeFormatter,
+} from "utils/timeUtils";
 
 interface Props {
   readonly dateOnly?: boolean;
@@ -18,6 +22,7 @@ export const CurrentTime: React.FC<Props> = (
   const [formatter, setFormatter] = useState<Intl.DateTimeFormat>(
     new Intl.DateTimeFormat()
   );
+
   useEffect(() => {
     if (props.dateOnly) {
       setFormatter(DateFormatter);

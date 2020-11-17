@@ -888,7 +888,7 @@ export class API {
       size: entry.size,
       lvsqty: "0",
       cumqty: "0",
-      transacttime: toUTCFIXFormat(entry.tradeDate),
+      transacttime: toUTCFIXFormat(new Date()),
       buyerentitycode: resolveBankToEntity(entry.buyer),
       sellerentitycode: resolveBankToEntity(entry.seller),
       buyer: resolveEntityToBank(entry.buyer),

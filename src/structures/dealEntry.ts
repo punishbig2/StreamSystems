@@ -11,8 +11,9 @@ export enum DealType {
   Electronic = 1 << 1,
   Voice = 1 << 2,
   Manual = 1 << 3,
+  Cloned = 1 << 4,
   All = Invalid | Electronic | Voice | Manual,
-  None = 1 << 4,
+  None = 1 << 5,
 }
 
 export enum EntryType {

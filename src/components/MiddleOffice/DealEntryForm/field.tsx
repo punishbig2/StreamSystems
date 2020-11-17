@@ -50,13 +50,9 @@ export const Field: React.FC<Props> = React.memo(
       }
       return EditableFlag.None;
     }, [strategy, field]);
-    const rawValue: any = React.useMemo(() => entry[field.name], [
-      entry,
-      field,
-    ]);
     const value: any = React.useMemo(
-      () => getValue(field, editableCondition, rawValue, false),
-      [field, editableCondition, rawValue]
+      (): any => getValue(field, editableCondition, entry[field.name], false),
+      [field, editableCondition, entry]
     );
     const editable: boolean | undefined = React.useMemo(():
       | boolean

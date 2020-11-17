@@ -6,7 +6,7 @@ export const useTimer = (): Date => {
     setDate(new Date());
   }, []);
   useEffect(() => {
-    const timer = setTimeout(tick, 3000);
+    const timer = setTimeout(tick, 1000);
     return () => clearTimeout(timer);
   });
   return date;

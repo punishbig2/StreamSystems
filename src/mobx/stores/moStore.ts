@@ -554,7 +554,6 @@ export class MoStore {
       entry
     );
     const spotDate: Date = forceParseDate(tenor1Dates.spotDate);
-    const tradeDate: Date = forceParseDate(tenor1Dates.tradeDate);
     return {
       ...entry,
       tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
@@ -562,7 +561,6 @@ export class MoStore {
       horizonDateUTC: forceParseDate(tenor1Dates.horizonDateUTC),
       premiumDate: spotDate,
       spotDate: spotDate,
-      tradeDate: tradeDate,
     };
   }
 

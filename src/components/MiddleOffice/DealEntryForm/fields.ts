@@ -44,6 +44,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
               return item.source === "Voice";
             case DealType.Manual:
               return item.source === "Manual";
+            case DealType.Cloned:
+              // We don't care, it's not editable anyway
+              return true;
           }
           return false;
         })
