@@ -6,6 +6,7 @@ import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
 import { DeleteQuestion } from "components/MiddleOffice/deleteQuestion";
 import { MiddleOfficeError } from "components/MiddleOffice/error";
 import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDeletedListener";
+import { useDealEditListener } from "components/MiddleOffice/hooks/useDealEditListener";
 import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
 import { useNewDealListener } from "components/MiddleOffice/hooks/useNewDealListener";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
@@ -20,6 +21,7 @@ import { ModalWindow } from "components/ModalWindow";
 import { MoGenericMessage, MoStatus } from "mobx/stores/moStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import React, { ReactElement, useState } from "react";
+import { DealEditStatus } from "signalR/signalRManager";
 import { DealEntry, EntryType } from "structures/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { randomID } from "utils/randomID";
@@ -61,6 +63,7 @@ interface Props {
     fieldName: keyof SummaryLeg,
     value: any
   ) => Promise<void>;
+  readonly editDeal: (status: DealEditStatus, id: string) => void;
 }
 
 export const MiddleOfficeMain: React.FC<Props> = (
@@ -78,6 +81,9 @@ export const MiddleOfficeMain: React.FC<Props> = (
   useDealDeletedListener((id: string): void => {
     // noinspection JSIgnoredPromiseFromCall
     props.removeDeal(id);
+  });
+  useDealEditListener((status: DealEditStatus, id: string): void => {
+    props.editDeal(status, id);
   });
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?

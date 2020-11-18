@@ -113,6 +113,7 @@ export class MoStore {
   @observable.ref deals: Deal[] = [];
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
+  @observable.ref lockedDeals: ReadonlyArray<string> = [];
 
   private originalEntry: DealEntry = { ...emptyDealEntry };
   private originalLegs: ReadonlyArray<Leg> = [];
@@ -135,8 +136,12 @@ export class MoStore {
     return workareaStore.tenors;
   }
 
-  @computed get isDealEditable(): boolean {
-    const { entry } = this;
+  @computed
+  get isDealEditable(): boolean {
+    const { entry, lockedDeals } = this;
+    const { dealID } = entry;
+    if (dealID === undefined) return false;
+    if (lockedDeals.includes(dealID)) return false;
     switch (entry.status) {
       case DealStatus.Pending:
       case DealStatus.Priced:
@@ -983,6 +988,25 @@ export class MoStore {
       }
       return MoStore.isEntryEditable(allowedTypes, entry, next);
     };
+  }
+
+  public lockDeal(id: string): void {
+    this.lockedDeals = [...this.lockedDeals, id];
+  }
+
+  public unlockDeal(id: string): void {
+    const { lockedDeals } = this;
+    const index: number = lockedDeals.findIndex(
+      (dealId: string): boolean => dealId === id
+    );
+    if (index === -1) {
+      console.warn("trying to unlock an unlocked deal");
+    } else {
+      this.lockedDeals = [
+        ...lockedDeals.slice(0, index),
+        ...lockedDeals.slice(index + 1),
+      ];
+    }
   }
 }
 

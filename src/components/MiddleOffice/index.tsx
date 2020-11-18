@@ -9,6 +9,7 @@ import { observer } from "mobx-react";
 import store from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
+import { DealEditStatus } from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 
@@ -37,6 +38,13 @@ export const MiddleOffice: React.FC<Props> = observer(
             visible={props.visible}
             error={store.error}
             entry={store.entry}
+            editDeal={(status: DealEditStatus, id: string): void => {
+              if (status === DealEditStatus.Start) {
+                store.lockDeal(id);
+              } else {
+                store.unlockDeal(id);
+              }
+            }}
             removeDeal={(id: string): Promise<void> => store.removeDeal(id)}
             addDeal={(deal: Deal): Promise<void> => store.addDeal(deal)}
             setDeal={(deal: Deal | null): void => store.setDeal(deal)}

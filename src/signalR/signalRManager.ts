@@ -43,7 +43,7 @@ interface SEFError {
   useremail: string;
 }
 
-enum DealEditStatus {
+export enum DealEditStatus {
   Start,
   End,
 }
