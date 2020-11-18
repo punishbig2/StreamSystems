@@ -74,6 +74,7 @@ const getCommissionRates = async (item: any): Promise<any> => {
 };
 
 const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
+  if (item.linkid === "E0df7d194-81605707969") console.log(item);
   const value: any = item[key];
   if (value !== "" && value !== undefined) return value;
   const strategy: MOStrategy | undefined = moStore.getStrategyById(

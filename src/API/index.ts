@@ -884,7 +884,7 @@ export class API {
       spread: entry.spread,
       vol: entry.vol,
       lastqty: entry.size,
-      notional1: entry.not1,
+      notional1: entry.not2 !== undefined ? entry.not2 : null,
       size: entry.size,
       lvsqty: "0",
       cumqty: "0",
