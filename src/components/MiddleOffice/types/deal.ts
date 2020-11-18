@@ -20,6 +20,7 @@ export interface Deal {
   vol: number | null;
   spread: number | null;
   price: number | null;
+  isdarkpool: boolean;
 
   tradeDate: Date;
   spotDate: Date;

@@ -141,6 +141,7 @@ export const createDealFromBackendMessage = async (
     buyer: coalesce(object.buyerentitycode, object.buyer),
     seller: coalesce(object.sellerentitycode, object.seller),
     currency: object.symbol,
+    isdarkpool: object.isdarkpool,
     spread: spread,
     vol: vol,
     notional1: Number(object.lastqty) * 1e6,

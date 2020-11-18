@@ -43,6 +43,11 @@ interface SEFError {
   useremail: string;
 }
 
+enum DealEditStatus {
+  Start,
+  End,
+}
+
 export enum Methods {
   // Messages
   SubscribeForMarketData = "SubscribeForMarketData",
@@ -52,9 +57,7 @@ export enum Methods {
   SubscribeForDarkPoolPx = "SubscribeForDarkPoolPx",
   UnsubscribeFromDarkPoolPx = "UnsubscribeForDarkPoolPx",
   SubscribeForDeals = "SubscribeForDeals",
-  // UnsubscribeFromDeals = "UnSubscribeForDeals",
   SubscribeForPricingResponse = "SubscribeForPricingResponse",
-  // UnsubscribeFromPricingResponse = "UnSubscribeForPricing",
 }
 
 enum Events {
@@ -69,6 +72,8 @@ enum Events {
   OnError = "onError",
   OnSEFUpdate = "onSEFUpdate",
   OnCommissionUpdate = "onCommissionUpdate",
+  OnDealEditStart = "OnDealEditStart",
+  OnDealEditEnd = "OnDealEditEnd",
 }
 
 interface Command {
@@ -168,10 +173,48 @@ export class SignalRManager {
       connection.on(Events.OnError, this.onError);
       connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
       connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
+      connection.on(
+        Events.OnDealEditStart,
+        this.onDealEdit(DealEditStatus.Start)
+      );
+      connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
       // Listen to installed combinations
       this.processDeferredCommands();
     }
   };
+
+  public setDealEditListener(
+    listener: (status: DealEditStatus, id: string) => void
+  ): () => void {
+    const onEdit = (event: Event): void => {
+      const customEvent: CustomEvent<{
+        id: string;
+        status: DealEditStatus;
+      }> = event as CustomEvent<{
+        id: string;
+        status: DealEditStatus;
+      }>;
+      const { id, status } = customEvent.detail;
+      listener(status, id);
+    };
+    document.addEventListener("dealedit", onEdit);
+    return (): void => {
+      document.removeEventListener("dealedit", onEdit);
+    };
+  }
+
+  private onDealEdit(status: DealEditStatus): (message: string) => void {
+    return (message: string): void => {
+      document.dispatchEvent(
+        new CustomEvent<{ id: string; status: DealEditStatus }>("dealedit", {
+          detail: {
+            id: message,
+            status: status,
+          },
+        })
+      );
+    };
+  }
 
   private combineWs = (w1: W, w2: W): W => {
     const isW1PodW: boolean = isPodW(w1);

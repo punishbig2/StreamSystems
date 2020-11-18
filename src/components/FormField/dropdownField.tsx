@@ -164,7 +164,6 @@ export class DropdownField<T, R = string> extends Component<
   public render(): React.ReactElement {
     const { props, state } = this;
     const { items } = props;
-    if (props.name === "strategy") console.log(items);
     if (!props.editable) {
       return (
         <ReadOnlyField

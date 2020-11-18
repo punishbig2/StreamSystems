@@ -1,14 +1,14 @@
-import React, { ReactElement } from "react";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import transactTimeColumn from "components/MiddleOffice/types/columnTypes/transactionTime";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import buyerColumn from "components/MiddleOffice/types/columnTypes/buyer";
+import priceColumn from "components/MiddleOffice/types/columnTypes/price";
+import sellerColumn from "components/MiddleOffice/types/columnTypes/seller";
+import sizeColumn from "components/MiddleOffice/types/columnTypes/size";
 import strategyColumn from "components/MiddleOffice/types/columnTypes/strategy";
 import symbolColumn from "components/MiddleOffice/types/columnTypes/symbol";
-import priceColumn from "components/MiddleOffice/types/columnTypes/price";
-import sizeColumn from "components/MiddleOffice/types/columnTypes/size";
-import sellerColumn from "components/MiddleOffice/types/columnTypes/seller";
-import buyerColumn from "components/MiddleOffice/types/columnTypes/buyer";
+import transactTimeColumn from "components/MiddleOffice/types/columnTypes/transactionTime";
 import { Deal } from "components/MiddleOffice/types/deal";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import React, { ReactElement } from "react";
 import { stateMap } from "utils/dealUtils";
 
 export const columns: ColumnSpec[] = [
@@ -80,6 +80,9 @@ export const columns: ColumnSpec[] = [
     render: (props: CellProps): ReactElement | string | null => {
       const { deal } = props;
       if (!deal) return null;
+      if (deal.isdarkpool) {
+        return "Dark Pool";
+      }
       return deal.source;
     },
     filterable: true,
