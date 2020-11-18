@@ -990,10 +990,12 @@ export class MoStore {
     };
   }
 
+  @action.bound
   public lockDeal(id: string): void {
     this.lockedDeals = [...this.lockedDeals, id];
   }
 
+  @action.bound
   public unlockDeal(id: string): void {
     const { lockedDeals } = this;
     const index: number = lockedDeals.findIndex(
