@@ -993,6 +993,7 @@ export class MoStore {
   @action.bound
   public lockDeal(id: string): void {
     this.lockedDeals = [...this.lockedDeals, id];
+    console.log(this.lockedDeals);
   }
 
   @action.bound

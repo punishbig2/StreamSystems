@@ -11,6 +11,14 @@ import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { ReactElement } from "react";
 import { stateMap } from "utils/dealUtils";
 
+const getSource = (deal: Deal): string => {
+  if (deal.isdarkpool) {
+    return "Dark Pool";
+  } else {
+    return deal.source;
+  }
+};
+
 export const columns: ColumnSpec[] = [
   {
     name: "deal-id",
@@ -78,23 +86,19 @@ export const columns: ColumnSpec[] = [
     name: "venue",
     header: () => "Venue",
     render: (props: CellProps): ReactElement | string | null => {
-      const { deal } = props;
-      if (!deal) return null;
-      if (deal.isdarkpool) {
-        return "Dark Pool";
-      }
-      return deal.source;
+      return getSource(props.deal);
     },
     filterable: true,
     width: 3,
     template: "12345",
     filterByKeyword: (v1: Deal, keyword: string): boolean => {
-      const lowerCaseSource: string = v1.source.toLowerCase();
+      const source: string = getSource(v1);
+      const lowerCaseSource: string = source.toLowerCase();
       return lowerCaseSource.includes(keyword.toLowerCase());
     },
     difference: (v1: Deal, v2: Deal) => {
-      const s1: string = v1.source;
-      return s1.localeCompare(v2.source);
+      const s1: string = getSource(v1);
+      return s1.localeCompare(getSource(v2));
     },
   },
 ];
