@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import config from "../config";
 
-const addUserActivityListener = (onActivity: () => void): (() => void) => {
+const addUserActivityListener = (
+  onActivity: () => void,
+  quit: () => void
+): (() => void) => {
   const events = ["click", "mousemove", "keyup", "keydown"];
   events.forEach((event) => {
     document.addEventListener(event, onActivity);
@@ -10,30 +13,27 @@ const addUserActivityListener = (onActivity: () => void): (() => void) => {
     events.forEach((event) => {
       document.removeEventListener(event, onActivity);
     });
+    quit();
   };
 };
 
 export const useSignOutOnIdleTimeout = (): void => {
   useEffect(() => {
-    const worker = new Worker("/idle-watcher.js");
-    worker.postMessage({
-      type: "START",
-      data: config.IdleTimeout,
-    });
-    worker.addEventListener("message", (rawEvent: Event): void => {
-      const event: ServiceWorkerMessageEvent = rawEvent as ServiceWorkerMessageEvent;
-      const { type } = event.data;
-      if (type === "TIMEOUT") {
-        const { location } = window;
-        console.log("idle for too long, redirecting to sign in");
+    const { location } = window;
+    const state = { timer: 0 };
+    const createIdleKiller = (): number =>
+      setTimeout((): void => {
         location.href = config.SignOutUrl;
+      }, config.IdleTimeout);
+    state.timer = createIdleKiller();
+    return addUserActivityListener(
+      (): void => {
+        clearTimeout(state.timer);
+        state.timer = createIdleKiller();
+      },
+      (): void => {
+        clearTimeout(state.timer);
       }
-    });
-    return addUserActivityListener((): void => {
-      worker.postMessage({
-        type: "USER_ACTION_EVENT",
-      });
-      worker.terminate();
-    });
+    );
   }, []);
 };

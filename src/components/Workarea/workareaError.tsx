@@ -16,7 +16,6 @@ export const WorkareaError: React.FC<Props> = (
   React.useEffect((): void => {
     const { location } = window;
     if (remainingTime <= 0) {
-      console.log("redirecting from the error view to the sign in view");
       location.href = config.SignOutUrl;
     }
   }, [remainingTime]);
