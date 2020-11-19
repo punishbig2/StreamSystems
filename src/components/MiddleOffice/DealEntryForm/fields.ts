@@ -172,12 +172,12 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     transformData: (): DropdownItem[] => [
       {
         value: "true",
-        internalValue: "true",
+        internalValue: true,
         label: "TRUE",
       },
       {
         value: "false",
-        internalValue: "false",
+        internalValue: false,
         label: "FALSE",
       },
       {

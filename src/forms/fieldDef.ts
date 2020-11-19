@@ -1,7 +1,7 @@
 import { InputHandler } from "components/FormField/inputHandler";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
-import { DealEntry } from "../structures/dealEntry";
+import { DealEntry } from "structures/dealEntry";
 
 export interface DropdownItem<T = any> {
   readonly internalValue: T;

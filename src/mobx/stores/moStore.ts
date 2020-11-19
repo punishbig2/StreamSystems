@@ -692,8 +692,6 @@ export class MoStore {
 
   private buildRequest(): DealEntry {
     const { entry } = this;
-    if (entry.not1 === null || entry.not1 === undefined)
-      throw new Error("notional must be set");
     const { summaryLeg } = this;
     const otherFields = ((
       summaryLeg: SummaryLeg | null
