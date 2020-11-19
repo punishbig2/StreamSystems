@@ -841,25 +841,14 @@ export class MoStore {
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === deal.id
     );
-    const currentDealID: string | null = this.selectedDealID;
     if (index === -1) {
       this.deals = [deal, ...deals];
-      if (this.isEditMode && this.selectedDealID !== deal.id) {
-        return;
-      }
-      this.entry = await createDealEntry(deal);
     } else {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
-      if (this.isEditMode && this.selectedDealID !== deal.id) {
-        return;
-      }
-      // It was modified, so replay consequences
-      if (currentDealID !== null && currentDealID === deal.id) {
-        const newEntry = await createDealEntry(deal);
-        if (!deepEqual(newEntry, this.entry)) {
-          this.entry = newEntry;
-        }
-      }
+    }
+    // If there's no selection yet, then select this deal
+    if (this.selectedDealID === null) {
+      this.setDeal(deal);
     }
   }
 
