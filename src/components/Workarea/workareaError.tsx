@@ -14,8 +14,10 @@ export const WorkareaError: React.FC<Props> = (
   const [remainingTime, setRemainingTime] = React.useState<number>(30000);
   const { shouldReload = true } = props;
   React.useEffect((): void => {
+    const { location } = window;
     if (remainingTime <= 0) {
-      window.location.href = config.SignOutUrl;
+      console.log("redirecting from the error view to the sign in view");
+      location.href = config.SignOutUrl;
     }
   }, [remainingTime]);
   React.useEffect((): (() => void) | void => {

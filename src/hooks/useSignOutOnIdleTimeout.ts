@@ -25,6 +25,7 @@ export const useSignOutOnIdleTimeout = (): void => {
       const { type } = event.data;
       if (type === "TIMEOUT") {
         const { location } = window;
+        console.log("idle for too long, redirecting to sign in");
         location.href = config.SignOutUrl;
       }
     });
