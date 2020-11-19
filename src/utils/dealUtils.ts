@@ -13,7 +13,6 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
-import { getVegaAdjust } from "utils/legsUtils";
 import {
   addToDate,
   forceParseDate,
@@ -145,6 +144,7 @@ export const createDealFromBackendMessage = async (
     isdarkpool: object.isdarkpool,
     spread: spread,
     vol: vol,
+    legAdj: object.legadj,
     notional1: Number(object.lastqty) * 1e6,
     notional2: object.notional1 === null ? null : Number(object.notional1),
     strategy: object.strategy,
@@ -228,7 +228,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     not1: deal.notional1,
     not2: deal.notional2,
     size: deal.notional1 / 1e6,
-    legadj: getVegaAdjust(strategy.OptionProductType, deal.symbol),
+    legadj: deal.legAdj,
     buyer: deal.buyer,
     seller: deal.seller,
     tradeDate: deal.tradeDate,

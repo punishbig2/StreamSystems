@@ -21,6 +21,7 @@ export interface Deal {
   spread: number | null;
   price: number | null;
   isdarkpool: boolean;
+  legAdj: boolean;
 
   tradeDate: Date;
   spotDate: Date;
