@@ -3,7 +3,7 @@ import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { STRM } from "stateDefs/workspaceState";
-import { Deal } from 'components/MiddleOffice/types/deal';
+import { Deal } from "components/MiddleOffice/types/deal";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
 export const TransTypes: { [key: string]: string } = {
@@ -76,29 +76,18 @@ export const isMyMessage = (message: Message): boolean => {
   return user.email === message.Username;
 };
 
-const isTraderInvolved = (message: Message, trader: string): boolean => {
-  return message.Username === trader || message.ContraTrader === trader;
-};
-
-const isBrokerInvolved = (message: Message, bank: string): boolean => {
-  return message.MDMkt === bank || message.ExecBroker === bank;
-};
-
 export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
-  const personality: string = workareaStore.personality;
+  const firm: string = user.isbroker ? workareaStore.personality : user.firm;
+  // Only fills are interesting
   if (!isFill(message)) return false;
-  if (user.isbroker) {
-    if (personality === STRM) return message.Side === "1";
-    return (
-      (!isBrokerInvolved(message, personality) && message.Side === "1") ||
-      message.MDMkt === personality
-    );
-  }
-  return (
-    (!isTraderInvolved(message, user.email) && message.Side === "1") ||
-    message.Username === user.email
-  );
+  // If it's my trade YES
+  if (message.Username === user.email || message.MDMkt === firm) return true;
+  // If it's my trade and I am contra-trader NO
+  if (message.ContraTrader === user.email || message.ExecBroker === firm)
+    return false;
+  return message.Side === "1";
 };
 
-export const isMessage = (row: Message | Deal): row is Message => "ClOrdID" in row;
+export const isMessage = (row: Message | Deal): row is Message =>
+  "ClOrdID" in row;
