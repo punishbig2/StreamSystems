@@ -2,7 +2,6 @@ import { Message, ExecTypes } from "types/message";
 import { User } from "types/user";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
-import { STRM } from "stateDefs/workspaceState";
 import { Deal } from "components/MiddleOffice/types/deal";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";

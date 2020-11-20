@@ -136,14 +136,15 @@ export const createDealFromBackendMessage = async (
   );
   const spread: number | null = getSpread(object);
   const vol: number | null = getVol(object);
+  const price: number | null = coalesce(object.lastpx, object.pricedvol);
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
     seller: coalesce(object.sellerentitycode, object.seller),
     currency: object.symbol,
     isdarkpool: object.isdarkpool,
-    spread: spread,
-    vol: vol,
+    spread: coalesce(spread, price),
+    vol: coalesce(vol, price),
     legAdj: object.legadj,
     notional1: Number(object.lastqty) * 1e6,
     notional2: object.notional1 === null ? null : Number(object.notional1),
@@ -156,7 +157,7 @@ export const createDealFromBackendMessage = async (
     tradeDate: tradeDate,
     spotDate: new Date(),
     premiumDate: new Date(),
-    price: coalesce(object.lastpx, object.pricedvol),
+    price: price,
     strike: strike,
     symbol: symbol,
     source: object.source,

@@ -844,8 +844,8 @@ export class MoStore {
     } else {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
     }
-    // If there's no selection yet, then select this deal
-    if (this.selectedDealID === null) {
+    // If there's no selection yet or it's the same deal, then select this deal
+    if (this.selectedDealID === null || this.selectedDealID === deal.id) {
       this.setDeal(deal);
     }
   }
