@@ -97,7 +97,7 @@ const price = (sortable: boolean): ColumnSpec => ({
   sortable: sortable,
   header: () => "Level",
   render: (props: CellProps): ReactElement => (
-    <span>{getMessagePrice(props.message)}</span>
+    <span>{priceFormatter(getMessagePrice(props.message))}</span>
   ),
   width: 3,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
