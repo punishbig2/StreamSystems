@@ -111,6 +111,16 @@ const partialTenor = (
   }
 };
 
+const getPrice = (first: any, second: any): number | null => {
+  if (first !== undefined && first !== null) {
+    return first / 100;
+  } else if (second !== undefined && second !== null) {
+    return second;
+  } else {
+    return null;
+  }
+};
+
 export const createDealFromBackendMessage = async (
   source: any
 ): Promise<Deal> => {
@@ -136,7 +146,7 @@ export const createDealFromBackendMessage = async (
   );
   const spread: number | null = getSpread(object);
   const vol: number | null = getVol(object);
-  const price: number | null = coalesce(object.lastpx, object.pricedvol);
+  const price: number | null = getPrice(object.lastpx, object.pricedvol);
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
