@@ -903,15 +903,40 @@ export class MoStore {
   }
 
   public static getFieldEditableFlag(
-    prefix: string,
+    prefix: string | null,
     name: string,
     strategy: MOStrategy
   ): EditableFlag {
     if (strategy.productid === "") return EditableFlag.Editable;
     const { f1 } = strategy.fields;
-    const editableCondition: EditableFlag =
-      f1[prefix + name.toLowerCase()] || f1[name.toLowerCase()];
-    if (editableCondition === undefined) return EditableFlag.None;
+    const key: string | undefined = ((
+      prefix: string | null,
+      name: string
+    ): string | undefined => {
+      const normalizedName: string = name.toLowerCase();
+      if (prefix === null) {
+        const keys: ReadonlyArray<string> = Object.keys(f1);
+        if (f1[normalizedName] !== undefined) {
+          return normalizedName;
+        }
+        // Use null as special, and find any matching key regardless of the prefix
+        const value: string | undefined = keys.find((key: string): boolean =>
+          key.endsWith(normalizedName)
+        );
+        if (value === undefined) {
+          return undefined;
+        } else {
+          return value;
+        }
+      } else if (f1[prefix + normalizedName] !== undefined) {
+        return prefix + normalizedName;
+      } else {
+        return normalizedName;
+      }
+    })(prefix, name);
+    if (key === undefined) return EditableFlag.None;
+    const editableCondition: EditableFlag = f1[key];
+    if (editableCondition === undefined) return EditableFlag.Editable;
     return editableCondition;
   }
 

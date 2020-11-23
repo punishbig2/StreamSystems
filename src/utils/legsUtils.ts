@@ -80,6 +80,7 @@ const getLegDefaultsFromDeal = (
   leg.vol = entry.vol;
   leg.strike = entry.dealstrike;
   leg.party = entry.buyer;
+  console.log(leg);
   return leg;
 };
 

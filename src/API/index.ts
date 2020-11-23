@@ -1,7 +1,10 @@
 import { isInvalidTenor } from "components/FormField/helpers";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import {
+  EditableFlag,
+  MOStrategy,
+} from "components/MiddleOffice/types/moStrategy";
 import {
   OptionLeg,
   ValuationModel,
@@ -9,7 +12,7 @@ import {
 } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
-import moStore from "mobx/stores/moStore";
+import moStore, { MoStore } from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry, ServerDealQuery } from "structures/dealEntry";
@@ -747,6 +750,18 @@ export class API {
     const ccyPair: string = symbol.symbolID;
     const legsPromises = mergedDefinitions.map(
       async (leg: Leg, index: number): Promise<OptionLeg> => {
+        const proxyLeg = new Proxy(leg, {
+          get: (target: Leg, name: keyof Leg): any => {
+            if (
+              MoStore.getFieldEditableFlag(null, name, entry.strategy) ===
+              EditableFlag.NotApplicable
+            ) {
+              return null;
+            } else {
+              return target[name];
+            }
+          },
+        });
         const { strategy } = entry;
         const tenor: Tenor | InvalidTenor = getTenor(entry, index);
         if (isInvalidTenor(tenor))
@@ -760,7 +775,7 @@ export class API {
         const vol: number | null =
           strategy.productid === "Butterfly-2Leg" && index > 0
             ? null
-            : coalesce(leg.vol, entry.vol);
+            : coalesce(proxyLeg.vol, entry.vol);
         const notional: number = coalesce(
           index === 1 ? entry.not2 : entry.not1,
           entry.not1
@@ -775,15 +790,18 @@ export class API {
           deliveryDate: toUTC(deliveryDate),
           spreadVolatiltyOffset: spread,
           strike: numberifyIfPossible(
-            coalesce(leg.strike, coalesce(entry.dealstrike, strategy.strike))
+            coalesce(
+              proxyLeg.strike,
+              coalesce(entry.dealstrike, strategy.strike)
+            )
           ),
           volatilty: vol,
           barrier: null,
           barrierLower: null,
           barrierUpper: null,
           barrierRebate: null,
-          OptionLegType: leg.option,
-          SideType: leg.side.toUpperCase(),
+          OptionLegType: proxyLeg.option,
+          SideType: proxyLeg.side.toUpperCase(),
           MonitorType: null,
         };
       }

@@ -2,6 +2,7 @@ import { themeStore } from "mobx/stores/themeStore";
 import { OrderTypes } from "types/mdEntry";
 import { Sides } from "types/sides";
 import timezones, { TimezoneInfo } from "data/timezones";
+import { toNumber } from "utils/isNumeric";
 
 export const coalesce = (value: any, defaultValue: any): any => {
   if (value === null || value === undefined || value === "")
@@ -61,7 +62,8 @@ export const selectInputText = (input: HTMLInputElement) =>
   input && input.select();
 
 export const numberifyIfPossible = (value: string): string | number => {
-  const asNumber: number = Number(value);
-  if (!isNaN(asNumber)) return asNumber;
+  const asNumber: number | null | undefined = toNumber(value);
+  if (asNumber !== null && asNumber !== undefined && !isNaN(asNumber))
+    return asNumber;
   return value.toUpperCase();
 };
