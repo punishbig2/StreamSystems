@@ -115,7 +115,7 @@ const getPrice = (first: any, second: any): number | null => {
   if (first !== undefined && first !== null) {
     return first / 100;
   } else if (second !== undefined && second !== null) {
-    return second;
+    return second / 100;
   } else {
     return null;
   }
@@ -231,6 +231,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
+  console.log(deal);
   return {
     symbol: symbol,
     strategy: strategy,
