@@ -133,7 +133,7 @@ export const createLegsFromDefinitionAndDeal = (
   );
 };
 
-export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {
+/*export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {
   if (type === "Butterfly") {
     return symbol.vegaAdjustBF;
   } else if (type === "RiskReversal") {
@@ -141,7 +141,7 @@ export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {
   } else {
     return false;
   }
-};
+};*/
 
 export const mergeDefinitionsAndLegs = (
   entry: DealEntry,

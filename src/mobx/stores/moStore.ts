@@ -903,7 +903,7 @@ export class MoStore {
   }
 
   public static getFieldEditableFlag(
-    prefix: string | null,
+    prefix: string,
     name: string,
     strategy: MOStrategy
   ): EditableFlag {
@@ -914,21 +914,7 @@ export class MoStore {
       name: string
     ): string | undefined => {
       const normalizedName: string = name.toLowerCase();
-      if (prefix === null) {
-        const keys: ReadonlyArray<string> = Object.keys(f1);
-        if (f1[normalizedName] !== undefined) {
-          return normalizedName;
-        }
-        // Use null as special, and find any matching key regardless of the prefix
-        const value: string | undefined = keys.find((key: string): boolean =>
-          key.endsWith(normalizedName)
-        );
-        if (value === undefined) {
-          return undefined;
-        } else {
-          return value;
-        }
-      } else if (f1[prefix + normalizedName] !== undefined) {
+      if (f1[prefix + normalizedName] !== undefined) {
         return prefix + normalizedName;
       } else {
         return normalizedName;
@@ -943,10 +929,10 @@ export class MoStore {
   public static isEntryEditable(
     allowedTypes: number,
     entry: DealEntry,
-    next = (_: DealEntry): boolean => true
+    isAllowedToEdit = (_: DealEntry): boolean => true
   ): boolean {
     if (entry.status === DealStatus.SEFConfirmed) return false;
-    if (!next(entry)) return false;
+    if (!isAllowedToEdit(entry)) return false;
     return (entry.dealType & allowedTypes) !== 0;
   }
 
@@ -965,7 +951,7 @@ export class MoStore {
   public static createEditableFilter(
     allowedTypes: number,
     status = 0,
-    next = (entry: DealEntry): boolean => true
+    isAllowedToEdit = (entry: DealEntry): boolean => true
   ): EditableFilter {
     return (
       name: string,
@@ -998,14 +984,13 @@ export class MoStore {
           }
           return false;
       }
-      return MoStore.isEntryEditable(allowedTypes, entry, next);
+      return MoStore.isEntryEditable(allowedTypes, entry, isAllowedToEdit);
     };
   }
 
   @action.bound
   public lockDeal(id: string): void {
     this.lockedDeals = [...this.lockedDeals, id];
-    console.log(this.lockedDeals);
   }
 
   @action.bound

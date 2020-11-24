@@ -8,7 +8,8 @@ import {
   MOStrategy,
 } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import moStore, { MoStore } from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
+import { NotApplicableProxy } from "notApplicableProxy";
 import { useEffect } from "react";
 import signalRManager from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
@@ -291,17 +292,10 @@ const populateExistingDealLegsAndInstallListener = (
 
 export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
   useEffect(() => {
-    const proxyEntry = new Proxy(entry, {
-      get: (target: DealEntry, name: keyof DealEntry): any => {
-        if (
-          MoStore.getFieldEditableFlag(null, name, target.strategy) === "N/A"
-        ) {
-          return "N/A";
-        } else {
-          return target[name];
-        }
-      },
-    });
+    const proxyEntry = new Proxy(
+      entry,
+      NotApplicableProxy<DealEntry>("leg", entry, "N/A")
+    );
     if (entry.dealID === "") {
       return createDefaultLegsFromDeal(cuts, proxyEntry);
     } else {

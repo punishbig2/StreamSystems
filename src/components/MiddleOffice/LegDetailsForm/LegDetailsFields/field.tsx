@@ -36,6 +36,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       );
     }
   };
+
   const getType = (): FieldType => {
     if (field.name === "price") {
       const { symbol } = props.dealEntry;
@@ -47,6 +48,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     }
     return field.type;
   };
+
   return (
     <FormField<Leg>
       id={leg.option}

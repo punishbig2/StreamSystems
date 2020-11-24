@@ -736,7 +736,10 @@ export class API {
     valuationModel: ValuationModel,
     strategy: MOStrategy
   ): Promise<void> {
-    const proxyEntry = new Proxy(entry, NotApplicableProxy<DealEntry>(entry));
+    const proxyEntry = new Proxy(
+      entry,
+      NotApplicableProxy<DealEntry>("", entry)
+    );
     const { tradeDate, symbol } = proxyEntry;
     if (proxyEntry.dealID === undefined)
       throw new Error("cannot price an transient deal");
@@ -749,7 +752,7 @@ export class API {
     const ccyPair: string = symbol.symbolID;
     const legsPromises = mergedDefinitions.map(
       async (leg: Leg, index: number): Promise<OptionLeg> => {
-        const proxyLeg = new Proxy(leg, NotApplicableProxy<Leg>(entry));
+        const proxyLeg = new Proxy(leg, NotApplicableProxy<Leg>("leg", entry));
         const { strategy } = proxyEntry;
         const tenor: Tenor | InvalidTenor = getTenor(proxyEntry, index);
         if (isInvalidTenor(tenor))
