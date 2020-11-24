@@ -138,16 +138,6 @@ export const createLegsFromDefinitionAndDeal = (
   );
 };
 
-/*export const getVegaAdjust = (type: string, symbol: Symbol): boolean => {
-  if (type === "Butterfly") {
-    return symbol.vegaAdjustBF;
-  } else if (type === "RiskReversal") {
-    return symbol.vegaAdjustRR;
-  } else {
-    return false;
-  }
-};*/
-
 export const mergeDefinitionsAndLegs = (
   entry: DealEntry,
   strategy: MOStrategy,

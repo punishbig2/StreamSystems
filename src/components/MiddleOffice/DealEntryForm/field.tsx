@@ -8,6 +8,7 @@ import moStore, { MoStore } from "mobx/stores/moStore";
 import React from "react";
 import { DealEntry } from "structures/dealEntry";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
+import { getVegaAdjust } from "utils/getVegaAdjust";
 import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
@@ -120,6 +121,17 @@ export const Field: React.FC<Props> = React.memo(
     );
     const onChange = React.useCallback(
       async (name: keyof DealEntry, value: any): Promise<void> => {
+        const dependants: Partial<DealEntry> = ((
+          name: keyof DealEntry
+        ): Partial<DealEntry> => {
+          if (name === "symbol") {
+            return { legadj: getVegaAdjust(value, entry.strategy) };
+          } else if (name === "strategy") {
+            return { legadj: getVegaAdjust(entry.symbol, value) };
+          } else {
+            return {};
+          }
+        })(name);
         onChangeStart();
         if (field.type === "tenor") {
           await onTenorChange(name, value);
@@ -132,15 +144,17 @@ export const Field: React.FC<Props> = React.memo(
           );
           if (convertedValue === undefined) return;
           // This will also take some time presumably
-          await onChangeCompleted({ [name]: convertedValue });
+          await onChangeCompleted({ [name]: convertedValue, ...dependants });
         }
       },
       [
         onChangeStart,
-        onChangeCompleted,
-        onTenorChange,
         field,
+        entry.strategy,
+        entry.symbol,
+        onTenorChange,
         editableCondition,
+        onChangeCompleted,
       ]
     );
     return (
