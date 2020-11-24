@@ -13,6 +13,7 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
+import { getVegaAdjust } from "utils/getVegaAdjust";
 import {
   addToDate,
   forceParseDate,
@@ -240,7 +241,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     not1: deal.notional1,
     not2: deal.notional2,
     size: deal.notional1 / 1e6,
-    legadj: deal.legAdj,
+    legadj: coalesce(deal.legAdj, getVegaAdjust(symbol, strategy)),
     buyer: deal.buyer,
     seller: deal.seller,
     tradeDate: deal.tradeDate,
