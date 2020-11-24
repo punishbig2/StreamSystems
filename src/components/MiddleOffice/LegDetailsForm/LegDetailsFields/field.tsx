@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
-  const { field, leg } = props;
+  const { field, leg, dealEntry } = props;
 
   const isEditable = (
     field: FieldDef<Leg, {}, DealEntry>,
@@ -48,7 +48,10 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     }
     return field.type;
   };
-
+  const valueAndRelatedProps = React.useMemo((): any => {
+    return getExtraPropsAndValue(field, leg, dealEntry);
+  }, [field, leg, dealEntry]);
+  if (field.name === "strike") console.log(valueAndRelatedProps);
   return (
     <FormField<Leg>
       id={leg.option}
@@ -60,7 +63,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       rounding={field.rounding}
       type={getType()}
       disabled={props.disabled}
-      {...getExtraPropsAndValue(props.field, props.leg, props.dealEntry)}
+      {...valueAndRelatedProps}
       onChange={props.onValueChange}
     />
   );

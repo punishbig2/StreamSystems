@@ -17,10 +17,12 @@ export const getExtraPropsAndValue = (
   entry: DealEntry
 ): any => {
   const { symbol } = entry;
-  if (
-    MoStore.getFieldEditableFlag("leg", field.name, entry.strategy) ===
-    EditableFlag.NotApplicable
-  ) {
+  const editableFlag: EditableFlag = MoStore.getFieldEditableFlag(
+    "leg",
+    field.name,
+    entry.strategy
+  );
+  if (editableFlag === EditableFlag.NotApplicable) {
     return {
       value: "N/A",
     };

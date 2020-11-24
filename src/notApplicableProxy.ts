@@ -9,6 +9,7 @@ export const NotApplicableProxy = <T>(
 ): any => {
   return {
     get: (target: T, name: keyof T): any => {
+      console.log(prefix + name);
       if (
         MoStore.getFieldEditableFlag(prefix, name as string, entry.strategy) ===
         EditableFlag.NotApplicable
