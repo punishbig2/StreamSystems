@@ -1,7 +1,7 @@
 import { Leg } from "components/MiddleOffice/types/leg";
-import { getStyledValue } from "utils/legsUtils";
 import { Symbol } from "types/symbol";
-import { isNumeric, toNumber } from "utils/isNumeric";
+import { isNumeric } from "utils/isNumeric";
+import { getStyledValue } from "utils/legsUtils";
 import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
 
 export const getStrikeValue = (
@@ -20,7 +20,7 @@ export const getStrikeValue = (
   }
   if (!isNumeric(value)) {
     return {
-      value: toNumber(value),
+      value: value,
       precision: 0,
       rounding: undefined,
     };

@@ -926,7 +926,16 @@ export class API {
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
-      legs: legs,
+      legs: legs.map(
+        (leg: Leg): Leg => {
+          return {
+            ...leg,
+            ...(!!leg.strike
+              ? { strike: numberifyIfPossible(leg.strike) }
+              : {}),
+          };
+        }
+      ),
     });
     return task.execute();
   }

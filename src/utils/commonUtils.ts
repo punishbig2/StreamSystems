@@ -61,7 +61,10 @@ export const updateApplicationTheme = (
 export const selectInputText = (input: HTMLInputElement) =>
   input && input.select();
 
-export const numberifyIfPossible = (value: string): string | number => {
+export const numberifyIfPossible = (
+  value: string | number
+): string | number => {
+  if (typeof value === "number") return value;
   const asNumber: number | null | undefined = toNumber(value);
   if (asNumber !== null && asNumber !== undefined && !isNaN(asNumber))
     return asNumber;

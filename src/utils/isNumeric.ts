@@ -87,5 +87,7 @@ export const toNumber = (
   }
 };
 
-export const isNumeric = (value: string): boolean =>
-  toNumber(value) !== undefined;
+export const isNumeric = (value: string | number): boolean => {
+  if (typeof value === "number") return true;
+  return toNumber(value) !== undefined;
+};
