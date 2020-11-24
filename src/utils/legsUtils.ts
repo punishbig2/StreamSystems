@@ -80,7 +80,6 @@ const getLegDefaultsFromDeal = (
   leg.vol = entry.vol;
   leg.strike = entry.dealstrike;
   leg.party = entry.buyer;
-  console.log(leg);
   return leg;
 };
 
@@ -163,7 +162,6 @@ export const mergeDefinitionsAndLegs = (
       (def: LegOptionsDefIn, index: number): Leg => {
         const defaultLeg: Leg = mapper(def);
         const existingLeg: Leg | undefined = legs[index];
-        if (existingLeg !== undefined) console.log(existingLeg, defaultLeg);
         return {
           ...existingLeg,
           // These need be reset or not?

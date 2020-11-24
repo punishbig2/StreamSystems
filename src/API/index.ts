@@ -1,10 +1,7 @@
 import { isInvalidTenor } from "components/FormField/helpers";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import {
-  EditableFlag,
-  MOStrategy,
-} from "components/MiddleOffice/types/moStrategy";
+import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import {
   OptionLeg,
   ValuationModel,
@@ -12,8 +9,9 @@ import {
 } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
-import moStore, { MoStore } from "mobx/stores/moStore";
+import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
+import { NotApplicableProxy } from "notApplicableProxy";
 import { STRM } from "stateDefs/workspaceState";
 import { DealEntry, ServerDealQuery } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
@@ -738,11 +736,12 @@ export class API {
     valuationModel: ValuationModel,
     strategy: MOStrategy
   ): Promise<void> {
-    const { tradeDate, symbol } = entry;
-    if (entry.dealID === undefined)
+    const proxyEntry = new Proxy(entry, NotApplicableProxy<DealEntry>(entry));
+    const { tradeDate, symbol } = proxyEntry;
+    if (proxyEntry.dealID === undefined)
       throw new Error("cannot price an transient deal");
     const mergedDefinitions: ReadonlyArray<Leg> = mergeDefinitionsAndLegs(
-      entry,
+      proxyEntry,
       strategy,
       symbol,
       legs
@@ -750,20 +749,9 @@ export class API {
     const ccyPair: string = symbol.symbolID;
     const legsPromises = mergedDefinitions.map(
       async (leg: Leg, index: number): Promise<OptionLeg> => {
-        const proxyLeg = new Proxy(leg, {
-          get: (target: Leg, name: keyof Leg): any => {
-            if (
-              MoStore.getFieldEditableFlag(null, name, entry.strategy) ===
-              EditableFlag.NotApplicable
-            ) {
-              return null;
-            } else {
-              return target[name];
-            }
-          },
-        });
-        const { strategy } = entry;
-        const tenor: Tenor | InvalidTenor = getTenor(entry, index);
+        const proxyLeg = new Proxy(leg, NotApplicableProxy<Leg>(entry));
+        const { strategy } = proxyEntry;
+        const tenor: Tenor | InvalidTenor = getTenor(proxyEntry, index);
         if (isInvalidTenor(tenor))
           throw new Error(
             "cannot build pricing request without a valid tenor or expiry date for each leg"
@@ -771,14 +759,14 @@ export class API {
         const spread: number | null =
           strategy.productid === "Butterfly-2Leg" && index > 0
             ? null
-            : coalesce(entry.spread, null);
+            : coalesce(proxyEntry.spread, null);
         const vol: number | null =
           strategy.productid === "Butterfly-2Leg" && index > 0
             ? null
-            : coalesce(proxyLeg.vol, entry.vol);
+            : coalesce(proxyLeg.vol, proxyEntry.vol);
         const notional: number = coalesce(
-          index === 1 ? entry.not2 : entry.not1,
-          entry.not1
+          index === 1 ? proxyEntry.not2 : proxyEntry.not1,
+          proxyEntry.not1
         );
         // We know that the tenor has valid dates now
         const { expiryDate, deliveryDate } = tenor;
@@ -792,7 +780,7 @@ export class API {
           strike: numberifyIfPossible(
             coalesce(
               proxyLeg.strike,
-              coalesce(entry.dealstrike, strategy.strike)
+              coalesce(proxyEntry.dealstrike, strategy.strike)
             )
           ),
           volatilty: vol,
@@ -806,28 +794,28 @@ export class API {
         };
       }
     );
-    if (entry.spotDate === null) {
+    if (proxyEntry.spotDate === null) {
       throw new Error("entry does not have spot date");
     }
-    if (entry.horizonDateUTC === undefined) {
+    if (proxyEntry.horizonDateUTC === undefined) {
       throw new Error("for some reason horizonDateUTC was not set");
     }
     const request: VolMessageIn = {
-      id: entry.dealID,
+      id: proxyEntry.dealID,
       Option: {
         ccyPair: ccyPair,
         ccy1: symbol.notionalCCY,
         ccy2: ccyPair.replace(symbol.notionalCCY, ""),
         OptionProductType: strategy.OptionProductType,
-        vegaAdjust: entry.legadj,
+        vegaAdjust: proxyEntry.legadj,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
         OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
-        valuationDate: toUTC(entry.horizonDateUTC, true),
-        valuationDateUTC: toUTC(entry.horizonDateUTC),
+        valuationDate: toUTC(proxyEntry.horizonDateUTC, true),
+        valuationDateUTC: toUTC(proxyEntry.horizonDateUTC),
         VOL: {
           ccyPair: ccyPair,
           premiumAdjustDelta: symbol.premiumAdjustDelta,
@@ -842,8 +830,8 @@ export class API {
           ForwardRates: buildFwdRates(
             summaryLeg,
             strategy,
-            entry.tenor1,
-            entry.tenor2
+            proxyEntry.tenor1,
+            proxyEntry.tenor2
           ),
         },
         RATES: [],
@@ -856,7 +844,7 @@ export class API {
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${legs.length}-Legs`,
       timeStamp: toUTC(new Date()),
-      spotDate: toUTC(entry.spotDate),
+      spotDate: toUTC(proxyEntry.spotDate),
       version: "arcfintech-volMessage-0.2.2",
     };
     const task: Task<any> = post<any>(config.PricerUrl, request);
