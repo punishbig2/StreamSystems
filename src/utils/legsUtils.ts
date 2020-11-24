@@ -7,7 +7,7 @@ import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { getTenor } from "utils/dealUtils";
-import { forceParseDate } from "utils/timeUtils";
+import { safeForceParseDate } from "utils/timeUtils";
 
 export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
@@ -55,15 +55,20 @@ export const getStyledValue = (
 };
 
 export const parseDates = (legs: ReadonlyArray<any>): ReadonlyArray<Leg> => {
-  const mapper = (leg: any): Leg => {
-    return {
-      ...leg,
-      premiumDate: forceParseDate(leg.premiumDate),
-      expiryDate: forceParseDate(leg.expiryDate),
-      deliveryDate: forceParseDate(leg.deliveryDate),
+  try {
+    const mapper = (leg: any): Leg => {
+      return {
+        ...leg,
+        ...safeForceParseDate<Leg>("premiumDate", leg.premiumDate),
+        ...safeForceParseDate<Leg>("expiryDate", leg.expiryDate),
+        ...safeForceParseDate<Leg>("deliveryDate", leg.deliveryDate),
+      };
     };
-  };
-  return legs.map(mapper);
+    return legs.map(mapper);
+  } catch (error) {
+    console.log(error);
+    return legs;
+  }
 };
 
 const getLegDefaultsFromDeal = (

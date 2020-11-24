@@ -33,7 +33,7 @@ import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
-import { forceParseDate, toUTC } from "utils/timeUtils";
+import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
 
 const SOFT_PRICING_ERROR: string =
   "Timed out while waiting for the pricing result, please refresh the screen. " +
@@ -536,8 +536,8 @@ export class MoStore {
     return {
       tenor: {
         name: originalTenor.name,
-        deliveryDate: forceParseDate(dates.DeliveryDates[0]),
-        expiryDate: forceParseDate(dates.ExpiryDates[0]),
+        ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
+        ...safeForceParseDate("expiryDate", dates.ExpiryDates[0]),
       },
       horizonDateUTC: dates.HorizonDateUTC,
       spotDate: dates.SpotDate,
@@ -558,12 +558,12 @@ export class MoStore {
       tenor2,
       entry
     );
-    const spotDate: Date = forceParseDate(tenor1Dates.spotDate);
+    const spotDate: Date | null = forceParseDate(tenor1Dates.spotDate);
     return {
       ...entry,
       tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
       tenor2: tenor2Dates.tenor,
-      horizonDateUTC: forceParseDate(tenor1Dates.horizonDateUTC),
+      ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
       premiumDate: spotDate,
       spotDate: spotDate,
     };

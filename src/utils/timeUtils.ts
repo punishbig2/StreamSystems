@@ -62,23 +62,38 @@ export const toUTCFIXFormat = (date: Date): string => {
   return utc.format(FIX_DATE_FORMAT);
 };
 
-export const forceParseDate = (value: string): Date => {
-  if (value.match(/\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}/)) {
+export const forceParseDate = (value: string): Date | null => {
+  // Check if the string matches FIX date format
+  if (value.match(/^\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}$/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
     if (!m.isValid()) {
       console.warn("invalid date string: " + value);
-      return new Date();
+      return null;
+    }
+    return m.toDate();
+  } else if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    const m: moment.Moment = moment(value, "YYYY-MM-DD");
+    if (!m.isValid()) {
+      console.warn("invalid date string: " + value);
+      return null;
+    }
+    return m.toDate();
+  } else if (value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[Z]]{0,1}$/)) {
+    const m: moment.Moment = moment(value, "YYYY-MM-DDTHH:mm:ssZ");
+    if (!m.isValid()) {
+      console.warn("invalid date string: " + value);
+      return null;
     }
     return m.toDate();
   } else {
     if (value === "Invalid date") {
-      return new Date();
+      return null;
     }
     // ISO format
     const m: moment.Moment = moment(value);
     if (!m.isValid()) {
       console.warn("invalid date string: " + value);
-      return new Date();
+      return null;
     }
     return m.toDate();
   }
@@ -156,4 +171,9 @@ export const naiveTenorToDate = (tenor: string): Date => {
 export const naiveTenorToDateString = (tenor: string): string => {
   const date: Date = naiveTenorToDate(tenor);
   return toUTC(date, true);
+};
+
+export const safeForceParseDate = <T>(key: keyof T, value: any): any => {
+  if (!value) return {};
+  return { [key]: forceParseDate(value) };
 };

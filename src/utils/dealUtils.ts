@@ -92,8 +92,8 @@ const partialTenor = (
   expiryDate: string
 ): Tenor | null => {
   if (name === undefined) return null;
-  const date: Date =
-    expiryDate === "" ? new Date() : forceParseDate(expiryDate);
+  const date: Date | null =
+    expiryDate === "" ? null : forceParseDate(expiryDate);
   if (date === undefined) {
     const expiry: Date = naiveTenorToDate(name);
     return {
@@ -104,8 +104,10 @@ const partialTenor = (
   } else {
     return {
       name: name,
-      deliveryDate: addToDate(date, symbol.SettlementWindow, "d"),
-      expiryDate: date,
+      ...(date !== null
+        ? { deliveryDate: addToDate(date, symbol.SettlementWindow, "d") }
+        : { deliveryDate: new Date() }),
+      ...(date !== null ? { expiryDate: date } : { expiryDate: new Date() }),
     };
   }
 };

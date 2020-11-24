@@ -10,7 +10,7 @@ import { DealEntry } from "structures/dealEntry";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
-import { forceParseDate, toUTC } from "utils/timeUtils";
+import { safeForceParseDate, toUTC } from "utils/timeUtils";
 
 export interface DealEntryEditInterface {
   readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
@@ -103,15 +103,15 @@ export const Field: React.FC<Props> = React.memo(
         return onChangeCompleted({
           [name]: {
             name: typeof value === "string" ? value : SPECIFIC_TENOR,
-            deliveryDate: forceParseDate(dates.DeliveryDates[0]),
-            expiryDate: forceParseDate(dates.ExpiryDates[0]),
+            ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
+            ...safeForceParseDate("expiryDate", dates.ExpiryDates[0]),
           },
           // If it's tenor 2 it does not affect deal level spot/premium dates
           // otherwise it does
           ...(name === "tenor1"
             ? {
-                spotDate: forceParseDate(dates.SpotDate),
-                premiumDate: forceParseDate(dates.SpotDate),
+                ...safeForceParseDate("spotDate", dates.SpotDate),
+                ...safeForceParseDate("premiumDate", dates.SpotDate),
               }
             : {}),
         });

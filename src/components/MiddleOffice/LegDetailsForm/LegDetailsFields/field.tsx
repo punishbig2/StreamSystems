@@ -48,10 +48,11 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     }
     return field.type;
   };
+
   const valueAndRelatedProps = React.useMemo((): any => {
     return getExtraPropsAndValue(field, leg, dealEntry);
   }, [field, leg, dealEntry]);
-  if (field.name === "strike") console.log(valueAndRelatedProps);
+
   return (
     <FormField<Leg>
       id={leg.option}
