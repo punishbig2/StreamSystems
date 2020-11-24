@@ -78,7 +78,7 @@ const getLegDefaultsFromDeal = (
   leg.expiryDate = tenor.expiryDate;
   leg.notional = index === 1 && entry.not2 !== null ? entry.not1 : entry.not1;
   leg.vol = entry.vol;
-  leg.strike = entry.dealstrike;
+  leg.strike = entry.strike;
   leg.party = entry.buyer;
   return leg;
 };

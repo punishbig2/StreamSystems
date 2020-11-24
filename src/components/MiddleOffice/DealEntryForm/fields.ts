@@ -95,7 +95,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     dataSource: "tenors",
   },
   {
-    name: "dealstrike",
+    name: "strike",
     label: "Strike",
     type: "strike",
     placeholder: "0D",

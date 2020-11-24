@@ -783,7 +783,7 @@ export class API {
           strike: numberifyIfPossible(
             coalesce(
               proxyLeg.strike,
-              coalesce(proxyEntry.dealstrike, strategy.strike)
+              coalesce(proxyEntry.strike, strategy.strike)
             )
           ),
           volatilty: vol,
@@ -903,7 +903,7 @@ export class API {
       buyer: resolveEntityToBank(entry.buyer),
       seller: resolveEntityToBank(entry.seller),
       useremail: user.email,
-      strike: entry.dealstrike,
+      strike: entry.strike,
       expirydate: toUTCFIXFormat(tenor1.expiryDate),
       expirydate1: tenor2 !== null ? toUTCFIXFormat(tenor2.expiryDate) : null,
       deltastyle: entry.deltastyle,

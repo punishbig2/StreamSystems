@@ -32,7 +32,7 @@ export interface DealEntry {
   readonly tenor1: Tenor | InvalidTenor;
   readonly tenor2: Tenor | null;
 
-  readonly dealstrike?: string | number;
+  readonly strike?: string | number;
   readonly spread?: number | null;
   readonly vol?: number | null;
   readonly not1: number | null;
