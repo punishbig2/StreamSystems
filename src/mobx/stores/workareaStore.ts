@@ -257,10 +257,9 @@ export class WorkareaStore {
         return {
           ...user,
           roles: [
-            Role.MiddleOffice,
-            /*...(user.isbroker ? [Role.Broker] : []),
+            ...(user.isbroker ? [Role.Broker] : []),
             ...(user.ismiddleoffice ? [Role.MiddleOffice] : []),
-            ...(!user.isbroker && !user.ismiddleoffice ? [Role.Trader] : []),*/
+            ...(!user.isbroker && !user.ismiddleoffice ? [Role.Trader] : []),
           ],
         };
       }
