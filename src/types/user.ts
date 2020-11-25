@@ -1,3 +1,5 @@
+import { Role } from "types/role";
+
 export enum OCOModes {
   Disabled,
   FullEx,
@@ -22,11 +24,10 @@ export interface ExecSound {
 }
 
 export interface User {
-  readonly ismiddleoffice: boolean;
   readonly email: string;
   readonly firm: string;
-  readonly isbroker: boolean;
   readonly regions: ReadonlyArray<string>;
+  readonly roles: ReadonlyArray<Role>;
 }
 
 export enum UserProfileStatus {

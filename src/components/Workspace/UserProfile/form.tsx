@@ -12,7 +12,8 @@ import timezones, { TimezoneInfo } from "data/timezones";
 import deepEqual from "deep-equal";
 import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
-import React, { ChangeEvent, FormEvent, ReactNode } from "react";
+import React, { ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
+import { Role } from "types/role";
 import { OCOModes, User, UserPreferences } from "types/user";
 
 interface OwnProps {
@@ -42,6 +43,10 @@ const renderCCYGroup = (value: unknown): ReactNode => {
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const { profile } = props;
   const user: User = workareaStore.user;
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
   const onChangeWrapper = ({ target }: ChangeEvent<any>) => {
     const { name } = target;
     const value: any = (() => {
@@ -63,7 +68,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     return text.replace(/_/g, " ");
   };
 
-  const userType: string = user.isbroker ? "Broker" : "Bank";
+  const userType: string = isBroker ? "Broker" : "Bank";
   const regions: ReadonlyArray<string> = user.regions;
   return (
     <>

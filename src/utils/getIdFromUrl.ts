@@ -1,4 +1,4 @@
-export const getUserFromUrl = (): string | null => {
+export const getUserIdFromUrl = (): string | null => {
   const { location, history } = window;
   if (history.state) {
     const { email } = history.state;

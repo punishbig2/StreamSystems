@@ -1,13 +1,14 @@
+import { PodTableType } from "columns/podColumns/OrderColumn";
+import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderStatus";
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { OrderTypes } from "types/mdEntry";
-import { Order, OrderStatus } from "types/order";
-import React, { ReactNode } from "react";
-import { priceFormatter } from "utils/priceFormatter";
-import { User } from "types/user";
 import { OrderStore } from "mobx/stores/orderStore";
 import workareaStore from "mobx/stores/workareaStore";
-import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderStatus";
-import { PodTableType } from "columns/podColumns/OrderColumn";
+import React, { ReactNode, useMemo } from "react";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
+import { Role } from "types/role";
+import { User } from "types/user";
+import { priceFormatter } from "utils/priceFormatter";
 
 interface Props {
   readonly rows?: Order[];
@@ -18,6 +19,10 @@ interface Props {
 export const MiniDOB: React.FC<Props> = (props: Props) => {
   const user: User = workareaStore.user;
   const { rows, orderStore } = props;
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
   if (!rows) return null;
   const children = rows.map((order: Order, index: number) => {
     const { price, size, firm } = order;
@@ -39,9 +44,10 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
         {size}
       </div>
     );
+
     if (props.type === OrderTypes.Bid) {
       elements.unshift(sizeElement);
-      if (user.isbroker) {
+      if (isBroker) {
         elements.unshift(
           <div key={3} className={"mini-firm"}>
             {firm}
@@ -50,7 +56,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
       }
     } else {
       elements.push(sizeElement);
-      if (user.isbroker) {
+      if (isBroker) {
         elements.push(
           <div key={3} className={"mini-firm"}>
             {firm}

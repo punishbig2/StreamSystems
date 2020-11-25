@@ -17,8 +17,9 @@ import { MessagesStore } from "mobx/stores/messagesStore";
 import { PodTileStore } from "mobx/stores/podTileStore";
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import { WorkspaceStore } from "mobx/stores/workspaceStore";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { STRM } from "stateDefs/workspaceState";
+import { Role } from "types/role";
 import { SelectEventData } from "types/selectEventData";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
@@ -42,12 +43,22 @@ const useDropdownStyles = makeStyles({
   },
 });
 
+const cachedStores: { [id: string]: WorkspaceStore } = {};
+
 const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   const { id } = props;
   const [store, setStore] = useState<WorkspaceStore | null>(null);
   const dropdownClasses = useDropdownStyles();
+  const user: User = workareaStore.user;
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
   useEffect(() => {
-    setStore(new WorkspaceStore(id));
+    if (!(id in cachedStores)) {
+      cachedStores[id] = new WorkspaceStore(id);
+    }
+    setStore(cachedStores[id]);
   }, [id]);
 
   if (store === null) return null;
@@ -58,8 +69,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   };
 
   const getRightPanelButtons = (): ReactElement | null => {
-    const user: User = workareaStore.user;
-    if (user.isbroker) {
+    if (isBroker) {
       const { banks } = workareaStore;
       const renderValue = (value: unknown): React.ReactNode => {
         return value as string;
@@ -209,7 +219,7 @@ const Workspace: React.FC<Props> = (props: Props): ReactElement | null => {
   if (!!store.busyMessage) {
     return (
       <ProgressView
-        value={50}
+        value={store.progress}
         message={"Please wait while we load your workspace"}
         title={"Loading: Workspace"}
       />

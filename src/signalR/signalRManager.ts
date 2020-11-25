@@ -24,6 +24,7 @@ import {
   ON_MIDDLE_OFFICE_ERROR,
 } from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
+import { Role } from "types/role";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
@@ -521,7 +522,8 @@ export class SignalRManager {
   private static shouldShowPopup = (message: Message): boolean => {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
-    if (user.isbroker) {
+    const { roles } = user;
+    if (roles.includes(Role.Broker)) {
       return personality === message.MDMkt && message.Username === user.email;
     }
     return message.Username === user.email;

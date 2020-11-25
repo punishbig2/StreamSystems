@@ -1,15 +1,16 @@
-import React, { ReactElement } from "react";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import strings from "locales";
+import { API } from "API";
+import { DarkPoolColumn } from "columns/podColumns/darkPoolColumn";
+import { FirmColumn } from "columns/podColumns/firmColumn";
 import { OrderColumnWrapper } from "columns/podColumns/orderColumnWrapper";
 import { TenorColumn } from "columns/podColumns/tenorColumn";
-import { FirmColumn } from "columns/podColumns/firmColumn";
-import { DarkPoolColumn } from "columns/podColumns/darkPoolColumn";
-import { OrderTypes } from "types/mdEntry";
-import { API } from "API";
-import { getSideFromType } from "utils/commonUtils";
-import { User } from "types/user";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
+import React, { ReactElement } from "react";
+import { OrderTypes } from "types/mdEntry";
+import { Role } from "types/role";
+import { User } from "types/user";
+import { getSideFromType } from "utils/commonUtils";
 
 interface RefButtonProps {
   readonly type: OrderTypes;
@@ -41,7 +42,9 @@ const cancelAll = (
   strategy: string
 ) => () => {
   const user: User = workareaStore.user;
-  if (user.isbroker) {
+  const { roles } = user;
+  const isBroker: boolean = roles.includes(Role.Broker);
+  if (isBroker) {
     API.cancelAllExtended(symbol, strategy, getSideFromType(type));
   } else {
     API.cancelAll(symbol, strategy, getSideFromType(type));
@@ -66,9 +69,11 @@ const columns = (
   depth: boolean = false
 ): ColumnSpec[] => {
   const user: User = workareaStore.user;
+  const { roles } = user;
+  const isBroker: boolean = roles.includes(Role.Broker);
   return [
     TenorColumn(),
-    ...(user.isbroker ? [FirmColumn(OrderTypes.Bid)] : []),
+    ...(isBroker ? [FirmColumn(OrderTypes.Bid)] : []),
     OrderColumnWrapper(
       strings.BidPx,
       OrderTypes.Bid,
@@ -82,7 +87,7 @@ const columns = (
       depth,
       getRefButton(depth, currency, strategy, OrderTypes.Ofr)
     ),
-    ...(user.isbroker ? [FirmColumn(OrderTypes.Ofr)] : []),
+    ...(isBroker ? [FirmColumn(OrderTypes.Ofr)] : []),
   ];
 };
 

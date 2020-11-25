@@ -9,9 +9,10 @@ import { ColumnSpec } from "components/Table/columnSpecification";
 import { observer } from "mobx-react";
 import { DarkPoolStore } from "mobx/stores/darkPoolStore";
 import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { DarkPoolOrder, Order, OrderStatus } from "types/order";
+import { Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection } from "types/w";
 import { skipTabIndexAll } from "utils/skipTab";
@@ -81,9 +82,14 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     store.publishPrice(currency, strategy, tenor, price);
   };
 
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
+
   const onDoubleClick = () => {
     if (!store.publishedPrice && !store.currentOrder) return;
-    if (user.isbroker && personality === STRM) return;
+    if (isBroker && personality === STRM) return;
     store.openTicket();
   };
 
@@ -99,7 +105,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         className={"dark-pool-base"}
         value={store.price}
         tooltip={renderTooltip}
-        readOnly={(personality !== STRM && user.isbroker) || !user.isbroker}
+        readOnly={(personality !== STRM && isBroker) || !isBroker}
         status={store.status}
         allowZero={true}
         onDoubleClick={onDoubleClick}

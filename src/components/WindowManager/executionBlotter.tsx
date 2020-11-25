@@ -1,11 +1,12 @@
-import React, { ReactElement } from "react";
-import { WindowElement } from "components/WindowManager/WindowElement";
+import columns, { BlotterTypes } from "columns/messageBlotter";
 import { MessageBlotter } from "components/MessageBlotter";
+import { WindowElement } from "components/WindowManager/WindowElement";
+import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
+import React, { ReactElement, useMemo } from "react";
 import getStyles, { Styles } from "styles";
+import { Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import columns, { BlotterTypes } from "columns/messageBlotter";
-import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 
 interface OwnProps {
   area: ClientRect;
@@ -15,12 +16,12 @@ export const ExecutionBlotter: React.FC<OwnProps> = (
   props: OwnProps
 ): ReactElement | null => {
   const { area } = props;
-  const user: User | null = workareaStore.user;
-  if (user === null)
-    throw new Error(
-      "cannot have a execution blotter without an authenticated user"
-    );
-  const type: "normal" | "broker" = user.isbroker ? "broker" : "normal";
+  const user: User = workareaStore.user;
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
+  const type: "normal" | "broker" = isBroker ? "broker" : "normal";
   const width: number = getOptimalWidthFromColumnsSpec(
     columns(BlotterTypes.Executions)[type]
   );

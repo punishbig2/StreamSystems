@@ -2,8 +2,9 @@ import { Tab } from "components/Tab";
 import { TabLabel } from "components/TabLabel";
 import config from "config";
 
-import React, { ReactElement, useState, useRef } from "react";
+import React, { ReactElement, useState, useRef, useMemo } from "react";
 import { Menu, MenuItem, Typography } from "@material-ui/core";
+import { Role } from "types/role";
 import { CurrencyGroups, isCurrencyGroup } from "types/user";
 import workareaStore, { WorkspaceDef } from "mobx/stores/workareaStore";
 
@@ -27,9 +28,18 @@ const isWorkspaceType = (value: any): value is WorkspaceType => {
 };
 
 const TabBar: React.FC<Props> = (props: Props): ReactElement => {
+  const { user } = workareaStore;
   const { active, entries } = props;
   const [isShowingOptions, showOptions] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
+  const isTrader: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Trader);
+  }, [user]);
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
   // Get the workspace entries
   const destroyWorkspace = (id: string) => {
     props.onTabClosed(id);
@@ -76,9 +86,12 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   );
 
   const getAddWorkspaceMenu = (): ReactElement | null => {
-    const groups = Object.values(CurrencyGroups).filter(
-      (group: CurrencyGroups) => group !== CurrencyGroups.Default
-    );
+    const groups =
+      isTrader || isBroker
+        ? Object.values(CurrencyGroups).filter(
+            (group: CurrencyGroups) => group !== CurrencyGroups.Default
+          )
+        : [];
 
     const addTab = (type: WorkspaceType | CurrencyGroups) => {
       if (isCurrencyGroup(type)) {
@@ -103,12 +116,16 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
             {group} Default
           </MenuItem>
         ))}
-        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>
-          Empty
-        </MenuItem>
-        <MenuItem onClick={() => addTab(WorkspaceType.MiddleOffice)}>
-          Middle Office
-        </MenuItem>
+        {isTrader || isBroker ? (
+          <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>
+            Empty
+          </MenuItem>
+        ) : null}
+        {!isTrader ? (
+          <MenuItem onClick={() => addTab(WorkspaceType.MiddleOffice)}>
+            Middle Office
+          </MenuItem>
+        ) : null}
       </Menu>
     );
   };

@@ -31,19 +31,31 @@ export class WorkspaceStore {
   @observable isUserProfileModalVisible = false;
   @observable errorMessage: string | null = null;
   @observable busyMessage: BusyMessage | null = null;
+  @observable progress: number = 0;
 
   constructor(id: string) {
     this.id = id;
-    const hydrate = create({
-      storage: persistStorage.workspaces,
-      jsonify: true,
-    });
+    this.progress = 50;
     this.setBusyMessage(
       "Loading workspace",
       "Please wait while we load and initialize all your windows"
     );
-    setTimeout(() => {
-      hydrate(id, this).then(() => this.unsetBusyMessage());
+    this.hydrateMe();
+  }
+
+  @action.bound
+  public hydrateMe(): void {
+    const hydrate = create({
+      storage: persistStorage.workspaces,
+      jsonify: true,
+    });
+    this.progress = 100;
+    setTimeout((): void => {
+      hydrate(this.id, this)
+        .then((): void => this.unsetBusyMessage())
+        .catch((error: any): void => {
+          console.log("error hydrating workspace");
+        });
     }, 0);
   }
 

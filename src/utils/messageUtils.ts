@@ -1,8 +1,9 @@
-import { Message, ExecTypes } from "types/message";
-import { User } from "types/user";
+import { Deal } from "components/MiddleOffice/types/deal";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
-import { Deal } from "components/MiddleOffice/types/deal";
+import { ExecTypes, Message } from "types/message";
+import { Role } from "types/role";
+import { User } from "types/user";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
 export const TransTypes: { [key: string]: string } = {
@@ -77,7 +78,10 @@ export const isMyMessage = (message: Message): boolean => {
 
 export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
-  const firm: string = user.isbroker ? workareaStore.personality : user.firm;
+  const { roles } = user;
+  const firm: string = roles.includes(Role.Broker)
+    ? workareaStore.personality
+    : user.firm;
   // Only fills are interesting
   if (!isFill(message)) return false;
   // If it's my trade YES

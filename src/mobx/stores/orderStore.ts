@@ -4,11 +4,12 @@ import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import { OrderTypes } from "types/mdEntry";
 import { CreateOrder, Order, OrderStatus } from "types/order";
+import { Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
+import { getCurrentTime, getSideFromType } from "utils/commonUtils";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { $$ } from "utils/stringPaster";
-import { getCurrentTime, getSideFromType } from "utils/commonUtils";
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
@@ -109,6 +110,7 @@ export class OrderStore {
     this.currentStatus =
       this.currentStatus |
       (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
+    const { roles } = user;
     // Create the request
     const request: CreateOrder = {
       ...this.getCancelOrderId(),
@@ -121,7 +123,7 @@ export class OrderStore {
       Side: getSideFromType(type),
       Quantity: size.toString(),
       Price: price.toString(),
-      MDMkt: user.isbroker ? personality : undefined,
+      MDMkt: roles.includes(Role.Broker) ? personality : undefined,
     };
     const response = await API.executeCreateOrderRequest(request);
     if (response.Status === "Success") {
@@ -175,9 +177,10 @@ export class OrderStore {
     const user: User | null = workareaStore.user;
     const personality: string = workareaStore.personality;
     if (user !== null) {
+      const { roles } = user;
       const order: Order | undefined = depth.find((o: Order) => {
         if (o.type !== this.type) return false;
-        if (user.isbroker) return o.firm === personality;
+        if (roles.includes(Role.Broker)) return o.firm === personality;
         return o.user === user.email;
       });
       if (!!order && !!order.orderId && !!order.size) {

@@ -1,26 +1,27 @@
-import React, { ReactElement, useEffect, useState } from "react";
-import { Order, OrderStatus } from "types/order";
-import { OrderTypes } from "types/mdEntry";
-import { Size } from "components/Table/CellRenderers/Size";
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { Price } from "components/Table/CellRenderers/Price";
-import { STRM } from "stateDefs/workspaceState";
-import { onNavigate } from "components/PodTile/helpers";
-import { ModalWindow } from "components/ModalWindow";
-import { ArrowDirection } from "types/w";
-import { User } from "types/user";
-import { OrderStore } from "mobx/stores/orderStore";
-import { orderTicketRenderer } from "columns/podColumns/OrderColumn/helpers/orderTicketRenderer";
-import { observer } from "mobx-react";
-import { onSubmitPrice } from "columns/podColumns/OrderColumn/helpers/onSubmitPrice";
+import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
 import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderStatus";
-import { MiniDOB } from "components/Table/CellRenderers/Price/miniDob";
-import { shouldOpenOrderTicket } from "columns/podColumns/OrderColumn/helpers/shoulOpenOrderTicket";
+import { getRelevantOrders } from "columns/podColumns/OrderColumn/helpers/getRelevantOrders";
+import { onSubmitPrice } from "columns/podColumns/OrderColumn/helpers/onSubmitPrice";
 import { onSubmitSize } from "columns/podColumns/OrderColumn/helpers/onSubmitSize";
+import { orderTicketRenderer } from "columns/podColumns/OrderColumn/helpers/orderTicketRenderer";
+import { shouldOpenOrderTicket } from "columns/podColumns/OrderColumn/helpers/shoulOpenOrderTicket";
+import { ModalWindow } from "components/ModalWindow";
+import { onNavigate } from "components/PodTile/helpers";
+import { Price } from "components/Table/CellRenderers/Price";
+import { MiniDOB } from "components/Table/CellRenderers/Price/miniDob";
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { Size } from "components/Table/CellRenderers/Size";
+import { observer } from "mobx-react";
+import { OrderStore } from "mobx/stores/orderStore";
 import { PodRowStore } from "mobx/stores/podRowStore";
 import workareaStore from "mobx/stores/workareaStore";
-import { getRelevantOrders } from "columns/podColumns/OrderColumn/helpers/getRelevantOrders";
-import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
+import { STRM } from "stateDefs/workspaceState";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
+import { Role } from "types/role";
+import { User } from "types/user";
+import { ArrowDirection } from "types/w";
 
 export enum PodTableType {
   Pod,
@@ -112,7 +113,11 @@ export const OrderColumn: React.FC<OwnProps> = observer(
         }
       };
     };
-    const readOnly: boolean = user.isbroker && personality === STRM;
+    const isBroker: boolean = useMemo((): boolean => {
+      const { roles } = user;
+      return roles.includes(Role.Broker);
+    }, [user]);
+    const readOnly: boolean = isBroker && personality === STRM;
     const sizeCell: ReactElement = (
       <Size
         key={2}

@@ -1,4 +1,5 @@
 import { MDEntry, OrderTypes } from "types/mdEntry";
+import { Role } from "types/role";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes, W } from "types/w";
@@ -173,7 +174,8 @@ export class Order {
       entry.MDEntrySize === undefined || entry.MDEntrySize === "0"
         ? OrderStatus.Cancelled
         : OrderStatus.Active;
-    const isOwnerBroker: OrderStatus = user.isbroker
+    const { roles } = user;
+    const isOwnerBroker: OrderStatus = roles.includes(Role.Broker)
       ? OrderStatus.OwnedByBroker
       : OrderStatus.None;
     const order: Order = new Order(

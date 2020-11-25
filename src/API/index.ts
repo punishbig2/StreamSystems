@@ -30,6 +30,7 @@ import {
   Order,
   OrderMessage,
 } from "types/order";
+import { OktaUser, Role } from "types/role";
 import { Sides } from "types/sides";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
@@ -360,11 +361,13 @@ export class API {
     user: User,
     minimumSize: number
   ): Promise<MessageResponse> {
+    const { roles } = user;
     const personality: string = workareaStore.personality;
     // Build a create order request
-    if (user.isbroker && personality === STRM)
+    const isBroker: boolean = roles.includes(Role.Broker);
+    if (isBroker && personality === STRM)
       throw new Error("brokers cannot create orders when in streaming mode");
-    const MDMkt: string | undefined = user.isbroker ? personality : undefined;
+    const MDMkt: string | undefined = isBroker ? personality : undefined;
     const request: CreateOrderBulk = {
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
@@ -443,7 +446,9 @@ export class API {
     order: Order,
     user: User
   ): Promise<MessageResponse> {
-    if (order.user !== user.email && !user.isbroker)
+    const { roles } = user;
+    const isBroker: boolean = roles.includes(Role.Broker);
+    if (order.user !== user.email && !isBroker)
       throw new Error(
         `cancelling someone else's order: ${order.user} -> ${user.email}`
       );
@@ -563,9 +568,11 @@ export class API {
   public static async createDarkPoolOrder(order: DarkPoolOrder): Promise<any> {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
-    if (user.isbroker && order.MDMkt === STRM) {
+    const { roles } = user;
+    const isBroker: boolean = roles.includes(Role.Broker);
+    if (isBroker && order.MDMkt === STRM) {
       throw new Error("brokers cannot create orders when in streaming mode");
-    } else if (!user.isbroker) {
+    } else if (!isBroker) {
       order.MDMkt = user.firm;
     } else {
       order.MDMkt = personality;
@@ -1100,6 +1107,14 @@ export class API {
         rollExpiryDates: true,
       }
     );
+    return task.execute();
+  }
+
+  public static getUser(userId: string): Promise<OktaUser> {
+    const url: string = "https://uat.account.fxlps/api/user/getrole";
+    const task: Task<OktaUser> = get<OktaUser>(url, {
+      user: userId,
+    });
     return task.execute();
   }
 }

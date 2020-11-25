@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React from "react";
+import { Role } from "types/role";
 import { xPoints } from "utils/timesPolygon";
 import { OrderTypes } from "types/mdEntry";
 import { Order } from "types/order";
@@ -24,9 +25,11 @@ const columns = (
         const classes: string[] = ["times"];
         const user: User = workareaStore.user;
         const personality: string = workareaStore.personality;
+        const { roles } = user;
+        const isBroker: boolean = roles.includes(Role.Broker);
         if (
           order.user === user.email ||
-          (user.isbroker && personality === user.firm)
+          (isBroker && personality === user.firm)
         )
           classes.push("clickable");
         return (

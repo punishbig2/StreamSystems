@@ -7,6 +7,7 @@ import strings from "locales";
 import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 import { WindowDef } from "mobx/stores/workspaceStore";
+import { OktaUser, Role } from "types/role";
 import persistStorage from "utils/persistStorage";
 import { randomID } from "utils/randomID";
 import signalRManager from "signalR/signalRManager";
@@ -58,6 +59,9 @@ export class WorkareaStore {
   @observable loadingProgress: number = 0;
   @observable isCreatingWorkspace: boolean = false;
   @observable hasUpdates: boolean = false;
+
+  @observable workspaceAccessDenied: boolean = false;
+  @observable workspaceNotFound: boolean = false;
 
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
@@ -223,12 +227,44 @@ export class WorkareaStore {
   }
 
   @action.bound
-  private async loadUser(email: string): Promise<User | undefined> {
+  private async loadUser(id: string): Promise<User | undefined> {
     this.updateLoadingProgress(strings.StartingUp);
     // Get the list of all users
     const users: any[] = await API.getUsers();
-    // Find said user in the users array
-    return users.find((each: User) => each.email === email);
+    if (
+      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+        id
+      )
+    ) {
+      const oktaUser: OktaUser = await API.getUser(id);
+      // Find said user in the users array
+      const user: User | undefined = users.find(
+        (each: User) => each.email === oktaUser.email
+      );
+      if (user === undefined) {
+        return undefined;
+      } else {
+        return { ...user, roles: oktaUser.roles };
+      }
+    } else {
+      // Find said user in the users array
+      const user: any | undefined = users.find(
+        (each: User): boolean => each.email === id
+      );
+      if (user === undefined) {
+        return undefined;
+      } else {
+        return {
+          ...user,
+          roles: [
+            Role.MiddleOffice,
+            /*...(user.isbroker ? [Role.Broker] : []),
+            ...(user.ismiddleoffice ? [Role.MiddleOffice] : []),
+            ...(!user.isbroker && !user.ismiddleoffice ? [Role.Trader] : []),*/
+          ],
+        };
+      }
+    }
   }
 
   private async loadUserRegions(email: string): Promise<ReadonlyArray<string>> {
@@ -288,14 +324,15 @@ export class WorkareaStore {
 
   @action.bound
   private setStatus(status: WorkareaStatus) {
+    this.loadingProgress = 0;
     this.status = status;
   }
 
-  public async initialize(email: string) {
+  public async initialize(id: string) {
     this.loadingStep = 100 / 9;
     this.setStatus(WorkareaStatus.Starting);
     try {
-      const user: User | undefined = await this.loadUser(email);
+      const user: User | undefined = await this.loadUser(id);
       if (user === undefined) {
         this.setStatus(WorkareaStatus.UserNotFound);
       } else {
@@ -338,9 +375,34 @@ export class WorkareaStore {
     }
   }
 
+  private getUserAccessToWorkspace(workspace: WorkspaceDef): boolean {
+    const { roles } = this.user;
+    switch (workspace.type) {
+      case WorkspaceType.MiddleOffice:
+        return (
+          roles.includes(Role.MiddleOffice) ||
+          roles.includes(Role.Broker) ||
+          roles.includes(Role.Admin)
+        );
+      case WorkspaceType.Trading:
+        return roles.includes(Role.Broker) || roles.includes(Role.Trader);
+    }
+    return false;
+  }
+
   @action.bound
   public setWorkspace(id: string) {
-    this.currentWorkspaceID = id;
+    const { workspaces } = this;
+    this.workspaceAccessDenied = false;
+    this.workspaceNotFound = false;
+    const workspace: WorkspaceDef | undefined = workspaces[id];
+    if (workspace === undefined) {
+      this.workspaceNotFound = true;
+    } else if (this.getUserAccessToWorkspace(workspace)) {
+      this.currentWorkspaceID = id;
+    } else {
+      this.workspaceAccessDenied = true;
+    }
   }
 
   @action.bound
@@ -416,6 +478,11 @@ export class WorkareaStore {
   @action.bound
   public setHasUpdates(): void {
     this.hasUpdates = true;
+  }
+
+  @action.bound
+  public closeAccessDeniedView(): void {
+    this.workspaceAccessDenied = false;
   }
 }
 

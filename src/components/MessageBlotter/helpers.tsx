@@ -1,7 +1,8 @@
-import { Message, ExecTypes } from "types/message";
 import { BlotterTypes } from "columns/messageBlotter";
-import React, { ReactElement } from "react";
 import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
+import React, { ReactElement } from "react";
+import { ExecTypes, Message } from "types/message";
+import { Role } from "types/role";
 import workareaStore from "../../mobx/stores/workareaStore";
 import { STRM } from "../../stateDefs/workspaceState";
 import { User } from "../../types/user";
@@ -16,7 +17,8 @@ export const isExecution = (message: Message): boolean => {
 export const isMyBankMessage = (message: Message): boolean => {
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
-  if (user.isbroker)
+  const { roles } = user;
+  if (roles.includes(Role.Broker))
     return message.MDMkt === personality || message.ExecBroker === personality;
   return message.MDMkt === user.firm || message.ExecBroker === user.firm;
 };
@@ -24,7 +26,8 @@ export const isMyBankMessage = (message: Message): boolean => {
 export const isMyMessage = (message: Message): boolean => {
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
-  if (user.isbroker) {
+  const { roles } = user;
+  if (roles.includes(Role.Broker)) {
     if (personality === STRM) return false;
     return (
       (message.Username === user.email ||

@@ -4,8 +4,9 @@ import strings from "locales";
 import { observer } from "mobx-react";
 import { PodTileStore } from "mobx/stores/podTileStore";
 import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
+import { Role } from "types/role";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
@@ -34,8 +35,12 @@ export const PodTileTitle: React.FC<Props> = observer(
     };
 
     const user: User = workareaStore.user;
+    const isBroker: boolean = useMemo((): boolean => {
+      const { roles } = user;
+      return roles.includes(Role.Broker);
+    }, [user]);
     const isRunButtonDisabled: boolean =
-      !currency || !strategy || (personality === STRM && user.isbroker);
+      !currency || !strategy || (personality === STRM && isBroker);
     const { currencies, strategies } = props;
 
     return (
@@ -44,7 +49,9 @@ export const PodTileTitle: React.FC<Props> = observer(
           <Select
             value={currency}
             onChange={store.setCurrency}
-            list={currencies.map((item: Symbol): { name: string } => ({ name: item.name }))}
+            list={currencies.map((item: Symbol): { name: string } => ({
+              name: item.name,
+            }))}
             empty={"Currency"}
             searchable={true}
           />
@@ -53,7 +60,9 @@ export const PodTileTitle: React.FC<Props> = observer(
           <Select
             value={strategy}
             onChange={store.setStrategy}
-            list={strategies.map((item: Strategy): { name: string } => ({ name: item.name }))}
+            list={strategies.map((item: Strategy): { name: string } => ({
+              name: item.name,
+            }))}
             empty={"Strategy"}
           />
         </div>
@@ -65,5 +74,5 @@ export const PodTileTitle: React.FC<Props> = observer(
         </div>
       </>
     );
-  },
+  }
 );

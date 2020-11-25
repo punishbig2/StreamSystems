@@ -1,9 +1,10 @@
 import { OrderStatus, Order } from "types/order";
 import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
+import { Role } from "types/role";
 import { User } from "types/user";
 import { PodTableType } from "columns/podColumns/OrderColumn/index";
 import workareaStore from "mobx/stores/workareaStore";
-import { priceFormatter } from '../../../../utils/priceFormatter';
+import { priceFormatter } from "utils/priceFormatter";
 
 export const getOrderStatus = (
   topOrder: Order | undefined,
@@ -12,7 +13,9 @@ export const getOrderStatus = (
 ) => {
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
-  const bank: string = user.isbroker ? personality : user.firm;
+  const { roles } = user;
+  const isBroker: boolean = roles.includes(Role.Broker);
+  const bank: string = isBroker ? personality : user.firm;
   let status: OrderStatus = OrderStatus.None;
   if (topOrder === undefined) return status;
   const ownOrder: Order | undefined = depth.find(
@@ -31,7 +34,7 @@ export const getOrderStatus = (
   // If it's the same firm the order belongs to the same bank
   if ((status & OrderStatus.Owned) === 0)
     status |= topOrder.firm === bank ? OrderStatus.SameBank : OrderStatus.None;
-  if ((status & OrderStatus.SameBank) !== 0 && user.isbroker)
+  if ((status & OrderStatus.SameBank) !== 0 && isBroker)
     status |= OrderStatus.OwnedByBroker;
   // If the size of the order doesn't match the aggregated size, it's a joined order
   status |=
@@ -40,7 +43,7 @@ export const getOrderStatus = (
   status |= topOrder.size === null ? OrderStatus.Cancelled : OrderStatus.None;
   // If the user is a broker, the order is only owned if it also belongs to the same firm
   status &=
-    user.isbroker && topOrder.firm !== personality
+    isBroker && topOrder.firm !== personality
       ? ~OrderStatus.Owned
       : ~OrderStatus.None;
   status |=

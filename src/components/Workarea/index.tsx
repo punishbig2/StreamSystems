@@ -6,6 +6,7 @@ import { QuestionBox } from "components/QuestionBox";
 import { TabBar } from "components/TabBar";
 import { TradeConfirmation } from "components/TradeConfirmation";
 import { Welcome } from "components/weolcome";
+import { AccessDeniedView } from "components/Workarea/accessDeniedView";
 import { UserNotFound } from "components/Workarea/userNotFound";
 import { WorkareaError } from "components/Workarea/workareaError";
 import { TradingWorkspace } from "components/Workspace";
@@ -14,34 +15,32 @@ import { observer } from "mobx-react";
 
 import messagesStore from "mobx/stores/messagesStore";
 import { themeStore } from "mobx/stores/themeStore";
-import store from "mobx/stores/workareaStore";
-import workareaStore, {
-  WorkspaceDef,
-  WorkspaceType,
-} from "mobx/stores/workareaStore";
-import React, { ReactElement, useEffect, useState } from "react";
+import store, { WorkspaceDef, WorkspaceType } from "mobx/stores/workareaStore";
+import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
 import { Symbol } from "types/symbol";
-import { getUserFromUrl } from "utils/getUserFromUrl";
+import { getUserIdFromUrl } from "utils/getIdFromUrl";
 
 const Workarea: React.FC = (): ReactElement | null => {
   const { recentExecutions } = store;
   const { connected, user } = store;
   const [selectedToClose, setSelectedToClose] = useState<string | null>(null);
   const { CloseWorkspace } = strings;
-  const email: string | null = getUserFromUrl();
-  const personality: string = workareaStore.personality;
-  const { theme } = workareaStore.preferences;
+  const personality: string = store.personality;
+  const { theme } = store.preferences;
+  const { workspaceAccessDenied } = store;
+  const id: string | null = useMemo(getUserIdFromUrl, []);
 
   useEffect(() => {
     themeStore.setTheme(theme);
   }, [theme]);
 
   useEffect(() => {
-    if (email === null) return;
-    workareaStore.initialize(email).then(() => {});
-  }, [email]);
+    if (id !== null) {
+      store.initialize(id);
+    }
+  }, [id]);
 
   useEffect(() => {
     if (!user || !connected) return;
@@ -99,7 +98,7 @@ const Workarea: React.FC = (): ReactElement | null => {
     if (store.status === WorkareaStatus.Welcome) return <Welcome />;
     if (user === null) return null;
     const symbols: ReadonlyArray<Symbol> = (() => {
-      const { symbols, user } = workareaStore;
+      const { symbols, user } = store;
       return symbols.filter((symbol: Symbol): boolean => {
         const { regions } = user;
         if (regions === undefined) return false;
@@ -185,24 +184,32 @@ const Workarea: React.FC = (): ReactElement | null => {
       );
     case WorkareaStatus.Welcome:
     case WorkareaStatus.Ready:
-      return (
-        <>
-          {getActiveWorkspace()}
-          {getFooter()}
-          <ModalWindow
-            render={renderLoadingModal}
-            isOpen={store.isCreatingWorkspace}
+      if (workspaceAccessDenied) {
+        return (
+          <AccessDeniedView
+            onClose={(): void => store.closeAccessDeniedView()}
           />
-          <ModalWindow
-            render={renderCloseQuestion}
-            isOpen={!!selectedToClose}
-          />
-          <ModalWindow
-            render={renderMessage}
-            isOpen={recentExecutions.length > 0}
-          />
-        </>
-      );
+        );
+      } else {
+        return (
+          <>
+            {getActiveWorkspace()}
+            {getFooter()}
+            <ModalWindow
+              render={renderLoadingModal}
+              isOpen={store.isCreatingWorkspace}
+            />
+            <ModalWindow
+              render={renderCloseQuestion}
+              isOpen={!!selectedToClose}
+            />
+            <ModalWindow
+              render={renderMessage}
+              isOpen={recentExecutions.length > 0}
+            />
+          </>
+        );
+      }
     default:
       // Should never happen
       return null;

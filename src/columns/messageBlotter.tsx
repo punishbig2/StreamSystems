@@ -1,29 +1,30 @@
-import React, { ReactElement } from "react";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import { Message } from "types/message";
-import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
 import { CellProps } from "columns/messageBlotterColumns/cellProps";
-import { tenorToNumber } from "utils/tenorUtils";
-import { priceFormatter } from "utils/priceFormatter";
+import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { Globals } from "golbals";
+import moment, { Moment } from "moment";
+import React, { ReactElement } from "react";
+import { Message } from "types/message";
+import { Role } from "types/role";
+import { User } from "types/user";
+import { DarkPool } from "types/w";
 import {
+  getBuyer,
   getMessagePrice,
   getMessageSize,
-  getBuyer,
   getSeller,
   TransTypes,
 } from "utils/messageUtils";
-import { involved } from "./messageBlotterColumns/helpers";
-import { User } from "types/user";
-import workareaStore from "../mobx/stores/workareaStore";
-import { Globals } from "golbals";
-import moment, { Moment } from "moment";
+import { priceFormatter } from "utils/priceFormatter";
+import { tenorToNumber } from "utils/tenorUtils";
 import {
-  parseTime,
-  FIX_DATE_FORMAT,
   DateFormatter,
+  FIX_DATE_FORMAT,
+  parseTime,
   TimeFormatter,
 } from "utils/timeUtils";
-import { DarkPool } from "types/w";
+import workareaStore from "../mobx/stores/workareaStore";
+import { involved } from "./messageBlotterColumns/helpers";
 
 export enum BlotterTypes {
   Executions,
@@ -177,10 +178,12 @@ const buyerOrSeller = (
   render: ({ message }: CellProps): string | null => {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
+    const { roles } = user;
+    const isBroker: boolean = roles.includes(Role.Broker);
     if (
       message.Username !== user.email &&
       (message.MDMkt === user.firm || message.MDMkt !== personality) &&
-      !user.isbroker
+      !isBroker
     )
       return null;
     return type === "buyer" ? getBuyer(message) : getSeller(message);

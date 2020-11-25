@@ -5,6 +5,7 @@ import signalRManager from "signalR/signalRManager";
 import { MDEntry, OrderTypes } from "types/mdEntry";
 import { DarkPoolMessage } from "types/message";
 import { DarkPoolOrder, Order, OrderStatus } from "types/order";
+import { Role } from "types/role";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { W } from "types/w";
@@ -23,9 +24,10 @@ export class DarkPoolStore {
     const { orders } = this;
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
+    const { roles } = user;
     // Extract only my orders
     return orders.filter((o: Order) => {
-      if (user.isbroker) {
+      if (roles.includes(Role.Broker)) {
         return o.firm === personality && o.user === user.email;
       }
       return o.user === user.email || o.firm === user.firm;
@@ -41,14 +43,14 @@ export class DarkPoolStore {
 
   @computed
   get status(): OrderStatus {
-    const user: User | null = workareaStore.user;
+    const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
-    if (user === null) return OrderStatus.None;
+    const { roles } = user;
     const { currentOrder } = this;
     if (!currentOrder) return OrderStatus.None;
     if (currentOrder.size === null) return OrderStatus.None;
     if (currentOrder.user === user.email) {
-      if (user.isbroker && currentOrder.firm !== personality)
+      if (roles.includes(Role.Broker) && currentOrder.firm !== personality)
         return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
       return (
         OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned
@@ -167,7 +169,8 @@ export class DarkPoolStore {
     price: number | null
   ) {
     const user: User = workareaStore.user;
-    if (!user.isbroker)
+    const { roles } = user;
+    if (!roles.includes(Role.Broker))
       throw new Error("non broker users cannot publish prices");
     // Update immediately to make it feel faster
     this.publishedPrice = price;

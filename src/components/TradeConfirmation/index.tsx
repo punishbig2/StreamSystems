@@ -1,6 +1,7 @@
 import { Typography } from "@material-ui/core";
-import React, { ReactElement } from "react";
+import React, { ReactElement, useMemo } from "react";
 import { Message } from "types/message";
+import { Role } from "types/role";
 import { User, UserPreferences } from "types/user";
 import { getMessagePrice, getMessageSize } from "utils/messageUtils";
 import { priceFormatter } from "utils/priceFormatter";
@@ -22,7 +23,11 @@ export const TradeConfirmation: React.FC<OwnProps> = (
   const verb: string = direction === "from" ? "buy" : "sell";
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
-  const firm: string = user.isbroker ? personality : user.firm;
+  const isBroker: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return roles.includes(Role.Broker);
+  }, [user]);
+  const firm: string = isBroker ? personality : user.firm;
   const subject1: string = trade.MDMkt === firm ? "You" : trade.MDMkt;
   const subject2: string = trade.ExecBroker;
   const size: number = getMessageSize(trade);
