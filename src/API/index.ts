@@ -1112,7 +1112,7 @@ export class API {
 
   public static getUser(userId: string): Promise<OktaUser> {
     const url: string =
-      "https://uat.account.fxlps.com/api/user/getrole?user=" + userId;
+      "https://uat.account.fxlps.com/api/user/getrole?userid=" + userId;
     const task: Task<OktaUser> = get<OktaUser>(url);
     return task.execute();
   }
