@@ -1111,10 +1111,9 @@ export class API {
   }
 
   public static getUser(userId: string): Promise<OktaUser> {
-    const url: string = "https://uat.account.fxlps/api/user/getrole";
-    const task: Task<OktaUser> = get<OktaUser>(url, {
-      user: userId,
-    });
+    const url: string =
+      "https://uat.account.fxlps.com/api/user/getrole?user=" + userId;
+    const task: Task<OktaUser> = get<OktaUser>(url);
     return task.execute();
   }
 }
