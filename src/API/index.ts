@@ -1112,11 +1112,7 @@ export class API {
 
   public static async getUser(userId: string): Promise<OktaUser> {
     // First get session id
-    const idUrl: string = config.OktaSessionIdEndpoint;
-    const sessionIdTask: Task<{ id: string }> = get<{ id: string }>(idUrl);
-    const { id } = await sessionIdTask.execute();
-    const url: string =
-      config.GetRoleEndpoint + "?userid=" + userId + "&sessionid=" + id;
+    const url: string = config.GetRoleEndpoint + "?userid=" + userId;
     const task: Task<OktaUser> = get<OktaUser>(url);
     return task.execute();
   }
