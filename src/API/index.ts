@@ -1110,9 +1110,13 @@ export class API {
     return task.execute();
   }
 
-  public static getUser(userId: string): Promise<OktaUser> {
+  public static async getUser(userId: string): Promise<OktaUser> {
+    // First get session id
+    const idUrl: string = config.OktaSessionIdEndpoint;
+    const sessionIdTask: Task<{ id: string }> = get<{ id: string }>(idUrl);
+    const { id } = await sessionIdTask.execute();
     const url: string =
-      "https://uat.account.fxlps.com/api/user/getrole?userid=" + userId;
+      config.GetRoleEndpoint + "?userid=" + userId + "&sessionid=" + id;
     const task: Task<OktaUser> = get<OktaUser>(url);
     return task.execute();
   }
