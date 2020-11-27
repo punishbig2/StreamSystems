@@ -1,12 +1,12 @@
+import { Menu, MenuItem, Typography } from "@material-ui/core";
 import { Tab } from "components/Tab";
 import { TabLabel } from "components/TabLabel";
 import config from "config";
+import workareaStore, { WorkspaceDef } from "mobx/stores/workareaStore";
 
-import React, { ReactElement, useState, useRef, useMemo } from "react";
-import { Menu, MenuItem, Typography } from "@material-ui/core";
+import React, { ReactElement, useMemo, useRef, useState } from "react";
 import { Role } from "types/role";
 import { CurrencyGroups, isCurrencyGroup } from "types/user";
-import workareaStore, { WorkspaceDef } from "mobx/stores/workareaStore";
 
 interface Props {
   readonly entries: { [k: string]: WorkspaceDef };
@@ -39,6 +39,14 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
     return roles.includes(Role.Broker);
+  }, [user]);
+  const isMiddleOffice: boolean = useMemo((): boolean => {
+    const { roles } = user;
+    return (
+      roles.includes(Role.MiddleOffice) ||
+      roles.includes(Role.Admin) ||
+      roles.includes(Role.Broker)
+    );
   }, [user]);
   // Get the workspace entries
   const destroyWorkspace = (id: string) => {
@@ -121,7 +129,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
             Empty
           </MenuItem>
         ) : null}
-        {!isTrader ? (
+        {isMiddleOffice ? (
           <MenuItem onClick={() => addTab(WorkspaceType.MiddleOffice)}>
             Middle Office
           </MenuItem>
