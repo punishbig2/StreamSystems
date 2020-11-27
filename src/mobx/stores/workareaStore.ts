@@ -245,13 +245,6 @@ export class WorkareaStore {
         return undefined;
       } else {
         const { roles } = oktaUser;
-        if (
-          !roles.some((role: string): boolean =>
-            Object.keys(Role).includes(role)
-          )
-        ) {
-          return undefined;
-        }
         return { ...user, roles };
       }
     } else {
