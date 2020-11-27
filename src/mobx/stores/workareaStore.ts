@@ -244,7 +244,15 @@ export class WorkareaStore {
       if (user === undefined) {
         return undefined;
       } else {
-        return { ...user, roles: oktaUser.roles };
+        const { roles } = oktaUser;
+        if (
+          !roles.some((role: string): boolean =>
+            Object.keys(Role).includes(role)
+          )
+        ) {
+          return undefined;
+        }
+        return { ...user, roles };
       }
     } else {
       // Find said user in the users array
