@@ -1,5 +1,5 @@
 export interface OptionLeg {
-  readonly strike?: string | number;
+  readonly strike?: string | number | null;
   readonly notional: number;
   readonly expiryDate: string;
   readonly deliveryDate: string;

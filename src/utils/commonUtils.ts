@@ -63,7 +63,8 @@ export const selectInputText = (input: HTMLInputElement) =>
 
 export const numberifyIfPossible = (
   value: string | number
-): string | number => {
+): string | number | null => {
+  if (value === null) return null;
   if (typeof value === "number") return value;
   const asNumber: number | null | undefined = toNumber(value);
   if (asNumber !== null && asNumber !== undefined && !isNaN(asNumber))
