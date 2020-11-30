@@ -641,6 +641,7 @@ export class SignalRManager {
       // Update the updated values
       status: Number(data.deal_state),
       usi: data.usi_no,
+      sef_namespace: data.sef_namespace,
     };
     const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
       detail: deal,
