@@ -882,9 +882,7 @@ export class MoStore {
       strategy
     )
       .then(() => {
-        setTimeout(() => {
-          this.setSoftError(SOFT_PRICING_ERROR);
-        }, config.RequestTimeout);
+        this.setStatus(MoStatus.Normal);
       })
       .catch((error: HTTPError | any) => {
         if (error !== undefined) {
