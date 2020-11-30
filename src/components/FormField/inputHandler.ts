@@ -40,4 +40,10 @@ export abstract class InputHandler<
     state: S
   ): boolean;
   public reset(props: P) {}
+  public startAdornment(): string {
+    return "";
+  }
+  public endAdornment(): string {
+    return "";
+  }
 }

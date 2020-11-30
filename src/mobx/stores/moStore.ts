@@ -35,10 +35,6 @@ import { createDealEntry } from "utils/dealUtils";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
 
-const SOFT_PRICING_ERROR: string =
-  "Timed out while waiting for the pricing result, please refresh the screen. " +
-  "If the deal is not priced yet, try again as this is a problem that should not happen and never be repeated. " +
-  "If otherwise the problem persists, please contact support.";
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
   "If the deal is not submitted yet, try again as this is a problem that should not happen and never be repeated. " +
@@ -339,7 +335,6 @@ export class MoStore {
     summaryLeg: SummaryLeg | null,
     reset = false
   ): void {
-    console.log(legs);
     this.summaryLeg = summaryLeg;
     this.originalSummaryLeg = summaryLeg;
     this.legs = legs.slice();

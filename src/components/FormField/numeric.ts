@@ -47,6 +47,8 @@ export class NumericInputHandler<
   private divider: number = 1;
   private minimum: number | null;
   private maximum: number | null;
+  private startAdornmentString: string = "";
+  private endAdornmentString: string = "";
 
   constructor(props: P) {
     super();
@@ -54,6 +56,25 @@ export class NumericInputHandler<
     this.divider = props.type === "percent" ? 100 : 1;
     this.minimum = props.minimum === undefined ? null : props.minimum;
     this.maximum = props.maximum === undefined ? null : props.maximum;
+    if (props.currency) {
+      const options = {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+        useGrouping: true,
+        style: typeToStyle(props.type, props.editable),
+        currency: props.type === "currency" ? props.currency : undefined,
+      };
+      const formatter: Intl.NumberFormat = new Intl.NumberFormat(
+        Globals.locale,
+        options
+      );
+      const formatted: string = formatter.format(1);
+      if (formatted.indexOf("1") > 0) {
+        this.startAdornmentString = formatted.replace(/[0-9]*/g, "");
+      } else {
+        this.endAdornmentString = formatted.replace(/[0-9]*/g, "");
+      }
+    }
   }
 
   private createFormatter(props: P): Intl.NumberFormat {
@@ -64,8 +85,6 @@ export class NumericInputHandler<
         maximumFractionDigits: props.precision,
         minimumFractionDigits: props.precision,
         useGrouping: true,
-        style: typeToStyle(props.type, props.editable),
-        currency: props.type === "currency" ? props.currency : undefined,
       };
       return new Intl.NumberFormat(Globals.locale, options);
     }
@@ -217,7 +236,7 @@ export class NumericInputHandler<
       return ["", Validity.Intermediate];
     }
     if (typeof value === "number") {
-      if (props.type === "percent" && props.editable) {
+      if (props.type === "percent") {
         const formatted: string =
           value < 0
             ? `(${formatter.format(-100 * value)})`
@@ -261,5 +280,13 @@ export class NumericInputHandler<
     super.reset(props);
     this.formatter = this.createFormatter(props);
     this.divider = props.type === "percent" ? 100 : 1;
+  }
+
+  public startAdornment(): string {
+    return this.startAdornmentString;
+  }
+
+  public endAdornment(): string {
+    return this.endAdornmentString;
   }
 }

@@ -83,4 +83,12 @@ export abstract class FormattedInput<
       } as StateReturnType<S>;
     }
   }
+
+  public startAdornment(): string {
+    return "";
+  }
+
+  public endAdornment(): string {
+    return "";
+  }
 }

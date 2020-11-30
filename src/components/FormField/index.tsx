@@ -1,6 +1,7 @@
 import { FormHelperText, FormLabel, OutlinedInput } from "@material-ui/core";
 import { BankEntityField } from "components/BankEntityField";
 import { CurrentTime } from "components/currentTime";
+import { Adornment } from "components/FormField/adornment";
 import { DateInputHandler } from "components/FormField/date";
 import { DefaultHandler } from "components/FormField/default";
 import { DropdownField } from "components/FormField/dropdownField";
@@ -45,6 +46,8 @@ interface State extends Editable {
   focus: boolean;
   filterValue: string;
   editor: Editor;
+  startAdornment?: string;
+  endAdornment?: string;
 }
 
 const initialState: State = {
@@ -340,13 +343,27 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     );
   };
 
+  private getStartAdornment(): string {
+    const handler = this.getHandler();
+    return handler.startAdornment();
+  }
+
+  private getEndAdornment(): string {
+    const handler = this.getHandler();
+    return handler.endAdornment();
+  }
+
   private createDefaultField = (): ReactElement => {
     const { props, state } = this;
+    const startAdornment: string = this.getStartAdornment();
+    const endAdornment: string = this.getEndAdornment();
     if (!props.editable) {
       return (
         <ReadOnlyField
           name={props.name as string}
           value={state.displayValue}
+          startAdornment={startAdornment}
+          endAdornment={endAdornment}
           disabled={props.disabled}
         />
       );
@@ -364,6 +381,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
               state.validity === Validity.InvalidFormat ||
               state.validity === Validity.InvalidValue
             }
+            startAdornment={
+              <Adornment position={"start"} value={startAdornment} />
+            }
+            endAdornment={<Adornment position={"end"} value={endAdornment} />}
             placeholder={props.placeholder}
             autoComplete={"new-password"}
             onKeyDown={this.onInputKeyDown}

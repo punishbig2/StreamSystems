@@ -131,6 +131,7 @@
   justify-content: space-between;
   width: 18px;
   height: 4px;
+
   div {
     vertical-align: middle;
     width: 4px;
@@ -155,5 +156,17 @@
     &::after {
       content: "\2022";
     }
+  }
+}
+
+.input-adornment {
+
+  &.start {
+    margin-right: 4px;
+  }
+
+  &.end {
+    float: left;
+    margin-left: 4px;
   }
 }
