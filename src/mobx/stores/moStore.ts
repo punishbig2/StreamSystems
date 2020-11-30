@@ -339,6 +339,7 @@ export class MoStore {
     summaryLeg: SummaryLeg | null,
     reset = false
   ): void {
+    console.log(legs);
     this.summaryLeg = summaryLeg;
     this.originalSummaryLeg = summaryLeg;
     this.legs = legs.slice();

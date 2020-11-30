@@ -134,59 +134,43 @@ const handleLegsResponse = (
   const { summaryLeg } = moStore;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return;
+  const fwdPts: number | null = summaryLeg !== null ? summaryLeg.fwdpts1 : null;
+  const fwdRate: number | null =
+    summaryLeg !== null ? summaryLeg.fwdrate1 : null;
+  const finalSummaryLeg: SummaryLeg = {
+    ...createSummaryLeg(
+      cuts,
+      entry.strategy,
+      entry.symbol,
+      entry.tradeDate,
+      entry.premiumDate,
+      entry.spotDate,
+      tenor.deliveryDate,
+      tenor.expiryDate,
+      entry.extra_fields
+    ),
+    ...summaryLeg,
+    fwdpts1: coalesce(legs[0].fwdPts, fwdPts),
+    fwdrate1: coalesce(legs[0].fwdRate, fwdRate),
+    fwdpts2: coalesce(
+      // The legs[1] generally equals legs[0]
+      legs[1] !== undefined ? legs[1].fwdPts : undefined,
+      fwdPts
+    ),
+    fwdrate2: coalesce(
+      // The legs[1] generally equals legs[0]
+      legs[1] !== undefined ? legs[1].fwdRate : undefined,
+      fwdRate
+    ),
+    spot: legs[0].spot,
+    usi: entry.usi,
+    ...{ dealOutput: legs[0] },
+  } as SummaryLeg;
   if (legs[0].option === "SumLeg" || legs.length === 1) {
-    const fwdPts: number | null =
-      summaryLeg !== null ? summaryLeg.fwdpts1 : null;
-    const fwdRate: number | null =
-      summaryLeg !== null ? summaryLeg.fwdrate1 : null;
-    moStore.setLegs(
-      legs.slice(legs.length === 1 ? 0 : 1),
-      {
-        ...createSummaryLeg(
-          cuts,
-          entry.strategy,
-          entry.symbol,
-          entry.tradeDate,
-          entry.premiumDate,
-          entry.spotDate,
-          tenor.deliveryDate,
-          tenor.expiryDate,
-          entry.extra_fields
-        ),
-        ...summaryLeg,
-        fwdpts1: coalesce(legs[1].fwdPts, fwdPts),
-        fwdrate1: coalesce(legs[1].fwdRate, fwdRate),
-        fwdpts2: coalesce(
-          // The legs[1] generally equals legs[0]
-          legs[2] !== undefined ? legs[2].fwdPts : undefined,
-          fwdPts
-        ),
-        fwdrate2: coalesce(
-          // The legs[1] generally equals legs[0]
-          legs[2] !== undefined ? legs[2].fwdRate : undefined,
-          fwdRate
-        ),
-        spot: legs[0].spot,
-        usi: entry.usi,
-        ...{ dealOutput: legs[0] },
-      } as SummaryLeg,
-      true
-    );
+    const legsSlice: ReadonlyArray<Leg> = legs.slice(legs.length === 1 ? 0 : 1);
+    moStore.setLegs(legsSlice, finalSummaryLeg);
   } else {
-    moStore.setLegs(
-      legs,
-      createSummaryLeg(
-        cuts,
-        entry.strategy,
-        entry.symbol,
-        entry.tradeDate,
-        entry.premiumDate,
-        entry.spotDate,
-        tenor.deliveryDate,
-        tenor.expiryDate,
-        entry.extra_fields
-      )
-    );
+    moStore.setLegs(legs, finalSummaryLeg);
   }
 };
 
