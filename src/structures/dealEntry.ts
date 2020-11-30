@@ -66,6 +66,8 @@ export interface DealEntry {
   readonly seller_comm: number | null;
   readonly seller_comm_rate: number | null;
 
+  readonly sef_namespace: string | null;
+
   extra_fields?: { [key: string]: string | number | null };
 }
 
@@ -103,6 +105,7 @@ export const emptyDealEntry: DealEntry = {
   buyer_comm_rate: null,
   seller_comm: null,
   seller_comm_rate: null,
+  sef_namespace: null,
 };
 
 export interface ServerDealQuery {

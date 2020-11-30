@@ -810,6 +810,12 @@ export class API {
     if (proxyEntry.horizonDateUTC === undefined) {
       throw new Error("for some reason horizonDateUTC was not set");
     }
+    const forwardRates = buildFwdRates(
+      summaryLeg,
+      strategy,
+      proxyEntry.tenor1,
+      proxyEntry.tenor2
+    );
     const request: VolMessageIn = {
       id: proxyEntry.dealID,
       Option: {
@@ -837,12 +843,7 @@ export class API {
           ccyPair: ccyPair,
           snapTime: tradeDate,
           DateCountBasisType: symbol["DayCountBasis-FX"],
-          ForwardRates: buildFwdRates(
-            summaryLeg,
-            strategy,
-            proxyEntry.tenor1,
-            proxyEntry.tenor2
-          ),
+          ForwardRates: forwardRates,
         },
         RATES: [],
       },

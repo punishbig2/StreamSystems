@@ -321,6 +321,13 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     color: "green",
     editable: false,
   },
+  {
+    name: "sef_namespace",
+    label: "SEF Namespace",
+    type: "text",
+    color: "orange",
+    editable: false,
+  },
 ];
 
 export default fields;

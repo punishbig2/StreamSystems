@@ -174,6 +174,7 @@ export const createDealFromBackendMessage = async (
     symbol: symbol,
     source: object.source,
     status: object.state,
+    sef_namespace: !!object.sef_namespace ? object.sef_namespace : null,
     deltaStyle: object.deltastyle === "" ? "Forward" : object.deltastyle,
     premiumStyle: object.premstyle === "" ? "Forward" : object.premstyle,
     commissions: await getCommissionRates(object),
@@ -249,6 +250,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     spotDate: deal.spotDate,
     dealID: id.toString(),
     status: deal.status,
+    sef_namespace: deal.sef_namespace,
     style: "European",
     tenor1: {
       name: deal.tenor1,
