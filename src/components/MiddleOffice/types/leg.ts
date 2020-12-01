@@ -16,7 +16,7 @@ export interface Leg {
   side: string | Sides;
   strike?: string | number | null;
   vol?: number | null;
-  fwdPts: number | null;
+  fwdPts: string | number | null;
   fwdRate: number | null;
   delta: [number | null, number | null, number | null];
   price: [number | null, number | null, number | null];

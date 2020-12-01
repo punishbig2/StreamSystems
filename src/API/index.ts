@@ -39,6 +39,7 @@ import { User } from "types/user";
 import { MessageTypes, W } from "types/w";
 import {
   coalesce,
+  floatAsString,
   getCurrentTime,
   getSideFromType,
   numberifyIfPossible,
@@ -940,10 +941,12 @@ export class API {
       useremail: user.email,
       legs: legs.map(
         (leg: Leg): Leg => {
+          const { strike, fwdPts } = leg;
           return {
             ...leg,
-            ...(!!leg.strike
-              ? { strike: numberifyIfPossible(leg.strike) }
+            ...(!!fwdPts ? { fwdPts: floatAsString(fwdPts) } : {}),
+            ...(!!strike
+              ? { strike: floatAsString(numberifyIfPossible(strike)) }
               : {}),
           };
         }

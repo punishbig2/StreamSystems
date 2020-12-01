@@ -69,3 +69,8 @@ export const numberifyIfPossible = (value: string | number): string | null => {
     return asNumber.toString();
   return value.toUpperCase();
 };
+
+export const floatAsString = (value: number | string | null): string | null => {
+  if (typeof value === "number") return value.toString();
+  return value;
+};
