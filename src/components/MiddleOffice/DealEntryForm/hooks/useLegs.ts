@@ -132,11 +132,18 @@ const handleLegsResponse = (
   cuts: ReadonlyArray<Cut>
 ): void => {
   const { summaryLeg } = moStore;
+  const { extra_fields = {} } = entry;
+  console.log(extra_fields);
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return;
-  const fwdPts: number | null = summaryLeg !== null ? summaryLeg.fwdpts1 : null;
-  const fwdRate: number | null =
-    summaryLeg !== null ? summaryLeg.fwdrate1 : null;
+  const fwdPts: number | null = coalesce(
+    extra_fields.fwdpts1,
+    summaryLeg !== null ? summaryLeg.fwdpts1 : null
+  );
+  const fwdRate: number | null = coalesce(
+    extra_fields.fwdrate1,
+    summaryLeg !== null ? summaryLeg.fwdrate1 : null
+  );
   const finalSummaryLeg: SummaryLeg = {
     ...createSummaryLeg(
       cuts,
@@ -162,7 +169,7 @@ const handleLegsResponse = (
       legs[1] !== undefined ? legs[1].fwdRate : undefined,
       fwdRate
     ),
-    spot: legs[0].spot,
+    spot: coalesce(extra_fields.spot, legs[0].spot),
     usi: entry.usi,
     ...{ dealOutput: legs[0] },
   } as SummaryLeg;
