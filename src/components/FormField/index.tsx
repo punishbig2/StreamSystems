@@ -382,9 +382,19 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
               state.validity === Validity.InvalidValue
             }
             startAdornment={
-              <Adornment position={"start"} value={startAdornment} />
+              <Adornment
+                position={"start"}
+                value={startAdornment}
+                inputValue={state.displayValue}
+              />
             }
-            endAdornment={<Adornment position={"end"} value={endAdornment} />}
+            endAdornment={
+              <Adornment
+                position={"end"}
+                value={endAdornment}
+                inputValue={state.displayValue}
+              />
+            }
             placeholder={props.placeholder}
             autoComplete={"new-password"}
             onKeyDown={this.onInputKeyDown}

@@ -18,17 +18,32 @@ export const ReadOnlyField: React.FC<Props> = (
 ): React.ReactElement => {
   const { value } = props;
   const onCopy = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => copyToClipboard(event, value),
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      copyToClipboard(event, value);
+    },
     [value]
   );
+  const inputValue: string = React.useMemo((): string => coalesce(value, ""), [
+    value,
+  ]);
   if (value === "N/A") return <NotApplicableField />;
   return (
     <OutlinedInput
       labelWidth={0}
       startAdornment={
-        <Adornment position={"start"} value={props.startAdornment} />
+        <Adornment
+          position={"start"}
+          value={props.startAdornment}
+          inputValue={inputValue}
+        />
       }
-      endAdornment={<Adornment position={"end"} value={props.endAdornment} />}
+      endAdornment={
+        <Adornment
+          position={"end"}
+          value={props.endAdornment}
+          inputValue={inputValue}
+        />
+      }
       inputProps={{
         tabIndex: -1,
       }}
@@ -38,7 +53,7 @@ export const ReadOnlyField: React.FC<Props> = (
       readOnly={true}
       disabled={props.disabled}
       title={"Click to copy!"}
-      value={coalesce(value, "")}
+      value={inputValue}
       onClick={onCopy}
     />
   );
