@@ -38,7 +38,10 @@ export interface FX {
   readonly spotRate?: number;
   readonly DateCountBasisType: string;
   readonly ForwardRates?: Point[];
-  readonly ForwardPoints?: Point[];
+  readonly ForwardPoints?: Point[] | null;
+  readonly strikeForwardMRoundingFactor?: number;
+  readonly premiumMRoundingFactor?: number;
+  readonly InterpolationMethod: null;
 }
 
 export interface VolSurface {
