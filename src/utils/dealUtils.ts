@@ -11,7 +11,7 @@ import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils/commonUtils";
+import { coalesce, numberifyIfPossible } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
 import { getVegaAdjust } from "utils/getVegaAdjust";
 import {
@@ -170,7 +170,7 @@ export const createDealFromBackendMessage = async (
     spotDate: new Date(),
     premiumDate: new Date(),
     price: price,
-    strike: strike,
+    strike: numberifyIfPossible(strike),
     symbol: symbol,
     source: object.source,
     status: object.state,

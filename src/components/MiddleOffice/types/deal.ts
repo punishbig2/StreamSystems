@@ -16,7 +16,7 @@ export interface Deal {
   strategy: string;
   currencyPair: string;
   symbol: Symbol;
-  strike: number | string;
+  strike: number | string | null;
   vol: number | null;
   spread: number | null;
   price: number | null;

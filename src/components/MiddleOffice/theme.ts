@@ -24,6 +24,12 @@ export const createTheme = (name: string) => {
         root: {
           borderRadius: 0,
         },
+        adornedStart: {
+          paddingLeft: 8,
+        },
+        adornedEnd: {
+          paddingRight: 8,
+        },
         input: {
           paddingTop: 0,
           paddingBottom: 0,
