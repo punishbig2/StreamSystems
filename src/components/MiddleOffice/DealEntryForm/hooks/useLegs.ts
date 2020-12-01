@@ -1,4 +1,5 @@
 import { API, Task } from "API";
+import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
 import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
@@ -18,7 +19,12 @@ import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
-import { createLegsFromDefinitionAndDeal, parseDates } from "utils/legsUtils";
+import {
+  calculateNetHedge,
+  convertLegNumbers,
+  createLegsFromDefinitionAndDeal,
+  parseDates,
+} from "utils/legsUtils";
 
 const buildSummaryLegFromCut = (
   cut: Cut,
@@ -136,14 +142,32 @@ const handleLegsResponse = (
   console.log(extra_fields);
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return;
-  const fwdPts: number | null = coalesce(
+  const fwdPts1: number | null = coalesce(
     extra_fields.fwdpts1,
     summaryLeg !== null ? summaryLeg.fwdpts1 : null
   );
-  const fwdRate: number | null = coalesce(
+  const fwdRate1: number | null = coalesce(
     extra_fields.fwdrate1,
     summaryLeg !== null ? summaryLeg.fwdrate1 : null
   );
+  const fwdPts2: number | null = coalesce(
+    extra_fields.fwdpts2,
+    summaryLeg !== null ? summaryLeg.fwdpts2 : null
+  );
+  const fwdRate2: number | null = coalesce(
+    extra_fields.fwdrate1,
+    summaryLeg !== null ? summaryLeg.fwdrate2 : null
+  );
+  const sliceIndex: number = ((): number => {
+    if (legs[0].option === "SumLeg" || legs.length === 1) {
+      return legs.length === 1 ? 0 : 1;
+    } else {
+      return 0;
+    }
+  })();
+  const finalLegs: ReadonlyArray<Leg> = legs
+    .slice(sliceIndex)
+    .map(convertLegNumbers);
   const finalSummaryLeg: SummaryLeg = {
     ...createSummaryLeg(
       cuts,
@@ -157,28 +181,39 @@ const handleLegsResponse = (
       entry.extra_fields
     ),
     ...summaryLeg,
-    fwdpts1: coalesce(legs[0].fwdPts, fwdPts),
-    fwdrate1: coalesce(legs[0].fwdRate, fwdRate),
-    fwdpts2: coalesce(
-      // The legs[1] generally equals legs[0]
-      legs[1] !== undefined ? legs[1].fwdPts : undefined,
-      fwdPts
+    fwdpts1: toNumberOrFallbackIfNaN(coalesce(fwdPts1, legs[0].fwdPts), null),
+    fwdrate1: toNumberOrFallbackIfNaN(
+      coalesce(fwdRate1, legs[0].fwdRate),
+      null
     ),
-    fwdrate2: coalesce(
-      // The legs[1] generally equals legs[0]
-      legs[1] !== undefined ? legs[1].fwdRate : undefined,
-      fwdRate
+    fwdpts2: toNumberOrFallbackIfNaN(
+      coalesce(
+        fwdPts2,
+        // The legs[1] generally equals legs[0]
+        legs[1] !== undefined ? legs[1].fwdPts : undefined
+      ),
+      null
     ),
-    spot: coalesce(extra_fields.spot, legs[0].spot),
+    fwdrate2: toNumberOrFallbackIfNaN(
+      coalesce(
+        fwdRate2,
+        // The legs[1] generally equals legs[0]
+        legs[1] !== undefined ? legs[1].fwdRate : undefined
+      ),
+      null
+    ),
+
+    spot: toNumberOrFallbackIfNaN(
+      coalesce(extra_fields.spot, legs[0].spot),
+      null
+    ),
     usi: entry.usi,
-    ...{ dealOutput: legs[0] },
+    ...{ dealOutput: { ...legs[0], hedge: calculateNetHedge(finalLegs) } },
   } as SummaryLeg;
-  if (legs[0].option === "SumLeg" || legs.length === 1) {
-    const legsSlice: ReadonlyArray<Leg> = legs.slice(legs.length === 1 ? 0 : 1);
-    moStore.setLegs(legsSlice, finalSummaryLeg);
+  /*   moStore.setLegs(finalLegs, finalSummaryLeg);
   } else {
-    moStore.setLegs(legs, finalSummaryLeg);
-  }
+  }*/
+  moStore.setLegs(finalLegs, finalSummaryLeg);
 };
 
 const createDefaultLegsFromDeal = (

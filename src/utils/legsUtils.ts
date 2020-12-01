@@ -1,3 +1,4 @@
+import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
 import { Leg, Rates } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
@@ -166,4 +167,36 @@ export const mergeDefinitionsAndLegs = (
       }
     );
   }
+};
+
+export const convertLegNumbers = (leg: Leg): Leg => {
+  return {
+    ...leg,
+    fwdRate: toNumberOrFallbackIfNaN(leg.fwdRate, null),
+    fwdPts: toNumberOrFallbackIfNaN(leg.fwdPts, null),
+  };
+};
+
+export const calculateNetHedge = (
+  legs: ReadonlyArray<Leg>
+): [number | null, number | null, number | null] => {
+  return legs.reduce(
+    (
+      netHedge: [number | null, number | null, number | null],
+      leg: Leg
+    ): [number | null, number | null, number | null] => {
+      const { hedge } = leg;
+      return hedge.map((value: number | null, index: number): number | null => {
+        const net: number | null = netHedge[index];
+        if (net === null) {
+          return value;
+        } else if (value !== null) {
+          return value + net;
+        } else {
+          return null;
+        }
+      }) as [number | null, number | null, number | null];
+    },
+    [null, null, null]
+  );
 };

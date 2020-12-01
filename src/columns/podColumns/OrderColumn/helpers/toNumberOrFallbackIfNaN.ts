@@ -1,7 +1,8 @@
 export const toNumberOrFallbackIfNaN = (
-  value: string | null,
+  value: string | number | null,
   fallback: number | null
-) => {
+): number | null => {
+  if (typeof value === "number") return value;
   if (value === null) return null;
   const numeric: number = Number(value);
   if (isNaN(numeric)) return fallback;
