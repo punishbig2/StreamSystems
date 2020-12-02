@@ -70,9 +70,9 @@ export class NumericInputHandler<
       );
       const formatted: string = formatter.format(1);
       if (formatted.indexOf("1") > 0) {
-        this.startAdornmentString = formatted.replace(/[0-9]*/g, "");
+        this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
       } else {
-        this.endAdornmentString = formatted.replace(/[0-9]*/g, "");
+        this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
       }
     }
   }
@@ -112,10 +112,10 @@ export class NumericInputHandler<
     } else {
       const integerPart: string = displayValue
         .slice(0, caretPosition)
-        .replace(/[^0-9]+/g, "");
+        .replace(/[^0-9-]+/g, "");
       const decimalPart: string = displayValue
         .slice(caretPosition)
-        .replace(/[^0-9]+/g, "");
+        .replace(/[^0-9-]+/g, "");
       const text: string = [integerPart, decimalPart].join(".");
       const numeric: number = Number(text);
       const [newDisplayValue, validity] = this.format(numeric, props);
@@ -161,7 +161,7 @@ export class NumericInputHandler<
           displayValue.length - props.precision - 1;
         const integerPart: string = displayValue
           .slice(0, separatorPosition)
-          .replace(/[^0-9]+/g, "");
+          .replace(/[^0-9-]+/g, "");
         const decimalPart: string = displayValue.slice(separatorPosition + 1);
         if (integerPart.length === 1 && Number(decimalPart) === 0) {
           return this.createValue(null, event.currentTarget, props, state);
@@ -237,16 +237,21 @@ export class NumericInputHandler<
     }
     if (typeof value === "number") {
       if (props.type === "percent") {
-        const formatted: string =
-          value < 0
-            ? `(${formatter.format(-100 * value)})`
-            : formatter.format(100 * value);
-        return [formatted, Validity.Valid];
+        if (props.editable) {
+          const formatted: string =
+            value < 0 && !props.editable
+              ? `(${formatter.format(-100 * value)})`
+              : formatter.format(100 * value);
+          return [formatted, Validity.Valid];
+        } else {
+        }
       }
       if (props.rounding !== undefined)
         return roundToNearest(value, props.rounding);
       const formatted: string =
-        value < 0 ? `(${formatter.format(-value)})` : formatter.format(value);
+        value < 0 && !props.editable
+          ? `(${formatter.format(-value)})`
+          : formatter.format(value);
       return [
         formatted,
         this.isInRange(value) ? Validity.Valid : Validity.InvalidValue,
