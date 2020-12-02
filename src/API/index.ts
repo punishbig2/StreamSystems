@@ -944,7 +944,9 @@ export class API {
           const { strike, fwdPts } = leg;
           return {
             ...leg,
-            ...(!!fwdPts ? { fwdPts: floatAsString(fwdPts) } : {}),
+            ...(fwdPts !== null && fwdPts !== undefined
+              ? { fwdPts: floatAsString(fwdPts) }
+              : {}),
             ...(!!strike
               ? { strike: floatAsString(numberifyIfPossible(strike)) }
               : {}),
