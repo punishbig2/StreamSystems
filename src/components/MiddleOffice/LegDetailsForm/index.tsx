@@ -24,6 +24,7 @@ export const LegDetailsForm: React.FC<Props> = (
       case "rates":
         break;
       case "hedge":
+      case "price":
       case "premium":
         if (dealEntry.premstyle === undefined) {
           props.onUpdateLeg(index, key, [null, null, null]);
