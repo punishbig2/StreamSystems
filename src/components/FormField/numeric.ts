@@ -56,24 +56,22 @@ export class NumericInputHandler<
     this.divider = props.type === "percent" ? 100 : 1;
     this.minimum = props.minimum === undefined ? null : props.minimum;
     this.maximum = props.maximum === undefined ? null : props.maximum;
-    if (props.currency) {
-      const options = {
-        maximumFractionDigits: 0,
-        minimumFractionDigits: 0,
-        useGrouping: true,
-        style: typeToStyle(props.type, props.editable),
-        currency: props.type === "currency" ? props.currency : undefined,
-      };
-      const formatter: Intl.NumberFormat = new Intl.NumberFormat(
-        Globals.locale,
-        options
-      );
-      const formatted: string = formatter.format(1);
-      if (formatted.indexOf("1") > 0) {
-        this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
-      } else {
-        this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
-      }
+    const options = {
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+      useGrouping: true,
+      style: typeToStyle(props.type, props.editable),
+      currency: props.type === "currency" ? props.currency : undefined,
+    };
+    const formatter: Intl.NumberFormat = new Intl.NumberFormat(
+      Globals.locale,
+      options
+    );
+    const formatted: string = formatter.format(1);
+    if (formatted.indexOf("1") > 0) {
+      this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
+    } else {
+      this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
     }
   }
 
@@ -238,12 +236,14 @@ export class NumericInputHandler<
     if (typeof value === "number") {
       if (props.type === "percent") {
         if (props.editable) {
+          const formatted: string = formatter.format(100 * value);
+          return [formatted, Validity.Valid];
+        } else {
           const formatted: string =
-            value < 0 && !props.editable
+            value < 0
               ? `(${formatter.format(-100 * value)})`
               : formatter.format(100 * value);
           return [formatted, Validity.Valid];
-        } else {
         }
       }
       if (props.rounding !== undefined)

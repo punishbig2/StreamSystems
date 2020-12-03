@@ -163,7 +163,6 @@ export const Field: React.FC<Props> = React.memo(
         editable={editable}
         dropdownData={dropdownData}
         value={value}
-        rounding={field.rounding}
         // Have a local change function to do some pre-processing
         onChange={onChange}
         disabled={props.disabled}
