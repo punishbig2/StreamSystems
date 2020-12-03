@@ -1,3 +1,5 @@
+import { ModelParameters } from "mobx/stores/moStore";
+
 export interface OptionLeg {
   readonly strike?: string | number | null;
   readonly notional: number;
@@ -79,8 +81,8 @@ export interface ValuationData {
 }
 
 export interface ValuationModel {
-  readonly OptionModelType: string;
-  readonly OptionModelParamaters?: string;
+  readonly OptionModelType: {};
+  readonly OptionModelParamaters?: ModelParameters;
 }
 
 export interface VolMessageIn {

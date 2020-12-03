@@ -56,11 +56,13 @@ interface LegDefinitions {
   };
 }
 
+export type ModelParameters = {};
+
 export interface InternalValuationModel {
   ValuationModelID: number;
   OptionModel: string;
   OptionModelDesc: string;
-  OptionModelParameters: string;
+  OptionModelParameters: ModelParameters;
 }
 
 export const messages: {
@@ -362,7 +364,7 @@ export class MoStore {
       OptionModelType: model.OptionModel,
       OptionModelParamaters: !!model.OptionModelParameters
         ? model.OptionModelParameters
-        : "",
+        : {},
     };
   }
 
