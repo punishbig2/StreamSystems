@@ -835,10 +835,7 @@ export class API {
         valuationDateUTC: toUTC(proxyEntry.horizonDateUTC),
         VOL: {
           ccyPair: ccyPair,
-          premiumAdjustDelta:
-            entry.legadj === undefined || entry.legadj === null
-              ? symbol.premiumAdjustDelta
-              : entry.legadj,
+          premiumAdjustDelta: symbol.premiumAdjustDelta,
           snapTime: tradeDate,
           DateCountBasisType: symbol["DayCountBasis-VOL"],
           VolSurface: [], // To be filled by the pre-pricer
