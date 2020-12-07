@@ -94,6 +94,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
   };
 
   const doDelete = (): void => {
+    showDeleteQuestion(false);
     if (entry.dealID === undefined) {
       throw new Error(
         "cannot delete this entry, it has no id so it's new or data is bad"
@@ -104,9 +105,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
         .catch((error: any) => {
           console.warn(error);
         })
-        .finally(() => {
-          showDeleteQuestion(false);
-        });
+        .finally(() => {});
     }
   };
 

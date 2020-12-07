@@ -604,7 +604,9 @@ export class MoStore {
     // change in the `entry' object to reload the legs
     this.legs = [];
     this.summaryLeg = null;
-    this.isLoadingLegs = true;
+    if (deal !== null) {
+      this.isLoadingLegs = true;
+    }
   }
 
   @action.bound
