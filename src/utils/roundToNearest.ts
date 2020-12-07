@@ -19,9 +19,17 @@ export const roundToNearest = (
   }
   const precision: number = getRoundingPrecision(reference);
   const multiplier: number = Math.pow(10, precision);
-  const multiplied: number = value * multiplier;
-  const divider: number = reference * multiplier;
-  const rounded: number = (multiplied - (multiplied % divider)) / multiplier;
+  const multiplied: number = Math.round(value * multiplier);
+  const divider: number = Math.round(reference * multiplier);
+  const rounded: number = ((): number => {
+    const down: number = Math.round(multiplied - (multiplied % divider));
+    const up: number = down + divider;
+    if (multiplied - down > up - multiplied) {
+      return up / multiplier;
+    } else {
+      return down / multiplier;
+    }
+  })();
   const options = {
     maximumFractionDigits: precision,
     minimumFractionDigits: precision,
