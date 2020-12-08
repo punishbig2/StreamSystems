@@ -328,6 +328,25 @@ export class PodTileStore {
 
   @action.bound
   public setCurrentTenor(tenor: string | null) {
+    if (tenor !== null) {
+      const orders = this.orders[tenor];
+      const count: number = orders.reduce(
+        (sum: number, order: Order): number => {
+          if (
+            (order.status & OrderStatus.Cancelled) ===
+            OrderStatus.Cancelled
+          ) {
+            return sum;
+          } else {
+            return sum + 1;
+          }
+        },
+        0
+      );
+      if (count === 0) {
+        return;
+      }
+    }
     this.currentTenor = tenor;
   }
 

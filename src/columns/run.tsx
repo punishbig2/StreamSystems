@@ -29,7 +29,6 @@ const RunPriceColumn = (
   const label: string = type === "bid" ? strings.Bid : strings.Ofr;
   const actionType: RunActions =
     type === "bid" ? RunActions.Bid : RunActions.Ofr;
-
   const onPriceChange = (row: RowType) => (
     input: HTMLInputElement,
     price: number | null,
@@ -179,6 +178,7 @@ const MidCol = (data: RunColumnData) => ({
       onTabbedOut={(target: HTMLInputElement, tabDirection: TabDirection) =>
         data.focusNext(target, tabDirection, RunActions.Mid)
       }
+      allowZero={true}
       onNavigate={data.onNavigate}
       animated={false}
     />
