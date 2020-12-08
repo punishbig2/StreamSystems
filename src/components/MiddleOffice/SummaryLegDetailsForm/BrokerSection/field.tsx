@@ -16,7 +16,6 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const { editable: editableProp } = props;
   const editable: boolean | undefined = ((): boolean | undefined => {
     if (typeof editableProp === "function") {
-      console.log(name);
       return editableProp(name, entry, moStore.isEditMode, "");
     } else {
       return editableProp;
