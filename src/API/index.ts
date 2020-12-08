@@ -926,8 +926,8 @@ export class API {
       legadj: entry.legadj,
       buyer_comm: entry.buyer_comm,
       buyer_comm_rate: entry.buyer_comm_rate,
-      seller_comm: entry.buyer_comm,
-      seller_comm_rate: entry.buyer_comm_rate,
+      seller_comm: entry.seller_comm,
+      seller_comm_rate: entry.seller_comm_rate,
       product_fields_changed: changed,
       ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
     };

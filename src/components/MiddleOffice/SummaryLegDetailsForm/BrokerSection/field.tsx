@@ -13,32 +13,15 @@ interface Props extends FieldDef<BrokerageCommission, BrokerageCommission> {
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const { value, name } = props;
   const { entry } = moStore;
-  const { strategy } = entry;
-  const editableCondition: EditableFlag = React.useMemo(() => {
-    if (strategy !== undefined && strategy.fields !== undefined) {
-      const { f1 } = strategy.fields;
-      return f1[name];
-    }
-    return EditableFlag.None;
-  }, [strategy, name]);
   const { editable: editableProp } = props;
-  const editable: boolean | undefined = React.useMemo(():
-    | boolean
-    | undefined => {
-    if (!moStore.isEditMode) return false;
-    if (
-      editableCondition === EditableFlag.NotEditable ||
-      editableCondition === EditableFlag.NotApplicable
-    ) {
-      return false;
+  const editable: boolean | undefined = ((): boolean | undefined => {
+    if (typeof editableProp === "function") {
+      console.log(name);
+      return editableProp(name, entry, moStore.isEditMode, "");
     } else {
-      if (typeof editableProp === "function") {
-        return editableProp(name, entry, moStore.isEditMode, "");
-      } else {
-        return editableProp;
-      }
+      return editableProp;
     }
-  }, [editableCondition, editableProp, name, entry]);
+  })();
   const computedValue: any = useMemo((): any => {
     if (
       MoStore.getFieldEditableFlag("", name, entry.strategy) ===
