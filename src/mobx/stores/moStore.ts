@@ -919,9 +919,9 @@ export class MoStore {
       }
     })(prefix, name);
     if (key === undefined) return EditableFlag.None;
-    const editableCondition: EditableFlag = f1[key];
-    if (editableCondition === undefined) return EditableFlag.None;
-    return editableCondition;
+    const flag: EditableFlag = f1[key];
+    if (flag === undefined) return EditableFlag.None;
+    return flag;
   }
 
   public static isEntryEditable(

@@ -139,7 +139,6 @@ const handleLegsResponse = (
 ): void => {
   const { summaryLeg } = moStore;
   const { extra_fields = {} } = entry;
-  console.log(extra_fields);
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return;
   const fwdPts1: number | null = coalesce(

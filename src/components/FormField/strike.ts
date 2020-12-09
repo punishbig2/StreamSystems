@@ -14,7 +14,7 @@ export class StrikeHandler<
     if (typeof value !== "string" && typeof value !== "number") {
       return ["", Validity.Intermediate];
     } else if (value === "N/A") {
-      return ["N/A", Validity.NotApplicable];
+      return ["", Validity.NotApplicable];
     } else if (value === "") {
       return ["", Validity.Intermediate];
     } else {

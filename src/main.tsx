@@ -4,9 +4,9 @@ import { observer } from "mobx-react";
 import { themeStore } from "mobx/stores/themeStore";
 import React, { useEffect, useState } from "react";
 import { createTheme } from "styles/theme";
-import { WorkareaError } from "./components/Workarea/workareaError";
-import { useReloadOnVersionChange } from "./hooks/useReloadOnVersionChange";
-import { useSignOutOnIdleTimeout } from "./hooks/useSignOutOnIdleTimeout";
+import { WorkareaError } from "components/Workarea/workareaError";
+import { useReloadOnVersionChange } from "hooks/useReloadOnVersionChange";
+import { useSignOutOnIdleTimeout } from "hooks/useSignOutOnIdleTimeout";
 
 const MIN_SCREEN_WIDTH = 1024;
 

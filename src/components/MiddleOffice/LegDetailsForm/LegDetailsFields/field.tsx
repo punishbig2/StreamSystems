@@ -3,10 +3,10 @@ import { getExtraPropsAndValue } from "components/MiddleOffice/LegDetailsForm/Le
 import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
+import moStore from "mobx/stores/moStore";
 
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
-import moStore from "mobx/stores/moStore";
 
 interface Props {
   readonly field: FieldDef<Leg, {}, DealEntry>;

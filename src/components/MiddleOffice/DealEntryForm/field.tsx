@@ -44,24 +44,23 @@ export const Field: React.FC<Props> = React.memo(
       }
     }, [dataSource, transformData, entry]);
     const { strategy } = entry;
-    const editableCondition: EditableFlag = React.useMemo(() => {
-      if (strategy !== undefined && strategy.fields !== undefined) {
-        const { f1 } = strategy.fields;
-        return f1[field.name];
-      }
-      return EditableFlag.None;
+    const editFlag: EditableFlag = React.useMemo(() => {
+      return MoStore.getFieldEditableFlag("", field.name, strategy);
     }, [strategy, field]);
     const value: any = React.useMemo(
-      (): any => getValue(field, editableCondition, entry[field.name], false),
-      [field, editableCondition, entry]
+      (): any => getValue(field, editFlag, entry[field.name], false),
+      [field, editFlag, entry]
     );
+    if (field.type === "strike") {
+      console.log(value);
+    }
     const editable: boolean | undefined = React.useMemo(():
       | boolean
       | undefined => {
       if (!isEditMode) return false;
       if (
-        editableCondition === EditableFlag.NotEditable ||
-        editableCondition === EditableFlag.NotApplicable
+        editFlag === EditableFlag.NotEditable ||
+        editFlag === EditableFlag.NotApplicable
       ) {
         return false;
       } else {
@@ -71,7 +70,7 @@ export const Field: React.FC<Props> = React.memo(
           return field.editable;
         }
       }
-    }, [field, isEditMode, entry, editableCondition]);
+    }, [field, isEditMode, entry, editFlag]);
     const { onChangeStart, onChangeCompleted } = props;
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
@@ -136,12 +135,7 @@ export const Field: React.FC<Props> = React.memo(
         if (field.type === "tenor") {
           await onTenorChange(name, value);
         } else {
-          const convertedValue: any = getValue(
-            field,
-            editableCondition,
-            value,
-            true
-          );
+          const convertedValue: any = getValue(field, editFlag, value, true);
           if (convertedValue === undefined) return;
           // This will also take some time presumably
           await onChangeCompleted({ [name]: convertedValue, ...dependants });
@@ -153,7 +147,7 @@ export const Field: React.FC<Props> = React.memo(
         entry.strategy,
         entry.symbol,
         onTenorChange,
-        editableCondition,
+        editFlag,
         onChangeCompleted,
       ]
     );

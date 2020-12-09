@@ -10,7 +10,7 @@ export const getStrikeValue = (
   name: keyof Leg
 ): any => {
   const value: any = leg[name];
-  if (value === undefined || value === null) {
+  if (value === undefined || value === null || value === "N/A") {
     return { value: null, precision: 0, rounding: undefined };
   }
   // Otherwise, simply round it

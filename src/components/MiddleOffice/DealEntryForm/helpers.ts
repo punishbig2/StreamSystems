@@ -6,13 +6,16 @@ import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 
 export const getValue = (
   field: FieldDef<DealEntry, DealEntry, MoStore>,
-  editableCondition: EditableFlag,
+  editFlag: EditableFlag,
   rawValue: any,
   internal: boolean
 ): any => {
-  if (editableCondition === EditableFlag.NotApplicable) return "N/A";
+  if (editFlag === EditableFlag.NotApplicable) return "N/A";
   if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
   if (field.name === "status") return stateMap[Number(rawValue)];
+  if (field.type === "strike") {
+    console.log(rawValue, editFlag, field.name);
+  }
   if (!internal) {
     if (field.name === "symbol") {
       return rawValue.symbolID;

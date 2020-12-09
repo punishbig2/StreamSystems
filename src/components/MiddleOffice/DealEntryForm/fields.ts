@@ -101,7 +101,6 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     placeholder: "0D",
     color: "orange",
     editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
-    emptyValue: "N/A",
   },
   {
     name: "vol",
