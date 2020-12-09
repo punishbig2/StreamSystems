@@ -19,7 +19,7 @@ export const initializeLegFromEntry = async (
       legIndex === 1 && entry.not2 !== null ? entry.not2 : entry.not1
     ),
     vol: coalesce(originalLeg.vol, entry.vol),
-    strike: coalesce(originalLeg.strike, entry.strike),
+    strike: coalesce(originalLeg.strike, entry.dealstrike),
     expiryDate: coalesce(originalLeg.expiryDate, tenor.expiryDate),
     deliveryDate: coalesce(originalLeg.expiryDate, tenor.deliveryDate),
     premiumDate: coalesce(originalLeg.premiumDate, entry.premiumDate),

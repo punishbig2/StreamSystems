@@ -42,7 +42,7 @@ export const DealEntryForm: React.FC<Props> = (
       fieldsRef.current;
     const index: number = fields.findIndex(
       (field: FieldDef<DealEntry, DealEntry, MoStore>): boolean =>
-        field.name === "strike"
+        field.name === "dealstrike"
     );
     fieldsRef.current = [
       ...fields.slice(0, index),
