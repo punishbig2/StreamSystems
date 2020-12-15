@@ -51,9 +51,6 @@ export const Field: React.FC<Props> = React.memo(
       (): any => getValue(field, editFlag, entry[field.name], false),
       [field, editFlag, entry]
     );
-    if (field.type === "strike") {
-      console.log(value);
-    }
     const editable: boolean | undefined = React.useMemo(():
       | boolean
       | undefined => {

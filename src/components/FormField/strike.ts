@@ -16,7 +16,7 @@ export class StrikeHandler<
     } else if (value === "N/A") {
       return ["", Validity.NotApplicable];
     } else if (value === "") {
-      return ["", Validity.Intermediate];
+      return ["", Validity.Valid];
     } else {
       if (typeof value === "string") {
         const normalized: string = value.toUpperCase();

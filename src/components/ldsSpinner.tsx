@@ -9,7 +9,7 @@ export const LdsSpinner: React.FC<Props> = ({
   size = 80,
 }: Props): React.ReactElement => {
   const theme: Theme = useTheme();
-  const array: number[] = new Array(14);
+  const array: number[] = new Array(10);
   // Just to make it a real array
   array.fill(0);
 
