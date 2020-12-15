@@ -154,7 +154,7 @@ const handleLegsResponse = (
     summaryLeg !== null ? summaryLeg.fwdpts2 : null
   );
   const fwdRate2: number | null = coalesce(
-    extra_fields.fwdrate1,
+    extra_fields.fwdrate2,
     summaryLeg !== null ? summaryLeg.fwdrate2 : null
   );
   const sliceIndex: number = ((): number => {
