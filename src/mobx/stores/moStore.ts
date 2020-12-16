@@ -574,6 +574,7 @@ export class MoStore {
   @action.bound
   public setDeal(deal: Deal | null): void {
     const { entry } = this;
+    this.entry = { ...emptyDealEntry };
     if (
       (this.isEditMode && deal !== null && entry.dealID !== deal.id) ||
       (this.isEditMode && deal === null)

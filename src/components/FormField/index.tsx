@@ -129,16 +129,18 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       if (props.value !== prevProps.value || props.type !== prevProps.type) {
         if (state.editor !== Editor.User) {
           this.setValueFromProps();
-          this.setState(
-            {
-              changed: true,
-            },
-            (): void => {
-              setTimeout((): void => {
-                this.setState({ changed: false });
-              }, 2000);
-            }
-          );
+          if (!prevProps.disabled && !props.disabled) {
+            this.setState(
+              {
+                changed: true,
+              },
+              (): void => {
+                setTimeout((): void => {
+                  this.setState({ changed: false });
+                }, 2000);
+              }
+            );
+          }
         }
         // Since state will change stop right now and let the next
         // update handle anything else
