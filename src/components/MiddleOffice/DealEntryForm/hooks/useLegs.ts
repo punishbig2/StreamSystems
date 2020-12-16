@@ -137,7 +137,6 @@ export const addFwdRates = (
   summary: SummaryLeg | null
 ): ReadonlyArray<Leg> => {
   if (summary === null) return legs;
-  console.log(summary);
   if (legs.length !== 2) {
     return legs.map(
       (leg: Leg): Leg => {
