@@ -5,7 +5,7 @@ import { Adornment } from "components/FormField/adornment";
 import { DateInputHandler } from "components/FormField/date";
 import { DefaultHandler } from "components/FormField/default";
 import { DropdownField } from "components/FormField/dropdownField";
-import { isTenor } from "components/FormField/helpers";
+import { isInvalidTenor, isTenor } from "components/FormField/helpers";
 import { Editable, InputHandler } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
 import { NotApplicableField } from "components/FormField/notApplicableField";
@@ -29,7 +29,7 @@ interface Props<T, R = string> extends MinimalProps<T> {
   items?: (string | number)[];
   placeholder?: string;
   precision?: number;
-  dropdownData?: DropdownItem<R>[];
+  dropdownData?: ReadonlyArray<DropdownItem<R>>;
   rounding?: number;
   handler?: InputHandler<T>;
   onChange?: (name: keyof T, value: any) => Promise<void>;
@@ -223,18 +223,28 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           validity: validity,
         });
         if (props.onChange) {
-          props.onChange(props.name, displayValue);
+          props.onChange(props.name, displayValue).catch((error: any): void => {
+            console.warn(error);
+          });
         }
       } else {
         this.setState({
           validity: validity,
         });
         if (props.onChange) {
-          props.onChange(props.name, state.internalValue);
+          props
+            .onChange(props.name, state.internalValue)
+            .catch((error: any): void => {
+              console.warn(error);
+            });
         }
       }
     } else if (props.onChange) {
-      props.onChange(props.name, state.internalValue);
+      props
+        .onChange(props.name, state.internalValue)
+        .catch((error: any): void => {
+          console.warn(error);
+        });
     }
   };
 
@@ -306,20 +316,25 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (!props.dropdownData) {
       throw new Error("cannot have a dropdown with no data");
     }
-    if (props.value !== null && !isTenor(props.value)) {
-      throw new Error("invalid value for tenor field ");
+    if (
+      props.value !== null &&
+      !isInvalidTenor(props.value) &&
+      !isTenor(props.value)
+    ) {
+      return <ReadOnlyField name={props.name as string} value={"Invalid"} />;
+    } else {
+      return (
+        <TenorDropdown<T>
+          value={props.value}
+          name={props.name}
+          disabled={props.disabled}
+          color={props.color}
+          readOnly={!props.editable}
+          data={props.dropdownData}
+          onChange={props.onChange}
+        />
+      );
     }
-    return (
-      <TenorDropdown<T>
-        value={props.value}
-        name={props.name}
-        disabled={props.disabled}
-        color={props.color}
-        readOnly={!props.editable}
-        data={props.dropdownData}
-        onChange={props.onChange}
-      />
-    );
   };
 
   private createBankEntityField = (): ReactElement => {

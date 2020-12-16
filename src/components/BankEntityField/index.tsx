@@ -10,7 +10,7 @@ import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { BankEntity } from "types/bankEntity";
 
 interface Props<T> {
-  list: DropdownItem[];
+  list: ReadonlyArray<DropdownItem>;
   value: string;
   name: keyof T;
   disabled: boolean;

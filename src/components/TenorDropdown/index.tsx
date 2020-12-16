@@ -2,12 +2,12 @@ import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { DropdownItem } from "forms/fieldDef";
 import React, { ReactElement } from "react";
-import { Tenor } from "types/tenor";
-import { SPECIFIC_TENOR } from "../../utils/tenorUtils";
+import { InvalidTenor, Tenor } from "types/tenor";
+import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 interface Props<T> {
-  data: DropdownItem[];
-  value: Tenor | null;
+  data: ReadonlyArray<DropdownItem>;
+  value: Tenor | InvalidTenor | null;
   className?: string;
   color: "green" | "orange" | "cream" | "grey";
   name: keyof T;

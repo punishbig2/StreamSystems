@@ -2,6 +2,7 @@ import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
 import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
+import { LegAdjustValue, UndefinedLegAdjustValue } from "types/legAdjustValue";
 import { Symbol } from "types/symbol";
 
 const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
@@ -168,20 +169,20 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "dropdown",
     color: "orange",
     editable: MoStore.createEditableFilter(DealType.All),
-    transformData: (): DropdownItem[] => [
+    transformData: (): ReadonlyArray<DropdownItem<LegAdjustValue>> => [
       {
-        value: "true",
-        internalValue: true,
-        label: "TRUE",
+        value: "bsVega",
+        internalValue: "bsVega",
+        label: "bsVega",
       },
       {
-        value: "false",
-        internalValue: false,
-        label: "FALSE",
+        value: "stickyVega",
+        internalValue: "stickyVega",
+        label: "stickyVega",
       },
       {
-        value: "N/A",
-        internalValue: "NA",
+        value: UndefinedLegAdjustValue,
+        internalValue: UndefinedLegAdjustValue,
         label: "N/A",
       },
     ],

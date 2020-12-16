@@ -22,9 +22,6 @@ export const getExtraPropsAndValue = (
     field.name,
     entry.strategy
   );
-  if (field.name.includes("string")) {
-    console.log(editFlag);
-  }
   if (editFlag === EditableFlag.NotApplicable) {
     return {
       value: "N/A",

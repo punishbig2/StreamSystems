@@ -10,7 +10,7 @@ interface Props<T, R> {
   readonly value: any;
   readonly name: keyof T;
   readonly editable?: boolean;
-  readonly items: DropdownItem<R>[];
+  readonly items: ReadonlyArray<DropdownItem<R>>;
   readonly onChange?: (name: keyof T, value: any) => Promise<void>;
   readonly emptyMessage: string;
 }

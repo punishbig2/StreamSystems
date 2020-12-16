@@ -1,3 +1,5 @@
+import { LegAdjustValue, UndefinedLegAdjustValue } from "types/legAdjustValue";
+
 export interface Symbol {
   ATMType: string;
   "DayCountBasis-FX": string;
@@ -27,8 +29,8 @@ export interface Symbol {
   riskCCYformat: string;
   riskCCYpercent: boolean;
   symbolID: string;
-  vegaAdjustBF: boolean;
-  vegaAdjustRR: boolean;
+  vegaAdjustBF: LegAdjustValue;
+  vegaAdjustRR: LegAdjustValue;
   volsource: string;
   "premium-rounding": number | undefined;
   "strike-rounding": number | undefined;
@@ -60,8 +62,8 @@ export const InvalidSymbol: Symbol = {
   premiumCCYformat: "",
   riskCCYpercent: false,
   symbolID: "",
-  vegaAdjustBF: false,
-  vegaAdjustRR: false,
+  vegaAdjustBF: UndefinedLegAdjustValue,
+  vegaAdjustRR: UndefinedLegAdjustValue,
   volsource: "",
   "premium-rounding": undefined,
   "strike-rounding": undefined,

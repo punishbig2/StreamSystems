@@ -34,7 +34,10 @@ export interface FieldDef<T, E = {}, S = {}> {
   readonly validate?: (value: string) => Validity;
   readonly precision?: number;
   // Only for dropdown (for now)
-  readonly transformData?: (item: any, entry?: T) => DropdownItem[];
+  readonly transformData?: (
+    item: any,
+    entry?: T
+  ) => ReadonlyArray<DropdownItem>;
   readonly minimum?: number;
   readonly maximum?: number;
   readonly dataSource?: keyof S;

@@ -495,7 +495,7 @@ export class MoStore {
   }
 
   private static async fixTenorDates(
-    originalTenor: Tenor | InvalidTenor | undefined | null,
+    originalTenor: Tenor | InvalidTenor | string | undefined | null,
     entry: DealEntry
   ): Promise<FixTenorResult> {
     const { symbol } = entry;

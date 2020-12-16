@@ -3,6 +3,7 @@ import {
   MOStrategy,
 } from "components/MiddleOffice/types/moStrategy";
 import { DealStatus } from "types/dealStatus";
+import { LegAdjustValue, UndefinedLegAdjustValue } from "types/legAdjustValue";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 
@@ -30,14 +31,14 @@ export interface DealEntry {
   readonly strategy: MOStrategy;
 
   readonly tenor1: Tenor | InvalidTenor;
-  readonly tenor2: Tenor | null;
+  readonly tenor2: Tenor | string | null;
 
   readonly dealstrike?: string | number;
   readonly spread?: number | null;
   readonly vol?: number | null;
   readonly not1: number | null;
   readonly not2?: number | null;
-  readonly legadj: boolean;
+  readonly legadj: LegAdjustValue;
   readonly premstyle: string;
   readonly deltastyle: string;
   readonly buyer: string;
@@ -79,7 +80,7 @@ export const emptyDealEntry: DealEntry = {
   legs: null,
   not1: null,
   not2: null,
-  legadj: false,
+  legadj: UndefinedLegAdjustValue,
   buyer: "",
   seller: "",
   tenor1: {
@@ -138,7 +139,7 @@ export interface ServerDealQuery {
   readonly premstyle: string;
   readonly style: string;
   readonly model: number | "";
-  readonly legadj: boolean;
+  readonly legadj?: LegAdjustValue;
   readonly buyer_comm: number | null;
   readonly buyer_comm_rate: number | null;
   readonly seller_comm: number | null;

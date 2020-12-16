@@ -1,7 +1,7 @@
-import { InvalidTenor, Tenor } from "types/tenor";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import { Moment } from "moment";
+import { InvalidTenor, Tenor } from "types/tenor";
 
 export const getDisplayValue = <T>(
   type: FieldType,
@@ -33,7 +33,12 @@ export const getDisplayValue = <T>(
 };
 
 export const isTenor = (value: any): value is Tenor => {
-  return "name" in value && "expiryDate" in value;
+  if (value === null || typeof value === "string") return false;
+  if ("name" in value && "expiryDate" in value) {
+    return value.name !== "";
+  } else {
+    return false;
+  }
 };
 
 export const isInvalidTenor = (value: any): value is InvalidTenor => {

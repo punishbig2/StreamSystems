@@ -13,9 +13,6 @@ export const getValue = (
   if (editFlag === EditableFlag.NotApplicable) return "N/A";
   if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
   if (field.name === "status") return stateMap[Number(rawValue)];
-  if (field.type === "strike") {
-    console.log(rawValue, editFlag, field.name);
-  }
   if (!internal) {
     if (field.name === "symbol") {
       return rawValue.symbolID;

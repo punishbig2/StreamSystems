@@ -1,4 +1,5 @@
 import { API } from "API";
+import { isTenor } from "components/FormField/helpers";
 import { Commission, Deal } from "components/MiddleOffice/types/deal";
 import {
   InvalidStrategy,
@@ -286,9 +287,11 @@ export const getTenor = (
   deal: Pick<DealEntry, "tenor1" | "tenor2">,
   index: number
 ): Tenor | InvalidTenor => {
-  const { tenor2 } = deal;
-  if (index === 1 && tenor2 !== null && tenor2.name !== "") return tenor2;
-  return deal.tenor1;
+  const { tenor1, tenor2 } = deal;
+  if (index === 1 && isTenor(tenor2)) {
+    return tenor2;
+  }
+  return tenor1;
 };
 
 export const getDealId = (deal: DealEntry): string | undefined => {

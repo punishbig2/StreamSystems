@@ -3,7 +3,7 @@ import { FormField } from "components/FormField";
 import { getValue } from "components/MiddleOffice/DealEntryForm/helpers";
 import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
 import deepEqual from "deep-equal";
-import { FieldDef } from "forms/fieldDef";
+import { DropdownItem, FieldDef } from "forms/fieldDef";
 import moStore, { MoStore } from "mobx/stores/moStore";
 import React from "react";
 import { DealEntry } from "structures/dealEntry";
@@ -33,7 +33,9 @@ export const Field: React.FC<Props> = React.memo(
   (props: Props): React.ReactElement => {
     const { field, entry, isEditMode } = props;
     const { transformData, dataSource } = field;
-    const [dropdownData, setDropdownData] = React.useState<any[]>([]);
+    const [dropdownData, setDropdownData] = React.useState<
+      ReadonlyArray<DropdownItem>
+    >([]);
     React.useEffect(() => {
       if (!transformData) return;
       if (dataSource) {

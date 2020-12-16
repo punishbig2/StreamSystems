@@ -1,4 +1,4 @@
-import { isInvalidTenor } from "components/FormField/helpers";
+import { isInvalidTenor, isTenor } from "components/FormField/helpers";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
@@ -21,6 +21,7 @@ import {
   CalendarVolDatesQuery,
   CalendarVolDatesResponse,
 } from "types/calendarFXPair";
+import { UndefinedLegAdjustValue } from "types/legAdjustValue";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import {
@@ -824,10 +825,14 @@ export class API {
         ccy1: symbol.notionalCCY,
         ccy2: ccyPair.replace(symbol.notionalCCY, ""),
         OptionProductType: strategy.OptionProductType,
-        vegaAdjust: proxyEntry.legadj,
+        vegaAdjust:
+          proxyEntry.legadj === UndefinedLegAdjustValue
+            ? undefined
+            : proxyEntry.legadj,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
+        ccyGroup: symbol.ccyGroup,
         OptionLegs: await Promise.all(legsPromises),
       },
       ValuationData: {
@@ -900,7 +905,7 @@ export class API {
     return {
       linkid: getDealId(entry),
       tenor: tenor1.name,
-      tenor1: tenor2 !== null ? tenor2.name : null,
+      tenor1: isTenor(tenor2) ? tenor2.name : null,
       strategy: strategy.productid,
       symbol: symbol.symbolID,
       spread: entry.spread,
@@ -918,7 +923,7 @@ export class API {
       useremail: user.email,
       strike: entry.dealstrike,
       expirydate: toUTCFIXFormat(tenor1.expiryDate),
-      expirydate1: tenor2 !== null ? toUTCFIXFormat(tenor2.expiryDate) : null,
+      expirydate1: isTenor(tenor2) ? toUTCFIXFormat(tenor2.expiryDate) : null,
       deltastyle: entry.deltastyle,
       premstyle: entry.premstyle,
       style: entry.style,

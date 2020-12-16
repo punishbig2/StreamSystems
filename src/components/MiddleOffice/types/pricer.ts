@@ -1,4 +1,5 @@
 import { ModelParameters } from "mobx/stores/moStore";
+import { LegAdjustValue } from "types/legAdjustValue";
 
 export interface OptionLeg {
   readonly strike?: string | number | null;
@@ -23,7 +24,8 @@ export interface Option {
   readonly notionalCCY: string;
   readonly premiumCCY: string;
   readonly riskCCY: string;
-  readonly vegaAdjust?: boolean;
+  readonly ccyGroup: string;
+  readonly vegaAdjust?: LegAdjustValue;
   readonly OptionProductType: string;
   readonly OptionLegs: OptionLeg[];
 }

@@ -1,4 +1,4 @@
-import { isInvalidTenor } from "components/FormField/helpers";
+import { isInvalidTenor, isTenor } from "components/FormField/helpers";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { Point } from "structures/point";
@@ -42,7 +42,7 @@ export const buildFwdRates = (
   summary: SummaryLeg | null,
   strategy: MOStrategy,
   tenor1: Tenor | InvalidTenor,
-  tenor2: Tenor | null
+  tenor2: Tenor | string | null
 ): Point[] | undefined => {
   if (summary === null || isInvalidTenor(tenor1)) return undefined;
   const { fwdrate1, fwdrate2 } = summary;
@@ -66,7 +66,7 @@ export const buildFwdRates = (
       1
     );
     if (strategy.spreadvsvol === "spread" || strategy.spreadvsvol === "both") {
-      if (tenor2 !== null) {
+      if (isTenor(tenor2)) {
         points.push(...generatePoints(tenor2.deliveryDate, value, 1));
       }
     }
