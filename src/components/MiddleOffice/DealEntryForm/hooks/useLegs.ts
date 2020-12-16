@@ -132,6 +132,26 @@ const createSummaryLeg = (
   }
 };
 
+export const addFwdRates = (
+  legs: ReadonlyArray<Leg>,
+  summary: SummaryLeg | null
+): ReadonlyArray<Leg> => {
+  if (summary === null) return legs;
+  console.log(summary);
+  if (legs.length !== 2) {
+    return legs.map(
+      (leg: Leg): Leg => {
+        return { ...leg, fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 };
+      }
+    );
+  } else {
+    return [
+      { ...legs[0], fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 },
+      { ...legs[1], fwdRate: summary.fwdrate2, fwdPts: summary.fwdpts2 },
+    ];
+  }
+};
+
 const handleLegsResponse = (
   entry: DealEntry,
   legs: ReadonlyArray<Leg>,
@@ -212,7 +232,7 @@ const handleLegsResponse = (
   /*   moStore.setLegs(finalLegs, finalSummaryLeg);
   } else {
   }*/
-  moStore.setLegs(finalLegs, finalSummaryLeg);
+  moStore.setLegs(addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg);
 };
 
 const createDefaultLegsFromDeal = (
@@ -248,20 +268,18 @@ const createDefaultLegsFromDeal = (
   );
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return;
-  moStore.setLegs(
-    legs,
-    createSummaryLeg(
-      cuts,
-      entry.strategy,
-      entry.symbol,
-      entry.tradeDate,
-      entry.premiumDate,
-      entry.spotDate,
-      tenor.deliveryDate,
-      tenor.expiryDate,
-      entry.extra_fields
-    )
+  const summaryLeg: SummaryLeg | null = createSummaryLeg(
+    cuts,
+    entry.strategy,
+    entry.symbol,
+    entry.tradeDate,
+    entry.premiumDate,
+    entry.spotDate,
+    tenor.deliveryDate,
+    tenor.expiryDate,
+    entry.extra_fields
   );
+  moStore.setLegs(addFwdRates(legs, summaryLeg), summaryLeg);
 };
 
 const populateExistingDealLegsAndInstallListener = (

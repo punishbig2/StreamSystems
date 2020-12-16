@@ -7,6 +7,15 @@ $orange-form-color: saturate(mix($foreground-color, darkorange), 20%);
 $grey-form-color: $foreground-color;
 $field-size: 25px;
 
+@keyframes flashing {
+  0% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .middle-office {
   position: absolute;
   display: flex;
@@ -162,6 +171,7 @@ $field-size: 25px;
       align-items: center;
       width: 100%;
 
+
       &.green {
         color: $green-form-color;
         fill: $green-form-color;
@@ -185,12 +195,17 @@ $field-size: 25px;
       &.negative {
         color: $text-color-red;
       }
+
+      &.changed {
+        animation: flashing 0.25s infinite linear;
+      }
     }
   }
 }
 
 // Special styles for MuiTheme
-.borderless /* notchedOutline (remove the border) */ {
+.borderless /* notchedOutline (remove the border) */
+{
   border: none;
 }
 

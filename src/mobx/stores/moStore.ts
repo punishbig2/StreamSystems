@@ -1,5 +1,6 @@
 import { API, BankEntitiesQueryResponse, HTTPError } from "API";
 import { isTenor } from "components/FormField/helpers";
+import { addFwdRates } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
@@ -449,6 +450,9 @@ export class MoStore {
   @action.bound
   public updateSummaryLeg(fieldName: keyof SummaryLeg, value: any): void {
     this.summaryLeg = { ...this.summaryLeg, [fieldName]: value } as SummaryLeg;
+    if (fieldName.startsWith("fwd")) {
+      this.legs = addFwdRates(this.legs, this.summaryLeg);
+    }
     this.addModifiedField(fieldName);
   }
 

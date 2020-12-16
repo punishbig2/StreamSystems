@@ -49,6 +49,7 @@ interface State extends Editable {
   editor: Editor;
   startAdornment?: string;
   endAdornment?: string;
+  changed: boolean;
 }
 
 const initialState: State = {
@@ -59,6 +60,7 @@ const initialState: State = {
   caretPosition: null,
   filterValue: "",
   editor: Editor.None,
+  changed: false,
 };
 
 export class FormField<T> extends PureComponent<Props<T>, State> {
@@ -127,6 +129,16 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       if (props.value !== prevProps.value || props.type !== prevProps.type) {
         if (state.editor !== Editor.User) {
           this.setValueFromProps();
+          this.setState(
+            {
+              changed: true,
+            },
+            (): void => {
+              setTimeout((): void => {
+                this.setState({ changed: false });
+              }, 2000);
+            }
+          );
         }
         // Since state will change stop right now and let the next
         // update handle anything else
@@ -460,6 +472,9 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const classes: string[] = ["field", props.color];
     if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
+    }
+    if (state.changed) {
+      classes.push("changed");
     }
     return classes.join(" ");
   };
