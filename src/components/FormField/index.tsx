@@ -17,6 +17,7 @@ import { DropdownItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
 import React, { PureComponent, ReactElement } from "react";
+import { InvalidTenor, Tenor } from "types/tenor";
 import { roundToNearest } from "utils/roundToNearest";
 
 interface Props<T, R = string> extends MinimalProps<T> {
@@ -316,25 +317,31 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (!props.dropdownData) {
       throw new Error("cannot have a dropdown with no data");
     }
-    if (
-      props.value !== null &&
-      !isInvalidTenor(props.value) &&
-      !isTenor(props.value)
-    ) {
-      return <ReadOnlyField name={props.name as string} value={"Invalid"} />;
-    } else {
-      return (
-        <TenorDropdown<T>
-          value={props.value}
-          name={props.name}
-          disabled={props.disabled}
-          color={props.color}
-          readOnly={!props.editable}
-          data={props.dropdownData}
-          onChange={props.onChange}
-        />
-      );
-    }
+    const value: Tenor | InvalidTenor | null = (():
+      | Tenor
+      | InvalidTenor
+      | null => {
+      if (
+        props.value !== null &&
+        !isInvalidTenor(props.value) &&
+        !isTenor(props.value)
+      ) {
+        return null;
+      } else {
+        return props.value;
+      }
+    })();
+    return (
+      <TenorDropdown<T>
+        value={value}
+        name={props.name}
+        disabled={props.disabled}
+        color={props.color}
+        readOnly={!props.editable}
+        data={props.dropdownData}
+        onChange={props.onChange}
+      />
+    );
   };
 
   private createBankEntityField = (): ReactElement => {
