@@ -72,7 +72,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
             onUpdateCommission={async (
               value: BrokerageCommission
             ): Promise<void> => {
-              moStore.updateEntry({
+              moStore.updateDealEntry({
                 ...value,
               });
             }}

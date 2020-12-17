@@ -13,6 +13,7 @@ import { NumericInputHandler } from "components/FormField/numeric";
 import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { StrikeHandler } from "components/FormField/strike";
 import { TenorDropdown } from "components/TenorDropdown";
+import deepEqual from "deep-equal";
 import { DropdownItem } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
 import { Validity } from "forms/validity";
@@ -105,7 +106,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setValueFromProps();
   };
 
-  public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
+  public componentDidUpdate = (
+    prevProps: Readonly<Props<T>>,
+    prevState: Readonly<State>
+  ): void => {
     const { props, state } = this;
     if (props.editable !== prevProps.editable && !props.editable) {
       const handler: InputHandler<T, Props<T>, State> = this.getHandler();
@@ -126,21 +130,12 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           this.setValueFromProps();
         }
       }
-      if (props.value !== prevProps.value || props.type !== prevProps.type) {
+      if (
+        !deepEqual(props.value, prevProps.value) ||
+        props.type !== prevProps.type
+      ) {
         if (state.editor !== Editor.User) {
           this.setValueFromProps();
-          if (!prevProps.disabled && !props.disabled) {
-            this.setState(
-              {
-                changed: true,
-              },
-              (): void => {
-                setTimeout((): void => {
-                  this.setState({ changed: false });
-                }, 2000);
-              }
-            );
-          }
         }
         // Since state will change stop right now and let the next
         // update handle anything else
@@ -148,6 +143,19 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       }
       this.ensureCaretIsInPlace();
     }
+    // FIXME: need a better mechanism for this
+    /*if (!props.readonly && state.editor !== Editor.User) {
+      this.setState(
+        {
+          changed: true,
+        },
+        (): void => {
+          setTimeout((): void => {
+            this.setState({ changed: false });
+          }, 2000);
+        }
+      );
+    }*/
   };
 
   private setInputRef = (input: HTMLInputElement): void => {
@@ -179,6 +187,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     // Create a value with appropriate formatting and an
     // internal representation of the value
     const stateUpdate = handler.createValue(value, input, props, state);
+
     // Update the editor to auto so that it's clear
     // the user "DID NOT" edit this field
     const editorState: Pick<State, "editor"> = { editor: Editor.Auto };
@@ -247,11 +256,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           validity: validity,
         });
         if (props.onChange) {
-          props
-            .onChange(props.name, state.internalValue)
-            .catch((error: any): void => {
-              console.warn(error);
-            });
+          props.onChange(props.name, state.internalValue);
         }
       }
     } else if (props.onChange) {
@@ -263,22 +268,31 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     }
   };
 
-  private onInputBlur = (): void => {
+  private handleRegularInputBlurEvent(): void {
     const { props, state } = this;
+    // Process the change focus event first please
+    if (props.onChange) {
+      props
+        .onChange(props.name, state.internalValue)
+        .then((): void => {
+          this.setState({ editor: Editor.User });
+        })
+        .catch((error: any): void => {
+          console.warn(error);
+        });
+    }
+  }
+
+  private onInputBlur = (): void => {
+    const { props } = this;
     const { type } = props;
     if (type === "strike") {
       setTimeout(() => {
         this.handleStrikeTypeOnBlurEvent();
       }, 0);
     } else {
-      // Process the change focus event first please
       setTimeout((): void => {
-        if (props.onChange) {
-          this.setState({
-            editor: Editor.User,
-          });
-          props.onChange(props.name, state.internalValue);
-        }
+        this.handleRegularInputBlurEvent();
       }, 0);
     }
   };

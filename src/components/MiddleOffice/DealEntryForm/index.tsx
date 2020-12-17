@@ -1,11 +1,12 @@
 import { Grid } from "@material-ui/core";
 import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
 import originalFields from "components/MiddleOffice/DealEntryForm/fields";
-import useLegs from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
+import { createDefaultLegsFromDeal } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "mobx/stores/moStore";
+import moStore, { MoStore } from "mobx/stores/moStore";
+import { NotApplicableProxy } from "notApplicableProxy";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "structures/dealEntry";
 import { Field } from "./field";
@@ -29,14 +30,24 @@ interface Props {
 export const DealEntryForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
-  const { entry, cuts } = props;
-  const { symbol } = entry;
-  useLegs(cuts, entry);
-  const fieldsRef: React.MutableRefObject<ReadonlyArray<
-    FieldDef<DealEntry, DealEntry, MoStore>
-  >> = useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>>>(
-    originalFields
-  );
+  const { entry } = props;
+  const { symbol, strategy } = entry;
+
+  // Generate legs when either symbol or strategy change
+  React.useEffect((): void => {
+    const { entry } = moStore;
+    // If it's not a new deal we don't generate
+    // new stub legs
+    if (entry.type !== EntryType.New) return;
+    const { cuts } = moStore;
+    const proxyEntry = new Proxy(
+      entry,
+      NotApplicableProxy<DealEntry>("leg", entry, "N/A")
+    );
+    const [legs, summaryLeg] = createDefaultLegsFromDeal(cuts, proxyEntry);
+    moStore.setLegs(legs, summaryLeg);
+  }, [symbol, strategy]);
+
   useEffect((): void => {
     const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> =
       fieldsRef.current;
@@ -50,8 +61,16 @@ export const DealEntryForm: React.FC<Props> = (
       ...fields.slice(index + 1),
     ];
   }, [symbol]);
+
+  const fieldsRef: React.MutableRefObject<ReadonlyArray<
+    FieldDef<DealEntry, DealEntry, MoStore>
+  >> = useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>>>(
+    originalFields
+  );
+
   const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> | null =
     fieldsRef.current;
+
   const getActionButtons = (): ReactElement | null => {
     switch (props.entryType) {
       case EntryType.ExistingDeal:

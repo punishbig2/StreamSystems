@@ -1,4 +1,5 @@
 import { MuiThemeProvider } from "@material-ui/core";
+import { Task } from "API";
 import { useMoInitializer } from "components/MiddleOffice/hooks/useMoInitializer";
 import { MiddleOfficeMain } from "components/MiddleOffice/middleOfficeMain";
 import { Deal } from "components/MiddleOffice/types/deal";
@@ -22,6 +23,14 @@ interface Props {
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const { preferences } = workareaStore;
+    const [newDeal, setDeal] = React.useState<Deal | null>(null);
+    React.useEffect((): (() => void) => {
+      const task: Task<void> = store.setDeal(newDeal);
+      // Execute the task
+      task.execute();
+      // Allow cancellation
+      return (): void => task.cancel();
+    }, [newDeal]);
     useMoInitializer();
     if (!store.isInitialized) {
       return (
@@ -47,7 +56,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             }}
             removeDeal={(id: string): Promise<void> => store.removeDeal(id)}
             addDeal={(deal: Deal): Promise<void> => store.addDeal(deal)}
-            setDeal={(deal: Deal | null): void => store.setDeal(deal)}
+            setDeal={(deal: Deal | null): void => setDeal(deal)}
             setError={(error: MOErrorMessage): void => store.setError(error)}
             updateLeg={(index: number, key: keyof Leg, value: any): void =>
               store.updateLeg(index, key, value)
@@ -75,7 +84,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             cuts={store.cuts}
             isReadyForSubmission={store.isReadyForSubmission}
             updateEntry={async (partial: Partial<DealEntry>): Promise<void> => {
-              await store.updateEntry(partial);
+              await store.updateDealEntry(partial);
             }}
             price={(): void => store.price()}
             createOrClone={(): void => store.createOrClone()}

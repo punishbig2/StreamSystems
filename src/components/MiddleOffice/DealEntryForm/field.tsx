@@ -86,7 +86,7 @@ export const Field: React.FC<Props> = React.memo(
                 rollExpiryDates: true,
               },
               [value]
-            );
+            ).execute();
           } else {
             return API.queryVolDates(
               {
@@ -96,7 +96,7 @@ export const Field: React.FC<Props> = React.memo(
                 rollExpiryDates: true,
               },
               [toUTC(value)]
-            );
+            ).execute();
           }
         })();
         return onChangeCompleted({

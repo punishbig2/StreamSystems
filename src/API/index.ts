@@ -1030,7 +1030,9 @@ export class API {
     return dealID;
   }
 
-  public static getLegs(dealid: string | undefined): Task<Leg[] | null> {
+  public static getLegs(
+    dealid: string | undefined
+  ): Task<{ legs: ReadonlyArray<Leg> } | null> {
     if (dealid === undefined)
       return {
         execute: async (): Promise<null> => null,
@@ -1091,38 +1093,30 @@ export class API {
     return task.execute();
   }
 
-  public static async queryVolDates(
+  public static queryVolDates(
     query: CalendarVolDatesQuery,
     dates: ReadonlyArray<string>
-  ): Promise<CalendarVolDatesResponse> {
+  ): Task<CalendarVolDatesResponse> {
     const url: string =
       config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/dates";
-    const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
-      url,
-      {
-        ...query,
-        ExpiryDates: dates,
-        rollExpiryDates: true,
-      }
-    );
-    return task.execute();
+    return post<CalendarVolDatesResponse>(url, {
+      ...query,
+      ExpiryDates: dates,
+      rollExpiryDates: true,
+    });
   }
 
-  public static async queryVolTenors(
+  public static queryVolTenors(
     query: CalendarVolDatesQuery,
     tenors: ReadonlyArray<string>
-  ): Promise<CalendarVolDatesResponse> {
+  ): Task<CalendarVolDatesResponse> {
     const url: string =
       config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/tenors";
-    const task: Task<CalendarVolDatesResponse> = post<CalendarVolDatesResponse>(
-      url,
-      {
-        ...query,
-        Tenors: tenors,
-        rollExpiryDates: true,
-      }
-    );
-    return task.execute();
+    return post<CalendarVolDatesResponse>(url, {
+      ...query,
+      Tenors: tenors,
+      rollExpiryDates: true,
+    });
   }
 
   public static async getUser(userId: string): Promise<OktaUser> {

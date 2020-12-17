@@ -1,4 +1,3 @@
-import { API, Task } from "API";
 import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
 import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
@@ -10,11 +9,7 @@ import {
 } from "components/MiddleOffice/types/moStrategy";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import moStore from "mobx/stores/moStore";
-import { NotApplicableProxy } from "notApplicableProxy";
-import { useEffect } from "react";
-import signalRManager from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
-import { PricingMessage } from "types/pricingMessage";
 import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
@@ -23,7 +18,6 @@ import {
   calculateNetHedge,
   convertLegNumbers,
   createLegsFromDefinitionAndDeal,
-  parseDates,
 } from "utils/legsUtils";
 
 const buildSummaryLegFromCut = (
@@ -151,15 +145,15 @@ export const addFwdRates = (
   }
 };
 
-const handleLegsResponse = (
+export const handleLegsResponse = (
   entry: DealEntry,
   legs: ReadonlyArray<Leg>,
   cuts: ReadonlyArray<Cut>
-): void => {
+): [ReadonlyArray<Leg>, SummaryLeg | null] => {
   const { summaryLeg } = moStore;
   const { extra_fields = {} } = entry;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
-  if (isInvalidTenor(tenor)) return;
+  if (isInvalidTenor(tenor)) return [[], null];
   const fwdPts1: number | null = coalesce(
     extra_fields.fwdpts1,
     summaryLeg !== null ? summaryLeg.fwdpts1 : null
@@ -228,16 +222,13 @@ const handleLegsResponse = (
     usi: entry.usi,
     ...{ dealOutput: { ...legs[0], hedge: calculateNetHedge(finalLegs) } },
   } as SummaryLeg;
-  /*   moStore.setLegs(finalLegs, finalSummaryLeg);
-  } else {
-  }*/
-  moStore.setLegs(addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg);
+  return [addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg];
 };
 
-const createDefaultLegsFromDeal = (
+export const createDefaultLegsFromDeal = (
   cuts: ReadonlyArray<Cut>,
   entry: DealEntry
-): void => {
+): [ReadonlyArray<Leg>, SummaryLeg | null] => {
   const { strategy, symbol } = entry;
   // Special ground state case (the second one is not what I expected)
   if (
@@ -246,7 +237,7 @@ const createDefaultLegsFromDeal = (
     symbol === InvalidSymbol ||
     symbol.symbolID === ""
   ) {
-    return;
+    return [[], null];
   }
   // We should be able to find it now
   const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
@@ -257,16 +248,14 @@ const createDefaultLegsFromDeal = (
       "strategies with definitions are: ",
       Object.keys(moStore.legDefinitions)
     );
-    // Unset legs
-    moStore.setLegs([], null);
-    return;
+    return [[], null];
   }
   const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(
     legDefinitions.in,
     entry
   );
   const tenor: Tenor | InvalidTenor = entry.tenor1;
-  if (isInvalidTenor(tenor)) return;
+  if (isInvalidTenor(tenor)) return [[], null];
   const summaryLeg: SummaryLeg | null = createSummaryLeg(
     cuts,
     entry.strategy,
@@ -278,10 +267,10 @@ const createDefaultLegsFromDeal = (
     tenor.expiryDate,
     entry.extra_fields
   );
-  moStore.setLegs(addFwdRates(legs, summaryLeg), summaryLeg);
+  return [addFwdRates(legs, summaryLeg), summaryLeg];
 };
 
-const populateExistingDealLegsAndInstallListener = (
+/*const populateExistingDealLegsAndInstallListener = (
   cuts: ReadonlyArray<Cut>,
   entry: DealEntry
 ): (() => void) => {
@@ -330,18 +319,4 @@ const populateExistingDealLegsAndInstallListener = (
     removePricingListener();
     task.cancel();
   };
-};
-
-export default (cuts: ReadonlyArray<Cut>, entry: DealEntry) => {
-  useEffect(() => {
-    const proxyEntry = new Proxy(
-      entry,
-      NotApplicableProxy<DealEntry>("leg", entry, "N/A")
-    );
-    if (entry.dealID === "") {
-      return createDefaultLegsFromDeal(cuts, proxyEntry);
-    } else {
-      return populateExistingDealLegsAndInstallListener(cuts, proxyEntry);
-    }
-  }, [cuts, entry]);
-};
+};*/

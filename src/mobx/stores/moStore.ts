@@ -1,6 +1,9 @@
-import { API, BankEntitiesQueryResponse, HTTPError } from "API";
+import { API, BankEntitiesQueryResponse, HTTPError, Task } from "API";
 import { isTenor } from "components/FormField/helpers";
-import { addFwdRates } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
+import {
+  addFwdRates,
+  handleLegsResponse,
+} from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
@@ -33,6 +36,8 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
+import { legsReducer } from "utils/legsReducer";
+import { parseDates } from "utils/legsUtils";
 import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
 
@@ -498,19 +503,29 @@ export class MoStore {
     );
   }
 
-  private static async fixTenorDates(
+  private static fixTenorDates(
     originalTenor: Tenor | InvalidTenor | string | undefined | null,
     entry: DealEntry
-  ): Promise<FixTenorResult> {
+  ): Task<FixTenorResult> {
     const { symbol } = entry;
-    if (!originalTenor || !isTenor(originalTenor) || originalTenor.name === "")
+    if (
+      !originalTenor ||
+      !isTenor(originalTenor) ||
+      originalTenor.name === ""
+    ) {
       return {
-        tenor: null,
-        horizonDateUTC: "",
-        spotDate: "",
-        tradeDate: "",
+        execute: async (): Promise<FixTenorResult> => {
+          return {
+            tenor: null,
+            horizonDateUTC: "",
+            spotDate: "",
+            tradeDate: "",
+          };
+        },
+        cancel: (): void => {},
       };
-    const dates: CalendarVolDatesResponse = await (async (): Promise<
+    }
+    const task: Task<CalendarVolDatesResponse> = ((): Task<
       CalendarVolDatesResponse
     > => {
       if (originalTenor.name === "SPECIFIC") {
@@ -536,50 +551,63 @@ export class MoStore {
       }
     })();
     return {
-      tenor: {
-        name: originalTenor.name,
-        ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
-        ...safeForceParseDate("expiryDate", dates.ExpiryDates[0]),
+      execute: async (): Promise<FixTenorResult> => {
+        const dates: CalendarVolDatesResponse = await task.execute();
+        return {
+          tenor: {
+            name: originalTenor.name,
+            ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
+            ...safeForceParseDate("expiryDate", dates.ExpiryDates[0]),
+          },
+          horizonDateUTC: dates.HorizonDateUTC,
+          spotDate: dates.SpotDate,
+          tradeDate: dates.TradeDate,
+        };
       },
-      horizonDateUTC: dates.HorizonDateUTC,
-      spotDate: dates.SpotDate,
-      tradeDate: dates.TradeDate,
+      cancel: (): void => {
+        task.cancel();
+      },
     };
   }
 
-  private static async resolveDatesIfNeeded(
-    entry: DealEntry
-  ): Promise<DealEntry> {
+  private static resolveDatesIfNeeded(entry: DealEntry): Task<DealEntry> {
     const { tenor1, tenor2 } = entry;
     // Query dates for regular tenors
-    const tenor1Dates: FixTenorResult = await MoStore.fixTenorDates(
-      tenor1,
-      entry
-    );
-    const tenor2Dates: FixTenorResult = await MoStore.fixTenorDates(
-      tenor2,
-      entry
-    );
-    const spotDate: Date | null = forceParseDate(tenor1Dates.spotDate);
+    const task1: Task<FixTenorResult> = MoStore.fixTenorDates(tenor1, entry);
+    const task2: Task<FixTenorResult> = MoStore.fixTenorDates(tenor2, entry);
     return {
-      ...entry,
-      tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
-      tenor2: tenor2Dates.tenor,
-      ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
-      premiumDate: spotDate,
-      spotDate: spotDate,
+      execute: async (): Promise<DealEntry> => {
+        const tenor1Dates: FixTenorResult = await task1.execute();
+        const tenor2Dates: FixTenorResult = await task2.execute();
+        const spotDate: Date | null = forceParseDate(tenor1Dates.spotDate);
+        return {
+          ...entry,
+          tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
+          tenor2: tenor2Dates.tenor,
+          ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
+          premiumDate: spotDate,
+          spotDate: spotDate,
+        };
+      },
+      cancel: (): void => {
+        task2.cancel();
+        task1.cancel();
+      },
     };
   }
 
   @action.bound
-  public setDeal(deal: Deal | null): void {
+  public setDeal(deal: Deal | null): Task<void> {
     const { entry } = this;
     this.entry = { ...emptyDealEntry };
     if (
       (this.isEditMode && deal !== null && entry.dealID !== deal.id) ||
       (this.isEditMode && deal === null)
     ) {
-      return;
+      return {
+        execute: async (): Promise<void> => {},
+        cancel: (): void => {},
+      };
     }
     this.modifiedFields = [];
     if (deal === null) {
@@ -587,31 +615,48 @@ export class MoStore {
       this.entryType = EntryType.Empty;
       this.selectedDealID = null;
       this.originalEntry = this.entry;
+      this.legs = [];
     } else {
+      this.isLoadingLegs = true;
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
+      // Create a new deal entry
       const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
-      MoStore.resolveDatesIfNeeded(entry)
-        .then((newEntry: DealEntry): void => {
-          // This is mandatory or `this' would not be perfectly
-          // specified and defined
-          this.setEntry(newEntry);
-          this.originalEntry = newEntry;
-        })
-        .catch((): void => {
-          this.entry = emptyDealEntry;
-          this.originalEntry = { ...emptyDealEntry };
-        });
+      const task1: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
+        deal.id
+      );
+      const task2: Task<any> = MoStore.resolveDatesIfNeeded(entry);
+      return {
+        execute: async (): Promise<void> => {
+          const response = await task1.execute();
+          this.entry = await task2.execute();
+          this.originalEntry = this.entry;
+          if (response !== null) {
+            const [adjustedLegs, summaryLeg] = handleLegsResponse(
+              this.entry,
+              parseDates(response.legs),
+              this.cuts
+            );
+            this.setLegs(adjustedLegs, summaryLeg);
+          }
+          this.isLoadingLegs = false;
+        },
+        cancel: (): void => {
+          task2.cancel();
+          task1.cancel();
+        },
+      };
     }
     // This is because we are going to load the legs as soon
     // as this method returns because we're going to use the
     // change in the `entry' object to reload the legs
     this.legs = [];
     this.summaryLeg = null;
-    if (deal !== null) {
-      this.isLoadingLegs = true;
-    }
+    return {
+      execute: async (): Promise<void> => {},
+      cancel: (): void => {},
+    };
   }
 
   @action.bound
@@ -662,34 +707,25 @@ export class MoStore {
     this.entry = entry;
   }
 
-  private async buildNewEntry(partial: Partial<DealEntry>): Promise<DealEntry> {
-    const { entry } = this;
-    const strategy: MOStrategy | undefined = resolveStrategyDispute(
-      partial,
-      entry
-    );
-    const not1: number | null =
-      partial.not1 !== undefined ? partial.not1 : entry.not1;
-    if (strategy !== undefined) {
-      const legsCount: number = this.getOutLegsCount(strategy.productid);
-      if (strategy.strike) {
-        console.warn("hey, this strategy has a strike: " + strategy.strike);
-      }
-      return {
-        ...entry,
-        ...partial,
-        legs: legsCount,
-        size: not1 !== null ? not1 / 1e6 : 0,
-      };
-    } else {
-      return { ...this.entry, ...partial };
-    }
-  }
-
-  public async updateEntry(partial: Partial<DealEntry>): Promise<void> {
-    const newEntry = await this.buildNewEntry(partial);
-    this.setEntry(newEntry);
+  public async updateDealEntry(partial: Partial<DealEntry>): Promise<void> {
     const fields: ReadonlyArray<string> = Object.keys(partial);
+    const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
+      return legs.map(
+        (leg: Leg, index: number): Leg => {
+          const reducer: (leg: Leg, field: string) => Leg = legsReducer(
+            index,
+            partial
+          );
+          return fields.reduce(reducer, leg);
+        }
+      );
+    })(this.legs);
+    // Check if legs changed
+    if (!deepEqual(this.legs, legs)) {
+      this.legs = legs;
+    }
+    this.entry = { ...this.entry, ...partial, legs: legs.length };
+    // Keep a list of modified fields
     fields.forEach((field: string): void => {
       this.addModifiedField(field);
     });
@@ -821,11 +857,11 @@ export class MoStore {
     };
     this.entryType = EntryType.ExistingDeal;
     this.status = MoStatus.Normal;
-    MoStore.resolveDatesIfNeeded(this.entry).then(
+    /*MoStore.resolveDatesIfNeeded(this.entry).then(
       (newEntry: DealEntry): void => {
         this.setEntry(newEntry);
       }
-    );
+    );*/
   }
 
   @action.bound
@@ -863,7 +899,8 @@ export class MoStore {
     this.deals = [...deals.slice(0, index), ...deals.slice(index + 1)];
     // Update current entry
     if (entry.dealID === id) {
-      return this.setDeal(null);
+      const task: Task<void> = this.setDeal(null);
+      return task.execute();
     }
   }
 
