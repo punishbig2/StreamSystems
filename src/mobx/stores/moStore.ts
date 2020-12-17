@@ -900,13 +900,17 @@ export class MoStore {
     );
     if (index === -1) {
       this.deals = [deal, ...deals];
+      if (this.selectedDealID === null) {
+        const task: Task<void> = this.setDeal(deal);
+        // Execute the add deal task
+        task.execute();
+      }
     } else {
+      const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
-    }
-    // If there's no selection yet or it's the same deal, then select this deal
-    if (this.selectedDealID === null || this.selectedDealID !== deal.id) {
-      const task: Task<void> = this.setDeal(deal);
-      task.execute();
+      if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
+        this.entry = createDealEntry(deal);
+      }
     }
   }
 
