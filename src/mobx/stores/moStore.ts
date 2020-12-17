@@ -26,19 +26,20 @@ import { EditableFilter } from "forms/fieldDef";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
+import signalRManager from "signalR/signalRManager";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
 import { MOErrorMessage } from "types/middleOfficeError";
+import { PricingMessage } from "types/pricingMessage";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { legsReducer } from "utils/legsReducer";
 import { parseDates } from "utils/legsUtils";
-import { resolveStrategyDispute } from "utils/resolveStrategyDispute";
 import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
 
 const SOFT_SEF_ERROR: string =
@@ -617,7 +618,6 @@ export class MoStore {
       this.originalEntry = this.entry;
       this.legs = [];
     } else {
-      this.isLoadingLegs = true;
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
       // Create a new deal entry
@@ -627,8 +627,25 @@ export class MoStore {
         deal.id
       );
       const task2: Task<any> = MoStore.resolveDatesIfNeeded(entry);
+      const listener = signalRManager.addPricingResponseListener(
+        (data: PricingMessage): void => {
+          const { entry } = this;
+          if (entry.dealID === data.dealId) {
+            // It is the deal of interest so update
+            // visible legs now
+            const [legs, summaryLeg] = handleLegsResponse(
+              entry,
+              parseDates(data.legs),
+              this.cuts
+            );
+            this.setLegs(legs, summaryLeg);
+          }
+        }
+      );
       return {
         execute: async (): Promise<void> => {
+          this.isLoadingLegs = true;
+          // Start loading now
           const response = await task1.execute();
           this.entry = await task2.execute();
           this.originalEntry = this.entry;
@@ -645,6 +662,7 @@ export class MoStore {
         cancel: (): void => {
           task2.cancel();
           task1.cancel();
+          listener();
         },
       };
     }
@@ -886,8 +904,9 @@ export class MoStore {
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
     }
     // If there's no selection yet or it's the same deal, then select this deal
-    if (this.selectedDealID === null || this.selectedDealID === deal.id) {
-      this.setDeal(deal);
+    if (this.selectedDealID === null || this.selectedDealID !== deal.id) {
+      const task: Task<void> = this.setDeal(deal);
+      task.execute();
     }
   }
 
