@@ -726,6 +726,7 @@ export class MoStore {
   }
 
   public async updateDealEntry(partial: Partial<DealEntry>): Promise<void> {
+    const { entry } = this;
     const fields: ReadonlyArray<string> = Object.keys(partial);
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
       return legs.map(
@@ -742,7 +743,12 @@ export class MoStore {
     if (!deepEqual(this.legs, legs)) {
       this.legs = legs;
     }
-    this.entry = { ...this.entry, ...partial, legs: legs.length };
+    this.entry = {
+      ...entry,
+      ...partial,
+      size: partial.not1 ? partial.not1 / 1e6 : entry.size,
+      legs: legs.length,
+    };
     // Keep a list of modified fields
     fields.forEach((field: string): void => {
       this.addModifiedField(field);
