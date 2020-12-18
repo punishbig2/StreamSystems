@@ -915,7 +915,10 @@ export class MoStore {
       const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
-        this.entry = createDealEntry(deal);
+        const task: Task<DealEntry> = MoStore.resolveDatesIfNeeded(
+          createDealEntry(deal)
+        );
+        this.entry = await task.execute();
       }
     }
   }
@@ -968,6 +971,9 @@ export class MoStore {
         } else {
           console.warn("undefined error, WTF?");
         }
+      })
+      .finally((): void => {
+        this.setStatus(MoStatus.Normal);
       });
   }
 
