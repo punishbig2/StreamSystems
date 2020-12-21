@@ -1,4 +1,4 @@
-import { API } from "API";
+import { API, Task } from "API";
 import { isTenor } from "components/FormField/helpers";
 import { Commission, Deal } from "components/MiddleOffice/types/deal";
 import {
@@ -6,10 +6,11 @@ import {
   MOStrategy,
 } from "components/MiddleOffice/types/moStrategy";
 import { Globals } from "golbals";
-import moStore from "mobx/stores/moStore";
+import moStore, { MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
+import { FixTenorResult } from "types/fixTenorResult";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce, numberifyIfPossible } from "utils/commonUtils";
@@ -20,6 +21,7 @@ import {
   forceParseDate,
   naiveTenorToDate,
   parseTime,
+  safeForceParseDate,
 } from "utils/timeUtils";
 
 export const stateMap: { [key: number]: string } = {
@@ -226,7 +228,33 @@ const expandCommission = (commission?: {
   };
 };
 
-export const createDealEntry = (deal: Deal): DealEntry => {
+const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
+  const { tenor1, tenor2 } = entry;
+  // Query dates for regular tenors
+  const task1: Task<FixTenorResult> = MoStore.fixTenorDates(tenor1, entry);
+  const task2: Task<FixTenorResult> = MoStore.fixTenorDates(tenor2, entry);
+  return {
+    execute: async (): Promise<DealEntry> => {
+      const tenor1Dates: FixTenorResult = await task1.execute();
+      const tenor2Dates: FixTenorResult = await task2.execute();
+      const spotDate: Date | null = forceParseDate(tenor1Dates.spotDate);
+      return {
+        ...entry,
+        tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
+        tenor2: tenor2Dates.tenor,
+        ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
+        premiumDate: spotDate,
+        spotDate: spotDate,
+      };
+    },
+    cancel: (): void => {
+      task2.cancel();
+      task1.cancel();
+    },
+  };
+};
+
+export const createDealEntry = (deal: Deal): Task<DealEntry> => {
   const id: string = deal.id;
   const legsCount: number = moStore.getOutLegsCount(deal.strategy);
   const symbol: Symbol = moStore.findSymbolById(deal.currencyPair);
@@ -235,7 +263,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
   const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
-  return {
+  const entry: DealEntry = {
     symbol: symbol,
     strategy: strategy,
     premstyle: deal.premiumStyle,
@@ -281,6 +309,7 @@ export const createDealEntry = (deal: Deal): DealEntry => {
     ...expandCommission(deal.commissions),
     extra_fields: deal.extraFields,
   };
+  return resolveDatesIfNeeded(entry);
 };
 
 export const getTenor = (

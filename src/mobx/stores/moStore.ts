@@ -23,7 +23,7 @@ import { toast, ToastType } from "components/toast";
 import config from "config";
 import deepEqual from "deep-equal";
 import { EditableFilter } from "forms/fieldDef";
-import { action, computed, observable } from "mobx";
+import { action, computed, observable, observe } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import signalRManager from "signalR/signalRManager";
@@ -504,7 +504,7 @@ export class MoStore {
     );
   }
 
-  private static fixTenorDates(
+  public static fixTenorDates(
     originalTenor: Tenor | InvalidTenor | string | undefined | null,
     entry: DealEntry
   ): Task<FixTenorResult> {
@@ -571,32 +571,6 @@ export class MoStore {
     };
   }
 
-  private static resolveDatesIfNeeded(entry: DealEntry): Task<DealEntry> {
-    const { tenor1, tenor2 } = entry;
-    // Query dates for regular tenors
-    const task1: Task<FixTenorResult> = MoStore.fixTenorDates(tenor1, entry);
-    const task2: Task<FixTenorResult> = MoStore.fixTenorDates(tenor2, entry);
-    return {
-      execute: async (): Promise<DealEntry> => {
-        const tenor1Dates: FixTenorResult = await task1.execute();
-        const tenor2Dates: FixTenorResult = await task2.execute();
-        const spotDate: Date | null = forceParseDate(tenor1Dates.spotDate);
-        return {
-          ...entry,
-          tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
-          tenor2: tenor2Dates.tenor,
-          ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
-          premiumDate: spotDate,
-          spotDate: spotDate,
-        };
-      },
-      cancel: (): void => {
-        task2.cancel();
-        task1.cancel();
-      },
-    };
-  }
-
   @action.bound
   public setDeal(deal: Deal | null): Task<void> {
     const { entry } = this;
@@ -620,14 +594,11 @@ export class MoStore {
     } else {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
-      // Create a new deal entry
-      const entry: DealEntry = createDealEntry(deal);
       // If we do need to resolve the dates, let's do so
       const task1: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
         deal.id
       );
-      const task2: Task<any> = MoStore.resolveDatesIfNeeded(entry);
-      const listener = signalRManager.addPricingResponseListener(
+      const removeListener = signalRManager.addPricingResponseListener(
         (data: PricingMessage): void => {
           const { entry } = this;
           if (entry.dealID === data.dealId) {
@@ -642,6 +613,7 @@ export class MoStore {
           }
         }
       );
+      const task2: Task<DealEntry> = createDealEntry(deal);
       return {
         execute: async (): Promise<void> => {
           this.isLoadingLegs = true;
@@ -662,7 +634,7 @@ export class MoStore {
         cancel: (): void => {
           task2.cancel();
           task1.cancel();
-          listener();
+          removeListener();
         },
       };
     }
@@ -868,9 +840,6 @@ export class MoStore {
       (each: Deal): boolean => each.id === id
     );
     this.isEditMode = false;
-    if (deal !== undefined) {
-      this.entry = createDealEntry(deal);
-    }
     this.selectedDealID = id;
     this.successMessage = {
       title: "Saved Successfully",
@@ -881,11 +850,15 @@ export class MoStore {
     };
     this.entryType = EntryType.ExistingDeal;
     this.status = MoStatus.Normal;
-    /*MoStore.resolveDatesIfNeeded(this.entry).then(
-      (newEntry: DealEntry): void => {
-        this.setEntry(newEntry);
-      }
-    );*/
+    if (deal !== undefined) {
+      const task: Task<DealEntry> = createDealEntry(deal);
+      task
+        .execute()
+        .then((entry: DealEntry): void => {
+          this.setEntry(entry);
+        })
+        .catch(console.warn);
+    }
   }
 
   @action.bound
@@ -906,19 +879,20 @@ export class MoStore {
     );
     if (index === -1) {
       this.deals = [deal, ...deals];
-      if (this.selectedDealID === null) {
-        const task: Task<void> = this.setDeal(deal);
-        // Execute the add deal task
-        task.execute();
-      }
+      const task: Task<void> = this.setDeal(deal);
+      // Execute the add deal task
+      task.execute();
     } else {
       const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
-        const task: Task<DealEntry> = MoStore.resolveDatesIfNeeded(
-          createDealEntry(deal)
-        );
-        this.entry = await task.execute();
+        const task: Task<DealEntry> = createDealEntry(deal);
+        task
+          .execute()
+          .then((entry: DealEntry): void => {
+            this.setEntry(entry);
+          })
+          .catch(console.warn);
       }
     }
   }
