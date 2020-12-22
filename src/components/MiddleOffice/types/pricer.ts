@@ -45,7 +45,7 @@ export interface FX {
   readonly ForwardPoints?: Point[] | null;
   readonly strikeForwardMRoundingFactor?: number;
   readonly premiumMRoundingFactor?: number;
-  readonly InterpolationMethod: null;
+  readonly InterpolationMethod: "PIECEWISE_CONSTANT" | null;
 }
 
 export interface VolSurface {

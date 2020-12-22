@@ -23,7 +23,7 @@ import { toast, ToastType } from "components/toast";
 import config from "config";
 import deepEqual from "deep-equal";
 import { EditableFilter } from "forms/fieldDef";
-import { action, computed, observable, observe } from "mobx";
+import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import signalRManager from "signalR/signalRManager";
@@ -40,7 +40,7 @@ import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { legsReducer } from "utils/legsReducer";
 import { parseDates } from "utils/legsUtils";
-import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
+import { safeForceParseDate, toUTC } from "utils/timeUtils";
 
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +

@@ -852,7 +852,8 @@ export class API {
           ForwardRates: forwardRates,
           strikeForwardMRoundingFactor: symbol["strike-rounding"],
           premiumMRoundingFactor: symbol["premium-rounding"],
-          InterpolationMethod: null,
+          InterpolationMethod:
+            forwardRates !== undefined ? "PIECEWISE_CONSTANT" : null,
           ForwardPoints: null,
         },
         RATES: [],
