@@ -34,6 +34,7 @@ import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
+import { SEFUpdate } from "types/sefUpdate";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
@@ -780,9 +781,6 @@ export class MoStore {
           error: "Unexpected error",
           content: typeof error === "string" ? error : error.content(),
         });
-      })
-      .finally((): void => {
-        this.setStatus(MoStatus.Normal);
       });
   }
 
@@ -864,11 +862,6 @@ export class MoStore {
   @action.bound
   public setWorking(isWorking: boolean) {
     this.isWorking = isWorking;
-  }
-
-  public findDeal(id: string): Deal | undefined {
-    const { deals } = this;
-    return deals.find((deal: Deal): boolean => deal.id === id);
   }
 
   @action.bound
@@ -1056,6 +1049,65 @@ export class MoStore {
         ...lockedDeals.slice(index + 1),
       ];
     }
+  }
+
+  @action.bound
+  private async updateSEFInDealsBlotter(update: SEFUpdate): Promise<void> {
+    const { deals } = this;
+    const foundIndex: number = deals.findIndex(
+      (deal: Deal): boolean => deal.id === update.dealId
+    );
+    if (foundIndex === -1) {
+      console.warn("this message doesn't seem to belong to this app");
+      return;
+    }
+    this.deals = [
+      ...deals.slice(0, foundIndex),
+      {
+        ...deals[foundIndex],
+        status: update.status,
+        usi: update.usi,
+        sef_namespace: update.namespace,
+      },
+      ...deals.slice(foundIndex + 1),
+    ];
+  }
+
+  @action.bound
+  private async updateSEFInDealEntry(update: SEFUpdate): Promise<void> {
+    // We don't care if updated deal was not the selected deal
+    if (update.dealId !== this.selectedDealID) return;
+    const { deals } = this;
+    const foundIndex: number = deals.findIndex(
+      (deal: Deal): boolean => deal.id === update.dealId
+    );
+    if (foundIndex === -1) {
+      console.warn("this message doesn't seem to belong to this app");
+      return;
+    }
+    const task1: Task<DealEntry> = await createDealEntry(deals[foundIndex]);
+    const task2: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
+      update.dealId
+    );
+    const legsResponse: {
+      legs: ReadonlyArray<Leg>;
+    } | null = await task2.execute();
+    this.entry = await task1.execute();
+    if (legsResponse !== null) {
+      const [adjustedLegs, summaryLeg] = handleLegsResponse(
+        this.entry,
+        parseDates(legsResponse.legs),
+        this.cuts
+      );
+      this.setLegs(adjustedLegs, summaryLeg);
+    }
+  }
+
+  public async updateSEFStatus(update: SEFUpdate): Promise<void> {
+    await this.updateSEFInDealsBlotter(update);
+    await this.updateSEFInDealEntry(update);
+    // Reset status to normal to hide the progress window
+    this.setStatus(MoStatus.Normal);
   }
 }
 

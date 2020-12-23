@@ -25,6 +25,7 @@ import {
 } from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
 import { Role } from "types/role";
+import { SEFUpdate } from "types/sefUpdate";
 import { Sides } from "types/sides";
 import { OCOModes, User } from "types/user";
 import { isPodW, W } from "types/w";
@@ -631,24 +632,31 @@ export class SignalRManager {
     document.dispatchEvent(event);
   };
 
-  private static emitSEFUpdate(data: any): void {
-    const existingDeal: Deal | undefined = moStore.findDeal(data.dealid);
-    if (existingDeal === undefined) {
-      return;
-    }
-    const deal: Deal = {
-      ...existingDeal,
-      // Update the updated values
-      status: Number(data.deal_state),
-      usi: data.usi_no,
-      sef_namespace: data.sef_namespace,
+  public static addSEFUpdateListener(
+    listener: (message: SEFUpdate) => void
+  ): () => void {
+    const listenerWrapper = (event: Event): void => {
+      console.log(event);
+      const custom = event as CustomEvent<SEFUpdate>;
+      // Call the actual listener
+      listener(custom.detail);
     };
-    const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
-      detail: deal,
+    document.addEventListener("sef-update", listenerWrapper);
+    return (): void => {
+      document.removeEventListener("sef-update", listenerWrapper);
+    };
+  }
+
+  private static emitSEFUpdate(data: any): void {
+    const event = new CustomEvent<SEFUpdate>("sef-update", {
+      detail: {
+        dealId: data.dealid,
+        status: Number(data.deal_state),
+        usi: data.usi_no,
+        namespace: data.sef_namespace,
+      },
     });
     document.dispatchEvent(event);
-    // Reset the status to normal
-    moStore.setStatus(MoStatus.Normal);
   }
 
   private onSEFUpdate = (data: string): void => {

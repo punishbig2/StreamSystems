@@ -13,6 +13,7 @@ import React, { ReactElement } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
 import { DealEntry } from "structures/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
+import { SEFUpdate } from "types/sefUpdate";
 
 import { createTheme } from "./theme";
 
@@ -54,6 +55,9 @@ export const MiddleOffice: React.FC<Props> = observer(
                 store.unlockDeal(id);
               }
             }}
+            updateSEFStatus={(update: SEFUpdate): Promise<void> =>
+              store.updateSEFStatus(update)
+            }
             removeDeal={(id: string): Promise<void> => store.removeDeal(id)}
             addDeal={(deal: Deal): Promise<void> => store.addDeal(deal)}
             setDeal={(deal: Deal | null): void => setDeal(deal)}

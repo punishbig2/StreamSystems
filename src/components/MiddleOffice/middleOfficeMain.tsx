@@ -9,6 +9,7 @@ import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDel
 import { useDealEditListener } from "components/MiddleOffice/hooks/useDealEditListener";
 import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
 import { useNewDealListener } from "components/MiddleOffice/hooks/useNewDealListener";
+import { useSEFListener } from "components/MiddleOffice/hooks/useSEFListener";
 import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
 import { ProgressView } from "components/MiddleOffice/progressView";
 import { SuccessMessage } from "components/MiddleOffice/successMessage";
@@ -24,6 +25,7 @@ import React, { ReactElement, useState } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
 import { DealEntry, EntryType } from "structures/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
+import { SEFUpdate } from "types/sefUpdate";
 import { randomID } from "utils/randomID";
 
 interface Props {
@@ -59,6 +61,7 @@ interface Props {
   readonly saveCurrentEntry: () => void;
   readonly submit: () => void;
   readonly successMessage: MoGenericMessage | null;
+  readonly updateSEFStatus: (update: SEFUpdate) => Promise<void>;
   readonly updateSummaryLeg: (
     fieldName: keyof SummaryLeg,
     value: any
@@ -84,6 +87,9 @@ export const MiddleOfficeMain: React.FC<Props> = (
   });
   useDealEditListener((status: DealEditStatus, id: string): void => {
     props.editDeal(status, id);
+  });
+  useSEFListener((sefUpdate: SEFUpdate): void => {
+    props.updateSEFStatus(sefUpdate);
   });
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?
