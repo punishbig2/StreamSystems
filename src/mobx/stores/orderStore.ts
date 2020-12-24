@@ -34,7 +34,8 @@ export class OrderStore {
     const { depth } = this;
     const user: User = workareaStore.user;
     const found: Order | undefined = depth.find(
-      (o: Order) => o.user === user.email && o.type === this.type
+      (o: Order) =>
+        o.user === user.email && o.type === this.type && o.type !== this.type
     );
     if (found !== undefined) return found;
     return null;
