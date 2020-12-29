@@ -30,12 +30,23 @@ export class OrderStore {
 
   @observable.ref depth: Order[] = [];
 
-  get myOrder(): Order | null {
+  get otherOrder(): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
     const found: Order | undefined = depth.find(
       (o: Order) =>
         o.user === user.email && o.type === this.type && o.type !== this.type
+    );
+    if (found !== undefined) return found;
+    return null;
+  }
+
+  get myOrder(): Order | null {
+    const { depth } = this;
+    const user: User = workareaStore.user;
+    const found: Order | undefined = depth.find(
+      (o: Order) =>
+        o.user === user.email && o.type === this.type && o.type === this.type
     );
     if (found !== undefined) return found;
     return null;
@@ -80,8 +91,8 @@ export class OrderStore {
     return this.baseStatus | this.currentStatus;
   }
 
-  private getCancelOrderId(): { OrderID?: string } {
-    const mine: Order | null = this.myOrder;
+  private getCancelOrderId(cancelOther: boolean): { OrderID?: string } {
+    const mine: Order | null = cancelOther ? this.otherOrder : this.myOrder;
     if (mine === null) {
       return {};
     }
@@ -92,7 +103,8 @@ export class OrderStore {
   public async createWithType(
     inputPrice: number | null,
     inputSize: number | null,
-    type: OrderTypes
+    type: OrderTypes,
+    cancelOther = false
   ) {
     const price: number | null = this.getCreatorPrice(inputPrice);
     const size: number | null = this.getCreatorSize(inputSize);
@@ -114,7 +126,7 @@ export class OrderStore {
     const { roles } = user;
     // Create the request
     const request: CreateOrder = {
-      ...this.getCancelOrderId(),
+      ...this.getCancelOrderId(cancelOther),
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
       User: user.email,
