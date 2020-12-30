@@ -5,6 +5,7 @@ import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
+import { StyledValue } from "types/styledValue";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { getTenor } from "utils/dealUtils";
@@ -23,7 +24,7 @@ const sideToSide = (side: string): Sides => {
 };
 
 export const getStyledValue = (
-  values: [number | null, number | null, number | null] | number,
+  values: StyledValue | number,
   style: string | undefined
 ): number | null => {
   // This is just a workaround for some value
@@ -177,14 +178,9 @@ export const convertLegNumbers = (leg: Leg): Leg => {
   };
 };
 
-export const calculateNetHedge = (
-  legs: ReadonlyArray<Leg>
-): [number | null, number | null, number | null] => {
+export const calculateNetHedge = (legs: ReadonlyArray<Leg>): StyledValue => {
   return legs.reduce(
-    (
-      netHedge: [number | null, number | null, number | null],
-      leg: Leg
-    ): [number | null, number | null, number | null] => {
+    (netHedge: StyledValue, leg: Leg): StyledValue => {
       const { hedge } = leg;
       return hedge.map((value: number | null, index: number): number | null => {
         const net: number | null = netHedge[index];
@@ -195,7 +191,7 @@ export const calculateNetHedge = (
         } else {
           return null;
         }
-      }) as [number | null, number | null, number | null];
+      }) as StyledValue;
     },
     [null, null, null]
   );

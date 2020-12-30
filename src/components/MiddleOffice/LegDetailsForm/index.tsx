@@ -4,6 +4,7 @@ import { NoDataMessage } from "components/noDataMessage";
 import { LdsSpinner } from "components/ldsSpinner";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
+import { StyledValue } from "types/styledValue";
 import { StylesMap } from "utils/legsUtils";
 
 interface Props {
@@ -29,9 +30,7 @@ export const LegDetailsForm: React.FC<Props> = (
         if (dealEntry.premstyle === undefined) {
           props.onUpdateLeg(index, key, [null, null, null]);
         } else {
-          const array: [number | null, number | null, number | null] = [
-            ...legs[index][key],
-          ];
+          const array: StyledValue = [...legs[index][key]];
           array[StylesMap[dealEntry.premstyle]] = value;
           props.onUpdateLeg(index, key, array);
         }

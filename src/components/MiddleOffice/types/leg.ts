@@ -1,4 +1,5 @@
 import { Sides } from "types/sides";
+import { StyledValue } from "types/styledValue";
 
 export type Rates = [
   {
@@ -18,10 +19,10 @@ export interface Leg {
   vol?: number | null;
   fwdPts: string | number | null;
   fwdRate: number | null;
-  delta: [number | null, number | null, number | null];
-  price: [number | null, number | null, number | null];
-  premium: [number | null, number | null, number | null];
-  hedge: [number | null, number | null, number | null];
+  delta: StyledValue;
+  price: StyledValue;
+  premium: StyledValue;
+  hedge: StyledValue;
   premiumCurrency: string;
   notional?: number | null;
   spot?: number;

@@ -1,4 +1,5 @@
 import { Leg } from "components/MiddleOffice/types/leg";
+import { isStyledValue } from "types/styledValue";
 import { Symbol } from "types/symbol";
 import { isNumeric } from "utils/isNumeric";
 import { getStyledValue } from "utils/legsUtils";
@@ -45,17 +46,17 @@ export const getCurrencyValue = (
     gamma: symbol.riskCCY,
     vega: symbol.riskCCY,
   };
-  if (name === "premium" || name === "hedge") {
+  const value: any = leg[name];
+  if (isStyledValue(value)) {
     return {
-      value: getStyledValue(leg[name], style),
-      currency: currencies[name],
-    };
-  } else {
-    return {
-      value: leg[name],
+      value: getStyledValue(value, style),
       currency: currencies[name],
     };
   }
+  return {
+    value: leg[name],
+    currency: currencies[name],
+  };
 };
 
 export const getRatesValue = (leg: Leg, index: number): any => {
