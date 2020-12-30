@@ -55,7 +55,6 @@ export const getExtraPropsAndValue = (
   } else if (field.type === "currency") {
     return getCurrencyValue(leg, field.name, symbol, style);
   } else if (isStyledValue(value)) {
-    console.log(value);
     return {
       value: getStyledValue(value, style),
     };

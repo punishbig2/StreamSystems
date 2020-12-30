@@ -34,7 +34,6 @@ export const getStyledValue = (
   // the value that corresponds to the selected style
   if (typeof values === "number") return values;
   if (style === undefined) {
-    console.warn("cannot get the styled value because the style is undefined");
     return null;
   }
   const index: number | undefined = StylesMap[style];

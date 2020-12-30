@@ -2,6 +2,7 @@ import { API, BankEntitiesQueryResponse, HTTPError, Task } from "API";
 import { isTenor } from "components/FormField/helpers";
 import {
   addFwdRates,
+  createDefaultLegsFromDeal,
   handleLegsResponse,
 } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { Cut } from "components/MiddleOffice/types/cut";
@@ -617,18 +618,27 @@ export class MoStore {
       const task2: Task<DealEntry> = createDealEntry(deal);
       return {
         execute: async (): Promise<void> => {
+          // Reset the legs now
+          this.setLegs([], null);
+          // Attempt to load new
           this.isLoadingLegs = true;
           // Start loading now
           const response = await task1.execute();
           this.entry = await task2.execute();
           this.originalEntry = this.entry;
           if (response !== null) {
-            const [adjustedLegs, summaryLeg] = handleLegsResponse(
+            const [legs, summary] = handleLegsResponse(
               this.entry,
               parseDates(response.legs),
               this.cuts
             );
-            this.setLegs(adjustedLegs, summaryLeg);
+            this.setLegs(legs, summary);
+          } else {
+            const [legs, summary] = createDefaultLegsFromDeal(
+              this.cuts,
+              this.entry
+            );
+            this.setLegs(legs, summary);
           }
           this.isLoadingLegs = false;
         },
