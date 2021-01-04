@@ -12,7 +12,7 @@ type Props = {
   disabled: boolean;
   dealEntry: DealEntry;
   isEditMode: boolean;
-  onValueChange: (key: keyof Leg, value: any) => void;
+  onValueChange: (key: keyof Leg, value: any) => Promise<void>;
 };
 
 export const LegDetailsFields: React.FC<Props> = (

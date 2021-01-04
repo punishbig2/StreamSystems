@@ -62,9 +62,11 @@ export const MiddleOffice: React.FC<Props> = observer(
             addDeal={(deal: Deal): Promise<void> => store.addDeal(deal)}
             setDeal={(deal: Deal | null): void => setDeal(deal)}
             setError={(error: MOErrorMessage): void => store.setError(error)}
-            updateLeg={(index: number, key: keyof Leg, value: any): void =>
-              store.updateLeg(index, key, value)
-            }
+            updateLeg={(
+              index: number,
+              key: keyof Leg,
+              value: any
+            ): Promise<void> => store.updateLeg(index, key, value)}
             updateSummaryLeg={async (
               key: keyof SummaryLeg,
               value: any

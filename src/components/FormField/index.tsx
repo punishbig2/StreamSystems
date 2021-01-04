@@ -106,10 +106,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     this.setValueFromProps();
   };
 
-  public componentDidUpdate = (
-    prevProps: Readonly<Props<T>>,
-    prevState: Readonly<State>
-  ): void => {
+  public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
     const { props, state } = this;
     if (props.editable !== prevProps.editable && !props.editable) {
       const handler: InputHandler<T, Props<T>, State> = this.getHandler();
@@ -247,24 +244,33 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
           validity: validity,
         });
         if (props.onChange) {
-          props.onChange(props.name, displayValue).catch((error: any): void => {
-            console.warn(error);
-          });
+          props
+            .onChange(props.name, displayValue)
+            .then((): void => {
+              this.setState({ editor: Editor.User });
+            })
+            .catch(console.warn);
         }
       } else {
         this.setState({
           validity: validity,
         });
         if (props.onChange) {
-          props.onChange(props.name, state.internalValue);
+          props
+            .onChange(props.name, state.internalValue)
+            .then((): void => {
+              this.setState({ editor: Editor.User });
+            })
+            .catch(console.warn);
         }
       }
     } else if (props.onChange) {
       props
         .onChange(props.name, state.internalValue)
-        .catch((error: any): void => {
-          console.warn(error);
-        });
+        .then((): void => {
+          this.setState({ editor: Editor.User });
+        })
+        .catch(console.warn);
     }
   };
 
@@ -272,14 +278,16 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { props, state } = this;
     // Process the change focus event first please
     if (props.onChange) {
-      props
-        .onChange(props.name, state.internalValue)
-        .then((): void => {
-          this.setState({ editor: Editor.User });
-        })
-        .catch((error: any): void => {
-          console.warn(error);
-        });
+      const result = props.onChange(props.name, state.internalValue);
+      if (result !== undefined) {
+        result
+          .then((): void => {
+            this.setState({ editor: Editor.User });
+          })
+          .catch((error: any): void => {
+            console.warn(error);
+          });
+      }
     }
   }
 

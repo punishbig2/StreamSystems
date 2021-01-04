@@ -7,6 +7,7 @@ import { BrokerageCommission } from "types/brokerageCommission";
 
 interface Props extends FieldDef<BrokerageCommission, BrokerageCommission> {
   readonly value: BrokerageCommission;
+  readonly disabled: boolean;
   readonly onChange: (value: BrokerageCommission) => Promise<void>;
 }
 
@@ -34,6 +35,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   return (
     <FormField<BrokerageCommission>
       name={name}
+      disabled={props.disabled}
       label={props.label}
       value={computedValue}
       type={props.type}

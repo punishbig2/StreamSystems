@@ -41,7 +41,7 @@ import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { legsReducer } from "utils/legsReducer";
-import { parseDates } from "utils/legsUtils";
+import { calculateNetHedge, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
 
 const SOFT_SEF_ERROR: string =
@@ -396,8 +396,12 @@ export class MoStore {
     this.status = MoStatus.Normal;
   }
 
-  public updateLeg(index: number, key: keyof Leg, value: any): void {
-    const { legs } = this;
+  public async updateLeg(
+    index: number,
+    key: keyof Leg,
+    value: any
+  ): Promise<void> {
+    const { legs, summaryLeg } = this;
     this.legs = [
       ...legs.slice(0, index),
       {
@@ -406,6 +410,16 @@ export class MoStore {
       },
       ...legs.slice(index + 1),
     ];
+    if (key === "hedge" && summaryLeg !== null) {
+      // Update summary net hedge
+      this.summaryLeg = {
+        ...summaryLeg,
+        dealOutput: {
+          ...summaryLeg.dealOutput,
+          hedge: calculateNetHedge(this.legs),
+        },
+      };
+    }
     this.addModifiedField(key);
   }
 

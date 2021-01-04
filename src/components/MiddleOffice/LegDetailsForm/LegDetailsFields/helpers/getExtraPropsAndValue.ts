@@ -50,7 +50,11 @@ export const getExtraPropsAndValue = (
     entry.deltastyle
   );
   const value: any = leg[field.name];
-  if (field.type === "strike") {
+  if (field.name === "price") {
+    return {
+      value: getStyledValue(value, entry.premstyle),
+    };
+  } else if (field.type === "strike") {
     return getStrikeValue(leg, symbol, field.name);
   } else if (field.type === "currency") {
     return getCurrencyValue(leg, field.name, symbol, style);
@@ -63,10 +67,6 @@ export const getExtraPropsAndValue = (
   } else if (field.name === "side") {
     return {
       value: capitalize(value),
-    };
-  } else if (field.name === "price") {
-    return {
-      value: getStyledValue(value, entry.premstyle),
     };
   } else {
     return {

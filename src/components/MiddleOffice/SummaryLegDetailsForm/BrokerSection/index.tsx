@@ -45,6 +45,7 @@ export const BrokerSection: React.FC<Props> = (
                 key={fieldDef.name}
                 {...fieldDef}
                 value={value}
+                disabled={props.disabled}
                 onChange={props.onUpdateCommission}
               />
             );

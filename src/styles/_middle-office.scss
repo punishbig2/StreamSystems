@@ -145,6 +145,12 @@ $field-size: 25px;
                 font-size: $small-font-size;
                 text-decoration: underline;
               }
+
+              &:disabled {
+                legend {
+                  opacity: 0.15;
+                }
+              }
             }
           }
 

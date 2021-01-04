@@ -10,6 +10,7 @@ interface Props {
   readonly dealEntry: DealEntry;
   readonly summaryLeg: SummaryLeg | null;
   readonly field: FieldDef<SummaryLeg, SummaryLeg>;
+  readonly disabled: boolean;
   readonly isEditMode: boolean;
   readonly onUpdateSummaryLeg: (
     fieldName: keyof SummaryLeg,
@@ -51,6 +52,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   return (
     <FormField
       key={field.name}
+      disabled={props.disabled}
       name={field.name}
       label={field.label}
       value={getValue()}

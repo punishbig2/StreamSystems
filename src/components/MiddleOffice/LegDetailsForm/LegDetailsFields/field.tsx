@@ -14,7 +14,7 @@ interface Props {
   readonly dealEntry: DealEntry;
   readonly isEditMode: boolean;
   readonly disabled: boolean;
-  readonly onValueChange: (name: keyof Leg, value: any) => void;
+  readonly onValueChange: (name: keyof Leg, value: any) => Promise<void>;
 }
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
@@ -39,6 +39,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
 
   const getType = (): FieldType => {
     if (field.name === "price") {
+      console.log(field);
       const { symbol } = props.dealEntry;
       if (symbol.premiumCCYpercent) {
         return "percent";

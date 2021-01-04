@@ -36,7 +36,11 @@ interface Props {
   readonly addDeal: (deal: Deal) => Promise<void>;
   readonly setDeal: (deal: Deal | null) => void;
   readonly setError: (error: MOErrorMessage) => void;
-  readonly updateLeg: (index: number, key: keyof Leg, value: any) => void;
+  readonly updateLeg: (
+    index: number,
+    key: keyof Leg,
+    value: any
+  ) => Promise<void>;
   readonly status: MoStatus;
   readonly deals: ReadonlyArray<Deal>;
   readonly selectedDealID: string | null;
@@ -89,7 +93,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
     props.editDeal(status, id);
   });
   useSEFListener((sefUpdate: SEFUpdate): void => {
-    props.updateSEFStatus(sefUpdate);
+    props.updateSEFStatus(sefUpdate).finally(() => {});
   });
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?
@@ -119,8 +123,12 @@ export const MiddleOfficeMain: React.FC<Props> = (
     showDeleteQuestion(true);
   };
 
-  const onUpdateLeg = (index: number, key: keyof Leg, value: any): void => {
-    props.updateLeg(index, key, value);
+  const onUpdateLeg = (
+    index: number,
+    key: keyof Leg,
+    value: any
+  ): Promise<void> => {
+    return props.updateLeg(index, key, value);
   };
 
   const onDealSelected = (deal: Deal | null) => {

@@ -13,30 +13,36 @@ interface Props {
   readonly legs: ReadonlyArray<Leg>;
   readonly isLoading: boolean;
   readonly disabled: boolean;
-  readonly onUpdateLeg: (index: number, key: keyof Leg, items: any) => void;
+  readonly onUpdateLeg: (
+    index: number,
+    key: keyof Leg,
+    items: any
+  ) => Promise<void>;
 }
 
 export const LegDetailsForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
   const { dealEntry, legs } = props;
-  const onValueChange = (index: number) => (key: keyof Leg, value: any) => {
+  const onValueChange = (index: number) => async (
+    key: keyof Leg,
+    value: any
+  ): Promise<void> => {
     switch (key) {
       case "rates":
-        break;
+        return undefined;
       case "hedge":
       case "price":
       case "premium":
         if (dealEntry.premstyle === undefined) {
-          props.onUpdateLeg(index, key, [null, null, null]);
+          return props.onUpdateLeg(index, key, [null, null, null]);
         } else {
           const array: StyledValue = [...legs[index][key]];
           array[StylesMap[dealEntry.premstyle]] = value;
-          props.onUpdateLeg(index, key, array);
+          return props.onUpdateLeg(index, key, array);
         }
-        break;
       default:
-        props.onUpdateLeg(index, key, value);
+        return props.onUpdateLeg(index, key, value);
     }
   };
   if (props.isLoading) {

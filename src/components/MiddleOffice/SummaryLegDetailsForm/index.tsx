@@ -54,6 +54,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
                 (field: FieldDef<SummaryLeg, SummaryLeg>): ReactElement => (
                   <Field
                     key={field.name + field.type}
+                    disabled={props.disabled}
                     summaryLeg={props.summaryLeg}
                     dealEntry={props.dealEntry}
                     isEditMode={props.isEditMode}
