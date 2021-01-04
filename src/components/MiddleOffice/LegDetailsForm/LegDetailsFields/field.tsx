@@ -39,7 +39,6 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
 
   const getType = (): FieldType => {
     if (field.name === "price") {
-      console.log(field);
       const { symbol } = props.dealEntry;
       if (symbol.premiumCCYpercent) {
         return "percent";

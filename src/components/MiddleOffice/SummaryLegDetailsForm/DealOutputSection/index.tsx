@@ -18,14 +18,17 @@ export const DealOutputSection: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
   const { dealOutput, premiumStyle, dealEntry } = props;
-  const [priceType, setPriceType] = useState<FieldType>("number");
+  const { symbol } = dealEntry;
+  const [priceType, setPriceType] = useState<FieldType>(
+    symbol.premiumCCYpercent ? "percent" : "number"
+  );
   const [premiumPrecision, setPremiumPrecision] = useState<number>(0);
   const [premium, setPremium] = useState<number | null>(null);
-  const { symbol } = dealEntry;
-  const [[premiumCurrency, riskCurrency], setCurrencies] = useState<
-    [string, string]
-  >(["USD", "USD"]);
-  useEffect(() => {
+  const [currencies, setCurrencies] = useState<{ [key: string]: string }>({
+    premium: symbol.premiumCCY,
+    risk: symbol.riskCCY,
+  });
+  useEffect((): void => {
     if (dealOutput === null) return;
     // Update precision if it changes (it depends on this value)
     // FIXME: it seems we need to ignore this
@@ -34,16 +37,20 @@ export const DealOutputSection: React.FC<Props> = (
       roundPremium(getStyledValue(dealOutput.premium, premiumStyle), symbol)
     );
   }, [symbol, dealOutput, premiumStyle]);
-  useEffect(() => {
+  useEffect((): void => {
     if (symbol === undefined) return;
-    setCurrencies([symbol.premiumCCY, symbol.riskCCY]);
     if (symbol.premiumCCYpercent) {
       setPriceType("percent");
     } else {
       setPriceType("number");
     }
+    setCurrencies({
+      premium: symbol.premiumCCY,
+      risk: symbol.riskCCY,
+    });
   }, [symbol]);
   if (dealOutput === null) return null;
+  console.log(currencies, dealOutput.premium);
   return (
     <Grid alignItems={"stretch"} container>
       <fieldset className={"group"} disabled={props.disabled}>
@@ -54,7 +61,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={premium}
           name={"netPremium"}
           type={"currency"}
-          currency={premiumCurrency}
+          currency={currencies.premium}
           precision={premiumPrecision}
           disabled={props.disabled}
         />
@@ -82,7 +89,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={dealOutput.gamma}
           name={"gamma"}
           type={"currency"}
-          currency={riskCurrency}
+          currency={currencies.risk}
           disabled={props.disabled}
         />
         <FormField
@@ -91,7 +98,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={dealOutput.vega}
           name={"vega"}
           type={"currency"}
-          currency={riskCurrency}
+          currency={currencies.risk}
           disabled={props.disabled}
         />
         <FormField
@@ -100,7 +107,7 @@ export const DealOutputSection: React.FC<Props> = (
           value={getStyledValue(dealOutput.hedge, dealEntry.deltastyle)}
           name={"hedge"}
           type={"currency"}
-          currency={riskCurrency}
+          currency={currencies.risk}
           disabled={props.disabled}
         />
       </fieldset>
