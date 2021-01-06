@@ -123,14 +123,18 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     values.forEach(activateOrders);
   };
 
+  const selection = React.useMemo(
+    (): Order[] => getSelectedOrders(orders, defaultSize),
+    [orders, defaultSize]
+  );
+
   const isSubmitEnabled = () => {
-    const selection: Order[] = getSelectedOrders(orders, defaultSize);
-    // Check if selection is not empty
     return selection.length > 0;
   };
 
   const onSubmit = () => {
-    props.onSubmit(getSelectedOrders(orders, defaultSize));
+    console.log(selection);
+    props.onSubmit(selection);
   };
 
   const renderRow = (props: any, index?: number): ReactElement | null => {

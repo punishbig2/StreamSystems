@@ -50,7 +50,6 @@ export const DealOutputSection: React.FC<Props> = (
     });
   }, [symbol]);
   if (dealOutput === null) return null;
-  console.log(currencies, dealOutput.premium);
   return (
     <Grid alignItems={"stretch"} container>
       <fieldset className={"group"} disabled={props.disabled}>
