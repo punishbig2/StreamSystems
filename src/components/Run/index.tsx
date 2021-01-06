@@ -133,7 +133,6 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const onSubmit = () => {
-    console.log(selection);
     props.onSubmit(selection);
   };
 
