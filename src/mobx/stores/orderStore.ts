@@ -5,7 +5,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import { OrderTypes } from "types/mdEntry";
 import { CreateOrder, Order, OrderStatus } from "types/order";
 import { Role } from "types/role";
-import { User } from "types/user";
+import { OCOModes, User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
 import { getCurrentTime, getSideFromType } from "utils/commonUtils";
 import { sizeFormatter } from "utils/sizeFormatter";
@@ -125,6 +125,9 @@ export class OrderStore {
       (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
     const { roles } = user;
     // Create the request
+    const { preferences } = workareaStore;
+    const ocoMode: OCOModes = preferences.ocoMode;
+    const side = getSideFromType(type);
     const request: CreateOrder = {
       ...this.getCancelOrderId(cancelOther),
       MsgType: MessageTypes.D,
@@ -133,10 +136,18 @@ export class OrderStore {
       Symbol: this.symbol,
       Strategy: this.strategy,
       Tenor: this.tenor,
-      Side: getSideFromType(type),
+      Side: side,
       Quantity: size.toString(),
       Price: price.toString(),
       MDMkt: roles.includes(Role.Broker) ? personality : undefined,
+      ...(ocoMode !== OCOModes.Disabled
+        ? {
+            OCOSide: side,
+            OCOQuantity: size.toString(),
+            OCOPrice: price.toString(),
+            OCOType: ocoMode,
+          }
+        : {}),
     };
     const response = await API.executeCreateOrderRequest(request);
     if (response.Status === "Success") {

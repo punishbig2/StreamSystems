@@ -36,7 +36,7 @@ import { Sides } from "types/sides";
 import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { User } from "types/user";
+import { OCOModes, User } from "types/user";
 import { MessageTypes, W } from "types/w";
 import {
   coalesce,

@@ -5,7 +5,6 @@ import {
   HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
-import { API } from "API";
 import { Deal } from "components/MiddleOffice/types/deal";
 import config from "config";
 import {
@@ -26,8 +25,7 @@ import {
 import { PricingMessage } from "types/pricingMessage";
 import { Role } from "types/role";
 import { SEFUpdate } from "types/sefUpdate";
-import { Sides } from "types/sides";
-import { OCOModes, User } from "types/user";
+import { User } from "types/user";
 import { isPodW, W } from "types/w";
 import { coalesce } from "utils/commonUtils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
@@ -35,7 +33,6 @@ import { parseSEFError } from "utils/parseSEFError";
 import { $$ } from "utils/stringPaster";
 
 const INITIAL_RECONNECT_DELAY: number = 3000;
-const SidesMap: { [key: string]: Sides } = { "1": Sides.Buy, "2": Sides.Sell };
 
 interface SEFError {
   dealid: string;
@@ -539,35 +536,18 @@ export class SignalRManager {
   };
 
   private handleMessageActions = (message: Message) => {
-    const { preferences: userProfile } = userProfileStore;
-    const { user } = workareaStore;
-    const ocoMode: OCOModes = userProfile.oco;
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;
       case ExecTypes.PendingCancel:
         break;
       case ExecTypes.Filled:
-        if (ocoMode !== OCOModes.Disabled && message.Username === user.email) {
-          API.cancelAll(
-            message.Symbol,
-            message.Strategy,
-            SidesMap[message.Side]
-          );
-        }
         this.dispatchExecutedMessageEvent(message);
         if (SignalRManager.shouldShowPopup(message)) {
           workareaStore.addRecentExecution(message);
         }
         break;
       case ExecTypes.PartiallyFilled:
-        if (ocoMode === OCOModes.PartialEx && message.Username === user.email) {
-          API.cancelAll(
-            message.Symbol,
-            message.Strategy,
-            SidesMap[message.Side]
-          );
-        }
         this.dispatchExecutedMessageEvent(message);
         if (SignalRManager.shouldShowPopup(message)) {
           workareaStore.addRecentExecution(message);

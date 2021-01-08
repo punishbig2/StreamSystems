@@ -1,9 +1,9 @@
 import { Role } from "types/role";
 
 export enum OCOModes {
-  Disabled,
-  FullEx,
-  PartialEx,
+  Disabled = "Disabled",
+  FullEx = "FullEx",
+  PartialEx = "PartialEx",
 }
 
 export enum UserTypes {
