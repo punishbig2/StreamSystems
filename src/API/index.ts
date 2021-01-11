@@ -356,6 +356,17 @@ export class API {
     return result;
   }
 
+  public static getCancelCondition(): { CancelCondition?: number } {
+    const { preferences } = workareaStore;
+    if (preferences.oco === OCOModes.Disabled) {
+      return {};
+    } else {
+      return {
+        CancelCondition: preferences.oco === OCOModes.PartialEx ? 0 : 1,
+      };
+    }
+  }
+
   public static async createOrdersBulk(
     orders: Order[],
     symbol: string,
@@ -388,7 +399,9 @@ export class API {
           Price: price.toString(),
         };
       }),
-      MDMkt,
+      MDMkt: MDMkt,
+      /* Cancel condition -> OCO mode */
+      ...API.getCancelCondition(),
     };
     const task: Task<MessageResponse> = await post<MessageResponse>(
       API.buildUrl(API.Oms, "bulkorders", "create"),
