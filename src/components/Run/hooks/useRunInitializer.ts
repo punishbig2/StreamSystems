@@ -114,6 +114,5 @@ export const useRunInitializer = (
         dispatch(createAction<RunActions>(RunActions.SetTable, table));
       }
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tenors, symbol, strategy, visible, dispatch]);
+  }, [tenors, symbol, strategy, visible, dispatch, depth]);
 };

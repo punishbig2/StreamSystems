@@ -5,7 +5,8 @@ import { $$ } from "utils/stringPaster";
 
 export const getSelectedOrders = (
   orders: PodTable,
-  defaultSize: number
+  defaultBidSize: number,
+  defaultOfrSize: number
 ): Order[] => {
   const rows: PodRow[] = Object.values(orders).filter((row: PodRow) => {
     const { bid, ofr } = row;
@@ -31,11 +32,11 @@ export const getSelectedOrders = (
   const selection: Order[] = [
     ...rows.map(({ bid }: PodRow) => ({
       ...bid,
-      size: getSize(bid, defaultSize),
+      size: getSize(bid, defaultBidSize),
     })),
     ...rows.map(({ ofr }: PodRow) => ({
       ...ofr,
-      size: getSize(ofr, defaultSize),
+      size: getSize(ofr, defaultOfrSize),
     })),
   ];
   return selection.filter((order: Order) => {

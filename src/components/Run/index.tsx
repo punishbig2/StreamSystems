@@ -55,14 +55,17 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     defaultSize,
     minimumSize,
     visible,
-    orders: allOrders,
+    orders: initialOrders,
   } = props;
   const [state, dispatch] = useReducer<Reducer<RunState, RunActions>>(
     reducer,
     initialState
   );
+  const [selection, setSelection] = useState<Order[]>([]);
   const [widths, setWidths] = useState<BrokerageWidths>([]);
   const { orders } = state;
+
+  console.log(selection);
 
   const setSpread = (value: number): void => {
     dispatch(createAction<RunActions>(RunActions.SetSpread, value));
@@ -108,7 +111,7 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     );
   }, [symbol, strategy, tenors]);
 
-  useRunInitializer(tenors, symbol, strategy, allOrders, visible, dispatch);
+  useRunInitializer(tenors, symbol, strategy, initialOrders, visible, dispatch);
   useEffect(() => {
     dispatch(createAction<RunActions>(RunActions.SetDefaultSize, defaultSize));
   }, [defaultSize, visible]);
@@ -123,10 +126,12 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
     values.forEach(activateOrders);
   };
 
-  const selection = React.useMemo(
-    (): Order[] => getSelectedOrders(orders, defaultSize),
-    [orders, defaultSize]
-  );
+  const defaultBidSize = state.defaultBidSize;
+  const defaultOfrSize = state.defaultOfrSize;
+
+  useEffect((): void => {
+    setSelection(getSelectedOrders(orders, defaultBidSize, defaultOfrSize));
+  }, [orders, defaultBidSize, defaultOfrSize]);
 
   const isSubmitEnabled = () => {
     return selection.length > 0;
