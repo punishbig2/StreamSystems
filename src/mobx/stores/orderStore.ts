@@ -30,7 +30,7 @@ export class OrderStore {
 
   @observable.ref depth: Order[] = [];
 
-  get otherOrder(): Order | null {
+  get myOppositeSideOrder(): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
     const found: Order | undefined = depth.find(
@@ -41,7 +41,7 @@ export class OrderStore {
     return null;
   }
 
-  get myOrder(): Order | null {
+  get mySameSideOrder(): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
     const found: Order | undefined = depth.find(
@@ -70,18 +70,19 @@ export class OrderStore {
   }
 
   public getCreatorPrice(editedPrice: number | null): number | null {
-    const { myOrder } = this;
+    const { mySameSideOrder } = this;
     if (editedPrice !== null) return editedPrice;
-    if (myOrder === null) return null;
-    return myOrder.price;
+    if (mySameSideOrder === null) return null;
+    return mySameSideOrder.price;
   }
 
   public getCreatorSize(editedSize: number | null): number | null {
-    const { myOrder } = this;
+    const { mySameSideOrder } = this;
     if (this.defaultSize === undefined)
       throw new Error("impossible to determine order creation size");
     if (editedSize !== null) return editedSize;
-    if (myOrder !== null && myOrder.size !== null) return myOrder.size;
+    if (mySameSideOrder !== null && mySameSideOrder.size !== null)
+      return mySameSideOrder.size;
     // Finally use the default size
     return this.defaultSize;
   }
@@ -92,7 +93,9 @@ export class OrderStore {
   }
 
   private getCancelOrderId(cancelOther: boolean): { OrderID?: string } {
-    const mine: Order | null = cancelOther ? this.otherOrder : this.myOrder;
+    const mine: Order | null = cancelOther
+      ? this.myOppositeSideOrder
+      : this.mySameSideOrder;
     if (mine === null) {
       return {};
     }

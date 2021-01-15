@@ -9,7 +9,7 @@ export const orderTicketRenderer = (
   if (store.orderTicket === null) return null;
   const onSubmit = (order: Order) => {
     if (store.orderTicket) {
-      store.createWithType(order.price, order.size, order.type);
+      store.createWithType(order.price, order.size, order.type, true);
     }
     store.unsetOrderTicket();
   };
