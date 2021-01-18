@@ -14,9 +14,9 @@ import { $$ } from "utils/stringPaster";
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
 
-  public symbol: string = "";
-  public strategy: string = "";
-  public tenor: string = "";
+  public symbol = "";
+  public strategy = "";
+  public tenor = "";
 
   @observable orderID: string | undefined;
   @observable baseSize: number | null = null;
@@ -24,91 +24,76 @@ export class OrderStore {
   @observable currentStatus: OrderStatus = OrderStatus.None;
   @observable baseStatus: OrderStatus = OrderStatus.None;
 
-  @observable defaultSize: number = 0;
-  @observable minimumSize: number = 0;
+  @observable defaultSize = 0;
+  @observable minimumSize = 0;
   @observable orderTicket: Order | null = null;
 
   @observable.ref depth: Order[] = [];
 
-  get myOppositeSideOrder(): Order | null {
+  private getClashingOrder(type: OrderTypes): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
     const found: Order | undefined = depth.find(
-      (o: Order) =>
-        o.user === user.email && o.type === this.type && o.type !== this.type
-    );
-    if (found !== undefined) return found;
-    return null;
-  }
-
-  get mySameSideOrder(): Order | null {
-    const { depth } = this;
-    const user: User = workareaStore.user;
-    const found: Order | undefined = depth.find(
-      (o: Order) =>
-        o.user === user.email && o.type === this.type && o.type === this.type
+      (order: Order) => order.user === user.email && order.type === type
     );
     if (found !== undefined) return found;
     return null;
   }
 
   @computed
-  get size() {
+  get size(): number | null {
     if ((this.baseStatus & OrderStatus.InDepth) !== 0 || this.baseSize === null)
       return this.baseSize;
     return getAggregatedSize(this, this.depth);
   }
 
   @computed
-  get minimumPrice() {
+  get minimumPrice(): number {
     return 0;
   }
 
   @computed
-  get maximumPrice() {
+  get maximumPrice(): number {
     return 0;
   }
 
   public getCreatorPrice(editedPrice: number | null): number | null {
-    const { mySameSideOrder } = this;
+    const currentOrder = this.getClashingOrder(this.type);
     if (editedPrice !== null) return editedPrice;
-    if (mySameSideOrder === null) return null;
-    return mySameSideOrder.price;
+    if (currentOrder === null) return null;
+    return currentOrder.price;
   }
 
   public getCreatorSize(editedSize: number | null): number | null {
-    const { mySameSideOrder } = this;
+    const currentOrder = this.getClashingOrder(this.type);
     if (this.defaultSize === undefined)
       throw new Error("impossible to determine order creation size");
     if (editedSize !== null) return editedSize;
-    if (mySameSideOrder !== null && mySameSideOrder.size !== null)
-      return mySameSideOrder.size;
+    if (currentOrder !== null && currentOrder.size !== null)
+      return currentOrder.size;
     // Finally use the default size
     return this.defaultSize;
   }
 
   @computed
-  get status() {
+  get status(): OrderStatus {
     return this.baseStatus | this.currentStatus;
   }
 
-  private getCancelOrderId(cancelOther: boolean): { OrderID?: string } {
-    const mine: Order | null = cancelOther
-      ? this.myOppositeSideOrder
-      : this.mySameSideOrder;
-    if (mine === null) {
+  private getCancelOrderId(type: OrderTypes): { OrderID?: string } {
+    const clashingOrder: Order | null = this.getClashingOrder(type);
+    if (clashingOrder === null) {
       return {};
     }
-    return { OrderID: mine.orderId };
+    return { OrderID: clashingOrder.orderId };
   }
 
   @action.bound
   public async createWithType(
     inputPrice: number | null,
     inputSize: number | null,
-    type: OrderTypes,
-    cancelOther = false
-  ) {
+    type: OrderTypes
+  ): Promise<void> {
     const price: number | null = this.getCreatorPrice(inputPrice);
     const size: number | null = this.getCreatorSize(inputSize);
     if (price === null) /* in this case just ignore this */ return;
@@ -130,7 +115,7 @@ export class OrderStore {
     // Create the request
     const side = getSideFromType(type);
     const request: CreateOrder = {
-      ...this.getCancelOrderId(cancelOther),
+      ...this.getCancelOrderId(type),
       MsgType: MessageTypes.D,
       TransactTime: getCurrentTime(),
       User: user.email,
@@ -184,12 +169,15 @@ export class OrderStore {
   }
 
   @action.bound
-  public async create(inputPrice: number | null, inputSize: number | null) {
+  public async create(
+    inputPrice: number | null,
+    inputSize: number | null
+  ): Promise<void> {
     return this.createWithType(inputPrice, inputSize, this.type);
   }
 
   @action.bound
-  public async cancel() {
+  public async cancel(): Promise<void> {
     const { depth } = this;
     const user: User | null = workareaStore.user;
     const personality: string = workareaStore.personality;
@@ -215,7 +203,7 @@ export class OrderStore {
   }
 
   @action.bound
-  public setOrder(order: Order | undefined, status: OrderStatus) {
+  public setOrder(order: Order | undefined, status: OrderStatus): void {
     this.baseStatus = OrderStatus.None;
     if (order) {
       this.price = order.price;
@@ -230,43 +218,46 @@ export class OrderStore {
   }
 
   @action.bound
-  public setDefaultAndMinimumSizes(defaultSize: number, minimumSize: number) {
+  public setDefaultAndMinimumSizes(
+    defaultSize: number,
+    minimumSize: number
+  ): void {
     this.defaultSize = defaultSize;
     this.minimumSize = minimumSize;
   }
 
   @action.bound
-  public setOrderTicket(orderTicket: Order) {
+  public setOrderTicket(orderTicket: Order): void {
     this.orderTicket = orderTicket;
   }
 
   @action.bound
-  public unsetOrderTicket() {
+  public unsetOrderTicket(): void {
     this.orderTicket = null;
   }
 
   @action.bound
-  public setPrice(price: number | null) {
+  public setPrice(price: number | null): void {
     this.price = price;
   }
 
   @action.bound
-  public addStatusBit(status: OrderStatus) {
+  public setStatusBit(status: OrderStatus): void {
     this.currentStatus |= status;
   }
 
   @action.bound
-  public removeStatusBit(status: OrderStatus) {
+  public unsetStatusBit(status: OrderStatus): void {
     this.currentStatus &= ~status;
   }
 
   @action.bound
-  public setCurrentDepth(depth: Order[]) {
+  public setCurrentDepth(depth: Order[]): void {
     if (!depth) return;
     this.depth = depth.filter((order: Order) => order.size !== null);
   }
 
-  public shouldCancelReplace(size: number | null) {
+  public shouldCancelReplace(size: number | null): boolean {
     const changed: boolean =
       sizeFormatter(size) !== sizeFormatter(this.baseSize);
     if ((this.baseStatus & OrderStatus.Owned) !== 0) return changed;
