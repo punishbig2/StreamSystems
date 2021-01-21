@@ -1,7 +1,7 @@
+import { LdsSpinner } from "components/ldsSpinner";
 import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { NoDataMessage } from "components/noDataMessage";
-import { LdsSpinner } from "components/ldsSpinner";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { StyledValue } from "types/styledValue";
@@ -38,7 +38,9 @@ export const LegDetailsForm: React.FC<Props> = (
           return props.onUpdateLeg(index, key, [null, null, null]);
         } else {
           const array: StyledValue = [...legs[index][key]];
+          // Update the value we want to update
           array[StylesMap[dealEntry.premstyle]] = value;
+          // Call the on-change method
           return props.onUpdateLeg(index, key, array);
         }
       default:

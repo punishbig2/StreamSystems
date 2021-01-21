@@ -126,6 +126,25 @@ const getPrice = (first: any, second: any): number | null => {
   }
 };
 
+const JSONSafelyParse = (
+  data: unknown
+): { [key: string]: string | number | null } | undefined => {
+  if (typeof data === "string") {
+    try {
+      return JSON.parse(data);
+    } catch {
+      return undefined;
+    }
+  } else if (typeof data === "undefined") {
+    return undefined;
+  } else if (data === null) {
+    return undefined;
+  } else {
+    console.warn("passing a non string to json parse: ", data);
+    return undefined;
+  }
+};
+
 export const createDealFromBackendMessage = async (
   source: any
 ): Promise<Deal> => {
@@ -182,9 +201,7 @@ export const createDealFromBackendMessage = async (
     premiumStyle: object.premstyle === "" ? "Forward" : object.premstyle,
     commissions: await getCommissionRates(object),
     usi: object.usi_num,
-    extraFields: {
-      ...JSON.parse(object.extra_fields),
-    },
+    extraFields: JSONSafelyParse(object.extra_fields),
   };
 };
 

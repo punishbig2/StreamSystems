@@ -41,7 +41,7 @@ import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { legsReducer } from "utils/legsReducer";
-import { calculateNetHedge, parseDates } from "utils/legsUtils";
+import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
 
 const SOFT_SEF_ERROR: string =
@@ -410,14 +410,17 @@ export class MoStore {
       },
       ...legs.slice(index + 1),
     ];
-    if (key === "hedge" && summaryLeg !== null) {
+    if (["hedge", "price", "premium"].includes(key) && summaryLeg !== null) {
+      const dealOutput = {
+        ...summaryLeg.dealOutput,
+        hedge: calculateNetValue(this.legs, "hedge"),
+        premium: calculateNetValue(this.legs, "premium"),
+        price: calculateNetValue(this.legs, "price"),
+      };
       // Update summary net hedge
       this.summaryLeg = {
         ...summaryLeg,
-        dealOutput: {
-          ...summaryLeg.dealOutput,
-          hedge: calculateNetHedge(this.legs),
-        },
+        dealOutput: dealOutput,
       };
     }
     this.addModifiedField(key);
@@ -542,9 +545,7 @@ export class MoStore {
         cancel: (): void => {},
       };
     }
-    const task: Task<CalendarVolDatesResponse> = ((): Task<
-      CalendarVolDatesResponse
-    > => {
+    const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
       if (originalTenor.name === "SPECIFIC") {
         return API.queryVolDates(
           {
@@ -1017,7 +1018,7 @@ export class MoStore {
   public static createEditableFilter(
     allowedTypes: number,
     status = 0,
-    isAllowedToEdit = (entry: DealEntry): boolean => true
+    isAllowedToEdit: (entry: DealEntry) => boolean = (): boolean => true
   ): EditableFilter {
     return (
       name: string,
