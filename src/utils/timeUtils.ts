@@ -62,7 +62,8 @@ export const toUTCFIXFormat = (date: Date): string => {
   return utc.format(FIX_DATE_FORMAT);
 };
 
-export const forceParseDate = (value: string): Date | null => {
+export const forceParseDate = (value: string | undefined): Date | null => {
+  if (value === undefined) return null;
   // Check if the string matches FIX date format
   if (value.match(/^\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}$/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);

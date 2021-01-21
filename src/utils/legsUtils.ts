@@ -5,7 +5,7 @@ import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
-import { StyledValue } from "types/styledValue";
+import { isStyledValue, StyledValue } from "types/styledValue";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { getTenor } from "utils/dealUtils";
@@ -67,7 +67,7 @@ export const parseDates = (legs: ReadonlyArray<any>): ReadonlyArray<Leg> => {
     };
     return legs.map(mapper);
   } catch (error) {
-    console.log(error);
+    console.warn(error);
     return legs;
   }
 };
@@ -177,12 +177,18 @@ export const convertLegNumbers = (leg: Leg): Leg => {
   };
 };
 
-export const calculateNetHedge = (legs: ReadonlyArray<Leg>): StyledValue => {
+export const calculateNetValue = (
+  legs: ReadonlyArray<Leg>,
+  key: keyof Leg
+): StyledValue => {
   return legs.reduce(
-    (netHedge: StyledValue, leg: Leg): StyledValue => {
-      const { hedge } = leg;
-      return hedge.map((value: number | null, index: number): number | null => {
-        const net: number | null = netHedge[index];
+    (total: StyledValue, leg: Leg): StyledValue => {
+      const value: unknown = leg[key];
+      if (!isStyledValue(value)) {
+        throw new Error(`leg.${key} is not a styled value`);
+      }
+      return value.map((value: number | null, index: number): number | null => {
+        const net: number | null = total[index];
         if (net === null) {
           return value;
         } else if (value !== null) {

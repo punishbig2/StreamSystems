@@ -65,8 +65,6 @@ const Run: React.FC<OwnProps> = (props: OwnProps) => {
   const [widths, setWidths] = useState<BrokerageWidths>([]);
   const { orders } = state;
 
-  console.log(selection);
-
   const setSpread = (value: number): void => {
     dispatch(createAction<RunActions>(RunActions.SetSpread, value));
   };

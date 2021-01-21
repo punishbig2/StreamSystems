@@ -1,8 +1,8 @@
 import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
+import { MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType } from "structures/dealEntry";
 import { DealStatus, toBitwise } from "types/dealStatus";
-import { MoStore } from "mobx/stores/moStore";
 
 const fields: FieldDef<Leg, DealEntry>[] = [
   {
@@ -91,7 +91,9 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     color: "grey",
     name: "premiumDate",
     label: "Premium Date",
-    editable: false /* This is computed from other dates */,
+    editable: MoStore.createEditableFilter(
+      DealType.Voice | DealType.Manual | DealType.Electronic
+    ),
   },
   {
     type: "currency",

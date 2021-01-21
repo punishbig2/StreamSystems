@@ -15,7 +15,7 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import {
-  calculateNetHedge,
+  calculateNetValue,
   convertLegNumbers,
   createLegsFromDefinitionAndDeal,
 } from "utils/legsUtils";
@@ -220,7 +220,14 @@ export const handleLegsResponse = (
       null
     ),
     usi: entry.usi,
-    ...{ dealOutput: { ...legs[0], hedge: calculateNetHedge(finalLegs) } },
+    ...{
+      dealOutput: {
+        ...legs[0],
+        hedge: calculateNetValue(finalLegs, "hedge"),
+        premium: calculateNetValue(finalLegs, "premium"),
+        price: calculateNetValue(finalLegs, "price"),
+      },
+    },
   } as SummaryLeg;
   return [addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg];
 };
@@ -269,54 +276,3 @@ export const createDefaultLegsFromDeal = (
   );
   return [addFwdRates(legs, summaryLeg), summaryLeg];
 };
-
-/*const populateExistingDealLegsAndInstallListener = (
-  cuts: ReadonlyArray<Cut>,
-  entry: DealEntry
-): (() => void) => {
-  // Query the legs, they could not exist too
-  const task: Task<any> = API.getLegs(entry.dealID);
-  task
-    .execute()
-    .then((response: any) => {
-      if (response !== null) {
-        if ("dealId" in response) {
-          const legs: ReadonlyArray<Leg> = parseDates(response.legs);
-          // Handle legs and populate from response
-          handleLegsResponse(entry, legs, cuts);
-        } else {
-          // If there's an error, we must show it
-          if ("error_msg" in response) {
-            moStore.setError({
-              status: "Server error",
-              error: "Unexpected Error",
-              content: response.error_msg,
-              code: 500,
-            });
-          } else {
-            createDefaultLegsFromDeal(cuts, entry);
-          }
-        }
-      } else {
-        createDefaultLegsFromDeal(cuts, entry);
-      }
-    })
-    .catch((reason: any) => {
-      if (reason !== "aborted") {
-        createDefaultLegsFromDeal(cuts, entry);
-      }
-    });
-  const removePricingListener: () => void = signalRManager.addPricingResponseListener(
-    (data: PricingMessage) => {
-      if (entry.dealID === data.dealId) {
-        // It is the deal of interest so update
-        // visible legs now
-        handleLegsResponse(entry, parseDates(data.legs), cuts);
-      }
-    }
-  );
-  return () => {
-    removePricingListener();
-    task.cancel();
-  };
-};*/

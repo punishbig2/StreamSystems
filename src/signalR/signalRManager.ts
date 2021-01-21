@@ -616,7 +616,6 @@ export class SignalRManager {
     listener: (message: SEFUpdate) => void
   ): () => void {
     const listenerWrapper = (event: Event): void => {
-      console.log(event);
       const custom = event as CustomEvent<SEFUpdate>;
       // Call the actual listener
       listener(custom.detail);
@@ -676,7 +675,7 @@ export class SignalRManager {
       }
       console.warn(error);
     } else {
-      console.log(error);
+      console.warn(error);
     }
   };
 
