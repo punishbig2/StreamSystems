@@ -1,9 +1,9 @@
-import { ColumnSpec } from "components/Table/columnSpecification";
-import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
-import { $$ } from "utils/stringPaster";
-import { getCellWidth } from "components/Table/helpers";
-import { DarkPool } from "types/w";
 import { BlotterTypes } from "columns/messageBlotter";
+import { ColumnSpec } from "components/Table/columnSpecification";
+import { getCellWidth } from "components/Table/helpers";
+import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
+import { DarkPool } from "types/w";
+import { $$ } from "utils/stringPaster";
 
 export enum BlotterRowTypes {
   Normal,
@@ -47,7 +47,9 @@ const getClassFromRowType = (
       classes.push("busted");
       break;
   }
-  return classes.join(" ");
+  return classes
+    .filter((item: string): boolean => item.trim() !== "")
+    .join(" ");
 };
 
 const Row: React.FC<Props> = (props: Props): ReactElement | null => {
@@ -55,24 +57,23 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const [executed, setExecuted] = useState<boolean>(false);
   const ExecID: string | null = row !== null ? row.ExecID : null;
   useEffect(() => {
-    if (ExecID === null) return;
-    if (blotterType === BlotterTypes.Executions) {
-      let timer: number | null = null;
-      const onExecuted = () => {
-        setExecuted(true);
-        timer = setTimeout(() => {
-          setExecuted(false);
-        }, 10000);
-      };
-      const type: string = $$(ExecID, "executed");
-      document.addEventListener(type, onExecuted, true);
-      return () => {
-        document.removeEventListener(type, onExecuted, true);
-        if (timer !== null) {
-          clearTimeout(timer);
-        }
-      };
-    }
+    if (ExecID === null || blotterType !== BlotterTypes.Executions) return;
+    let timer: number | null = null;
+    const onExecuted = () => {
+      setExecuted(true);
+      timer = setTimeout(() => {
+        setExecuted(false);
+      }, 10000);
+    };
+    const type: string = $$(ExecID, "executed");
+    document.addEventListener(type, onExecuted, true);
+    return () => {
+      document.removeEventListener(type, onExecuted, true);
+      if (timer !== null) {
+        clearTimeout(timer);
+      }
+      setExecuted(false);
+    };
   }, [ExecID, blotterType]);
   const columnMapper = (rowID: string) => (
     column: ColumnSpec
