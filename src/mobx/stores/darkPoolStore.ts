@@ -1,4 +1,4 @@
-import { API, Task } from "API";
+import { API } from "API";
 import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import signalRManager from "signalR/signalRManager";
@@ -17,6 +17,10 @@ export class DarkPoolStore {
   @observable currentOrder: Order | null = null;
 
   private removeOrderListener: () => void = () => null;
+
+  constructor(initial: number | null) {
+    this.publishedPrice = initial;
+  }
 
   @computed
   get depth(): Order[] {
@@ -138,18 +142,7 @@ export class DarkPoolStore {
       tenor,
       this.onOrderReceived
     );
-    const task: Task<number | null> = API.getDarkPoolLastQuote(
-      currency,
-      strategy,
-      tenor
-    );
     document.addEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
-    task
-      .execute()
-      .then((value: number | null): void => {
-        this.setCurrentPublishedPrice(value);
-      })
-      .catch(console.warn);
     return () => {
       document.removeEventListener(
         "cleardarkpoolprice",
@@ -157,7 +150,6 @@ export class DarkPoolStore {
       );
       this.removeOrderListener();
       signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
-      task.cancel();
     };
   }
 

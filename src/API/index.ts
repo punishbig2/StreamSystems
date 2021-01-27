@@ -21,6 +21,7 @@ import {
   CalendarVolDatesQuery,
   CalendarVolDatesResponse,
 } from "types/calendarFXPair";
+import { DarkPoolQuote } from "types/darkPoolQuote";
 import { UndefinedLegAdjustValue } from "types/legAdjustValue";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
@@ -1141,27 +1142,15 @@ export class API {
     return task.execute();
   }
 
-  public static getDarkPoolLastQuote(
+  public static getDarkPoolLastQuotes(
     symbol: string,
-    strategy: string,
-    tenor: string
-  ): Task<number | null> {
-    const task: Task<any> = get<number | null>(
+    strategy: string
+  ): Task<ReadonlyArray<DarkPoolQuote>> {
+    return get<ReadonlyArray<DarkPoolQuote>>(
       API.buildUrl(API.DarkPool, "lastquote", "get", {
         symbol,
         strategy,
-        tenor,
       })
     );
-    return {
-      execute: async (): Promise<number | null> => {
-        const value: any = await task.execute();
-        if (value.DarkPrice === undefined) {
-          return null;
-        }
-        return value.DarkPrice;
-      },
-      cancel: (): void => {},
-    };
   }
 }

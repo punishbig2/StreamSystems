@@ -1,9 +1,10 @@
 import { API, Task } from "API";
-import { action, observable } from "mobx";
+import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import signalRManager from "signalR/signalRManager";
+import { DarkPoolQuote } from "types/darkPoolQuote";
 import { MDEntry } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
@@ -11,9 +12,7 @@ import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 import { W } from "types/w";
-import { toPodRow } from "utils/dataParser";
 import persistStorage from "utils/persistStorage";
-import { tenorToNumber } from "utils/tenorUtils";
 
 export class PodTileStore {
   public id: string = "";
@@ -27,7 +26,6 @@ export class PodTileStore {
   @observable currentTenor: string | null = null;
 
   @observable.ref darkpool: { [tenor: string]: W } = {};
-  @observable.ref rows: { [tenor: string]: PodRow } = {};
   @observable.ref orders: { [tenor: string]: Order[] } = {};
 
   @observable isRunWindowVisible: boolean = false;
@@ -35,6 +33,9 @@ export class PodTileStore {
   @observable isProgressWindowVisible: boolean = false;
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
+  @observable.ref darkPrices: { [tenor: string]: number | null } = {};
+  @observable.ref rawRows: { [tenor: string]: PodRow } = {};
+
   public progressMax: number = 100;
   private creatingBulk: boolean = false;
 
@@ -57,6 +58,20 @@ export class PodTileStore {
     this.orders = tenors.reduce(reducer, {});
   }
 
+  @computed
+  public get rows(): { [tenor: string]: PodRow } {
+    const { rawRows, darkPrices } = this;
+    console.log(rawRows, darkPrices);
+    const keys: ReadonlyArray<string> = Object.keys(rawRows);
+    return keys.reduce((rows: PodTable, tenor: string): PodTable => {
+      const row: PodRow = rows[tenor];
+      return {
+        ...rows,
+        [tenor]: { ...row, darkPrice: darkPrices[tenor] },
+      };
+    }, rawRows);
+  }
+
   @action.bound
   public persist(currency: string, strategy: string) {
     this.currency = currency;
@@ -65,10 +80,10 @@ export class PodTileStore {
 
   @action.bound
   public setRows(rows: PodTable) {
-    this.rows = rows;
+    this.rawRows = rows;
   }
 
-  @action.bound
+  /*@action.bound
   private initializeFromSnapshot(
     snapshot: { [k: string]: W },
     darkpool: { [k: string]: W },
@@ -93,6 +108,10 @@ export class PodTileStore {
       }, {});
       this.loading = false;
     }
+  }*/
+  @action.bound
+  private setDarkPrices(prices: { [tenor: string]: number | null }): void {
+    this.darkPrices = prices;
   }
 
   @action.bound
@@ -207,6 +226,7 @@ export class PodTileStore {
     const snapshot: {
       [tenor: string]: W;
     } | null = await API.getDarkPoolSnapshot(currency, strategy);
+
     if (snapshot !== null) {
       this.initializeDarkPoolFromSnapshot(snapshot);
     }
@@ -293,10 +313,31 @@ export class PodTileStore {
           tenors,
           snapshot
         );
+        const darkPoolQuotesTask: Task<
+          ReadonlyArray<DarkPoolQuote>
+        > = API.getDarkPoolLastQuotes(currency, strategy);
+        tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
         // Initialize from depth snapshot
         this.initializeDepthFromSnapshot(await combinedTask.execute());
         this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
+        // Other task
+        const quotes: ReadonlyArray<DarkPoolQuote> = await darkPoolQuotesTask.execute();
+        this.setDarkPrices(
+          quotes.reduce(
+            (
+              prices: { [tenor: string]: number | null },
+              quote: DarkPoolQuote
+            ): { [tenor: string]: number | null } => {
+              return {
+                ...prices,
+                [quote.Tenor]:
+                  quote.DarkPrice === undefined ? null : quote.DarkPrice,
+              };
+            },
+            {}
+          )
+        );
       },
       cancel: (): void => {
         for (const task of tasks) {

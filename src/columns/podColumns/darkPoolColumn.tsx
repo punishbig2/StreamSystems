@@ -20,10 +20,16 @@ import { skipTabIndexAll } from "utils/skipTab";
 type Props = PodRowProps;
 
 const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
-  const [store] = useState<DarkPoolStore>(new DarkPoolStore());
+  const { darkPrice } = props;
+  const [store] = useState<DarkPoolStore>(new DarkPoolStore(darkPrice));
   const { currency, strategy, tenor, darkpool } = props;
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
+
+  useEffect((): void => {
+    if (darkPrice === undefined) return;
+    store.setCurrentPublishedPrice(darkPrice);
+  }, [darkPrice, store]);
 
   useEffect(() => {
     if (!darkpool) return;
@@ -31,7 +37,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   }, [store, darkpool, user]);
 
   const onTicketSubmitted = (order: DarkPoolOrder) => {
-    store.createOrder(order);
+    store.createOrder(order).catch(console.warn);
   };
 
   const renderTicket = (): ReactElement | null => {
@@ -66,6 +72,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   useEffect(() => {
+    if (currency === "" || strategy === "") return;
     return store.connect(currency, strategy, tenor);
   }, [currency, store, strategy, tenor]);
 
@@ -76,7 +83,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   ) => {
     skipTabIndexAll(input, 5, 2);
     if (!changed) return;
-    store.publishPrice(currency, strategy, tenor, price);
+    store.publishPrice(currency, strategy, tenor, price).catch(console.warn);
   };
 
   const isBroker: boolean = useMemo((): boolean => {
