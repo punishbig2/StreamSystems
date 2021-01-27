@@ -115,11 +115,8 @@ export class DarkPoolStore {
     );
     if (message.DarkPrice !== "") {
       this.publishedPrice = Number(message.DarkPrice);
-      // Save to the database
-      localStorage.setItem(key, message.DarkPrice);
     } else {
       this.publishedPrice = null;
-      localStorage.removeItem(key);
     }
   }
 
@@ -144,16 +141,8 @@ export class DarkPoolStore {
       tenor,
       this.onOrderReceived
     );
-    // Read saved value
-    const currentValue: string | null = localStorage.getItem(
-      $$(currency, strategy, tenor, "DPPx")
-    );
+    this.publishedPrice = null;
     document.addEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
-    if (currentValue !== null) {
-      this.publishedPrice = Number(currentValue);
-    } else {
-      this.publishedPrice = null;
-    }
   }
 
   public disconnect(currency: string, strategy: string, tenor: string) {
