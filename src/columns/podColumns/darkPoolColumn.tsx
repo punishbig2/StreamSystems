@@ -66,10 +66,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   useEffect(() => {
-    store.connect(currency, strategy, tenor);
-    return () => {
-      store.disconnect(currency, strategy, tenor);
-    };
+    return store.connect(currency, strategy, tenor);
   }, [currency, store, strategy, tenor]);
 
   const onSubmit = (

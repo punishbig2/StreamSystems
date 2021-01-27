@@ -252,7 +252,8 @@ type Endpoints =
   | "width"
   | "commission"
   | "deltastyle"
-  | "premstyle";
+  | "premstyle"
+  | "lastquote";
 
 type Verb =
   | "get"
@@ -729,9 +730,9 @@ export class API {
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> = get<
-      BankEntitiesQueryResponse
-    >(config.PrePricerUrl + "/entities");
+    const task: Task<BankEntitiesQueryResponse> = get<BankEntitiesQueryResponse>(
+      config.PrePricerUrl + "/entities"
+    );
     return task.execute();
   }
 
@@ -1138,5 +1139,29 @@ export class API {
     const url: string = config.GetRoleEndpoint + "?userid=" + userId;
     const task: Task<OktaUser> = get<OktaUser>(url);
     return task.execute();
+  }
+
+  public static getDarkPoolLastQuote(
+    symbol: string,
+    strategy: string,
+    tenor: string
+  ): Task<number | null> {
+    const task: Task<any> = get<number | null>(
+      API.buildUrl(API.DarkPool, "lastquote", "get", {
+        symbol,
+        strategy,
+        tenor,
+      })
+    );
+    return {
+      execute: async (): Promise<number | null> => {
+        const value: any = await task.execute();
+        if (value.DarkPrice === undefined) {
+          return null;
+        }
+        return value.DarkPrice;
+      },
+      cancel: (): void => {},
+    };
   }
 }

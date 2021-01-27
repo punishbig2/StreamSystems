@@ -1,4 +1,4 @@
-import { API } from "API";
+import { API, Task } from "API";
 import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import signalRManager from "signalR/signalRManager";
@@ -9,7 +9,6 @@ import { Role } from "types/role";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { W } from "types/w";
-import { $$ } from "utils/stringPaster";
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];
@@ -107,12 +106,6 @@ export class DarkPoolStore {
 
   @action.bound
   public onDarkPoolPricePublished(message: DarkPoolMessage) {
-    const key: string = $$(
-      message.Symbol,
-      message.Strategy,
-      message.Tenor,
-      "DPPx"
-    );
     if (message.DarkPrice !== "") {
       this.publishedPrice = Number(message.DarkPrice);
     } else {
@@ -126,7 +119,11 @@ export class DarkPoolStore {
   }
 
   @action.bound
-  public connect(currency: string, strategy: string, tenor: string) {
+  public connect(
+    currency: string,
+    strategy: string,
+    tenor: string
+  ): () => void {
     this.currentOrder = null;
     this.orders = [];
     signalRManager.setDarkPoolPriceListener(
@@ -141,14 +138,32 @@ export class DarkPoolStore {
       tenor,
       this.onOrderReceived
     );
-    this.publishedPrice = null;
+    const task: Task<number | null> = API.getDarkPoolLastQuote(
+      currency,
+      strategy,
+      tenor
+    );
     document.addEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
+    task
+      .execute()
+      .then((value: number | null): void => {
+        this.setCurrentPublishedPrice(value);
+      })
+      .catch(console.warn);
+    return () => {
+      document.removeEventListener(
+        "cleardarkpoolprice",
+        this.clearDarkPoolPrice
+      );
+      this.removeOrderListener();
+      signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
+      task.cancel();
+    };
   }
 
-  public disconnect(currency: string, strategy: string, tenor: string) {
-    document.removeEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
-    this.removeOrderListener();
-    signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
+  @action.bound
+  public setCurrentPublishedPrice(value: number | null): void {
+    this.publishedPrice = value;
   }
 
   public async publishPrice(
