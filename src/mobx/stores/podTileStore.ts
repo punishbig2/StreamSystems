@@ -1,4 +1,5 @@
 import { API, Task } from "API";
+import { orderSorter } from "components/PodTile/helpers";
 import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 
@@ -129,7 +130,13 @@ export class PodTileStore {
             return true;
           }
         });
-      this.orders = { ...this.orders, [tenor]: orders };
+      if (orders.length > 0) {
+        const first: Order = orders[0];
+        this.orders = {
+          ...this.orders,
+          [tenor]: orders.sort(orderSorter(first.type)),
+        };
+      }
     } else {
       this.orders = { ...this.orders, [tenor]: [] };
     }
