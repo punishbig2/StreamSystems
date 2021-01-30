@@ -1,10 +1,13 @@
-import { observable, action, computed } from "mobx";
-import { persist, create } from "mobx-persist";
+import { action, computed, observable } from "mobx";
+import { create, persist } from "mobx-persist";
 import { WindowTypes } from "mobx/stores/workareaStore";
 import persistStorage from "utils/persistStorage";
+import { PodTileStore } from "./podTileStore";
+import messages from "./messagesStore";
 
 export class WindowStore {
   public id: string = "";
+  contentStore: any;
 
   @persist @observable type: WindowTypes = WindowTypes.Empty;
   // Persist this for fewer calls to the storage
@@ -33,6 +36,7 @@ export class WindowStore {
       });
       hydrate(id, this);
     }
+    this.contentStore = this.getContentStore(id, type);
   }
 
   @computed
@@ -75,4 +79,14 @@ export class WindowStore {
 
   @action.bound
   public setTitle() {}
+
+  private getContentStore(id: string, type: WindowTypes): any {
+    switch (type) {
+      case WindowTypes.PodTile:
+        return new PodTileStore(id);
+      case WindowTypes.MessageBlotter:
+        return messages;
+    }
+    return null;
+  }
 }

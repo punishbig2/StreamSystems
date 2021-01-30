@@ -7,6 +7,7 @@ import getStyles, { Styles } from "styles";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
+import { WindowStore } from "../../mobx/stores/windowStore";
 
 interface OwnProps {
   area: ClientRect;
@@ -59,6 +60,7 @@ export const ExecutionBlotter: React.FC<OwnProps> = (
       content={content}
       title={title}
       isDefaultWorkspace={false}
+      store={new WindowStore(id, WindowTypes.MessageBlotter)}
       onClose={() => null}
       onLayoutModify={() => null}
     />

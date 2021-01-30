@@ -8,7 +8,7 @@ import { PodTable } from "types/podTable";
 export const createEmptyTable = (
   symbol: string,
   strategy: string,
-  tenors: string[]
+  tenors: ReadonlyArray<string>
 ): PodTable => {
   const rows: PodRow[] = tenors.map((tenor: string) => {
     const order: Order = new Order(

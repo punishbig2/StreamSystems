@@ -1,3 +1,3 @@
 import { PodRow } from "types/podRow";
 
-export type PodTable = { [tenor: string]: PodRow };
+export type PodTable<T = PodRow> = { [tenor: string]: T };

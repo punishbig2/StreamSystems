@@ -16,7 +16,7 @@ import persistStorage from "utils/persistStorage";
 
 interface Props {
   readonly id: string;
-  readonly columns: ColumnSpec[];
+  readonly columns: ReadonlyArray<ColumnSpec>;
   readonly rows?: { [id: string]: any };
   readonly scrollable: boolean;
   readonly renderRow: (props: any, index?: number) => ReactElement | null;

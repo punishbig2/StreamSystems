@@ -370,7 +370,7 @@ export class API {
   }
 
   public static async createOrdersBulk(
-    orders: Order[],
+    orders: ReadonlyArray<Order>,
     symbol: string,
     strategy: string,
     user: User,
@@ -410,6 +410,16 @@ export class API {
       request
     );
     const result: MessageResponse = await task.execute();
+    if (result === null) {
+      console.warn("create bulk orders backend did not respond");
+      return {
+        MsgType: MessageTypes.D,
+        Status: "Failure",
+        OrderID: "",
+        TransactTime: Date.now() / 1000,
+        Response: "No response received",
+      };
+    }
     if (result.Status !== "Success")
       console.warn(`error creating an order ${result.Response}`);
     return result;
@@ -557,15 +567,14 @@ export class API {
     return [...darkpool, ...normal];
   }
 
-  public static async getRunOrders(
+  public static getRunOrders(
     useremail: string,
     symbol: string,
     strategy: string
-  ): Promise<OrderMessage[]> {
-    const task: Task<OrderMessage[]> = get<OrderMessage[]>(
+  ): Task<OrderMessage[]> {
+    return get<OrderMessage[]>(
       API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail })
     );
-    return task.execute();
   }
 
   public static async getUsers(): Promise<User[]> {
@@ -731,9 +740,9 @@ export class API {
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> = get<BankEntitiesQueryResponse>(
-      config.PrePricerUrl + "/entities"
-    );
+    const task: Task<BankEntitiesQueryResponse> = get<
+      BankEntitiesQueryResponse
+    >(config.PrePricerUrl + "/entities");
     return task.execute();
   }
 

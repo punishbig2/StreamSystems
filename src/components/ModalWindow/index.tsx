@@ -1,12 +1,14 @@
-import React, { ReactElement } from "react";
+import React, { PropsWithChildren, ReactElement } from "react";
 import ReactDOM from "react-dom";
 
 interface Props {
-  readonly render: (props: any) => ReactElement | null;
+  readonly render?: (props: any) => ReactElement | null;
   readonly isOpen: boolean;
 }
 
-const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
+const ModalWindow: React.FC<PropsWithChildren<Props>> = (
+  props: PropsWithChildren<Props>
+): ReactElement | null => {
   const container: HTMLElement | null = document.getElementById("modals");
   if (container === null) {
     throw new Error(
@@ -17,7 +19,9 @@ const ModalWindow: React.FC<Props> = (props: Props): ReactElement | null => {
     if (props.isOpen) {
       return (
         <div className={"modal-window-container"}>
-          <div className={"modal-window"}>{props.render(props)}</div>
+          <div className={"modal-window"}>
+            {props.render !== undefined ? props.render(props) : props.children}
+          </div>
         </div>
       );
     } else {

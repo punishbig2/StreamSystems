@@ -19,10 +19,10 @@ export class TableStore {
   @observable rows: any = {};
 
   private initialRows: any = {};
-  private initialColumns: ColumnSpec[] = [];
+  private initialColumns: ReadonlyArray<ColumnSpec> = [];
   private columnsMap: { [columnName: string]: ColumnSpec } = {};
 
-  constructor(columns: ColumnSpec[]) {
+  constructor(columns: ReadonlyArray<ColumnSpec>) {
     this.setInitialColumns(columns);
   }
 
@@ -152,7 +152,7 @@ export class TableStore {
   }
 
   @action.bound
-  public setInitialColumns(columns: ColumnSpec[]) {
+  public setInitialColumns(columns: ReadonlyArray<ColumnSpec>) {
     this.initialColumns = columns;
     this.columnsMap = columns.reduce(
       (map: { [name: string]: ColumnSpec }, spec: ColumnSpec) => {

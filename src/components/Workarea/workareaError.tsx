@@ -11,16 +11,19 @@ interface Props {
 export const WorkareaError: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
-  const [remainingTime, setRemainingTime] = React.useState<number>(30000);
+  const [remainingTime = 30000, setRemainingTime] = React.useState<number>(
+    config.RedirectTimeout
+  );
   const { shouldReload = true } = props;
   React.useEffect((): void => {
     const { location } = window;
+    if (config.RedirectTimeout < 0) return;
     if (remainingTime <= 0) {
       location.href = config.SignOutUrl;
     }
   }, [remainingTime]);
   React.useEffect((): (() => void) | void => {
-    if (!shouldReload) return;
+    if (remainingTime < 0 || shouldReload) return;
     const timer = setTimeout(
       (): void =>
         setRemainingTime((previous: number): number => previous - 1000),
@@ -50,10 +53,12 @@ export const WorkareaError: React.FC<Props> = (
             </a>{" "}
             to go to the sign in page
           </Typography>
-          <Typography color={"textPrimary"}>
-            You will be redirected to the sign in page in {remainingTime / 1000}{" "}
-            seconds
-          </Typography>
+          {remainingTime <= 0 ? null : (
+            <Typography color={"textPrimary"}>
+              You will be redirected to the sign in page in{" "}
+              {remainingTime / 1000} seconds
+            </Typography>
+          )}
         </>
       ) : null}
     </div>

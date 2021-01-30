@@ -1,9 +1,11 @@
+import React from "react";
 import { observable, action } from "mobx";
 import { persist, create } from "mobx-persist";
 import { API } from "API";
 import { randomID } from "utils/randomID";
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
 import persistStorage from "utils/persistStorage";
+import { WindowStore } from "./windowStore";
 
 // We only need to remember the id and type, the id
 // will allow as to create it from scratch
@@ -32,6 +34,7 @@ export class WorkspaceStore {
   @observable errorMessage: string | null = null;
   @observable busyMessage: BusyMessage | null = null;
   @observable progress: number = 0;
+  @observable windowStores: { [id: string]: WindowStore } = {};
 
   constructor(id: string) {
     this.id = id;
@@ -145,4 +148,16 @@ export class WorkspaceStore {
   public persist(windows: WindowDef[]) {
     this.windows = windows;
   }
+
+  public getWindowStore(id: string, type: WindowTypes): any {
+    const { windowStores } = this;
+    if (windowStores[id] === undefined) {
+      windowStores[id] = new WindowStore(id, type);
+    }
+    return windowStores[id];
+  }
 }
+
+export const WorkspaceStoreContext = React.createContext<WorkspaceStore>(
+  new WorkspaceStore("")
+);

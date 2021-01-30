@@ -14,6 +14,7 @@ import { Symbol } from "types/symbol";
 import { User } from "types/user";
 import { W } from "types/w";
 import persistStorage from "utils/persistStorage";
+import { RunWindowStore } from "./runWindowStore";
 
 export class PodTileStore {
   public id: string = "";
@@ -36,11 +37,13 @@ export class PodTileStore {
   @observable operationStartedAt: number = 0;
   @observable.ref darkPrices: { [tenor: string]: number | null } = {};
   @observable.ref rawRows: { [tenor: string]: PodRow } = {};
+  @observable runWindowStore: RunWindowStore;
 
   public progressMax: number = 100;
   private creatingBulk: boolean = false;
 
   constructor(windowID: string) {
+    console.log("creating a new pod tile store");
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
     this.id = windowID;
     const hydrate = create({
@@ -57,12 +60,12 @@ export class PodTileStore {
     };
     // Initialize depth with empty arrays
     this.orders = tenors.reduce(reducer, {});
+    this.runWindowStore = new RunWindowStore(this.orders);
   }
 
   @computed
   public get rows(): { [tenor: string]: PodRow } {
     const { rawRows, darkPrices } = this;
-    console.log(rawRows, darkPrices);
     const keys: ReadonlyArray<string> = Object.keys(rawRows);
     return keys.reduce((rows: PodTable, tenor: string): PodTable => {
       const row: PodRow = rows[tenor];
@@ -239,7 +242,10 @@ export class PodTileStore {
     }
   }
 
-  private async executeBulkCreation(orders: Array<Order>, currency: Symbol) {
+  private async executeBulkCreation(
+    orders: ReadonlyArray<Order>,
+    currency: Symbol
+  ) {
     this.hideRunWindow();
     this.showProgressWindow(-1);
     const { strategy } = this;
@@ -270,7 +276,7 @@ export class PodTileStore {
   }
 
   public async createBulkOrders(
-    orders: Array<Order>,
+    orders: ReadonlyArray<Order>,
     currency?: Symbol
   ): Promise<void> {
     if (currency === undefined) {
@@ -320,9 +326,9 @@ export class PodTileStore {
           tenors,
           snapshot
         );
-        const darkPoolQuotesTask: Task<
-          ReadonlyArray<DarkPoolQuote>
-        > = API.getDarkPoolLastQuotes(currency, strategy);
+        const darkPoolQuotesTask: Task<ReadonlyArray<
+          DarkPoolQuote
+        >> = API.getDarkPoolLastQuotes(currency, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
         // Initialize from depth snapshot

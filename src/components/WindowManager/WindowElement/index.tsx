@@ -6,7 +6,7 @@ import { toStyle } from "components/WindowManager/helpers/toStyle";
 import { useObjectGrabber } from "hooks/useObjectGrabber";
 import { observer } from "mobx-react";
 
-import messages, { MessagesStore } from "mobx/stores/messagesStore";
+import { MessagesStore } from "mobx/stores/messagesStore";
 import { PodTileStore } from "mobx/stores/podTileStore";
 import { WindowStore } from "mobx/stores/windowStore";
 import { WindowTypes } from "mobx/stores/workareaStore";
@@ -21,24 +21,25 @@ import React, {
 import { getOptimalSize, Size } from "utils/windowUtils";
 
 interface OwnProps {
-  id: string;
-  geometry?: ClientRect;
-  minimized?: boolean;
-  type: WindowTypes;
-  isDefaultWorkspace: boolean;
-  area: ClientRect;
-  fitToContent: boolean;
-  fixed?: boolean;
-  title: (
+  readonly id: string;
+  readonly geometry?: ClientRect;
+  readonly minimized?: boolean;
+  readonly type: WindowTypes;
+  readonly isDefaultWorkspace: boolean;
+  readonly area: ClientRect;
+  readonly fitToContent: boolean;
+  readonly fixed?: boolean;
+  readonly store: WindowStore;
+  readonly title: (
     props: any,
     store: PodTileStore | MessagesStore | null
   ) => ReactElement | string | null;
-  content: (
+  readonly content: (
     props: any,
     store: PodTileStore | MessagesStore | null
   ) => ReactElement | string | null;
-  onLayoutModify: () => void;
-  onClose: (id: string) => void;
+  readonly onLayoutModify: () => void;
+  readonly onClose: (id: string) => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -92,24 +93,10 @@ const onResize = (
   }
 };
 
-const getContentStore = (
-  id: string,
-  type: WindowTypes
-): MessagesStore | PodTileStore | null => {
-  switch (type) {
-    case WindowTypes.PodTile:
-      return new PodTileStore(id);
-    case WindowTypes.MessageBlotter:
-      return messages;
-  }
-  return null;
-};
-
 export const WindowElement: React.FC<Props> = observer(
   (props: Props): ReactElement => {
-    const { id, area, geometry, type, fixed, fitToContent } = props;
+    const { area, geometry, type, fixed, fitToContent, store } = props;
 
-    const [store] = useState<WindowStore>(new WindowStore(id, type, fixed));
     const [minWidth, setMinWidth] = useState<number>(-1);
     const { onLayoutModify } = props;
 
@@ -224,9 +211,6 @@ export const WindowElement: React.FC<Props> = observer(
       moveCallback,
       onGeometryChangeComplete
     );
-    const [contentStore, setContentStore] = useState<
-      MessagesStore | PodTileStore | null
-    >(getContentStore(id, type));
     // These installs all the resize handles
     const [, setBottomResizeHandle] = useObjectGrabber(
       containerRef,
@@ -325,7 +309,7 @@ export const WindowElement: React.FC<Props> = observer(
       store.setFitToContent();
     };
 
-    const getTitlebarButtons = (): ReactElement | null => {
+    const getTitleBarButtons = (): ReactElement | null => {
       if (fixed) return null;
       return (
         <DefaultWindowButtons
@@ -345,10 +329,6 @@ export const WindowElement: React.FC<Props> = observer(
       }
     }, [store, props.minimized]);
 
-    useEffect(() => {
-      setContentStore(getContentStore(id, type));
-    }, [id, type]);
-
     const contentProps = {
       scrollable: !store.fitToContent,
       minimized: store.minimized,
@@ -363,11 +343,11 @@ export const WindowElement: React.FC<Props> = observer(
         onClickCapture={bringToFront}
       >
         <div className={"window-title-bar"}>
-          {props.title(contentProps, contentStore)}
-          {getTitlebarButtons()}
+          {props.title(contentProps, store.contentStore)}
+          {getTitleBarButtons()}
         </div>
         <div className={"window-content"}>
-          {props.content(contentProps, contentStore)}
+          {props.content(contentProps, store.contentStore)}
         </div>
         {!store.minimized && !fixed && (
           <div

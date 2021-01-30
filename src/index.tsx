@@ -1,3 +1,4 @@
+import "./wydr";
 import FXOptionsUI from "main";
 import "styles/main.scss";
 import "overlayscrollbars/css/OverlayScrollbars.css";

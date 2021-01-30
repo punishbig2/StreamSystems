@@ -38,7 +38,7 @@ const Workarea: React.FC = (): ReactElement | null => {
 
   useEffect(() => {
     if (id !== null) {
-      store.initialize(id);
+      store.initialize(id).catch(console.error);
     }
   }, [id]);
 
@@ -119,6 +119,7 @@ const Workarea: React.FC = (): ReactElement | null => {
               currencies={symbols}
               strategies={store.strategies}
               banks={store.banks}
+              store={store.getWorkspaceStore(id)}
               onModify={store.setWorkspaceModified}
             />
           );

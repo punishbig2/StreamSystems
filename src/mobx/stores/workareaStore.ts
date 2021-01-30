@@ -6,7 +6,7 @@ import { PresetWindow } from "groups/presetWindow";
 import strings from "locales";
 import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
-import { WindowDef } from "mobx/stores/workspaceStore";
+import { WindowDef, WorkspaceStore } from "mobx/stores/workspaceStore";
 import { OktaUser, Role } from "types/role";
 import persistStorage from "utils/persistStorage";
 import { randomID } from "utils/randomID";
@@ -60,6 +60,7 @@ export class WorkareaStore {
   @observable isCreatingWorkspace: boolean = false;
   @observable hasUpdates: boolean = false;
 
+  @observable workspaceStores: { [id: string]: WorkspaceStore } = {};
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
 
@@ -470,11 +471,6 @@ export class WorkareaStore {
     setTimeout(this.internalAddMiddleOffice, 0);
   }
 
-  public findSymbolById(id: string): Symbol | undefined {
-    const { symbolsMap } = this;
-    return symbolsMap[id];
-  }
-
   @action.bound
   public setHasUpdates(): void {
     this.hasUpdates = true;
@@ -483,6 +479,14 @@ export class WorkareaStore {
   @action.bound
   public closeAccessDeniedView(): void {
     this.workspaceAccessDenied = false;
+  }
+
+  public getWorkspaceStore(id: string): WorkspaceStore {
+    const { workspaceStores } = this;
+    if (workspaceStores[id] === undefined) {
+      workspaceStores[id] = new WorkspaceStore(id);
+    }
+    return workspaceStores[id];
   }
 }
 

@@ -3,41 +3,36 @@ import createPODColumns from "columns/podColumns";
 import { ModalWindow } from "components/ModalWindow";
 import { convertToDepth } from "components/PodTile/helpers";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
-import { Row } from "components/PodTile/Row";
-import { ProgressModalContent } from "components/ProgressModalContent";
 import { Run } from "components/Run";
-import { Table } from "components/Table";
 import { observer } from "mobx-react";
 import { PodTileStore } from "mobx/stores/podTileStore";
 import workareaStore from "mobx/stores/workareaStore";
-import React, {
-  CSSProperties,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-} from "react";
+import React, { ReactElement, useEffect, useMemo } from "react";
 import { InvalidCurrency } from "stateDefs/windowState";
 import { Order } from "types/order";
-import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
-import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
+import { Strategy } from "../../types/strategy";
+import { ColumnSpec } from "../Table/columnSpecification";
+import { WindowContent } from "./windowContent";
 
-interface OwnProps {
+interface Props {
   readonly id: string;
-  readonly tenors: string[];
+  readonly tenors: ReadonlyArray<string>;
   readonly store: PodTileStore;
-  readonly strategies: string[];
-  readonly currencies: Symbol[];
+  readonly strategies: ReadonlyArray<Strategy>;
+  readonly currencies: ReadonlyArray<Symbol>;
   readonly connected: boolean;
   readonly scrollable?: boolean;
   readonly minimized?: boolean;
   readonly onClose?: () => void;
 }
 
-const getCurrencyFromName = (list: Symbol[], name: string): Symbol => {
+const getCurrencyFromName = (
+  list: ReadonlyArray<Symbol>,
+  name: string
+): Symbol => {
   const found: Symbol | undefined = list.find(
     (each: Symbol) => each.name === name
   );
@@ -45,204 +40,101 @@ const getCurrencyFromName = (list: Symbol[], name: string): Symbol => {
   return found;
 };
 
-const PodTile: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
-  const { store } = props;
-  const { currencies, tenors } = props;
-  const { strategy } = store;
-  const { rows } = store;
-  const currency: Symbol | undefined = getCurrencyFromName(
-    currencies,
-    store.currency
-  );
-  const user: User = workareaStore.user;
-
-  useEffect((): (() => void) | undefined => {
-    if (currency === InvalidCurrency || !strategy) return;
-    const initializeTask: Task<void> = store.initialize(
-      currency.name,
-      strategy
+export const PodTile: React.FC<Props> = observer(
+  (props: Props): ReactElement | null => {
+    const { store } = props;
+    const { currencies, tenors } = props;
+    const { strategy } = store;
+    const currency: Symbol | undefined = getCurrencyFromName(
+      currencies,
+      store.currency
     );
-    const cleanUps: Array<() => void> = store.createMarketListeners(
-      currency.name,
-      strategy
-    );
-    initializeTask.execute();
-    return () => {
-      initializeTask.cancel();
-      cleanUps.forEach((clean: () => void): void => clean());
-    };
-  }, [store, currency, strategy, user]);
+    const user: User = workareaStore.user;
 
-  // Initialize tile/window
-  useInitializer(tenors, currency.name, strategy, user, store.setRows);
-  const bulkCreateOrders = async (orders: Order[]) => {
-    store.createBulkOrders(orders, currency);
-  };
-
-  const runWindow = (): ReactElement | null => {
-    return (
-      <Run
-        visible={store.isRunWindowVisible}
-        symbol={currency.name}
-        strategy={strategy}
-        tenors={tenors}
-        defaultSize={currency.defaultqty}
-        minimumSize={currency.minqty}
-        orders={store.orders}
-        onClose={store.hideRunWindow}
-        onSubmit={bulkCreateOrders}
-      />
-    );
-  };
-  const dobRows: PodTable = useMemo(
-    (): PodTable =>
-      !!store.currentTenor
-        ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
-        : {},
-    [store.currentTenor, store.orders]
-  );
-  const renderDoBRow = useCallback(
-    (rowProps: any): ReactElement | null => {
-      const { minqty, defaultqty } = currency;
-      const { row } = rowProps;
-      if (minqty === undefined || defaultqty === undefined || !strategy)
-        return null;
-      // Get current row
-      const matchingRow: PodRow = dobRows[row.id];
-      const orders: Order[] = [];
-      if (matchingRow) {
-        if (matchingRow.bid) {
-          orders.push(matchingRow.bid);
-        }
-        if (matchingRow.ofr) {
-          orders.push(matchingRow.ofr);
-        }
-      }
-      return (
-        <Row
-          {...rowProps}
-          user={user}
-          orders={orders}
-          darkpool={store.darkpool[row.tenor1]}
-          defaultSize={defaultqty}
-          minimumSize={minqty}
-          onTenorSelected={() => store.setCurrentTenor(null)}
-        />
+    useEffect((): (() => void) | undefined => {
+      if (currency === InvalidCurrency || !strategy) return;
+      const initializeTask: Task<void> = store.initialize(
+        currency.name,
+        strategy
       );
-    },
-    [currency, dobRows, store, strategy, user]
-  );
-  const renderPodRow = useCallback(
-    (rowProps: any, index?: number): ReactElement => {
-      const { name, minqty, defaultqty } = currency;
-      const { row } = rowProps;
-      const { tenor } = row;
-      return (
-        <Row
-          {...rowProps}
-          currency={name}
-          strategy={strategy}
-          tenor={tenor}
-          darkpool={store.darkpool[tenor]}
-          orders={store.orders[tenor]}
-          defaultSize={defaultqty}
-          minimumSize={minqty}
-          displayOnly={false}
-          rowNumber={index}
-          onTenorSelected={store.setCurrentTenor}
-        />
+      const cleanUps: Array<() => void> = store.createMarketListeners(
+        currency.name,
+        strategy
       );
-    },
-    [currency, strategy, store.darkpool, store.orders, store.setCurrentTenor]
-  );
-
-  const dobColumns = useMemo(
-    () => createPODColumns(currency.name, strategy, true),
-    [currency, strategy]
-  );
-  const podColumns = useMemo(
-    () => createPODColumns(currency.name, strategy, false),
-    [currency, strategy]
-  );
-  // In case we lost the dob please reset this so that double
-  // clicking the tenor keeps working
-  useEffect(() => {
-    if (store.currentTenor === null) {
-      return;
-    } else {
-      const orders: Order[] = store.orders[store.currentTenor];
-      if (orders.length === 0) {
-        // Has the equivalent effect of hiding the orders book
-        // but it will actually set the correct state for the
-        // tenors to be double-clickable
-        store.setCurrentTenor(null);
-      }
-    }
-  }, [store.currentTenor, store.orders, store]);
-
-  const getWindowContent = () => {
-    if (props.minimized) {
-      const style: CSSProperties = {
-        width: getOptimalWidthFromColumnsSpec(podColumns),
-        height: 1, // We need a minimal height or else it wont be rendered at all
+      initializeTask.execute().catch(console.warn);
+      return () => {
+        initializeTask.cancel();
+        cleanUps.forEach((clean: () => void): void => clean());
       };
-      return <div style={style} />;
-    }
+    }, [store, currency, strategy, user]);
 
-    const loadingClass: string | undefined = store.loading
-      ? "loading"
-      : undefined;
-    const renderProgress = (): ReactElement | null => {
-      if (store.currentProgress === null) return null;
-      return (
-        <ProgressModalContent
-          startTime={store.operationStartedAt}
-          message={"Creating Orders"}
-          maximum={store.progressMax}
-          progress={store.currentProgress}
-        />
-      );
+    // Initialize tile/window
+    useInitializer(tenors, currency.name, strategy, user, store.setRows);
+    const bulkCreateOrders = async (orders: ReadonlyArray<Order>) => {
+      store.createBulkOrders(orders, currency).catch(console.warn);
     };
 
-    return (
-      <div
-        className={"pod-tile-content" + (props.scrollable ? " scrollable" : "")}
-      >
-        <div className={"pod"} data-showing-tenor={!!store.currentTenor}>
-          <Table
-            id={`${props.id}-top`}
-            className={loadingClass}
-            scrollable={!!props.scrollable}
-            columns={podColumns}
-            rows={rows}
-            renderRow={renderPodRow}
-          />
-        </div>
-        <div className={"dob"} data-showing-tenor={!!store.currentTenor}>
-          <Table
-            id={`${props.id}-depth`}
-            scrollable={!!props.scrollable}
-            columns={dobColumns}
-            rows={dobRows}
-            renderRow={renderDoBRow}
-          />
-        </div>
-        <ModalWindow
-          render={renderProgress}
-          isOpen={store.isProgressWindowVisible}
-        />
-      </div>
+    const dobRows: PodTable = useMemo(
+      (): PodTable =>
+        !!store.currentTenor
+          ? convertToDepth(store.orders[store.currentTenor], store.currentTenor)
+          : {},
+      [store.currentTenor, store.orders]
     );
-  };
+    const dobColumns = useMemo(
+      () => createPODColumns(currency.name, strategy, true),
+      [currency, strategy]
+    );
+    const podColumns: ColumnSpec[] = useMemo(
+      () => createPODColumns(currency.name, strategy, false),
+      [currency, strategy]
+    );
+    // In case we lost the dob please reset this so that double
+    // clicking the tenor keeps working
+    useEffect(() => {
+      if (store.currentTenor === null) {
+        return;
+      } else {
+        const orders: Order[] = store.orders[store.currentTenor];
+        if (orders.length === 0) {
+          // Has the equivalent effect of hiding the orders book
+          // but it will actually set the correct state for the
+          // tenors to be double-clickable
+          store.setCurrentTenor(null);
+        }
+      }
+    }, [store.currentTenor, store.orders, store]);
 
-  return (
-    <>
-      {getWindowContent()}
-      <ModalWindow render={runWindow} isOpen={store.isRunWindowVisible} />
-    </>
-  );
-};
-
-const connected = observer(PodTile);
-
-export { connected as PodTile };
+    return (
+      <>
+        <WindowContent
+          id={props.id}
+          store={store}
+          columns={podColumns}
+          minimized={!!props.minimized}
+          scrollable={!!props.scrollable}
+          symbol={currency}
+          strategy={strategy}
+          dob={{
+            columns: dobColumns,
+            rows: dobRows,
+          }}
+        />
+        <ModalWindow isOpen={store.isRunWindowVisible}>
+          <Run
+            store={store.runWindowStore}
+            visible={store.isRunWindowVisible}
+            symbol={currency.name}
+            strategy={strategy}
+            tenors={tenors}
+            defaultSize={currency.defaultqty}
+            minimumSize={currency.minqty}
+            orders={store.orders}
+            onClose={store.hideRunWindow}
+            onSubmit={bulkCreateOrders}
+          />
+        </ModalWindow>
+      </>
+    );
+  }
+);

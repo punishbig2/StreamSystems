@@ -1,7 +1,7 @@
 import { ColumnSpec } from "components/Table/columnSpecification";
 
 export const getOptimalWidthFromColumnsSpec = (
-  columns: ColumnSpec[]
+  columns: ReadonlyArray<ColumnSpec>
 ): number => {
   // Create an element to use it as a placeholder and measure
   // the size of the column using the template of the column

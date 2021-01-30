@@ -8,7 +8,7 @@ import { compareTenors } from "utils/tenorUtils";
 import { User } from "types/user";
 
 const buildRows = async (
-  tenors: string[],
+  tenors: ReadonlyArray<string>,
   currency: string,
   strategy: string,
   email: string
@@ -41,7 +41,7 @@ const buildRows = async (
 
 type PodInitializer = (data: PodTable) => void;
 const populateEmptyTOB = (
-  tenors: string[],
+  tenors: ReadonlyArray<string>,
   currency: string,
   strategy: string,
   email: string,
@@ -58,7 +58,7 @@ const populateEmptyTOB = (
 };
 
 export const useInitializer = (
-  tenors: string[],
+  tenors: ReadonlyArray<string>,
   currency: string,
   strategy: string,
   user: User,

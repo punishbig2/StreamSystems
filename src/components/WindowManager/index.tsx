@@ -2,7 +2,11 @@ import { ExecutionBlotter } from "components/WindowManager/executionBlotter";
 import { Props } from "components/WindowManager/props";
 import { WindowElement } from "components/WindowManager/WindowElement";
 import { useSnapToNeighbors } from "hooks/useSnapToNeighbors";
-import { WindowDef } from "mobx/stores/workspaceStore";
+import {
+  WindowDef,
+  WorkspaceStore,
+  WorkspaceStoreContext,
+} from "mobx/stores/workspaceStore";
 import React, { ReactElement, useEffect, useState } from "react";
 import getStyles from "styles";
 
@@ -14,6 +18,9 @@ const BodyRectangle: ClientRect = new DOMRect(
 );
 
 const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
+  const workspaceStore: WorkspaceStore = React.useContext<WorkspaceStore>(
+    WorkspaceStoreContext
+  );
   const setGeometries = props.onUpdateAllGeometries;
   const { isDefaultWorkspace: ready, windows } = props;
   const [element, setElement] = useState<HTMLDivElement | null>(null);
@@ -50,6 +57,7 @@ const WindowManager: React.FC<Props> = (props: Props): ReactElement | null => {
     return (
       <WindowElement
         id={window.id}
+        store={workspaceStore.getWindowStore(window.id, window.type)}
         type={window.type}
         content={props.getContentRenderer(window.id, window.type)}
         title={props.getTitleRenderer(window.id, window.type)}
