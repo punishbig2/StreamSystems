@@ -1,45 +1,26 @@
-import { action, computed, observable } from "mobx";
+import { action, observable } from "mobx";
 import { Order, OrderMessage, OrderStatus } from "types/order";
 import { PodTable } from "types/podTable";
 import { ordersReducer } from "../../components/Run/helpers/ordersReducer";
 import { API, Task } from "../../API";
 import workareaStore from "./workareaStore";
 import { OrderTypes } from "../../types/mdEntry";
-import { PodRow, PodRowStatus } from "../../types/podRow";
+import { PodRow } from "../../types/podRow";
 import { createEmptyTable } from "../../components/Run/helpers/createEmptyTable";
 import { BrokerageWidths } from "../../types/brokerageWidths";
 import { getSelectedOrders } from "../../components/Run/helpers/getSelectedOrders";
 
-class RunRow implements PodRow {
-  readonly darkPrice: number | null = null;
-  readonly id: string = "";
-  readonly status: PodRowStatus = PodRowStatus.Normal;
-  readonly tenor: string = "";
+const getOfrPrice = (spread: number, mid: number): number => {
+  return 0;
+};
 
-  @computed
-  public get mid(): number | null {
-    return null;
-  }
-
-  @computed
-  public get spread(): number | null {
-    return null;
-  }
-
-  @computed
-  public get ofr(): Order {
-    return {} as Order;
-  }
-
-  @computed
-  public get bid(): Order {
-    return {} as Order;
-  }
-}
+const getBidPrice = (spread: number, mid: number): number => {
+  return 0;
+};
 
 export class RunWindowStore {
-  @observable.ref rows: PodTable<RunRow> = {};
-  @observable.ref original: PodTable<RunRow> = {};
+  @observable.ref rows: PodTable = {};
+  @observable.ref original: PodTable = {};
 
   @observable defaultBidSize = 0;
   @observable defaultOfrSize = 0;
@@ -53,7 +34,6 @@ export class RunWindowStore {
   @observable initialized = false;
 
   constructor(orders: { [tenor: string]: Order[] }) {
-    console.log("creating a new store");
     const { user } = workareaStore;
     this.activeOrders = Object.values(orders)
       .reduce((flat: Order[], next: Order[]) => [...flat, ...next], [])
@@ -68,10 +48,30 @@ export class RunWindowStore {
   }
 
   @action.bound
-  public setSpreadAll(value: number): void {}
+  public setSpreadAll(value: number): void {
+    const { rows } = this;
+    const ids: ReadonlyArray<string> = Object.keys(rows);
+    this.rows = ids.reduce((newRows: PodTable, id: string): PodTable => {
+      const row: PodRow = newRows[id];
+      // Update the spread in the row
+      row.spread = value;
+      // Return the same row
+      return { ...newRows, [id]: row };
+    }, rows);
+  }
 
   @action.bound
-  public setMidAll(value: number): void {}
+  public setMidAll(value: number): void {
+    const { rows } = this;
+    const ids: ReadonlyArray<string> = Object.keys(rows);
+    this.rows = ids.reduce((newRows: PodTable, id: string): PodTable => {
+      const row: PodRow = newRows[id];
+      // Update the spread in the row
+      row.mid = value;
+      // Return the same row
+      return { ...newRows, [id]: row };
+    }, rows);
+  }
 
   @action.bound
   public initialize(
@@ -86,8 +86,9 @@ export class RunWindowStore {
       symbol,
       strategy
     );
+    const originalTable: PodTable = createEmptyTable(symbol, strategy, tenors);
     // We first fill it as placeholder
-    this.setOrders(createEmptyTable(symbol, strategy, tenors));
+    this.setOrders(originalTable);
     // And this task does the rest
     return {
       execute: async (): Promise<void> => {
@@ -125,11 +126,39 @@ export class RunWindowStore {
 
   @action.bound
   public setBidPrice(id: string, value: number | null): void {
-    console.log(this.rows[id]);
+    const row: PodRow = this.rows[id];
+    const bid: Order = row.bid;
+    this.rows = {
+      ...this.rows,
+      [id]: {
+        ...row,
+        bid: {
+          ...bid,
+          status: (bid.status | OrderStatus.Active) & ~OrderStatus.Cancelled,
+          size: this.defaultBidSize,
+          price: value,
+        },
+      },
+    };
   }
 
   @action.bound
-  public setOfrPrice(id: string, value: number | null): void {}
+  public setOfrPrice(id: string, value: number | null): void {
+    const row: PodRow = this.rows[id];
+    const ofr: Order = row.ofr;
+    this.rows = {
+      ...this.rows,
+      [id]: {
+        ...row,
+        ofr: {
+          ...ofr,
+          status: (ofr.status | OrderStatus.Active) & ~OrderStatus.Cancelled,
+          size: this.defaultBidSize,
+          price: value,
+        },
+      },
+    };
+  }
 
   @action.bound
   public setBidSize(id: string, value: number | null): void {}
@@ -206,9 +235,7 @@ export class RunWindowStore {
       ...prevOrders,
       ...activeOrders,
     });
-    const rows: PodRow[] = Object.values(
-      createEmptyTable(symbol, strategy, tenors)
-    );
+    const rows: PodRow[] = Object.values(this.rows);
     const table: PodTable = rows
       .map(
         (row: PodRow): PodRow => {
@@ -224,7 +251,7 @@ export class RunWindowStore {
           if (ofr) row.ofr = ofr;
           row.spread = getSpread(row);
           row.mid = getMid(row);
-          return { ...row };
+          return row;
         }
       )
       .reduce((table: PodTable, row: PodRow): PodTable => {
