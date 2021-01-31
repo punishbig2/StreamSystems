@@ -1,22 +1,14 @@
+import { API, Task } from "API";
+import { createEmptyTable } from "components/Run/helpers/createEmptyTable";
+import { getSelectedOrders } from "components/Run/helpers/getSelectedOrders";
+import { ordersReducer } from "components/Run/helpers/ordersReducer";
 import { action, observable } from "mobx";
+import { BrokerageWidths } from "types/brokerageWidths";
+import { OrderTypes } from "types/mdEntry";
 import { Order, OrderMessage, OrderStatus } from "types/order";
+import { PodRow, PodRowStatus } from "types/podRow";
 import { PodTable } from "types/podTable";
-import { ordersReducer } from "../../components/Run/helpers/ordersReducer";
-import { API, Task } from "../../API";
 import workareaStore from "./workareaStore";
-import { OrderTypes } from "../../types/mdEntry";
-import { PodRow } from "../../types/podRow";
-import { createEmptyTable } from "../../components/Run/helpers/createEmptyTable";
-import { BrokerageWidths } from "../../types/brokerageWidths";
-import { getSelectedOrders } from "../../components/Run/helpers/getSelectedOrders";
-
-const getOfrPrice = (spread: number, mid: number): number => {
-  return 0;
-};
-
-const getBidPrice = (spread: number, mid: number): number => {
-  return 0;
-};
 
 export class RunWindowStore {
   @observable.ref rows: PodTable = {};
@@ -47,30 +39,80 @@ export class RunWindowStore {
       .reduce(ordersReducer, {});
   }
 
+  private static orderTypeToRowKey(
+    type: OrderTypes
+  ): keyof Pick<PodRow, "ofr" | "bid"> {
+    switch (type) {
+      case OrderTypes.Ofr:
+        return "ofr";
+      case OrderTypes.Bid:
+        return "bid";
+      default:
+        throw new Error("cannot convert order type to key");
+    }
+  }
+
+  private static toActiveOrder(order: Order): Order {
+    return {
+      ...order,
+      status:
+        (order.status | OrderStatus.Active | OrderStatus.PriceEdited) &
+        ~OrderStatus.Cancelled,
+    };
+  }
+
+  private static toInactiveOrder(order: Order): Order {
+    return {
+      ...order,
+      status:
+        (order.status | OrderStatus.Cancelled) &
+        ~OrderStatus.Active &
+        ~OrderStatus.PriceEdited,
+    };
+  }
+
+  private static recomputePrices(row: PodRow): PodRow {
+    if (row.mid === null || row.spread === null) {
+      return row;
+    }
+    const { bid, ofr } = row;
+    return {
+      ...row,
+      bid: RunWindowStore.toActiveOrder({
+        ...bid,
+        status: bid.status,
+        price: row.mid - row.spread,
+      }),
+      ofr: RunWindowStore.toActiveOrder({
+        ...ofr,
+        status: ofr.status,
+        price: row.mid + row.spread,
+      }),
+    };
+  }
+
   @action.bound
-  public setSpreadAll(value: number): void {
+  public setMidOrSpreadAll(value: number | null, key: "mid" | "spread"): void {
     const { rows } = this;
     const ids: ReadonlyArray<string> = Object.keys(rows);
     this.rows = ids.reduce((newRows: PodTable, id: string): PodTable => {
       const row: PodRow = newRows[id];
-      // Update the spread in the row
-      row.spread = value;
-      // Return the same row
-      return { ...newRows, [id]: row };
+      // Now return the fixed row
+      return {
+        ...newRows,
+        [id]: RunWindowStore.recomputePrices({ ...row, [key]: value }),
+      };
     }, rows);
   }
 
   @action.bound
+  public setSpreadAll(value: number): void {
+    this.setMidOrSpreadAll(value, "spread");
+  }
+
+  @action.bound
   public setMidAll(value: number): void {
-    const { rows } = this;
-    const ids: ReadonlyArray<string> = Object.keys(rows);
-    this.rows = ids.reduce((newRows: PodTable, id: string): PodTable => {
-      const row: PodRow = newRows[id];
-      // Update the spread in the row
-      row.mid = value;
-      // Return the same row
-      return { ...newRows, [id]: row };
-    }, rows);
+    this.setMidOrSpreadAll(value, "mid");
   }
 
   @action.bound
@@ -119,61 +161,147 @@ export class RunWindowStore {
   }
 
   @action.bound
-  public activateRow(id: string): void {}
+  public activateRow(id: string): void {
+    const { rows } = this;
+    const row = rows[id];
+    this.rows = {
+      ...rows,
+      [id]: {
+        ...row,
+        bid: RunWindowStore.toActiveOrder(row.bid),
+        ofr: RunWindowStore.toActiveOrder(row.ofr),
+        spread: null,
+        mid: null,
+      },
+    };
+  }
+
+  private static recomputeMidAndSpread(row: PodRow): PodRow {
+    const { bid, ofr } = row;
+    if (bid.price === null || ofr.price === null) return row;
+    return {
+      ...row,
+      spread: RunWindowStore.getSpread(row),
+      mid: RunWindowStore.getMid(row),
+    };
+  }
 
   @action.bound
-  public setMid(id: string, value: number | null): void {}
+  private setOrderPrice(id: string, value: number | null, type: OrderTypes) {
+    const key = RunWindowStore.orderTypeToRowKey(type);
+    const row: PodRow = this.rows[id];
+    const order: Order = row[key];
+    this.rows = {
+      ...this.rows,
+      [id]: RunWindowStore.recomputeMidAndSpread({
+        ...row,
+        [key]: RunWindowStore.toActiveOrder({
+          ...order,
+          size: order.size === null ? this.defaultBidSize : order.size,
+          price: value,
+        }),
+        status: PodRowStatus.Normal,
+      }),
+    };
+  }
 
   @action.bound
   public setBidPrice(id: string, value: number | null): void {
-    const row: PodRow = this.rows[id];
-    const bid: Order = row.bid;
-    this.rows = {
-      ...this.rows,
-      [id]: {
-        ...row,
-        bid: {
-          ...bid,
-          status: (bid.status | OrderStatus.Active) & ~OrderStatus.Cancelled,
-          size: this.defaultBidSize,
-          price: value,
-        },
-      },
-    };
+    this.setOrderPrice(id, value, OrderTypes.Bid);
   }
 
   @action.bound
   public setOfrPrice(id: string, value: number | null): void {
+    this.setOrderPrice(id, value, OrderTypes.Ofr);
+  }
+
+  private setOrderSize(
+    id: string,
+    value: number | null,
+    type: OrderTypes
+  ): void {
     const row: PodRow = this.rows[id];
-    const ofr: Order = row.ofr;
+    const key = RunWindowStore.orderTypeToRowKey(type);
+    const order: Order = row[key];
+    // Ignore if the price is not yet set
+    if (order.price === null) return;
     this.rows = {
       ...this.rows,
       [id]: {
         ...row,
-        ofr: {
-          ...ofr,
-          status: (ofr.status | OrderStatus.Active) & ~OrderStatus.Cancelled,
-          size: this.defaultBidSize,
-          price: value,
-        },
+        [key]: RunWindowStore.toActiveOrder({
+          ...order,
+          status: order.status | OrderStatus.SizeEdited,
+          size: value,
+        }),
+        status: PodRowStatus.Normal,
       },
     };
   }
 
   @action.bound
-  public setBidSize(id: string, value: number | null): void {}
+  public setBidSize(id: string, value: number | null): void {
+    this.setOrderSize(id, value, OrderTypes.Bid);
+  }
 
   @action.bound
-  public setOfrSize(id: string, value: number | null): void {}
+  public setOfrSize(id: string, value: number | null): void {
+    this.setOrderSize(id, value, OrderTypes.Ofr);
+  }
 
   @action.bound
-  public setSpread(id: string, value: number | null): void {}
+  private setMidOrSpread(
+    id: string,
+    value: number | null,
+    key: "mid" | "spread"
+  ): void {
+    const { rows } = this;
+    const row = rows[id];
+    this.rows = {
+      ...rows,
+      [id]: RunWindowStore.recomputePrices({ ...row, [key]: value }),
+    };
+  }
 
   @action.bound
-  public activateOrder(id: string, type: OrderTypes): void {}
+  public setSpread(id: string, value: number | null): void {
+    this.setMidOrSpread(id, value, "spread");
+  }
 
   @action.bound
-  public deactivateOrder(id: string, type: OrderTypes): void {}
+  public setMid(id: string, value: number | null): void {
+    this.setMidOrSpread(id, value, "mid");
+  }
+
+  @action.bound
+  public activateOrder(id: string, type: OrderTypes): void {
+    const { rows } = this;
+    const key = RunWindowStore.orderTypeToRowKey(type);
+    const row = rows[id];
+    this.rows = {
+      ...rows,
+      [id]: RunWindowStore.recomputeMidAndSpread({
+        ...row,
+        [key]: RunWindowStore.toActiveOrder(row[key]),
+      }),
+    };
+  }
+
+  @action.bound
+  public deactivateOrder(id: string, type: OrderTypes): void {
+    const { rows } = this;
+    const key = RunWindowStore.orderTypeToRowKey(type);
+    const row = rows[id];
+    this.rows = {
+      ...rows,
+      [id]: {
+        ...row,
+        [key]: RunWindowStore.toInactiveOrder(row[key]),
+        mid: null,
+        spread: null,
+      },
+    };
+  }
 
   @action.bound
   public setDefaultBidSize(value: number | null): void {
@@ -192,6 +320,32 @@ export class RunWindowStore {
     this.rows = table;
   }
 
+  private static getMid(row: PodRow): number | null {
+    const { ofr, bid } = row;
+    if (
+      ofr.price === null ||
+      (ofr.status & OrderStatus.Cancelled) !== 0 ||
+      bid.price === null ||
+      (bid.status & OrderStatus.Cancelled) !== 0
+    ) {
+      return null;
+    }
+    return (ofr.price + bid.price) / 2;
+  }
+
+  private static getSpread(row: PodRow): number | null {
+    const { ofr, bid } = row;
+    if (
+      ofr.price === null ||
+      (ofr.status & OrderStatus.Cancelled) !== 0 ||
+      bid.price === null ||
+      (bid.status & OrderStatus.Cancelled) !== 0
+    ) {
+      return null;
+    }
+    return ofr.price - bid.price;
+  }
+
   private handleRunOrdersResult(
     symbol: string,
     strategy: string,
@@ -199,30 +353,6 @@ export class RunWindowStore {
     email: string,
     messages: ReadonlyArray<OrderMessage>
   ) {
-    const getMid = (row: PodRow): number | null => {
-      const { ofr, bid } = row;
-      if (
-        ofr.price === null ||
-        (ofr.status & OrderStatus.Cancelled) !== 0 ||
-        bid.price === null ||
-        (bid.status & OrderStatus.Cancelled) !== 0
-      ) {
-        return null;
-      }
-      return (ofr.price + bid.price) / 2;
-    };
-    const getSpread = (row: PodRow): number | null => {
-      const { ofr, bid } = row;
-      if (
-        ofr.price === null ||
-        (ofr.status & OrderStatus.Cancelled) !== 0 ||
-        bid.price === null ||
-        (bid.status & OrderStatus.Cancelled) !== 0
-      ) {
-        return null;
-      }
-      return ofr.price - bid.price;
-    };
     const { activeOrders } = this;
     const prevOrders: { [id: string]: Order } = messages
       .map((message: OrderMessage) => Order.fromOrderMessage(message, email))
@@ -249,8 +379,8 @@ export class RunWindowStore {
           );
           if (bid) row.bid = bid;
           if (ofr) row.ofr = ofr;
-          row.spread = getSpread(row);
-          row.mid = getMid(row);
+          row.spread = RunWindowStore.getSpread(row);
+          row.mid = RunWindowStore.getMid(row);
           return row;
         }
       )
@@ -258,7 +388,6 @@ export class RunWindowStore {
         table[row.id] = row;
         return table;
       }, {});
-    // dispatch(createAction<RunActions>(RunActions.SetTable, table));
     this.setOrders(table);
   }
 
@@ -274,5 +403,23 @@ export class RunWindowStore {
       this.defaultBidSize,
       this.defaultOfrSize
     );
+  }
+
+  @action.bound
+  setRowStatus(rowID: string, status: PodRowStatus): void {
+    const { rows } = this;
+    const row: PodRow = rows[rowID];
+    this.rows = {
+      ...rows,
+      [rowID]: {
+        ...row,
+        status: status,
+      },
+    };
+  }
+
+  @action.bound
+  setInitialized(initialized: boolean): void {
+    this.initialized = initialized;
   }
 }

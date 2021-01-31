@@ -1,11 +1,12 @@
-import { RunWindowStore } from "../../mobx/stores/runWindowStore";
+import { onPriceChange } from "components/Run/helpers/onPriceChange";
+import { RunWindowStore } from "mobx/stores/runWindowStore";
 import createColumns from "../../columns/run";
-import { OrderTypes } from "../../types/mdEntry";
+import { OrderTypes } from "types/mdEntry";
 import { NavigateDirection } from "../NumericInput/navigateDirection";
-import { skipTabIndex, skipTabIndexAll } from "../../utils/skipTab";
+import { skipTabIndex, skipTabIndexAll } from "utils/skipTab";
 import { TabDirection } from "../NumericInput";
 import { RunActions } from "./reducer";
-import { $$ } from "../../utils/stringPaster";
+import { $$ } from "utils/stringPaster";
 
 export const createColumnsWithStore = (
   store: RunWindowStore,
@@ -14,10 +15,8 @@ export const createColumnsWithStore = (
   visible: boolean
 ) => {
   return createColumns({
-    onBidChanged: (rowId: string, value: number | null): void =>
-      store.setBidPrice(rowId, value), //onPriceChange(dispatch)(orders, OrderTypes.Bid),
-    onOfrChanged: (rowId: string, value: number | null): void =>
-      store.setOfrPrice(rowId, value), //onPriceChange(dispatch)(orders, OrderTypes.Ofr),
+    onBidChanged: onPriceChange(store, OrderTypes.Bid),
+    onOfrChanged: onPriceChange(store, OrderTypes.Ofr),
     onMidChanged: (id: string, value: number | null) => store.setMid(id, value),
     onSpreadChanged: (id: string, value: number | null): void =>
       store.setSpread(id, value),

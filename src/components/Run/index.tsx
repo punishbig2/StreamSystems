@@ -1,4 +1,5 @@
 import { API, Task } from "API";
+import { RunRowProxy } from "components/Run/helpers/runRowProxy";
 import { Row } from "components/Run/row";
 import { Table } from "components/Table";
 import { Width } from "types/brokerageWidths";
@@ -7,7 +8,7 @@ import { Order } from "types/order";
 import { PodRow } from "types/podRow";
 import strings from "locales";
 import React, { ReactElement, useEffect, useMemo } from "react";
-import { RunWindowStore } from "../../mobx/stores/runWindowStore";
+import { RunWindowStore } from "mobx/stores/runWindowStore";
 import { observer } from "mobx-react";
 import { createColumnsWithStore } from "./columnCreator";
 
@@ -82,10 +83,9 @@ const Run: React.FC<OwnProps> = observer(
       return (): void => {
         task.cancel();
       };
-    }, [symbol, strategy, tenors, store]);
+    }, [symbol, strategy, tenors, visible, store]);
 
-    // useRunInitializer(tenors, symbol, strategy, activeOrders, visible, dispatch);
-    useEffect(() => {
+    useEffect((): void => {
       store.setDefaultSize(defaultSize);
     }, [defaultSize, store, visible]);
 
@@ -116,7 +116,8 @@ const Run: React.FC<OwnProps> = observer(
     };
 
     const renderRow = (props: any, index?: number): ReactElement | null => {
-      const { row } = props;
+      const { row: originalRow } = props;
+      const row = new Proxy(originalRow, RunRowProxy);
       return (
         <Row
           {...props}

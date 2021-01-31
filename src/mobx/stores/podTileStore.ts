@@ -372,6 +372,10 @@ export class PodTileStore {
 
   @action.bound
   public showRunWindow() {
+    const { runWindowStore } = this;
+    // Reset the run window store
+    runWindowStore.setInitialized(false);
+    // Now show it
     this.isRunWindowVisible = true;
   }
 

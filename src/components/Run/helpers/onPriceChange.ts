@@ -1,10 +1,7 @@
+import { RunWindowStore } from "mobx/stores/runWindowStore";
 import { OrderTypes } from "types/mdEntry";
-import { Dispatch } from "react";
-import { createAction } from "utils/actionCreator";
-import { RunActions } from "components/Run/reducer";
-import { PodTable } from "types/podTable";
-import { PodRow, PodRowStatus } from "types/podRow";
 import { Order, OrderStatus } from "types/order";
+import { PodRow, PodRowStatus } from "types/podRow";
 
 const isInvertedMarket = (
   smaller: number | null,
@@ -15,11 +12,11 @@ const isInvertedMarket = (
   return smaller !== null && value !== null && smaller < value;
 };
 
-export const onPriceChange = (dispatch: Dispatch<RunActions>) => (
-  orders: PodTable,
-  type: OrderTypes
-) => (rowID: string, value: number | null): boolean => {
-  const row: PodRow | undefined = orders[rowID];
+export const onPriceChange = (store: RunWindowStore, type: OrderTypes) => (
+  rowID: string,
+  value: number | null
+): boolean => {
+  const row: PodRow | undefined = store.rows[rowID];
   if (row === undefined)
     throw new Error("a price change event just occurred for an invalid row");
   if (type !== OrderTypes.Bid && type !== OrderTypes.Ofr)
@@ -28,32 +25,18 @@ export const onPriceChange = (dispatch: Dispatch<RunActions>) => (
   switch (type) {
     case OrderTypes.Ofr:
       if (isInvertedMarket(value, opposingOrder.price, opposingOrder.status)) {
-        dispatch(
-          createAction<RunActions>(RunActions.SetRowStatus, {
-            id: rowID,
-            status: PodRowStatus.InvertedMarketsError,
-          })
-        );
+        store.setRowStatus(rowID, PodRowStatus.InvertedMarketsError);
         return false;
       } else {
-        dispatch(
-          createAction<RunActions>(RunActions.Ofr, { id: rowID, value })
-        );
+        store.setOfrPrice(rowID, value);
         return true;
       }
     case OrderTypes.Bid:
       if (isInvertedMarket(opposingOrder.price, value, opposingOrder.status)) {
-        dispatch(
-          createAction<RunActions>(RunActions.SetRowStatus, {
-            id: rowID,
-            status: PodRowStatus.InvertedMarketsError,
-          })
-        );
+        store.setRowStatus(rowID, PodRowStatus.InvertedMarketsError);
         return false;
       } else {
-        dispatch(
-          createAction<RunActions>(RunActions.Bid, { id: rowID, value })
-        );
+        store.setBidPrice(rowID, value);
         return true;
       }
   }

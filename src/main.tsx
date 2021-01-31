@@ -1,12 +1,11 @@
 import { MuiThemeProvider } from "@material-ui/core";
 import { Workarea } from "components/Workarea";
+import { WorkareaError } from "components/Workarea/workareaError";
+import { useSignOutOnIdleTimeout } from "hooks/useSignOutOnIdleTimeout";
 import { observer } from "mobx-react";
 import { themeStore } from "mobx/stores/themeStore";
 import React, { useEffect, useState } from "react";
 import { createTheme } from "styles/theme";
-import { WorkareaError } from "components/Workarea/workareaError";
-import { useReloadOnVersionChange } from "hooks/useReloadOnVersionChange";
-import { useSignOutOnIdleTimeout } from "hooks/useSignOutOnIdleTimeout";
 
 const MIN_SCREEN_WIDTH = 1024;
 
@@ -15,7 +14,6 @@ const FXOptionsUI: React.FC = observer(
     const { theme } = themeStore;
     const [inadequateScreen, setInadequateScreen] = useState<boolean>(false);
     useSignOutOnIdleTimeout();
-    useReloadOnVersionChange();
     useEffect((): void => {
       const { body } = document;
       body.setAttribute("class", theme + "-theme");

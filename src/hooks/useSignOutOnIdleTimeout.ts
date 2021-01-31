@@ -18,7 +18,8 @@ const addUserActivityListener = (
 };
 
 export const useSignOutOnIdleTimeout = (): void => {
-  useEffect(() => {
+  useEffect((): (() => void) | void => {
+    if (config.IdleTimeout < 0) return;
     const { location } = window;
     const state = { timer: 0 };
     const createIdleKiller = (): number =>
