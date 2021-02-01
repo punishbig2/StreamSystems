@@ -126,7 +126,7 @@ export class OrderStore {
       Quantity: size.toString(),
       Price: price.toString(),
       MDMkt: roles.includes(Role.Broker) ? personality : undefined,
-      CancelCondition: API.getCancelCondition(),
+      ...API.getCancelCondition(),
     };
     const response = await API.executeCreateOrderRequest(request);
     if (response.Status === "Success") {
