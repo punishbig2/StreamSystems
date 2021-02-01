@@ -18,6 +18,7 @@ export interface CreateOrder {
   Price: string;
   MDMkt?: string;
   Orders?: any[];
+  CancelCondition: { CancelCondition?: number };
 }
 
 export interface CreateOrderBulk {
