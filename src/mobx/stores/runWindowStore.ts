@@ -19,26 +19,12 @@ export class RunWindowStore {
   @observable defaultOfrSize = 0;
 
   @observable isLoading = false;
-  @observable activeOrders: { [id: string]: Order };
+  @observable activeOrders: { [id: string]: Order } = {};
 
   @observable.ref selection: ReadonlyArray<Order> = [];
   @observable.ref brokerageWidths: BrokerageWidths = [];
 
   @observable initialized = false;
-
-  constructor(orders: { [tenor: string]: Order[] }) {
-    const { user } = workareaStore;
-    this.activeOrders = Object.values(orders)
-      .reduce((flat: Order[], next: Order[]) => [...flat, ...next], [])
-      .filter(
-        (order: Order) => order.user === user.email && order.size !== null
-      )
-      .map((order: Order) => ({
-        ...order,
-        status: order.status | OrderStatus.Active,
-      }))
-      .reduce(ordersReducer, {});
-  }
 
   private static orderTypeToRowKey(
     type: OrderTypes
@@ -121,9 +107,21 @@ export class RunWindowStore {
   public initialize(
     symbol: string,
     strategy: string,
-    tenors: ReadonlyArray<string>
+    tenors: ReadonlyArray<string>,
+    orders: { [id: string]: Order[] }
   ): Task<void> {
+    const { user } = workareaStore;
     this.initialized = true;
+    this.activeOrders = Object.values(orders)
+      .reduce((flat: Order[], next: Order[]) => [...flat, ...next], [])
+      .filter(
+        (order: Order) => order.user === user.email && order.size !== null
+      )
+      .map((order: Order) => ({
+        ...order,
+        status: order.status | OrderStatus.Active,
+      }))
+      .reduce(ordersReducer, {});
     const { email } = workareaStore.user;
     const task: Task<OrderMessage[]> = API.getRunOrders(
       email,
@@ -140,7 +138,7 @@ export class RunWindowStore {
         try {
           const messages: ReadonlyArray<OrderMessage> = await task.execute();
           // Set the orders now
-          this.handleRunOrdersResult(symbol, strategy, tenors, email, messages);
+          this.handleRunOrdersResult(email, messages);
         } finally {
           this.setLoading(false);
         }
@@ -350,9 +348,6 @@ export class RunWindowStore {
   }
 
   private handleRunOrdersResult(
-    symbol: string,
-    strategy: string,
-    tenors: ReadonlyArray<string>,
     email: string,
     messages: ReadonlyArray<OrderMessage>
   ) {

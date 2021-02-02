@@ -59,7 +59,7 @@ export class PodTileStore {
     };
     // Initialize depth with empty arrays
     this.orders = tenors.reduce(reducer, {});
-    this.runWindowStore = new RunWindowStore(this.orders);
+    this.runWindowStore = new RunWindowStore();
   }
 
   @computed

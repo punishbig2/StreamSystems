@@ -34,6 +34,7 @@ const Run: React.FC<OwnProps> = observer(
       defaultSize,
       minimumSize,
       visible,
+      orders,
     } = props;
 
     const { store } = props;
@@ -78,12 +79,12 @@ const Run: React.FC<OwnProps> = observer(
 
     useEffect((): (() => void) | void => {
       if (store.initialized) return;
-      const task = store.initialize(symbol, strategy, tenors);
+      const task = store.initialize(symbol, strategy, tenors, orders);
       task.execute().catch(console.warn);
       return (): void => {
         task.cancel();
       };
-    }, [symbol, strategy, tenors, visible, store]);
+    }, [symbol, strategy, tenors, visible, store, orders]);
 
     useEffect((): void => {
       store.setDefaultSize(defaultSize);
