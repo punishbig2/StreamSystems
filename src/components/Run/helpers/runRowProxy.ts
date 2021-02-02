@@ -19,7 +19,6 @@ const getMid = (row: PodRow): number | null => {
 };
 
 const getSpread = (row: PodRow): number | null => {
-  console.log(row.spread);
   // If it's already set return this one
   if (row.spread !== null) return row.spread;
   const bid: number | null = getPrice(row.bid);

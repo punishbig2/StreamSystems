@@ -2,6 +2,7 @@ import { API, Task } from "API";
 import { createEmptyTable } from "components/Run/helpers/createEmptyTable";
 import { getSelectedOrders } from "components/Run/helpers/getSelectedOrders";
 import { ordersReducer } from "components/Run/helpers/ordersReducer";
+import { RunRowProxy } from "components/Run/helpers/runRowProxy";
 import { action, observable } from "mobx";
 import { BrokerageWidths } from "types/brokerageWidths";
 import { OrderTypes } from "types/mdEntry";
@@ -71,7 +72,8 @@ export class RunWindowStore {
     };
   }
 
-  private static recomputePrices(row: PodRow): PodRow {
+  private static recomputePrices(originalRow: PodRow): PodRow {
+    const row = new Proxy(originalRow, RunRowProxy);
     if (row.mid === null || row.spread === null) {
       return row;
     }
@@ -176,7 +178,8 @@ export class RunWindowStore {
     };
   }
 
-  private static recomputeMidAndSpread(row: PodRow): PodRow {
+  private static recomputeMidAndSpread(originalRow: PodRow): PodRow {
+    const row = new Proxy(originalRow, RunRowProxy);
     const { bid, ofr } = row;
     if (bid.price === null || ofr.price === null) return row;
     return {
