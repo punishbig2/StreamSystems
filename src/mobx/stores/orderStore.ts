@@ -8,6 +8,7 @@ import { Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
 import { getCurrentTime, getSideFromType } from "utils/commonUtils";
+import { priceFormatter } from "utils/priceFormatter";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { $$ } from "utils/stringPaster";
 
@@ -88,6 +89,36 @@ export class OrderStore {
     return { OrderID: clashingOrder.orderId };
   }
 
+  private getNewOrderStatus(price: number): OrderStatus {
+    const { depth } = this;
+    const top: Order | undefined = depth.find(
+      (order: Order): boolean =>
+        (order.status & OrderStatus.Active) === OrderStatus.Active &&
+        (order.status & OrderStatus.Cancelled) === 0
+    );
+    if (top === undefined)
+      return OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned;
+    if (priceFormatter(price) === priceFormatter(top.price)) {
+      return OrderStatus.Active;
+    } else {
+      if (top.price === null) return OrderStatus.Active;
+      switch (this.type) {
+        case OrderTypes.Ofr:
+          return price < top.price
+            ? OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned
+            : OrderStatus.Active;
+        case OrderTypes.Bid:
+          return price > top.price
+            ? OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned
+            : OrderStatus.Active;
+        case OrderTypes.DarkPool:
+        case OrderTypes.Invalid:
+          break;
+      }
+    }
+    return OrderStatus.Active;
+  }
+
   @action.bound
   public async createWithType(
     inputPrice: number | null,
@@ -137,7 +168,7 @@ export class OrderStore {
         firm: user.firm,
         user: user.email,
         // Status should obviously be like the following
-        status: OrderStatus.Owned | OrderStatus.Active,
+        status: this.getNewOrderStatus(price),
         // Response received from the server
         timestamp: response.TransactTime,
         orderId: response.OrderID,
@@ -158,10 +189,12 @@ export class OrderStore {
           ? OrderStatus.HasDepth
           : OrderStatus.None;
       // Update current order
-      this.setOrder(
-        newOrder,
-        newOrder.status | OrderStatus.JustCreated | status
-      );
+      if ((status & OrderStatus.AtTop) === OrderStatus.AtTop) {
+        this.setOrder(
+          newOrder,
+          newOrder.status | OrderStatus.JustCreated | status
+        );
+      }
     } else {
       this.currentStatus =
         (this.currentStatus & ~OrderStatus.BeingCreated) |

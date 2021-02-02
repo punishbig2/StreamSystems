@@ -7,7 +7,6 @@ export const getRelevantOrders = (
   type: OrderTypes
 ): Order[] => {
   if (!orders) return [];
-  return orders
-    .filter((order: Order) => order.type === type)
-    .sort(orderSorter(type));
+  const filtered = orders.filter((order: Order) => order.type === type);
+  return filtered.sort(orderSorter(type));
 };

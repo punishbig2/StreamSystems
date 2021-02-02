@@ -13,8 +13,9 @@ export const orderSorter = (type: OrderTypes) => {
     if (o2.size === null) return Number.MIN_SAFE_INTEGER;
     if (o1.price === null) return o2.price === null ? 0 : 1;
     if (o2.price === null) return -1;
-    if (priceFormatter(o1.price) === priceFormatter(o2.price))
+    if (priceFormatter(o1.price) === priceFormatter(o2.price)) {
       return o1.timestamp - o2.timestamp;
+    }
     return sign * (o1.price - o2.price);
   };
 };

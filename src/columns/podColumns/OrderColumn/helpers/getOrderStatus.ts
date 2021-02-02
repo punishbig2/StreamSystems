@@ -1,10 +1,9 @@
-import { OrderStatus, Order } from "types/order";
 import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
-import { Role } from "types/role";
-import { User } from "types/user";
 import { PodTableType } from "columns/podColumns/OrderColumn/index";
 import workareaStore from "mobx/stores/workareaStore";
-import { priceFormatter } from "utils/priceFormatter";
+import { Order, OrderStatus } from "types/order";
+import { Role } from "types/role";
+import { User } from "types/user";
 
 export const getOrderStatus = (
   topOrder: Order | undefined,
@@ -30,7 +29,7 @@ export const getOrderStatus = (
     !!ownOrder && ownOrder.orderId !== topOrder.orderId
       ? OrderStatus.HasMyOrder
       : OrderStatus.None;
-  status |= topOrder.user === user.email ? OrderStatus.Owned : OrderStatus.None;
+  status |= topOrder === ownOrder ? OrderStatus.Owned : OrderStatus.None;
   // If it's the same firm the order belongs to the same bank
   if ((status & OrderStatus.Owned) === 0)
     status |= topOrder.firm === bank ? OrderStatus.SameBank : OrderStatus.None;
@@ -49,10 +48,7 @@ export const getOrderStatus = (
   status |=
     tableType === PodTableType.Dob ? OrderStatus.InDepth : OrderStatus.None;
   if (ownOrder) {
-    status |=
-      priceFormatter(topOrder.price) === priceFormatter(ownOrder.price)
-        ? OrderStatus.AtTop
-        : OrderStatus.None;
+    status |= topOrder === ownOrder ? OrderStatus.AtTop : OrderStatus.None;
   }
   // We finally have the definitive status
   return status;

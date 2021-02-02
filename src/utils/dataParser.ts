@@ -144,30 +144,6 @@ export const toPodRow = (w: W, user: User): PodRow => {
   };
 };
 
-export const extractDepth = (w: W, user: User): PodTable => {
-  const entries: MDEntry[] = w.Entries || [];
-  const bids: MDEntry[] = entries.filter(
-    (entry: MDEntry) => entry.MDEntryType === OrderTypes.Bid
-  );
-  const ofrs: MDEntry[] = entries.filter(
-    (entry: MDEntry) => entry.MDEntryType === OrderTypes.Ofr
-  );
-  const compareEntries = (sign: number) => (a: MDEntry, b: MDEntry) => {
-    let value: number = sign * (Number(a.MDEntryPx) - Number(b.MDEntryPx));
-    if (value !== 0) return value;
-    value = Number(a.MDEntryTime) - Number(b.MDEntryTime);
-    if (value !== 0) return value;
-    value = Number(a.MDEntrySize) - Number(b.MDEntrySize);
-    if (value !== 0) return value;
-    return 0;
-  };
-  // Sort bids
-  bids.sort(compareEntries(-1));
-  ofrs.sort(compareEntries(1));
-  // Change the shape of this thing
-  return reshape(w, user, bids, ofrs);
-};
-
 export const orderArrayToPodTableReducer = (table: PodTable, order: Order) => {
   const currentBid: Order = table[order.tenor]
     ? table[order.tenor].bid

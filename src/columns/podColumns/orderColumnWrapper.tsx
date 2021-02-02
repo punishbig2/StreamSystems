@@ -50,7 +50,7 @@ export const OrderColumnWrapper = (
       }
       return <div className={"twin-header"}>{items}</div>;
     },
-    render: (props: PodRowProps) => {
+    render: (props: PodRowProps): React.ReactElement => {
       return (
         <OrderColumn
           type={type}

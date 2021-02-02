@@ -81,12 +81,12 @@ export class RunWindowStore {
       bid: RunWindowStore.toActiveOrder({
         ...bid,
         status: bid.status,
-        price: row.mid - row.spread,
+        price: row.mid - row.spread / 2,
       }),
       ofr: RunWindowStore.toActiveOrder({
         ...ofr,
         status: ofr.status,
-        price: row.mid + row.spread,
+        price: row.mid + row.spread / 2,
       }),
     };
   }

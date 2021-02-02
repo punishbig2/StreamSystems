@@ -43,7 +43,6 @@ export class PodTileStore {
   private creatingBulk: boolean = false;
 
   constructor(windowID: string) {
-    console.log("creating a new pod tile store");
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
     this.id = windowID;
     const hydrate = create({

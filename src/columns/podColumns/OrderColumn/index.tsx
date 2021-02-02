@@ -52,7 +52,10 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     } = props;
     const [store] = useState<OrderStore>(new OrderStore());
     const { price, size } = store;
-    const relevantOrders: Order[] = getRelevantOrders(orders, type);
+    const relevantOrders: Order[] = useMemo(
+      (): Order[] => getRelevantOrders(orders, type),
+      [orders, type]
+    );
     // Used for the fallback order
     const { currency: symbol, strategy, tenor } = props;
     // It should never happen that this is {} as Order
@@ -85,7 +88,6 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       rowStore.setError(null);
     }, [price, rowStore, size]);
 
-    // const onChangeSize = (value: string | null) => store.setEditedSize(Number(value));
     const renderTooltip = (): ReactElement | null => {
       const filtered: Order[] = relevantOrders.filter(
         (order: Order) => order.size !== null
