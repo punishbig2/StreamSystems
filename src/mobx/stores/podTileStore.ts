@@ -1,6 +1,6 @@
 import { API, Task } from "API";
 import { orderSorter } from "components/PodTile/helpers";
-import { action, computed, observable } from "mobx";
+import { action, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";

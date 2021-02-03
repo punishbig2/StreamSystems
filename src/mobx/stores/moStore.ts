@@ -892,6 +892,7 @@ export class MoStore {
   @action.bound
   public async addDeal(deal: Deal): Promise<void> {
     const { deals } = this;
+    if (this.isEditMode) return;
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === deal.id
     );
@@ -899,7 +900,7 @@ export class MoStore {
       this.deals = [deal, ...deals];
       const task: Task<void> = this.setDeal(deal);
       // Execute the add deal task
-      task.execute();
+      await task.execute();
     } else {
       const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
