@@ -61,7 +61,7 @@ export const PodTile: React.FC<Props> = observer(
         currency.name,
         strategy
       );
-      initializeTask.execute().catch(console.warn);
+      initializeTask.execute();
       return () => {
         initializeTask.cancel();
         cleanUps.forEach((clean: () => void): void => clean());

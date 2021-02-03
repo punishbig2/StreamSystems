@@ -35,8 +35,8 @@ export class PodTileStore {
   @observable isProgressWindowVisible: boolean = false;
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
-  @observable.ref darkPrices: { [tenor: string]: number | null } = {};
-  @observable.ref rawRows: { [tenor: string]: PodRow } = {};
+  // @observable.ref darkPrices: { [tenor: string]: number | null } = {};
+  @observable.ref rows: { [tenor: string]: PodRow } = {};
   @observable runWindowStore: RunWindowStore;
 
   public progressMax: number = 100;
@@ -62,19 +62,6 @@ export class PodTileStore {
     this.runWindowStore = new RunWindowStore();
   }
 
-  @computed
-  public get rows(): { [tenor: string]: PodRow } {
-    const { rawRows, darkPrices } = this;
-    const keys: ReadonlyArray<string> = Object.keys(rawRows);
-    return keys.reduce((rows: PodTable, tenor: string): PodTable => {
-      const row: PodRow = rows[tenor];
-      return {
-        ...rows,
-        [tenor]: { ...row, darkPrice: darkPrices[tenor] },
-      };
-    }, rawRows);
-  }
-
   @action.bound
   public persist(currency: string, strategy: string) {
     this.currency = currency;
@@ -83,7 +70,7 @@ export class PodTileStore {
 
   @action.bound
   public setRows(rows: PodTable) {
-    this.rawRows = rows;
+    this.rows = rows;
   }
 
   /*@action.bound
@@ -111,11 +98,11 @@ export class PodTileStore {
       }, {});
       this.loading = false;
     }
-  }*/
+  }
   @action.bound
   private setDarkPrices(prices: { [tenor: string]: number | null }): void {
     this.darkPrices = prices;
-  }
+  }*/
 
   @action.bound
   private updateSingleDepth(tenor: string, w: W) {
@@ -325,9 +312,9 @@ export class PodTileStore {
           tenors,
           snapshot
         );
-        const darkPoolQuotesTask: Task<ReadonlyArray<
-          DarkPoolQuote
-        >> = API.getDarkPoolLastQuotes(currency, strategy);
+        const darkPoolQuotesTask: Task<
+          ReadonlyArray<DarkPoolQuote>
+        > = API.getDarkPoolLastQuotes(currency, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
         // Initialize from depth snapshot
@@ -335,21 +322,23 @@ export class PodTileStore {
         this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
         // Other task
         const quotes: ReadonlyArray<DarkPoolQuote> = await darkPoolQuotesTask.execute();
-        this.setDarkPrices(
-          quotes.reduce(
-            (
-              prices: { [tenor: string]: number | null },
-              quote: DarkPoolQuote
-            ): { [tenor: string]: number | null } => {
-              return {
-                ...prices,
-                [quote.Tenor]:
-                  quote.DarkPrice === undefined ? null : quote.DarkPrice,
-              };
-            },
-            {}
-          )
+        const darkPrices = quotes.reduce(
+          (
+            prices: { [tenor: string]: number | null },
+            quote: DarkPoolQuote
+          ): { [tenor: string]: number | null } => {
+            return {
+              ...prices,
+              [quote.Tenor]:
+                quote.DarkPrice === undefined ? null : quote.DarkPrice,
+            };
+          },
+          {}
         );
+        const rowIds: ReadonlyArray<string> = Object.keys(this.rows);
+        this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
+          return { ...rows, [id]: { ...rows[id], darkPrice: darkPrices[id] } };
+        }, this.rows);
       },
       cancel: (): void => {
         for (const task of tasks) {

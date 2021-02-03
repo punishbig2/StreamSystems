@@ -7,15 +7,15 @@ export enum PodRowStatus {
 }
 
 interface TOBRowBase {
-  id: string;
-  tenor: string;
+  readonly id: string;
+  readonly tenor: string;
   bid: Order;
   ofr: Order;
   mid: number | null;
   spread: number | null;
-  status: PodRowStatus;
+  readonly status: PodRowStatus;
 }
 
 export type PodRow = TOBRowBase & {
-  darkPrice: number | null;
+  readonly darkPrice: number | null;
 };
