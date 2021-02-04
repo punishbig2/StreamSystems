@@ -963,34 +963,38 @@ export class API {
     };
   }
 
-  private static async saveLegs(dealID: string): Promise<string> {
+  private static async saveLegs(
+    dealID: string,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null
+  ): Promise<string> {
     const { user } = workareaStore;
-    const { legs, summaryLeg } = moStore;
     const allLegs = [
       ...(summaryLeg
         ? summaryLeg.dealOutput
-          ? [summaryLeg.dealOutput]
+          ? [{ ...summaryLeg.dealOutput, option: "SumLeg" }]
           : []
         : []),
       ...legs,
     ];
+    const mappedLegs: ReadonlyArray<Leg> = allLegs.map(
+      (leg: Leg): Leg => {
+        const { strike, fwdPts } = leg;
+        return {
+          ...leg,
+          ...(fwdPts !== null && fwdPts !== undefined
+            ? { fwdPts: floatAsString(fwdPts) }
+            : {}),
+          ...(!!strike
+            ? { strike: floatAsString(numberifyIfPossible(strike)) }
+            : {}),
+        };
+      }
+    );
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
-      legs: allLegs.map(
-        (leg: Leg): Leg => {
-          const { strike, fwdPts } = leg;
-          return {
-            ...leg,
-            ...(fwdPts !== null && fwdPts !== undefined
-              ? { fwdPts: floatAsString(fwdPts) }
-              : {}),
-            ...(!!strike
-              ? { strike: floatAsString(numberifyIfPossible(strike)) }
-              : {}),
-          };
-        }
-      ),
+      legs: mappedLegs,
     });
     return task.execute();
   }
@@ -1026,7 +1030,10 @@ export class API {
   ): Promise<string> {
     if (data.dealID === undefined)
       throw new Error("to save an existing deal please provide an id");
-    await API.saveLegs(data.dealID);
+    const legs: ReadonlyArray<Leg> = [...moStore.legs];
+    const summaryLeg: SummaryLeg | null =
+      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
+    await API.saveLegs(data.dealID, legs, summaryLeg);
     // Save the deal now
     const task: Task<string> = post<string>(
       API.buildUrl(API.Deal, "deal", "update"),
@@ -1043,9 +1050,12 @@ export class API {
       API.buildUrl(API.Deal, "deal", "clone"),
       API.createDealRequest(data, changed)
     );
+    const legs: ReadonlyArray<Leg> = [...moStore.legs];
+    const summaryLeg: SummaryLeg | null =
+      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
     const dealID: string = await task.execute();
     // Save the legs now
-    await API.saveLegs(dealID);
+    await API.saveLegs(dealID, legs, summaryLeg);
     return dealID;
   }
 
@@ -1057,9 +1067,12 @@ export class API {
       API.buildUrl(API.Deal, "deal", "create"),
       API.createDealRequest(data, changed)
     );
+    const legs: ReadonlyArray<Leg> = [...moStore.legs];
+    const summaryLeg: SummaryLeg | null =
+      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
     const dealID: string = await task.execute();
     // Save the legs now
-    await API.saveLegs(dealID);
+    await API.saveLegs(dealID, legs, summaryLeg);
     return dealID;
   }
 
