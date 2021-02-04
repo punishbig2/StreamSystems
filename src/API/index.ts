@@ -740,9 +740,9 @@ export class API {
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> = get<
-      BankEntitiesQueryResponse
-    >(config.PrePricerUrl + "/entities");
+    const task: Task<BankEntitiesQueryResponse> = get<BankEntitiesQueryResponse>(
+      config.PrePricerUrl + "/entities"
+    );
     return task.execute();
   }
 
@@ -965,11 +965,19 @@ export class API {
 
   private static async saveLegs(dealID: string): Promise<string> {
     const { user } = workareaStore;
-    const { legs } = moStore;
+    const { legs, summaryLeg } = moStore;
+    const allLegs = [
+      ...legs,
+      ...(summaryLeg
+        ? summaryLeg.dealOutput
+          ? [summaryLeg.dealOutput]
+          : []
+        : []),
+    ];
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
-      legs: legs.map(
+      legs: allLegs.map(
         (leg: Leg): Leg => {
           const { strike, fwdPts } = leg;
           return {
