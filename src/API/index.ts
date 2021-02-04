@@ -967,12 +967,12 @@ export class API {
     const { user } = workareaStore;
     const { legs, summaryLeg } = moStore;
     const allLegs = [
-      ...legs,
       ...(summaryLeg
         ? summaryLeg.dealOutput
           ? [summaryLeg.dealOutput]
           : []
         : []),
+      ...legs,
     ];
     const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
