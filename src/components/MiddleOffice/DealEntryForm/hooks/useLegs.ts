@@ -150,6 +150,7 @@ export const handleLegsResponse = (
   legs: ReadonlyArray<Leg>,
   cuts: ReadonlyArray<Cut>
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
+  if (legs.length === 0) return [[], null];
   const { summaryLeg } = moStore;
   const { extra_fields = {} } = entry;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
