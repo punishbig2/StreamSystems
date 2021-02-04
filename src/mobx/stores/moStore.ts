@@ -835,6 +835,7 @@ export class MoStore {
         throw new Error("this function should not be called in current state");
       case EntryType.New:
         this.setStatus(MoStatus.CreatingDeal);
+        this.isEditMode = false;
         API.createDeal(this.buildRequest(), [])
           .then((id: string) => {
             this.onDealSaved(id);
@@ -844,6 +845,7 @@ export class MoStore {
           });
         break;
       case EntryType.Clone:
+        this.isEditMode = false;
         this.setStatus(MoStatus.CreatingDeal);
         API.cloneDeal(this.buildRequest(), [])
           .then((id: string) => {
@@ -892,18 +894,23 @@ export class MoStore {
   @action.bound
   public async addDeal(deal: Deal): Promise<void> {
     const { deals } = this;
-    if (this.isEditMode) return;
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === deal.id
     );
     if (index === -1) {
       this.deals = [deal, ...deals];
+      // If the user is editing we should not set
+      // the new deal
+      if (this.isEditMode) return;
       const task: Task<void> = this.setDeal(deal);
       // Execute the add deal task
       await task.execute();
     } else {
       const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
+      // If the user is editing we should not set
+      // the new deal
+      if (this.isEditMode) return;
       if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
         const task: Task<DealEntry> = createDealEntry(deal);
         task
