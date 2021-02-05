@@ -588,6 +588,16 @@ export class MoStore {
     };
   }
 
+  private getCurrentLegs(): Task<{ legs: ReadonlyArray<Leg> } | null> {
+    const { legs } = this;
+    return {
+      execute: async (): Promise<{ legs: ReadonlyArray<Leg> } | null> => {
+        return { legs };
+      },
+      cancel: (): void => {},
+    };
+  }
+
   @action.bound
   public setDeal(deal: Deal | null): Task<void> {
     const { entry } = this;
@@ -612,9 +622,10 @@ export class MoStore {
       this.entryType = EntryType.ExistingDeal;
       this.selectedDealID = deal.id;
       // If we do need to resolve the dates, let's do so
-      const task1: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
-        deal.id
-      );
+      const task1: Task<{ legs: ReadonlyArray<Leg> } | null> =
+        this.status === MoStatus.CreatingDeal
+          ? this.getCurrentLegs()
+          : API.getLegs(deal.id);
       const removeListener = signalRManager.addPricingResponseListener(
         (data: PricingMessage): void => {
           const { entry } = this;
@@ -636,7 +647,7 @@ export class MoStore {
           // Reset the legs now
           this.setLegs([], null);
           // Attempt to load new
-          this.isLoadingLegs = true;
+          this.isLoadingLegs = this.status !== MoStatus.CreatingDeal;
           // Start loading now
           const response = await task1.execute();
           this.entry = await task2.execute();
@@ -834,8 +845,8 @@ export class MoStore {
       case EntryType.ExistingDeal:
         throw new Error("this function should not be called in current state");
       case EntryType.New:
-        this.setStatus(MoStatus.CreatingDeal);
         this.isEditMode = false;
+        this.setStatus(MoStatus.CreatingDeal);
         API.createDeal(this.buildRequest(), [])
           .then((id: string) => {
             this.onDealSaved(id);
@@ -879,28 +890,8 @@ export class MoStore {
       const task: Task<DealEntry> = createDealEntry(deal);
       task
         .execute()
-        .then(
-          async (
-            entry: DealEntry
-          ): Promise<[ReadonlyArray<Leg>, SummaryLeg | null] | null> => {
-            const task: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
-              id
-            );
-            this.setEntry(entry);
-            const data: {
-              legs: ReadonlyArray<Leg>;
-            } | null = await task.execute();
-            if (data !== null) {
-              return handleLegsResponse(entry, data.legs, this.cuts);
-            } else {
-              return null;
-            }
-          }
-        )
-        .then((data: [ReadonlyArray<Leg>, SummaryLeg | null] | null): void => {
-          if (data === null) return;
-          this.legs = data[0];
-          this.summaryLeg = data[1];
+        .then((entry: DealEntry): void => {
+          this.setEntry(entry);
         })
         .catch(console.warn);
     }

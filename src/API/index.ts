@@ -1056,7 +1056,9 @@ export class API {
     const dealID: string = await task.execute();
     // Save the legs now
     await API.saveLegs(dealID, legs, summaryLeg);
-    // Update legs
+    // Once saved, set them in the store
+    moStore.setLegs(legs, summaryLeg);
+    // Now we're done
     return dealID;
   }
 
@@ -1074,6 +1076,9 @@ export class API {
     const dealID: string = await task.execute();
     // Save the legs now
     await API.saveLegs(dealID, legs, summaryLeg);
+    // Once saved, set them in the store
+    moStore.setLegs(legs, summaryLeg);
+    // Now we're done
     return dealID;
   }
 
