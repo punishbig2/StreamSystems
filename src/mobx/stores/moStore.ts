@@ -879,8 +879,28 @@ export class MoStore {
       const task: Task<DealEntry> = createDealEntry(deal);
       task
         .execute()
-        .then((entry: DealEntry): void => {
-          this.setEntry(entry);
+        .then(
+          async (
+            entry: DealEntry
+          ): Promise<[ReadonlyArray<Leg>, SummaryLeg | null] | null> => {
+            const task: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
+              id
+            );
+            this.setEntry(entry);
+            const data: {
+              legs: ReadonlyArray<Leg>;
+            } | null = await task.execute();
+            if (data !== null) {
+              return handleLegsResponse(entry, data.legs, this.cuts);
+            } else {
+              return null;
+            }
+          }
+        )
+        .then((data: [ReadonlyArray<Leg>, SummaryLeg | null] | null): void => {
+          if (data === null) return;
+          this.legs = data[0];
+          this.summaryLeg = data[1];
         })
         .catch(console.warn);
     }
