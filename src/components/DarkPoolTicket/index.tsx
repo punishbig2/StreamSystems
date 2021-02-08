@@ -134,7 +134,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               <OutlinedInput
                 className={classes.outlinedInput}
                 id={"price"}
-                value={price}
+                value={priceFormatter(price)}
                 onChange={updatePrice}
                 labelWidth={0}
                 readOnly
