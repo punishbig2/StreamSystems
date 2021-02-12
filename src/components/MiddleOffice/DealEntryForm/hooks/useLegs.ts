@@ -224,9 +224,9 @@ export const handleLegsResponse = (
     ...{
       dealOutput: {
         ...legs[0],
-        hedge: calculateNetValue(finalLegs, "hedge"),
-        premium: calculateNetValue(finalLegs, "premium"),
-        price: calculateNetValue(finalLegs, "price"),
+        hedge: calculateNetValue(entry.strategy, finalLegs, "hedge"),
+        premium: calculateNetValue(entry.strategy, finalLegs, "premium"),
+        price: calculateNetValue(entry.strategy, finalLegs, "price"),
       },
     },
   } as SummaryLeg;

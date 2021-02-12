@@ -411,11 +411,12 @@ export class MoStore {
       ...legs.slice(index + 1),
     ];
     if (["hedge", "price", "premium"].includes(key) && summaryLeg !== null) {
+      const { entry } = this;
       const dealOutput = {
         ...summaryLeg.dealOutput,
-        hedge: calculateNetValue(this.legs, "hedge"),
-        premium: calculateNetValue(this.legs, "premium"),
-        price: calculateNetValue(this.legs, "price"),
+        hedge: calculateNetValue(entry.strategy, this.legs, "hedge"),
+        premium: calculateNetValue(entry.strategy, this.legs, "premium"),
+        price: calculateNetValue(entry.strategy, this.legs, "price"),
       };
       // Update summary net hedge
       this.summaryLeg = {

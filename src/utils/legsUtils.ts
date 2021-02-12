@@ -1,6 +1,9 @@
 import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
 import { Leg, Rates } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
@@ -177,12 +180,37 @@ export const convertLegNumbers = (leg: Leg): Leg => {
   };
 };
 
+const getReturnLegOut = (strategy: MOStrategy, index: number): string => {
+  const defs = moStore.legDefinitions[strategy.productid];
+  console.log(defs);
+  if (defs === undefined) {
+    throw new Error(
+      "We must have a legs definition for strategy: " + strategy.name
+    );
+  }
+  const { out } = defs;
+  const found: LegOptionsDefOut | undefined = out[index];
+  if (found === undefined) {
+    throw new Error(
+      "We must have a legs definition for strategy: " + strategy.name
+    );
+  }
+  const { ReturnLegOut } = found;
+  return ReturnLegOut.toLowerCase();
+};
+
 export const calculateNetValue = (
+  strategy: MOStrategy,
   legs: ReadonlyArray<Leg>,
   key: keyof Leg
 ): StyledValue => {
   return legs.reduce(
-    (total: StyledValue, leg: Leg): StyledValue => {
+    (total: StyledValue, leg: Leg, index: number): StyledValue => {
+      const returnLegOut = getReturnLegOut(strategy, index);
+      if (returnLegOut !== "call" && returnLegOut !== "put") {
+        console.log("Ignoring leg: " + leg.option);
+        return total;
+      }
       const value: unknown = leg[key];
       if (!isStyledValue(value)) {
         throw new Error(`leg.${key} is not a styled value`);
