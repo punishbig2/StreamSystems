@@ -133,8 +133,16 @@ const Run: React.FC<OwnProps> = observer(
 
     // This builds the set of columns of the run depth with it's callbacks
     const columns = useMemo(
-      () => createColumnsWithStore(store, minimumSize, defaultSize, visible),
-      [store, minimumSize, defaultSize, visible]
+      () =>
+        createColumnsWithStore(
+          store,
+          minimumSize,
+          defaultSize,
+          defaultBidSize,
+          defaultOfrSize,
+          visible
+        ),
+      [store, defaultBidSize, defaultOfrSize, minimumSize, defaultSize, visible]
     );
 
     return (

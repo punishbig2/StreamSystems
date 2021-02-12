@@ -12,6 +12,8 @@ export const createColumnsWithStore = (
   store: RunWindowStore,
   minimumSize: number,
   defaultSize: number,
+  defaultBidSize: number,
+  defaultOfrSize: number,
   visible: boolean
 ) => {
   return createColumns({
@@ -30,17 +32,21 @@ export const createColumnsWithStore = (
       store.deactivateOrder(id, type),
     defaultBidSize: {
       minimum: minimumSize,
-      value: store.defaultBidSize,
-      onSubmit: (input: HTMLInputElement, value: number | null): void =>
-        store.setDefaultBidSize(value),
+      value: defaultBidSize,
+      onSubmit: (input: HTMLInputElement, value: number | null): void => {
+        store.setDefaultBidSize(value);
+        skipTabIndexAll(input, 3, 0, 9);
+      },
       onReset: (): void => store.setDefaultBidSize(defaultSize),
       type: OrderTypes.Bid,
     },
     defaultOfrSize: {
       minimum: minimumSize,
-      value: store.defaultOfrSize,
-      onSubmit: (input: HTMLInputElement, value: number | null): void =>
-        store.setDefaultOfrSize(value),
+      value: defaultOfrSize,
+      onSubmit: (input: HTMLInputElement, value: number | null): void => {
+        store.setDefaultOfrSize(value);
+        skipTabIndexAll(input, 2, 0, 9);
+      },
       onReset: (): void => store.setDefaultOfrSize(defaultSize),
       type: OrderTypes.Ofr,
     },

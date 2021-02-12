@@ -1,7 +1,6 @@
 import { PodTable } from "types/podTable";
 import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
-import { $$ } from "utils/stringPaster";
 
 export const getSelectedOrders = (
   orders: PodTable,
@@ -19,27 +18,22 @@ export const getSelectedOrders = (
       return true;
     return bid.price <= ofr.price;
   });
-  const getSize = (order: Order, fallback: number | null): number | null => {
+  /*const getSize = (order: Order, fallback: number | null): number | null => {
     const element: HTMLElement | null = document.getElementById(
       $$("run-size-", order.uid(), order.type)
     );
+    console.log(element);
     if (element === null) return fallback;
     const input: HTMLInputElement = element as HTMLInputElement;
     const value: number = Number(input.value);
     if (isNaN(value)) return fallback;
     return value;
-  };
+  };*/
   const selection: Order[] = [
-    ...rows.map(({ bid }: PodRow) => ({
-      ...bid,
-      size: getSize(bid, defaultBidSize),
-    })),
-    ...rows.map(({ ofr }: PodRow) => ({
-      ...ofr,
-      size: getSize(ofr, defaultOfrSize),
-    })),
+    ...rows.map(({ bid }: PodRow) => bid),
+    ...rows.map(({ ofr }: PodRow) => ofr),
   ];
-  return selection.filter((order: Order) => {
+  return selection.filter((order: Order): boolean => {
     if (order.price === null || order.size === null) return false;
     return !(
       (order.status & OrderStatus.SizeEdited) === 0 &&

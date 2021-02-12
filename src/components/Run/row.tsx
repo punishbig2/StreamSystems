@@ -19,7 +19,9 @@ interface OwnProps {
   containerWidth: number;
 }
 
-const Row = (props: OwnProps & RowState) => {
+const Row: React.FC<OwnProps & RowState> = (
+  props: OwnProps & RowState
+): React.ReactElement => {
   const { columns, row, fixedRow, totalWidth, containerWidth, user } = props;
   const { status } = row;
   useEffect(() => {

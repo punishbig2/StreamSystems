@@ -41,9 +41,10 @@ export const skipTabIndex = (
 export const skipTabIndexAll = (
   target: HTMLInputElement,
   n: number,
-  cycle: number | "first-row" | "last-row" = 0
+  cycle: number | "first-row" | "last-row" = 0,
+  containerDistance = 7
 ) => {
-  const parent: Element | null = getNthParentOf(target, 7);
+  const parent: Element | null = getNthParentOf(target, containerDistance);
   if (parent !== null) {
     const inputs: HTMLInputElement[] = Array.from(
       parent.querySelectorAll("input")

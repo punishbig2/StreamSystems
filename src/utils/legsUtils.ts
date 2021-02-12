@@ -182,7 +182,6 @@ export const convertLegNumbers = (leg: Leg): Leg => {
 
 const getReturnLegOut = (strategy: MOStrategy, index: number): string => {
   const defs = moStore.legDefinitions[strategy.productid];
-  console.log(defs);
   if (defs === undefined) {
     throw new Error(
       "We must have a legs definition for strategy: " + strategy.name
@@ -208,7 +207,6 @@ export const calculateNetValue = (
     (total: StyledValue, leg: Leg, index: number): StyledValue => {
       const returnLegOut = getReturnLegOut(strategy, index);
       if (returnLegOut !== "call" && returnLegOut !== "put") {
-        console.log("Ignoring leg: " + leg.option);
         return total;
       }
       const value: unknown = leg[key];

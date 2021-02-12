@@ -9,6 +9,7 @@ import { OrderTypes } from "types/mdEntry";
 import { Order, OrderMessage, OrderStatus } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { PodTable } from "types/podTable";
+import { sizeFormatter } from "utils/sizeFormatter";
 import workareaStore from "./workareaStore";
 
 export class RunWindowStore {
@@ -39,12 +40,18 @@ export class RunWindowStore {
     }
   }
 
-  private static toActiveOrder(order: Order): Order {
+  private toActiveOrder(order: Order): Order {
+    let status: OrderStatus =
+      order.status | OrderStatus.Active | OrderStatus.PriceEdited;
+    const defaultSize: number =
+      order.type === OrderTypes.Ofr ? this.defaultOfrSize : this.defaultBidSize;
+    if (sizeFormatter(order.size) !== sizeFormatter(defaultSize)) {
+      status |= OrderStatus.SizeEdited;
+    }
     return {
       ...order,
-      status:
-        (order.status | OrderStatus.Active | OrderStatus.PriceEdited) &
-        ~OrderStatus.Cancelled,
+      /* Remove the cancelled flag too */
+      status: status & ~OrderStatus.Cancelled,
     };
   }
 
@@ -58,7 +65,7 @@ export class RunWindowStore {
     };
   }
 
-  private static recomputePrices(originalRow: PodRow): PodRow {
+  private recomputePrices(originalRow: PodRow): PodRow {
     const row = new Proxy(originalRow, RunRowProxy);
     if (row.mid === null || row.spread === null) {
       return row;
@@ -66,12 +73,12 @@ export class RunWindowStore {
     const { bid, ofr } = row;
     return {
       ...row,
-      bid: RunWindowStore.toActiveOrder({
+      bid: this.toActiveOrder({
         ...bid,
         status: bid.status,
         price: row.mid - row.spread / 2,
       }),
-      ofr: RunWindowStore.toActiveOrder({
+      ofr: this.toActiveOrder({
         ...ofr,
         status: ofr.status,
         price: row.mid + row.spread / 2,
@@ -79,18 +86,27 @@ export class RunWindowStore {
     };
   }
 
-  @action.bound
-  public setMidOrSpreadAll(value: number | null, key: "mid" | "spread"): void {
-    const { rows } = this;
+  private static forEachRow(
+    rows: PodTable,
+    action: (row: PodRow) => PodRow
+  ): PodTable {
     const ids: ReadonlyArray<string> = Object.keys(rows);
-    this.rows = ids.reduce((newRows: PodTable, id: string): PodTable => {
+    return ids.reduce((newRows: PodTable, id: string): PodTable => {
       const row: PodRow = newRows[id];
       // Now return the fixed row
       return {
         ...newRows,
-        [id]: RunWindowStore.recomputePrices({ ...row, [key]: value }),
+        [id]: action(row),
       };
     }, rows);
+  }
+
+  @action.bound
+  public setMidOrSpreadAll(value: number | null, key: "mid" | "spread"): void {
+    this.rows = RunWindowStore.forEachRow(
+      this.rows,
+      (row: PodRow): PodRow => this.recomputePrices({ ...row, [key]: value })
+    );
   }
 
   @action.bound
@@ -158,6 +174,22 @@ export class RunWindowStore {
   public setDefaultSize(value: number): void {
     this.defaultBidSize = value;
     this.defaultOfrSize = value;
+    this.rows = RunWindowStore.forEachRow(
+      this.rows,
+      (row: PodRow): PodRow => {
+        return {
+          ...row,
+          ofr: {
+            ...row.ofr,
+            size: value,
+          },
+          bid: {
+            ...row.bid,
+            size: value,
+          },
+        };
+      }
+    );
   }
 
   @action.bound
@@ -168,8 +200,8 @@ export class RunWindowStore {
       ...rows,
       [id]: {
         ...row,
-        bid: RunWindowStore.toActiveOrder(row.bid),
-        ofr: RunWindowStore.toActiveOrder(row.ofr),
+        bid: this.toActiveOrder(row.bid),
+        ofr: this.toActiveOrder(row.ofr),
         spread: null,
         mid: null,
       },
@@ -196,7 +228,7 @@ export class RunWindowStore {
       ...this.rows,
       [id]: RunWindowStore.recomputeMidAndSpread({
         ...row,
-        [key]: RunWindowStore.toActiveOrder({
+        [key]: this.toActiveOrder({
           ...order,
           size: order.size === null ? this.defaultBidSize : order.size,
           price: value,
@@ -230,7 +262,7 @@ export class RunWindowStore {
       ...this.rows,
       [id]: {
         ...row,
-        [key]: RunWindowStore.toActiveOrder({
+        [key]: this.toActiveOrder({
           ...order,
           status: order.status | OrderStatus.SizeEdited,
           size: value,
@@ -260,7 +292,7 @@ export class RunWindowStore {
     const row = rows[id];
     this.rows = {
       ...rows,
-      [id]: RunWindowStore.recomputePrices({ ...row, [key]: value }),
+      [id]: this.recomputePrices({ ...row, [key]: value }),
     };
   }
 
@@ -283,7 +315,7 @@ export class RunWindowStore {
       ...rows,
       [id]: RunWindowStore.recomputeMidAndSpread({
         ...row,
-        [key]: RunWindowStore.toActiveOrder(row[key]),
+        [key]: this.toActiveOrder(row[key]),
       }),
     };
   }
@@ -308,12 +340,36 @@ export class RunWindowStore {
   public setDefaultBidSize(value: number | null): void {
     if (value === null) return;
     this.defaultBidSize = value;
+    this.rows = RunWindowStore.forEachRow(
+      this.rows,
+      (row: PodRow): PodRow => {
+        return {
+          ...row,
+          bid: {
+            ...row.bid,
+            size: value,
+          },
+        };
+      }
+    );
   }
 
   @action.bound
   public setDefaultOfrSize(value: number | null): void {
     if (value === null) return;
     this.defaultOfrSize = value;
+    this.rows = RunWindowStore.forEachRow(
+      this.rows,
+      (row: PodRow): PodRow => {
+        return {
+          ...row,
+          ofr: {
+            ...row.ofr,
+            size: value,
+          },
+        };
+      }
+    );
   }
 
   @action.bound
