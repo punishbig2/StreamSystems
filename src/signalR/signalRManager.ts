@@ -122,7 +122,7 @@ export class SignalRManager {
       .configureLogging(LogLevel.None)
       .build();
 
-  public connect = () => {
+  public connect = (): void => {
     const { connection } = this;
     if (connection !== null) {
       connection

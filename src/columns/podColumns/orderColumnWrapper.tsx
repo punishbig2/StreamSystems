@@ -54,7 +54,7 @@ export const OrderColumnWrapper = (
       return (
         <OrderColumn
           type={type}
-          currency={props.currency}
+          currency={props.symbol}
           strategy={props.strategy}
           tenor={props.tenor}
           orders={props.orders}

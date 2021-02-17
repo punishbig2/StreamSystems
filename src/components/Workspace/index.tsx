@@ -224,7 +224,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
     }
 
     return (
-      <div className={props.visible ? "visible" : "invisible"}>
+      <div className={props.visible ? "visible" : "hidden"}>
         <div className={"toolbar"}>
           <div className={"content"}>
             <button onClick={onAddPodTile}>

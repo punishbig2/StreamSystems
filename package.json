@@ -143,7 +143,7 @@
       "^.+\\.module\\.(css|sass|scss)$"
     ],
     "modulePaths": [
-      "/data/vascar/cib/fx-options-ui/src"
+      "./src"
     ],
     "moduleNameMapper": {
       "^react-native$": "react-native-web",

@@ -188,6 +188,14 @@ const getReturnLegOut = (strategy: MOStrategy, index: number): string => {
     );
   }
   const { out } = defs;
+  if (index >= out.length) {
+    console.warn(
+      `requesting return leg out for a non existing leg ${out.length}/${
+        index + 1
+      }`
+    );
+    return "invalid";
+  }
   const found: LegOptionsDefOut | undefined = out[index];
   if (found === undefined) {
     throw new Error(

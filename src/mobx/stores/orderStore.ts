@@ -297,4 +297,8 @@ export class OrderStore {
     if ((this.baseStatus & OrderStatus.Owned) !== 0) return changed;
     return true;
   }
+
+  public uid(): string {
+    return this.symbol + this.strategy + this.tenor;
+  }
 }

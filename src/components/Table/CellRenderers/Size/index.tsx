@@ -6,24 +6,28 @@ import { sizeFormatter } from "utils/sizeFormatter";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { xPoints } from "utils/timesPolygon";
 
-interface OwnProps {
-  type: OrderTypes;
-  value: number | null;
-  // onChange: (value: string | null) => void;
-  cancellable?: boolean;
-  onCancel?: () => void;
-  className?: string;
-  hideCancelButton?: boolean;
-  chevron?: boolean;
-  tabIndex?: number;
-  readOnly?: boolean;
-  onSubmit: (target: HTMLInputElement, value: number | null) => void;
-  onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
+interface Props {
+  readonly type: OrderTypes;
+  readonly value: number | null;
+  readonly uid: string;
+  readonly cancellable?: boolean;
+  readonly onCancel?: () => void;
+  readonly className?: string;
+  readonly hideCancelButton?: boolean;
+  readonly chevron?: boolean;
+  readonly tabIndex?: number;
+  readonly readOnly?: boolean;
+  readonly onSubmit: (target: HTMLInputElement, value: number | null) => void;
+  readonly onNavigate?: (
+    input: HTMLInputElement,
+    direction: NavigateDirection
+  ) => void;
 }
 
-const defaultProps: OwnProps = {
+const defaultProps: Props = {
   onCancel: () => null,
   onSubmit: () => null,
+  uid: "",
   hideCancelButton: false,
   type: OrderTypes.Invalid,
   value: null,
@@ -31,7 +35,7 @@ const defaultProps: OwnProps = {
   chevron: false,
 };
 
-export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
+export const Size: React.FC<Props> = (props: Props = defaultProps) => {
   const { value } = props;
   const [internalValue, setInternalValue] = useState<number | null>(value);
   const classes: string[] = ["times"];
@@ -65,6 +69,7 @@ export const Size: React.FC<OwnProps> = (props: OwnProps = defaultProps) => {
   const children: ReactNode[] = [
     <NumericInput
       key={1}
+      id={props.uid}
       value={sizeFormatter(internalValue)}
       type={"size"}
       className={props.className}

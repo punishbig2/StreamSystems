@@ -646,6 +646,26 @@ export class API {
     return task.execute();
   }
 
+  public static async clearDarkPoolPrice(
+    user: string,
+    symbol: string,
+    strategy: string,
+    tenor: string
+  ): Promise<void> {
+    const data = {
+      User: user,
+      Symbol: symbol,
+      Strategy: strategy,
+      Tenor: tenor,
+    };
+    console.log("calling clear dark pool price");
+    const task: Task<any> = post<any>(
+      API.buildUrl(API.DarkPool, "price", "clear"),
+      data
+    );
+    return task.execute();
+  }
+
   public static async publishDarkPoolPrice(
     user: string,
     symbol: string,

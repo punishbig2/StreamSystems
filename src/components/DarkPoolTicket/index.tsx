@@ -23,7 +23,7 @@ import { sizeFormatter } from "utils/sizeFormatter";
 
 interface OwnProps {
   tenor: string;
-  currency: string;
+  symbol: string;
   strategy: string;
   price: number;
   minimumSize: number;
@@ -66,7 +66,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       Quantity: sizeFormatter(size),
       Side: side as Sides,
       Strategy: props.strategy,
-      Symbol: props.currency,
+      Symbol: props.symbol,
       Tenor: props.tenor,
       TransactTime: (Date.now() / 1000).toFixed(0),
       User: user.email,
@@ -98,7 +98,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       <div className={"modal-title"}>
         <div className={"title-chain modal-title"}>
           <div className={"title"}>
-            <div className={"item"}>{props.currency}</div>
+            <div className={"item"}>{props.symbol}</div>
             <div className={"item"}>{props.tenor}</div>
             <div className={"item"}>{props.strategy}</div>
           </div>

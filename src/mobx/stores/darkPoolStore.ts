@@ -118,38 +118,43 @@ export class DarkPoolStore {
   }
 
   @action.bound
-  public clearDarkPoolPrice() {
-    this.publishedPrice = null;
-  }
-
-  @action.bound
-  public connect(
-    currency: string,
+  public getClearDarkPoolPriceCallback = (
+    symbol: string,
     strategy: string,
     tenor: string
-  ): () => void {
+  ): (() => void) => (): void => {
+    console.log("clearing darkpool price");
+    const { user } = workareaStore;
+    void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
+    this.publishedPrice = null;
+  };
+
+  @action.bound
+  public connect(symbol: string, strategy: string, tenor: string): () => void {
     this.currentOrder = null;
     this.orders = [];
     signalRManager.setDarkPoolPriceListener(
-      currency,
+      symbol,
       strategy,
       tenor,
       this.onDarkPoolPricePublished
     );
     this.removeOrderListener = signalRManager.setDarkPoolOrderListener(
-      currency,
+      symbol,
       strategy,
       tenor,
       this.onOrderReceived
     );
-    document.addEventListener("cleardarkpoolprice", this.clearDarkPoolPrice);
+    const onClearDarkPoolPrice = this.getClearDarkPoolPriceCallback(
+      symbol,
+      strategy,
+      tenor
+    );
+    document.addEventListener("cleardarkpoolprice", onClearDarkPoolPrice);
     return () => {
-      document.removeEventListener(
-        "cleardarkpoolprice",
-        this.clearDarkPoolPrice
-      );
+      document.removeEventListener("cleardarkpoolprice", onClearDarkPoolPrice);
       this.removeOrderListener();
-      signalRManager.removeDarkPoolPriceListener(currency, strategy, tenor);
+      signalRManager.removeDarkPoolPriceListener(symbol, strategy, tenor);
     };
   }
 
@@ -159,7 +164,7 @@ export class DarkPoolStore {
   }
 
   public async publishPrice(
-    currency: string,
+    symbol: string,
     strategy: string,
     tenor: string,
     price: number | null
@@ -170,11 +175,11 @@ export class DarkPoolStore {
       throw new Error("non broker users cannot publish prices");
     // Update immediately to make it feel faster
     this.publishedPrice = price;
-    await API.cancelAllDarkPoolOrder(currency, strategy, tenor);
+    await API.cancelAllDarkPoolOrder(symbol, strategy, tenor);
     // Call the API
     await API.publishDarkPoolPrice(
       user.email,
-      currency,
+      symbol,
       strategy,
       tenor,
       price !== null ? price : ""
@@ -210,7 +215,7 @@ export class DarkPoolStore {
 
   @action.bound
   public cancel(order: Order) {
-    API.cancelDarkPoolOrder(order);
+    void API.cancelDarkPoolOrder(order);
     this.currentOrder = null;
   }
 }

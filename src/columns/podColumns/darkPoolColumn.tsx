@@ -20,7 +20,7 @@ import { skipTabIndexAll } from "utils/skipTab";
 type Props = PodRowProps;
 
 const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
-  const { darkPrice, currency, strategy, tenor, darkpool } = props;
+  const { darkPrice, symbol, strategy, tenor, darkpool } = props;
   const [store] = useState(new DarkPoolStore(darkPrice));
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
@@ -47,7 +47,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         minimumSize={props.minimumSize}
         tenor={tenor}
         strategy={strategy}
-        currency={currency}
+        symbol={symbol}
         onSubmit={onTicketSubmitted}
         onCancel={() => store.closeTicket()}
       />
@@ -71,9 +71,9 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   useEffect(() => {
-    if (currency === "" || strategy === "") return;
-    return store.connect(currency, strategy, tenor);
-  }, [currency, store, strategy, tenor]);
+    if (symbol === "" || strategy === "") return;
+    return store.connect(symbol, strategy, tenor);
+  }, [symbol, store, strategy, tenor]);
 
   const onSubmit = (
     input: HTMLInputElement,
@@ -82,7 +82,16 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   ) => {
     skipTabIndexAll(input, 5, 2);
     if (!changed) return;
-    store.publishPrice(currency, strategy, tenor, price).catch(console.warn);
+    if (price === null) {
+      const callback = store.getClearDarkPoolPriceCallback(
+        symbol,
+        strategy,
+        tenor
+      );
+      callback();
+    } else {
+      void store.publishPrice(symbol, strategy, tenor, price);
+    }
   };
 
   const isBroker: boolean = useMemo((): boolean => {

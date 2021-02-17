@@ -8,7 +8,7 @@ export type PodRowProps = PodRow & {
   defaultSize: number;
   minimumSize: number;
   darkPrice: number | null;
-  currency: string;
+  symbol: string;
   strategy: string;
   status: PodRowStatus;
   rowStore: PodRowStore;

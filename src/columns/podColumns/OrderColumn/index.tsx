@@ -123,6 +123,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     const sizeCell: ReactElement = (
       <Size
         key={2}
+        uid={"S" + store.uid() + type}
         type={type}
         className={getOrderStatusClass(store.status)}
         value={size}
@@ -138,6 +139,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     const items: ReactElement[] = [
       <Price
         key={1}
+        uid={"P" + store.uid() + type}
         status={store.status}
         value={price}
         min={store.minimumPrice}
