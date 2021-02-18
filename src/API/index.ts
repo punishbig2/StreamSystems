@@ -658,7 +658,6 @@ export class API {
       Strategy: strategy,
       Tenor: tenor,
     };
-    console.log("calling clear dark pool price");
     const task: Task<any> = post<any>(
       API.buildUrl(API.DarkPool, "price", "clear"),
       data

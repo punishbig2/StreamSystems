@@ -20,7 +20,7 @@ import { skipTabIndexAll } from "utils/skipTab";
 type Props = PodRowProps;
 
 const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
-  const { darkPrice, symbol, strategy, tenor, darkpool } = props;
+  const { darkPrice, currency, strategy, tenor, darkpool } = props;
   const [store] = useState(new DarkPoolStore(darkPrice));
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
@@ -47,7 +47,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         minimumSize={props.minimumSize}
         tenor={tenor}
         strategy={strategy}
-        symbol={symbol}
+        symbol={currency}
         onSubmit={onTicketSubmitted}
         onCancel={() => store.closeTicket()}
       />
@@ -71,9 +71,22 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   };
 
   useEffect(() => {
-    if (symbol === "" || strategy === "") return;
-    return store.connect(symbol, strategy, tenor);
-  }, [symbol, store, strategy, tenor]);
+    if (currency === "" || strategy === "") return;
+    return store.connect(currency, strategy, tenor);
+  }, [currency, store, strategy, tenor]);
+
+  const clear = React.useCallback(
+    store.getClearDarkPoolPriceCallback(currency, strategy, tenor),
+    [currency, strategy, tenor]
+  );
+  console.log(currency);
+
+  const publish = React.useCallback(
+    (price: number): void => {
+      void store.publishPrice(currency, strategy, tenor, price);
+    },
+    [currency, strategy, tenor]
+  );
 
   const onSubmit = (
     input: HTMLInputElement,
@@ -82,15 +95,10 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   ) => {
     skipTabIndexAll(input, 5, 2);
     if (!changed) return;
-    if (price === null) {
-      const callback = store.getClearDarkPoolPriceCallback(
-        symbol,
-        strategy,
-        tenor
-      );
-      callback();
+    if (price !== null) {
+      publish(price);
     } else {
-      void store.publishPrice(symbol, strategy, tenor, price);
+      clear();
     }
   };
 

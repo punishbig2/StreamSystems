@@ -123,7 +123,6 @@ export class DarkPoolStore {
     strategy: string,
     tenor: string
   ): (() => void) => (): void => {
-    console.log("clearing darkpool price");
     const { user } = workareaStore;
     void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
     this.publishedPrice = null;
