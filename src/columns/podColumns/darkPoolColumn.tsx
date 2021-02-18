@@ -85,7 +85,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     (price: number): void => {
       void store.publishPrice(currency, strategy, tenor, price);
     },
-    [currency, strategy, tenor]
+    [currency, store, strategy, tenor]
   );
 
   const onSubmit = (
