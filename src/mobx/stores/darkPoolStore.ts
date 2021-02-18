@@ -118,6 +118,11 @@ export class DarkPoolStore {
   }
 
   @action.bound
+  public setDarkPoolPrice(price: number | null): void {
+    this.publishedPrice = price;
+  }
+
+  @action.bound
   public getClearDarkPoolPriceCallback = (
     symbol: string,
     strategy: string,
@@ -144,11 +149,7 @@ export class DarkPoolStore {
       tenor,
       this.onOrderReceived
     );
-    const onClearDarkPoolPrice = this.getClearDarkPoolPriceCallback(
-      symbol,
-      strategy,
-      tenor
-    );
+    const onClearDarkPoolPrice = (): void => this.setDarkPoolPrice(null);
     document.addEventListener("cleardarkpoolprice", onClearDarkPoolPrice);
     return () => {
       document.removeEventListener("cleardarkpoolprice", onClearDarkPoolPrice);

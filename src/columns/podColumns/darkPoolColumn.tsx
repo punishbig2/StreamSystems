@@ -79,7 +79,6 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     store.getClearDarkPoolPriceCallback(currency, strategy, tenor),
     [currency, strategy, tenor]
   );
-  console.log(currency);
 
   const publish = React.useCallback(
     (price: number): void => {
