@@ -28,7 +28,11 @@ export const MiddleOffice: React.FC<Props> = observer(
     React.useEffect((): (() => void) => {
       const task: Task<void> = store.setDeal(newDeal);
       // Execute the task
-      task.execute();
+      try {
+        void task.execute();
+      } catch (error) {
+        console.log(error);
+      }
       // Allow cancellation
       return (): void => task.cancel();
     }, [newDeal]);

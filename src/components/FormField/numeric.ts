@@ -23,12 +23,16 @@ export interface NumericProps {
 
 const typeToStyle = (
   type: FieldType,
+  currency: string | undefined,
   editable?: boolean
 ): string | undefined => {
   switch (type) {
     case "percent":
       return !!editable ? "decimal" : "percent";
     case "currency":
+      if (currency === undefined || currency.trim() === "") {
+        return "decimal";
+      }
       return "currency";
     default:
       return "decimal";
@@ -45,10 +49,10 @@ export class NumericInputHandler<
     {}
   );
   private divider: number = 1;
-  private minimum: number | null;
-  private maximum: number | null;
-  private startAdornmentString: string = "";
-  private endAdornmentString: string = "";
+  private readonly minimum: number | null;
+  private readonly maximum: number | null;
+  private readonly startAdornmentString: string = "";
+  private readonly endAdornmentString: string = "";
 
   constructor(props: P) {
     super();
@@ -56,22 +60,30 @@ export class NumericInputHandler<
     this.divider = props.type === "percent" ? 100 : 1;
     this.minimum = props.minimum === undefined ? null : props.minimum;
     this.maximum = props.maximum === undefined ? null : props.maximum;
+    const style = typeToStyle(props.type, props.currency, props.editable);
     const options = {
       maximumFractionDigits: 0,
       minimumFractionDigits: 0,
       useGrouping: true,
-      style: typeToStyle(props.type, props.editable),
-      currency: props.type === "currency" ? props.currency : undefined,
+      style: style,
+      currency: props.currency,
     };
-    const formatter: Intl.NumberFormat = new Intl.NumberFormat(
-      Globals.locale,
-      options
-    );
-    const formatted: string = formatter.format(1);
-    if (formatted.indexOf("1") > 0) {
-      this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
-    } else {
-      this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
+    try {
+      const formatter: Intl.NumberFormat = new Intl.NumberFormat(
+        Globals.locale,
+        options
+      );
+      const formatted: string = formatter.format(1);
+      if (formatted.indexOf("1") > 0) {
+        this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
+      } else {
+        this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
+      }
+    } catch (error) {
+      if (error instanceof RangeError) {
+        console.log(props.name, style, props.currency);
+        console.log(error);
+      }
     }
   }
 

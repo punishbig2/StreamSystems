@@ -100,7 +100,6 @@ export const emptyDealEntry: DealEntry = {
   dealType: DealType.Manual,
   vol: null,
   spread: null,
-
   size: 0,
   buyer_comm: null,
   buyer_comm_rate: null,

@@ -1061,14 +1061,7 @@ export class API {
     return task.execute();
   }
 
-  public static async cloneDeal(
-    data: DealEntry,
-    changed: string[]
-  ): Promise<string> {
-    const task: Task<string> = post<string>(
-      API.buildUrl(API.Deal, "deal", "clone"),
-      API.createDealRequest(data, changed)
-    );
+  private static async onDealCreated(task: Task<string>): Promise<string> {
     const legs: ReadonlyArray<Leg> = [...moStore.legs];
     const summaryLeg: SummaryLeg | null =
       moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
@@ -1081,6 +1074,17 @@ export class API {
     return dealID;
   }
 
+  public static async cloneDeal(
+    data: DealEntry,
+    changed: string[]
+  ): Promise<string> {
+    const task: Task<string> = post<string>(
+      API.buildUrl(API.Deal, "deal", "clone"),
+      API.createDealRequest(data, changed)
+    );
+    return API.onDealCreated(task);
+  }
+
   public static async createDeal(
     data: DealEntry,
     changed: string[]
@@ -1089,16 +1093,7 @@ export class API {
       API.buildUrl(API.Deal, "deal", "create"),
       API.createDealRequest(data, changed)
     );
-    const legs: ReadonlyArray<Leg> = [...moStore.legs];
-    const summaryLeg: SummaryLeg | null =
-      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
-    const dealID: string = await task.execute();
-    // Save the legs now
-    await API.saveLegs(dealID, legs, summaryLeg);
-    // Once saved, set them in the store
-    moStore.setLegs(legs, summaryLeg);
-    // Now we're done
-    return dealID;
+    return API.onDealCreated(task);
   }
 
   public static getLegs(

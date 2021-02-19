@@ -645,29 +645,35 @@ export class MoStore {
       const task2: Task<DealEntry> = createDealEntry(deal);
       return {
         execute: async (): Promise<void> => {
-          // Reset the legs now
-          this.setLegs([], null);
-          // Attempt to load new
-          this.isLoadingLegs = this.status !== MoStatus.CreatingDeal;
-          // Start loading now
-          const response = await task1.execute();
-          this.entry = await task2.execute();
-          this.originalEntry = this.entry;
-          if (response !== null) {
-            const [legs, summary] = handleLegsResponse(
-              this.entry,
-              parseDates(response.legs),
-              this.cuts
-            );
-            this.setLegs(legs, summary);
-          } else {
-            const [legs, summary] = createDefaultLegsFromDeal(
-              this.cuts,
-              this.entry
-            );
-            this.setLegs(legs, summary);
+          try {
+            // Reset the legs now
+            this.setLegs([], null);
+            // Attempt to load new
+            this.isLoadingLegs = this.status !== MoStatus.CreatingDeal;
+            // Start loading now
+            const response = await task1.execute();
+            this.entry = await task2.execute();
+            this.originalEntry = this.entry;
+            if (response !== null) {
+              const [legs, summary] = handleLegsResponse(
+                this.entry,
+                parseDates(response.legs),
+                this.cuts
+              );
+              this.setLegs(legs, summary);
+            } else {
+              const [legs, summary] = createDefaultLegsFromDeal(
+                this.cuts,
+                this.entry
+              );
+              this.setLegs(legs, summary);
+            }
+            this.isLoadingLegs = false;
+          } catch (error) {
+            if (error !== "aborted") {
+              throw error;
+            }
           }
-          this.isLoadingLegs = false;
         },
         cancel: (): void => {
           task2.cancel();
