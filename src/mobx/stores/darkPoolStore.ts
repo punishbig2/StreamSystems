@@ -9,6 +9,7 @@ import { Role } from "types/role";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { W } from "types/w";
+import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 
 export class DarkPoolStore {
   @observable orders: Order[] = [];
@@ -149,10 +150,11 @@ export class DarkPoolStore {
       tenor,
       this.onOrderReceived
     );
-    const onClearDarkPoolPrice = (): void => this.setDarkPoolPrice(null);
-    document.addEventListener("cleardarkpoolprice", onClearDarkPoolPrice);
+    const handler = (): void => this.setDarkPoolPrice(null);
+    const event: string = clearDarkPoolPriceEvent(symbol, strategy, tenor);
+    document.addEventListener(event, handler);
     return () => {
-      document.removeEventListener("cleardarkpoolprice", onClearDarkPoolPrice);
+      document.removeEventListener(event, handler);
       this.removeOrderListener();
       signalRManager.removeDarkPoolPriceListener(symbol, strategy, tenor);
     };

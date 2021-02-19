@@ -27,6 +27,7 @@ import { Role } from "types/role";
 import { SEFUpdate } from "types/sefUpdate";
 import { User } from "types/user";
 import { isPodW, W } from "types/w";
+import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { coalesce } from "utils/commonUtils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
 import { parseSEFError } from "utils/parseSEFError";
@@ -143,7 +144,10 @@ export class SignalRManager {
 
   private onClearDarkPoolPx = (message: string) => {
     localStorage.clear();
-    document.dispatchEvent(new CustomEvent("cleardarkpoolprice"));
+    const data = JSON.parse(message);
+    document.dispatchEvent(
+      new Event(clearDarkPoolPriceEvent(data.Symbol, data.Strategy, data.Tenor))
+    );
   };
 
   private setup = (connection: HubConnection) => {
