@@ -18,17 +18,6 @@ export const getSelectedOrders = (
       return true;
     return bid.price <= ofr.price;
   });
-  /*const getSize = (order: Order, fallback: number | null): number | null => {
-    const element: HTMLElement | null = document.getElementById(
-      $$("run-size-", order.uid(), order.type)
-    );
-    console.log(element);
-    if (element === null) return fallback;
-    const input: HTMLInputElement = element as HTMLInputElement;
-    const value: number = Number(input.value);
-    if (isNaN(value)) return fallback;
-    return value;
-  };*/
   const selection: Order[] = [
     ...rows.map(({ bid }: PodRow) => bid),
     ...rows.map(({ ofr }: PodRow) => ofr),

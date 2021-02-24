@@ -23,7 +23,6 @@ export interface Symbol {
   notionalCCY: string;
   premiumAdjustDelta: boolean;
   premiumCCY: string;
-  premiumCCYformat: string;
   premiumCCYpercent: boolean;
   riskCCY: string;
   riskCCYformat: string;
@@ -59,7 +58,6 @@ export const InvalidSymbol: Symbol = {
   notionalCCY: "USD",
   premiumAdjustDelta: false,
   premiumCCY: "USD",
-  premiumCCYformat: "",
   riskCCYpercent: false,
   symbolID: "",
   vegaAdjustBF: UndefinedLegAdjustValue,

@@ -120,7 +120,7 @@ export const WindowContent: React.FC<Props> = observer(
                   darkpool={store.darkpool[row.tenor1]}
                   defaultSize={defaultqty}
                   minimumSize={minqty}
-                  onTenorSelected={() => store.setCurrentTenor(null)}
+                  onTenorSelected={(): void => store.setCurrentTenor(null)}
                 />
               );
             }}

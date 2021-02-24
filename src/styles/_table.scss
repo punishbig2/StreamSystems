@@ -570,26 +570,24 @@ $spinner-size: $table-row-height - 6;
             }
           }
 
-          &:not(.in-depth) {
-            &.among,
-            &.owned,
-            &.owned-by-broker {
-              .times {
-                pointer-events: all;
+          &.among,
+          &.owned,
+          &.owned-by-broker {
+            .times {
+              pointer-events: all;
 
-                svg {
-                  .st0 {
-                    fill: $text-color-red;
-                  }
+              svg {
+                .st0 {
+                  fill: $text-color-red;
                 }
+              }
 
-                &:hover {
-                  svg {
-                    background-color: $text-color-red;
+              &:hover {
+                svg {
+                  background-color: $text-color-red;
 
-                    .st0 {
-                      fill: $button-foreground-color;
-                    }
+                  .st0 {
+                    fill: $button-foreground-color;
                   }
                 }
               }

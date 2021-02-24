@@ -814,7 +814,7 @@ export class MoStore {
     MoStore.doSubmit(dealID, status)
       .then((): void => {
         setTimeout((): void => {
-          console.log(SOFT_SEF_ERROR);
+          console.warn(SOFT_SEF_ERROR);
         }, config.RequestTimeout);
       })
       .catch((error: any): void => {

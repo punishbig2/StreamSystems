@@ -81,8 +81,7 @@ export class NumericInputHandler<
       }
     } catch (error) {
       if (error instanceof RangeError) {
-        console.log(props.name, style, props.currency);
-        console.log(error);
+        console.warn(error);
       }
     }
   }

@@ -13,7 +13,7 @@ import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
-import { Strategy } from "../../types/strategy";
+import { Strategy } from "types/strategy";
 import { ColumnSpec } from "../Table/columnSpecification";
 import { WindowContent } from "./windowContent";
 
@@ -61,7 +61,7 @@ export const PodTile: React.FC<Props> = observer(
         currency.name,
         strategy
       );
-      initializeTask.execute();
+      void initializeTask.execute();
       return () => {
         initializeTask.cancel();
         cleanUps.forEach((clean: () => void): void => clean());

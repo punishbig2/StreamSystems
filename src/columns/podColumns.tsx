@@ -45,9 +45,9 @@ const cancelAll = (
   const { roles } = user;
   const isBroker: boolean = roles.includes(Role.Broker);
   if (isBroker) {
-    API.cancelAllExtended(symbol, strategy, getSideFromType(type));
+    void API.cancelAllExtended(symbol, strategy, getSideFromType(type));
   } else {
-    API.cancelAll(symbol, strategy, getSideFromType(type));
+    void API.cancelAll(symbol, strategy, getSideFromType(type));
   }
 };
 

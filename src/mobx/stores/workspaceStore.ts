@@ -57,7 +57,7 @@ export class WorkspaceStore {
       hydrate(this.id, this)
         .then((): void => this.unsetBusyMessage())
         .catch((error: any): void => {
-          console.log("error hydrating workspace");
+          console.warn(error);
         });
     }, 0);
   }
