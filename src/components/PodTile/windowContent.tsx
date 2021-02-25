@@ -1,17 +1,17 @@
 import { observer } from "mobx-react";
 import React, { CSSProperties, ReactElement } from "react";
-import { getOptimalWidthFromColumnsSpec } from "../../utils/getOptimalWidthFromColumnsSpec";
+import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 import { ProgressModalContent } from "../ProgressModalContent";
 import { Table } from "../Table";
 import { ModalWindow } from "../ModalWindow";
-import { PodTileStore } from "../../mobx/stores/podTileStore";
+import { PodTileStore } from "mobx/stores/podTileStore";
 import { ColumnSpec } from "../Table/columnSpecification";
 import { Row } from "./Row";
-import { Symbol } from "../../types/symbol";
-import { PodRow } from "../../types/podRow";
-import { Order } from "../../types/order";
+import { Symbol } from "types/symbol";
+import { PodRow } from "types/podRow";
+import { Order } from "types/order";
 import workareaStore from "../../mobx/stores/workareaStore";
-import { PodTable } from "../../types/podTable";
+import { PodTable } from "types/podTable";
 
 interface Props {
   readonly id: string;
@@ -37,6 +37,8 @@ export const WindowContent: React.FC<Props> = observer(
       };
       return <div style={style} />;
     }
+    const { dob } = props;
+    const dobRows = React.useMemo((): PodTable => dob.rows, [dob]);
 
     const loadingClass: string | undefined = store.loading
       ? "loading"
@@ -52,6 +54,12 @@ export const WindowContent: React.FC<Props> = observer(
         />
       );
     };
+
+    React.useEffect((): void => {
+      if (Object.keys(dobRows).length === 0 && store.currentTenor !== null) {
+        store.setCurrentTenor(null);
+      }
+    }, [dobRows, store]);
 
     return (
       <div
@@ -90,8 +98,8 @@ export const WindowContent: React.FC<Props> = observer(
           <Table
             id={`${props.id}-depth`}
             scrollable={props.scrollable}
-            columns={props.dob.columns}
-            rows={props.dob.rows}
+            columns={dob.columns}
+            rows={dobRows}
             renderRow={(rowProps: any): ReactElement | null => {
               const { minqty, defaultqty } = props.symbol;
               const { row } = rowProps;
@@ -102,7 +110,7 @@ export const WindowContent: React.FC<Props> = observer(
               )
                 return null;
               // Get current row
-              const matchingRow: PodRow = props.dob.rows[row.id];
+              const matchingRow: PodRow = dobRows[row.id];
               const orders: Order[] = [];
               if (matchingRow) {
                 if (matchingRow.bid) {
