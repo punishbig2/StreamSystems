@@ -107,7 +107,7 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     color: "grey",
     name: "price",
     label: "Price %/Pips",
-    precision: 4,
+    precision: 5,
     editable: MoStore.createEditableFilter(DealType.All),
   },
   {
