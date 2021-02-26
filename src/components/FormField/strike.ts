@@ -51,7 +51,8 @@ export class StrikeHandler<
   }
 
   public parse(value: string, props: P): any {
-    if (value === "ATMF" || value === "ATMS") {
+    const acceptableStrikes = ["ATMF", "ATMS", "ATMZ"];
+    if (acceptableStrikes.includes(value)) {
       return value;
     } else {
       const regex: RegExp = /^([0-9]+[dD]).*$/;
