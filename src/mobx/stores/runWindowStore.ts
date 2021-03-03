@@ -55,9 +55,13 @@ export class RunWindowStore {
     };
   }
 
-  private static toInactiveOrder(order: Order): Order {
+  private toInactiveOrder(order: Order): Order {
+    const rowId: string = `run${order.symbol}${order.strategy}${order.tenor}`;
+    const orderKey: "bid" | "ofr" =
+      order.type === OrderTypes.Bid ? "bid" : "ofr";
     return {
       ...order,
+      size: this.original[rowId][orderKey].size,
       status:
         (order.status | OrderStatus.Cancelled) &
         ~OrderStatus.Active &
@@ -230,7 +234,8 @@ export class RunWindowStore {
         ...row,
         [key]: this.toActiveOrder({
           ...order,
-          size: order.size === null ? this.defaultBidSize : order.size,
+          size:
+            type === OrderTypes.Bid ? this.defaultBidSize : this.defaultOfrSize,
           price: value,
         }),
         status: PodRowStatus.Normal,
@@ -329,7 +334,7 @@ export class RunWindowStore {
       ...rows,
       [id]: {
         ...row,
-        [key]: RunWindowStore.toInactiveOrder(row[key]),
+        [key]: this.toInactiveOrder(row[key]),
         mid: null,
         spread: null,
       },
@@ -375,6 +380,7 @@ export class RunWindowStore {
   @action.bound
   private setOrders(table: PodTable): void {
     this.rows = table;
+    this.original = table;
   }
 
   private static getMid(row: PodRow): number | null {
