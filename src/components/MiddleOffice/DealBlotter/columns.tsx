@@ -30,6 +30,8 @@ const StatusCell: React.FC<{ deal: Deal }> = ({
   deal: Deal;
 }): React.ReactElement => {
   const classes = useErrorTooltipStyle();
+  console.log(deal.error_msg);
+  if (!deal.error_msg) return <div>{stateMap[deal.status]}</div>;
   return (
     <Tooltip title={deal.error_msg} classes={classes} arrow>
       <div>{stateMap[deal.status]}</div>

@@ -83,7 +83,7 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     precision: 4,
     editable: MoStore.createEditableFilter(
       DealType.Voice | DealType.Manual | DealType.Electronic,
-      toBitwise(DealStatus.SEFConfirmed) | toBitwise(DealStatus.Pending)
+      toBitwise(DealStatus.SEFComplete) | toBitwise(DealStatus.Pending)
     ),
   },
   {

@@ -27,9 +27,12 @@ import {
 export const stateMap: { [key: number]: string } = {
   [DealStatus.Pending]: "Pending",
   [DealStatus.Priced]: "Priced",
-  [DealStatus.SEFUnconfirmed]: "SEF Unconfirmed",
-  [DealStatus.STP]: "STP",
-  [DealStatus.SEFConfirmed]: "SEF Confirmed",
+  [DealStatus.SEFSubmitted]: "SEF Submitted",
+  [DealStatus.SEFFailed]: "SEF Failed",
+  [DealStatus.SEFComplete]: "SEF Complete",
+  [DealStatus.STPSubmitted]: "STP Submitted",
+  [DealStatus.STPFailed]: "STP Failed",
+  [DealStatus.STPComplete]: "STP Complete",
 };
 
 export const resolveEntityToBank = (source: string): string => {

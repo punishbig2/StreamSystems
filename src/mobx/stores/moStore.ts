@@ -152,10 +152,10 @@ export class MoStore {
     switch (entry.status) {
       case DealStatus.Pending:
       case DealStatus.Priced:
-      case DealStatus.SEFUnconfirmed:
+      case DealStatus.SEFSubmitted:
         return true;
-      case DealStatus.STP:
-      case DealStatus.SEFConfirmed:
+      case DealStatus.STPComplete:
+      case DealStatus.SEFComplete:
       default:
         return false;
     }
@@ -800,7 +800,7 @@ export class MoStore {
   ): Promise<any> {
     if (status === DealStatus.Priced) {
       return API.sendTradeCaptureReport(dealID);
-    } else if (status === DealStatus.SEFConfirmed) {
+    } else if (status === DealStatus.SEFComplete) {
       return API.stpSendReport(dealID);
     }
   }
@@ -1024,7 +1024,7 @@ export class MoStore {
     entry: DealEntry,
     isAllowedToEdit = (_: DealEntry): boolean => true
   ): boolean {
-    if (entry.status === DealStatus.SEFConfirmed) return false;
+    if (entry.status === DealStatus.SEFComplete) return false;
     if (!isAllowedToEdit(entry)) return false;
     return (entry.dealType & allowedTypes) !== 0;
   }

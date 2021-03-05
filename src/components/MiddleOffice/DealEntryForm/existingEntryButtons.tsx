@@ -22,7 +22,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         onClick={props.onPrice}
         disabled={
           props.disabled ||
-          props.status === DealStatus.SEFConfirmed ||
+          props.status === DealStatus.SEFComplete ||
           props.isEditMode
         }
       >
