@@ -202,6 +202,7 @@ export const createDealFromBackendMessage = async (
     commissions: await getCommissionRates(object),
     usi: object.usi_num,
     extraFields: JSONSafelyParse(object.extra_fields),
+    error_msg: object.error_msg,
   };
 };
 

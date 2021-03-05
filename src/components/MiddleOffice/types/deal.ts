@@ -35,6 +35,7 @@ export interface Deal {
   source: string;
   status: DealStatus;
   sef_namespace: string | null;
+  error_msg: string;
 
   premiumStyle: string;
   deltaStyle: string;

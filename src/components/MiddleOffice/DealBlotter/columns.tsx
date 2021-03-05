@@ -1,3 +1,4 @@
+import { makeStyles } from "@material-ui/core/styles";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import buyerColumn from "components/MiddleOffice/types/columnTypes/buyer";
 import priceColumn from "components/MiddleOffice/types/columnTypes/price";
@@ -10,6 +11,31 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { ReactElement } from "react";
 import { stateMap } from "utils/dealUtils";
+import { Tooltip } from "@material-ui/core";
+
+const useErrorTooltipStyle = makeStyles(() => ({
+  arrow: {
+    color: "darkred",
+  },
+  tooltip: {
+    color: "white",
+    backgroundColor: "darkred",
+    fontSize: 15,
+  },
+}));
+
+const StatusCell: React.FC<{ deal: Deal }> = ({
+  deal,
+}: {
+  deal: Deal;
+}): React.ReactElement => {
+  const classes = useErrorTooltipStyle();
+  return (
+    <Tooltip title={deal.error_msg} classes={classes} arrow>
+      <div>{stateMap[deal.status]}</div>
+    </Tooltip>
+  );
+};
 
 const getSource = (deal: Deal): string => {
   if (deal.isdarkpool) {
@@ -49,9 +75,9 @@ export const columns: ColumnSpec[] = [
   {
     name: "status",
     header: () => "Status",
-    render: ({ deal }: CellProps) => {
-      return stateMap[deal.status];
-    },
+    render: ({ deal }: CellProps): React.ReactElement => (
+      <StatusCell deal={deal} />
+    ),
     filterable: true,
     filterByKeyword: (v1: Deal, keyword: string): boolean => {
       const value: string = stateMap[v1.status];
