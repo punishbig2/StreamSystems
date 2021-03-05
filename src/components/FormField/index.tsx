@@ -1,4 +1,5 @@
 import { FormHelperText, FormLabel, OutlinedInput } from "@material-ui/core";
+import { toClassName } from "columns/messageBlotterColumns/utils";
 import { BankEntityField } from "components/BankEntityField";
 import { CurrentTime } from "components/currentTime";
 import { CustomTooltip } from "components/customTooltip";
@@ -493,10 +494,10 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     }
   };
 
-  private getClassName = (): string => {
+  private getClassName = (...extraClasses: string[]): string => {
     const { props, state } = this;
     const { internalValue } = state;
-    const classes: string[] = ["field", props.color];
+    const classes: string[] = ["field", props.color, ...extraClasses];
     if (typeof internalValue === "number" && internalValue < 0) {
       classes.push("negative");
     }
@@ -526,17 +527,23 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   public render(): ReactElement {
-    const { tooltip, tooltipStyle = "neutral" } = this.props;
+    const { tooltip, tooltipStyle = "neutral", name } = this.props;
+    const { internalValue } = this.state;
+    const content: ReactElement | null = this.content();
+    const extraClass: ReadonlyArray<string> =
+      name === "status" ? [toClassName(internalValue)] : [];
     if (typeof tooltip !== "function") {
-      return <div className={this.getClassName()}>{this.content()}</div>;
+      return <div className={this.getClassName(...extraClass)}>{content}</div>;
     } else {
       const tooltipString: string | null = tooltip();
       if (tooltipString === null) {
-        return <div className={this.getClassName()}>{this.content()}</div>;
+        return (
+          <div className={this.getClassName(...extraClass)}>{content}</div>
+        );
       } else {
         return (
           <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
-            <div className={this.getClassName()}>{this.content()}</div>
+            <div className={this.getClassName(...extraClass)}>{content}</div>
           </CustomTooltip>
         );
       }

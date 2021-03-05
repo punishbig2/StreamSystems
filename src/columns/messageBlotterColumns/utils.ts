@@ -9,3 +9,7 @@ export const compareCurrencyPairs = (
   if (!s1 || !s2) return 0;
   return currencyToNumber(s1) - currencyToNumber(s2);
 };
+
+export const toClassName = (source: string): string => {
+  return source.replace(/\s/g, "-").toLowerCase();
+};

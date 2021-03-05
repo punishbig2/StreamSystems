@@ -18,10 +18,6 @@ import workareaStore from "mobx/stores/workareaStore";
 import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, ExecTypes, Message } from "types/message";
-import {
-  MOErrorMessage,
-  ON_MIDDLE_OFFICE_ERROR,
-} from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
 import { Role } from "types/role";
 import { SEFUpdate } from "types/sefUpdate";
@@ -30,13 +26,13 @@ import { isPodW, W } from "types/w";
 import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { coalesce } from "utils/commonUtils";
 import { createDealFromBackendMessage } from "utils/dealUtils";
-import { parseSEFError } from "utils/parseSEFError";
 import { $$ } from "utils/stringPaster";
 
 const INITIAL_RECONNECT_DELAY: number = 3000;
 
 interface SEFError {
   dealid: string;
+  deal_state: string;
   error_msg: string;
   msgtype: "AR";
   report_status: string;
@@ -595,16 +591,6 @@ export class SignalRManager {
     }
   };
 
-  private emitMiddleOfficeError = (error: MOErrorMessage): void => {
-    const event: CustomEvent<MOErrorMessage> = new CustomEvent<MOErrorMessage>(
-      ON_MIDDLE_OFFICE_ERROR,
-      {
-        detail: error,
-      }
-    );
-    document.dispatchEvent(event);
-  };
-
   private onCommissionUpdate = (data: string): void => {
     const object: any = JSON.parse(data);
     const firm: string = object.firm;
@@ -647,13 +633,7 @@ export class SignalRManager {
     const user: User = workareaStore.user;
     if (object.report_status === "REJECTED") {
       if (object.useremail !== user.email) return;
-      const error: MOErrorMessage = {
-        status: "701",
-        content: parseSEFError(object.error_msg),
-        code: 701,
-        error: "Could not submit to SEF",
-      };
-      this.emitMiddleOfficeError(error);
+      SignalRManager.emitSEFUpdate(object);
     } else {
       SignalRManager.emitSEFUpdate(object);
     }

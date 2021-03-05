@@ -177,7 +177,6 @@ $field-size: 25px;
       align-items: center;
       width: 100%;
 
-
       &.green {
         color: $green-form-color;
         fill: $green-form-color;
@@ -202,6 +201,13 @@ $field-size: 25px;
         color: $text-color-red;
       }
 
+      &.sef-failed {
+        color: crimson;
+        border-radius: 50px;
+        width: auto;
+        cursor: default;
+      }
+
       &.changed {
         animation: flashing 0.25s infinite linear;
       }
@@ -210,8 +216,7 @@ $field-size: 25px;
 }
 
 // Special styles for MuiTheme
-.borderless /* notchedOutline (remove the border) */
-{
+.borderless /* notchedOutline (remove the border) */ {
   border: none;
 }
 
