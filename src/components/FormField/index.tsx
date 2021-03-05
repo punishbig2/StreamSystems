@@ -1,6 +1,7 @@
 import { FormHelperText, FormLabel, OutlinedInput } from "@material-ui/core";
 import { BankEntityField } from "components/BankEntityField";
 import { CurrentTime } from "components/currentTime";
+import { CustomTooltip } from "components/customTooltip";
 import { Adornment } from "components/FormField/adornment";
 import { DateInputHandler } from "components/FormField/date";
 import { DefaultHandler } from "components/FormField/default";
@@ -36,6 +37,8 @@ interface Props<T, R = string> extends MinimalProps<T> {
   handler?: InputHandler<T>;
   onChange?: (name: keyof T, value: any) => Promise<void>;
   onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
+  tooltip?: () => string | null;
+  tooltipStyle?: "neutral" | "good" | "bad";
 }
 
 enum Editor {
@@ -523,6 +526,20 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   public render(): ReactElement {
-    return <div className={this.getClassName()}>{this.content()}</div>;
+    const { tooltip, tooltipStyle = "neutral" } = this.props;
+    if (typeof tooltip !== "function") {
+      return <div className={this.getClassName()}>{this.content()}</div>;
+    } else {
+      const tooltipString: string | null = tooltip();
+      if (tooltipString === null) {
+        return <div className={this.getClassName()}>{this.content()}</div>;
+      } else {
+        return (
+          <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
+            <div className={this.getClassName()}>{this.content()}</div>
+          </CustomTooltip>
+        );
+      }
+    }
   }
 }

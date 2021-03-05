@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core/styles";
+import { CustomTooltip } from "components/customTooltip";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import buyerColumn from "components/MiddleOffice/types/columnTypes/buyer";
 import priceColumn from "components/MiddleOffice/types/columnTypes/price";
@@ -11,31 +11,17 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { ReactElement } from "react";
 import { stateMap } from "utils/dealUtils";
-import { Tooltip } from "@material-ui/core";
-
-const useErrorTooltipStyle = makeStyles(() => ({
-  arrow: {
-    color: "darkred",
-  },
-  tooltip: {
-    color: "white",
-    backgroundColor: "darkred",
-    fontSize: 15,
-  },
-}));
 
 const StatusCell: React.FC<{ deal: Deal }> = ({
   deal,
 }: {
   deal: Deal;
 }): React.ReactElement => {
-  const classes = useErrorTooltipStyle();
-  console.log(deal.error_msg);
   if (!deal.error_msg) return <div>{stateMap[deal.status]}</div>;
   return (
-    <Tooltip title={deal.error_msg} classes={classes} arrow>
-      <div>{stateMap[deal.status]}</div>
-    </Tooltip>
+    <CustomTooltip title={deal.error_msg} tooltipStyle={"bad"}>
+      {stateMap[deal.status]}
+    </CustomTooltip>
   );
 };
 

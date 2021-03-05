@@ -1,6 +1,6 @@
 import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
-import { InternalValuationModel, MoStore } from "mobx/stores/moStore";
+import moStore, { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { LegAdjustValue, UndefinedLegAdjustValue } from "types/legAdjustValue";
 import { Symbol } from "types/symbol";
@@ -320,6 +320,11 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "text",
     color: "green",
     editable: false,
+    tooltip: (): string | null => {
+      const { entry } = moStore;
+      return entry.errorMsg;
+    },
+    tooltipStyle: "bad",
   },
   {
     name: "sef_namespace",

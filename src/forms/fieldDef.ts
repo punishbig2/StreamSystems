@@ -45,4 +45,6 @@ export interface FieldDef<T, E = {}, S = {}> {
   readonly handler?: InputHandler<T>;
   readonly key?: string;
   readonly rounding?: number;
+  readonly tooltip?: () => string | null;
+  readonly tooltipStyle?: "neutral" | "good" | "bad";
 }

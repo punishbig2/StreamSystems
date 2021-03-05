@@ -205,6 +205,4 @@ const Run: React.FC<OwnProps> = observer(
   }
 );
 
-(Run as any).whyDidYouRender = true;
-
 export { Run };

@@ -329,6 +329,7 @@ export const createDealEntry = (deal: Deal): Task<DealEntry> => {
     usi: deal.usi,
     ...expandCommission(deal.commissions),
     extra_fields: deal.extraFields,
+    errorMsg: deal.error_msg,
   };
   return resolveDatesIfNeeded(entry);
 };

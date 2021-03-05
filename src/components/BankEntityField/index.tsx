@@ -45,7 +45,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
       if (defaultValue === undefined) {
         console.warn(`${firm} has no default entity`);
       } else if (onChange !== undefined) {
-        onChange(name, defaultValue.code);
+        void onChange(name, defaultValue.code);
       }
     },
     [onChange, name, mapped]
