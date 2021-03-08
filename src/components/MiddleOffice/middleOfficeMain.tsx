@@ -93,7 +93,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
     props.editDeal(status, id);
   });
   useSEFListener((sefUpdate: SEFUpdate): void => {
-    props.updateSEFStatus(sefUpdate).finally(() => {});
+    void props.updateSEFStatus(sefUpdate);
   });
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?

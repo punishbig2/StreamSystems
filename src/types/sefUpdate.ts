@@ -5,4 +5,5 @@ export interface SEFUpdate {
   readonly namespace: string;
   readonly usi: string;
   readonly status: DealStatus;
+  readonly errorMsg: string | null;
 }

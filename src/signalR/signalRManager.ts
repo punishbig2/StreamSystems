@@ -337,7 +337,7 @@ export class SignalRManager {
       premstyle: coalesce(deal.premstyle, "Forward"),
       deltastyle: coalesce(deal.deltastyle, "Forward"),
     };
-    this.addDeal(dealWithDefaults).then(() => {});
+    void this.addDeal(dealWithDefaults);
   };
 
   private onUpdateMarketData = (message: string): void => {
@@ -623,6 +623,7 @@ export class SignalRManager {
         status: Number(data.deal_state),
         usi: data.usi_no,
         namespace: data.sef_namespace,
+        errorMsg: data.error_msg,
       },
     });
     document.dispatchEvent(event);

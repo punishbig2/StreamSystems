@@ -1119,6 +1119,7 @@ export class MoStore {
         status: update.status,
         usi: update.usi,
         sef_namespace: update.namespace,
+        error_msg: update.errorMsg,
       },
       ...deals.slice(foundIndex + 1),
     ];
@@ -1136,7 +1137,10 @@ export class MoStore {
       console.warn("this message doesn't seem to belong to this app");
       return;
     }
-    const task1: Task<DealEntry> = await createDealEntry(deals[foundIndex]);
+    const task1: Task<DealEntry> = await createDealEntry({
+      ...deals[foundIndex],
+      error_msg: update.errorMsg,
+    });
     const task2: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
       update.dealId
     );
