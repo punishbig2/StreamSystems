@@ -1,3 +1,6 @@
-export type UndefinedLegAdjustType = "undefVega";
-export const UndefinedLegAdjustValue = "undefVega";
-export type LegAdjustValue = "bsVega" | "stickyVega" | UndefinedLegAdjustType;
+export interface LegAdjustValue {
+  readonly OptionProductType: string;
+  readonly VegaLegAdjustValue: string;
+  readonly ccyGroup: string;
+  readonly defaultvalue: boolean;
+}

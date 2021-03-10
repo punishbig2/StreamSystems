@@ -1,5 +1,3 @@
-import { LegAdjustValue, UndefinedLegAdjustValue } from "types/legAdjustValue";
-
 export interface Symbol {
   ATMType: string;
   "DayCountBasis-FX": string;
@@ -28,11 +26,13 @@ export interface Symbol {
   riskCCYformat: string;
   riskCCYpercent: boolean;
   symbolID: string;
-  vegaAdjustBF: LegAdjustValue;
-  vegaAdjustRR: LegAdjustValue;
+  vegaAdjustBF: string | null;
+  vegaAdjustRR: string | null;
   volsource: string;
   "premium-rounding": number | undefined;
   "strike-rounding": number | undefined;
+  rank: number;
+  legadjustvalues: ReadonlyArray<string>;
 }
 
 export const InvalidSymbol: Symbol = {
@@ -60,12 +60,14 @@ export const InvalidSymbol: Symbol = {
   premiumCCY: "USD",
   riskCCYpercent: false,
   symbolID: "",
-  vegaAdjustBF: UndefinedLegAdjustValue,
-  vegaAdjustRR: UndefinedLegAdjustValue,
+  vegaAdjustBF: null,
+  vegaAdjustRR: null,
   volsource: "",
   "premium-rounding": undefined,
   "strike-rounding": undefined,
   premiumCCYpercent: false,
   riskCCY: "USD",
   riskCCYformat: "",
+  rank: Number.MAX_SAFE_INTEGER,
+  legadjustvalues: [],
 };

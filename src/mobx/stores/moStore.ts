@@ -33,6 +33,7 @@ import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
+import { LegAdjustValue } from "types/legAdjustValue";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
 import { SEFUpdate } from "types/sefUpdate";
@@ -121,6 +122,7 @@ export class MoStore {
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
   @observable.ref lockedDeals: ReadonlyArray<string> = [];
+  @observable _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
 
   private originalEntry: DealEntry = { ...emptyDealEntry };
   private originalLegs: ReadonlyArray<Leg> = [];
@@ -137,6 +139,44 @@ export class MoStore {
   public cuts: ReadonlyArray<Cut> = [];
   public deltaStyles: ReadonlyArray<string> = [];
   public premiumStyles: ReadonlyArray<string> = [];
+
+  private getFilteredLegAdjustValues(
+    strategy: MOStrategy
+  ): ReadonlyArray<LegAdjustValue> {
+    const { _legAdjustValues } = this;
+    const { regions } = workareaStore.user;
+    return _legAdjustValues
+      .filter((value: LegAdjustValue): boolean => {
+        if (!regions.includes(value.ccyGroup)) return false;
+        return value.OptionProductType === strategy.OptionProductType;
+      })
+      .sort((v1: LegAdjustValue, v2: LegAdjustValue): number => {
+        if (v1.defaultvalue) return -1;
+        if (v2.defaultvalue) return 1;
+        return 0;
+      });
+  }
+
+  @computed
+  public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
+    const { strategy } = this.entry;
+    return this.getFilteredLegAdjustValues(strategy);
+  }
+
+  @computed
+  public get defaultLegAdjust(): string {
+    const { legAdjustValues } = this;
+    if (legAdjustValues.length === 0) return "";
+    return legAdjustValues[0].VegaLegAdjustValue;
+  }
+
+  public getDefaultLegAdjust(strategy: MOStrategy): string {
+    const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
+      strategy
+    );
+    if (values.length === 0) return "";
+    return values[0].VegaLegAdjustValue;
+  }
 
   @computed
   public get tenors(): ReadonlyArray<string> {
@@ -170,6 +210,7 @@ export class MoStore {
       this.setBankEntities(await API.getBankEntities());
       this.setDeltaStyles(await API.getDeltaStyles());
       this.setPremiumStyles(await API.getPremiumStyles());
+      this.setLegAdjustValues(await API.getLegAdjustValues());
       await this.loadDeals();
       // Load leg definitions
       const inDefs: {
@@ -1164,6 +1205,15 @@ export class MoStore {
     // Reset status to normal to hide the progress window
     this.setStatus(MoStatus.Normal);
   }
+
+  private setLegAdjustValues(value: ReadonlyArray<LegAdjustValue>) {
+    this._legAdjustValues = value;
+  }
 }
 
 export default new MoStore();
+
+/*
+
+
+ */

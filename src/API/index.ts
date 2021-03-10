@@ -22,7 +22,7 @@ import {
   CalendarVolDatesResponse,
 } from "types/calendarFXPair";
 import { DarkPoolQuote } from "types/darkPoolQuote";
-import { UndefinedLegAdjustValue } from "types/legAdjustValue";
+import { LegAdjustValue } from "types/legAdjustValue";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import {
@@ -220,6 +220,7 @@ const httpDelete = <T>(url: string, args?: any): Task<T> =>
   request<T>(url, Method.Delete, args);
 
 type Endpoints =
+  | "legadjustvalues"
   | "deal"
   | "symbols"
   | "products"
@@ -318,12 +319,7 @@ export class API {
     const currencies: Symbol[] = await task.execute();
     // Sort them and return :)
     currencies.sort((c1: Symbol, c2: Symbol): number => {
-      const { name: n1 } = c1;
-      const { name: n2 } = c2;
-      return (
-        1000 * (n1.charCodeAt(0) - n2.charCodeAt(0)) +
-        (n1.charCodeAt(4) - n2.charCodeAt(4))
-      );
+      return c1.rank - c2.rank;
     });
     return currencies;
   }
@@ -869,8 +865,8 @@ export class API {
         ccy2: ccyPair.replace(symbol.notionalCCY, ""),
         OptionProductType: strategy.OptionProductType,
         vegaAdjust:
-          proxyEntry.legadj === UndefinedLegAdjustValue
-            ? undefined
+          proxyEntry.legadj === null
+            ? moStore.defaultLegAdjust
             : proxyEntry.legadj,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
@@ -1149,6 +1145,13 @@ export class API {
     const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
       API.buildUrl(API.MloConfig, "deltastyle", "get")
     );
+    return task.execute();
+  }
+
+  public static getLegAdjustValues(): Promise<ReadonlyArray<LegAdjustValue>> {
+    const task: Task<ReadonlyArray<LegAdjustValue>> = get<
+      ReadonlyArray<LegAdjustValue>
+    >(API.buildUrl(API.MloConfig, "legadjustvalues", "get"));
     return task.execute();
   }
 

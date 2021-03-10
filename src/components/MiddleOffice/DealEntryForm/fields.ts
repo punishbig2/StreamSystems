@@ -2,7 +2,7 @@ import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
 import moStore, { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
-import { LegAdjustValue, UndefinedLegAdjustValue } from "types/legAdjustValue";
+import { LegAdjustValue } from "types/legAdjustValue";
 import { Symbol } from "types/symbol";
 
 const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
@@ -169,23 +169,14 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "dropdown",
     color: "orange",
     editable: MoStore.createEditableFilter(DealType.All),
-    transformData: (): ReadonlyArray<DropdownItem<LegAdjustValue>> => [
-      {
-        value: "bsVega",
-        internalValue: "bsVega",
-        label: "bsVega",
-      },
-      {
-        value: "stickyVega",
-        internalValue: "stickyVega",
-        label: "stickyVega",
-      },
-      {
-        value: UndefinedLegAdjustValue,
-        internalValue: UndefinedLegAdjustValue,
-        label: "N/A",
-      },
-    ],
+    transformData: (): ReadonlyArray<DropdownItem<LegAdjustValue>> => {
+      const values: ReadonlyArray<any> = moStore.legAdjustValues;
+      return values.map((value: LegAdjustValue): any => ({
+        value: value.VegaLegAdjustValue,
+        internalValue: value.VegaLegAdjustValue,
+        label: value.VegaLegAdjustValue + (value.defaultvalue ? "*" : ""),
+      }));
+    },
   },
   {
     name: "premstyle",

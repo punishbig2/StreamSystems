@@ -91,6 +91,27 @@ const strategy = (sortable: boolean): ColumnSpec => ({
   },
 });
 
+const trader = (sortable: boolean): ColumnSpec => ({
+  name: "Trader",
+  template: "some_trader@email.com",
+  filterable: true,
+  sortable: sortable,
+  header: () => "Trader",
+  render: (props: CellProps): ReactElement => (
+    <span>{props.message.Username}</span>
+  ),
+  width: 5,
+  filterByKeyword: (v1: Message, keyword: string): boolean => {
+    const value: number = Number(v1.Price);
+    const numeric: number = Number(keyword);
+    if (isNaN(numeric)) return false;
+    return priceFormatter(value) === priceFormatter(numeric);
+  },
+  difference: (v1: Message, v2: Message) => {
+    return Number(v1.Price) - Number(v2.Price);
+  },
+});
+
 const price = (sortable: boolean): ColumnSpec => ({
   name: "Price",
   template: "999999.99",
@@ -342,6 +363,7 @@ const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (
       price(sortable),
       buyerOrSeller(sortable, "buyer"),
       buyerOrSeller(sortable, "seller"),
+      trader(sortable),
       pool(sortable),
     ],
   };

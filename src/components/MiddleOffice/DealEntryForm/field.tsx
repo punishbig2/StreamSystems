@@ -8,7 +8,6 @@ import moStore, { MoStore } from "mobx/stores/moStore";
 import React from "react";
 import { DealEntry } from "structures/dealEntry";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
-import { getVegaAdjust } from "utils/getVegaAdjust";
 import { SPECIFIC_TENOR } from "utils/tenorUtils";
 
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
@@ -74,9 +73,7 @@ export const Field: React.FC<Props> = React.memo(
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
         const { symbol } = entry;
-        const dates: CalendarVolDatesResponse = await ((): Promise<
-          CalendarVolDatesResponse
-        > => {
+        const dates: CalendarVolDatesResponse = await ((): Promise<CalendarVolDatesResponse> => {
           if (typeof value === "string") {
             return API.queryVolTenors(
               {
@@ -122,10 +119,8 @@ export const Field: React.FC<Props> = React.memo(
         const dependants: Partial<DealEntry> = ((
           name: keyof DealEntry
         ): Partial<DealEntry> => {
-          if (name === "symbol") {
-            return { legadj: getVegaAdjust(value, entry.strategy) };
-          } else if (name === "strategy") {
-            return { legadj: getVegaAdjust(entry.symbol, value) };
+          if (name === "strategy") {
+            return { legadj: moStore.getDefaultLegAdjust(value) };
           } else {
             return {};
           }
@@ -140,15 +135,7 @@ export const Field: React.FC<Props> = React.memo(
           await onChangeCompleted({ [name]: convertedValue, ...dependants });
         }
       },
-      [
-        onChangeStart,
-        field,
-        entry.strategy,
-        entry.symbol,
-        onTenorChange,
-        editFlag,
-        onChangeCompleted,
-      ]
+      [onChangeStart, field, onTenorChange, editFlag, onChangeCompleted]
     );
     return (
       <FormField<DealEntry>

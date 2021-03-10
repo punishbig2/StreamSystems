@@ -7,7 +7,7 @@ import getStyles, { Styles } from "styles";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import { WindowStore } from "../../mobx/stores/windowStore";
+import { WindowStore } from "mobx/stores/windowStore";
 
 interface OwnProps {
   area: ClientRect;

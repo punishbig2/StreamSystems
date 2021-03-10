@@ -25,7 +25,7 @@ export interface Option {
   readonly premiumCCY: string;
   readonly riskCCY: string;
   readonly ccyGroup: string;
-  readonly vegaAdjust?: LegAdjustValue;
+  readonly vegaAdjust: string | null;
   readonly OptionProductType: string;
   readonly OptionLegs: OptionLeg[];
 }

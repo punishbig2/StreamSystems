@@ -41,7 +41,8 @@ export const ExistingEntryButtons: React.FC<Props> = (
         className={"primary"}
         onClick={props.onSubmit}
         disabled={
-          props.status === DealStatus.Pending ||
+          (props.status !== DealStatus.SEFComplete &&
+            props.status !== DealStatus.Priced) ||
           props.disabled ||
           props.isEditMode
         }
