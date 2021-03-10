@@ -25,7 +25,6 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
     blotterType === BlotterTypes.Executions
       ? store.executions
       : store.myMessages;
-  const personality: string = workareaStore.personality;
   const { user } = workareaStore;
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
@@ -36,10 +35,8 @@ const MessageBlotter: React.FC<Props> = observer((props: Props) => {
     [blotterType]
   );
   const columns: ColumnSpec[] = useMemo(() => {
-    return isBroker && personality === STRM
-      ? columnsMap.broker
-      : columnsMap.normal;
-  }, [columnsMap.broker, columnsMap.normal, personality, isBroker]);
+    return isBroker ? columnsMap.broker : columnsMap.normal;
+  }, [columnsMap.broker, columnsMap.normal, isBroker]);
   const renderRow = useMemo(() => renderRowFactory(blotterType), [blotterType]);
   return (
     <Table
