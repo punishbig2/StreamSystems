@@ -1,4 +1,4 @@
-import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { Product } from "types/product";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
 import moStore, { InternalValuationModel, MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
@@ -29,11 +29,11 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     color: "orange",
     editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
     transformData: (
-      data: { [key: string]: MOStrategy },
+      data: { [key: string]: Product },
       entry?: DealEntry
-    ): DropdownItem<MOStrategy>[] => {
+    ): DropdownItem<Product>[] => {
       return Object.values(data)
-        .filter((item: MOStrategy): boolean => {
+        .filter((item: Product): boolean => {
           if (entry === undefined) return false;
           if (entry.type === EntryType.New) return item.source !== "Electronic";
           switch (entry.dealType) {
@@ -52,7 +52,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
           return false;
         })
         .map(
-          (strategy: MOStrategy): DropdownItem<MOStrategy> => ({
+          (strategy: Product): DropdownItem<Product> => ({
             value: strategy.productid,
             internalValue: Object.assign({}, strategy),
             label: strategy.description,

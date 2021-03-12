@@ -15,9 +15,9 @@ import {
 import {
   EditableFlag,
   InvalidStrategy,
-  MOStrategy,
+  Product,
   StrategyMap,
-} from "components/MiddleOffice/types/moStrategy";
+} from "types/product";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { toast, ToastType } from "components/toast";
@@ -123,6 +123,7 @@ export class MoStore {
   @observable isLoadingLegs: boolean = false;
   @observable.ref lockedDeals: ReadonlyArray<string> = [];
   @observable _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
+  @observable strategies: { [key: string]: Product } = {};
 
   private originalEntry: DealEntry = { ...emptyDealEntry };
   private originalLegs: ReadonlyArray<Leg> = [];
@@ -132,7 +133,6 @@ export class MoStore {
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
-  public strategies: { [id: string]: MOStrategy } = {};
   public styles: ReadonlyArray<string> = [];
   public models: ReadonlyArray<InternalValuationModel> = [];
   public legDefinitions: LegDefinitions = {};
@@ -141,7 +141,7 @@ export class MoStore {
   public premiumStyles: ReadonlyArray<string> = [];
 
   private getFilteredLegAdjustValues(
-    strategy: MOStrategy
+    strategy: Product
   ): ReadonlyArray<LegAdjustValue> {
     const { _legAdjustValues } = this;
     const { regions } = workareaStore.user;
@@ -170,7 +170,7 @@ export class MoStore {
     return legAdjustValues[0].VegaLegAdjustValue;
   }
 
-  public getDefaultLegAdjust(strategy: MOStrategy): string {
+  public getDefaultLegAdjust(strategy: Product): string {
     const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
       strategy
     );
@@ -204,7 +204,6 @@ export class MoStore {
   public async loadReferenceData(): Promise<void> {
     if (!this.isInitialized) {
       this.setCuts(await API.getCuts());
-      this.setStrategies(await API.getProductsEx());
       this.setStyles(await API.getOptexStyle());
       this.setModels(await API.getValuModel());
       this.setBankEntities(await API.getBankEntities());
@@ -278,15 +277,21 @@ export class MoStore {
     this.increaseProgress();
   }
 
-  @action.bound
-  private setStrategies(array: MOStrategy[]): void {
-    this.strategies = array.reduce(
-      (strategies: StrategyMap, next: MOStrategy): StrategyMap => {
-        return { ...strategies, [next.productid]: next };
-      },
-      {}
+  public reloadStrategies(currency: string): void {
+    const { products, symbols } = workareaStore;
+    const symbol: Symbol | undefined = symbols.find(
+      (symbol: Symbol): boolean => symbol.symbolID === currency
     );
-    this.increaseProgress();
+    if (symbol === undefined) return;
+    this.strategies = products
+      .filter((strategy: Product): boolean => {
+        const { ccyGroup } = symbol;
+        const key: string = ccyGroup.toLowerCase();
+        return strategy[key] === true;
+      })
+      .reduce((strategies: StrategyMap, next: Product): StrategyMap => {
+        return { ...strategies, [next.productid]: next };
+      }, {});
   }
 
   @action.bound
@@ -397,7 +402,7 @@ export class MoStore {
     }
   }
 
-  public getStrategyById(id: string): MOStrategy {
+  public getStrategyById(id: string): Product {
     if (this.strategies[id] !== undefined) return this.strategies[id];
     return InvalidStrategy;
   }
@@ -643,6 +648,10 @@ export class MoStore {
   @action.bound
   public setDeal(deal: Deal | null): Task<void> {
     const { entry } = this;
+    // Reload strategies now
+    if (deal !== null) {
+      this.reloadStrategies(deal.currency);
+    }
     this.entry = { ...emptyDealEntry };
     if (
       (this.isEditMode && deal !== null && entry.dealID !== deal.id) ||
@@ -785,6 +794,9 @@ export class MoStore {
   public async updateDealEntry(partial: Partial<DealEntry>): Promise<void> {
     const { entry } = this;
     const fields: ReadonlyArray<string> = Object.keys(partial);
+    if (partial.symbol) {
+      this.reloadStrategies(partial.symbol.symbolID);
+    }
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
       return legs.map(
         (leg: Leg, index: number): Leg => {
@@ -1039,7 +1051,7 @@ export class MoStore {
   public static getFieldEditableFlag(
     prefix: string,
     name: string,
-    strategy: MOStrategy
+    strategy: Product
   ): EditableFlag {
     if (strategy.productid === "") return EditableFlag.Editable;
     const { f1 } = strategy.fields;

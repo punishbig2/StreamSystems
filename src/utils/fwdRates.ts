@@ -1,5 +1,5 @@
 import { isInvalidTenor, isTenor } from "components/FormField/helpers";
-import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { Product } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { Point } from "structures/point";
 import { InvalidTenor, Tenor } from "types/tenor";
@@ -40,7 +40,7 @@ const comparePoints = (
 
 export const buildFwdRates = (
   summary: SummaryLeg | null,
-  strategy: MOStrategy,
+  strategy: Product,
   tenor1: Tenor | InvalidTenor,
   tenor2: Tenor | string | null
 ): Point[] | undefined => {

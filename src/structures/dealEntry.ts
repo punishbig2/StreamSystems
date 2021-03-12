@@ -1,7 +1,4 @@
-import {
-  InvalidStrategy,
-  MOStrategy,
-} from "components/MiddleOffice/types/moStrategy";
+import { InvalidStrategy, Product } from "types/product";
 import { DealStatus } from "types/dealStatus";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
@@ -27,7 +24,7 @@ export interface DealEntry {
   readonly dealID?: string;
 
   readonly symbol: Symbol;
-  readonly strategy: MOStrategy;
+  readonly strategy: Product;
 
   readonly tenor1: Tenor | InvalidTenor;
   readonly tenor2: Tenor | string | null;

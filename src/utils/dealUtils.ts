@@ -1,10 +1,7 @@
 import { API, Task } from "API";
 import { isTenor } from "components/FormField/helpers";
 import { Commission, Deal } from "components/MiddleOffice/types/deal";
-import {
-  InvalidStrategy,
-  MOStrategy,
-} from "components/MiddleOffice/types/moStrategy";
+import { InvalidStrategy, Product } from "types/product";
 import { Globals } from "golbals";
 import moStore, { MoStore } from "mobx/stores/moStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
@@ -81,9 +78,7 @@ const getCommissionRates = async (item: any): Promise<any> => {
 const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
   const value: any = item[key];
   if (value !== "" && value !== undefined) return value;
-  const strategy: MOStrategy | undefined = moStore.getStrategyById(
-    item.strategy
-  );
+  const strategy: Product | undefined = moStore.getStrategyById(item.strategy);
   if (strategy === undefined) return null;
   if (strategy.spreadvsvol !== key) return null;
   return item.lastpx / 100;
@@ -280,7 +275,7 @@ export const createDealEntry = (deal: Deal): Task<DealEntry> => {
   const symbol: Symbol = moStore.findSymbolById(deal.currencyPair);
   if (symbol === InvalidSymbol)
     throw new Error("cannot find symbol: " + deal.currencyPair);
-  const strategy: MOStrategy = moStore.getStrategyById(deal.strategy);
+  const strategy: Product = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
   const entry: DealEntry = {

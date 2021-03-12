@@ -11,6 +11,7 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import React, { ReactElement } from "react";
 import { stateMap } from "utils/dealUtils";
+import { getVenue } from "utils/getVenue";
 
 const StatusCell: React.FC<{ deal: Deal }> = ({
   deal,
@@ -23,14 +24,6 @@ const StatusCell: React.FC<{ deal: Deal }> = ({
       {stateMap[deal.status]}
     </CustomTooltip>
   );
-};
-
-const getSource = (deal: Deal): string => {
-  if (deal.isdarkpool) {
-    return "Dark Pool";
-  } else {
-    return deal.source;
-  }
 };
 
 export const columns: ColumnSpec[] = [
@@ -100,19 +93,19 @@ export const columns: ColumnSpec[] = [
     name: "venue",
     header: () => "Venue",
     render: (props: CellProps): ReactElement | string | null => {
-      return getSource(props.deal);
+      return getVenue(props.deal);
     },
     filterable: true,
     width: 3,
     template: "12345",
     filterByKeyword: (v1: Deal, keyword: string): boolean => {
-      const source: string = getSource(v1);
+      const source: string = getVenue(v1);
       const lowerCaseSource: string = source.toLowerCase();
       return lowerCaseSource.includes(keyword.toLowerCase());
     },
     difference: (v1: Deal, v2: Deal) => {
-      const s1: string = getSource(v1);
-      return s1.localeCompare(getSource(v2));
+      const s1: string = getVenue(v1);
+      return s1.localeCompare(getVenue(v2));
     },
   },
 ];

@@ -71,3 +71,7 @@ export const InvalidSymbol: Symbol = {
   rank: Number.MAX_SAFE_INTEGER,
   legadjustvalues: [],
 };
+
+export const symbolsRegionFilter = (regions: ReadonlyArray<string>) => (
+  s: Symbol
+): boolean => regions.includes(s.ccyGroup);

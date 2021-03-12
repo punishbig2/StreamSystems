@@ -1,9 +1,13 @@
+import { involved } from "columns/messageBlotterColumns/helpers";
+import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
-import { observable, action } from "mobx";
+import { observable, action, computed } from "mobx";
 import { API } from "API";
 import signalRManager from "signalR/signalRManager";
 import workareaStore from "mobx/stores/workareaStore";
+import { Role } from "types/role";
 import { User } from "types/user";
+import { Symbol, symbolsRegionFilter } from "types/symbol";
 import {
   isAcceptableFill,
   sortByTimeDescending,
@@ -11,10 +15,38 @@ import {
 } from "utils/messageUtils";
 
 export class MessagesStore {
-  private entries: Message[] = [];
-  @observable.ref myMessages: Message[] = [];
-  @observable.ref executions: Message[] = [];
+  private entries: ReadonlyArray<Message> = [];
+  @observable.ref myMessages: ReadonlyArray<Message> = [];
+  @observable.ref allExecutions: ReadonlyArray<Message> = [];
   @observable loading: boolean = false;
+  @observable ccyGroupFilter = "All";
+
+  @computed
+  public get executions(): ReadonlyArray<Message> {
+    const { symbols } = workareaStore;
+    const { roles, regions } = workareaStore.user;
+    const { allExecutions } = this;
+    if (this.ccyGroupFilter !== "All") {
+      const filteredSymbols = symbols.filter(symbolsRegionFilter(regions));
+      return allExecutions.filter((message: Message): boolean =>
+        filteredSymbols.some(
+          (symbol: Symbol): boolean => symbol.symbolID === message.Symbol
+        )
+      );
+      // Filter now
+    } else if (
+      roles.includes(Role.Broker) &&
+      workareaStore.personality !== STRM
+    ) {
+      return allExecutions.filter(involved);
+    }
+    return allExecutions;
+  }
+
+  @action.bound
+  public setCCYGroupFilter(filter: string): void {
+    this.ccyGroupFilter = filter;
+  }
 
   @action.bound
   public addEntry(message: Message) {
@@ -22,7 +54,7 @@ export class MessagesStore {
     if (message.Username === user.email)
       this.myMessages = [message, ...this.myMessages];
     if (isAcceptableFill(message))
-      this.executions = [message, ...this.executions];
+      this.allExecutions = [message, ...this.allExecutions];
     this.entries = [message, ...this.entries];
   }
 
@@ -54,7 +86,7 @@ export class MessagesStore {
   public reapplyFilters() {
     const { entries } = this;
 
-    this.executions = entries.filter(isAcceptableFill);
+    this.allExecutions = entries.filter(isAcceptableFill);
     this.myMessages = entries.filter(isMyMessage);
   }
 

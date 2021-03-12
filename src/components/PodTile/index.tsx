@@ -13,7 +13,6 @@ import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
-import { Strategy } from "types/strategy";
 import { ColumnSpec } from "../Table/columnSpecification";
 import { WindowContent } from "./windowContent";
 
@@ -21,7 +20,7 @@ interface Props {
   readonly id: string;
   readonly tenors: ReadonlyArray<string>;
   readonly store: PodTileStore;
-  readonly strategies: ReadonlyArray<Strategy>;
+  readonly strategies: ReadonlyArray<{ name: string }>;
   readonly currencies: ReadonlyArray<Symbol>;
   readonly connected: boolean;
   readonly scrollable?: boolean;

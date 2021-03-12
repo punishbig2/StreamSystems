@@ -1,7 +1,7 @@
 import { API } from "API";
 import { FormField } from "components/FormField";
 import { getValue } from "components/MiddleOffice/DealEntryForm/helpers";
-import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
+import { EditableFlag } from "types/product";
 import deepEqual from "deep-equal";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
 import moStore, { MoStore } from "mobx/stores/moStore";

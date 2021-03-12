@@ -6,7 +6,6 @@ import { observer } from "mobx-react";
 import store from "mobx/stores/messagesStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { useMemo } from "react";
-import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
 import { Role } from "types/role";
 
@@ -21,7 +20,7 @@ type Props = OwnProps;
 
 const MessageBlotter: React.FC<Props> = observer((props: Props) => {
   const { blotterType } = props;
-  const messages: Message[] =
+  const messages: ReadonlyArray<Message> =
     blotterType === BlotterTypes.Executions
       ? store.executions
       : store.myMessages;

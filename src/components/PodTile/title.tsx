@@ -1,5 +1,5 @@
+import { useGlow } from "components/PodTile/hooks/useGlow";
 import { Select } from "components/Select";
-import { CCYGroupTags, CCYPair, RRStrategy, Tag } from "data/groups";
 import strings from "locales";
 import { observer } from "mobx-react";
 import { PodTileStore } from "mobx/stores/podTileStore";
@@ -7,15 +7,13 @@ import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { Role } from "types/role";
-import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
-import { isCCYPair, isRRStrategy } from "utils/isInEnum";
 
 interface Props {
   readonly store: PodTileStore;
   readonly currencies: ReadonlyArray<Symbol>;
-  readonly strategies: ReadonlyArray<Strategy>;
+  readonly strategies: ReadonlyArray<{ name: string }>;
 }
 
 export const PodTileTitle: React.FC<Props> = observer(
@@ -24,15 +22,6 @@ export const PodTileTitle: React.FC<Props> = observer(
     const { currency, strategy } = store;
 
     const personality: string = workareaStore.personality;
-
-    const getTag = (pair: string, strategy: string): string => {
-      if (!isCCYPair(pair)) return " ";
-      const group: { [strategy in RRStrategy]: Tag } | undefined =
-        CCYGroupTags[pair as CCYPair];
-      if (group === undefined) return " ";
-      if (!isRRStrategy(strategy)) return " ";
-      return group[strategy];
-    };
 
     const user: User = workareaStore.user;
     const isBroker: boolean = useMemo((): boolean => {
@@ -43,8 +32,11 @@ export const PodTileTitle: React.FC<Props> = observer(
       !currency || !strategy || (personality === STRM && isBroker);
     const { currencies, strategies } = props;
 
+    const glowing: boolean = useGlow(currency, strategy);
+
     return (
       <>
+        <div className={["glow", ...(glowing ? ["glowing"] : [])].join(" ")} />
         <div className={"item"}>
           <Select
             value={currency}
@@ -60,13 +52,15 @@ export const PodTileTitle: React.FC<Props> = observer(
           <Select
             value={strategy}
             onChange={store.setStrategy}
-            list={strategies.map((item: Strategy): { name: string } => ({
+            list={strategies.map((item: { name: string }): {
+              name: string;
+            } => ({
               name: item.name,
             }))}
             empty={"Strategy"}
           />
         </div>
-        <div className={"ccy-group"}>{getTag(currency, strategy)}</div>
+        {/* <div className={"ccy-group"}>{getTag(currency, strategy)}</div> */}
         <div className={"item"}>
           <button onClick={store.showRunWindow} disabled={isRunButtonDisabled}>
             {strings.Run}

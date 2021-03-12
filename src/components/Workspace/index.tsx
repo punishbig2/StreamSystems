@@ -24,7 +24,6 @@ import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { Role } from "types/role";
 import { SelectEventData } from "types/selectEventData";
-import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 
@@ -32,7 +31,7 @@ interface Props {
   readonly id: string;
   readonly tenors: ReadonlyArray<string>;
   readonly currencies: ReadonlyArray<Symbol>;
-  readonly strategies: ReadonlyArray<Strategy>;
+  readonly strategies: ReadonlyArray<{ name: string }>;
   readonly banks: ReadonlyArray<string>;
   readonly isDefault: boolean;
   readonly visible: boolean;

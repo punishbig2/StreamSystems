@@ -1,5 +1,5 @@
 import { FormField } from "components/FormField";
-import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
+import { EditableFlag } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import { MoStore } from "mobx/stores/moStore";

@@ -327,7 +327,7 @@ const pool = (sortable: boolean): ColumnSpec => ({
     const { ExDestination } = props.message;
     return (
       <div className={"message-blotter-cell normal"}>
-        {ExDestination === DarkPool ? "Dark Pool" : ""}&nbsp;
+        {ExDestination === DarkPool ? "Dark Pool" : "Electronic"}&nbsp;
       </div>
     );
   },
@@ -340,31 +340,32 @@ const pool = (sortable: boolean): ColumnSpec => ({
 const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (
   type: BlotterTypes
 ) => {
-  const sortable: boolean = type !== BlotterTypes.Executions;
+  const notExecutionsBlotter: boolean = type !== BlotterTypes.Executions;
   return {
     normal: [
-      ...(type === BlotterTypes.Executions ? [] : [transactType(sortable)]),
+      ...(notExecutionsBlotter ? [transactType(true)] : []),
       transactTime(),
-      symbol(sortable),
-      tenor(sortable),
-      strategy(sortable),
-      price(sortable),
-      side(sortable),
-      size(sortable),
-      counterParty(sortable, type === BlotterTypes.Executions),
-      pool(sortable),
+      symbol(notExecutionsBlotter),
+      tenor(notExecutionsBlotter),
+      strategy(notExecutionsBlotter),
+      price(notExecutionsBlotter),
+      side(notExecutionsBlotter),
+      size(notExecutionsBlotter),
+      counterParty(notExecutionsBlotter, !notExecutionsBlotter),
+      pool(notExecutionsBlotter),
     ],
     broker: [
-      ...(type === BlotterTypes.Executions ? [] : [transactType(sortable)]),
-      size(sortable),
-      symbol(sortable),
-      tenor(sortable),
-      strategy(sortable),
-      price(sortable),
-      buyerOrSeller(sortable, "buyer"),
-      buyerOrSeller(sortable, "seller"),
-      trader(sortable),
-      pool(sortable),
+      ...(notExecutionsBlotter ? [transactType(true)] : []),
+      size(notExecutionsBlotter),
+      symbol(notExecutionsBlotter),
+      tenor(notExecutionsBlotter),
+      strategy(notExecutionsBlotter),
+      price(notExecutionsBlotter),
+      side(notExecutionsBlotter),
+      buyerOrSeller(notExecutionsBlotter, "buyer"),
+      buyerOrSeller(notExecutionsBlotter, "seller"),
+      trader(notExecutionsBlotter),
+      pool(notExecutionsBlotter),
     ],
   };
 };

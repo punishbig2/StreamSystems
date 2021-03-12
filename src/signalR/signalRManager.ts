@@ -527,11 +527,36 @@ export class SignalRManager {
     return message.Username === user.email;
   };
 
+  public addExecutionListener(
+    strategy: string,
+    currency: string,
+    handler: () => void
+  ): () => void {
+    // We only care about one of these
+    const name: string = $$(currency, strategy, "1", "Execution");
+    const onExecuted = (): void => {
+      handler();
+    };
+    document.addEventListener(name, onExecuted, true);
+    return (): void => {
+      document.removeEventListener(name, onExecuted, true);
+    };
+  }
+
   private dispatchExecutedMessageEvent = (message: Message) => {
-    const type: string = $$(message.ExecID, "executed");
-    playBeep(userProfileStore.preferences, message.ExDestination);
+    void playBeep(userProfileStore.preferences, message.ExDestination);
     setTimeout(() => {
-      document.dispatchEvent(new CustomEvent(type));
+      const eventName: string = $$(message.ExecID, "executed");
+      if (message.Side === "1") {
+        const eventName: string = $$(
+          message.Symbol,
+          message.Strategy,
+          message.Side,
+          "Execution"
+        );
+        document.dispatchEvent(new CustomEvent(eventName));
+      }
+      document.dispatchEvent(new CustomEvent(eventName));
     }, 500);
   };
 

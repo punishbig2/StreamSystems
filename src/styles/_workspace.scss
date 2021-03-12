@@ -61,8 +61,33 @@
     &.minimized {
       max-height: $title-bar-height + 1;
       min-height: 0;
-      overflow: hidden;
       border-bottom: 1px solid $table-border-color;
+      .window-title-bar {
+        @keyframes glow {
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+
+        .glow.glowing {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 10;
+          background-color: transparent;
+          animation: glow 4s linear;
+          box-shadow: 0 0 20px 10px $primary-color;
+        }
+
+      }
+      .window-content {
+        display: none;
+      }
     }
 
     &:hover {
@@ -297,4 +322,11 @@
       border-bottom: 1px solid $table-border-color;
     }
   }
+}
+
+.execution-blotter-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }

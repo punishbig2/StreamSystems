@@ -1,7 +1,7 @@
 import { isInvalidTenor, isTenor } from "components/FormField/helpers";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { Product } from "types/product";
 import {
   OptionLeg,
   ValuationModel,
@@ -34,7 +34,6 @@ import {
 } from "types/order";
 import { OktaUser, Role } from "types/role";
 import { Sides } from "types/sides";
-import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { OCOModes, User } from "types/user";
@@ -324,8 +323,8 @@ export class API {
     return currencies;
   }
 
-  public static getProducts(): Promise<Strategy[]> {
-    const task: Task<Strategy[]> = get<Strategy[]>(
+  public static getProducts(): Promise<Product[]> {
+    const task: Task<Product[]> = get<Product[]>(
       API.buildUrl(API.Config, "products", "get")
     );
     return task.execute();
@@ -782,7 +781,7 @@ export class API {
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null,
     valuationModel: ValuationModel,
-    strategy: MOStrategy
+    strategy: Product
   ): Promise<void> {
     const proxyEntry = new Proxy(
       entry,

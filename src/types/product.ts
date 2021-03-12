@@ -13,7 +13,7 @@ export enum EditableFlag {
   None = "",
 }
 
-export interface MOStrategy {
+export interface Product {
   OptionProductType: string;
   description: string;
   name: string;
@@ -24,10 +24,12 @@ export interface MOStrategy {
   spreadvsvol: "vol" | "spread" | "both";
   strike?: string;
   fields: { f1: { [key: string]: EditableFlag } };
+
+  [key: string]: any;
 }
 
-export const InvalidStrategy: MOStrategy = {
+export const InvalidStrategy: Product = {
   productid: "",
   fields: { f1: {} },
-} as MOStrategy;
-export type StrategyMap = { [key: string]: MOStrategy };
+} as Product;
+export type StrategyMap = { [key: string]: Product };

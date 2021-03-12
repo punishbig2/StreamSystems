@@ -35,7 +35,6 @@ export class PodTileStore {
   @observable isProgressWindowVisible: boolean = false;
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
-  // @observable.ref darkPrices: { [tenor: string]: number | null } = {};
   @observable.ref rows: { [tenor: string]: PodRow } = {};
   @observable runWindowStore: RunWindowStore;
 
@@ -72,37 +71,6 @@ export class PodTileStore {
   public setRows(rows: PodTable) {
     this.rows = rows;
   }
-
-  /*@action.bound
-  private initializeFromSnapshot(
-    snapshot: { [k: string]: W },
-    darkpool: { [k: string]: W },
-    user: User
-  ) {
-    if (snapshot !== null) {
-      const keys: string[] = Object.keys(snapshot);
-      // Sort by tenor
-      keys.sort(
-        (t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2)
-      );
-      // Update the rows object
-      this.rows = keys.reduce((table: PodTable, tenor: string): PodTable => {
-        // Set the darkpool order per row
-        signalRManager.handleWMessage({
-          ...darkpool[tenor],
-          ExDestination: "DP",
-        });
-        // Now create the row in the table
-        table[tenor] = toPodRow(snapshot[tenor], user);
-        return table;
-      }, {});
-      this.loading = false;
-    }
-  }
-  @action.bound
-  private setDarkPrices(prices: { [tenor: string]: number | null }): void {
-    this.darkPrices = prices;
-  }*/
 
   @action.bound
   private updateSingleDepth(tenor: string, w: W) {

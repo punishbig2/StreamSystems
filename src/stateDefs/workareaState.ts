@@ -1,6 +1,6 @@
 import { Symbol } from "types/symbol";
 import { Message } from "types/message";
-import { Strategy } from "types/strategy";
+import { Product } from "types/product";
 import { User, UserPreferences } from "types/user";
 
 export enum WorkareaStatus {
@@ -15,7 +15,7 @@ export enum WorkareaStatus {
 export interface WorkareaState {
   currencies: Symbol[];
   tenors: string[];
-  strategies: Strategy[];
+  strategies: Product[];
   banks: string[];
   activeWorkspace: string | null;
   messages: Message[];

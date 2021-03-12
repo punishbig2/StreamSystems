@@ -4,7 +4,7 @@ import {
   LegOptionsDefIn,
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
-import { MOStrategy } from "components/MiddleOffice/types/moStrategy";
+import { Product } from "types/product";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
@@ -144,7 +144,7 @@ export const createLegsFromDefinitionAndDeal = (
 
 export const mergeDefinitionsAndLegs = (
   entry: DealEntry,
-  strategy: MOStrategy,
+  strategy: Product,
   symbol: Symbol,
   legs: ReadonlyArray<Leg>
 ): ReadonlyArray<Leg> => {
@@ -180,7 +180,7 @@ export const convertLegNumbers = (leg: Leg): Leg => {
   };
 };
 
-const getReturnLegOut = (strategy: MOStrategy, index: number): string => {
+const getReturnLegOut = (strategy: Product, index: number): string => {
   const defs = moStore.legDefinitions[strategy.productid];
   if (defs === undefined) {
     throw new Error(
@@ -207,7 +207,7 @@ const getReturnLegOut = (strategy: MOStrategy, index: number): string => {
 };
 
 export const calculateNetValue = (
-  strategy: MOStrategy,
+  strategy: Product,
   legs: ReadonlyArray<Leg>,
   key: keyof Leg
 ): StyledValue => {

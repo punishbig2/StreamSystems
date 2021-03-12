@@ -4,7 +4,7 @@ import React from "react";
 
 interface Props {
   readonly tooltipStyle: "neutral" | "good" | "bad";
-  readonly title: string;
+  readonly title?: string;
 }
 
 const foregrounds: { [key: string]: string } = {
@@ -34,6 +34,7 @@ export const CustomTooltip: React.FC<React.PropsWithChildren<Props>> = (
   props: React.PropsWithChildren<Props>
 ): React.ReactElement => {
   const classes = useErrorTooltipStyle(props);
+  if (props.title === undefined) return <div />;
   return (
     <Tooltip title={props.title} classes={classes} arrow>
       <div>{props.children}</div>

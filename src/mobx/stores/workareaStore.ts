@@ -1,4 +1,5 @@
 import { API } from "API";
+import { Product } from "types/product";
 
 import latam from "groups/latam";
 import { PresetWindow } from "groups/presetWindow";
@@ -15,7 +16,6 @@ import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
-import { Strategy } from "types/strategy";
 import { Symbol } from "types/symbol";
 import { CurrencyGroups, User, UserPreferences } from "types/user";
 import { updateApplicationTheme } from "utils/commonUtils";
@@ -45,7 +45,8 @@ export class WorkareaStore {
   @persist @observable currentWorkspaceID: string | null = null;
 
   @observable symbols: ReadonlyArray<Symbol> = [];
-  @observable.ref strategies: ReadonlyArray<Strategy> = [];
+  @observable.ref products: ReadonlyArray<Product> = [];
+  @observable.ref strategies: ReadonlyArray<{ name: string }> = [];
   @observable.ref tenors: ReadonlyArray<string> = [];
   @observable.ref banks: ReadonlyArray<string> = [];
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
@@ -292,6 +293,7 @@ export class WorkareaStore {
 
   private async loadSystemStrategies(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingStrategies);
+    this.products = await API.getProductsEx();
     this.strategies = await API.getProducts();
   }
 

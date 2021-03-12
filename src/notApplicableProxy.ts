@@ -1,4 +1,4 @@
-import { EditableFlag } from "components/MiddleOffice/types/moStrategy";
+import { EditableFlag } from "types/product";
 import { MoStore } from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 

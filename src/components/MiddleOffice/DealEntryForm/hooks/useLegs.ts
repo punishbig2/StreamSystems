@@ -3,10 +3,7 @@ import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
-import {
-  InvalidStrategy,
-  MOStrategy,
-} from "components/MiddleOffice/types/moStrategy";
+import { InvalidStrategy, Product } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
@@ -22,7 +19,7 @@ import {
 
 const buildSummaryLegFromCut = (
   cut: Cut,
-  strategy: MOStrategy,
+  strategy: Product,
   symbol: Symbol,
   tradeDate: Date,
   premiumDate: Date,
@@ -94,7 +91,7 @@ const buildSummaryLegFromCut = (
 
 const createSummaryLeg = (
   cuts: ReadonlyArray<Cut>,
-  strategy: MOStrategy,
+  strategy: Product,
   symbol: Symbol,
   tradeDate: Date,
   premiumDate: Date,
