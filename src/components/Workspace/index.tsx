@@ -22,6 +22,7 @@ import {
 } from "mobx/stores/workspaceStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
+import { Product } from "types/product";
 import { Role } from "types/role";
 import { SelectEventData } from "types/selectEventData";
 import { Symbol } from "types/symbol";
@@ -31,7 +32,7 @@ interface Props {
   readonly id: string;
   readonly tenors: ReadonlyArray<string>;
   readonly currencies: ReadonlyArray<Symbol>;
-  readonly strategies: ReadonlyArray<{ name: string }>;
+  readonly strategies: ReadonlyArray<Product>;
   readonly banks: ReadonlyArray<string>;
   readonly isDefault: boolean;
   readonly visible: boolean;
@@ -130,7 +131,6 @@ export const TradingWorkspace: React.FC<Props> = observer(
                   id={id}
                   store={contentStore}
                   currencies={props.currencies}
-                  strategies={props.strategies}
                   tenors={props.tenors}
                   connected={contentProps.connected}
                   scrollable={contentProps.scrollable}
@@ -171,7 +171,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
             if (contentStore instanceof PodTileStore) {
               return (
                 <PodTileTitle
-                  strategies={props.strategies}
+                  strategies={contentStore.strategies}
                   currencies={props.currencies}
                   store={contentStore}
                 />

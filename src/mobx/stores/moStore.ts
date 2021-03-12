@@ -144,10 +144,12 @@ export class MoStore {
     strategy: Product
   ): ReadonlyArray<LegAdjustValue> {
     const { _legAdjustValues } = this;
-    const { regions } = workareaStore.user;
+    if (this.entry === null) return [];
+    const { symbol } = this.entry;
     return _legAdjustValues
       .filter((value: LegAdjustValue): boolean => {
-        if (!regions.includes(value.ccyGroup)) return false;
+        if (symbol.ccyGroup.toLowerCase() !== value.ccyGroup.toLowerCase())
+          return false;
         return value.OptionProductType === strategy.OptionProductType;
       })
       .sort((v1: LegAdjustValue, v2: LegAdjustValue): number => {

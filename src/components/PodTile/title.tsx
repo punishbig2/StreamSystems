@@ -6,6 +6,7 @@ import { PodTileStore } from "mobx/stores/podTileStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
+import { Product } from "types/product";
 import { Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
@@ -13,7 +14,7 @@ import { User } from "types/user";
 interface Props {
   readonly store: PodTileStore;
   readonly currencies: ReadonlyArray<Symbol>;
-  readonly strategies: ReadonlyArray<{ name: string }>;
+  readonly strategies: ReadonlyArray<Product>;
 }
 
 export const PodTileTitle: React.FC<Props> = observer(
@@ -52,7 +53,7 @@ export const PodTileTitle: React.FC<Props> = observer(
           <Select
             value={strategy}
             onChange={store.setStrategy}
-            list={strategies.map((item: { name: string }): {
+            list={strategies.map((item: Product): {
               name: string;
             } => ({
               name: item.name,

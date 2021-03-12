@@ -20,7 +20,6 @@ interface Props {
   readonly id: string;
   readonly tenors: ReadonlyArray<string>;
   readonly store: PodTileStore;
-  readonly strategies: ReadonlyArray<{ name: string }>;
   readonly currencies: ReadonlyArray<Symbol>;
   readonly connected: boolean;
   readonly scrollable?: boolean;

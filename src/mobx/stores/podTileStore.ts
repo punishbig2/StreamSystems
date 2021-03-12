@@ -1,6 +1,6 @@
 import { API, Task } from "API";
 import { orderSorter } from "components/PodTile/helpers";
-import { action, observable } from "mobx";
+import { action, computed, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 
 import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
@@ -10,6 +10,7 @@ import { MDEntry } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
+import { Product } from "types/product";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 import { W } from "types/w";
@@ -40,6 +41,20 @@ export class PodTileStore {
 
   public progressMax: number = 100;
   private creatingBulk: boolean = false;
+
+  @computed
+  public get strategies(): ReadonlyArray<Product> {
+    const { strategies, symbols } = workareaStore;
+
+    const symbol: Symbol | undefined = symbols.find(
+      (symbol: Symbol): boolean => symbol.symbolID === this.currency
+    );
+    if (symbol === undefined) return [];
+    return strategies.filter((product: Product): boolean => {
+      const { ccyGroup } = symbol;
+      return product[ccyGroup.toLowerCase()];
+    });
+  }
 
   constructor(windowID: string) {
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
