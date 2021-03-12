@@ -62,16 +62,19 @@ export const ExecutionBlotter: React.FC<OwnProps> = (
     return (
       <div className={"execution-blotter-title"}>
         <h1>Execution Blotter</h1>
-        <Select
-          value={store.ccyGroupFilter}
-          list={[
-            { name: "All" },
-            ...regions.map((ccyGroup): {
-              name: string;
-            } => ({ name: ccyGroup })),
-          ]}
-          onChange={(value: string): void => store.setCCYGroupFilter(value)}
-        />
+        <div className={"right-panel"}>
+          <h3>CCY Group</h3>
+          <Select
+            value={store.ccyGroupFilter}
+            list={[
+              { name: "All" },
+              ...regions.map((ccyGroup): {
+                name: string;
+              } => ({ name: ccyGroup })),
+            ]}
+            onChange={(value: string): void => store.setCCYGroupFilter(value)}
+          />
+        </div>
       </div>
     );
   };

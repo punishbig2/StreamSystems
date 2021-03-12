@@ -7,7 +7,7 @@ import signalRManager from "signalR/signalRManager";
 import workareaStore from "mobx/stores/workareaStore";
 import { Role } from "types/role";
 import { User } from "types/user";
-import { Symbol, symbolsRegionFilter } from "types/symbol";
+import { Symbol } from "types/symbol";
 import {
   isAcceptableFill,
   sortByTimeDescending,
@@ -21,26 +21,41 @@ export class MessagesStore {
   @observable loading: boolean = false;
   @observable ccyGroupFilter = "All";
 
+  private static normalExecutionsFilter(
+    executions: ReadonlyArray<Message>
+  ): ReadonlyArray<Message> {
+    const { roles } = workareaStore.user;
+    if (
+      (roles.includes(Role.Broker) && workareaStore.personality !== STRM) ||
+      !roles.includes(Role.Broker)
+    ) {
+      return executions.filter(involved);
+    } else {
+      return executions;
+    }
+  }
+
   @computed
   public get executions(): ReadonlyArray<Message> {
     const { symbols } = workareaStore;
-    const { roles, regions } = workareaStore.user;
     const { allExecutions } = this;
-    if (this.ccyGroupFilter !== "All") {
-      const filteredSymbols = symbols.filter(symbolsRegionFilter(regions));
-      return allExecutions.filter((message: Message): boolean =>
-        filteredSymbols.some(
-          (symbol: Symbol): boolean => symbol.symbolID === message.Symbol
+    const { ccyGroupFilter } = this;
+    if (ccyGroupFilter !== "All") {
+      const filteredSymbols = symbols.filter(
+        ({ ccyGroup }: Symbol): boolean =>
+          ccyGroupFilter.toLowerCase() == ccyGroup.toLowerCase()
+      );
+      return MessagesStore.normalExecutionsFilter(
+        allExecutions.filter(
+          (message: Message): boolean =>
+            filteredSymbols.find((symbol: Symbol): boolean => {
+              return symbol.symbolID === message.Symbol;
+            }) !== undefined
         )
       );
-      // Filter now
-    } else if (
-      roles.includes(Role.Broker) &&
-      workareaStore.personality !== STRM
-    ) {
-      return allExecutions.filter(involved);
+    } else {
+      return MessagesStore.normalExecutionsFilter(allExecutions);
     }
-    return allExecutions;
   }
 
   @action.bound
@@ -94,7 +109,7 @@ export class MessagesStore {
   public connect() {
     // Call the initializer now, because the user email
     // has surely been set ;)
-    this.initialize();
+    void this.initialize();
     // Connect to signal R's manager
     // First cleanup the old listener if it's here
     signalRManager.setMessagesListener((message: Message) => {

@@ -6,13 +6,10 @@ import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
 import { Message } from "types/message";
 import { Role } from "types/role";
-import { User } from "types/user";
 import { DarkPool } from "types/w";
 import {
-  getBuyer,
   getMessagePrice,
   getMessageSize,
-  getSeller,
   TransTypes,
 } from "utils/messageUtils";
 import { priceFormatter } from "utils/priceFormatter";
@@ -145,7 +142,8 @@ const side = (sortable: boolean): ColumnSpec => ({
   header: () => "Side",
   render: (props: CellProps) => {
     const { message } = props;
-    if (!involved(message)) return <div />;
+    const { roles } = workareaStore.user;
+    if (!involved(message) && !roles.includes(Role.Broker)) return <div />;
     return getSide(message);
   },
   width: 2,
@@ -178,7 +176,7 @@ const size = (sortable: boolean): ColumnSpec => ({
   },
 });
 
-const buyerOrSeller = (
+/*const buyerOrSeller = (
   sortable: boolean,
   type: "buyer" | "seller"
 ): ColumnSpec => ({
@@ -213,7 +211,7 @@ const buyerOrSeller = (
   sortable: sortable,
   template: "BUYER",
   width: 2,
-});
+});*/
 
 const transactTime = (): ColumnSpec => ({
   name: "TransactTime",
@@ -284,7 +282,7 @@ const counterParty = (
     const { message } = props;
     const { ExecBroker, MDMkt } = message;
     const { user } = workareaStore;
-    if (!involved(message)) return <div />;
+    if (!involved(message) && !user.roles.includes(Role.Broker)) return <div />;
     return (
       <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
         {user.firm === ExecBroker ? MDMkt : ExecBroker}
@@ -362,8 +360,7 @@ const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (
       strategy(notExecutionsBlotter),
       price(notExecutionsBlotter),
       side(notExecutionsBlotter),
-      buyerOrSeller(notExecutionsBlotter, "buyer"),
-      buyerOrSeller(notExecutionsBlotter, "seller"),
+      counterParty(notExecutionsBlotter, !notExecutionsBlotter),
       trader(notExecutionsBlotter),
       pool(notExecutionsBlotter),
     ],

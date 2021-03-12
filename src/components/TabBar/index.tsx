@@ -94,13 +94,6 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   );
 
   const getAddWorkspaceMenu = (): ReactElement | null => {
-    const groups =
-      isTrader || isBroker
-        ? Object.values(CurrencyGroups).filter(
-            (group: CurrencyGroups) => group !== CurrencyGroups.Default
-          )
-        : [];
-
     const addTab = (type: WorkspaceType | CurrencyGroups) => {
       if (isCurrencyGroup(type)) {
         props.onAddStandardWorkspace(type);
@@ -119,11 +112,6 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
         onClose={() => showOptions(false)}
         keepMounted={false}
       >
-        {groups.map((group: CurrencyGroups) => (
-          <MenuItem key={group} onClick={() => addTab(group)}>
-            {group} Default
-          </MenuItem>
-        ))}
         {isTrader || isBroker ? (
           <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>
             Empty
