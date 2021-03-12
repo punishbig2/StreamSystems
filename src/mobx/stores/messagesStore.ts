@@ -43,7 +43,7 @@ export class MessagesStore {
     if (ccyGroupFilter !== "All") {
       const filteredSymbols = symbols.filter(
         ({ ccyGroup }: Symbol): boolean =>
-          ccyGroupFilter.toLowerCase() == ccyGroup.toLowerCase()
+          ccyGroupFilter.toLowerCase() === ccyGroup.toLowerCase()
       );
       return MessagesStore.normalExecutionsFilter(
         allExecutions.filter(
