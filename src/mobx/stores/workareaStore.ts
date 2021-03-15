@@ -65,6 +65,7 @@ export class WorkareaStore {
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
 
+  private users: ReadonlyArray<User> = [];
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
 
@@ -232,7 +233,8 @@ export class WorkareaStore {
   private async loadUser(id: string): Promise<User | undefined> {
     this.updateLoadingProgress(strings.StartingUp);
     // Get the list of all users
-    const users: any[] = await API.getUsers();
+    const users: User[] = await API.getUsers();
+    this.users = users;
     if (
       !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
         id
@@ -491,6 +493,17 @@ export class WorkareaStore {
       workspaceStores[id] = new WorkspaceStore(id);
     }
     return workspaceStores[id];
+  }
+
+  public findUserByEmail(email: string): User {
+    const { users } = this;
+    const found: User | undefined = users.find((user: User): boolean => {
+      return user.email === email;
+    });
+    if (found === undefined) {
+      throw new Error("impossible to find user");
+    }
+    return found;
   }
 }
 

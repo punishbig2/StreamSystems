@@ -28,6 +28,8 @@ export interface User {
   readonly firm: string;
   readonly regions: ReadonlyArray<string>;
   readonly roles: ReadonlyArray<Role>;
+  readonly firstname: string;
+  readonly lastname: string;
 }
 
 export enum UserProfileStatus {

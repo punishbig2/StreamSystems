@@ -6,6 +6,7 @@ import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
 import { Message } from "types/message";
 import { Role } from "types/role";
+import { User } from "types/user";
 import { DarkPool } from "types/w";
 import {
   getMessagePrice,
@@ -94,9 +95,14 @@ const trader = (sortable: boolean): ColumnSpec => ({
   filterable: true,
   sortable: sortable,
   header: () => "Trader",
-  render: (props: CellProps): ReactElement => (
-    <span>{props.message.Username}</span>
-  ),
+  render: ({ message }: CellProps): ReactElement => {
+    const user: User = workareaStore.findUserByEmail(message.Username);
+    return (
+      <span>
+        {user.firstname} {user.lastname}
+      </span>
+    );
+  },
   width: 5,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);
