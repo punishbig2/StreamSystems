@@ -359,6 +359,7 @@ const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (
       pool(notExecutionsBlotter),
     ],
     broker: [
+      transactTime(),
       ...(notExecutionsBlotter ? [transactType(true)] : []),
       size(notExecutionsBlotter),
       symbol(notExecutionsBlotter),

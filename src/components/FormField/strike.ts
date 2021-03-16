@@ -4,6 +4,8 @@ import { NumericInputHandler } from "components/FormField/numeric";
 import { Validity } from "forms/validity";
 import { DecimalSeparator, isNumeric } from "utils/isNumeric";
 
+const VALID_STRIKE_REGEXP = /^[0-9]+[Dd]$|^ATM[FSZ]$/;
+
 export class StrikeHandler<
   T,
   P extends MinimalProps,
@@ -20,9 +22,7 @@ export class StrikeHandler<
     } else {
       if (typeof value === "string") {
         const normalized: string = value.toUpperCase();
-        const deltaOrSpecial: boolean = /^[0-9]+[Dd]$|^ATM[FS]$/.test(
-          normalized
-        );
+        const deltaOrSpecial: boolean = VALID_STRIKE_REGEXP.test(normalized);
         if (deltaOrSpecial) {
           return [normalized, Validity.Valid];
         } else if (isNumeric(normalized)) {
@@ -51,8 +51,7 @@ export class StrikeHandler<
   }
 
   public parse(value: string, props: P): any {
-    const acceptableStrikes = ["ATMF", "ATMS", "ATMZ"];
-    if (acceptableStrikes.includes(value)) {
+    if (/ATM[FSZ]/.test(value)) {
       return value;
     } else {
       const regex: RegExp = /^([0-9]+[dD]).*$/;

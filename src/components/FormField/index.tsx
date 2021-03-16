@@ -144,19 +144,6 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       }
       this.ensureCaretIsInPlace();
     }
-    // FIXME: need a better mechanism for this
-    /*if (!props.readonly && state.editor !== Editor.User) {
-      this.setState(
-        {
-          changed: true,
-        },
-        (): void => {
-          setTimeout((): void => {
-            this.setState({ changed: false });
-          }, 2000);
-        }
-      );
-    }*/
   };
 
   private setInputRef = (input: HTMLInputElement): void => {
