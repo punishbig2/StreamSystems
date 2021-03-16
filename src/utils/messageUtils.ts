@@ -79,16 +79,16 @@ export const isMyMessage = (message: Message): boolean => {
 export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
   const { roles } = user;
-  const firm: string = roles.includes(Role.Broker)
-    ? workareaStore.personality
-    : user.firm;
+  const isBroker: boolean = roles.includes(Role.Broker);
+  const firm: string = isBroker ? workareaStore.personality : user.firm;
   // Only fills are interesting
   if (!isFill(message)) return false;
   // If it's my trade YES
   if (message.Username === user.email || message.MDMkt === firm) return true;
   // If it's my trade and I am contra-trader NO
-  if (message.ContraTrader === user.email || message.ExecBroker === firm)
-    return false;
+  if (message.ContraTrader === user.email || message.ExecBroker === firm) {
+    return isBroker;
+  }
   return message.Side === "1";
 };
 

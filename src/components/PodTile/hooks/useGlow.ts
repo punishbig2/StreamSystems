@@ -1,23 +1,8 @@
 import React from "react";
-import signalRManager from "signalR/signalRManager";
+import { Order } from "types/order";
 
-export const useGlow = (currency: string, strategy: string): boolean => {
-  const [glowing, setGlowing] = React.useState<boolean>(false);
-  React.useEffect((): (() => void) | void => {
-    if (!glowing) return;
-    const timer = setTimeout((): void => {
-      console.log("glowing is going to be false");
-      setGlowing(false);
-    }, 6000);
-    return (): void => {
-      clearTimeout(timer);
-    };
-  }, [glowing]);
-
-  React.useEffect((): (() => void) => {
-    return signalRManager.addExecutionListener(strategy, currency, (): void => {
-      setGlowing(true);
-    });
-  }, [strategy, currency]);
-  return glowing;
+export const useGlow = (orders: { [tenor: string]: Order[] }): boolean => {
+  return React.useMemo((): boolean => {
+    return Object.keys(orders).length > 0;
+  }, [orders]);
 };
