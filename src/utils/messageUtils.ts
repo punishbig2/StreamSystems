@@ -88,7 +88,7 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (message.Username === user.email || message.MDMkt === firm) return true;
   // If it's my trade and I am contra-trader NO
   if (message.ContraTrader === user.email || message.ExecBroker === firm) {
-    return true;
+    return false;
   }
   return message.Side === "1";
 };
