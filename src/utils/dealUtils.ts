@@ -189,7 +189,7 @@ export const createDealFromBackendMessage = async (
     spotDate: new Date(),
     premiumDate: new Date(),
     price: price,
-    strike: numberifyIfPossible(strike),
+    strike: strike === "" ? null : numberifyIfPossible(strike),
     symbol: symbol,
     source: object.source,
     status: object.state,
