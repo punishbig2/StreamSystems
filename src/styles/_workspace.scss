@@ -80,8 +80,8 @@
           height: 100%;
           z-index: 10;
           background-color: transparent;
-          animation: glow 4s linear;
-          box-shadow: 0 0 20px 10px $primary-color;
+          animation: glow 1s linear;
+          box-shadow: inset 0 0 5px 4px $primary-color;
         }
 
       }

@@ -1,8 +1,18 @@
 import React from "react";
-import { Order } from "types/order";
+import { Order, OrderStatus } from "types/order";
 
 export const useGlow = (orders: { [tenor: string]: Order[] }): boolean => {
   return React.useMemo((): boolean => {
-    return Object.keys(orders).length > 0;
+    const all: ReadonlyArray<Order> = Object.values(orders).reduce(
+      (combined: ReadonlyArray<Order>, next: ReadonlyArray<Order>) => [
+        ...combined,
+        ...next,
+      ],
+      []
+    );
+    return all.some(
+      (order: Order): boolean =>
+        (order.status & OrderStatus.Active) === OrderStatus.Active
+    );
   }, [orders]);
 };

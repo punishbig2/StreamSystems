@@ -168,6 +168,9 @@ export const createDealFromBackendMessage = async (
   const spread: number | null = getSpread(object);
   const vol: number | null = getVol(object);
   const price: number | null = getPrice(object.lastpx, object.pricedvol);
+  const strategy: Product | undefined = moStore.findStrategyById(
+    object.strategy
+  );
   return {
     id: object.linkid,
     buyer: coalesce(object.buyerentitycode, object.buyer),
@@ -176,7 +179,10 @@ export const createDealFromBackendMessage = async (
     isdarkpool: object.isdarkpool,
     spread: coalesce(spread, price),
     vol: coalesce(vol, price),
-    legAdj: object.legadj,
+    legAdj: coalesce(
+      object.legadj,
+      strategy ? moStore.getDefaultLegAdjust(strategy, symbol) : null
+    ),
     notional1: Number(object.lastqty) * 1e6,
     notional2: object.notional1 === null ? null : Number(object.notional1),
     strategy: object.strategy,

@@ -141,11 +141,10 @@ export class MoStore {
   public premiumStyles: ReadonlyArray<string> = [];
 
   private getFilteredLegAdjustValues(
-    strategy: Product
+    strategy: Product,
+    symbol: Symbol
   ): ReadonlyArray<LegAdjustValue> {
     const { _legAdjustValues } = this;
-    if (this.entry === null) return [];
-    const { symbol } = this.entry;
     return _legAdjustValues
       .filter((value: LegAdjustValue): boolean => {
         if (symbol.ccyGroup.toLowerCase() !== value.ccyGroup.toLowerCase())
@@ -161,8 +160,8 @@ export class MoStore {
 
   @computed
   public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
-    const { strategy } = this.entry;
-    return this.getFilteredLegAdjustValues(strategy);
+    const { strategy, symbol } = this.entry;
+    return this.getFilteredLegAdjustValues(strategy, symbol);
   }
 
   @computed
@@ -172,9 +171,10 @@ export class MoStore {
     return legAdjustValues[0].VegaLegAdjustValue;
   }
 
-  public getDefaultLegAdjust(strategy: Product): string {
+  public getDefaultLegAdjust(strategy: Product, symbol: Symbol): string {
     const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
-      strategy
+      strategy,
+      symbol
     );
     if (values.length === 0) return "";
     return values[0].VegaLegAdjustValue;
@@ -1222,6 +1222,15 @@ export class MoStore {
 
   private setLegAdjustValues(value: ReadonlyArray<LegAdjustValue>) {
     this._legAdjustValues = value;
+  }
+
+  public findStrategyById(name: string): Product | undefined {
+    const values: ReadonlyArray<Product> = Object.values(
+      workareaStore.products
+    );
+    return values.find((product: Product): boolean => {
+      return name === product.name;
+    });
   }
 }
 

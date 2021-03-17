@@ -114,13 +114,14 @@ export const Field: React.FC<Props> = React.memo(
       },
       [entry, onChangeCompleted]
     );
+    const { symbol } = entry;
     const onChange = React.useCallback(
       async (name: keyof DealEntry, value: any): Promise<void> => {
         const dependants: Partial<DealEntry> = ((
           name: keyof DealEntry
         ): Partial<DealEntry> => {
           if (name === "strategy") {
-            return { legadj: moStore.getDefaultLegAdjust(value) };
+            return { legadj: moStore.getDefaultLegAdjust(value, symbol) };
           } else {
             return {};
           }
@@ -135,7 +136,7 @@ export const Field: React.FC<Props> = React.memo(
           await onChangeCompleted({ [name]: convertedValue, ...dependants });
         }
       },
-      [onChangeStart, field, onTenorChange, editFlag, onChangeCompleted]
+      [onChangeStart, field, onTenorChange, editFlag, symbol, onChangeCompleted]
     );
     return (
       <FormField<DealEntry>
