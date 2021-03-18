@@ -140,7 +140,7 @@ const getSide = (message: Message): "Buy" | "Sell" => {
   return message.Side === "1" ? "Buy" : "Sell";
 };
 
-const side = (sortable: boolean): ColumnSpec => ({
+const side = (sortable: boolean, flip = false): ColumnSpec => ({
   name: "Side",
   template: "SELL",
   filterable: true,

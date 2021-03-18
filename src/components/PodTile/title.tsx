@@ -33,7 +33,7 @@ export const PodTileTitle: React.FC<Props> = observer(
       !currency || !strategy || (personality === STRM && isBroker);
     const { currencies, strategies } = props;
 
-    const glowing: boolean = useGlow(store.orders);
+    const glowing: boolean = useGlow(store.orders, store.darkpool);
 
     return (
       <>
