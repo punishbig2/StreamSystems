@@ -90,7 +90,7 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (message.ContraTrader === user.email || message.ExecBroker === firm) {
     return false;
   }
-  return message.Side === "2";
+  return message.Side === "1";
 };
 
 export const isMessage = (row: Message | Deal): row is Message =>
