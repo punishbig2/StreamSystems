@@ -97,6 +97,7 @@ const trader = (sortable: boolean): ColumnSpec => ({
   header: () => "Trader",
   render: ({ message }: CellProps): ReactElement => {
     const user: User = workareaStore.findUserByEmail(message.ContraTrader);
+    console.log(user);
     return (
       <span>
         {user.firstname} {user.lastname}
@@ -235,7 +236,7 @@ const transactTime = (): ColumnSpec => ({
       </div>
     );
   },
-  width: 6,
+  width: 4,
   difference: (v1: Message, v2: Message): number => {
     const m1: Moment = moment(v1.TransactTime, FIX_DATE_FORMAT);
     const m2: Moment = moment(v2.TransactTime, FIX_DATE_FORMAT);
