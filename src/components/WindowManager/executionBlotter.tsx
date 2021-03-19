@@ -44,7 +44,7 @@ export const ExecutionBlotter: React.FC<OwnProps> = (
   const geometry: ClientRect = new DOMRect(
     0,
     area.height - height + 1,
-    Math.max(width, 1200),
+    Math.max(width, 900),
     height
   );
   const id: string = "___EX_BLOTTER___";

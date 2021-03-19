@@ -56,7 +56,7 @@ const symbol = (sortable: boolean): ColumnSpec => ({
   render: ({ message }: { message: Message }): ReactElement => (
     <span>{message.Symbol}</span>
   ),
-  width: 3,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Symbol;
     if (!original) return false;
@@ -77,7 +77,7 @@ const strategy = (sortable: boolean): ColumnSpec => ({
   render: ({ message }: CellProps): ReactElement => (
     <span>{message.Strategy}</span>
   ),
-  width: 3,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;
     const value = original.toLowerCase();
@@ -125,7 +125,7 @@ const price = (sortable: boolean): ColumnSpec => ({
   render: (props: CellProps): ReactElement => (
     <span>{priceFormatter(getMessagePrice(props.message))}</span>
   ),
-  width: 3,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);
     const numeric: number = Number(keyword);
@@ -171,7 +171,7 @@ const size = (sortable: boolean): ColumnSpec => ({
   render: (props: CellProps): ReactElement => (
     <span>{getMessageSize(props.message)}</span>
   ),
-  width: 3,
+  width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = getMessageSize(v1);
     const numeric: number = Number(keyword);
