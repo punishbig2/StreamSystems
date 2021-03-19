@@ -50,7 +50,6 @@ export const getExtraPropsAndValue = (
     entry.deltastyle
   );
   const value: any = leg[field.name];
-  console.log(field.name, value);
   if (field.name === "price" || field.name === "hedge") {
     return {
       value: getStyledValue(value, entry.premstyle),

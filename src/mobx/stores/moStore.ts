@@ -39,7 +39,6 @@ import { PricingMessage } from "types/pricingMessage";
 import { SEFUpdate } from "types/sefUpdate";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils/commonUtils";
 import { createDealEntry } from "utils/dealUtils";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
@@ -836,10 +835,10 @@ export class MoStore {
       return {
         extra_fields: {
           spot: summaryLeg.spot,
-          fwdrate1: coalesce(summaryLeg.fwdrate1, undefined),
-          fwdpts1: coalesce(summaryLeg.fwdpts1, undefined),
-          fwdrate2: coalesce(summaryLeg.fwdrate2, undefined),
-          fwdpts2: coalesce(summaryLeg.fwdpts2, undefined),
+          fwdrate1: summaryLeg.fwdrate1,
+          fwdpts1: summaryLeg.fwdpts1,
+          fwdrate2: summaryLeg.fwdrate2,
+          fwdpts2: summaryLeg.fwdpts2,
         },
       };
     })(summaryLeg);

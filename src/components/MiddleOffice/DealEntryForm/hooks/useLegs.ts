@@ -178,6 +178,8 @@ export const handleLegsResponse = (
   const finalLegs: ReadonlyArray<Leg> = legs
     .slice(sliceIndex)
     .map(convertLegNumbers);
+  const firstLeg = legs[sliceIndex];
+  const secondLeg = legs[sliceIndex + 1];
   const finalSummaryLeg: SummaryLeg = {
     ...createSummaryLeg(
       cuts,
@@ -191,16 +193,16 @@ export const handleLegsResponse = (
       entry.extra_fields
     ),
     ...summaryLeg,
-    fwdpts1: toNumberOrFallbackIfNaN(coalesce(fwdPts1, legs[0].fwdPts), null),
+    fwdpts1: toNumberOrFallbackIfNaN(coalesce(fwdPts1, firstLeg.fwdPts), null),
     fwdrate1: toNumberOrFallbackIfNaN(
-      coalesce(fwdRate1, legs[0].fwdRate),
+      coalesce(fwdRate1, firstLeg.fwdRate),
       null
     ),
     fwdpts2: toNumberOrFallbackIfNaN(
       coalesce(
         fwdPts2,
         // The legs[1] generally equals legs[0]
-        legs[1] !== undefined ? legs[1].fwdPts : undefined
+        secondLeg !== undefined ? secondLeg.fwdPts : undefined
       ),
       null
     ),
@@ -208,13 +210,13 @@ export const handleLegsResponse = (
       coalesce(
         fwdRate2,
         // The legs[1] generally equals legs[0]
-        legs[1] !== undefined ? legs[1].fwdRate : undefined
+        secondLeg !== undefined ? secondLeg.fwdRate : undefined
       ),
       null
     ),
 
     spot: toNumberOrFallbackIfNaN(
-      coalesce(extra_fields.spot, legs[0].spot),
+      coalesce(extra_fields.spot, firstLeg.spot),
       null
     ),
     usi: entry.usi,
