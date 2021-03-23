@@ -55,6 +55,8 @@ import {
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
+import { priceFormatter } from "utils/priceFormatter";
+import { sizeFormatter } from "utils/sizeFormatter";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
@@ -392,8 +394,8 @@ export class API {
         return {
           Side: getSideFromType(order.type),
           Tenor: order.tenor,
-          Quantity: size.toString(),
-          Price: price.toString(),
+          Quantity: sizeFormatter(size),
+          Price: priceFormatter(price),
         };
       }),
       MDMkt: MDMkt,
@@ -672,7 +674,7 @@ export class API {
       Symbol: symbol,
       Strategy: strategy,
       Tenor: tenor,
-      DarkPrice: price,
+      DarkPrice: price !== "" ? priceFormatter(price) : "",
     };
     const task: Task<any> = post<any>(
       API.buildUrl(API.DarkPool, "price", "publish"),
