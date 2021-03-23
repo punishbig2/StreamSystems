@@ -6,8 +6,8 @@ import { getMessagePrice } from "utils/messageUtils";
 import { observer } from "mobx-react";
 
 const ExecutionBanner: React.FC<{}> = observer((): ReactElement | null => {
-  const { executions } = store;
-  const last5: Message[] = executions.slice(0, 5);
+  const { allExecutions } = store;
+  const last5: Message[] = allExecutions.slice(0, 5);
   return (
     <div className={"execution-banner"}>
       {last5.map((execution: Message) => (
