@@ -23,7 +23,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
     const finalLabel: string =
       value === null ? (label !== "" ? label : "Untitled") : value;
     if (isDefault && value === null) {
-      return `${finalLabel} (default)`;
+      return `${finalLabel}`;
     } else {
       return finalLabel;
     }
