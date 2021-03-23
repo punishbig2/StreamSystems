@@ -25,10 +25,7 @@ export class MessagesStore {
     executions: ReadonlyArray<Message>
   ): ReadonlyArray<Message> {
     const { roles } = workareaStore.user;
-    if (
-      (roles.includes(Role.Broker) && workareaStore.personality !== STRM) ||
-      !roles.includes(Role.Broker)
-    ) {
+    if (roles.includes(Role.Broker) && workareaStore.personality !== STRM) {
       return executions.filter(involved);
     } else {
       return executions;
