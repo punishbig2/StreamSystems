@@ -73,11 +73,13 @@ const isFill = (item: Message): boolean => {
 
 export const isMyMessage = (message: Message): boolean => {
   const user: User = workareaStore.user;
+  if (message.CxlRejResponseTo !== undefined) return false;
   return user.email === message.Username;
 };
 
 export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
+  if (message.CxlRejResponseTo !== undefined) return false;
   const { roles } = user;
   const isBroker: boolean = roles.includes(Role.Broker);
   const firm: string = isBroker ? workareaStore.personality : user.firm;

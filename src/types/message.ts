@@ -52,6 +52,7 @@ export interface Message {
   ContraTrader: string;
   ExDestination?: string;
   ClOrdLinkId?: string;
+  CxlRejResponseTo: string | undefined;
   ["583"]?: string;
 }
 

@@ -682,6 +682,13 @@ export class MoStore {
         (data: PricingMessage): void => {
           const { entry } = this;
           if (entry.dealID === data.dealId) {
+            // Reset the extra fields
+            entry.extra_fields = {
+              fwdpts1: data.legs[0].fwdPts,
+              fwdrate1: data.legs[0].fwdRate,
+              fwdpts2: data.legs.length > 1 ? data.legs[1].fwdPts : null,
+              fwdrate2: data.legs.length > 1 ? data.legs[1].fwdRate : null,
+            };
             // It is the deal of interest so update
             // visible legs now
             const [legs, summaryLeg] = handleLegsResponse(
