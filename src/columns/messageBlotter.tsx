@@ -138,7 +138,7 @@ const price = (sortable: boolean): ColumnSpec => ({
 });
 
 const getSide = (message: Message): "Buy" | "Sell" => {
-  return message.Side === "1" ? "Sell" : "Buy";
+  return message.Side === "1" ? "Buy" : "Sell";
 };
 
 const side = (sortable: boolean, flip = false): ColumnSpec => ({
