@@ -501,7 +501,17 @@ export class WorkareaStore {
       return user.email === email;
     });
     if (found === undefined) {
-      throw new Error("impossible to find user");
+      console.warn(
+        `we tried to find \`${email}' in the list of users from the server but it's not in it`
+      );
+      return {
+        email: "unknown user",
+        firm: "unknown firm",
+        regions: [],
+        roles: [],
+        firstname: "unknown",
+        lastname: "unknown",
+      };
     }
     return found;
   }
