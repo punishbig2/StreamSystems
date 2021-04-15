@@ -97,7 +97,6 @@ const trader = (sortable: boolean): ColumnSpec => ({
   header: () => "Trader",
   render: ({ message }: CellProps): ReactElement => {
     const user: User = workareaStore.findUserByEmail(message.ContraTrader);
-    console.log(user);
     return (
       <span>
         {user.firstname} {user.lastname}

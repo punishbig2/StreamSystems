@@ -498,7 +498,7 @@ export class WorkareaStore {
   public findUserByEmail(email: string): User {
     const { users } = this;
     const found: User | undefined = users.find((user: User): boolean => {
-      return user.email === email;
+      return user.email.toLowerCase() === email.toLowerCase();
     });
     if (found === undefined) {
       console.warn(
