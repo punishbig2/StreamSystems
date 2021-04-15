@@ -498,11 +498,16 @@ export class WorkareaStore {
   public findUserByEmail(email: string): User {
     const { users } = this;
     const found: User | undefined = users.find((user: User): boolean => {
+      if (user.email === undefined) {
+        console.log("user with undefined email?: ", user);
+        return false;
+      }
       return user.email.toLowerCase() === email.toLowerCase();
     });
     if (found === undefined) {
       console.warn(
-        `we tried to find \`${email}' in the list of users from the server but it's not in it`
+        `we tried to find \`${email}' in the list of users from the server but it's not in it`,
+        users
       );
       return {
         email: "unknown user",
