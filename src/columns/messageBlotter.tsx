@@ -96,7 +96,14 @@ const trader = (sortable: boolean): ColumnSpec => ({
   sortable: sortable,
   header: () => "Trader",
   render: ({ message }: CellProps): ReactElement => {
-    const user: User = workareaStore.findUserByEmail(message.ContraTrader);
+    const email = message.ContraTrader
+      ? message.ContraTrader
+      : message.Username;
+    if (email === undefined) {
+      console.log("unable to determine the user for: ", message);
+      return <span />;
+    }
+    const user: User = workareaStore.findUserByEmail(email);
     return (
       <span>
         {user.firstname} {user.lastname}

@@ -501,6 +501,9 @@ export class WorkareaStore {
       if (user.email === undefined) {
         console.log("user with undefined email?: ", user);
         return false;
+      } else if (email === undefined) {
+        console.log("you're attempting to find a user that has no email");
+        return false;
       }
       return user.email.toLowerCase() === email.toLowerCase();
     });
