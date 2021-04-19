@@ -1,6 +1,10 @@
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import React, { ReactElement, useState } from "react";
 
+const randomName = (): string => {
+  return Math.round(Number.MAX_SAFE_INTEGER * Math.random()).toString(16);
+};
+
 export enum TabDirection {
   Forward = 1,
   Backward = -1,
@@ -111,6 +115,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <input
       {...otherProps}
+      name={randomName()}
       title={props.title}
       data-input-type={props.type}
       className={props.className}

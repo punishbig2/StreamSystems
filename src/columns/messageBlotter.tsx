@@ -100,7 +100,6 @@ const trader = (sortable: boolean): ColumnSpec => ({
       ? message.ContraTrader
       : message.Username;
     if (email === undefined) {
-      console.log("unable to determine the user for: ", message);
       return <span />;
     }
     const user: User = workareaStore.findUserByEmail(email);

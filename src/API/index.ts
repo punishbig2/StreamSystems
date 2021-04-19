@@ -139,6 +139,7 @@ const request = <T>(
     reject: (error?: any) => void
   ): void => {
     taskHandler.reject = reject;
+    console.log(url);
     // Send the request
     xhr.open(method, url, true);
     xhr.onreadystatechange = (): void => {
@@ -211,13 +212,13 @@ const request = <T>(
   };
 };
 
-const post = <T>(url: string, data?: any, contentType?: string): Task<T> =>
+const POST = <T>(url: string, data?: any, contentType?: string): Task<T> =>
   request<T>(url, Method.Post, data, contentType);
 
-const get = <T>(url: string, args?: any): Task<T> =>
+const GET = <T>(url: string, args?: any): Task<T> =>
   request<T>(url, Method.Get, args);
 
-const httpDelete = <T>(url: string, args?: any): Task<T> =>
+const DELETE = <T>(url: string, args?: any): Task<T> =>
   request<T>(url, Method.Delete, args);
 
 type Endpoints =
@@ -309,7 +310,7 @@ export class API {
   }
 
   public static async getSymbols(region?: string): Promise<Symbol[]> {
-    const task: Task<Symbol[]> = get<Symbol[]>(
+    const task: Task<Symbol[]> = GET<Symbol[]>(
       API.buildUrl(
         API.Config,
         "symbols",
@@ -326,14 +327,14 @@ export class API {
   }
 
   public static getProducts(): Promise<Product[]> {
-    const task: Task<Product[]> = get<Product[]>(
+    const task: Task<Product[]> = GET<Product[]>(
       API.buildUrl(API.Config, "products", "get")
     );
     return task.execute();
   }
 
   public static getTenors(): Promise<string[]> {
-    const task: Task<string[]> = get<string[]>(
+    const task: Task<string[]> = GET<string[]>(
       API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" })
     );
     return task.execute();
@@ -342,7 +343,7 @@ export class API {
   public static async executeCreateOrderRequest(
     request: CreateOrder
   ): Promise<MessageResponse> {
-    const task: Task<MessageResponse> = await post<MessageResponse>(
+    const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "create"),
       request
     );
@@ -402,7 +403,7 @@ export class API {
       /* Cancel condition -> OCO mode */
       ...API.getCancelCondition(),
     };
-    const task: Task<MessageResponse> = await post<MessageResponse>(
+    const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "bulkorders", "create"),
       request
     );
@@ -438,7 +439,7 @@ export class API {
       Symbol: symbol,
       MDMkt: personality,
     };
-    const task: Task<MessageResponse> = post<MessageResponse>(
+    const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.Oms, "allextended", "cxl"),
       request
     );
@@ -459,7 +460,7 @@ export class API {
       Strategy: strategy,
       Symbol: symbol,
     };
-    const task: Task<MessageResponse> = post<MessageResponse>(
+    const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cancel"),
       request
     );
@@ -485,7 +486,7 @@ export class API {
       Tenor: order.tenor,
       OrderID: order.orderId,
     };
-    const task: Task<MessageResponse> = await post<MessageResponse>(
+    const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
       request
     );
@@ -505,7 +506,7 @@ export class API {
       symbol,
       strategy,
     });
-    const task: Task<{ [k: string]: W } | null> = get<{
+    const task: Task<{ [k: string]: W } | null> = GET<{
       [k: string]: W;
     } | null>(url);
     // Execute the query
@@ -525,7 +526,7 @@ export class API {
       strategy,
     });
     // Execute the query
-    return get<{
+    return GET<{
       [k: string]: W;
     } | null>(url);
   }
@@ -543,7 +544,7 @@ export class API {
       strategy,
     });
     // Execute the query
-    return get<{
+    return GET<{
       [k: string]: W;
     } | null>(url);
   }
@@ -553,10 +554,10 @@ export class API {
     timestamp: number
   ): Promise<Message[]> {
     const query: any = { timestamp };
-    const task1: Task<Message[]> = get<Message[]>(
+    const task1: Task<Message[]> = GET<Message[]>(
       API.buildUrl(API.DarkPool, "messages", "get", query)
     );
-    const task2: Task<Message[]> = get<Message[]>(
+    const task2: Task<Message[]> = GET<Message[]>(
       API.buildUrl(API.Oms, "messages", "get", query)
     );
     const darkpool: Message[] = await task1.execute();
@@ -569,20 +570,20 @@ export class API {
     symbol: string,
     strategy: string
   ): Task<OrderMessage[]> {
-    return get<OrderMessage[]>(
+    return GET<OrderMessage[]>(
       API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail })
     );
   }
 
   public static async getUsers(): Promise<User[]> {
-    const task: Task<User[]> = get<User[]>(
+    const task: Task<User[]> = GET<User[]>(
       API.buildUrl(API.UserApi, "Users", "get")
     );
     return task.execute();
   }
 
   public static async getBanks(): Promise<string[]> {
-    const task: Task<string[]> = get<string[]>(
+    const task: Task<string[]> = GET<string[]>(
       API.buildUrl(API.Config, "markets", "get")
     );
     return task.execute();
@@ -600,7 +601,7 @@ export class API {
     } else {
       order.MDMkt = personality;
     }
-    const task: Task<MessageResponse> = post<MessageResponse>(
+    const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "create"),
       order
     );
@@ -618,7 +619,7 @@ export class API {
       Tenor: order.tenor,
       OrderID: order.orderId,
     };
-    const task: Task<MessageResponse> = post<MessageResponse>(
+    const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "cancel"),
       request
     );
@@ -631,7 +632,7 @@ export class API {
     tenor: string
   ): Promise<any> {
     const user: User = workareaStore.user;
-    const task: Task<MessageResponse> = post<MessageResponse>(
+    const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "allonpxchg", "cxl"),
       {
         User: user.email,
@@ -655,7 +656,7 @@ export class API {
       Strategy: strategy,
       Tenor: tenor,
     };
-    const task: Task<any> = post<any>(
+    const task: Task<any> = POST<any>(
       API.buildUrl(API.DarkPool, "price", "clear"),
       data
     );
@@ -676,7 +677,7 @@ export class API {
       Tenor: tenor,
       DarkPrice: price !== "" ? priceFormatter(price) : "",
     };
-    const task: Task<any> = post<any>(
+    const task: Task<any> = POST<any>(
       API.buildUrl(API.DarkPool, "price", "publish"),
       data
     );
@@ -686,7 +687,7 @@ export class API {
   public static async getUserProfile(
     email: string
   ): Promise<[{ workspace: any }]> {
-    const task: Task<any> = get<any>(
+    const task: Task<any> = GET<any>(
       API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email })
     );
     return task.execute();
@@ -695,7 +696,7 @@ export class API {
   public static async saveUserProfile(data: any): Promise<any> {
     const { useremail, workspace } = data;
     const contentType = "application/x-www-form-urlencoded";
-    const task: Task<any> = post<any>(
+    const task: Task<any> = POST<any>(
       API.buildUrl(API.UserApi, "UserJson", "save"),
       { useremail, workspace },
       contentType
@@ -712,21 +713,21 @@ export class API {
       MDMkt: personality === STRM ? undefined : personality,
       TransactTime: getCurrentTime(),
     };
-    await post<MessageResponse>(
+    await POST<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cxlall"),
       request
     ).execute();
-    await post<MessageResponse>(
+    await POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "all", "cxlall"),
       request
     ).execute();
-    await post<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
+    await POST<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
   }
 
   public static async getUserRegions(
     useremail: string
   ): Promise<ReadonlyArray<string>> {
-    const task: Task<ReadonlyArray<{ ccyGroup: string }>> = get<any>(
+    const task: Task<ReadonlyArray<{ ccyGroup: string }>> = GET<any>(
       API.buildUrl(API.Config, "userregions", "get", { useremail })
     );
     const regions = await task.execute();
@@ -738,39 +739,39 @@ export class API {
   // Middle middle office
   public static async getCuts(currency?: string): Promise<any> {
     if (currency) {
-      const task: Task<any> = get<any>(
+      const task: Task<any> = GET<any>(
         API.buildUrl(API.Config, "cuts", "get", { currency })
       );
       return task.execute();
     } else {
-      const task: Task<any> = get<any>(API.buildUrl(API.Config, "cuts", "get"));
+      const task: Task<any> = GET<any>(API.buildUrl(API.Config, "cuts", "get"));
       return task.execute();
     }
   }
 
   public static async getOptexStyle(): Promise<any> {
-    const task: Task<any> = get<any>(
+    const task: Task<any> = GET<any>(
       API.buildUrl(API.Config, "optexstyle", "get")
     );
     return task.execute();
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> = get<BankEntitiesQueryResponse>(
+    const task: Task<BankEntitiesQueryResponse> = GET<BankEntitiesQueryResponse>(
       config.PrePricerUrl + "/entities"
     );
     return task.execute();
   }
 
   public static async getValuModel(): Promise<any> {
-    const task: Task<any> = get<any>(
+    const task: Task<any> = GET<any>(
       API.buildUrl(API.Config, "valumodel", "get")
     );
     return task.execute();
   }
 
   public static async getProductsEx(): Promise<any> {
-    const task: Task<any> = get<any>(
+    const task: Task<any> = GET<any>(
       API.buildUrl(API.Config, "exproducts", "get", {
         bAllFields: true,
       })
@@ -909,12 +910,12 @@ export class API {
       spotDate: toUTC(proxyEntry.spotDate),
       version: "arcfintech-volMessage-0.2.2",
     };
-    const task: Task<any> = post<any>(config.PricerUrl, request);
+    const task: Task<any> = POST<any>(config.PricerUrl, request);
     return task.execute();
   }
 
   public static async getDeals(dealid?: string): Promise<Deal[]> {
-    const task: Task<Deal[]> = get<Deal[]>(
+    const task: Task<Deal[]> = GET<Deal[]>(
       API.buildUrl(API.Deal, "deals", "get"),
       dealid !== undefined ? { dealid } : undefined
     );
@@ -926,7 +927,7 @@ export class API {
 
   public static async removeDeal(id: string): Promise<any> {
     const user: User = workareaStore.user;
-    const task: Task<any> = httpDelete<any>(
+    const task: Task<any> = DELETE<any>(
       API.buildUrl(API.Deal, "deal", "remove", {
         linkid: id,
         useremail: user.email,
@@ -1007,7 +1008,7 @@ export class API {
         };
       }
     );
-    const task = post<string>(API.buildUrl(API.Legs, "manual", "save"), {
+    const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
       legs: mappedLegs,
@@ -1017,7 +1018,7 @@ export class API {
 
   public static async stpSendReport(dealID: string): Promise<string> {
     const { user } = workareaStore;
-    const task: Task<string> = post<string>(
+    const task: Task<string> = POST<string>(
       API.buildUrl(API.STP, "report", "send"),
       {
         dealID: dealID,
@@ -1029,7 +1030,7 @@ export class API {
 
   public static async sendTradeCaptureReport(dealID: string): Promise<string> {
     const user: User = workareaStore.user;
-    const task: Task<string> = post<string>(
+    const task: Task<string> = POST<string>(
       API.buildUrl(API.SEF, "tradecapreport", "send"),
       {
         dealID: dealID,
@@ -1051,7 +1052,7 @@ export class API {
       moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
     await API.saveLegs(data.dealID, legs, summaryLeg);
     // Save the deal now
-    const task: Task<string> = post<string>(
+    const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "update"),
       API.createDealRequest(data, changed)
     );
@@ -1075,7 +1076,7 @@ export class API {
     data: DealEntry,
     changed: string[]
   ): Promise<string> {
-    const task: Task<string> = post<string>(
+    const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
       API.createDealRequest(data, changed)
     );
@@ -1086,7 +1087,7 @@ export class API {
     data: DealEntry,
     changed: string[]
   ): Promise<string> {
-    const task: Task<string> = post<string>(
+    const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "create"),
       API.createDealRequest(data, changed)
     );
@@ -1103,18 +1104,18 @@ export class API {
       };
     // We return the task instead of it's execution promise so that
     // the caller can cancel if desired/needed
-    return get<any>(API.buildUrl(API.Legs, "legs", "get", { dealid }));
+    return GET<any>(API.buildUrl(API.Legs, "legs", "get", { dealid }));
   }
 
   public static async getOptionLegsDefIn(): Promise<any> {
-    const task: Task<any> = get<any>(
+    const task: Task<any> = GET<any>(
       API.buildUrl(API.Config, "optionlegsdefin", "get")
     );
     return task.execute();
   }
 
   public static getOptionLegsDefOut(): Promise<any> {
-    const task: Task<any> = get<any>(
+    const task: Task<any> = GET<any>(
       API.buildUrl(API.Config, "optionlegsdefout", "get")
     );
     return task.execute();
@@ -1124,7 +1125,7 @@ export class API {
     ccypair: string,
     strategy: string
   ): Task<BrokerageWidthsResponse> {
-    return get<BrokerageWidthsResponse>(
+    return GET<BrokerageWidthsResponse>(
       API.buildUrl(API.Brokerage, "width", "get", {
         ccypair,
         strategy,
@@ -1135,7 +1136,7 @@ export class API {
   public static getBrokerageCommission(
     firm: string
   ): Task<BrokerageCommissionResponse> {
-    return get<BrokerageCommissionResponse>(
+    return GET<BrokerageCommissionResponse>(
       API.buildUrl(API.Brokerage, "commission", "get", {
         firm,
       })
@@ -1143,21 +1144,21 @@ export class API {
   }
 
   public static getDeltaStyles(): Promise<ReadonlyArray<string>> {
-    const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
+    const task: Task<ReadonlyArray<string>> = GET<ReadonlyArray<string>>(
       API.buildUrl(API.MloConfig, "deltastyle", "get")
     );
     return task.execute();
   }
 
   public static getLegAdjustValues(): Promise<ReadonlyArray<LegAdjustValue>> {
-    const task: Task<ReadonlyArray<LegAdjustValue>> = get<
+    const task: Task<ReadonlyArray<LegAdjustValue>> = GET<
       ReadonlyArray<LegAdjustValue>
     >(API.buildUrl(API.MloConfig, "legadjustvalues", "get"));
     return task.execute();
   }
 
   public static getPremiumStyles(): Promise<ReadonlyArray<string>> {
-    const task: Task<ReadonlyArray<string>> = get<ReadonlyArray<string>>(
+    const task: Task<ReadonlyArray<string>> = GET<ReadonlyArray<string>>(
       API.buildUrl(API.MloConfig, "premstyle", "get")
     );
     return task.execute();
@@ -1169,7 +1170,7 @@ export class API {
   ): Task<CalendarVolDatesResponse> {
     const url: string =
       config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/dates";
-    return post<CalendarVolDatesResponse>(url, {
+    return POST<CalendarVolDatesResponse>(url, {
       ...query,
       ExpiryDates: dates,
       rollExpiryDates: true,
@@ -1182,7 +1183,7 @@ export class API {
   ): Task<CalendarVolDatesResponse> {
     const url: string =
       config.CalendarServiceBaseUrl + "/api/calendar/fxpair/vol/tenors";
-    return post<CalendarVolDatesResponse>(url, {
+    return POST<CalendarVolDatesResponse>(url, {
       ...query,
       Tenors: tenors,
       rollExpiryDates: true,
@@ -1192,7 +1193,7 @@ export class API {
   public static async getUser(userId: string): Promise<OktaUser> {
     // First get session id
     const url: string = config.GetRoleEndpoint + "?userid=" + userId;
-    const task: Task<OktaUser> = get<OktaUser>(url);
+    const task: Task<OktaUser> = GET<OktaUser>(url);
     return task.execute();
   }
 
@@ -1200,7 +1201,7 @@ export class API {
     symbol: string,
     strategy: string
   ): Task<ReadonlyArray<DarkPoolQuote>> {
-    return get<ReadonlyArray<DarkPoolQuote>>(
+    return GET<ReadonlyArray<DarkPoolQuote>>(
       API.buildUrl(API.DarkPool, "lastquote", "get", {
         symbol,
         strategy,
