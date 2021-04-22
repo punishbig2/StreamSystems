@@ -14,8 +14,15 @@ export class PriceStore {
   @computed
   get numericValue(): number | null {
     const { internalValue } = this;
-    if (internalValue === null || internalValue.trim() === "") return null;
-    return Number(internalValue);
+    if (
+      internalValue === null ||
+      internalValue.trim() === "" ||
+      internalValue.trim() === "-"
+    )
+      return null;
+    const value: number = Number(internalValue);
+    if (isNaN(value)) return null;
+    return value;
   }
 
   @computed

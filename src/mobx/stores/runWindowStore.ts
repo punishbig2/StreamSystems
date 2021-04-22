@@ -9,6 +9,7 @@ import { OrderTypes } from "types/mdEntry";
 import { Order, OrderMessage, OrderStatus } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { PodTable } from "types/podTable";
+import { Role } from "types/role";
 import { sizeFormatter } from "utils/sizeFormatter";
 import workareaStore from "./workareaStore";
 
@@ -131,20 +132,25 @@ export class RunWindowStore {
     orders: { [id: string]: Order[] }
   ): Task<void> {
     const { user } = workareaStore;
+    const filterOrders = (order: Order): boolean => {
+      const { roles } = user;
+      if (order.size === null) return false;
+      if (order.user !== user.email) return false;
+      return !(
+        roles.includes(Role.Broker) && order.firm !== workareaStore.personality
+      );
+    };
     this.initialized = true;
     this.activeOrders = Object.values(orders)
       .reduce((flat: Order[], next: Order[]) => [...flat, ...next], [])
-      .filter(
-        (order: Order) => order.user === user.email && order.size !== null
-      )
+      .filter(filterOrders)
       .map((order: Order) => ({
         ...order,
         status: order.status | OrderStatus.Active,
       }))
       .reduce(ordersReducer, {});
-    const { email } = workareaStore.user;
     const task: Task<OrderMessage[]> = API.getRunOrders(
-      email,
+      user.email,
       symbol,
       strategy
     );
@@ -158,7 +164,7 @@ export class RunWindowStore {
         try {
           const messages: ReadonlyArray<OrderMessage> = await task.execute();
           // Set the orders now
-          this.handleRunOrdersResult(email, messages);
+          this.handleRunOrdersResult(user.email, messages);
         } finally {
           this.setLoading(false);
         }
@@ -415,7 +421,14 @@ export class RunWindowStore {
   ) {
     const { activeOrders } = this;
     const prevOrders: { [id: string]: Order } = messages
-      .map((message: OrderMessage) => Order.fromOrderMessage(message, email))
+      .map((message: OrderMessage) =>
+        Order.fromOrderMessage(
+          message,
+          email,
+          this.defaultBidSize,
+          this.defaultOfrSize
+        )
+      )
       .map((order: Order) => ({
         ...order,
         status: (order.status & ~OrderStatus.Active) | OrderStatus.Cancelled,

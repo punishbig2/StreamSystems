@@ -139,7 +139,6 @@ const request = <T>(
     reject: (error?: any) => void
   ): void => {
     taskHandler.reject = reject;
-    console.log(url);
     // Send the request
     xhr.open(method, url, true);
     xhr.onreadystatechange = (): void => {

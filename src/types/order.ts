@@ -3,6 +3,7 @@ import { Role } from "types/role";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes, W } from "types/w";
+import { priceFormatter } from "utils/priceFormatter";
 import { $$ } from "utils/stringPaster";
 
 export interface CreateOrder {
@@ -141,16 +142,28 @@ export class Order {
 
   public static fromOrderMessage = (
     entry: OrderMessage,
-    email: string
+    email: string,
+    defaultBidSize: number | null = null,
+    defaultOfrSize: number | null = null
   ): Order => {
     const type: OrderTypes =
       entry.Side === "1" ? OrderTypes.Bid : OrderTypes.Ofr;
+    const size = ((): number | null => {
+      const fromMessage = Number(entry.OrderQty);
+      if (
+        isNaN(fromMessage) ||
+        priceFormatter(fromMessage) === priceFormatter(0)
+      ) {
+        return type === OrderTypes.Bid ? defaultBidSize : defaultOfrSize;
+      }
+      return fromMessage;
+    })();
     const order: Order = new Order(
       entry.Tenor,
       entry.Symbol,
       entry.Strategy,
       email,
-      Number(entry.OrderQty),
+      size,
       type
     );
     // Update the price
