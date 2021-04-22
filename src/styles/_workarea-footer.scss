@@ -97,6 +97,29 @@
     }
   }
 
+  .connectivity-indicator {
+    display: flex;
+    margin: 0 0 0 auto;
+    align-items: center;
+    font-weight: 600;
+
+    i {
+      margin: 0 4px 0 0;
+    }
+
+    .connected, .disconnected {
+      padding: 0 16px;
+    }
+
+    .connected {
+      background-color: seagreen;
+    }
+
+    .disconnected {
+      background-color: $danger-color;
+    }
+  }
+
   .new-version {
     display: flex;
     align-items: center;
@@ -119,7 +142,7 @@
 
   .sign-out {
     display: block;
-    margin: 0 12px 0 auto;
+    margin: 0 12px 0 24px;
     color: $danger-color;
     text-decoration: none;
 

@@ -146,7 +146,18 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
           <Typography>New version available, click to reload!</Typography>
         </div>
       ) : null}
-      <div>{props.connected ? "Connected" : "Disconnected"}</div>
+      <div className={"connectivity-indicator"}>
+        {props.connected ? (
+          <div className={"connected"}>
+            <i className={"fa fa-link"} /> Connected
+          </div>
+        ) : (
+          <div className={"disconnected"}>
+            <i className={"fa fa-unlink"} />
+            Disconnected
+          </div>
+        )}
+      </div>
       <a className={"sign-out"} href={config.SignOutUrl}>
         <i className={"fa fa-sign-out-alt"} />
         <span>Logout</span>
