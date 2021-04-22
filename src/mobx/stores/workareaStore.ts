@@ -316,17 +316,18 @@ export class WorkareaStore {
 
   private async connectToSignalR(): Promise<void> {
     this.updateLoadingProgress(strings.EstablishingConnection);
-    signalRManager.connect();
-    // Try to connect
-    signalRManager.setOnConnectedListener(() => {
-      this.status = WorkareaStatus.Ready;
-      this.loadingMessage = strings.Connected;
-      this.connected = true;
-    });
-    signalRManager.setOnDisconnectedListener(() => {
-      this.status = WorkareaStatus.Error;
-      this.connected = false;
-    });
+    if (signalRManager.connect()) {
+      // Try to connect
+      signalRManager.setOnConnectedListener(() => {
+        this.status = WorkareaStatus.Ready;
+        this.loadingMessage = strings.Connected;
+        this.connected = true;
+      });
+      signalRManager.setOnDisconnectedListener(() => {
+        this.status = WorkareaStatus.Error;
+        this.connected = false;
+      });
+    }
   }
 
   @action.bound
@@ -361,6 +362,14 @@ export class WorkareaStore {
         await this.loadSystemTenors();
         await this.loadSystemBanks();
         await this.connectToSignalR();
+
+        window.addEventListener(
+          "focus",
+          (): Promise<void> => {
+            console.log("interesting");
+            return this.connectToSignalR();
+          }
+        );
 
         // We are done now
         this.updateLoadingProgress(strings.Connected);

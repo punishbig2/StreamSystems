@@ -119,9 +119,10 @@ export class SignalRManager {
       .configureLogging(LogLevel.None)
       .build();
 
-  public connect = (): void => {
+  public connect = (): boolean => {
     const { connection } = this;
     if (connection !== null) {
+      if (connection.state !== HubConnectionState.Disconnected) return false;
       connection
         .start()
         .then(() => {
@@ -131,10 +132,12 @@ export class SignalRManager {
           this.reconnectDelay = INITIAL_RECONNECT_DELAY;
         })
         .catch(console.error);
+      return true;
     } else {
       console.error(
         "attempted to connect but the `connection' object is `null'"
       );
+      return false;
     }
   };
 

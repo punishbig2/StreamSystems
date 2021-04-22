@@ -11,6 +11,7 @@ import { CurrencyGroups, isCurrencyGroup } from "types/user";
 interface Props {
   readonly entries: { [k: string]: WorkspaceDef };
   readonly active: string | null;
+  readonly connected: boolean;
   readonly onAddStandardWorkspace: (group: CurrencyGroups) => void;
   readonly onAddMiddleOfficeWorkspace: () => void;
   readonly setActiveTab: (id: string) => void;
@@ -145,6 +146,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
           <Typography>New version available, click to reload!</Typography>
         </div>
       ) : null}
+      <div>{props.connected ? "Connected" : "Disconnected"}</div>
       <a className={"sign-out"} href={config.SignOutUrl}>
         <i className={"fa fa-sign-out-alt"} />
         <span>Logout</span>

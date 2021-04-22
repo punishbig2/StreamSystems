@@ -136,6 +136,7 @@ const Workarea: React.FC = (): ReactElement | null => {
         <TabBar
           entries={store.workspaces}
           active={store.currentWorkspaceID}
+          connected={store.connected}
           setActiveTab={store.setWorkspace}
           onAddStandardWorkspace={store.addStandardWorkspace}
           onAddMiddleOfficeWorkspace={store.addMiddleOffice}
