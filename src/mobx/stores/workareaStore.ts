@@ -365,10 +365,7 @@ export class WorkareaStore {
 
         window.addEventListener(
           "focus",
-          (): Promise<void> => {
-            console.log("interesting");
-            return this.connectToSignalR();
-          }
+          (): Promise<void> => this.connectToSignalR()
         );
 
         // We are done now
