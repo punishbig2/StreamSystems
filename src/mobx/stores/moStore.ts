@@ -1238,6 +1238,16 @@ export class MoStore {
       return name === product.name;
     });
   }
+
+  @computed
+  public get minimumNotional(): number {
+    const { strategy } = this.entry;
+    if (strategy.OptionProductType === "Spread") {
+      return 0;
+    } else {
+      return 100000;
+    }
+  }
 }
 
 export default new MoStore();

@@ -38,7 +38,7 @@ export interface FieldDef<T, E = {}, S = {}> {
     item: any,
     entry?: T
   ) => ReadonlyArray<DropdownItem>;
-  readonly minimum?: number;
+  readonly minimum?: number | (() => number);
   readonly maximum?: number;
   readonly dataSource?: keyof S;
   readonly data?: any;

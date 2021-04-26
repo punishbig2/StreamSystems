@@ -17,8 +17,8 @@ export interface NumericProps {
   precision?: number;
   type: FieldType;
   currency?: string;
-  minimum?: number;
-  maximum?: number;
+  minimum?: number | (() => number);
+  maximum?: number | (() => number);
 }
 
 const typeToStyle = (
@@ -49,8 +49,8 @@ export class NumericInputHandler<
     {}
   );
   private divider: number = 1;
-  private readonly minimum: number | null;
-  private readonly maximum: number | null;
+  private readonly minimum: number | (() => number) | null;
+  private readonly maximum: number | (() => number) | null;
   private readonly startAdornmentString: string = "";
   private readonly endAdornmentString: string = "";
 
@@ -137,13 +137,37 @@ export class NumericInputHandler<
     }
   }
 
+  private getMinimum(): number | null {
+    const { minimum } = this;
+    if (minimum === null) {
+      return null;
+    } else if (typeof minimum === "function") {
+      return minimum();
+    } else {
+      return minimum;
+    }
+  }
+
+  private getMaximum(): number | null {
+    const { maximum } = this;
+    if (maximum === null) {
+      return null;
+    } else if (typeof maximum === "function") {
+      return maximum();
+    } else {
+      return maximum;
+    }
+  }
+
   private isInRange(value: number): boolean {
-    if (this.minimum === null && this.maximum !== null) {
-      return value <= this.maximum;
-    } else if (this.maximum === null && this.minimum !== null) {
-      return value >= this.minimum;
-    } else if (this.minimum !== null && this.maximum !== null) {
-      return value >= this.minimum && value <= this.maximum;
+    const minimum: number | null = this.getMinimum();
+    const maximum: number | null = this.getMaximum();
+    if (minimum === null && maximum !== null) {
+      return value <= maximum;
+    } else if (maximum === null && minimum !== null) {
+      return value >= minimum;
+    } else if (minimum !== null && maximum !== null) {
+      return value >= minimum && value <= maximum;
     } else {
       return true;
     }

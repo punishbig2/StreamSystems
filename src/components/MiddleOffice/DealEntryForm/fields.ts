@@ -150,7 +150,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     placeholder: "0",
     precision: 0,
     color: "orange",
-    minimum: 100000,
+    minimum: (): number => moStore.minimumNotional,
     editable: MoStore.createEditableFilter(DealType.All),
   },
   {
@@ -160,7 +160,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     placeholder: "0",
     precision: 0,
     color: "orange",
-    minimum: 100000,
+    minimum: (): number => moStore.minimumNotional,
     editable: MoStore.createEditableFilter(DealType.All),
   },
   {

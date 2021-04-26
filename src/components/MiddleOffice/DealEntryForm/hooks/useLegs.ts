@@ -274,6 +274,5 @@ export const createDefaultLegsFromDeal = (
     tenor.expiryDate,
     entry.extra_fields
   );
-  console.log(legs, summaryLeg);
   return [addFwdRates(legs, summaryLeg), summaryLeg];
 };
