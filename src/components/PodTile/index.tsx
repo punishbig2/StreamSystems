@@ -45,7 +45,7 @@ export const PodTile: React.FC<Props> = observer(
     const { strategy } = store;
     const currency: Symbol | undefined = getCurrencyFromName(
       currencies,
-      store.currency
+      store.ccyPair
     );
     const user: User = workareaStore.user;
 

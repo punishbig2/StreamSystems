@@ -20,7 +20,7 @@ interface Props {
 export const PodTileTitle: React.FC<Props> = observer(
   (props: Props): ReactElement => {
     const { store } = props;
-    const { currency, strategy } = store;
+    const { ccyPair, strategy } = store;
 
     const personality: string = workareaStore.personality;
 
@@ -30,7 +30,7 @@ export const PodTileTitle: React.FC<Props> = observer(
       return roles.includes(Role.Broker);
     }, [user]);
     const isRunButtonDisabled: boolean =
-      !currency || !strategy || (personality === STRM && isBroker);
+      !ccyPair || !strategy || (personality === STRM && isBroker);
     const { currencies, strategies } = props;
 
     const glowing: boolean = useGlow(store.orders, store.darkpool);
@@ -40,7 +40,7 @@ export const PodTileTitle: React.FC<Props> = observer(
         <div className={["glow", ...(glowing ? ["glowing"] : [])].join(" ")} />
         <div className={"item"}>
           <Select
-            value={currency}
+            value={ccyPair}
             onChange={store.setCurrency}
             list={currencies.map((item: Symbol): { name: string } => ({
               name: item.name,

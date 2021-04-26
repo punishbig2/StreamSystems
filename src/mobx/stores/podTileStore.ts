@@ -21,7 +21,7 @@ export class PodTileStore {
   public id: string = "";
 
   @persist @observable strategy: string = "";
-  @persist @observable currency: string = "";
+  @persist @observable ccyPair: string = "";
 
   @observable type: WindowTypes = WindowTypes.Empty;
   @observable title: string = "";
@@ -45,13 +45,12 @@ export class PodTileStore {
   @computed
   public get strategies(): ReadonlyArray<Product> {
     const { strategies, symbols } = workareaStore;
-
-    const symbol: Symbol | undefined = symbols.find(
-      (symbol: Symbol): boolean => symbol.symbolID === this.currency
+    const currentSymbol: Symbol | undefined = symbols.find(
+      (symbol: Symbol): boolean => symbol.symbolID === this.ccyPair
     );
-    if (symbol === undefined) return [];
+    if (currentSymbol === undefined) return [];
     return strategies.filter((product: Product): boolean => {
-      const { ccyGroup } = symbol;
+      const { ccyGroup } = currentSymbol;
       return product[ccyGroup.toLowerCase()];
     });
   }
@@ -78,7 +77,7 @@ export class PodTileStore {
 
   @action.bound
   public persist(currency: string, strategy: string) {
-    this.currency = currency;
+    this.ccyPair = currency;
     this.strategy = strategy;
   }
 
@@ -275,7 +274,7 @@ export class PodTileStore {
     // FIXME these should tasks instead of promises
     // Now initialize it
     this.loading = true;
-    this.currency = currency;
+    this.ccyPair = currency;
     this.strategy = strategy;
     // Load depth
     const tasks: Array<Task<any>> = [API.getSnapshot(currency, strategy)];
@@ -337,8 +336,24 @@ export class PodTileStore {
   }
 
   @action.bound
-  public setCurrency(currency: string) {
-    this.currency = currency;
+  public setCurrency(ccyPair: string) {
+    const { symbols } = workareaStore;
+    this.ccyPair = ccyPair;
+    setTimeout((): void => {
+      const foundSymbol: Symbol | undefined = symbols.find(
+        (symbol: Symbol): boolean => symbol.symbolID === ccyPair
+      );
+      if (foundSymbol !== undefined) {
+        const { strategy } = this;
+        if (strategy.startsWith("ATM")) {
+          if (foundSymbol.ccyGroup === "LATAM") {
+            this.setStrategy("ATMF");
+          } else {
+            this.setStrategy("ATMZ");
+          }
+        }
+      }
+    }, 0);
   }
 
   @action.bound
