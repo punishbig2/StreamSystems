@@ -1,4 +1,5 @@
 import { Leg } from "components/MiddleOffice/types/leg";
+import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { InvalidTenor, Tenor } from "types/tenor";
 
@@ -6,6 +7,7 @@ export const legsReducer = (
   index: number,
   partial: Partial<DealEntry>
 ): ((leg: Leg, field: string) => Leg) => (leg: Leg, field: string): Leg => {
+  const { entry } = moStore;
   const key: keyof DealEntry = field as keyof DealEntry;
   switch (key) {
     case "tenor1":
@@ -32,10 +34,11 @@ export const legsReducer = (
       }
       break;
     case "not1":
+      if (index !== 0 || entry.not2 === null) return leg;
       return { ...leg, notional: partial[key] };
     case "not2":
       if (index !== 1) return leg;
-      return { ...leg, notional: partial[key] };
+      return { ...leg, notional: partial[key] || entry.not1 };
     case "premstyle":
       return { ...leg };
     case "deltastyle":

@@ -1007,6 +1007,7 @@ export class API {
         };
       }
     );
+    console.log(moStore.legs, mappedLegs);
     const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
