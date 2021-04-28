@@ -2,6 +2,7 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { InvalidTenor, Tenor } from "types/tenor";
+import { isNumber } from "utils/isNumber";
 
 export const legsReducer = (
   index: number,
@@ -34,11 +35,19 @@ export const legsReducer = (
       }
       break;
     case "not1":
-      if (index !== 0 || entry.not2 === null) return leg;
-      return { ...leg, notional: partial[key] };
+      if (index === 0) {
+        return { ...leg, notional: partial[key] };
+      } else if (index === 1 && !isNumber(entry.not2)) {
+        return { ...leg, notional: partial[key] };
+      } else {
+        return leg;
+      }
     case "not2":
       if (index !== 1) return leg;
-      return { ...leg, notional: partial[key] || entry.not1 };
+      return {
+        ...leg,
+        notional: isNumber(partial[key]) ? partial[key] : entry.not1,
+      };
     case "premstyle":
       return { ...leg };
     case "deltastyle":

@@ -40,6 +40,7 @@ import { SEFUpdate } from "types/sefUpdate";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { createDealEntry } from "utils/dealUtils";
+import { isNumber } from "utils/isNumber";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
@@ -823,7 +824,7 @@ export class MoStore {
     this.entry = {
       ...entry,
       ...partial,
-      size: partial.not1 ? partial.not1 / 1e6 : entry.size,
+      size: isNumber(partial.not1) ? partial.not1 / 1e6 : entry.size,
       legs: legs.length,
     };
     // Keep a list of modified fields
