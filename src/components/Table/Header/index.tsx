@@ -12,10 +12,13 @@ interface Props {
   readonly containerWidth: number;
   readonly onFiltered: (column: string, value: string) => void;
   readonly onSortBy: (columnName: string) => void;
-  readonly onColumnsOrderChange: (sourceIndex: number, targetIndex: number) => void;
+  readonly onColumnsOrderChange: (
+    sourceIndex: number,
+    targetIndex: number
+  ) => void;
 }
 
-export const Header: <T extends unknown>(props: Props) => any = observer(
+export const TableHeader: React.FC<Props> = observer(
   <T extends unknown>(props: Props) => {
     const { columns } = props;
     const [store] = useState<HeaderStore>(new HeaderStore());
@@ -40,10 +43,9 @@ export const Header: <T extends unknown>(props: Props) => any = observer(
       );
     };
 
-    const columnMapperFactory = (
-      totalWidth: number,
-      containerWidth: number
-    ) => (column: ColumnState) => {
+    const columnMapperFactory = (totalWidth: number) => (
+      column: ColumnState
+    ) => {
       return (
         <Column
           key={column.name}
@@ -52,7 +54,7 @@ export const Header: <T extends unknown>(props: Props) => any = observer(
           movable={props.allowReorderColumns}
           sortable={column.sortable}
           sortOrder={column.sortOrder}
-          width={getCellWidth(column.width, totalWidth, containerWidth)}
+          width={getCellWidth(column.width, totalWidth)}
           type={ColumnType.Real}
           onGrabbed={(element: HTMLDivElement, grabbedAt: number) =>
             onColumnGrabbed(column, element, grabbedAt)
@@ -75,11 +77,7 @@ export const Header: <T extends unknown>(props: Props) => any = observer(
         sortable={grabbedColumn.sortable}
         sortOrder={grabbedColumn.sortOrder}
         style={grabbedColumnStyle}
-        width={getCellWidth(
-          grabbedColumn.width,
-          props.totalWidth,
-          props.containerWidth
-        )}
+        width={getCellWidth(grabbedColumn.width, props.totalWidth)}
         type={ColumnType.Fake}
         onGrabbed={() => null}
         onSorted={() => null}
@@ -88,10 +86,7 @@ export const Header: <T extends unknown>(props: Props) => any = observer(
         {grabbedColumn.header(props)}
       </Column>
     ) : undefined;
-    const columnMapper = columnMapperFactory(
-      props.totalWidth,
-      props.containerWidth
-    );
+    const columnMapper = columnMapperFactory(props.totalWidth);
     const renderedColumns: ReactElement[] = columns.map(columnMapper);
     if (grabbedColumnElement) renderedColumns.push(grabbedColumnElement);
     return (

@@ -16,7 +16,8 @@
 
   z-index: 0;
 
-  h3, h5 {
+  h3,
+  h5 {
     margin: 0;
   }
 }
@@ -33,16 +34,14 @@
 
   z-index: 0;
 
-  .window-element {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    font-size: $normal-font-size;
+  cib-window {
     background-color: $background-color;
-    min-height: $title-bar-height + 2 * $table-header-height + 3 *
-      $table-row-height;
+    border: 1px solid $table-border-color;
+    box-sizing: content-box;
+
+    &:hover {
+      outline-color: $primary-color;
+    }
 
     &.fixed:hover {
       cursor: default;
@@ -83,7 +82,6 @@
           animation: glow 1s linear;
           box-shadow: inset 0 0 5px 4px $primary-color;
         }
-
       }
       .window-content {
         display: none;
@@ -103,64 +101,21 @@
       }
     }
 
-    .resize-handle {
-      z-index: 2147483646;
-      border-radius: 4px;
-      background: none;
-
-      &:hover {
-        background-color: rgba($primary-color, 0.15);
+    &[autosize] {
+      button.fit {
+        display: none;
       }
+    }
 
-      &.horizontal {
-        position: absolute;
-        top: 0;
-        width: 7px;
-        height: 100%;
-        cursor: col-resize;
-
-        &.right {
-          right: -$window-border-size;
-        }
-
-        &.left {
-          left: -$window-border-size;
-        }
+    &:not([minimized]) {
+      button.restore {
+        display: none;
       }
+    }
 
-      &.corner {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        height: 24px;
-        width: 24px;
-        border: 3px solid rgba(0, 44, 88, 0.15);
-        border-radius: 0;
-        border-left: none;
-        border-top: none;
-        opacity: 0;
-
-        &:hover {
-          background: none;
-          opacity: 1;
-          cursor: se-resize;
-        }
-      }
-
-      &.vertical {
-        position: absolute;
-        left: 0;
-        width: 100%;
-        height: 7px;
-        cursor: row-resize;
-
-        &.bottom {
-          bottom: -$window-border-size;
-        }
-
-        &.top {
-          top: -$window-border-size;
-        }
+    &[minimized] {
+      button.minimize {
+        display: none;
       }
     }
 
@@ -173,14 +128,11 @@
       flex-basis: $title-bar-height;
       height: $title-bar-height;
       width: 100%;
-      background: none;
       color: $foreground-color;
-      border-top: 1px solid $table-border-color;
-      border-right: 1px solid $table-border-color;
-      border-left: 1px solid $table-border-color;
-      border-bottom: none;
+      border: none;
       padding: 0;
       z-index: 0;
+      background-color: $background-color;
 
       .item {
         display: flex;
@@ -311,15 +263,10 @@
 
     .window-content {
       position: relative;
-      flex: 1 0;
+      min-width: 330px;
       pointer-events: none;
-      width: 100%;
       z-index: 0;
       padding: 0;
-      background: none;
-      border-right: 1px solid $table-border-color;
-      border-left: 1px solid $table-border-color;
-      border-bottom: 1px solid $table-border-color;
     }
   }
 }

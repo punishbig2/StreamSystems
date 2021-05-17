@@ -195,7 +195,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
             getContentRenderer={getContentRenderer}
             isDefaultWorkspace={props.isDefault}
             onLayoutModify={(): void => props.onModify(id)}
-            onUpdateAllGeometries={store.updateAllGeometries}
+            // onUpdateAllGeometries={store.updateAllGeometries}
             onWindowClose={store.removeWindow}
           />
           <ModalWindow

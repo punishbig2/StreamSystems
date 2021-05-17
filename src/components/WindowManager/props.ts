@@ -23,8 +23,8 @@ export interface Props {
   ) => ReactElement | string | null;
   readonly onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   readonly onWindowClose: (id: string) => void;
-  readonly onUpdateAllGeometries: (geometries: {
+  /*readonly onUpdateAllGeometries: (geometries: {
     [id: string]: ClientRect;
-  }) => void;
+  }) => void;*/
   readonly onLayoutModify: () => void;
 }

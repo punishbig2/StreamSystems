@@ -22,7 +22,7 @@ interface OwnProps {
 const Row: React.FC<OwnProps & RowState> = (
   props: OwnProps & RowState
 ): React.ReactElement => {
-  const { columns, row, fixedRow, totalWidth, containerWidth, user } = props;
+  const { columns, row, fixedRow, totalWidth, user } = props;
   const { status } = row;
   useEffect(() => {
     // TODO: show an error message within the run and set it by using a browser custom event
@@ -36,11 +36,7 @@ const Row: React.FC<OwnProps & RowState> = (
       data-row-number={props.rowNumber}
     >
       {columns.map((column: ColumnSpec, index: number) => {
-        const width: string = getCellWidth(
-          column.width,
-          totalWidth,
-          containerWidth
-        );
+        const width: string = getCellWidth(column.width, totalWidth);
         const name: string = column.name;
         return (
           <Cell

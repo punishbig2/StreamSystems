@@ -40,11 +40,7 @@ export const Row: React.FC<Props> = observer((props: Props) => {
   return (
     <div className={classes.join(" ")} data-row-number={props.rowNumber}>
       {columns.map((column: ColumnSpec, index: number) => {
-        const width: string = getCellWidth(
-          column.width,
-          totalWidth,
-          containerWidth
-        );
+        const width: string = getCellWidth(column.width, totalWidth);
         const name: string = column.name;
         return (
           <Cell

@@ -19,11 +19,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
       <div className={"tr"} key={row.orderId}>
         {columns.map((column: ColumnSpec) => {
           const name: string = column.name;
-          const width: string = getCellWidth(
-            column.width,
-            props.totalWidth,
-            props.containerWidth
-          );
+          const width: string = getCellWidth(column.width, props.totalWidth);
           return (
             <Cell key={name} render={column.render} width={width} {...row} />
           );

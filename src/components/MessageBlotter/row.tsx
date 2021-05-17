@@ -79,7 +79,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     column: ColumnSpec
   ): ReactElement => {
     const style: CSSProperties = {
-      width: getCellWidth(column.width, props.totalWidth, props.containerWidth),
+      width: getCellWidth(column.width, props.totalWidth),
     };
     const id: string = $$(column.name, rowID);
     return (

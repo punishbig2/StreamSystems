@@ -1,30 +1,32 @@
-import { action, computed, observable } from "mobx";
+import { action, observable } from "mobx";
 import { create, persist } from "mobx-persist";
 import { WindowTypes } from "mobx/stores/workareaStore";
 import persistStorage from "utils/persistStorage";
-import { PodTileStore } from "./podTileStore";
-import messages from "./messagesStore";
+import { PodTileStore } from "mobx/stores/podTileStore";
+import { Geometry } from "window-manager";
+import messages, { MessagesStore } from "mobx/stores/messagesStore";
+
+interface IGeometry {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
 
 export class WindowStore {
   public id: string = "";
-  contentStore: any;
+  public contentStore: PodTileStore | MessagesStore;
 
   @persist @observable type: WindowTypes = WindowTypes.Empty;
   // Persist this for fewer calls to the storage
-  @persist("object") @observable persistedGeometry: ClientRect = new DOMRect(
-    0,
-    0,
-    0,
-    0
-  );
-  @persist("object") @observable size: { width: number; height: number } = {
-    width: 0,
-    height: 0,
-  };
-  // Use this for instant updates
-  @observable localGeometry: ClientRect | null = null;
-  @persist @observable minimized: boolean = false;
-  @persist @observable fitToContent: boolean = true;
+  @persist("object")
+  @observable
+  savedGeometry: IGeometry | null = null;
+  @observable @persist autosize = true;
+  @observable @persist minimized = false;
+  @observable @persist docked = true;
+
+  @observable hydrated: boolean = false;
 
   constructor(id: string, type: WindowTypes, fixed?: boolean) {
     this.id = id;
@@ -34,53 +36,27 @@ export class WindowStore {
         storage: persistStorage.windows,
         jsonify: true,
       });
-      hydrate(id, this);
+      hydrate(id, this).then((): void => {
+        this.setHydrated();
+      });
     }
-    this.contentStore = this.getContentStore(id, type);
-  }
-
-  @computed
-  public get geometry() {
-    if (this.localGeometry === null) return this.persistedGeometry;
-    return this.localGeometry;
+    this.contentStore = WindowStore.getContentStore(id, type);
   }
 
   @action.bound
-  public toggleMinimized() {
-    const { left, top } = this.persistedGeometry;
-    if (!this.minimized) {
-      const { width, height } = this.persistedGeometry;
-      this.size = { width: width, height: height };
-    } else {
-      const { width, height } = this.size;
-      this.persistedGeometry = new DOMRect(left, top, width, height);
-      this.localGeometry = null;
-    }
-    this.minimized = !this.minimized;
+  public setHydrated() {
+    this.hydrated = true;
   }
 
   @action.bound
-  public setGeometry(geometry: ClientRect, resized: boolean) {
-    this.localGeometry = geometry;
-    if (resized && this.fitToContent) {
-      this.fitToContent = false;
-    }
-  }
-
-  @action.bound
-  public saveGeometry(geometry: ClientRect) {
-    this.persistedGeometry = geometry;
-  }
-
-  @action.bound
-  public setFitToContent(value: boolean = true) {
-    this.fitToContent = value;
+  public saveGeometry(geometry: Geometry) {
+    this.savedGeometry = geometry;
   }
 
   @action.bound
   public setTitle() {}
 
-  private getContentStore(id: string, type: WindowTypes): any {
+  private static getContentStore(id: string, type: WindowTypes): any {
     switch (type) {
       case WindowTypes.PodTile:
         return new PodTileStore(id);
@@ -88,5 +64,20 @@ export class WindowStore {
         return messages;
     }
     return null;
+  }
+
+  @action.bound
+  public setAutosize(autosize: boolean): boolean {
+    return (this.autosize = autosize);
+  }
+
+  @action.bound
+  public setMinimized(minimized: boolean): boolean {
+    return (this.minimized = minimized);
+  }
+
+  @action.bound
+  public setDocked(docked: boolean): void {
+    this.docked = docked;
   }
 }

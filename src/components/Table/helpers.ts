@@ -1,7 +1,3 @@
-export const getCellWidth = (
-  weight: number,
-  total: number,
-  maximum: number
-): string => {
+export const getCellWidth = (weight: number, total: number): string => {
   return (100 * weight) / total + "%";
 };
