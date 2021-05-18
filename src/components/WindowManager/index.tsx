@@ -7,7 +7,7 @@ import {
   WorkspaceStoreContext,
 } from "mobx/stores/workspaceStore";
 import React from "react";
-import "window-manager";
+import "@cib/window-manager";
 import { TileManager } from "@cib/window-manager";
 
 const WindowManager: React.FC<Props> = (
