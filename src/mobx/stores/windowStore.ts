@@ -3,7 +3,7 @@ import { create, persist } from "mobx-persist";
 import { WindowTypes } from "mobx/stores/workareaStore";
 import persistStorage from "utils/persistStorage";
 import { PodTileStore } from "mobx/stores/podTileStore";
-import { Geometry } from "window-manager";
+import { Geometry } from "@cib/window-manager";
 import messages, { MessagesStore } from "mobx/stores/messagesStore";
 
 interface IGeometry {
