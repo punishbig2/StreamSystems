@@ -7,7 +7,7 @@ import {
   WorkspaceStoreContext,
 } from "mobx/stores/workspaceStore";
 import React from "react";
-import { TileManager } from "@cib/window-manager";
+import { TileManager } from "@cib/windows-manager";
 
 import ResizeObserver from "resize-observer-polyfill";
 

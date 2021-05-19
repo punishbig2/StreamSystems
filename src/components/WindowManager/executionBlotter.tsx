@@ -1,4 +1,4 @@
-import { Geometry, Tile } from "@cib/window-manager";
+import { Geometry, Tile } from "@cib/windows-manager";
 import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { MessageBlotter } from "components/MessageBlotter";
 import { Select } from "components/Select";

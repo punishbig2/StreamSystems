@@ -5,7 +5,7 @@
   "dependencies": {
     "@babel/core": "7.6.0",
     "@babel/plugin-syntax-jsx": "^7.7.4",
-    "@cib/window-manager": "file:../window-manager",
+    "@cib/windows-manager": "file:../windows-manager",
     "@material-ui/core": "^4.7.0",
     "@material-ui/lab": "^4.0.0-alpha.42",
     "@microsoft/signalr": "^3.0.0",

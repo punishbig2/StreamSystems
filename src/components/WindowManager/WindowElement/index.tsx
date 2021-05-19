@@ -1,3 +1,4 @@
+import { TileEvent } from "@cib/windows-manager/dist/src/tile";
 import { DefaultWindowButtons } from "components/DefaultWindowButtons";
 import { observer } from "mobx-react";
 
@@ -6,8 +7,7 @@ import { PodTileStore } from "mobx/stores/podTileStore";
 import { WindowStore } from "mobx/stores/windowStore";
 import { WindowTypes } from "mobx/stores/workareaStore";
 import React from "react";
-import { Tile, Geometry } from "@cib/window-manager";
-import { TileEvent } from "@cib/window-manager/dist/src/tile";
+import { Tile, Geometry } from "@cib/windows-manager";
 
 interface OwnProps {
   readonly id: string;
