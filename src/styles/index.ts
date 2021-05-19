@@ -4,6 +4,7 @@ export interface Styles {
   tableRowHeight: number;
   windowToolbarHeight: number;
   tableHeaderHeight: number;
+  windowFooterSize: number;
 }
 
 export default (): Styles => ({
@@ -12,4 +13,5 @@ export default (): Styles => ({
     style.getPropertyValue("--window-toolbar-height")
   ),
   tableHeaderHeight: parseInt(style.getPropertyValue("--table-header-height")),
+  windowFooterSize: parseInt(style.getPropertyValue("--window-toolbar-height")),
 });

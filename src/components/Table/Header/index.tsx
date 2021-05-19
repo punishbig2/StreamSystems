@@ -4,6 +4,7 @@ import React, { useState, ReactElement, useRef } from "react";
 import { getCellWidth } from "components/Table/helpers";
 import { observer } from "mobx-react";
 import { HeaderStore } from "mobx/stores/headerStore";
+import { toClassName } from "utils/conditionalClasses";
 
 interface Props {
   readonly columns: ColumnState[];
@@ -91,7 +92,9 @@ export const TableHeader: React.FC<Props> = observer(
     if (grabbedColumnElement) renderedColumns.push(grabbedColumnElement);
     return (
       <div
-        className={"thead" + (grabbedColumn !== null ? " column-moving" : "")}
+        className={toClassName("thead", {
+          "column-moving": grabbedColumn !== null,
+        })}
         ref={headerRef}
       >
         <div className={"tr"}>{renderedColumns}</div>

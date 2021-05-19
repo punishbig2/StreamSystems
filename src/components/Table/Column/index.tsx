@@ -1,5 +1,5 @@
 import { SortIndicator } from "components/Table/Column/SortIndicator";
-import React, { CSSProperties, ReactElement, useRef } from "react";
+import React, { CSSProperties, ReactElement, useCallback, useRef } from "react";
 import strings from "locales";
 import { SortOrder } from "mobx/stores/tableStore";
 
@@ -25,8 +25,9 @@ interface OwnProps {
 type Props = React.PropsWithChildren<OwnProps>;
 
 const Column: React.FC<Props> = (props: Props): ReactElement => {
-  const self: React.Ref<HTMLDivElement> = useRef<HTMLDivElement>(null);
-  const { width } = props;
+  const containerRef: React.Ref<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const inputRef: React.Ref<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const { width, movable, onGrabbed } = props;
 
   const getSortIndicator = (): ReactElement | null => {
     const onSorted = () => props.onSorted(props.name);
@@ -53,25 +54,37 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
         props.onFiltered(value);
       }, 300);
     };
-    const captureClick = (event: React.MouseEvent<HTMLInputElement>) =>
-      event.stopPropagation();
+
     return (
       <input
         className={"filter"}
         placeholder={strings.Filter}
+        ref={inputRef}
         onChange={onChange}
-        onMouseDownCapture={captureClick}
       />
     );
   };
 
-  const onMouseDown = props.movable
-    ? (event: React.MouseEvent<HTMLDivElement>) => {
-        event.stopPropagation();
-        if (self.current === null) return;
-        props.onGrabbed(self.current, event.clientX);
-      }
-    : undefined;
+  const onMouseDown = useCallback(
+    (event: MouseEvent) => {
+      event.stopPropagation();
+      if (event.target === inputRef.current) return;
+      const element = containerRef.current;
+      if (!movable || element === null) return;
+      if (event.button !== 0) return;
+      onGrabbed(element, event.clientX);
+    },
+    [containerRef, onGrabbed, movable]
+  );
+
+  React.useEffect((): void | (() => void) => {
+    if (containerRef.current === null) return;
+    const element = containerRef.current;
+    element.addEventListener("mousedown", onMouseDown, true);
+    return (): void => {
+      element.removeEventListener("mousedown", onMouseDown, true);
+    };
+  }, [onMouseDown, containerRef]);
 
   const classes: string[] = ["th"];
   if (props.sortable) classes.push("sortable");
@@ -79,12 +92,7 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
   if (props.type === ColumnType.Fake) classes.push("fake");
   const style: CSSProperties = { width, ...props.style };
   return (
-    <div
-      className={classes.join(" ")}
-      style={style}
-      ref={self}
-      onMouseDown={onMouseDown}
-    >
+    <div className={classes.join(" ")} style={style} ref={containerRef}>
       <div className={"column"}>
         <div className={"label"}>{props.children}</div>
         {getSortIndicator()}

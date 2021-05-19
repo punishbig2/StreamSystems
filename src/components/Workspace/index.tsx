@@ -189,25 +189,26 @@ export const TradingWorkspace: React.FC<Props> = observer(
     const getWorkspaceContentView = (): ReactElement => {
       return (
         <WorkspaceStoreContext.Provider value={store}>
-          <WindowManager
-            windows={store.windows}
-            getTitleRenderer={getTitleRenderer}
-            getContentRenderer={getContentRenderer}
-            isDefaultWorkspace={props.isDefault}
-            onLayoutModify={(): void => props.onModify(id)}
-            // onUpdateAllGeometries={store.updateAllGeometries}
-            onWindowClose={store.removeWindow}
-          />
-          <ModalWindow
-            render={() => (
-              <ErrorBox
-                title={strings.ErrorModalTitle}
-                message={store.errorMessage as string}
-                onClose={store.hideErrorModal}
-              />
-            )}
-            isOpen={store.errorMessage !== null}
-          />
+          <div className={"workspace"}>
+            <WindowManager
+              windows={store.windows}
+              getTitleRenderer={getTitleRenderer}
+              getContentRenderer={getContentRenderer}
+              isDefaultWorkspace={props.isDefault}
+              onLayoutModify={(): void => props.onModify(id)}
+              onWindowClose={store.removeWindow}
+            />
+            <ModalWindow
+              render={() => (
+                <ErrorBox
+                  title={strings.ErrorModalTitle}
+                  message={store.errorMessage as string}
+                  onClose={store.hideErrorModal}
+                />
+              )}
+              isOpen={store.errorMessage !== null}
+            />
+          </div>
         </WorkspaceStoreContext.Provider>
       );
     };

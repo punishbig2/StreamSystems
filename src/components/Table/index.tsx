@@ -1,13 +1,14 @@
 import { RowProps } from "components/MiddleOffice/DealBlotter/row";
+import { ScrollArea } from "components/ScrollArea";
+import { TableBody } from "components/Table/Body";
 import { ColumnSpec } from "components/Table/columnSpecification";
 import { TableHeader } from "components/Table/Header";
+import { create } from "mobx-persist";
+import { observer } from "mobx-react";
+import { TableStore } from "mobx/stores/tableStore";
 import React from "react";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import { TableStore } from "mobx/stores/tableStore";
-import { observer } from "mobx-react";
-import { create } from "mobx-persist";
 import persistStorage from "utils/persistStorage";
-import { TableBody } from "components/Table/Body";
 
 interface Props {
   readonly id: string;
@@ -91,11 +92,13 @@ const BasicTable = (
         onFiltered={store.filterBy}
         onColumnsOrderChange={store.updateColumnsOrder}
       />
-      <TableBody
-        scrollable={props.scrollable}
-        rows={transformedRows}
-        renderRow={props.renderRow}
-      />
+      <ScrollArea>
+        <TableBody
+          scrollable={props.scrollable}
+          rows={transformedRows}
+          renderRow={props.renderRow}
+        />
+      </ScrollArea>
       <div className={"loading-banner"}>
         <div className={"spinner"} />
       </div>

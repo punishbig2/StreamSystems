@@ -1,26 +1,27 @@
+import { Geometry, Tile } from "@cib/window-manager";
 import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { MessageBlotter } from "components/MessageBlotter";
 import { Select } from "components/Select";
 import { ColumnSpec } from "components/Table/columnSpecification";
-import { WindowElement } from "components/WindowManager/WindowElement";
-import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
+import store from "mobx/stores/messagesStore";
+import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import getStyles, { Styles } from "styles";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import { WindowStore } from "mobx/stores/windowStore";
-import store from "mobx/stores/messagesStore";
+import appStyles from "styles";
 
-interface OwnProps {
-  area: ClientRect;
+interface Props {
+  readonly boundingRect: DOMRect;
 }
 
-export const ExecutionBlotter: React.FC<OwnProps> = (
-  props: OwnProps
+export const ExecutionBlotter: React.FC<Props> = (
+  props: Props
 ): ReactElement | null => {
-  const { area } = props;
+  const { boundingRect } = props;
   const user: User = workareaStore.user;
+  const [tile, setTile] = React.useState<Tile | null>(null);
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
     return roles.includes(Role.Broker);
@@ -41,26 +42,25 @@ export const ExecutionBlotter: React.FC<OwnProps> = (
     styles.windowToolbarHeight +
     styles.tableHeaderHeight +
     4 * styles.tableRowHeight;
-  const geometry: ClientRect = new DOMRect(
-    0,
-    area.height - height + 1,
-    Math.max(width, 900),
-    height
+  const geometry: Geometry = React.useMemo(
+    (): Geometry =>
+      new Geometry(
+        0,
+        boundingRect.bottom - height - appStyles().windowFooterSize - 3,
+        Math.max(width, 900),
+        height
+      ),
+    [height, boundingRect.bottom, width]
   );
+  React.useEffect((): void => {
+    if (tile === null) return;
+    tile.setGeometry(geometry);
+  }, [geometry, tile]);
   const id: string = "___EX_BLOTTER___";
-  const content = (): ReactElement => {
-    return (
-      <MessageBlotter
-        id={id}
-        scrollable={true}
-        blotterType={BlotterTypes.Executions}
-      />
-    );
-  };
   const { regions } = workareaStore.user;
-  const title = (): React.ReactElement => {
-    return (
-      <div className={"execution-blotter-title"}>
+  return (
+    <cib-window ref={setTile} scroll-y fixed-position fixed-size>
+      <div slot={"toolbar"} className={"execution-blotter-title"}>
         <h1>Execution Blotter</h1>
         <div className={"right-panel"}>
           <h3>CCY Group</h3>
@@ -76,21 +76,13 @@ export const ExecutionBlotter: React.FC<OwnProps> = (
           />
         </div>
       </div>
-    );
-  };
-  return (
-    <WindowElement
-      id={id}
-      geometry={geometry}
-      type={WindowTypes.MessageBlotter}
-      fitToContent={false}
-      fixed={true}
-      content={content}
-      title={title}
-      isDefaultWorkspace={false}
-      store={new WindowStore(id, WindowTypes.MessageBlotter)}
-      onClose={() => null}
-      onLayoutModify={() => null}
-    />
+      <div slot={"content"} className={"window-content"}>
+        <MessageBlotter
+          id={id}
+          scrollable={true}
+          blotterType={BlotterTypes.Executions}
+        />
+      </div>
+    </cib-window>
   );
 };

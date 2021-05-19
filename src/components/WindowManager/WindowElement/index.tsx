@@ -11,11 +11,8 @@ import { TileEvent } from "@cib/window-manager/dist/src/tile";
 
 interface OwnProps {
   readonly id: string;
-  readonly geometry?: ClientRect;
-  readonly minimized?: boolean;
   readonly type: WindowTypes;
   readonly isDefaultWorkspace: boolean;
-  readonly fitToContent: boolean;
   readonly fixed?: boolean;
   readonly store: WindowStore;
   readonly title: (

@@ -1,4 +1,4 @@
-// import { ExecutionBlotter } from "components/WindowManager/executionBlotter";
+import { ExecutionBlotter } from "components/WindowManager/executionBlotter";
 import { Props } from "components/WindowManager/props";
 import { WindowElement } from "components/WindowManager/WindowElement";
 import {
@@ -7,20 +7,33 @@ import {
   WorkspaceStoreContext,
 } from "mobx/stores/workspaceStore";
 import React from "react";
-import "@cib/window-manager";
 import { TileManager } from "@cib/window-manager";
+
+import ResizeObserver from "resize-observer-polyfill";
 
 const WindowManager: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
+  const [boundingRect, setBoundingRect] = React.useState<DOMRect>(
+    new DOMRect(0, 0, window.innerWidth, window.innerHeight)
+  );
+  const [tileManager, setTileManager] = React.useState<TileManager | null>(
+    null
+  );
   const workspaceStore: WorkspaceStore = React.useContext<WorkspaceStore>(
     WorkspaceStoreContext
   );
+  React.useEffect((): void | (() => void) => {
+    if (tileManager === null) return;
+    const observer = new ResizeObserver((): void => {
+      setBoundingRect(tileManager.getBoundingClientRect());
+    });
+    observer.observe(tileManager);
+    return (): void => observer.disconnect();
+  }, [tileManager]);
   const { isDefaultWorkspace: ready, windows } = props;
-  const windowManagerRef: React.Ref<TileManager> = React.createRef<TileManager>();
-
   return (
-    <cib-window-manager class={"workspace"} ref={windowManagerRef}>
+    <cib-window-manager ref={setTileManager}>
       {windows.map(
         (window: WindowDef): React.ReactElement => (
           <WindowElement
@@ -30,15 +43,13 @@ const WindowManager: React.FC<Props> = (
             content={props.getContentRenderer(window.id, window.type)}
             title={props.getTitleRenderer(window.id, window.type)}
             key={window.id}
-            minimized={window.minimized}
-            geometry={window.geometry}
-            fitToContent={window.fitToContent}
             isDefaultWorkspace={ready}
             onLayoutModify={props.onLayoutModify}
             onClose={props.onWindowClose}
           />
         )
       )}
+      <ExecutionBlotter boundingRect={boundingRect} />
     </cib-window-manager>
   );
 };
