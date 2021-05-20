@@ -1,4 +1,3 @@
-import { TileEvent } from "@cib/windows-manager/dist/src/tile";
 import { DefaultWindowButtons } from "components/DefaultWindowButtons";
 import { observer } from "mobx-react";
 
@@ -7,7 +6,7 @@ import { PodTileStore } from "mobx/stores/podTileStore";
 import { WindowStore } from "mobx/stores/windowStore";
 import { WindowTypes } from "mobx/stores/workareaStore";
 import React from "react";
-import { Tile, Geometry } from "@cib/windows-manager";
+import { Tile, Geometry, TileEvent } from "@cib/windows-manager";
 
 interface OwnProps {
   readonly id: string;
@@ -50,6 +49,14 @@ export const WindowElement: React.FC<Props> = observer(
     }, [tile, hydrated, store]);
     React.useEffect((): (() => void) | void => {
       if (tile === null) return;
+      const onUnderflow = ((
+        event: CustomEvent<"vertical" | "horizontal">
+      ): void => {
+        console.log(event);
+        if (event.detail === "vertical") {
+          tile.scrollY = true;
+        }
+      }) as EventListener;
       const onResize = ((event: CustomEvent<Geometry>): void => {
         store.saveGeometry(event.detail);
         store.setAutosize(tile.autosize);
@@ -63,10 +70,12 @@ export const WindowElement: React.FC<Props> = observer(
       tile.addEventListener(TileEvent.Resized, onResize);
       tile.addEventListener(TileEvent.Moved, onMove);
       tile.addEventListener(TileEvent.DockingChanged, onDockingChanged);
+      tile.addEventListener(TileEvent.Underflow, onUnderflow);
       return (): void => {
         tile.removeEventListener(TileEvent.Resized, onResize);
         tile.removeEventListener(TileEvent.Moved, onMove);
         tile.removeEventListener(TileEvent.DockingChanged, onDockingChanged);
+        tile.removeEventListener(TileEvent.Underflow, onUnderflow);
       };
     }, [tile, store]);
     const onClose = () => {
