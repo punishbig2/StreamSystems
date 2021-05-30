@@ -147,10 +147,11 @@ const Run: React.FC<OwnProps> = observer(
     );
 
     return (
-      <div style={{ minWidth: 500 }}>
+      <div className={"run-modal"}>
         <div className={"modal-title-bar"}>
           <div className={"half"}>
             <div className={"item"}>{props.symbol}</div>
+            <i className={"fa fa-grip-vertical"} />
             <div className={"item"}>{props.strategy}</div>
           </div>
           <div className={"commission-rates"}>
