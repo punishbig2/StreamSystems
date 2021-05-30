@@ -3,7 +3,11 @@ import React, { ReactElement } from "react";
 interface Props {
   readonly title: string;
   readonly message: string | (() => ReactElement);
-  readonly icon: "exclamation-triangle" | "question-circle" | "check-circle" | "spinner";
+  readonly icon:
+    | "exclamation-triangle"
+    | "question-circle"
+    | "check-circle"
+    | "spinner";
   readonly buttons: () => ReactElement | null;
   readonly color: "good" | "bad" | "neutral";
 }

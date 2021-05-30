@@ -12,12 +12,6 @@ import {
   LegOptionsDefIn,
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
-import {
-  EditableFlag,
-  InvalidStrategy,
-  Product,
-  StrategyMap,
-} from "types/product";
 import { ValuationModel } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { toast, ToastType } from "components/toast";
@@ -36,9 +30,17 @@ import { FixTenorResult } from "types/fixTenorResult";
 import { LegAdjustValue } from "types/legAdjustValue";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { PricingMessage } from "types/pricingMessage";
+import {
+  EditableFlag,
+  InvalidStrategy,
+  Product,
+  StrategyMap,
+} from "types/product";
 import { SEFUpdate } from "types/sefUpdate";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
+import { Workspace } from "types/workspace";
+import { WorkspaceType } from "types/workspaceType";
 import { createDealEntry } from "utils/dealUtils";
 import { isNumber } from "utils/isNumber";
 import { legsReducer } from "utils/legsReducer";
@@ -106,7 +108,7 @@ const savingDealError = (reason: any): MOErrorMessage => {
   };
 };
 
-export class MoStore {
+export class MoStore implements Workspace {
   @observable.ref legs: ReadonlyArray<Leg> = [];
   @observable.ref summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
@@ -122,15 +124,11 @@ export class MoStore {
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
   @observable.ref lockedDeals: ReadonlyArray<string> = [];
-  @observable _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
   @observable strategies: { [key: string]: Product } = {};
-
-  private originalEntry: DealEntry = { ...emptyDealEntry };
-  private originalLegs: ReadonlyArray<Leg> = [];
-  private originalSummaryLeg: SummaryLeg | null = null;
-  private operationsCount = 10;
-  private modifiedFields: string[] = [];
-
+  public readonly id: string = "mo";
+  @observable name: string = "";
+  @observable modified: boolean = false;
+  public readonly type: WorkspaceType = WorkspaceType.MiddleOffice;
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
   public styles: ReadonlyArray<string> = [];
@@ -139,24 +137,13 @@ export class MoStore {
   public cuts: ReadonlyArray<Cut> = [];
   public deltaStyles: ReadonlyArray<string> = [];
   public premiumStyles: ReadonlyArray<string> = [];
+  private originalEntry: DealEntry = { ...emptyDealEntry };
+  private originalLegs: ReadonlyArray<Leg> = [];
+  private originalSummaryLeg: SummaryLeg | null = null;
+  private operationsCount = 10;
+  private modifiedFields: string[] = [];
 
-  private getFilteredLegAdjustValues(
-    strategy: Product,
-    symbol: Symbol
-  ): ReadonlyArray<LegAdjustValue> {
-    const { _legAdjustValues } = this;
-    return _legAdjustValues
-      .filter((value: LegAdjustValue): boolean => {
-        if (symbol.ccyGroup.toLowerCase() !== value.ccyGroup.toLowerCase())
-          return false;
-        return value.OptionProductType === strategy.OptionProductType;
-      })
-      .sort((v1: LegAdjustValue, v2: LegAdjustValue): number => {
-        if (v1.defaultvalue) return -1;
-        if (v2.defaultvalue) return 1;
-        return 0;
-      });
-  }
+  @observable _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
 
   @computed
   public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
@@ -169,15 +156,6 @@ export class MoStore {
     const { legAdjustValues } = this;
     if (legAdjustValues.length === 0) return "";
     return legAdjustValues[0].VegaLegAdjustValue;
-  }
-
-  public getDefaultLegAdjust(strategy: Product, symbol: Symbol): string {
-    const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
-      strategy,
-      symbol
-    );
-    if (values.length === 0) return "";
-    return values[0].VegaLegAdjustValue;
   }
 
   @computed
@@ -201,6 +179,220 @@ export class MoStore {
       default:
         return false;
     }
+  }
+
+  @computed
+  public get banks(): ReadonlyArray<string> {
+    return workareaStore.banks;
+  }
+
+  @computed
+  get symbols(): ReadonlyArray<Symbol> {
+    const { symbols, user } = workareaStore;
+    return symbols.filter((symbol: Symbol): boolean => {
+      const { regions } = user;
+      if (regions === undefined) return false;
+      return regions.includes(symbol.ccyGroup);
+    });
+  }
+
+  @computed
+  public get isReadyForSubmission(): boolean {
+    const { entry } = this;
+    if (entry.symbol === InvalidSymbol) return false;
+    if (entry.strategy === InvalidStrategy) return false;
+    if (entry.buyer === "") return false;
+    if (entry.seller === "") return false;
+    if (entry.buyer === entry.seller) return false;
+    if (entry.model === "") return false;
+    if (entry.tenor1 === null) {
+      return false;
+    } else if (this.isFieldEditable("tenor2") && entry.tenor2 === null) {
+      return false;
+    }
+    if (entry.premstyle === "") return false;
+    return entry.deltastyle !== "";
+  }
+
+  @computed
+  get isModified(): boolean {
+    if (!this.isEditMode) return false;
+    if (this.entryType === EntryType.New || this.entryType === EntryType.Clone)
+      return true;
+    return (
+      !deepEqual(this.entry, this.originalEntry) ||
+      !deepEqual(this.legs, this.originalLegs) ||
+      !deepEqual(this.summaryLeg, this.originalSummaryLeg)
+    );
+  }
+
+  @computed
+  public get minimumNotional(): number {
+    const { strategy } = this.entry;
+    if (strategy.OptionProductType === "Spread") {
+      return 0;
+    } else {
+      return 100000;
+    }
+  }
+
+  public static fixTenorDates(
+    originalTenor: Tenor | InvalidTenor | string | undefined | null,
+    entry: DealEntry
+  ): Task<FixTenorResult> {
+    const { symbol } = entry;
+    if (
+      !originalTenor ||
+      !isTenor(originalTenor) ||
+      originalTenor.name === ""
+    ) {
+      return {
+        execute: async (): Promise<FixTenorResult> => {
+          return {
+            tenor: null,
+            horizonDateUTC: "",
+            spotDate: "",
+            tradeDate: "",
+          };
+        },
+        cancel: (): void => {},
+      };
+    }
+    const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
+      if (originalTenor.name === "SPECIFIC") {
+        return API.queryVolDates(
+          {
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+            tradeDate: toUTC(entry.tradeDate, true),
+          },
+          [toUTC(originalTenor.expiryDate)]
+        );
+      } else {
+        return API.queryVolTenors(
+          {
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+            tradeDate: toUTC(entry.tradeDate, true),
+          },
+          [originalTenor.name]
+        );
+      }
+    })();
+    return {
+      execute: async (): Promise<FixTenorResult> => {
+        const dates: CalendarVolDatesResponse = await task.execute();
+        return {
+          tenor: {
+            name: originalTenor.name,
+            ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
+            ...safeForceParseDate("expiryDate", dates.ExpiryDates[0]),
+          },
+          horizonDateUTC: dates.HorizonDateUTC,
+          spotDate: dates.SpotDate,
+          tradeDate: dates.TradeDate,
+        };
+      },
+      cancel: (): void => {
+        task.cancel();
+      },
+    };
+  }
+
+  public static getFieldEditableFlag(
+    prefix: string,
+    name: string,
+    strategy: Product
+  ): EditableFlag {
+    if (strategy.productid === "") return EditableFlag.Editable;
+    const { f1 } = strategy.fields;
+    const key: string | undefined = ((
+      prefix: string | null,
+      name: string
+    ): string | undefined => {
+      const normalizedName: string = name.toLowerCase();
+      if (f1[prefix + normalizedName] !== undefined) {
+        return prefix + normalizedName;
+      } else {
+        return normalizedName;
+      }
+    })(prefix, name);
+    if (key === undefined) return EditableFlag.None;
+    const flag: EditableFlag = f1[key];
+    if (flag === undefined) return EditableFlag.None;
+    return flag;
+  }
+
+  public static isEntryEditable(
+    allowedTypes: number,
+    entry: DealEntry,
+    isAllowedToEdit = (_: DealEntry): boolean => true
+  ): boolean {
+    if (entry.status === DealStatus.SEFComplete) return false;
+    if (!isAllowedToEdit(entry)) return false;
+    return (entry.dealType & allowedTypes) !== 0;
+  }
+
+  public static createEditableFilter(
+    allowedTypes: number,
+    status = 0,
+    isAllowedToEdit: (entry: DealEntry) => boolean = (): boolean => true
+  ): EditableFilter {
+    return (
+      name: string,
+      entry: DealEntry,
+      editable: boolean,
+      prefix: string
+    ): boolean => {
+      if (!editable) return false;
+      const flag: EditableFlag = MoStore.getFieldEditableFlag(
+        prefix,
+        name,
+        entry.strategy
+      );
+      switch (flag) {
+        case EditableFlag.Editable:
+          return true;
+        case EditableFlag.Priced:
+          return true;
+        case EditableFlag.NotApplicable:
+        case EditableFlag.NotEditable:
+          return false;
+        case EditableFlag.Pending:
+          return true;
+        case EditableFlag.None:
+          if (name === "strategy" || name === "symbol") {
+            // Always editable provided that it's a new deal
+            return (
+              entry.type === EntryType.New || entry.type === EntryType.Clone
+            );
+          }
+          return false;
+      }
+      return MoStore.isEntryEditable(allowedTypes, entry, isAllowedToEdit);
+    };
+  }
+
+  private static async doSubmit(
+    dealID: string,
+    status: DealStatus
+  ): Promise<any> {
+    if (status === DealStatus.Priced) {
+      return API.sendTradeCaptureReport(dealID);
+    } else if (status === DealStatus.SEFComplete) {
+      return API.stpSendReport(dealID);
+    }
+  }
+
+  public getDefaultLegAdjust(strategy: Product, symbol: Symbol): string {
+    const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
+      strategy,
+      symbol
+    );
+    if (values.length === 0) return "";
+    return values[0].VegaLegAdjustValue;
   }
 
   public async loadReferenceData(): Promise<void> {
@@ -259,26 +451,6 @@ export class MoStore {
     }
   }
 
-  @action.bound
-  private setProgress(value: number): void {
-    this.progress = Math.min(Math.max(value, 0), 100);
-  }
-
-  @action.bound
-  private setInitialized(): void {
-    this.isInitialized = true;
-  }
-
-  private increaseProgress(): void {
-    this.setProgress(this.progress + 100 / this.operationsCount);
-  }
-
-  @action.bound
-  private setCuts(cuts: Cut[]): void {
-    this.cuts = cuts;
-    this.increaseProgress();
-  }
-
   public reloadStrategies(currency: string): void {
     const { products, symbols } = workareaStore;
     const symbol: Symbol | undefined = symbols.find(
@@ -297,95 +469,8 @@ export class MoStore {
   }
 
   @action.bound
-  private setStyles(styles: string[]): void {
-    this.styles = styles;
-    this.increaseProgress();
-  }
-
-  @action.bound
-  private setDeltaStyles(styles: ReadonlyArray<string>): void {
-    this.deltaStyles = styles;
-    this.increaseProgress();
-  }
-
-  @action.bound
-  private setPremiumStyles(styles: ReadonlyArray<string>): void {
-    this.premiumStyles = styles;
-    this.increaseProgress();
-  }
-
-  @action.bound
-  private setBankEntities(entities: BankEntitiesQueryResponse): void {
-    this.entities = entities;
-    this.entitiesMap = Object.values(entities)
-      .reduce(
-        (accum: BankEntity[], next: BankEntity[]): BankEntity[] => [
-          ...accum,
-          ...next,
-        ],
-        []
-      )
-      .reduce(
-        (
-          map: { [p: string]: BankEntity },
-          entity: BankEntity
-        ): {
-          [p: string]: BankEntity;
-        } => ({ ...map, [entity.code]: entity }),
-        {}
-      );
-    this.increaseProgress();
-  }
-
-  @action.bound
-  private setModels(models: InternalValuationModel[]): void {
-    this.models = models;
-    this.increaseProgress();
-  }
-
-  private legOptionsReducer<T extends LegOptionsDefIn | LegOptionsDefOut>(
-    array: any[]
-  ): { [id: string]: T[] } {
-    return array.reduce((groups: { [strategy: string]: T[] }, option: T) => {
-      const key: string = option.productid;
-      if (groups[key] === undefined) {
-        groups[key] = [option];
-      } else {
-        groups[key].push(option);
-      }
-      return groups;
-    }, {});
-  }
-
-  @computed
-  public get banks(): ReadonlyArray<string> {
-    return workareaStore.banks;
-  }
-
-  @computed
-  get symbols(): ReadonlyArray<Symbol> {
-    const { symbols, user } = workareaStore;
-    return symbols.filter((symbol: Symbol): boolean => {
-      const { regions } = user;
-      if (regions === undefined) return false;
-      return regions.includes(symbol.ccyGroup);
-    });
-  }
-
-  @action.bound
   public setSummaryLeg(summaryLeg: SummaryLeg | null): void {
     this.summaryLeg = summaryLeg;
-  }
-
-  @action.bound
-  private async loadDeals(): Promise<void> {
-    // Update deals list
-    const deals: Deal[] = await API.getDeals();
-    this.deals = deals.sort(
-      ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
-        d2.getTime() - d1.getTime()
-    );
-    this.increaseProgress();
   }
 
   @action.bound
@@ -530,121 +615,8 @@ export class MoStore {
     this.addModifiedField(fieldName);
   }
 
-  private addModifiedField(name: string): void {
-    const { modifiedFields } = this;
-    if (modifiedFields.includes(name)) {
-      return;
-    }
-    modifiedFields.push(name);
-  }
-
   public getModifiedFields(): string[] {
     return this.modifiedFields;
-  }
-
-  @computed
-  public get isReadyForSubmission(): boolean {
-    const { entry } = this;
-    if (entry.symbol === InvalidSymbol) return false;
-    if (entry.strategy === InvalidStrategy) return false;
-    if (entry.buyer === "") return false;
-    if (entry.seller === "") return false;
-    if (entry.buyer === entry.seller) return false;
-    if (entry.model === "") return false;
-    if (entry.tenor1 === null) {
-      return false;
-    } else if (this.isFieldEditable("tenor2") && entry.tenor2 === null) {
-      return false;
-    }
-    if (entry.premstyle === "") return false;
-    return entry.deltastyle !== "";
-  }
-
-  private isFieldEditable(name: string): boolean {
-    const { entry } = this;
-    const flag: EditableFlag = MoStore.getFieldEditableFlag(
-      "",
-      name,
-      entry.strategy
-    );
-    return !(
-      flag === EditableFlag.NotEditable || flag === EditableFlag.NotApplicable
-    );
-  }
-
-  public static fixTenorDates(
-    originalTenor: Tenor | InvalidTenor | string | undefined | null,
-    entry: DealEntry
-  ): Task<FixTenorResult> {
-    const { symbol } = entry;
-    if (
-      !originalTenor ||
-      !isTenor(originalTenor) ||
-      originalTenor.name === ""
-    ) {
-      return {
-        execute: async (): Promise<FixTenorResult> => {
-          return {
-            tenor: null,
-            horizonDateUTC: "",
-            spotDate: "",
-            tradeDate: "",
-          };
-        },
-        cancel: (): void => {},
-      };
-    }
-    const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
-      if (originalTenor.name === "SPECIFIC") {
-        return API.queryVolDates(
-          {
-            fxPair: symbol.symbolID,
-            addHolidays: true,
-            rollExpiryDates: true,
-            tradeDate: toUTC(entry.tradeDate, true),
-          },
-          [toUTC(originalTenor.expiryDate)]
-        );
-      } else {
-        return API.queryVolTenors(
-          {
-            fxPair: symbol.symbolID,
-            addHolidays: true,
-            rollExpiryDates: true,
-            tradeDate: toUTC(entry.tradeDate, true),
-          },
-          [originalTenor.name]
-        );
-      }
-    })();
-    return {
-      execute: async (): Promise<FixTenorResult> => {
-        const dates: CalendarVolDatesResponse = await task.execute();
-        return {
-          tenor: {
-            name: originalTenor.name,
-            ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
-            ...safeForceParseDate("expiryDate", dates.ExpiryDates[0]),
-          },
-          horizonDateUTC: dates.HorizonDateUTC,
-          spotDate: dates.SpotDate,
-          tradeDate: dates.TradeDate,
-        };
-      },
-      cancel: (): void => {
-        task.cancel();
-      },
-    };
-  }
-
-  private getCurrentLegs(): Task<{ legs: ReadonlyArray<Leg> } | null> {
-    const { legs } = this;
-    return {
-      execute: async (): Promise<{ legs: ReadonlyArray<Leg> } | null> => {
-        return { legs };
-      },
-      cancel: (): void => {},
-    };
   }
 
   @action.bound
@@ -794,12 +766,6 @@ export class MoStore {
     this.reset();
   }
 
-  @action.bound
-  private setEntry(entry: DealEntry) {
-    if (deepEqual(entry, this.entry)) return;
-    this.entry = entry;
-  }
-
   public async updateDealEntry(partial: Partial<DealEntry>): Promise<void> {
     const { entry } = this;
     const fields: ReadonlyArray<string> = Object.keys(partial);
@@ -831,40 +797,6 @@ export class MoStore {
     fields.forEach((field: string): void => {
       this.addModifiedField(field);
     });
-  }
-
-  private buildRequest(): DealEntry {
-    const { entry } = this;
-    const { summaryLeg } = this;
-    const otherFields = ((
-      summaryLeg: SummaryLeg | null
-    ): { extra_fields?: { [key: string]: number | string | null } } => {
-      if (summaryLeg === null) return {};
-      return {
-        extra_fields: {
-          spot: summaryLeg.spot,
-          fwdrate1: summaryLeg.fwdrate1,
-          fwdpts1: summaryLeg.fwdpts1,
-          fwdrate2: summaryLeg.fwdrate2,
-          fwdpts2: summaryLeg.fwdpts2,
-        },
-      };
-    })(summaryLeg);
-    return {
-      ...entry,
-      ...otherFields,
-    };
-  }
-
-  private static async doSubmit(
-    dealID: string,
-    status: DealStatus
-  ): Promise<any> {
-    if (status === DealStatus.Priced) {
-      return API.sendTradeCaptureReport(dealID);
-    } else if (status === DealStatus.SEFComplete) {
-      return API.stpSendReport(dealID);
-    }
   }
 
   @action.bound
@@ -935,34 +867,6 @@ export class MoStore {
             this.setError(savingDealError(reason));
           });
         break;
-    }
-  }
-
-  @action.bound
-  private onDealSaved(id: string): void {
-    const { deals } = this;
-    const deal: Deal | undefined = deals.find(
-      (each: Deal): boolean => each.id === id
-    );
-    this.isEditMode = false;
-    this.selectedDealID = id;
-    this.successMessage = {
-      title: "Saved Successfully",
-      text:
-        "The deal was correctly created with id `" +
-        id +
-        "', please close this window now",
-    };
-    this.entryType = EntryType.ExistingDeal;
-    this.status = MoStatus.Normal;
-    if (deal !== undefined) {
-      const task: Task<DealEntry> = createDealEntry(deal);
-      task
-        .execute()
-        .then((entry: DealEntry): void => {
-          this.setEntry(entry);
-        })
-        .catch(console.warn);
     }
   }
 
@@ -1057,92 +961,6 @@ export class MoStore {
       });
   }
 
-  public static getFieldEditableFlag(
-    prefix: string,
-    name: string,
-    strategy: Product
-  ): EditableFlag {
-    if (strategy.productid === "") return EditableFlag.Editable;
-    const { f1 } = strategy.fields;
-    const key: string | undefined = ((
-      prefix: string | null,
-      name: string
-    ): string | undefined => {
-      const normalizedName: string = name.toLowerCase();
-      if (f1[prefix + normalizedName] !== undefined) {
-        return prefix + normalizedName;
-      } else {
-        return normalizedName;
-      }
-    })(prefix, name);
-    if (key === undefined) return EditableFlag.None;
-    const flag: EditableFlag = f1[key];
-    if (flag === undefined) return EditableFlag.None;
-    return flag;
-  }
-
-  public static isEntryEditable(
-    allowedTypes: number,
-    entry: DealEntry,
-    isAllowedToEdit = (_: DealEntry): boolean => true
-  ): boolean {
-    if (entry.status === DealStatus.SEFComplete) return false;
-    if (!isAllowedToEdit(entry)) return false;
-    return (entry.dealType & allowedTypes) !== 0;
-  }
-
-  @computed
-  get isModified(): boolean {
-    if (!this.isEditMode) return false;
-    if (this.entryType === EntryType.New || this.entryType === EntryType.Clone)
-      return true;
-    return (
-      !deepEqual(this.entry, this.originalEntry) ||
-      !deepEqual(this.legs, this.originalLegs) ||
-      !deepEqual(this.summaryLeg, this.originalSummaryLeg)
-    );
-  }
-
-  public static createEditableFilter(
-    allowedTypes: number,
-    status = 0,
-    isAllowedToEdit: (entry: DealEntry) => boolean = (): boolean => true
-  ): EditableFilter {
-    return (
-      name: string,
-      entry: DealEntry,
-      editable: boolean,
-      prefix: string
-    ): boolean => {
-      if (!editable) return false;
-      const flag: EditableFlag = MoStore.getFieldEditableFlag(
-        prefix,
-        name,
-        entry.strategy
-      );
-      switch (flag) {
-        case EditableFlag.Editable:
-          return true;
-        case EditableFlag.Priced:
-          return true;
-        case EditableFlag.NotApplicable:
-        case EditableFlag.NotEditable:
-          return false;
-        case EditableFlag.Pending:
-          return true;
-        case EditableFlag.None:
-          if (name === "strategy" || name === "symbol") {
-            // Always editable provided that it's a new deal
-            return (
-              entry.type === EntryType.New || entry.type === EntryType.Clone
-            );
-          }
-          return false;
-      }
-      return MoStore.isEntryEditable(allowedTypes, entry, isAllowedToEdit);
-    };
-  }
-
   @action.bound
   public lockDeal(id: string): void {
     this.lockedDeals = [...this.lockedDeals, id];
@@ -1161,6 +979,228 @@ export class MoStore {
         ...lockedDeals.slice(0, index),
         ...lockedDeals.slice(index + 1),
       ];
+    }
+  }
+
+  public async updateSEFStatus(update: SEFUpdate): Promise<void> {
+    await this.updateSEFInDealsBlotter(update);
+    await this.updateSEFInDealEntry(update);
+    // Reset status to normal to hide the progress window
+    this.setStatus(MoStatus.Normal);
+  }
+
+  public findStrategyById(name: string): Product | undefined {
+    const values: ReadonlyArray<Product> = Object.values(
+      workareaStore.products
+    );
+    return values.find((product: Product): boolean => {
+      return name === product.name;
+    });
+  }
+
+  @action.bound
+  public setName(name: string): void {
+    this.name = name;
+  }
+
+  @action.bound setModified(value: boolean): void {
+    this.modified = value;
+  }
+
+  private getFilteredLegAdjustValues(
+    strategy: Product,
+    symbol: Symbol
+  ): ReadonlyArray<LegAdjustValue> {
+    const { _legAdjustValues } = this;
+    return _legAdjustValues
+      .filter((value: LegAdjustValue): boolean => {
+        if (symbol.ccyGroup.toLowerCase() !== value.ccyGroup.toLowerCase())
+          return false;
+        return value.OptionProductType === strategy.OptionProductType;
+      })
+      .sort((v1: LegAdjustValue, v2: LegAdjustValue): number => {
+        if (v1.defaultvalue) return -1;
+        if (v2.defaultvalue) return 1;
+        return 0;
+      });
+  }
+
+  @action.bound
+  private setProgress(value: number): void {
+    this.progress = Math.min(Math.max(value, 0), 100);
+  }
+
+  @action.bound
+  private setInitialized(): void {
+    this.isInitialized = true;
+  }
+
+  private increaseProgress(): void {
+    this.setProgress(this.progress + 100 / this.operationsCount);
+  }
+
+  @action.bound
+  private setCuts(cuts: Cut[]): void {
+    this.cuts = cuts;
+    this.increaseProgress();
+  }
+
+  @action.bound
+  private setStyles(styles: string[]): void {
+    this.styles = styles;
+    this.increaseProgress();
+  }
+
+  @action.bound
+  private setDeltaStyles(styles: ReadonlyArray<string>): void {
+    this.deltaStyles = styles;
+    this.increaseProgress();
+  }
+
+  @action.bound
+  private setPremiumStyles(styles: ReadonlyArray<string>): void {
+    this.premiumStyles = styles;
+    this.increaseProgress();
+  }
+
+  @action.bound
+  private setBankEntities(entities: BankEntitiesQueryResponse): void {
+    this.entities = entities;
+    this.entitiesMap = Object.values(entities)
+      .reduce(
+        (accum: BankEntity[], next: BankEntity[]): BankEntity[] => [
+          ...accum,
+          ...next,
+        ],
+        []
+      )
+      .reduce(
+        (
+          map: { [p: string]: BankEntity },
+          entity: BankEntity
+        ): {
+          [p: string]: BankEntity;
+        } => ({ ...map, [entity.code]: entity }),
+        {}
+      );
+    this.increaseProgress();
+  }
+
+  @action.bound
+  private setModels(models: InternalValuationModel[]): void {
+    this.models = models;
+    this.increaseProgress();
+  }
+
+  private legOptionsReducer<T extends LegOptionsDefIn | LegOptionsDefOut>(
+    array: any[]
+  ): { [id: string]: T[] } {
+    return array.reduce((groups: { [strategy: string]: T[] }, option: T) => {
+      const key: string = option.productid;
+      if (groups[key] === undefined) {
+        groups[key] = [option];
+      } else {
+        groups[key].push(option);
+      }
+      return groups;
+    }, {});
+  }
+
+  @action.bound
+  private async loadDeals(): Promise<void> {
+    // Update deals list
+    const deals: Deal[] = await API.getDeals();
+    this.deals = deals.sort(
+      ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
+        d2.getTime() - d1.getTime()
+    );
+    this.increaseProgress();
+  }
+
+  private addModifiedField(name: string): void {
+    const { modifiedFields } = this;
+    if (modifiedFields.includes(name)) {
+      return;
+    }
+    modifiedFields.push(name);
+  }
+
+  private isFieldEditable(name: string): boolean {
+    const { entry } = this;
+    const flag: EditableFlag = MoStore.getFieldEditableFlag(
+      "",
+      name,
+      entry.strategy
+    );
+    return !(
+      flag === EditableFlag.NotEditable || flag === EditableFlag.NotApplicable
+    );
+  }
+
+  private getCurrentLegs(): Task<{ legs: ReadonlyArray<Leg> } | null> {
+    const { legs } = this;
+    return {
+      execute: async (): Promise<{ legs: ReadonlyArray<Leg> } | null> => {
+        return { legs };
+      },
+      cancel: (): void => {},
+    };
+  }
+
+  @action.bound
+  private setEntry(entry: DealEntry) {
+    if (deepEqual(entry, this.entry)) return;
+    this.entry = entry;
+  }
+
+  private buildRequest(): DealEntry {
+    const { entry } = this;
+    const { summaryLeg } = this;
+    const otherFields = ((
+      summaryLeg: SummaryLeg | null
+    ): { extra_fields?: { [key: string]: number | string | null } } => {
+      if (summaryLeg === null) return {};
+      return {
+        extra_fields: {
+          spot: summaryLeg.spot,
+          fwdrate1: summaryLeg.fwdrate1,
+          fwdpts1: summaryLeg.fwdpts1,
+          fwdrate2: summaryLeg.fwdrate2,
+          fwdpts2: summaryLeg.fwdpts2,
+        },
+      };
+    })(summaryLeg);
+    return {
+      ...entry,
+      ...otherFields,
+    };
+  }
+
+  @action.bound
+  private onDealSaved(id: string): void {
+    const { deals } = this;
+    const deal: Deal | undefined = deals.find(
+      (each: Deal): boolean => each.id === id
+    );
+    this.isEditMode = false;
+    this.selectedDealID = id;
+    this.successMessage = {
+      title: "Saved Successfully",
+      text:
+        "The deal was correctly created with id `" +
+        id +
+        "', please close this window now",
+    };
+    this.entryType = EntryType.ExistingDeal;
+    this.status = MoStatus.Normal;
+    if (deal !== undefined) {
+      const task: Task<DealEntry> = createDealEntry(deal);
+      task
+        .execute()
+        .then((entry: DealEntry): void => {
+          this.setEntry(entry);
+        })
+        .catch(console.warn);
     }
   }
 
@@ -1220,34 +1260,8 @@ export class MoStore {
     }
   }
 
-  public async updateSEFStatus(update: SEFUpdate): Promise<void> {
-    await this.updateSEFInDealsBlotter(update);
-    await this.updateSEFInDealEntry(update);
-    // Reset status to normal to hide the progress window
-    this.setStatus(MoStatus.Normal);
-  }
-
   private setLegAdjustValues(value: ReadonlyArray<LegAdjustValue>) {
     this._legAdjustValues = value;
-  }
-
-  public findStrategyById(name: string): Product | undefined {
-    const values: ReadonlyArray<Product> = Object.values(
-      workareaStore.products
-    );
-    return values.find((product: Product): boolean => {
-      return name === product.name;
-    });
-  }
-
-  @computed
-  public get minimumNotional(): number {
-    const { strategy } = this.entry;
-    if (strategy.OptionProductType === "Spread") {
-      return 0;
-    } else {
-      return 100000;
-    }
   }
 }
 

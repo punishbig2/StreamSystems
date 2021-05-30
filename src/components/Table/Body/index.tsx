@@ -7,6 +7,7 @@ interface OwnProps {
     props: RowProps,
     index?: number
   ) => React.ReactElement | null;
+
   readonly [key: string]: any;
 }
 

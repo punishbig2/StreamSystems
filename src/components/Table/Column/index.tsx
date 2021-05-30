@@ -1,7 +1,7 @@
-import { SortIndicator } from "components/Table/Column/SortIndicator";
+import { SortIndicator } from "components/Table/Column/sortIndicator";
 import React, { CSSProperties, ReactElement, useCallback, useRef } from "react";
 import strings from "locales";
-import { SortOrder } from "mobx/stores/tableStore";
+import { SortOrder } from "types/sortOrder";
 
 export enum ColumnType {
   Real,
@@ -12,14 +12,14 @@ interface OwnProps {
   name: string;
   width: number | string;
   movable: boolean;
-  filterable?: boolean;
   sortable?: boolean;
+  filterable?: boolean;
   sortOrder?: SortOrder;
   type: ColumnType;
-  style?: CSSProperties;
-  onSorted: (name: string) => void;
-  onFiltered: (keyword: string) => void;
   onGrabbed: (element: HTMLDivElement, grabbedAt: number) => void;
+  style?: CSSProperties;
+  onSorted?: (name: string) => void;
+  onFiltered?: (keyword: string) => void;
 }
 
 type Props = React.PropsWithChildren<OwnProps>;
@@ -27,20 +27,7 @@ type Props = React.PropsWithChildren<OwnProps>;
 const Column: React.FC<Props> = (props: Props): ReactElement => {
   const containerRef: React.Ref<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const inputRef: React.Ref<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const { width, movable, onGrabbed } = props;
-
-  const getSortIndicator = (): ReactElement | null => {
-    const onSorted = () => props.onSorted(props.name);
-    if (props.sortable) {
-      if (props.sortOrder === undefined) {
-        return <SortIndicator direction={SortOrder.None} onClick={onSorted} />;
-      } else {
-        return <SortIndicator direction={props.sortOrder} onClick={onSorted} />;
-      }
-    } else {
-      return null;
-    }
-  };
+  const { name, width, movable, onGrabbed, onSorted } = props;
 
   const getFilterEditor = (): ReactElement | null => {
     if (!props.filterable) return null;
@@ -51,7 +38,9 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
       clearTimeout(timer);
       // Reset the timer
       timer = setTimeout(() => {
-        props.onFiltered(value);
+        if (props.onFiltered !== undefined) {
+          props.onFiltered(value);
+        }
       }, 300);
     };
 
@@ -80,11 +69,15 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
   React.useEffect((): void | (() => void) => {
     if (containerRef.current === null) return;
     const element = containerRef.current;
-    element.addEventListener("mousedown", onMouseDown, true);
+    element.addEventListener("mousedown", onMouseDown);
     return (): void => {
-      element.removeEventListener("mousedown", onMouseDown, true);
+      element.removeEventListener("mousedown", onMouseDown);
     };
   }, [onMouseDown, containerRef]);
+  const onSort = React.useCallback(
+    (): void => (onSorted === undefined ? undefined : onSorted(name)),
+    [onSorted, name]
+  );
 
   const classes: string[] = ["th"];
   if (props.sortable) classes.push("sortable");
@@ -95,7 +88,11 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
     <div className={classes.join(" ")} style={style} ref={containerRef}>
       <div className={"column"}>
         <div className={"label"}>{props.children}</div>
-        {getSortIndicator()}
+        <SortIndicator
+          sortable={props.sortable === true}
+          direction={props.sortOrder}
+          onClick={onSort}
+        />
       </div>
       {getFilterEditor()}
     </div>

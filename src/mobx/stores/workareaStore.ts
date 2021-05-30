@@ -1,48 +1,33 @@
 import { API } from "API";
 
-import latam from "groups/latam";
-import { PresetWindow } from "groups/presetWindow";
-
 import strings from "locales";
-import { action, computed, observable } from "mobx";
-import { create, persist } from "mobx-persist";
-import { WindowDef, WorkspaceStore } from "mobx/stores/workspaceStore";
+import { action, autorun, computed, observable, trace } from "mobx";
+import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
 import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
+import { serializeObject, unserializeObject } from "types/persistable";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { CurrencyGroups, User, UserPreferences } from "types/user";
+import { WorkspaceType } from "types/workspaceType";
 import { updateApplicationTheme } from "utils/commonUtils";
-import persistStorage from "utils/persistStorage";
-import { randomID } from "utils/randomID";
+import { PersistStorage } from "utils/persistStorage";
 import { tenorToNumber } from "utils/tenorUtils";
 
-export enum WindowTypes {
-  PodTile = 1,
-  MessageBlotter = 2,
-  Empty = 3,
-}
-
-export enum WorkspaceType {
-  Trading,
-  MiddleOffice,
-}
-
-export interface WorkspaceDef {
-  readonly id: string;
-  readonly name: string;
-  personality: string;
-  isDefault: boolean;
-  readonly type: WorkspaceType;
-}
+export const isTradingWorkspace = (
+  workspace: TradingWorkspaceStore
+): workspace is TradingWorkspaceStore =>
+  workspace.type === WorkspaceType.Trading;
 
 export class WorkareaStore {
-  @persist("object") @observable workspaces: { [k: string]: WorkspaceDef } = {};
-  @persist @observable currentWorkspaceID: string | null = null;
+  @observable workspaces: {
+    [key: string]: TradingWorkspaceStore;
+  } = {};
+  @observable currentWorkspaceID: string | null = null;
 
   @observable symbols: ReadonlyArray<Symbol> = [];
   @observable.ref products: ReadonlyArray<Product> = [];
@@ -52,8 +37,8 @@ export class WorkareaStore {
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
   @observable recentExecutions: Array<Message> = [];
-  @persist("object")
-  @observable
+
+  @observable.ref
   preferences: UserPreferences = defaultPreferences;
   @observable user: User = {} as User;
   @observable loadingMessage?: string;
@@ -61,7 +46,6 @@ export class WorkareaStore {
   @observable isCreatingWorkspace: boolean = false;
   @observable hasUpdates: boolean = false;
 
-  @observable workspaceStores: { [id: string]: WorkspaceStore } = {};
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
 
@@ -69,92 +53,46 @@ export class WorkareaStore {
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
 
-  private static getMapForCurrencyGroup(group: CurrencyGroups) {
-    switch (group) {
-      case CurrencyGroups.Default:
-        return null;
-      case CurrencyGroups.Latam:
-        return latam;
-    }
+  private persistStorage = new PersistStorage<WorkareaStore>();
+
+  public static fromJson(data: { [key: string]: any }): WorkareaStore {
+    const newStore = new WorkareaStore();
+    newStore.preferences = data.preferences;
+    newStore.currentWorkspaceID = data.currentWorkspaceID;
+    newStore.workspaces = unserializeObject<TradingWorkspaceStore>(
+      data.workspaces,
+      TradingWorkspaceStore.fromJson
+    );
+    return newStore;
+  }
+
+  @computed
+  public get serialized(): { [key: string]: any } {
+    return {
+      preferences: { ...this.preferences },
+      currentWorkspaceID: this.currentWorkspaceID,
+      workspaces: serializeObject<TradingWorkspaceStore>(this.workspaces),
+    };
   }
 
   @computed
   public get personality(): string {
-    const { workspaces, currentWorkspaceID: id } = this;
-    if (id === null) return STRM;
-    if (!workspaces[id]) throw new Error("this is completely unreasonable");
-    return workspaces[id].personality;
-  }
-
-  @action.bound
-  public setWorkspacePersonality(id: string, personality: string): void {
-    const { workspaces } = this;
-    if (!workspaces[id]) return;
-    workspaces[id].personality = personality;
-  }
-
-  private populateDefaultWorkspace(id: string, group: CurrencyGroups): void {
-    const map: {
-      [k: string]: PresetWindow[];
-    } | null = WorkareaStore.getMapForCurrencyGroup(group);
-    if (map === null) return;
-    const { workspaces } = persistStorage;
-    const currencies: string[] = Object.keys(map);
-    const windows: WindowDef[] = currencies.reduce(
-      (accumulator: WindowDef[], currency: string): WindowDef[] => {
-        const { pods } = persistStorage;
-        const windowList: WindowDef[] = map[currency].map(
-          ({ strategy, minimized, position }: PresetWindow): WindowDef => {
-            const id: string = randomID("pods");
-            // Force the initialization of a pod structure
-            pods
-              .setItem(id, JSON.stringify({ currency, strategy }))
-              .then(() => {});
-            return {
-              id: id,
-              minimized: minimized,
-              type: WindowTypes.PodTile,
-              position: position,
-              fitToContent: true,
-            };
-          }
-        );
-        return [...accumulator, ...windowList];
-      },
-      []
-    );
-    workspaces.setItem(id, JSON.stringify({ windows })).then(() => {});
-  }
-
-  @action.bound
-  private internalAddWorkspace(group: CurrencyGroups) {
-    const { workspaces } = this;
-    const id: string = randomID("workspaces");
-    // Populate the default stuff if needed
-    this.populateDefaultWorkspace(id, group);
-    // Create the workspace
-    workspaces[id] = {
-      id: id,
-      isDefault: true,
-      name: group,
-      personality: STRM,
-      type: WorkspaceType.Trading,
-    };
-    this.isCreatingWorkspace = false;
-    this.currentWorkspaceID = id;
-  }
-
-  @action.bound
-  public addStandardWorkspace(group: CurrencyGroups) {
-    this.isCreatingWorkspace = true;
-    // Do this after the `isCreatingWorkspace' takes effect
-    setTimeout(() => this.internalAddWorkspace(group), 0);
+    const { workspaces, currentWorkspaceID } = this;
+    if (currentWorkspaceID === null) return STRM;
+    const workspace = workspaces[currentWorkspaceID];
+    if (workspace === undefined)
+      throw new Error("this is completely unreasonable");
+    if ("personality" in workspace) {
+      return workspace.personality;
+    } else {
+      return STRM;
+    }
   }
 
   @computed
-  get currentWorkspace() {
+  get currentWorkspace(): TradingWorkspaceStore | null {
     if (this.currentWorkspaceID === null) return null;
-    const found: WorkspaceDef | undefined = this.workspaces[
+    const found: TradingWorkspaceStore | undefined = this.workspaces[
       this.currentWorkspaceID
     ];
     if (found) {
@@ -164,52 +102,206 @@ export class WorkareaStore {
     }
   }
 
+  private static cleanupUrl(email: string) {
+    const { history, location } = window;
+    const base: string = `${location.protocol}//${location.host}${location.pathname}`;
+    // Replace the url with the same url but without parameters
+    history.pushState({ email }, "", base);
+  }
+
+  @action.bound
+  public addStandardWorkspace(group: CurrencyGroups) {
+    this.isCreatingWorkspace = true;
+    // Do this after the `isCreatingWorkspace' takes effect
+    setTimeout(() => this.internalAddWorkspace(group), 0);
+  }
+
   @action.bound
   public clearLastExecution() {
     this.recentExecutions = [];
   }
 
-  private updateCurrentWorkspaceID() {
-    const { workspaces } = this;
-    if (this.currentWorkspaceID === null) return;
-    const keys: string[] = Object.keys(workspaces);
-    if (keys.length === 0) {
-      this.currentWorkspaceID = null;
-    } else if (workspaces[this.currentWorkspaceID] === undefined) {
-      this.currentWorkspaceID = workspaces[keys[0]].id;
+  @action.bound
+  public async closeWorkspace(id: string) {
+    if (id in this.workspaces) {
+      delete this.workspaces[id];
+      // Update current workspace id
+      const ids = Object.keys(this.workspaces);
+      if (ids.length === 0) {
+        this.currentWorkspaceID = null;
+      } else {
+        this.currentWorkspaceID = ids.first;
+      }
+    }
+  }
+
+  public async initialize(id: string) {
+    this.loadingStep = 100 / 9;
+    this.setStatus(WorkareaStatus.Starting);
+    try {
+      const user: User | undefined = await this.loadUser(id);
+      if (user === undefined) {
+        this.setStatus(WorkareaStatus.UserNotFound);
+      } else {
+        const regions: ReadonlyArray<string> = await this.loadUserRegions(
+          user.email
+        );
+        // Now the user object is complete
+        this.user = { ...user, regions };
+        // This is just for eye candy :)
+        WorkareaStore.cleanupUrl(user.email);
+        // Load the saved state
+        await this.initializePersistStorage(user);
+        // Set the loading mode
+        this.setStatus(WorkareaStatus.Initializing);
+        // Start loading stuff
+        await this.loadSystemSymbols();
+        await this.createSymbolsMap();
+        await this.loadSystemStrategies();
+        await this.loadSystemTenors();
+        await this.loadSystemBanks();
+        await this.connectToSignalR();
+
+        window.addEventListener(
+          "focus",
+          (): Promise<void> => this.connectToSignalR()
+        );
+
+        // We are done now
+        this.updateLoadingProgress(strings.Connected);
+        // Please wait until progress shows 100%
+        setTimeout(() => {
+          // Notify the user that we're done
+          this.setStatus(WorkareaStatus.Welcome);
+          // We want to show a welcome message first
+          setTimeout(() => {
+            // Switch the the normal view
+            this.setStatus(WorkareaStatus.Ready);
+          }, 800);
+        }, 0);
+      }
+    } catch (error) {
+      this.loadTheme();
+      this.setStatus(WorkareaStatus.Error);
+      console.warn(error);
     }
   }
 
   @action.bound
-  public async closeWorkspace(id: string) {
+  public setWorkspace(id: string) {
     const { workspaces } = this;
-    const copy: { [k: string]: WorkspaceDef } = { ...workspaces };
-    if (copy[id] !== undefined) delete copy[id];
-    this.workspaces = copy;
-    this.updateCurrentWorkspaceID();
+    this.workspaceAccessDenied = false;
+    this.workspaceNotFound = false;
+    const workspace: TradingWorkspaceStore | undefined = workspaces[id];
+    if (workspace === undefined) {
+      this.workspaceNotFound = true;
+    } else if (this.getUserAccessToWorkspace(workspace)) {
+      this.currentWorkspaceID = id;
+    } else {
+      this.workspaceAccessDenied = true;
+    }
+  }
+
+  @action.bound
+  public setWorkspaceName(id: string, name: string) {
+    const { workspaces } = this;
+    const workspace = workspaces[id];
+    if (workspace === undefined) throw new Error("this must be impossible");
+    workspace.setName(name);
+  }
+
+  @action.bound
+  public setWorkspaceModified(id: string) {
+    const { workspaces } = this;
+    const workspace = workspaces[id];
+    if (workspace === undefined) throw new Error("this must be impossible");
+    if (typeof workspace.setModified === "function") {
+      workspace.setModified(true);
+    }
+  }
+
+  @action.bound
+  public addRecentExecution(loadingMessage: Message) {
+    const { recentExecutions } = this;
+    recentExecutions.push(loadingMessage);
+  }
+
+  @action.bound
+  public setPreferences(preferences: UserPreferences) {
+    const { ccyGroup } = this.preferences;
+    this.preferences = preferences;
+    if (ccyGroup !== preferences.ccyGroup) {
+      /*API.getSymbols(persistStorage.getCCYGroup()).then(
+        (currencies: Symbol[]) => (this.symbols = currencies)
+      );*/
+    }
+  }
+
+  @action.bound
+  public addMiddleOffice() {
+    this.isCreatingWorkspace = true;
+    setTimeout(this.internalAddMiddleOffice, 0);
+  }
+
+  @action.bound
+  public setHasUpdates(): void {
+    this.hasUpdates = true;
+  }
+
+  @action.bound
+  public closeAccessDeniedView(): void {
+    this.workspaceAccessDenied = false;
+  }
+
+  public findUserByEmail(email: string): User {
+    const { users } = this;
+    const found: User | undefined = users.find((user: User): boolean => {
+      if (user.email === undefined) {
+        return false;
+      } else if (email === undefined) {
+        return false;
+      }
+      return user.email.toLowerCase() === email.toLowerCase();
+    });
+    if (found === undefined) {
+      console.warn(
+        `we tried to find \`${email}' in the list of users from the server but it's not in it`,
+        users
+      );
+      return {
+        email: "unknown user",
+        firm: "unknown firm",
+        regions: [],
+        roles: [],
+        firstname: "unknown",
+        lastname: "unknown",
+      };
+    }
+    return found;
+  }
+
+  @action.bound
+  private internalAddMiddleOffice(): void {
+    this.currentWorkspaceID = "mo";
+  }
+
+  @action.bound
+  private internalAddWorkspace(group: CurrencyGroups) {
+    const { workspaces } = this;
+    const id: string = `w${Object.keys(workspaces).length + 1}`;
+    // Create the workspace
+    workspaces[id] = new TradingWorkspaceStore(id);
+    this.isCreatingWorkspace = false;
+    this.currentWorkspaceID = id;
+    // TODO: currently not being used but could be in the future
+    //       again
+    void group;
   }
 
   @action.bound
   private loadTheme() {
     const { theme, colorScheme, font } = this.preferences;
     updateApplicationTheme(theme, colorScheme, font);
-  }
-
-  private async hydrate() {
-    const hydrate = create({
-      storage: persistStorage.workarea,
-      jsonify: true,
-    });
-    await hydrate("workarea", this);
-    // Update styles
-    this.loadTheme();
-  }
-
-  private static cleanupUrl(email: string) {
-    const { history, location } = window;
-    const base: string = `${location.protocol}//${location.host}${location.pathname}`;
-    // Replace the url with the same url but without parameters
-    history.pushState({ email }, "", base);
   }
 
   private mapSymbolsWithIds() {
@@ -277,11 +369,19 @@ export class WorkareaStore {
   }
 
   private async initializePersistStorage(user: User): Promise<void> {
+    const { persistStorage } = this;
     this.updateLoadingProgress(strings.LoadingRegions);
     // Initialize the persistStorage object
-    await persistStorage.initialize(user);
-    // Update local copy of preferences
-    await this.hydrate();
+    const savedStore = await persistStorage.read(user);
+    this.preferences = savedStore.preferences;
+    this.workspaces = savedStore.workspaces;
+    this.currentWorkspaceID = savedStore.currentWorkspaceID;
+    autorun((): void => {
+      trace();
+      const { persistStorage } = this;
+      // Save the changes in the store (and all it's children)
+      void persistStorage.persist(this.serialized);
+    });
   }
 
   private async loadSystemSymbols(): Promise<void> {
@@ -336,59 +436,7 @@ export class WorkareaStore {
     this.status = status;
   }
 
-  public async initialize(id: string) {
-    this.loadingStep = 100 / 9;
-    this.setStatus(WorkareaStatus.Starting);
-    try {
-      const user: User | undefined = await this.loadUser(id);
-      if (user === undefined) {
-        this.setStatus(WorkareaStatus.UserNotFound);
-      } else {
-        const regions: ReadonlyArray<string> = await this.loadUserRegions(
-          user.email
-        );
-        // Now the user object is complete
-        this.user = { ...user, regions };
-        // This is just for eye candy :)
-        WorkareaStore.cleanupUrl(user.email);
-        // Load the saved state
-        await this.initializePersistStorage(user);
-        // Set the loading mode
-        this.setStatus(WorkareaStatus.Initializing);
-        // Start loading stuff
-        await this.loadSystemSymbols();
-        await this.createSymbolsMap();
-        await this.loadSystemStrategies();
-        await this.loadSystemTenors();
-        await this.loadSystemBanks();
-        await this.connectToSignalR();
-
-        window.addEventListener(
-          "focus",
-          (): Promise<void> => this.connectToSignalR()
-        );
-
-        // We are done now
-        this.updateLoadingProgress(strings.Connected);
-        // Please wait until progress shows 100%
-        setTimeout(() => {
-          // Notify the user that we're done
-          this.setStatus(WorkareaStatus.Welcome);
-          // We want to show a welcome message first
-          setTimeout(() => {
-            // Switch the the normal view
-            this.setStatus(WorkareaStatus.Ready);
-          }, 800);
-        }, 0);
-      }
-    } catch (error) {
-      this.loadTheme();
-      this.setStatus(WorkareaStatus.Error);
-      console.warn(error);
-    }
-  }
-
-  private getUserAccessToWorkspace(workspace: WorkspaceDef): boolean {
+  private getUserAccessToWorkspace(workspace: TradingWorkspaceStore): boolean {
     const { roles } = this.user;
     switch (workspace.type) {
       case WorkspaceType.MiddleOffice:
@@ -401,133 +449,6 @@ export class WorkareaStore {
         return roles.includes(Role.Broker) || roles.includes(Role.Trader);
     }
     return false;
-  }
-
-  @action.bound
-  public setWorkspace(id: string) {
-    const { workspaces } = this;
-    this.workspaceAccessDenied = false;
-    this.workspaceNotFound = false;
-    const workspace: WorkspaceDef | undefined = workspaces[id];
-    if (workspace === undefined) {
-      this.workspaceNotFound = true;
-    } else if (this.getUserAccessToWorkspace(workspace)) {
-      this.currentWorkspaceID = id;
-    } else {
-      this.workspaceAccessDenied = true;
-    }
-  }
-
-  @action.bound
-  public setWorkspaceName(id: string, name: string) {
-    const { workspaces } = this;
-    if (workspaces[id] !== undefined) {
-      workspaces[id] = { ...workspaces[id], name };
-    }
-  }
-
-  @action.bound
-  public setWorkspaceModified(id: string) {
-    const { workspaces } = this;
-    const workspace: WorkspaceDef = workspaces[id];
-    if (workspace === undefined || !workspace.isDefault) return;
-    workspaces[id].isDefault = false;
-  }
-
-  @action.bound
-  public addRecentExecution(loadingMessage: Message) {
-    const { recentExecutions } = this;
-    recentExecutions.push(loadingMessage);
-  }
-
-  @action.bound
-  public setPreferences(preferences: UserPreferences) {
-    const { ccyGroup } = this.preferences;
-    this.preferences = preferences;
-    if (ccyGroup !== preferences.ccyGroup) {
-      API.getSymbols(persistStorage.getCCYGroup()).then(
-        (currencies: Symbol[]) => (this.symbols = currencies)
-      );
-    }
-  }
-
-  @action.bound
-  private internalAddMiddleOffice() {
-    const { workspaces } = this;
-    const id: string = randomID("workspaces");
-    const middleOfficesCount: number = Object.values(workspaces).reduce(
-      (count: number, workspace: WorkspaceDef) => {
-        if (workspace.type === WorkspaceType.MiddleOffice) {
-          return count + 1;
-        } else {
-          return count;
-        }
-      },
-      0
-    );
-    // Create the workspace
-    workspaces[id] = {
-      id: id,
-      isDefault: true,
-      name: `Middle Office ${middleOfficesCount + 1}`,
-      personality: STRM,
-      type: WorkspaceType.MiddleOffice,
-    };
-    this.isCreatingWorkspace = false;
-    this.currentWorkspaceID = id;
-  }
-
-  @action.bound
-  public addMiddleOffice() {
-    this.isCreatingWorkspace = true;
-    setTimeout(this.internalAddMiddleOffice, 0);
-  }
-
-  @action.bound
-  public setHasUpdates(): void {
-    this.hasUpdates = true;
-  }
-
-  @action.bound
-  public closeAccessDeniedView(): void {
-    this.workspaceAccessDenied = false;
-  }
-
-  public getWorkspaceStore(id: string): WorkspaceStore {
-    const { workspaceStores } = this;
-    if (workspaceStores[id] === undefined) {
-      workspaceStores[id] = new WorkspaceStore(id);
-    }
-    return workspaceStores[id];
-  }
-
-  public findUserByEmail(email: string): User {
-    const { users } = this;
-    const found: User | undefined = users.find((user: User): boolean => {
-      if (user.email === undefined) {
-        console.log("user with undefined email?: ", user);
-        return false;
-      } else if (email === undefined) {
-        console.log("you're attempting to find a user that has no email");
-        return false;
-      }
-      return user.email.toLowerCase() === email.toLowerCase();
-    });
-    if (found === undefined) {
-      console.warn(
-        `we tried to find \`${email}' in the list of users from the server but it's not in it`,
-        users
-      );
-      return {
-        email: "unknown user",
-        firm: "unknown firm",
-        regions: [],
-        roles: [],
-        firstname: "unknown",
-        lastname: "unknown",
-      };
-    }
-    return found;
   }
 }
 

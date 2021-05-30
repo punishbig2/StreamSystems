@@ -2,14 +2,15 @@ import { Menu, MenuItem, Typography } from "@material-ui/core";
 import { Tab } from "components/Tab";
 import { TabLabel } from "components/TabLabel";
 import config from "config";
-import workareaStore, { WorkspaceDef } from "mobx/stores/workareaStore";
+import workareaStore from "mobx/stores/workareaStore";
 
 import React, { ReactElement, useMemo, useRef, useState } from "react";
 import { Role } from "types/role";
 import { CurrencyGroups, isCurrencyGroup } from "types/user";
+import { Workspace } from "types/workspace";
 
 interface Props {
-  readonly entries: { [k: string]: WorkspaceDef };
+  readonly entries: { [k: string]: Workspace };
   readonly active: string | null;
   readonly connected: boolean;
   readonly onAddStandardWorkspace: (group: CurrencyGroups) => void;
@@ -55,7 +56,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   };
   // Map the entries to an array
   const tabs: ReactElement[] = Object.values(entries).map<ReactElement>(
-    (workspace: WorkspaceDef) => {
+    (workspace: Workspace) => {
       const onClosed = (event: React.MouseEvent) => {
         event.stopPropagation();
         event.preventDefault();
@@ -66,7 +67,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
       const label = (
         <TabLabel
           label={workspace.name}
-          isDefault={workspace.isDefault}
+          isDefault={!workspace.modified}
           onRenamed={(name: string) =>
             props.onWorkspaceRename(workspace.id, name)
           }

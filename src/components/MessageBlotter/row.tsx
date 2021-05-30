@@ -1,5 +1,5 @@
 import { BlotterTypes } from "columns/messageBlotter";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { getCellWidth } from "components/Table/helpers";
 import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
 import { DarkPool } from "types/w";
@@ -13,7 +13,7 @@ export enum BlotterRowTypes {
 }
 
 interface Props {
-  readonly columns: ColumnSpec[];
+  readonly columns: TableColumn[];
   readonly row: { [key: string]: any } | null;
   readonly weight: number;
   readonly type: BlotterRowTypes;
@@ -76,7 +76,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     };
   }, [ExecID, blotterType]);
   const columnMapper = (rowID: string) => (
-    column: ColumnSpec
+    column: TableColumn
   ): ReactElement => {
     const style: CSSProperties = {
       width: getCellWidth(column.width, props.totalWidth),

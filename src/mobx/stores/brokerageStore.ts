@@ -39,16 +39,16 @@ export class BrokerageStore {
     promise.then(convertToCommissionRatesArray).then(this.setCommissionRates);
   }
 
-  @action.bound
-  private setCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
-    this.commissionRates = rates;
-  }
-
   public installListener(): () => void {
     const user: User = workareaStore.user;
     return signalRManager.addCommissionRatesListener(
       user.firm,
       this.setCommissionRates
     );
+  }
+
+  @action.bound
+  private setCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
+    this.commissionRates = rates;
   }
 }

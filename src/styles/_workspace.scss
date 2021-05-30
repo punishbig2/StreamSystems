@@ -32,13 +32,12 @@
   overflow: hidden;
 
   cib-window-manager {
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   cib-window {
     background-color: $background-color;
-    border: 1px solid $table-border-color;
+    outline: 1px solid $table-border-color;
     box-sizing: content-box;
 
     &:hover {
@@ -59,6 +58,7 @@
       max-height: $title-bar-height + 1;
       min-height: 0;
       border-bottom: 1px solid $table-border-color;
+
       .window-title-bar {
         @keyframes glow {
           0% {
@@ -98,15 +98,9 @@
       }
     }
 
-    &[scroll-y] {
+    &[scrollable] {
       .window-content {
         overflow-y: hidden;
-      }
-    }
-
-    &[scroll-x] {
-      .window-content {
-        overflow-x: hidden;
       }
     }
 

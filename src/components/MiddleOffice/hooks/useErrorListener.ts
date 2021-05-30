@@ -9,9 +9,7 @@ export const useErrorListener = (
 ) => {
   useEffect(() => {
     const listener = (event: any) => {
-      const customEvent: CustomEvent<MOErrorMessage> = event as CustomEvent<
-        MOErrorMessage
-      >;
+      const customEvent: CustomEvent<MOErrorMessage> = event as CustomEvent<MOErrorMessage>;
       setError(customEvent.detail);
     };
     document.addEventListener(ON_MIDDLE_OFFICE_ERROR, listener);

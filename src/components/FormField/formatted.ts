@@ -15,27 +15,20 @@ export abstract class FormattedInput<
   S extends Editable
 > extends InputHandler<T, P, S> {
   public abstract parse(value: string, props: P): any;
+
   public abstract format(value: any, props: P): [string, Validity];
+
   public abstract onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
     state: S
   ): StateReturnType<S>;
+
   public abstract shouldAcceptInput(
     input: HTMLInputElement,
     props: P,
     state: S
   ): boolean;
-
-  private countFormattingCharacters = (display: string | null): number => {
-    if (display === null || display === undefined) return 0;
-    try {
-      const stringified: string = display.replace(/[^0-9]+/g, "");
-      return display.length - stringified.length;
-    } catch (error) {
-      return 0;
-    }
-  };
 
   public createValue(
     value: any,
@@ -91,4 +84,14 @@ export abstract class FormattedInput<
   public endAdornment(): string {
     return "";
   }
+
+  private countFormattingCharacters = (display: string | null): number => {
+    if (display === null || display === undefined) return 0;
+    try {
+      const stringified: string = display.replace(/[^0-9]+/g, "");
+      return display.length - stringified.length;
+    } catch (error) {
+      return 0;
+    }
+  };
 }

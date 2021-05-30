@@ -3,10 +3,9 @@ import { MoStore } from "mobx/stores/moStore";
 import { DealType } from "structures/dealEntry";
 import { BrokerageCommission } from "types/brokerageCommission";
 
-export const fields: ReadonlyArray<FieldDef<
-  BrokerageCommission,
-  BrokerageCommission
->> = [
+export const fields: ReadonlyArray<
+  FieldDef<BrokerageCommission, BrokerageCommission>
+> = [
   {
     label: "Buyer Brokerage Rate",
     color: "grey",

@@ -4,8 +4,10 @@ declare global {
   interface Event {
     swallow(): void;
   }
+
   interface HTMLElement {
     addClass(name: string): void;
+
     removeClass(name: string): void;
   }
 }

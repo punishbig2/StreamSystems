@@ -1,5 +1,5 @@
 import { Cell } from "components/Table/Cell";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { User } from "types/user";
@@ -9,7 +9,7 @@ import { getCellWidth } from "components/Table/helpers";
 
 interface OwnProps {
   id: string;
-  columns: ColumnSpec[];
+  columns: TableColumn[];
   user?: User;
   fixedRow?: PodRow;
   width: number;
@@ -35,7 +35,7 @@ const Row: React.FC<OwnProps & RowState> = (
       }
       data-row-number={props.rowNumber}
     >
-      {columns.map((column: ColumnSpec, index: number) => {
+      {columns.map((column: TableColumn, index: number) => {
         const width: string = getCellWidth(column.width, totalWidth);
         const name: string = column.name;
         return (

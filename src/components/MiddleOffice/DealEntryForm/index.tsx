@@ -62,9 +62,9 @@ export const DealEntryForm: React.FC<Props> = (
     ];
   }, [symbol]);
 
-  const fieldsRef: React.MutableRefObject<ReadonlyArray<
-    FieldDef<DealEntry, DealEntry, MoStore>
-  >> = useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>>>(
+  const fieldsRef: React.MutableRefObject<
+    ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>>
+  > = useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>>>(
     originalFields
   );
 

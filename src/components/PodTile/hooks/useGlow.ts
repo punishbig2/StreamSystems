@@ -5,7 +5,7 @@ import { Order, OrderStatus } from "types/order";
 import { W } from "types/w";
 
 export const useGlow = (
-  litPool: { [tenor: string]: Order[] },
+  litPool: { [tenor: string]: ReadonlyArray<Order> },
   darkPool: { [tenor: string]: W }
 ): boolean => {
   return React.useMemo((): boolean => {

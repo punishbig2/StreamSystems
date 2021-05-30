@@ -9,23 +9,23 @@ import { ModalWindow } from "components/ModalWindow";
 import { PodTile } from "components/PodTile";
 import { PodTileTitle } from "components/PodTile/title";
 import { ProgressView } from "components/progressView";
-import { WindowManager } from "components/WindowManager";
+import { ReactTileManager } from "components/ReactTileManager";
 import { UserProfileModal } from "components/Workspace/UserProfile";
 import strings from "locales";
 import { observer } from "mobx-react";
-import { MessagesStore } from "mobx/stores/messagesStore";
-import { PodTileStore } from "mobx/stores/podTileStore";
-import workareaStore, { WindowTypes } from "mobx/stores/workareaStore";
+import { ContentStore, isPodTileStore } from "mobx/stores/contentStore";
 import {
-  WorkspaceStore,
+  TradingWorkspaceStore,
   WorkspaceStoreContext,
-} from "mobx/stores/workspaceStore";
+} from "mobx/stores/tradingWorkspaceStore";
+import workareaStore, { isTradingWorkspace } from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { Product } from "types/product";
 import { Role } from "types/role";
 import { SelectEventData } from "types/selectEventData";
 import { Symbol } from "types/symbol";
+import { TileType } from "types/tileType";
 import { User } from "types/user";
 
 interface Props {
@@ -37,8 +37,11 @@ interface Props {
   readonly isDefault: boolean;
   readonly visible: boolean;
   readonly onModify: (id: string) => void;
-  readonly store: WorkspaceStore;
 }
+
+const NotPodStoreError = new Error(
+  "invalid type of content store for pod tile"
+);
 
 const useDropdownStyles = makeStyles({
   root: {
@@ -49,15 +52,18 @@ const useDropdownStyles = makeStyles({
 
 export const TradingWorkspace: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const { id, store } = props;
+    const { id } = props;
     const dropdownClasses = useDropdownStyles();
     const user: User = workareaStore.user;
     const isBroker: boolean = useMemo((): boolean => {
       const { roles } = user;
       return roles.includes(Role.Broker);
     }, [user]);
+    const store = React.useContext<TradingWorkspaceStore>(
+      WorkspaceStoreContext
+    );
+    if (!isTradingWorkspace(store)) throw new Error("invalid store type");
 
-    if (store === null) return null;
     const onPersonalityChange = ({
       target,
     }: React.ChangeEvent<SelectEventData>) => {
@@ -110,65 +116,48 @@ export const TradingWorkspace: React.FC<Props> = observer(
 
     const onAddPodTile = () => {
       props.onModify(id);
-      store.addWindow(WindowTypes.PodTile);
+      if (typeof store.addTile === "function") {
+        store.addTile(TileType.PodTile);
+      }
     };
 
     const onAddMessageBlotterTile = () => {
       props.onModify(id);
-      store.addWindow(WindowTypes.MessageBlotter);
+      store.addTile(TileType.MessageBlotter);
     };
 
-    const getContentRenderer = (id: string, type: WindowTypes) => {
+    const getContentRenderer = (id: string, type: TileType) => {
       switch (type) {
-        case WindowTypes.PodTile:
-          return (
-            contentProps: any,
-            contentStore: PodTileStore | MessagesStore | null
-          ) => {
-            if (contentStore instanceof PodTileStore) {
+        case TileType.PodTile:
+          return (contentStore: ContentStore | null) => {
+            if (isPodTileStore(contentStore)) {
               return (
                 <PodTile
                   id={id}
                   store={contentStore}
                   currencies={props.currencies}
                   tenors={props.tenors}
-                  connected={contentProps.connected}
-                  scrollable={contentProps.scrollable}
                 />
               );
             } else {
-              throw new Error("invalid type of store specified");
+              throw NotPodStoreError;
             }
           };
-        case WindowTypes.MessageBlotter:
-          return (
-            contentProps: any,
-            contentStore: PodTileStore | MessagesStore | null
-          ) => {
-            if (contentStore instanceof MessagesStore) {
-              return (
-                <MessageBlotter
-                  id={id}
-                  blotterType={BlotterTypes.Regular}
-                  {...contentProps}
-                />
-              );
-            } else {
-              throw new Error("invalid type of store specified");
-            }
+        case TileType.MessageBlotter:
+          return () => {
+            return (
+              <MessageBlotter id={id} blotterType={BlotterTypes.Regular} />
+            );
           };
       }
       throw new Error("invalid type of window specified");
     };
 
-    const getTitleRenderer = (id: string, type: WindowTypes) => {
+    const getTitleRenderer = (id: string, type: TileType) => {
       switch (type) {
-        case WindowTypes.PodTile:
-          return (
-            contentProps: any,
-            contentStore: PodTileStore | MessagesStore | null
-          ) => {
-            if (contentStore instanceof PodTileStore) {
+        case TileType.PodTile:
+          return (contentStore: ContentStore | null) => {
+            if (isPodTileStore(contentStore)) {
               return (
                 <PodTileTitle
                   strategies={contentStore.strategies}
@@ -177,10 +166,10 @@ export const TradingWorkspace: React.FC<Props> = observer(
                 />
               );
             } else {
-              throw new Error("invalid type of store specified");
+              throw NotPodStoreError;
             }
           };
-        case WindowTypes.MessageBlotter:
+        case TileType.MessageBlotter:
           return () => <h1>Blotter</h1>;
       }
       return () => null;
@@ -190,13 +179,13 @@ export const TradingWorkspace: React.FC<Props> = observer(
       return (
         <WorkspaceStoreContext.Provider value={store}>
           <div className={"workspace"}>
-            <WindowManager
-              windows={store.windows}
+            <ReactTileManager
+              tiles={store.tiles}
               getTitleRenderer={getTitleRenderer}
               getContentRenderer={getContentRenderer}
               isDefaultWorkspace={props.isDefault}
               onLayoutModify={(): void => props.onModify(id)}
-              onWindowClose={store.removeWindow}
+              onWindowClose={store.removeTile}
             />
             <ModalWindow
               render={() => (
@@ -213,7 +202,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
       );
     };
 
-    if (!!store.busyMessage) {
+    if (store.loading) {
       return (
         <ProgressView
           value={store.progress}

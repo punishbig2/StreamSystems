@@ -1,5 +1,4 @@
 import { ModelParameters } from "mobx/stores/moStore";
-import { LegAdjustValue } from "types/legAdjustValue";
 
 export interface OptionLeg {
   readonly strike?: string | number | null;

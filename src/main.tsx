@@ -3,6 +3,7 @@ import { Workarea } from "components/Workarea";
 import { WorkareaError } from "components/Workarea/workareaError";
 import { useSignOutOnIdleTimeout } from "hooks/useSignOutOnIdleTimeout";
 import { observer } from "mobx-react";
+import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import { themeStore } from "mobx/stores/themeStore";
 import React, { useEffect, useState } from "react";
 import { createTheme } from "styles/theme";
@@ -32,14 +33,16 @@ const FXOptionsUI: React.FC = observer(
     if (inadequateScreen) {
       return (
         <MuiThemeProvider theme={createTheme(theme)}>
-          <WorkareaError
-            title={"Your screen is too small to display this application"}
-            detail={
-              `Please try to run this application on a window with more than ${MIN_SCREEN_WIDTH}px` +
-              " of width (it should match your resolution unless you have scaling enabled)"
-            }
-            shouldReload={false}
-          />
+          <MessagesStoreContext.Provider value={new MessagesStore()}>
+            <WorkareaError
+              title={"Your screen is too small to display this application"}
+              detail={
+                `Please try to run this application on a window with more than ${MIN_SCREEN_WIDTH}px` +
+                " of width (it should match your resolution unless you have scaling enabled)"
+              }
+              shouldReload={false}
+            />
+          </MessagesStoreContext.Provider>
         </MuiThemeProvider>
       );
     }

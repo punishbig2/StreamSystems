@@ -138,8 +138,6 @@ export class Order {
     this.timestamp = Math.floor(Date.now() / 1000);
   }
 
-  public uid = () => $$(this.symbol, this.strategy, this.tenor);
-
   public static fromOrderMessage = (
     entry: OrderMessage,
     email: string,
@@ -220,4 +218,6 @@ export class Order {
     // Now return the built order
     return order;
   };
+
+  public uid = () => $$(this.symbol, this.strategy, this.tenor);
 }

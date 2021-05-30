@@ -13,7 +13,7 @@ export const getSoundFile = async (name: string) => {
 
 export const playBeep = async (
   preferences: UserPreferences,
-  destination: string | undefined,
+  destination: string | undefined
 ) => {
   const src: string = await (async () => {
     if (destination === "DP") {

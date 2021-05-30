@@ -2,14 +2,15 @@ import { API, Task } from "API";
 import { RunRowProxy } from "components/Run/helpers/runRowProxy";
 import { Row } from "components/Run/row";
 import { Table } from "components/Table";
+import { defaultTableColumnStateMapper } from "components/Table/tableColumn";
+import strings from "locales";
+import { observer } from "mobx-react";
+import { RunWindowStore } from "mobx/stores/runWindowStore";
+import React, { ReactElement, useEffect, useMemo } from "react";
 import { Width } from "types/brokerageWidths";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
-import strings from "locales";
-import React, { ReactElement, useEffect, useMemo } from "react";
-import { RunWindowStore } from "mobx/stores/runWindowStore";
-import { observer } from "mobx-react";
 import { createColumnsWithStore } from "./columnCreator";
 
 interface OwnProps {
@@ -22,7 +23,7 @@ interface OwnProps {
   readonly onSubmit: (entries: ReadonlyArray<Order>) => void;
   readonly minimumSize: number;
   readonly defaultSize: number;
-  readonly orders: { [tenor: string]: Order[] };
+  readonly orders: { [tenor: string]: ReadonlyArray<Order> };
 }
 
 const Run: React.FC<OwnProps> = observer(
@@ -172,9 +173,7 @@ const Run: React.FC<OwnProps> = observer(
           </div>
         </div>
         <Table
-          id={`${props.symbol}${props.strategy}-run`}
-          scrollable={false}
-          columns={columns}
+          columns={columns.map(defaultTableColumnStateMapper)}
           rows={rows}
           renderRow={renderRow}
           className={(store.isLoading ? "loading" : "") + " run-table"}

@@ -63,7 +63,7 @@ export const valueChange = (
     ) {
       return true;
     }
-    return !!(
+    return (
       type !== RunActions.Ofr &&
       (ofr.status & OrderStatus.Cancelled) !== 0 &&
       (ofr.status & OrderStatus.PriceEdited) === 0 &&

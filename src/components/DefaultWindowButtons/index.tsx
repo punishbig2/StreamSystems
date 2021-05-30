@@ -4,14 +4,17 @@ interface Props {
   readonly onClose?: () => void;
   readonly onMinimize?: () => void;
   readonly onResizeToContent?: () => void;
+  readonly resizeable: boolean;
 }
 
 export const DefaultWindowButtons: React.FC<Props> = (props: Props) => {
   return (
     <div className={"window-buttons"}>
-      <button className={"fit"} onClick={props.onResizeToContent}>
-        <i className={"fa fa-compress"} />
-      </button>
+      {props.resizeable && (
+        <button className={"fit"} onClick={props.onResizeToContent}>
+          <i className={"fa fa-compress"} />
+        </button>
+      )}
       <button className={"minimize"} onClick={props.onMinimize}>
         <i className={"fa fa-minus"} />
       </button>

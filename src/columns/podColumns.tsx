@@ -3,7 +3,7 @@ import { DarkPoolColumn } from "columns/podColumns/darkPoolColumn";
 import { FirmColumn } from "columns/podColumns/firmColumn";
 import { OrderColumnWrapper } from "columns/podColumns/orderColumnWrapper";
 import { TenorColumn } from "columns/podColumns/tenorColumn";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
@@ -67,7 +67,7 @@ const columns = (
   currency: string,
   strategy: string,
   depth: boolean = false
-): ColumnSpec[] => {
+): TableColumn[] => {
   const user: User = workareaStore.user;
   const { roles } = user;
   const isBroker: boolean = roles.includes(Role.Broker);

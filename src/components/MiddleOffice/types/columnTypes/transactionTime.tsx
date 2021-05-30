@@ -1,12 +1,11 @@
-
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/types/deal";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
 import { DateFormatter, TimeFormatter } from "utils/timeUtils";
 
-export default (width: number = 6): ColumnSpec => ({
+export default (width: number = 6): TableColumn => ({
   name: "TransactTime",
   template: "MM/DD/YYYY 00:00:00 pm",
   header: () => "Time",

@@ -127,7 +127,7 @@ $spinner-size: $table-row-height - 6;
             top: 0;
             height: $table-header-height;
             line-height: $table-header-height;
-            right: 2px;
+            right: 4px;
             text-align: center;
 
             &:hover {
@@ -139,7 +139,7 @@ $spinner-size: $table-row-height - 6;
         input.filter {
           width: 100%;
           border: none;
-          height: $table-header-height;
+          height: $table-header-height - 3;
           padding: 0 4px;
           outline: none;
           background-color: lighten($background-color, 2%);
@@ -197,9 +197,11 @@ $spinner-size: $table-row-height - 6;
             .size {
               width: 40%;
               line-height: $table-header-height;
+
               &:first-child {
                 border-right: 1px solid $table-border-color;
               }
+
               &:last-child {
                 border-left: 1px solid $table-border-color;
               }

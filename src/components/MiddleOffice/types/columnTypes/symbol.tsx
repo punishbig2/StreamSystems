@@ -1,11 +1,11 @@
 import React, { ReactElement } from "react";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
 import { SymbolCell } from "../cells/symbol";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
-export default (sortable: boolean): ColumnSpec => ({
+export default (sortable: boolean): TableColumn => ({
   name: "Currency",
   template: "  XXXXXX  ",
   filterable: true,
@@ -14,7 +14,7 @@ export default (sortable: boolean): ColumnSpec => ({
   render: (props: CellProps): ReactElement | null => {
     const { deal } = props;
     if (deal === null) {
-      return <SymbolCell deal={deal}/>;
+      return <SymbolCell deal={deal} />;
     }
     return <span>{deal.currencyPair}</span>;
   },

@@ -26,23 +26,30 @@ export abstract class InputHandler<
     props: P,
     state: S
   ): StateReturnType<S>;
+
   public abstract createValue(
     value: any,
     input: HTMLInputElement | null,
     props: P,
     state: S
   ): StateReturnType<S>;
+
   public abstract format(value: any, props: P): [string, Validity];
+
   public abstract parse(value: string, props: P): any;
+
   public abstract shouldAcceptInput(
     input: HTMLInputElement,
     props: P,
     state: S
   ): boolean;
+
   public reset(props: P) {}
+
   public startAdornment(): string {
     return "";
   }
+
   public endAdornment(): string {
     return "";
   }

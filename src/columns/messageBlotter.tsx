@@ -1,6 +1,6 @@
 import { CellProps } from "columns/messageBlotterColumns/cellProps";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { Globals } from "golbals";
 import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
@@ -25,11 +25,12 @@ import workareaStore from "../mobx/stores/workareaStore";
 import { involved } from "./messageBlotterColumns/helpers";
 
 export enum BlotterTypes {
+  None,
   Executions,
   Regular,
 }
 
-const tenor = (sortable: boolean): ColumnSpec => ({
+const tenor = (sortable: boolean): TableColumn => ({
   name: "Tenor",
   template: "XXXXX",
   filterable: true,
@@ -47,7 +48,7 @@ const tenor = (sortable: boolean): ColumnSpec => ({
   },
 });
 
-const symbol = (sortable: boolean): ColumnSpec => ({
+const symbol = (sortable: boolean): TableColumn => ({
   name: "Currency",
   template: "  XXXXXX  ",
   filterable: true,
@@ -68,7 +69,7 @@ const symbol = (sortable: boolean): ColumnSpec => ({
   },
 });
 
-const strategy = (sortable: boolean): ColumnSpec => ({
+const strategy = (sortable: boolean): TableColumn => ({
   name: "Strategy",
   template: "WWWWWW",
   filterable: true,
@@ -89,7 +90,7 @@ const strategy = (sortable: boolean): ColumnSpec => ({
   },
 });
 
-const trader = (sortable: boolean): ColumnSpec => ({
+const trader = (sortable: boolean): TableColumn => ({
   name: "Trader",
   template: "some_trader@email.com",
   filterable: true,
@@ -121,7 +122,7 @@ const trader = (sortable: boolean): ColumnSpec => ({
   },
 });
 
-const price = (sortable: boolean): ColumnSpec => ({
+const price = (sortable: boolean): TableColumn => ({
   name: "Price",
   template: "999999.99",
   filterable: true,
@@ -146,7 +147,7 @@ const getSide = (message: Message): "Buy" | "Sell" => {
   return message.Side === "1" ? "Buy" : "Sell";
 };
 
-const side = (sortable: boolean, flip = false): ColumnSpec => ({
+const side = (sortable: boolean, flip = false): TableColumn => ({
   name: "Side",
   template: "SELL",
   filterable: true,
@@ -167,7 +168,7 @@ const side = (sortable: boolean, flip = false): ColumnSpec => ({
   },
 });
 
-const size = (sortable: boolean): ColumnSpec => ({
+const size = (sortable: boolean): TableColumn => ({
   name: "Size",
   template: "999999",
   filterable: true,
@@ -188,44 +189,7 @@ const size = (sortable: boolean): ColumnSpec => ({
   },
 });
 
-/*const buyerOrSeller = (
-  sortable: boolean,
-  type: "buyer" | "seller"
-): ColumnSpec => ({
-  name: type,
-  difference: (m1: any, m2: any) => {
-    const s1: string | null = getBuyer(m1);
-    const s2: string | null = getBuyer(m2);
-    if (s1 === null) return Number.MIN_SAFE_INTEGER;
-    if (s2 === null) return Number.MAX_SAFE_INTEGER;
-    return s1.localeCompare(s2);
-  },
-  filterByKeyword: (message: Message, keyword: string) => {
-    const buyer: string | null = getBuyer(message);
-    if (buyer === null) return false;
-    return buyer.includes(keyword.toLowerCase());
-  },
-  header: () => type.substr(0, 1) + type.substr(1),
-  render: ({ message }: CellProps): string | null => {
-    const user: User = workareaStore.user;
-    const personality: string = workareaStore.personality;
-    const { roles } = user;
-    const isBroker: boolean = roles.includes(Role.Broker);
-    if (
-      message.Username !== user.email &&
-      (message.MDMkt === user.firm || message.MDMkt !== personality) &&
-      !isBroker
-    )
-      return null;
-    return type === "buyer" ? getBuyer(message) : getSeller(message);
-  },
-  filterable: true,
-  sortable: sortable,
-  template: "BUYER",
-  width: 2,
-});*/
-
-const transactTime = (): ColumnSpec => ({
+const transactTime = (): TableColumn => ({
   name: "TransactTime",
   template: "MM/DD/YYYY 00:00:00 pm",
   header: () => "Time",
@@ -284,7 +248,7 @@ const transactType = (sortable: boolean) => ({
 const counterParty = (
   sortable: boolean,
   isExecBlotter: boolean
-): ColumnSpec => ({
+): TableColumn => ({
   name: "CPTY",
   template: "WWWWWW",
   filterable: true,
@@ -324,7 +288,7 @@ const counterParty = (
   },
 });
 
-const pool = (sortable: boolean): ColumnSpec => ({
+const pool = (sortable: boolean): TableColumn => ({
   name: "pool",
   difference: function (p1: any, p2: any) {
     return 0;
@@ -347,7 +311,7 @@ const pool = (sortable: boolean): ColumnSpec => ({
   width: 3,
 });
 
-const columns: (type: BlotterTypes) => { [key: string]: ColumnSpec[] } = (
+const columns: (type: BlotterTypes) => { [key: string]: TableColumn[] } = (
   type: BlotterTypes
 ) => {
   const notExecutionsBlotter: boolean = type !== BlotterTypes.Executions;

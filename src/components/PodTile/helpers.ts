@@ -21,14 +21,14 @@ export const orderSorter = (type: OrderTypes) => {
 };
 
 export const convertToDepth = (
-  orders: Order[],
+  orders: ReadonlyArray<Order>,
   tenor: string | null
 ): PodTable => {
   if (orders === undefined || tenor === null) return {};
-  const bids: Order[] = orders.filter(
+  const bids: Array<Order> = orders.filter(
     (order: Order) => order.type === OrderTypes.Bid && order.size !== null
   );
-  const ofrs: Order[] = orders.filter(
+  const ofrs: Array<Order> = orders.filter(
     (order: Order) => order.type === OrderTypes.Ofr && order.size !== null
   );
   // Sort them

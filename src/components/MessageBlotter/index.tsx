@@ -1,52 +1,58 @@
-import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
+import { BlotterTypes } from "columns/messageBlotter";
 import { renderRowFactory } from "components/MessageBlotter/helpers";
 import { Table } from "components/Table";
-import { ColumnSpec } from "components/Table/columnSpecification";
 import { observer } from "mobx-react";
-import store from "mobx/stores/messagesStore";
+import {
+  MessageBlotterStore,
+  MessageBlotterStoreContext,
+} from "mobx/stores/messageBlotterStore";
+import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { useMemo } from "react";
 import { Message } from "types/message";
-import { Role } from "types/role";
 
 interface OwnProps {
   id: string;
   blotterType: BlotterTypes;
-  scrollable?: boolean;
-  ref?: React.Ref<HTMLDivElement>;
 }
 
 type Props = OwnProps;
 
-const MessageBlotter: React.FC<Props> = observer((props: Props) => {
-  const { blotterType } = props;
-  const messages: ReadonlyArray<Message> =
-    blotterType === BlotterTypes.Executions
-      ? store.executions
-      : store.myMessages;
-  const { user } = workareaStore;
-  const isBroker: boolean = useMemo((): boolean => {
-    const { roles } = user;
-    return roles.includes(Role.Broker);
-  }, [user]);
-  const columnsMap: { [key: string]: ColumnSpec[] } = useMemo(
-    () => messageBlotterColumns(blotterType),
-    [blotterType]
+export const MessageBlotter: React.FC<Props> = observer((props: Props) => {
+  const messagesStore: MessagesStore = React.useContext<MessagesStore>(
+    MessagesStoreContext
   );
-  const columns: ColumnSpec[] = useMemo(() => {
-    return isBroker ? columnsMap.broker : columnsMap.normal;
-  }, [columnsMap.broker, columnsMap.normal, isBroker]);
+  const store = React.useContext<MessageBlotterStore>(
+    MessageBlotterStoreContext
+  );
+  const { user } = workareaStore;
+  const { executions, myMessages } = messagesStore;
+  const { blotterType } = props;
+
+  const messages: ReadonlyArray<Message> = React.useMemo(
+    (): ReadonlyArray<Message> =>
+      blotterType === BlotterTypes.Executions ? executions : myMessages,
+    [blotterType, executions, myMessages]
+  );
+
   const renderRow = useMemo(() => renderRowFactory(blotterType), [blotterType]);
+
+  React.useEffect((): void => {
+    store.setOwner(user);
+    store.setRows(messages);
+  }, [store, messages, user]);
+
   return (
     <Table
-      id={`${props.id}-tbl`}
-      scrollable={!!props.scrollable}
-      columns={columns}
-      rows={messages}
+      columns={store.columns}
+      rows={store.rows}
       renderRow={renderRow}
       allowReorderColumns={true}
+      onFiltered={(columnName, value) => store.filterBy(columnName, value)}
+      onSortBy={(columnName) => store.sortBy(columnName)}
+      onColumnsOrderChange={(sourceIndex, targetIndex) =>
+        store.updateColumnsOrder(sourceIndex, targetIndex)
+      }
     />
   );
 });
-
-export { MessageBlotter };

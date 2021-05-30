@@ -1,36 +1,28 @@
+import { API } from "API";
 import { involved } from "columns/messageBlotterColumns/helpers";
+import { action, computed, observable } from "mobx";
+import workareaStore from "mobx/stores/workareaStore";
+import React from "react";
+import signalRManager from "signalR/signalRManager";
 import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
-import { observable, action, computed } from "mobx";
-import { API } from "API";
-import signalRManager from "signalR/signalRManager";
-import workareaStore from "mobx/stores/workareaStore";
 import { Role } from "types/role";
-import { User } from "types/user";
 import { Symbol } from "types/symbol";
+import { TileType } from "types/tileType";
+import { User } from "types/user";
 import {
   isAcceptableFill,
-  sortByTimeDescending,
   isMyMessage,
+  sortByTimeDescending,
 } from "utils/messageUtils";
 
 export class MessagesStore {
-  private entries: ReadonlyArray<Message> = [];
   @observable.ref myMessages: ReadonlyArray<Message> = [];
   @observable.ref allExecutions: ReadonlyArray<Message> = [];
   @observable loading: boolean = false;
   @observable ccyGroupFilter = "All";
-
-  private static normalExecutionsFilter(
-    executions: ReadonlyArray<Message>
-  ): ReadonlyArray<Message> {
-    const { roles } = workareaStore.user;
-    if (roles.includes(Role.Broker) && workareaStore.personality !== STRM) {
-      return executions.filter(involved);
-    } else {
-      return executions;
-    }
-  }
+  public readonly kind: TileType = TileType.MessageBlotter;
+  private entries: ReadonlyArray<Message> = [];
 
   @computed
   public get executions(): ReadonlyArray<Message> {
@@ -52,6 +44,17 @@ export class MessagesStore {
       );
     } else {
       return MessagesStore.normalExecutionsFilter(allExecutions);
+    }
+  }
+
+  private static normalExecutionsFilter(
+    executions: ReadonlyArray<Message>
+  ): ReadonlyArray<Message> {
+    const { roles } = workareaStore.user;
+    if (roles.includes(Role.Broker) && workareaStore.personality !== STRM) {
+      return executions.filter(involved);
+    } else {
+      return executions;
     }
   }
 
@@ -120,4 +123,6 @@ export class MessagesStore {
   }
 }
 
-export default new MessagesStore();
+export const MessagesStoreContext = React.createContext<MessagesStore>(
+  new MessagesStore()
+);

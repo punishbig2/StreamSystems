@@ -69,19 +69,17 @@ const initialState: State = {
 };
 
 export class FormField<T> extends PureComponent<Props<T>, State> {
-  private input: HTMLInputElement | null = null;
-  private inputHandlers: {
-    [key in FieldType]?: InputHandler<T, Props<T>, State>;
-  } = {};
-  private readonly defaultHandler: InputHandler<T, Props<T>, State>;
-
   static defaultProps = {
     precision: 0,
     emptyValue: "",
     disabled: false,
   };
-
   public state: State = { ...initialState };
+  private input: HTMLInputElement | null = null;
+  private inputHandlers: {
+    [key in FieldType]?: InputHandler<T, Props<T>, State>;
+  } = {};
+  private readonly defaultHandler: InputHandler<T, Props<T>, State>;
 
   constructor(props: Props<T>) {
     super(props);
@@ -145,6 +143,30 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       this.ensureCaretIsInPlace();
     }
   };
+
+  public render(): ReactElement {
+    const { tooltip, tooltipStyle = "neutral", name } = this.props;
+    const { internalValue } = this.state;
+    const content: ReactElement | null = this.content();
+    const extraClass: ReadonlyArray<string> =
+      name === "status" ? [toClassName(internalValue)] : [];
+    if (typeof tooltip !== "function") {
+      return <div className={this.getClassName(...extraClass)}>{content}</div>;
+    } else {
+      const tooltipString: string | null = tooltip();
+      if (tooltipString === null) {
+        return (
+          <div className={this.getClassName(...extraClass)}>{content}</div>
+        );
+      } else {
+        return (
+          <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
+            <div className={this.getClassName(...extraClass)}>{content}</div>
+          </CustomTooltip>
+        );
+      }
+    }
+  }
 
   private setInputRef = (input: HTMLInputElement): void => {
     this.input = input;
@@ -512,28 +534,4 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
       return null;
     }
   };
-
-  public render(): ReactElement {
-    const { tooltip, tooltipStyle = "neutral", name } = this.props;
-    const { internalValue } = this.state;
-    const content: ReactElement | null = this.content();
-    const extraClass: ReadonlyArray<string> =
-      name === "status" ? [toClassName(internalValue)] : [];
-    if (typeof tooltip !== "function") {
-      return <div className={this.getClassName(...extraClass)}>{content}</div>;
-    } else {
-      const tooltipString: string | null = tooltip();
-      if (tooltipString === null) {
-        return (
-          <div className={this.getClassName(...extraClass)}>{content}</div>
-        );
-      } else {
-        return (
-          <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
-            <div className={this.getClassName(...extraClass)}>{content}</div>
-          </CustomTooltip>
-        );
-      }
-    }
-  }
 }

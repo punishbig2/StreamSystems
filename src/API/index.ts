@@ -113,9 +113,9 @@ enum PromiseStatus {
 }
 
 interface TaskHandler<T> {
-  reject(reason: any): void;
-
   status: PromiseStatus;
+
+  reject(reason: any): void;
 }
 
 // Special type to exclude 1 type from a set of types
@@ -935,87 +935,6 @@ export class API {
     return task.execute();
   }
 
-  private static createDealRequest(
-    entry: DealEntry,
-    changed: string[]
-  ): ServerDealQuery {
-    const user: User = workareaStore.user;
-    const { symbol, strategy, tenor1, tenor2 } = entry;
-    if (isInvalidTenor(tenor1))
-      throw new Error("cannot build deal query without at least 1 tenor");
-    return {
-      linkid: getDealId(entry),
-      tenor: tenor1.name,
-      tenor1: isTenor(tenor2) ? tenor2.name : null,
-      strategy: strategy.productid,
-      symbol: symbol.symbolID,
-      spread: entry.spread,
-      vol: entry.vol,
-      lastqty: entry.size,
-      notional1: entry.not2 !== undefined ? entry.not2 : null,
-      size: entry.size,
-      lvsqty: "0",
-      cumqty: "0",
-      transacttime: toUTCFIXFormat(new Date()),
-      buyerentitycode: resolveBankToEntity(entry.buyer),
-      sellerentitycode: resolveBankToEntity(entry.seller),
-      buyer: resolveEntityToBank(entry.buyer),
-      seller: resolveEntityToBank(entry.seller),
-      useremail: user.email,
-      strike: entry.dealstrike,
-      expirydate: toUTCFIXFormat(tenor1.expiryDate),
-      expirydate1: isTenor(tenor2) ? toUTCFIXFormat(tenor2.expiryDate) : null,
-      deltastyle: entry.deltastyle,
-      premstyle: entry.premstyle,
-      style: entry.style,
-      model: entry.model,
-      legadj: entry.legadj,
-      buyer_comm: entry.buyer_comm,
-      buyer_comm_rate: entry.buyer_comm_rate,
-      seller_comm: entry.seller_comm,
-      seller_comm_rate: entry.seller_comm_rate,
-      product_fields_changed: changed,
-      ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
-    };
-  }
-
-  private static async saveLegs(
-    dealID: string,
-    legs: ReadonlyArray<Leg>,
-    summaryLeg: SummaryLeg | null
-  ): Promise<string> {
-    const { user } = workareaStore;
-    const allLegs = [
-      ...(summaryLeg
-        ? summaryLeg.dealOutput
-          ? [{ ...summaryLeg.dealOutput, option: "SumLeg" }]
-          : []
-        : []),
-      ...legs,
-    ];
-    const mappedLegs: ReadonlyArray<Leg> = allLegs.map(
-      (leg: Leg): Leg => {
-        const { strike, fwdPts } = leg;
-        return {
-          ...leg,
-          ...(fwdPts !== null && fwdPts !== undefined
-            ? { fwdPts: floatAsString(fwdPts) }
-            : {}),
-          ...(!!strike
-            ? { strike: floatAsString(numberifyIfPossible(strike)) }
-            : {}),
-        };
-      }
-    );
-    console.log(moStore.legs, mappedLegs);
-    const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
-      dealId: dealID,
-      useremail: user.email,
-      legs: mappedLegs,
-    });
-    return task.execute();
-  }
-
   public static async stpSendReport(dealID: string): Promise<string> {
     const { user } = workareaStore;
     const task: Task<string> = POST<string>(
@@ -1057,19 +976,6 @@ export class API {
       API.createDealRequest(data, changed)
     );
     return task.execute();
-  }
-
-  private static async onDealCreated(task: Task<string>): Promise<string> {
-    const legs: ReadonlyArray<Leg> = [...moStore.legs];
-    const summaryLeg: SummaryLeg | null =
-      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
-    const dealID: string = await task.execute();
-    // Save the legs now
-    await API.saveLegs(dealID, legs, summaryLeg);
-    // Once saved, set them in the store
-    moStore.setLegs(legs, summaryLeg);
-    // Now we're done
-    return dealID;
   }
 
   public static async cloneDeal(
@@ -1207,5 +1113,98 @@ export class API {
         strategy,
       })
     );
+  }
+
+  private static createDealRequest(
+    entry: DealEntry,
+    changed: string[]
+  ): ServerDealQuery {
+    const user: User = workareaStore.user;
+    const { symbol, strategy, tenor1, tenor2 } = entry;
+    if (isInvalidTenor(tenor1))
+      throw new Error("cannot build deal query without at least 1 tenor");
+    return {
+      linkid: getDealId(entry),
+      tenor: tenor1.name,
+      tenor1: isTenor(tenor2) ? tenor2.name : null,
+      strategy: strategy.productid,
+      symbol: symbol.symbolID,
+      spread: entry.spread,
+      vol: entry.vol,
+      lastqty: entry.size,
+      notional1: entry.not2 !== undefined ? entry.not2 : null,
+      size: entry.size,
+      lvsqty: "0",
+      cumqty: "0",
+      transacttime: toUTCFIXFormat(new Date()),
+      buyerentitycode: resolveBankToEntity(entry.buyer),
+      sellerentitycode: resolveBankToEntity(entry.seller),
+      buyer: resolveEntityToBank(entry.buyer),
+      seller: resolveEntityToBank(entry.seller),
+      useremail: user.email,
+      strike: entry.dealstrike,
+      expirydate: toUTCFIXFormat(tenor1.expiryDate),
+      expirydate1: isTenor(tenor2) ? toUTCFIXFormat(tenor2.expiryDate) : null,
+      deltastyle: entry.deltastyle,
+      premstyle: entry.premstyle,
+      style: entry.style,
+      model: entry.model,
+      legadj: entry.legadj,
+      buyer_comm: entry.buyer_comm,
+      buyer_comm_rate: entry.buyer_comm_rate,
+      seller_comm: entry.seller_comm,
+      seller_comm_rate: entry.seller_comm_rate,
+      product_fields_changed: changed,
+      ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
+    };
+  }
+
+  private static async saveLegs(
+    dealID: string,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null
+  ): Promise<string> {
+    const { user } = workareaStore;
+    const allLegs = [
+      ...(summaryLeg
+        ? summaryLeg.dealOutput
+          ? [{ ...summaryLeg.dealOutput, option: "SumLeg" }]
+          : []
+        : []),
+      ...legs,
+    ];
+    const mappedLegs: ReadonlyArray<Leg> = allLegs.map(
+      (leg: Leg): Leg => {
+        const { strike, fwdPts } = leg;
+        return {
+          ...leg,
+          ...(fwdPts !== null && fwdPts !== undefined
+            ? { fwdPts: floatAsString(fwdPts) }
+            : {}),
+          ...(!!strike
+            ? { strike: floatAsString(numberifyIfPossible(strike)) }
+            : {}),
+        };
+      }
+    );
+    const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
+      dealId: dealID,
+      useremail: user.email,
+      legs: mappedLegs,
+    });
+    return task.execute();
+  }
+
+  private static async onDealCreated(task: Task<string>): Promise<string> {
+    const legs: ReadonlyArray<Leg> = [...moStore.legs];
+    const summaryLeg: SummaryLeg | null =
+      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
+    const dealID: string = await task.execute();
+    // Save the legs now
+    await API.saveLegs(dealID, legs, summaryLeg);
+    // Once saved, set them in the store
+    moStore.setLegs(legs, summaryLeg);
+    // Now we're done
+    return dealID;
   }
 }

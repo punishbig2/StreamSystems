@@ -9,7 +9,6 @@ export enum OCOModes {
 export enum UserTypes {
   Broker = "BROKER",
   Bank = "BANK",
-  MarketMaker = "MARKET_MAKER",
   Unset = "",
 }
 
@@ -57,15 +56,7 @@ export interface UserPreferences {
   readonly ccyGroup: CurrencyGroups;
   readonly oco: OCOModes;
   readonly theme: "dark" | "light";
-
-  [key: string]: any;
-}
-
-export interface UserProfileState {
-  readonly status: UserProfileStatus;
-  readonly currentModalType: UserProfileModalTypes;
-  readonly initialPreferences: UserPreferences;
-  readonly preferences: UserPreferences;
+  readonly execSoundList: ReadonlyArray<string>;
 }
 
 export const isCurrencyGroup = (value: any): value is CurrencyGroups => {

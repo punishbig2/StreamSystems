@@ -46,6 +46,7 @@
     text-align: center;
     background: none;
     color: $foreground-color;
+
     &.no-selection {
       color: rgba($foreground-color, 0.5);
     }
@@ -92,6 +93,7 @@
       &.selected {
         background-color: darken($background-color, 4%);
       }
+
       span {
         display: block;
         cursor: default;

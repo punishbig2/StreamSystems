@@ -26,6 +26,7 @@ export enum RRStrategy {
   _10D_RR = "10D RR",
   _25D_RR = "25D RR",
 }
+
 export type Tag = "+AC" | "+BP" | "+CC" | "+EC" | "+GC" | "+BP" | "+UC" | "+MP";
 
 export const CCYGroupTags: {

@@ -5,7 +5,7 @@ import { onNavigate } from "components/PodTile/helpers";
 import { Price } from "components/Table/CellRenderers/Price";
 import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
 import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
 import { DarkPoolStore } from "mobx/stores/darkPoolStore";
 import workareaStore from "mobx/stores/workareaStore";
@@ -141,7 +141,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   );
 });
 
-export const DarkPoolColumn = (): ColumnSpec => ({
+export const DarkPoolColumn = (): TableColumn => ({
   name: "dark-pool",
   header: () => (
     <div className={"dark-pool-header"}>

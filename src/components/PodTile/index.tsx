@@ -5,7 +5,7 @@ import { convertToDepth } from "components/PodTile/helpers";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Run } from "components/Run";
 import { observer } from "mobx-react";
-import { PodTileStore } from "mobx/stores/podTileStore";
+import { PodStore } from "mobx/stores/podStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
 import { InvalidCurrency } from "stateDefs/windowState";
@@ -13,16 +13,14 @@ import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
-import { ColumnSpec } from "../Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { WindowContent } from "./windowContent";
 
 interface Props {
   readonly id: string;
   readonly tenors: ReadonlyArray<string>;
-  readonly store: PodTileStore;
+  readonly store: PodStore;
   readonly currencies: ReadonlyArray<Symbol>;
-  readonly connected: boolean;
-  readonly scrollable?: boolean;
   readonly minimized?: boolean;
   readonly onClose?: () => void;
 }
@@ -83,7 +81,7 @@ export const PodTile: React.FC<Props> = observer(
       () => createPODColumns(currency.name, strategy, true),
       [currency, strategy]
     );
-    const podColumns: ColumnSpec[] = useMemo(
+    const podColumns: TableColumn[] = useMemo(
       () => createPODColumns(currency.name, strategy, false),
       [currency, strategy]
     );
@@ -93,7 +91,7 @@ export const PodTile: React.FC<Props> = observer(
       if (store.currentTenor === null) {
         return;
       } else {
-        const orders: Order[] = store.orders[store.currentTenor];
+        const orders: ReadonlyArray<Order> = store.orders[store.currentTenor];
         if (orders.length === 0) {
           // Has the equivalent effect of hiding the orders book
           // but it will actually set the correct state for the
@@ -109,8 +107,6 @@ export const PodTile: React.FC<Props> = observer(
           id={props.id}
           store={store}
           columns={podColumns}
-          minimized={!!props.minimized}
-          scrollable={!!props.scrollable}
           symbol={currency}
           strategy={strategy}
           dob={{

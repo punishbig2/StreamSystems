@@ -1,10 +1,10 @@
 import React, { ReactElement } from "react";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { StrategyCell } from "components/MiddleOffice/types/cells/strategy";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/types/deal";
 
-export default (sortable: boolean, width: number = 3): ColumnSpec => ({
+export default (sortable: boolean, width: number = 3): TableColumn => ({
   name: "Strategy",
   template: "WWWWWW",
   filterable: true,

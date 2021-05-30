@@ -12,12 +12,10 @@ import { W } from "types/w";
 import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 
 export class DarkPoolStore {
-  @observable orders: Order[] = [];
-  @observable publishedPrice: number | null = null;
-  @observable isTicketOpen: boolean = false;
-  @observable currentOrder: Order | null = null;
-
-  private removeOrderListener: () => void = () => null;
+  @observable public orders: Order[] = [];
+  @observable public publishedPrice: number | null = null;
+  @observable public isTicketOpen: boolean = false;
+  @observable public currentOrder: Order | null = null;
 
   constructor(initial: number | null) {
     this.publishedPrice = initial;
@@ -220,4 +218,6 @@ export class DarkPoolStore {
     void API.cancelDarkPoolOrder(order);
     this.currentOrder = null;
   }
+
+  private removeOrderListener: () => void = () => null;
 }

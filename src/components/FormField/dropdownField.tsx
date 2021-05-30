@@ -54,6 +54,38 @@ export class DropdownField<T, R = string> extends Component<
     }
   }
 
+  public render(): React.ReactElement {
+    const { props, state } = this;
+    const { items } = props;
+    if (!props.editable) {
+      return (
+        <ReadOnlyField
+          name={props.name as string}
+          disabled={props.disabled}
+          value={this.getValueAsString(props.value)}
+        />
+      );
+    } else {
+      return (
+        <Select
+          value={props.value}
+          renderValue={this.renderSelectValue}
+          displayEmpty={true}
+          readOnly={state.loading}
+          disabled={props.disabled}
+          onChange={this.onChange}
+        >
+          {this.getSearchItem()}
+          {items.filter(this.filterItems).map((item: DropdownItem<R>) => (
+            <MenuItem key={item.value} value={item.value}>
+              {item.label}
+            </MenuItem>
+          ))}
+        </Select>
+      );
+    }
+  }
+
   private onChange = (
     event: React.ChangeEvent<{ name?: string; value: unknown }>,
     child: React.ReactNode
@@ -160,36 +192,4 @@ export class DropdownField<T, R = string> extends Component<
       />
     );
   };
-
-  public render(): React.ReactElement {
-    const { props, state } = this;
-    const { items } = props;
-    if (!props.editable) {
-      return (
-        <ReadOnlyField
-          name={props.name as string}
-          disabled={props.disabled}
-          value={this.getValueAsString(props.value)}
-        />
-      );
-    } else {
-      return (
-        <Select
-          value={props.value}
-          renderValue={this.renderSelectValue}
-          displayEmpty={true}
-          readOnly={state.loading}
-          disabled={props.disabled}
-          onChange={this.onChange}
-        >
-          {this.getSearchItem()}
-          {items.filter(this.filterItems).map((item: DropdownItem<R>) => (
-            <MenuItem key={item.value} value={item.value}>
-              {item.label}
-            </MenuItem>
-          ))}
-        </Select>
-      );
-    }
-  }
 }

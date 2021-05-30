@@ -2,7 +2,7 @@ import { useGlow } from "components/PodTile/hooks/useGlow";
 import { Select } from "components/Select";
 import strings from "locales";
 import { observer } from "mobx-react";
-import { PodTileStore } from "mobx/stores/podTileStore";
+import { PodStore } from "mobx/stores/podStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
@@ -12,7 +12,7 @@ import { Symbol } from "types/symbol";
 import { User } from "types/user";
 
 interface Props {
-  readonly store: PodTileStore;
+  readonly store: PodStore;
   readonly currencies: ReadonlyArray<Symbol>;
   readonly strategies: ReadonlyArray<Product>;
 }
@@ -33,7 +33,7 @@ export const PodTileTitle: React.FC<Props> = observer(
       !ccyPair || !strategy || (personality === STRM && isBroker);
     const { currencies, strategies } = props;
 
-    const glowing: boolean = useGlow(store.orders, store.darkpool);
+    const glowing: boolean = useGlow(store.orders, store.darkPoolOrders);
 
     return (
       <>

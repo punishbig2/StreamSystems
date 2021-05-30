@@ -11387,10 +11387,10 @@
   var LAYERS_TEXT_CLASSNAME = "fa-layers-text";
   var FONT_FAMILY_PATTERN = /Font Awesome 5 (Solid|Regular|Light|Duotone|Brands|Free|Pro)/;
   var FONT_WEIGHT_TO_PREFIX = {
-    "900": "fas",
-    "400": "far",
+    900: "fas",
+    400: "far",
     normal: "far",
-    "300": "fal",
+    300: "fal",
   };
   var oneToTen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var oneToTwenty = oneToTen.concat([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);

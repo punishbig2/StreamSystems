@@ -1,10 +1,10 @@
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { PodRowProps } from "columns/podColumns/common";
 import { Tenor } from "components/Table/CellRenderers/Tenor";
 import React from "react";
 import { PodRowStatus } from "types/podRow";
 
-export const TenorColumn = (): ColumnSpec => ({
+export const TenorColumn = (): TableColumn => ({
   name: "tenor",
   header: () => <div>&nbsp;</div>,
   render: ({ tenor, onTenorSelected, status }: PodRowProps) => {

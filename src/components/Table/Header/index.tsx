@@ -1,19 +1,19 @@
 import { Column, ColumnType } from "components/Table/Column";
-import { ColumnState } from "components/Table/columnSpecification";
-import React, { useState, ReactElement, useRef } from "react";
+import { TableColumnState } from "components/Table/tableColumn";
 import { getCellWidth } from "components/Table/helpers";
 import { observer } from "mobx-react";
 import { HeaderStore } from "mobx/stores/headerStore";
+import React from "react";
 import { toClassName } from "utils/conditionalClasses";
 
 interface Props {
-  readonly columns: ColumnState[];
+  readonly columns: ReadonlyArray<TableColumnState>;
   readonly totalWidth: number;
   readonly allowReorderColumns: boolean;
   readonly containerWidth: number;
-  readonly onFiltered: (column: string, value: string) => void;
-  readonly onSortBy: (columnName: string) => void;
-  readonly onColumnsOrderChange: (
+  readonly onFiltered?: (column: string, value: string) => void;
+  readonly onSortBy?: (columnName: string) => void;
+  readonly onColumnsOrderChange?: (
     sourceIndex: number,
     targetIndex: number
   ) => void;
@@ -22,30 +22,28 @@ interface Props {
 export const TableHeader: React.FC<Props> = observer(
   <T extends unknown>(props: Props) => {
     const { columns } = props;
-    const [store] = useState<HeaderStore>(new HeaderStore());
+    const [store] = React.useState<HeaderStore>(new HeaderStore());
 
     const {
       state: grabbedColumn,
       style: grabbedColumnStyle,
     } = store.movingColumn || { state: null };
 
-    const headerRef: React.Ref<HTMLDivElement> = useRef<HTMLDivElement>(null);
+    const headerRef: React.Ref<HTMLDivElement> = React.useRef<HTMLDivElement>(
+      null
+    );
 
     const onColumnGrabbed = (
-      column: ColumnState,
+      column: TableColumnState,
       element: HTMLDivElement,
       grabbedAt: number
     ) => {
-      store.setGrabbedColumn(
-        column,
-        element,
-        grabbedAt,
-        props.onColumnsOrderChange
-      );
+      const onChange = props.onColumnsOrderChange;
+      store.setGrabbedColumn(column, element, grabbedAt, onChange);
     };
 
     const columnMapperFactory = (totalWidth: number) => (
-      column: ColumnState
+      column: TableColumnState
     ) => {
       return (
         <Column
@@ -60,16 +58,20 @@ export const TableHeader: React.FC<Props> = observer(
           onGrabbed={(element: HTMLDivElement, grabbedAt: number) =>
             onColumnGrabbed(column, element, grabbedAt)
           }
-          onFiltered={(keyword: string) =>
-            props.onFiltered(column.name, keyword)
-          }
+          onFiltered={(keyword: string) => {
+            if (props.onFiltered !== undefined) {
+              props.onFiltered(column.name, keyword);
+            }
+          }}
           onSorted={props.onSortBy}
         >
           {column.header(props)}
         </Column>
       );
     };
-    const grabbedColumnElement: ReactElement | undefined = grabbedColumn ? (
+    const grabbedColumnElement:
+      | React.ReactElement
+      | undefined = grabbedColumn ? (
       <Column
         key={grabbedColumn.name + "moving"}
         name={grabbedColumn.name}
@@ -88,7 +90,9 @@ export const TableHeader: React.FC<Props> = observer(
       </Column>
     ) : undefined;
     const columnMapper = columnMapperFactory(props.totalWidth);
-    const renderedColumns: ReactElement[] = columns.map(columnMapper);
+    const renderedColumns: Array<React.ReactElement> = columns.map(
+      columnMapper
+    );
     if (grabbedColumnElement) renderedColumns.push(grabbedColumnElement);
     return (
       <div

@@ -86,6 +86,102 @@ export class NumericInputHandler<
     }
   }
 
+  public onKeyDown(
+    event: React.KeyboardEvent<HTMLInputElement>,
+    props: P,
+    state: S
+  ): StateReturnType<S> {
+    /// Reset this in order to remove it if the new character is not the
+    // decimal separator
+    switch (event.key) {
+      case "Escape":
+        return this.createValue(props.value, event.currentTarget, props, state);
+      case "Backspace":
+        return this.onBackspace(event, props, state);
+      case "M":
+      case "m":
+        return this.onM(event, props, state);
+      case DecimalSeparator:
+        return this.onDecimalSeparator(event, DecimalSeparator, props, state);
+    }
+    return null;
+  }
+
+  public parse(value: string, props: P): any {
+    if (value === "") return null;
+    const numeric = toNumber(value, props.currency);
+    if (numeric === undefined || numeric === null) return value;
+    if (props.type === "percent") return numeric / this.divider;
+    return numeric;
+  }
+
+  public format(value: any, props: P): [string, Validity] {
+    const { formatter } = this;
+    if (value === "" || value === null) {
+      return ["", Validity.Intermediate];
+    }
+    if (typeof value === "number") {
+      if (props.type === "percent") {
+        if (props.editable) {
+          const formatted: string = formatter.format(100 * value);
+          return [formatted, Validity.Valid];
+        } else {
+          const formatted: string =
+            value < 0
+              ? `(${formatter.format(-100 * value)})`
+              : formatter.format(100 * value);
+          return [formatted, Validity.Valid];
+        }
+      }
+      if (props.rounding !== undefined)
+        return roundToNearest(value, props.rounding);
+      const formatted: string =
+        value < 0 && !props.editable
+          ? `(${formatter.format(-value)})`
+          : formatter.format(value);
+      return [
+        formatted,
+        this.isInRange(value) ? Validity.Valid : Validity.InvalidValue,
+      ];
+    } else {
+      return [value as string, Validity.InvalidFormat];
+    }
+  }
+
+  public shouldAcceptInput(
+    input: HTMLInputElement,
+    props: P,
+    state: S
+  ): boolean {
+    const { displayValue } = state;
+    if (props.precision !== undefined && props.precision !== 0) {
+      const caretPosition: number | null = getCaretPosition(input);
+      if (caretPosition !== null) {
+        if (
+          caretPosition === displayValue.length + 1 &&
+          displayValue.length !== 0
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public reset(props: P) {
+    super.reset(props);
+    this.formatter = this.createFormatter(props);
+    this.divider = props.type === "percent" ? 100 : 1;
+  }
+
+  public startAdornment(): string {
+    return this.startAdornmentString;
+  }
+
+  public endAdornment(): string {
+    return this.endAdornmentString;
+  }
+
   private createFormatter(props: P): Intl.NumberFormat {
     if (props.type === "currency" && props.currency === undefined) {
       return new Intl.NumberFormat(Globals.locale, {});
@@ -232,101 +328,5 @@ export class NumericInputHandler<
     } else {
       return newState;
     }
-  }
-
-  public onKeyDown(
-    event: React.KeyboardEvent<HTMLInputElement>,
-    props: P,
-    state: S
-  ): StateReturnType<S> {
-    /// Reset this in order to remove it if the new character is not the
-    // decimal separator
-    switch (event.key) {
-      case "Escape":
-        return this.createValue(props.value, event.currentTarget, props, state);
-      case "Backspace":
-        return this.onBackspace(event, props, state);
-      case "M":
-      case "m":
-        return this.onM(event, props, state);
-      case DecimalSeparator:
-        return this.onDecimalSeparator(event, DecimalSeparator, props, state);
-    }
-    return null;
-  }
-
-  public parse(value: string, props: P): any {
-    if (value === "") return null;
-    const numeric = toNumber(value, props.currency);
-    if (numeric === undefined || numeric === null) return value;
-    if (props.type === "percent") return numeric / this.divider;
-    return numeric;
-  }
-
-  public format(value: any, props: P): [string, Validity] {
-    const { formatter } = this;
-    if (value === "" || value === null) {
-      return ["", Validity.Intermediate];
-    }
-    if (typeof value === "number") {
-      if (props.type === "percent") {
-        if (props.editable) {
-          const formatted: string = formatter.format(100 * value);
-          return [formatted, Validity.Valid];
-        } else {
-          const formatted: string =
-            value < 0
-              ? `(${formatter.format(-100 * value)})`
-              : formatter.format(100 * value);
-          return [formatted, Validity.Valid];
-        }
-      }
-      if (props.rounding !== undefined)
-        return roundToNearest(value, props.rounding);
-      const formatted: string =
-        value < 0 && !props.editable
-          ? `(${formatter.format(-value)})`
-          : formatter.format(value);
-      return [
-        formatted,
-        this.isInRange(value) ? Validity.Valid : Validity.InvalidValue,
-      ];
-    } else {
-      return [value as string, Validity.InvalidFormat];
-    }
-  }
-
-  public shouldAcceptInput(
-    input: HTMLInputElement,
-    props: P,
-    state: S
-  ): boolean {
-    const { displayValue } = state;
-    if (props.precision !== undefined && props.precision !== 0) {
-      const caretPosition: number | null = getCaretPosition(input);
-      if (caretPosition !== null) {
-        if (
-          caretPosition === displayValue.length + 1 &&
-          displayValue.length !== 0
-        ) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  public reset(props: P) {
-    super.reset(props);
-    this.formatter = this.createFormatter(props);
-    this.divider = props.type === "percent" ? 100 : 1;
-  }
-
-  public startAdornment(): string {
-    return this.startAdornmentString;
-  }
-
-  public endAdornment(): string {
-    return this.endAdornmentString;
   }
 }

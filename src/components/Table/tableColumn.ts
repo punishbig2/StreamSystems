@@ -1,7 +1,7 @@
 import { ReactElement } from "react";
-import { SortOrder } from "mobx/stores/tableStore";
+import { SortOrder } from "types/sortOrder";
 
-export interface ColumnSpec {
+export interface TableColumn {
   name: string;
   sortable?: boolean;
   filterable?: boolean;
@@ -15,6 +15,13 @@ export interface ColumnSpec {
   className?: string;
 }
 
-export interface ColumnState extends ColumnSpec {
+export interface TableColumnState extends TableColumn {
   sortOrder: SortOrder;
 }
+
+export const defaultTableColumnStateMapper = (
+  tableColumn: TableColumn
+): TableColumnState => ({
+  ...tableColumn,
+  sortOrder: SortOrder.None,
+});

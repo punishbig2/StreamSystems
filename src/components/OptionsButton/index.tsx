@@ -18,12 +18,18 @@ export const OptionsButton: React.FC<Props> = (props: Props): ReactElement => {
   const { items } = props;
   return (
     <>
-      <button ref={setButton} disabled={props.disabled} onClick={() => setIsOpen(!isOpen)}>
+      <button
+        ref={setButton}
+        disabled={props.disabled}
+        onClick={() => setIsOpen(!isOpen)}
+      >
         <i className={"fa fa-" + props.icon} />
       </button>
       <Menu anchorEl={button} open={isOpen} onClose={() => setIsOpen(false)}>
         {items.map((item: MenuItemSpec) => (
-          <MenuItem key={item.label} onClick={item.action}>{item.label}</MenuItem>
+          <MenuItem key={item.label} onClick={item.action}>
+            {item.label}
+          </MenuItem>
         ))}
       </Menu>
     </>

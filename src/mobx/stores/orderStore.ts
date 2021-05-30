@@ -31,16 +31,6 @@ export class OrderStore {
 
   @observable.ref depth: Order[] = [];
 
-  private getClashingOrder(type: OrderTypes): Order | null {
-    const { depth } = this;
-    const user: User = workareaStore.user;
-    const found: Order | undefined = depth.find(
-      (order: Order) => order.user === user.email && order.type === type
-    );
-    if (found !== undefined) return found;
-    return null;
-  }
-
   @computed
   get size(): number | null {
     if ((this.baseStatus & OrderStatus.InDepth) !== 0 || this.baseSize === null)
@@ -56,6 +46,11 @@ export class OrderStore {
   @computed
   get maximumPrice(): number {
     return 0;
+  }
+
+  @computed
+  get status(): OrderStatus {
+    return this.baseStatus | this.currentStatus;
   }
 
   public getCreatorPrice(editedPrice: number | null): number | null {
@@ -74,49 +69,6 @@ export class OrderStore {
       return currentOrder.size;
     // Finally use the default size
     return this.defaultSize;
-  }
-
-  @computed
-  get status(): OrderStatus {
-    return this.baseStatus | this.currentStatus;
-  }
-
-  private getCancelOrderId(type: OrderTypes): { OrderID?: string } {
-    const clashingOrder: Order | null = this.getClashingOrder(type);
-    if (clashingOrder === null) {
-      return {};
-    }
-    return { OrderID: clashingOrder.orderId };
-  }
-
-  private getNewOrderStatus(price: number): OrderStatus {
-    const { depth } = this;
-    const top: Order | undefined = depth.find(
-      (order: Order): boolean =>
-        (order.status & OrderStatus.Active) === OrderStatus.Active &&
-        (order.status & OrderStatus.Cancelled) === 0
-    );
-    if (top === undefined)
-      return OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned;
-    if (priceFormatter(price) === priceFormatter(top.price)) {
-      return OrderStatus.Active;
-    } else {
-      if (top.price === null) return OrderStatus.Active;
-      switch (this.type) {
-        case OrderTypes.Ofr:
-          return price < top.price
-            ? OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned
-            : OrderStatus.Active;
-        case OrderTypes.Bid:
-          return price > top.price
-            ? OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned
-            : OrderStatus.Active;
-        case OrderTypes.DarkPool:
-        case OrderTypes.Invalid:
-          break;
-      }
-    }
-    return OrderStatus.Active;
   }
 
   @action.bound
@@ -300,5 +252,53 @@ export class OrderStore {
 
   public uid(): string {
     return this.symbol + this.strategy + this.tenor;
+  }
+
+  private getClashingOrder(type: OrderTypes): Order | null {
+    const { depth } = this;
+    const user: User = workareaStore.user;
+    const found: Order | undefined = depth.find(
+      (order: Order) => order.user === user.email && order.type === type
+    );
+    if (found !== undefined) return found;
+    return null;
+  }
+
+  private getCancelOrderId(type: OrderTypes): { OrderID?: string } {
+    const clashingOrder: Order | null = this.getClashingOrder(type);
+    if (clashingOrder === null) {
+      return {};
+    }
+    return { OrderID: clashingOrder.orderId };
+  }
+
+  private getNewOrderStatus(price: number): OrderStatus {
+    const { depth } = this;
+    const top: Order | undefined = depth.find(
+      (order: Order): boolean =>
+        (order.status & OrderStatus.Active) === OrderStatus.Active &&
+        (order.status & OrderStatus.Cancelled) === 0
+    );
+    if (top === undefined)
+      return OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned;
+    if (priceFormatter(price) === priceFormatter(top.price)) {
+      return OrderStatus.Active;
+    } else {
+      if (top.price === null) return OrderStatus.Active;
+      switch (this.type) {
+        case OrderTypes.Ofr:
+          return price < top.price
+            ? OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned
+            : OrderStatus.Active;
+        case OrderTypes.Bid:
+          return price > top.price
+            ? OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned
+            : OrderStatus.Active;
+        case OrderTypes.DarkPool:
+        case OrderTypes.Invalid:
+          break;
+      }
+    }
+    return OrderStatus.Active;
   }
 }

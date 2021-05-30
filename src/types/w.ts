@@ -33,7 +33,6 @@ export interface W {
 }
 
 export const isPodW = (w: W | undefined) => {
-  if (w === undefined)
-    return false;
+  if (w === undefined) return false;
   return w["9712"] === "TOB";
 };

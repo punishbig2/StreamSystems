@@ -4,9 +4,6 @@ import { PodRow, PodRowStatus } from "types/podRow";
 import { PodTable } from "types/podTable";
 import { User } from "types/user";
 import { W } from "types/w";
-import { $$ } from "utils/stringPaster";
-
-type E = "bid" | "ofr";
 
 export const mdEntryToTOBEntry = (w: W, user: User) => (
   entry: MDEntry,
@@ -23,56 +20,6 @@ export const mdEntryToTOBEntry = (w: W, user: User) => (
       null,
       fallbackType
     );
-  }
-};
-
-const reshape = (
-  w: W,
-  user: User,
-  bids: MDEntry[],
-  offers: MDEntry[]
-): PodTable => {
-  const reducer = (table: PodTable, row: PodRow): PodTable => {
-    table[row.id] = row;
-    return table;
-  };
-  const createMapper = (key1: E, key2: E, user: User) => (other: MDEntry[]) => (
-    entry: MDEntry,
-    index: number
-  ): PodRow => {
-    const transform = mdEntryToTOBEntry(w, user);
-    if (key1 === "ofr" && key2 === "bid") {
-      return {
-        id: $$("__DOB", index, w.Tenor, w.Symbol, w.Strategy),
-        tenor: w.Tenor,
-        ofr: transform(entry, OrderTypes.Ofr),
-        bid: transform(other[index], OrderTypes.Bid),
-        mid: null,
-        spread: null,
-        darkPrice: null,
-        status: PodRowStatus.Normal,
-      };
-    } else if (key1 === "bid" && key2 === "ofr") {
-      return {
-        id: $$("__DOB", index, w.Tenor, w.Symbol, w.Strategy),
-        tenor: w.Tenor,
-        bid: transform(entry, OrderTypes.Bid),
-        ofr: transform(other[index], OrderTypes.Ofr),
-        mid: null,
-        spread: null,
-        darkPrice: null,
-        status: PodRowStatus.Normal,
-      };
-    } else {
-      throw new Error("I cannot understand this combination");
-    }
-  };
-  if (bids.length > offers.length) {
-    const mapperSelector = createMapper("bid", "ofr", user);
-    return bids.map(mapperSelector(offers)).reduce(reducer, {});
-  } else {
-    const mapperSelector = createMapper("ofr", "bid", user);
-    return offers.map(mapperSelector(bids)).reduce(reducer, {});
   }
 };
 

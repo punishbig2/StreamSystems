@@ -8,7 +8,7 @@ import strategyColumn from "components/MiddleOffice/types/columnTypes/strategy";
 import symbolColumn from "components/MiddleOffice/types/columnTypes/symbol";
 import transactTimeColumn from "components/MiddleOffice/types/columnTypes/transactionTime";
 import { Deal } from "components/MiddleOffice/types/deal";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import React, { ReactElement } from "react";
 import { stateMap } from "utils/dealUtils";
 import { getVenue } from "utils/getVenue";
@@ -26,7 +26,7 @@ const StatusCell: React.FC<{ deal: Deal }> = ({
   );
 };
 
-export const columns: ColumnSpec[] = [
+export const columns: TableColumn[] = [
   {
     name: "deal-id",
     header: () => "Deal Id",

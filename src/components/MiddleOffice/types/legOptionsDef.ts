@@ -4,6 +4,7 @@ export interface LegOptionsDefOut {
   ReturnSide: string;
   notional_ratio: number;
 }
+
 export interface LegOptionsDefIn {
   productid: string;
   OptionLegType: string;

@@ -220,7 +220,6 @@ export const MiddleOfficeMain: React.FC<Props> = (
           </Grid>
         </Grid>
       </div>
-      {/* Modal windows */}
       <ModalWindow
         isOpen={error !== null}
         render={() => <MiddleOfficeError error={error} />}

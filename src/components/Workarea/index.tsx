@@ -12,10 +12,11 @@ import { WorkareaError } from "components/Workarea/workareaError";
 import { TradingWorkspace } from "components/Workspace";
 import strings from "locales";
 import { observer } from "mobx-react";
+import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 
-import messagesStore from "mobx/stores/messagesStore";
 import { themeStore } from "mobx/stores/themeStore";
-import store, { WorkspaceDef, WorkspaceType } from "mobx/stores/workareaStore";
+import { WorkspaceStoreContext } from "mobx/stores/tradingWorkspaceStore";
+import store from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
@@ -31,6 +32,7 @@ const Workarea: React.FC = (): ReactElement | null => {
   const { theme } = store.preferences;
   const { workspaceAccessDenied } = store;
   const id: string | null = useMemo(getUserIdFromUrl, []);
+  const messagesStore = React.useContext<MessagesStore>(MessagesStoreContext);
 
   useEffect(() => {
     themeStore.setTheme(theme);
@@ -48,13 +50,13 @@ const Workarea: React.FC = (): ReactElement | null => {
     return () => {
       messagesStore.disconnect();
     };
-  }, [connected, user]);
+  }, [connected, messagesStore, user]);
 
   useEffect(() => {
     setTimeout(() => {
       messagesStore.reapplyFilters();
     }, 0);
-  }, [personality]);
+  }, [messagesStore, personality]);
 
   const cancelCloseWorkspace = () => setSelectedToClose(null);
   const closeWorkspace = () => {
@@ -105,29 +107,32 @@ const Workarea: React.FC = (): ReactElement | null => {
         return regions.includes(symbol.ccyGroup);
       });
     })();
-    return Object.values(workspaces).map(
-      ({ id, type, isDefault }: WorkspaceDef) => {
-        if (type === WorkspaceType.Trading) {
-          return (
-            <TradingWorkspace
-              id={id}
-              key={id}
-              isDefault={isDefault}
-              visible={id === currentWorkspaceID}
-              tenors={store.tenors}
-              /* Only filtered symbols */
-              currencies={symbols}
-              strategies={store.strategies}
-              banks={store.banks}
-              store={store.getWorkspaceStore(id)}
-              onModify={store.setWorkspaceModified}
-            />
-          );
-        } else {
-          return <MiddleOffice key={id} visible={id === currentWorkspaceID} />;
-        }
-      }
-    );
+    if (currentWorkspaceID === "mo") {
+      return <MiddleOffice visible={true} />;
+    } else {
+      if (currentWorkspaceID === null) return null;
+      const workspaceStore = workspaces[currentWorkspaceID];
+      if (workspaceStore === undefined)
+        throw new Error("invalid store for workspace");
+      return (
+        <WorkspaceStoreContext.Provider
+          value={workspaceStore}
+          key={workspaceStore.id}
+        >
+          <TradingWorkspace
+            id={workspaceStore.id}
+            isDefault={!workspaceStore.modified}
+            visible={workspaceStore.id === currentWorkspaceID}
+            tenors={store.tenors}
+            /* Only filtered symbols */
+            currencies={symbols}
+            strategies={store.strategies}
+            banks={store.banks}
+            onModify={store.setWorkspaceModified}
+          />
+        </WorkspaceStoreContext.Provider>
+      );
+    }
   };
 
   const getFooter = () => {

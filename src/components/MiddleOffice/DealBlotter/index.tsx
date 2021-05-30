@@ -2,6 +2,7 @@ import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { DealRow, RowProps } from "components/MiddleOffice/DealBlotter/row";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Table } from "components/Table";
+import { defaultTableColumnStateMapper } from "components/Table/tableColumn";
 import deepEqual from "deep-equal";
 import React, { ReactElement, useState } from "react";
 
@@ -20,14 +21,12 @@ export const DealBlotter: React.FC<Props> = React.memo(
     const [, setTable] = useState<HTMLDivElement | null>(null);
     return (
       <Table
-        id={`${props.id}-deal-blotter`}
-        columns={columns}
+        columns={columns.map(defaultTableColumnStateMapper)}
         rows={deals}
         renderRow={(props: RowProps): ReactElement => (
           <DealRow key={props.row.id} {...props} onClick={onDealSelected} />
         )}
         selectedRow={props.selectedRow}
-        scrollable={true}
         ref={setTable}
         allowReorderColumns={true}
         className={props.disabled ? "disabled" : undefined}

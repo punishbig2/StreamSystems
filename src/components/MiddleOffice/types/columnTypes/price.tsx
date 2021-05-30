@@ -1,11 +1,14 @@
 import React, { ReactElement } from "react";
 import { priceFormatter } from "utils/priceFormatter";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { getDealPrice, PriceCell } from "components/MiddleOffice/types/cells/price";
+import {
+  getDealPrice,
+  PriceCell,
+} from "components/MiddleOffice/types/cells/price";
 import { Deal } from "components/MiddleOffice/types/deal";
 
-export default (sortable: boolean, width: number = 3): ColumnSpec => ({
+export default (sortable: boolean, width: number = 3): TableColumn => ({
   name: "Price",
   template: "999999.99",
   filterable: true,

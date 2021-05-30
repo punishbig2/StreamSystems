@@ -1,48 +1,30 @@
+import { DepthOfTheBook } from "components/PodTile/depthOfTheBook";
+import { TopOfTheBook } from "components/PodTile/topOfTheBook";
+import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
-import React, { CSSProperties, ReactElement } from "react";
-import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import { ProgressModalContent } from "../ProgressModalContent";
-import { Table } from "../Table";
-import { ModalWindow } from "../ModalWindow";
-import { PodTileStore } from "mobx/stores/podTileStore";
-import { ColumnSpec } from "../Table/columnSpecification";
-import { Row } from "./Row";
-import { Symbol } from "types/symbol";
-import { PodRow } from "types/podRow";
-import { Order } from "types/order";
-import workareaStore from "../../mobx/stores/workareaStore";
+import { PodStore } from "mobx/stores/podStore";
+import React, { ReactElement } from "react";
+import { DepthData } from "types/depthData";
 import { PodTable } from "types/podTable";
+import { Symbol } from "types/symbol";
+import { ModalWindow } from "../ModalWindow";
+import { ProgressModalContent } from "../ProgressModalContent";
 
 interface Props {
   readonly id: string;
-  readonly store: PodTileStore;
-  readonly columns: ReadonlyArray<ColumnSpec>;
-  readonly minimized: boolean;
-  readonly scrollable: boolean;
+  readonly store: PodStore;
+  readonly columns: ReadonlyArray<TableColumn>;
   readonly strategy: string;
   readonly symbol: Symbol;
-  readonly dob: {
-    readonly rows: PodTable;
-    readonly columns: ReadonlyArray<ColumnSpec>;
-  };
+  readonly dob: DepthData;
 }
 
 export const WindowContent: React.FC<Props> = observer(
   (props: Props): React.ReactElement => {
     const { store } = props;
-    if (props.minimized) {
-      const style: CSSProperties = {
-        width: getOptimalWidthFromColumnsSpec(props.columns),
-        height: 1, // We need a minimal height or else it wont be rendered at all
-      };
-      return <div style={style} />;
-    }
     const { dob } = props;
     const dobRows = React.useMemo((): PodTable => dob.rows, [dob]);
 
-    const loadingClass: string | undefined = store.loading
-      ? "loading"
-      : undefined;
     const renderProgress = (): ReactElement | null => {
       if (store.currentProgress === null) return null;
       return (
@@ -62,78 +44,26 @@ export const WindowContent: React.FC<Props> = observer(
     }, [dobRows, store]);
 
     return (
-      <div
-        className={"pod-tile-content" + (props.scrollable ? " scrollable" : "")}
-      >
-        <div className={"pod"} data-showing-tenor={!!store.currentTenor}>
-          <Table
-            id={`${props.id}-top`}
-            className={loadingClass}
-            scrollable={props.scrollable}
-            columns={props.columns}
-            rows={store.rows}
-            renderRow={(rowProps: any, index?: number): ReactElement => {
-              const { name, minqty, defaultqty } = props.symbol;
-              const { row } = rowProps;
-              const { tenor } = row;
-              return (
-                <Row
-                  {...rowProps}
-                  currency={name}
-                  strategy={props.strategy}
-                  tenor={tenor}
-                  darkpool={store.darkpool[tenor]}
-                  orders={store.orders[tenor]}
-                  defaultSize={defaultqty}
-                  minimumSize={minqty}
-                  displayOnly={false}
-                  rowNumber={index}
-                  onTenorSelected={store.setCurrentTenor}
-                />
-              );
-            }}
-          />
-        </div>
-        <div className={"dob"} data-showing-tenor={!!store.currentTenor}>
-          <Table
-            id={`${props.id}-depth`}
-            scrollable={props.scrollable}
-            columns={dob.columns}
-            rows={dobRows}
-            renderRow={(rowProps: any): ReactElement | null => {
-              const { minqty, defaultqty } = props.symbol;
-              const { row } = rowProps;
-              if (
-                minqty === undefined ||
-                defaultqty === undefined ||
-                !props.strategy
-              )
-                return null;
-              // Get current row
-              const matchingRow: PodRow = dobRows[row.id];
-              const orders: Order[] = [];
-              if (matchingRow) {
-                if (matchingRow.bid) {
-                  orders.push(matchingRow.bid);
-                }
-                if (matchingRow.ofr) {
-                  orders.push(matchingRow.ofr);
-                }
-              }
-              return (
-                <Row
-                  {...rowProps}
-                  user={workareaStore.user}
-                  orders={orders}
-                  darkpool={store.darkpool[row.tenor1]}
-                  defaultSize={defaultqty}
-                  minimumSize={minqty}
-                  onTenorSelected={(): void => store.setCurrentTenor(null)}
-                />
-              );
-            }}
-          />
-        </div>
+      <div className={"pod-tile-content"}>
+        <TopOfTheBook
+          currentTenor={store.currentTenor}
+          id={store.id}
+          columns={props.columns}
+          loading={store.loading}
+          rows={store.rows}
+          symbol={props.symbol}
+          strategy={props.strategy}
+          orders={store.orders}
+          onTenorSelected={store.setCurrentTenor}
+          darkPoolOrders={store.darkPoolOrders}
+        />
+        <DepthOfTheBook
+          currentTenor={store.currentTenor}
+          book={props.dob}
+          symbol={props.symbol}
+          darkPoolOrders={store.darkPoolOrders}
+          onTenorSelected={store.setCurrentTenor}
+        />
         <ModalWindow
           render={renderProgress}
           isOpen={store.isProgressWindowVisible}

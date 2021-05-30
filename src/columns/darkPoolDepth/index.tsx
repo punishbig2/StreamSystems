@@ -1,5 +1,5 @@
 import { Typography } from "@material-ui/core";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import React from "react";
 import { Role } from "types/role";
 import { xPoints } from "utils/timesPolygon";
@@ -16,7 +16,7 @@ const getSide = (order: Order): string => {
 const columns = (
   onCancelOrder: (order: Order) => void,
   showInstruction: boolean
-): ColumnSpec[] => {
+): ReadonlyArray<TableColumn> => {
   return [
     {
       name: "ref",

@@ -31,7 +31,7 @@ export const MiddleOffice: React.FC<Props> = observer(
       try {
         void task.execute();
       } catch (error) {
-        console.log(error);
+        console.warn(error);
       }
       // Allow cancellation
       return (): void => task.cancel();

@@ -1,52 +1,26 @@
 import { observable, action } from "mobx";
-import { ColumnState } from "components/Table/columnSpecification";
+import { TableColumnState } from "components/Table/tableColumn";
 import { CSSProperties } from "react";
 
 interface MovingColumn {
-  readonly state: ColumnState;
+  readonly state: TableColumnState;
   readonly style: CSSProperties;
   readonly offset: number;
 }
 
 export class HeaderStore {
-  @observable movingColumn: MovingColumn | null = null;
+  @observable public movingColumn: MovingColumn | null = null;
 
   private lastPosition: number = 0;
   private containerWidth: number = 0;
   private columnWidth: number = 0;
 
   @action.bound
-  private unsetGrabbedColumn() {
-    this.movingColumn = null;
-    this.lastPosition = 0;
-    this.containerWidth = 0;
-    this.columnWidth = 0;
-  }
-
-  @action.bound
-  private updateGrabbedColumnOffset(delta: number) {
-    if (this.movingColumn === null) return;
-    const { offset, style } = this.movingColumn;
-    const newOffset: number = Math.min(
-      Math.max(offset + delta, 0),
-      this.containerWidth - this.columnWidth
-    );
-    this.movingColumn = {
-      ...this.movingColumn,
-      offset: newOffset,
-      style: {
-        ...style,
-        left: newOffset,
-      },
-    };
-  }
-
-  @action.bound
   public setGrabbedColumn(
-    state: ColumnState,
+    state: TableColumnState,
     element: HTMLDivElement,
     grabbedAt: number,
-    onColumnsOrderChange: (sourceIndex: number, targetIndex: number) => void
+    onColumnsOrderChange?: (sourceIndex: number, targetIndex: number) => void
   ) {
     const parent: HTMLDivElement = element.parentNode as HTMLDivElement;
     const onMove = (event: MouseEvent) => {
@@ -79,7 +53,7 @@ export class HeaderStore {
           return movingItem.offsetLeft >= l && movingItem.offsetLeft < r;
         }
       );
-      if (sourceIndex !== targetIndex)
+      if (sourceIndex !== targetIndex && onColumnsOrderChange !== undefined)
         onColumnsOrderChange(sourceIndex, targetIndex);
       // Reset the whole thing
       this.unsetGrabbedColumn();
@@ -97,5 +71,31 @@ export class HeaderStore {
     this.containerWidth = parent.offsetWidth;
     this.columnWidth = element.offsetWidth;
     this.lastPosition = grabbedAt;
+  }
+
+  @action.bound
+  private unsetGrabbedColumn() {
+    this.movingColumn = null;
+    this.lastPosition = 0;
+    this.containerWidth = 0;
+    this.columnWidth = 0;
+  }
+
+  @action.bound
+  private updateGrabbedColumnOffset(delta: number) {
+    if (this.movingColumn === null) return;
+    const { offset, style } = this.movingColumn;
+    const newOffset: number = Math.min(
+      Math.max(offset + delta, 0),
+      this.containerWidth - this.columnWidth
+    );
+    this.movingColumn = {
+      ...this.movingColumn,
+      offset: newOffset,
+      style: {
+        ...style,
+        left: newOffset,
+      },
+    };
   }
 }

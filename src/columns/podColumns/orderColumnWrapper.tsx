@@ -1,4 +1,4 @@
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import React, { ReactElement } from "react";
 import { PodRowProps } from "columns/podColumns/common";
 import { OrderTypes } from "types/mdEntry";
@@ -9,7 +9,7 @@ export const OrderColumnWrapper = (
   type: OrderTypes,
   isDepth: boolean,
   action: () => ReactElement | null
-): ColumnSpec => {
+): TableColumn => {
   return {
     name: `${type}-vol`,
     header: () => {

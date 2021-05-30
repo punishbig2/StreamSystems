@@ -2,15 +2,15 @@ import { Geometry, Tile } from "@cib/windows-manager";
 import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { MessageBlotter } from "components/MessageBlotter";
 import { Select } from "components/Select";
-import { ColumnSpec } from "components/Table/columnSpecification";
-import store from "mobx/stores/messagesStore";
+import { TableColumn } from "components/Table/tableColumn";
+import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
-import getStyles, { Styles } from "styles";
+import appStyles from "styles";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import appStyles from "styles";
+import { idealBlotterHeight } from "utils/idealBlotterHeight";
 
 interface Props {
   readonly boundingRect: DOMRect;
@@ -20,6 +20,9 @@ export const ExecutionBlotter: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
   const { boundingRect } = props;
+  const messagesStore: MessagesStore = React.useContext<MessagesStore>(
+    MessagesStoreContext
+  );
   const user: User = workareaStore.user;
   const [tile, setTile] = React.useState<Tile | null>(null);
   const isBroker: boolean = useMemo((): boolean => {
@@ -31,17 +34,13 @@ export const ExecutionBlotter: React.FC<Props> = (
     [isBroker]
   );
   const columns = React.useMemo(
-    (): ReadonlyArray<ColumnSpec> =>
+    (): ReadonlyArray<TableColumn> =>
       messageBlotterColumns(BlotterTypes.Executions)[type],
     [type]
   );
   const width: number = getOptimalWidthFromColumnsSpec(columns);
   // Compute the ideal height
-  const styles: Styles = getStyles();
-  const height: number =
-    styles.windowToolbarHeight +
-    styles.tableHeaderHeight +
-    4 * styles.tableRowHeight;
+  const height: number = idealBlotterHeight();
   const geometry: Geometry = React.useMemo(
     (): Geometry =>
       new Geometry(
@@ -56,30 +55,30 @@ export const ExecutionBlotter: React.FC<Props> = (
     if (tile === null) return;
     tile.setGeometry(geometry);
   }, [geometry, tile]);
-  const id: string = "___EX_BLOTTER___";
   const { regions } = workareaStore.user;
   return (
-    <cib-window ref={setTile} scroll-y fixed-position fixed-size>
+    <cib-window ref={setTile} scrollable static>
       <div slot={"toolbar"} className={"execution-blotter-title"}>
         <h1>Execution Blotter</h1>
         <div className={"right-panel"}>
           <h3>CCY Group</h3>
           <Select
-            value={store.ccyGroupFilter}
+            value={messagesStore.ccyGroupFilter}
             list={[
               { name: "All" },
               ...regions.map((ccyGroup): {
                 name: string;
               } => ({ name: ccyGroup })),
             ]}
-            onChange={(value: string): void => store.setCCYGroupFilter(value)}
+            onChange={(value: string): void =>
+              messagesStore.setCCYGroupFilter(value)
+            }
           />
         </div>
       </div>
       <div slot={"content"} className={"window-content"}>
         <MessageBlotter
-          id={id}
-          scrollable={true}
+          id={"executions"}
           blotterType={BlotterTypes.Executions}
         />
       </div>

@@ -1,4 +1,3 @@
-import { LegOptionsDefOut } from "components/MiddleOffice/types/legOptionsDef";
 import { Sides } from "types/sides";
 import { StyledValue } from "types/styledValue";
 

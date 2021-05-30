@@ -1,13 +1,13 @@
 import moStore from "mobx/stores/moStore";
 import React, { ReactElement } from "react";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { BankEntity } from "types/bankEntity";
 import { resolveBankToEntity } from "utils/dealUtils";
 import { BankCell } from "../cells/banks";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 import { Deal } from "components/MiddleOffice/types/deal";
 
-export default (sortable: boolean): ColumnSpec => ({
+export default (sortable: boolean): TableColumn => ({
   name: "seller",
   difference: (m1: Deal, m2: Deal) => {
     const s1: string | null = m1.seller;

@@ -3,7 +3,7 @@ import { RunSize } from "components/RunSize";
 import { RunColumnData, SizeHeaderProps } from "components/Run/columnData";
 import { Price } from "components/Table/CellRenderers/Price";
 import { Tenor } from "components/Table/CellRenderers/Tenor";
-import { ColumnSpec } from "components/Table/columnSpecification";
+import { TableColumn } from "components/Table/tableColumn";
 import { Order, OrderStatus } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { ArrowDirection } from "types/w";
@@ -24,7 +24,7 @@ const ignoreTabbedOut = () => {
 const RunPriceColumn = (
   data: RunColumnData,
   type: "bid" | "ofr"
-): ColumnSpec => {
+): TableColumn => {
   const onChange = type === "bid" ? data.onBidChanged : data.onOfrChanged;
   const label: string = type === "bid" ? strings.Bid : strings.Ofr;
   const actionType: RunActions =
@@ -71,7 +71,7 @@ const RunPriceColumn = (
 const RunSizeColumn = (
   data: RunColumnData,
   type: "bid" | "ofr"
-): ColumnSpec => {
+): TableColumn => {
   const defaultSize: SizeHeaderProps =
     type === "bid" ? data.defaultBidSize : data.defaultOfrSize;
   const onChange = type === "bid" ? data.onBidQtyChanged : data.onOfrQtyChanged;
@@ -138,7 +138,7 @@ const RunSizeColumn = (
   };
 };
 
-const TenorColumn: ColumnSpec = {
+const TenorColumn: TableColumn = {
   name: "tenor",
   header: () => <DualTableHeader label={""} />,
   render: (row: RowType) => {
@@ -219,7 +219,7 @@ const SpreadCol = (data: RunColumnData) => ({
   width: 4,
 });
 
-const columns = (data: RunColumnData): ColumnSpec[] => [
+const columns = (data: RunColumnData): TableColumn[] => [
   TenorColumn,
   RunSizeColumn(data, "bid"),
   RunPriceColumn(data, "bid"),
