@@ -1,5 +1,5 @@
 import { API } from "API";
-import { action, computed, observable, trace } from "mobx";
+import { action, computed, observable } from "mobx";
 import { TileStore } from "mobx/stores/tileStore";
 import React from "react";
 import { STRM } from "stateDefs/workspaceState";
@@ -44,7 +44,6 @@ export class TradingWorkspaceStore
 
   @computed
   public get serialized(): { [key: string]: any } {
-    trace();
     const { tiles, personality, name, id } = this;
     return {
       id,
@@ -68,7 +67,7 @@ export class TradingWorkspaceStore
   @action.bound
   public addTile(type: TileType) {
     const { tiles } = this;
-    const id: string = `t${tiles.length}`;
+    const id: string = `t${Math.round(1e8 * Math.random())}`;
     const newTile: TileStore = new TileStore(id, type);
     switch (type) {
       case TileType.PodTile:

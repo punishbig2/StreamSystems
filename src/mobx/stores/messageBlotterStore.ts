@@ -1,6 +1,6 @@
 import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { TableColumn, TableColumnState } from "components/Table/tableColumn";
-import { action, computed, observable, trace } from "mobx";
+import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 import React from "react";
 import { Message } from "types/message";
@@ -43,7 +43,6 @@ export class MessageBlotterStore
 
   @computed
   public get serialized(): { [key: string]: any } {
-    trace();
     return {
       sortedColumns: { ...this.sortedColumns },
       sortingApplicationOrder: [...this.sortingApplicationOrder],

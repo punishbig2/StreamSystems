@@ -6,7 +6,6 @@ import { TableColumn } from "components/Table/tableColumn";
 import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
-import appStyles from "styles";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
@@ -45,7 +44,7 @@ export const ExecutionBlotter: React.FC<Props> = (
     (): Geometry =>
       new Geometry(
         0,
-        boundingRect.bottom - height - appStyles().windowFooterSize - 3,
+        boundingRect.bottom - height,
         Math.max(width, 900),
         height
       ),

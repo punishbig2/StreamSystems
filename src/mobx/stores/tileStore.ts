@@ -1,6 +1,6 @@
 import { Geometry } from "@cib/windows-manager";
 import { BlotterTypes } from "columns/messageBlotter";
-import { action, computed, observable, trace } from "mobx";
+import { action, computed, observable } from "mobx";
 import { ContentStore, DummyContentStore } from "mobx/stores/contentStore";
 import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { PodStore } from "mobx/stores/podStore";
@@ -55,7 +55,6 @@ export class TileStore implements Persistable<TileStore> {
 
   @computed
   public get serialized(): { [key: string]: any } {
-    trace();
     return {
       content: this.content,
       id: this.id,

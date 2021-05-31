@@ -1,6 +1,6 @@
 import { API, Task } from "API";
 import { orderSorter } from "components/PodTile/helpers";
-import { action, computed, observable, trace } from "mobx";
+import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -419,7 +419,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @computed
   public get serialized(): { [key: string]: any } {
-    trace();
     return {
       id: this.id,
       strategy: this.strategy,

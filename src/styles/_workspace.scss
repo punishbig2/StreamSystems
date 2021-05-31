@@ -13,6 +13,7 @@
 
   background-color: $light-color;
   overflow: hidden;
+  overflow-y: auto;
 
   h3,
   h5 {
@@ -29,23 +30,18 @@
   right: 0;
 
   background-color: $light-color;
-  overflow: hidden;
 
   cib-window-manager {
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   cib-window {
     background-color: $background-color;
-    outline: 1px solid $table-border-color;
-    box-sizing: content-box;
+    border: 1px solid $table-border-color;
 
     &:hover {
       outline-color: $primary-color;
-    }
-
-    &.fixed:hover {
-      cursor: default;
     }
 
     &.not-adjustable {

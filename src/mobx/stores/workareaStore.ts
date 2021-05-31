@@ -1,7 +1,7 @@
 import { API } from "API";
 
 import strings from "locales";
-import { action, autorun, computed, observable, trace } from "mobx";
+import { action, autorun, computed, observable } from "mobx";
 import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
 import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
@@ -377,7 +377,6 @@ export class WorkareaStore {
     this.workspaces = savedStore.workspaces;
     this.currentWorkspaceID = savedStore.currentWorkspaceID;
     autorun((): void => {
-      trace();
       const { persistStorage } = this;
       // Save the changes in the store (and all it's children)
       void persistStorage.persist(this.serialized);
