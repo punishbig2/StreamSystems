@@ -130,7 +130,7 @@ export class WorkareaStore {
       if (ids.length === 0) {
         this.currentWorkspaceID = null;
       } else {
-        this.currentWorkspaceID = ids.first;
+        this.currentWorkspaceID = ids[0];
       }
     }
   }
