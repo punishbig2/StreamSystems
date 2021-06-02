@@ -53,14 +53,9 @@ const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
-const releaseCount = getAsString(exec('git', ['rev-list', 'HEAD', '--count']));
-const branch = getAsString(exec('git', ['symbolic-ref', '--short', 'HEAD']));
+const releaseCount = getAsString(exec('git', ['rev-list', '--branches=main', '--count']));
 const releaseNumber = (() => {
-  const cleanBranchName = branch.trim();
-  if (cleanBranchName === 'master') {
-    return releaseCount.trim();
-  }
-  return `${branch.trim()}-${releaseCount.trim()}`;
+  return `${releaseCount.trim()}`;
 })();
 
 // This is the production and development configuration.
@@ -526,7 +521,7 @@ module.exports = function (webpackEnv) {
             inject: true,
             template: paths.appHtml,
             templateParameters: {
-              version: `1.0.${releaseNumber}`,
+              version: `v2.0.${releaseNumber}`,
             },
           },
           isEnvProduction
