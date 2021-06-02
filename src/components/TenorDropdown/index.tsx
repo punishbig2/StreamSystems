@@ -1,6 +1,10 @@
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { DropdownItem } from "forms/fieldDef";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { SPECIFIC_TENOR } from "utils/tenorUtils";
@@ -29,7 +33,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     value: Date | string
   ): void => {
     if (value instanceof Date && props.onChange !== undefined) {
-      props.onChange(props.name, value);
+      void props.onChange(props.name, value);
     }
   };
   const onSelectChange = async (name: keyof T, value: any): Promise<void> => {
@@ -38,6 +42,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     }
   };
   const { name = "", expiryDate = null } = value !== null ? value : {};
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   return (
     <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
       <Grid className={"bank-entity-field"} spacing={1} item container>
@@ -54,12 +59,13 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
             editable={!props.readOnly}
             disabled={props.disabled}
             onChange={onSelectChange}
+            store={store}
           />
           <div style={{ width: 2 }} />
         </Grid>
         <Grid xs={6} item>
           <div style={{ width: 2 }} />
-          <FormField<{ date: Date }>
+          <FormField<{ date: Date }, MiddleOfficeStore>
             color={props.color}
             type={"date"}
             value={expiryDate}
@@ -68,6 +74,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
             name={"date"}
             disabled={props.disabled}
             onInput={onDateChange}
+            store={store}
           />
         </Grid>
       </Grid>

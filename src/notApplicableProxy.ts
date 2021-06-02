@@ -1,5 +1,5 @@
 import { EditableFlag } from "types/product";
-import { MoStore } from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry } from "structures/dealEntry";
 
 export const NotApplicableProxy = <T>(
@@ -10,8 +10,11 @@ export const NotApplicableProxy = <T>(
   return {
     get: (target: T, name: keyof T): any => {
       if (
-        MoStore.getFieldEditableFlag(prefix, name as string, entry.strategy) ===
-        EditableFlag.NotApplicable
+        MiddleOfficeStore.getFieldEditableFlag(
+          prefix,
+          name as string,
+          entry.strategy
+        ) === EditableFlag.NotApplicable
       ) {
         return defaultValue;
       } else {

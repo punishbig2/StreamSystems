@@ -1,3 +1,4 @@
+import React from "react";
 import { Editable } from "components/FormField/inputHandler";
 import { MinimalProps } from "components/FormField/minimalProps";
 import { NumericInputHandler } from "components/FormField/numeric";
@@ -26,8 +27,8 @@ export class StrikeHandler<
         if (deltaOrSpecial) {
           return [normalized, Validity.Valid];
         } else if (isNumeric(normalized)) {
-          if (normalized.slice(-1) === DecimalSeparator) {
-            return [normalized, Validity.Intermediate];
+          if (value.endsWith(DecimalSeparator)) {
+            return [value, Validity.Intermediate];
           } else {
             // Apply some formatting?
             return [normalized, Validity.Valid];
@@ -58,8 +59,6 @@ export class StrikeHandler<
       const match: string[] | null = value.match(regex);
       if (match === null) {
         if (isNumeric(value)) {
-          if (value.endsWith(DecimalSeparator) || value.endsWith("0"))
-            return value;
           return super.parse(value, props);
         } else {
           return value;

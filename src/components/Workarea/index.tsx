@@ -13,9 +13,16 @@ import { TradingWorkspace } from "components/Workspace";
 import strings from "locales";
 import { observer } from "mobx-react";
 import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 
 import { themeStore } from "mobx/stores/themeStore";
-import { WorkspaceStoreContext } from "mobx/stores/tradingWorkspaceStore";
+import {
+  TradingWorkspaceStore,
+  WorkspaceStoreContext,
+} from "mobx/stores/tradingWorkspaceStore";
 import store from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { WorkareaStatus } from "stateDefs/workareaState";
@@ -96,7 +103,7 @@ const Workarea: React.FC = (): ReactElement | null => {
   };
 
   const getActiveWorkspace = () => {
-    const { workspaces, user, currentWorkspaceID } = store;
+    const { workspace, user } = store;
     if (store.status === WorkareaStatus.Welcome) return <Welcome />;
     if (user === null) return null;
     const symbols: ReadonlyArray<Symbol> = (() => {
@@ -107,22 +114,19 @@ const Workarea: React.FC = (): ReactElement | null => {
         return regions.includes(symbol.ccyGroup);
       });
     })();
-    if (currentWorkspaceID === "mo") {
-      return <MiddleOffice visible={true} />;
-    } else {
-      if (currentWorkspaceID === null) return null;
-      const workspaceStore = workspaces[currentWorkspaceID];
-      if (workspaceStore === undefined)
-        throw new Error("invalid store for workspace");
+    if (workspace instanceof MiddleOfficeStore) {
       return (
-        <WorkspaceStoreContext.Provider
-          value={workspaceStore}
-          key={workspaceStore.id}
-        >
+        <MiddleOfficeStoreContext.Provider value={workspace}>
+          <MiddleOffice visible={true} />
+        </MiddleOfficeStoreContext.Provider>
+      );
+    } else if (workspace instanceof TradingWorkspaceStore) {
+      return (
+        <WorkspaceStoreContext.Provider value={workspace} key={workspace.id}>
           <TradingWorkspace
-            id={workspaceStore.id}
-            isDefault={!workspaceStore.modified}
-            visible={workspaceStore.id === currentWorkspaceID}
+            id={workspace.id}
+            isDefault={!workspace.modified}
+            visible={true}
             tenors={store.tenors}
             /* Only filtered symbols */
             currencies={symbols}
@@ -132,6 +136,8 @@ const Workarea: React.FC = (): ReactElement | null => {
           />
         </WorkspaceStoreContext.Provider>
       );
+    } else {
+      return null;
     }
   };
 
@@ -139,7 +145,7 @@ const Workarea: React.FC = (): ReactElement | null => {
     return (
       <div className={"footer"}>
         <TabBar
-          entries={store.workspaces}
+          entries={{ ...store.workspaces, ...store.middleOffices }}
           active={store.currentWorkspaceID}
           connected={store.connected}
           setActiveTab={store.setWorkspace}

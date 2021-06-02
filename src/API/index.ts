@@ -1,7 +1,6 @@
 import { isInvalidTenor, isTenor } from "components/FormField/helpers";
-import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { Product } from "types/product";
+import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
 import {
   OptionLeg,
   ValuationModel,
@@ -9,7 +8,6 @@ import {
 } from "components/MiddleOffice/types/pricer";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
-import moStore from "mobx/stores/moStore";
 import workareaStore from "mobx/stores/workareaStore";
 import { NotApplicableProxy } from "notApplicableProxy";
 import { STRM } from "stateDefs/workspaceState";
@@ -32,6 +30,7 @@ import {
   Order,
   OrderMessage,
 } from "types/order";
+import { Product } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
@@ -43,11 +42,10 @@ import {
   floatAsString,
   getCurrentTime,
   getSideFromType,
-  numberifyIfPossible,
+  tryToNumber,
 } from "utils/commonUtils";
 
 import {
-  createDealFromBackendMessage,
   getDealId,
   getTenor,
   resolveBankToEntity,
@@ -783,7 +781,9 @@ export class API {
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null,
     valuationModel: ValuationModel,
-    strategy: Product
+    strategy: Product,
+    defaultLegAdjust: string,
+    legDefs: { in: ReadonlyArray<LegOptionsDefIn> }
   ): Promise<void> {
     const proxyEntry = new Proxy(
       entry,
@@ -796,7 +796,8 @@ export class API {
       proxyEntry,
       strategy,
       symbol,
-      legs
+      legs,
+      legDefs
     );
     const ccyPair: string = symbol.symbolID;
     const legsPromises = mergedDefinitions.map(
@@ -829,7 +830,7 @@ export class API {
           expiryDate: toUTC(expiryDate),
           deliveryDate: toUTC(deliveryDate),
           spreadVolatiltyOffset: spread,
-          strike: numberifyIfPossible(
+          strike: tryToNumber(
             coalesce(
               proxyLeg.strike,
               coalesce(proxyEntry.dealstrike, strategy.strike)
@@ -866,9 +867,7 @@ export class API {
         ccy2: ccyPair.replace(symbol.notionalCCY, ""),
         OptionProductType: strategy.OptionProductType,
         vegaAdjust:
-          proxyEntry.legadj === null
-            ? moStore.defaultLegAdjust
-            : proxyEntry.legadj,
+          proxyEntry.legadj === null ? defaultLegAdjust : proxyEntry.legadj,
         notionalCCY: symbol.notionalCCY,
         riskCCY: symbol.riskCCY,
         premiumCCY: symbol.premiumCCY,
@@ -913,15 +912,18 @@ export class API {
     return task.execute();
   }
 
-  public static async getDeals(dealid?: string): Promise<Deal[]> {
-    const task: Task<Deal[]> = GET<Deal[]>(
+  public static async getDeals(
+    dealID?: string
+  ): Promise<ReadonlyArray<{ [key: string]: any }>> {
+    const task: Task<ReadonlyArray<{ [key: string]: any }>> = GET<
+      ReadonlyArray<{ [key: string]: any }>
+    >(
       API.buildUrl(API.Deal, "deals", "get"),
-      dealid !== undefined ? { dealid } : undefined
+      dealID !== undefined ? { dealid: dealID } : undefined
     );
-    const array: any[] | null = await task.execute();
+    const array = await task.execute();
     if (array === null) return [];
-    const promises: Promise<Deal>[] = array.map(createDealFromBackendMessage);
-    return Promise.all(promises);
+    return array;
   }
 
   public static async removeDeal(id: string): Promise<any> {
@@ -962,55 +964,64 @@ export class API {
 
   public static async updateDeal(
     data: DealEntry,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null,
+    entitiesMap: { [key: string]: BankEntity },
+    entities: BankEntitiesQueryResponse,
     changed: string[]
   ): Promise<string> {
     if (data.dealID === undefined)
       throw new Error("to save an existing deal please provide an id");
-    const legs: ReadonlyArray<Leg> = [...moStore.legs];
-    const summaryLeg: SummaryLeg | null =
-      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
     await API.saveLegs(data.dealID, legs, summaryLeg);
     // Save the deal now
     const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "update"),
-      API.createDealRequest(data, changed)
+      API.createDealRequest(data, changed, entitiesMap, entities)
     );
     return task.execute();
   }
 
   public static async cloneDeal(
     data: DealEntry,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null,
+    entitiesMap: { [key: string]: BankEntity },
+    entities: BankEntitiesQueryResponse,
     changed: string[]
   ): Promise<string> {
     const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
-      API.createDealRequest(data, changed)
+      API.createDealRequest(data, changed, entitiesMap, entities)
     );
-    return API.onDealCreated(task);
+    return API.onDealCreated(task, legs, summaryLeg);
   }
 
   public static async createDeal(
     data: DealEntry,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null,
+    entitiesMap: { [key: string]: BankEntity },
+    entities: BankEntitiesQueryResponse,
     changed: string[]
   ): Promise<string> {
     const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "create"),
-      API.createDealRequest(data, changed)
+      API.createDealRequest(data, changed, entitiesMap, entities)
     );
-    return API.onDealCreated(task);
+    return API.onDealCreated(task, legs, summaryLeg);
   }
 
   public static getLegs(
-    dealid: string | undefined
+    dealID: string | undefined
   ): Task<{ legs: ReadonlyArray<Leg> } | null> {
-    if (dealid === undefined)
+    if (dealID === undefined)
       return {
         execute: async (): Promise<null> => null,
         cancel: () => undefined,
       };
     // We return the task instead of it's execution promise so that
     // the caller can cancel if desired/needed
-    return GET<any>(API.buildUrl(API.Legs, "legs", "get", { dealid }));
+    return GET<any>(API.buildUrl(API.Legs, "legs", "get", { dealid: dealID }));
   }
 
   public static async getOptionLegsDefIn(): Promise<any> {
@@ -1028,12 +1039,12 @@ export class API {
   }
 
   public static getBrokerageWidths(
-    ccypair: string,
+    ccyPair: string,
     strategy: string
   ): Task<BrokerageWidthsResponse> {
     return GET<BrokerageWidthsResponse>(
       API.buildUrl(API.Brokerage, "width", "get", {
-        ccypair,
+        ccypair: ccyPair,
         strategy,
       })
     );
@@ -1117,7 +1128,9 @@ export class API {
 
   private static createDealRequest(
     entry: DealEntry,
-    changed: string[]
+    changed: string[],
+    entitiesMap: { [p: string]: BankEntity },
+    entities: BankEntitiesQueryResponse
   ): ServerDealQuery {
     const user: User = workareaStore.user;
     const { symbol, strategy, tenor1, tenor2 } = entry;
@@ -1137,10 +1150,10 @@ export class API {
       lvsqty: "0",
       cumqty: "0",
       transacttime: toUTCFIXFormat(new Date()),
-      buyerentitycode: resolveBankToEntity(entry.buyer),
-      sellerentitycode: resolveBankToEntity(entry.seller),
-      buyer: resolveEntityToBank(entry.buyer),
-      seller: resolveEntityToBank(entry.seller),
+      buyerentitycode: resolveBankToEntity(entry.buyer, entities),
+      sellerentitycode: resolveBankToEntity(entry.seller, entities),
+      buyer: resolveEntityToBank(entry.buyer, entitiesMap),
+      seller: resolveEntityToBank(entry.seller, entitiesMap),
       useremail: user.email,
       strike: entry.dealstrike,
       expirydate: toUTCFIXFormat(tenor1.expiryDate),
@@ -1181,9 +1194,7 @@ export class API {
           ...(fwdPts !== null && fwdPts !== undefined
             ? { fwdPts: floatAsString(fwdPts) }
             : {}),
-          ...(!!strike
-            ? { strike: floatAsString(numberifyIfPossible(strike)) }
-            : {}),
+          ...(!!strike ? { strike: floatAsString(tryToNumber(strike)) } : {}),
         };
       }
     );
@@ -1195,15 +1206,17 @@ export class API {
     return task.execute();
   }
 
-  private static async onDealCreated(task: Task<string>): Promise<string> {
-    const legs: ReadonlyArray<Leg> = [...moStore.legs];
-    const summaryLeg: SummaryLeg | null =
-      moStore.summaryLeg !== null ? { ...moStore.summaryLeg } : null;
+  private static async onDealCreated(
+    task: Task<string>,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null
+  ): Promise<string> {
     const dealID: string = await task.execute();
     // Save the legs now
     await API.saveLegs(dealID, legs, summaryLeg);
     // Once saved, set them in the store
-    moStore.setLegs(legs, summaryLeg);
+    // FIXME: notify the store now?
+    // moStore.setLegs(legs, summaryLeg);
     // Now we're done
     return dealID;
   }

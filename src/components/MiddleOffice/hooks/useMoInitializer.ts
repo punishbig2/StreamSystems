@@ -1,11 +1,9 @@
-import moStore from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { useEffect } from "react";
 
-export const useMoInitializer = () => {
-  useEffect(() => {
-    moStore
-      .loadReferenceData()
-      .then(() => {})
-      .catch((error: any): void => {});
-  }, []);
+export const useMoInitializer = (store: MiddleOfficeStore) => {
+  useEffect((): (() => void) => {
+    void store.loadReferenceData();
+    return store.connectListeners();
+  }, [store]);
 };

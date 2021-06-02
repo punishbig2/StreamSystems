@@ -38,13 +38,13 @@ export interface FieldDef<T, E = {}, S = {}> {
     item: any,
     entry?: T
   ) => ReadonlyArray<DropdownItem>;
-  readonly minimum?: number | (() => number);
+  readonly minimum?: number | ((store: S) => number);
   readonly maximum?: number;
   readonly dataSource?: keyof S;
   readonly data?: any;
   readonly handler?: InputHandler<T>;
   readonly key?: string;
   readonly rounding?: number;
-  readonly tooltip?: () => string | null;
+  readonly tooltip?: (store: S) => string | null;
   readonly tooltipStyle?: "neutral" | "good" | "bad";
 }

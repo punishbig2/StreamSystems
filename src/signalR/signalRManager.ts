@@ -11,7 +11,10 @@ import {
   CommissionRate,
   convertToCommissionRatesArray,
 } from "mobx/stores/brokerageStore";
-import moStore, { MoStatus } from "mobx/stores/moStore";
+import {
+  MiddleOfficeProcessingState,
+  MiddleOfficeStore,
+} from "mobx/stores/middleOfficeStore";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -25,7 +28,6 @@ import { User } from "types/user";
 import { isPodW, W } from "types/w";
 import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { coalesce } from "utils/commonUtils";
-import { createDealFromBackendMessage } from "utils/dealUtils";
 import { $$ } from "utils/stringPaster";
 
 const INITIAL_RECONNECT_DELAY: number = 3000;
@@ -95,6 +97,7 @@ export class SignalRManager {
     },
   ];
   private pendingW: { [k: string]: W } = {};
+  private middleOffices: Array<MiddleOfficeStore> = [];
 
   // private listeners: { [k: string]: (arg: W) => void } = {};
 
@@ -228,14 +231,13 @@ export class SignalRManager {
     };
   }
 
-  public addDeal = async (deal: any): Promise<void> => {
+  public addDeal = async (deal: Deal): Promise<void> => {
     if ("dealId" in deal) {
       // IGNORE THIS INTENTIONALLY
     } else {
       try {
-        const detail: Deal = await createDealFromBackendMessage(deal);
         const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
-          detail: detail,
+          detail: deal,
         });
         document.dispatchEvent(event);
       } catch (error) {
@@ -277,9 +279,11 @@ export class SignalRManager {
     };
   };
 
-  public addDealListener = (listener: (deal: Deal) => void) => {
+  public addDealListener = (
+    listener: (deal: { [key: string]: any }) => void
+  ) => {
     const listenerWrapper = (event: Event) => {
-      const customEvent: CustomEvent<Deal> = event as CustomEvent<Deal>;
+      const customEvent = event as CustomEvent<{ [key: string]: any }>;
       // Call the actual listener
       listener(customEvent.detail);
     };
@@ -534,14 +538,17 @@ export class SignalRManager {
   };
 
   private onUpdateLegs = (message: string): void => {
-    const { selectedDealID } = moStore;
-    if (selectedDealID === null) return;
+    const { middleOffices } = this;
     const data = JSON.parse(message);
-    // Only replace legs if current deal matches
-    // the updated deal
-    if (data.id === selectedDealID) {
-      moStore.setLegs(data.legs, null);
-    }
+    middleOffices.forEach((store: MiddleOfficeStore): void => {
+      const { selectedDealID } = store;
+      if (selectedDealID === null) return;
+      // Only replace legs if current deal matches
+      // the updated deal
+      if (data.id === selectedDealID) {
+        store.setLegs(data.legs, null);
+      }
+    });
   };
 
   private onUpdateDeals = (message: string): void => {
@@ -688,24 +695,41 @@ export class SignalRManager {
     const error: any = JSON.parse(data);
     if (error.useremail !== user.email) {
       if ("dealid" in error) {
-        if (
-          moStore.selectedDealID === error.dealid &&
-          moStore.status === MoStatus.Pricing
-        ) {
-          // This is a pricing error that belongs to our user anyway
-          moStore.setError({
-            error: error.error_msg,
-            code: 1001,
-            message: error.error_msg,
-            status: "Unable to complete",
-          });
-        }
+        const { middleOffices } = this;
+        middleOffices.forEach((store: MiddleOfficeStore): void => {
+          if (
+            store.selectedDealID === error.dealid &&
+            store.status === MiddleOfficeProcessingState.Pricing
+          ) {
+            // This is a pricing error that belongs to our user anyway
+            store.setError({
+              error: error.error_msg,
+              code: 1001,
+              message: error.error_msg,
+              status: "Unable to complete",
+            });
+          }
+        });
       }
       console.warn(error);
     } else {
       console.warn(error);
     }
   };
+
+  public connectMiddleOfficeStore(store: MiddleOfficeStore): () => void {
+    const { middleOffices } = this;
+    const index = middleOffices.length;
+    // Add 1 store
+    this.middleOffices = [...middleOffices, store];
+    return () => {
+      const { middleOffices } = this;
+      this.middleOffices = [
+        ...middleOffices.slice(0, index),
+        ...middleOffices.slice(index + 1),
+      ];
+    };
+  }
 }
 
 export default new SignalRManager();

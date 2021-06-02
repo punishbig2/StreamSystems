@@ -1,6 +1,10 @@
 import { Grid } from "@material-ui/core";
 import { FormField } from "components/FormField";
 import { FieldType } from "forms/fieldType";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import { getStyledValue } from "utils/legsUtils";
 import React, { useEffect, useState } from "react";
 import { DealEntry } from "structures/dealEntry";
@@ -17,6 +21,7 @@ interface Props {
 export const DealOutputSection: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const { dealOutput, premiumStyle, dealEntry } = props;
   const { symbol } = dealEntry;
   const [priceType, setPriceType] = useState<FieldType>(
@@ -63,6 +68,7 @@ export const DealOutputSection: React.FC<Props> = (
           currency={currencies.premium}
           precision={premiumPrecision}
           disabled={props.disabled}
+          store={store}
         />
         <FormField
           label={"Price %/Pips"}
@@ -72,6 +78,7 @@ export const DealOutputSection: React.FC<Props> = (
           type={priceType}
           precision={4}
           disabled={props.disabled}
+          store={store}
         />
         <FormField
           label={"Delta"}
@@ -81,6 +88,7 @@ export const DealOutputSection: React.FC<Props> = (
           type={"number"}
           precision={4}
           disabled={props.disabled}
+          store={store}
         />
         <FormField
           label={"Gamma"}
@@ -90,6 +98,7 @@ export const DealOutputSection: React.FC<Props> = (
           type={"currency"}
           currency={currencies.risk}
           disabled={props.disabled}
+          store={store}
         />
         <FormField
           label={"Net Vega"}
@@ -99,6 +108,7 @@ export const DealOutputSection: React.FC<Props> = (
           type={"currency"}
           currency={currencies.risk}
           disabled={props.disabled}
+          store={store}
         />
         <FormField
           label={"Net Hedge"}
@@ -108,6 +118,7 @@ export const DealOutputSection: React.FC<Props> = (
           type={"currency"}
           currency={currencies.risk}
           disabled={props.disabled}
+          store={store}
         />
       </fieldset>
     </Grid>

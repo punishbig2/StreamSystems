@@ -1,4 +1,4 @@
-import { ModelParameters } from "mobx/stores/moStore";
+import { ModelParameters } from "mobx/stores/middleOfficeStore";
 
 export interface OptionLeg {
   readonly strike?: string | number | null;

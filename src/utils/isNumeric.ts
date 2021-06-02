@@ -43,9 +43,10 @@ const getThousandsSeparatorRegexp = (): string | RegExp => {
 };
 
 export const toNumber = (
-  value: string | null,
+  value: number | string | null,
   currency?: string
 ): number | null | undefined => {
+  if (typeof value === "number") return value;
   if (value === null) return null;
   const separator: string | RegExp = getDecimalSeparatorForRegexp();
   const fragments: string[] = value
@@ -87,7 +88,10 @@ export const toNumber = (
   }
 };
 
-export const isNumeric = (value: string | number): boolean => {
+export const isNumeric = (
+  value: string | number | null | undefined
+): value is number => {
+  if (value === null || value === undefined) return false;
   if (typeof value === "number") return true;
   return toNumber(value) !== undefined;
 };

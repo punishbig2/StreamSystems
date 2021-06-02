@@ -1,16 +1,17 @@
-import { API, Task } from "API";
+import { API, BankEntitiesQueryResponse, Task } from "API";
 import { isTenor } from "components/FormField/helpers";
 import { Commission, Deal } from "components/MiddleOffice/types/deal";
-import { InvalidStrategy, Product } from "types/product";
+import { Leg } from "components/MiddleOffice/types/leg";
 import { Globals } from "golbals";
-import moStore, { MoStore } from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
+import { InvalidStrategy, Product } from "types/product";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce, numberifyIfPossible } from "utils/commonUtils";
+import { coalesce, tryToNumber } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
 import {
   addToDate,
@@ -31,16 +32,22 @@ export const stateMap: { [key: number]: string } = {
   [DealStatus.STPComplete]: "STP Complete",
 };
 
-export const resolveEntityToBank = (source: string): string => {
-  const bank: BankEntity | undefined = moStore.entitiesMap[source];
+export const resolveEntityToBank = (
+  source: string,
+  entitiesMap: { [p: string]: BankEntity }
+): string => {
+  const bank: BankEntity | undefined = entitiesMap[source];
   if (bank === undefined) {
     return source;
   }
   return bank.id;
 };
 
-export const resolveBankToEntity = (source: string): string => {
-  const bank: BankEntity[] | undefined = moStore.entities[source];
+export const resolveBankToEntity = (
+  source: string,
+  entities: BankEntitiesQueryResponse
+): string => {
+  const bank: BankEntity[] | undefined = entities[source];
   if (bank === undefined)
     return source /* it probably already is the entity code */;
   const entity: BankEntity | undefined = bank.find(
@@ -55,10 +62,10 @@ const getCommissionRates = async (item: any): Promise<any> => {
     item.buyer_comm_rate === undefined ||
     item.seller_comm_rate === undefined
   ) {
-    const deals: Deal[] = await API.getDeals();
+    const deals: ReadonlyArray<{ [key: string]: any }> = await API.getDeals();
     if (deals.length === 0) return undefined;
-    const found: Deal | undefined = deals.find(
-      (deal: Deal): boolean => deal.id === item.linkid
+    const found: { [key: string]: any } | undefined = deals.find(
+      (deal: { [key: string]: any }): boolean => deal.id === item.linkid
     );
     if (found === undefined) return undefined;
     return found.commissions;
@@ -75,17 +82,22 @@ const getCommissionRates = async (item: any): Promise<any> => {
   };
 };
 
-const getSpreadOrVol = (item: any, key: "spread" | "vol"): number | null => {
+const getSpreadOrVol = (
+  item: any,
+  key: "spread" | "vol",
+  strategy: Product | undefined
+): number | null => {
   const value: any = item[key];
   if (value !== "" && value !== undefined) return value;
-  const strategy: Product | undefined = moStore.getStrategyById(item.strategy);
   if (strategy === undefined) return null;
   if (strategy.spreadvsvol !== key) return null;
   return item.lastpx / 100;
 };
 
-const getSpread = (item: any): number | null => getSpreadOrVol(item, "spread");
-const getVol = (item: any): number | null => getSpreadOrVol(item, "vol");
+const getSpread = (item: any, strategy: Product | undefined): number | null =>
+  getSpreadOrVol(item, "spread", strategy);
+const getVol = (item: any, strategy: Product | undefined): number | null =>
+  getSpreadOrVol(item, "vol", strategy);
 
 const partialTenor = (
   symbol: Symbol,
@@ -142,51 +154,60 @@ const JSONSafelyParse = (
   }
 };
 
+const getDealPrice = (deal: Deal, legs: ReadonlyArray<Leg>): number | null => {
+  if (deal.vol !== undefined && deal.vol !== null) return 100 * deal.vol;
+  if (deal.spread !== undefined && deal.spread !== null)
+    return 100 * deal.spread;
+  if (deal.price === null || deal.price === undefined) {
+    if (legs.length === 0) return null;
+    if (legs[0].vol === undefined) return null;
+    return legs[0].vol;
+  }
+  return deal.price;
+};
+
 export const createDealFromBackendMessage = async (
-  source: any
+  source: { [key: string]: any } | string,
+  symbol: Symbol,
+  strategy: Product,
+  defaultLegAdjust: string | null,
+  legs: ReadonlyArray<Leg>
 ): Promise<Deal> => {
-  const symbol: Symbol = moStore.findSymbolById(source.symbol);
-  const object: any = typeof source === "string" ? JSON.parse(source) : source;
-  const tradeDate: Date = parseTime(object.transacttime, Globals.timezone);
+  const data: any = typeof source === "string" ? JSON.parse(source) : source;
+  const tradeDate: Date = parseTime(data.transacttime, Globals.timezone);
   const strike: string = coalesce(
-    object.strike,
-    getDefaultStrikeForStrategy(object.strategy)
+    data.strike,
+    getDefaultStrikeForStrategy(data.strategy)
   );
   const tenor1: Tenor | null = partialTenor(
     symbol,
-    object.tenor,
-    object.expirydate
+    data.tenor,
+    data.expirydate
   );
   if (tenor1 === null) {
     throw new Error("invalid backend message for deal, missing tenor");
   }
   const tenor2: Tenor | null = partialTenor(
     symbol,
-    object.tenor1,
-    object.expirydate1
+    data.tenor1,
+    data.expirydate1
   );
-  const spread: number | null = getSpread(object);
-  const vol: number | null = getVol(object);
-  const price: number | null = getPrice(object.lastpx, object.pricedvol);
-  const strategy: Product | undefined = moStore.findStrategyById(
-    object.strategy
-  );
-  return {
-    id: object.linkid,
-    buyer: coalesce(object.buyerentitycode, object.buyer),
-    seller: coalesce(object.sellerentitycode, object.seller),
-    currency: object.symbol,
-    isdarkpool: object.isdarkpool,
+  const spread: number | null = getSpread(data, strategy);
+  const vol: number | null = getVol(data, strategy);
+  const price: number | null = getPrice(data.lastpx, data.pricedvol);
+  const deal = {
+    id: data.linkid,
+    buyer: coalesce(data.buyerentitycode, data.buyer),
+    seller: coalesce(data.sellerentitycode, data.seller),
+    currency: data.symbol,
+    isdarkpool: data.isdarkpool,
     spread: coalesce(spread, price),
     vol: coalesce(vol, price),
-    legAdj: coalesce(
-      object.legadj,
-      strategy ? moStore.getDefaultLegAdjust(strategy, symbol) : null
-    ),
-    notional1: Number(object.lastqty) * 1e6,
-    notional2: object.notional1 === null ? null : Number(object.notional1),
-    strategy: object.strategy,
-    currencyPair: object.symbol,
+    legAdj: coalesce(data.legadj, defaultLegAdjust),
+    notional1: Number(data.lastqty) * 1e6,
+    notional2: data.notional1 === null ? null : Number(data.notional1),
+    strategy: data.strategy,
+    currencyPair: data.symbol,
     tenor1: tenor1.name,
     expiryDate1: tenor1.expiryDate,
     tenor2: !!tenor2 ? tenor2.name : undefined,
@@ -195,18 +216,20 @@ export const createDealFromBackendMessage = async (
     spotDate: new Date(),
     premiumDate: new Date(),
     price: price,
-    strike: strike === "" ? null : numberifyIfPossible(strike),
+    strike: strike === "" ? null : tryToNumber(strike),
     symbol: symbol,
-    source: object.source,
-    status: object.state,
-    sef_namespace: !!object.sef_namespace ? object.sef_namespace : null,
-    deltaStyle: object.deltastyle === "" ? "Forward" : object.deltastyle,
-    premiumStyle: object.premstyle === "" ? "Forward" : object.premstyle,
-    commissions: await getCommissionRates(object),
-    usi: object.usi_num,
-    extraFields: JSONSafelyParse(object.extra_fields),
-    error_msg: object.error_msg,
+    source: data.source,
+    status: data.state,
+    sef_namespace: !!data.sef_namespace ? data.sef_namespace : null,
+    deltaStyle: data.deltastyle === "" ? "Forward" : data.deltastyle,
+    premiumStyle: data.premstyle === "" ? "Forward" : data.premstyle,
+    commissions: await getCommissionRates(data),
+    usi: data.usi_num,
+    extraFields: JSONSafelyParse(data.extra_fields),
+    error_msg: data.error_msg,
+    dealPrice: null,
   };
+  return { ...deal, dealPrice: getDealPrice(deal, legs) };
 };
 
 export const dealSourceToDealType = (source: string): DealType => {
@@ -252,8 +275,14 @@ const expandCommission = (commission?: {
 const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
   const { tenor1, tenor2 } = entry;
   // Query dates for regular tenors
-  const task1: Task<FixTenorResult> = MoStore.fixTenorDates(tenor1, entry);
-  const task2: Task<FixTenorResult> = MoStore.fixTenorDates(tenor2, entry);
+  const task1: Task<FixTenorResult> = MiddleOfficeStore.fixTenorDates(
+    tenor1,
+    entry
+  );
+  const task2: Task<FixTenorResult> = MiddleOfficeStore.fixTenorDates(
+    tenor2,
+    entry
+  );
   return {
     execute: async (): Promise<DealEntry> => {
       const tenor1Dates: FixTenorResult = await task1.execute();
@@ -275,13 +304,19 @@ const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
   };
 };
 
-export const createDealEntry = (deal: Deal): Task<DealEntry> => {
+export const createDealEntry = (
+  deal: Deal,
+  legsCount: number,
+  symbol: Symbol,
+  strategy: Product,
+  defaultLegAdjust: string | null
+): Task<DealEntry> => {
   const id: string = deal.id;
-  const legsCount: number = moStore.getOutLegsCount(deal.strategy);
-  const symbol: Symbol = moStore.findSymbolById(deal.currencyPair);
+  // const legsCount: number = moStore.getOutLegsCount(deal.strategy);
+  // const symbol: Symbol = moStore.findSymbolById(deal.currencyPair);
   if (symbol === InvalidSymbol)
     throw new Error("cannot find symbol: " + deal.currencyPair);
-  const strategy: Product = moStore.getStrategyById(deal.strategy);
+  // const strategy: Product = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
   const entry: DealEntry = {
@@ -292,7 +327,7 @@ export const createDealEntry = (deal: Deal): Task<DealEntry> => {
     not1: deal.notional1,
     not2: deal.notional2,
     size: deal.notional1 / 1e6,
-    legadj: coalesce(deal.legAdj, moStore.defaultLegAdjust),
+    legadj: coalesce(deal.legAdj, defaultLegAdjust),
     buyer: deal.buyer,
     seller: deal.seller,
     tradeDate: deal.tradeDate,

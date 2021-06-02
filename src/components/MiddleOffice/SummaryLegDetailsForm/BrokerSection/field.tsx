@@ -1,7 +1,10 @@
 import { FormField } from "components/FormField";
 import { EditableFlag } from "types/product";
 import { FieldDef } from "forms/fieldDef";
-import moStore, { MoStore } from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement, useMemo } from "react";
 import { BrokerageCommission } from "types/brokerageCommission";
 
@@ -12,19 +15,20 @@ interface Props extends FieldDef<BrokerageCommission, BrokerageCommission> {
 }
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const { value, name } = props;
-  const { entry } = moStore;
+  const { entry } = store;
   const { editable: editableProp } = props;
   const editable: boolean | undefined = ((): boolean | undefined => {
     if (typeof editableProp === "function") {
-      return editableProp(name, entry, moStore.isEditMode, "");
+      return editableProp(name, entry, store.isEditMode, "");
     } else {
       return editableProp;
     }
   })();
   const computedValue: any = useMemo((): any => {
     if (
-      MoStore.getFieldEditableFlag("", name, entry.strategy) ===
+      MiddleOfficeStore.getFieldEditableFlag("", name, entry.strategy) ===
       EditableFlag.NotApplicable
     ) {
       return "N/A";
@@ -33,7 +37,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     }
   }, [value, name, entry]);
   return (
-    <FormField<BrokerageCommission>
+    <FormField<BrokerageCommission, MiddleOfficeStore>
       name={name}
       disabled={props.disabled}
       label={props.label}
@@ -49,6 +53,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
         return props.onChange({ ...value, [name]: value });
       }}
       editable={editable}
+      store={store}
     />
   );
 };

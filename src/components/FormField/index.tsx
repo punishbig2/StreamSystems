@@ -23,23 +23,27 @@ import React, { PureComponent, ReactElement } from "react";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { roundToNearest } from "utils/roundToNearest";
 
-interface Props<T, R = string> extends MinimalProps<T> {
-  id?: string;
-  label?: string;
-  currency?: string;
-  type: FieldType;
-  color: "green" | "orange" | "cream" | "grey";
-  disabled?: boolean;
-  items?: (string | number)[];
-  placeholder?: string;
-  precision?: number;
-  dropdownData?: ReadonlyArray<DropdownItem<R>>;
-  rounding?: number;
-  handler?: InputHandler<T>;
-  onChange?: (name: keyof T, value: any) => Promise<void>;
-  onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
-  tooltip?: () => string | null;
-  tooltipStyle?: "neutral" | "good" | "bad";
+interface Props<T, R = string, S = any> extends MinimalProps<T> {
+  readonly id?: string;
+  readonly label?: string;
+  readonly currency?: string;
+  readonly type: FieldType;
+  readonly color: "green" | "orange" | "cream" | "grey";
+  readonly disabled?: boolean;
+  readonly items?: (string | number)[];
+  readonly placeholder?: string;
+  readonly precision?: number;
+  readonly dropdownData?: ReadonlyArray<DropdownItem<R>>;
+  readonly rounding?: number;
+  readonly handler?: InputHandler<T>;
+  readonly onChange?: (name: keyof T, value: any) => Promise<void>;
+  readonly onInput?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: any
+  ) => void;
+  readonly tooltip?: (store: S) => string | null;
+  readonly tooltipStyle?: "neutral" | "good" | "bad";
+  readonly store: S;
 }
 
 enum Editor {
@@ -68,7 +72,10 @@ const initialState: State = {
   changed: false,
 };
 
-export class FormField<T> extends PureComponent<Props<T>, State> {
+export class FormField<T, S = any> extends PureComponent<
+  Props<T, string, S>,
+  State
+> {
   static defaultProps = {
     precision: 0,
     emptyValue: "",
@@ -77,41 +84,47 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   public state: State = { ...initialState };
   private input: HTMLInputElement | null = null;
   private inputHandlers: {
-    [key in FieldType]?: InputHandler<T, Props<T>, State>;
+    [key in FieldType]?: InputHandler<T, Props<T, string, S>, State>;
   } = {};
-  private readonly defaultHandler: InputHandler<T, Props<T>, State>;
+  private readonly defaultHandler: InputHandler<T, Props<T, string, S>, State>;
 
-  constructor(props: Props<T>) {
+  constructor(props: Props<T, string, S>) {
     super(props);
-    const numeric: InputHandler<T, Props<T>, State> = new NumericInputHandler<
+    const numeric: InputHandler<
       T,
-      Props<T>,
+      Props<T, string, S>,
       State
-    >(props);
-    const date: InputHandler<T, Props<T>, State> = new DateInputHandler<
+    > = new NumericInputHandler<T, Props<T>, State>(props, props.store);
+    const date: InputHandler<
       T,
-      Props<T>,
+      Props<T, string, S>,
       State
-    >();
+    > = new DateInputHandler<T, Props<T, string, S>, State>();
     // Use sane handler for all numeric types
     this.inputHandlers["number"] = numeric;
     this.inputHandlers["currency"] = numeric;
     this.inputHandlers["percent"] = numeric;
     this.inputHandlers["date"] = date;
     this.inputHandlers["time"] = date;
-    this.inputHandlers["strike"] = new StrikeHandler(props);
+    this.inputHandlers["strike"] = new StrikeHandler(props, props.store);
     // The default handler
-    this.defaultHandler = new DefaultHandler<T, Props<T>, State>();
+    this.defaultHandler = new DefaultHandler<T, Props<T, string, S>, State>();
   }
 
   public componentDidMount = (): void => {
     this.setValueFromProps();
   };
 
-  public componentDidUpdate = (prevProps: Readonly<Props<T>>): void => {
+  public componentDidUpdate = (
+    prevProps: Readonly<Props<T, string, S>>
+  ): void => {
     const { props, state } = this;
     if (props.editable !== prevProps.editable && !props.editable) {
-      const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+      const handler: InputHandler<
+        T,
+        Props<T, string, S>,
+        State
+      > = this.getHandler();
       handler.reset(props);
       this.setValueFromProps();
     } else {
@@ -121,7 +134,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
         props.editable !== prevProps.editable ||
         props.currency !== prevProps.currency
       ) {
-        const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+        const handler: InputHandler<
+          T,
+          Props<T, string, S>,
+          State
+        > = this.getHandler();
         // Reset the formatter
         handler.reset(props);
         // Update the value
@@ -145,7 +162,7 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   public render(): ReactElement {
-    const { tooltip, tooltipStyle = "neutral", name } = this.props;
+    const { tooltip, tooltipStyle = "neutral", name, store } = this.props;
     const { internalValue } = this.state;
     const content: ReactElement | null = this.content();
     const extraClass: ReadonlyArray<string> =
@@ -153,16 +170,22 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     if (typeof tooltip !== "function") {
       return <div className={this.getClassName(...extraClass)}>{content}</div>;
     } else {
-      const tooltipString: string | null = tooltip();
-      if (tooltipString === null) {
-        return (
-          <div className={this.getClassName(...extraClass)}>{content}</div>
-        );
+      if (store !== undefined) {
+        const tooltipString: string | null = tooltip(store);
+        if (tooltipString === null) {
+          return (
+            <div className={this.getClassName(...extraClass)}>{content}</div>
+          );
+        } else {
+          return (
+            <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
+              <div className={this.getClassName(...extraClass)}>{content}</div>
+            </CustomTooltip>
+          );
+        }
       } else {
         return (
-          <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
-            <div className={this.getClassName(...extraClass)}>{content}</div>
-          </CustomTooltip>
+          <div className={this.getClassName(...extraClass)}>{content}</div>
         );
       }
     }
@@ -193,7 +216,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   private setValue = (value: any): void => {
     const { props, state, input } = this;
     // Get a handler to format the value
-    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+    const handler: InputHandler<
+      T,
+      Props<T, string, S>,
+      State
+    > = this.getHandler();
     // Create a value with appropriate formatting and an
     // internal representation of the value
     const stateUpdate = handler.createValue(value, input, props, state);
@@ -214,7 +241,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
   };
 
   private parse = (value: string): any => {
-    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+    const handler: InputHandler<
+      T,
+      Props<T, string, S>,
+      State
+    > = this.getHandler();
     return handler.parse(value, this.props);
   };
 
@@ -222,7 +253,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
-    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+    const handler: InputHandler<
+      T,
+      Props<T, string, S>,
+      State
+    > = this.getHandler();
     const result: State | Pick<State, keyof State> | null = handler.onKeyDown(
       event,
       props,
@@ -331,7 +366,11 @@ export class FormField<T> extends PureComponent<Props<T>, State> {
     const { props, state } = this;
     const { target } = event;
     if (!props.editable) return;
-    const handler: InputHandler<T, Props<T>, State> = this.getHandler();
+    const handler: InputHandler<
+      T,
+      Props<T, string, S>,
+      State
+    > = this.getHandler();
     if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
       event.preventDefault();
     } else {

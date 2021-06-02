@@ -2,12 +2,15 @@ import { MuiThemeProvider } from "@material-ui/core";
 import { Task } from "API";
 import { useMoInitializer } from "components/MiddleOffice/hooks/useMoInitializer";
 import { MiddleOfficeMain } from "components/MiddleOffice/middleOfficeMain";
-import { Deal } from "components/MiddleOffice/types/deal";
+import { BackendDeal, Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { ProgressView } from "components/progressView";
 import { observer } from "mobx-react";
-import store from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
@@ -23,6 +26,7 @@ interface Props {
 
 export const MiddleOffice: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
+    const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
     const { preferences } = workareaStore;
     const [newDeal, setDeal] = React.useState<Deal | null>(null);
     React.useEffect((): (() => void) => {
@@ -35,8 +39,8 @@ export const MiddleOffice: React.FC<Props> = observer(
       }
       // Allow cancellation
       return (): void => task.cancel();
-    }, [newDeal]);
-    useMoInitializer();
+    }, [newDeal, store]);
+    useMoInitializer(store);
     if (!store.isInitialized) {
       return (
         <ProgressView
@@ -63,7 +67,7 @@ export const MiddleOffice: React.FC<Props> = observer(
               store.updateSEFStatus(update)
             }
             removeDeal={(id: string): Promise<void> => store.removeDeal(id)}
-            addDeal={(deal: Deal): Promise<void> => store.addDeal(deal)}
+            addDeal={(deal: BackendDeal): Promise<void> => store.addDeal(deal)}
             setDeal={(deal: Deal | null): void => setDeal(deal)}
             setError={(error: MOErrorMessage): void => store.setError(error)}
             updateLeg={(

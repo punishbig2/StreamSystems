@@ -1,9 +1,14 @@
 import { ProgressModalContent } from "components/ProgressModalContent";
-import moStore, { messages } from "mobx/stores/moStore";
+import {
+  messages,
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
 
 export const ProgressView: React.FC = (): ReactElement | null => {
-  const message: string = messages[moStore.status];
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
+  const message: string = messages[store.status];
   return (
     <ProgressModalContent
       maximum={-1}

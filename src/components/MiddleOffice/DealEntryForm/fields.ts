@@ -1,17 +1,24 @@
 import { Product } from "types/product";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
-import moStore, { InternalValuationModel, MoStore } from "mobx/stores/moStore";
+import {
+  InternalValuationModel,
+  MiddleOfficeStore,
+} from "mobx/stores/middleOfficeStore";
 import { DealEntry, DealType, EntryType } from "structures/dealEntry";
 import { LegAdjustValue } from "types/legAdjustValue";
 import { Symbol } from "types/symbol";
 
-const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
+const fields: ReadonlyArray<
+  FieldDef<DealEntry, DealEntry, MiddleOfficeStore>
+> = [
   {
     name: "symbol",
     label: "CCYPair",
     type: "dropdown",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
+    editable: MiddleOfficeStore.createEditableFilter(
+      DealType.Voice | DealType.Manual
+    ),
     transformData: (array: Symbol[]): DropdownItem<Symbol>[] =>
       array.map(
         (symbol: Symbol): DropdownItem<Symbol> => ({
@@ -27,7 +34,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     label: "Strategy",
     type: "dropdown",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
+    editable: MiddleOfficeStore.createEditableFilter(
+      DealType.Voice | DealType.Manual
+    ),
     transformData: (
       data: { [key: string]: Product },
       entry?: DealEntry
@@ -66,8 +75,8 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     label: "Tenor 1",
     type: "tenor",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.All),
-    transformData: (data: string[]): DropdownItem[] => {
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    transformData: (data: string[]): ReadonlyArray<DropdownItem> => {
       return data.map(
         (tenor: string): DropdownItem => ({
           value: tenor,
@@ -83,8 +92,8 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     label: "Tenor 2",
     type: "tenor",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.All),
-    transformData: (data: string[]): DropdownItem[] => {
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    transformData: (data: string[]): ReadonlyArray<DropdownItem> => {
       return data.map(
         (tenor: string): DropdownItem => ({
           value: tenor,
@@ -101,7 +110,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "strike",
     placeholder: "0D",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.Voice | DealType.Manual),
+    editable: MiddleOfficeStore.createEditableFilter(
+      DealType.Voice | DealType.Manual
+    ),
   },
   {
     name: "vol",
@@ -110,7 +121,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     precision: 3,
     placeholder: "0",
     color: "orange",
-    editable: MoStore.createEditableFilter(
+    editable: MiddleOfficeStore.createEditableFilter(
       DealType.Voice | DealType.Manual,
       0,
       (entry: DealEntry): boolean => {
@@ -129,7 +140,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "percent",
     placeholder: "0",
     color: "orange",
-    editable: MoStore.createEditableFilter(
+    editable: MiddleOfficeStore.createEditableFilter(
       DealType.Voice | DealType.Manual,
       0,
       (entry: DealEntry): boolean => {
@@ -150,8 +161,8 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     placeholder: "0",
     precision: 0,
     color: "orange",
-    minimum: (): number => moStore.minimumNotional,
-    editable: MoStore.createEditableFilter(DealType.All),
+    minimum: (store: MiddleOfficeStore): number => store.minimumNotional,
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     name: "not2",
@@ -160,18 +171,24 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     placeholder: "0",
     precision: 0,
     color: "orange",
-    minimum: (): number => moStore.minimumNotional,
-    editable: MoStore.createEditableFilter(DealType.All),
+    minimum: (store: MiddleOfficeStore): number => store.minimumNotional,
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     name: "legadj",
+    dataSource: "legAdjustValues",
     label: "Leg Adj",
     type: "dropdown",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.All),
-    transformData: (): ReadonlyArray<DropdownItem<LegAdjustValue>> => {
-      const values: ReadonlyArray<any> = moStore.legAdjustValues;
-      return values.map((value: LegAdjustValue): any => ({
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    transformData: (
+      list: ReadonlyArray<LegAdjustValue>
+    ): ReadonlyArray<DropdownItem<LegAdjustValue>> => {
+      if (list === null) {
+        console.trace("here");
+        return [];
+      }
+      return list.map((value: LegAdjustValue): any => ({
         value: value.VegaLegAdjustValue,
         internalValue: value.VegaLegAdjustValue,
         label: value.VegaLegAdjustValue + (value.defaultvalue ? "*" : ""),
@@ -182,7 +199,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     name: "premstyle",
     label: "Premium Style",
     type: "dropdown",
-    transformData: (list: string[]): DropdownItem[] => {
+    transformData: (
+      list: ReadonlyArray<string>
+    ): ReadonlyArray<DropdownItem> => {
       return list.map(
         (item: string): DropdownItem => ({
           value: item,
@@ -193,13 +212,15 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     },
     dataSource: "premiumStyles",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     name: "deltastyle",
     label: "Delta Style",
     type: "dropdown",
-    transformData: (list: string[]): DropdownItem[] => {
+    transformData: (
+      list: ReadonlyArray<string>
+    ): ReadonlyArray<DropdownItem> => {
       return list.map(
         (item: string): DropdownItem => ({
           value: item,
@@ -210,7 +231,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     },
     dataSource: "deltaStyles",
     color: "orange",
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     name: "buyer",
@@ -218,7 +239,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "bank-entity",
     color: "cream",
     editable: true,
-    transformData: (list: string[]): DropdownItem[] =>
+    transformData: (list: ReadonlyArray<string>): ReadonlyArray<DropdownItem> =>
       list.map(
         (name: string): DropdownItem => ({
           value: name,
@@ -234,7 +255,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "bank-entity",
     color: "cream",
     editable: true,
-    transformData: (list: string[]): DropdownItem[] =>
+    transformData: (list: ReadonlyArray<string>): ReadonlyArray<DropdownItem> =>
       list.map(
         (name: string): DropdownItem => ({
           value: name,
@@ -278,8 +299,8 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     label: "Style",
     type: "dropdown",
     color: "green",
-    editable: MoStore.createEditableFilter(DealType.All),
-    transformData: (list: string[]): DropdownItem[] =>
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    transformData: (list: string[]): ReadonlyArray<DropdownItem> =>
       list.map(
         (name: string): DropdownItem => ({
           value: name,
@@ -294,7 +315,7 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     label: "Model",
     type: "dropdown",
     color: "green",
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
     transformData: (list: InternalValuationModel[]): DropdownItem<number>[] =>
       list.map(
         (model: InternalValuationModel): DropdownItem<number> => ({
@@ -311,8 +332,9 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MoStore>> = [
     type: "text",
     color: "green",
     editable: false,
-    tooltip: (): string | null => {
-      const { entry } = moStore;
+    tooltip: (store: MiddleOfficeStore): string | null => {
+      const { entry } = store;
+      if (!entry) return null;
       return entry.errorMsg;
     },
     tooltipStyle: "bad",

@@ -5,7 +5,10 @@ import {
 } from "components/BankEntityField/helpers";
 import { FormField } from "components/FormField";
 import { DropdownItem } from "forms/fieldDef";
-import moStore from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import { BankEntity } from "types/bankEntity";
 
@@ -20,10 +23,11 @@ interface Props<T> {
 }
 
 export function BankEntityField<T>(props: Props<T>): ReactElement {
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const { value, disabled, readOnly, name, onChange } = props;
   const [entities, setEntities] = useState<string[]>([]);
   const [firms, setFirms] = useState<string[]>([]);
-  const { entities: mapped } = moStore;
+  const { entities: mapped } = store;
   // Get the entity from the value
   const entity: BankEntity = getCurrentEntity(value, mapped);
   // This is the bank
@@ -90,6 +94,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
             disabled={disabled}
             editable={!readOnly}
             type={"dropdown"}
+            store={store}
           />
         </Grid>
         <Grid xs={6} item>
@@ -108,6 +113,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
             disabled={disabled}
             editable={!readOnly}
             type={"dropdown"}
+            store={store}
           />
         </Grid>
       </Grid>

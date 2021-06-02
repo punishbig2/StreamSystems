@@ -1,7 +1,10 @@
 import { Typography } from "@material-ui/core";
 import { MessageBox } from "components/MessageBox";
 import strings from "locales";
-import moStore from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement, ReactNode } from "react";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFErrorEntry } from "utils/parseSEFError";
@@ -30,6 +33,7 @@ const convertToElement = (entries: ReadonlyArray<SEFErrorEntry>): ReactNode => {
 export const MiddleOfficeError: React.FC<Props> = ({
   error,
 }: Props): ReactElement | null => {
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   if (error === null) return null;
   const content: ReactNode =
     typeof error.content === "undefined"
@@ -60,7 +64,7 @@ export const MiddleOfficeError: React.FC<Props> = ({
       buttons={() => {
         return (
           <>
-            <button className={"cancel"} onClick={() => moStore.setError(null)}>
+            <button className={"cancel"} onClick={() => store.setError(null)}>
               {strings.Close}
             </button>
           </>

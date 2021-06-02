@@ -22,7 +22,7 @@ export interface Product {
   shortname: string;
   source: ProductSource;
   spreadvsvol: "vol" | "spread" | "both";
-  strike?: string;
+  strike: string;
   fields: { f1: { [key: string]: EditableFlag } };
 
   [key: string]: any;

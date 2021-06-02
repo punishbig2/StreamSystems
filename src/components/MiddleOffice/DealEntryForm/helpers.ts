@@ -1,17 +1,20 @@
+import { BankEntitiesQueryResponse } from "API";
 import { EditableFlag } from "types/product";
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry } from "structures/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 
 export const getValue = (
-  field: FieldDef<DealEntry, DealEntry, MoStore>,
+  field: FieldDef<DealEntry, DealEntry, MiddleOfficeStore>,
   editFlag: EditableFlag,
   rawValue: any,
-  internal: boolean
+  internal: boolean,
+  entities: BankEntitiesQueryResponse
 ): any => {
   if (editFlag === EditableFlag.NotApplicable) return "N/A";
-  if (field.type === "bank-entity") return resolveBankToEntity(rawValue);
+  if (field.type === "bank-entity")
+    return resolveBankToEntity(rawValue, entities);
   if (field.name === "status") return stateMap[Number(rawValue)];
   if (!internal) {
     if (field.name === "symbol") {

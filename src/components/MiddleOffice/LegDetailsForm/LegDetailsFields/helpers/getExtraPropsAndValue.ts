@@ -7,7 +7,7 @@ import {
 import { Leg } from "components/MiddleOffice/types/leg";
 import { EditableFlag } from "types/product";
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry } from "structures/dealEntry";
 import { isStyledValue } from "types/styledValue";
 import { getStyledValue } from "utils/legsUtils";
@@ -34,7 +34,7 @@ export const getExtraPropsAndValue = (
   entry: DealEntry
 ): any => {
   const { symbol } = entry;
-  const editFlag: EditableFlag = MoStore.getFieldEditableFlag(
+  const editFlag: EditableFlag = MiddleOfficeStore.getFieldEditableFlag(
     "leg",
     field.name,
     entry.strategy

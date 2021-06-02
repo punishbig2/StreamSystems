@@ -1,5 +1,5 @@
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealType } from "structures/dealEntry";
 import { BrokerageCommission } from "types/brokerageCommission";
 
@@ -12,7 +12,7 @@ export const fields: ReadonlyArray<
     name: "buyer_comm_rate",
     type: "number",
     precision: 2,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     label: "Seller Brokerage Rate",
@@ -20,7 +20,7 @@ export const fields: ReadonlyArray<
     name: "seller_comm_rate",
     type: "number",
     precision: 2,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     label: "Buyer Commission",
@@ -28,7 +28,7 @@ export const fields: ReadonlyArray<
     name: "buyer_comm",
     type: "currency",
     precision: 2,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     label: "Seller Commission",
@@ -36,7 +36,7 @@ export const fields: ReadonlyArray<
     name: "seller_comm",
     type: "currency",
     precision: 2,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     label: "Total Commission",
@@ -44,6 +44,6 @@ export const fields: ReadonlyArray<
     name: "total",
     type: "currency",
     precision: 2,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
 ];

@@ -2,7 +2,10 @@ import { FormField } from "components/FormField";
 import { EditableFlag } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 
@@ -20,11 +23,15 @@ interface Props {
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const { field, dealEntry, summaryLeg, isEditMode } = props;
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const getValue = (): any => {
     if (summaryLeg === null) return null;
     if (
-      MoStore.getFieldEditableFlag("", field.name, dealEntry.strategy) ===
-      EditableFlag.NotApplicable
+      MiddleOfficeStore.getFieldEditableFlag(
+        "",
+        field.name,
+        dealEntry.strategy
+      ) === EditableFlag.NotApplicable
     ) {
       return "N/A";
     }
@@ -61,6 +68,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       rounding={field.rounding}
       precision={field.precision}
       editable={isEditable()}
+      store={store}
       onChange={props.onUpdateSummaryLeg}
     />
   );

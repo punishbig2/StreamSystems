@@ -2,10 +2,7 @@ import React, { ReactElement } from "react";
 import { priceFormatter } from "utils/priceFormatter";
 import { TableColumn } from "components/Table/tableColumn";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import {
-  getDealPrice,
-  PriceCell,
-} from "components/MiddleOffice/types/cells/price";
+import { PriceCell } from "components/MiddleOffice/types/cells/price";
 import { Deal } from "components/MiddleOffice/types/deal";
 
 export default (sortable: boolean, width: number = 3): TableColumn => ({
@@ -18,15 +15,15 @@ export default (sortable: boolean, width: number = 3): TableColumn => ({
   width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
     // FIXME: should use the right one
-    const value: number | null = getDealPrice(v1);
+    const value: number | null = v1.dealPrice;
     if (value === null) return false;
     const numeric: number = Number(keyword);
     if (isNaN(numeric)) return false;
     return priceFormatter(value) === priceFormatter(numeric);
   },
   difference: (v1: Deal, v2: Deal) => {
-    const p1: number | null = getDealPrice(v1);
-    const p2: number | null = getDealPrice(v2);
+    const p1: number | null = v1.dealPrice;
+    const p2: number | null = v2.dealPrice;
     if (p1 === null) return -1;
     if (p2 === null) return 1;
     return p1 - p2;

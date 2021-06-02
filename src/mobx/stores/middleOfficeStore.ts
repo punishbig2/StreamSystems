@@ -6,7 +6,7 @@ import {
   handleLegsResponse,
 } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { Cut } from "components/MiddleOffice/types/cut";
-import { Deal } from "components/MiddleOffice/types/deal";
+import { BackendDeal, Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import {
   LegOptionsDefIn,
@@ -21,6 +21,7 @@ import { EditableFilter } from "forms/fieldDef";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
+import React from "react";
 import signalRManager from "signalR/signalRManager";
 import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
 import { BankEntity } from "types/bankEntity";
@@ -29,6 +30,7 @@ import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
 import { LegAdjustValue } from "types/legAdjustValue";
 import { MOErrorMessage } from "types/middleOfficeError";
+import { Persistable } from "types/persistable";
 import { PricingMessage } from "types/pricingMessage";
 import {
   EditableFlag,
@@ -41,8 +43,8 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
-import { createDealEntry } from "utils/dealUtils";
-import { isNumber } from "utils/isNumber";
+import { createDealEntry, createDealFromBackendMessage } from "utils/dealUtils";
+import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
@@ -52,7 +54,7 @@ const SOFT_SEF_ERROR: string =
   "If the deal is not submitted yet, try again as this is a problem that should not happen and never be repeated. " +
   "If otherwise the problem persists, please contact support.";
 
-export enum MoStatus {
+export enum MiddleOfficeProcessingState {
   Normal,
   Submitting,
   Pricing,
@@ -63,8 +65,8 @@ export enum MoStatus {
 
 interface LegDefinitions {
   [strategy: string]: {
-    in: LegOptionsDefIn[];
-    out: LegOptionsDefOut[];
+    in: ReadonlyArray<LegOptionsDefIn>;
+    out: ReadonlyArray<LegOptionsDefOut>;
   };
 }
 
@@ -78,14 +80,14 @@ export interface InternalValuationModel {
 }
 
 export const messages: {
-  [key in MoStatus]: string;
+  [key in MiddleOfficeProcessingState]: string;
 } = {
-  [MoStatus.Normal]: "",
-  [MoStatus.Pricing]: "Pricing in progress",
-  [MoStatus.Submitting]: "Submitting",
-  [MoStatus.CreatingDeal]: "Creating Deal",
-  [MoStatus.UpdatingDeal]: "Updating Deal",
-  [MoStatus.LoadingDeal]: "Loading Deal",
+  [MiddleOfficeProcessingState.Normal]: "",
+  [MiddleOfficeProcessingState.Pricing]: "Pricing in progress",
+  [MiddleOfficeProcessingState.Submitting]: "Submitting",
+  [MiddleOfficeProcessingState.CreatingDeal]: "Creating Deal",
+  [MiddleOfficeProcessingState.UpdatingDeal]: "Updating Deal",
+  [MiddleOfficeProcessingState.LoadingDeal]: "Loading Deal",
 };
 
 export interface MoGenericMessage {
@@ -108,27 +110,31 @@ const savingDealError = (reason: any): MOErrorMessage => {
   };
 };
 
-export class MoStore implements Workspace {
+export class MiddleOfficeStore
+  implements Workspace, Persistable<MiddleOfficeStore> {
   @observable.ref legs: ReadonlyArray<Leg> = [];
   @observable.ref summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
   @observable progress: number = 0;
   @observable error: MOErrorMessage | null = null;
   @observable isEditMode: boolean = false;
-  @observable status: MoStatus = MoStatus.Normal;
+  @observable status: MiddleOfficeProcessingState =
+    MiddleOfficeProcessingState.Normal;
   @observable successMessage: MoGenericMessage | null = null;
   @observable entryType: EntryType = EntryType.Empty;
   @observable isWorking: boolean = false;
   @observable.ref entry: DealEntry = { ...emptyDealEntry };
-  @observable.ref deals: Deal[] = [];
+  @observable.ref deals: ReadonlyArray<Deal> = [];
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
   @observable.ref lockedDeals: ReadonlyArray<string> = [];
   @observable strategies: { [key: string]: Product } = {};
-  public readonly id: string = "mo";
-  @observable name: string = "";
+  public readonly id: string;
+  @observable name: string = "Middle Office";
   @observable modified: boolean = false;
+
   public readonly type: WorkspaceType = WorkspaceType.MiddleOffice;
+
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
   public styles: ReadonlyArray<string> = [];
@@ -143,7 +149,11 @@ export class MoStore implements Workspace {
   private operationsCount = 10;
   private modifiedFields: string[] = [];
 
-  @observable _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
+  @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
+
+  constructor(id: string) {
+    this.id = id;
+  }
 
   @computed
   public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
@@ -347,7 +357,7 @@ export class MoStore implements Workspace {
       prefix: string
     ): boolean => {
       if (!editable) return false;
-      const flag: EditableFlag = MoStore.getFieldEditableFlag(
+      const flag: EditableFlag = MiddleOfficeStore.getFieldEditableFlag(
         prefix,
         name,
         entry.strategy
@@ -371,7 +381,11 @@ export class MoStore implements Workspace {
           }
           return false;
       }
-      return MoStore.isEntryEditable(allowedTypes, entry, isAllowedToEdit);
+      return MiddleOfficeStore.isEntryEditable(
+        allowedTypes,
+        entry,
+        isAllowedToEdit
+      );
     };
   }
 
@@ -451,6 +465,10 @@ export class MoStore implements Workspace {
     }
   }
 
+  public connectListeners(): () => void {
+    return signalRManager.connectMiddleOfficeStore(this);
+  }
+
   public reloadStrategies(currency: string): void {
     const { products, symbols } = workareaStore;
     const symbol: Symbol | undefined = symbols.find(
@@ -485,13 +503,8 @@ export class MoStore implements Workspace {
     this.originalLegs = this.legs;
     this.isLoadingLegs = false;
     if (reset) {
-      this.status = MoStatus.Normal;
+      this.status = MiddleOfficeProcessingState.Normal;
     }
-  }
-
-  public getStrategyById(id: string): Product {
-    if (this.strategies[id] !== undefined) return this.strategies[id];
-    return InvalidStrategy;
   }
 
   public getValuationModelById(id: number): ValuationModel {
@@ -512,10 +525,13 @@ export class MoStore implements Workspace {
 
   public getOutLegsCount(strategy: string): number {
     const definition:
-      | { in: LegOptionsDefIn[]; out: LegOptionsDefOut[] }
+      | {
+          in: ReadonlyArray<LegOptionsDefIn>;
+          out: ReadonlyArray<LegOptionsDefOut>;
+        }
       | undefined = this.legDefinitions[strategy];
     if (definition !== undefined) {
-      const { out }: { out: LegOptionsDefOut[] } = definition;
+      const { out }: { out: ReadonlyArray<LegOptionsDefOut> } = definition;
       if (!out) return 0;
       return out.length;
     } else {
@@ -526,7 +542,7 @@ export class MoStore implements Workspace {
   @action.bound
   public setError(error: MOErrorMessage | null): void {
     this.error = error;
-    this.status = MoStatus.Normal;
+    this.status = MiddleOfficeProcessingState.Normal;
   }
 
   public async updateLeg(
@@ -545,11 +561,18 @@ export class MoStore implements Workspace {
     ];
     if (["hedge", "price", "premium"].includes(key) && summaryLeg !== null) {
       const { entry } = this;
+      const { strategy } = entry;
+      const legDefs = this.legDefinitions[strategy.productid];
       const dealOutput = {
         ...summaryLeg.dealOutput,
-        hedge: calculateNetValue(entry.strategy, this.legs, "hedge"),
-        premium: calculateNetValue(entry.strategy, this.legs, "premium"),
-        price: calculateNetValue(entry.strategy, this.legs, "price"),
+        hedge: calculateNetValue(strategy, this.legs, "hedge", legDefs),
+        premium: calculateNetValue(
+          entry.strategy,
+          this.legs,
+          "premium",
+          legDefs
+        ),
+        price: calculateNetValue(entry.strategy, this.legs, "price", legDefs),
       };
       // Update summary net hedge
       this.summaryLeg = {
@@ -579,14 +602,14 @@ export class MoStore implements Workspace {
   }
 
   @action.bound
-  public setStatus(status: MoStatus): void {
+  public setStatus(status: MiddleOfficeProcessingState): void {
     this.status = status;
   }
 
   @action.bound
   public setSuccessMessage(message: MoGenericMessage | null): void {
     this.successMessage = message;
-    this.status = MoStatus.Normal;
+    this.status = MiddleOfficeProcessingState.Normal;
   }
 
   @action.bound
@@ -597,10 +620,10 @@ export class MoStore implements Workspace {
   @action.bound
   public setSoftError(message: string) {
     if (
-      this.status === MoStatus.Submitting ||
-      this.status === MoStatus.Pricing
+      this.status === MiddleOfficeProcessingState.Submitting ||
+      this.status === MiddleOfficeProcessingState.Pricing
     ) {
-      this.status = MoStatus.Normal;
+      this.status = MiddleOfficeProcessingState.Normal;
       // Show a toast message (soft error message)
       toast.show(message, ToastType.Error, -1);
     }
@@ -648,9 +671,10 @@ export class MoStore implements Workspace {
       this.selectedDealID = deal.id;
       // If we do need to resolve the dates, let's do so
       const task1: Task<{ legs: ReadonlyArray<Leg> } | null> =
-        this.status === MoStatus.CreatingDeal
+        this.status === MiddleOfficeProcessingState.CreatingDeal
           ? this.getCurrentLegs()
           : API.getLegs(deal.id);
+      const legDefs = this.legDefinitions[deal.strategy];
       const removeListener = signalRManager.addPricingResponseListener(
         (data: PricingMessage): void => {
           const { entry } = this;
@@ -667,20 +691,29 @@ export class MoStore implements Workspace {
             const [legs, summaryLeg] = handleLegsResponse(
               entry,
               parseDates(data.legs),
-              this.cuts
+              this.cuts,
+              this.summaryLeg,
+              legDefs
             );
             this.setLegs(legs, summaryLeg);
           }
         }
       );
-      const task2: Task<DealEntry> = createDealEntry(deal);
+      const task2: Task<DealEntry> = createDealEntry(
+        deal,
+        this.getOutLegsCount(deal.strategy),
+        deal.symbol,
+        this.findStrategyById(deal.strategy),
+        this.defaultLegAdjust
+      );
       return {
         execute: async (): Promise<void> => {
           try {
             // Reset the legs now
             this.setLegs([], null);
             // Attempt to load new
-            this.isLoadingLegs = this.status !== MoStatus.CreatingDeal;
+            this.isLoadingLegs =
+              this.status !== MiddleOfficeProcessingState.CreatingDeal;
             // Start loading now
             const response = await task1.execute();
             this.entry = await task2.execute();
@@ -689,13 +722,16 @@ export class MoStore implements Workspace {
               const [legs, summary] = handleLegsResponse(
                 this.entry,
                 parseDates(response.legs),
-                this.cuts
+                this.cuts,
+                this.summaryLeg,
+                legDefs
               );
               this.setLegs(legs, summary);
             } else {
               const [legs, summary] = createDefaultLegsFromDeal(
                 this.cuts,
-                this.entry
+                this.entry,
+                legDefs
               );
               this.setLegs(legs, summary);
             }
@@ -777,7 +813,8 @@ export class MoStore implements Workspace {
         (leg: Leg, index: number): Leg => {
           const reducer: (leg: Leg, field: string) => Leg = legsReducer(
             index,
-            partial
+            partial,
+            entry
           );
           return fields.reduce(reducer, leg);
         }
@@ -790,7 +827,7 @@ export class MoStore implements Workspace {
     this.entry = {
       ...entry,
       ...partial,
-      size: isNumber(partial.not1) ? partial.not1 / 1e6 : entry.size,
+      size: isNumeric(partial.not1) ? partial.not1 / 1e6 : entry.size,
       legs: legs.length,
     };
     // Keep a list of modified fields
@@ -804,8 +841,8 @@ export class MoStore implements Workspace {
     const { dealID, status } = this.entry;
     if (dealID === undefined)
       throw new Error("cannot send a trade capture without a deal id");
-    this.setStatus(MoStatus.Submitting);
-    MoStore.doSubmit(dealID, status)
+    this.setStatus(MiddleOfficeProcessingState.Submitting);
+    MiddleOfficeStore.doSubmit(dealID, status)
       .then((): void => {
         setTimeout((): void => {
           console.warn(SOFT_SEF_ERROR);
@@ -827,9 +864,16 @@ export class MoStore implements Workspace {
     const request = {
       ...this.buildRequest(),
     };
-    this.setStatus(MoStatus.UpdatingDeal);
+    this.setStatus(MiddleOfficeProcessingState.UpdatingDeal);
     // Call the backend
-    API.updateDeal(request, modifiedFields)
+    API.updateDeal(
+      request,
+      this.legs,
+      this.summaryLeg,
+      this.entitiesMap,
+      this.entities,
+      modifiedFields
+    )
       .then(() => {
         // Note: dealID must be defined here
         this.onDealSaved(request.dealID!);
@@ -841,14 +885,22 @@ export class MoStore implements Workspace {
 
   @action.bound
   public createOrClone() {
+    const { legs, summaryLeg } = this;
     switch (this.entryType) {
       case EntryType.Empty:
       case EntryType.ExistingDeal:
         throw new Error("this function should not be called in current state");
       case EntryType.New:
         this.isEditMode = false;
-        this.setStatus(MoStatus.CreatingDeal);
-        API.createDeal(this.buildRequest(), [])
+        this.setStatus(MiddleOfficeProcessingState.CreatingDeal);
+        API.createDeal(
+          this.buildRequest(),
+          legs,
+          summaryLeg,
+          this.entitiesMap,
+          this.entities,
+          []
+        )
           .then((id: string) => {
             this.onDealSaved(id);
           })
@@ -858,8 +910,15 @@ export class MoStore implements Workspace {
         break;
       case EntryType.Clone:
         this.isEditMode = false;
-        this.setStatus(MoStatus.CreatingDeal);
-        API.cloneDeal(this.buildRequest(), [])
+        this.setStatus(MiddleOfficeProcessingState.CreatingDeal);
+        API.cloneDeal(
+          this.buildRequest(),
+          legs,
+          summaryLeg,
+          this.entitiesMap,
+          this.entities,
+          []
+        )
           .then((id: string) => {
             this.onDealSaved(id);
           })
@@ -876,11 +935,14 @@ export class MoStore implements Workspace {
   }
 
   @action.bound
-  public async addDeal(deal: Deal): Promise<void> {
+  public async addDeal(backendDeal: BackendDeal): Promise<void> {
     const { deals } = this;
     const index: number = deals.findIndex(
-      (each: Deal): boolean => each.id === deal.id
+      (each: Deal): boolean => each.id === backendDeal.id
     );
+    const deal: Deal = (await this.convertToMiddleOfficeDeal(
+      backendDeal
+    )) as Deal;
     if (index === -1) {
       this.deals = [deal, ...deals];
       // If the user is editing we should not set
@@ -896,7 +958,13 @@ export class MoStore implements Workspace {
       // the new deal
       if (this.isEditMode) return;
       if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
-        const task: Task<DealEntry> = createDealEntry(deal);
+        const task: Task<DealEntry> = createDealEntry(
+          deal,
+          this.getOutLegsCount(deal.strategy),
+          deal.symbol,
+          this.findStrategyById(deal.strategy),
+          this.defaultLegAdjust
+        );
         task
           .execute()
           .then((entry: DealEntry): void => {
@@ -921,7 +989,7 @@ export class MoStore implements Workspace {
   }
 
   public price(): void {
-    const { entry } = this;
+    const { entry, legs, summaryLeg, defaultLegAdjust } = this;
     if (entry.strategy === undefined) throw new Error("invalid deal found");
     if (entry.model === "") throw new Error("node model specified");
     const valuationModel: ValuationModel = this.getValuationModelById(
@@ -929,17 +997,20 @@ export class MoStore implements Workspace {
     );
     const { strategy } = entry;
     // Set the status to pricing to show a loading spinner
-    this.status = MoStatus.Pricing;
+    this.status = MiddleOfficeProcessingState.Pricing;
+    const legDefs = this.legDefinitions[strategy.productid];
     // Send the request
     API.sendPricingRequest(
       entry,
-      this.legs,
-      this.summaryLeg,
+      legs,
+      summaryLeg,
       valuationModel,
-      strategy
+      strategy,
+      defaultLegAdjust,
+      legDefs
     )
       .then(() => {
-        this.setStatus(MoStatus.Normal);
+        this.setStatus(MiddleOfficeProcessingState.Normal);
       })
       .catch((error: HTTPError | any) => {
         if (error !== undefined) {
@@ -957,7 +1028,7 @@ export class MoStore implements Workspace {
         }
       })
       .finally((): void => {
-        this.setStatus(MoStatus.Normal);
+        this.setStatus(MiddleOfficeProcessingState.Normal);
       });
   }
 
@@ -986,16 +1057,21 @@ export class MoStore implements Workspace {
     await this.updateSEFInDealsBlotter(update);
     await this.updateSEFInDealEntry(update);
     // Reset status to normal to hide the progress window
-    this.setStatus(MoStatus.Normal);
+    this.setStatus(MiddleOfficeProcessingState.Normal);
   }
 
-  public findStrategyById(name: string): Product | undefined {
+  public findStrategyById(name: string): Product {
     const values: ReadonlyArray<Product> = Object.values(
       workareaStore.products
     );
-    return values.find((product: Product): boolean => {
-      return name === product.name;
+    const found = values.find((product: Product): boolean => {
+      return name === product.productid;
     });
+    if (found === undefined) {
+      console.log(values);
+      throw new Error(`cannot find strategy ${name}`);
+    }
+    return found;
   }
 
   @action.bound
@@ -1106,14 +1182,37 @@ export class MoStore implements Workspace {
     }, {});
   }
 
+  private async convertToMiddleOfficeDeal(
+    data: ReadonlyArray<BackendDeal> | BackendDeal
+  ): Promise<ReadonlyArray<Deal> | Deal> {
+    const { defaultLegAdjust, legs } = this;
+    const mapper = (item: BackendDeal): Promise<Deal> => {
+      const strategy = this.findStrategyById(item.strategy);
+      const symbol = this.findSymbolById(item.symbol);
+      return createDealFromBackendMessage(
+        item,
+        symbol,
+        strategy,
+        defaultLegAdjust,
+        legs
+      );
+    };
+    if (data instanceof Array) {
+      return (await Promise.all(data.map(mapper))).sort(
+        ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
+          d2.getTime() - d1.getTime()
+      );
+    } else {
+      return mapper(data);
+    }
+  }
+
   @action.bound
   private async loadDeals(): Promise<void> {
     // Update deals list
-    const deals: Deal[] = await API.getDeals();
-    this.deals = deals.sort(
-      ({ tradeDate: d1 }: Deal, { tradeDate: d2 }: Deal): number =>
-        d2.getTime() - d1.getTime()
-    );
+    this.deals = (await this.convertToMiddleOfficeDeal(
+      await API.getDeals()
+    )) as ReadonlyArray<Deal>;
     this.increaseProgress();
   }
 
@@ -1127,7 +1226,7 @@ export class MoStore implements Workspace {
 
   private isFieldEditable(name: string): boolean {
     const { entry } = this;
-    const flag: EditableFlag = MoStore.getFieldEditableFlag(
+    const flag: EditableFlag = MiddleOfficeStore.getFieldEditableFlag(
       "",
       name,
       entry.strategy
@@ -1192,9 +1291,15 @@ export class MoStore implements Workspace {
         "', please close this window now",
     };
     this.entryType = EntryType.ExistingDeal;
-    this.status = MoStatus.Normal;
+    this.status = MiddleOfficeProcessingState.Normal;
     if (deal !== undefined) {
-      const task: Task<DealEntry> = createDealEntry(deal);
+      const task: Task<DealEntry> = createDealEntry(
+        deal,
+        this.getOutLegsCount(deal.strategy),
+        deal.symbol,
+        this.findStrategyById(deal.strategy),
+        this.defaultLegAdjust
+      );
       task
         .execute()
         .then((entry: DealEntry): void => {
@@ -1239,10 +1344,17 @@ export class MoStore implements Workspace {
       console.warn("this message doesn't seem to belong to this app");
       return;
     }
-    const task1: Task<DealEntry> = await createDealEntry({
-      ...deals[foundIndex],
-      error_msg: update.errorMsg,
-    });
+    const deal = deals[foundIndex];
+    const task1: Task<DealEntry> = await createDealEntry(
+      {
+        ...deal,
+        error_msg: update.errorMsg,
+      },
+      this.getOutLegsCount(deal.strategy),
+      deal.symbol,
+      this.findStrategyById(deal.strategy),
+      this.defaultLegAdjust
+    );
     const task2: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
       update.dealId
     );
@@ -1250,11 +1362,15 @@ export class MoStore implements Workspace {
       legs: ReadonlyArray<Leg>;
     } | null = await task2.execute();
     this.entry = await task1.execute();
+    const { strategy } = this.entry;
+    const legDefs = this.legDefinitions[strategy.productid];
     if (legsResponse !== null) {
       const [adjustedLegs, summaryLeg] = handleLegsResponse(
         this.entry,
         parseDates(legsResponse.legs),
-        this.cuts
+        this.cuts,
+        this.summaryLeg,
+        legDefs
       );
       this.setLegs(adjustedLegs, summaryLeg);
     }
@@ -1263,11 +1379,18 @@ export class MoStore implements Workspace {
   private setLegAdjustValues(value: ReadonlyArray<LegAdjustValue>) {
     this._legAdjustValues = value;
   }
+
+  public static fromJson(data: { [key: string]: any }): MiddleOfficeStore {
+    return new MiddleOfficeStore(data.id);
+  }
+
+  public get serialized(): { [key: string]: any } {
+    return {
+      id: this.id,
+    };
+  }
 }
 
-export default new MoStore();
-
-/*
-
-
- */
+export const MiddleOfficeStoreContext = React.createContext<MiddleOfficeStore>(
+  new MiddleOfficeStore("")
+);

@@ -1,16 +1,20 @@
 import { MessageBox } from "components/MessageBox";
-import moStore from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
 
 export const SuccessMessage: React.FC = (): ReactElement | null => {
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const { title, text } = (() => {
-    if (moStore.successMessage === null) {
+    if (store.successMessage === null) {
       return {
         title: "",
         text: "",
       };
     }
-    return moStore.successMessage;
+    return store.successMessage;
   })();
   return (
     <MessageBox
@@ -20,7 +24,7 @@ export const SuccessMessage: React.FC = (): ReactElement | null => {
       buttons={() => (
         <button
           className={"cancel"}
-          onClick={() => moStore.setSuccessMessage(null)}
+          onClick={() => store.setSuccessMessage(null)}
         >
           Close
         </button>

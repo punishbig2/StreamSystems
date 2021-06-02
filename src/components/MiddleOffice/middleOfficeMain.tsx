@@ -19,7 +19,10 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { ModalWindow } from "components/ModalWindow";
-import { MoGenericMessage, MoStatus } from "mobx/stores/moStore";
+import {
+  MoGenericMessage,
+  MiddleOfficeProcessingState,
+} from "mobx/stores/middleOfficeStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import React, { ReactElement, useState } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
@@ -33,7 +36,7 @@ interface Props {
   readonly error: MOErrorMessage | null;
   readonly entry: DealEntry;
   readonly removeDeal: (id: string) => Promise<void>;
-  readonly addDeal: (deal: Deal) => Promise<void>;
+  readonly addDeal: (deal: { [key: string]: any }) => Promise<void>;
   readonly setDeal: (deal: Deal | null) => void;
   readonly setError: (error: MOErrorMessage) => void;
   readonly updateLeg: (
@@ -41,7 +44,7 @@ interface Props {
     key: keyof Leg,
     value: any
   ) => Promise<void>;
-  readonly status: MoStatus;
+  readonly status: MiddleOfficeProcessingState;
   readonly deals: ReadonlyArray<Deal>;
   readonly selectedDealID: string | null;
   readonly isEditMode: boolean;
@@ -81,7 +84,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
   const { error } = props;
   const { entry } = props;
   // Deal event handlers
-  useNewDealListener((deal: Deal) => {
+  useNewDealListener((deal: { [key: string]: any }) => {
     // noinspection JSIgnoredPromiseFromCall
     props.addDeal(deal);
   });
@@ -136,16 +139,17 @@ export const MiddleOfficeMain: React.FC<Props> = (
   };
 
   const headingClasses: string[] = ["heading"];
-  if (props.status !== MoStatus.Normal) headingClasses.push("disabled");
+  if (props.status !== MiddleOfficeProcessingState.Normal)
+    headingClasses.push("disabled");
   const disabled: boolean =
-    props.isLoadingLegs || props.status !== MoStatus.Normal;
+    props.isLoadingLegs || props.status !== MiddleOfficeProcessingState.Normal;
   return (
     <>
       <div className={classes.join(" ")}>
         <div className={"left-panel"}>
           <DealBlotter
             id={randomID("")}
-            disabled={props.status !== MoStatus.Normal}
+            disabled={props.status !== MiddleOfficeProcessingState.Normal}
             selectedRow={props.selectedDealID}
             deals={props.deals}
             onDealSelected={onDealSelected}
@@ -233,7 +237,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
         render={() => <DeleteQuestion onNo={dontDelete} onYes={doDelete} />}
       />
       <ModalWindow
-        isOpen={props.status !== MoStatus.Normal}
+        isOpen={props.status !== MiddleOfficeProcessingState.Normal}
         render={() => <ProgressView />}
       />
     </>

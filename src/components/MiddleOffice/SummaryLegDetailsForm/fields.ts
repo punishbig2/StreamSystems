@@ -1,6 +1,6 @@
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
-import { MoStore } from "mobx/stores/moStore";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealType } from "structures/dealEntry";
 
 export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
@@ -31,7 +31,7 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     label: "Spot",
     color: "grey",
     precision: 4,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "number",
@@ -39,7 +39,7 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     label: "Fwd Pts 1",
     color: "grey",
     precision: 4,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "number",
@@ -47,7 +47,7 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     label: "Fwd Rate 1",
     color: "grey",
     precision: 4,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "number",
@@ -55,7 +55,7 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     label: "Fwd Pts 2",
     color: "grey",
     precision: 4,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "number",
@@ -63,28 +63,28 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     label: "Fwd Rate 2",
     color: "grey",
     precision: 4,
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "text",
     name: "cutCity",
     label: "Cut City",
     color: "grey",
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "text",
     name: "cutTime",
     label: "Cut Time",
     color: "grey",
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "text",
     name: "source",
     label: "Source",
     color: "grey",
-    editable: MoStore.createEditableFilter(DealType.All),
+    editable: MiddleOfficeStore.createEditableFilter(DealType.All),
   },
   {
     type: "text",

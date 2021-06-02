@@ -6,47 +6,54 @@ export interface Commission {
   value: number | null;
 }
 
+export interface BackendDeal {
+  readonly [key: string]: any;
+}
+
 export interface Deal {
-  id: string;
-  buyer: string;
-  seller: string;
-  currency: string;
-  notional1: number;
-  notional2?: number | null;
-  strategy: string;
-  currencyPair: string;
-  symbol: Symbol;
-  strike: number | string | null;
-  vol: number | null;
-  spread: number | null;
-  price: number | null;
-  isdarkpool: boolean;
-  legAdj: boolean;
+  readonly id: string;
+  readonly buyer: string;
+  readonly seller: string;
+  readonly currency: string;
+  readonly notional1: number;
+  readonly notional2?: number | null;
+  readonly strategy: string;
+  readonly currencyPair: string;
+  readonly symbol: Symbol;
+  readonly strike: number | string | null;
+  readonly vol: number | null;
+  readonly spread: number | null;
+  readonly price: number | null;
+  readonly isdarkpool: boolean;
+  readonly legAdj: boolean;
 
-  tradeDate: Date;
-  spotDate: Date;
-  premiumDate: Date;
+  readonly tradeDate: Date;
+  readonly spotDate: Date;
+  readonly premiumDate: Date;
 
-  tenor1: string;
-  expiryDate1: Date;
-  tenor2?: string;
-  expiryDate2?: Date;
+  readonly tenor1: string;
+  readonly expiryDate1: Date;
+  readonly tenor2?: string;
+  readonly expiryDate2?: Date;
 
-  source: string;
-  status: DealStatus;
-  sef_namespace: string | null;
-  error_msg: string | null;
+  readonly source: string;
+  readonly status: DealStatus;
+  readonly sef_namespace: string | null;
+  readonly error_msg: string | null;
 
-  premiumStyle: string;
-  deltaStyle: string;
+  readonly premiumStyle: string;
+  readonly deltaStyle: string;
   // Summary stuff
 
-  commissions?: {
+  readonly commissions?: {
     buyer: Commission;
     seller: Commission;
   };
 
-  extraFields: { [key: string]: string | number | null } | undefined;
+  readonly extraFields: { [key: string]: string | number | null } | undefined;
 
-  usi?: string;
+  readonly usi?: string;
+
+  // Computed data
+  readonly dealPrice: number | null;
 }

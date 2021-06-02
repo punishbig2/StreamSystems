@@ -16,6 +16,7 @@ export interface BusyMessage {
 export class TradingWorkspaceStore
   implements Workspace, Persistable<TradingWorkspaceStore> {
   public readonly id: string;
+
   public readonly type: WorkspaceType = WorkspaceType.Trading;
 
   @observable public tiles: ReadonlyArray<TileStore> = [];

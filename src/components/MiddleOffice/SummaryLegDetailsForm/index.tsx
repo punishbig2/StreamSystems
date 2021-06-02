@@ -8,7 +8,10 @@ import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/fields";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { NoDataMessage } from "components/noDataMessage";
 import { FieldDef } from "forms/fieldDef";
-import moStore from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
 import { BrokerageCommission } from "types/brokerageCommission";
@@ -28,9 +31,9 @@ interface Props {
 export const SummaryLegDetailsForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const { summaryLeg, dealEntry } = props;
   const { premstyle } = dealEntry;
-
   if (props.isLoading) {
     return (
       <div className={"centered-container"}>
@@ -73,7 +76,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
             onUpdateCommission={async (
               value: BrokerageCommission
             ): Promise<void> => {
-              moStore.updateDealEntry({
+              store.updateDealEntry({
                 ...value,
               });
             }}

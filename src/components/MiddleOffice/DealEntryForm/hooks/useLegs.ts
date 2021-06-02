@@ -2,10 +2,12 @@ import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/
 import { isInvalidTenor } from "components/FormField/helpers";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
 import { InvalidStrategy, Product } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
@@ -145,10 +147,11 @@ export const addFwdRates = (
 export const handleLegsResponse = (
   entry: DealEntry,
   legs: ReadonlyArray<Leg>,
-  cuts: ReadonlyArray<Cut>
+  cuts: ReadonlyArray<Cut>,
+  summaryLeg: SummaryLeg | null,
+  legDefinitions: { out: ReadonlyArray<LegOptionsDefOut> }
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
   if (legs.length === 0) return [[], null];
-  const { summaryLeg } = moStore;
   const { extra_fields = {} } = entry;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return [[], null];
@@ -223,9 +226,24 @@ export const handleLegsResponse = (
     ...{
       dealOutput: {
         ...legs[0],
-        hedge: calculateNetValue(entry.strategy, finalLegs, "hedge"),
-        premium: calculateNetValue(entry.strategy, finalLegs, "premium"),
-        price: calculateNetValue(entry.strategy, finalLegs, "price"),
+        hedge: calculateNetValue(
+          entry.strategy,
+          finalLegs,
+          "hedge",
+          legDefinitions
+        ),
+        premium: calculateNetValue(
+          entry.strategy,
+          finalLegs,
+          "premium",
+          legDefinitions
+        ),
+        price: calculateNetValue(
+          entry.strategy,
+          finalLegs,
+          "price",
+          legDefinitions
+        ),
       },
     },
   } as SummaryLeg;
@@ -234,10 +252,10 @@ export const handleLegsResponse = (
 
 export const createDefaultLegsFromDeal = (
   cuts: ReadonlyArray<Cut>,
-  entry: DealEntry
+  entry: DealEntry,
+  legDefinitions: { in: ReadonlyArray<LegOptionsDefIn> }
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
   const { strategy, symbol } = entry;
-  // Special ground state case (the second one is not what I expected)
   if (
     strategy === InvalidStrategy ||
     strategy.productid === "" ||
@@ -246,15 +264,8 @@ export const createDefaultLegsFromDeal = (
   ) {
     return [[], null];
   }
-  // We should be able to find it now
-  const legDefinitions: { in: LegOptionsDefIn[] } | undefined =
-    moStore.legDefinitions[strategy.productid];
-  if (!legDefinitions) {
-    console.warn(`no leg definitions found for ${strategy.productid}`);
-    console.warn(
-      "strategies with definitions are: ",
-      Object.keys(moStore.legDefinitions)
-    );
+  if (legDefinitions === undefined) {
+    console.warn("leg definitions missing");
     return [[], null];
   }
   const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(

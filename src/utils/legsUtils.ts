@@ -5,7 +5,6 @@ import {
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
 import { Product } from "types/product";
-import moStore from "mobx/stores/moStore";
 import { DealEntry } from "structures/dealEntry";
 import { Sides } from "types/sides";
 import { isStyledValue, StyledValue } from "types/styledValue";
@@ -127,7 +126,7 @@ const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
 };
 
 export const createLegsFromDefinitionAndDeal = (
-  definitions: LegOptionsDefIn[],
+  definitions: ReadonlyArray<LegOptionsDefIn>,
   entry: DealEntry
 ): ReadonlyArray<Leg> => {
   return definitions.map(
@@ -146,12 +145,9 @@ export const mergeDefinitionsAndLegs = (
   entry: DealEntry,
   strategy: Product,
   symbol: Symbol,
-  legs: ReadonlyArray<Leg>
+  legs: ReadonlyArray<Leg>,
+  definitions: { in: ReadonlyArray<LegOptionsDefIn> }
 ): ReadonlyArray<Leg> => {
-  const definitions = moStore.legDefinitions[strategy.productid];
-  if (definitions === undefined) {
-    return [];
-  }
   const { in: list } = definitions;
   const mapper = legDefMapper(symbol);
   if (list.length === 1) {
@@ -180,8 +176,11 @@ export const convertLegNumbers = (leg: Leg): Leg => {
   };
 };
 
-const getReturnLegOut = (strategy: Product, index: number): string => {
-  const defs = moStore.legDefinitions[strategy.productid];
+const getReturnLegOut = (
+  index: number,
+  strategy: Product,
+  defs: { out: ReadonlyArray<LegOptionsDefOut> }
+): string => {
   if (defs === undefined) {
     throw new Error(
       "We must have a legs definition for strategy: " + strategy.name
@@ -209,11 +208,12 @@ const getReturnLegOut = (strategy: Product, index: number): string => {
 export const calculateNetValue = (
   strategy: Product,
   legs: ReadonlyArray<Leg>,
-  key: keyof Leg
+  key: keyof Leg,
+  legDefinitions: { out: ReadonlyArray<LegOptionsDefOut> }
 ): StyledValue => {
   return legs.reduce(
     (total: StyledValue, leg: Leg, index: number): StyledValue => {
-      const returnLegOut = getReturnLegOut(strategy, index);
+      const returnLegOut = getReturnLegOut(index, strategy, legDefinitions);
       if (returnLegOut !== "call" && returnLegOut !== "put") {
         return total;
       }

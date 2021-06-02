@@ -1,11 +1,8 @@
-import moStore from "mobx/stores/moStore";
-import React, { ReactElement } from "react";
-import { TableColumn } from "components/Table/tableColumn";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import { TraderCell } from "components/MiddleOffice/traderCell";
 import { Deal } from "components/MiddleOffice/types/deal";
-import { BankCell } from "components/MiddleOffice/types/cells/banks";
-import { BankEntity } from "types/bankEntity";
-import { resolveBankToEntity } from "utils/dealUtils";
+import { TableColumn } from "components/Table/tableColumn";
+import React from "react";
 
 export default (sortable: boolean): TableColumn => ({
   name: "buyer",
@@ -23,16 +20,9 @@ export default (sortable: boolean): TableColumn => ({
     return lowerCaseBuyer.includes(keyword.toLowerCase());
   },
   header: () => "Buyer",
-  render: (props: CellProps): ReactElement | string | null => {
-    const { deal } = props;
-    if (deal === null) {
-      return <BankCell deal={deal} />;
-    } else {
-      const entityName: string = resolveBankToEntity(deal.buyer);
-      const entity: BankEntity = moStore.entitiesMap[entityName];
-      return <span>{entity !== undefined ? entity.id : deal.buyer}</span>;
-    }
-  },
+  render: (props: CellProps): React.ReactElement => (
+    <TraderCell side={"buyer"} {...props} />
+  ),
   filterable: true,
   sortable: sortable,
   template: "BUYER",

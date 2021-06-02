@@ -3,7 +3,10 @@ import { getExtraPropsAndValue } from "components/MiddleOffice/LegDetailsForm/Le
 import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { FieldType } from "forms/fieldType";
-import moStore from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 
 import React, { ReactElement } from "react";
 import { DealEntry } from "structures/dealEntry";
@@ -19,6 +22,7 @@ interface Props {
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const { field, leg, dealEntry } = props;
+  const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
 
   const isEditable = (
     field: FieldDef<Leg, {}, DealEntry>,
@@ -31,7 +35,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       return field.editable(
         field.name,
         props.dealEntry,
-        moStore.isEditMode,
+        store.isEditMode,
         "leg"
       );
     }

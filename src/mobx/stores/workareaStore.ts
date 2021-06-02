@@ -2,6 +2,7 @@ import { API } from "API";
 
 import strings from "locales";
 import { action, autorun, computed, observable } from "mobx";
+import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
 import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
@@ -13,6 +14,7 @@ import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { CurrencyGroups, User, UserPreferences } from "types/user";
+import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
 import { updateApplicationTheme } from "utils/commonUtils";
 import { PersistStorage } from "utils/persistStorage";
@@ -26,6 +28,9 @@ export const isTradingWorkspace = (
 export class WorkareaStore {
   @observable workspaces: {
     [key: string]: TradingWorkspaceStore;
+  } = {};
+  @observable middleOffices: {
+    [key: string]: MiddleOfficeStore;
   } = {};
   @observable currentWorkspaceID: string | null = null;
 
@@ -55,6 +60,19 @@ export class WorkareaStore {
 
   private persistStorage = new PersistStorage<WorkareaStore>();
 
+  public get workspace(): TradingWorkspaceStore | MiddleOfficeStore | null {
+    const { currentWorkspaceID } = this;
+    if (currentWorkspaceID === null) {
+      return null;
+    } else if (currentWorkspaceID in this.middleOffices) {
+      return this.middleOffices[currentWorkspaceID];
+    } else if (currentWorkspaceID in this.workspaces) {
+      return this.workspaces[currentWorkspaceID];
+    } else {
+      return null;
+    }
+  }
+
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
     const newStore = new WorkareaStore();
     newStore.preferences = data.preferences;
@@ -62,6 +80,10 @@ export class WorkareaStore {
     newStore.workspaces = unserializeObject<TradingWorkspaceStore>(
       data.workspaces,
       TradingWorkspaceStore.fromJson
+    );
+    newStore.middleOffices = unserializeObject(
+      data.middleOffices,
+      MiddleOfficeStore.fromJson
     );
     return newStore;
   }
@@ -72,6 +94,7 @@ export class WorkareaStore {
       preferences: { ...this.preferences },
       currentWorkspaceID: this.currentWorkspaceID,
       workspaces: serializeObject<TradingWorkspaceStore>(this.workspaces),
+      middleOffices: serializeObject<MiddleOfficeStore>(this.middleOffices),
     };
   }
 
@@ -80,8 +103,7 @@ export class WorkareaStore {
     const { workspaces, currentWorkspaceID } = this;
     if (currentWorkspaceID === null) return STRM;
     const workspace = workspaces[currentWorkspaceID];
-    if (workspace === undefined)
-      throw new Error("this is completely unreasonable");
+    if (workspace === undefined) return "";
     if ("personality" in workspace) {
       return workspace.personality;
     } else {
@@ -189,10 +211,12 @@ export class WorkareaStore {
 
   @action.bound
   public setWorkspace(id: string) {
-    const { workspaces } = this;
+    console.log(id);
+    const { workspaces, middleOffices } = this;
     this.workspaceAccessDenied = false;
     this.workspaceNotFound = false;
-    const workspace: TradingWorkspaceStore | undefined = workspaces[id];
+    const workspace: Workspace | undefined =
+      workspaces[id] ?? middleOffices[id];
     if (workspace === undefined) {
       this.workspaceNotFound = true;
     } else if (this.getUserAccessToWorkspace(workspace)) {
@@ -282,13 +306,18 @@ export class WorkareaStore {
 
   @action.bound
   private internalAddMiddleOffice(): void {
-    this.currentWorkspaceID = "mo";
+    const { middleOffices } = this;
+    const id: string = `mo${Math.round(1e8 * Math.random())}`;
+    // Create the workspace
+    middleOffices[id] = new MiddleOfficeStore(id);
+    this.isCreatingWorkspace = false;
+    this.currentWorkspaceID = id;
   }
 
   @action.bound
   private internalAddWorkspace(group: CurrencyGroups) {
     const { workspaces } = this;
-    const id: string = `w${Object.keys(workspaces).length + 1}`;
+    const id: string = `ws${Math.round(1e8 * Math.random())}`;
     // Create the workspace
     workspaces[id] = new TradingWorkspaceStore(id);
     this.isCreatingWorkspace = false;
@@ -375,6 +404,7 @@ export class WorkareaStore {
     const savedStore = await persistStorage.read(user);
     this.preferences = savedStore.preferences;
     this.workspaces = savedStore.workspaces;
+    this.middleOffices = savedStore.middleOffices;
     this.currentWorkspaceID = savedStore.currentWorkspaceID;
     autorun((): void => {
       const { persistStorage } = this;
@@ -435,7 +465,7 @@ export class WorkareaStore {
     this.status = status;
   }
 
-  private getUserAccessToWorkspace(workspace: TradingWorkspaceStore): boolean {
+  private getUserAccessToWorkspace(workspace: Workspace): boolean {
     const { roles } = this.user;
     switch (workspace.type) {
       case WorkspaceType.MiddleOffice:

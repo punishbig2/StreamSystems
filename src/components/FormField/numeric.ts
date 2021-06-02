@@ -49,17 +49,19 @@ export class NumericInputHandler<
     {}
   );
   private divider: number = 1;
-  private readonly minimum: number | (() => number) | null;
-  private readonly maximum: number | (() => number) | null;
+  private readonly minimum: number | ((data: S) => number) | null;
+  private readonly maximum: number | ((data: S) => number) | null;
   private readonly startAdornmentString: string = "";
   private readonly endAdornmentString: string = "";
+  private readonly data: S;
 
-  constructor(props: P) {
+  constructor(props: P, data: any) {
     super();
     this.formatter = this.createFormatter(props);
     this.divider = props.type === "percent" ? 100 : 1;
     this.minimum = props.minimum === undefined ? null : props.minimum;
     this.maximum = props.maximum === undefined ? null : props.maximum;
+    this.data = data;
     const style = typeToStyle(props.type, props.currency, props.editable);
     const options = {
       maximumFractionDigits: 0,
@@ -238,7 +240,7 @@ export class NumericInputHandler<
     if (minimum === null) {
       return null;
     } else if (typeof minimum === "function") {
-      return minimum();
+      return minimum(this.data);
     } else {
       return minimum;
     }
@@ -249,7 +251,7 @@ export class NumericInputHandler<
     if (maximum === null) {
       return null;
     } else if (typeof maximum === "function") {
-      return maximum();
+      return maximum(this.data);
     } else {
       return maximum;
     }

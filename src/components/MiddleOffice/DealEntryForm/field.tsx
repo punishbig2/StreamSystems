@@ -4,7 +4,10 @@ import { getValue } from "components/MiddleOffice/DealEntryForm/helpers";
 import { EditableFlag } from "types/product";
 import deepEqual from "deep-equal";
 import { DropdownItem, FieldDef } from "forms/fieldDef";
-import moStore, { MoStore } from "mobx/stores/moStore";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React from "react";
 import { DealEntry } from "structures/dealEntry";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
@@ -17,7 +20,7 @@ export interface DealEntryEditInterface {
   readonly setWorking: (field: keyof DealEntry | null) => void;
 }
 
-type FieldType = FieldDef<DealEntry, DealEntry, MoStore>;
+type FieldType = FieldDef<DealEntry, DealEntry, MiddleOfficeStore>;
 
 interface Props {
   readonly field: FieldType;
@@ -30,6 +33,7 @@ interface Props {
 
 export const Field: React.FC<Props> = React.memo(
   (props: Props): React.ReactElement => {
+    const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
     const { field, entry, isEditMode } = props;
     const { transformData, dataSource } = field;
     const [dropdownData, setDropdownData] = React.useState<
@@ -38,19 +42,20 @@ export const Field: React.FC<Props> = React.memo(
     React.useEffect(() => {
       if (!transformData) return;
       if (dataSource) {
-        if (!moStore[dataSource]) return;
-        setDropdownData(transformData(moStore[dataSource], entry));
+        if (!store[dataSource]) return;
+        setDropdownData(transformData(store[dataSource], entry));
       } else {
         setDropdownData(transformData(null));
       }
-    }, [dataSource, transformData, entry]);
+    }, [dataSource, transformData, entry, store]);
     const { strategy } = entry;
     const editFlag: EditableFlag = React.useMemo(() => {
-      return MoStore.getFieldEditableFlag("", field.name, strategy);
+      return MiddleOfficeStore.getFieldEditableFlag("", field.name, strategy);
     }, [strategy, field]);
     const value: any = React.useMemo(
-      (): any => getValue(field, editFlag, entry[field.name], false),
-      [field, editFlag, entry]
+      (): any =>
+        getValue(field, editFlag, entry[field.name], false, store.entities),
+      [field, editFlag, entry, store.entities]
     );
     const editable: boolean | undefined = React.useMemo(():
       | boolean
@@ -63,12 +68,12 @@ export const Field: React.FC<Props> = React.memo(
         return false;
       } else {
         if (typeof field.editable === "function") {
-          return field.editable(field.name, entry, moStore.isEditMode, "");
+          return field.editable(field.name, entry, store.isEditMode, "");
         } else {
           return field.editable;
         }
       }
-    }, [field, isEditMode, entry, editFlag]);
+    }, [isEditMode, editFlag, field, entry, store.isEditMode]);
     const { onChangeStart, onChangeCompleted } = props;
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
@@ -121,7 +126,7 @@ export const Field: React.FC<Props> = React.memo(
           name: keyof DealEntry
         ): Partial<DealEntry> => {
           if (name === "strategy") {
-            return { legadj: moStore.getDefaultLegAdjust(value, symbol) };
+            return { legadj: store.getDefaultLegAdjust(value, symbol) };
           } else {
             return {};
           }
@@ -130,16 +135,30 @@ export const Field: React.FC<Props> = React.memo(
         if (field.type === "tenor") {
           await onTenorChange(name, value);
         } else {
-          const convertedValue: any = getValue(field, editFlag, value, true);
+          const convertedValue: any = getValue(
+            field,
+            editFlag,
+            value,
+            true,
+            store.entities
+          );
           if (convertedValue === undefined) return;
           // This will also take some time presumably
           await onChangeCompleted({ [name]: convertedValue, ...dependants });
         }
       },
-      [onChangeStart, field, onTenorChange, editFlag, symbol, onChangeCompleted]
+      [
+        onChangeStart,
+        field,
+        store,
+        symbol,
+        onTenorChange,
+        editFlag,
+        onChangeCompleted,
+      ]
     );
     return (
-      <FormField<DealEntry>
+      <FormField<DealEntry, MiddleOfficeStore>
         {...field}
         editable={editable}
         dropdownData={dropdownData}
@@ -147,6 +166,7 @@ export const Field: React.FC<Props> = React.memo(
         // Have a local change function to do some pre-processing
         onChange={onChange}
         disabled={props.disabled}
+        store={store}
       />
     );
   },
