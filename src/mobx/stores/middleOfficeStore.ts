@@ -110,6 +110,8 @@ const savingDealError = (reason: any): MOErrorMessage => {
 };
 
 export class MiddleOfficeStore implements Workspace {
+  public readonly type: WorkspaceType = WorkspaceType.MiddleOffice;
+
   @observable.ref legs: ReadonlyArray<Leg> = [];
   @observable.ref summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
@@ -127,11 +129,8 @@ export class MiddleOfficeStore implements Workspace {
   @observable isLoadingLegs: boolean = false;
   @observable.ref lockedDeals: ReadonlyArray<string> = [];
   @observable strategies: { [key: string]: Product } = {};
-  public readonly id: string;
   @observable name: string = "Middle Office";
   @observable modified: boolean = false;
-
-  public readonly type: WorkspaceType = WorkspaceType.MiddleOffice;
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
@@ -148,10 +147,6 @@ export class MiddleOfficeStore implements Workspace {
   private modifiedFields: string[] = [];
 
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
-
-  constructor(id: string) {
-    this.id = id;
-  }
 
   @computed
   public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
@@ -1379,19 +1374,19 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public static fromJson(data: { [key: string]: any }): MiddleOfficeStore {
-    const newStore = new MiddleOfficeStore(data.id);
+    const newStore = new MiddleOfficeStore();
     newStore.name = data.name;
     return newStore;
   }
 
   public get serialized(): { [key: string]: any } {
     return {
-      id: this.id,
       name: this.name,
+      type: this.type,
     };
   }
 }
 
 export const MiddleOfficeStoreContext = React.createContext<MiddleOfficeStore>(
-  new MiddleOfficeStore("")
+  new MiddleOfficeStore()
 );

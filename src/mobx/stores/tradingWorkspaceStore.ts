@@ -13,8 +13,6 @@ export interface BusyMessage {
 }
 
 export class TradingWorkspaceStore implements Workspace {
-  public readonly id: string;
-
   public readonly type: WorkspaceType = WorkspaceType.Trading;
 
   @observable public tiles: ReadonlyArray<TileStore> = [];
@@ -26,14 +24,13 @@ export class TradingWorkspaceStore implements Workspace {
   @observable public progress: number = 0;
   @observable public modified: boolean = false;
 
-  constructor(id: string) {
-    this.id = id;
+  constructor() {
     this.progress = 50;
   }
 
   public static fromJson(data: { [key: string]: any }): TradingWorkspaceStore {
     const { tiles } = data;
-    const newStore = new TradingWorkspaceStore(data.id);
+    const newStore = new TradingWorkspaceStore();
     newStore.personality = data.personality;
     newStore.tiles = tiles.map(
       (data: { [key: string]: any }): TileStore => TileStore.fromJson(data)
@@ -46,7 +43,6 @@ export class TradingWorkspaceStore implements Workspace {
   public get serialized(): { [key: string]: any } {
     const { tiles } = this;
     return {
-      id: this.id,
       tiles: tiles.map(
         (
           tile: TileStore
@@ -56,6 +52,7 @@ export class TradingWorkspaceStore implements Workspace {
       ),
       personality: this.personality,
       name: this.name,
+      type: this.type,
     };
   }
 
@@ -128,5 +125,5 @@ export class TradingWorkspaceStore implements Workspace {
 }
 
 export const WorkspaceStoreContext = React.createContext<TradingWorkspaceStore>(
-  new TradingWorkspaceStore("")
+  new TradingWorkspaceStore()
 );

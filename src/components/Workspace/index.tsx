@@ -29,14 +29,14 @@ import { TileType } from "types/tileType";
 import { User } from "types/user";
 
 interface Props {
-  readonly id: string;
+  readonly index: number;
   readonly tenors: ReadonlyArray<string>;
   readonly currencies: ReadonlyArray<Symbol>;
   readonly strategies: ReadonlyArray<Product>;
   readonly banks: ReadonlyArray<string>;
   readonly isDefault: boolean;
   readonly visible: boolean;
-  readonly onModify: (id: string) => void;
+  readonly onModify: (index: number) => void;
 }
 
 const NotPodStoreError = new Error(
@@ -52,7 +52,7 @@ const useDropdownStyles = makeStyles({
 
 export const TradingWorkspace: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const { id } = props;
+    const { index } = props;
     const dropdownClasses = useDropdownStyles();
     const user: User = workareaStore.user;
     const isBroker: boolean = useMemo((): boolean => {
@@ -115,14 +115,14 @@ export const TradingWorkspace: React.FC<Props> = observer(
     };
 
     const onAddPodTile = () => {
-      props.onModify(id);
+      props.onModify(index);
       if (typeof store.addTile === "function") {
         store.addTile(TileType.PodTile);
       }
     };
 
     const onAddMessageBlotterTile = () => {
-      props.onModify(id);
+      props.onModify(index);
       store.addTile(TileType.MessageBlotter);
     };
 
@@ -184,7 +184,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
               getTitleRenderer={getTitleRenderer}
               getContentRenderer={getContentRenderer}
               isDefaultWorkspace={props.isDefault}
-              onLayoutModify={(): void => props.onModify(id)}
+              onLayoutModify={(): void => props.onModify(index)}
               onWindowClose={store.removeTile}
             />
             <ModalWindow

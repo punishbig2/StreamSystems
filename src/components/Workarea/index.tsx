@@ -26,11 +26,6 @@ const Workarea: React.FC = (): React.ReactElement | null => {
   const id: string | null = React.useMemo(getUserIdFromUrl, []);
   const messagesStore = React.useContext<MessagesStore>(MessagesStoreContext);
 
-  const { workspaces } = store;
-  React.useEffect((): void => {
-    console.log(workspaces);
-  }, [workspaces]);
-
   React.useEffect((): void => {
     themeStore.setTheme(theme);
   }, [theme]);

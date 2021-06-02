@@ -9,7 +9,6 @@ import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
-import { serializeObject, unserializeObject } from "types/persistable";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
@@ -28,12 +27,17 @@ export const isTradingWorkspace = (
   return "type" in workspace && workspace.type === WorkspaceType.Trading;
 };
 
-export class WorkareaStore {
-  @observable workspaces: {
-    [key: string]: Workspace;
-  } = {};
-  @observable currentWorkspaceID: string | null = null;
+export const isMiddleOfficeWorkspace = (
+  workspace: MiddleOfficeStore | any
+): workspace is MiddleOfficeStore => {
+  if (workspace === undefined || workspace === null) return false;
+  if (typeof workspace !== "object") return false;
+  return "type" in workspace && workspace.type === WorkspaceType.MiddleOffice;
+};
 
+export class WorkareaStore {
+  @observable workspaces: ReadonlyArray<Workspace> = [];
+  @observable currentWorkspaceIndex: number | null = null;
   @observable symbols: ReadonlyArray<Symbol> = [];
   @observable.ref products: ReadonlyArray<Product> = [];
   @observable.ref strategies: ReadonlyArray<Product> = [];
@@ -57,22 +61,22 @@ export class WorkareaStore {
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
 
-  private persistStorage = new PersistStorage<WorkareaStore>();
+  private persistStorage?: PersistStorage;
+
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
+    const { workspaces } = data;
     const newStore = new WorkareaStore();
     newStore.preferences = data.preferences;
-    newStore.currentWorkspaceID = data.currentWorkspaceID;
-    newStore.workspaces = unserializeObject<Workspace>(
-      data.workspaces,
+    newStore.currentWorkspaceIndex = data.currentWorkspaceIndex;
+    newStore.workspaces = workspaces.map(
       (data: { [key: string]: any }): Workspace => {
-        const { id } = data;
-        if (id.startsWith("mo")) {
+        const { type } = data;
+        if (type === WorkspaceType.MiddleOffice) {
           return MiddleOfficeStore.fromJson(data);
-        } else if (id.startsWith("ws")) {
+        } else if (type === WorkspaceType.Trading) {
           return TradingWorkspaceStore.fromJson(data);
         } else {
-          console.warn(`cannot understand workspace id ${id}`);
-          return {} as Workspace;
+          throw new Error(`unknown workspace type: ${type}`);
         }
       }
     );
@@ -81,18 +85,25 @@ export class WorkareaStore {
 
   @computed
   public get serialized(): { [key: string]: any } {
+    const { workspaces } = this;
     return {
       preferences: { ...this.preferences },
-      currentWorkspaceID: this.currentWorkspaceID,
-      workspaces: serializeObject<Workspace>(this.workspaces),
+      currentWorkspaceIndex: this.currentWorkspaceIndex,
+      workspaces: workspaces.map(
+        (
+          workspace: Workspace
+        ): {
+          [key: string]: any;
+        } => workspace.serialized
+      ),
     };
   }
 
   @computed
   public get personality(): string {
-    const { workspaces, currentWorkspaceID } = this;
-    if (currentWorkspaceID === null) return STRM;
-    const workspace = workspaces[currentWorkspaceID];
+    const { workspaces, currentWorkspaceIndex } = this;
+    if (currentWorkspaceIndex === null) return STRM;
+    const workspace = workspaces[currentWorkspaceIndex];
     if (isTradingWorkspace(workspace)) {
       return workspace.personality;
     } else {
@@ -102,9 +113,10 @@ export class WorkareaStore {
 
   @computed
   get workspace(): Workspace | null {
-    if (this.currentWorkspaceID === null) return null;
+    console.log(this.currentWorkspaceIndex, this.workspaces);
+    if (this.currentWorkspaceIndex === null) return null;
     const found: Workspace | undefined = this.workspaces[
-      this.currentWorkspaceID
+      this.currentWorkspaceIndex
     ];
     if (found) {
       return found;
@@ -133,17 +145,16 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public async closeWorkspace(id: string) {
+  public async closeWorkspace(id: number) {
     const workspaces = { ...this.workspaces };
     if (id in workspaces) {
       delete workspaces[id];
     }
     // Update current workspace id
-    const ids = [...Object.keys(this.workspaces)];
-    if (ids.length === 0) {
-      this.currentWorkspaceID = null;
+    if (workspaces.length === 0) {
+      this.currentWorkspaceIndex = null;
     } else {
-      this.currentWorkspaceID = ids[0];
+      this.currentWorkspaceIndex = 0;
     }
     this.workspaces = workspaces;
   }
@@ -161,10 +172,11 @@ export class WorkareaStore {
         );
         // Now the user object is complete
         this.user = { ...user, regions };
+        this.persistStorage = new PersistStorage(this.user);
         // This is just for eye candy :)
         WorkareaStore.cleanupUrl(user.email);
         // Load the saved state
-        await this.initializePersistStorage(user);
+        await this.initializePersistStorage();
         // Set the loading mode
         this.setStatus(WorkareaStatus.Initializing);
         // Start loading stuff
@@ -201,37 +213,36 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public setWorkspace(id: string) {
+  public setWorkspace(index: number) {
     const { workspaces } = this;
     this.workspaceAccessDenied = false;
     this.workspaceNotFound = false;
-    const workspace: Workspace | undefined = workspaces[id];
+    const workspace: Workspace | undefined = workspaces[index];
     if (workspace === undefined) {
       this.workspaceNotFound = true;
     } else if (this.getUserAccessToWorkspace(workspace)) {
-      this.currentWorkspaceID = id;
+      this.currentWorkspaceIndex = index;
     } else {
       this.workspaceAccessDenied = true;
     }
   }
 
   @action.bound
-  public setWorkspaceName(id: string, name: string) {
+  public setWorkspaceName(index: number, name: string) {
     const { workspaces } = this;
-    const workspace: Workspace = workspaces[id];
+    const workspace: Workspace = workspaces[index];
     if (workspace === undefined) throw new Error("this must be impossible");
     workspace.setName(name);
-    this.workspaces = { ...workspaces, [id]: workspace };
+    this.workspaces = [...workspaces];
   }
 
   @action.bound
-  public setWorkspaceModified(id: string) {
+  public setWorkspaceModified(index: number) {
     const { workspaces } = this;
-    const workspace = workspaces[id];
+    const workspace = workspaces[index];
     if (workspace === undefined) throw new Error("this must be impossible");
-    if (typeof workspace.setModified === "function") {
-      workspace.setModified(true);
-    }
+    workspace.setModified(true);
+    this.workspaces = [...workspaces];
   }
 
   @action.bound
@@ -242,13 +253,7 @@ export class WorkareaStore {
 
   @action.bound
   public setPreferences(preferences: UserPreferences) {
-    const { ccyGroup } = this.preferences;
     this.preferences = preferences;
-    if (ccyGroup !== preferences.ccyGroup) {
-      /*API.getSymbols(persistStorage.getCCYGroup()).then(
-        (currencies: Symbol[]) => (this.symbols = currencies)
-      );*/
-    }
   }
 
   @action.bound
@@ -292,21 +297,19 @@ export class WorkareaStore {
   @action.bound
   private internalAddMiddleOffice(): void {
     const { workspaces } = this;
-    const id: string = `mo${Math.round(1e8 * Math.random())}`;
     // Create the workspace
-    this.workspaces = { ...workspaces, [id]: new MiddleOfficeStore(id) };
+    this.currentWorkspaceIndex = workspaces.length;
+    this.workspaces = [...workspaces, new MiddleOfficeStore()];
     this.isCreatingWorkspace = false;
-    this.currentWorkspaceID = id;
   }
 
   @action.bound
   private internalAddWorkspace(group: CurrencyGroups) {
     const { workspaces } = this;
-    const id: string = `ws${Math.round(1e8 * Math.random())}`;
     // Create the workspace
-    this.workspaces = { ...workspaces, [id]: new TradingWorkspaceStore(id) };
+    this.currentWorkspaceIndex = workspaces.length;
+    this.workspaces = [...workspaces, new TradingWorkspaceStore()];
     this.isCreatingWorkspace = false;
-    this.currentWorkspaceID = id;
     // TODO: currently not being used but could be in the future
     //       again
     void group;
@@ -382,16 +385,22 @@ export class WorkareaStore {
     return API.getUserRegions(email);
   }
 
-  private async initializePersistStorage(user: User): Promise<void> {
+  private async initializePersistStorage(): Promise<void> {
     const { persistStorage } = this;
+    if (persistStorage === null || persistStorage === undefined) {
+      throw new Error("persist storage not set");
+    }
     this.updateLoadingProgress(strings.LoadingRegions);
     // Initialize the persistStorage object
-    const savedStore = await persistStorage.read(user);
+    const savedStore = await persistStorage.read();
     this.preferences = savedStore.preferences;
     this.workspaces = savedStore.workspaces;
-    this.currentWorkspaceID = savedStore.currentWorkspaceID;
+    this.currentWorkspaceIndex = savedStore.currentWorkspaceIndex;
     autorun((): void => {
       const { persistStorage } = this;
+      if (persistStorage === null || persistStorage === undefined) {
+        throw new Error("persist storage not set");
+      }
       // Save the changes in the store (and all it's children)
       void persistStorage.persist(this.serialized);
     });

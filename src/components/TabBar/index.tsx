@@ -10,15 +10,15 @@ import { CurrencyGroups } from "types/user";
 import { Workspace } from "types/workspace";
 
 interface Props {
-  readonly entries: { [k: string]: Workspace };
-  readonly active: string | null;
+  readonly entries: ReadonlyArray<Workspace>;
+  readonly active: number | null;
   readonly connected: boolean;
   readonly onAddStandardWorkspace: (group: CurrencyGroups) => void;
   readonly onAddMiddleOfficeWorkspace: () => void;
-  readonly setActiveTab: (id: string) => void;
-  readonly onTabClosed: (id: string) => void;
+  readonly setActiveTab: (index: number) => void;
+  readonly onTabClosed: (index: number) => void;
   readonly onQuit: () => void;
-  readonly onWorkspaceRename: (id: string, name: string) => void;
+  readonly onWorkspaceRename: (index: number, name: string) => void;
 }
 
 const TabBar: React.FC<Props> = (props: Props): ReactElement => {
@@ -43,39 +43,32 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
     );
   }, [user]);
   // Get the workspace entries
-  const destroyWorkspace = (id: string) => {
-    props.onTabClosed(id);
+  const destroyWorkspace = (index: number) => {
+    props.onTabClosed(index);
   };
-  const items = React.useMemo(
-    (): ReadonlyArray<Workspace> => Object.values(entries),
-    [entries]
-  );
   return (
     <div className={"tab-layout"}>
-      {items.map<ReactElement>((workspace: Workspace) => {
+      {entries.map<ReactElement>((workspace: Workspace, index: number) => {
         const onClosed = (event: React.MouseEvent) => {
           event.stopPropagation();
           event.preventDefault();
           // Remove the tab (with it's contents)
-          destroyWorkspace(workspace.id);
+          destroyWorkspace(index);
         };
-        const onClick = () => props.setActiveTab(workspace.id);
+        const onClick = () => props.setActiveTab(index);
         const label = (
           <TabLabel
             label={workspace.name}
             isDefault={!workspace.modified}
-            onRenamed={(name: string) =>
-              props.onWorkspaceRename(workspace.id, name)
-            }
+            onRenamed={(name: string) => props.onWorkspaceRename(index, name)}
             onClosed={onClosed}
           />
         );
         return (
           <Tab
-            key={workspace.id}
-            id={workspace.id}
+            key={index}
             onClick={onClick}
-            active={workspace.id === active}
+            active={index === active}
             label={label}
           />
         );

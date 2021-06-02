@@ -8,12 +8,12 @@ import React from "react";
 
 export const Footer: React.FC = observer(
   (): React.ReactElement => {
-    const [selectedToClose, setSelectedToClose] = React.useState<string | null>(
+    const [selectedToClose, setSelectedToClose] = React.useState<number | null>(
       null
     );
     const cancelCloseWorkspace = () => setSelectedToClose(null);
     const closeWorkspace = () => {
-      store.closeWorkspace(selectedToClose as string).then(() => {});
+      store.closeWorkspace(selectedToClose!).then(() => {});
       // Close the modal window
       setSelectedToClose(null);
     };
@@ -28,7 +28,7 @@ export const Footer: React.FC = observer(
       <div className={"footer"}>
         <TabBar
           entries={store.workspaces}
-          active={store.currentWorkspaceID}
+          active={store.currentWorkspaceIndex}
           connected={store.connected}
           setActiveTab={store.setWorkspace}
           onAddStandardWorkspace={store.addStandardWorkspace}
