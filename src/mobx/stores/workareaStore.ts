@@ -21,16 +21,16 @@ import { PersistStorage } from "utils/persistStorage";
 import { tenorToNumber } from "utils/tenorUtils";
 
 export const isTradingWorkspace = (
-  workspace: TradingWorkspaceStore
-): workspace is TradingWorkspaceStore =>
-  workspace.type === WorkspaceType.Trading;
+  workspace: TradingWorkspaceStore | any
+): workspace is TradingWorkspaceStore => {
+  if (workspace === undefined || workspace === null) return false;
+  if (typeof workspace !== "object") return false;
+  return "type" in workspace && workspace.type === WorkspaceType.Trading;
+};
 
 export class WorkareaStore {
   @observable workspaces: {
-    [key: string]: TradingWorkspaceStore;
-  } = {};
-  @observable middleOffices: {
-    [key: string]: MiddleOfficeStore;
+    [key: string]: Workspace;
   } = {};
   @observable currentWorkspaceID: string | null = null;
 
@@ -49,7 +49,6 @@ export class WorkareaStore {
   @observable loadingMessage?: string;
   @observable loadingProgress: number = 0;
   @observable isCreatingWorkspace: boolean = false;
-  @observable hasUpdates: boolean = false;
 
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
@@ -59,31 +58,23 @@ export class WorkareaStore {
   private loadingStep: number = 0;
 
   private persistStorage = new PersistStorage<WorkareaStore>();
-
-  public get workspace(): TradingWorkspaceStore | MiddleOfficeStore | null {
-    const { currentWorkspaceID } = this;
-    if (currentWorkspaceID === null) {
-      return null;
-    } else if (currentWorkspaceID in this.middleOffices) {
-      return this.middleOffices[currentWorkspaceID];
-    } else if (currentWorkspaceID in this.workspaces) {
-      return this.workspaces[currentWorkspaceID];
-    } else {
-      return null;
-    }
-  }
-
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
     const newStore = new WorkareaStore();
     newStore.preferences = data.preferences;
     newStore.currentWorkspaceID = data.currentWorkspaceID;
-    newStore.workspaces = unserializeObject<TradingWorkspaceStore>(
+    newStore.workspaces = unserializeObject<Workspace>(
       data.workspaces,
-      TradingWorkspaceStore.fromJson
-    );
-    newStore.middleOffices = unserializeObject(
-      data.middleOffices,
-      MiddleOfficeStore.fromJson
+      (data: { [key: string]: any }): Workspace => {
+        const { id } = data;
+        if (id.startsWith("mo")) {
+          return MiddleOfficeStore.fromJson(data);
+        } else if (id.startsWith("ws")) {
+          return TradingWorkspaceStore.fromJson(data);
+        } else {
+          console.warn(`cannot understand workspace id ${id}`);
+          return {} as Workspace;
+        }
+      }
     );
     return newStore;
   }
@@ -93,8 +84,7 @@ export class WorkareaStore {
     return {
       preferences: { ...this.preferences },
       currentWorkspaceID: this.currentWorkspaceID,
-      workspaces: serializeObject<TradingWorkspaceStore>(this.workspaces),
-      middleOffices: serializeObject<MiddleOfficeStore>(this.middleOffices),
+      workspaces: serializeObject<Workspace>(this.workspaces),
     };
   }
 
@@ -103,8 +93,7 @@ export class WorkareaStore {
     const { workspaces, currentWorkspaceID } = this;
     if (currentWorkspaceID === null) return STRM;
     const workspace = workspaces[currentWorkspaceID];
-    if (workspace === undefined) return "";
-    if ("personality" in workspace) {
+    if (isTradingWorkspace(workspace)) {
       return workspace.personality;
     } else {
       return STRM;
@@ -112,9 +101,9 @@ export class WorkareaStore {
   }
 
   @computed
-  get currentWorkspace(): TradingWorkspaceStore | null {
+  get workspace(): Workspace | null {
     if (this.currentWorkspaceID === null) return null;
-    const found: TradingWorkspaceStore | undefined = this.workspaces[
+    const found: Workspace | undefined = this.workspaces[
       this.currentWorkspaceID
     ];
     if (found) {
@@ -145,21 +134,18 @@ export class WorkareaStore {
 
   @action.bound
   public async closeWorkspace(id: string) {
-    if (id in this.workspaces) {
-      delete this.workspaces[id];
-    } else if (id in this.middleOffices) {
-      delete this.middleOffices[id];
+    const workspaces = { ...this.workspaces };
+    if (id in workspaces) {
+      delete workspaces[id];
     }
     // Update current workspace id
-    const ids = [
-      ...Object.keys(this.workspaces),
-      ...Object.keys(this.middleOffices),
-    ];
+    const ids = [...Object.keys(this.workspaces)];
     if (ids.length === 0) {
       this.currentWorkspaceID = null;
     } else {
       this.currentWorkspaceID = ids[0];
     }
+    this.workspaces = workspaces;
   }
 
   public async initialize(id: string) {
@@ -216,12 +202,10 @@ export class WorkareaStore {
 
   @action.bound
   public setWorkspace(id: string) {
-    console.log(id);
-    const { workspaces, middleOffices } = this;
+    const { workspaces } = this;
     this.workspaceAccessDenied = false;
     this.workspaceNotFound = false;
-    const workspace: Workspace | undefined =
-      workspaces[id] ?? middleOffices[id];
+    const workspace: Workspace | undefined = workspaces[id];
     if (workspace === undefined) {
       this.workspaceNotFound = true;
     } else if (this.getUserAccessToWorkspace(workspace)) {
@@ -234,9 +218,10 @@ export class WorkareaStore {
   @action.bound
   public setWorkspaceName(id: string, name: string) {
     const { workspaces } = this;
-    const workspace = workspaces[id];
+    const workspace: Workspace = workspaces[id];
     if (workspace === undefined) throw new Error("this must be impossible");
     workspace.setName(name);
+    this.workspaces = { ...workspaces, [id]: workspace };
   }
 
   @action.bound
@@ -273,11 +258,6 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public setHasUpdates(): void {
-    this.hasUpdates = true;
-  }
-
-  @action.bound
   public closeAccessDeniedView(): void {
     this.workspaceAccessDenied = false;
   }
@@ -311,10 +291,10 @@ export class WorkareaStore {
 
   @action.bound
   private internalAddMiddleOffice(): void {
-    const { middleOffices } = this;
+    const { workspaces } = this;
     const id: string = `mo${Math.round(1e8 * Math.random())}`;
     // Create the workspace
-    middleOffices[id] = new MiddleOfficeStore(id);
+    this.workspaces = { ...workspaces, [id]: new MiddleOfficeStore(id) };
     this.isCreatingWorkspace = false;
     this.currentWorkspaceID = id;
   }
@@ -324,7 +304,7 @@ export class WorkareaStore {
     const { workspaces } = this;
     const id: string = `ws${Math.round(1e8 * Math.random())}`;
     // Create the workspace
-    workspaces[id] = new TradingWorkspaceStore(id);
+    this.workspaces = { ...workspaces, [id]: new TradingWorkspaceStore(id) };
     this.isCreatingWorkspace = false;
     this.currentWorkspaceID = id;
     // TODO: currently not being used but could be in the future
@@ -409,7 +389,6 @@ export class WorkareaStore {
     const savedStore = await persistStorage.read(user);
     this.preferences = savedStore.preferences;
     this.workspaces = savedStore.workspaces;
-    this.middleOffices = savedStore.middleOffices;
     this.currentWorkspaceID = savedStore.currentWorkspaceID;
     autorun((): void => {
       const { persistStorage } = this;

@@ -1,6 +1,7 @@
+import { Persistable } from "types/persistable";
 import { WorkspaceType } from "types/workspaceType";
 
-export interface Workspace {
+export interface Workspace extends Persistable<Workspace> {
   readonly id: string;
   readonly name: string;
   readonly modified: boolean;
@@ -8,6 +9,5 @@ export interface Workspace {
   readonly type: WorkspaceType;
 
   setName(name: string): void;
-
   setModified(value: boolean): void;
 }

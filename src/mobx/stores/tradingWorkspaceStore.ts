@@ -3,7 +3,6 @@ import { action, computed, observable } from "mobx";
 import { TileStore } from "mobx/stores/tileStore";
 import React from "react";
 import { STRM } from "stateDefs/workspaceState";
-import { Persistable } from "types/persistable";
 import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -13,8 +12,7 @@ export interface BusyMessage {
   readonly detail: string;
 }
 
-export class TradingWorkspaceStore
-  implements Workspace, Persistable<TradingWorkspaceStore> {
+export class TradingWorkspaceStore implements Workspace {
   public readonly id: string;
 
   public readonly type: WorkspaceType = WorkspaceType.Trading;
@@ -40,14 +38,15 @@ export class TradingWorkspaceStore
     newStore.tiles = tiles.map(
       (data: { [key: string]: any }): TileStore => TileStore.fromJson(data)
     );
+    newStore.name = data.name;
     return newStore;
   }
 
   @computed
   public get serialized(): { [key: string]: any } {
-    const { tiles, personality, name, id } = this;
+    const { tiles } = this;
     return {
-      id,
+      id: this.id,
       tiles: tiles.map(
         (
           tile: TileStore
@@ -55,8 +54,8 @@ export class TradingWorkspaceStore
           [key: string]: any;
         } => tile.serialized
       ),
-      personality,
-      name,
+      personality: this.personality,
+      name: this.name,
     };
   }
 

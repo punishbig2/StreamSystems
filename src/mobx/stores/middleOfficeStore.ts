@@ -30,7 +30,6 @@ import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
 import { LegAdjustValue } from "types/legAdjustValue";
 import { MOErrorMessage } from "types/middleOfficeError";
-import { Persistable } from "types/persistable";
 import { PricingMessage } from "types/pricingMessage";
 import {
   EditableFlag,
@@ -110,8 +109,7 @@ const savingDealError = (reason: any): MOErrorMessage => {
   };
 };
 
-export class MiddleOfficeStore
-  implements Workspace, Persistable<MiddleOfficeStore> {
+export class MiddleOfficeStore implements Workspace {
   @observable.ref legs: ReadonlyArray<Leg> = [];
   @observable.ref summaryLeg: SummaryLeg | null = null;
   @observable isInitialized: boolean = false;
@@ -1381,12 +1379,15 @@ export class MiddleOfficeStore
   }
 
   public static fromJson(data: { [key: string]: any }): MiddleOfficeStore {
-    return new MiddleOfficeStore(data.id);
+    const newStore = new MiddleOfficeStore(data.id);
+    newStore.name = data.name;
+    return newStore;
   }
 
   public get serialized(): { [key: string]: any } {
     return {
       id: this.id,
+      name: this.name,
     };
   }
 }
