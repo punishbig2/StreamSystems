@@ -147,13 +147,18 @@ export class WorkareaStore {
   public async closeWorkspace(id: string) {
     if (id in this.workspaces) {
       delete this.workspaces[id];
-      // Update current workspace id
-      const ids = Object.keys(this.workspaces);
-      if (ids.length === 0) {
-        this.currentWorkspaceID = null;
-      } else {
-        this.currentWorkspaceID = ids[0];
-      }
+    } else if (id in this.middleOffices) {
+      delete this.middleOffices[id];
+    }
+    // Update current workspace id
+    const ids = [
+      ...Object.keys(this.workspaces),
+      ...Object.keys(this.middleOffices),
+    ];
+    if (ids.length === 0) {
+      this.currentWorkspaceID = null;
+    } else {
+      this.currentWorkspaceID = ids[0];
     }
   }
 
