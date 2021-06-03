@@ -5,7 +5,10 @@ import { Table } from "components/Table";
 import { defaultTableColumnStateMapper } from "components/Table/tableColumn";
 import strings from "locales";
 import { observer } from "mobx-react";
-import { RunWindowStore } from "mobx/stores/runWindowStore";
+import {
+  RunWindowStore,
+  RunWindowStoreContext,
+} from "mobx/stores/runWindowStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
 import { Width } from "types/brokerageWidths";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
@@ -14,7 +17,6 @@ import { PodRow } from "types/podRow";
 import { createColumnsWithStore } from "./columnCreator";
 
 interface OwnProps {
-  readonly store: RunWindowStore;
   readonly visible: boolean;
   readonly symbol: string;
   readonly strategy: string;
@@ -38,11 +40,14 @@ const Run: React.FC<OwnProps> = observer(
       orders,
     } = props;
 
-    const { store } = props;
+    const store = React.useContext<RunWindowStore>(RunWindowStoreContext);
     const { rows, selection, brokerageWidths } = store;
 
+    React.useEffect((): void => {
+      store.setInitialized(false);
+    });
+
     const setSpread = (value: number): void => {
-      // dispatch(createAction<RunActions>(RunActions.SetSpread, value));
       store.setSpreadAll(value);
     };
 

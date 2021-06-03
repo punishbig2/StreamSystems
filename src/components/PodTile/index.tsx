@@ -6,6 +6,10 @@ import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Run } from "components/Run";
 import { observer } from "mobx-react";
 import { PodStore } from "mobx/stores/podStore";
+import {
+  RunWindowStore,
+  RunWindowStoreContext,
+} from "mobx/stores/runWindowStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
 import { InvalidCurrency } from "stateDefs/windowState";
@@ -115,18 +119,19 @@ export const PodTile: React.FC<Props> = observer(
           }}
         />
         <ModalWindow isOpen={store.isRunWindowVisible}>
-          <Run
-            store={store.runWindowStore}
-            visible={store.isRunWindowVisible}
-            symbol={currency.name}
-            strategy={strategy}
-            tenors={tenors}
-            defaultSize={currency.defaultqty}
-            minimumSize={currency.minqty}
-            orders={store.orders}
-            onClose={store.hideRunWindow}
-            onSubmit={bulkCreateOrders}
-          />
+          <RunWindowStoreContext.Provider value={new RunWindowStore()}>
+            <Run
+              visible={store.isRunWindowVisible}
+              symbol={currency.name}
+              strategy={strategy}
+              tenors={tenors}
+              defaultSize={currency.defaultqty}
+              minimumSize={currency.minqty}
+              orders={store.orders}
+              onClose={store.hideRunWindow}
+              onSubmit={bulkCreateOrders}
+            />
+          </RunWindowStoreContext.Provider>
         </ModalWindow>
       </>
     );

@@ -392,8 +392,8 @@ export class API {
         return {
           Side: getSideFromType(order.type),
           Tenor: order.tenor,
-          Quantity: sizeFormatter(size),
-          Price: priceFormatter(price),
+          Quantity: size.toFixed(0),
+          Price: price.toString(),
         };
       }),
       MDMkt: MDMkt,

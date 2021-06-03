@@ -4,6 +4,7 @@ import { getSelectedOrders } from "components/Run/helpers/getSelectedOrders";
 import { ordersReducer } from "components/Run/helpers/ordersReducer";
 import { RunRowProxy } from "components/Run/helpers/runRowProxy";
 import { action, observable } from "mobx";
+import React from "react";
 import { BrokerageWidths } from "types/brokerageWidths";
 import { OrderTypes } from "types/mdEntry";
 import { Order, OrderMessage, OrderStatus } from "types/order";
@@ -317,7 +318,7 @@ export class RunWindowStore {
   }
 
   @action.bound
-  setRowStatus(rowID: string, status: PodRowStatus): void {
+  public setRowStatus(rowID: string, status: PodRowStatus): void {
     const { rows } = this;
     const row: PodRow = rows[rowID];
     this.rows = {
@@ -330,7 +331,7 @@ export class RunWindowStore {
   }
 
   @action.bound
-  setInitialized(initialized: boolean): void {
+  public setInitialized(initialized: boolean): void {
     this.initialized = initialized;
   }
 
@@ -502,3 +503,7 @@ export class RunWindowStore {
     this.setOrders(table);
   }
 }
+
+export const RunWindowStoreContext = React.createContext<RunWindowStore>(
+  new RunWindowStore()
+);

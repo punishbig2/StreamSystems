@@ -16,7 +16,6 @@ import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
 import { W } from "types/w";
-import { RunWindowStore } from "./runWindowStore";
 
 export class PodStore extends ContentStore implements Persistable<PodStore> {
   public id: string = "";
@@ -36,7 +35,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
   @observable.ref rows: { [tenor: string]: PodRow } = {};
-  @observable runWindowStore: RunWindowStore;
 
   public progressMax: number = 100;
   public readonly kind: TileType = TileType.PodTile;
@@ -55,7 +53,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     };
     // Initialize depth with empty arrays
     this.orders = tenors.reduce(reducer, {});
-    this.runWindowStore = new RunWindowStore();
   }
 
   @computed
@@ -212,10 +209,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   public showRunWindow() {
-    const { runWindowStore } = this;
-    // Reset the run window store
-    runWindowStore.setInitialized(false);
-    // Now show it
     this.isRunWindowVisible = true;
   }
 
