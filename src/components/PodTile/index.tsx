@@ -5,7 +5,7 @@ import { convertToDepth } from "components/PodTile/helpers";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Run } from "components/Run";
 import { observer } from "mobx-react";
-import { PodStore } from "mobx/stores/podStore";
+import { PodStore, PodStoreContext } from "mobx/stores/podStore";
 import {
   RunWindowStore,
   RunWindowStoreContext,
@@ -21,12 +21,8 @@ import { TableColumn } from "components/Table/tableColumn";
 import { WindowContent } from "./windowContent";
 
 interface Props {
-  readonly id: string;
   readonly tenors: ReadonlyArray<string>;
-  readonly store: PodStore;
   readonly currencies: ReadonlyArray<Symbol>;
-  readonly minimized?: boolean;
-  readonly onClose?: () => void;
 }
 
 const getCurrencyFromName = (
@@ -42,7 +38,7 @@ const getCurrencyFromName = (
 
 export const PodTile: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
-    const { store } = props;
+    const store = React.useContext<PodStore>(PodStoreContext);
     const { currencies, tenors } = props;
     const { strategy } = store;
     const currency: Symbol | undefined = getCurrencyFromName(
@@ -108,8 +104,6 @@ export const PodTile: React.FC<Props> = observer(
     return (
       <>
         <WindowContent
-          id={props.id}
-          store={store}
           columns={podColumns}
           symbol={currency}
           strategy={strategy}

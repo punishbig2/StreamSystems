@@ -4,6 +4,7 @@ import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 
 import workareaStore from "mobx/stores/workareaStore";
+import React from "react";
 import signalRManager from "signalR/signalRManager";
 import { DarkPoolQuote } from "types/darkPoolQuote";
 import { MDEntry } from "types/mdEntry";
@@ -40,8 +41,9 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   public readonly kind: TileType = TileType.PodTile;
   private creatingBulk: boolean = false;
 
-  constructor(windowID: string) {
+  constructor(windowID?: string) {
     super();
+    if (windowID === undefined) return;
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
     this.id = windowID;
     const reducer = (
@@ -419,3 +421,5 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     };
   }
 }
+
+export const PodStoreContext = React.createContext<PodStore>(new PodStore());

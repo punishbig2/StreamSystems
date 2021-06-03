@@ -2,7 +2,7 @@ import { DepthOfTheBook } from "components/PodTile/depthOfTheBook";
 import { TopOfTheBook } from "components/PodTile/topOfTheBook";
 import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
-import { PodStore } from "mobx/stores/podStore";
+import { PodStore, PodStoreContext } from "mobx/stores/podStore";
 import React, { ReactElement } from "react";
 import { DepthData } from "types/depthData";
 import { PodTable } from "types/podTable";
@@ -11,8 +11,6 @@ import { ModalWindow } from "../ModalWindow";
 import { ProgressModalContent } from "../ProgressModalContent";
 
 interface Props {
-  readonly id: string;
-  readonly store: PodStore;
   readonly columns: ReadonlyArray<TableColumn>;
   readonly strategy: string;
   readonly symbol: Symbol;
@@ -21,7 +19,7 @@ interface Props {
 
 export const WindowContent: React.FC<Props> = observer(
   (props: Props): React.ReactElement => {
-    const { store } = props;
+    const store = React.useContext<PodStore>(PodStoreContext);
     const { dob } = props;
     const dobRows = React.useMemo((): PodTable => dob.rows, [dob]);
 

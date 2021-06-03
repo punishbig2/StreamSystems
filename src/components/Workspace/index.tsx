@@ -27,6 +27,7 @@ import { SelectEventData } from "types/selectEventData";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
+import { PodStoreContext } from "mobx/stores/podStore";
 
 interface Props {
   readonly index: number;
@@ -128,12 +129,12 @@ export const TradingWorkspace: React.FC<Props> = observer(
           return (contentStore: ContentStore | null) => {
             if (isPodTileStore(contentStore)) {
               return (
-                <PodTile
-                  id={id}
-                  store={contentStore}
-                  currencies={props.currencies}
-                  tenors={props.tenors}
-                />
+                <PodStoreContext.Provider value={contentStore}>
+                  <PodTile
+                    currencies={props.currencies}
+                    tenors={props.tenors}
+                  />
+                </PodStoreContext.Provider>
               );
             } else {
               throw NotPodStoreError;
@@ -155,11 +156,12 @@ export const TradingWorkspace: React.FC<Props> = observer(
           return (contentStore: ContentStore | null) => {
             if (isPodTileStore(contentStore)) {
               return (
-                <PodTileTitle
-                  strategies={contentStore.strategies}
-                  currencies={props.currencies}
-                  store={contentStore}
-                />
+                <PodStoreContext.Provider value={contentStore}>
+                  <PodTileTitle
+                    strategies={contentStore.strategies}
+                    currencies={props.currencies}
+                  />
+                </PodStoreContext.Provider>
               );
             } else {
               throw NotPodStoreError;
