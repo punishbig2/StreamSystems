@@ -24,6 +24,7 @@ export const useHydrator = (tile: Tile | null, store: TileStore): void => {
       }
       tile.autosize = store.autosize;
       tile.docked = store.docked;
+      tile.minimized = store.minimized;
     });
   }, [tile, hydrated, store]);
 };

@@ -113,7 +113,6 @@ export class WorkareaStore {
 
   @computed
   get workspace(): Workspace | null {
-    console.log(this.currentWorkspaceIndex, this.workspaces);
     if (this.currentWorkspaceIndex === null) return null;
     const found: Workspace | undefined = this.workspaces[
       this.currentWorkspaceIndex
@@ -237,15 +236,6 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public setWorkspaceModified(index: number) {
-    const { workspaces } = this;
-    const workspace = workspaces[index];
-    if (workspace === undefined) throw new Error("this must be impossible");
-    workspace.setModified(true);
-    this.workspaces = [...workspaces];
-  }
-
-  @action.bound
   public addRecentExecution(loadingMessage: Message) {
     const { recentExecutions } = this;
     recentExecutions.push(loadingMessage);
@@ -253,7 +243,6 @@ export class WorkareaStore {
 
   @action.bound
   public setPreferences(preferences: UserPreferences) {
-    console.log(preferences);
     this.preferences = preferences;
   }
 

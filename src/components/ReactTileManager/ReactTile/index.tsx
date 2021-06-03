@@ -19,7 +19,7 @@ interface OwnProps {
   readonly content: (
     store: ContentStore | null
   ) => React.ReactElement | string | null;
-  readonly onLayoutModify: () => void;
+  // readonly onLayoutModify: () => void;
   readonly onClose: (id: string) => void;
 }
 
@@ -33,21 +33,18 @@ export const ReactTile: React.FC<Props> = observer(
     useEventHandlers(tile, store);
     useHydrator(tile, store);
 
-    const onClose = () => {
+    const onClose = (): void => {
       props.onClose(store.id);
-      props.onLayoutModify();
     };
-    const onMinimize = () => {
+    const onMinimize = (): void => {
       if (tile !== null) {
         tile.minimized = store.setMinimized(!tile.minimized);
       }
-      props.onLayoutModify();
     };
-    const onResizeToContent = () => {
+    const onResizeToContent = (): void => {
       if (tile !== null) {
         tile.autosize = store.setAutosize(true);
       }
-      props.onLayoutModify();
     };
     const getTitleBarButtons = (): React.ReactElement | null => {
       if (props.fixed) return null;

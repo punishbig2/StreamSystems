@@ -54,7 +54,6 @@ import {
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import { priceFormatter } from "utils/priceFormatter";
-import { sizeFormatter } from "utils/sizeFormatter";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };

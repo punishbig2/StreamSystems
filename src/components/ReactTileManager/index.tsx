@@ -26,7 +26,6 @@ interface Props {
   ) => (store: ContentStore | null) => ReactElement | string | null;
   readonly onMouseLeave?: (event: React.MouseEvent<HTMLDivElement>) => void;
   readonly onWindowClose: (id: string) => void;
-  readonly onLayoutModify: () => void;
 }
 
 const ReactTileManager: React.FC<Props> = (
@@ -58,7 +57,6 @@ const ReactTileManager: React.FC<Props> = (
               content={props.getContentRenderer(tile.id, tile.type)}
               title={props.getTitleRenderer(tile.id, tile.type)}
               isDefaultWorkspace={ready}
-              onLayoutModify={props.onLayoutModify}
               onClose={props.onWindowClose}
             />
           </TileStoreContext.Provider>

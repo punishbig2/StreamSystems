@@ -45,7 +45,6 @@ export const ActiveWorkspace: React.FC = observer(
             currencies={symbols}
             strategies={workarea.strategies}
             banks={workarea.banks}
-            onModify={workarea.setWorkspaceModified}
           />
         </WorkspaceStoreContext.Provider>
       );

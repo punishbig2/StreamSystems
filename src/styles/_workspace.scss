@@ -95,6 +95,13 @@
       }
     }
 
+    &[minimized] {
+      max-height: 21px;
+      .window-content {
+        height: 0;
+      }
+    }
+
     &[scrollable] {
       .window-content {
         overflow-y: hidden;
