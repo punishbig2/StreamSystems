@@ -35,7 +35,6 @@ export const DepthOfTheBook: React.FC<Props> = (
     (rowProps: any): ReactElement | null => {
       const { minqty, defaultqty } = props.symbol;
       const { row } = rowProps;
-      console.log(minqty, defaultqty, props.strategy);
       if (minqty === undefined || defaultqty === undefined) return null;
       // Get current row
       const matchingRow: PodRow = rows[row.id];

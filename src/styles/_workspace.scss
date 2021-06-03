@@ -30,6 +30,7 @@
   right: 0;
 
   background-color: $light-color;
+  z-index: 1;
 
   cib-window-manager {
     overflow-x: hidden;

@@ -253,6 +253,7 @@ export class WorkareaStore {
 
   @action.bound
   public setPreferences(preferences: UserPreferences) {
+    console.log(preferences);
     this.preferences = preferences;
   }
 
