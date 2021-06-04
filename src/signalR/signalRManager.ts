@@ -80,7 +80,7 @@ interface Command {
 }
 
 export class SignalRManager {
-  private connection: HubConnection | null;
+  private connection: HubConnection | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onConnectedListener:
     | ((connection: HubConnection) => void)
@@ -99,27 +99,78 @@ export class SignalRManager {
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
 
-  // private listeners: { [k: string]: (arg: W) => void } = {};
-
   private dpListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
 
-  constructor() {
-    const connection: HubConnection = SignalRManager.createConnection();
-    connection.serverTimeoutInMilliseconds = 3600000;
-    connection.keepAliveIntervalInMilliseconds = 8000;
-    // Export to class wide variable
-    this.connection = connection;
-  }
-
-  static createConnection = () =>
+  public static createConnection = () =>
     new HubConnectionBuilder()
       .withUrl(
         `${config.BackendUrl}/liveUpdateSignalRHub`,
         HttpTransportType.WebSockets
       )
-      .withAutomaticReconnect([5, 60, 120])
-      .configureLogging(LogLevel.None)
+      .configureLogging(LogLevel.Debug)
       .build();
+
+  public connect = (): boolean => {
+    const connection: HubConnection = SignalRManager.createConnection();
+    if (connection.state !== HubConnectionState.Disconnected) return false;
+    this.connection = connection;
+    this.applySubscriptions(connection);
+    connection
+      .start()
+      .then(() => {
+        this.reconnectDelay = INITIAL_RECONNECT_DELAY;
+        // Listen to installed combinations
+        this.processDeferredCommands();
+        this.notifyConnected(connection);
+      })
+      .catch(console.error);
+    return true;
+  };
+
+  private notifyConnected(connection: HubConnection) {
+    if (this.onConnectedListener) {
+      this.onConnectedListener(connection);
+    }
+  }
+
+  private notifyConnectionLoss(error?: any) {
+    if (this.onDisconnectedListener) {
+      this.onDisconnectedListener(error);
+    }
+  }
+
+  private applySubscriptions = (connection: HubConnection) => {
+    // Connect
+    connection.serverTimeoutInMilliseconds = 3600000;
+    connection.keepAliveIntervalInMilliseconds = 80;
+    // Install close handler
+    connection.onclose((error?: Error): void => {
+      this.notifyConnectionLoss(error);
+    });
+    /*window.addEventListener("online", (): void => {
+      this.connect();
+    });*/
+    window.addEventListener("offline", (): void => {
+      this.notifyConnectionLoss();
+    });
+    // Install listeners
+    connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
+    connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
+    connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
+    connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
+    connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
+    connection.on(Events.OnPricingResponse, this.onPricingResponse);
+    connection.on(Events.OnDealDeleted, this.onDealDeleted);
+    connection.on(Events.UpdateLegs, this.onUpdateLegs);
+    connection.on(Events.OnError, this.onError);
+    connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
+    connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
+    connection.on(
+      Events.OnDealEditStart,
+      this.onDealEdit(DealEditStatus.Start)
+    );
+    connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
+  };
 
   public static addSEFUpdateListener(
     listener: (message: SEFUpdate) => void
@@ -157,28 +208,6 @@ export class SignalRManager {
     });
     document.dispatchEvent(event);
   }
-
-  public connect = (): boolean => {
-    const { connection } = this;
-    if (connection !== null) {
-      if (connection.state !== HubConnectionState.Disconnected) return false;
-      connection
-        .start()
-        .then(() => {
-          this.setup(connection);
-          if (this.onConnectedListener !== null)
-            this.onConnectedListener(connection);
-          this.reconnectDelay = INITIAL_RECONNECT_DELAY;
-        })
-        .catch(console.error);
-      return true;
-    } else {
-      console.error(
-        "attempted to connect but the `connection' object is `null'"
-      );
-      return false;
-    }
-  };
 
   public setDealEditListener(
     listener: (status: DealEditStatus, id: string) => void
@@ -377,22 +406,6 @@ export class SignalRManager {
     };
   };
 
-  public addExecutionListener(
-    strategy: string,
-    currency: string,
-    handler: () => void
-  ): () => void {
-    // We only care about one of these
-    const name: string = $$(currency, strategy, "1", "Execution");
-    const onExecuted = (): void => {
-      handler();
-    };
-    document.addEventListener(name, onExecuted, true);
-    return (): void => {
-      document.removeEventListener(name, onExecuted, true);
-    };
-  }
-
   public removeMessagesListener = () => {
     this.invoke(Methods.UnsubscribeFromMBMsg, "*");
   };
@@ -411,13 +424,14 @@ export class SignalRManager {
     firm: string,
     listener: (rates: ReadonlyArray<CommissionRate>) => void
   ): () => void {
+    const eventName = `${firm}updatecommissionrates`;
     const handler = (rawEvent: any) => {
       const event: CustomEvent<ReadonlyArray<CommissionRate>> = rawEvent;
       listener(event.detail);
     };
-    document.addEventListener(firm + "updatecommissionrates", handler);
+    document.addEventListener(eventName, handler);
     return () => {
-      document.removeEventListener(firm + "updatecommissionrates", handler);
+      document.removeEventListener(eventName, handler);
     };
   }
 
@@ -429,42 +443,6 @@ export class SignalRManager {
     document.dispatchEvent(
       new Event(clearDarkPoolPriceEvent(data.Symbol, data.Strategy, data.Tenor))
     );
-  };
-
-  private setup = (connection: HubConnection) => {
-    if (connection !== null) {
-      // Install close handler
-      connection.onclose((error?: Error) => {
-        if (error) console.warn(error);
-        if (this.onDisconnectedListener)
-          this.onDisconnectedListener(connection);
-      });
-      connection.onreconnecting((error?: Error) => {
-        if (error) console.warn(error);
-      });
-      connection.onreconnected(() => {
-        this.setup(connection);
-      });
-      // Install listeners
-      connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
-      connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
-      connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
-      connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
-      connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
-      connection.on(Events.OnPricingResponse, this.onPricingResponse);
-      connection.on(Events.OnDealDeleted, this.onDealDeleted);
-      connection.on(Events.UpdateLegs, this.onUpdateLegs);
-      connection.on(Events.OnError, this.onError);
-      connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
-      connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
-      connection.on(
-        Events.OnDealEditStart,
-        this.onDealEdit(DealEditStatus.Start)
-      );
-      connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
-      // Listen to installed combinations
-      this.processDeferredCommands();
-    }
   };
 
   private onDealEdit(status: DealEditStatus): (message: string) => void {

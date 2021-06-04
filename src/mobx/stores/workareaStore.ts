@@ -436,7 +436,7 @@ export class WorkareaStore {
         this.connected = true;
       });
       signalRManager.setOnDisconnectedListener(() => {
-        this.status = WorkareaStatus.Error;
+        // this.status = WorkareaStatus.Error;
         this.connected = false;
       });
     }
