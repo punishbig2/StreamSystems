@@ -114,9 +114,8 @@ export class WorkareaStore {
   @computed
   get workspace(): Workspace | null {
     if (this.currentWorkspaceIndex === null) return null;
-    const found: Workspace | undefined = this.workspaces[
-      this.currentWorkspaceIndex
-    ];
+    const found: Workspace | undefined =
+      this.workspaces[this.currentWorkspaceIndex];
     if (found) {
       return found;
     } else {
@@ -144,18 +143,18 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public async closeWorkspace(id: number) {
-    const workspaces = { ...this.workspaces };
-    if (id in workspaces) {
-      delete workspaces[id];
-    }
+  public async closeWorkspace(index: number) {
+    const workspaces = [...this.workspaces];
     // Update current workspace id
     if (workspaces.length === 0) {
       this.currentWorkspaceIndex = null;
     } else {
       this.currentWorkspaceIndex = 0;
     }
-    this.workspaces = workspaces;
+    this.workspaces = [
+      ...workspaces.slice(0, index),
+      ...workspaces.slice(index + 1),
+    ];
   }
 
   public async initialize(id: string) {
