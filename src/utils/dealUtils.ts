@@ -4,7 +4,7 @@ import { Commission, Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { Globals } from "golbals";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealEntry, DealType, EntryType } from "structures/dealEntry";
+import { DealEntry, DealType, EntryType } from "types/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";

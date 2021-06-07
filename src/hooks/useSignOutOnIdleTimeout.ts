@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import config from "../config";
+import config from "config";
 
 const addUserActivityListener = (
   onActivity: () => void,

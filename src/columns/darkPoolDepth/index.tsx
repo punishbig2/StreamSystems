@@ -6,7 +6,7 @@ import { xPoints } from "utils/timesPolygon";
 import { OrderTypes } from "types/mdEntry";
 import { Order } from "types/order";
 import { User } from "types/user";
-import workareaStore from "../../mobx/stores/workareaStore";
+import workareaStore from "mobx/stores/workareaStore";
 
 const getSide = (order: Order): string => {
   if (order.type === OrderTypes.Ofr) return "Sell";

@@ -52,7 +52,7 @@ export class MessageBlotterStore
     };
   }
 
-  public static executionsBlotter(user: User): MessageBlotterStore {
+  public static executionBlotter(user: User): MessageBlotterStore {
     const store = new MessageBlotterStore(BlotterTypes.Executions);
     store.setOwner(user);
     return store;

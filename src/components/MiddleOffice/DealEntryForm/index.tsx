@@ -11,7 +11,7 @@ import {
 } from "mobx/stores/middleOfficeStore";
 import { NotApplicableProxy } from "notApplicableProxy";
 import React, { ReactElement, useEffect, useRef } from "react";
-import { DealEntry, EntryType } from "structures/dealEntry";
+import { DealEntry, EntryType } from "types/dealEntry";
 import { Field } from "./field";
 
 interface Props {
@@ -74,9 +74,10 @@ export const DealEntryForm: React.FC<Props> = (
 
   const fieldsRef: React.MutableRefObject<
     ReadonlyArray<FieldDef<DealEntry, DealEntry, MiddleOfficeStore>>
-  > = useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MiddleOfficeStore>>>(
-    originalFields
-  );
+  > =
+    useRef<ReadonlyArray<FieldDef<DealEntry, DealEntry, MiddleOfficeStore>>>(
+      originalFields
+    );
 
   const fields: ReadonlyArray<
     FieldDef<DealEntry, DealEntry, MiddleOfficeStore>

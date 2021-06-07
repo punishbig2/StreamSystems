@@ -7,7 +7,7 @@ import {
   MiddleOfficeStoreContext,
 } from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 
 interface Props {
   readonly dealEntry: DealEntry;

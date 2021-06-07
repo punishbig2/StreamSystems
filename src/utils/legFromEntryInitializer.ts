@@ -1,5 +1,5 @@
 import { Leg } from "components/MiddleOffice/types/leg";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";

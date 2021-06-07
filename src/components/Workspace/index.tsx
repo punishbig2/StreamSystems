@@ -16,7 +16,7 @@ import { observer } from "mobx-react";
 import { ContentStore, isPodTileStore } from "mobx/stores/contentStore";
 import {
   TradingWorkspaceStore,
-  WorkspaceStoreContext,
+  TradingWorkspaceStoreContext,
 } from "mobx/stores/tradingWorkspaceStore";
 import workareaStore, { isTradingWorkspace } from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
@@ -59,7 +59,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
       return roles.includes(Role.Broker);
     }, [user]);
     const store = React.useContext<TradingWorkspaceStore>(
-      WorkspaceStoreContext
+      TradingWorkspaceStoreContext
     );
     if (!isTradingWorkspace(store)) throw new Error("invalid store type");
 
@@ -175,7 +175,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
 
     const getWorkspaceContentView = (): ReactElement => {
       return (
-        <WorkspaceStoreContext.Provider value={store}>
+        <TradingWorkspaceStoreContext.Provider value={store}>
           <div className={"workspace"}>
             <ReactTileManager
               tiles={store.tiles}
@@ -195,7 +195,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
               isOpen={store.errorMessage !== null}
             />
           </div>
-        </WorkspaceStoreContext.Provider>
+        </TradingWorkspaceStoreContext.Provider>
       );
     };
 

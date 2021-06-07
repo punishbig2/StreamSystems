@@ -5,7 +5,7 @@ import { Role } from "types/role";
 import { User, UserPreferences } from "types/user";
 import { getMessagePrice, getMessageSize } from "utils/messageUtils";
 import { priceFormatter } from "utils/priceFormatter";
-import workareaStore from "../../mobx/stores/workareaStore";
+import workareaStore from "mobx/stores/workareaStore";
 
 interface OwnProps {
   trade: Message;

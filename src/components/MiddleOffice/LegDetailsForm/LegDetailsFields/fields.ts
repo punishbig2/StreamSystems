@@ -1,7 +1,7 @@
 import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealEntry, DealType } from "structures/dealEntry";
+import { DealEntry, DealType } from "types/dealEntry";
 import { DealStatus, toBitwise } from "types/dealStatus";
 
 const fields: FieldDef<Leg, DealEntry>[] = [

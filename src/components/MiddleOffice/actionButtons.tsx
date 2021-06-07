@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import { EntryType } from "structures/dealEntry";
+import { EntryType } from "types/dealEntry";
 
 interface Props {
   readonly entryType: EntryType;

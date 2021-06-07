@@ -3,7 +3,7 @@ import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDeta
 import { Leg } from "components/MiddleOffice/types/leg";
 import { NoDataMessage } from "components/noDataMessage";
 import React, { ReactElement } from "react";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { StyledValue } from "types/styledValue";
 import { StylesMap } from "utils/legsUtils";
 
@@ -24,29 +24,28 @@ export const LegDetailsForm: React.FC<Props> = (
   props: Props
 ): ReactElement | null => {
   const { dealEntry, legs } = props;
-  const onValueChange = (index: number) => async (
-    key: keyof Leg,
-    value: any
-  ): Promise<void> => {
-    switch (key) {
-      case "rates":
-        return undefined;
-      case "hedge":
-      case "price":
-      case "premium":
-        if (dealEntry.premstyle === undefined) {
-          return props.onUpdateLeg(index, key, [null, null, null]);
-        } else {
-          const array: StyledValue = [...legs[index][key]];
-          // Update the value we want to update
-          array[StylesMap[dealEntry.premstyle]] = value;
-          // Call the on-change method
-          return props.onUpdateLeg(index, key, array);
-        }
-      default:
-        return props.onUpdateLeg(index, key, value);
-    }
-  };
+  const onValueChange =
+    (index: number) =>
+    async (key: keyof Leg, value: any): Promise<void> => {
+      switch (key) {
+        case "rates":
+          return undefined;
+        case "hedge":
+        case "price":
+        case "premium":
+          if (dealEntry.premstyle === undefined) {
+            return props.onUpdateLeg(index, key, [null, null, null]);
+          } else {
+            const array: StyledValue = [...legs[index][key]];
+            // Update the value we want to update
+            array[StylesMap[dealEntry.premstyle]] = value;
+            // Call the on-change method
+            return props.onUpdateLeg(index, key, array);
+          }
+        default:
+          return props.onUpdateLeg(index, key, value);
+      }
+    };
   if (props.isLoading) {
     return (
       <div className={"form-group"}>

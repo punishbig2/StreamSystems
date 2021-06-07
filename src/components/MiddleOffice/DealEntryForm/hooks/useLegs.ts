@@ -8,7 +8,7 @@ import {
 } from "components/MiddleOffice/types/legOptionsDef";
 import { InvalidStrategy, Product } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { Sides } from "types/sides";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
@@ -131,11 +131,9 @@ export const addFwdRates = (
 ): ReadonlyArray<Leg> => {
   if (summary === null) return legs;
   if (legs.length !== 2) {
-    return legs.map(
-      (leg: Leg): Leg => {
-        return { ...leg, fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 };
-      }
-    );
+    return legs.map((leg: Leg): Leg => {
+      return { ...leg, fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 };
+    });
   } else {
     return [
       { ...legs[0], fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 },

@@ -82,9 +82,8 @@ interface Command {
 export class SignalRManager {
   private connection: HubConnection | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  private onConnectedListener:
-    | ((connection: HubConnection) => void)
-    | null = null;
+  private onConnectedListener: ((connection: HubConnection) => void) | null =
+    null;
   private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private deferredCommands: Array<Command> = [
     {
@@ -107,7 +106,7 @@ export class SignalRManager {
         `${config.BackendUrl}/liveUpdateSignalRHub`,
         HttpTransportType.WebSockets
       )
-      .configureLogging(LogLevel.Debug)
+      .configureLogging(LogLevel.Error)
       .build();
 
   public connect = (): boolean => {
@@ -547,8 +546,8 @@ export class SignalRManager {
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const key: string = $$(message.Symbol, message.Strategy, message.Tenor);
-    const listener: ((m: DarkPoolMessage) => void) | undefined = this
-      .dpListeners[key];
+    const listener: ((m: DarkPoolMessage) => void) | undefined =
+      this.dpListeners[key];
     if (listener) {
       listener(message);
     }

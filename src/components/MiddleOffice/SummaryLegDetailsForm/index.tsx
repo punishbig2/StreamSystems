@@ -13,7 +13,7 @@ import {
   MiddleOfficeStoreContext,
 } from "mobx/stores/middleOfficeStore";
 import React, { ReactElement } from "react";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { BrokerageCommission } from "types/brokerageCommission";
 
 interface Props {

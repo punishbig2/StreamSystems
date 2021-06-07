@@ -1,7 +1,7 @@
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealType } from "structures/dealEntry";
+import { DealType } from "types/dealEntry";
 
 export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
   {
@@ -9,7 +9,8 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     name: "strategy",
     label: "Strategy",
     color: "grey",
-    editable: false /* This value is just a redundant value already editable in the deal entry form */,
+    editable:
+      false /* This value is just a redundant value already editable in the deal entry form */,
   },
   {
     type: "date",

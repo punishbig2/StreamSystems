@@ -2,7 +2,7 @@ import { BankEntitiesQueryResponse } from "API";
 import { EditableFlag } from "types/product";
 import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
 
 export const getValue = (

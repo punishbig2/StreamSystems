@@ -1,4 +1,5 @@
 import { CellProps } from "columns/messageBlotterColumns/cellProps";
+import { involved } from "columns/messageBlotterColumns/helpers";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
 import { TableColumn } from "components/Table/tableColumn";
 import { Globals } from "golbals";
@@ -21,8 +22,7 @@ import {
   parseTime,
   TimeFormatter,
 } from "utils/timeUtils";
-import workareaStore from "../mobx/stores/workareaStore";
-import { involved } from "./messageBlotterColumns/helpers";
+import workareaStore from "mobx/stores/workareaStore";
 
 export enum BlotterTypes {
   None,

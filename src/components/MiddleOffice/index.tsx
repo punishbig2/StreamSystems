@@ -14,7 +14,7 @@ import {
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFUpdate } from "types/sefUpdate";
 

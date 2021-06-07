@@ -3,7 +3,7 @@ import { Field } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/f
 import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import React, { ReactElement } from "react";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 
 import fields from "./fields";
 

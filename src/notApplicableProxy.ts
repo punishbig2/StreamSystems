@@ -1,6 +1,6 @@
 import { EditableFlag } from "types/product";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 
 export const NotApplicableProxy = <T>(
   prefix: string,

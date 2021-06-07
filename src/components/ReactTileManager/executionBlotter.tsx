@@ -1,62 +1,57 @@
-import { Geometry, Tile } from "@cib/windows-manager";
-import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
+import { Geometry, Tile, TileEvent } from "@cib/windows-manager";
+import { BlotterTypes } from "columns/messageBlotter";
 import { MessageBlotter } from "components/MessageBlotter";
+import { getOptimalExecutionsBlotterGeometry } from "components/ReactTileManager/helpers/getOptimalExecutionsBlotterGeometry";
+import { useExecutionBlotterSize } from "components/ReactTileManager/hooks/useExecutionBlotterSize";
 import { Select } from "components/Select";
-import { TableColumn } from "components/Table/tableColumn";
 import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
+import {
+  TradingWorkspaceStore,
+  TradingWorkspaceStoreContext,
+} from "mobx/stores/tradingWorkspaceStore";
 import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement, useMemo } from "react";
-import { Role } from "types/role";
-import { User } from "types/user";
-import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
-import { idealBlotterHeight } from "utils/idealBlotterHeight";
+import React, { ReactElement } from "react";
+import { runInNextLoop } from "utils/runInNextLoop";
 
-interface Props {
-  readonly boundingRect: DOMRect;
-}
-
-export const ExecutionBlotter: React.FC<Props> = (
-  props: Props
-): ReactElement | null => {
-  const { boundingRect } = props;
-  const messagesStore: MessagesStore = React.useContext<MessagesStore>(
-    MessagesStoreContext
+export const ExecutionBlotter: React.FC = (): ReactElement | null => {
+  const messagesStore: MessagesStore =
+    React.useContext<MessagesStore>(MessagesStoreContext);
+  const store = React.useContext<TradingWorkspaceStore>(
+    TradingWorkspaceStoreContext
   );
-  const user: User = workareaStore.user;
+  const { lastGeometry: geometry, isNew } = store.executionBlotter;
   const [tile, setTile] = React.useState<Tile | null>(null);
-  const isBroker: boolean = useMemo((): boolean => {
-    const { roles } = user;
-    return roles.includes(Role.Broker);
-  }, [user]);
-  const type: "normal" | "broker" = React.useMemo(
-    (): "normal" | "broker" => (isBroker ? "broker" : "normal"),
-    [isBroker]
-  );
-  const columns = React.useMemo(
-    (): ReadonlyArray<TableColumn> =>
-      messageBlotterColumns(BlotterTypes.Executions)[type],
-    [type]
-  );
-  const width: number = getOptimalWidthFromColumnsSpec(columns);
-  // Compute the ideal height
-  const height: number = idealBlotterHeight();
-  const geometry: Geometry = React.useMemo(
-    (): Geometry =>
-      new Geometry(
-        0,
-        boundingRect.bottom - height,
-        Math.max(width, 900),
-        height
-      ),
-    [height, boundingRect.bottom, width]
-  );
+  const { width, height } = useExecutionBlotterSize();
   React.useEffect((): void => {
     if (tile === null) return;
-    tile.setGeometry(geometry);
-  }, [geometry, tile]);
+    runInNextLoop((): void => {
+      console.log(geometry);
+      const newGeometry = ((): Geometry => {
+        if (isNew) {
+          return getOptimalExecutionsBlotterGeometry(tile, width, height);
+        } else {
+          return geometry;
+        }
+      })();
+      tile.setGeometry(newGeometry);
+      store.saveExecutionBlotterGeometry(newGeometry);
+    });
+  }, [geometry, height, isNew, store, tile, width]);
+  React.useEffect((): (() => void) | void => {
+    if (tile === null) return;
+    const updateGeometry = ((event: CustomEvent<Geometry>): void => {
+      store.saveExecutionBlotterGeometry(event.detail);
+    }) as EventListener;
+    tile.addEventListener(TileEvent.Moved, updateGeometry);
+    tile.addEventListener(TileEvent.Resized, updateGeometry);
+    return (): void => {
+      tile.removeEventListener(TileEvent.Moved, updateGeometry);
+      tile.removeEventListener(TileEvent.Resized, updateGeometry);
+    };
+  }, [tile]);
   const { regions } = workareaStore.user;
   return (
-    <cib-window ref={setTile} scrollable static>
+    <cib-window ref={setTile} scrollable>
       <div slot={"toolbar"} className={"execution-blotter-title"}>
         <h1>Execution Blotter</h1>
         <div className={"right-panel"}>

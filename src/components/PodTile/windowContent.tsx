@@ -7,8 +7,8 @@ import React, { ReactElement } from "react";
 import { DepthData } from "types/depthData";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
-import { ModalWindow } from "../ModalWindow";
-import { ProgressModalContent } from "../ProgressModalContent";
+import { ModalWindow } from "components/ModalWindow";
+import { ProgressModalContent } from "components/ProgressModalContent";
 
 interface Props {
   readonly columns: ReadonlyArray<TableColumn>;

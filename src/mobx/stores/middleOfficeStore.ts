@@ -23,7 +23,7 @@ import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import signalRManager from "signalR/signalRManager";
-import { DealEntry, emptyDealEntry, EntryType } from "structures/dealEntry";
+import { DealEntry, emptyDealEntry, EntryType } from "types/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { DealStatus } from "types/dealStatus";
@@ -261,29 +261,30 @@ export class MiddleOfficeStore implements Workspace {
         cancel: (): void => {},
       };
     }
-    const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
-      if (originalTenor.name === "SPECIFIC") {
-        return API.queryVolDates(
-          {
-            fxPair: symbol.symbolID,
-            addHolidays: true,
-            rollExpiryDates: true,
-            tradeDate: toUTC(entry.tradeDate, true),
-          },
-          [toUTC(originalTenor.expiryDate)]
-        );
-      } else {
-        return API.queryVolTenors(
-          {
-            fxPair: symbol.symbolID,
-            addHolidays: true,
-            rollExpiryDates: true,
-            tradeDate: toUTC(entry.tradeDate, true),
-          },
-          [originalTenor.name]
-        );
-      }
-    })();
+    const task: Task<CalendarVolDatesResponse> =
+      ((): Task<CalendarVolDatesResponse> => {
+        if (originalTenor.name === "SPECIFIC") {
+          return API.queryVolDates(
+            {
+              fxPair: symbol.symbolID,
+              addHolidays: true,
+              rollExpiryDates: true,
+              tradeDate: toUTC(entry.tradeDate, true),
+            },
+            [toUTC(originalTenor.expiryDate)]
+          );
+        } else {
+          return API.queryVolTenors(
+            {
+              fxPair: symbol.symbolID,
+              addHolidays: true,
+              rollExpiryDates: true,
+              tradeDate: toUTC(entry.tradeDate, true),
+            },
+            [originalTenor.name]
+          );
+        }
+      })();
     return {
       execute: async (): Promise<FixTenorResult> => {
         const dates: CalendarVolDatesResponse = await task.execute();
@@ -394,10 +395,8 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public getDefaultLegAdjust(strategy: Product, symbol: Symbol): string {
-    const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
-      strategy,
-      symbol
-    );
+    const values: ReadonlyArray<LegAdjustValue> =
+      this.getFilteredLegAdjustValues(strategy, symbol);
     if (values.length === 0) return "";
     return values[0].VegaLegAdjustValue;
   }
@@ -802,16 +801,14 @@ export class MiddleOfficeStore implements Workspace {
       this.reloadStrategies(partial.symbol.symbolID);
     }
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
-      return legs.map(
-        (leg: Leg, index: number): Leg => {
-          const reducer: (leg: Leg, field: string) => Leg = legsReducer(
-            index,
-            partial,
-            entry
-          );
-          return fields.reduce(reducer, leg);
-        }
-      );
+      return legs.map((leg: Leg, index: number): Leg => {
+        const reducer: (leg: Leg, field: string) => Leg = legsReducer(
+          index,
+          partial,
+          entry
+        );
+        return fields.reduce(reducer, leg);
+      });
     })(this.legs);
     // Check if legs changed
     if (!deepEqual(this.legs, legs)) {

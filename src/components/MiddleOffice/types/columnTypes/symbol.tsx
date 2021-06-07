@@ -1,8 +1,8 @@
+import { SymbolCell } from "components/MiddleOffice/types/cells/symbol";
 import React, { ReactElement } from "react";
 import { TableColumn } from "components/Table/tableColumn";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
-import { SymbolCell } from "../cells/symbol";
 import { CellProps } from "components/MiddleOffice/DealBlotter/props";
 
 export default (sortable: boolean): TableColumn => ({

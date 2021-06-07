@@ -1,7 +1,7 @@
 import { isInvalidTenor, isTenor } from "components/FormField/helpers";
 import { Product } from "types/product";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { Point } from "structures/point";
+import { Point } from "types/point";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce } from "utils/commonUtils";
 import { addToDate, dateDiff, toUTC } from "utils/timeUtils";

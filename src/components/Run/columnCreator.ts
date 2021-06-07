@@ -1,11 +1,11 @@
+import { TabDirection } from "components/NumericInput";
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { onPriceChange } from "components/Run/helpers/onPriceChange";
+import { RunActions } from "components/Run/reducer";
 import { RunWindowStore } from "mobx/stores/runWindowStore";
-import createColumns from "../../columns/run";
+import createColumns from "columns/run";
 import { OrderTypes } from "types/mdEntry";
-import { NavigateDirection } from "../NumericInput/navigateDirection";
 import { skipTabIndex, skipTabIndexAll } from "utils/skipTab";
-import { TabDirection } from "../NumericInput";
-import { RunActions } from "./reducer";
 import { $$ } from "utils/stringPaster";
 
 export const createColumnsWithStore = (

@@ -26,7 +26,7 @@ import {
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import React, { ReactElement, useState } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
-import { DealEntry, EntryType } from "structures/dealEntry";
+import { DealEntry, EntryType } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFUpdate } from "types/sefUpdate";
 import { randomID } from "utils/randomID";

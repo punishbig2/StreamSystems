@@ -3,7 +3,7 @@ import { Welcome } from "components/weolcome";
 import { TradingWorkspace } from "components/Workspace";
 import { observer } from "mobx-react";
 import { MiddleOfficeStoreContext } from "mobx/stores/middleOfficeStore";
-import { WorkspaceStoreContext } from "mobx/stores/tradingWorkspaceStore";
+import { TradingWorkspaceStoreContext } from "mobx/stores/tradingWorkspaceStore";
 import workarea, {
   isMiddleOfficeWorkspace,
   isTradingWorkspace,
@@ -35,7 +35,7 @@ export const ActiveWorkspace: React.FC = observer(
       );
     } else if (isTradingWorkspace(workspace)) {
       return (
-        <WorkspaceStoreContext.Provider value={workspace}>
+        <TradingWorkspaceStoreContext.Provider value={workspace}>
           <TradingWorkspace
             index={index}
             isDefault={!workspace.modified}
@@ -46,7 +46,7 @@ export const ActiveWorkspace: React.FC = observer(
             strategies={workarea.strategies}
             banks={workarea.banks}
           />
-        </WorkspaceStoreContext.Provider>
+        </TradingWorkspaceStoreContext.Provider>
       );
     } else {
       return null;

@@ -5,7 +5,7 @@ import {
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
 import { Product } from "types/product";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { Sides } from "types/sides";
 import { isStyledValue, StyledValue } from "types/styledValue";
 import { Symbol } from "types/symbol";
@@ -91,54 +91,54 @@ const getLegDefaultsFromDeal = (
   return leg;
 };
 
-const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
-  const rates: Rates = [
-    {
-      currency: symbol.premiumCCY,
-      value: 0,
-    },
-    {
-      currency: symbol.riskCCY,
-      value: 0,
-    },
-  ];
-  return {
-    premium: [null, null, null],
-    price: [null, null, null],
-    vol: null,
-    rates: rates,
-    notional: null,
-    party: "",
-    side: sideToSide(definition.SideType),
-    days: null,
-    delta: [null, null, null],
-    fwdPts: null,
-    fwdRate: null,
-    hedge: [null, null, null],
-    strike: null,
-    premiumDate: null,
-    premiumCurrency: symbol.premiumCCY,
-    option: definition.OptionLegType,
-    deliveryDate: null,
-    expiryDate: null,
-    usi_num: null,
+const legDefMapper =
+  (symbol: Symbol) =>
+  (definition: LegOptionsDefIn): Leg => {
+    const rates: Rates = [
+      {
+        currency: symbol.premiumCCY,
+        value: 0,
+      },
+      {
+        currency: symbol.riskCCY,
+        value: 0,
+      },
+    ];
+    return {
+      premium: [null, null, null],
+      price: [null, null, null],
+      vol: null,
+      rates: rates,
+      notional: null,
+      party: "",
+      side: sideToSide(definition.SideType),
+      days: null,
+      delta: [null, null, null],
+      fwdPts: null,
+      fwdRate: null,
+      hedge: [null, null, null],
+      strike: null,
+      premiumDate: null,
+      premiumCurrency: symbol.premiumCCY,
+      option: definition.OptionLegType,
+      deliveryDate: null,
+      expiryDate: null,
+      usi_num: null,
+    };
   };
-};
 
 export const createLegsFromDefinitionAndDeal = (
   definitions: ReadonlyArray<LegOptionsDefIn>,
   entry: DealEntry
 ): ReadonlyArray<Leg> => {
-  return definitions.map(
-    (definition: LegOptionsDefIn, index: number): Leg => {
-      const mapper = legDefMapper(entry.symbol);
-      const base: Leg = mapper(definition);
-      return {
-        ...base,
-        ...getLegDefaultsFromDeal(entry, index),
-      };
-    }
-  );
+  return definitions.map((definition: LegOptionsDefIn, index: number): Leg => {
+    const mapper = legDefMapper(entry.symbol);
+    const base: Leg = mapper(definition);
+    return {
+      ...base,
+      ...getLegDefaultsFromDeal(entry, index),
+    };
+  });
 };
 
 export const mergeDefinitionsAndLegs = (
@@ -153,18 +153,16 @@ export const mergeDefinitionsAndLegs = (
   if (list.length === 1) {
     return list.map(mapper);
   } else {
-    return list.map(
-      (def: LegOptionsDefIn, index: number): Leg => {
-        const defaultLeg: Leg = mapper(def);
-        const existingLeg: Leg | undefined = legs[index];
-        return {
-          ...existingLeg,
-          // These need be reset or not?
-          option: defaultLeg.option,
-          side: defaultLeg.side,
-        };
-      }
-    );
+    return list.map((def: LegOptionsDefIn, index: number): Leg => {
+      const defaultLeg: Leg = mapper(def);
+      const existingLeg: Leg | undefined = legs[index];
+      return {
+        ...existingLeg,
+        // These need be reset or not?
+        option: defaultLeg.option,
+        side: defaultLeg.side,
+      };
+    });
   }
 };
 

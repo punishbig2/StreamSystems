@@ -1,4 +1,3 @@
-import { TileManager } from "@cib/windows-manager";
 import { ExecutionBlotter } from "components/ReactTileManager/executionBlotter";
 import { ReactTile } from "components/ReactTileManager/ReactTile";
 import { ContentStore } from "mobx/stores/contentStore";
@@ -9,8 +8,6 @@ import {
 import { TileStore, TileStoreContext } from "mobx/stores/tileStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
-
-import ResizeObserver from "resize-observer-polyfill";
 import { TileType } from "types/tileType";
 
 interface Props {
@@ -31,23 +28,9 @@ interface Props {
 const ReactTileManager: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
-  const [boundingRect, setBoundingRect] = React.useState<DOMRect>(
-    new DOMRect(0, 0, window.innerWidth, window.innerHeight)
-  );
-  const [tileManager, setTileManager] = React.useState<TileManager | null>(
-    null
-  );
-  React.useEffect((): void | (() => void) => {
-    if (tileManager === null) return;
-    const observer = new ResizeObserver((): void => {
-      setBoundingRect(tileManager.getBoundingClientRect());
-    });
-    observer.observe(tileManager);
-    return (): void => observer.disconnect();
-  }, [tileManager]);
   const { isDefaultWorkspace: ready, tiles } = props;
   return (
-    <cib-window-manager ref={setTileManager}>
+    <cib-window-manager>
       {tiles.map(
         (tile: TileStore): React.ReactElement => (
           <TileStoreContext.Provider value={tile} key={tile.id}>
@@ -63,9 +46,9 @@ const ReactTileManager: React.FC<Props> = (
         )
       )}
       <MessageBlotterStoreContext.Provider
-        value={MessageBlotterStore.executionsBlotter(workareaStore.user)}
+        value={MessageBlotterStore.executionBlotter(workareaStore.user)}
       >
-        <ExecutionBlotter boundingRect={boundingRect} />
+        <ExecutionBlotter />
       </MessageBlotterStoreContext.Provider>
     </cib-window-manager>
   );

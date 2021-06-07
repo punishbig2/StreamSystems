@@ -7,7 +7,7 @@ import {
 } from "mobx/stores/middleOfficeStore";
 import { getStyledValue } from "utils/legsUtils";
 import React, { useEffect, useState } from "react";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { DealOutput } from "types/dealOutput";
 import { roundPremium } from "utils/roundPremium";
 

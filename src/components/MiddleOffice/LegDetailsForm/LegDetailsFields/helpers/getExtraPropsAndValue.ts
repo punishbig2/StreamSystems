@@ -8,7 +8,7 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { EditableFlag } from "types/product";
 import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealEntry } from "structures/dealEntry";
+import { DealEntry } from "types/dealEntry";
 import { isStyledValue } from "types/styledValue";
 import { getStyledValue } from "utils/legsUtils";
 

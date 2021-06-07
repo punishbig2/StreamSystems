@@ -1,6 +1,6 @@
 import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealType } from "structures/dealEntry";
+import { DealType } from "types/dealEntry";
 import { BrokerageCommission } from "types/brokerageCommission";
 
 export const fields: ReadonlyArray<
