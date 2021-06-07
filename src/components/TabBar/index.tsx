@@ -10,7 +10,7 @@ import { CurrencyGroups } from "types/user";
 import { Workspace } from "types/workspace";
 
 interface Props {
-  readonly entries: ReadonlyArray<Workspace>;
+  readonly items: ReadonlyArray<Workspace>;
   readonly active: number | null;
   readonly connected: boolean;
   readonly onAddStandardWorkspace: (group: CurrencyGroups) => void;
@@ -23,7 +23,7 @@ interface Props {
 
 const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   const { user } = workareaStore;
-  const { active, entries } = props;
+  const { active, items } = props;
   const [isShowingOptions, showOptions] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
   const isTrader: boolean = useMemo((): boolean => {
@@ -48,7 +48,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   };
   return (
     <div className={"tab-layout"}>
-      {entries.map<ReactElement>((workspace: Workspace, index: number) => {
+      {items.map<ReactElement>((workspace: Workspace, index: number) => {
         const onClosed = (event: React.MouseEvent) => {
           event.stopPropagation();
           event.preventDefault();
