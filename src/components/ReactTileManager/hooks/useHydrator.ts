@@ -10,6 +10,9 @@ export const useHydrator = (tile: Tile | null, store: TileStore): void => {
     if (tile === null || !hydrated) return;
     runInNextLoop((): void => {
       const geometry = store.geometry;
+      tile.autosize = store.autosize;
+      tile.docked = store.docked;
+      tile.minimized = store.minimized;
       if (geometry === null) {
         if (!store.autosize) {
           tile.adjustToContent({ height: idealBlotterHeight() });
@@ -22,9 +25,6 @@ export const useHydrator = (tile: Tile | null, store: TileStore): void => {
           new Geometry(geometry.x, geometry.y, geometry.width, geometry.height)
         );
       }
-      tile.autosize = store.autosize;
-      tile.docked = store.docked;
-      tile.minimized = store.minimized;
     });
   }, [tile, hydrated, store]);
 };
