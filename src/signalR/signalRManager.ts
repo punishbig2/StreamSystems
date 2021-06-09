@@ -30,8 +30,6 @@ import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { coalesce } from "utils/commonUtils";
 import { $$ } from "utils/stringPaster";
 
-const INITIAL_RECONNECT_DELAY: number = 3000;
-
 interface SEFError {
   dealid: string;
   deal_state: string;
@@ -84,7 +82,6 @@ export class SignalRManager {
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onConnectedListener: ((connection: HubConnection) => void) | null =
     null;
-  private reconnectDelay: number = INITIAL_RECONNECT_DELAY;
   private deferredCommands: Array<Command> = [
     {
       name: Methods.SubscribeForDeals,
@@ -106,7 +103,7 @@ export class SignalRManager {
         `${config.BackendUrl}/liveUpdateSignalRHub`,
         HttpTransportType.WebSockets
       )
-      .configureLogging(LogLevel.Error)
+      .configureLogging(LogLevel.Debug)
       .build();
 
   public connect = (): boolean => {
@@ -117,7 +114,6 @@ export class SignalRManager {
     connection
       .start()
       .then(() => {
-        this.reconnectDelay = INITIAL_RECONNECT_DELAY;
         // Listen to installed combinations
         this.processDeferredCommands();
         this.notifyConnected(connection);
@@ -143,6 +139,9 @@ export class SignalRManager {
     connection.serverTimeoutInMilliseconds = 3600000;
     connection.keepAliveIntervalInMilliseconds = 80;
     // Install close handler
+    connection.onreconnecting((): void => {
+      console.log("reconnecting");
+    });
     connection.onclose((error?: Error): void => {
       this.notifyConnectionLoss(error);
     });
@@ -567,7 +566,7 @@ export class SignalRManager {
       connection === null ||
       connection.state !== HubConnectionState.Connected
     ) {
-      throw new Error("not connected yet");
+      return;
     }
     connection
       .invoke(name, ...args)

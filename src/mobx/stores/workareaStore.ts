@@ -193,15 +193,13 @@ export class WorkareaStore {
         // We are done now
         this.updateLoadingProgress(strings.Connected);
         // Please wait until progress shows 100%
+        // Notify the user that we're done
+        this.setStatus(WorkareaStatus.Welcome);
+        // We want to show a welcome message first
         setTimeout(() => {
-          // Notify the user that we're done
-          this.setStatus(WorkareaStatus.Welcome);
-          // We want to show a welcome message first
-          setTimeout(() => {
-            // Switch the the normal view
-            this.setStatus(WorkareaStatus.Ready);
-          }, 800);
-        }, 0);
+          // Switch the the normal view
+          this.setStatus(WorkareaStatus.Ready);
+        }, 800);
       }
     } catch (error) {
       this.loadTheme();

@@ -25,7 +25,6 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
   React.useEffect((): void => {
     if (tile === null) return;
     runInNextLoop((): void => {
-      console.log(geometry);
       const newGeometry = ((): Geometry => {
         if (isNew) {
           return getOptimalExecutionsBlotterGeometry(tile, width, height);
@@ -48,7 +47,7 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
       tile.removeEventListener(TileEvent.Moved, updateGeometry);
       tile.removeEventListener(TileEvent.Resized, updateGeometry);
     };
-  }, [tile]);
+  }, [store, tile]);
   const { regions } = workareaStore.user;
   return (
     <cib-window ref={setTile} scrollable>

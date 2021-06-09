@@ -928,7 +928,7 @@ export class MiddleOfficeStore implements Workspace {
   public async addDeal(backendDeal: BackendDeal): Promise<void> {
     const { deals } = this;
     const index: number = deals.findIndex(
-      (each: Deal): boolean => each.id === backendDeal.id
+      (each: Deal): boolean => each.id === backendDeal.linkid
     );
     const deal: Deal = (await this.convertToMiddleOfficeDeal(
       backendDeal
