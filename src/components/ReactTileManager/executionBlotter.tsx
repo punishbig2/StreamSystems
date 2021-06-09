@@ -50,7 +50,7 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
   }, [store, tile]);
   const { regions } = workareaStore.user;
   return (
-    <cib-window ref={setTile} scrollable>
+    <cib-window ref={setTile} scrollable transparent>
       <div slot={"toolbar"} className={"execution-blotter-title"}>
         <h1>Execution Blotter</h1>
         <div className={"right-panel"}>
