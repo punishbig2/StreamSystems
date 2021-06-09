@@ -85,12 +85,12 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     ) : (
       sideLabels[value as string]
     );
-  const stringSelectSetter = (fn: (value: string) => void) => (
-    event: React.ChangeEvent<SelectEventData>
-  ) => {
-    const { value } = event.target;
-    fn(value as string);
-  };
+  const stringSelectSetter =
+    (fn: (value: string) => void) =>
+    (event: React.ChangeEvent<SelectEventData>) => {
+      const { value } = event.target;
+      fn(value as string);
+    };
   const error =
     size < props.minimumSize ? "Minimum Qty: " + props.minimumSize : " ";
   return (
@@ -112,12 +112,13 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               <FormLabel htmlFor={"side"}>Side</FormLabel>
               <Select
                 id={"side"}
+                disabled={!workareaStore.connected}
                 value={side}
                 displayEmpty={true}
                 renderValue={renderSide}
-                onChange={stringSelectSetter((value: string) => setSide(value))}
                 variant={"outlined"}
                 className={classes.select}
+                onChange={stringSelectSetter((value: string) => setSide(value))}
               >
                 <MenuItem value={"BUY"}>Buy</MenuItem>
                 <MenuItem value={"SELL"}>Sell</MenuItem>
@@ -176,7 +177,6 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               <Select
                 id={"inst"}
                 value={inst}
-                onChange={stringSelectSetter((value: string) => setInst(value))}
                 displayEmpty={true}
                 renderValue={(value: any) =>
                   !value ? "None" : instLabels[value as string]
@@ -184,6 +184,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 variant={"outlined"}
                 className={classes.select}
                 disabled={true}
+                onChange={stringSelectSetter((value: string) => setInst(value))}
               >
                 <MenuItem value={"G"}>AON</MenuItem>
                 <MenuItem value={"D"}>

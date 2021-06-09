@@ -40,24 +40,26 @@ export const PodTileTitle: React.FC<Props> = observer(
         <div className={"item"}>
           <Select
             value={ccyPair}
-            onChange={store.setCurrency}
             list={currencies.map((item: Symbol): { name: string } => ({
               name: item.name,
             }))}
             empty={"Currency"}
+            disabled={!workareaStore.connected}
             searchable={true}
+            onChange={store.setCurrency}
           />
         </div>
         <div className={"item"}>
           <Select
             value={strategy}
-            onChange={store.setStrategy}
             list={strategies.map((item: Product): {
               name: string;
             } => ({
               name: item.name,
             }))}
+            disabled={!workareaStore.connected}
             empty={"Strategy"}
+            onChange={store.setStrategy}
           />
         </div>
         {/* <div className={"ccy-group"}>{getTag(currency, strategy)}</div> */}

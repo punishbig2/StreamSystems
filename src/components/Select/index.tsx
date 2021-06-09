@@ -3,12 +3,13 @@ import ReactDOM from "react-dom";
 import styles from "styles";
 
 interface OwnProps {
-  list: ReadonlyArray<{ name: string }>;
-  value: any;
-  empty?: string;
-  searchable?: boolean;
-  fit?: boolean;
-  onChange: (value: string) => void;
+  readonly list: ReadonlyArray<{ name: string }>;
+  readonly value: any;
+  readonly empty?: string;
+  readonly searchable?: boolean;
+  readonly fit?: boolean;
+  readonly disabled: boolean;
+  readonly onChange: (value: string) => void;
 }
 
 export const Select: React.FC<OwnProps> = (props: OwnProps) => {
@@ -169,6 +170,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     const searchBox: ReactElement = (
       <div>
         <input
+          readOnly={props.disabled}
           ref={setInput}
           placeholder={"Search"}
           value={keyword}
@@ -177,8 +179,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         />
       </div>
     );
+    const classes = ["dropdown"];
+    if (props.disabled) {
+      classes.push("disabled");
+    }
     return ReactDOM.createPortal(
-      <div className={"dropdown"} style={positionToStyle(position)}>
+      <div className={classes.join(" ")} style={positionToStyle(position)}>
         {props.searchable && searchBox}
         <ul onMouseDownCapture={swallowMouse} ref={setDropdown}>
           {filtered.map((item: { name: string }) => {
@@ -214,6 +220,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       <select
         value={props.value}
         className={"select" + (props.value === "" ? " no-selection" : "")}
+        disabled={props.disabled}
         onChange={onChange}
         onKeyPressCapture={ignoreKeyboard}
         onKeyDownCapture={ignoreKeyboard}

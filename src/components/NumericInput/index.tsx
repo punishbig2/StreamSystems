@@ -1,4 +1,5 @@
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useState } from "react";
 
 const randomName = (): string => {
@@ -115,6 +116,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <input
       {...otherProps}
+      readOnly={!workareaStore.connected}
       name={randomName()}
       title={props.title}
       data-input-type={props.type}

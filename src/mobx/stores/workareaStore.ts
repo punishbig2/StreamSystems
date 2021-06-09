@@ -185,11 +185,6 @@ export class WorkareaStore {
         await this.loadSystemBanks();
         await this.connectToSignalR();
 
-        window.addEventListener(
-          "focus",
-          (): Promise<void> => this.connectToSignalR()
-        );
-
         // We are done now
         this.updateLoadingProgress(strings.Connected);
         // Please wait until progress shows 100%

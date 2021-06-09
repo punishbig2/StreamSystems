@@ -57,6 +57,7 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
           <h3>CCY Group</h3>
           <Select
             value={messagesStore.ccyGroupFilter}
+            disabled={!workareaStore.connected}
             list={[
               { name: "All" },
               ...regions.map((ccyGroup): {

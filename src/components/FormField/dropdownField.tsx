@@ -3,6 +3,7 @@ import { ReadOnlyField } from "components/FormField/readOnlyField";
 import { SearchItem } from "components/FormField/searchItem";
 import { LoadingEllipsis } from "components/loadingEllipsis";
 import { DropdownItem } from "forms/fieldDef";
+import workareaStore from "mobx/stores/workareaStore";
 import React, { Component, ReactElement } from "react";
 
 interface Props<T, R> {
@@ -72,7 +73,7 @@ export class DropdownField<T, R = string> extends Component<
           renderValue={this.renderSelectValue}
           displayEmpty={true}
           readOnly={state.loading}
-          disabled={props.disabled}
+          disabled={props.disabled || !workareaStore.connected}
           onChange={this.onChange}
         >
           {this.getSearchItem()}

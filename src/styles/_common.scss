@@ -174,3 +174,18 @@
     left: 0;
   }
 }
+
+.disconnect-disabler {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 4;
+
+  &.disconnected {
+    display: block;
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}

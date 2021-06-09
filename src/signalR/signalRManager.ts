@@ -18,6 +18,14 @@ import {
 import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
+import {
+  DEAL_DELETED_EVENT,
+  DEAL_EDIT_EVENT,
+  Events,
+  Methods,
+  NEW_DEAL_EVENT,
+  PRICING_RESPONSE_EVENT,
+} from "signalR/constants";
 import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, ExecTypes, Message } from "types/message";
@@ -44,34 +52,6 @@ export enum DealEditStatus {
   End,
 }
 
-export enum Methods {
-  // Messages
-  SubscribeForMarketData = "SubscribeForMarketData",
-  UnsubscribeFromMarketData = "UnsubscribeForMarketData",
-  SubscribeForMBMsg = "SubscribeForMBMsg",
-  UnsubscribeFromMBMsg = "UnsubscribeForMBMsg",
-  SubscribeForDarkPoolPx = "SubscribeForDarkPoolPx",
-  UnsubscribeFromDarkPoolPx = "UnsubscribeForDarkPoolPx",
-  SubscribeForDeals = "SubscribeForDeals",
-  SubscribeForPricingResponse = "SubscribeForPricingResponse",
-}
-
-enum Events {
-  UpdateMarketData = "updateMarketData",
-  UpdateDarkPoolPrice = "updateDarkPoolPx",
-  UpdateMessageBlotter = "updateMessageBlotter",
-  ClearDarkPoolPrice = "clearDarkPoolPx",
-  UpdateDealsBlotter = "updateDealsBlotter",
-  UpdateLegs = "updateLegs",
-  OnPricingResponse = "onPricingResponse",
-  OnDealDeleted = "onDealDeleted",
-  OnError = "onError",
-  OnSEFUpdate = "onSEFUpdate",
-  OnCommissionUpdate = "onCommissionUpdate",
-  OnDealEditStart = "OnDealEditStart",
-  OnDealEditEnd = "OnDealEditEnd",
-}
-
 interface Command {
   readonly name: string;
   readonly args: any[];
@@ -82,7 +62,7 @@ export class SignalRManager {
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onConnectedListener: ((connection: HubConnection) => void) | null =
     null;
-  private deferredCommands: Array<Command> = [
+  private recordedCommands: ReadonlyArray<Command> = [
     {
       name: Methods.SubscribeForDeals,
       args: ["*"],
@@ -97,25 +77,34 @@ export class SignalRManager {
 
   private dpListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
 
+  constructor() {
+    window.addEventListener("offline", (): void => {
+      this.notifyConnectionLoss();
+    });
+    window.addEventListener("online", (): void => {
+      this.connect();
+    });
+  }
+
   public static createConnection = () =>
     new HubConnectionBuilder()
       .withUrl(
         `${config.BackendUrl}/liveUpdateSignalRHub`,
         HttpTransportType.WebSockets
       )
-      .configureLogging(LogLevel.Debug)
+      .configureLogging(LogLevel.Error)
       .build();
 
   public connect = (): boolean => {
     const connection: HubConnection = SignalRManager.createConnection();
-    if (connection.state !== HubConnectionState.Disconnected) return false;
     this.connection = connection;
-    this.applySubscriptions(connection);
+    this.installHealthMonitors(connection);
     connection
       .start()
       .then(() => {
         // Listen to installed combinations
-        this.processDeferredCommands();
+        this.replayRecordedCommands();
+        this.applySubscriptions(connection);
         this.notifyConnected(connection);
       })
       .catch(console.error);
@@ -134,23 +123,25 @@ export class SignalRManager {
     }
   }
 
-  private applySubscriptions = (connection: HubConnection) => {
+  private installHealthMonitors = (connection: HubConnection): void => {
     // Connect
     connection.serverTimeoutInMilliseconds = 3600000;
-    connection.keepAliveIntervalInMilliseconds = 80;
-    // Install close handler
-    connection.onreconnecting((): void => {
-      console.log("reconnecting");
-    });
     connection.onclose((error?: Error): void => {
       this.notifyConnectionLoss(error);
+      setTimeout((): void => {
+        this.connect();
+      }, 3000);
     });
-    /*window.addEventListener("online", (): void => {
-      this.connect();
-    });*/
-    window.addEventListener("offline", (): void => {
-      this.notifyConnectionLoss();
-    });
+  };
+
+  private applySubscriptions = (connection: HubConnection): void => {
+    if (connection.state !== HubConnectionState.Connected) {
+      throw new Error(
+        "cannot apply subscriptions because the connection is not established"
+      );
+    } else {
+      console.log("applying subscriptions to: ", connection.connectionId);
+    }
     // Install listeners
     connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
     connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
@@ -221,9 +212,9 @@ export class SignalRManager {
       const { id, status } = customEvent.detail;
       listener(status, id);
     };
-    document.addEventListener("dealedit", onEdit);
+    document.addEventListener(DEAL_EDIT_EVENT, onEdit);
     return (): void => {
-      document.removeEventListener("dealedit", onEdit);
+      document.removeEventListener(DEAL_EDIT_EVENT, onEdit);
     };
   }
 
@@ -252,9 +243,9 @@ export class SignalRManager {
       const customEvent: CustomEvent<string> = event as CustomEvent<string>;
       listener(customEvent.detail);
     };
-    document.addEventListener("ondealdeleted", proxyListener);
+    document.addEventListener(DEAL_DELETED_EVENT, proxyListener);
     return () => {
-      document.removeEventListener("ondealdeleted", proxyListener);
+      document.removeEventListener(DEAL_DELETED_EVENT, proxyListener);
     };
   }
 
@@ -263,7 +254,7 @@ export class SignalRManager {
       // IGNORE THIS INTENTIONALLY
     } else {
       try {
-        const event: CustomEvent<Deal> = new CustomEvent<Deal>("ondeal", {
+        const event: CustomEvent<Deal> = new CustomEvent<Deal>(NEW_DEAL_EVENT, {
           detail: deal,
         });
         document.dispatchEvent(event);
@@ -281,6 +272,25 @@ export class SignalRManager {
     this.onDisconnectedListener = fn;
   };
 
+  private eraseCommand = (command: Command): void => {
+    const { recordedCommands } = this;
+    const index = recordedCommands.findIndex(
+      (each: Command): boolean => each === command
+    );
+    if (index === -1) {
+      console.warn("trying to remove a command that was never recorded");
+    } else {
+      this.recordedCommands = [
+        ...recordedCommands.slice(0, index),
+        ...recordedCommands.slice(index + 1),
+      ];
+    }
+  };
+
+  private recordCommand(command: Command) {
+    this.recordedCommands = [...this.recordedCommands, command];
+  }
+
   public removeMarketListener = (
     symbol: string,
     strategy: string,
@@ -288,7 +298,9 @@ export class SignalRManager {
     eventListener: (e: any) => void
   ) => {
     const key: string = $$(symbol, strategy, tenor);
+    // Invoke the method
     this.invoke(Methods.UnsubscribeFromMarketData, symbol, strategy, tenor);
+    // Remove the event listener
     document.removeEventListener(key, eventListener);
   };
 
@@ -296,13 +308,17 @@ export class SignalRManager {
     listener: (response: PricingMessage) => void
   ) => {
     const listenerWrapper = (event: Event) => {
-      const customEvent: CustomEvent<any> = event as CustomEvent<any>;
+      const customEvent: CustomEvent = event as CustomEvent;
       // Call the actual listener
       listener(customEvent.detail);
     };
-    document.addEventListener("onpricingresponse", listenerWrapper, true);
+    document.addEventListener(PRICING_RESPONSE_EVENT, listenerWrapper, true);
     return () => {
-      document.removeEventListener("onpricingresponse", listenerWrapper, true);
+      document.removeEventListener(
+        PRICING_RESPONSE_EVENT,
+        listenerWrapper,
+        true
+      );
     };
   };
 
@@ -314,9 +330,9 @@ export class SignalRManager {
       // Call the actual listener
       listener(customEvent.detail);
     };
-    document.addEventListener("ondeal", listenerWrapper);
+    document.addEventListener(NEW_DEAL_EVENT, listenerWrapper);
     return () => {
-      document.removeEventListener("ondeal", listenerWrapper);
+      document.removeEventListener(NEW_DEAL_EVENT, listenerWrapper);
     };
   };
 
@@ -332,9 +348,28 @@ export class SignalRManager {
       listener(event.detail);
     };
     document.addEventListener(key, eventListener);
-    this.invoke(Methods.SubscribeForMarketData, symbol, strategy, tenor);
+    const command: Command = {
+      name: Methods.SubscribeForMarketData,
+      args: [symbol, strategy, tenor],
+    };
+    const duplicate = this.recordedCommands.findIndex(
+      (command: Command): boolean => {
+        if (command.name !== Methods.SubscribeForMarketData) return false;
+        return (
+          command.args[0] === symbol &&
+          command.args[1] === strategy &&
+          command.args[2] === tenor
+        );
+      }
+    );
+    if (duplicate !== -1) {
+      console.warn("attempting to add a duplicate command");
+    }
+    this.recordCommand(command);
+    this.runCommand(command);
     return () => {
       this.removeMarketListener(symbol, strategy, tenor, eventListener);
+      this.eraseCommand(command);
     };
   };
 
@@ -364,7 +399,7 @@ export class SignalRManager {
     strategy: string,
     tenor: string,
     fn: (message: DarkPoolMessage) => void
-  ) => {
+  ): (() => void) => {
     if (
       currency === "" ||
       strategy === "" ||
@@ -373,7 +408,7 @@ export class SignalRManager {
       !strategy ||
       !tenor
     )
-      return;
+      return (): void => {};
     const key: string = $$(currency, strategy, tenor);
     const command: Command = {
       name: Methods.SubscribeForDarkPoolPx,
@@ -382,7 +417,11 @@ export class SignalRManager {
     // Update the listeners map
     this.dpListeners[key] = fn;
     // Try to execute it now
-    this.invoke(command.name, ...command.args);
+    this.runCommand(command);
+    return (): void => {
+      delete this.dpListeners[key];
+      this.eraseCommand(command);
+    };
   };
 
   public setDarkPoolOrderListener = (
@@ -446,12 +485,15 @@ export class SignalRManager {
   private onDealEdit(status: DealEditStatus): (message: string) => void {
     return (message: string): void => {
       document.dispatchEvent(
-        new CustomEvent<{ id: string; status: DealEditStatus }>("dealedit", {
-          detail: {
-            id: message,
-            status: status,
-          },
-        })
+        new CustomEvent<{ id: string; status: DealEditStatus }>(
+          DEAL_EDIT_EVENT,
+          {
+            detail: {
+              id: message,
+              status: status,
+            },
+          }
+        )
       );
     };
   }
@@ -496,7 +538,7 @@ export class SignalRManager {
   };
 
   private onDealDeleted = (message: string): void => {
-    const event: CustomEvent<string> = new CustomEvent("ondealdeleted", {
+    const event: CustomEvent<string> = new CustomEvent(DEAL_DELETED_EVENT, {
       detail: message,
     });
     document.dispatchEvent(event);
@@ -505,7 +547,7 @@ export class SignalRManager {
   private onPricingResponse = (message: string): void => {
     const deal: Deal = JSON.parse(message);
     const event: CustomEvent<Deal> = new CustomEvent<Deal>(
-      "onpricingresponse",
+      PRICING_RESPONSE_EVENT,
       {
         detail: deal,
       }
@@ -552,11 +594,10 @@ export class SignalRManager {
     }
   };
 
-  private processDeferredCommands = () => {
-    const { deferredCommands } = this;
-    deferredCommands.forEach(this.runCommand);
-    // Clear it
-    this.deferredCommands = [];
+  private replayRecordedCommands = () => {
+    const { recordedCommands } = this;
+    // Execute each command
+    recordedCommands.forEach(this.runCommand);
   };
 
   private runCommand = (command: Command) => {
@@ -628,14 +669,9 @@ export class SignalRManager {
   private invoke = (name: string, ...args: any[]): void => {
     const { connection } = this;
     if (
-      connection === null ||
-      connection.state !== HubConnectionState.Connected
+      connection !== null &&
+      connection.state === HubConnectionState.Connected
     ) {
-      const { deferredCommands } = this;
-      deferredCommands.push({
-        name,
-        args,
-      });
     } else {
       this.runCommand({
         name,

@@ -4,8 +4,10 @@ interface Props {
   readonly disconnected: boolean;
 }
 
-export const DisconnectedIndicator: React.FC<Props> = (
+export const DisconnectedDisabler: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
-  return <div className={props.disconnected ? "disconnected" : "invisible"} />;
+  const classes = ["disconnect-disabler"];
+  if (props.disconnected) classes.push("disconnected");
+  return <div className={classes.join(" ")} />;
 };

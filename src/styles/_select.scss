@@ -66,6 +66,8 @@
   background-color: $background-color;
   overflow: hidden;
 
+  &.disabled {}
+
   input {
     display: block;
     padding: 8px 16px;

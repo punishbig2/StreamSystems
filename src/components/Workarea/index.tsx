@@ -4,6 +4,7 @@ import { ProgressView } from "components/progressView";
 import { TradeConfirmation } from "components/TradeConfirmation";
 import { AccessDeniedView } from "components/Workarea/accessDeniedView";
 import { ActiveWorkspace } from "components/Workarea/activeWorkspaces";
+import { DisconnectedDisabler } from "components/Workarea/disconnectedDisabler";
 import { Footer } from "components/Workarea/footer";
 import { UserNotFound } from "components/Workarea/userNotFound";
 import { WorkareaError } from "components/Workarea/workareaError";
@@ -130,6 +131,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
               render={renderMessage}
               isOpen={recentExecutions.length > 0}
             />
+            <DisconnectedDisabler disconnected={!store.connected} />
           </>
         );
       }

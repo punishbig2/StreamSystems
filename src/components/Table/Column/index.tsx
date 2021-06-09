@@ -1,4 +1,5 @@
 import { SortIndicator } from "components/Table/Column/sortIndicator";
+import workareaStore from "mobx/stores/workareaStore";
 import React, { CSSProperties, ReactElement, useCallback, useRef } from "react";
 import strings from "locales";
 import { SortOrder } from "types/sortOrder";
@@ -46,9 +47,10 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
 
     return (
       <input
+        ref={inputRef}
         className={"filter"}
         placeholder={strings.Filter}
-        ref={inputRef}
+        readOnly={!workareaStore.connected}
         onChange={onChange}
       />
     );

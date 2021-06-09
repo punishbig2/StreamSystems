@@ -1,3 +1,4 @@
+import workareaStore from "mobx/stores/workareaStore";
 import React, {
   ChangeEvent,
   KeyboardEvent,
@@ -65,7 +66,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
       <input
         ref={ref}
         value={getLabel()}
-        readOnly={!editable}
+        readOnly={!editable || !workareaStore.connected}
         onChange={onChange}
         onBlur={onBlur}
         onDoubleClick={onDoubleClick}

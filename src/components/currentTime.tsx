@@ -1,5 +1,6 @@
 import { TextField } from "@material-ui/core";
 import { useTimer } from "hooks/useTimer";
+import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useState } from "react";
 import {
   DateFormatter,
@@ -35,6 +36,7 @@ export const CurrentTime: React.FC<Props> = (
 
   return (
     <TextField
+      disabled={!workareaStore.connected}
       style={{
         fontFamily: "inherit",
         fontSize: "inherit",

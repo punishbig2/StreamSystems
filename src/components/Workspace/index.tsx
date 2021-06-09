@@ -83,6 +83,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
               autoWidth={true}
               classes={dropdownClasses}
               renderValue={renderValue}
+              disabled={!workareaStore.connected}
               onChange={onPersonalityChange}
             >
               <MenuItem key={STRM} value={STRM}>

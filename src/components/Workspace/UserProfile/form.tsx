@@ -122,9 +122,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={"oco"}>OCO</FormLabel>
                 <Select
                   id={"oco"}
-                  onChange={onChangeWrapper}
+                  disabled={!workareaStore.connected}
                   name={"oco"}
                   value={profile.oco}
+                  onChange={onChangeWrapper}
                 >
                   <MenuItem value={OCOModes.Disabled}>Disabled</MenuItem>
                   <MenuItem value={OCOModes.PartialEx}>Partial Ex.</MenuItem>
@@ -140,9 +141,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={"font"}>Font</FormLabel>
                 <Select
                   id={"font"}
-                  onChange={onChangeWrapper}
+                  disabled={!workareaStore.connected}
                   name={"font"}
                   value={profile.font}
+                  onChange={onChangeWrapper}
                 >
                   <MenuItem value={"default"}>Default</MenuItem>
                 </Select>
@@ -153,9 +155,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={"font-size"}>Font Size</FormLabel>
                 <Select
                   id={"font-size"}
-                  onChange={onChangeWrapper}
+                  disabled={!workareaStore.connected}
                   name={"fontSize"}
                   value={profile.fontSize}
+                  onChange={onChangeWrapper}
                 >
                   <MenuItem value={"smaller"}>Smaller</MenuItem>
                   <MenuItem value={"small"}>Small</MenuItem>
@@ -171,9 +174,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                 <FormLabel htmlFor={"theme"}>Theme</FormLabel>
                 <Select
                   id={"theme"}
-                  onChange={onChangeWrapper}
+                  disabled={!workareaStore.connected}
                   name={"theme"}
                   value={profile.theme}
+                  onChange={onChangeWrapper}
                 >
                   <MenuItem value={"light"}>Light</MenuItem>
                   <MenuItem value={"dark"}>Dark</MenuItem>
@@ -211,11 +215,12 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <FormLabel htmlFor={"ccy-group"}>CCY Group</FormLabel>
               <Select
                 id={"ccy-group"}
-                onChange={onChangeWrapper}
+                disabled={!workareaStore.connected}
                 name={"ccyGroup"}
                 value={profile.ccyGroup}
                 displayEmpty={true}
                 renderValue={renderCCYGroup}
+                onChange={onChangeWrapper}
               >
                 {regions.map((region: string) => (
                   <MenuItem key={region} value={region}>
@@ -231,11 +236,12 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <FormLabel htmlFor={"time-zone"}>Time Zone</FormLabel>
               <Select
                 id={"time-zone"}
-                onChange={onChangeWrapper}
+                disabled={!workareaStore.connected}
                 name={"timezone"}
                 value={profile.timezone}
                 displayEmpty
                 renderValue={renderTimezone}
+                onChange={onChangeWrapper}
               >
                 {timezones.map((zone: TimezoneInfo) => (
                   <MenuItem key={zone.text} value={zone.text}>

@@ -1,3 +1,4 @@
+import workareaStore from "mobx/stores/workareaStore";
 import React, { useState, useEffect, ReactNode } from "react";
 import { ExecSound } from "types/user";
 import { Select, MenuItem } from "@material-ui/core";
@@ -74,12 +75,11 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
   };
 
   const displayName = (name: string) => name.replace(/\.[^.]+$/, "");
-  const onDelete = (name: string) => (
-    event: React.MouseEvent<HTMLDivElement>
-  ) => {
-    event.stopPropagation();
-    deleteSound(name).then(() => removeSound(name));
-  };
+  const onDelete =
+    (name: string) => (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      deleteSound(name).then(() => removeSound(name));
+    };
 
   const DefaultItem: React.FC = () => (
     <div className={"sound-item"}>
@@ -109,10 +109,11 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
   return (
     <Select
       id={"exec-sound"}
-      onChange={onExecSoundChange}
       name={props.name}
       value={getExecSoundValue()}
       renderValue={renderValue}
+      disabled={!workareaStore.connected}
+      onChange={onExecSoundChange}
     >
       <MenuItem value={"default"}>
         <DefaultItem />
