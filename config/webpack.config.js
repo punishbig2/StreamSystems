@@ -44,7 +44,7 @@ const imageInlineSizeLimit = parseInt(
 const useTypeScript = fs.existsSync(paths.appTsConfig);
 const getAsString = (execResult) => {
   const { stdout } = execResult;
-  return stdout.toString();
+  return stdout.toString().trim();
 };
 
 const exec = require('child_process').spawnSync;
@@ -53,10 +53,14 @@ const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
-const releaseCount = getAsString(exec('git', ['rev-list', '--branches=main', '--count']));
-const releaseNumber = (() => {
-  return `${releaseCount.trim()}`;
-})();
+
+const getVersion = () => {
+  const tag = getAsString(exec('git', ['describe', '--tags', '--abbrev=0']));
+  const commits = getAsString(exec('git', ['rev-list', `${tag}..HEAD`, '--count']));
+  return `${tag}.${commits.trim()}`;
+};
+
+const version = getVersion();
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -521,7 +525,7 @@ module.exports = function (webpackEnv) {
             inject: true,
             template: paths.appHtml,
             templateParameters: {
-              version: `v2.0.${releaseNumber}`,
+              version: `${version}`,
             },
           },
           isEnvProduction
