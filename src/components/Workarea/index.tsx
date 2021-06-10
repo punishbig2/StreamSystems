@@ -14,6 +14,7 @@ import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import { themeStore } from "mobx/stores/themeStore";
 import store from "mobx/stores/workareaStore";
 import React from "react";
+import signalRManager from "signalR/signalRManager";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
 import { getUserIdFromUrl } from "utils/getIdFromUrl";
@@ -50,6 +51,17 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       messagesStore.reapplyFilters();
     }, 0);
   }, [messagesStore, personality]);
+
+  React.useEffect((): (() => void) | void => {
+    if (connected) return;
+    const reconnect = (): void => {
+      signalRManager.connect();
+    };
+    window.addEventListener("click", reconnect);
+    return (): void => {
+      window.removeEventListener("click", reconnect);
+    };
+  }, [connected]);
 
   const renderMessage = () => {
     const { recentExecutions } = store;
