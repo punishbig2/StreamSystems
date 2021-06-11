@@ -173,22 +173,19 @@ export class RunWindowStore {
   public setDefaultSize(value: number): void {
     this.defaultBidSize = value;
     this.defaultOfrSize = value;
-    this.rows = RunWindowStore.forEachRow(
-      this.rows,
-      (row: PodRow): PodRow => {
-        return {
-          ...row,
-          ofr: {
-            ...row.ofr,
-            size: value,
-          },
-          bid: {
-            ...row.bid,
-            size: value,
-          },
-        };
-      }
-    );
+    this.rows = RunWindowStore.forEachRow(this.rows, (row: PodRow): PodRow => {
+      return {
+        ...row,
+        ofr: {
+          ...row.ofr,
+          size: value,
+        },
+        bid: {
+          ...row.bid,
+          size: value,
+        },
+      };
+    });
   }
 
   @action.bound
@@ -271,36 +268,30 @@ export class RunWindowStore {
   public setDefaultBidSize(value: number | null): void {
     if (value === null) return;
     this.defaultBidSize = value;
-    this.rows = RunWindowStore.forEachRow(
-      this.rows,
-      (row: PodRow): PodRow => {
-        return {
-          ...row,
-          bid: {
-            ...row.bid,
-            size: value,
-          },
-        };
-      }
-    );
+    this.rows = RunWindowStore.forEachRow(this.rows, (row: PodRow): PodRow => {
+      return {
+        ...row,
+        bid: {
+          ...row.bid,
+          size: value,
+        },
+      };
+    });
   }
 
   @action.bound
   public setDefaultOfrSize(value: number | null): void {
     if (value === null) return;
     this.defaultOfrSize = value;
-    this.rows = RunWindowStore.forEachRow(
-      this.rows,
-      (row: PodRow): PodRow => {
-        return {
-          ...row,
-          ofr: {
-            ...row.ofr,
-            size: value,
-          },
-        };
-      }
-    );
+    this.rows = RunWindowStore.forEachRow(this.rows, (row: PodRow): PodRow => {
+      return {
+        ...row,
+        ofr: {
+          ...row.ofr,
+          size: value,
+        },
+      };
+    });
   }
 
   @action.bound
@@ -479,23 +470,21 @@ export class RunWindowStore {
     });
     const rows: PodRow[] = Object.values(this.rows);
     const table: PodTable = rows
-      .map(
-        (row: PodRow): PodRow => {
-          const bid: Order | undefined = orders.find(
-            (order: Order) =>
-              order.type === OrderTypes.Bid && order.tenor === row.tenor
-          );
-          const ofr: Order | undefined = orders.find(
-            (order: Order) =>
-              order.type === OrderTypes.Ofr && order.tenor === row.tenor
-          );
-          if (bid) row.bid = bid;
-          if (ofr) row.ofr = ofr;
-          row.spread = RunWindowStore.getSpread(row);
-          row.mid = RunWindowStore.getMid(row);
-          return row;
-        }
-      )
+      .map((row: PodRow): PodRow => {
+        const bid: Order | undefined = orders.find(
+          (order: Order) =>
+            order.type === OrderTypes.Bid && order.tenor === row.tenor
+        );
+        const ofr: Order | undefined = orders.find(
+          (order: Order) =>
+            order.type === OrderTypes.Ofr && order.tenor === row.tenor
+        );
+        if (bid) row.bid = bid;
+        if (ofr) row.ofr = ofr;
+        row.spread = RunWindowStore.getSpread(row);
+        row.mid = RunWindowStore.getMid(row);
+        return row;
+      })
       .reduce((table: PodTable, row: PodRow): PodTable => {
         table[row.id] = row;
         return table;

@@ -113,7 +113,7 @@ export const PodTile: React.FC<Props> = observer(
           }}
         />
         <ModalWindow isOpen={store.isRunWindowVisible}>
-          <RunWindowStoreContext.Provider value={new RunWindowStore()}>
+          <RunWindowStoreContext.Provider value={store.runWindowStore}>
             <Run
               visible={store.isRunWindowVisible}
               symbol={currency.name}

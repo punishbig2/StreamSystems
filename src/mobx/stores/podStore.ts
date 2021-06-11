@@ -2,6 +2,7 @@ import { API, Task } from "API";
 import { orderSorter } from "components/PodTile/helpers";
 import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
+import { RunWindowStore } from "mobx/stores/runWindowStore";
 
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
@@ -36,6 +37,8 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
   @observable.ref rows: { [tenor: string]: PodRow } = {};
+
+  @observable runWindowStore: RunWindowStore = new RunWindowStore();
 
   public progressMax: number = 100;
   public readonly kind: TileType = TileType.PodTile;
@@ -147,16 +150,16 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
           tenors,
           snapshot
         );
-        const darkPoolQuotesTask: Task<
-          ReadonlyArray<DarkPoolQuote>
-        > = API.getDarkPoolLastQuotes(currency, strategy);
+        const darkPoolQuotesTask: Task<ReadonlyArray<DarkPoolQuote>> =
+          API.getDarkPoolLastQuotes(currency, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
         // Initialize from depth snapshot
         this.initializeDepthFromSnapshot(await combinedTask.execute());
         this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
         // Other task
-        const quotes: ReadonlyArray<DarkPoolQuote> = await darkPoolQuotesTask.execute();
+        const quotes: ReadonlyArray<DarkPoolQuote> =
+          await darkPoolQuotesTask.execute();
         const darkPrices = quotes.reduce(
           (
             prices: { [tenor: string]: number | null },
@@ -380,20 +383,18 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.showProgressWindow(-1);
     const { strategy } = this;
     const { user } = workareaStore;
-    const promises = orders.map(
-      async (order: Order): Promise<void> => {
-        const depth: ReadonlyArray<Order> = this.orders[order.tenor];
-        if (!depth) return;
-        const conflict: Order | undefined = depth.find((o: Order) => {
-          return (
-            o.type === order.type && o.user === user.email && o.size !== null
-          );
-        });
-        if (!conflict) return;
-        // Cancel said order
-        await API.cancelOrder(conflict, user);
-      }
-    );
+    const promises = orders.map(async (order: Order): Promise<void> => {
+      const depth: ReadonlyArray<Order> = this.orders[order.tenor];
+      if (!depth) return;
+      const conflict: Order | undefined = depth.find((o: Order) => {
+        return (
+          o.type === order.type && o.user === user.email && o.size !== null
+        );
+      });
+      if (!conflict) return;
+      // Cancel said order
+      await API.cancelOrder(conflict, user);
+    });
     await Promise.all(promises);
     await API.createOrdersBulk(
       orders,

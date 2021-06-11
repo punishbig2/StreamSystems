@@ -16,7 +16,7 @@ import { Order } from "types/order";
 import { PodRow } from "types/podRow";
 import { createColumnsWithStore } from "./columnCreator";
 
-interface OwnProps {
+interface Props {
   readonly visible: boolean;
   readonly symbol: string;
   readonly strategy: string;
@@ -28,186 +28,180 @@ interface OwnProps {
   readonly orders: { [tenor: string]: ReadonlyArray<Order> };
 }
 
-const Run: React.FC<OwnProps> = observer(
-  (props: OwnProps): React.ReactElement => {
-    const {
+const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
+  const {
+    symbol,
+    strategy,
+    tenors,
+    defaultSize,
+    minimumSize,
+    visible,
+    orders,
+  } = props;
+
+  const store = React.useContext<RunWindowStore>(RunWindowStoreContext);
+  const { rows, selection, brokerageWidths } = store;
+
+  const setSpread = (value: number): void => {
+    store.setSpreadAll(value);
+  };
+
+  useEffect(() => {
+    const task: Task<BrokerageWidthsResponse> = API.getBrokerageWidths(
       symbol,
-      strategy,
-      tenors,
-      defaultSize,
-      minimumSize,
-      visible,
-      orders,
-    } = props;
-
-    const store = React.useContext<RunWindowStore>(RunWindowStoreContext);
-    const { rows, selection, brokerageWidths } = store;
-
-    React.useEffect((): void => {
-      store.setInitialized(false);
-    });
-
-    const setSpread = (value: number): void => {
-      store.setSpreadAll(value);
-    };
-
-    useEffect(() => {
-      const task: Task<BrokerageWidthsResponse> = API.getBrokerageWidths(
-        symbol,
-        strategy
-      );
-      const promise: Promise<BrokerageWidthsResponse> = task.execute();
-      promise
-        .then((response: BrokerageWidthsResponse) => {
-          store.setBrokerageWidths([
-            {
-              type: "gold",
-              value: response[0].gold,
-            },
-            {
-              type: "silver",
-              value: response[0].silver,
-            },
-            {
-              type: "bronze",
-              value: response[0].bronze,
-            },
-          ]);
-        })
-        .catch((error: any) => {
-          if (error === "aborted") {
-            return;
-          }
-          console.warn(error);
-        });
-      return () => task.cancel();
-    }, [store, strategy, symbol]);
-
-    useEffect((): (() => void) | void => {
-      if (store.initialized) return;
-      const task = store.initialize(symbol, strategy, tenors, orders);
-      task.execute().catch(console.warn);
-      return (): void => {
-        task.cancel();
-      };
-    }, [symbol, strategy, tenors, visible, store, orders]);
-
-    useEffect((): void => {
-      store.setDefaultSize(defaultSize);
-    }, [defaultSize, store, visible]);
-
-    const activateOrders = (row: PodRow) => {
-      // dispatch(createAction<RunActions>(RunActions.ActivateRow, row.id));
-      store.activateRow(row.id);
-    };
-
-    const activateCancelledOrders = () => {
-      if (!rows) return;
-      const values: PodRow[] = Object.values(rows);
-      values.forEach(activateOrders);
-    };
-
-    const defaultBidSize = store.defaultBidSize;
-    const defaultOfrSize = store.defaultOfrSize;
-
-    useEffect((): void => {
-      store.updateSelection();
-    }, [rows, defaultBidSize, defaultOfrSize, store]);
-
-    const isSubmitEnabled = () => {
-      return selection.length > 0;
-    };
-
-    const onSubmit = () => {
-      props.onSubmit(selection);
-    };
-
-    const renderRow = (props: any, index?: number): ReactElement | null => {
-      const { row: originalRow } = props;
-      const row = new Proxy(originalRow, RunRowProxy);
-      return (
-        <Row
-          {...props}
-          user={props.user}
-          row={row}
-          defaultBidSize={props.defaultBidSize}
-          defaultOfrSize={props.defaultOfrSize}
-          rowNumber={index}
-        />
-      );
-    };
-
-    // This builds the set of columns of the run depth with it's callbacks
-    const columns = useMemo(
-      () =>
-        createColumnsWithStore(
-          store,
-          minimumSize,
-          defaultSize,
-          defaultBidSize,
-          defaultOfrSize,
-          visible
-        ),
-      [store, defaultBidSize, defaultOfrSize, minimumSize, defaultSize, visible]
+      strategy
     );
+    const promise: Promise<BrokerageWidthsResponse> = task.execute();
+    promise
+      .then((response: BrokerageWidthsResponse) => {
+        store.setBrokerageWidths([
+          {
+            type: "gold",
+            value: response[0].gold,
+          },
+          {
+            type: "silver",
+            value: response[0].silver,
+          },
+          {
+            type: "bronze",
+            value: response[0].bronze,
+          },
+        ]);
+      })
+      .catch((error: any) => {
+        if (error === "aborted") {
+          return;
+        }
+        console.warn(error);
+      });
+    return () => task.cancel();
+  }, [store, strategy, symbol]);
 
+  useEffect((): (() => void) | void => {
+    if (store.initialized) return;
+    const task = store.initialize(symbol, strategy, tenors, orders);
+    task.execute().catch(console.warn);
+    return (): void => {
+      task.cancel();
+    };
+  }, [symbol, strategy, tenors, visible, store, orders]);
+
+  useEffect((): void => {
+    store.setDefaultSize(defaultSize);
+  }, [defaultSize, store, visible]);
+
+  const activateOrders = (row: PodRow) => {
+    // dispatch(createAction<RunActions>(RunActions.ActivateRow, row.id));
+    store.activateRow(row.id);
+  };
+
+  const activateCancelledOrders = () => {
+    if (!rows) return;
+    const values: PodRow[] = Object.values(rows);
+    values.forEach(activateOrders);
+  };
+
+  const defaultBidSize = store.defaultBidSize;
+  const defaultOfrSize = store.defaultOfrSize;
+
+  useEffect((): void => {
+    store.updateSelection();
+  }, [rows, defaultBidSize, defaultOfrSize, store]);
+
+  const isSubmitEnabled = () => {
+    return selection.length > 0;
+  };
+
+  const onSubmit = () => {
+    props.onSubmit(selection);
+  };
+
+  const renderRow = (props: any, index?: number): ReactElement | null => {
+    const { row: originalRow } = props;
+    const row = new Proxy(originalRow, RunRowProxy);
     return (
-      <div className={"run-modal"}>
-        <div className={"modal-title-bar"}>
-          <div className={"half"}>
-            <div className={"item"}>{props.symbol}</div>
-            <i className={"fa fa-grip-vertical"} />
-            <div className={"item"}>{props.strategy}</div>
-          </div>
-          <div className={"commission-rates"}>
-            {brokerageWidths.map(
-              (width: Width<any> | undefined): ReactElement | null => {
-                if (width === undefined) return null;
-                return (
-                  <button
-                    key={width.type}
-                    className={"rate " + width.type}
-                    onClick={() => setSpread(width.value)}
-                    type={"button"}
-                    disabled={store.isLoading}
-                  >
-                    {width.value}
-                  </button>
-                );
-              }
-            )}
-          </div>
+      <Row
+        {...props}
+        user={props.user}
+        row={row}
+        defaultBidSize={props.defaultBidSize}
+        defaultOfrSize={props.defaultOfrSize}
+        rowNumber={index}
+      />
+    );
+  };
+
+  // This builds the set of columns of the run depth with it's callbacks
+  const columns = useMemo(
+    () =>
+      createColumnsWithStore(
+        store,
+        minimumSize,
+        defaultSize,
+        defaultBidSize,
+        defaultOfrSize,
+        visible
+      ),
+    [store, defaultBidSize, defaultOfrSize, minimumSize, defaultSize, visible]
+  );
+
+  return (
+    <div className={"run-modal"}>
+      <div className={"modal-title-bar"}>
+        <div className={"half"}>
+          <div className={"item"}>{props.symbol}</div>
+          <i className={"fa fa-grip-vertical"} />
+          <div className={"item"}>{props.strategy}</div>
         </div>
-        <Table
-          columns={columns.map(defaultTableColumnStateMapper)}
-          rows={rows}
-          renderRow={renderRow}
-          className={(store.isLoading ? "loading" : "") + " run-table"}
-        />
-        <div className={"modal-buttons"}>
-          <button
-            className={"cancel pull-left"}
-            onClick={activateCancelledOrders}
-            disabled={store.isLoading}
-          >
-            {strings.ActivateAll}
-          </button>
-          <div className={"pull-right"}>
-            <button className={"cancel"} onClick={props.onClose}>
-              {strings.Close}
-            </button>
-            <button
-              className={"success"}
-              onClick={onSubmit}
-              disabled={!isSubmitEnabled()}
-            >
-              {strings.Submit}
-            </button>
-          </div>
+        <div className={"commission-rates"}>
+          {brokerageWidths.map(
+            (width: Width<any> | undefined): ReactElement | null => {
+              if (width === undefined) return null;
+              return (
+                <button
+                  key={width.type}
+                  className={"rate " + width.type}
+                  onClick={() => setSpread(width.value)}
+                  type={"button"}
+                  disabled={store.isLoading}
+                >
+                  {width.value}
+                </button>
+              );
+            }
+          )}
         </div>
       </div>
-    );
-  }
-);
+      <Table
+        columns={columns.map(defaultTableColumnStateMapper)}
+        rows={rows}
+        renderRow={renderRow}
+        className={(store.isLoading ? "loading" : "") + " run-table"}
+      />
+      <div className={"modal-buttons"}>
+        <button
+          className={"cancel pull-left"}
+          onClick={activateCancelledOrders}
+          disabled={store.isLoading}
+        >
+          {strings.ActivateAll}
+        </button>
+        <div className={"pull-right"}>
+          <button className={"cancel"} onClick={props.onClose}>
+            {strings.Close}
+          </button>
+          <button
+            className={"success"}
+            onClick={onSubmit}
+            disabled={!isSubmitEnabled()}
+          >
+            {strings.Submit}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export { Run };

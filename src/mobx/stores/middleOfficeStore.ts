@@ -935,18 +935,14 @@ export class MiddleOfficeStore implements Workspace {
     )) as Deal;
     if (index === -1) {
       this.deals = [deal, ...deals];
-      // If the user is editing we should not set
-      // the new deal
-      if (this.isEditMode) return;
-      const task: Task<void> = this.setDeal(deal);
-      // Execute the add deal task
-      await task.execute();
-    } else {
+    } /* Replace and thus update changed deal */ else {
       const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];
       // If the user is editing we should not set
       // the new deal
-      if (this.isEditMode) return;
+      if (this.isEditMode) {
+        console.warn("the deal you're editing has changed");
+      }
       if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
         const task: Task<DealEntry> = createDealEntry(
           deal,
