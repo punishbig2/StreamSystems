@@ -1041,7 +1041,9 @@ export class MiddleOfficeStore implements Workspace {
 
   public async updateSEFStatus(update: SEFUpdate): Promise<void> {
     await this.updateSEFInDealsBlotter(update);
-    await this.updateSEFInDealEntry(update);
+    if (!this.isEditMode) {
+      await this.updateSEFInDealEntry(update);
+    }
     // Reset status to normal to hide the progress window
     this.setStatus(MiddleOfficeProcessingState.Normal);
   }
