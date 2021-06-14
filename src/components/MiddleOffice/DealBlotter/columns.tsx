@@ -18,10 +18,10 @@ const StatusCell: React.FC<{ deal: Deal }> = ({
 }: {
   deal: Deal;
 }): React.ReactElement => {
-  if (!deal.error_msg) return <div>{stateMap[deal.status]}</div>;
+  if (!deal.error_msg) return <div>{stateMap[deal.status] ?? "unknown"}</div>;
   return (
     <CustomTooltip title={deal.error_msg} tooltipStyle={"bad"}>
-      {stateMap[deal.status]}
+      {stateMap[deal.status] ?? "unknown"}
     </CustomTooltip>
   );
 };

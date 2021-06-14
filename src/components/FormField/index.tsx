@@ -90,16 +90,10 @@ export class FormField<T, S = any> extends PureComponent<
 
   constructor(props: Props<T, string, S>) {
     super(props);
-    const numeric: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = new NumericInputHandler<T, Props<T>, State>(props, props.store);
-    const date: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = new DateInputHandler<T, Props<T, string, S>, State>();
+    const numeric: InputHandler<T, Props<T, string, S>, State> =
+      new NumericInputHandler<T, Props<T>, State>(props, props.store);
+    const date: InputHandler<T, Props<T, string, S>, State> =
+      new DateInputHandler<T, Props<T, string, S>, State>();
     // Use sane handler for all numeric types
     this.inputHandlers["number"] = numeric;
     this.inputHandlers["currency"] = numeric;
@@ -120,11 +114,8 @@ export class FormField<T, S = any> extends PureComponent<
   ): void => {
     const { props, state } = this;
     if (props.editable !== prevProps.editable && !props.editable) {
-      const handler: InputHandler<
-        T,
-        Props<T, string, S>,
-        State
-      > = this.getHandler();
+      const handler: InputHandler<T, Props<T, string, S>, State> =
+        this.getHandler();
       handler.reset(props);
       this.setValueFromProps();
     } else {
@@ -134,11 +125,8 @@ export class FormField<T, S = any> extends PureComponent<
         props.editable !== prevProps.editable ||
         props.currency !== prevProps.currency
       ) {
-        const handler: InputHandler<
-          T,
-          Props<T, string, S>,
-          State
-        > = this.getHandler();
+        const handler: InputHandler<T, Props<T, string, S>, State> =
+          this.getHandler();
         // Reset the formatter
         handler.reset(props);
         // Update the value
@@ -172,7 +160,8 @@ export class FormField<T, S = any> extends PureComponent<
     } else {
       if (store !== undefined) {
         const tooltipString: string | null = tooltip(store);
-        if (tooltipString === null) {
+        console.log(tooltipString);
+        if (!tooltipString || tooltipString === "") {
           return (
             <div className={this.getClassName(...extraClass)}>{content}</div>
           );
@@ -216,11 +205,8 @@ export class FormField<T, S = any> extends PureComponent<
   private setValue = (value: any): void => {
     const { props, state, input } = this;
     // Get a handler to format the value
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> =
+      this.getHandler();
     // Create a value with appropriate formatting and an
     // internal representation of the value
     const stateUpdate = handler.createValue(value, input, props, state);
@@ -241,11 +227,8 @@ export class FormField<T, S = any> extends PureComponent<
   };
 
   private parse = (value: string): any => {
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> =
+      this.getHandler();
     return handler.parse(value, this.props);
   };
 
@@ -253,11 +236,8 @@ export class FormField<T, S = any> extends PureComponent<
     event: React.KeyboardEvent<HTMLInputElement>
   ): void => {
     const { props, state } = this;
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> =
+      this.getHandler();
     const result: State | Pick<State, keyof State> | null = handler.onKeyDown(
       event,
       props,
@@ -366,11 +346,8 @@ export class FormField<T, S = any> extends PureComponent<
     const { props, state } = this;
     const { target } = event;
     if (!props.editable) return;
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> =
+      this.getHandler();
     if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
       event.preventDefault();
     } else {
@@ -570,6 +547,9 @@ export class FormField<T, S = any> extends PureComponent<
         </>
       );
     } else {
+      if (props.name === "status") {
+        console.log("WTF? " + props.name, control);
+      }
       return null;
     }
   };
