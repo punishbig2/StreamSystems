@@ -4,6 +4,7 @@ import { ModalWindow } from "components/ModalWindow";
 import { convertToDepth } from "components/PodTile/helpers";
 import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Run } from "components/Run";
+import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
 import { PodStore, PodStoreContext } from "mobx/stores/podStore";
 import { RunWindowStoreContext } from "mobx/stores/runWindowStore";
@@ -13,8 +14,6 @@ import { InvalidCurrency } from "stateDefs/windowState";
 import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
-import { User } from "types/user";
-import { TableColumn } from "components/Table/tableColumn";
 import { WindowContent } from "./windowContent";
 
 interface Props {
@@ -42,10 +41,10 @@ export const PodTile: React.FC<Props> = observer(
       currencies,
       store.ccyPair
     );
-    const user: User = workareaStore.user;
+    const { connected, user } = workareaStore;
 
     useEffect((): (() => void) | undefined => {
-      if (currency === InvalidCurrency || !strategy) return;
+      if (!connected || currency === InvalidCurrency || !strategy) return;
       const initializeTask: Task<void> = store.initialize(
         currency.name,
         strategy
@@ -59,7 +58,7 @@ export const PodTile: React.FC<Props> = observer(
         initializeTask.cancel();
         cleanUps.forEach((clean: () => void): void => clean());
       };
-    }, [store, currency, strategy, user]);
+    }, [store, currency, strategy, user, connected]);
 
     // Initialize tile/window
     useInitializer(tenors, currency.name, strategy, user, store.setRows);

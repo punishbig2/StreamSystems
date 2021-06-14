@@ -23,7 +23,8 @@ export const getSideFromType = (type: OrderTypes): Sides => {
 
 export const findDefaultTimezone = () => {
   const formatter: Intl.DateTimeFormat = Intl.DateTimeFormat();
-  const options: Intl.ResolvedDateTimeFormatOptions = formatter.resolvedOptions();
+  const options: Intl.ResolvedDateTimeFormatOptions =
+    formatter.resolvedOptions();
   const browserTimezone = options.timeZone;
   const found: TimezoneInfo | undefined = timezones.find(
     ({ text }: TimezoneInfo) => {
@@ -61,6 +62,7 @@ export const updateApplicationTheme = (
 export const selectInputText = (input: HTMLInputElement) =>
   input && input.select();
 
+/// FIXME: what?
 export const tryToNumber = (
   value: string | number | ((...args: any[]) => any) | null
 ): string | null => {

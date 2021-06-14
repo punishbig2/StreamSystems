@@ -1056,7 +1056,6 @@ export class MiddleOfficeStore implements Workspace {
       return name === product.productid;
     });
     if (found === undefined) {
-      console.log(values);
       throw new Error(`cannot find strategy ${name}`);
     }
     return found;

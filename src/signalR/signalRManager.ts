@@ -25,6 +25,7 @@ import {
   Methods,
   NEW_DEAL_EVENT,
   PRICING_RESPONSE_EVENT,
+  SEF_UPDATE,
 } from "signalR/constants";
 import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
@@ -71,6 +72,10 @@ export class SignalRManager {
       name: Methods.SubscribeForPricingResponse,
       args: ["*"],
     },
+    {
+      name: Methods.SubscribeForMBMsg,
+      args: ["*"],
+    },
   ];
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
@@ -79,7 +84,12 @@ export class SignalRManager {
 
   constructor() {
     window.addEventListener("offline", (): void => {
-      this.notifyConnectionLoss();
+      const { connection } = this;
+      // Oddly enough, this is a problem when testing and debugging
+      if (connection !== null) {
+        void connection.stop();
+        this.connection = null;
+      }
     });
     window.addEventListener("online", (): void => {
       this.connect();
@@ -139,8 +149,6 @@ export class SignalRManager {
       throw new Error(
         "cannot apply subscriptions because the connection is not established"
       );
-    } else {
-      console.log("applying subscriptions to: ", connection.connectionId);
     }
     // Install listeners
     connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
@@ -169,9 +177,9 @@ export class SignalRManager {
       // Call the actual listener
       listener(custom.detail);
     };
-    document.addEventListener("sef-update", listenerWrapper);
+    document.addEventListener(SEF_UPDATE, listenerWrapper);
     return (): void => {
-      document.removeEventListener("sef-update", listenerWrapper);
+      document.removeEventListener(SEF_UPDATE, listenerWrapper);
     };
   }
 
@@ -186,7 +194,7 @@ export class SignalRManager {
   };
 
   private static emitSEFUpdate(data: any): void {
-    const event = new CustomEvent<SEFUpdate>("sef-update", {
+    const event = new CustomEvent<SEFUpdate>(SEF_UPDATE, {
       detail: {
         dealId: data.dealid,
         status: Number(data.deal_state),
@@ -448,13 +456,7 @@ export class SignalRManager {
   };
 
   public setMessagesListener = (onMessage: (message: Message) => void) => {
-    const command: Command = {
-      name: Methods.SubscribeForMBMsg,
-      args: ["*"],
-    };
     this.onMessageListener = onMessage;
-    // Execute it
-    this.runCommand(command);
   };
 
   public addCommissionRatesListener(
@@ -502,6 +504,7 @@ export class SignalRManager {
     const isW1PodW: boolean = isPodW(w1);
     const isW2PodW: boolean = isPodW(w2);
     if ((isW1PodW && isW2PodW) || (!isW1PodW && !isW2PodW)) {
+      console.log(w1, w2);
       throw new Error(
         "inconsistent w set, cannot combine unrelated w's with same symbol/strategy/tenor"
       );

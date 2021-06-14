@@ -14,6 +14,7 @@ export const DEAL_EDIT_EVENT = "deal_edit_event";
 export const PRICING_RESPONSE_EVENT = "pricing_response_event";
 export const NEW_DEAL_EVENT = "new_deal_event";
 export const DEAL_DELETED_EVENT = "deal_deleted_event";
+export const SEF_UPDATE = "sef_update";
 
 export enum Events {
   UpdateMarketData = "updateMarketData",

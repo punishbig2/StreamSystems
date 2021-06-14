@@ -1,6 +1,6 @@
 import { API } from "API";
 import { involved } from "columns/messageBlotterColumns/helpers";
-import { action, computed, observable } from "mobx";
+import { action, autorun, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import signalRManager from "signalR/signalRManager";
@@ -23,6 +23,14 @@ export class MessagesStore {
   @observable ccyGroupFilter = "All";
   public readonly kind: TileType = TileType.MessageBlotter;
   private entries: ReadonlyArray<Message> = [];
+
+  constructor() {
+    autorun((): void => {
+      if (workareaStore.connected) {
+        void this.initialize();
+      }
+    });
+  }
 
   @computed
   public get executions(): ReadonlyArray<Message> {
