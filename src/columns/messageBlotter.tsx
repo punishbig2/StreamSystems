@@ -199,7 +199,7 @@ const transactTime = (): TableColumn => ({
     const { message } = props;
     const date: Date = parseTime(message.TransactTime, Globals.timezone);
     return (
-      <div className={"date-time-cell"}>
+      <div className={"date-time-cell"} title={date.toLocaleTimeString()}>
         <span className={"date"}>{DateFormatter.format(date)}</span>
         <span className={"time"}>{TimeFormatter.format(date)}</span>
       </div>

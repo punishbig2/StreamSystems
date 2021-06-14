@@ -6,10 +6,7 @@ import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Run } from "components/Run";
 import { observer } from "mobx-react";
 import { PodStore, PodStoreContext } from "mobx/stores/podStore";
-import {
-  RunWindowStore,
-  RunWindowStoreContext,
-} from "mobx/stores/runWindowStore";
+import { RunWindowStoreContext } from "mobx/stores/runWindowStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
 import { InvalidCurrency } from "stateDefs/windowState";

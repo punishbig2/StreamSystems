@@ -16,7 +16,7 @@ export default (width: number = 6): TableColumn => ({
     if (deal) {
       const date: Date = deal.tradeDate;
       return (
-        <div className={"date-time-cell"}>
+        <div className={"date-time-cell"} title={date.toLocaleTimeString()}>
           <span className={"date"}>{DateFormatter.format(date)}</span>
           <span className={"time"}>{TimeFormatter.format(date)}</span>
         </div>
