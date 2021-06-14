@@ -160,7 +160,6 @@ export class FormField<T, S = any> extends PureComponent<
     } else {
       if (store !== undefined) {
         const tooltipString: string | null = tooltip(store);
-        console.log(tooltipString);
         if (!tooltipString || tooltipString === "") {
           return (
             <div className={this.getClassName(...extraClass)}>{content}</div>
