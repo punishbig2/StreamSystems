@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { SortOrder } from "types/sortOrder";
 
 export interface TableColumn {
   name: string;
@@ -14,14 +13,3 @@ export interface TableColumn {
   template: string;
   className?: string;
 }
-
-export interface TableColumnState extends TableColumn {
-  sortOrder: SortOrder;
-}
-
-export const defaultTableColumnStateMapper = (
-  tableColumn: TableColumn
-): TableColumnState => ({
-  ...tableColumn,
-  sortOrder: SortOrder.None,
-});

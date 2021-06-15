@@ -1,9 +1,9 @@
+import { TableColumn } from "components/Table/tableColumn";
 import { observable, action } from "mobx";
-import { TableColumnState } from "components/Table/tableColumn";
 import { CSSProperties } from "react";
 
 interface MovingColumn {
-  readonly state: TableColumnState;
+  readonly state: TableColumn;
   readonly style: CSSProperties;
   readonly offset: number;
 }
@@ -17,7 +17,7 @@ export class HeaderStore {
 
   @action.bound
   public setGrabbedColumn(
-    state: TableColumnState,
+    state: TableColumn,
     element: HTMLDivElement,
     grabbedAt: number,
     onColumnsOrderChange?: (sourceIndex: number, targetIndex: number) => void
@@ -37,9 +37,8 @@ export class HeaderStore {
       const items: HTMLDivElement[] = Array.from(
         parent.querySelectorAll(".th")
       );
-      const movingItem: HTMLDivElement | null = parent.querySelector(
-        ".th.fake"
-      );
+      const movingItem: HTMLDivElement | null =
+        parent.querySelector(".th.fake");
       if (movingItem === null)
         throw new Error("there must be a moving element ...");
       const sourceIndex: number = items.findIndex(

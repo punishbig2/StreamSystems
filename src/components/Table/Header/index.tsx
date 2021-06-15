@@ -1,18 +1,19 @@
 import { Column, ColumnType } from "components/Table/Column";
-import { TableColumnState } from "components/Table/tableColumn";
 import { getCellWidth } from "components/Table/helpers";
+import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
 import { HeaderStore } from "mobx/stores/headerStore";
 import React from "react";
+import { SortDirection } from "types/sortDirection";
 import { toClassName } from "utils/conditionalClasses";
 
 interface Props {
-  readonly columns: ReadonlyArray<TableColumnState>;
+  readonly columns: ReadonlyArray<TableColumn>;
   readonly totalWidth: number;
   readonly allowReorderColumns: boolean;
   readonly containerWidth: number;
   readonly onFiltered?: (column: string, value: string) => void;
-  readonly onSortBy?: (columnName: string) => void;
+  readonly onSortBy?: (columnName: string, order: SortDirection) => void;
   readonly onColumnsOrderChange?: (
     sourceIndex: number,
     targetIndex: number
@@ -24,17 +25,17 @@ export const TableHeader: React.FC<Props> = observer(
     const { columns } = props;
     const [store] = React.useState<HeaderStore>(new HeaderStore());
 
-    const {
-      state: grabbedColumn,
-      style: grabbedColumnStyle,
-    } = store.movingColumn || { state: null };
+    const { state: grabbedColumn, style: grabbedColumnStyle } =
+      store.movingColumn || { state: null };
+    const [sortOrder, setSortOrder] = React.useState<{
+      [key: string]: SortDirection;
+    }>({});
 
-    const headerRef: React.Ref<HTMLDivElement> = React.useRef<HTMLDivElement>(
-      null
-    );
+    const headerRef: React.Ref<HTMLDivElement> =
+      React.useRef<HTMLDivElement>(null);
 
     const onColumnGrabbed = (
-      column: TableColumnState,
+      column: TableColumn,
       element: HTMLDivElement,
       grabbedAt: number
     ) => {
@@ -42,57 +43,76 @@ export const TableHeader: React.FC<Props> = observer(
       store.setGrabbedColumn(column, element, grabbedAt, onChange);
     };
 
-    const columnMapperFactory = (totalWidth: number) => (
-      column: TableColumnState
-    ) => {
-      return (
-        <Column
-          key={column.name}
-          name={column.name}
-          filterable={column.filterable}
-          movable={props.allowReorderColumns}
-          sortable={column.sortable}
-          sortOrder={column.sortOrder}
-          width={getCellWidth(column.width, totalWidth)}
-          type={ColumnType.Real}
-          onGrabbed={(element: HTMLDivElement, grabbedAt: number) =>
-            onColumnGrabbed(column, element, grabbedAt)
-          }
-          onFiltered={(keyword: string) => {
-            if (props.onFiltered !== undefined) {
-              props.onFiltered(column.name, keyword);
-            }
-          }}
-          onSorted={props.onSortBy}
-        >
-          {column.header(props)}
-        </Column>
-      );
+    const onSorted = (name: string): void => {
+      const newSortOrder = ((): SortDirection => {
+        switch (sortOrder[name]) {
+          case SortDirection.None:
+          case undefined:
+            return SortDirection.Ascending;
+          case SortDirection.Ascending:
+            return SortDirection.Descending;
+          case SortDirection.Descending:
+            return SortDirection.None;
+        }
+      })();
+      if (props.onSortBy !== undefined) {
+        props.onSortBy(name, newSortOrder);
+      }
+      setSortOrder({ ...sortOrder, [name]: newSortOrder });
     };
-    const grabbedColumnElement:
-      | React.ReactElement
-      | undefined = grabbedColumn ? (
-      <Column
-        key={grabbedColumn.name + "moving"}
-        name={grabbedColumn.name}
-        filterable={grabbedColumn.filterable}
-        movable={props.allowReorderColumns}
-        sortable={grabbedColumn.sortable}
-        sortOrder={grabbedColumn.sortOrder}
-        style={grabbedColumnStyle}
-        width={getCellWidth(grabbedColumn.width, props.totalWidth)}
-        type={ColumnType.Fake}
-        onGrabbed={() => null}
-        onSorted={() => null}
-        onFiltered={() => null}
-      >
-        {grabbedColumn.header(props)}
-      </Column>
-    ) : undefined;
-    const columnMapper = columnMapperFactory(props.totalWidth);
-    const renderedColumns: Array<React.ReactElement> = columns.map(
-      columnMapper
+
+    const getSortDirection = React.useCallback(
+      (name: string): SortDirection => sortOrder[name] ?? SortDirection.None,
+      [sortOrder]
     );
+
+    const columnMapperFactory =
+      (totalWidth: number) => (column: TableColumn) => {
+        return (
+          <Column
+            key={column.name}
+            name={column.name}
+            filterable={column.filterable}
+            movable={props.allowReorderColumns}
+            sortable={column.sortable}
+            sortDirection={getSortDirection(column.name)}
+            width={getCellWidth(column.width, totalWidth)}
+            type={ColumnType.Real}
+            onGrabbed={(element: HTMLDivElement, grabbedAt: number) =>
+              onColumnGrabbed(column, element, grabbedAt)
+            }
+            onFiltered={(keyword: string) => {
+              if (props.onFiltered !== undefined) {
+                props.onFiltered(column.name, keyword);
+              }
+            }}
+            onSorted={onSorted}
+          >
+            {column.header(props)}
+          </Column>
+        );
+      };
+    const grabbedColumnElement: React.ReactElement | undefined =
+      grabbedColumn ? (
+        <Column
+          key={grabbedColumn.name + "moving"}
+          name={grabbedColumn.name}
+          filterable={grabbedColumn.filterable}
+          movable={props.allowReorderColumns}
+          sortable={grabbedColumn.sortable}
+          style={grabbedColumnStyle}
+          width={getCellWidth(grabbedColumn.width, props.totalWidth)}
+          type={ColumnType.Fake}
+          onGrabbed={() => null}
+          onSorted={() => null}
+          onFiltered={() => null}
+        >
+          {grabbedColumn.header(props)}
+        </Column>
+      ) : undefined;
+    const columnMapper = columnMapperFactory(props.totalWidth);
+    const renderedColumns: Array<React.ReactElement> =
+      columns.map(columnMapper);
     if (grabbedColumnElement) renderedColumns.push(grabbedColumnElement);
     return (
       <div

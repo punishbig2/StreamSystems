@@ -5,7 +5,7 @@ import { ExecTypes, Message } from "types/message";
 import { Role } from "types/role";
 import { User } from "types/user";
 
-const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss";
+const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
   [ExecTypes.New]: "New",
   [ExecTypes.Canceled]: "Cancel",

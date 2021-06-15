@@ -1,14 +1,15 @@
 import { RowProps } from "components/MiddleOffice/DealBlotter/row";
 import { ScrollArea } from "components/ScrollArea";
 import { TableBody } from "components/Table/Body";
-import { TableColumn, TableColumnState } from "components/Table/tableColumn";
+import { TableColumn } from "components/Table/tableColumn";
 import { TableHeader } from "components/Table/Header";
 import { observer } from "mobx-react";
 import React from "react";
+import { SortDirection } from "types/sortDirection";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 
 interface Props {
-  readonly columns: ReadonlyArray<TableColumnState>;
+  readonly columns: ReadonlyArray<TableColumn>;
   readonly rows: { [id: string]: any };
   readonly renderRow: (
     props: RowProps,
@@ -21,7 +22,7 @@ interface Props {
   readonly style?: React.CSSProperties;
 
   readonly onFiltered?: (column: string, value: string) => void;
-  readonly onSortBy?: (columnName: string) => void;
+  readonly onSortBy?: (columnName: string, order: SortDirection) => void;
   readonly onColumnsOrderChange?: (
     sourceIndex: number,
     targetIndex: number

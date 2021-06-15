@@ -2,7 +2,7 @@ import { SortIndicator } from "components/Table/Column/sortIndicator";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { CSSProperties, ReactElement, useCallback, useRef } from "react";
 import strings from "locales";
-import { SortOrder } from "types/sortOrder";
+import { SortDirection } from "types/sortDirection";
 
 export enum ColumnType {
   Real,
@@ -15,7 +15,7 @@ interface OwnProps {
   movable: boolean;
   sortable?: boolean;
   filterable?: boolean;
-  sortOrder?: SortOrder;
+  sortDirection?: SortDirection;
   type: ColumnType;
   onGrabbed: (element: HTMLDivElement, grabbedAt: number) => void;
   style?: CSSProperties;
@@ -92,7 +92,7 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
         <div className={"label"}>{props.children}</div>
         <SortIndicator
           sortable={props.sortable === true}
-          direction={props.sortOrder}
+          direction={props.sortDirection}
           onClick={onSort}
         />
       </div>

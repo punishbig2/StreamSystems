@@ -1,22 +1,23 @@
 import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
-import { TableColumn, TableColumnState } from "components/Table/tableColumn";
+import { TableColumn } from "components/Table/tableColumn";
 import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 import React from "react";
 import { Message } from "types/message";
 import { Persistable } from "types/persistable";
 import { Role } from "types/role";
-import { SortOrder } from "types/sortOrder";
+import { SortDirection } from "types/sortDirection";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
 
 export class MessageBlotterStore
   extends ContentStore
-  implements Persistable<MessageBlotterStore> {
+  implements Persistable<MessageBlotterStore>
+{
   public readonly kind: TileType = TileType.MessageBlotter;
 
   @observable private sortedColumns: {
-    [columnName: string]: SortOrder;
+    [columnName: string]: SortDirection;
   } = {};
   @observable private sortingApplicationOrder: ReadonlyArray<string> = [];
   @observable private filters: { [columnName: string]: string } = {};
@@ -72,21 +73,11 @@ export class MessageBlotterStore
   }
 
   @computed
-  public get columns(): ReadonlyArray<TableColumnState> {
+  public get columns(): ReadonlyArray<TableColumn> {
     const { initialColumns, columnsOrder } = this;
     return columnsOrder
       .filter((index: number) => index < initialColumns.length)
-      .map((index: number) => initialColumns[index])
-      .map(
-        (column: TableColumn): TableColumnState => {
-          const sortOrder: SortOrder = this.sortedColumns[column.name];
-          if (sortOrder === undefined) {
-            return { ...column, sortOrder: SortOrder.None };
-          } else {
-            return { ...column, sortOrder };
-          }
-        }
-      );
+      .map((index: number) => initialColumns[index]);
   }
 
   @computed
@@ -102,23 +93,10 @@ export class MessageBlotterStore
   }
 
   @action.bound
-  public sortBy(columnName: string): void {
+  public sortBy(columnName: string, direction: SortDirection): void {
     const { sortingApplicationOrder } = this;
-    const currentValue: SortOrder = this.sortedColumns[columnName]
-      ? this.sortedColumns[columnName]
-      : SortOrder.None;
     const index: number = sortingApplicationOrder.indexOf(columnName);
-    switch (currentValue) {
-      case SortOrder.None:
-        this.sortedColumns[columnName] = SortOrder.Ascending;
-        break;
-      case SortOrder.Ascending:
-        this.sortedColumns[columnName] = SortOrder.Descending;
-        break;
-      case SortOrder.Descending:
-        this.sortedColumns[columnName] = SortOrder.None;
-        break;
-    }
+    this.sortedColumns[columnName] = direction;
     if (index !== -1) {
       this.sortingApplicationOrder = [
         ...sortingApplicationOrder.slice(0, index),
@@ -184,13 +162,13 @@ export class MessageBlotterStore
     const { sortingApplicationOrder, sortedColumns, columnsMap } = this;
     return sortingApplicationOrder.reduce(
       (fn: (r1: any, r2: any) => number, columnName: string) => {
-        const sortOrder: SortOrder = sortedColumns[columnName];
+        const sortOrder: SortDirection = sortedColumns[columnName];
         if (!sortOrder) return fn;
         const columnSpec: TableColumn | undefined = columnsMap[columnName];
         return (r1: any, r2: any) => {
           if (columnSpec.difference === undefined) return fn(r1, r2);
           if (fn(r1, r2) === 0) {
-            const sign: number = sortOrder === SortOrder.Ascending ? -1 : 1;
+            const sign: number = sortOrder === SortDirection.Ascending ? -1 : 1;
             return sign * columnSpec.difference(r1, r2);
           }
           return fn(r1, r2);
@@ -201,6 +179,7 @@ export class MessageBlotterStore
   }
 }
 
-export const MessageBlotterStoreContext = React.createContext<MessageBlotterStore>(
-  new MessageBlotterStore(BlotterTypes.None)
-);
+export const MessageBlotterStoreContext =
+  React.createContext<MessageBlotterStore>(
+    new MessageBlotterStore(BlotterTypes.None)
+  );

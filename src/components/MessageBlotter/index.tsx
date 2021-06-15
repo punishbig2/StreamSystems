@@ -10,6 +10,7 @@ import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { useMemo } from "react";
 import { Message } from "types/message";
+import { SortDirection } from "types/sortDirection";
 
 interface OwnProps {
   id: string;
@@ -19,9 +20,8 @@ interface OwnProps {
 type Props = OwnProps;
 
 export const MessageBlotter: React.FC<Props> = observer((props: Props) => {
-  const messagesStore: MessagesStore = React.useContext<MessagesStore>(
-    MessagesStoreContext
-  );
+  const messagesStore: MessagesStore =
+    React.useContext<MessagesStore>(MessagesStoreContext);
   const store = React.useContext<MessageBlotterStore>(
     MessageBlotterStoreContext
   );
@@ -48,8 +48,12 @@ export const MessageBlotter: React.FC<Props> = observer((props: Props) => {
       rows={store.rows}
       renderRow={renderRow}
       allowReorderColumns={true}
-      onFiltered={(columnName, value) => store.filterBy(columnName, value)}
-      onSortBy={(columnName) => store.sortBy(columnName)}
+      onFiltered={(columnName: string, keyword: string) =>
+        store.filterBy(columnName, keyword)
+      }
+      onSortBy={(columnName: string, direction: SortDirection) =>
+        store.sortBy(columnName, direction)
+      }
       onColumnsOrderChange={(sourceIndex, targetIndex) =>
         store.updateColumnsOrder(sourceIndex, targetIndex)
       }

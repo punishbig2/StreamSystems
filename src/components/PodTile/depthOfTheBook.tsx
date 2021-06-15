@@ -1,9 +1,5 @@
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
-import {
-  defaultTableColumnStateMapper,
-  TableColumnState,
-} from "components/Table/tableColumn";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { DepthData } from "types/depthData";
@@ -25,12 +21,7 @@ interface Props {
 export const DepthOfTheBook: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
-  const { rows, columns: columnDefinitions } = props.book;
-  const columns = React.useMemo(
-    (): ReadonlyArray<TableColumnState> =>
-      columnDefinitions.map(defaultTableColumnStateMapper),
-    [columnDefinitions]
-  );
+  const { rows, columns } = props.book;
   const renderRow = React.useCallback(
     (rowProps: any): ReactElement | null => {
       const { minqty, defaultqty } = props.symbol;

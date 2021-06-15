@@ -1,10 +1,6 @@
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
-import {
-  defaultTableColumnStateMapper,
-  TableColumn,
-  TableColumnState,
-} from "components/Table/tableColumn";
+import { TableColumn } from "components/Table/tableColumn";
 import React, { ReactElement } from "react";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
@@ -27,12 +23,7 @@ interface Props {
 export const TopOfTheBook: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
-  const { columns: columnDefinitions } = props;
-  const columns: ReadonlyArray<TableColumnState> = React.useMemo(
-    (): ReadonlyArray<TableColumnState> =>
-      columnDefinitions.map(defaultTableColumnStateMapper),
-    [columnDefinitions]
-  );
+  const { columns } = props;
   return (
     <div className={"pod"} data-showing-tenor={props.currentTenor !== null}>
       <Table

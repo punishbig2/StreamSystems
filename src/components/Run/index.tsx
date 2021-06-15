@@ -2,7 +2,6 @@ import { API, Task } from "API";
 import { RunRowProxy } from "components/Run/helpers/runRowProxy";
 import { Row } from "components/Run/row";
 import { Table } from "components/Table";
-import { defaultTableColumnStateMapper } from "components/Table/tableColumn";
 import strings from "locales";
 import { observer } from "mobx-react";
 import {
@@ -174,7 +173,7 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
         </div>
       </div>
       <Table
-        columns={columns.map(defaultTableColumnStateMapper)}
+        columns={columns}
         rows={rows}
         renderRow={renderRow}
         className={(store.isLoading ? "loading" : "") + " run-table"}

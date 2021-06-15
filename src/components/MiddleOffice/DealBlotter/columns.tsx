@@ -26,7 +26,7 @@ const StatusCell: React.FC<{ deal: Deal }> = ({
   );
 };
 
-export const columns: TableColumn[] = [
+export const columns: ReadonlyArray<TableColumn> = [
   {
     name: "deal-id",
     header: () => "Deal Id",

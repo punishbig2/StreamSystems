@@ -1,21 +1,21 @@
 import React, { ReactElement } from "react";
-import { SortOrder } from "types/sortOrder";
+import { SortDirection } from "types/sortDirection";
 
 interface Props {
   readonly sortable: boolean;
-  readonly direction?: SortOrder;
+  readonly direction?: SortDirection;
   readonly onClick: () => void;
 }
 
-const Icon: React.FC<{ direction: SortOrder }> = (props: {
-  direction: SortOrder;
+const Icon: React.FC<{ direction: SortDirection }> = (props: {
+  direction: SortDirection;
 }): React.ReactElement => {
   switch (props.direction) {
-    case SortOrder.Descending:
-      return <i className={"fa fa-sort-down"} />;
-    case SortOrder.Ascending:
+    case SortDirection.Descending:
       return <i className={"fa fa-sort-up"} />;
-    case SortOrder.None:
+    case SortDirection.Ascending:
+      return <i className={"fa fa-sort-down"} />;
+    case SortDirection.None:
       return <i className={"fa fa-sort none"} />;
   }
 };

@@ -2,10 +2,7 @@ import React, { ReactElement } from "react";
 import { Table } from "components/Table/index";
 import columns from "columns/darkPoolDepth";
 import { Cell } from "components/Table/Cell";
-import {
-  defaultTableColumnStateMapper,
-  TableColumn,
-} from "components/Table/tableColumn";
+import { TableColumn } from "components/Table/tableColumn";
 import { Order } from "types/order";
 import { getCellWidth } from "components/Table/helpers";
 
@@ -33,9 +30,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   return (
     <Table
       rows={props.orders}
-      columns={columns(props.onCancelOrder, props.showInstruction).map(
-        defaultTableColumnStateMapper
-      )}
+      columns={columns(props.onCancelOrder, props.showInstruction)}
       renderRow={renderRow}
       className={"padded"}
     />
