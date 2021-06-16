@@ -78,7 +78,6 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
   }, [store, strategy, symbol]);
 
   useEffect((): (() => void) | void => {
-    if (store.initialized) return;
     const task = store.initialize(symbol, strategy, tenors, orders);
     task.execute().catch(console.warn);
     return (): void => {
@@ -91,7 +90,6 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
   }, [defaultSize, store, visible]);
 
   const activateOrders = (row: PodRow) => {
-    // dispatch(createAction<RunActions>(RunActions.ActivateRow, row.id));
     store.activateRow(row.id);
   };
 

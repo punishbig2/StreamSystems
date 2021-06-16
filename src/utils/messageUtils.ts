@@ -85,7 +85,6 @@ export const isAcceptableFill = (message: Message): boolean => {
   const firm: string = isBroker ? workareaStore.personality : user.firm;
   // Only fills are interesting
   if (!isFill(message)) return false;
-  console.log(isBroker);
   if (isBroker) return true;
   // If it's my trade YES
   if (message.Username === user.email || message.MDMkt === firm) return true;
