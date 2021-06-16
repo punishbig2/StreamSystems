@@ -1,6 +1,6 @@
 import { MiddleOffice } from "components/MiddleOffice";
 import { Welcome } from "components/weolcome";
-import { TradingWorkspace } from "components/Workspace";
+import { TradingWorkspace } from "components/TradingWorkspace";
 import { observer } from "mobx-react";
 import { MiddleOfficeStoreContext } from "mobx/stores/middleOfficeStore";
 import { TradingWorkspaceStoreContext } from "mobx/stores/tradingWorkspaceStore";

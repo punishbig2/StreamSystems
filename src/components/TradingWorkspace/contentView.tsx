@@ -26,7 +26,7 @@ interface Props {
 
 const NotPodStoreError = new Error("not a pod tile store, but it should be");
 
-export const WorkspaceContentView: React.FC<Props> = (
+export const ContentView: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
   const getContentRenderer = (id: string, type: TileType) => {

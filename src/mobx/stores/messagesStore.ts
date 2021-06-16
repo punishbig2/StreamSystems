@@ -1,12 +1,9 @@
 import { API } from "API";
-import { involved } from "columns/messageBlotterColumns/helpers";
 import { action, autorun, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import signalRManager from "signalR/signalRManager";
-import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
-import { Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
@@ -42,20 +39,20 @@ export class MessagesStore {
         ({ ccyGroup }: Symbol): boolean =>
           ccyGroupFilter.toLowerCase() === ccyGroup.toLowerCase()
       );
-      return MessagesStore.normalExecutionsFilter(
-        allExecutions.filter(
-          (message: Message): boolean =>
-            filteredSymbols.find((symbol: Symbol): boolean => {
-              return symbol.symbolID === message.Symbol;
-            }) !== undefined
-        )
+      return allExecutions.filter(
+        (message: Message): boolean =>
+          filteredSymbols.find((symbol: Symbol): boolean => {
+            return symbol.symbolID === message.Symbol;
+          }) !== undefined
       );
+      /*MessagesStore.normalExecutionsFilter(*/
+      /*);*/
     } else {
-      return MessagesStore.normalExecutionsFilter(allExecutions);
+      return allExecutions; // MessagesStore.normalExecutionsFilter(allExecutions);
     }
   }
 
-  private static normalExecutionsFilter(
+  /*private static normalExecutionsFilter(
     executions: ReadonlyArray<Message>
   ): ReadonlyArray<Message> {
     const { roles } = workareaStore.user;
@@ -64,7 +61,7 @@ export class MessagesStore {
     } else {
       return executions;
     }
-  }
+  }*/
 
   @action.bound
   public setCCYGroupFilter(filter: string): void {

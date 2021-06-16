@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
-import { SoundsList } from "components/Workspace/UserProfile/soundsList";
+import { SoundsList } from "components/TradingWorkspace/UserProfile/soundsList";
 import timezones, { TimezoneInfo } from "data/timezones";
 import deepEqual from "deep-equal";
 import strings from "locales";

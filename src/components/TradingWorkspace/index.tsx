@@ -2,9 +2,9 @@ import { CommissionRates } from "components/CommissionRates";
 import { ExecutionBanner } from "components/ExecutionBanner";
 import { ModalWindow } from "components/ModalWindow";
 import { ProgressView } from "components/progressView";
-import { RightPanelButtons } from "components/Workspace/rightPanelButtons";
-import { UserProfileModal } from "components/Workspace/UserProfile";
-import { WorkspaceContentView } from "components/Workspace/workspaceContentView";
+import { RightPanelButtons } from "components/TradingWorkspace/rightPanelButtons";
+import { UserProfileModal } from "components/TradingWorkspace/UserProfile";
+import { ContentView } from "components/TradingWorkspace/contentView";
 import { observer } from "mobx-react";
 import {
   TradingWorkspaceStore,
@@ -81,7 +81,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
           </div>
         </div>
         <TradingWorkspaceStoreContext.Provider value={store}>
-          <WorkspaceContentView
+          <ContentView
             tiles={store.tiles}
             isDefault={props.isDefault}
             currencies={props.currencies}

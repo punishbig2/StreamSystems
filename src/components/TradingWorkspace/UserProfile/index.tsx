@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { UserProfileModalTypes } from "types/user";
-import { UserProfileForm } from "components/Workspace/UserProfile/form";
+import { UserProfileForm } from "components/TradingWorkspace/UserProfile/form";
 import { ErrorBox } from "components/ErrorBox";
 import { MessageBox } from "components/MessageBox";
 import store from "mobx/stores/userPreferencesStore";
