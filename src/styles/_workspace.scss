@@ -23,6 +23,7 @@
 
 .workspace {
   position: absolute;
+  border-top: 2px solid $text-color-black;
 
   top: $window-toolbar-size;
   left: 0;
