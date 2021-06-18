@@ -5,7 +5,7 @@ import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
 import { OrderTypes } from "types/mdEntry";
 import { ArrowDirection } from "types/w";
-import React, { ReactElement, useState, useEffect } from "react";
+import React from "react";
 import { priceFormatter } from "utils/priceFormatter";
 import { Tooltip } from "components/Table/CellRenderers/Price/tooltip";
 import { OrderStatus } from "types/order";
@@ -54,22 +54,22 @@ export interface Props {
 }
 
 export const Price: React.FC<Props> = observer((props: Props) => {
-  const [store] = useState<PriceStore>(new PriceStore());
+  const [store] = React.useState<PriceStore>(new PriceStore());
   const { value, status, tooltip } = props;
   if (value === undefined) throw new Error("value is not optional");
 
-  useEffect(() => {
+  React.useEffect(() => {
     store.setBaseValue(value);
     setEdited(false);
   }, [store, value]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     store.setStatus(status);
     setEdited(false);
   }, [store, status]);
 
-  const [target, setTarget] = useState<HTMLDivElement | null>(null);
-  const [edited, setEdited] = useState<boolean>(false);
+  const [target, setTarget] = React.useState<HTMLDivElement | null>(null);
+  const [edited, setEdited] = React.useState<boolean>(false);
 
   const showTooltip = tooltip
     ? (event: React.MouseEvent<HTMLDivElement>) => {
@@ -79,9 +79,9 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   const hideTooltip = () => store.hideTooltip();
 
-  const getTooltip = (): ReactElement | null => {
+  const getTooltip = (): React.ReactElement | null => {
     if (!tooltip || !store.tooltipVisible) return null;
-    const content: ReactElement | string | null =
+    const content: React.ReactElement | string | null =
       typeof tooltip === "function" ? tooltip({}) : tooltip;
     if (!content) return null;
     return (
@@ -146,6 +146,10 @@ export const Price: React.FC<Props> = observer((props: Props) => {
       props.onSubmit(input, null, false, tabDirection);
     }
     setEdited(false);
+  };
+
+  const onFocus = (): void => {
+    store.setInternalValue(store.value);
   };
 
   const onCancelEdit = () => {
@@ -213,6 +217,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
           placeholder={getPlaceholder(props.value)}
           type={"price"}
           onCancelEdit={onCancelEdit}
+          onFocus={onFocus}
           onBlur={onCancelEdit}
           onDoubleClick={onDoubleClick}
           onChange={onChange}

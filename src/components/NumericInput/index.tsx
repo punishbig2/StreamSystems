@@ -19,6 +19,7 @@ interface Props {
   readonly onDoubleClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
   readonly readOnly?: boolean;
   readonly onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  readonly onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   readonly className?: string;
   readonly tabIndex?: number;
   readonly placeholder?: string;
@@ -57,6 +58,9 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
     const { target } = event;
     clearTimeout(selectTimer);
     setSelectTimer(setTimeout(() => target.select(), 30));
+    if (typeof props.onFocus === "function") {
+      props.onFocus(event);
+    }
   };
 
   const onBlurWrapper = (event: React.FocusEvent<HTMLInputElement>) => {

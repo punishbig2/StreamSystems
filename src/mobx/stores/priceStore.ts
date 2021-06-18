@@ -1,4 +1,4 @@
-import { observable, computed, action } from "mobx";
+import { observable, computed, action, autorun } from "mobx";
 import { OrderStatus } from "types/order";
 import { priceFormatter } from "utils/priceFormatter";
 
@@ -40,7 +40,6 @@ export class PriceStore {
 
   @action.bound
   public setBaseValue(value: number | null) {
-    this.internalValue = null;
     this.baseValue = value;
   }
 
