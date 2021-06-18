@@ -1,4 +1,4 @@
-import { observable, computed, action, autorun } from "mobx";
+import { action, computed, observable } from "mobx";
 import { OrderStatus } from "types/order";
 import { priceFormatter } from "utils/priceFormatter";
 
