@@ -546,9 +546,6 @@ export class FormField<T, S = any> extends PureComponent<
         </>
       );
     } else {
-      if (props.name === "status") {
-        console.log("WTF? " + props.name, control);
-      }
       return null;
     }
   };

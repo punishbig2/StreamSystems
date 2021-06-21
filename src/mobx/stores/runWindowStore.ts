@@ -70,6 +70,7 @@ export class RunWindowStore {
 
   private static getMid(row: PodRow): number | null {
     const { ofr, bid } = row;
+    if (row.mid !== null) return row.mid;
     if (
       ofr.price === null ||
       (ofr.status & OrderStatus.Cancelled) !== 0 ||
@@ -83,6 +84,7 @@ export class RunWindowStore {
 
   private static getSpread(row: PodRow): number | null {
     const { ofr, bid } = row;
+    if (row.spread !== null) return row.spread;
     if (
       ofr.price === null ||
       (ofr.status & OrderStatus.Cancelled) !== 0 ||
@@ -128,6 +130,7 @@ export class RunWindowStore {
         roles.includes(Role.Broker) && order.firm !== workareaStore.personality
       );
     };
+    const animate = !this.initialized;
     this.initialized = true;
     this.activeOrders = Object.values(orders)
       .reduce(
@@ -149,12 +152,10 @@ export class RunWindowStore {
       strategy
     );
     const originalTable: PodTable = createEmptyTable(symbol, strategy, tenors);
-    // We first fill it as placeholder
-    this.setOrders(originalTable);
-    // And this task does the rest
+    this.setOrders({ ...originalTable, ...this.rows });
     return {
       execute: async (): Promise<void> => {
-        this.setLoading(true);
+        this.setLoading(animate);
         try {
           const messages: ReadonlyArray<OrderMessage> = await task.execute();
           // Set the orders now
@@ -490,6 +491,12 @@ export class RunWindowStore {
         return table;
       }, {});
     this.setOrders(table);
+  }
+
+  @action.bound
+  public reset(): void {
+    this.rows = {};
+    this.original = {};
   }
 }
 

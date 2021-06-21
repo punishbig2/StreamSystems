@@ -504,7 +504,6 @@ export class SignalRManager {
     const isW1PodW: boolean = isPodW(w1);
     const isW2PodW: boolean = isPodW(w2);
     if ((isW1PodW && isW2PodW) || (!isW1PodW && !isW2PodW)) {
-      console.log(w1, w2);
       throw new Error(
         "inconsistent w set, cannot combine unrelated w's with same symbol/strategy/tenor"
       );

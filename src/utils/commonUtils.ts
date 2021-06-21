@@ -67,14 +67,8 @@ export const tryToNumber = (
   value: string | number | ((...args: any[]) => any) | null
 ): string | null => {
   if (typeof value !== "string" && typeof value !== "number") {
-    if (typeof value === "function") {
-      try {
-        console.log(value());
-      } catch {}
-    }
     return null;
   }
-  if (value === null) return null;
   if (typeof value === "number") return value.toString();
   const asNumber: number | null | undefined = toNumber(value);
   if (asNumber !== null && asNumber !== undefined && !isNaN(asNumber))

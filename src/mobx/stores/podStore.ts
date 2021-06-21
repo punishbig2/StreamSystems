@@ -214,6 +214,8 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   public showRunWindow() {
+    const { runWindowStore } = this;
+    runWindowStore.reset();
     this.isRunWindowVisible = true;
   }
 
