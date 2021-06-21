@@ -143,11 +143,13 @@ const price = (sortable: boolean): TableColumn => ({
   },
 });
 
-const getSide = (message: Message): "Buy" | "Sell" => {
-  return message.Side === "1" ? "Buy" : "Sell";
-};
+const getSide = (message: Message): "Buy" | "Sell" =>
+  message.Side === "1" ? "Buy" : "Sell";
 
-const side = (sortable: boolean, flip = false): TableColumn => ({
+const getOtherSide = (message: Message): "Buy" | "Sell" =>
+  message.Side === "1" ? "Sell" : "Buy";
+
+const side = (sortable: boolean): TableColumn => ({
   name: "Side",
   template: "SELL",
   filterable: true,
@@ -156,8 +158,17 @@ const side = (sortable: boolean, flip = false): TableColumn => ({
   render: (props: CellProps) => {
     const { message } = props;
     const { roles } = workareaStore.user;
-    if (!involved(message) && !roles.includes(Role.Broker)) return <div />;
-    return getSide(message);
+    const isBroker = roles.includes(Role.Broker);
+    if (!involved(message) && !isBroker) return <div />;
+    if (isBroker) {
+      if (involved(message)) {
+        return getSide(message);
+      } else {
+        return getOtherSide(message);
+      }
+    } else {
+      return getSide(message);
+    }
   },
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
