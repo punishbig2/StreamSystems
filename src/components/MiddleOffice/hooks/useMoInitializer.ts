@@ -6,4 +6,8 @@ export const useMoInitializer = (store: MiddleOfficeStore) => {
     void store.loadReferenceData();
     return store.connectListeners();
   }, [store]);
+
+  useEffect((): void => {
+    void store.loadDeals();
+  });
 };

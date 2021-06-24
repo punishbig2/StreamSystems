@@ -410,7 +410,6 @@ export class MiddleOfficeStore implements Workspace {
       this.setDeltaStyles(await API.getDeltaStyles());
       this.setPremiumStyles(await API.getPremiumStyles());
       this.setLegAdjustValues(await API.getLegAdjustValues());
-      await this.loadDeals();
       // Load leg definitions
       const inDefs: {
         [strategy: string]: LegOptionsDefIn[];
@@ -1195,7 +1194,7 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   @action.bound
-  private async loadDeals(): Promise<void> {
+  public async loadDeals(): Promise<void> {
     // Update deals list
     this.deals = (await this.convertToMiddleOfficeDeal(
       await API.getDeals()

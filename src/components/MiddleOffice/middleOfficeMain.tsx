@@ -24,7 +24,7 @@ import {
   MiddleOfficeProcessingState,
 } from "mobx/stores/middleOfficeStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { DealEditStatus } from "signalR/signalRManager";
 import { DealEntry, EntryType } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
@@ -83,21 +83,26 @@ export const MiddleOfficeMain: React.FC<Props> = (
   const classes: string[] = ["middle-office"];
   const { error } = props;
   const { entry } = props;
+
   // Deal event handlers
   useNewDealListener((deal: { [key: string]: any }) => {
     // noinspection JSIgnoredPromiseFromCall
     props.addDeal(deal);
   });
+
   useDealDeletedListener((id: string): void => {
     // noinspection JSIgnoredPromiseFromCall
     props.removeDeal(id);
   });
+
   useDealEditListener((status: DealEditStatus, id: string): void => {
     props.editDeal(status, id);
   });
+
   useSEFListener((sefUpdate: SEFUpdate): void => {
     void props.updateSEFStatus(sefUpdate);
   });
+
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?
   if (!props.visible) classes.push("hidden");
