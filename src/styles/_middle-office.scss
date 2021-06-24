@@ -35,6 +35,10 @@ $field-size: 25px;
     display: none;
   }
 
+  &.loading-deals {
+    opacity: 0.5;
+  }
+
   .left-panel {
     flex: 1;
     position: relative;

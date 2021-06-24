@@ -74,6 +74,7 @@ interface Props {
     value: any
   ) => Promise<void>;
   readonly editDeal: (status: DealEditStatus, id: string) => void;
+  readonly loadingDeals: boolean;
 }
 
 export const MiddleOfficeMain: React.FC<Props> = (
@@ -106,6 +107,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?
   if (!props.visible) classes.push("hidden");
+  if (props.loadingDeals) classes.push("loading-deals");
 
   const dontDelete = () => {
     showDeleteQuestion(false);
@@ -147,7 +149,9 @@ export const MiddleOfficeMain: React.FC<Props> = (
   if (props.status !== MiddleOfficeProcessingState.Normal)
     headingClasses.push("disabled");
   const disabled: boolean =
-    props.isLoadingLegs || props.status !== MiddleOfficeProcessingState.Normal;
+    props.isLoadingLegs ||
+    props.status !== MiddleOfficeProcessingState.Normal ||
+    props.loadingDeals;
   return (
     <>
       <div className={classes.join(" ")}>

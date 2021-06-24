@@ -107,6 +107,7 @@ export const MiddleOffice: React.FC<Props> = observer(
             saveCurrentEntry={(): void => store.saveCurrentEntry()}
             submit={(): void => store.submit()}
             successMessage={store.successMessage}
+            loadingDeals={store.loadingDeals}
           />
         </MuiThemeProvider>
       );

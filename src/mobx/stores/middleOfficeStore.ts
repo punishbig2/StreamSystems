@@ -131,6 +131,7 @@ export class MiddleOfficeStore implements Workspace {
   @observable strategies: { [key: string]: Product } = {};
   @observable name: string = "Middle Office";
   @observable modified: boolean = false;
+  @observable loadingDeals: boolean = false;
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
@@ -143,7 +144,7 @@ export class MiddleOfficeStore implements Workspace {
   private originalEntry: DealEntry = { ...emptyDealEntry };
   private originalLegs: ReadonlyArray<Leg> = [];
   private originalSummaryLeg: SummaryLeg | null = null;
-  private operationsCount = 10;
+  private operationsCount = 9;
   private modifiedFields: string[] = [];
 
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
@@ -1195,11 +1196,15 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public async loadDeals(): Promise<void> {
-    // Update deals list
-    this.deals = (await this.convertToMiddleOfficeDeal(
-      await API.getDeals()
-    )) as ReadonlyArray<Deal>;
-    this.increaseProgress();
+    try {
+      this.setLoadingDeals(true);
+      // Update deals list
+      this.deals = (await this.convertToMiddleOfficeDeal(
+        await API.getDeals()
+      )) as ReadonlyArray<Deal>;
+    } finally {
+      this.setLoadingDeals(false);
+    }
   }
 
   private addModifiedField(name: string): void {
@@ -1364,6 +1369,7 @@ export class MiddleOfficeStore implements Workspace {
 
   private setLegAdjustValues(value: ReadonlyArray<LegAdjustValue>) {
     this._legAdjustValues = value;
+    this.increaseProgress();
   }
 
   public static fromJson(data: { [key: string]: any }): MiddleOfficeStore {
@@ -1377,6 +1383,10 @@ export class MiddleOfficeStore implements Workspace {
       name: this.name,
       type: this.type,
     };
+  }
+
+  private setLoadingDeals(reloadingDeals: boolean): void {
+    this.loadingDeals = reloadingDeals;
   }
 }
 
