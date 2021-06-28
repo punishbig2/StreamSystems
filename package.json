@@ -98,6 +98,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "postbuild": "node scripts/publish-manifest.js",
     "test": "jest"
   },
   "eslintConfig": {

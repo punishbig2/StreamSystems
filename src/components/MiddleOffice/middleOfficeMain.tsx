@@ -24,7 +24,7 @@ import {
   MiddleOfficeProcessingState,
 } from "mobx/stores/middleOfficeStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import React, { ReactElement, useEffect, useState } from "react";
+import React from "react";
 import { DealEditStatus } from "signalR/signalRManager";
 import { DealEntry, EntryType } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
@@ -79,8 +79,9 @@ interface Props {
 
 export const MiddleOfficeMain: React.FC<Props> = (
   props: Props
-): ReactElement => {
-  const [deleteQuestionOpen, showDeleteQuestion] = useState<boolean>(false);
+): React.ReactElement => {
+  const [deleteQuestionOpen, showDeleteQuestion] =
+    React.useState<boolean>(false);
   const classes: string[] = ["middle-office"];
   const { error } = props;
   const { entry } = props;
