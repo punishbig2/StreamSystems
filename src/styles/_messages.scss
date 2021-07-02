@@ -2,12 +2,22 @@
   max-width: 520px;
   padding: 0 6px;
 
+  &.wide {
+    width: 600px;
+  }
+
   .title {
     color: $foreground-color;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 700;
     padding: 4px 8px;
     font-size: $small-font-size;
+  }
+
+  .message {
+    color: $foreground-color;
+    font-weight: 500;
+    padding: 0 8px;
   }
 
   .item {

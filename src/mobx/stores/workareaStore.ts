@@ -18,6 +18,9 @@ import { WorkspaceType } from "types/workspaceType";
 import { updateApplicationTheme } from "utils/commonUtils";
 import { PersistStorage } from "utils/persistStorage";
 import { tenorToNumber } from "utils/tenorUtils";
+import { parseVersionNumber } from "utils/versionNumberParser";
+
+declare const GlobalApplicationVersion: string;
 
 export const isTradingWorkspace = (
   workspace: TradingWorkspaceStore | any
@@ -62,6 +65,7 @@ export class WorkareaStore {
   private loadingStep: number = 0;
 
   private persistStorage?: PersistStorage;
+  @observable isShowingNewVersionModal: boolean = false;
 
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
     const { workspaces } = data;
@@ -173,6 +177,7 @@ export class WorkareaStore {
         this.persistStorage = new PersistStorage(this.user);
         // This is just for eye candy :)
         WorkareaStore.cleanupUrl(user.email);
+        await this.checkVersion();
         // Load the saved state
         await this.initializePersistStorage();
         // Set the loading mode
@@ -453,6 +458,29 @@ export class WorkareaStore {
         return roles.includes(Role.Broker) || roles.includes(Role.Trader);
     }
     return false;
+  }
+
+  private async checkVersion(): Promise<void> {
+    const response = await fetch("current-version");
+    if (response.status !== 200) {
+      throw new Error("cannot fetch the version number file");
+    }
+    try {
+      const newest = parseVersionNumber(await response.text());
+      const current = parseVersionNumber(GlobalApplicationVersion);
+      if (newest > current) {
+        this.showNewVersionModal();
+      }
+    } catch {}
+  }
+
+  @action.bound
+  private showNewVersionModal(): void {
+    this.isShowingNewVersionModal = true;
+  }
+
+  public upgradeApplication(): void {
+    window.location.reload();
   }
 }
 

@@ -63,7 +63,24 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     };
   }, [connected]);
 
-  const renderMessage = () => {
+  const renderNewVersionModal = (): React.ReactElement => {
+    return (
+      <div className={"message-detail wide"}>
+        <div className={"title"}>New Version Available!</div>
+        <p className={"message"}>
+          Please click the button below to upgrade your application to the most
+          recent version.
+        </p>
+        <div className={"modal-buttons"}>
+          <button className={"cancel"} onClick={store.upgradeApplication}>
+            <i className={"fa fa-exclamation-circle"} /> Upgrade!
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderMessage = (): React.ReactElement => {
     const { recentExecutions } = store;
     return (
       <div className={"message-detail"}>
@@ -138,7 +155,10 @@ const Workarea: React.FC = (): React.ReactElement | null => {
               render={renderLoadingModal}
               isOpen={store.isCreatingWorkspace}
             />
-
+            <ModalWindow
+              render={renderNewVersionModal}
+              isOpen={store.isShowingNewVersionModal}
+            />
             <ModalWindow
               render={renderMessage}
               isOpen={recentExecutions.length > 0}
