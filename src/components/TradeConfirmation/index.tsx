@@ -19,7 +19,11 @@ export const TradeConfirmation: React.FC<OwnProps> = (
   const { trade } = props;
   const { Side } = trade;
   const { Symbol } = trade;
-  const direction: string = Side.toString() === "1" ? "from" : "to";
+  const direction: string = Side
+    ? Side.toString() === "1"
+      ? "from"
+      : "to"
+    : "unknown side";
   const verb: string = direction === "from" ? "buy" : "sell";
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
