@@ -460,15 +460,16 @@ export class WorkareaStore {
     return false;
   }
 
-  private async checkVersion(): Promise<void> {
+  public async checkVersion(): Promise<void> {
     const response = await fetch("current-version");
     if (response.status !== 200) {
       throw new Error("cannot fetch the version number file");
     }
     try {
-      const newest = parseVersionNumber(await response.text());
-      const current = parseVersionNumber(GlobalApplicationVersion);
-      if (newest > current) {
+      const latest = parseVersionNumber(await response.text());
+      const active = parseVersionNumber(GlobalApplicationVersion);
+      console.log(`${latest} vs ${active}`);
+      if (latest > active) {
         this.showNewVersionModal();
       }
     } catch {}
