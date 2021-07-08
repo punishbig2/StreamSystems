@@ -118,8 +118,9 @@ export class WorkareaStore {
   @computed
   get workspace(): Workspace | null {
     if (this.currentWorkspaceIndex === null) return null;
-    const found: Workspace | undefined =
-      this.workspaces[this.currentWorkspaceIndex];
+    const found: Workspace | undefined = this.workspaces[
+      this.currentWorkspaceIndex
+    ];
     if (found) {
       return found;
     } else {
@@ -468,7 +469,6 @@ export class WorkareaStore {
     try {
       const latest = parseVersionNumber(await response.text());
       const active = parseVersionNumber(GlobalApplicationVersion);
-      console.log(`${latest} vs ${active}`);
       if (latest > active) {
         this.showNewVersionModal();
       }

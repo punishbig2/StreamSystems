@@ -32,6 +32,15 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     themeStore.setTheme(theme);
   }, [theme]);
 
+  React.useEffect((): (() => void) => {
+    const interval = setInterval((): void => {
+      void store.checkVersion();
+    }, 600000);
+    return (): void => {
+      clearInterval(interval);
+    };
+  }, []);
+
   React.useEffect((): void => {
     if (id !== null) {
       store.initialize(id).catch(console.error);

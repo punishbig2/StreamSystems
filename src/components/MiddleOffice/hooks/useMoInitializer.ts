@@ -9,5 +9,5 @@ export const useMoInitializer = (store: MiddleOfficeStore) => {
 
   useEffect((): void => {
     void store.loadDeals();
-  });
+  }, [store]);
 };
