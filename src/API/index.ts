@@ -167,7 +167,7 @@ const request = <T>(
               }
             } else {
               taskHandler.status = PromiseStatus.Fulfilled;
-              resolve(null as unknown as T);
+              resolve((null as unknown) as T);
             }
           } else {
             taskHandler.status = PromiseStatus.Rejected;
@@ -481,6 +481,7 @@ export class API {
       Strategy: order.strategy,
       Tenor: order.tenor,
       OrderID: order.orderId,
+      Firm: user.firm,
     };
     const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
@@ -502,10 +503,9 @@ export class API {
       symbol,
       strategy,
     });
-    const task: Task<{ [k: string]: W } | null> =
-      GET<{
-        [k: string]: W;
-      } | null>(url);
+    const task: Task<{ [k: string]: W } | null> = GET<{
+      [k: string]: W;
+    } | null>(url);
     // Execute the query
     return task.execute();
   }
@@ -754,8 +754,9 @@ export class API {
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> =
-      GET<BankEntitiesQueryResponse>(config.PrePricerUrl + "/entities");
+    const task: Task<BankEntitiesQueryResponse> = GET<BankEntitiesQueryResponse>(
+      config.PrePricerUrl + "/entities"
+    );
     return task.execute();
   }
 
@@ -1185,16 +1186,18 @@ export class API {
         : []),
       ...legs,
     ];
-    const mappedLegs: ReadonlyArray<Leg> = allLegs.map((leg: Leg): Leg => {
-      const { strike, fwdPts } = leg;
-      return {
-        ...leg,
-        ...(fwdPts !== null && fwdPts !== undefined
-          ? { fwdPts: floatAsString(fwdPts) }
-          : {}),
-        ...(!!strike ? { strike: floatAsString(tryToNumber(strike)) } : {}),
-      };
-    });
+    const mappedLegs: ReadonlyArray<Leg> = allLegs.map(
+      (leg: Leg): Leg => {
+        const { strike, fwdPts } = leg;
+        return {
+          ...leg,
+          ...(fwdPts !== null && fwdPts !== undefined
+            ? { fwdPts: floatAsString(fwdPts) }
+            : {}),
+          ...(!!strike ? { strike: floatAsString(tryToNumber(strike)) } : {}),
+        };
+      }
+    );
     const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
