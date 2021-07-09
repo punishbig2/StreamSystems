@@ -13,17 +13,25 @@ interface OwnProps {
   onClose: () => void;
 }
 
+const getDirection = (trade?: Message) => {
+  if (!trade || !trade.Side) {
+    console.log(trade);
+    return "for or to";
+  } else {
+    const side = trade.Side as unknown;
+    if (typeof side === "number") {
+      return side === 1 ? "from" : "to";
+    }
+    return side === "1" ? "from" : "to";
+  }
+};
+
 export const TradeConfirmation: React.FC<OwnProps> = (
   props: OwnProps
 ): ReactElement | null => {
   const { trade } = props;
-  const { Side } = trade;
   const { Symbol } = trade;
-  const direction: string = Side
-    ? Side.toString() === "1"
-      ? "from"
-      : "to"
-    : "unknown side";
+  const direction: string = getDirection(trade);
   const verb: string = direction === "from" ? "buy" : "sell";
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
