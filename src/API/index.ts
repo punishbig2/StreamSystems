@@ -480,7 +480,7 @@ export class API {
       Strategy: order.strategy,
       Tenor: order.tenor,
       OrderID: order.orderId,
-      MDMkt: user.firm,
+      MDMkt: workareaStore.personality,
     };
     const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
