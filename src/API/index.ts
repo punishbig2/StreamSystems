@@ -11,7 +11,6 @@ import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
 import { NotApplicableProxy } from "notApplicableProxy";
 import { STRM } from "stateDefs/workspaceState";
-import { DealEntry, ServerDealQuery } from "types/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
@@ -20,6 +19,7 @@ import {
   CalendarVolDatesResponse,
 } from "types/calendarFXPair";
 import { DarkPoolQuote } from "types/darkPoolQuote";
+import { DealEntry, ServerDealQuery } from "types/dealEntry";
 import { LegAdjustValue } from "types/legAdjustValue";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
@@ -53,7 +53,6 @@ import {
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
-import { priceFormatter } from "utils/priceFormatter";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
@@ -672,7 +671,7 @@ export class API {
       Symbol: symbol,
       Strategy: strategy,
       Tenor: tenor,
-      DarkPrice: price !== "" ? priceFormatter(price) : "",
+      DarkPrice: price !== "" ? price.toString() : "",
     };
     const task: Task<any> = POST<any>(
       API.buildUrl(API.DarkPool, "price", "publish"),

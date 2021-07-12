@@ -61,8 +61,9 @@ interface Command {
 export class SignalRManager {
   private connection: HubConnection | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  private onConnectedListener: ((connection: HubConnection) => void) | null =
-    null;
+  private onConnectedListener:
+    | ((connection: HubConnection) => void)
+    | null = null;
   private recordedCommands: ReadonlyArray<Command> = [
     {
       name: Methods.SubscribeForDeals,
@@ -80,7 +81,9 @@ export class SignalRManager {
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
 
-  private dpListeners: { [k: string]: (m: DarkPoolMessage) => void } = {};
+  private callbacks: {
+    [k: string]: (m: DarkPoolMessage) => void;
+  } = {};
 
   constructor() {
     window.addEventListener("offline", (): void => {
@@ -286,7 +289,10 @@ export class SignalRManager {
       (each: Command): boolean => each === command
     );
     if (index === -1) {
-      console.warn("trying to remove a command that was never recorded");
+      console.warn(
+        "trying to remove a command that was never recorded: ",
+        command.name
+      );
     } else {
       this.recordedCommands = [
         ...recordedCommands.slice(0, index),
@@ -397,7 +403,7 @@ export class SignalRManager {
       return;
     const key: string = $$(currency, strategy, tenor);
     // Remove it from the map
-    delete this.dpListeners[key];
+    delete this.callbacks[key];
     // Invoke ths Signal R method
     this.invoke(Methods.UnsubscribeFromDarkPoolPx, currency, strategy, tenor);
   };
@@ -422,12 +428,12 @@ export class SignalRManager {
       name: Methods.SubscribeForDarkPoolPx,
       args: [currency, strategy, tenor],
     };
-    // Update the listeners map
-    this.dpListeners[key] = fn;
+    this.callbacks[key] = fn;
     // Try to execute it now
+    this.recordCommand(command);
     this.runCommand(command);
     return (): void => {
-      delete this.dpListeners[key];
+      delete this.callbacks[key];
       this.eraseCommand(command);
     };
   };
@@ -589,8 +595,7 @@ export class SignalRManager {
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const key: string = $$(message.Symbol, message.Strategy, message.Tenor);
-    const listener: ((m: DarkPoolMessage) => void) | undefined =
-      this.dpListeners[key];
+    const listener = this.callbacks[key];
     if (listener) {
       listener(message);
     }
