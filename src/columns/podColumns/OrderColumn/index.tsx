@@ -119,7 +119,13 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       const { roles } = user;
       return roles.includes(Role.Broker);
     }, [user]);
+    const isMyOrder: boolean =
+      (order.status & OrderStatus.Owned) !== 0 &&
+      (!isBroker || (isBroker && personality === order.firm));
+    const isCancelled: boolean = (order.status & OrderStatus.Cancelled) !== 0;
     const readOnly: boolean = isBroker && personality === STRM;
+    const cancellable: boolean = isMyOrder && !isCancelled;
+
     const sizeCell: ReactElement = (
       <Size
         key={2}
@@ -127,7 +133,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
         type={type}
         className={getOrderStatusClass(store.status)}
         value={size}
-        cancellable={true}
+        cancellable={cancellable}
         readOnly={readOnly}
         chevron={(store.status & OrderStatus.HasDepth) !== 0}
         onCancel={store.cancel}

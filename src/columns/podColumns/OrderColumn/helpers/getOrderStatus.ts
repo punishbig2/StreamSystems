@@ -18,8 +18,12 @@ export const getOrderStatus = (
   let status: OrderStatus = OrderStatus.None;
   if (topOrder === undefined) return status;
   const ownOrder: Order | undefined = depth.find(
-    ({ user: email, type }: Order) =>
-      email === user.email && topOrder.type === type
+    ({ user: email, type, firm }: Order) => {
+      if (topOrder.type !== type) return false;
+      if (email !== user.email) return false;
+      if (!isBroker) return true;
+      return personality === firm;
+    }
   );
   const aggregatedSize: number | null = getAggregatedSize(topOrder, depth);
   // Get depth related status

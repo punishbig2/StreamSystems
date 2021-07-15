@@ -1,9 +1,9 @@
 import { NumericInput } from "components/NumericInput";
-import { Chevron } from "components/Table/CellRenderers/Price/chevron";
-import { OrderTypes } from "types/mdEntry";
-import React, { ReactNode, useState, useEffect } from "react";
-import { sizeFormatter } from "utils/sizeFormatter";
 import { NavigateDirection } from "components/NumericInput/navigateDirection";
+import { Chevron } from "components/Table/CellRenderers/Price/chevron";
+import React, { ReactNode, useEffect, useState } from "react";
+import { OrderTypes } from "types/mdEntry";
+import { sizeFormatter } from "utils/sizeFormatter";
 import { xPoints } from "utils/timesPolygon";
 
 interface Props {
@@ -82,8 +82,10 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
     />,
   ];
 
+  if (props.readOnly) classes.push("readonly");
   if (props.cancellable) classes.push("clickable");
   if (props.value === null || props.hideCancelButton) classes.push("empty");
+
   const button = (
     <div key={2} className={classes.join(" ")} onClick={props.onCancel}>
       <svg viewBox={"0 0 612 792"}>
@@ -93,6 +95,7 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
       </svg>
     </div>
   );
+
   if (props.type === OrderTypes.Bid) {
     if (props.chevron) children.push(<Chevron side={"left"} key={3} />);
     children.push(button);

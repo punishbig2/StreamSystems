@@ -472,6 +472,9 @@ export class API {
       throw new Error(
         `cancelling someone else's order: ${order.user} -> ${user.email}`
       );
+    if (isBroker && order.firm !== workareaStore.personality) {
+      throw new Error("you can only cancel orders that you own");
+    }
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
