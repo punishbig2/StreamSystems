@@ -472,9 +472,19 @@ export class API {
       throw new Error(
         `cancelling someone else's order: ${order.user} -> ${user.email}`
       );
-    if (isBroker && order.firm !== workareaStore.personality) {
-      throw new Error("you can only cancel orders that you own");
-    }
+    const firm = ((): string => {
+      if (isBroker && order.firm !== workareaStore.personality) {
+        throw new Error("you can only cancel orders that you own");
+      } else if (isBroker) {
+        return workareaStore.personality;
+      } else if (order.firm !== undefined) {
+        return order.firm;
+      } else {
+        throw new Error(
+          "cannot determine the firm to use as `MDMkt` for this request"
+        );
+      }
+    })();
     const request = {
       MsgType: MessageTypes.F,
       TransactTime: getCurrentTime(),
@@ -483,7 +493,7 @@ export class API {
       Strategy: order.strategy,
       Tenor: order.tenor,
       OrderID: order.orderId,
-      MDMkt: workareaStore.personality,
+      MDMkt: firm,
     };
     const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
