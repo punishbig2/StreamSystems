@@ -713,23 +713,12 @@ $spinner-size: $table-row-height - 6;
           }
 
           &.size-layout {
-            &:first-child {
-              // border-right: 1px solid $table-border-color;
-            }
-
-            &:last-child {
-              // border-left: 1px solid $table-border-color;
-            }
-
             &.joined {
               color: $text-color-black;
 
-              &.among,
-              &.owned {
-                &.at-top {
-                  .chevron {
-                    color: $text-color-red;
-                  }
+              &:not(.not-among), &.owned {
+                .chevron {
+                  color: $text-color-red;
                 }
               }
             }
