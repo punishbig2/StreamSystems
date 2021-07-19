@@ -21,7 +21,6 @@
     "@types/react-dom": "16.9.0",
     "@types/react-input-mask": "^2.0.5",
     "@types/react-redux": "^7.1.5",
-    "@types/react-window": "^1.8.1",
     "@types/shortid": "^0.0.29",
     "@types/styled-components": "^4.1.19",
     "@typescript-eslint/eslint-plugin": "^2.2.0",
@@ -92,8 +91,7 @@
     "webpack": "4.40.2",
     "webpack-dev-server": "3.2.1",
     "webpack-manifest-plugin": "2.0.4",
-    "workbox-webpack-plugin": "4.3.1",
-    "yarn": "^1.19.1"
+    "workbox-webpack-plugin": "4.3.1"
   },
   "scripts": {
     "start": "node scripts/start.js",

@@ -9,11 +9,6 @@ import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
 
-export interface BusyMessage {
-  readonly title: string;
-  readonly detail: string;
-}
-
 export class TradingWorkspaceStore implements Workspace {
   public readonly type: WorkspaceType = WorkspaceType.Trading;
 
@@ -141,5 +136,6 @@ export class TradingWorkspaceStore implements Workspace {
   }
 }
 
-export const TradingWorkspaceStoreContext =
-  React.createContext<TradingWorkspaceStore>(new TradingWorkspaceStore());
+export const TradingWorkspaceStoreContext = React.createContext<TradingWorkspaceStore>(
+  new TradingWorkspaceStore()
+);

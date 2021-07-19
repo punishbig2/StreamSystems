@@ -26,12 +26,17 @@ interface OwnProps {
 type Props = React.PropsWithChildren<OwnProps>;
 
 export const ReactTile: React.FC<Props> = observer(
-  (props: Props): React.ReactElement => {
+  (props: Props): React.ReactElement | null => {
     const [tile, setReference] = React.useState<Tile | null>(null);
     const store = React.useContext<TileStore>(TileStoreContext);
+    const ready = useHydrator(tile, store);
 
     useEventHandlers(tile, store);
-    useHydrator(tile, store);
+
+    React.useEffect((): void => {
+      if (tile === null) return;
+      tile.style.visibility = ready ? "visible" : "hidden";
+    }, [ready, tile]);
 
     const onClose = (): void => {
       props.onClose(store.id);
@@ -57,6 +62,7 @@ export const ReactTile: React.FC<Props> = observer(
         />
       );
     };
+
     return (
       <cib-window id={store.id} ref={setReference} scrollable autosize>
         <div slot={"toolbar"} className={"window-title-bar"}>

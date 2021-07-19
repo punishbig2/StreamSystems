@@ -42,6 +42,11 @@
     background-color: $background-color;
     outline: 2px solid $text-color-black;
     transition: outline-color .25s;
+    display: initial;
+
+    &.ready {
+      display: none;
+    }
 
     &:hover {
       outline-color: $primary-color;

@@ -197,10 +197,11 @@ export class WorkareaStore {
         // Notify the user that we're done
         this.setStatus(WorkareaStatus.Welcome);
         // We want to show a welcome message first
-        setTimeout(() => {
-          // Switch the the normal view
-          this.setStatus(WorkareaStatus.Ready);
-        }, 800);
+        await new Promise<void>((resolve: () => void): void => {
+          setTimeout(resolve, 1200);
+        });
+        // Switch the the normal view
+        this.setStatus(WorkareaStatus.Ready);
       }
     } catch (error) {
       this.loadTheme();
@@ -211,7 +212,9 @@ export class WorkareaStore {
 
   @action.bound
   public setWorkspace(index: number) {
+    // FIXME: make this faster or smoother
     const { workspaces } = this;
+    this.loadingStep = 1;
     this.workspaceAccessDenied = false;
     this.workspaceNotFound = false;
     const workspace: Workspace | undefined = workspaces[index];

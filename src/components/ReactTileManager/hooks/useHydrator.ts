@@ -4,7 +4,8 @@ import React from "react";
 import { idealBlotterHeight } from "utils/idealBlotterHeight";
 import { runInNextLoop } from "utils/runInNextLoop";
 
-export const useHydrator = (tile: Tile | null, store: TileStore): void => {
+export const useHydrator = (tile: Tile | null, store: TileStore): boolean => {
+  const [ready, setReady] = React.useState<boolean>(false);
   const { hydrated } = store;
   React.useEffect((): void => {
     if (tile === null || !hydrated) return;
@@ -20,11 +21,19 @@ export const useHydrator = (tile: Tile | null, store: TileStore): void => {
           tile.adjustToContent();
         }
         tile.moveToBestPosition();
+        // This way, it does remember where it was if we refresh
+        store.saveGeometry(
+          Geometry.fromPositionAndSize(tile.position, tile.size)
+        );
+        setReady(true);
       } else {
         tile.setGeometry(
           new Geometry(geometry.x, geometry.y, geometry.width, geometry.height)
         );
+        setReady(true);
       }
     });
   }, [tile, hydrated, store]);
+
+  return ready;
 };
