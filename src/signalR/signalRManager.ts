@@ -37,6 +37,7 @@ import { User } from "types/user";
 import { isPodW, W } from "types/w";
 import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { coalesce } from "utils/commonUtils";
+import { globalClearDarkPoolPriceEvent } from "utils/globalClearDarkPoolPriceEvent";
 import { $$ } from "utils/stringPaster";
 
 interface SEFError {
@@ -483,11 +484,16 @@ export class SignalRManager {
   private onMessageListener: (message: Message) => void = () => null;
 
   private onClearDarkPoolPx = (message: string) => {
-    localStorage.clear();
-    const data = JSON.parse(message);
-    document.dispatchEvent(
-      new Event(clearDarkPoolPriceEvent(data.Symbol, data.Strategy, data.Tenor))
-    );
+    if (!message || message.trim() === "") {
+      document.dispatchEvent(new Event(globalClearDarkPoolPriceEvent()));
+    } else {
+      const data = JSON.parse(message);
+      document.dispatchEvent(
+        new Event(
+          clearDarkPoolPriceEvent(data.Symbol, data.Strategy, data.Tenor)
+        )
+      );
+    }
   };
 
   private onDealEdit(status: DealEditStatus): (message: string) => void {

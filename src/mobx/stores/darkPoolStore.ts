@@ -10,6 +10,7 @@ import { Sides } from "types/sides";
 import { User } from "types/user";
 import { W } from "types/w";
 import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
+import { globalClearDarkPoolPriceEvent } from "utils/globalClearDarkPoolPriceEvent";
 
 export class DarkPoolStore {
   @observable public orders: Order[] = [];
@@ -122,13 +123,15 @@ export class DarkPoolStore {
   }
 
   @action.bound
-  public getClearDarkPoolPriceCallback =
-    (symbol: string, strategy: string, tenor: string): (() => void) =>
-    (): void => {
-      const { user } = workareaStore;
-      void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
-      this.publishedPrice = null;
-    };
+  public getClearDarkPoolPriceCallback = (
+    symbol: string,
+    strategy: string,
+    tenor: string
+  ): (() => void) => (): void => {
+    const { user } = workareaStore;
+    void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
+    this.publishedPrice = null;
+  };
 
   @action.bound
   public connect(symbol: string, strategy: string, tenor: string): () => void {
@@ -147,10 +150,13 @@ export class DarkPoolStore {
       this.onOrderReceived
     );
     const handler = (): void => this.setDarkPoolPrice(null);
-    const event: string = clearDarkPoolPriceEvent(symbol, strategy, tenor);
-    document.addEventListener(event, handler);
+    const event1: string = clearDarkPoolPriceEvent(symbol, strategy, tenor);
+    const event2: string = globalClearDarkPoolPriceEvent();
+    document.addEventListener(event1, handler);
+    document.addEventListener(event2, handler);
     return () => {
-      document.removeEventListener(event, handler);
+      document.removeEventListener(event1, handler);
+      document.removeEventListener(event2, handler);
       this.removeOrderListener();
       // Call the cleanup item
       cleanup();
