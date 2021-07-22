@@ -50,15 +50,10 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     visible,
     value,
   } = props;
+
   const [internalValue, setInternalValue] = useState<string>(
     sizeFormatter(value)
   );
-
-  useEffect(() => {
-    if (value === null) return;
-    setLocallyModified(false);
-    setInternalValue(sizeFormatter(value));
-  }, [value]);
 
   useEffect(() => {
     setLocallyModified(false);
@@ -69,6 +64,8 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     setLocallyModified(false);
     if (value !== null) {
       setInternalValue(sizeFormatter(value));
+    } else {
+      setInternalValue("");
     }
   }, [value, visible]);
 
@@ -76,8 +73,6 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     if (!locallyModified) setLocallyModified(true);
     if (value === null) {
       setInternalValue(sizeFormatter(order.size || defaultValue));
-    } else if (value.length === 0) {
-      reset();
     } else {
       setInternalValue(value);
     }
