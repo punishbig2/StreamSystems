@@ -109,7 +109,7 @@ export class NumericInputHandler<
     return null;
   }
 
-  public parse(value: string, props: P): any {
+  public parse(value: string, props: P): string | number | null {
     if (value === "") return null;
     const numeric = toNumber(value, props.currency);
     if (numeric === undefined || numeric === null) return value;

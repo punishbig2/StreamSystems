@@ -51,7 +51,7 @@ export class StrikeHandler<
     return null;
   }
 
-  public parse(value: string, props: P): any {
+  public parse(value: string, props: P): string | number | null {
     if (/ATM[FSZ]/.test(value)) {
       return value;
     } else {

@@ -160,15 +160,7 @@ const side = (sortable: boolean): TableColumn => ({
     const { roles } = workareaStore.user;
     const isBroker = roles.includes(Role.Broker);
     if (!involved(message) && !isBroker) return <div />;
-    if (isBroker) {
-      if (involved(message)) {
-        return getSide(message);
-      } else {
-        return getOtherSide(message);
-      }
-    } else {
-      return getSide(message);
-    }
+    return getSide(message);
   },
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
