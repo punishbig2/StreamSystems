@@ -14,6 +14,7 @@ import { DualTableHeader } from "components/dualTableHeader";
 import { getNthParentOf } from "utils/skipTab";
 import { $$ } from "utils/stringPaster";
 import { TabDirection } from "components/NumericInput";
+import { RunSizeStore, RunSizeStoreContext } from "mobx/stores/runSizeStore";
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
@@ -118,19 +119,21 @@ const RunSizeColumn = (
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
-        <RunSize
-          id={row.id}
-          value={order.size}
-          order={order}
-          defaultValue={defaultSize.value}
-          minimumSize={data.minimumSize}
-          visible={data.visible}
-          onTabbedOut={data.focusNext}
-          onChange={onChange}
-          onNavigate={data.onNavigate}
-          onDeactivateOrder={data.onDeactivateOrder}
-          onActivateOrder={data.onActivateOrder}
-        />
+        <RunSizeStoreContext.Provider value={new RunSizeStore()}>
+          <RunSize
+            id={row.id}
+            value={order.size}
+            order={order}
+            defaultValue={defaultSize.value}
+            minimumSize={data.minimumSize}
+            visible={data.visible}
+            onTabbedOut={data.focusNext}
+            onChange={onChange}
+            onNavigate={data.onNavigate}
+            onDeactivateOrder={data.onDeactivateOrder}
+            onActivateOrder={data.onActivateOrder}
+          />
+        </RunSizeStoreContext.Provider>
       );
     },
     template: "9999999",

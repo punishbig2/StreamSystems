@@ -78,30 +78,29 @@ export const Field: React.FC<Props> = React.memo(
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
         const { symbol } = entry;
-        const dates: CalendarVolDatesResponse =
-          await ((): Promise<CalendarVolDatesResponse> => {
-            if (typeof value === "string") {
-              return API.queryVolTenors(
-                {
-                  tradeDate: toUTC(entry.tradeDate, true),
-                  fxPair: symbol.symbolID,
-                  addHolidays: true,
-                  rollExpiryDates: true,
-                },
-                [value]
-              ).execute();
-            } else {
-              return API.queryVolDates(
-                {
-                  tradeDate: toUTC(entry.tradeDate, true),
-                  fxPair: symbol.symbolID,
-                  addHolidays: true,
-                  rollExpiryDates: true,
-                },
-                [toUTC(value)]
-              ).execute();
-            }
-          })();
+        const dates: CalendarVolDatesResponse = await ((): Promise<CalendarVolDatesResponse> => {
+          if (typeof value === "string") {
+            return API.queryVolTenors(
+              {
+                tradeDate: toUTC(entry.tradeDate, true),
+                fxPair: symbol.symbolID,
+                addHolidays: true,
+                rollExpiryDates: true,
+              },
+              [value]
+            ).execute();
+          } else {
+            return API.queryVolDates(
+              {
+                tradeDate: toUTC(entry.tradeDate, true),
+                fxPair: symbol.symbolID,
+                addHolidays: true,
+                rollExpiryDates: true,
+              },
+              [toUTC(value)]
+            ).execute();
+          }
+        })();
         return onChangeCompleted({
           [name]: {
             name: typeof value === "string" ? value : SPECIFIC_TENOR,

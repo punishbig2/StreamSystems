@@ -23,9 +23,9 @@ import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import signalRManager from "signalR/signalRManager";
-import { DealEntry, emptyDealEntry, EntryType } from "types/dealEntry";
 import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
+import { DealEntry, emptyDealEntry, EntryType } from "types/dealEntry";
 import { DealStatus } from "types/dealStatus";
 import { FixTenorResult } from "types/fixTenorResult";
 import { LegAdjustValue } from "types/legAdjustValue";
@@ -150,19 +150,6 @@ export class MiddleOfficeStore implements Workspace {
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
 
   @computed
-  public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
-    const { strategy, symbol } = this.entry;
-    return this.getFilteredLegAdjustValues(strategy, symbol);
-  }
-
-  @computed
-  public get defaultLegAdjust(): string {
-    const { legAdjustValues } = this;
-    if (legAdjustValues.length === 0) return "";
-    return legAdjustValues[0].VegaLegAdjustValue;
-  }
-
-  @computed
   public get tenors(): ReadonlyArray<string> {
     return workareaStore.tenors;
   }
@@ -262,30 +249,29 @@ export class MiddleOfficeStore implements Workspace {
         cancel: (): void => {},
       };
     }
-    const task: Task<CalendarVolDatesResponse> =
-      ((): Task<CalendarVolDatesResponse> => {
-        if (originalTenor.name === "SPECIFIC") {
-          return API.queryVolDates(
-            {
-              fxPair: symbol.symbolID,
-              addHolidays: true,
-              rollExpiryDates: true,
-              tradeDate: toUTC(entry.tradeDate, true),
-            },
-            [toUTC(originalTenor.expiryDate)]
-          );
-        } else {
-          return API.queryVolTenors(
-            {
-              fxPair: symbol.symbolID,
-              addHolidays: true,
-              rollExpiryDates: true,
-              tradeDate: toUTC(entry.tradeDate, true),
-            },
-            [originalTenor.name]
-          );
-        }
-      })();
+    const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
+      if (originalTenor.name === "SPECIFIC") {
+        return API.queryVolDates(
+          {
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+            tradeDate: toUTC(entry.tradeDate, true),
+          },
+          [toUTC(originalTenor.expiryDate)]
+        );
+      } else {
+        return API.queryVolTenors(
+          {
+            fxPair: symbol.symbolID,
+            addHolidays: true,
+            rollExpiryDates: true,
+            tradeDate: toUTC(entry.tradeDate, true),
+          },
+          [originalTenor.name]
+        );
+      }
+    })();
     return {
       execute: async (): Promise<FixTenorResult> => {
         const dates: CalendarVolDatesResponse = await task.execute();
@@ -396,10 +382,17 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public getDefaultLegAdjust(strategy: Product, symbol: Symbol): string {
-    const values: ReadonlyArray<LegAdjustValue> =
-      this.getFilteredLegAdjustValues(strategy, symbol);
+    const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
+      strategy,
+      symbol
+    );
     if (values.length === 0) return "";
     return values[0].VegaLegAdjustValue;
+  }
+
+  public get legAdjustValues(): ReadonlyArray<LegAdjustValue> {
+    const { strategy, symbol } = this.entry;
+    return this.getFilteredLegAdjustValues(strategy, symbol);
   }
 
   public async loadReferenceData(): Promise<void> {
@@ -691,12 +684,15 @@ export class MiddleOfficeStore implements Workspace {
           }
         }
       );
+
+      const strategy = this.findStrategyById(deal.strategy);
+
       const task2: Task<DealEntry> = createDealEntry(
         deal,
         this.getOutLegsCount(deal.strategy),
         deal.symbol,
-        this.findStrategyById(deal.strategy),
-        this.defaultLegAdjust
+        strategy,
+        this.getDefaultLegAdjust(strategy, deal.symbol)
       );
       return {
         execute: async (): Promise<void> => {
@@ -801,14 +797,16 @@ export class MiddleOfficeStore implements Workspace {
       this.reloadStrategies(partial.symbol.symbolID);
     }
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
-      return legs.map((leg: Leg, index: number): Leg => {
-        const reducer: (leg: Leg, field: string) => Leg = legsReducer(
-          index,
-          partial,
-          entry
-        );
-        return fields.reduce(reducer, leg);
-      });
+      return legs.map(
+        (leg: Leg, index: number): Leg => {
+          const reducer: (leg: Leg, field: string) => Leg = legsReducer(
+            index,
+            partial,
+            entry
+          );
+          return fields.reduce(reducer, leg);
+        }
+      );
     })(this.legs);
     // Check if legs changed
     if (!deepEqual(this.legs, legs)) {
@@ -944,19 +942,7 @@ export class MiddleOfficeStore implements Workspace {
         console.warn("the deal you're editing has changed");
       }
       if (this.selectedDealID === deal.id && !deepEqual(deal, removed)) {
-        const task: Task<DealEntry> = createDealEntry(
-          deal,
-          this.getOutLegsCount(deal.strategy),
-          deal.symbol,
-          this.findStrategyById(deal.strategy),
-          this.defaultLegAdjust
-        );
-        task
-          .execute()
-          .then((entry: DealEntry): void => {
-            this.setEntry(entry);
-          })
-          .catch(console.warn);
+        this.loadDealEntryFromDeal(deal);
       }
     }
   }
@@ -975,13 +961,13 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public price(): void {
-    const { entry, legs, summaryLeg, defaultLegAdjust } = this;
+    const { entry, legs, summaryLeg } = this;
     if (entry.strategy === undefined) throw new Error("invalid deal found");
     if (entry.model === "") throw new Error("node model specified");
     const valuationModel: ValuationModel = this.getValuationModelById(
       entry.model as number
     );
-    const { strategy } = entry;
+    const { strategy, symbol } = entry;
     // Set the status to pricing to show a loading spinner
     this.status = MiddleOfficeProcessingState.Pricing;
     const legDefs = this.legDefinitions[strategy.productid];
@@ -992,7 +978,7 @@ export class MiddleOfficeStore implements Workspace {
       summaryLeg,
       valuationModel,
       strategy,
-      defaultLegAdjust,
+      this.getDefaultLegAdjust(strategy, symbol),
       legDefs
     )
       .then(() => {
@@ -1075,10 +1061,11 @@ export class MiddleOfficeStore implements Workspace {
     symbol: Symbol
   ): ReadonlyArray<LegAdjustValue> {
     const { _legAdjustValues } = this;
+    const { ccyGroup } = symbol;
+    const originalCCYGroup = ccyGroup.toLowerCase();
     return _legAdjustValues
       .filter((value: LegAdjustValue): boolean => {
-        if (symbol.ccyGroup.toLowerCase() !== value.ccyGroup.toLowerCase())
-          return false;
+        if (originalCCYGroup !== value.ccyGroup.toLowerCase()) return false;
         return value.OptionProductType === strategy.OptionProductType;
       })
       .sort((v1: LegAdjustValue, v2: LegAdjustValue): number => {
@@ -1172,7 +1159,7 @@ export class MiddleOfficeStore implements Workspace {
   private async convertToMiddleOfficeDeal(
     data: ReadonlyArray<BackendDeal> | BackendDeal
   ): Promise<ReadonlyArray<Deal> | Deal> {
-    const { defaultLegAdjust, legs } = this;
+    const { legs } = this;
     const mapper = (item: BackendDeal): Promise<Deal> => {
       const strategy = this.findStrategyById(item.strategy);
       const symbol = this.findSymbolById(item.symbol);
@@ -1180,7 +1167,7 @@ export class MiddleOfficeStore implements Workspace {
         item,
         symbol,
         strategy,
-        defaultLegAdjust,
+        this.getDefaultLegAdjust(strategy, symbol),
         legs
       );
     };
@@ -1284,20 +1271,25 @@ export class MiddleOfficeStore implements Workspace {
     this.entryType = EntryType.ExistingDeal;
     this.status = MiddleOfficeProcessingState.Normal;
     if (deal !== undefined) {
-      const task: Task<DealEntry> = createDealEntry(
-        deal,
-        this.getOutLegsCount(deal.strategy),
-        deal.symbol,
-        this.findStrategyById(deal.strategy),
-        this.defaultLegAdjust
-      );
-      task
-        .execute()
-        .then((entry: DealEntry): void => {
-          this.setEntry(entry);
-        })
-        .catch(console.warn);
+      this.loadDealEntryFromDeal(deal);
     }
+  }
+
+  private loadDealEntryFromDeal(deal: Deal): void {
+    const strategy = this.findStrategyById(deal.strategy);
+    const task: Task<DealEntry> = createDealEntry(
+      deal,
+      this.getOutLegsCount(deal.strategy),
+      deal.symbol,
+      strategy,
+      this.getDefaultLegAdjust(strategy, deal.symbol)
+    );
+    task
+      .execute()
+      .then((entry: DealEntry): void => {
+        this.setEntry(entry);
+      })
+      .catch(console.warn);
   }
 
   @action.bound
@@ -1336,6 +1328,7 @@ export class MiddleOfficeStore implements Workspace {
       return;
     }
     const deal = deals[foundIndex];
+    const strategy = this.findStrategyById(deal.strategy);
     const task1: Task<DealEntry> = await createDealEntry(
       {
         ...deal,
@@ -1343,8 +1336,8 @@ export class MiddleOfficeStore implements Workspace {
       },
       this.getOutLegsCount(deal.strategy),
       deal.symbol,
-      this.findStrategyById(deal.strategy),
-      this.defaultLegAdjust
+      strategy,
+      this.getDefaultLegAdjust(strategy, deal.symbol)
     );
     const task2: Task<{ legs: ReadonlyArray<Leg> } | null> = API.getLegs(
       update.dealId
@@ -1353,7 +1346,6 @@ export class MiddleOfficeStore implements Workspace {
       legs: ReadonlyArray<Leg>;
     } | null = await task2.execute();
     this.entry = await task1.execute();
-    const { strategy } = this.entry;
     const legDefs = this.legDefinitions[strategy.productid];
     if (legsResponse !== null) {
       const [adjustedLegs, summaryLeg] = handleLegsResponse(
