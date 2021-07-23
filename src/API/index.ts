@@ -52,7 +52,6 @@ import {
   resolveEntityToBank,
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
-import { isNumeric } from "utils/isNumeric";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 

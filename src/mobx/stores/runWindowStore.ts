@@ -29,7 +29,7 @@ export class RunWindowStore {
 
   @observable initialized = false;
 
-  private static orderTypeToRowKey(
+  public static orderTypeToRowKey(
     type: OrderTypes
   ): keyof Pick<PodRow, "ofr" | "bid"> {
     switch (type) {
@@ -206,6 +206,18 @@ export class RunWindowStore {
         mid: null,
       },
     };
+    const key1 = RunWindowStore.orderTypeToRowKey(OrderTypes.Bid);
+    const key2 = RunWindowStore.orderTypeToRowKey(OrderTypes.Ofr);
+    document.dispatchEvent(
+      new CustomEvent<boolean>(`OrderActivationChanged${key1}`, {
+        detail: true,
+      })
+    );
+    document.dispatchEvent(
+      new CustomEvent<boolean>(`OrderActivationChanged${key2}`, {
+        detail: true,
+      })
+    );
   }
 
   @action.bound
@@ -250,6 +262,9 @@ export class RunWindowStore {
         [key]: this.toActiveOrder(row[key]),
       }),
     };
+    document.dispatchEvent(
+      new CustomEvent<boolean>(`OrderActivationChanged${key}`, { detail: true })
+    );
   }
 
   @action.bound
@@ -266,6 +281,9 @@ export class RunWindowStore {
         spread: null,
       },
     };
+    document.dispatchEvent(
+      new CustomEvent<boolean>(`OrderActivationChanged${key}`, { detail: true })
+    );
   }
 
   @action.bound

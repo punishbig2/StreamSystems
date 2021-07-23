@@ -1,20 +1,19 @@
-import { SizeHeader } from "components/SizeHeader";
-import { RunSize } from "components/RunSize";
+import { DualTableHeader } from "components/dualTableHeader";
+import { TabDirection } from "components/NumericInput";
 import { RunColumnData, SizeHeaderProps } from "components/Run/columnData";
+import { RunActions } from "components/Run/reducer";
+import { RunSize } from "components/RunSize";
+import { SizeHeader } from "components/SizeHeader";
 import { Price } from "components/Table/CellRenderers/Price";
 import { Tenor } from "components/Table/CellRenderers/Tenor";
 import { TableColumn } from "components/Table/tableColumn";
+import strings from "locales";
+import React from "react";
 import { Order, OrderStatus } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { ArrowDirection } from "types/w";
-import strings from "locales";
-import React from "react";
-import { RunActions } from "components/Run/reducer";
-import { DualTableHeader } from "components/dualTableHeader";
 import { getNthParentOf } from "utils/skipTab";
 import { $$ } from "utils/stringPaster";
-import { TabDirection } from "components/NumericInput";
-import { RunSizeStore, RunSizeStoreContext } from "mobx/stores/runSizeStore";
 
 type RowType = PodRow & { defaultBidSize: number; defaultOfrSize: number };
 
@@ -119,21 +118,19 @@ const RunSizeColumn = (
     render: (row: RowType) => {
       const order: Order = row[type];
       return (
-        <RunSizeStoreContext.Provider value={new RunSizeStore()}>
-          <RunSize
-            id={row.id}
-            value={order.size}
-            order={order}
-            defaultValue={defaultSize.value}
-            minimumSize={data.minimumSize}
-            visible={data.visible}
-            onTabbedOut={data.focusNext}
-            onChange={onChange}
-            onNavigate={data.onNavigate}
-            onDeactivateOrder={data.onDeactivateOrder}
-            onActivateOrder={data.onActivateOrder}
-          />
-        </RunSizeStoreContext.Provider>
+        <RunSize
+          id={row.id}
+          value={order.size}
+          order={order}
+          defaultValue={defaultSize.value}
+          minimumSize={data.minimumSize}
+          visible={data.visible}
+          onTabbedOut={data.focusNext}
+          onChange={onChange}
+          onNavigate={data.onNavigate}
+          onDeactivateOrder={data.onDeactivateOrder}
+          onActivateOrder={data.onActivateOrder}
+        />
       );
     },
     template: "9999999",

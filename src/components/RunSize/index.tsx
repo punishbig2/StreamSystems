@@ -1,19 +1,12 @@
-import { NumericInput, TabDirection } from "components/NumericInput";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { usePrevious } from "hooks/usePrevious";
-import { observer } from "mobx-react";
-import { RunSizeStore, RunSizeStoreContext } from "mobx/stores/runSizeStore";
-import React, {
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-} from "react";
-import { OrderTypes } from "types/mdEntry";
+import { RunWindowStore } from "mobx/stores/runWindowStore";
 import { Order, OrderStatus } from "types/order";
+import React, { useEffect, useState, useCallback, ReactNode } from "react";
+import { NumericInput, TabDirection } from "components/NumericInput";
 import { sizeFormatter } from "utils/sizeFormatter";
+import { OrderTypes } from "types/mdEntry";
+import { usePrevious } from "hooks/usePrevious";
+import { NavigateDirection } from "components/NumericInput/navigateDirection";
 import { $$ } from "utils/stringPaster";
 
 interface Props {
@@ -47,7 +40,8 @@ enum ActivationStatus {
   Empty,
 }
 
-export const RunSize: React.FC<Props> = observer((props: Props) => {
+export const RunSize: React.FC<Props> = (props: Props) => {
+  const [locallyModified, setLocallyModified] = useState<boolean>(false);
   const {
     order,
     defaultValue,
@@ -58,35 +52,49 @@ export const RunSize: React.FC<Props> = observer((props: Props) => {
     value,
   } = props;
 
-  const store = useContext<RunSizeStore>(RunSizeStoreContext);
+  const [internalValue, setInternalValue] = useState<string>(
+    sizeFormatter(value)
+  );
+
+  useEffect(() => {
+    setLocallyModified(false);
+    setInternalValue(sizeFormatter(defaultValue));
+  }, [defaultValue]);
 
   const reset = useCallback(() => {
-    if (!store.locallyModified) {
-      store.setInternalValue(sizeFormatter(value), false);
+    if (!locallyModified) {
+      setInternalValue(internalValue);
     } else if (value === null) {
-      store.setInternalValue(sizeFormatter(defaultValue), false);
+      setInternalValue(sizeFormatter(defaultValue));
     } else {
-      store.setInternalValue(sizeFormatter(value), false);
+      setInternalValue(sizeFormatter(value));
     }
-  }, [defaultValue, store, value]);
+    setLocallyModified(false);
+  }, [defaultValue, internalValue, locallyModified, value]);
+
+  useEffect((): (() => void) => {
+    const key = RunWindowStore.orderTypeToRowKey(order.type);
+    document.addEventListener(`OrderActivationChanged${key}`, reset);
+    return (): void => {
+      document.removeEventListener(`OrderActivationChanged${key}`, reset);
+    };
+  }, [order.type, reset]);
 
   useEffect(() => {
-    store.setInternalValue(sizeFormatter(defaultValue), false);
-  }, [store, defaultValue]);
-
-  useEffect(() => {
+    setLocallyModified(false);
     if (value !== null) {
-      store.setInternalValue(sizeFormatter(value), false);
+      setInternalValue(sizeFormatter(value));
     } else {
-      store.setInternalValue("", false);
+      setInternalValue("");
     }
-  }, [store, value, visible]);
+  }, [value, visible]);
 
   const onChangeWrapper = (value: string | null) => {
+    if (!locallyModified) setLocallyModified(true);
     if (value === null) {
-      store.setInternalValue(sizeFormatter(order.size || defaultValue), true);
+      setInternalValue(sizeFormatter(order.size || defaultValue));
     } else {
-      store.setInternalValue(value, true);
+      setInternalValue(value);
     }
   };
 
@@ -113,8 +121,8 @@ export const RunSize: React.FC<Props> = observer((props: Props) => {
   };
 
   const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
-    if (store.locallyModified) {
-      const numeric: number = Number(store.internalValue);
+    if (locallyModified) {
+      const numeric: number = Number(internalValue);
       if (!isNaN(numeric)) {
         if (numeric < props.minimumSize) {
           input.focus();
@@ -130,11 +138,11 @@ export const RunSize: React.FC<Props> = observer((props: Props) => {
 
   const oldDefaultValue: number | undefined = usePrevious<number>(defaultValue);
   useEffect(() => {
-    if (defaultValue === null || store.locallyModified) return;
+    if (defaultValue === null || locallyModified) return;
     if (!oldDefaultValue || oldDefaultValue === defaultValue) return;
     sendOnChange(defaultValue);
     // eslint-disable-next-line
-  }, [defaultValue, oldDefaultValue, store.locallyModified]);
+  }, [defaultValue, oldDefaultValue, locallyModified]);
 
   const status: OrderStatus = order.status;
 
@@ -196,25 +204,25 @@ export const RunSize: React.FC<Props> = observer((props: Props) => {
 
   const plusSign = getActivationButton();
 
-  const displayValue: string = useMemo((): string => {
-    if (store.locallyModified) return store.internalValue;
+  const displayValue: string = (() => {
+    if (locallyModified) return internalValue;
     if (order.price === null) return "";
     if (
       (order.status & OrderStatus.Cancelled) !== 0 &&
       (order.status & OrderStatus.SizeEdited) === 0
     )
       return "";
-    return store.internalValue;
-  }, [store.internalValue, store.locallyModified, order.price, order.status]);
+    return internalValue;
+  })();
 
   const placeholder: string = (() => {
     if (order.price === null) return "";
-    return store.internalValue;
+    return internalValue;
   })();
 
   const onBlurEnsureMinimumSize = () => {
-    if (Number(store.internalValue) >= minimumSize) return;
-    store.setInternalValue(sizeFormatter(minimumSize), false);
+    if (Number(internalValue) >= minimumSize) return;
+    setInternalValue(sizeFormatter(minimumSize));
   };
 
   const items: ReactNode[] = [
@@ -241,4 +249,4 @@ export const RunSize: React.FC<Props> = observer((props: Props) => {
   }
 
   return <div className={"size-layout"}>{items}</div>;
-});
+};
