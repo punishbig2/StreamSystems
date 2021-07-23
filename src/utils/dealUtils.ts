@@ -13,6 +13,7 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { coalesce, tryToNumber } from "utils/commonUtils";
 import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
+import { DecimalSeparator, isNumeric } from "utils/isNumeric";
 import {
   addToDate,
   forceParseDate,
@@ -304,6 +305,19 @@ const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
   };
 };
 
+const toStrike = (rawValue: any): string | undefined => {
+  if (typeof rawValue !== "string") {
+    return rawValue;
+  } else {
+    const normalized = rawValue.replaceAll(/[.,]/g, DecimalSeparator);
+    if (isNumeric(normalized)) {
+      return normalized;
+    } else {
+      return rawValue;
+    }
+  }
+};
+
 export const createDealEntry = (
   deal: Deal,
   legsCount: number,
@@ -356,7 +370,7 @@ export const createDealEntry = (
         : null,
     model: 3,
     legs: legsCount,
-    dealstrike: coalesce(deal.strike, strategy.strike),
+    dealstrike: toStrike(coalesce(deal.strike, strategy.strike)),
     vol: deal.vol,
     spread: deal.spread,
     dealType: dealSourceToDealType(deal.source),

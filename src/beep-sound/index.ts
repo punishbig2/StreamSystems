@@ -18,7 +18,7 @@ const openDatabase = (
 };
 
 export const addSound = (sound: ExecSound) => {
-  return new Promise((resolve: () => void, reject: () => void) => {
+  return new Promise<void>((resolve: () => void, reject: () => void) => {
     openDatabase((db: IDBDatabase) => {
       const tx: IDBTransaction = db.transaction("list", "readwrite");
       const list: IDBObjectStore = tx.objectStore("list");

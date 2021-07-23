@@ -58,13 +58,10 @@ export class StrikeHandler<
       const regex: RegExp = /^([0-9]+[dD]).*$/;
       const match: string[] | null = value.match(regex);
       if (match === null) {
-        if (isNumeric(value)) {
-          return super.parse(value, props);
-        } else {
-          return value;
-        }
+        return value.replaceAll(/[.,]/g, DecimalSeparator);
+      } else {
+        return match[1];
       }
-      return match[1];
     }
   }
 
