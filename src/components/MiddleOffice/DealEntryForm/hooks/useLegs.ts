@@ -131,13 +131,27 @@ export const addFwdRates = (
 ): ReadonlyArray<Leg> => {
   if (summary === null) return legs;
   if (legs.length !== 2) {
-    return legs.map((leg: Leg): Leg => {
-      return { ...leg, fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 };
-    });
+    return legs.map(
+      (leg: Leg): Leg => {
+        return {
+          ...leg,
+          fwdRate: coalesce(leg.fwdRate, summary.fwdrate1),
+          fwdPts: coalesce(leg.fwdPts, summary.fwdpts1),
+        };
+      }
+    );
   } else {
     return [
-      { ...legs[0], fwdRate: summary.fwdrate1, fwdPts: summary.fwdpts1 },
-      { ...legs[1], fwdRate: summary.fwdrate2, fwdPts: summary.fwdpts2 },
+      {
+        ...legs[0],
+        fwdRate: coalesce(legs[0].fwdRate, summary.fwdrate1),
+        fwdPts: coalesce(legs[0].fwdPts, summary.fwdpts1),
+      },
+      {
+        ...legs[1],
+        fwdRate: coalesce(legs[1].fwdRate, summary.fwdrate2),
+        fwdPts: coalesce(legs[1].fwdPts, summary.fwdpts2),
+      },
     ];
   }
 };
