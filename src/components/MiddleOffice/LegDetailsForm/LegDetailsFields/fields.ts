@@ -1,10 +1,17 @@
+import {
+  getCurrencyValue,
+  getRatesValue,
+  getStrikeValue,
+} from "components/MiddleOffice/LegDetailsForm/LegDetailsFields/helpers/getValueHelpers";
 import { Leg } from "components/MiddleOffice/types/leg";
 import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry, DealType } from "types/dealEntry";
 import { DealStatus, toBitwise } from "types/dealStatus";
+import { isStyledValue } from "types/styledValue";
+import { getStyledValue } from "utils/legsUtils";
 
-const fields: FieldDef<Leg, DealEntry>[] = [
+const fields: FieldDef<Leg, {}, DealEntry>[] = [
   {
     type: "text",
     color: "grey",
@@ -60,6 +67,9 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     editable: MiddleOfficeStore.createEditableFilter(
       DealType.Voice | DealType.Manual
     ),
+    getValue(leg: Leg, entry: DealEntry): any {
+      return getStrikeValue(leg, entry.symbol, this.name);
+    },
   },
   {
     type: "percent",
@@ -107,6 +117,9 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     name: "premium",
     label: "Premium",
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    getValue(leg: Leg, entry: DealEntry): any {
+      return getCurrencyValue(leg, this.name, entry.symbol, entry.premstyle);
+    },
   },
   {
     type: "percent",
@@ -115,6 +128,14 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     label: "Price %/Pips",
     precision: 5,
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    getValue(leg: Leg, entry: DealEntry): any {
+      const value = leg[this.name];
+      if (!isStyledValue(value)) {
+        throw new Error("cannot get styled value");
+      } else {
+        return { value: getStyledValue(value, entry.premstyle) };
+      }
+    },
   },
   {
     type: "currency",
@@ -122,6 +143,9 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     name: "hedge",
     label: "Hedge",
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    getValue(leg: Leg, entry: DealEntry): any {
+      return getCurrencyValue(leg, this.name, entry.symbol, entry.deltastyle);
+    },
   },
   {
     type: "percent",
@@ -131,6 +155,9 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     data: 0,
     precision: 4,
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    getValue(leg: Leg): any {
+      return getRatesValue(leg, this.data);
+    },
   },
   {
     type: "percent",
@@ -140,6 +167,9 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     data: 1,
     precision: 4,
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    getValue(leg: Leg): any {
+      return getRatesValue(leg, this.data);
+    },
   },
   {
     type: "number",
@@ -148,6 +178,13 @@ const fields: FieldDef<Leg, DealEntry>[] = [
     label: "Delta",
     precision: 4,
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
+    getValue(leg: Leg, entry: DealEntry): any {
+      const value = leg[this.name];
+      if (!isStyledValue(value)) {
+        throw new Error("unexpected styled value");
+      }
+      return { value: getStyledValue(value, entry.deltastyle) };
+    },
   },
   {
     type: "number",

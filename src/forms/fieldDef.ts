@@ -47,4 +47,6 @@ export interface FieldDef<T, E = {}, S = {}> {
   readonly rounding?: number;
   readonly tooltip?: (store: S) => string | null;
   readonly tooltipStyle?: "neutral" | "good" | "bad";
+
+  readonly getValue?: (leg: T, entry: S) => any;
 }
