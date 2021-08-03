@@ -438,11 +438,12 @@ export class RunWindowStore {
       ...this.rows,
       [id]: {
         ...row,
-        [key]: this.toActiveOrder({
+        [key]: {
           ...order,
-          status: order.status | OrderStatus.SizeEdited,
+          status:
+            order.status | (OrderStatus.SizeEdited & ~OrderStatus.Cancelled),
           size: value,
-        }),
+        },
         status: PodRowStatus.Normal,
       },
     };
