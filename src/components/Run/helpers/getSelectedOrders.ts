@@ -2,11 +2,7 @@ import { PodTable } from "types/podTable";
 import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
 
-export const getSelectedOrders = (
-  orders: PodTable,
-  defaultBidSize: number,
-  defaultOfrSize: number
-): Order[] => {
+export const getSelectedOrders = (orders: PodTable): Order[] => {
   const rows: PodRow[] = Object.values(orders).filter((row: PodRow) => {
     const { bid, ofr } = row;
     if (bid.price === null && ofr.price === null) return false;

@@ -329,11 +329,7 @@ export class RunWindowStore {
 
   @action.bound
   public updateSelection() {
-    this.selection = getSelectedOrders(
-      this.rows,
-      this.defaultBidSize,
-      this.defaultOfrSize
-    );
+    this.selection = getSelectedOrders(this.rows);
   }
 
   @action.bound

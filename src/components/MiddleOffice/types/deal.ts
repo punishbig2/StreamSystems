@@ -13,7 +13,9 @@ export interface BackendDeal {
 export interface Deal {
   readonly id: string;
   readonly buyer: string;
+  readonly buyer_user_email: string;
   readonly seller: string;
+  readonly seller_user_email: string;
   readonly currency: string;
   readonly notional1: number;
   readonly notional2?: number | null;

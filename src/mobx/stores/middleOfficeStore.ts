@@ -18,7 +18,6 @@ import { toast, ToastType } from "components/toast";
 import config from "config";
 import deepEqual from "deep-equal";
 import { EditableFilter } from "forms/fieldDef";
-import { sum } from "lodash";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -43,11 +42,16 @@ import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
-import { createDealEntry, createDealFromBackendMessage } from "utils/dealUtils";
+import {
+  createDealEntry,
+  createDealFromBackendMessage,
+  resolveEntityToBank,
+} from "utils/dealUtils";
 import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
+import { User } from "types/user";
 
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
@@ -124,7 +128,7 @@ export class MiddleOfficeStore implements Workspace {
   @observable successMessage: MoGenericMessage | null = null;
   @observable entryType: EntryType = EntryType.Empty;
   @observable isWorking: boolean = false;
-  @observable.ref entry: DealEntry = { ...emptyDealEntry };
+  @observable entry: DealEntry = { ...emptyDealEntry };
   @observable.ref deals: ReadonlyArray<Deal> = [];
   @observable selectedDealID: string | null = null;
   @observable isLoadingLegs: boolean = false;
@@ -149,6 +153,8 @@ export class MiddleOfficeStore implements Workspace {
   private modifiedFields: string[] = [];
 
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
+  @observable.ref sellers: ReadonlyArray<User> = [];
+  @observable.ref buyers: ReadonlyArray<User> = [];
 
   @computed
   public get tenors(): ReadonlyArray<string> {
@@ -791,6 +797,12 @@ export class MiddleOfficeStore implements Workspace {
     if (partial.symbol) {
       this.reloadStrategies(partial.symbol.symbolID);
     }
+    if (partial.buyer) {
+      this.reloadBuyers(partial.buyer);
+    }
+    if (partial.seller) {
+      this.reloadSellers(partial.seller);
+    }
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
       return legs.map(
         (leg: Leg, index: number): Leg => {
@@ -1374,6 +1386,20 @@ export class MiddleOfficeStore implements Workspace {
 
   private setLoadingDeals(reloadingDeals: boolean): void {
     this.loadingDeals = reloadingDeals;
+  }
+
+  @action.bound
+  private reloadBuyers(buyer: string): void {
+    const { users } = workareaStore;
+    const firm = resolveEntityToBank(buyer, this.entitiesMap);
+    this.buyers = users.filter((user: User): boolean => user.firm === firm);
+  }
+
+  @action.bound
+  private reloadSellers(seller: string): void {
+    const { users } = workareaStore;
+    const firm = resolveEntityToBank(seller, this.entitiesMap);
+    this.sellers = users.filter((user: User): boolean => user.firm === firm);
   }
 }
 

@@ -59,8 +59,8 @@ export class WorkareaStore {
 
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
+  @observable users: ReadonlyArray<User> = [];
 
-  private users: ReadonlyArray<User> = [];
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
 

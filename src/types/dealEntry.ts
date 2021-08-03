@@ -63,6 +63,9 @@ export interface DealEntry {
   readonly seller_comm: number | null;
   readonly seller_comm_rate: number | null;
 
+  readonly seller_user_email: string;
+  readonly buyer_user_email: string;
+
   readonly sef_namespace: string | null;
   readonly errorMsg: string | null;
 
@@ -79,7 +82,9 @@ export const emptyDealEntry: DealEntry = {
   not2: null,
   legadj: "",
   buyer: "",
+  buyer_user_email: "",
   seller: "",
+  seller_user_email: "",
   tenor1: {
     expiryDate: null,
     deliveryDate: null,
@@ -143,4 +148,6 @@ export interface ServerDealQuery {
   readonly seller_comm_rate: number | null;
   readonly product_fields_changed?: string[];
   readonly extra_fields?: { [key: string]: string | number | null };
+  readonly buyer_user_email: string;
+  readonly seller_user_email: string;
 }

@@ -176,6 +176,8 @@ export const Field: React.FC<Props> = React.memo(
     if (prevProps.isEditMode !== nextProps.isEditMode) return false;
     if (prevEntry.strategy !== nextEntry.strategy) return false;
     if (prevEntry.symbol !== nextEntry.symbol) return false;
+    if (prevEntry.buyer !== nextEntry.buyer) return false;
+    if (prevEntry.seller !== nextEntry.seller) return false;
     if (prevProps.disabled !== nextProps.disabled) return false;
     return deepEqual(nextEntry[field.name], prevEntry[field.name]);
   }

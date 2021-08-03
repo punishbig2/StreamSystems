@@ -15,7 +15,6 @@ interface OwnProps {
 
 const getDirection = (trade?: Message) => {
   if (!trade || !trade.Side) {
-    console.log(trade);
     return "for or to";
   } else {
     const side = trade.Side as unknown;
