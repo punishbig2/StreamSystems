@@ -640,6 +640,8 @@ export class MiddleOfficeStore implements Workspace {
     // Reload strategies now
     if (deal !== null) {
       this.reloadStrategies(deal.currency);
+      this.reloadBuyers(deal.buyer);
+      this.reloadSellers(deal.seller);
     }
     this.entry = { ...emptyDealEntry };
     if (

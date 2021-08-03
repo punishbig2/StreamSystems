@@ -251,10 +251,10 @@ const fields: ReadonlyArray<
     dataSource: "banks",
   },
   {
-    name: "buyer_user_email",
+    name: "buyer_useremail",
     label: "Buyer (User)",
     type: "dropdown",
-    color: "cream",
+    color: "orange",
     editable: true,
     transformData: (
       items: ReadonlyArray<User>
@@ -286,10 +286,10 @@ const fields: ReadonlyArray<
     dataSource: "banks",
   },
   {
-    name: "seller_user_email",
+    name: "seller_useremail",
     label: "Seller (User)",
     type: "dropdown",
-    color: "cream",
+    color: "orange",
     editable: true,
     transformData: (
       items: ReadonlyArray<User>
