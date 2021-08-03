@@ -758,13 +758,7 @@ export class MiddleOfficeStore implements Workspace {
       this.summaryLeg = null;
       this.modifiedFields = [];
     } else if (this.entryType === EntryType.ExistingDeal) {
-      const { originalLegs } = this;
-      this.legs = originalLegs.slice();
-      this.summaryLeg =
-        this.originalSummaryLeg === null
-          ? null
-          : { ...this.originalSummaryLeg };
-      this.entry = this.originalEntry;
+      this.setEntry(this.originalEntry);
     }
     this.isEditMode = false;
   }
