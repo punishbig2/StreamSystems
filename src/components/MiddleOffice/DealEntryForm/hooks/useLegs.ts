@@ -217,7 +217,7 @@ export const handleLegsResponse = (
       coalesce(
         fwdPts2,
         // The legs[1] generally equals legs[0]
-        secondLeg !== undefined ? secondLeg.fwdPts : undefined
+        secondLeg?.fwdPts ?? undefined
       ),
       null
     ),

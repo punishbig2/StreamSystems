@@ -18,6 +18,7 @@ import { toast, ToastType } from "components/toast";
 import config from "config";
 import deepEqual from "deep-equal";
 import { EditableFilter } from "forms/fieldDef";
+import { sum } from "lodash";
 import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
@@ -666,10 +667,10 @@ export class MiddleOfficeStore implements Workspace {
           if (entry.dealID === data.dealId) {
             // Reset the extra fields
             entry.extra_fields = {
-              fwdpts1: data.legs[0].fwdPts,
-              fwdrate1: data.legs[0].fwdRate,
-              fwdpts2: data.legs.length > 1 ? data.legs[1].fwdPts : null,
-              fwdrate2: data.legs.length > 1 ? data.legs[1].fwdRate : null,
+              fwdpts1: data.legs[1].fwdPts,
+              fwdrate1: data.legs[1].fwdRate,
+              fwdpts2: data.legs.length > 2 ? data.legs[2].fwdPts : null,
+              fwdrate2: data.legs.length > 2 ? data.legs[2].fwdRate : null,
             };
             // It is the deal of interest so update
             // visible legs now
