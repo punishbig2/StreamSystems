@@ -858,9 +858,7 @@ export class MiddleOfficeStore implements Workspace {
   @action.bound
   public saveCurrentEntry() {
     const modifiedFields: string[] = this.getModifiedFields();
-    const request = {
-      ...this.buildRequest(),
-    };
+    const request = this.buildRequest();
     this.setStatus(MiddleOfficeProcessingState.UpdatingDeal);
     // Call the backend
     API.updateDeal(

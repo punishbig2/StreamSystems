@@ -89,9 +89,8 @@ const getSpreadOrVol = (
   strategy: Product | undefined
 ): number | null => {
   const value: any = item[key];
+  if (strategy?.spreadvsvol !== key) return null;
   if (value !== "" && value !== undefined) return value;
-  if (strategy === undefined) return null;
-  if (strategy.spreadvsvol !== key) return null;
   return item.lastpx / 100;
 };
 
