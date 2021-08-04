@@ -122,6 +122,12 @@ export class RunWindowStore {
     orders: { [id: string]: ReadonlyArray<Order> }
   ): Task<void> {
     const { user } = workareaStore;
+    if (this.initialized) {
+      return {
+        cancel(): void {},
+        execute: async (): Promise<void> => {},
+      };
+    }
     const filterOrders = (order: Order): boolean => {
       const { roles } = user;
       if (order.size === null) return false;
@@ -131,7 +137,6 @@ export class RunWindowStore {
       );
     };
     const animate = !this.initialized;
-    this.initialized = true;
     this.activeOrders = Object.values(orders)
       .reduce(
         (flat: ReadonlyArray<Order>, next: ReadonlyArray<Order>) => [
@@ -160,6 +165,7 @@ export class RunWindowStore {
           const messages: ReadonlyArray<OrderMessage> = await task.execute();
           // Set the orders now
           this.handleRunOrdersResult(user.email, messages);
+          this.initialized = true;
         } finally {
           this.setLoading(false);
         }
@@ -521,6 +527,7 @@ export class RunWindowStore {
   @action.bound
   public reset(): void {
     this.rows = {};
+    this.initialized = false;
     this.original = {};
   }
 }
