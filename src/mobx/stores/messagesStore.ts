@@ -39,29 +39,17 @@ export class MessagesStore {
         ({ ccyGroup }: Symbol): boolean =>
           ccyGroupFilter.toLowerCase() === ccyGroup.toLowerCase()
       );
+
       return allExecutions.filter(
         (message: Message): boolean =>
           filteredSymbols.find((symbol: Symbol): boolean => {
             return symbol.symbolID === message.Symbol;
           }) !== undefined
       );
-      /*MessagesStore.normalExecutionsFilter(*/
-      /*);*/
     } else {
-      return allExecutions; // MessagesStore.normalExecutionsFilter(allExecutions);
+      return allExecutions;
     }
   }
-
-  /*private static normalExecutionsFilter(
-    executions: ReadonlyArray<Message>
-  ): ReadonlyArray<Message> {
-    const { roles } = workareaStore.user;
-    if (roles.includes(Role.Broker) && workareaStore.personality !== STRM) {
-      return executions.filter(involved);
-    } else {
-      return executions;
-    }
-  }*/
 
   @action.bound
   public setCCYGroupFilter(filter: string): void {
