@@ -92,16 +92,14 @@ const strategy = (sortable: boolean): TableColumn => ({
   },
 });
 
-const trader = (sortable: boolean): TableColumn => ({
+const trader = (sortable: boolean, side: "1" | "2"): TableColumn => ({
   name: "Trader",
   template: "some_trader@email.com",
   filterable: true,
   sortable: sortable,
-  header: () => "Trader",
+  header: () => `Trader ${side}`,
   render: ({ message }: CellProps): ReactElement => {
-    const email = message.ContraTrader
-      ? message.ContraTrader
-      : message.Username;
+    const email = side === "1" ? message.ContraTrader : message.Username;
     if (email === undefined) {
       return <span />;
     }
@@ -412,7 +410,8 @@ const columns: (type: BlotterTypes) => { [key: string]: TableColumn[] } = (
       ...(!notExecutionsBlotter
         ? [buyer(notExecutionsBlotter), seller(notExecutionsBlotter)]
         : []),
-      trader(notExecutionsBlotter),
+      trader(notExecutionsBlotter, "1"),
+      trader(notExecutionsBlotter, "2"),
       pool(notExecutionsBlotter),
     ],
   };
