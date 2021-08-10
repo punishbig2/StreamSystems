@@ -330,7 +330,7 @@ const counterParty = (
     const { message } = props;
     const { ExecBroker, MDMkt } = message;
     const { user } = workareaStore;
-    if (!involved(message) && !user.roles.includes(Role.Broker)) return <div />;
+    if (!involved(message)) return <div />;
     return (
       <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
         {user.firm === ExecBroker ? MDMkt : ExecBroker}
