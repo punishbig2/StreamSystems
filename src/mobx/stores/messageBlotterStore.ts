@@ -2,7 +2,9 @@ import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { TableColumn } from "components/Table/tableColumn";
 import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
+import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
+import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
 import { Persistable } from "types/persistable";
 import { Role } from "types/role";
@@ -12,8 +14,7 @@ import { User } from "types/user";
 
 export class MessageBlotterStore
   extends ContentStore
-  implements Persistable<MessageBlotterStore>
-{
+  implements Persistable<MessageBlotterStore> {
   public readonly kind: TileType = TileType.MessageBlotter;
 
   @observable private sortedColumns: {
@@ -62,11 +63,13 @@ export class MessageBlotterStore
   @action.bound
   public setOwner(user: User): void {
     const { roles } = user;
-    const isBroker: boolean = roles.includes(Role.Broker);
+    const personality = workareaStore.personality;
+    const brokerMode: boolean =
+      roles.includes(Role.Broker) && personality === STRM;
     const columnsMap: { [key: string]: TableColumn[] } = messageBlotterColumns(
       this.blotterType
     );
-    const columns: TableColumn[] = isBroker
+    const columns: TableColumn[] = brokerMode
       ? columnsMap.broker
       : columnsMap.normal;
     this.setInitialColumns(columns);
@@ -179,7 +182,6 @@ export class MessageBlotterStore
   }
 }
 
-export const MessageBlotterStoreContext =
-  React.createContext<MessageBlotterStore>(
-    new MessageBlotterStore(BlotterTypes.None)
-  );
+export const MessageBlotterStoreContext = React.createContext<MessageBlotterStore>(
+  new MessageBlotterStore(BlotterTypes.None)
+);
