@@ -93,7 +93,7 @@ const strategy = (sortable: boolean): TableColumn => ({
 });
 
 const trader = (sortable: boolean, side: "1" | "2"): TableColumn => ({
-  name: "Trader",
+  name: `trader${side}`,
   template: "some_trader@email.com",
   filterable: true,
   sortable: sortable,
