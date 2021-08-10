@@ -10,8 +10,10 @@ import { Role } from "types/role";
 import { User } from "types/user";
 import { DarkPool } from "types/w";
 import {
+  getBuyer,
   getMessagePrice,
   getMessageSize,
+  getSeller,
   TransTypes,
 } from "utils/messageUtils";
 import { priceFormatter } from "utils/priceFormatter";
@@ -245,6 +247,76 @@ const transactType = (sortable: boolean) => ({
   },
 });
 
+const buyer = (sortable: boolean): TableColumn => ({
+  name: "bought",
+  template: "WWWWWW",
+  filterable: true,
+  sortable: sortable,
+  header: () => "Bought",
+  render: (props: CellProps) => {
+    return <div>{getBuyer(props.message)}</div>;
+  },
+  width: 2,
+  filterByKeyword: (message: Message, keyword: string): boolean => {
+    const value = getBuyer(message);
+    if (value) {
+      const lowerCase: string = value.toLowerCase();
+      return lowerCase.includes(keyword.toLowerCase());
+    } else {
+      return false;
+    }
+  },
+  difference: (v1: Message, v2: Message) => {
+    const value = getBuyer(v1);
+    const other = getBuyer(v2);
+    if (value) {
+      const lowerCase: string = value.toLowerCase();
+      if (other) {
+        return lowerCase.localeCompare(other.toLowerCase());
+      } else {
+        return -1;
+      }
+    } else {
+      return 1;
+    }
+  },
+});
+
+const seller = (sortable: boolean): TableColumn => ({
+  name: "sold",
+  template: "WWWWWW",
+  filterable: true,
+  sortable: sortable,
+  header: () => "Sold",
+  render: (props: CellProps) => {
+    return <div>{getSeller(props.message)}</div>;
+  },
+  width: 2,
+  filterByKeyword: (message: Message, keyword: string): boolean => {
+    const value = getSeller(message);
+    if (value) {
+      const lowerCase: string = value.toLowerCase();
+      return lowerCase.includes(keyword.toLowerCase());
+    } else {
+      return false;
+    }
+  },
+  difference: (v1: Message, v2: Message) => {
+    const value = getSeller(v1);
+    const other = getSeller(v2);
+    if (value) {
+      const lowerCase: string = value.toLowerCase();
+      if (other) {
+        return lowerCase.localeCompare(other.toLowerCase());
+      } else {
+        return -1;
+      }
+    } else {
+      return 1;
+    }
+  },
+});
+
 const counterParty = (
   sortable: boolean,
   isExecBlotter: boolean
@@ -336,8 +408,10 @@ const columns: (type: BlotterTypes) => { [key: string]: TableColumn[] } = (
       tenor(notExecutionsBlotter),
       strategy(notExecutionsBlotter),
       price(notExecutionsBlotter),
-      side(notExecutionsBlotter),
-      counterParty(notExecutionsBlotter, !notExecutionsBlotter),
+      ...(notExecutionsBlotter ? [side(notExecutionsBlotter)] : []),
+      ...(!notExecutionsBlotter
+        ? [buyer(notExecutionsBlotter), seller(notExecutionsBlotter)]
+        : []),
       trader(notExecutionsBlotter),
       pool(notExecutionsBlotter),
     ],
