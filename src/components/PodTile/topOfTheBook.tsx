@@ -1,9 +1,10 @@
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
-import { TableColumn } from "components/Table/tableColumn";
+import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import React, { ReactElement } from "react";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
+import { SortDirection } from "types/sortDirection";
 import { Symbol } from "types/symbol";
 import { W } from "types/w";
 
@@ -23,7 +24,16 @@ interface Props {
 export const TopOfTheBook: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
-  const { columns } = props;
+  const { columns: originalColumns } = props;
+  const columns = React.useMemo((): ReadonlyArray<ExtendedTableColumn> => {
+    return originalColumns.map(
+      (column: TableColumn): ExtendedTableColumn => ({
+        ...column,
+        sortDirection: SortDirection.None,
+        filter: "",
+      })
+    );
+  }, [originalColumns]);
   return (
     <div className={"pod"} data-showing-tenor={props.currentTenor !== null}>
       <Table

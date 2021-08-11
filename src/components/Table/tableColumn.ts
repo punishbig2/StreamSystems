@@ -1,15 +1,21 @@
 import { ReactElement } from "react";
+import { SortDirection } from "types/sortDirection";
 
 export interface TableColumn {
-  name: string;
-  sortable?: boolean;
-  filterable?: boolean;
-  header: (props: any) => ReactElement | string | null;
-  render: (props: any) => ReactElement | string | null;
-  span?: number;
-  width: number;
-  filterByKeyword?: (v1: any, keyword: string) => boolean;
-  difference?: (v1: any, v2: any) => number;
-  template: string;
-  className?: string;
+  readonly name: string;
+  readonly sortable?: boolean;
+  readonly filterable?: boolean;
+  readonly header: (props: any) => ReactElement | string | null;
+  readonly render: (props: any) => ReactElement | string | null;
+  readonly span?: number;
+  readonly width: number;
+  readonly filterByKeyword?: (v1: any, keyword: string) => boolean;
+  readonly difference?: (v1: any, v2: any) => number;
+  readonly template: string;
+  readonly className?: string;
+}
+
+export interface ExtendedTableColumn extends TableColumn {
+  readonly sortDirection: SortDirection;
+  readonly filter: string;
 }

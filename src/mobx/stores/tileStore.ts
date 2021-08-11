@@ -1,7 +1,7 @@
 import { Geometry } from "@cib/windows-manager";
 import { BlotterTypes } from "columns/messageBlotter";
 import { action, computed, observable } from "mobx";
-import { ContentStore, DummyContentStore } from "mobx/stores/contentStore";
+import { DummyContentStore } from "mobx/stores/contentStore";
 import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { PodStore } from "mobx/stores/podStore";
 import React from "react";
@@ -17,7 +17,10 @@ interface IGeometry {
 
 export class TileStore implements Persistable<TileStore> {
   public readonly id: string;
-  @observable public contentStore: ContentStore;
+  @observable public contentStore:
+    | MessageBlotterStore
+    | PodStore
+    | DummyContentStore;
 
   @observable public type: TileType = TileType.Empty;
   // Persist this for fewer calls to the storage
@@ -69,16 +72,8 @@ export class TileStore implements Persistable<TileStore> {
 
   @computed
   public get content(): { [key: string]: any } {
-    const { type, contentStore } = this;
-    switch (type) {
-      case TileType.PodTile:
-        return contentStore.serialized;
-      case TileType.MessageBlotter:
-        return contentStore.serialized;
-      case TileType.Empty:
-        break;
-    }
-    return {};
+    const { contentStore } = this;
+    return contentStore.serialized;
   }
 
   @action.bound
@@ -101,7 +96,10 @@ export class TileStore implements Persistable<TileStore> {
     this.docked = docked;
   }
 
-  private static createContentStore(id: string, type: TileType): ContentStore {
+  private static createContentStore(
+    id: string,
+    type: TileType
+  ): MessageBlotterStore | PodStore | DummyContentStore {
     switch (type) {
       case TileType.PodTile:
         return new PodStore(id);

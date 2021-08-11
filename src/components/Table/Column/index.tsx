@@ -1,7 +1,7 @@
 import { SortIndicator } from "components/Table/Column/sortIndicator";
+import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { CSSProperties, ReactElement, useCallback, useRef } from "react";
-import strings from "locales";
 import { SortDirection } from "types/sortDirection";
 
 export enum ColumnType {
@@ -15,11 +15,12 @@ interface OwnProps {
   movable: boolean;
   sortable?: boolean;
   filterable?: boolean;
-  sortDirection?: SortDirection;
+  filter?: string;
+  sortDirection: SortDirection;
   type: ColumnType;
   onGrabbed: (element: HTMLDivElement, grabbedAt: number) => void;
   style?: CSSProperties;
-  onSorted?: (name: string) => void;
+  onSorted?: (name: string, sortDirection: SortDirection) => void;
   onFiltered?: (keyword: string) => void;
 }
 
@@ -28,7 +29,7 @@ type Props = React.PropsWithChildren<OwnProps>;
 const Column: React.FC<Props> = (props: Props): ReactElement => {
   const containerRef: React.Ref<HTMLDivElement> = useRef<HTMLDivElement>(null);
   const inputRef: React.Ref<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  const { name, width, movable, onGrabbed, onSorted } = props;
+  const { name, sortDirection, width, movable, onGrabbed, onSorted } = props;
 
   const getFilterEditor = (): ReactElement | null => {
     if (!props.filterable) return null;
@@ -48,6 +49,7 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
     return (
       <input
         ref={inputRef}
+        defaultValue={props.filter}
         className={"filter"}
         placeholder={strings.Filter}
         readOnly={!workareaStore.connected}
@@ -77,8 +79,9 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
     };
   }, [onMouseDown, containerRef]);
   const onSort = React.useCallback(
-    (): void => (onSorted === undefined ? undefined : onSorted(name)),
-    [onSorted, name]
+    (): void =>
+      onSorted === undefined ? undefined : onSorted(name, sortDirection),
+    [onSorted, name, sortDirection]
   );
 
   const classes: string[] = ["th"];
@@ -92,7 +95,7 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
         <div className={"label"}>{props.children}</div>
         <SortIndicator
           sortable={props.sortable === true}
-          direction={props.sortDirection}
+          direction={sortDirection}
           onClick={onSort}
         />
       </div>

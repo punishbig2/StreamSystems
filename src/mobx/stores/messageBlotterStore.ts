@@ -1,5 +1,6 @@
+import { Geometry } from "@cib/windows-manager";
 import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
-import { TableColumn } from "components/Table/tableColumn";
+import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 import workareaStore from "mobx/stores/workareaStore";
@@ -20,11 +21,16 @@ export class MessageBlotterStore
   @observable private sortedColumns: {
     [columnName: string]: SortDirection;
   } = {};
-  @observable private sortingApplicationOrder: ReadonlyArray<string> = [];
+  @observable.ref private sortingApplicationOrder: ReadonlyArray<string> = [];
   @observable private filters: { [columnName: string]: string } = {};
-  @observable private columnsOrder: ReadonlyArray<number> = [];
+  @observable.ref private columnsOrder: ReadonlyArray<number> = [];
   @observable private initialColumns: ReadonlyArray<TableColumn> = [];
   @observable private originalRows: ReadonlyArray<Message> = [];
+
+  // Execution blotter specific
+  @observable lastGeometry: Geometry = new Geometry(0, 0, 100, 100);
+  @observable currencyGroupFilter: string = "All";
+  @observable isNew: boolean = true;
 
   private readonly blotterType: BlotterTypes;
   private columnsMap: { [columnName: string]: TableColumn } = {};
@@ -40,6 +46,9 @@ export class MessageBlotterStore
     newStore.sortingApplicationOrder = data.sortingApplicationOrder;
     newStore.columnsOrder = data.columnsOrder;
     newStore.filters = data.filters;
+    newStore.isNew = data.isNew;
+    newStore.lastGeometry = data.lastGeometry;
+    newStore.currencyGroupFilter = data.currencyGroupFilter ?? "";
     return newStore;
   }
 
@@ -51,13 +60,10 @@ export class MessageBlotterStore
       columnsOrder: [...this.columnsOrder],
       filters: { ...this.filters },
       blotterType: this.blotterType,
+      lastGeometry: this.lastGeometry,
+      currencyGroupFilter: this.currencyGroupFilter,
+      isNew: this.isNew,
     };
-  }
-
-  public static executionBlotter(user: User): MessageBlotterStore {
-    const store = new MessageBlotterStore(BlotterTypes.Executions);
-    store.setOwner(user);
-    return store;
   }
 
   @action.bound
@@ -76,11 +82,21 @@ export class MessageBlotterStore
   }
 
   @computed
-  public get columns(): ReadonlyArray<TableColumn> {
+  public get columns(): ReadonlyArray<ExtendedTableColumn> {
     const { initialColumns, columnsOrder } = this;
     return columnsOrder
       .filter((index: number) => index < initialColumns.length)
-      .map((index: number) => initialColumns[index]);
+      .map((index: number) => {
+        const column = initialColumns[index];
+        const sortDirection =
+          this.sortedColumns[column.name] ?? SortDirection.None;
+        const filter = this.filters[column.name] ?? "";
+        return {
+          ...column,
+          sortDirection: sortDirection,
+          filter: filter,
+        };
+      });
   }
 
   @computed
@@ -130,6 +146,7 @@ export class MessageBlotterStore
 
   @action.bound
   private setInitialColumns(columns: ReadonlyArray<TableColumn>) {
+    const { columnsOrder } = this;
     this.initialColumns = columns;
     this.columnsMap = columns.reduce(
       (map: { [name: string]: TableColumn }, spec: TableColumn) => {
@@ -138,9 +155,11 @@ export class MessageBlotterStore
       },
       {}
     );
-    this.columnsOrder = columns.map(
-      (column: TableColumn, index: number) => index
-    );
+    if (columnsOrder.length !== columns.length) {
+      this.columnsOrder = columns.map(
+        (_: TableColumn, index: number): number => index
+      );
+    }
   }
 
   private getFilterFunction(): (r: any) => boolean {
@@ -151,9 +170,14 @@ export class MessageBlotterStore
       (fn: (r: any) => boolean, name: string): ((r: any) => boolean) => {
         const keyword: string | undefined = trim(filters[name]);
         if (keyword === undefined || keyword === "") return fn;
-        const columnSpec: TableColumn = columnsMap[name];
+        const columnSpec: TableColumn | undefined = columnsMap[name];
+        if (columnSpec === undefined) {
+          return fn;
+        }
+
         const filter: ((r: any, keyword: string) => boolean) | undefined =
           columnSpec.filterByKeyword;
+
         if (filter === undefined) return () => true;
         return (r: any) => filter(r, keyword);
       },
@@ -179,6 +203,17 @@ export class MessageBlotterStore
       },
       () => 0
     );
+  }
+
+  @action.bound
+  public setLastGeometry(geometry: Geometry): void {
+    this.lastGeometry = geometry;
+    this.isNew = false;
+  }
+
+  @action.bound
+  public setCurrencyGroupFilter(value: string) {
+    this.currencyGroupFilter = value;
   }
 }
 

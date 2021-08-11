@@ -1,10 +1,12 @@
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
+import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { DepthData } from "types/depthData";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
+import { SortDirection } from "types/sortDirection";
 import { Symbol } from "types/symbol";
 import { W } from "types/w";
 
@@ -52,9 +54,20 @@ export const DepthOfTheBook: React.FC<Props> = (
     },
     [props, rows]
   );
+
+  const _columns = React.useMemo((): ReadonlyArray<ExtendedTableColumn> => {
+    return columns.map(
+      (column: TableColumn): ExtendedTableColumn => ({
+        ...column,
+        sortDirection: SortDirection.None,
+        filter: "",
+      })
+    );
+  }, [columns]);
+
   return (
     <div className={"dob"} data-showing-tenor={props.currentTenor !== null}>
-      <Table columns={columns} rows={rows} renderRow={renderRow} />
+      <Table columns={_columns} rows={rows} renderRow={renderRow} />
     </div>
   );
 };

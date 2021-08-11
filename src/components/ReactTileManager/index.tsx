@@ -1,12 +1,12 @@
 import { ExecutionBlotter } from "components/ReactTileManager/executionBlotter";
 import { ReactTile } from "components/ReactTileManager/ReactTile";
 import { ContentStore } from "mobx/stores/contentStore";
-import {
-  MessageBlotterStore,
-  MessageBlotterStoreContext,
-} from "mobx/stores/messageBlotterStore";
+import { MessageBlotterStoreContext } from "mobx/stores/messageBlotterStore";
 import { TileStore, TileStoreContext } from "mobx/stores/tileStore";
-import workareaStore from "mobx/stores/workareaStore";
+import {
+  TradingWorkspaceStore,
+  TradingWorkspaceStoreContext,
+} from "mobx/stores/tradingWorkspaceStore";
 import React, { ReactElement } from "react";
 import { TileType } from "types/tileType";
 
@@ -29,6 +29,9 @@ const ReactTileManager: React.FC<Props> = (
   props: Props
 ): React.ReactElement | null => {
   const { isDefaultWorkspace: ready, tiles } = props;
+  const store = React.useContext<TradingWorkspaceStore>(
+    TradingWorkspaceStoreContext
+  );
   return (
     <cib-window-manager>
       {tiles.map(
@@ -45,9 +48,7 @@ const ReactTileManager: React.FC<Props> = (
           </TileStoreContext.Provider>
         )
       )}
-      <MessageBlotterStoreContext.Provider
-        value={MessageBlotterStore.executionBlotter(workareaStore.user)}
-      >
+      <MessageBlotterStoreContext.Provider value={store.executionBlotter}>
         <ExecutionBlotter />
       </MessageBlotterStoreContext.Provider>
     </cib-window-manager>

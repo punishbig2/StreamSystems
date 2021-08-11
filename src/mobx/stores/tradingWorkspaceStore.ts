@@ -1,10 +1,10 @@
-import { Geometry } from "@cib/windows-manager";
 import { API } from "API";
+import { BlotterTypes } from "columns/messageBlotter";
 import { action, computed, observable } from "mobx";
+import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { TileStore } from "mobx/stores/tileStore";
 import React from "react";
 import { STRM } from "stateDefs/workspaceState";
-import { ExecutionBlotterState } from "types/executionBlotterState";
 import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -20,14 +20,11 @@ export class TradingWorkspaceStore implements Workspace {
   @observable public loading: boolean = false;
   @observable public progress: number = 0;
   @observable public modified: boolean = false;
-  @observable public executionBlotter: ExecutionBlotterState;
+  @observable public executionBlotter: MessageBlotterStore;
 
   constructor() {
     this.progress = 50;
-    this.executionBlotter = {
-      isNew: true,
-      lastGeometry: new Geometry(0, 0, 100, 100),
-    };
+    this.executionBlotter = new MessageBlotterStore(BlotterTypes.Executions);
   }
 
   public static fromJson(data: { [key: string]: any }): TradingWorkspaceStore {
@@ -37,14 +34,17 @@ export class TradingWorkspaceStore implements Workspace {
     newStore.tiles = tiles.map(
       (data: { [key: string]: any }): TileStore => TileStore.fromJson(data)
     );
-    newStore.executionBlotter = data.executionBlotter;
+    newStore.executionBlotter = MessageBlotterStore.fromJson(
+      data.executionBlotter
+    );
     newStore.name = data.name;
     return newStore;
   }
 
   @computed
   public get serialized(): { [key: string]: any } {
-    const { tiles } = this;
+    const { tiles, executionBlotter } = this;
+
     return {
       tiles: tiles.map(
         (
@@ -54,7 +54,7 @@ export class TradingWorkspaceStore implements Workspace {
         } => tile.serialized
       ),
       personality: this.personality,
-      executionBlotter: this.executionBlotter,
+      executionBlotter: executionBlotter.serialized,
       name: this.name,
       type: this.type,
     };
@@ -125,14 +125,6 @@ export class TradingWorkspaceStore implements Workspace {
   @action.bound
   private setLoading(value: boolean) {
     this.loading = value;
-  }
-
-  @action.bound
-  public saveExecutionBlotterGeometry(newGeometry: Geometry) {
-    this.executionBlotter = {
-      lastGeometry: newGeometry,
-      isNew: false,
-    };
   }
 }
 

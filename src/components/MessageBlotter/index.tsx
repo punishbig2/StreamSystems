@@ -11,6 +11,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import React, { useMemo } from "react";
 import { Message } from "types/message";
 import { SortDirection } from "types/sortDirection";
+import { Symbol } from "types/symbol";
 
 interface OwnProps {
   id: string;
@@ -20,14 +21,36 @@ interface OwnProps {
 type Props = OwnProps;
 
 export const MessageBlotter: React.FC<Props> = observer((props: Props) => {
-  const messagesStore: MessagesStore =
-    React.useContext<MessagesStore>(MessagesStoreContext);
+  const messagesStore: MessagesStore = React.useContext<MessagesStore>(
+    MessagesStoreContext
+  );
   const store = React.useContext<MessageBlotterStore>(
     MessageBlotterStoreContext
   );
+  const { currencyGroupFilter } = store;
   const { user } = workareaStore;
-  const { executions, myMessages } = messagesStore;
+  const { myMessages, allExecutions } = messagesStore;
   const { blotterType } = props;
+
+  const executions = React.useMemo((): ReadonlyArray<Message> => {
+    const { symbols } = workareaStore;
+    if (currencyGroupFilter !== "All") {
+      const filterValue = currencyGroupFilter.toLowerCase();
+      const filteredSymbols = symbols.filter(
+        ({ ccyGroup }: Symbol): boolean =>
+          filterValue === ccyGroup.toLowerCase()
+      );
+
+      return allExecutions.filter(
+        (message: Message): boolean =>
+          filteredSymbols.find((symbol: Symbol): boolean => {
+            return symbol.symbolID === message.Symbol;
+          }) !== undefined
+      );
+    } else {
+      return allExecutions;
+    }
+  }, [currencyGroupFilter, allExecutions]);
 
   const messages: ReadonlyArray<Message> = React.useMemo(
     (): ReadonlyArray<Message> =>

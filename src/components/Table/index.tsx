@@ -1,15 +1,16 @@
 import { RowProps } from "components/MiddleOffice/DealBlotter/row";
 import { ScrollArea } from "components/ScrollArea";
 import { TableBody } from "components/Table/Body";
-import { TableColumn } from "components/Table/tableColumn";
 import { TableHeader } from "components/Table/Header";
+import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
+import { HeaderStore, HeaderStoreContext } from "mobx/stores/headerStore";
 import React from "react";
 import { SortDirection } from "types/sortDirection";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 
 interface Props {
-  readonly columns: ReadonlyArray<TableColumn>;
+  readonly columns: ReadonlyArray<ExtendedTableColumn>;
   readonly rows: { [id: string]: any };
   readonly renderRow: (
     props: RowProps,
@@ -52,6 +53,7 @@ const BasicTable = (
     (total: number, column: TableColumn) => total + column.width,
     0
   );
+
   const rowsToProps = React.useCallback(
     ([key, row]: [string, any]) => ({
       id: key,
@@ -63,23 +65,29 @@ const BasicTable = (
     }),
     [columns, optimalWidth, totalWidth]
   );
+
   const transformedRows: { [key: string]: any }[] = React.useMemo(
     () => entries.map(rowsToProps),
     [rowsToProps, entries]
   );
+
   const classes: string[] = ["table"];
+
   if (props.className) classes.push(props.className);
+
   return (
     <div ref={ref} className={classes.join(" ")} style={style}>
-      <TableHeader
-        columns={columns}
-        allowReorderColumns={props.allowReorderColumns === true}
-        totalWidth={totalWidth}
-        containerWidth={optimalWidth}
-        onSortBy={props.onSortBy}
-        onFiltered={props.onFiltered}
-        onColumnsOrderChange={props.onColumnsOrderChange}
-      />
+      <HeaderStoreContext.Provider value={new HeaderStore()}>
+        <TableHeader
+          columns={columns}
+          allowReorderColumns={props.allowReorderColumns === true}
+          totalWidth={totalWidth}
+          containerWidth={optimalWidth}
+          onSortBy={props.onSortBy}
+          onFiltered={props.onFiltered}
+          onColumnsOrderChange={props.onColumnsOrderChange}
+        />
+      </HeaderStoreContext.Provider>
       <ScrollArea>
         <TableBody
           scrollable={false}

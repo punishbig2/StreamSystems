@@ -1,10 +1,11 @@
-import React, { ReactElement } from "react";
-import { Table } from "components/Table/index";
-import columns from "columns/darkPoolDepth";
+import createColumns from "columns/darkPoolDepth";
 import { Cell } from "components/Table/Cell";
-import { TableColumn } from "components/Table/tableColumn";
-import { Order } from "types/order";
 import { getCellWidth } from "components/Table/helpers";
+import { Table } from "components/Table/index";
+import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
+import React, { ReactElement } from "react";
+import { Order } from "types/order";
+import { SortDirection } from "types/sortDirection";
 
 interface OwnProps {
   orders: Order[];
@@ -27,10 +28,23 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
       </div>
     );
   };
+
+  const _columns = React.useMemo(
+    (): ReadonlyArray<ExtendedTableColumn> =>
+      createColumns(props.onCancelOrder, props.showInstruction).map(
+        (column: TableColumn): ExtendedTableColumn => ({
+          ...column,
+          sortDirection: SortDirection.None,
+          filter: "",
+        })
+      ),
+    [props.onCancelOrder, props.showInstruction]
+  );
+
   return (
     <Table
       rows={props.orders}
-      columns={columns(props.onCancelOrder, props.showInstruction)}
+      columns={_columns}
       renderRow={renderRow}
       className={"padded"}
     />

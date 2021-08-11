@@ -6,12 +6,17 @@ import { PodTile } from "components/PodTile";
 import { PodTileTitle } from "components/PodTile/title";
 import { ReactTileManager } from "components/ReactTileManager";
 import strings from "locales";
-import { ContentStore, isPodTileStore } from "mobx/stores/contentStore";
+import {
+  ContentStore,
+  isMessageBlotterStore,
+  isPodTileStore,
+} from "mobx/stores/contentStore";
 import { PodStoreContext } from "mobx/stores/podStore";
 import { TileStore } from "mobx/stores/tileStore";
 import React from "react";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
+import { MessageBlotterStoreContext } from "mobx/stores/messageBlotterStore";
 
 interface Props {
   readonly tiles: ReadonlyArray<TileStore>;
@@ -25,6 +30,9 @@ interface Props {
 }
 
 const NotPodStoreError = new Error("not a pod tile store, but it should be");
+const NotMessageBlotterStoreError = new Error(
+  "not a message blotter store, but it should be"
+);
 
 export const ContentView: React.FC<Props> = (
   props: Props
@@ -44,8 +52,16 @@ export const ContentView: React.FC<Props> = (
           }
         };
       case TileType.MessageBlotter:
-        return () => {
-          return <MessageBlotter id={id} blotterType={BlotterTypes.Regular} />;
+        return (contentStore: ContentStore | null) => {
+          if (isMessageBlotterStore(contentStore)) {
+            return (
+              <MessageBlotterStoreContext.Provider value={contentStore}>
+                <MessageBlotter id={id} blotterType={BlotterTypes.Regular} />;
+              </MessageBlotterStoreContext.Provider>
+            );
+          } else {
+            throw NotMessageBlotterStoreError;
+          }
         };
     }
     throw new Error("invalid type of window specified");

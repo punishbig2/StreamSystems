@@ -1,5 +1,5 @@
 import { computed } from "mobx";
-import { MessagesStore } from "mobx/stores/messagesStore";
+import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { PodStore } from "mobx/stores/podStore";
 import { Persistable } from "types/persistable";
 import { TileType } from "types/tileType";
@@ -10,8 +10,9 @@ export abstract class ContentStore implements Persistable<ContentStore> {
   public abstract get serialized(): { [key: string]: any };
 }
 
-export const isMessageStore = (obj: any): obj is MessagesStore =>
+export const isMessageBlotterStore = (obj: any): obj is MessageBlotterStore =>
   "kind" in obj && obj.kind === TileType.MessageBlotter;
+
 export const isPodTileStore = (obj: any): obj is PodStore =>
   "kind" in obj &&
   obj.kind === TileType.PodTile &&

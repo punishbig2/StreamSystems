@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import styles from "styles";
 
 interface OwnProps {
-  readonly list: ReadonlyArray<{ name: string }>;
-  readonly value: any;
+  readonly list: ReadonlyArray<{ readonly name: string }>;
+  readonly value: string;
   readonly empty?: string;
   readonly searchable?: boolean;
   readonly fit?: boolean;

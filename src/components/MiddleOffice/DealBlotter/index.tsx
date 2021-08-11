@@ -2,7 +2,7 @@ import { columns } from "components/MiddleOffice/DealBlotter/columns";
 import { DealRow, RowProps } from "components/MiddleOffice/DealBlotter/row";
 import { Deal } from "components/MiddleOffice/types/deal";
 import { Table } from "components/Table";
-import { TableColumn } from "components/Table/tableColumn";
+import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import deepEqual from "deep-equal";
 import React, { ReactElement, useState } from "react";
 import { SortDirection } from "types/sortDirection";
@@ -110,9 +110,22 @@ export const DealBlotter: React.FC<Props> = React.memo(
         ]);
       }
     };
+
+    const _columns = React.useMemo(
+      (): ReadonlyArray<ExtendedTableColumn> =>
+        columns.map(
+          (column: TableColumn): ExtendedTableColumn => ({
+            ...column,
+            sortDirection: SortDirection.None,
+            filter: "",
+          })
+        ),
+      []
+    );
+
     return (
       <Table
-        columns={columns}
+        columns={_columns}
         rows={filteredRows}
         renderRow={(props: RowProps): ReactElement => (
           <DealRow key={props.row.id} {...props} onClick={onDealSelected} />

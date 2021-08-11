@@ -1,6 +1,6 @@
 import { TableColumn } from "components/Table/tableColumn";
 import { observable, action } from "mobx";
-import { CSSProperties } from "react";
+import React, { CSSProperties } from "react";
 
 interface MovingColumn {
   readonly state: TableColumn;
@@ -37,8 +37,9 @@ export class HeaderStore {
       const items: HTMLDivElement[] = Array.from(
         parent.querySelectorAll(".th")
       );
-      const movingItem: HTMLDivElement | null =
-        parent.querySelector(".th.fake");
+      const movingItem: HTMLDivElement | null = parent.querySelector(
+        ".th.fake"
+      );
       if (movingItem === null)
         throw new Error("there must be a moving element ...");
       const sourceIndex: number = items.findIndex(
@@ -52,8 +53,9 @@ export class HeaderStore {
           return movingItem.offsetLeft >= l && movingItem.offsetLeft < r;
         }
       );
-      if (sourceIndex !== targetIndex && onColumnsOrderChange !== undefined)
+      if (sourceIndex !== targetIndex && onColumnsOrderChange !== undefined) {
         onColumnsOrderChange(sourceIndex, targetIndex);
+      }
       // Reset the whole thing
       this.unsetGrabbedColumn();
     };
@@ -98,3 +100,7 @@ export class HeaderStore {
     };
   }
 }
+
+export const HeaderStoreContext = React.createContext<HeaderStore>(
+  new HeaderStore()
+);

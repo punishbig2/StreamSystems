@@ -1,11 +1,9 @@
 import { API } from "API";
-import { action, autorun, computed, observable } from "mobx";
+import { action, autorun, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import signalRManager from "signalR/signalRManager";
 import { Message } from "types/message";
-import { Symbol } from "types/symbol";
-import { TileType } from "types/tileType";
 import { User } from "types/user";
 import {
   isAcceptableFill,
@@ -17,8 +15,6 @@ export class MessagesStore {
   @observable.ref myMessages: ReadonlyArray<Message> = [];
   @observable.ref allExecutions: ReadonlyArray<Message> = [];
   @observable loading: boolean = false;
-  @observable ccyGroupFilter = "All";
-  public readonly kind: TileType = TileType.MessageBlotter;
   private entries: ReadonlyArray<Message> = [];
 
   constructor() {
@@ -27,33 +23,6 @@ export class MessagesStore {
         void this.initialize();
       }
     });
-  }
-
-  @computed
-  public get executions(): ReadonlyArray<Message> {
-    const { symbols } = workareaStore;
-    const { allExecutions } = this;
-    const { ccyGroupFilter } = this;
-    if (ccyGroupFilter !== "All") {
-      const filteredSymbols = symbols.filter(
-        ({ ccyGroup }: Symbol): boolean =>
-          ccyGroupFilter.toLowerCase() === ccyGroup.toLowerCase()
-      );
-
-      return allExecutions.filter(
-        (message: Message): boolean =>
-          filteredSymbols.find((symbol: Symbol): boolean => {
-            return symbol.symbolID === message.Symbol;
-          }) !== undefined
-      );
-    } else {
-      return allExecutions;
-    }
-  }
-
-  @action.bound
-  public setCCYGroupFilter(filter: string): void {
-    this.ccyGroupFilter = filter;
   }
 
   @action.bound

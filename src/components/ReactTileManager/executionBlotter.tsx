@@ -4,24 +4,25 @@ import { MessageBlotter } from "components/MessageBlotter";
 import { getOptimalExecutionsBlotterGeometry } from "components/ReactTileManager/helpers/getOptimalExecutionsBlotterGeometry";
 import { useExecutionBlotterSize } from "components/ReactTileManager/hooks/useExecutionBlotterSize";
 import { Select } from "components/Select";
-import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
+import { observer } from "mobx-react";
 import {
-  TradingWorkspaceStore,
-  TradingWorkspaceStoreContext,
-} from "mobx/stores/tradingWorkspaceStore";
+  MessageBlotterStore,
+  MessageBlotterStoreContext,
+} from "mobx/stores/messageBlotterStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { runInNextLoop } from "utils/runInNextLoop";
 
-export const ExecutionBlotter: React.FC = (): ReactElement | null => {
-  const messagesStore: MessagesStore =
-    React.useContext<MessagesStore>(MessagesStoreContext);
-  const store = React.useContext<TradingWorkspaceStore>(
-    TradingWorkspaceStoreContext
+export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
+  const store = React.useContext<MessageBlotterStore>(
+    MessageBlotterStoreContext
   );
-  const { lastGeometry: geometry, isNew } = store.executionBlotter;
+
+  const { user } = workareaStore;
+  const { lastGeometry: geometry, isNew } = store;
   const [tile, setTile] = React.useState<Tile | null>(null);
   const { width, height } = useExecutionBlotterSize();
+
   React.useEffect((): void => {
     if (tile === null) return;
     runInNextLoop((): void => {
@@ -32,14 +33,15 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
           return geometry;
         }
       })();
+      store.setLastGeometry(newGeometry);
       tile.setGeometry(newGeometry);
-      store.saveExecutionBlotterGeometry(newGeometry);
     });
   }, [geometry, height, isNew, store, tile, width]);
+
   React.useEffect((): (() => void) | void => {
     if (tile === null) return;
     const updateGeometry = ((event: CustomEvent<Geometry>): void => {
-      store.saveExecutionBlotterGeometry(event.detail);
+      store.setLastGeometry(event.detail);
     }) as EventListener;
     tile.addEventListener(TileEvent.Moved, updateGeometry);
     tile.addEventListener(TileEvent.Resized, updateGeometry);
@@ -48,7 +50,22 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
       tile.removeEventListener(TileEvent.Resized, updateGeometry);
     };
   }, [store, tile]);
+
+  React.useEffect((): void => {
+    store.setOwner(user);
+  }, [store, user]);
+
   const { regions } = workareaStore.user;
+
+  const groups = React.useMemo((): ReadonlyArray<{ readonly name: string }> => {
+    return [
+      { name: "All" },
+      ...regions.map((ccyGroup): {
+        name: string;
+      } => ({ name: ccyGroup })),
+    ];
+  }, [regions]);
+
   return (
     <cib-window ref={setTile} scrollable transparent>
       <div slot={"toolbar"} className={"execution-blotter-title"}>
@@ -56,16 +73,11 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
         <div className={"right-panel"}>
           <h3>CCY Group</h3>
           <Select
-            value={messagesStore.ccyGroupFilter}
+            value={store.currencyGroupFilter}
             disabled={!workareaStore.connected}
-            list={[
-              { name: "All" },
-              ...regions.map((ccyGroup): {
-                name: string;
-              } => ({ name: ccyGroup })),
-            ]}
+            list={groups}
             onChange={(value: string): void =>
-              messagesStore.setCCYGroupFilter(value)
+              store.setCurrencyGroupFilter(value)
             }
           />
         </div>
@@ -78,4 +90,4 @@ export const ExecutionBlotter: React.FC = (): ReactElement | null => {
       </div>
     </cib-window>
   );
-};
+});
