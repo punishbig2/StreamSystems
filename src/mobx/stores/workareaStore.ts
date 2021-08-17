@@ -4,6 +4,7 @@ import strings from "locales";
 import { action, autorun, computed, observable } from "mobx";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
+import moment from "moment";
 import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
@@ -12,15 +13,14 @@ import { Message } from "types/message";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
-import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
 import { CurrencyGroups, User, UserPreferences } from "types/user";
+import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
 import { updateApplicationTheme } from "utils/commonUtils";
 import { PersistStorage } from "utils/persistStorage";
 import { tenorToNumber } from "utils/tenorUtils";
 import { parseVersionNumber } from "utils/versionNumberParser";
-import moment from "moment";
 
 declare const GlobalApplicationVersion: string;
 
@@ -185,10 +185,11 @@ export class WorkareaStore {
         this.setStatus(WorkareaStatus.UserNotFound);
       } else {
         this.workSchedule = (await API.getTimeTable())[0];
-        console.log({ ...this.workSchedule });
         if (!this.isUserAllowedToSignIn(user)) {
           this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
           return;
+        } else {
+          this.createSessionTimer();
         }
         const regions: ReadonlyArray<string> = await this.loadUserRegions(
           user.email
@@ -505,6 +506,14 @@ export class WorkareaStore {
 
   public upgradeApplication(): void {
     window.location.reload();
+  }
+
+  private createSessionTimer(): void {
+    const { workSchedule } = this;
+    const eod = moment(workSchedule.end_of_day_time, "HH:mm:SS");
+    setTimeout((): void => {
+      this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
+    }, eod.diff(moment()));
   }
 }
 
