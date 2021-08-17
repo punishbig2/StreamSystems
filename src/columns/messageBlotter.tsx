@@ -326,8 +326,7 @@ const counterParty = (
   header: () => "CPTY",
   render: (props: CellProps) => {
     const { message } = props;
-    const { ExecBroker, MDMkt } = message;
-    const { user } = workareaStore;
+    const { ExecBroker } = message;
     if (!involved(message)) return <div />;
     return (
       <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
