@@ -35,6 +35,7 @@ import { OktaUser, Role } from "types/role";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
+import { WorkSchedule } from "types/workSchedule";
 import { OCOModes, User } from "types/user";
 import { MessageTypes, W } from "types/w";
 import {
@@ -54,6 +55,7 @@ import {
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
+import { GetDealsDateRange } from "types/getDealsDateRange";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -217,6 +219,7 @@ const DELETE = <T>(url: string, args?: any): Task<T> =>
   request<T>(url, Method.Delete, args);
 
 type Endpoints =
+  | "timetable"
   | "legadjustvalues"
   | "deal"
   | "symbols"
@@ -304,8 +307,17 @@ export class API {
     )}`;
   }
 
-  public static async getSymbols(region?: string): Promise<Symbol[]> {
-    const task: Task<Symbol[]> = GET<Symbol[]>(
+  public static async getTimeTable(): Promise<ReadonlyArray<WorkSchedule>> {
+    const task: Task<ReadonlyArray<WorkSchedule>> = GET<
+      ReadonlyArray<WorkSchedule>
+    >(API.buildUrl(API.Config, "timetable", "get"));
+    return task.execute();
+  }
+
+  public static async getSymbols(
+    region?: string
+  ): Promise<ReadonlyArray<Symbol>> {
+    const task: Task<Array<Symbol>> = GET<Array<Symbol>>(
       API.buildUrl(
         API.Config,
         "symbols",
@@ -313,7 +325,7 @@ export class API {
         region ? { region } : undefined
       )
     );
-    const currencies: Symbol[] = await task.execute();
+    const currencies: Array<Symbol> = await task.execute();
     // Sort them and return :)
     currencies.sort((c1: Symbol, c2: Symbol): number => {
       return c1.rank - c2.rank;
@@ -925,12 +937,13 @@ export class API {
   }
 
   public static async getDeals(
-    dealID?: string
+    dealID?: string,
+    dateRange?: GetDealsDateRange
   ): Promise<ReadonlyArray<{ [key: string]: any }>> {
     const task: Task<ReadonlyArray<{ [key: string]: any }>> = GET<
       ReadonlyArray<{ [key: string]: any }>
     >(
-      API.buildUrl(API.Deal, "deals", "get"),
+      API.buildUrl(API.Deal, "deals", "get", dateRange ?? {}),
       dealID !== undefined ? { dealid: dealID } : undefined
     );
     const array = await task.execute();

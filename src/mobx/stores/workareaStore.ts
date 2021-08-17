@@ -12,6 +12,7 @@ import { Message } from "types/message";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
+import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
 import { CurrencyGroups, User, UserPreferences } from "types/user";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -19,6 +20,7 @@ import { updateApplicationTheme } from "utils/commonUtils";
 import { PersistStorage } from "utils/persistStorage";
 import { tenorToNumber } from "utils/tenorUtils";
 import { parseVersionNumber } from "utils/versionNumberParser";
+import moment from "moment";
 
 declare const GlobalApplicationVersion: string;
 
@@ -66,6 +68,7 @@ export class WorkareaStore {
 
   private persistStorage?: PersistStorage;
   @observable isShowingNewVersionModal: boolean = false;
+  @observable workSchedule: WorkSchedule = invalidWorkSchedule;
 
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
     const { workspaces } = data;
@@ -162,6 +165,17 @@ export class WorkareaStore {
     ];
   }
 
+  public isUserAllowedToSignIn(user: User): boolean {
+    const { workSchedule } = this;
+    const { roles } = user;
+    if (roles.includes(Role.Broker) || roles.includes(Role.Admin)) {
+      return true;
+    }
+    const bod = moment(workSchedule.trading_start_time, "HH:mm:SS");
+    const eod = moment(workSchedule.trading_start_time, "HH:mm:SS");
+    return eod.isAfter(moment()) && bod.isBefore(moment());
+  }
+
   public async initialize(id: string) {
     this.loadingStep = 100 / 9;
     this.setStatus(WorkareaStatus.Starting);
@@ -170,6 +184,12 @@ export class WorkareaStore {
       if (user === undefined) {
         this.setStatus(WorkareaStatus.UserNotFound);
       } else {
+        this.workSchedule = (await API.getTimeTable())[0];
+        console.log({ ...this.workSchedule });
+        if (!this.isUserAllowedToSignIn(user)) {
+          this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
+          return;
+        }
         const regions: ReadonlyArray<string> = await this.loadUserRegions(
           user.email
         );

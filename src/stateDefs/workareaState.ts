@@ -9,6 +9,7 @@ export enum WorkareaStatus {
   Welcome,
   Ready,
   UserNotFound,
+  NotAllowedAtThisTime,
   Error,
 }
 

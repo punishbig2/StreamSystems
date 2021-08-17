@@ -6,6 +6,7 @@ import { AccessDeniedView } from "components/Workarea/accessDeniedView";
 import { ActiveWorkspace } from "components/Workarea/activeWorkspaces";
 import { DisconnectedDisabler } from "components/Workarea/disconnectedDisabler";
 import { Footer } from "components/Workarea/footer";
+import { UserNotAllowedAtThisTime } from "components/Workarea/userNotAllowedAtThisTime";
 import { UserNotFound } from "components/Workarea/userNotFound";
 import { WorkareaError } from "components/Workarea/workareaError";
 import { observer } from "mobx-react";
@@ -138,6 +139,8 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       return <UserNotFound />;
     case WorkareaStatus.Starting:
       return null;
+    case WorkareaStatus.NotAllowedAtThisTime:
+      return <UserNotAllowedAtThisTime />;
     case WorkareaStatus.Initializing:
       if (!store.loadingMessage) return null;
       return (
