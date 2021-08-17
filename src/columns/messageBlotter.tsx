@@ -144,7 +144,7 @@ const price = (sortable: boolean): TableColumn => ({
 });
 
 const getSide = (message: Message): "Buy" | "Sell" =>
-  message.Side === "1" ? "Sell" : "Buy";
+  message.Side === "1" ? "Buy" : "Sell";
 
 const side = (sortable: boolean): TableColumn => ({
   name: "Side",
