@@ -331,7 +331,7 @@ const counterParty = (
     if (!involved(message)) return <div />;
     return (
       <div className={"normal cpty " + (isExecBlotter ? "exec-blotter" : "")}>
-        {user.firm === ExecBroker ? MDMkt : ExecBroker}
+        {ExecBroker}
       </div>
     );
   },
