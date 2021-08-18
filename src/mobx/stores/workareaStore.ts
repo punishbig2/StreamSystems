@@ -172,7 +172,7 @@ export class WorkareaStore {
       return true;
     }
     const bod = moment(workSchedule.trading_start_time, "HH:mm:SS");
-    const eod = moment(workSchedule.trading_start_time, "HH:mm:SS");
+    const eod = moment(workSchedule.end_of_day_time, "HH:mm:SS");
     return eod.isAfter(moment()) && bod.isBefore(moment());
   }
 
