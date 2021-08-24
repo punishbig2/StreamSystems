@@ -4,7 +4,7 @@ import strings from "locales";
 import { action, autorun, computed, observable } from "mobx";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
-import moment from "moment";
+import moment, { Moment } from "moment-timezone";
 import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
@@ -165,14 +165,20 @@ export class WorkareaStore {
     ];
   }
 
+  private static _parseTime(value: string): Moment {
+    const timezone = "Asia/Karachi";
+    return moment.tz(value, "HH:mm:ss", timezone).local();
+  }
+
   public isUserAllowedToSignIn(user: User): boolean {
     const { workSchedule } = this;
     const { roles } = user;
     if (roles.includes(Role.Broker) || roles.includes(Role.Admin)) {
       return true;
     }
-    const bod = moment(workSchedule.trading_start_time, "HH:mm:SS");
-    const eod = moment(workSchedule.end_of_day_time, "HH:mm:SS");
+    const bod = WorkareaStore._parseTime(workSchedule.trading_start_time);
+    const eod = WorkareaStore._parseTime(workSchedule.end_of_day_time);
+
     return eod.isAfter(moment()) && bod.isBefore(moment());
   }
 
