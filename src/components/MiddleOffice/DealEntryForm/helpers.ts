@@ -4,6 +4,7 @@ import { FieldDef } from "forms/fieldDef";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry } from "types/dealEntry";
 import { resolveBankToEntity, stateMap } from "utils/dealUtils";
+import { DealStatus } from "types/dealStatus";
 
 export const getValue = (
   field: FieldDef<DealEntry, DealEntry, MiddleOfficeStore>,
@@ -15,7 +16,7 @@ export const getValue = (
   if (editFlag === EditableFlag.NotApplicable) return "N/A";
   if (field.type === "bank-entity")
     return resolveBankToEntity(rawValue, entities);
-  if (field.name === "status") return stateMap[Number(rawValue)];
+  if (field.name === "status") return stateMap[rawValue as DealStatus];
   if (!internal) {
     if (field.name === "symbol") {
       return rawValue.symbolID;

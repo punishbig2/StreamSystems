@@ -97,7 +97,7 @@ const trader = (sortable: boolean, side: "1" | "2"): TableColumn => ({
   template: "some_trader@email.com",
   filterable: true,
   sortable: sortable,
-  header: () => `Trader ${side}`,
+  header: () => (side === "1" ? "Buyer" : "Seller"),
   render: ({ message }: CellProps): ReactElement => {
     const email = side === "1" ? message.ContraTrader : message.Username;
     if (email === undefined) {

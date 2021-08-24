@@ -22,7 +22,8 @@ import {
   safeForceParseDate,
 } from "utils/timeUtils";
 
-export const stateMap: { [key: number]: string } = {
+export const stateMap: { [key in DealStatus]: string } = {
+  [DealStatus.NoStatus]: "No Status",
   [DealStatus.Pending]: "Pending",
   [DealStatus.Priced]: "Priced",
   [DealStatus.SEFSubmitted]: "SEF Submitted",
@@ -31,6 +32,9 @@ export const stateMap: { [key: number]: string } = {
   [DealStatus.STPSubmitted]: "STP Submitted",
   [DealStatus.STPFailed]: "STP Failed",
   [DealStatus.STPComplete]: "STP Complete",
+  [DealStatus.MKTSComplete]: "MKTS Complete",
+  [DealStatus.TRTNComplete]: "TRTN Complete",
+  [DealStatus.UBSComplete]: "UBS Complete",
 };
 
 export const resolveEntityToBank = (
