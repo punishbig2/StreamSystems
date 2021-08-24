@@ -1,26 +1,24 @@
 import { WorkareaError } from "components/Workarea/workareaError";
 import workareaStore from "mobx/stores/workareaStore";
-import moment, { Moment } from "moment";
+import { Moment } from "moment";
 import React from "react";
-
-const toMoment = (value: string): Moment => {
-  return moment(value, "HH:mm:SS");
-};
+import { parseAsNYTime } from "utils/parseAsNYTime";
 
 export const UserNotAllowedAtThisTime: React.FC = (): React.ReactElement => {
   const { trading_start_time, end_of_day_time } = workareaStore.workSchedule;
   const bod: Moment = React.useMemo(
-    (): Moment => toMoment(trading_start_time),
+    (): Moment => parseAsNYTime(trading_start_time),
     [trading_start_time]
   );
-  const eod: Moment = React.useMemo((): Moment => toMoment(end_of_day_time), [
-    end_of_day_time,
-  ]);
+  const eod: Moment = React.useMemo(
+    (): Moment => parseAsNYTime(end_of_day_time),
+    [end_of_day_time]
+  );
 
   const title = "Access Denied";
   const detail =
     "You cannot access the trading system at this moment. Please try again later." +
-    ` The system is only active Monday to Friday from ${bod.format(
+    ` The system is active Monday to Friday from ${bod.format(
       "hh:mm a"
     )} to ${eod.format("hh:mm a")}.`;
 
