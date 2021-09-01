@@ -4,6 +4,10 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { Table } from "components/Table";
 import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import deepEqual from "deep-equal";
+import {
+  MiddleOfficeStore,
+  MiddleOfficeStoreContext,
+} from "mobx/stores/middleOfficeStore";
 import React, { ReactElement, useState } from "react";
 import { SortDirection } from "types/sortDirection";
 
@@ -34,6 +38,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
     const [, setTable] = useState<HTMLDivElement | null>(null);
     const [filters, setFilters] = React.useState<ReadonlyArray<Filter>>([]);
     const [sorters, setSorters] = React.useState<ReadonlyArray<Sorter>>([]);
+    const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
     const filteredRows = React.useMemo((): ReadonlyArray<Deal> => {
       const filterFn = filters.reduce(
         (
@@ -42,10 +47,25 @@ export const DealBlotter: React.FC<Props> = React.memo(
         ): ((value: Deal) => boolean) => {
           return (value: Deal): boolean => {
             const { column } = filter;
+            const proxyValue = new Proxy(value, {
+              get: (target: Deal, key: keyof Deal): any => {
+                if (key === "buyer" || key === "seller") {
+                  const value = target[key];
+                  const entity = store.entitiesMap[value];
+                  if (entity === undefined) {
+                    return value;
+                  }
+                  return entity.id;
+                }
+                return target[key];
+              },
+            });
             if (column.filterByKeyword === undefined) {
-              return fn(value);
+              return fn(proxyValue);
             }
-            return fn(value) && column.filterByKeyword(value, filter.value);
+            return (
+              fn(proxyValue) && column.filterByKeyword(proxyValue, filter.value)
+            );
           };
         },
         (): boolean => true
@@ -75,7 +95,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
         (): number => 0
       );
       return deals.filter(filterFn).sort(sortFn);
-    }, [deals, filters, sorters]);
+    }, [deals, filters, sorters, store.entitiesMap]);
 
     const getColumnByName = (name: string): TableColumn | undefined =>
       columns.find((c: TableColumn): boolean => c.name === name);
