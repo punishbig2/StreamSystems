@@ -5,14 +5,14 @@ import React from "react";
 import { parseAsNYTime } from "utils/parseAsNYTime";
 
 export const UserNotAllowedAtThisTime: React.FC = (): React.ReactElement => {
-  const { trading_start_time, end_of_day_time } = workareaStore.workSchedule;
+  const { trading_start_time, trading_end_time } = workareaStore.workSchedule;
   const bod: Moment = React.useMemo(
     (): Moment => parseAsNYTime(trading_start_time),
     [trading_start_time]
   );
   const eod: Moment = React.useMemo(
-    (): Moment => parseAsNYTime(end_of_day_time),
-    [end_of_day_time]
+    (): Moment => parseAsNYTime(trading_end_time),
+    [trading_end_time]
   );
 
   const title = "Access Denied";

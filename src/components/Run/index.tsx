@@ -54,6 +54,7 @@ const Run: React.FC<Props> = observer(
         strategy
       );
       const promise: Promise<BrokerageWidthsResponse> = task.execute();
+      store.setBrokerageWidths([]);
       promise
         .then((response: BrokerageWidthsResponse) => {
           store.setBrokerageWidths([

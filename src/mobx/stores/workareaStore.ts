@@ -173,7 +173,7 @@ export class WorkareaStore {
       return true;
     }
     const bod = parseAsNYTime(workSchedule.trading_start_time);
-    const eod = parseAsNYTime(workSchedule.end_of_day_time);
+    const eod = parseAsNYTime(workSchedule.trading_end_time);
 
     return eod.isAfter(moment()) && bod.isBefore(moment());
   }
@@ -512,10 +512,10 @@ export class WorkareaStore {
 
   private createSessionTimer(): void {
     const { workSchedule } = this;
-    const eod = moment(workSchedule.end_of_day_time, "HH:mm:SS");
+    const tradingEndTime = moment(workSchedule.trading_end_time, "HH:mm:SS");
     setTimeout((): void => {
       this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
-    }, eod.diff(moment()));
+    }, tradingEndTime.diff(moment()));
   }
 }
 
