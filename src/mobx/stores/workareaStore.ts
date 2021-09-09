@@ -13,7 +13,7 @@ import { Message } from "types/message";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
-import { CurrencyGroups, User, UserPreferences } from "types/user";
+import { CurrencyGroups, OtherUser, User, UserPreferences } from "types/user";
 import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -62,7 +62,7 @@ export class WorkareaStore {
 
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
-  @observable users: ReadonlyArray<User> = [];
+  @observable users: ReadonlyArray<OtherUser> = [];
 
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
@@ -281,16 +281,18 @@ export class WorkareaStore {
     this.workspaceAccessDenied = false;
   }
 
-  public findUserByEmail(email: string): User {
+  public findUserByEmail(email: string): OtherUser {
     const { users } = this;
-    const found: User | undefined = users.find((user: User): boolean => {
-      if (user.email === undefined) {
-        return false;
-      } else if (email === undefined) {
-        return false;
+    const found: OtherUser | undefined = users.find(
+      (user: OtherUser): boolean => {
+        if (user.email === undefined) {
+          return false;
+        } else if (email === undefined) {
+          return false;
+        }
+        return user.email.toLowerCase() === email.toLowerCase();
       }
-      return user.email.toLowerCase() === email.toLowerCase();
-    });
+    );
     if (found === undefined) {
       console.warn(
         `we tried to find \`${email}' in the list of users from the server but it's not in it`,
@@ -299,10 +301,6 @@ export class WorkareaStore {
       return {
         email: "unknown user",
         firm: "unknown firm",
-        regions: [],
-        roles: [],
-        firstname: "unknown",
-        lastname: "unknown",
       };
     }
     return found;
@@ -355,42 +353,17 @@ export class WorkareaStore {
   @action.bound
   private async loadUser(id: string): Promise<User | undefined> {
     this.updateLoadingProgress(strings.StartingUp);
-    // Get the list of all users
-    const users: User[] = await API.getUsers();
-    this.users = users;
-    if (
-      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
-        id
-      )
-    ) {
-      const oktaUser: OktaUser = await API.getUser(id);
-      // Find said user in the users array
-      const user: User | undefined = users.find(
-        (each: User) => each.email === oktaUser.email
-      );
-      if (user === undefined) {
-        return undefined;
-      } else {
-        const { roles } = oktaUser;
-        return { ...user, roles };
-      }
+
+    const oktaUser: OktaUser = await API.getUser(id);
+    const me: User[] = await API.getUserInfo(oktaUser.email);
+    // Find said user in the users array
+    const user: User | undefined = me[0];
+    if (user === undefined) {
+      return undefined;
     } else {
-      // Find said user in the users array
-      const user: any | undefined = users.find(
-        (each: User): boolean => each.email === id
-      );
-      if (user === undefined) {
-        return undefined;
-      } else {
-        return {
-          ...user,
-          roles: [
-            ...(user.isbroker ? [Role.Broker] : []),
-            ...(user.ismiddleoffice ? [Role.MiddleOffice] : []),
-            ...(!user.isbroker && !user.ismiddleoffice ? [Role.Trader] : []),
-          ],
-        };
-      }
+      const { roles } = oktaUser;
+      this.users = await API.getAllUsers(oktaUser.email);
+      return { ...user, roles };
     }
   }
 

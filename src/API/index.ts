@@ -232,7 +232,8 @@ type Endpoints =
   | "all"
   | "runorders"
   | "UserGroupSymbol"
-  | "Users"
+  | "AllUsers"
+  | "UserInfo"
   | "UserJson"
   | "markets"
   | "allextended"
@@ -596,9 +597,16 @@ export class API {
     );
   }
 
-  public static async getUsers(): Promise<User[]> {
+  public static async getAllUsers(useremail: string): Promise<User[]> {
     const task: Task<User[]> = GET<User[]>(
-      API.buildUrl(API.UserApi, "Users", "get")
+      API.buildUrl(API.UserApi, "AllUsers", "get", { useremail })
+    );
+    return task.execute();
+  }
+
+  public static async getUserInfo(useremail: string): Promise<User[]> {
+    const task: Task<User[]> = GET<User[]>(
+      API.buildUrl(API.UserApi, "UserInfo", "get", { useremail })
     );
     return task.execute();
   }

@@ -24,36 +24,38 @@ export enum ExecTypes {
 }
 
 export interface Message {
-  Account: string;
-  AvgPx: string;
-  ClOrdID: string;
-  CumQty: string;
-  Currency: string;
-  ExecID: string;
-  ExecTransType: string;
-  LastShares: string;
-  LastQty: string;
-  OrderID: string;
-  OrderQty: string;
-  OrdType: string;
-  Price: string;
-  LastPx: string;
-  Strategy: string;
-  Tenor: string;
-  Side: string;
-  Symbol: string;
-  TransactTime: string;
-  OrdStatus: ExecTypes;
-  ExecType: ExecTypes;
-  LeavesQty: string;
-  Username: string;
-  MDMkt: string;
-  ExecBroker: string;
-  ContraTrader: string;
-  ExDestination?: string;
-  ClOrdLinkId?: string;
-  CxlRejResponseTo: string | undefined;
-  ["583"]?: string;
+  readonly Account: string;
+  readonly AvgPx: string;
+  readonly ClOrdID: string;
+  readonly CumQty: string;
+  readonly Currency: string;
+  readonly ExecID: string;
+  readonly ExecTransType: string;
+  readonly LastShares: string;
+  readonly LastQty: string;
+  readonly OrderID: string;
+  readonly OrderQty: string;
+  readonly OrdType: string;
+  readonly Price: string;
+  readonly LastPx: string;
+  readonly Strategy: string;
+  readonly Tenor: string;
+  readonly Side: string;
+  readonly Symbol: string;
+  readonly TransactTime: string;
+  readonly OrdStatus: ExecTypes;
+  readonly ExecType: ExecTypes;
+  readonly LeavesQty: string;
+  readonly Username: string;
+  readonly MDMkt: string;
+  readonly ExecBroker: string;
+  readonly ContraTrader: string;
+  readonly ExDestination?: string;
+  readonly ClOrdLinkId?: string;
+  readonly CxlRejResponseTo: string | undefined;
+  readonly FullName: string;
+  readonly ContraFullName: string;
+  readonly ["583"]?: string;
 }
 
 export interface DarkPoolMessage {

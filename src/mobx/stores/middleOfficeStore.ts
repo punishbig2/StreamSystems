@@ -51,7 +51,7 @@ import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
-import { User } from "types/user";
+import { OtherUser } from "types/user";
 
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
@@ -153,8 +153,8 @@ export class MiddleOfficeStore implements Workspace {
   private modifiedFields: string[] = [];
 
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
-  @observable.ref sellers: ReadonlyArray<User> = [];
-  @observable.ref buyers: ReadonlyArray<User> = [];
+  @observable.ref sellers: ReadonlyArray<OtherUser> = [];
+  @observable.ref buyers: ReadonlyArray<OtherUser> = [];
 
   @computed
   public get tenors(): ReadonlyArray<string> {
@@ -1392,14 +1392,18 @@ export class MiddleOfficeStore implements Workspace {
   private reloadBuyers(buyer: string): void {
     const { users } = workareaStore;
     const firm = resolveEntityToBank(buyer, this.entitiesMap);
-    this.buyers = users.filter((user: User): boolean => user.firm === firm);
+    this.buyers = users.filter(
+      (user: OtherUser): boolean => user.firm === firm
+    );
   }
 
   @action.bound
   private reloadSellers(seller: string): void {
     const { users } = workareaStore;
     const firm = resolveEntityToBank(seller, this.entitiesMap);
-    this.sellers = users.filter((user: User): boolean => user.firm === firm);
+    this.sellers = users.filter(
+      (user: OtherUser): boolean => user.firm === firm
+    );
   }
 }
 

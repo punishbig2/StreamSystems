@@ -3,11 +3,11 @@ import { involved } from "columns/messageBlotterColumns/helpers";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
 import { TableColumn } from "components/Table/tableColumn";
 import { Globals } from "golbals";
+import workareaStore from "mobx/stores/workareaStore";
 import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
 import { Message } from "types/message";
 import { Role } from "types/role";
-import { User } from "types/user";
 import { DarkPool } from "types/w";
 import {
   getBuyer,
@@ -24,7 +24,6 @@ import {
   parseTime,
   TimeFormatter,
 } from "utils/timeUtils";
-import workareaStore from "mobx/stores/workareaStore";
 
 export enum BlotterTypes {
   None,
@@ -99,16 +98,11 @@ const trader = (sortable: boolean, side: "1" | "2"): TableColumn => ({
   sortable: sortable,
   header: () => (side === "1" ? "Buyer" : "Seller"),
   render: ({ message }: CellProps): ReactElement => {
-    const email = side === "1" ? message.ContraTrader : message.Username;
-    if (email === undefined) {
+    const fullName = side === "1" ? message.ContraFullName : message.FullName;
+    if (fullName === undefined) {
       return <span />;
     }
-    const user: User = workareaStore.findUserByEmail(email);
-    return (
-      <span>
-        {user.firstname} {user.lastname}
-      </span>
-    );
+    return <span>{fullName}</span>;
   },
   width: 5,
   filterByKeyword: (v1: Message, keyword: string): boolean => {

@@ -22,6 +22,11 @@ export interface ExecSound {
   readonly name: string;
 }
 
+export interface OtherUser {
+  readonly email: string;
+  readonly firm: string;
+}
+
 export interface User {
   readonly email: string;
   readonly firm: string;
