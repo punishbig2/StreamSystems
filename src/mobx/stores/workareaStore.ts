@@ -17,8 +17,8 @@ import {
   CurrencyGroups,
   OtherUser,
   User,
-  UserPreferences,
   UserInfo,
+  UserPreferences,
 } from "types/user";
 import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
 import { Workspace } from "types/workspace";
@@ -138,11 +138,11 @@ export class WorkareaStore {
     }
   }
 
-  private static cleanupUrl(email: string) {
+  private static cleanupUrl(id: string) {
     const { history, location } = window;
     const base: string = `${location.protocol}//${location.host}${location.pathname}`;
     // Replace the url with the same url but without parameters
-    history.pushState({ email }, "", base);
+    history.pushState({ userId: id }, "", base);
   }
 
   @action.bound
@@ -187,6 +187,7 @@ export class WorkareaStore {
   public async initialize(id: string) {
     this.loadingStep = 100 / 9;
     this.setStatus(WorkareaStatus.Starting);
+    console.log(id);
     try {
       const user: User | undefined = await this.loadUser(id);
       if (user === undefined) {
@@ -206,7 +207,7 @@ export class WorkareaStore {
         this.user = { ...user, regions };
         this.persistStorage = new PersistStorage(this.user);
         // This is just for eye candy :)
-        WorkareaStore.cleanupUrl(user.email);
+        WorkareaStore.cleanupUrl(id);
         await this.checkVersion();
         // Load the saved state
         await this.initializePersistStorage();
@@ -369,7 +370,8 @@ export class WorkareaStore {
     } else {
       const { roles } = oktaUser;
       this.users = await API.getAllUsers(oktaUser.email);
-      const self: User = {
+
+      return {
         email: me.email,
         firm: me.firm,
         firstname: me.firstname,
@@ -378,8 +380,6 @@ export class WorkareaStore {
         // Add broker role
         roles: [...roles, ...(me.isbroker ? [Role.Broker] : [])],
       };
-
-      return self;
     }
   }
 

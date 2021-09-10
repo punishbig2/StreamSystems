@@ -1,14 +1,14 @@
 export const getUserIdFromUrl = (): string | null => {
   const { location, history } = window;
   if (history.state) {
-    const { email } = history.state;
-    if (!email) {
+    const { userId } = history.state;
+    if (!userId) {
       const urlParameters: URLSearchParams = new URLSearchParams(
         location.search
       );
       return urlParameters.get("user");
     } else {
-      return email;
+      return userId;
     }
   } else {
     const urlParameters: URLSearchParams = new URLSearchParams(location.search);
