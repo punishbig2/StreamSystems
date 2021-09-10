@@ -153,8 +153,6 @@ export class MiddleOfficeStore implements Workspace {
   private modifiedFields: string[] = [];
 
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
-  @observable.ref sellers: ReadonlyArray<OtherUser> = [];
-  @observable.ref buyers: ReadonlyArray<OtherUser> = [];
 
   @computed
   public get tenors(): ReadonlyArray<string> {
@@ -640,9 +638,8 @@ export class MiddleOfficeStore implements Workspace {
     // Reload strategies now
     if (deal !== null) {
       this.reloadStrategies(deal.currency);
-      this.reloadBuyers(deal.buyer);
-      this.reloadSellers(deal.seller);
     }
+
     this.entry = { ...emptyDealEntry };
     if (
       (this.isEditMode && deal !== null && entry.dealID !== deal.id) ||
@@ -799,12 +796,7 @@ export class MiddleOfficeStore implements Workspace {
     if (partial.symbol) {
       this.reloadStrategies(partial.symbol.symbolID);
     }
-    if (partial.buyer) {
-      this.reloadBuyers(partial.buyer);
-    }
-    if (partial.seller) {
-      this.reloadSellers(partial.seller);
-    }
+
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
       return legs.map(
         (leg: Leg, index: number): Leg => {
@@ -1388,22 +1380,20 @@ export class MiddleOfficeStore implements Workspace {
     this.loadingDeals = reloadingDeals;
   }
 
-  @action.bound
-  private reloadBuyers(buyer: string): void {
+  @computed
+  public get buyers(): ReadonlyArray<OtherUser> {
+    const { entry } = this;
     const { users } = workareaStore;
-    const firm = resolveEntityToBank(buyer, this.entitiesMap);
-    this.buyers = users.filter(
-      (user: OtherUser): boolean => user.firm === firm
-    );
+    const firm = resolveEntityToBank(entry.buyer, this.entitiesMap);
+    return users.filter((user: OtherUser): boolean => user.firm === firm);
   }
 
-  @action.bound
-  private reloadSellers(seller: string): void {
+  @computed
+  public get sellers(): ReadonlyArray<OtherUser> {
+    const { entry } = this;
     const { users } = workareaStore;
-    const firm = resolveEntityToBank(seller, this.entitiesMap);
-    this.sellers = users.filter(
-      (user: OtherUser): boolean => user.firm === firm
-    );
+    const firm = resolveEntityToBank(entry.seller, this.entitiesMap);
+    return users.filter((user: OtherUser): boolean => user.firm === firm);
   }
 }
 
