@@ -36,7 +36,7 @@ import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
 import { WorkSchedule } from "types/workSchedule";
-import { OCOModes, User } from "types/user";
+import { OCOModes, User, UserInfo } from "types/user";
 import { MessageTypes, W } from "types/w";
 import {
   coalesce,
@@ -604,8 +604,8 @@ export class API {
     return task.execute();
   }
 
-  public static async getUserInfo(useremail: string): Promise<User[]> {
-    const task: Task<User[]> = GET<User[]>(
+  public static async getUserInfo(useremail: string): Promise<UserInfo> {
+    const task: Task<UserInfo> = GET<UserInfo>(
       API.buildUrl(API.UserApi, "UserInfo", "get", { useremail })
     );
     return task.execute();

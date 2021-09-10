@@ -13,7 +13,13 @@ import { Message } from "types/message";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
-import { CurrencyGroups, OtherUser, User, UserPreferences } from "types/user";
+import {
+  CurrencyGroups,
+  OtherUser,
+  User,
+  UserPreferences,
+  UserInfo,
+} from "types/user";
 import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -355,15 +361,25 @@ export class WorkareaStore {
     this.updateLoadingProgress(strings.StartingUp);
 
     const oktaUser: OktaUser = await API.getUser(id);
-    const me: User[] = await API.getUserInfo(oktaUser.email);
+    const userInfo: UserInfo = await API.getUserInfo(oktaUser.email);
+    const me = userInfo[0];
     // Find said user in the users array
-    const user: User | undefined = me[0];
-    if (user === undefined) {
+    if (me === undefined) {
       return undefined;
     } else {
       const { roles } = oktaUser;
       this.users = await API.getAllUsers(oktaUser.email);
-      return { ...user, roles };
+      const self: User = {
+        email: me.email,
+        firm: me.firm,
+        firstname: me.firstname,
+        lastname: me.lastname,
+        regions: await API.getUserRegions(oktaUser.email),
+        // Add broker role
+        roles: [...roles, ...(me.isbroker ? [Role.Broker] : [])],
+      };
+
+      return self;
     }
   }
 
