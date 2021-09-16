@@ -24,7 +24,7 @@ import { LegAdjustValue } from "types/legAdjustValue";
 import { Message } from "types/message";
 import { MessageResponse } from "types/messageResponse";
 import {
-  CreateOrder,
+  FIXMessage,
   CreateOrderBulk,
   DarkPoolOrder,
   Order,
@@ -349,7 +349,7 @@ export class API {
   }
 
   public static async executeCreateOrderRequest(
-    request: CreateOrder
+    request: FIXMessage
   ): Promise<MessageResponse> {
     const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "create"),

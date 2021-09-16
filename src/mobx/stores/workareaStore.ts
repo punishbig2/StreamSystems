@@ -187,7 +187,6 @@ export class WorkareaStore {
   public async initialize(id: string) {
     this.loadingStep = 100 / 9;
     this.setStatus(WorkareaStatus.Starting);
-    console.log(id);
     try {
       const user: User | undefined = await this.loadUser(id);
       if (user === undefined) {

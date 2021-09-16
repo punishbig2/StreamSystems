@@ -14,7 +14,7 @@ export const onSubmitSize = (store: OrderStore) => async (
       throw SizeTooSmallError;
     }
     // Update the order's size
-    store.create(null, size);
+    await store.create(null, size);
   }
   skipTabIndexAll(input, 1);
 };

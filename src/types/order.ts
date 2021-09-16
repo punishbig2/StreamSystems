@@ -6,7 +6,7 @@ import { ArrowDirection, MessageTypes, W } from "types/w";
 import { priceFormatter } from "utils/priceFormatter";
 import { $$ } from "utils/stringPaster";
 
-export interface CreateOrder {
+export interface FIXMessage {
   OrderID?: string;
   MsgType: MessageTypes;
   TransactTime: string;
@@ -32,7 +32,7 @@ export interface CreateOrderBulk {
   Orders?: any[];
 }
 
-export type DarkPoolOrder = CreateOrder & {
+export type DarkPoolOrder = FIXMessage & {
   ExecInst?: string;
 };
 

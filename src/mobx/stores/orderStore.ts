@@ -3,7 +3,7 @@ import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAgg
 import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import { OrderTypes } from "types/mdEntry";
-import { CreateOrder, Order, OrderStatus } from "types/order";
+import { FIXMessage, Order, OrderStatus } from "types/order";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
@@ -39,6 +39,15 @@ export class OrderStore {
   }
 
   @computed
+  get activeOrderId(): string | null {
+    if ((this.status & OrderStatus.Cancelled) !== 0) {
+      return null;
+    } else {
+      return this.orderID ?? null;
+    }
+  }
+
+  @computed
   get minimumPrice(): number {
     return 0;
   }
@@ -54,14 +63,14 @@ export class OrderStore {
   }
 
   public getCreatorPrice(editedPrice: number | null): number | null {
-    const currentOrder = this.getClashingOrder(this.type);
+    const currentOrder = this.getExistingOrder(this.type);
     if (editedPrice !== null) return editedPrice;
     if (currentOrder === null) return null;
     return currentOrder.price;
   }
 
   public getCreatorSize(editedSize: number | null): number | null {
-    const currentOrder = this.getClashingOrder(this.type);
+    const currentOrder = this.getExistingOrder(this.type);
     if (this.defaultSize === undefined)
       throw new Error("impossible to determine order creation size");
     if (editedSize !== null) return editedSize;
@@ -97,20 +106,39 @@ export class OrderStore {
     const { roles } = user;
     // Create the request
     const side = getSideFromType(type);
-    const request: CreateOrder = {
-      ...this.getCancelOrderId(type),
-      MsgType: MessageTypes.D,
-      TransactTime: getCurrentTime(),
-      User: user.email,
-      Symbol: this.symbol,
-      Strategy: this.strategy,
-      Tenor: this.tenor,
-      Side: side,
-      Quantity: size.toString(),
-      Price: price.toString(),
-      MDMkt: roles.includes(Role.Broker) ? personality : undefined,
-      ...API.getCancelCondition(),
-    };
+    const matchingOrderId = this.activeOrderId;
+    const request: FIXMessage = ((): FIXMessage => {
+      if (matchingOrderId !== null) {
+        return {
+          MsgType: MessageTypes.G,
+          OrderID: matchingOrderId,
+          TransactTime: getCurrentTime(),
+          User: user.email,
+          Symbol: this.symbol,
+          Strategy: this.strategy,
+          Tenor: this.tenor,
+          Side: side,
+          Quantity: size.toString(),
+          Price: price.toString(),
+          MDMkt: roles.includes(Role.Broker) ? personality : undefined,
+          ...API.getCancelCondition(),
+        };
+      } else {
+        return {
+          MsgType: MessageTypes.D,
+          TransactTime: getCurrentTime(),
+          User: user.email,
+          Symbol: this.symbol,
+          Strategy: this.strategy,
+          Tenor: this.tenor,
+          Side: side,
+          Quantity: size.toString(),
+          Price: price.toString(),
+          MDMkt: roles.includes(Role.Broker) ? personality : undefined,
+          ...API.getCancelCondition(),
+        };
+      }
+    })();
     const response = await API.executeCreateOrderRequest(request);
     if (response.Status === "Success") {
       this.currentStatus = this.currentStatus & ~OrderStatus.BeingCreated;
@@ -254,7 +282,7 @@ export class OrderStore {
     return this.symbol + this.strategy + this.tenor;
   }
 
-  private getClashingOrder(type: OrderTypes): Order | null {
+  private getExistingOrder(type: OrderTypes): Order | null {
     const { depth } = this;
     const user: User = workareaStore.user;
     const found: Order | undefined = depth.find(
@@ -262,14 +290,6 @@ export class OrderStore {
     );
     if (found !== undefined) return found;
     return null;
-  }
-
-  private getCancelOrderId(type: OrderTypes): { OrderID?: string } {
-    const clashingOrder: Order | null = this.getClashingOrder(type);
-    if (clashingOrder === null) {
-      return {};
-    }
-    return { OrderID: clashingOrder.orderId };
   }
 
   private getNewOrderStatus(price: number): OrderStatus {
