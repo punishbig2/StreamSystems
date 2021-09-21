@@ -9,10 +9,10 @@ export enum PodRowStatus {
 interface TOBRowBase {
   readonly id: string;
   readonly tenor: string;
-  bid: Order;
-  ofr: Order;
-  mid: number | null;
-  spread: number | null;
+  readonly bid: Order;
+  readonly ofr: Order;
+  readonly mid: number | null;
+  readonly spread: number | null;
   readonly status: PodRowStatus;
 }
 

@@ -2,6 +2,7 @@ import { API } from "API";
 import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
 import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
+import React from "react";
 import { OrderTypes } from "types/mdEntry";
 import { FIXMessage, Order, OrderStatus } from "types/order";
 import { Role } from "types/role";
@@ -110,7 +111,7 @@ export class OrderStore {
     const request: FIXMessage = ((): FIXMessage => {
       if (matchingOrderId !== null) {
         return {
-          MsgType: MessageTypes.G,
+          MsgType: MessageTypes.M,
           OrderID: matchingOrderId,
           TransactTime: getCurrentTime(),
           User: user.email,
@@ -322,3 +323,7 @@ export class OrderStore {
     return OrderStatus.Active;
   }
 }
+
+export const OrderStoreContext = React.createContext<OrderStore>(
+  new OrderStore()
+);

@@ -4,6 +4,8 @@ import workareaStore from "mobx/stores/workareaStore";
 import { Order, OrderStatus } from "types/order";
 import { Role } from "types/role";
 import { User } from "types/user";
+import { priceFormatter } from "utils/priceFormatter";
+import { sizeFormatter } from "utils/sizeFormatter";
 
 export const getOrderStatus = (
   topOrder: Order | undefined,
@@ -17,14 +19,10 @@ export const getOrderStatus = (
   const bank: string = isBroker ? personality : user.firm;
   let status: OrderStatus = OrderStatus.None;
   if (topOrder === undefined) return status;
-  const ownOrder: Order | undefined = depth.find(
-    ({ user: email, type, firm }: Order) => {
-      if (topOrder.type !== type) return false;
-      if (email !== user.email) return false;
-      if (!isBroker) return true;
-      return personality === firm;
-    }
-  );
+  // FIXME: not sure why this is
+  const ownOrder: Order | undefined = depth.find(({ orderId }: Order) => {
+    return topOrder.orderId === orderId;
+  });
   const aggregatedSize: number | null = getAggregatedSize(topOrder, depth);
   // Get depth related status
   if (tableType === PodTableType.Pod)

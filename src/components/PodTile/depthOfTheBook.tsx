@@ -1,3 +1,4 @@
+import { useDobRows } from "components/PodTile/hooks/useDobRows";
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
 import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
@@ -13,7 +14,7 @@ import { W } from "types/w";
 interface Props {
   readonly currentTenor: string | null;
   readonly symbol: Symbol;
-  readonly strategy?: string;
+  readonly strategy: string;
   readonly darkPoolOrders: { [key: string]: W };
   readonly book: DepthData;
 
@@ -24,13 +25,26 @@ export const DepthOfTheBook: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
   const { rows, columns } = props.book;
+  const { currentTenor, symbol, strategy, darkPoolOrders } = props;
+  const { user } = workareaStore;
+  const { onTenorSelected } = props;
+
+  const effectiveRows = useDobRows(
+    rows,
+    currentTenor!,
+    symbol.symbolID,
+    strategy,
+    user
+  );
+
   const renderRow = React.useCallback(
     (rowProps: any): ReactElement | null => {
-      const { minqty, defaultqty } = props.symbol;
+      const { minqty, defaultqty } = symbol;
       const { row } = rowProps;
       if (minqty === undefined || defaultqty === undefined) return null;
       // Get current row
-      const matchingRow: PodRow = rows[row.id];
+      const matchingRow: PodRow = effectiveRows[row.id];
+
       const orders: Order[] = [];
       if (matchingRow) {
         if (matchingRow.bid) {
@@ -40,19 +54,20 @@ export const DepthOfTheBook: React.FC<Props> = (
           orders.push(matchingRow.ofr);
         }
       }
+
       return (
         <Row
           {...rowProps}
           user={workareaStore.user}
           orders={orders}
-          darkpool={props.darkPoolOrders[row.tenor1]}
+          darkpool={darkPoolOrders[row.tenor1]}
           defaultSize={defaultqty}
           minimumSize={minqty}
-          onTenorSelected={(): void => props.onTenorSelected(null)}
+          onTenorSelected={(): void => onTenorSelected(null)}
         />
       );
     },
-    [props, rows]
+    [symbol, effectiveRows, darkPoolOrders, onTenorSelected]
   );
 
   const _columns = React.useMemo((): ReadonlyArray<ExtendedTableColumn> => {
@@ -67,7 +82,7 @@ export const DepthOfTheBook: React.FC<Props> = (
 
   return (
     <div className={"dob"} data-showing-tenor={props.currentTenor !== null}>
-      <Table columns={_columns} rows={rows} renderRow={renderRow} />
+      <Table columns={_columns} rows={effectiveRows} renderRow={renderRow} />
     </div>
   );
 };

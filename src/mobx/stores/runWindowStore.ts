@@ -510,11 +510,13 @@ export class RunWindowStore {
             (order: Order) =>
               order.type === OrderTypes.Ofr && order.tenor === row.tenor
           );
-          if (bid) row.bid = bid;
-          if (ofr) row.ofr = ofr;
-          row.spread = RunWindowStore.getSpread(row);
-          row.mid = RunWindowStore.getMid(row);
-          return row;
+          const newRow = { ...row, ofr: ofr ?? row.ofr, bid: bid ?? row.bid };
+
+          return {
+            ...newRow,
+            spread: RunWindowStore.getSpread(newRow),
+            mid: RunWindowStore.getMid(newRow),
+          };
         }
       )
       .reduce((table: PodTable, row: PodRow): PodTable => {

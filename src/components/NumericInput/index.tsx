@@ -120,7 +120,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
   return (
     <input
       {...otherProps}
-      readOnly={!workareaStore.connected}
+      readOnly={!workareaStore.connected || props.readOnly}
       name={randomName()}
       title={props.title}
       data-input-type={props.type}

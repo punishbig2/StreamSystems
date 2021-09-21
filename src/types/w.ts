@@ -5,6 +5,7 @@ export enum MessageTypes {
   D = "D",
   G = "G",
   F = "F",
+  M = "M",
 }
 
 export type TenorType = string;

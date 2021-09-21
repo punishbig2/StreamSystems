@@ -1,4 +1,5 @@
 import { TableColumn } from "components/Table/tableColumn";
+import { OrderStore, OrderStoreContext } from "mobx/stores/orderStore";
 import React, { ReactElement } from "react";
 import { PodRowProps } from "columns/podColumns/common";
 import { OrderTypes } from "types/mdEntry";
@@ -52,17 +53,19 @@ export const OrderColumnWrapper = (
     },
     render: (props: PodRowProps): React.ReactElement => {
       return (
-        <OrderColumn
-          type={type}
-          currency={props.currency}
-          strategy={props.strategy}
-          tenor={props.tenor}
-          orders={props.orders}
-          defaultSize={props.defaultSize}
-          minimumSize={props.minimumSize}
-          rowStore={props.rowStore}
-          tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
-        />
+        <OrderStoreContext.Provider value={new OrderStore()}>
+          <OrderColumn
+            type={type}
+            currency={props.currency}
+            strategy={props.strategy}
+            tenor={props.tenor}
+            orders={props.orders}
+            defaultSize={props.defaultSize}
+            minimumSize={props.minimumSize}
+            forceEditable={props.id === "#special"}
+            tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
+          />
+        </OrderStoreContext.Provider>
       );
     },
     template: "999999 999999.999",

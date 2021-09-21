@@ -1,6 +1,5 @@
 import { User } from "types/user";
 import React, { CSSProperties, ReactElement } from "react";
-import { PodRowStore } from "mobx/stores/podRowStore";
 
 interface CellProps {
   render: (props: any) => ReactElement | string | null;
@@ -8,7 +7,6 @@ interface CellProps {
   width: number | string;
   colNumber?: number;
   className?: string;
-  rowStore?: PodRowStore;
 
   // Allow other properties
   [key: string]: any;

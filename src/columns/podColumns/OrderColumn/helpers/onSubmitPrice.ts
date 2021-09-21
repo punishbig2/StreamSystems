@@ -8,12 +8,12 @@ export const InvertedMarketsError = new Error(
   "inverted markets are not allowed"
 );
 
-export const onSubmitPrice = (store: OrderStore) => (
+export const onSubmitPrice = (store: OrderStore) => async (
   input: HTMLInputElement,
   price: number | null,
   changed: boolean,
   tabDirection: TabDirection
-) => {
+): Promise<void> => {
   input.disabled = true;
   if (changed) {
     const depth: Order[] = store.depth;
@@ -23,9 +23,10 @@ export const onSubmitPrice = (store: OrderStore) => (
       input.focus();
       throw InvertedMarketsError;
     }
-    store.create(price, store.defaultSize);
+    await store.create(price, store.defaultSize);
   }
-  moveToNextPrice(input, tabDirection);
+
+  setTimeout((): void => moveToNextPrice(input, tabDirection), 0);
   // We are certainly done
   input.disabled = false;
 };

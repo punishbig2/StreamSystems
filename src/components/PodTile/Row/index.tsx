@@ -3,7 +3,7 @@ import { Cell } from "components/Table/Cell";
 import { TableColumn } from "components/Table/tableColumn";
 import { getCellWidth } from "components/Table/helpers";
 import { observer } from "mobx-react";
-import { PodRowStore } from "mobx/stores/podRowStore";
+import { PodRowStore, PodRowStoreContext } from "mobx/stores/podRowStore";
 import React, { useEffect, useRef } from "react";
 import { PodRowStatus } from "types/podRow";
 
@@ -38,23 +38,28 @@ export const Row: React.FC<Props> = observer((props: Props) => {
 
   if (internalRow.status !== PodRowStatus.Normal) classes.push("error");
   return (
-    <div className={classes.join(" ")} data-row-number={props.rowNumber}>
-      {columns.map((column: TableColumn, index: number) => {
-        const width: string = getCellWidth(column.width, totalWidth);
-        const name: string = column.name;
-        return (
-          <Cell
-            key={name}
-            render={column.render}
-            className={column.className}
-            colNumber={index}
-            width={width}
-            rowStore={store}
-            {...rowProps}
-            {...internalRow}
-          />
-        );
-      })}
-    </div>
+    <PodRowStoreContext.Provider value={store}>
+      <div
+        id={props.id}
+        className={classes.join(" ")}
+        data-row-number={props.rowNumber}
+      >
+        {columns.map((column: TableColumn, index: number) => {
+          const width: string = getCellWidth(column.width, totalWidth);
+          const name: string = column.name;
+          return (
+            <Cell
+              key={name}
+              render={column.render}
+              className={column.className}
+              colNumber={index}
+              width={width}
+              {...rowProps}
+              {...internalRow}
+            />
+          );
+        })}
+      </div>
+    </PodRowStoreContext.Provider>
   );
 });

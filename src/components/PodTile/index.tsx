@@ -81,21 +81,6 @@ export const PodTile: React.FC<Props> = observer(
       () => createPODColumns(currency.name, strategy, false),
       [currency, strategy]
     );
-    // In case we lost the dob please reset this so that double
-    // clicking the tenor keeps working
-    useEffect(() => {
-      if (store.currentTenor === null) {
-        return;
-      } else {
-        const orders: ReadonlyArray<Order> = store.orders[store.currentTenor];
-        if (orders.length === 0) {
-          // Has the equivalent effect of hiding the orders book
-          // but it will actually set the correct state for the
-          // tenors to be double-clickable
-          store.setCurrentTenor(null);
-        }
-      }
-    }, [store.currentTenor, store.orders, store]);
 
     return (
       <>

@@ -2,6 +2,7 @@ import { InvertedMarketsError } from "columns/podColumns/OrderColumn/helpers/onS
 import { SizeTooSmallError } from "columns/podColumns/OrderColumn/helpers/onSubmitSize";
 import { createRow } from "components/PodTile/Row/helpers/emptyRowCreator";
 import { action, observable } from "mobx";
+import React from "react";
 import { PodRow, PodRowStatus } from "types/podRow";
 
 export class PodRowStore {
@@ -33,3 +34,7 @@ export class PodRowStore {
     }
   }
 }
+
+export const PodRowStoreContext = React.createContext<PodRowStore>(
+  new PodRowStore("", "", "")
+);

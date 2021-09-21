@@ -13,7 +13,7 @@ import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/
 import { Size } from "components/Table/CellRenderers/Size";
 import { observer } from "mobx-react";
 import { OrderStore } from "mobx/stores/orderStore";
-import { PodRowStore } from "mobx/stores/podRowStore";
+import { PodRowStore, PodRowStoreContext } from "mobx/stores/podRowStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import { STRM } from "stateDefs/workspaceState";
@@ -29,27 +29,20 @@ export enum PodTableType {
 }
 
 type OwnProps = {
-  orders: Order[];
-  type: OrderTypes;
-  currency: string;
-  strategy: string;
-  tenor: string;
-  minimumSize: number;
-  defaultSize: number;
-  tableType: PodTableType;
-  rowStore: PodRowStore;
+  readonly orders: Order[];
+  readonly type: OrderTypes;
+  readonly currency: string;
+  readonly strategy: string;
+  readonly tenor: string;
+  readonly minimumSize: number;
+  readonly defaultSize: number;
+  readonly tableType: PodTableType;
+  readonly forceEditable: boolean;
 };
 
 export const OrderColumn: React.FC<OwnProps> = observer(
   (props: OwnProps): ReactElement | null => {
-    const {
-      type,
-      tableType,
-      minimumSize,
-      defaultSize,
-      rowStore,
-      orders,
-    } = props;
+    const { type, tableType, minimumSize, defaultSize, orders } = props;
     const [store] = useState<OrderStore>(new OrderStore());
     const { price, size } = store;
     const relevantOrders: Order[] = useMemo(
@@ -71,6 +64,8 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       relevantOrders,
       tableType
     );
+    const rowStore = React.useContext<PodRowStore>(PodRowStoreContext);
+
     // Sort siblings
     useEffect(() => {
       store.setOrder(order, status);
@@ -107,9 +102,9 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     };
 
     const errorHandler = (fn: (...args: any[]) => Promise<void> | void) => {
-      return (...args: any[]) => {
+      return async (...args: any[]) => {
         try {
-          return fn(...args);
+          return await fn(...args);
         } catch (error) {
           rowStore.setError(error);
         }
@@ -123,7 +118,10 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       (order.status & OrderStatus.Owned) !== 0 &&
       (!isBroker || (isBroker && personality === order.firm));
     const isCancelled: boolean = (order.status & OrderStatus.Cancelled) !== 0;
-    const readOnly: boolean = isBroker && personality === STRM;
+    const readOnly: boolean =
+      !props.forceEditable &&
+      ((isBroker && personality === STRM) ||
+        (tableType === PodTableType.Dob && (size === null || price === null)));
     const cancellable: boolean = isMyOrder && !isCancelled;
 
     const sizeCell: ReactElement = (
