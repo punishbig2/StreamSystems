@@ -13,6 +13,7 @@ import { PodTable } from "types/podTable";
 import { Role } from "types/role";
 import { sizeFormatter } from "utils/sizeFormatter";
 import workareaStore from "./workareaStore";
+import { getTopOfTheBook } from "utils/getTopOfTheBook";
 
 export class RunWindowStore {
   @observable.ref rows: PodTable = {};
@@ -119,7 +120,7 @@ export class RunWindowStore {
     symbol: string,
     strategy: string,
     tenors: ReadonlyArray<string>,
-    orders: { [id: string]: ReadonlyArray<Order> }
+    orders: { [tenor: string]: ReadonlyArray<Order> }
   ): Task<void> {
     const { user } = workareaStore;
     if (this.initialized) {
@@ -137,7 +138,8 @@ export class RunWindowStore {
       );
     };
     const animate = !this.initialized;
-    this.activeOrders = Object.values(orders)
+    const topOfTheBook = getTopOfTheBook(orders);
+    this.activeOrders = Object.values(topOfTheBook)
       .reduce(
         (flat: ReadonlyArray<Order>, next: ReadonlyArray<Order>) => [
           ...flat,
