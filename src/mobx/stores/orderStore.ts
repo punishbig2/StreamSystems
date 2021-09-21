@@ -41,10 +41,15 @@ export class OrderStore {
 
   @computed
   get activeOrderId(): string | null {
-    if ((this.status & OrderStatus.Cancelled) !== 0) {
+    const { status, orderID } = this;
+
+    if ((status & OrderStatus.Cancelled) !== 0) {
+      return null;
+    } else if (orderID === undefined) {
+      console.log("What?");
       return null;
     } else {
-      return this.orderID ?? null;
+      return orderID;
     }
   }
 
@@ -193,17 +198,21 @@ export class OrderStore {
 
   @action.bound
   public async cancel(): Promise<void> {
-    const { depth } = this;
     const user: User | null = workareaStore.user;
-    const personality: string = workareaStore.personality;
     if (user !== null) {
-      const { roles } = user;
-      const order: Order | undefined = depth.find((o: Order) => {
+      /*const order: Order | undefined = depth.find((o: Order) => {
         if (o.type !== this.type) return false;
         if (roles.includes(Role.Broker)) return o.firm === personality;
         return o.user === user.email;
-      });
-      if (!!order && !!order.orderId && !!order.size) {
+      });*/
+      const { activeOrderId } = this;
+      if (activeOrderId !== null) {
+        const order = this.depth.find(
+          (order: Order): boolean => order.orderId === activeOrderId
+        );
+        if (order === undefined) {
+          throw new Error("unexpected error, order was not found in the book");
+        }
         this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
         const response = await API.cancelOrder(order, user);
         if (response.Status === "Success") {

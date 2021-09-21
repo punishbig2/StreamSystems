@@ -119,9 +119,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       (!isBroker || (isBroker && personality === order.firm));
     const isCancelled: boolean = (order.status & OrderStatus.Cancelled) !== 0;
     const readOnly: boolean =
-      !props.forceEditable &&
-      ((isBroker && personality === STRM) ||
-        (tableType === PodTableType.Dob && (size === null || price === null)));
+      !props.forceEditable && isBroker && personality === STRM;
     const cancellable: boolean = isMyOrder && !isCancelled;
 
     const sizeCell: ReactElement = (

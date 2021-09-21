@@ -10,15 +10,15 @@ export const moveToNextPrice = (
   const parent: HTMLElement | null = getNthParentOf(input, 6);
 
   if (parent !== null) {
-    console.log(parent);
     const specialRow = parent.querySelector(VERY_SPECIAL_ID);
     if (specialRow) {
       const inputs: ReadonlyArray<HTMLInputElement> = Array.from(
         specialRow.querySelectorAll("input")
       );
 
-      if (inputs.length !== 4) {
-        console.warn(`there should be 4 inputs, but I found ${inputs.length}`);
+      if (inputs.length !== 5) {
+        console.warn(`there should be 5 inputs, but I found ${inputs.length}`);
+        return;
       }
 
       if (input === inputs[1]) {

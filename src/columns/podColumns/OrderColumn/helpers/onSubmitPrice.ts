@@ -15,6 +15,7 @@ export const onSubmitPrice = (store: OrderStore) => async (
   tabDirection: TabDirection
 ): Promise<void> => {
   input.disabled = true;
+
   if (changed) {
     const depth: Order[] = store.depth;
     if (isInvertedMarket(store, depth, price)) {

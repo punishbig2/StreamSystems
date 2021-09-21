@@ -4,8 +4,6 @@ import workareaStore from "mobx/stores/workareaStore";
 import { Order, OrderStatus } from "types/order";
 import { Role } from "types/role";
 import { User } from "types/user";
-import { priceFormatter } from "utils/priceFormatter";
-import { sizeFormatter } from "utils/sizeFormatter";
 
 export const getOrderStatus = (
   topOrder: Order | undefined,

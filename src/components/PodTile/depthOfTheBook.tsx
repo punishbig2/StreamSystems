@@ -5,7 +5,8 @@ import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { DepthData } from "types/depthData";
-import { Order } from "types/order";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
 import { SortDirection } from "types/sortDirection";
 import { Symbol } from "types/symbol";
@@ -52,6 +53,26 @@ export const DepthOfTheBook: React.FC<Props> = (
         }
         if (matchingRow.ofr) {
           orders.push(matchingRow.ofr);
+        }
+      }
+
+      if (orders.length === 1) {
+        if (orders[0].type === OrderTypes.Bid) {
+          orders.push({
+            ...orders[0],
+            type: OrderTypes.Ofr,
+            price: null,
+            size: null,
+            status: OrderStatus.None,
+          });
+        } else if (orders[0].type === OrderTypes.Ofr) {
+          orders.push({
+            ...orders[0],
+            type: OrderTypes.Bid,
+            price: null,
+            size: null,
+            status: OrderStatus.None,
+          });
         }
       }
 
