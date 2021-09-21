@@ -119,20 +119,17 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     const hasDepth = (store.status & OrderStatus.HasDepth) !== 0;
     /// If we find an order that can be cancelled, then it is cancellable
     const cancellable = store.cancelOrder !== null;
-    if (store.type === OrderTypes.Bid) {
-      console.log(store.tenor, store.cancelOrder);
-    }
 
     const sizeCell: ReactElement = (
       <Size
         key={2}
         uid={"S" + store.uid() + type}
         type={type}
-        className={getOrderStatusClass(store.status)}
         value={size}
         cancellable={cancellable}
         readOnly={readOnly}
         chevron={hasDepth}
+        className={getOrderStatusClass(store.status)}
         onCancel={store.cancel}
         onNavigate={onNavigate}
         onSubmit={errorHandler(onSubmitSize(store))}

@@ -18,9 +18,9 @@ export const getOrderStatus = (
   let status: OrderStatus = OrderStatus.None;
   if (topOrder === undefined) return status;
   // FIXME: not sure why this is
-  const ownOrder: Order | undefined = depth.find(({ orderId }: Order) => {
-    return topOrder.orderId === orderId;
-  });
+  const ownOrder: Order | undefined = depth.find(
+    (order: Order) => order.user === user.email
+  );
   const aggregatedSize: number | null = getAggregatedSize(topOrder, depth);
   // Get depth related status
   if (tableType === PodTableType.Pod)
