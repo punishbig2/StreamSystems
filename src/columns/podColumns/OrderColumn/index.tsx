@@ -114,13 +114,14 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       const { roles } = user;
       return roles.includes(Role.Broker);
     }, [user]);
-    const isMyOrder: boolean =
-      (order.status & OrderStatus.Owned) !== 0 &&
-      (!isBroker || (isBroker && personality === order.firm));
-    const isCancelled: boolean = (order.status & OrderStatus.Cancelled) !== 0;
     const readOnly: boolean =
       !props.forceEditable && isBroker && personality === STRM;
-    const cancellable: boolean = isMyOrder && !isCancelled;
+    const hasDepth = (store.status & OrderStatus.HasDepth) !== 0;
+    /// If we find an order that can be cancelled, then it is cancellable
+    const cancellable = store.cancelOrder !== null;
+    if (store.type === OrderTypes.Bid) {
+      console.log(store.tenor, store.cancelOrder);
+    }
 
     const sizeCell: ReactElement = (
       <Size
@@ -131,7 +132,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
         value={size}
         cancellable={cancellable}
         readOnly={readOnly}
-        chevron={(store.status & OrderStatus.HasDepth) !== 0}
+        chevron={hasDepth}
         onCancel={store.cancel}
         onNavigate={onNavigate}
         onSubmit={errorHandler(onSubmitSize(store))}

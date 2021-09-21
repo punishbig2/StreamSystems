@@ -463,8 +463,8 @@ $spinner-size: $table-row-height - 6;
           }
         }
 
-        :not(.size-layout) {
-          &.times {
+        .size-layout {
+          .times {
             display: block;
             width: $table-row-height;
             height: $table-row-height;
@@ -538,7 +538,7 @@ $spinner-size: $table-row-height - 6;
           }
 
           &:not(.cancelled) {
-            .times {
+            .times:not(.clickable) {
               pointer-events: none;
 
               .st0 {

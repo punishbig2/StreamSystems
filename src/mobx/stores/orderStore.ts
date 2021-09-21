@@ -9,6 +9,7 @@ import { Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
 import { getCurrentTime, getSideFromType } from "utils/commonUtils";
+import { pickBestOrder } from "utils/pickBestOrder";
 import { priceFormatter } from "utils/priceFormatter";
 import { sizeFormatter } from "utils/sizeFormatter";
 import { $$ } from "utils/stringPaster";
@@ -40,13 +41,68 @@ export class OrderStore {
   }
 
   @computed
-  get activeOrderId(): string | null {
-    const { status, orderID } = this;
+  get cancelOrder(): Order | null {
+    const { user, personality } = workareaStore;
+    const { email, roles } = user;
+    const { depth } = this;
+
+    const currentOrder = depth.find(
+      (order: Order): boolean => order.orderId === this.orderID
+    );
+
+    if (currentOrder !== undefined) {
+      if (currentOrder.user === email || currentOrder.firm === personality) {
+        return currentOrder;
+      }
+    }
+
+    const validOrders = depth.filter((order: Order): boolean => {
+      // Only same side
+      if (order.type !== this.type) return false;
+      // No cancelled orders
+      if ((order.status & OrderStatus.Cancelled) !== 0) return false;
+      // If it's mine, of course
+      if (order.user === email) return true;
+
+      // If I am broker and I am assuming the right personality, then
+      // good too
+      return roles.includes(Role.Broker) && order.firm === personality;
+    });
+
+    const order = validOrders.reduce(
+      (best: Order | null, current: Order): Order | null => {
+        if (best === null) {
+          return current;
+        }
+        return pickBestOrder(best, current);
+      },
+      null
+    );
+
+    return order ?? null;
+  }
+
+  @computed
+  get replaceOrderId(): string | null {
+    const { user } = workareaStore;
+    const { email } = user;
+    const { status, orderID, depth } = this;
+    const order = depth.find(
+      (order: Order): boolean => order.orderId === orderID
+    );
+
+    if (order === undefined) {
+      return null;
+    }
+
+    /// Replace is only allowed to the owner of the order
+    if (order.user !== email) {
+      return null;
+    }
 
     if ((status & OrderStatus.Cancelled) !== 0) {
       return null;
     } else if (orderID === undefined) {
-      console.log("What?");
       return null;
     } else {
       return orderID;
@@ -112,7 +168,7 @@ export class OrderStore {
     const { roles } = user;
     // Create the request
     const side = getSideFromType(type);
-    const matchingOrderId = this.activeOrderId;
+    const matchingOrderId = this.replaceOrderId;
     const request: FIXMessage = ((): FIXMessage => {
       if (matchingOrderId !== null) {
         return {
@@ -200,28 +256,21 @@ export class OrderStore {
   public async cancel(): Promise<void> {
     const user: User | null = workareaStore.user;
     if (user !== null) {
-      /*const order: Order | undefined = depth.find((o: Order) => {
-        if (o.type !== this.type) return false;
-        if (roles.includes(Role.Broker)) return o.firm === personality;
-        return o.user === user.email;
-      });*/
-      const { activeOrderId } = this;
-      if (activeOrderId !== null) {
-        const order = this.depth.find(
-          (order: Order): boolean => order.orderId === activeOrderId
-        );
-        if (order === undefined) {
-          throw new Error("unexpected error, order was not found in the book");
-        }
-        this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
-        const response = await API.cancelOrder(order, user);
-        if (response.Status === "Success") {
-          this.currentStatus = this.currentStatus & ~OrderStatus.BeingCancelled;
-        } else {
-          this.currentStatus =
-            (this.currentStatus & ~OrderStatus.BeingCancelled) |
-            OrderStatus.ActionError;
-        }
+      const { cancelOrder: order } = this;
+
+      if (order === null) {
+        console.warn("the user should not be able to cancel things");
+        return;
+      }
+
+      this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
+      const response = await API.cancelOrder(order, user);
+      if (response.Status === "Success") {
+        this.currentStatus = this.currentStatus & ~OrderStatus.BeingCancelled;
+      } else {
+        this.currentStatus =
+          (this.currentStatus & ~OrderStatus.BeingCancelled) |
+          OrderStatus.ActionError;
       }
     }
   }

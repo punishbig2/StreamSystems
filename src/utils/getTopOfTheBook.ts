@@ -1,26 +1,8 @@
 import { OrderTypes } from "types/mdEntry";
 import { Order } from "types/order";
+import { pickBestOrder } from "utils/pickBestOrder";
 
 type Book = { [tenor: string]: ReadonlyArray<Order> };
-
-const pickBest = (self: Order, that: Order): Order => {
-  if (self.type !== that.type) {
-    throw new Error("attempted to compare orders with different sides");
-  }
-
-  if (self.price === null) return that;
-  if (that.price === null) return self;
-
-  switch (self.type) {
-    case OrderTypes.Ofr:
-      return that.price < self.price ? that : self;
-    case OrderTypes.Bid:
-      return that.price > self.price ? that : self;
-    case OrderTypes.Invalid:
-    case OrderTypes.DarkPool:
-      throw new Error("cannot determine which is best");
-  }
-};
 
 const getBestOrders = (
   orders: ReadonlyArray<Order>
@@ -36,12 +18,12 @@ const getBestOrders = (
 
   const bestOffer = orders.reduce((bestOffer: Order, current: Order): Order => {
     if (current.type !== bestOffer.type) return bestOffer;
-    return pickBest(bestOffer, current);
+    return pickBestOrder(bestOffer, current);
   }, firstOffer);
 
   const bestBid = orders.reduce((bestBid: Order, current: Order): Order => {
     if (current.type !== bestBid.type) return bestBid;
-    return pickBest(bestBid, current);
+    return pickBestOrder(bestBid, current);
   }, firstBid);
 
   return [bestBid, bestOffer];
