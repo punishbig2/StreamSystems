@@ -51,8 +51,10 @@ export class OrderStore {
     );
 
     if (currentOrder !== undefined) {
-      if (currentOrder.user === email || currentOrder.firm === personality) {
-        return currentOrder;
+      if (roles.includes(Role.Broker)) {
+        return currentOrder.firm === personality ? currentOrder : null;
+      } else {
+        return currentOrder.user === email ? currentOrder : null;
       }
     }
 

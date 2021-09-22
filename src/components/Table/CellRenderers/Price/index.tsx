@@ -72,12 +72,14 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const [edited, setEdited] = React.useState<boolean>(false);
 
   const showTooltip = tooltip
-    ? (event: React.MouseEvent<HTMLDivElement>) => {
+    ? (): void => {
         store.showTooltip();
       }
     : undefined;
 
-  const hideTooltip = () => store.hideTooltip();
+  const hideTooltip = (): void => {
+    store.hideTooltip();
+  };
 
   const getTooltip = (): React.ReactElement | null => {
     if (!tooltip || !store.tooltipVisible) return null;
