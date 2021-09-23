@@ -46,18 +46,6 @@ export class OrderStore {
     const { email, roles } = user;
     const { depth } = this;
 
-    const currentOrder = depth.find(
-      (order: Order): boolean => order.orderId === this.orderID
-    );
-
-    if (currentOrder !== undefined) {
-      if (roles.includes(Role.Broker)) {
-        return currentOrder.firm === personality ? currentOrder : null;
-      } else {
-        return currentOrder.user === email ? currentOrder : null;
-      }
-    }
-
     const validOrders = depth.filter((order: Order): boolean => {
       // Only same side
       if (order.type !== this.type) return false;
