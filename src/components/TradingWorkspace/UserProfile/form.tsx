@@ -119,7 +119,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             </Grid>
             <Grid item xs={4}>
               <FormControl margin={"dense"} fullWidth>
-                <FormLabel htmlFor={"oco"}>OCO</FormLabel>
+                <FormLabel htmlFor={"oco"}>OCM</FormLabel>
                 <Select
                   id={"oco"}
                   disabled={!workareaStore.connected}
