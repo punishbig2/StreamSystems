@@ -63,6 +63,7 @@ export class OrderStore {
         if (best === null) {
           return current;
         }
+
         return pickBestOrder(best, current);
       },
       null

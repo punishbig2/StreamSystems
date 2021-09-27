@@ -14,6 +14,7 @@ import { Persistable } from "types/persistable";
 import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
 import { Product } from "types/product";
+import { Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
@@ -109,6 +110,8 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.creatingBulk = true;
     try {
       await this.executeBulkCreation(orders, currency);
+    } catch (error) {
+      console.log(error);
     } finally {
       this.creatingBulk = false;
     }
@@ -365,12 +368,17 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.hideRunWindow();
     this.showProgressWindow(-1);
     const { strategy } = this;
-    const { user } = workareaStore;
+    const { user, personality } = workareaStore;
     const promises = orders.map(
       async (order: Order): Promise<void> => {
         const depth: ReadonlyArray<Order> = this.orders[order.tenor];
         if (!depth) return;
         const conflict: Order | undefined = depth.find((o: Order) => {
+          if (user.roles.includes(Role.Broker)) {
+            return (
+              o.type === order.type && o.firm === personality && o.size !== null
+            );
+          }
           return (
             o.type === order.type && o.user === user.email && o.size !== null
           );
