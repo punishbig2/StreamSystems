@@ -51,12 +51,11 @@ export class OrderStore {
       if (order.type !== this.type) return false;
       // No cancelled orders
       if ((order.status & OrderStatus.Cancelled) !== 0) return false;
-      // If it's mine, of course
-      if (order.user === email) return true;
-
-      // If I am broker and I am assuming the right personality, then
-      // good too
-      return roles.includes(Role.Broker) && order.firm === personality;
+      // If I am broker, it must be the same firm as personality I am assuming
+      if (roles.includes(Role.Broker) && order.firm === personality)
+        return true;
+      // If it's mine, always
+      return order.user === email && !roles.includes(Role.Broker);
     });
 
     const order = validOrders.reduce(
