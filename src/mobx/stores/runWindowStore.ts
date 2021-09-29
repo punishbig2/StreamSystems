@@ -133,13 +133,11 @@ export class RunWindowStore {
       const { roles } = user;
       if (order.size === null) return false;
       if (order.user !== user.email) return false;
-      return !(
-        roles.includes(Role.Broker) && order.firm !== workareaStore.personality
-      );
+      if (!roles.includes(Role.Broker)) return true;
+      return order.firm === workareaStore.personality;
     };
     const animate = !this.initialized;
-    const topOfTheBook = getTopOfTheBook(orders);
-    this.activeOrders = Object.values(topOfTheBook)
+    this.activeOrders = Object.values(orders)
       .reduce(
         (flat: ReadonlyArray<Order>, next: ReadonlyArray<Order>) => [
           ...flat,
