@@ -646,12 +646,15 @@ export class API {
       Symbol: order.symbol,
       Strategy: order.strategy,
       Tenor: order.tenor,
+      Firm: workareaStore.effectiveFirm,
       OrderID: order.orderId,
     };
+
     const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "cancel"),
       request
     );
+
     return task.execute();
   }
 
@@ -668,6 +671,7 @@ export class API {
         Symbol: currency,
         Strategy: strategy,
         Tenor: tenor,
+        Firm: workareaStore.effectiveFirm,
       }
     );
     return task.execute();
@@ -684,6 +688,7 @@ export class API {
       Symbol: symbol,
       Strategy: strategy,
       Tenor: tenor,
+      Firm: workareaStore.effectiveFirm,
     };
     const task: Task<any> = POST<any>(
       API.buildUrl(API.DarkPool, "price", "clear"),
@@ -705,6 +710,7 @@ export class API {
       Strategy: strategy,
       Tenor: tenor,
       DarkPrice: price !== "" ? price.toString() : "",
+      Firm: workareaStore.effectiveFirm,
     };
     const task: Task<any> = POST<any>(
       API.buildUrl(API.DarkPool, "price", "publish"),
@@ -741,6 +747,7 @@ export class API {
       User: user.email,
       MDMkt: personality === STRM ? undefined : personality,
       TransactTime: getCurrentTime(),
+      Firm: workareaStore.effectiveFirm,
     };
     await POST<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cxlall"),

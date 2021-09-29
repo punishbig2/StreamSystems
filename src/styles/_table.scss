@@ -463,36 +463,34 @@ $spinner-size: $table-row-height - 6;
           }
         }
 
-        .size-layout {
-          .times {
+        .times {
+          display: block;
+          width: $table-row-height;
+          height: $table-row-height;
+          margin: 0 auto;
+
+          svg {
             display: block;
-            width: $table-row-height;
-            height: $table-row-height;
-            margin: 0 auto;
+            margin: ($table-row-height - $red-x-size) / 2 0;
+            width: $red-x-size;
+            height: $red-x-size;
+            border-radius: $red-x-size;
+          }
 
+          fill: $text-color-grey;
+
+          &.clickable {
             svg {
-              display: block;
-              margin: ($table-row-height - $red-x-size) / 2 0;
-              width: $red-x-size;
-              height: $red-x-size;
-              border-radius: $red-x-size;
-            }
+              transition: background-color 0.25s;
+              fill: $text-color-red;
 
-            fill: $text-color-grey;
+              &:hover {
+                fill: white;
+                background-color: $text-color-red;
+              }
 
-            &.clickable {
-              svg {
-                transition: background-color 0.25s;
-                fill: $text-color-red;
-
-                &:hover {
-                  fill: white;
-                  background-color: $text-color-red;
-                }
-
-                &:active {
-                  transform: translateY(1px);
-                }
+              &:active {
+                transform: translateY(1px);
               }
             }
           }
@@ -717,7 +715,8 @@ $spinner-size: $table-row-height - 6;
             &.joined {
               color: $text-color-black;
 
-              &:not(.not-among), &.owned {
+              &:not(.not-among),
+              &.owned {
                 .chevron {
                   color: $text-color-red;
                 }

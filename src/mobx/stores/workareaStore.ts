@@ -76,6 +76,14 @@ export class WorkareaStore {
   private persistStorage?: PersistStorage;
   @observable isShowingNewVersionModal: boolean = false;
   @observable workSchedule: WorkSchedule = invalidWorkSchedule;
+  public get effectiveFirm(): string {
+    const { user, personality } = this;
+    const { roles } = user;
+    if (roles.includes(Role.Broker)) {
+      return personality;
+    }
+    return user.firm;
+  }
 
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
     const { workspaces } = data;
@@ -500,10 +508,11 @@ export class WorkareaStore {
 
   private createSessionTimer(): void {
     const { workSchedule } = this;
+    console.log({ ...workSchedule });
     const tradingEndTime = moment(workSchedule.trading_end_time, "HH:mm:SS");
     setTimeout((): void => {
       this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
-    }, tradingEndTime.diff(moment()));
+    }, tradingEndTime.diff(moment(), "ms"));
   }
 }
 
