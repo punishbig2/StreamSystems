@@ -395,6 +395,7 @@ export class API {
       User: user.email,
       Symbol: symbol,
       Strategy: strategy,
+      Firm: workareaStore.effectiveFirm,
       Orders: orders.map((order: Order) => {
         if (order.price === null || order.size === null)
           throw new Error("price and size MUST be specified");
@@ -405,6 +406,7 @@ export class API {
           Tenor: order.tenor,
           Quantity: size.toFixed(0),
           Price: price.toString(),
+          Firm: workareaStore.effectiveFirm,
         };
       }),
       MDMkt: MDMkt,
@@ -424,6 +426,7 @@ export class API {
         OrderID: "",
         TransactTime: Date.now() / 1000,
         Response: "No response received",
+        Firm: workareaStore.effectiveFirm,
       };
     }
     if (result.Status !== "Success")
@@ -446,6 +449,7 @@ export class API {
       Strategy: strategy,
       Symbol: symbol,
       MDMkt: personality,
+      Firm: workareaStore.effectiveFirm,
     };
     const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.Oms, "allextended", "cxl"),
@@ -467,6 +471,7 @@ export class API {
       Side: side,
       Strategy: strategy,
       Symbol: symbol,
+      Firm: workareaStore.effectiveFirm,
     };
     const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.Oms, "all", "cancel"),
@@ -507,6 +512,7 @@ export class API {
       Tenor: order.tenor,
       OrderID: order.orderId,
       MDMkt: firm,
+      Firm: workareaStore.effectiveFirm,
     };
     const task: Task<MessageResponse> = await POST<MessageResponse>(
       API.buildUrl(API.Oms, "order", "cancel"),
@@ -646,8 +652,8 @@ export class API {
       Symbol: order.symbol,
       Strategy: order.strategy,
       Tenor: order.tenor,
-      Firm: workareaStore.effectiveFirm,
       OrderID: order.orderId,
+      Firm: workareaStore.effectiveFirm,
     };
 
     const task: Task<MessageResponse> = POST<MessageResponse>(

@@ -4,4 +4,5 @@ export interface MessageResponse {
   OrderID: string;
   Status: "Success" | "Failure";
   Response: string;
+  Firm: string;
 }

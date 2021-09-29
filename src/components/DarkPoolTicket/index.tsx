@@ -70,6 +70,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
       Tenor: props.tenor,
       TransactTime: (Date.now() / 1000).toFixed(0),
       User: user.email,
+      Firm: workareaStore.effectiveFirm,
     };
     props.onSubmit(order);
   };
@@ -85,12 +86,12 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     ) : (
       sideLabels[value as string]
     );
-  const stringSelectSetter =
-    (fn: (value: string) => void) =>
-    (event: React.ChangeEvent<SelectEventData>) => {
-      const { value } = event.target;
-      fn(value as string);
-    };
+  const stringSelectSetter = (fn: (value: string) => void) => (
+    event: React.ChangeEvent<SelectEventData>
+  ) => {
+    const { value } = event.target;
+    fn(value as string);
+  };
   const error =
     size < props.minimumSize ? "Minimum Qty: " + props.minimumSize : " ";
   return (

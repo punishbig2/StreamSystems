@@ -20,6 +20,7 @@ export interface FIXMessage {
   MDMkt?: string;
   Orders?: any[];
   CancelCondition?: number;
+  Firm: string;
 }
 
 export interface CreateOrderBulk {
@@ -30,6 +31,7 @@ export interface CreateOrderBulk {
   Strategy: string;
   MDMkt?: string;
   Orders?: any[];
+  Firm: string;
 }
 
 export type DarkPoolOrder = FIXMessage & {
@@ -71,6 +73,7 @@ export interface OrderMessage {
   Strategy: string;
   Side: "1" | "2";
   OrderQty: string;
+  Firm: string;
 }
 
 const getNumber = (value: string | null | undefined): number | null => {

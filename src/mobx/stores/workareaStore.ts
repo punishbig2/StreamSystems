@@ -80,8 +80,10 @@ export class WorkareaStore {
     const { user, personality } = this;
     const { roles } = user;
     if (roles.includes(Role.Broker)) {
+      console.log(personality);
       return personality;
     }
+
     return user.firm;
   }
 
@@ -508,7 +510,6 @@ export class WorkareaStore {
 
   private createSessionTimer(): void {
     const { workSchedule } = this;
-    console.log({ ...workSchedule });
     const tradingEndTime = moment(workSchedule.trading_end_time, "HH:mm:SS");
     setTimeout((): void => {
       this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
