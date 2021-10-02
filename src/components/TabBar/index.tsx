@@ -99,12 +99,13 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
       <div className={"connectivity-indicator"}>
         {props.connected ? (
           <div className={"connected"}>
-            <i className={"fa fa-link"} /> Connected
+            <i className={"fa fa-link"} />
+            Live
           </div>
         ) : (
           <div className={"disconnected"}>
             <i className={"fa fa-unlink"} />
-            Disconnected
+            Refresh
           </div>
         )}
       </div>

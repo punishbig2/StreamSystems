@@ -41,7 +41,7 @@ export default {
   LoadingBanks: "Loading banks",
   LoadingUserData: "Loading user data",
   EstablishingConnection: "Connecting",
-  Connected: "Connected",
+  Connected: "Live",
   LoadingWorkspaces: "Loading workspaces",
   StartingUp: "Starting up",
   LoadingRegions: "Loading user regions",

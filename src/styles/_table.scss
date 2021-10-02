@@ -725,9 +725,31 @@ $spinner-size: $table-row-height - 6;
           }
 
           &.price-layout {
-            position: relative;
             font-weight: $table-font-weight + 200;
             height: $table-row-height;
+            z-index: 1;
+
+            .input-error {
+              position: absolute;
+              background-color: $text-color-red;
+              padding: 2px 8px;
+              border-radius: 4px;
+              margin-top: 8px;
+              color: white;
+              z-index: 2;
+              font-size: 12px;
+
+              &::after {
+                content: '';
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                background-color: $text-color-red;
+                left: 20px;
+                top: -4px;
+                transform: rotate(45deg);
+              }
+            }
 
             &.dark-pool-base {
               font-weight: $table-font-weight;

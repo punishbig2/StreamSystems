@@ -10,6 +10,7 @@ export class PriceStore {
   @observable internalValue: string | null = null;
   @observable baseValue: number | null = null;
   @observable status: OrderStatus = OrderStatus.None;
+  @observable inputError: string | null = null;
 
   @computed
   get numericValue(): number | null {
@@ -66,5 +67,10 @@ export class PriceStore {
   @action.bound
   public setInternalValue(value: string | null) {
     this.internalValue = value;
+  }
+
+  @action.bound
+  public setInputError(errorMessage: string | null): void {
+    this.inputError = errorMessage;
   }
 }

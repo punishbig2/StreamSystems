@@ -137,6 +137,15 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
     if (!input.readOnly) {
       const { numericValue } = store;
+
+      const scaledValue = Math.round(1000 * (numericValue ?? 0));
+      if (scaledValue % 25 !== 0) {
+        store.setInputError("Invalid price increment");
+        return;
+      } else {
+        store.setInputError(null);
+      }
+
       const changed: boolean = isModified();
       if (numericValue === 0 && !props.allowZero) {
         props.onSubmit(input, null, false, tabDirection);
@@ -156,11 +165,19 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   const onCancelEdit = () => {
     store.setInternalValue(null);
+    store.setInputError(null);
     setEdited(false);
   };
 
   const getPlaceholder = (value: number | null) => {
     return priceFormatter(value);
+  };
+
+  const getErrorTooltip = (): React.ReactElement | null => {
+    if (store.inputError === null) {
+      return null;
+    }
+    return <div className={"input-error"}>{store.inputError}</div>;
   };
 
   const getSpinner = () => {
@@ -230,6 +247,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
         {/* The floating object */}
         {getTooltip()}
         {getSpinner()}
+        {getErrorTooltip()}
       </div>
     </>
   );
