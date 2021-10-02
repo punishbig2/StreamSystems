@@ -24,6 +24,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const [store] = useState(new DarkPoolStore(darkPrice));
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
+  const { connected } = workareaStore;
 
   useEffect((): void => {
     if (darkPrice === undefined) return;
@@ -73,7 +74,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   useEffect(() => {
     if (currency === "" || strategy === "") return;
     return store.connect(currency, strategy, tenor);
-  }, [currency, store, strategy, tenor]);
+  }, [currency, store, strategy, tenor, connected]);
 
   const clear = React.useCallback(
     store.getClearDarkPoolPriceCallback(currency, strategy, tenor),
@@ -121,6 +122,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     throw new Error(
       "cannot show a dark pool column if there is no authenticated user"
     );
+
   return (
     <>
       <Price

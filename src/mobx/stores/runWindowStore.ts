@@ -13,7 +13,6 @@ import { PodTable } from "types/podTable";
 import { Role } from "types/role";
 import { sizeFormatter } from "utils/sizeFormatter";
 import workareaStore from "./workareaStore";
-import { getTopOfTheBook } from "utils/getTopOfTheBook";
 
 export class RunWindowStore {
   @observable.ref rows: PodTable = {};

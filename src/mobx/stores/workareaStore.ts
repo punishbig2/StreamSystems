@@ -79,8 +79,8 @@ export class WorkareaStore {
   public get effectiveFirm(): string {
     const { user, personality } = this;
     const { roles } = user;
+
     if (roles.includes(Role.Broker)) {
-      console.log(personality);
       return personality;
     }
 
