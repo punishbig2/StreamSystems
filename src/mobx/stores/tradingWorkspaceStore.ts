@@ -3,8 +3,10 @@ import { BlotterTypes } from "columns/messageBlotter";
 import { action, computed, observable } from "mobx";
 import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { TileStore } from "mobx/stores/tileStore";
+import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import { STRM } from "stateDefs/workspaceState";
+import { Role } from "types/role";
 import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -94,7 +96,11 @@ export class TradingWorkspaceStore implements Workspace {
 
   @action.bound
   public superRefAll() {
-    void API.brokerRefAll();
+    if (workareaStore.user.roles.includes(Role.Broker)) {
+      void API.brokerRefAll();
+    } else {
+      void API.userRefAll();
+    }
   }
 
   @action.bound

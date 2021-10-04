@@ -64,6 +64,9 @@ export const RightPanelButtons: React.FC<Props> = observer(
     } else {
       return (
         <div className={"broker-buttons"}>
+          <button onClick={props.onRefAll}>
+            <i className={"fa fa-eraser"} /> Ref ALL
+          </button>
           <button onClick={props.onShowProfileModal}>
             <i className={"fa fa-user"} /> User Prof
           </button>

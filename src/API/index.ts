@@ -745,6 +745,25 @@ export class API {
     return task.execute();
   }
 
+  public static async userRefAll() {
+    const user: User = workareaStore.user;
+    const request = {
+      MsgType: MessageTypes.F,
+      User: user.email,
+      TransactTime: getCurrentTime(),
+      Firm: workareaStore.effectiveFirm,
+    };
+    await POST<MessageResponse>(
+      API.buildUrl(API.Oms, "all", "cancel"),
+      request
+    ).execute();
+    await POST<MessageResponse>(
+      API.buildUrl(API.DarkPool, "all", "cancel"),
+      request
+    ).execute();
+    await POST<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
+  }
+
   public static async brokerRefAll() {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
