@@ -439,7 +439,7 @@ export class SignalRManager {
     };
   };
 
-  public setDarkPoolOrderListener = (
+  public addDarkPoolOrderListener = (
     symbol: string,
     strategy: string,
     tenor: string,

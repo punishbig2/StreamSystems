@@ -90,7 +90,19 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     strategy: string,
     tenor: string
   ): () => void {
-    return signalRManager.addMarketListener(
+    const darkPool = signalRManager.addDarkPoolOrderListener(
+      currency,
+      strategy,
+      tenor,
+      (w: W): void => {
+        this.darkPoolOrders = {
+          ...this.darkPoolOrders,
+          [w.Tenor]: w,
+        };
+      }
+    );
+
+    const normalPool = signalRManager.addMarketListener(
       currency,
       strategy,
       tenor,
@@ -98,6 +110,11 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         this.updateSingleDepth(tenor, w);
       }
     );
+
+    return (): void => {
+      normalPool();
+      darkPool();
+    };
   }
 
   public async createBulkOrders(
@@ -137,6 +154,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.strategy = strategy;
     // Load depth
     const tasks: Array<Task<any>> = [API.getSnapshot(currency, strategy)];
+
     return {
       execute: async (): Promise<void> => {
         const snapshotTask: Task<{ [k: string]: W }> = tasks[0] as Task<{

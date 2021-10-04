@@ -143,7 +143,7 @@ export class DarkPoolStore {
       tenor,
       this.onDarkPoolPricePublished
     );
-    this.removeOrderListener = signalRManager.setDarkPoolOrderListener(
+    this.removeOrderListener = signalRManager.addDarkPoolOrderListener(
       symbol,
       strategy,
       tenor,
