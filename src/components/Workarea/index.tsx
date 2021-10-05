@@ -43,9 +43,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
   }, []);
 
   React.useEffect((): void => {
-    if (id !== null) {
-      store.initialize(id).catch(console.error);
-    }
+    store.initialize(id).catch(console.error);
   }, [id]);
 
   React.useEffect((): (() => void) | void => {

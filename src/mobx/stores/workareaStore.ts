@@ -194,7 +194,11 @@ export class WorkareaStore {
     return eod.isAfter(moment()) && bod.isBefore(moment());
   }
 
-  public async initialize(id: string) {
+  public async initialize(id: string | null) {
+    if (id === null) {
+      this.status = WorkareaStatus.UserNotFound;
+      return;
+    }
     this.loadingStep = 100 / 9;
     this.setStatus(WorkareaStatus.Starting);
     try {
