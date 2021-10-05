@@ -29,6 +29,12 @@
         flex-direction: column;
         justify-content: center;
 
+        &.has-discount {
+          p {
+            color: $text-color-green;
+          }
+        }
+
         .region {
           line-height: 1;
           font-size: $window-toolbar-size / 4;

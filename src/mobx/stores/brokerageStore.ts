@@ -6,25 +6,31 @@ import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
 
 export interface CommissionRate {
-  region: string;
-  value: number;
+  readonly region: string;
+  readonly value: number;
+  readonly hasDiscount: boolean;
 }
 
 export const convertToCommissionRatesArray = (
   response: BrokerageCommissionResponse | null
 ): ReadonlyArray<CommissionRate> => {
   if (response === null) return [];
-  const regions: string[] = Object.keys(response);
-  return regions
+  const regions: string[] = Object.keys(response).filter(
+    (key: string): boolean => !key.endsWith("-FLAG")
+  );
+  const rates = regions
     .filter((region: string) => region !== "firm" && region !== "msgtype")
     .map(
       (region: string): CommissionRate => {
         return {
           region: region,
+          hasDiscount: response[`${region}-FLAG`] !== "false",
           value: Number(response[region]),
         };
       }
     );
+
+  return rates;
 };
 
 export class BrokerageStore {

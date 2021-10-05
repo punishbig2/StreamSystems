@@ -3,6 +3,7 @@ import { Globals } from "golbals";
 import { observer } from "mobx-react";
 import { BrokerageStore, CommissionRate } from "mobx/stores/brokerageStore";
 import React, { ReactElement, useEffect, useState } from "react";
+import { toClassName } from "utils/conditionalClasses";
 
 export const CommissionRates: React.FC = observer(
   (): ReactElement => {
@@ -24,7 +25,12 @@ export const CommissionRates: React.FC = observer(
               }
             );
             return (
-              <div key={region} className={"entry"}>
+              <div
+                key={region}
+                className={toClassName("entry", {
+                  "has-discount": entry.hasDiscount,
+                })}
+              >
                 <Typography color={"textSecondary"} className={"region"}>
                   {region}
                 </Typography>
