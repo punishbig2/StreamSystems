@@ -16,6 +16,7 @@ export const onSubmitPrice = (store: OrderStore) => async (
 ): Promise<void> => {
   input.disabled = true;
 
+  moveToNextPrice(input, tabDirection);
   if (changed) {
     const depth: Order[] = store.depth;
     if (isInvertedMarket(store, depth, price)) {
@@ -26,8 +27,6 @@ export const onSubmitPrice = (store: OrderStore) => async (
     }
     await store.create(price, store.defaultSize);
   }
-
-  setTimeout((): void => moveToNextPrice(input, tabDirection), 0);
   // We are certainly done
   input.disabled = false;
 };
