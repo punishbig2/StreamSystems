@@ -85,11 +85,16 @@ export class OrderStore {
 
     const order = myOrders.reduce(
       (best: Order | null, next: Order): Order | null => {
+        const nextPrice = next.price;
+        if (!nextPrice) return best;
+
+        const bestPrice = best?.price;
+        if (!bestPrice) return next;
         switch (next.type) {
           case OrderTypes.Ofr:
-            return (best?.price ?? 0) < (next.price ?? 0) ? best : next;
+            return bestPrice < nextPrice ? best : next;
           case OrderTypes.Bid:
-            return (best?.price ?? 0) > (next.price ?? 0) ? best : next;
+            return bestPrice > nextPrice ? best : next;
           case OrderTypes.DarkPool:
           case OrderTypes.Invalid:
             return best;
