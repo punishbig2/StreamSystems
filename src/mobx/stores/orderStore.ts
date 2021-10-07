@@ -76,12 +76,30 @@ export class OrderStore {
   get replaceOrderId(): string | null {
     const { user } = workareaStore;
     const { email } = user;
-    const { status, orderID, depth } = this;
-    const order = depth.find(
-      (order: Order): boolean => order.orderId === orderID
+    const { depth } = this;
+
+    const myOrders = depth.filter((order: Order): boolean => {
+      if (order.user !== email) return false;
+      return order.type === this.type;
+    });
+
+    const order = myOrders.reduce(
+      (best: Order | null, next: Order): Order | null => {
+        switch (next.type) {
+          case OrderTypes.Ofr:
+            return (best?.price ?? 0) < (next.price ?? 0) ? best : next;
+          case OrderTypes.Bid:
+            return (best?.price ?? 0) > (next.price ?? 0) ? best : next;
+          case OrderTypes.DarkPool:
+          case OrderTypes.Invalid:
+            return best;
+        }
+        return best;
+      },
+      null
     );
 
-    if (order === undefined) {
+    if (order === null) {
       return null;
     }
 
@@ -90,13 +108,7 @@ export class OrderStore {
       return null;
     }
 
-    if ((status & OrderStatus.Cancelled) !== 0) {
-      return null;
-    } else if (orderID === undefined) {
-      return null;
-    } else {
-      return orderID;
-    }
+    return order.orderId ?? null;
   }
 
   @computed
