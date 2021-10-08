@@ -761,7 +761,6 @@ export class API {
       API.buildUrl(API.DarkPool, "all", "cancel"),
       request
     ).execute();
-    await POST<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
   }
 
   public static async brokerRefAll() {
