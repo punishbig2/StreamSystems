@@ -781,7 +781,10 @@ export class API {
       API.buildUrl(API.DarkPool, "all", "cxlall"),
       request
     ).execute();
-    await POST<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
+
+    if (personality === STRM) {
+      await POST<any>(API.buildUrl(API.DarkPool, "price", "clear")).execute();
+    }
   }
 
   public static async getUserRegions(
