@@ -634,6 +634,7 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public setDeal(deal: Deal | null): Task<void> {
+    console.log(deal);
     const { entry } = this;
     // Reload strategies now
     if (deal !== null) {
@@ -1177,6 +1178,18 @@ export class MiddleOfficeStore implements Workspace {
       );
     } else {
       return mapper(data);
+    }
+  }
+
+  @action.bound
+  public refreshCurrentDeal(): void {
+    const { deals, entry } = this;
+    const currentDeal = deals.find((deal: Deal): boolean => {
+      return deal.id === entry.dealID;
+    });
+    console.log(currentDeal);
+    if (currentDeal) {
+      this.loadDealEntryFromDeal(currentDeal);
     }
   }
 

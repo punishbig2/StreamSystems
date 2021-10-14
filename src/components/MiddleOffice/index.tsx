@@ -40,6 +40,7 @@ export const MiddleOffice: React.FC<Props> = observer(
       // Allow cancellation
       return (): void => task.cancel();
     }, [newDeal, store]);
+
     useMoInitializer(store);
     if (!store.isInitialized) {
       return (
