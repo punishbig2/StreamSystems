@@ -50,15 +50,17 @@ export class DarkPoolStore {
     const personality: string = workareaStore.personality;
     const { roles } = user;
     const { currentOrder } = this;
+    const isBroker = roles.includes(Role.Broker);
     if (!currentOrder) return OrderStatus.None;
+    const isSameFirm = isBroker
+      ? currentOrder.firm === personality
+      : currentOrder.firm === user.firm;
     if (currentOrder.size === null) return OrderStatus.None;
     if (currentOrder.user === user.email) {
-      if (roles.includes(Role.Broker) && currentOrder.firm !== personality)
-        return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
       return (
         OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned
       );
-    } else if (currentOrder.firm === user.firm) {
+    } else if (isSameFirm) {
       return (
         OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.SameBank
       );

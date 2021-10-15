@@ -27,16 +27,15 @@ const columns = (
         const personality: string = workareaStore.personality;
         const { roles } = user;
         const isBroker: boolean = roles.includes(Role.Broker);
-        if (
-          order.user === user.email ||
-          (isBroker && personality === user.firm)
-        )
-          classes.push("clickable");
+        const clickable =
+          order.user === user.email || (isBroker && personality === user.firm);
+
+        if (clickable) classes.push("clickable");
         return (
           <div
             key={2}
             className={classes.join(" ")}
-            onClick={() => onCancelOrder(order)}
+            onClick={clickable ? () => onCancelOrder(order) : undefined}
           >
             <svg viewBox={"0 0 612 792"}>
               <g>
