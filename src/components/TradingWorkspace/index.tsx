@@ -35,6 +35,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
       const { roles } = user;
       return roles.includes(Role.Broker);
     }, [user]);
+
     const store = React.useContext<TradingWorkspaceStore>(
       TradingWorkspaceStoreContext
     );
@@ -53,7 +54,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
     if (store.loading) {
       return (
         <ProgressView
-          value={store.progress}
+          value={50}
           message={"Please wait while we load your workspace"}
           title={"Loading: Workspace"}
         />

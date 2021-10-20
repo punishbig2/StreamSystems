@@ -20,12 +20,10 @@ export class TradingWorkspaceStore implements Workspace {
   @observable public isUserProfileModalVisible = false;
   @observable public errorMessage: string | null = null;
   @observable public loading: boolean = false;
-  @observable public progress: number = 0;
   @observable public modified: boolean = false;
   @observable public executionBlotter: MessageBlotterStore;
 
   constructor() {
-    this.progress = 50;
     this.executionBlotter = new MessageBlotterStore(BlotterTypes.Executions);
   }
 
@@ -96,7 +94,9 @@ export class TradingWorkspaceStore implements Workspace {
 
   @action.bound
   public superRefAll() {
-    if (workareaStore.user.roles.includes(Role.Broker)) {
+    const { roles } = workareaStore.user;
+
+    if (roles.includes(Role.Broker)) {
       void API.brokerRefAll();
     } else {
       void API.userRefAll();

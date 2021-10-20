@@ -83,26 +83,7 @@ export class OrderStore {
       return order.type === this.type;
     });
 
-    const order = myOrders.reduce(
-      (best: Order | null, next: Order): Order | null => {
-        const nextPrice = next.price;
-        if (!nextPrice) return best;
-
-        const bestPrice = best?.price;
-        if (!bestPrice) return next;
-        switch (next.type) {
-          case OrderTypes.Ofr:
-            return bestPrice < nextPrice ? best : next;
-          case OrderTypes.Bid:
-            return bestPrice > nextPrice ? best : next;
-          case OrderTypes.DarkPool:
-          case OrderTypes.Invalid:
-            return best;
-        }
-        return best;
-      },
-      null
-    );
+    const order = myOrders.reduce(pickBestOrder, null);
 
     if (order === null) {
       return null;
