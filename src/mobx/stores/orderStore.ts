@@ -267,6 +267,7 @@ export class OrderStore {
 
   @action.bound
   public setOrder(order: Order | undefined, status: OrderStatus): void {
+    if (order?.type === OrderTypes.Invalid) return;
     this.baseStatus = OrderStatus.None;
     if (order) {
       this.price = order.price;

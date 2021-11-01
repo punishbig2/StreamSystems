@@ -47,6 +47,7 @@ export const Row: React.FC<Props> = observer((props: Props) => {
         {columns.map((column: TableColumn, index: number) => {
           const width: string = getCellWidth(column.width, totalWidth);
           const name: string = column.name;
+
           return (
             <Cell
               key={name}

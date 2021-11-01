@@ -9,7 +9,10 @@ import signalRManager from "signalR/signalRManager";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";
+import { OrderTypes } from "types/mdEntry";
 import { Message } from "types/message";
+import { Order } from "types/order";
+import { PodRow, PodRowStatus } from "types/podRow";
 import { Product, ProductSource } from "types/product";
 import { OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
@@ -58,6 +61,9 @@ export class WorkareaStore {
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
   @observable recentExecutions: Array<Message> = [];
+
+  @observable.ref defaultOrders: Record<string, ReadonlyArray<Order>> = {};
+  @observable.ref defaultPodRows: Record<string, PodRow> = {};
 
   @observable.ref
   preferences: UserPreferences = defaultPreferences;
@@ -249,7 +255,6 @@ export class WorkareaStore {
     } catch (error) {
       this.loadTheme();
       this.setStatus(WorkareaStatus.Error);
-      console.warn(error);
     }
   }
 
@@ -355,6 +360,7 @@ export class WorkareaStore {
 
   private mapSymbolsWithIds() {
     const { symbols } = this;
+
     return symbols.reduce((map: { [key: string]: Symbol }, symbol: Symbol): {
       [key: string]: Symbol;
     } => {
@@ -422,15 +428,18 @@ export class WorkareaStore {
     });
   }
 
+  @action.bound
   private async loadSystemSymbols(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingSymbols);
     this.symbols = await API.getSymbols();
   }
 
+  @action.bound
   private async createSymbolsMap(): Promise<void> {
     this.symbolsMap = this.mapSymbolsWithIds();
   }
 
+  @action.bound
   private async loadSystemStrategies(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingStrategies);
     this.products = await API.getProductsEx();
@@ -439,14 +448,20 @@ export class WorkareaStore {
     );
   }
 
+  @action.bound
   private async loadSystemTenors(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingTenors);
     const tenors: string[] = await API.getTenors();
+
     this.tenors = tenors.sort(
       (t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2)
     );
+
+    this.updateDefaultPodRows();
+    this.updateDefaultOrders();
   }
 
+  @action.bound
   private async loadSystemBanks(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingBanks);
     this.banks = await API.getBanks();
@@ -518,6 +533,48 @@ export class WorkareaStore {
     setTimeout((): void => {
       this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
     }, tradingEndTime.diff(moment(), "ms"));
+  }
+
+  @action.bound
+  private updateDefaultOrders(): void {
+    const { tenors } = this;
+
+    this.defaultOrders = tenors.reduce(
+      (
+        depth: Record<string, ReadonlyArray<Order>>,
+        tenor: string
+      ): Record<string, ReadonlyArray<Order>> => {
+        depth[tenor] = [];
+        return depth;
+      },
+      {}
+    );
+  }
+
+  @action.bound
+  private updateDefaultPodRows(): void {
+    const { tenors } = this;
+
+    this.defaultPodRows = tenors.reduce(
+      (rows: Record<string, PodRow>, tenor: string): Record<string, PodRow> => {
+        const row: PodRow = {
+          id: tenor,
+          tenor: tenor,
+          bid: new Order(tenor, "", "", "", null, OrderTypes.Invalid),
+          ofr: new Order(tenor, "", "", "", null, OrderTypes.Invalid),
+          mid: null,
+          spread: null,
+          status: PodRowStatus.Normal,
+          darkPrice: null,
+        };
+
+        return {
+          ...rows,
+          [tenor]: row,
+        };
+      },
+      {}
+    );
   }
 }
 

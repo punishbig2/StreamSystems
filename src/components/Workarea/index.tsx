@@ -3,7 +3,7 @@ import { ModalWindow } from "components/ModalWindow";
 import { ProgressView } from "components/progressView";
 import { TradeConfirmation } from "components/TradeConfirmation";
 import { AccessDeniedView } from "components/Workarea/accessDeniedView";
-import { ActiveWorkspace } from "components/Workarea/activeWorkspaces";
+import { Workspaces } from "components/Workarea/workspaces";
 import { DisconnectedDisabler } from "components/Workarea/disconnectedDisabler";
 import { Footer } from "components/Workarea/footer";
 import { UserNotAllowedAtThisTime } from "components/Workarea/userNotAllowedAtThisTime";
@@ -123,6 +123,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       />
     );
   };
+
   switch (store.status) {
     case WorkareaStatus.Error:
       return (
@@ -159,7 +160,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       } else {
         return (
           <>
-            <ActiveWorkspace />
+            <Workspaces />
             <Footer />
             <ModalWindow
               render={renderLoadingModal}

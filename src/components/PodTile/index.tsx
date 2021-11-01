@@ -2,7 +2,6 @@ import { Task } from "API";
 import createPODColumns from "columns/podColumns";
 import { ModalWindow } from "components/ModalWindow";
 import { convertToDepth } from "components/PodTile/helpers";
-import { useInitializer } from "components/PodTile/hooks/useInitializer";
 import { Run } from "components/Run";
 import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
@@ -53,7 +52,11 @@ export const PodTile: React.FC<Props> = observer(
         currency.name,
         strategy
       );
-      void initializeTask.execute();
+
+      setTimeout((): void => {
+        void initializeTask.execute();
+      }, 0);
+
       return () => {
         initializeTask.cancel();
         cleanUps.forEach((clean: () => void): void => clean());
@@ -61,7 +64,7 @@ export const PodTile: React.FC<Props> = observer(
     }, [store, currency, strategy, user, connected]);
 
     // Initialize tile/window
-    useInitializer(tenors, currency.name, strategy, user, store.setRows);
+    // useInitializer(tenors, currency.name, strategy, user, store.setRows);
     const bulkCreateOrders = async (orders: ReadonlyArray<Order>) => {
       store.createBulkOrders(orders, currency).catch(console.warn);
     };

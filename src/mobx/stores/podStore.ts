@@ -1,6 +1,6 @@
 import { API, Task } from "API";
 import { orderSorter } from "components/PodTile/helpers";
-import { action, computed, observable } from "mobx";
+import { action, autorun, computed, observable, runInAction } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 import { RunWindowStore } from "mobx/stores/runWindowStore";
 
@@ -29,15 +29,15 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable loading: boolean = false;
   @observable currentTenor: string | null = null;
 
-  @observable.ref darkPoolOrders: { [tenor: string]: W } = {};
-  @observable.ref orders: { [tenor: string]: ReadonlyArray<Order> } = {};
+  @observable darkPoolOrders: { [tenor: string]: W } = {};
+  @observable orders: { [tenor: string]: ReadonlyArray<Order> } = {};
 
   @observable isRunWindowVisible: boolean = false;
   // Progress bar
   @observable isProgressWindowVisible: boolean = false;
   @observable currentProgress: number | null = null;
   @observable operationStartedAt: number = 0;
-  @observable.ref rows: { [tenor: string]: PodRow } = {};
+  @observable rows: { [tenor: string]: PodRow };
 
   @observable runWindowStore: RunWindowStore = new RunWindowStore();
 
@@ -47,18 +47,20 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   constructor(windowID?: string) {
     super();
-    if (windowID === undefined) return;
-    const tenors: ReadonlyArray<string> = workareaStore.tenors;
+    if (windowID === undefined) {
+      this.rows = {};
+      return;
+    }
     this.id = windowID;
-    const reducer = (
-      depth: { [tenor: string]: Order[] },
-      tenor: string
-    ): { [tenor: string]: Order[] } => {
-      depth[tenor] = [];
-      return depth;
-    };
-    // Initialize depth with empty arrays
-    this.orders = tenors.reduce(reducer, {});
+    this.orders = {};
+    this.rows = {};
+
+    autorun((): void => {
+      this.initializeWithDefaults(
+        workareaStore.defaultPodRows,
+        workareaStore.defaultOrders
+      );
+    });
   }
 
   @computed
@@ -147,13 +149,15 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   public initialize(currency: string, strategy: string): Task<void> {
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
-    // FIXME these should tasks instead of promises
-    // Now initialize it
-    this.loading = true;
-    this.ccyPair = currency;
-    this.strategy = strategy;
-    // Load depth
     const tasks: Array<Task<any>> = [API.getSnapshot(currency, strategy)];
+
+    runInAction((): void => {
+      // Now initialize it
+      this.loading = true;
+      this.ccyPair = currency;
+      this.strategy = strategy;
+      // Load depth
+    });
 
     return {
       execute: async (): Promise<void> => {
@@ -176,9 +180,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         > = API.getDarkPoolLastQuotes(currency, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
-        // Initialize from depth snapshot
-        this.initializeDepthFromSnapshot(await combinedTask.execute());
-        this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
+
         // Other task
         const quotes: ReadonlyArray<DarkPoolQuote> = await darkPoolQuotesTask.execute();
         const darkPrices = quotes.reduce(
@@ -195,9 +197,19 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
           {}
         );
         const rowIds: ReadonlyArray<string> = Object.keys(this.rows);
-        this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
-          return { ...rows, [id]: { ...rows[id], darkPrice: darkPrices[id] } };
-        }, this.rows);
+        const combined = await combinedTask.execute();
+
+        runInAction((): void => {
+          // Initialize from depth snapshot
+          this.initializeDepthFromSnapshot(combined);
+          this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
+          this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
+            return {
+              ...rows,
+              [id]: { ...rows[id], darkPrice: darkPrices[id] },
+            };
+          }, this.rows);
+        });
       },
       cancel: (): void => {
         for (const task of tasks) {
@@ -220,6 +232,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       const foundSymbol: Symbol | undefined = symbols.find(
         (symbol: Symbol): boolean => symbol.symbolID === ccyPair
       );
+
       if (foundSymbol !== undefined) {
         const { strategy } = this;
         if (strategy.startsWith("ATM")) {
@@ -297,7 +310,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     }
   }
 
-  @action.bound
   private initializeDepthFromSnapshot(ws: { [tenor: string]: W } | null) {
     if (ws === null) return;
     const user: User | null = workareaStore.user;
@@ -431,6 +443,15 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       strategy: this.strategy,
       ccyPair: this.ccyPair,
     };
+  }
+
+  private initializeWithDefaults(
+    defaultPodRows: Record<string, PodRow>,
+    defaultOrders: Record<string, ReadonlyArray<Order>>
+  ) {
+    // Initialize depth with empty arrays
+    this.orders = defaultOrders;
+    this.rows = defaultPodRows;
   }
 }
 
