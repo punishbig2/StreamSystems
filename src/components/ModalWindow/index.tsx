@@ -15,20 +15,23 @@ const ModalWindow: React.FC<PropsWithChildren<Props>> = (
       "this application will not be able to render modal windows"
     );
   }
-  const Content: React.FC = (): ReactElement | null => {
-    if (props.isOpen) {
+  const { render, children, isOpen, ...inheritedProps } = props;
+
+  const content = React.useMemo((): ReactElement | null => {
+    if (isOpen) {
       return (
         <div className={"modal-window-container"}>
           <div className={"modal-window"}>
-            {props.render !== undefined ? props.render(props) : props.children}
+            {render !== undefined ? render(inheritedProps) : children}
           </div>
         </div>
       );
     } else {
       return null;
     }
-  };
-  return ReactDOM.createPortal(<Content />, container);
+  }, [isOpen, render, inheritedProps, children]);
+
+  return ReactDOM.createPortal(content, container);
 };
 
 export { ModalWindow };

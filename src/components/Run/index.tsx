@@ -18,15 +18,14 @@ import { SortDirection } from "types/sortDirection";
 import { createColumnsWithStore } from "./columnCreator";
 
 interface Props {
-  readonly visible: boolean;
   readonly symbol: string;
   readonly strategy: string;
   readonly tenors: ReadonlyArray<string>;
-  readonly onClose: () => void;
-  readonly onSubmit: (entries: ReadonlyArray<Order>) => void;
   readonly minimumSize: number;
   readonly defaultSize: number;
   readonly orders: { [tenor: string]: ReadonlyArray<Order> };
+  readonly onClose: () => void;
+  readonly onSubmit: (entries: ReadonlyArray<Order>) => void;
 }
 
 const Run: React.FC<Props> = observer(
@@ -37,12 +36,18 @@ const Run: React.FC<Props> = observer(
       tenors,
       defaultSize,
       minimumSize,
-      visible,
       orders,
     } = props;
 
     const store = React.useContext<RunWindowStore>(RunWindowStoreContext);
     const { rows, selection, brokerageWidths } = store;
+
+    React.useEffect((): (() => void) => {
+      console.log("mounted");
+      return (): void => {
+        console.log("unmounted");
+      };
+    }, []);
 
     const setSpread = (value: number): void => {
       store.setSpreadAll(value);
@@ -87,11 +92,11 @@ const Run: React.FC<Props> = observer(
       return (): void => {
         task.cancel();
       };
-    }, [symbol, strategy, tenors, visible, store, orders]);
+    }, [symbol, strategy, tenors, store, orders]);
 
     useEffect((): void => {
       store.setDefaultSize(defaultSize);
-    }, [defaultSize, store, visible]);
+    }, [defaultSize, store]);
 
     const activateOrders = (row: PodRow) => {
       store.activateRow(row.id);
@@ -141,8 +146,7 @@ const Run: React.FC<Props> = observer(
           minimumSize,
           defaultSize,
           defaultBidSize,
-          defaultOfrSize,
-          visible
+          defaultOfrSize
         ).map(
           (column: TableColumn): ExtendedTableColumn => ({
             ...column,
@@ -150,7 +154,7 @@ const Run: React.FC<Props> = observer(
             filter: "",
           })
         ),
-      [store, defaultBidSize, defaultOfrSize, minimumSize, defaultSize, visible]
+      [store, defaultBidSize, defaultOfrSize, minimumSize, defaultSize]
     );
 
     return (

@@ -35,5 +35,4 @@ export interface RunColumnData {
   onActivateOrder: (rowID: string, orderType: OrderTypes) => void;
   minimumSize: number;
   defaultSize: number;
-  visible: boolean;
 }

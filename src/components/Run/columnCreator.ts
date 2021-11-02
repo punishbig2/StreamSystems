@@ -13,8 +13,7 @@ export const createColumnsWithStore = (
   minimumSize: number,
   defaultSize: number,
   defaultBidSize: number,
-  defaultOfrSize: number,
-  visible: boolean
+  defaultOfrSize: number
 ) => {
   return createColumns({
     onBidChanged: onPriceChange(store, OrderTypes.Bid),
@@ -52,7 +51,6 @@ export const createColumnsWithStore = (
     },
     defaultSize: defaultSize,
     minimumSize: minimumSize,
-    visible: visible,
     onNavigate: (target: HTMLInputElement, direction: NavigateDirection) => {
       switch (direction) {
         case NavigateDirection.Up:

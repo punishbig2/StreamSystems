@@ -19,7 +19,6 @@ interface Props {
 export const WindowContent: React.FC<Props> = observer(
   (props: Props): React.ReactElement => {
     const store = React.useContext<PodStore>(PodStoreContext);
-    console.log("rendered window content");
 
     const renderProgress = (): ReactElement | null => {
       if (store.currentProgress === null) return null;

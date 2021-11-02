@@ -3,10 +3,13 @@ const hostname: string = location.hostname;
 const baseUrl: string = location.protocol + "//" + hostname;
 // Replace the second item of the host name
 const parts: string[] = hostname.split(".");
-const accountUrl: string =
-  location.protocol +
-  "//" +
-  [...parts.slice(0, -3), "account", ...parts.slice(-2)].join(".");
+
+const accountUrlBase =
+  hostname === "localhost" || hostname === "172.16.0.2"
+    ? "account.fxo.com"
+    : [...parts.slice(0, -3), "account", ...parts.slice(-2)].join(".");
+
+const accountUrl: string = `${location.protocol}//${accountUrlBase}`;
 
 export default {
   BackendUrl: `${baseUrl}:4050`,

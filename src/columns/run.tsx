@@ -124,7 +124,6 @@ const RunSizeColumn = (
           order={order}
           defaultValue={defaultSize.value}
           minimumSize={data.minimumSize}
-          visible={data.visible}
           onTabbedOut={data.focusNext}
           onChange={onChange}
           onNavigate={data.onNavigate}

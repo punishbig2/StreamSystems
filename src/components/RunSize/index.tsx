@@ -15,7 +15,6 @@ interface Props {
   readonly value: number | null;
   readonly order: Order;
   readonly minimumSize: number;
-  readonly visible: boolean;
   readonly onActivateOrder: (id: string, orderType: OrderTypes) => void;
   readonly onDeactivateOrder: (id: string, orderType: OrderTypes) => void;
   readonly onTabbedOut?: (
@@ -42,15 +41,7 @@ enum ActivationStatus {
 
 export const RunSize: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
-  const {
-    order,
-    defaultValue,
-    onChange,
-    id,
-    minimumSize,
-    visible,
-    value,
-  } = props;
+  const { order, defaultValue, onChange, id, minimumSize, value } = props;
 
   const [internalValue, setInternalValue] = useState<string>(
     sizeFormatter(value)
@@ -87,7 +78,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     } else {
       setInternalValue("");
     }
-  }, [value, visible]);
+  }, [value]);
 
   const onChangeWrapper = (value: string | null) => {
     if (!locallyModified) setLocallyModified(true);
