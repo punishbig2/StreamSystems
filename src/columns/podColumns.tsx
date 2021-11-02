@@ -5,7 +5,6 @@ import { OrderColumnWrapper } from "columns/podColumns/orderColumnWrapper";
 import { TenorColumn } from "columns/podColumns/tenorColumn";
 import { TableColumn } from "components/Table/tableColumn";
 import strings from "locales";
-import { OrderStore } from "mobx/stores/orderStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { OrderTypes } from "types/mdEntry";

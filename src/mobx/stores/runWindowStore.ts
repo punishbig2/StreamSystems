@@ -61,6 +61,7 @@ export class RunWindowStore {
     const row = new Proxy(originalRow, RunRowProxy);
     const { bid, ofr } = row;
     if (bid.price === null || ofr.price === null) return row;
+    console.log(bid.price, ofr.price);
     return {
       ...row,
       spread: RunWindowStore.getSpread(row),
@@ -70,7 +71,7 @@ export class RunWindowStore {
 
   private static getMid(row: PodRow): number | null {
     const { ofr, bid } = row;
-    if (row.mid !== null) return row.mid;
+
     if (
       ofr.price === null ||
       (ofr.status & OrderStatus.Cancelled) !== 0 ||
@@ -79,12 +80,13 @@ export class RunWindowStore {
     ) {
       return null;
     }
+
     return (ofr.price + bid.price) / 2;
   }
 
   private static getSpread(row: PodRow): number | null {
     const { ofr, bid } = row;
-    if (row.spread !== null) return row.spread;
+
     if (
       ofr.price === null ||
       (ofr.status & OrderStatus.Cancelled) !== 0 ||
@@ -93,6 +95,7 @@ export class RunWindowStore {
     ) {
       return null;
     }
+
     return ofr.price - bid.price;
   }
 
