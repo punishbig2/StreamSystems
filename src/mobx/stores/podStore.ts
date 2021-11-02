@@ -396,7 +396,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     currency: Symbol
   ) {
     this.hideRunWindow();
-    this.showProgressWindow(-1);
+    // this.showProgressWindow(-1);
     const { strategy } = this;
     const { user, personality } = workareaStore;
     const promises = orders.map(
