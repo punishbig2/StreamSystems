@@ -14,6 +14,7 @@ interface Props {
   readonly strategy: string;
   readonly symbol: Symbol;
   readonly dob: DepthData;
+  readonly loading: boolean;
 }
 
 export const WindowContent: React.FC<Props> = observer(
@@ -38,7 +39,7 @@ export const WindowContent: React.FC<Props> = observer(
           currentTenor={store.currentTenor}
           id={store.id}
           columns={props.columns}
-          loading={store.loading}
+          loading={store.loading || props.loading}
           rows={store.rows}
           symbol={props.symbol}
           strategy={props.strategy}

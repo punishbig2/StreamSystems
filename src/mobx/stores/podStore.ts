@@ -40,10 +40,10 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable rows: { [tenor: string]: PodRow };
 
   @observable runWindowStore: RunWindowStore = new RunWindowStore();
+  @observable creatingBulk: boolean = false;
 
   public progressMax: number = 100;
   public readonly kind: TileType = TileType.PodTile;
-  private creatingBulk: boolean = false;
 
   constructor(windowID?: string) {
     super();
@@ -396,7 +396,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     currency: Symbol
   ) {
     this.hideRunWindow();
-    // this.showProgressWindow(-1);
     const { strategy } = this;
     const { user, personality } = workareaStore;
     const promises = orders.map(

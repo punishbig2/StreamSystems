@@ -95,6 +95,7 @@ export const PodTile: React.FC<Props> = observer(
             columns: dobColumns,
             rows: dobRows,
           }}
+          loading={store.creatingBulk}
         />
         <ModalWindow isOpen={store.isRunWindowVisible}>
           <RunWindowStoreContext.Provider value={store.runWindowStore}>
