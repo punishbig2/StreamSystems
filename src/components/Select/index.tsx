@@ -77,7 +77,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     document.addEventListener("keydown", ignore, options);
 
     return (): void => {
-      document.addEventListener("keydown", ignore, options);
+      document.removeEventListener("keydown", ignore, options);
       document.removeEventListener("wheel", ignore, options);
     };
   }, [isDropdownVisible]);
