@@ -42,13 +42,6 @@ const Run: React.FC<Props> = observer(
     const store = React.useContext<RunWindowStore>(RunWindowStoreContext);
     const { rows, selection, brokerageWidths } = store;
 
-    React.useEffect((): (() => void) => {
-      console.log("mounted");
-      return (): void => {
-        console.log("unmounted");
-      };
-    }, []);
-
     const setSpread = (value: number): void => {
       store.setSpreadAll(value);
     };

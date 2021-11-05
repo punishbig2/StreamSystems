@@ -14,6 +14,7 @@ interface OwnProps {
 
 export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const { list, value } = props;
+
   const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [position, setPosition] = useState<ClientRect>(new DOMRect());
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
@@ -21,12 +22,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const [dropdown, setDropdown] = useState<HTMLUListElement | null>(null);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
-  const onChange = (event: React.FormEvent<HTMLSelectElement>) => {
+  const onChange = (event: React.FormEvent<HTMLSelectElement>): void => {
     const { currentTarget } = event;
     props.onChange(currentTarget.value);
   };
 
-  const showDropdown = (event: React.FormEvent<HTMLElement>) => {
+  const showDropdown = (event: React.FormEvent<HTMLElement>): void => {
     if (isDropdownVisible) return;
     event.preventDefault();
     event.stopPropagation();
@@ -61,6 +62,25 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         window.innerHeight - position.top - styles().windowToolbarHeight + "px",
     };
   };
+
+  useEffect((): void | (() => void) => {
+    if (!isDropdownVisible) return;
+
+    const ignore = (event: Event): void => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+    };
+    const options = { passive: false, capture: true };
+    // Install event listeners to ignore these events
+    document.addEventListener("wheel", ignore, options);
+    document.addEventListener("keydown", ignore, options);
+
+    return (): void => {
+      document.addEventListener("keydown", ignore, options);
+      document.removeEventListener("wheel", ignore, options);
+    };
+  }, [isDropdownVisible]);
 
   useEffect(() => {
     if (!isDropdownVisible || dropdown === null) return;
@@ -179,10 +199,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         />
       </div>
     );
+
     const classes = ["dropdown"];
     if (props.disabled) {
       classes.push("disabled");
     }
+
     return ReactDOM.createPortal(
       <div className={classes.join(" ")} style={positionToStyle(position)}>
         {props.searchable && searchBox}
@@ -243,8 +265,4 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       {renderDropdown()}
     </div>
   );
-};
-
-Select.defaultProps = {
-  fit: false,
 };
