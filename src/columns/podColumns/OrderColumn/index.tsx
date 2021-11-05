@@ -118,7 +118,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       !props.forceEditable && isBroker && personality === STRM;
     const hasDepth = (store.status & OrderStatus.HasDepth) !== 0;
     /// If we find an order that can be cancelled, then it is cancellable
-    const cancellable = true; // store.cancelOrder !== null;
+    const cancellable = store.cancelOrder !== null;
 
     const sizeCell: ReactElement = (
       <Size

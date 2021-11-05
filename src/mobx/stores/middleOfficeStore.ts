@@ -634,7 +634,6 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public setDeal(deal: Deal | null): Task<void> {
-    console.log(deal);
     const { entry } = this;
     // Reload strategies now
     if (deal !== null) {
