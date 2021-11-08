@@ -67,7 +67,6 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     if (!isDropdownVisible) return;
 
     const ignore = (event: Event): void => {
-      event.preventDefault();
       event.stopImmediatePropagation();
       event.stopPropagation();
     };
