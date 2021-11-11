@@ -149,20 +149,22 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       ...tenors.map((tenor: string): (() => void) =>
         this.addMarketListener(currency, strategy, tenor)
       ),
-      signalRManager.addRefAllCompleteListener(
-        currency,
-        strategy,
-        this.reloadSnapshot
-      ),
+      signalRManager.addRefAllCompleteListener(currency, strategy, (): void => {
+        runInAction((): void => {
+          this.reloadSnapshot();
+        });
+      }),
     ];
   }
 
   @action.bound
   public async reloadSnapshot(): Promise<void> {
+    this.loading = true;
     const task = API.getTOBSnapshot(this.ccyPair, this.strategy);
     const snapshot = await task.execute();
 
     this.initializeDepthFromSnapshot(snapshot);
+    this.loading = false;
   }
 
   private doInitialize(): Task<void> {
