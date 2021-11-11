@@ -1,6 +1,7 @@
 import { API, Task } from "API";
 import { action, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
+import React from "react";
 import signalRManager from "signalR/signalRManager";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
@@ -58,3 +59,7 @@ export class BrokerageStore {
     this.commissionRates = rates;
   }
 }
+
+export const BrokerageStoreContext = React.createContext<BrokerageStore | null>(
+  null
+);

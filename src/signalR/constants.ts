@@ -15,6 +15,7 @@ export const PRICING_RESPONSE_EVENT = "pricing_response_event";
 export const NEW_DEAL_EVENT = "new_deal_event";
 export const DEAL_DELETED_EVENT = "deal_deleted_event";
 export const SEF_UPDATE = "sef_update";
+export const REF_ALL_COMPLETE = "ref_all_complete";
 
 export enum Events {
   UpdateMarketData = "updateMarketData",
@@ -30,4 +31,5 @@ export enum Events {
   OnCommissionUpdate = "onCommissionUpdate",
   OnDealEditStart = "OnDealEditStart",
   OnDealEditEnd = "OnDealEditEnd",
+  RefAllComplete = "refAllComplete",
 }

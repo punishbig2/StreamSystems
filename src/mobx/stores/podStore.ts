@@ -42,6 +42,9 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable runWindowStore: RunWindowStore = new RunWindowStore();
   @observable creatingBulk: boolean = false;
 
+  private updateOrdersTimer = setTimeout((): void => {}, 0);
+  private ordersCache: { [tenor: string]: ReadonlyArray<Order> } = {};
+
   public progressMax: number = 100;
   public readonly kind: TileType = TileType.PodTile;
 
@@ -142,22 +145,31 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   ): Array<() => void> {
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
     // Install a listener for each tenor
-    return tenors.map((tenor: string): (() => void) =>
-      this.addMarketListener(currency, strategy, tenor)
-    );
+    return [
+      ...tenors.map((tenor: string): (() => void) =>
+        this.addMarketListener(currency, strategy, tenor)
+      ),
+      signalRManager.addRefAllCompleteListener(
+        currency,
+        strategy,
+        this.reloadSnapshot
+      ),
+    ];
   }
 
-  public initialize(currency: string, strategy: string): Task<void> {
-    const tenors: ReadonlyArray<string> = workareaStore.tenors;
-    const tasks: Array<Task<any>> = [API.getSnapshot(currency, strategy)];
+  @action.bound
+  public async reloadSnapshot(): Promise<void> {
+    const task = API.getTOBSnapshot(this.ccyPair, this.strategy);
+    const snapshot = await task.execute();
 
-    runInAction((): void => {
-      // Now initialize it
-      this.loading = true;
-      this.ccyPair = currency;
-      this.strategy = strategy;
-      // Load depth
-    });
+    this.initializeDepthFromSnapshot(snapshot);
+  }
+
+  private doInitialize(): Task<void> {
+    const { ccyPair, strategy } = this;
+
+    const tenors: ReadonlyArray<string> = workareaStore.tenors;
+    const tasks: Array<Task<any>> = [API.getSnapshot(ccyPair, strategy)];
 
     return {
       execute: async (): Promise<void> => {
@@ -170,14 +182,14 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         if (snapshot === null) return;
         // Combine TOB and full snapshots
         const combinedTask: Task<{ [k: string]: W }> = this.combineSnapshots(
-          currency,
+          ccyPair,
           strategy,
           tenors,
           snapshot
         );
         const darkPoolQuotesTask: Task<
           ReadonlyArray<DarkPoolQuote>
-        > = API.getDarkPoolLastQuotes(currency, strategy);
+        > = API.getDarkPoolLastQuotes(ccyPair, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
 
@@ -202,7 +214,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         runInAction((): void => {
           // Initialize from depth snapshot
           this.initializeDepthFromSnapshot(combined);
-          this.loadDarkPoolSnapshot(currency, strategy).then((): void => {});
+          this.loadDarkPoolSnapshot(ccyPair, strategy).then((): void => {});
           this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
             return {
               ...rows,
@@ -217,6 +229,18 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         }
       },
     };
+  }
+
+  public initialize(currency: string, strategy: string): Task<void> {
+    runInAction((): void => {
+      // Now initialize it
+      this.loading = true;
+      this.ccyPair = currency;
+      this.strategy = strategy;
+      // Load depth
+    });
+
+    return this.doInitialize();
   }
 
   @action.bound
@@ -283,7 +307,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.currentProgress = value;
   }
 
-  @action.bound
   private updateSingleDepth(tenor: string, w: W) {
     const entries: MDEntry[] = w.Entries;
     if (entries) {
@@ -300,16 +323,30 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         });
       if (orders.length > 0) {
         const first: Order = orders[0];
-        this.orders = {
-          ...this.orders,
+        this.updateOrders({
           [tenor]: orders.sort(orderSorter(first.type)),
-        };
+        });
       }
     } else {
-      this.orders = { ...this.orders, [tenor]: [] };
+      this.updateOrders({ [tenor]: [] });
     }
   }
 
+  @action.bound
+  private flushOrderCache(): void {
+    this.orders = this.ordersCache;
+  }
+
+  private updateOrders(newOrders: {
+    [tenor: string]: ReadonlyArray<Order>;
+  }): void {
+    clearTimeout(this.updateOrdersTimer);
+    // This should not trigger an update
+    this.ordersCache = { ...this.ordersCache, ...newOrders };
+    this.updateOrdersTimer = setTimeout(this.flushOrderCache, 200);
+  }
+
+  @action.bound
   private initializeDepthFromSnapshot(ws: { [tenor: string]: W } | null) {
     if (ws === null) return;
     const user: User | null = workareaStore.user;
@@ -319,7 +356,9 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       (
         depth: { [k: string]: Order[] },
         tenor: string
-      ): { [k: string]: Order[] } => {
+      ): {
+        [k: string]: Order[];
+      } => {
         const w: W = ws[tenor];
         if (!w) return depth;
         const entries: MDEntry[] = w.Entries;

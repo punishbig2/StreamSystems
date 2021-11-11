@@ -25,6 +25,7 @@ import {
   Methods,
   NEW_DEAL_EVENT,
   PRICING_RESPONSE_EVENT,
+  REF_ALL_COMPLETE,
   SEF_UPDATE,
 } from "signalR/constants";
 import { playBeep } from "signalR/helpers";
@@ -171,7 +172,21 @@ export class SignalRManager {
       this.onDealEdit(DealEditStatus.Start)
     );
     connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
+    connection.on(Events.RefAllComplete, this.onRefAllComplete);
   };
+
+  public addRefAllCompleteListener(
+    symbol: string,
+    strategy: string,
+    listener: () => void
+  ): () => void {
+    const key = `${symbol}${strategy}`;
+
+    document.addEventListener(`${REF_ALL_COMPLETE}${key}`, listener);
+    return (): void => {
+      document.removeEventListener(`${REF_ALL_COMPLETE}${key}`, listener);
+    };
+  }
 
   public static addSEFUpdateListener(
     listener: (message: SEFUpdate) => void
@@ -691,6 +706,12 @@ export class SignalRManager {
         args,
       });
     }
+  };
+
+  private onRefAllComplete = (symbol: string, strategy: string): void => {
+    const key = `${symbol}${strategy}`;
+    const event = new CustomEvent<void>(`${REF_ALL_COMPLETE}${key}`);
+    document.dispatchEvent(event);
   };
 
   private onCommissionUpdate = (data: string): void => {

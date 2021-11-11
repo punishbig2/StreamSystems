@@ -17,6 +17,10 @@ import { Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
+import {
+  BrokerageStore,
+  BrokerageStoreContext,
+} from "mobx/stores/brokerageStore";
 
 interface Props {
   readonly index: number;
@@ -72,7 +76,9 @@ export const TradingWorkspace: React.FC<Props> = observer(
               <i className={"fa fa-eye"} /> Add Blotter
             </button>
             <ExecutionBanner />
-            <CommissionRates />
+            <BrokerageStoreContext.Provider value={new BrokerageStore()}>
+              <CommissionRates />
+            </BrokerageStoreContext.Provider>
             <RightPanelButtons
               isBroker={isBroker}
               onPersonalityChange={store.setPersonality}
