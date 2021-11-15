@@ -2,9 +2,8 @@ import { API } from "API";
 import { action, autorun, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRManager";
+import { SignalRClientType, SignalRClient } from "signalR/signalRClient";
 import { Message } from "types/message";
-import { User } from "types/user";
 import {
   isAcceptableFill,
   isMyMessage,
@@ -20,6 +19,7 @@ export class MessagesStore {
   private cacheTimer = setTimeout((): void => {}, 0);
   private allExecutionsCache: ReadonlyArray<Message> = [];
   private myMessagesCache: ReadonlyArray<Message> = [];
+  private signalRClient = new SignalRClient(SignalRClientType.Messages);
 
   constructor() {
     autorun((): void => {
@@ -70,23 +70,25 @@ export class MessagesStore {
 
     this.allExecutions = entries.filter(isAcceptableFill);
     this.myMessages = entries.filter(isMyMessage);
+    this.allExecutionsCache = this.allExecutions;
+    this.myMessagesCache = this.myMessages;
   }
 
   @action.bound
   private flushCache(): void {
-    this.myMessages = this.myMessagesCache;
-    this.allExecutions = this.allExecutionsCache;
-    console.log("flushed");
+    this.myMessages = this.myMessagesCache.slice();
+    this.allExecutions = this.allExecutionsCache.slice();
   }
 
   @action.bound
-  public connect() {
+  public connect(): void {
+    this.signalRClient.connect();
     // Call the initializer now, because the user email
     // has surely been set ;)
     void this.initialize();
     // Connect to signal R's manager
     // First cleanup the old listener if it's here
-    signalRManager.setMessagesListener((message: Message) => {
+    this.signalRClient.setMessagesListener((message: Message) => {
       this.addToCache(message);
 
       clearTimeout(this.cacheTimer);
@@ -95,8 +97,8 @@ export class MessagesStore {
   }
 
   @action.bound
-  public disconnect() {
-    signalRManager.removeMessagesListener();
+  public disconnect(): void {
+    this.signalRClient.removeMessagesListener();
   }
 }
 

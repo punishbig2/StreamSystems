@@ -6,7 +6,7 @@ import { RunWindowStore } from "mobx/stores/runWindowStore";
 
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRManager";
+import signalRManager from "signalR/signalRClient";
 import { DarkPoolQuote } from "types/darkPoolQuote";
 import { MDEntry } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
@@ -30,7 +30,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable currentTenor: string | null = null;
 
   @observable darkPoolOrders: { [tenor: string]: W } = {};
-  @observable orders: { [tenor: string]: ReadonlyArray<Order> } = {};
+  @observable.ref orders: { [tenor: string]: ReadonlyArray<Order> } = {};
 
   @observable isRunWindowVisible: boolean = false;
   // Progress bar
@@ -57,6 +57,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.id = windowID;
     this.orders = {};
     this.rows = {};
+    this.ordersCache = {};
 
     autorun((): void => {
       this.initializeWithDefaults(
@@ -151,7 +152,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       ),
       signalRManager.addRefAllCompleteListener(currency, strategy, (): void => {
         runInAction((): void => {
-          this.reloadSnapshot();
+          void this.reloadSnapshot();
         });
       }),
     ];
@@ -325,12 +326,10 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         });
       if (orders.length > 0) {
         const first: Order = orders[0];
-        this.updateOrders({
-          [tenor]: orders.sort(orderSorter(first.type)),
-        });
+        this.updateOrders(tenor, orders.sort(orderSorter(first.type)));
       }
     } else {
-      this.updateOrders({ [tenor]: [] });
+      this.updateOrders(tenor, []);
     }
   }
 
@@ -339,12 +338,11 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.orders = this.ordersCache;
   }
 
-  private updateOrders(newOrders: {
-    [tenor: string]: ReadonlyArray<Order>;
-  }): void {
+  private updateOrders(tenor: string, orders: ReadonlyArray<Order>): void {
     clearTimeout(this.updateOrdersTimer);
     // This should not trigger an update
-    this.ordersCache = { ...this.ordersCache, ...newOrders };
+    this.ordersCache = { ...this.ordersCache, [tenor]: orders };
+    // Set a timer to flush the cache into the final object
     this.updateOrdersTimer = setTimeout(this.flushOrderCache, 200);
   }
 
@@ -372,6 +370,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       },
       {}
     );
+    this.ordersCache = this.orders;
     this.loading = false;
   }
 
@@ -459,6 +458,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       }
     );
     await Promise.all(promises);
+
     await API.createOrdersBulk(
       orders,
       currency.name,
@@ -492,6 +492,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     // Initialize depth with empty arrays
     this.orders = defaultOrders;
     this.rows = defaultPodRows;
+    this.ordersCache = defaultOrders;
   }
 }
 

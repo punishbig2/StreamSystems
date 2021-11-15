@@ -13,7 +13,7 @@ import {
 } from "mobx/stores/middleOfficeStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
-import { DealEditStatus } from "signalR/signalRManager";
+import { DealEditStatus } from "signalR/signalRClient";
 import { DealEntry } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFUpdate } from "types/sefUpdate";

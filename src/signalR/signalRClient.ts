@@ -41,6 +41,12 @@ import { coalesce } from "utils/commonUtils";
 import { globalClearDarkPoolPriceEvent } from "utils/globalClearDarkPoolPriceEvent";
 import { $$ } from "utils/stringPaster";
 
+export enum SignalRClientType {
+  Messages,
+  MarketData,
+  MiddleOffice,
+}
+
 interface SEFError {
   dealid: string;
   deal_state: string;
@@ -60,34 +66,22 @@ interface Command {
   readonly args: any[];
 }
 
-export class SignalRManager {
+export class SignalRClient {
   private connection: HubConnection | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
   private onConnectedListener:
     | ((connection: HubConnection) => void)
     | null = null;
-  private recordedCommands: ReadonlyArray<Command> = [
-    {
-      name: Methods.SubscribeForDeals,
-      args: ["*"],
-    },
-    {
-      name: Methods.SubscribeForPricingResponse,
-      args: ["*"],
-    },
-    {
-      name: Methods.SubscribeForMBMsg,
-      args: ["*"],
-    },
-  ];
+  private recordedCommands: ReadonlyArray<Command>;
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
+  private readonly clientType: SignalRClientType;
 
   private callbacks: {
     [k: string]: (m: DarkPoolMessage) => void;
   } = {};
 
-  constructor() {
+  constructor(clientType: SignalRClientType) {
     window.addEventListener("offline", (): void => {
       const { connection } = this;
       // Oddly enough, this is a problem when testing and debugging
@@ -99,6 +93,32 @@ export class SignalRManager {
     window.addEventListener("online", (): void => {
       this.connect();
     });
+
+    this.clientType = clientType;
+    switch (clientType) {
+      case SignalRClientType.Messages:
+        this.recordedCommands = [
+          {
+            name: Methods.SubscribeForMBMsg,
+            args: ["*"],
+          },
+        ];
+
+        break;
+      case SignalRClientType.MarketData:
+      case SignalRClientType.MiddleOffice:
+        this.recordedCommands = [
+          {
+            name: Methods.SubscribeForDeals,
+            args: ["*"],
+          },
+          {
+            name: Methods.SubscribeForPricingResponse,
+            args: ["*"],
+          },
+        ];
+        break;
+    }
   }
 
   public static createConnection = () =>
@@ -111,18 +131,27 @@ export class SignalRManager {
       .build();
 
   public connect = (): boolean => {
-    const connection: HubConnection = SignalRManager.createConnection();
-    this.connection = connection;
-    this.installHealthMonitors(connection);
-    connection
+    const { connection: previousConnection } = this;
+    if (
+      previousConnection !== null &&
+      previousConnection.state === HubConnectionState.Connected
+    ) {
+      return true;
+    }
+    const newConnection: HubConnection = SignalRClient.createConnection();
+    this.installHealthMonitors(newConnection);
+
+    newConnection
       .start()
       .then(() => {
         // Listen to installed combinations
         this.replayRecordedCommands();
-        this.applySubscriptions(connection);
-        this.notifyConnected(connection);
+        this.applySubscriptions(newConnection);
+        this.notifyConnected(newConnection);
       })
       .catch(console.error);
+    this.connection = newConnection;
+
     return true;
   };
 
@@ -156,23 +185,34 @@ export class SignalRManager {
       );
     }
     // Install listeners
-    connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
-    connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
-    connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
-    connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
-    connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
-    connection.on(Events.OnPricingResponse, this.onPricingResponse);
-    connection.on(Events.OnDealDeleted, this.onDealDeleted);
-    connection.on(Events.UpdateLegs, this.onUpdateLegs);
-    connection.on(Events.OnError, this.onError);
-    connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
-    connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
-    connection.on(
-      Events.OnDealEditStart,
-      this.onDealEdit(DealEditStatus.Start)
-    );
-    connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
-    connection.on(Events.RefAllComplete, this.onRefAllComplete);
+    switch (this.clientType) {
+      case SignalRClientType.Messages:
+        connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
+        break;
+      case SignalRClientType.MarketData:
+        connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
+        connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
+        connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
+        connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
+        connection.on(Events.OnPricingResponse, this.onPricingResponse);
+        connection.on(Events.OnDealDeleted, this.onDealDeleted);
+        connection.on(Events.UpdateLegs, this.onUpdateLegs);
+        connection.on(Events.OnError, this.onError);
+        connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
+        // connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
+        connection.on(
+          Events.OnDealEditStart,
+          this.onDealEdit(DealEditStatus.Start)
+        );
+        connection.on(
+          Events.OnDealEditEnd,
+          this.onDealEdit(DealEditStatus.End)
+        );
+        connection.on(Events.RefAllComplete, this.onRefAllComplete);
+        break;
+      case SignalRClientType.MiddleOffice:
+        break;
+    }
   };
 
   public addRefAllCompleteListener(
@@ -679,13 +719,13 @@ export class SignalRManager {
         break;
       case ExecTypes.Filled:
         this.dispatchExecutedMessageEvent(message);
-        if (SignalRManager.shouldShowPopup(message)) {
+        if (SignalRClient.shouldShowPopup(message)) {
           workareaStore.addRecentExecution(message);
         }
         break;
       case ExecTypes.PartiallyFilled:
         this.dispatchExecutedMessageEvent(message);
-        if (SignalRManager.shouldShowPopup(message)) {
+        if (SignalRClient.shouldShowPopup(message)) {
           workareaStore.addRecentExecution(message);
         }
         break;
@@ -730,9 +770,9 @@ export class SignalRManager {
     const user: User = workareaStore.user;
     if (object.report_status === "REJECTED") {
       if (object.useremail !== user.email) return;
-      SignalRManager.emitSEFUpdate(object);
+      SignalRClient.emitSEFUpdate(object);
     } else {
-      SignalRManager.emitSEFUpdate(object);
+      SignalRClient.emitSEFUpdate(object);
     }
   };
 
@@ -778,4 +818,4 @@ export class SignalRManager {
   }
 }
 
-export default new SignalRManager();
+export default new SignalRClient(SignalRClientType.MarketData);

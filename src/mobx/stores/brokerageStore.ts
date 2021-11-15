@@ -2,7 +2,7 @@ import { API, Task } from "API";
 import { action, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRManager";
+import signalRManager from "signalR/signalRClient";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
 

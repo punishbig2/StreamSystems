@@ -1,7 +1,7 @@
 import { API } from "API";
 import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
-import signalRManager from "signalR/signalRManager";
+import signalRManager from "signalR/signalRClient";
 import { MDEntry, OrderTypes } from "types/mdEntry";
 import { DarkPoolMessage } from "types/message";
 import { DarkPoolOrder, Order, OrderStatus } from "types/order";

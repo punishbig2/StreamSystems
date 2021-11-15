@@ -5,7 +5,7 @@ import { action, autorun, computed, observable } from "mobx";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
 import moment from "moment-timezone";
-import signalRManager from "signalR/signalRManager";
+import signalRManager from "signalR/signalRClient";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";

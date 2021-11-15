@@ -22,7 +22,7 @@ import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRManager";
+import signalRManager from "signalR/signalRClient";
 import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { DealEntry, emptyDealEntry, EntryType } from "types/dealEntry";

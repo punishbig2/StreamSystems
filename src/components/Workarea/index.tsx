@@ -15,7 +15,7 @@ import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import { themeStore } from "mobx/stores/themeStore";
 import store from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRManager";
+import signalRManager from "signalR/signalRClient";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
 import { getUserIdFromUrl } from "utils/getIdFromUrl";
