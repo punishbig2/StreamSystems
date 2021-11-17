@@ -45,6 +45,7 @@ export enum SignalRClientType {
   Messages,
   MarketData,
   MiddleOffice,
+  Commissions,
 }
 
 interface SEFError {
@@ -72,7 +73,7 @@ export class SignalRClient {
   private onConnectedListener:
     | ((connection: HubConnection) => void)
     | null = null;
-  private recordedCommands: ReadonlyArray<Command>;
+  private recordedCommands: ReadonlyArray<Command> = [];
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
   private readonly clientType: SignalRClientType;
@@ -130,7 +131,7 @@ export class SignalRClient {
       .configureLogging(LogLevel.Error)
       .build();
 
-  public connect = (): boolean => {
+  public connect = (onConnected?: () => void): boolean => {
     const { connection: previousConnection } = this;
     if (
       previousConnection !== null &&
@@ -148,6 +149,7 @@ export class SignalRClient {
         this.replayRecordedCommands();
         this.applySubscriptions(newConnection);
         this.notifyConnected(newConnection);
+        setTimeout((): void => onConnected?.(), 0);
       })
       .catch(console.error);
     this.connection = newConnection;
@@ -189,17 +191,13 @@ export class SignalRClient {
       case SignalRClientType.Messages:
         connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
         break;
-      case SignalRClientType.MarketData:
-        connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
-        connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
-        connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
+      case SignalRClientType.MiddleOffice:
         connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
         connection.on(Events.OnPricingResponse, this.onPricingResponse);
         connection.on(Events.OnDealDeleted, this.onDealDeleted);
         connection.on(Events.UpdateLegs, this.onUpdateLegs);
         connection.on(Events.OnError, this.onError);
         connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
-        // connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
         connection.on(
           Events.OnDealEditStart,
           this.onDealEdit(DealEditStatus.Start)
@@ -208,9 +206,14 @@ export class SignalRClient {
           Events.OnDealEditEnd,
           this.onDealEdit(DealEditStatus.End)
         );
+        break;
+      case SignalRClientType.MarketData:
+        connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
+        connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
+        connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
         connection.on(Events.RefAllComplete, this.onRefAllComplete);
         break;
-      case SignalRClientType.MiddleOffice:
+      case SignalRClientType.Commissions:
         break;
     }
   };
@@ -525,13 +528,24 @@ export class SignalRClient {
     firm: string,
     listener: (rates: ReadonlyArray<CommissionRate>) => void
   ): () => void {
+    const { connection } = this;
+    if (connection === null) {
+      throw new Error("cannot listen because I am not connected");
+    }
+
     const eventName = `${firm}updatecommissionrates`;
     const handler = (rawEvent: any) => {
       const event: CustomEvent<ReadonlyArray<CommissionRate>> = rawEvent;
       listener(event.detail);
     };
+    connection.invoke(Methods.SubscribeForCommissionUpdate).catch(console.warn);
+    connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
+
     document.addEventListener(eventName, handler);
     return () => {
+      connection
+        .invoke(Methods.UnSubscribeForCommissionUpdate)
+        .catch(console.warn);
       document.removeEventListener(eventName, handler);
     };
   }

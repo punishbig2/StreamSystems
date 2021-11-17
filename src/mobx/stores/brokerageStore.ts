@@ -2,7 +2,7 @@ import { API, Task } from "API";
 import { action, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRClient";
+import { SignalRClient, SignalRClientType } from "signalR/signalRClient";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
 
@@ -36,6 +36,7 @@ export const convertToCommissionRatesArray = (
 
 export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
+  private signalRClient = new SignalRClient(SignalRClientType.Commissions);
 
   constructor() {
     const user: User = workareaStore.user;
@@ -43,15 +44,25 @@ export class BrokerageStore {
       user.firm
     );
     const promise: Promise<BrokerageCommissionResponse> = task.execute();
+
     promise.then(convertToCommissionRatesArray).then(this.setCommissionRates);
+    // Connect the client
   }
 
   public installListener(): () => void {
     const user: User = workareaStore.user;
-    return signalRManager.addCommissionRatesListener(
-      user.firm,
-      this.setCommissionRates
-    );
+    let removeListener = () => {};
+
+    this.signalRClient.connect((): void => {
+      removeListener = this.signalRClient.addCommissionRatesListener(
+        user.firm,
+        this.setCommissionRates
+      );
+    });
+
+    return (): void => {
+      removeListener();
+    };
   }
 
   @action.bound

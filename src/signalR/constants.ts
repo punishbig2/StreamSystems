@@ -8,6 +8,8 @@ export enum Methods {
   UnsubscribeFromDarkPoolPx = "UnsubscribeForDarkPoolPx",
   SubscribeForDeals = "SubscribeForDeals",
   SubscribeForPricingResponse = "SubscribeForPricingResponse",
+  SubscribeForCommissionUpdate = "SubscribeForCommissionUpdate",
+  UnSubscribeForCommissionUpdate = "UnSubscribeForCommissionUpdate",
 }
 
 export const DEAL_EDIT_EVENT = "deal_edit_event";
