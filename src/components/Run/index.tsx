@@ -12,7 +12,8 @@ import {
 import React, { ReactElement, useEffect } from "react";
 import { Width } from "types/brokerageWidths";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
-import { Order } from "types/order";
+import { OrderTypes } from "types/mdEntry";
+import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
 import { SortDirection } from "types/sortDirection";
 import { createColumnsWithStore } from "./columnCreator";
@@ -91,14 +92,19 @@ const Run: React.FC<Props> = observer(
       store.setDefaultSize(defaultSize);
     }, [defaultSize, store]);
 
-    const activateOrders = (row: PodRow) => {
-      store.activateRow(row.id);
-    };
-
     const activateCancelledOrders = () => {
       if (!rows) return;
-      const values: PodRow[] = Object.values(rows);
-      values.forEach(activateOrders);
+      const values: ReadonlyArray<PodRow> = Object.values(rows);
+
+      values.forEach((row: PodRow): void => {
+        const { ofr, bid } = row;
+        if ((ofr.status & OrderStatus.Cancelled) === OrderStatus.Cancelled) {
+          store.activateOrder(row.id, OrderTypes.Ofr);
+        }
+        if ((bid.status & OrderStatus.Cancelled) === OrderStatus.Cancelled) {
+          store.activateOrder(row.id, OrderTypes.Bid);
+        }
+      }, []);
     };
 
     const defaultBidSize = store.defaultBidSize;

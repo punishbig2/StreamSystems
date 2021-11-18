@@ -61,7 +61,7 @@ export class RunWindowStore {
     const row = new Proxy(originalRow, RunRowProxy);
     const { bid, ofr } = row;
     if (bid.price === null || ofr.price === null) return row;
-    console.log(bid.price, ofr.price);
+
     return {
       ...row,
       spread: RunWindowStore.getSpread(row),
