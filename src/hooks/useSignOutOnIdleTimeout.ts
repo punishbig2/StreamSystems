@@ -5,7 +5,7 @@ const addUserActivityListener = (
   onActivity: () => void,
   quit: () => void
 ): (() => void) => {
-  const events = ["click", "mousemove", "keyup", "keydown"];
+  const events = ["click", "keyup", "keydown"];
   events.forEach((event) => {
     document.addEventListener(event, onActivity);
   });
