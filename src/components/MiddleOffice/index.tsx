@@ -29,6 +29,7 @@ export const MiddleOffice: React.FC<Props> = observer(
     const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
     const { preferences } = workareaStore;
     const [newDeal, setDeal] = React.useState<Deal | null>(null);
+
     React.useEffect((): (() => void) => {
       const task: Task<void> = store.setDeal(newDeal);
       // Execute the task

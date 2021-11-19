@@ -22,7 +22,7 @@ import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import signalRManager from "signalR/signalRClient";
+import { SignalRClient, SignalRClientType } from "signalR/signalRClient";
 import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { DealEntry, emptyDealEntry, EntryType } from "types/dealEntry";
@@ -40,6 +40,7 @@ import {
 import { SEFUpdate } from "types/sefUpdate";
 import { InvalidSymbol, Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
+import { OtherUser } from "types/user";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
 import {
@@ -51,7 +52,6 @@ import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
-import { OtherUser } from "types/user";
 
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
@@ -137,6 +137,10 @@ export class MiddleOfficeStore implements Workspace {
   @observable name: string = "Middle Office";
   @observable modified: boolean = false;
   @observable loadingDeals: boolean = false;
+
+  private signalRClient: SignalRClient = new SignalRClient(
+    SignalRClientType.MiddleOffice
+  );
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
@@ -456,7 +460,8 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public connectListeners(): () => void {
-    return signalRManager.connectMiddleOfficeStore(this);
+    this.signalRClient.connect();
+    return this.signalRClient.connectMiddleOfficeStore(this);
   }
 
   public reloadStrategies(currency: string): void {
@@ -666,7 +671,7 @@ export class MiddleOfficeStore implements Workspace {
           ? this.getCurrentLegs()
           : API.getLegs(deal.id);
       const legDefs = this.legDefinitions[deal.strategy];
-      const removeListener = signalRManager.addPricingResponseListener(
+      const removeListener = this.signalRClient.addPricingResponseListener(
         (data: PricingMessage): void => {
           const { entry } = this;
           if (entry.dealID === data.dealId) {
