@@ -168,7 +168,7 @@ const request = <T>(
               }
             } else {
               taskHandler.status = PromiseStatus.Fulfilled;
-              resolve((null as unknown) as T);
+              resolve(null as unknown as T);
             }
           } else {
             taskHandler.status = PromiseStatus.Rejected;
@@ -540,7 +540,7 @@ export class API {
     // Execute the query
     return task.execute();
   }
-
+  /*
   public static getTOBSnapshot(
     symbol: string,
     strategy: string
@@ -557,7 +557,7 @@ export class API {
     return GET<{
       [k: string]: W;
     } | null>(url);
-  }
+  }*/
 
   public static getSnapshot(
     symbol: string,
@@ -816,9 +816,8 @@ export class API {
   }
 
   public static async getBankEntities(): Promise<BankEntitiesQueryResponse> {
-    const task: Task<BankEntitiesQueryResponse> = GET<BankEntitiesQueryResponse>(
-      config.PrePricerUrl + "/entities"
-    );
+    const task: Task<BankEntitiesQueryResponse> =
+      GET<BankEntitiesQueryResponse>(config.PrePricerUrl + "/entities");
     return task.execute();
   }
 
@@ -1251,18 +1250,16 @@ export class API {
         : []),
       ...legs,
     ];
-    const mappedLegs: ReadonlyArray<Leg> = allLegs.map(
-      (leg: Leg): Leg => {
-        const { strike, fwdPts } = leg;
-        return {
-          ...leg,
-          ...(fwdPts !== null && fwdPts !== undefined
-            ? { fwdPts: floatAsString(fwdPts) }
-            : {}),
-          ...(!!strike ? { strike: floatAsString(tryToNumber(strike)) } : {}),
-        };
-      }
-    );
+    const mappedLegs: ReadonlyArray<Leg> = allLegs.map((leg: Leg): Leg => {
+      const { strike, fwdPts } = leg;
+      return {
+        ...leg,
+        ...(fwdPts !== null && fwdPts !== undefined
+          ? { fwdPts: floatAsString(fwdPts) }
+          : {}),
+        ...(!!strike ? { strike: floatAsString(tryToNumber(strike)) } : {}),
+      };
+    });
     const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
       dealId: dealID,
       useremail: user.email,
