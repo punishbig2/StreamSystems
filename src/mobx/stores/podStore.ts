@@ -160,7 +160,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   public async reloadSnapshot(): Promise<void> {
-    const task = API.getTOBSnapshot(this.ccyPair, this.strategy);
+    const task = API.getSnapshot(this.ccyPair, this.strategy);
     const snapshot = await task.execute();
 
     this.initializeDepthFromSnapshot(snapshot);
@@ -188,14 +188,14 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
           tenors,
           snapshot
         );
-        const darkPoolQuotesTask: Task<
-          ReadonlyArray<DarkPoolQuote>
-        > = API.getDarkPoolLastQuotes(ccyPair, strategy);
+        const darkPoolQuotesTask: Task<ReadonlyArray<DarkPoolQuote>> =
+          API.getDarkPoolLastQuotes(ccyPair, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
 
         // Other task
-        const quotes: ReadonlyArray<DarkPoolQuote> = await darkPoolQuotesTask.execute();
+        const quotes: ReadonlyArray<DarkPoolQuote> =
+          await darkPoolQuotesTask.execute();
         const darkPrices = quotes.reduce(
           (
             prices: { [tenor: string]: number | null },
@@ -436,25 +436,23 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.hideRunWindow();
     const { strategy } = this;
     const { user, personality } = workareaStore;
-    const promises = orders.map(
-      async (order: Order): Promise<void> => {
-        const depth: ReadonlyArray<Order> = this.orders[order.tenor];
-        if (!depth) return;
-        const conflict: Order | undefined = depth.find((o: Order) => {
-          if (user.roles.includes(Role.Broker)) {
-            return (
-              o.type === order.type && o.firm === personality && o.size !== null
-            );
-          }
+    const promises = orders.map(async (order: Order): Promise<void> => {
+      const depth: ReadonlyArray<Order> = this.orders[order.tenor];
+      if (!depth) return;
+      const conflict: Order | undefined = depth.find((o: Order) => {
+        if (user.roles.includes(Role.Broker)) {
           return (
-            o.type === order.type && o.user === user.email && o.size !== null
+            o.type === order.type && o.firm === personality && o.size !== null
           );
-        });
-        if (!conflict) return;
-        // Cancel said order
-        await API.cancelOrder(conflict, user);
-      }
-    );
+        }
+        return (
+          o.type === order.type && o.user === user.email && o.size !== null
+        );
+      });
+      if (!conflict) return;
+      // Cancel said order
+      await API.cancelOrder(conflict, user);
+    });
     await Promise.all(promises);
 
     await API.createOrdersBulk(
