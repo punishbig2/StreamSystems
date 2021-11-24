@@ -540,7 +540,7 @@ export class API {
     // Execute the query
     return task.execute();
   }
-  /*
+
   public static getTOBSnapshot(
     symbol: string,
     strategy: string
@@ -557,7 +557,7 @@ export class API {
     return GET<{
       [k: string]: W;
     } | null>(url);
-  }*/
+  }
 
   public static getSnapshot(
     symbol: string,

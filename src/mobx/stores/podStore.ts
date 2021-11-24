@@ -160,10 +160,18 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   public async reloadSnapshot(): Promise<void> {
-    const task = API.getSnapshot(this.ccyPair, this.strategy);
-    const snapshot = await task.execute();
+    const snapshot = await API.getSnapshot(
+      this.ccyPair,
+      this.strategy
+    ).execute();
+    const task = this.combineSnapshots(
+      this.ccyPair,
+      this.strategy,
+      workareaStore.tenors,
+      snapshot as { [k: string]: W }
+    );
 
-    this.initializeDepthFromSnapshot(snapshot);
+    this.initializeDepthFromSnapshot(await task.execute());
   }
 
   private doInitialize(): Task<void> {
@@ -182,16 +190,16 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         } | null = await snapshotTask.execute();
         if (snapshot === null) return;
         // Combine TOB and full snapshots
-        /*const combinedTask: Task<{ [k: string]: W }> = this.combineSnapshots(
+        const combinedTask: Task<{ [k: string]: W }> = this.combineSnapshots(
           ccyPair,
           strategy,
           tenors,
           snapshot
-        );*/
+        );
         const darkPoolQuotesTask: Task<ReadonlyArray<DarkPoolQuote>> =
           API.getDarkPoolLastQuotes(ccyPair, strategy);
         tasks.push(darkPoolQuotesTask);
-        // tasks.push(combinedTask);
+        tasks.push(combinedTask);
 
         // Other task
         const quotes: ReadonlyArray<DarkPoolQuote> =
@@ -210,11 +218,11 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
           {}
         );
         const rowIds: ReadonlyArray<string> = Object.keys(this.rows);
-        // const combined = await combinedTask.execute();
+        const combined = await combinedTask.execute();
 
         runInAction((): void => {
           // Initialize from depth snapshot
-          this.initializeDepthFromSnapshot(snapshot);
+          this.initializeDepthFromSnapshot(combined);
           this.loadDarkPoolSnapshot(ccyPair, strategy).then((): void => {});
           this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
             return {
@@ -372,13 +380,13 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.loading = false;
   }
 
-  /*private combineSnapshots(
+  private combineSnapshots(
     currency: string,
     strategy: string,
     tenors: ReadonlyArray<string>,
     depth: { [k: string]: W }
   ): Task<{ [k: string]: W }> {
-    const task: Task<{ [k: string]: W } | null> = API.getSnapshot(
+    const task: Task<{ [k: string]: W } | null> = API.getTOBSnapshot(
       currency,
       strategy
     );
@@ -412,7 +420,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         task.cancel();
       },
     };
-  }*/
+  }
 
   @action.bound
   private initializeDarkPoolFromSnapshot(snapshot: { [k: string]: W }) {
