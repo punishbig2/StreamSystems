@@ -51,14 +51,18 @@ export class MessagesStore {
 
   @action.bound
   public addMessages(messages: ReadonlyArray<Message>): void {
-    this.myMessages = [...messages.filter(isMyMessage), ...this.myMessages];
+    console.log(messages);
+    this.myMessages = [
+      ...messages.filter(isMyMessage),
+      ...this.myMessages,
+    ].slice(0, 20);
 
     this.allExecutions = [
       ...messages.filter(isAcceptableFill),
       ...this.allExecutions,
-    ];
+    ].slice(0, 20);
 
-    this.entries = [...messages, ...this.entries];
+    this.entries = [...messages, ...this.entries].slice(0, 20);
   }
 
   @action.bound
@@ -79,7 +83,7 @@ export class MessagesStore {
       midnight.getTime()
     );
     // Sort all entries
-    this.entries = entries.sort(sortByTimeDescending);
+    this.entries = entries.sort(sortByTimeDescending).slice(0, 20);
     this.reapplyFilters();
     // We're done
     this.loading = false;

@@ -16,25 +16,22 @@ const createConnection = () =>
     .build();
 
 const main = () => {
-  const onUpdateMarketData = (message) => {
-    console.log(message);
-  };
-  const onUpdateDarkPoolPrice = (message) => {
-    console.log(message);
-  };
-  const onClearDarkPoolPrice = (message) => {
-    console.log(message);
-  };
-  const onRefAllComplete = (message) => {
-    console.log(message);
+  this.cache = [];
+  this.timer = setTimeout(() => {}, 0);
+
+  const onMessage = (message) => {
+    clearTimeout(this.timer);
+
+    this.cache = [JSON.parse(message), ...this.cache];
+    this.timer = setTimeout(() => {
+      postMessage(this.cache);
+      this.cache = [];
+    }, 200);
   };
   const connection = createConnection();
   // this.installHealthMonitors(newConnection);
   const initialize = () => {
-    connection.on("updateMarketData", onUpdateMarketData);
-    connection.on("updateDarkPoolPx", onUpdateDarkPoolPrice);
-    connection.on("clearDarkPoolPx", onClearDarkPoolPrice);
-    connection.on("refAllComplete", onRefAllComplete);
+    connection.on("updateMessageBlotter", onMessage);
     connection.invoke("SubscribeForMBMsg", "*");
   };
 
