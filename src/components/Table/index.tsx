@@ -16,6 +16,7 @@ interface Props {
     props: RowProps,
     index?: number
   ) => React.ReactElement | null;
+
   readonly allowReorderColumns?: boolean;
   readonly selectedRow?: string | null;
   readonly className?: string;
@@ -66,10 +67,9 @@ const BasicTable = (
     [columns, optimalWidth, totalWidth]
   );
 
-  const transformedRows: { [key: string]: any }[] = React.useMemo(
-    () => entries.map(rowsToProps),
-    [rowsToProps, entries]
-  );
+  const transformedRows: { [key: string]: any }[] = React.useMemo(() => {
+    return entries.map(rowsToProps);
+  }, [rowsToProps, entries]);
 
   const classes: string[] = ["table"];
 

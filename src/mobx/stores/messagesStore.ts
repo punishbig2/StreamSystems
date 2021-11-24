@@ -2,7 +2,6 @@ import { API } from "API";
 import { action, autorun, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { SignalRClientType, SignalRClient } from "signalR/signalRClient";
 import { Message } from "types/message";
 import {
   isAcceptableFill,
@@ -10,16 +9,37 @@ import {
   sortByTimeDescending,
 } from "utils/messageUtils";
 
+class MessagesStream {
+  private listener: (message: ReadonlyArray<Message>) => void = (): void => {};
+
+  constructor() {
+    navigator.serviceWorker.register("./workers/messages.js").then((): void => {
+      const worker = new Worker("./workers/messages.js");
+      // Set it up
+      worker.onmessage = this.onMessage;
+    });
+  }
+
+  public onMessage = (message: MessageEvent): void => {
+    this.listener(message.data);
+  };
+
+  public setHandler(listener: (message: ReadonlyArray<Message>) => void): void {
+    this.listener = listener;
+  }
+
+  public removeHandler(): void {
+    this.listener = (): void => {};
+  }
+}
+
 export class MessagesStore {
   @observable.ref myMessages: ReadonlyArray<Message> = [];
   @observable.ref allExecutions: ReadonlyArray<Message> = [];
   @observable loading: boolean = false;
 
   private entries: ReadonlyArray<Message> = [];
-  private cacheTimer = setTimeout((): void => {}, 0);
-  private allExecutionsCache: ReadonlyArray<Message> = [];
-  private myMessagesCache: ReadonlyArray<Message> = [];
-  private signalRClient = new SignalRClient(SignalRClientType.Messages);
+  private stream: MessagesStream = new MessagesStream();
 
   constructor() {
     autorun((): void => {
@@ -30,14 +50,15 @@ export class MessagesStore {
   }
 
   @action.bound
-  public addToCache(message: Message) {
-    if (isMyMessage(message))
-      this.myMessagesCache = [message, ...this.myMessagesCache];
+  public addMessages(messages: ReadonlyArray<Message>): void {
+    this.myMessages = [...messages.filter(isMyMessage), ...this.myMessages];
 
-    if (isAcceptableFill(message))
-      this.allExecutionsCache = [message, ...this.allExecutionsCache];
+    this.allExecutions = [
+      ...messages.filter(isAcceptableFill),
+      ...this.allExecutions,
+    ];
 
-    this.entries = [message, ...this.entries];
+    this.entries = [...messages, ...this.entries];
   }
 
   @action.bound
@@ -70,35 +91,21 @@ export class MessagesStore {
 
     this.allExecutions = entries.filter(isAcceptableFill);
     this.myMessages = entries.filter(isMyMessage);
-    this.allExecutionsCache = this.allExecutions;
-    this.myMessagesCache = this.myMessages;
-  }
-
-  @action.bound
-  private flushCache(): void {
-    this.myMessages = this.myMessagesCache.slice();
-    this.allExecutions = this.allExecutionsCache.slice();
   }
 
   @action.bound
   public connect(): void {
-    this.signalRClient.connect();
     // Call the initializer now, because the user email
     // has surely been set ;)
     void this.initialize();
     // Connect to signal R's manager
     // First cleanup the old listener if it's here
-    this.signalRClient.setMessagesListener((message: Message) => {
-      this.addToCache(message);
-
-      clearTimeout(this.cacheTimer);
-      this.cacheTimer = setTimeout(this.flushCache, 200);
-    });
+    this.stream.setHandler(this.addMessages);
   }
 
   @action.bound
   public disconnect(): void {
-    this.signalRClient.removeMessagesListener();
+    this.stream.removeHandler();
   }
 }
 

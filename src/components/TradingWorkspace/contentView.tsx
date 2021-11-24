@@ -56,7 +56,7 @@ export const ContentView: React.FC<Props> = (
           if (isMessageBlotterStore(contentStore)) {
             return (
               <MessageBlotterStoreContext.Provider value={contentStore}>
-                <MessageBlotter id={id} blotterType={BlotterTypes.Regular} />;
+                <MessageBlotter id={id} blotterType={BlotterTypes.Regular} />
               </MessageBlotterStoreContext.Provider>
             );
           } else {

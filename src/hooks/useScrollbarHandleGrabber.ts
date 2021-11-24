@@ -35,7 +35,8 @@ HTMLElement.prototype.removeClass = function (className: string): void {
 export const useScrollbarHandleGrabber = (
   handle: HTMLElement | null,
   container: HTMLElement | null
-): void => {
+): number => {
+  const [value, setValue] = React.useState<number>(0);
   const onStartDrag = React.useCallback(
     (grab: MouseEvent): void => {
       const handle = grab.target as HTMLElement;
@@ -55,7 +56,7 @@ export const useScrollbarHandleGrabber = (
         handle.style.top = `${position}px`;
         // Let's compute the fraction of the scroll
         const fraction = position / maxTop;
-        container.scrollTop = Math.round(fraction * maxScrollTop);
+        setValue(fraction * maxScrollTop);
       };
       const onRelease = (): void => {
         document.removeEventListener("mousemove", onMove, true);
@@ -68,6 +69,12 @@ export const useScrollbarHandleGrabber = (
     },
     [container]
   );
+
+  React.useEffect((): void => {
+    if (container === null) return;
+    container.scrollTop = value;
+  }, [container, value]);
+
   React.useEffect((): void | (() => void) => {
     if (handle === null) return;
     handle.addEventListener("mousedown", onStartDrag, true);
@@ -75,4 +82,6 @@ export const useScrollbarHandleGrabber = (
       handle.removeEventListener("mousedown", onStartDrag, true);
     };
   }, [handle, onStartDrag]);
+
+  return value;
 };

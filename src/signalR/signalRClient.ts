@@ -99,10 +99,10 @@ export class SignalRClient {
     switch (clientType) {
       case SignalRClientType.Messages:
         this.recordedCommands = [
-          {
+          /* {
             name: Methods.SubscribeForMBMsg,
             args: ["*"],
-          },
+          },*/
         ];
 
         break;
@@ -149,7 +149,11 @@ export class SignalRClient {
         this.replayRecordedCommands();
         this.applySubscriptions(newConnection);
         this.notifyConnected(newConnection);
-        setTimeout((): void => onConnected?.(), 0);
+        setTimeout((): void => {
+          if (newConnection.state === HubConnectionState.Connected) {
+            onConnected?.();
+          }
+        }, 0);
       })
       .catch(console.error);
     this.connection = newConnection;
@@ -189,7 +193,7 @@ export class SignalRClient {
     // Install listeners
     switch (this.clientType) {
       case SignalRClientType.Messages:
-        connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
+        // connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
         break;
       case SignalRClientType.MiddleOffice:
         connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
@@ -265,6 +269,7 @@ export class SignalRClient {
         errorMsg: data.error_msg,
       },
     });
+
     document.dispatchEvent(event);
   }
 
@@ -421,6 +426,7 @@ export class SignalRClient {
       listener(event.detail);
     };
     document.addEventListener(key, eventListener);
+
     const command: Command = {
       name: Methods.SubscribeForMarketData,
       args: [symbol, strategy, tenor],
@@ -609,6 +615,7 @@ export class SignalRClient {
     const event: CustomEvent<W> = new CustomEvent<W>(key, {
       detail,
     });
+
     document.dispatchEvent(event);
   };
 

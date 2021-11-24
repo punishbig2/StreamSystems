@@ -22,8 +22,9 @@ export const REF_ALL_COMPLETE = "ref_all_complete";
 export enum Events {
   UpdateMarketData = "updateMarketData",
   UpdateDarkPoolPrice = "updateDarkPoolPx",
-  UpdateMessageBlotter = "updateMessageBlotter",
   ClearDarkPoolPrice = "clearDarkPoolPx",
+  RefAllComplete = "refAllComplete",
+  UpdateMessageBlotter = "updateMessageBlotter",
   UpdateDealsBlotter = "updateDealsBlotter",
   UpdateLegs = "updateLegs",
   OnPricingResponse = "onPricingResponse",
@@ -33,5 +34,4 @@ export enum Events {
   OnCommissionUpdate = "onCommissionUpdate",
   OnDealEditStart = "OnDealEditStart",
   OnDealEditEnd = "OnDealEditEnd",
-  RefAllComplete = "refAllComplete",
 }

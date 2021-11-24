@@ -37,6 +37,8 @@ export const convertToCommissionRatesArray = (
 export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
   private signalRClient = new SignalRClient(SignalRClientType.Commissions);
+  private commissionRatesCache: ReadonlyArray<CommissionRate> = [];
+  private cacheTimer = setTimeout(() => {}, 0);
 
   constructor() {
     const user: User = workareaStore.user;
@@ -66,8 +68,17 @@ export class BrokerageStore {
   }
 
   @action.bound
+  private flushCache() {
+    this.commissionRates = this.commissionRatesCache;
+    this.commissionRatesCache = [];
+  }
+
+  @action.bound
   private setCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
-    this.commissionRates = rates;
+    clearTimeout(this.cacheTimer);
+
+    this.commissionRatesCache = rates;
+    this.cacheTimer = setTimeout((): void => this.flushCache(), 100);
   }
 }
 

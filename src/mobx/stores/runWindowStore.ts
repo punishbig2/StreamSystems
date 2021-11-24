@@ -289,6 +289,7 @@ export class RunWindowStore {
         spread: null,
       },
     };
+
     document.dispatchEvent(
       new CustomEvent<boolean>(`OrderActivationChanged${key}`, { detail: true })
     );

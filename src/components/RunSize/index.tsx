@@ -65,6 +65,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
 
   useEffect((): (() => void) => {
     const key = RunWindowStore.orderTypeToRowKey(order.type);
+
     document.addEventListener(`OrderActivationChanged${key}`, reset);
     return (): void => {
       document.removeEventListener(`OrderActivationChanged${key}`, reset);

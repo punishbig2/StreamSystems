@@ -160,12 +160,10 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   public async reloadSnapshot(): Promise<void> {
-    this.loading = true;
     const task = API.getTOBSnapshot(this.ccyPair, this.strategy);
     const snapshot = await task.execute();
 
     this.initializeDepthFromSnapshot(snapshot);
-    this.loading = false;
   }
 
   private doInitialize(): Task<void> {
@@ -343,7 +341,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     // This should not trigger an update
     this.ordersCache = { ...this.ordersCache, [tenor]: orders };
     // Set a timer to flush the cache into the final object
-    this.updateOrdersTimer = setTimeout(this.flushOrderCache, 200);
+    this.updateOrdersTimer = setTimeout(this.flushOrderCache, 100);
   }
 
   @action.bound

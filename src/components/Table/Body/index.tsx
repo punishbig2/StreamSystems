@@ -1,4 +1,5 @@
 import { RowProps } from "components/MiddleOffice/DealBlotter/row";
+import VirtualizedList from "@dwqs/react-virtual-list";
 import React from "react";
 
 interface OwnProps {
@@ -23,16 +24,27 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         </div>
       );
     }
+
+    const renderItem = (options: any): React.ReactElement | null => {
+      const data = rows[options.index];
+      if (!data) return null;
+
+      const { row } = data;
+      const rowProps = {
+        ...data,
+        selected: row.id === props.selectedRow,
+      };
+
+      return props.renderRow(rowProps);
+    };
+
     return (
       <div ref={ref} className={"tbody"}>
-        {rows.map((data: any): any => {
-          const { row } = data;
-          const rowProps = {
-            ...data,
-            selected: row.id === props.selectedRow,
-          };
-          return props.renderRow(rowProps);
-        })}
+        <VirtualizedList
+          itemCount={rows.length}
+          estimatedItemHeight={20}
+          renderItem={renderItem}
+        />
       </div>
     );
   }

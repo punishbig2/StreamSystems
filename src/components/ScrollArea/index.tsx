@@ -50,9 +50,13 @@ export const ScrollArea: React.FC<Props> = (
     };
   }, [container, updateScrollbar]);
   const element = array[0] as React.ReactElement;
+
   return (
     <>
-      {React.cloneElement(element, { ref: setContainer })}
+      {React.cloneElement(element, {
+        ref: setContainer,
+        height: container?.offsetHeight,
+      })}
       <div ref={setScrollbar} className={"scrollbar-track"}>
         <div ref={setHandle} className={"scrollbar-handle"} />
       </div>
