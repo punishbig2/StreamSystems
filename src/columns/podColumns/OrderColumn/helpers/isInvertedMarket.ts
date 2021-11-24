@@ -1,6 +1,7 @@
 import { OrderTypes } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
 import { OrderStore } from "mobx/stores/orderStore";
+import workareaStore from "mobx/stores/workareaStore";
 
 export const isInvertedMarket = (
   store: OrderStore,
@@ -13,7 +14,9 @@ export const isInvertedMarket = (
     store.type === OrderTypes.Bid ? OrderTypes.Ofr : OrderTypes.Bid;
   const allOrders: Order[] = depth.filter(
     (order: Order) =>
-      order.type === otherType && (order.status & OrderStatus.Cancelled) === 0
+      order.user === workareaStore.user.email &&
+      order.type === otherType &&
+      (order.status & OrderStatus.Cancelled) === 0
   );
 
   if (allOrders.length === 0) return false;
