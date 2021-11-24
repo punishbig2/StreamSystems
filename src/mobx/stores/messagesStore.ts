@@ -2,12 +2,16 @@ import { API } from "API";
 import { action, autorun, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { Message } from "types/message";
+import { playBeep } from "signalR/helpers";
+import { ExecTypes, Message } from "types/message";
+import { Role } from "types/role";
+import { User } from "types/user";
 import {
   isAcceptableFill,
   isMyMessage,
   sortByTimeDescending,
 } from "utils/messageUtils";
+import userProfileStore from "mobx/stores/userPreferencesStore";
 
 class MessagesStream {
   private listener: (message: ReadonlyArray<Message>) => void = (): void => {};
@@ -20,8 +24,53 @@ class MessagesStream {
     });
   }
 
+  private dispatchExecutedMessageEvent(message: Message) {
+    void playBeep(userProfileStore.preferences, message.ExDestination);
+
+    setTimeout(() => {
+      const eventName: string = `${message.ExecID}executed`;
+      if (message.Side === "1") {
+        const eventName: string = `${message.Symbol}${message.Strategy}${message.Side}Execution`;
+        document.dispatchEvent(new CustomEvent(eventName));
+      }
+      document.dispatchEvent(new CustomEvent(eventName));
+    }, 500);
+  }
+
+  private handleMessageActions(message: Message) {
+    switch (message.OrdStatus) {
+      case ExecTypes.Canceled:
+        break;
+      case ExecTypes.PendingCancel:
+        break;
+      case ExecTypes.Filled:
+      case ExecTypes.PartiallyFilled:
+        this.dispatchExecutedMessageEvent(message);
+        if (MessagesStream.shouldShowPopup(message)) {
+          workareaStore.addRecentExecution(message);
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  private static shouldShowPopup = (message: Message): boolean => {
+    const user: User = workareaStore.user;
+    const personality: string = workareaStore.personality;
+    const { roles } = user;
+    if (roles.includes(Role.Broker)) {
+      return personality === message.MDMkt && message.Username === user.email;
+    }
+    return message.Username === user.email;
+  };
+
   public onMessage = (message: MessageEvent): void => {
-    this.listener(message.data);
+    const messages = message.data as ReadonlyArray<Message>;
+    for (const message of messages) {
+      this.handleMessageActions(message);
+    }
+    this.listener(messages);
   };
 
   public setHandler(listener: (message: ReadonlyArray<Message>) => void): void {
