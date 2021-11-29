@@ -1,6 +1,7 @@
 import { useScrollbarHandleGrabber } from "hooks/useScrollbarHandleGrabber";
 import React, { Children } from "react";
 import ResizeObserver from "resize-observer-polyfill";
+import { update } from "lodash";
 
 type Props = React.PropsWithChildren<{}>;
 
@@ -11,9 +12,8 @@ export const ScrollArea: React.FC<Props> = (
   const [scrollbar, setScrollbar] = React.useState<HTMLElement | null>(null);
   const [handle, setHandle] = React.useState<HTMLElement | null>(null);
   useScrollbarHandleGrabber(handle, container);
-  const array: ReadonlyArray<React.ReactNode> = Children.toArray<React.ReactNode>(
-    props.children
-  );
+  const array: ReadonlyArray<React.ReactNode> =
+    Children.toArray<React.ReactNode>(props.children);
   if (array.length !== 1) {
     throw new Error("scroll areas only make sense with a single child");
   }
@@ -44,9 +44,17 @@ export const ScrollArea: React.FC<Props> = (
     const mutateObserver = new MutationObserver(updateScrollbar);
     resizeObserver.observe(container);
     mutateObserver.observe(container, { childList: true });
+    const onWheel = (event: WheelEvent): void => {
+      container.scrollTop += event.deltaY / 2;
+      updateScrollbar();
+    };
+
+    container.addEventListener("wheel", onWheel);
     return (): void => {
       resizeObserver.disconnect();
       mutateObserver.disconnect();
+
+      container.removeEventListener("wheel", onWheel);
     };
   }, [container, updateScrollbar]);
   const element = array[0] as React.ReactElement;

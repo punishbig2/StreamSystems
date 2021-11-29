@@ -1,6 +1,7 @@
 import { RowProps } from "components/MiddleOffice/DealBlotter/row";
 import React from "react";
 import { isNaN } from "lodash";
+import { debounce } from "@material-ui/core";
 
 interface OwnProps {
   readonly renderRow: (
@@ -92,11 +93,13 @@ export const TableBody: React.FC<Props> = React.forwardRef(
       const children = Array.from(current.children).map(
         (c) => c as HTMLElement
       );
+      const getHeight = (element: HTMLElement): number =>
+        element.getBoundingClientRect().height;
 
       const itemHeight =
         children.reduce(
           (tallest: number, next: HTMLElement): number =>
-            tallest + next.offsetHeight,
+            tallest + getHeight(next),
           0
         ) / children.length;
 
@@ -159,28 +162,27 @@ export const TableBody: React.FC<Props> = React.forwardRef(
     const onScroll = (event: any): void => {
       if (current === null) return;
       const parent = current.parentElement!;
-      console.log(parent.scrollTop);
+      const firstRow = Math.min(
+        Math.max(Math.floor(parent.scrollTop / state.itemHeight), 0),
+        rows.length - state.visibleRowCount
+      );
 
       requestAnimationFrame((): void => {
         dispatch({
           type: Actions.UpdateScrollTop,
           data: {
-            firstRow: Math.max(
-              Math.ceil(parent.scrollTop / state.itemHeight),
-              0
-            ),
-            top: parent.scrollTop,
+            firstRow: firstRow,
+            top: firstRow * state.itemHeight,
             bottom:
-              parent.scrollHeight -
-              state.visibleRowCount * state.itemHeight -
-              parent.scrollTop,
+              (rows.length - firstRow - state.visibleRowCount) *
+              state.itemHeight,
           },
         });
       });
     };
 
     return (
-      <div ref={ref} className={"tbody"} onScroll={onScroll}>
+      <div ref={ref} className={"tbody"} onScroll={debounce(onScroll, 50)}>
         <div style={{ height: state.top }} />
         <div ref={containerRef}>
           {rows
