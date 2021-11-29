@@ -35,6 +35,7 @@ export const stateMap: { [key in DealStatus]: string } = {
   [DealStatus.MKTSComplete]: "MKTS Complete",
   [DealStatus.TRTNComplete]: "TRTN Complete",
   [DealStatus.UBSComplete]: "UBS Complete",
+  [DealStatus.MSCOComplete]: "MSCO Complete",
 };
 
 export const resolveEntityToBank = (
