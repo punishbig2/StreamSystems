@@ -1,5 +1,5 @@
-import { createMuiTheme } from "@material-ui/core";
-import { fade } from "@material-ui/core/styles";
+import { createTheme as createMuiTheme } from "@material-ui/core";
+import { alpha } from "@material-ui/core/styles";
 import { Palette } from "@material-ui/core/styles/createPalette";
 import { getPalette } from "styles/palette";
 import { typography } from "styles/typography";
@@ -69,7 +69,7 @@ export const createTheme = (name: string) => {
           marginTop: 3,
           marginBottom: 3,
           "&$error": {
-            backgroundColor: fade(palette.error.main, 0.15),
+            backgroundColor: alpha(palette.error.main, 0.15),
             color: palette.error.main,
           },
         },
@@ -87,7 +87,7 @@ export const createTheme = (name: string) => {
           fontSize: 13,
           color: "inherit",
           "&$disabled": {
-            color: fade(palette.text.disabled, 0.5),
+            color: alpha(palette.text.disabled, 0.5),
           },
         },
       },

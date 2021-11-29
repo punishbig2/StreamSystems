@@ -1,4 +1,4 @@
-import { createMuiTheme, Theme } from "@material-ui/core";
+import { createTheme as createMuiTheme, Theme } from "@material-ui/core";
 import { Palette } from "@material-ui/core/styles/createPalette";
 import { getPalette } from "styles/palette";
 import { typography } from "styles/typography";

@@ -182,22 +182,19 @@ export class RunWindowStore {
   public setDefaultSize(value: number): void {
     this.defaultBidSize = value;
     this.defaultOfrSize = value;
-    this.rows = RunWindowStore.forEachRow(
-      this.rows,
-      (row: PodRow): PodRow => {
-        return {
-          ...row,
-          ofr: {
-            ...row.ofr,
-            size: value,
-          },
-          bid: {
-            ...row.bid,
-            size: value,
-          },
-        };
-      }
-    );
+    this.rows = RunWindowStore.forEachRow(this.rows, (row: PodRow): PodRow => {
+      return {
+        ...row,
+        ofr: {
+          ...row.ofr,
+          size: value,
+        },
+        bid: {
+          ...row.bid,
+          size: value,
+        },
+      };
+    });
   }
 
   @action.bound
@@ -214,6 +211,7 @@ export class RunWindowStore {
         mid: null,
       },
     };
+    console.log(this.rows);
     const key1 = RunWindowStore.orderTypeToRowKey(OrderTypes.Bid);
     const key2 = RunWindowStore.orderTypeToRowKey(OrderTypes.Ofr);
     document.dispatchEvent(
@@ -258,6 +256,17 @@ export class RunWindowStore {
     this.setMidOrSpread(id, value, "mid");
   }
 
+  private static getActivatedRowStatus(row: PodRow): PodRowStatus {
+    const { bid, ofr } = row;
+    const bidPrice = bid.price ?? 0;
+    const ofrPrice = ofr.price ?? 0;
+    if (bidPrice > ofrPrice) {
+      return PodRowStatus.InvertedMarketsError;
+    }
+
+    return PodRowStatus.Normal;
+  }
+
   @action.bound
   public activateOrder(id: string, type: OrderTypes): void {
     const { rows } = this;
@@ -267,6 +276,7 @@ export class RunWindowStore {
       ...rows,
       [id]: RunWindowStore.recomputeMidAndSpread({
         ...row,
+        status: RunWindowStore.getActivatedRowStatus(row),
         [key]: this.toActiveOrder(row[key]),
       }),
     };
@@ -299,36 +309,30 @@ export class RunWindowStore {
   public setDefaultBidSize(value: number | null): void {
     if (value === null) return;
     this.defaultBidSize = value;
-    this.rows = RunWindowStore.forEachRow(
-      this.rows,
-      (row: PodRow): PodRow => {
-        return {
-          ...row,
-          bid: {
-            ...row.bid,
-            size: value,
-          },
-        };
-      }
-    );
+    this.rows = RunWindowStore.forEachRow(this.rows, (row: PodRow): PodRow => {
+      return {
+        ...row,
+        bid: {
+          ...row.bid,
+          size: value,
+        },
+      };
+    });
   }
 
   @action.bound
   public setDefaultOfrSize(value: number | null): void {
     if (value === null) return;
     this.defaultOfrSize = value;
-    this.rows = RunWindowStore.forEachRow(
-      this.rows,
-      (row: PodRow): PodRow => {
-        return {
-          ...row,
-          ofr: {
-            ...row.ofr,
-            size: value,
-          },
-        };
-      }
-    );
+    this.rows = RunWindowStore.forEachRow(this.rows, (row: PodRow): PodRow => {
+      return {
+        ...row,
+        ofr: {
+          ...row.ofr,
+          size: value,
+        },
+      };
+    });
   }
 
   @action.bound
@@ -503,25 +507,23 @@ export class RunWindowStore {
     });
     const rows: PodRow[] = Object.values(this.rows);
     const table: PodTable = rows
-      .map(
-        (row: PodRow): PodRow => {
-          const bid: Order | undefined = orders.find(
-            (order: Order) =>
-              order.type === OrderTypes.Bid && order.tenor === row.tenor
-          );
-          const ofr: Order | undefined = orders.find(
-            (order: Order) =>
-              order.type === OrderTypes.Ofr && order.tenor === row.tenor
-          );
-          const newRow = { ...row, ofr: ofr ?? row.ofr, bid: bid ?? row.bid };
+      .map((row: PodRow): PodRow => {
+        const bid: Order | undefined = orders.find(
+          (order: Order) =>
+            order.type === OrderTypes.Bid && order.tenor === row.tenor
+        );
+        const ofr: Order | undefined = orders.find(
+          (order: Order) =>
+            order.type === OrderTypes.Ofr && order.tenor === row.tenor
+        );
+        const newRow = { ...row, ofr: ofr ?? row.ofr, bid: bid ?? row.bid };
 
-          return {
-            ...newRow,
-            spread: RunWindowStore.getSpread(newRow),
-            mid: RunWindowStore.getMid(newRow),
-          };
-        }
-      )
+        return {
+          ...newRow,
+          spread: RunWindowStore.getSpread(newRow),
+          mid: RunWindowStore.getMid(newRow),
+        };
+      })
       .reduce((table: PodTable, row: PodRow): PodTable => {
         table[row.id] = row;
         return table;

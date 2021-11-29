@@ -100,7 +100,6 @@ export class MessagesStore {
 
   @action.bound
   public addMessages(messages: ReadonlyArray<Message>): void {
-    console.log(messages);
     this.myMessages = [
       ...messages.filter(isMyMessage),
       ...this.myMessages,
