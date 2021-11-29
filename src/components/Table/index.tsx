@@ -89,11 +89,7 @@ const BasicTable = (
         />
       </HeaderStoreContext.Provider>
       <ScrollArea>
-        <TableBody
-          scrollable={false}
-          rows={transformedRows}
-          renderRow={props.renderRow}
-        />
+        <TableBody rows={transformedRows} renderRow={props.renderRow} />
       </ScrollArea>
       <div className={"loading-banner"}>
         <div className={"spinner"} />

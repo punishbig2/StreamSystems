@@ -16,6 +16,7 @@ $spinner-size: $table-row-height - 6;
     .tbody,
     .thead {
       .tr {
+
         .td,
         .th {
           color: $table-border-color;
@@ -257,6 +258,10 @@ $spinner-size: $table-row-height - 6;
       font-family: inherit;
       font-size: inherit;
       color: $text-color-black;
+      height: $table-row-height;
+      border-bottom: 1px solid $table-border-color;
+      font-weight: inherit;
+      box-sizing: border-box;
 
       &.clickable:hover {
         background-color: rgba(0, 0, 0, 0.05);
@@ -287,12 +292,6 @@ $spinner-size: $table-row-height - 6;
         }
       }
 
-      &:last-child {
-        border-bottom: 1px solid $table-border-color;
-      }
-
-      font-weight: inherit;
-
       &.my-fill {
         color: $text-color-red;
       }
@@ -300,8 +299,6 @@ $spinner-size: $table-row-height - 6;
       &.my-bank-fill {
         color: $text-color-blue;
       }
-
-      border-top: 1px solid $table-border-color;
 
       .td {
         display: inline-block;
@@ -314,9 +311,11 @@ $spinner-size: $table-row-height - 6;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+        box-sizing: border-box;
 
         line-height: $table-row-height;
         height: $table-row-height;
+        max-height: $table-row-height;
 
         .empty {
           opacity: 0.2;

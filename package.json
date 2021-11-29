@@ -22,6 +22,7 @@
     "@types/react-input-mask": "^2.0.5",
     "@types/react-redux": "^7.1.5",
     "@types/react-router-dom": "^5.3.2",
+    "@types/resize-observer-browser": "^0.1.6",
     "@types/shortid": "^0.0.29",
     "@types/styled-components": "^4.1.19",
     "@typescript-eslint/eslint-plugin": "^2.2.0",

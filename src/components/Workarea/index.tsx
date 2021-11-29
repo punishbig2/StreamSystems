@@ -56,7 +56,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
 
   React.useEffect((): void => {
     setTimeout(() => {
-      messagesStore.reapplyFilters();
+      messagesStore.reset();
     }, 0);
   }, [messagesStore, personality]);
 

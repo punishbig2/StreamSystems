@@ -58,7 +58,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
   const ExecID: string | null = row !== null ? row.ExecID : null;
   useEffect(() => {
     if (ExecID === null || blotterType !== BlotterTypes.Executions) return;
-    let timer: number | null = null;
+    let timer = setTimeout((): void => {}, 0);
     const onExecuted = () => {
       setExecuted(true);
       timer = setTimeout(() => {
@@ -75,19 +75,19 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
       setExecuted(false);
     };
   }, [ExecID, blotterType]);
-  const columnMapper = (rowID: string) => (
-    column: TableColumn
-  ): ReactElement => {
-    const style: CSSProperties = {
-      width: getCellWidth(column.width, props.totalWidth),
+  const columnMapper =
+    (rowID: string) =>
+    (column: TableColumn): ReactElement => {
+      const style: CSSProperties = {
+        width: getCellWidth(column.width, props.totalWidth),
+      };
+      const id: string = $$(column.name, rowID);
+      return (
+        <div className={"td"} id={id} key={id} style={style}>
+          {column.render({ message: row, deal: row })}
+        </div>
+      );
     };
-    const id: string = $$(column.name, rowID);
-    return (
-      <div className={"td"} id={id} key={id} style={style}>
-        {column.render({ message: row, deal: row })}
-      </div>
-    );
-  };
   if (!row) {
     return (
       <div

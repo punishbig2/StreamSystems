@@ -1,5 +1,5 @@
 import { API } from "API";
-import { action, autorun, observable } from "mobx";
+import { action, autorun, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import { playBeep } from "signalR/helpers";
@@ -83,11 +83,9 @@ class MessagesStream {
 }
 
 export class MessagesStore {
-  @observable.ref myMessages: ReadonlyArray<Message> = [];
-  @observable.ref allExecutions: ReadonlyArray<Message> = [];
   @observable loading: boolean = false;
 
-  private entries: ReadonlyArray<Message> = [];
+  @observable.ref entries: ReadonlyArray<Message> = [];
   private stream: MessagesStream = new MessagesStream();
 
   constructor() {
@@ -98,19 +96,19 @@ export class MessagesStore {
     });
   }
 
+  @computed
+  public get messages(): ReadonlyArray<Message> {
+    return this.entries.filter(isMyMessage);
+  }
+
+  @computed
+  public get executions(): ReadonlyArray<Message> {
+    return this.entries.filter(isAcceptableFill);
+  }
+
   @action.bound
   public addMessages(messages: ReadonlyArray<Message>): void {
-    this.myMessages = [
-      ...messages.filter(isMyMessage),
-      ...this.myMessages,
-    ].slice(0, 20);
-
-    this.allExecutions = [
-      ...messages.filter(isAcceptableFill),
-      ...this.allExecutions,
-    ].slice(0, 20);
-
-    this.entries = [...messages, ...this.entries].slice(0, 20);
+    this.entries = [...messages, ...this.entries];
   }
 
   @action.bound
@@ -131,18 +129,9 @@ export class MessagesStore {
       midnight.getTime()
     );
     // Sort all entries
-    this.entries = entries.sort(sortByTimeDescending).slice(0, 20);
-    this.reapplyFilters();
+    this.entries = entries.sort(sortByTimeDescending);
     // We're done
     this.loading = false;
-  }
-
-  @action.bound
-  public reapplyFilters() {
-    const { entries } = this;
-
-    this.allExecutions = entries.filter(isAcceptableFill);
-    this.myMessages = entries.filter(isMyMessage);
   }
 
   @action.bound
@@ -158,6 +147,11 @@ export class MessagesStore {
   @action.bound
   public disconnect(): void {
     this.stream.removeHandler();
+  }
+
+  @action.bound
+  public reset(): void {
+    this.entries = [...this.entries];
   }
 }
 

@@ -33,7 +33,7 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
 
   const getFilterEditor = (): ReactElement | null => {
     if (!props.filterable) return null;
-    let timer: number = setTimeout(() => null, 0);
+    let timer = setTimeout(() => null, 0);
     const onChange = ({
       target: { value },
     }: React.ChangeEvent<HTMLInputElement>) => {

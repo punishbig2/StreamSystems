@@ -21,8 +21,8 @@ export const useSignOutOnIdleTimeout = (): void => {
   useEffect((): (() => void) | void => {
     if (config.IdleTimeout < 0) return;
     const { location } = window;
-    const state = { timer: 0 };
-    const createIdleKiller = (): number =>
+    const state = { timer: setTimeout((): void => {}, 0) };
+    const createIdleKiller = () =>
       setTimeout((): void => {
         location.href = config.SignOutUrl;
       }, config.IdleTimeout);

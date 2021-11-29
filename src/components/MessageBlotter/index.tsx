@@ -21,18 +21,17 @@ interface OwnProps {
 type Props = OwnProps;
 
 export const MessageBlotter: React.FC<Props> = observer((props: Props) => {
-  const messagesStore: MessagesStore = React.useContext<MessagesStore>(
-    MessagesStoreContext
-  );
+  const messagesStore: MessagesStore =
+    React.useContext<MessagesStore>(MessagesStoreContext);
   const store = React.useContext<MessageBlotterStore>(
     MessageBlotterStoreContext
   );
   const { currencyGroupFilter } = store;
   const { user } = workareaStore;
-  const { myMessages, allExecutions } = messagesStore;
+  const { messages, executions } = messagesStore;
   const { blotterType } = props;
 
-  const executions = React.useMemo((): ReadonlyArray<Message> => {
+  const filteredExecutions = React.useMemo((): ReadonlyArray<Message> => {
     const { symbols } = workareaStore;
     if (currencyGroupFilter !== "All") {
       const filterValue = currencyGroupFilter.toLowerCase();
@@ -41,29 +40,29 @@ export const MessageBlotter: React.FC<Props> = observer((props: Props) => {
           filterValue === ccyGroup.toLowerCase()
       );
 
-      return allExecutions.filter(
+      return executions.filter(
         (message: Message): boolean =>
           filteredSymbols.find((symbol: Symbol): boolean => {
             return symbol.symbolID === message.Symbol;
           }) !== undefined
       );
     } else {
-      return allExecutions;
+      return executions;
     }
-  }, [currencyGroupFilter, allExecutions]);
+  }, [currencyGroupFilter, executions]);
 
-  const messages: ReadonlyArray<Message> = React.useMemo(
+  const selectedMessages: ReadonlyArray<Message> = React.useMemo(
     (): ReadonlyArray<Message> =>
-      blotterType === BlotterTypes.Executions ? executions : myMessages,
-    [blotterType, executions, myMessages]
+      blotterType === BlotterTypes.Executions ? filteredExecutions : messages,
+    [blotterType, filteredExecutions, messages]
   );
 
   const renderRow = useMemo(() => renderRowFactory(blotterType), [blotterType]);
 
   React.useEffect((): void => {
     store.setOwner(user);
-    store.setRows(messages);
-  }, [store, messages, user]);
+    store.setRows(selectedMessages);
+  }, [store, messages, user, selectedMessages]);
 
   return (
     <Table

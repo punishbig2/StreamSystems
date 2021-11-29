@@ -4,7 +4,7 @@ import { User } from "types/user";
 
 export class PersistStorage {
   private readonly user: User | null = null;
-  private pendingOperation: number = setTimeout(() => null, 0);
+  private pendingOperation = setTimeout(() => null, 0);
 
   constructor(user: User) {
     this.user = user;

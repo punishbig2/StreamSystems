@@ -50,9 +50,7 @@ const NumericInput = <T extends any = string>(props: Props): ReactElement => {
     className,
     ...otherProps
   } = props;
-  const [selectTimer, setSelectTimer] = useState<number>(
-    setTimeout(() => null, 0)
-  );
+  const [selectTimer, setSelectTimer] = useState(setTimeout(() => null, 0));
 
   const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>) => {
     const { target } = event;
