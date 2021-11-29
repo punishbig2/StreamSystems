@@ -172,6 +172,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     );
 
     this.initializeDepthFromSnapshot(await task.execute());
+    await this.loadDarkPoolSnapshot(this.ccyPair, this.strategy);
   }
 
   private doInitialize(): Task<void> {
@@ -223,11 +224,11 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         runInAction((): void => {
           // Initialize from depth snapshot
           this.initializeDepthFromSnapshot(combined);
-          this.loadDarkPoolSnapshot(ccyPair, strategy).then((): void => {});
+          void this.loadDarkPoolSnapshot(ccyPair, strategy);
           this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
             return {
               ...rows,
-              [id]: { ...rows[id], darkPrice: darkPrices[id] },
+              [id]: { ...rows[id], darkPrice: darkPrices[id] ?? null },
             };
           }, this.rows);
         });
@@ -423,8 +424,12 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   }
 
   @action.bound
-  private initializeDarkPoolFromSnapshot(snapshot: { [k: string]: W }) {
-    this.darkPoolOrders = snapshot;
+  private initializeDarkPoolFromSnapshot(snapshot: { [k: string]: W } | null) {
+    if (snapshot === null) {
+      this.darkPoolOrders = {};
+    } else {
+      this.darkPoolOrders = snapshot;
+    }
   }
 
   private async loadDarkPoolSnapshot(currency: string, strategy: string) {
@@ -432,9 +437,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       [tenor: string]: W;
     } | null = await API.getDarkPoolSnapshot(currency, strategy);
 
-    if (snapshot !== null) {
-      this.initializeDarkPoolFromSnapshot(snapshot);
-    }
+    this.initializeDarkPoolFromSnapshot(snapshot);
   }
 
   private async executeBulkCreation(
