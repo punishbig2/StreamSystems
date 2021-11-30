@@ -50,12 +50,12 @@ export class BrokerageStore {
         this.onCommissionRates
       );
     });
+
     return disconnect;
   }
 
   @action.bound
   private onCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
-    console.log(rates);
     this.commissionRates = rates;
   }
 }

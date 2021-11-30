@@ -70,9 +70,8 @@ interface Command {
 export class SignalRClient {
   private connection: HubConnection | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  private onConnectedListener:
-    | ((connection: HubConnection) => void)
-    | null = null;
+  private onConnectedListener: ((connection: HubConnection) => void) | null =
+    null;
   private recordedCommands: ReadonlyArray<Command> = [];
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
@@ -149,11 +148,9 @@ export class SignalRClient {
         this.replayRecordedCommands();
         this.applySubscriptions(newConnection);
         this.notifyConnected(newConnection);
-        setTimeout((): void => {
-          if (newConnection.state === HubConnectionState.Connected) {
-            onConnected?.();
-          }
-        }, 0);
+        if (newConnection.state === HubConnectionState.Connected) {
+          onConnected?.();
+        }
       })
       .catch(console.error);
     this.connection = newConnection;
@@ -549,9 +546,11 @@ export class SignalRClient {
 
     document.addEventListener(eventName, handler);
     return () => {
-      connection
-        .invoke(Methods.UnSubscribeForCommissionUpdate)
-        .catch(console.warn);
+      if (connection.state === HubConnectionState.Connected) {
+        connection
+          .invoke(Methods.UnSubscribeForCommissionUpdate)
+          .catch(console.warn);
+      }
       document.removeEventListener(eventName, handler);
     };
   }

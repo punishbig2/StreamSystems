@@ -228,7 +228,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         );
         const rowIds: ReadonlyArray<string> = Object.keys(this.rows);
         const combined = await combinedTask.execute();
-        console.log(darkPrices);
 
         runInAction((): void => {
           // Initialize from depth snapshot
