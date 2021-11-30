@@ -125,20 +125,20 @@ export class DarkPoolStore {
   }
 
   @action.bound
-  public getClearDarkPoolPriceCallback = (
-    symbol: string,
-    strategy: string,
-    tenor: string
-  ): (() => void) => (): void => {
-    const { user } = workareaStore;
-    void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
-    this.publishedPrice = null;
-  };
+  public getClearDarkPoolPriceCallback =
+    (symbol: string, strategy: string, tenor: string): (() => void) =>
+    (): void => {
+      const { user } = workareaStore;
+      void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
+      this.publishedPrice = null;
+    };
 
   @action.bound
   public connect(symbol: string, strategy: string, tenor: string): () => void {
     this.currentOrder = null;
     this.orders = [];
+    this.publishedPrice = null;
+
     const cleanup = signalRManager.setDarkPoolPriceListener(
       symbol,
       strategy,

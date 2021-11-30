@@ -201,30 +201,41 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
           API.getDarkPoolLastQuotes(ccyPair, strategy);
         tasks.push(darkPoolQuotesTask);
         tasks.push(combinedTask);
+        const nullQuoteReducer = (
+          prices: { [tenor: string]: number | null },
+          tenor: string
+        ): { [tenor: string]: number | null } => ({
+          ...prices,
+          [tenor]: null,
+        });
+        const quoteReducer = (
+          prices: { [tenor: string]: number | null },
+          quote: DarkPoolQuote
+        ): { [tenor: string]: number | null } => {
+          return {
+            ...prices,
+            [quote.Tenor]:
+              quote.DarkPrice === undefined ? null : quote.DarkPrice,
+          };
+        };
 
         // Other task
         const quotes: ReadonlyArray<DarkPoolQuote> =
           await darkPoolQuotesTask.execute();
         const darkPrices = quotes.reduce(
-          (
-            prices: { [tenor: string]: number | null },
-            quote: DarkPoolQuote
-          ): { [tenor: string]: number | null } => {
-            return {
-              ...prices,
-              [quote.Tenor]:
-                quote.DarkPrice === undefined ? null : quote.DarkPrice,
-            };
-          },
-          {}
+          quoteReducer,
+          tenors.reduce(nullQuoteReducer, {})
         );
         const rowIds: ReadonlyArray<string> = Object.keys(this.rows);
         const combined = await combinedTask.execute();
+        console.log(darkPrices);
 
         runInAction((): void => {
           // Initialize from depth snapshot
           this.initializeDepthFromSnapshot(combined);
+          // Dark pool orders
           void this.loadDarkPoolSnapshot(ccyPair, strategy);
+
           this.rows = rowIds.reduce((rows: PodTable, id: string): PodTable => {
             return {
               ...rows,
@@ -241,14 +252,11 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     };
   }
 
+  @action.bound
   public initialize(currency: string, strategy: string): Task<void> {
-    runInAction((): void => {
-      // Now initialize it
-      this.loading = true;
-      this.ccyPair = currency;
-      this.strategy = strategy;
-      // Load depth
-    });
+    this.loading = true;
+    this.ccyPair = currency;
+    this.strategy = strategy;
 
     return this.doInitialize();
   }

@@ -1,13 +1,12 @@
-// eslint-disable-next-line no-restricted-globals
 self.importScripts(
   "https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.0/signalr.min.js"
 );
 
-// eslint-disable-next-line no-restricted-globals
 const { location } = self;
+
 const hostname = location.hostname;
 const baseUrl = location.protocol + "//" + hostname;
-// eslint-disable-next-line no-undef
+
 const lib = signalR;
 
 const createConnection = () =>

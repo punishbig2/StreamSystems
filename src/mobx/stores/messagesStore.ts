@@ -17,8 +17,8 @@ class MessagesStream {
   private listener: (message: ReadonlyArray<Message>) => void = (): void => {};
 
   constructor() {
-    navigator.serviceWorker.register("./workers/messages.js").then((): void => {
-      const worker = new Worker("./workers/messages.js");
+    navigator.serviceWorker.register("messages.js").then((): void => {
+      const worker = new Worker("messages.js");
       // Set it up
       worker.onmessage = this.onMessage;
     });

@@ -2,9 +2,9 @@ import { API, Task } from "API";
 import { action, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { SignalRClient, SignalRClientType } from "signalR/signalRClient";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
+import { SignalRClient, SignalRClientType } from "../../signalR/signalRClient";
 
 export interface CommissionRate {
   readonly region: string;
@@ -12,33 +12,24 @@ export interface CommissionRate {
   readonly hasDiscount: boolean;
 }
 
-export const convertToCommissionRatesArray = (
-  response: BrokerageCommissionResponse | null
-): ReadonlyArray<CommissionRate> => {
+export const convertToCommissionRatesArray = (response: any) => {
   if (response === null) return [];
-  const regions: string[] = Object.keys(response).filter(
-    (key: string): boolean => !key.endsWith("-FLAG")
-  );
-  const rates = regions
-    .filter((region: string) => region !== "firm" && region !== "msgtype")
-    .map(
-      (region: string): CommissionRate => {
-        return {
-          region: region,
-          hasDiscount: response[`${region}-FLAG`] !== "false",
-          value: Number(response[region]),
-        };
-      }
-    );
+  const regions = Object.keys(response).filter((key) => !key.endsWith("-FLAG"));
 
-  return rates;
+  return regions
+    .filter((region) => region !== "firm" && region !== "msgtype")
+    .map((region) => {
+      return {
+        region: region,
+        hasDiscount: response[`${region}-FLAG`] !== "false",
+        value: Number(response[region]),
+      };
+    });
 };
 
 export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
-  private signalRClient = new SignalRClient(SignalRClientType.Commissions);
-  private commissionRatesCache: ReadonlyArray<CommissionRate> = [];
-  private cacheTimer = setTimeout(() => {}, 0);
+  private stream = new SignalRClient(SignalRClientType.Commissions);
 
   constructor() {
     const user: User = workareaStore.user;
@@ -47,38 +38,25 @@ export class BrokerageStore {
     );
     const promise: Promise<BrokerageCommissionResponse> = task.execute();
 
-    promise.then(convertToCommissionRatesArray).then(this.setCommissionRates);
-    // Connect the client
+    promise.then(convertToCommissionRatesArray).then(this.onCommissionRates);
   }
 
   public installListener(): () => void {
-    const user: User = workareaStore.user;
-    let removeListener = () => {};
+    let disconnect = () => {};
 
-    this.signalRClient.connect((): void => {
-      removeListener = this.signalRClient.addCommissionRatesListener(
-        user.firm,
-        this.setCommissionRates
+    this.stream.connect((): void => {
+      disconnect = this.stream.addCommissionRatesListener(
+        workareaStore.user.firm,
+        this.onCommissionRates
       );
     });
-
-    return (): void => {
-      removeListener();
-    };
+    return disconnect;
   }
 
   @action.bound
-  private flushCache() {
-    this.commissionRates = this.commissionRatesCache;
-    this.commissionRatesCache = [];
-  }
-
-  @action.bound
-  private setCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
-    clearTimeout(this.cacheTimer);
-
-    this.commissionRatesCache = rates;
-    this.cacheTimer = setTimeout((): void => this.flushCache(), 100);
+  private onCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
+    console.log(rates);
+    this.commissionRates = rates;
   }
 }
 

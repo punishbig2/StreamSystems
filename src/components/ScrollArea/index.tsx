@@ -1,7 +1,6 @@
 import { useScrollbarHandleGrabber } from "hooks/useScrollbarHandleGrabber";
 import React, { Children } from "react";
 import ResizeObserver from "resize-observer-polyfill";
-import { update } from "lodash";
 
 type Props = React.PropsWithChildren<{}>;
 

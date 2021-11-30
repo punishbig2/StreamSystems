@@ -62,7 +62,7 @@ const reducer = (state: State, action: Action): State => {
         bottom: data.bottom,
       };
     case Actions.ResetRowCount:
-      return { ...state, visibleRowCount: data };
+      return { ...state, bottom: data.bottom, top: data.top };
     case Actions.UpdateGeometry:
       return {
         ...state,
@@ -130,11 +130,16 @@ export const TableBody: React.FC<Props> = React.forwardRef(
     }, [current]);
 
     React.useEffect((): void => {
+      const visibleRowCount = Math.min(state.visibleRowCount, rows.length);
       dispatch({
         type: Actions.ResetRowCount,
-        data: rows.length,
+        data: {
+          top: state.firstRow * state.itemHeight,
+          bottom:
+            (rows.length - state.firstRow - visibleRowCount) * state.itemHeight,
+        },
       });
-    }, [rows.length]);
+    }, [rows.length, state.firstRow, state.itemHeight, state.visibleRowCount]);
 
     React.useEffect((): void => {
       const visibleRowCount =
@@ -186,7 +191,10 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         <div style={{ height: state.top }} />
         <div ref={containerRef}>
           {rows
-            .slice(state.firstRow, state.firstRow + state.visibleRowCount)
+            .slice(
+              state.firstRow,
+              state.firstRow + (state.visibleRowCount ?? rows.length)
+            )
             .map((data: any): any => {
               const { row } = data;
               const rowProps = {
