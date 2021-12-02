@@ -172,22 +172,19 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         rows.length - state.visibleRowCount
       );
 
-      requestAnimationFrame((): void => {
-        dispatch({
-          type: Actions.UpdateScrollTop,
-          data: {
-            firstRow: firstRow,
-            top: firstRow * state.itemHeight,
-            bottom:
-              (rows.length - firstRow - state.visibleRowCount) *
-              state.itemHeight,
-          },
-        });
+      dispatch({
+        type: Actions.UpdateScrollTop,
+        data: {
+          firstRow: firstRow,
+          top: firstRow * state.itemHeight,
+          bottom:
+            (rows.length - firstRow - state.visibleRowCount) * state.itemHeight,
+        },
       });
     };
 
     return (
-      <div ref={ref} className={"tbody"} onScroll={debounce(onScroll, 50)}>
+      <div ref={ref} className={"tbody"} onScroll={debounce(onScroll, 5)}>
         <div style={{ height: state.top }} />
         <div ref={containerRef}>
           {rows

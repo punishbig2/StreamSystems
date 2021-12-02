@@ -15,7 +15,6 @@ import {
   MiddleOfficeProcessingState,
   MiddleOfficeStore,
 } from "mobx/stores/middleOfficeStore";
-import userProfileStore from "mobx/stores/userPreferencesStore";
 
 import workareaStore from "mobx/stores/workareaStore";
 import {
@@ -28,11 +27,9 @@ import {
   REF_ALL_COMPLETE,
   SEF_UPDATE,
 } from "signalR/constants";
-import { playBeep } from "signalR/helpers";
 import { MDEntry } from "types/mdEntry";
-import { DarkPoolMessage, ExecTypes, Message } from "types/message";
+import { DarkPoolMessage, Message } from "types/message";
 import { PricingMessage } from "types/pricingMessage";
-import { Role } from "types/role";
 import { SEFUpdate } from "types/sefUpdate";
 import { User } from "types/user";
 import { isPodW, W } from "types/w";
@@ -40,13 +37,6 @@ import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { coalesce } from "utils/commonUtils";
 import { globalClearDarkPoolPriceEvent } from "utils/globalClearDarkPoolPriceEvent";
 import { $$ } from "utils/stringPaster";
-
-export enum SignalRClientType {
-  Messages,
-  MarketData,
-  MiddleOffice,
-  Commissions,
-}
 
 interface SEFError {
   dealid: string;
@@ -75,13 +65,12 @@ export class SignalRClient {
   private recordedCommands: ReadonlyArray<Command> = [];
   private pendingW: { [k: string]: W } = {};
   private middleOffices: Array<MiddleOfficeStore> = [];
-  private readonly clientType: SignalRClientType;
 
   private callbacks: {
     [k: string]: (m: DarkPoolMessage) => void;
   } = {};
 
-  constructor(clientType: SignalRClientType) {
+  constructor() {
     window.addEventListener("offline", (): void => {
       const { connection } = this;
       // Oddly enough, this is a problem when testing and debugging
@@ -94,31 +83,21 @@ export class SignalRClient {
       this.connect();
     });
 
-    this.clientType = clientType;
-    switch (clientType) {
-      case SignalRClientType.Messages:
-        this.recordedCommands = [
-          /* {
-            name: Methods.SubscribeForMBMsg,
-            args: ["*"],
-          },*/
-        ];
+    this.recordedCommands = [
+      {
+        name: Methods.SubscribeForMBMsg,
+        args: ["*"],
+      },
 
-        break;
-      case SignalRClientType.MarketData:
-      case SignalRClientType.MiddleOffice:
-        this.recordedCommands = [
-          {
-            name: Methods.SubscribeForDeals,
-            args: ["*"],
-          },
-          {
-            name: Methods.SubscribeForPricingResponse,
-            args: ["*"],
-          },
-        ];
-        break;
-    }
+      {
+        name: Methods.SubscribeForDeals,
+        args: ["*"],
+      },
+      {
+        name: Methods.SubscribeForPricingResponse,
+        args: ["*"],
+      },
+    ];
   }
 
   public static createConnection = () =>
@@ -172,7 +151,8 @@ export class SignalRClient {
 
   private installHealthMonitors = (connection: HubConnection): void => {
     // Connect
-    connection.serverTimeoutInMilliseconds = 3600000;
+    connection.serverTimeoutInMilliseconds = 30000;
+    connection.keepAliveIntervalInMilliseconds = 10000;
     connection.onclose((error?: Error): void => {
       this.notifyConnectionLoss(error);
       setTimeout((): void => {
@@ -188,35 +168,23 @@ export class SignalRClient {
       );
     }
     // Install listeners
-    switch (this.clientType) {
-      case SignalRClientType.Messages:
-        // connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
-        break;
-      case SignalRClientType.MiddleOffice:
-        connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
-        connection.on(Events.OnPricingResponse, this.onPricingResponse);
-        connection.on(Events.OnDealDeleted, this.onDealDeleted);
-        connection.on(Events.UpdateLegs, this.onUpdateLegs);
-        connection.on(Events.OnError, this.onError);
-        connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
-        connection.on(
-          Events.OnDealEditStart,
-          this.onDealEdit(DealEditStatus.Start)
-        );
-        connection.on(
-          Events.OnDealEditEnd,
-          this.onDealEdit(DealEditStatus.End)
-        );
-        break;
-      case SignalRClientType.MarketData:
-        connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
-        connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
-        connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
-        connection.on(Events.RefAllComplete, this.onRefAllComplete);
-        break;
-      case SignalRClientType.Commissions:
-        break;
-    }
+    connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
+    connection.on(Events.UpdateDealsBlotter, this.onUpdateDeals);
+    connection.on(Events.OnPricingResponse, this.onPricingResponse);
+    connection.on(Events.OnDealDeleted, this.onDealDeleted);
+    connection.on(Events.UpdateLegs, this.onUpdateLegs);
+    connection.on(Events.OnError, this.onError);
+    connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
+    connection.on(
+      Events.OnDealEditStart,
+      this.onDealEdit(DealEditStatus.Start)
+    );
+    connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
+
+    connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
+    connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
+    connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
+    connection.on(Events.RefAllComplete, this.onRefAllComplete);
   };
 
   public addRefAllCompleteListener(
@@ -245,16 +213,6 @@ export class SignalRClient {
       document.removeEventListener(SEF_UPDATE, listenerWrapper);
     };
   }
-
-  private static shouldShowPopup = (message: Message): boolean => {
-    const user: User = workareaStore.user;
-    const personality: string = workareaStore.personality;
-    const { roles } = user;
-    if (roles.includes(Role.Broker)) {
-      return personality === message.MDMkt && message.Username === user.email;
-    }
-    return message.Username === user.email;
-  };
 
   private static emitSEFUpdate(data: any): void {
     const event = new CustomEvent<SEFUpdate>(SEF_UPDATE, {
@@ -523,7 +481,9 @@ export class SignalRClient {
     this.invoke(Methods.UnsubscribeFromMBMsg, "*");
   };
 
-  public setMessagesListener = (onMessage: (message: Message) => void) => {
+  public setMessagesListener = (
+    onMessage: (message: ReadonlyArray<Message>) => void
+  ) => {
     this.onMessageListener = onMessage;
   };
 
@@ -555,7 +515,8 @@ export class SignalRClient {
     };
   }
 
-  private onMessageListener: (message: Message) => void = () => null;
+  private onMessageListener: (message: ReadonlyArray<Message>) => void = () =>
+    null;
 
   private onClearDarkPoolPx = (message: string) => {
     if (!message || message.trim() === "") {
@@ -618,12 +579,19 @@ export class SignalRClient {
     document.dispatchEvent(event);
   };
 
+  private messagesCache: ReadonlyArray<Message> = [];
+  private messagesTimer = setTimeout(() => {}, 0);
+
   private onUpdateMessageBlotter = (rawMessage: string) => {
+    clearTimeout(this.messagesTimer);
+
     const message: Message = JSON.parse(rawMessage);
-    // First call the internal handler
-    this.handleMessageActions(message);
+    this.messagesCache = [message, ...this.messagesCache];
     // Now call the setup handler
-    this.onMessageListener(message);
+    this.messagesTimer = setTimeout((): void => {
+      this.onMessageListener(this.messagesCache);
+      this.messagesCache = [];
+    }, 200);
   };
 
   private onDealDeleted = (message: string): void => {
@@ -714,46 +682,6 @@ export class SignalRClient {
       });
   };
 
-  private dispatchExecutedMessageEvent = (message: Message) => {
-    void playBeep(userProfileStore.preferences, message.ExDestination);
-    setTimeout(() => {
-      const eventName: string = $$(message.ExecID, "executed");
-      if (message.Side === "1") {
-        const eventName: string = $$(
-          message.Symbol,
-          message.Strategy,
-          message.Side,
-          "Execution"
-        );
-        document.dispatchEvent(new CustomEvent(eventName));
-      }
-      document.dispatchEvent(new CustomEvent(eventName));
-    }, 500);
-  };
-
-  private handleMessageActions = (message: Message) => {
-    switch (message.OrdStatus) {
-      case ExecTypes.Canceled:
-        break;
-      case ExecTypes.PendingCancel:
-        break;
-      case ExecTypes.Filled:
-        this.dispatchExecutedMessageEvent(message);
-        if (SignalRClient.shouldShowPopup(message)) {
-          workareaStore.addRecentExecution(message);
-        }
-        break;
-      case ExecTypes.PartiallyFilled:
-        this.dispatchExecutedMessageEvent(message);
-        if (SignalRClient.shouldShowPopup(message)) {
-          workareaStore.addRecentExecution(message);
-        }
-        break;
-      default:
-        break;
-    }
-  };
-
   private invoke = (name: string, ...args: any[]): void => {
     const { connection } = this;
     if (
@@ -838,4 +766,4 @@ export class SignalRClient {
   }
 }
 
-export default new SignalRClient(SignalRClientType.MarketData);
+export default new SignalRClient();

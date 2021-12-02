@@ -12,16 +12,13 @@ import {
   sortByTimeDescending,
 } from "utils/messageUtils";
 import userProfileStore from "mobx/stores/userPreferencesStore";
+import signalRClient from "signalR/signalRClient";
 
 class MessagesStream {
   private listener: (message: ReadonlyArray<Message>) => void = (): void => {};
 
   constructor() {
-    navigator.serviceWorker.register("messages.js").then((): void => {
-      const worker = new Worker("messages.js");
-      // Set it up
-      worker.onmessage = this.onMessage;
-    });
+    signalRClient.setMessagesListener(this.onMessage);
   }
 
   private dispatchExecutedMessageEvent(message: Message) {
@@ -65,8 +62,7 @@ class MessagesStream {
     return message.Username === user.email;
   };
 
-  public onMessage = (message: MessageEvent): void => {
-    const messages = message.data as ReadonlyArray<Message>;
+  public onMessage = (messages: ReadonlyArray<Message>): void => {
     for (const message of messages) {
       this.handleMessageActions(message);
     }

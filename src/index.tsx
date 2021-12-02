@@ -10,3 +10,9 @@ ReactDOM.render(<FXOptionsUI />, document.getElementById("root"));
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service messages: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+navigator.serviceWorker.getRegistrations().then(function (registrations) {
+  for (const registration of registrations) {
+    void registration.unregister();
+  }
+});

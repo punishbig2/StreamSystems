@@ -4,7 +4,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { User } from "types/user";
-import { SignalRClient, SignalRClientType } from "../../signalR/signalRClient";
+import signalRClient from "signalR/signalRClient";
 
 export interface CommissionRate {
   readonly region: string;
@@ -29,7 +29,7 @@ export const convertToCommissionRatesArray = (response: any) => {
 
 export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
-  private stream = new SignalRClient(SignalRClientType.Commissions);
+  private stream = signalRClient;
 
   constructor() {
     const user: User = workareaStore.user;

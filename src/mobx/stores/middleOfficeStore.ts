@@ -22,7 +22,7 @@ import { action, computed, observable } from "mobx";
 
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { SignalRClient, SignalRClientType } from "signalR/signalRClient";
+import signalRClient from "signalR/signalRClient";
 import { BankEntity } from "types/bankEntity";
 import { CalendarVolDatesResponse } from "types/calendarFXPair";
 import { DealEntry, emptyDealEntry, EntryType } from "types/dealEntry";
@@ -137,10 +137,6 @@ export class MiddleOfficeStore implements Workspace {
   @observable name: string = "Middle Office";
   @observable modified: boolean = false;
   @observable loadingDeals: boolean = false;
-
-  private signalRClient: SignalRClient = new SignalRClient(
-    SignalRClientType.MiddleOffice
-  );
 
   public entities: BankEntitiesQueryResponse = {};
   public entitiesMap: { [p: string]: BankEntity } = {};
@@ -258,29 +254,30 @@ export class MiddleOfficeStore implements Workspace {
         cancel: (): void => {},
       };
     }
-    const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
-      if (originalTenor.name === "SPECIFIC") {
-        return API.queryVolDates(
-          {
-            fxPair: symbol.symbolID,
-            addHolidays: true,
-            rollExpiryDates: true,
-            tradeDate: toUTC(entry.tradeDate, true),
-          },
-          [toUTC(originalTenor.expiryDate)]
-        );
-      } else {
-        return API.queryVolTenors(
-          {
-            fxPair: symbol.symbolID,
-            addHolidays: true,
-            rollExpiryDates: true,
-            tradeDate: toUTC(entry.tradeDate, true),
-          },
-          [originalTenor.name]
-        );
-      }
-    })();
+    const task: Task<CalendarVolDatesResponse> =
+      ((): Task<CalendarVolDatesResponse> => {
+        if (originalTenor.name === "SPECIFIC") {
+          return API.queryVolDates(
+            {
+              fxPair: symbol.symbolID,
+              addHolidays: true,
+              rollExpiryDates: true,
+              tradeDate: toUTC(entry.tradeDate, true),
+            },
+            [toUTC(originalTenor.expiryDate)]
+          );
+        } else {
+          return API.queryVolTenors(
+            {
+              fxPair: symbol.symbolID,
+              addHolidays: true,
+              rollExpiryDates: true,
+              tradeDate: toUTC(entry.tradeDate, true),
+            },
+            [originalTenor.name]
+          );
+        }
+      })();
     return {
       execute: async (): Promise<FixTenorResult> => {
         const dates: CalendarVolDatesResponse = await task.execute();
@@ -391,10 +388,8 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public getDefaultLegAdjust(strategy: Product, symbol: Symbol): string {
-    const values: ReadonlyArray<LegAdjustValue> = this.getFilteredLegAdjustValues(
-      strategy,
-      symbol
-    );
+    const values: ReadonlyArray<LegAdjustValue> =
+      this.getFilteredLegAdjustValues(strategy, symbol);
     if (values.length === 0) return "";
     return values[0].VegaLegAdjustValue;
   }
@@ -460,8 +455,8 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public connectListeners(): () => void {
-    this.signalRClient.connect();
-    return this.signalRClient.connectMiddleOfficeStore(this);
+    signalRClient.connect();
+    return signalRClient.connectMiddleOfficeStore(this);
   }
 
   public reloadStrategies(currency: string): void {
@@ -671,7 +666,7 @@ export class MiddleOfficeStore implements Workspace {
           ? this.getCurrentLegs()
           : API.getLegs(deal.id);
       const legDefs = this.legDefinitions[deal.strategy];
-      const removeListener = this.signalRClient.addPricingResponseListener(
+      const removeListener = signalRClient.addPricingResponseListener(
         (data: PricingMessage): void => {
           const { entry } = this;
           if (entry.dealID === data.dealId) {
@@ -803,16 +798,14 @@ export class MiddleOfficeStore implements Workspace {
     }
 
     const legs = ((legs: ReadonlyArray<Leg>): ReadonlyArray<Leg> => {
-      return legs.map(
-        (leg: Leg, index: number): Leg => {
-          const reducer: (leg: Leg, field: string) => Leg = legsReducer(
-            index,
-            partial,
-            entry
-          );
-          return fields.reduce(reducer, leg);
-        }
-      );
+      return legs.map((leg: Leg, index: number): Leg => {
+        const reducer: (leg: Leg, field: string) => Leg = legsReducer(
+          index,
+          partial,
+          entry
+        );
+        return fields.reduce(reducer, leg);
+      });
     })(this.legs);
     // Check if legs changed
     if (!deepEqual(this.legs, legs)) {
