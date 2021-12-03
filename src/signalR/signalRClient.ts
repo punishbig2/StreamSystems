@@ -492,6 +492,7 @@ export class SignalRClient {
     listener: (rates: ReadonlyArray<CommissionRate>) => void
   ): () => void {
     const { connection } = this;
+
     if (connection === null) {
       throw new Error("cannot listen because I am not connected");
     }
@@ -501,6 +502,7 @@ export class SignalRClient {
       const event: CustomEvent<ReadonlyArray<CommissionRate>> = rawEvent;
       listener(event.detail);
     };
+
     connection.invoke(Methods.SubscribeForCommissionUpdate).catch(console.warn);
     connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
 

@@ -455,7 +455,6 @@ export class MiddleOfficeStore implements Workspace {
   }
 
   public connectListeners(): () => void {
-    signalRClient.connect();
     return signalRClient.connectMiddleOfficeStore(this);
   }
 

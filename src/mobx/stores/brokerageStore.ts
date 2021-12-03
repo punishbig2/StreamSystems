@@ -42,16 +42,10 @@ export class BrokerageStore {
   }
 
   public installListener(): () => void {
-    let disconnect = () => {};
-
-    this.stream.connect((): void => {
-      disconnect = this.stream.addCommissionRatesListener(
-        workareaStore.user.firm,
-        this.onCommissionRates
-      );
-    });
-
-    return disconnect;
+    return this.stream.addCommissionRatesListener(
+      workareaStore.user.firm,
+      this.onCommissionRates
+    );
   }
 
   @action.bound
