@@ -82,14 +82,29 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (message.CxlRejResponseTo !== undefined) return false;
   const { roles } = user;
   const isBroker: boolean = roles.includes(Role.Broker);
-  const firm: string = isBroker ? workareaStore.personality : user.firm;
   // Only fills are interesting
   if (!isFill(message)) return false;
-  // If it's my trade YES
-  if (message.Username === user.email || message.MDMkt === firm) return true;
-  // If it's my trade and I am contra-trader NO
-  if (message.ContraTrader === user.email || message.ExecBroker === firm) {
-    return false;
+  if (isBroker) {
+    // If it's my trade YES
+    if (message.MDMkt === workareaStore.personality) return true;
+    // If it's my trade and I am contra-trader NO
+    if (
+      message.ExecBroker === workareaStore.personality ||
+      message.ContraTrader === user.email
+    ) {
+      return false;
+    }
+  } else {
+    // If it's my trade YES
+    if (message.Username === user.email || message.MDMkt === user.firm)
+      return true;
+    // If it's my trade and I am contra-trader NO
+    if (
+      message.ContraTrader === user.email ||
+      message.ExecBroker === user.firm
+    ) {
+      return false;
+    }
   }
   return message.Side !== "1";
 };
