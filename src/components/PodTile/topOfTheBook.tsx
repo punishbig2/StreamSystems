@@ -44,6 +44,7 @@ export const TopOfTheBook: React.FC<Props> = (
           const { name, minqty, defaultqty } = props.symbol;
           const { row } = rowProps;
           const { tenor } = row;
+
           return (
             <Row
               {...rowProps}

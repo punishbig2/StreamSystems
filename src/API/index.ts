@@ -614,6 +614,7 @@ export class API {
     const task: Task<UserInfo> = GET<UserInfo>(
       API.buildUrl(API.UserApi, "UserInfo", "get", { useremail })
     );
+
     return task.execute();
   }
 

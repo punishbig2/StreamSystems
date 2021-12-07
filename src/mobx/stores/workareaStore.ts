@@ -144,9 +144,8 @@ export class WorkareaStore {
   @computed
   get workspace(): Workspace | null {
     if (this.currentWorkspaceIndex === null) return null;
-    const found: Workspace | undefined = this.workspaces[
-      this.currentWorkspaceIndex
-    ];
+    const found: Workspace | undefined =
+      this.workspaces[this.currentWorkspaceIndex];
     if (found) {
       return found;
     } else {
@@ -361,12 +360,18 @@ export class WorkareaStore {
   private mapSymbolsWithIds() {
     const { symbols } = this;
 
-    return symbols.reduce((map: { [key: string]: Symbol }, symbol: Symbol): {
-      [key: string]: Symbol;
-    } => {
-      map[symbol.symbolID] = symbol;
-      return map;
-    }, {});
+    return symbols.reduce(
+      (
+        map: { [key: string]: Symbol },
+        symbol: Symbol
+      ): {
+        [key: string]: Symbol;
+      } => {
+        map[symbol.symbolID] = symbol;
+        return map;
+      },
+      {}
+    );
   }
 
   @action.bound
@@ -397,7 +402,7 @@ export class WorkareaStore {
         lastname: me.lastname,
         regions: await API.getUserRegions(oktaUser.email),
         // Add broker role
-        roles: [...roles, ...(me.isbroker ? [Role.Broker] : [])],
+        roles: roles,
       };
     }
   }

@@ -33,6 +33,7 @@ export class DarkPoolStore {
       if (roles.includes(Role.Broker)) {
         return o.firm === personality && o.user === user.email;
       }
+
       return o.user === user.email || o.firm === user.firm;
     });
   }
@@ -145,17 +146,22 @@ export class DarkPoolStore {
       tenor,
       this.onDarkPoolPricePublished
     );
+
     this.removeOrderListener = signalRManager.addDarkPoolOrderListener(
       symbol,
       strategy,
       tenor,
       this.onOrderReceived
     );
+
     const handler = (): void => this.setDarkPoolPrice(null);
+
     const event1: string = clearDarkPoolPriceEvent(symbol, strategy, tenor);
     const event2: string = globalClearDarkPoolPriceEvent();
+
     document.addEventListener(event1, handler);
     document.addEventListener(event2, handler);
+
     return () => {
       document.removeEventListener(event1, handler);
       document.removeEventListener(event2, handler);
@@ -204,10 +210,16 @@ export class DarkPoolStore {
   }
 
   @action.bound
+  public setOrders(orders: any): void {
+    this.orders = orders;
+  }
+
+  @action.bound
   public async createOrder(order: DarkPoolOrder) {
     const { orders } = this;
     const user: User = workareaStore.user;
     this.closeTicket();
+
     const currentOrder: Order | undefined = orders.find((o: Order) => {
       if (o.type === OrderTypes.Bid && order.Side !== Sides.Buy) return false;
       if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell) return false;
@@ -223,6 +235,11 @@ export class DarkPoolStore {
   @action.bound
   public cancel(order: Order) {
     void API.cancelDarkPoolOrder(order);
+    this.currentOrder = null;
+  }
+
+  @action.bound
+  public reset(): void {
     this.currentOrder = null;
   }
 

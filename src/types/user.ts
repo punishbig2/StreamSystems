@@ -31,7 +31,6 @@ export interface UserInfo {
   [0]: {
     readonly email: string;
     readonly firm: string;
-    readonly isbroker: boolean;
     readonly firstname: string;
     readonly lastname: string;
   };

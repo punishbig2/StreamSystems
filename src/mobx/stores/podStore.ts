@@ -29,7 +29,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable loading: boolean = false;
   @observable currentTenor: string | null = null;
 
-  @observable darkPoolOrders: { [tenor: string]: W } = {};
+  @observable.ref darkPoolOrders: { [tenor: string]: W } = {};
   @observable.ref orders: { [tenor: string]: ReadonlyArray<Order> } = {};
 
   @observable isRunWindowVisible: boolean = false;
