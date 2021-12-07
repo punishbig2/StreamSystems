@@ -201,7 +201,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(
               return props.renderRow(rowProps);
             })}
         </div>
-        <div style={{ height: state.bottom }} />
+        <div style={{ height: isNaN(state.bottom) ? 0 : state.bottom }} />
       </div>
     );
   }

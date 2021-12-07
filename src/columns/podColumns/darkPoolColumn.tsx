@@ -84,8 +84,9 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
   useEffect(() => {
     if (currency === "" || strategy === "") return;
+    store.onOrderReceived(podStore.darkPoolOrders[tenor]);
     return store.connect(currency, strategy, tenor);
-  }, [currency, store, strategy, tenor, connected]);
+  }, [currency, store, strategy, tenor, connected, podStore.darkPoolOrders]);
 
   const clear = React.useCallback(
     store.getClearDarkPoolPriceCallback(currency, strategy, tenor),
