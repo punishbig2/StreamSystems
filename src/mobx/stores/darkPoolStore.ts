@@ -72,7 +72,7 @@ export class DarkPoolStore {
   @action.bound
   public onOrderReceived(w: W) {
     const user: User = workareaStore.user;
-    const originalEntries: MDEntry[] = w.Entries;
+    const originalEntries: MDEntry[] = w?.Entries;
     if (!originalEntries) {
       this.orders = [];
       this.currentOrder = null;
@@ -136,10 +136,6 @@ export class DarkPoolStore {
 
   @action.bound
   public connect(symbol: string, strategy: string, tenor: string): () => void {
-    this.currentOrder = null;
-    this.orders = [];
-    this.publishedPrice = null;
-
     const cleanup = signalRManager.setDarkPoolPriceListener(
       symbol,
       strategy,
@@ -207,11 +203,6 @@ export class DarkPoolStore {
   @action.bound
   public openTicket() {
     this.isTicketOpen = true;
-  }
-
-  @action.bound
-  public setOrders(orders: any): void {
-    this.orders = orders;
   }
 
   @action.bound

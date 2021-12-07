@@ -34,9 +34,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   );
 
   React.useEffect((): void => {
-    if (w === undefined) {
-      store.reset();
-    }
+    store.onOrderReceived(w);
   }, [store, w]);
 
   React.useEffect((): void => {
