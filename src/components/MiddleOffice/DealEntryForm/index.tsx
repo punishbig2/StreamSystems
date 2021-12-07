@@ -13,6 +13,8 @@ import { NotApplicableProxy } from "notApplicableProxy";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "types/dealEntry";
 import { Field } from "./field";
+import { DealStatus } from "../../../types/dealStatus";
+import { emailNotSet } from "../helpers";
 
 interface Props {
   readonly entryType: EntryType;
@@ -92,6 +94,11 @@ export const DealEntryForm: React.FC<Props> = (
             isModified={props.isModified}
             isEditMode={props.isEditMode}
             status={entry.status}
+            submitDisabled={
+              entry.status === DealStatus.SEFComplete &&
+              (emailNotSet(entry.buyer_useremail) ||
+                emailNotSet(entry.seller_useremail))
+            }
             onSubmit={props.onSubmit}
             onSave={props.onSaveCurrentEntry}
             onPrice={props.onPriced}

@@ -6,6 +6,7 @@ interface Props {
   readonly isEditMode: boolean;
   readonly status: DealStatus;
   readonly disabled: boolean;
+  readonly submitDisabled: boolean;
   readonly onPrice?: () => void;
   readonly onSubmit?: () => void;
   readonly onSave?: () => void;
@@ -44,7 +45,8 @@ export const ExistingEntryButtons: React.FC<Props> = (
           (props.status !== DealStatus.SEFComplete &&
             props.status !== DealStatus.Priced) ||
           props.disabled ||
-          props.isEditMode
+          props.isEditMode ||
+          props.submitDisabled
         }
       >
         Submit

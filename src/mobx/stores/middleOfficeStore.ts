@@ -52,6 +52,7 @@ import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
+import { emailNotSet } from "../../components/MiddleOffice/helpers";
 
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
@@ -170,8 +171,12 @@ export class MiddleOfficeStore implements Workspace {
       case DealStatus.Priced:
       case DealStatus.SEFSubmitted:
         return true;
-      case DealStatus.STPComplete:
       case DealStatus.SEFComplete:
+        return (
+          emailNotSet(entry.seller_useremail) ||
+          emailNotSet(entry.buyer_useremail)
+        );
+      case DealStatus.STPComplete:
       default:
         return false;
     }
