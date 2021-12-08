@@ -13,7 +13,7 @@ import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
 import { globalClearDarkPoolPriceEvent } from "utils/globalClearDarkPoolPriceEvent";
 
 export class DarkPoolStore {
-  @observable public orders: Order[] = [];
+  @observable.ref public orders: Order[] = [];
   @observable public publishedPrice: number | null = null;
   @observable public isTicketOpen: boolean = false;
   @observable public currentOrder: Order | null = null;

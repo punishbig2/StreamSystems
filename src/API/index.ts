@@ -56,6 +56,7 @@ import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 import { GetDealsDateRange } from "types/getDealsDateRange";
+import { toNumber } from "utils/isNumeric";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -639,7 +640,7 @@ export class API {
     }
     const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "create"),
-      order
+      { ...order, Price: toNumber(order.Price) }
     );
     return task.execute();
   }
