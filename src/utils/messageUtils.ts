@@ -4,6 +4,7 @@ import moment from "moment";
 import { ExecTypes, Message } from "types/message";
 import { Role } from "types/role";
 import { User } from "types/user";
+import { STRM } from "stateDefs/workspaceState";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
@@ -85,6 +86,7 @@ export const isAcceptableFill = (message: Message): boolean => {
   // Only fills are interesting
   if (!isFill(message)) return false;
   if (isBroker) {
+    if (workareaStore.personality === STRM) return true;
     // If it's my trade YES
     if (message.MDMkt === workareaStore.personality) return true;
     // If it's my trade and I am contra-trader NO

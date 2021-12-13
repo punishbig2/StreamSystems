@@ -1,6 +1,7 @@
 import { API } from "API";
 import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
+import React from "react";
 import signalRManager from "signalR/signalRClient";
 import { MDEntry, OrderTypes } from "types/mdEntry";
 import { DarkPoolMessage } from "types/message";
@@ -18,9 +19,7 @@ export class DarkPoolStore {
   @observable public isTicketOpen: boolean = false;
   @observable public currentOrder: Order | null = null;
 
-  constructor(initial: number | null) {
-    this.publishedPrice = initial;
-  }
+  private priceChangeListener: (price: number | null) => void = () => {};
 
   @computed
   get depth(): Order[] {
@@ -114,15 +113,20 @@ export class DarkPoolStore {
   @action.bound
   public onDarkPoolPricePublished(message: DarkPoolMessage) {
     if (message.DarkPrice !== "") {
-      this.publishedPrice = Number(message.DarkPrice);
+      this.setDarkPrice(Number(message.DarkPrice));
     } else {
-      this.publishedPrice = null;
+      this.setDarkPrice(null);
     }
   }
 
+  public setPriceChangeListener(fn: (price: number | null) => void): void {
+    this.priceChangeListener = fn;
+  }
+
   @action.bound
-  public setDarkPoolPrice(price: number | null): void {
+  public setDarkPrice(price: number | null): void {
     this.publishedPrice = price;
+    this.priceChangeListener(price);
   }
 
   @action.bound
@@ -131,7 +135,7 @@ export class DarkPoolStore {
     (): void => {
       const { user } = workareaStore;
       void API.clearDarkPoolPrice(user.email, symbol, strategy, tenor);
-      this.publishedPrice = null;
+      this.setDarkPrice(null);
     };
 
   @action.bound
@@ -150,7 +154,7 @@ export class DarkPoolStore {
       this.onOrderReceived
     );
 
-    const handler = (): void => this.setDarkPoolPrice(null);
+    const handler = (): void => this.setDarkPrice(null);
 
     const event1: string = clearDarkPoolPriceEvent(symbol, strategy, tenor);
     const event2: string = globalClearDarkPoolPriceEvent();
@@ -167,11 +171,6 @@ export class DarkPoolStore {
     };
   }
 
-  @action.bound
-  public setCurrentPublishedPrice(value: number | null): void {
-    this.publishedPrice = value;
-  }
-
   public async publishPrice(
     symbol: string,
     strategy: string,
@@ -183,7 +182,7 @@ export class DarkPoolStore {
     if (!roles.includes(Role.Broker))
       throw new Error("non broker users cannot publish prices");
     // Update immediately to make it feel faster
-    this.publishedPrice = price;
+    this.setDarkPrice(price);
     await API.cancelAllDarkPoolOrder(symbol, strategy, tenor);
     // Call the API
     await API.publishDarkPoolPrice(
@@ -236,3 +235,7 @@ export class DarkPoolStore {
 
   private removeOrderListener: () => void = () => null;
 }
+
+export const DarkPoolStoreContext = React.createContext<DarkPoolStore>(
+  new DarkPoolStore()
+);

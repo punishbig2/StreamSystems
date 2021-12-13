@@ -63,8 +63,6 @@ export const PodTile: React.FC<Props> = observer(
       };
     }, [store, currency, strategy, user, connected]);
 
-    // Initialize tile/window
-    // useInitializer(tenors, currency.name, strategy, user, store.setRows);
     const bulkCreateOrders = async (orders: ReadonlyArray<Order>) => {
       store.createBulkOrders(orders, currency).catch(console.warn);
     };

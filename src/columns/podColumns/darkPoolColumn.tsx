@@ -7,7 +7,7 @@ import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTo
 import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
 import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
-import { DarkPoolStore } from "mobx/stores/darkPoolStore";
+import { DarkPoolStore, DarkPoolStoreContext } from "mobx/stores/darkPoolStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
@@ -23,7 +23,7 @@ type Props = PodRowProps;
 const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const { darkPrice, currency, strategy, tenor, darkpool } = props;
   const podStore = React.useContext<PodStore>(PodStoreContext);
-  const [store] = React.useState(new DarkPoolStore(darkPrice));
+  const store = React.useContext<DarkPoolStore>(DarkPoolStoreContext);
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
   const { connected } = workareaStore;
@@ -39,7 +39,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
   React.useEffect((): void => {
     if (darkPrice === undefined) return;
-    store.setCurrentPublishedPrice(darkPrice);
+    store.setDarkPrice(darkPrice);
   }, [darkPrice, store]);
 
   React.useEffect(() => {

@@ -508,6 +508,15 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     this.rows = defaultPodRows;
     this.ordersCache = defaultOrders;
   }
+
+  @action.bound
+  public setDarkPoolPrice(tenor: string, price: number | null) {
+    console.log(tenor, price);
+    this.rows = {
+      ...this.rows,
+      [tenor]: { ...this.rows[tenor], darkPrice: price },
+    };
+  }
 }
 
 export const PodStoreContext = React.createContext<PodStore>(new PodStore());

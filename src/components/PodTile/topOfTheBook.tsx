@@ -1,6 +1,7 @@
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
 import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
+import { DarkPoolStore, DarkPoolStoreContext } from "mobx/stores/darkPoolStore";
 import React, { ReactElement } from "react";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
@@ -46,19 +47,24 @@ export const TopOfTheBook: React.FC<Props> = (
           const { tenor } = row;
 
           return (
-            <Row
-              {...rowProps}
-              currency={name}
-              strategy={props.strategy}
-              tenor={tenor}
-              darkpool={props.darkPoolOrders[tenor]}
-              orders={props.orders[tenor]}
-              defaultSize={defaultqty}
-              minimumSize={minqty}
-              displayOnly={false}
-              rowNumber={index}
-              onTenorSelected={props.onTenorSelected}
-            />
+            <DarkPoolStoreContext.Provider
+              key={rowProps.key}
+              value={new DarkPoolStore()}
+            >
+              <Row
+                {...rowProps}
+                currency={name}
+                strategy={props.strategy}
+                tenor={tenor}
+                darkpool={props.darkPoolOrders[tenor]}
+                orders={props.orders[tenor]}
+                defaultSize={defaultqty}
+                minimumSize={minqty}
+                displayOnly={false}
+                rowNumber={index}
+                onTenorSelected={props.onTenorSelected}
+              />
+            </DarkPoolStoreContext.Provider>
           );
         }}
       />
