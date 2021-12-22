@@ -578,6 +578,27 @@ export class API {
     } | null>(url);
   }
 
+  public static async getExecutionHistory(
+    useremail: string,
+    endTimestamp: number,
+    timestamp: number
+  ): Promise<Message[]> {
+    const query: any = {
+      timestamp: timestamp,
+      end_timestamp: endTimestamp,
+      fillsonly: true,
+    };
+    const task1: Task<Message[]> = GET<Message[]>(
+      API.buildUrl(API.DarkPool, "messages", "get", query)
+    );
+    const task2: Task<Message[]> = GET<Message[]>(
+      API.buildUrl(API.Oms, "messages", "get", query)
+    );
+    const darkpool: Message[] = await task1.execute();
+    const normal: Message[] = await task2.execute();
+    return [...darkpool, ...normal];
+  }
+
   public static async getMessagesSnapshot(
     useremail: string,
     timestamp: number

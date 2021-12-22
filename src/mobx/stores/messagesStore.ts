@@ -13,6 +13,7 @@ import {
 } from "utils/messageUtils";
 import userProfileStore from "mobx/stores/userPreferencesStore";
 import signalRClient from "signalR/signalRClient";
+import { parseTime } from "utils/timeUtils";
 
 class MessagesStream {
   private listener: (message: ReadonlyArray<Message>) => void = (): void => {};
@@ -83,6 +84,7 @@ export class MessagesStore {
 
   @observable.ref entries: ReadonlyArray<Message> = [];
   private stream: MessagesStream = new MessagesStream();
+  @observable.ref executionHistory: ReadonlyArray<Message> = [];
 
   constructor() {
     autorun((): void => {
@@ -99,7 +101,15 @@ export class MessagesStore {
 
   @computed
   public get executions(): ReadonlyArray<Message> {
-    return this.entries.filter(isAcceptableFill);
+    return [
+      ...this.entries.filter(isAcceptableFill),
+      ...this.executionHistory,
+    ].sort((a: Message, b: Message): number => {
+      return (
+        parseTime(b.TransactTime, null).getTime() -
+        parseTime(a.TransactTime, null).getTime()
+      );
+    });
   }
 
   @action.bound
@@ -120,6 +130,14 @@ export class MessagesStore {
       0,
       0
     );
+    const daysAgo = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() - 7,
+      0,
+      0,
+      0
+    );
     const entries: Message[] = await API.getMessagesSnapshot(
       "*",
       midnight.getTime()
@@ -128,6 +146,10 @@ export class MessagesStore {
     this.entries = entries.sort(sortByTimeDescending);
     // We're done
     this.loading = false;
+    // Load executions history
+    this.executionHistory = (
+      await API.getExecutionHistory("*", midnight.getTime(), daysAgo.getTime())
+    ).filter(isAcceptableFill);
   }
 
   @action.bound
