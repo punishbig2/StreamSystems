@@ -687,6 +687,8 @@ $spinner-size: $table-row-height - 6;
           &.dark-pool {
             input {
               background-color: $darkpool-background-color;
+              font-weight: 600;
+              color: $darkpool-order-text-color;
             }
 
             &:not(.owned) {
