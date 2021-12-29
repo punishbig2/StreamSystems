@@ -72,15 +72,14 @@ export class OrderStore {
     return order ?? null;
   }
 
-  @computed
-  get replaceOrderId(): string | null {
+  private getReplaceOrderId(type: OrderTypes): string | null {
     const { user } = workareaStore;
     const { email } = user;
     const { depth } = this;
 
     const myOrders = depth.filter((order: Order): boolean => {
       if (order.user !== email) return false;
-      return order.type === this.type;
+      return order.type === type;
     });
 
     const order = myOrders.reduce(pickBestOrder, null);
@@ -95,6 +94,11 @@ export class OrderStore {
     }
 
     return order.orderId ?? null;
+  }
+
+  @computed
+  get replaceOrderId(): string | null {
+    return this.getReplaceOrderId(this.type);
   }
 
   @computed
@@ -156,7 +160,7 @@ export class OrderStore {
     const { roles } = user;
     // Create the request
     const side = getSideFromType(type);
-    const matchingOrderId = this.replaceOrderId;
+    const matchingOrderId = this.getReplaceOrderId(type);
     const request: FIXMessage = ((): FIXMessage => {
       if (matchingOrderId !== null) {
         return {

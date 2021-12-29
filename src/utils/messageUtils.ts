@@ -5,7 +5,6 @@ import { ExecTypes, Message } from "types/message";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { STRM } from "stateDefs/workspaceState";
-import { Sides } from "types/sides";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
