@@ -77,19 +77,19 @@ export abstract class FormattedInput<
     }
   }
 
-  public startAdornment(): string {
+  public startAdornment(props: P): string {
     return "";
   }
 
-  public endAdornment(): string {
+  public endAdornment(props: P): string {
     return "";
   }
 
   private countFormattingCharacters = (display: string | null): number => {
     if (display === null || display === undefined) return 0;
     try {
-      const stringified: string = display.replace(/[^0-9]+/g, "");
-      return display.length - stringified.length;
+      const stringValue: string = display.replace(/[^0-9]+/g, "");
+      return display.length - stringValue.length;
     } catch (error) {
       return 0;
     }

@@ -130,6 +130,7 @@ const fields: FieldDef<Leg, {}, DealEntry>[] = [
     editable: MiddleOfficeStore.createEditableFilter(DealType.All),
     getValue(leg: Leg, entry: DealEntry): any {
       const value = leg[this.name];
+
       if (!isStyledValue(value)) {
         throw new Error("cannot get styled value");
       } else {

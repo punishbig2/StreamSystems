@@ -48,44 +48,18 @@ export class NumericInputHandler<
     Globals.locale,
     {}
   );
-  private divider: number = 1;
   private readonly minimum: number | ((data: S) => number) | null;
   private readonly maximum: number | ((data: S) => number) | null;
-  private readonly startAdornmentString: string = "";
-  private readonly endAdornmentString: string = "";
+  private startAdornmentString: string = "";
+  private endAdornmentString: string = "";
   private readonly data: S;
 
   constructor(props: P, data: any) {
     super();
     this.formatter = this.createFormatter(props);
-    this.divider = props.type === "percent" ? 100 : 1;
     this.minimum = props.minimum === undefined ? null : props.minimum;
     this.maximum = props.maximum === undefined ? null : props.maximum;
     this.data = data;
-    const style = typeToStyle(props.type, props.currency, props.editable);
-    const options = {
-      maximumFractionDigits: 0,
-      minimumFractionDigits: 0,
-      useGrouping: true,
-      style: style,
-      currency: props.currency,
-    };
-    try {
-      const formatter: Intl.NumberFormat = new Intl.NumberFormat(
-        Globals.locale,
-        options
-      );
-      const formatted: string = formatter.format(1);
-      if (formatted.indexOf("1") > 0) {
-        this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
-      } else {
-        this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
-      }
-    } catch (error) {
-      if (error instanceof RangeError) {
-        console.warn(error);
-      }
-    }
   }
 
   public onKeyDown(
@@ -113,7 +87,8 @@ export class NumericInputHandler<
     if (value === "") return null;
     const numeric = toNumber(value, props.currency);
     if (numeric === undefined || numeric === null) return value;
-    if (props.type === "percent") return numeric / this.divider;
+    const divider = props.type === "percent" ? 100 : 1;
+    if (props.type === "percent") return numeric / divider;
     return numeric;
   }
 
@@ -132,6 +107,7 @@ export class NumericInputHandler<
             value < 0
               ? `(${formatter.format(-100 * value)})`
               : formatter.format(100 * value);
+
           return [formatted, Validity.Valid];
         }
       }
@@ -173,14 +149,48 @@ export class NumericInputHandler<
   public reset(props: P) {
     super.reset(props);
     this.formatter = this.createFormatter(props);
-    this.divider = props.type === "percent" ? 100 : 1;
   }
 
-  public startAdornment(): string {
+  private updateAdornments(
+    type: FieldType,
+    currency?: string,
+    editable?: boolean
+  ): void {
+    const style = typeToStyle(type, currency, editable);
+    const options = {
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+      useGrouping: true,
+      style: style,
+      currency: currency,
+    };
+    try {
+      const formatter: Intl.NumberFormat = new Intl.NumberFormat(
+        Globals.locale,
+        options
+      );
+      const formatted: string = formatter.format(1);
+      console.log(formatter.formatToParts());
+      // FIXME: use formatToParts()
+      if (formatted.indexOf("1") > 0) {
+        this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
+      } else {
+        this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
+      }
+    } catch (error) {
+      if (error instanceof RangeError) {
+        console.warn(error);
+      }
+    }
+  }
+
+  public startAdornment(props: P): string {
+    this.updateAdornments(props.type, props.currency, props.editable);
     return this.startAdornmentString;
   }
 
-  public endAdornment(): string {
+  public endAdornment(props: P): string {
+    this.updateAdornments(props.type, props.currency, props.editable);
     return this.endAdornmentString;
   }
 
@@ -297,8 +307,10 @@ export class NumericInputHandler<
         if (integerPart.length === 1 && Number(decimalPart) === 0) {
           return this.createValue(null, event.currentTarget, props, state);
         } else {
+          const divider = props.type === "percent" ? 100 : 1;
+
           return this.createValue(
-            Number([integerPart, decimalPart].join(".")) / this.divider,
+            Number([integerPart, decimalPart].join(".")) / divider,
             event.currentTarget,
             props,
             state

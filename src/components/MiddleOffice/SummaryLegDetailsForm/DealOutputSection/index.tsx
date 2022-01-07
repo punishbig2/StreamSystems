@@ -59,7 +59,7 @@ export const DealOutputSection: React.FC<Props> = (
     <Grid alignItems={"stretch"} container>
       <fieldset className={"group"} disabled={props.disabled}>
         <legend>Deal Output</legend>
-        <FormField
+        <FormField<any>
           label={"Net Premium"}
           color={"grey"}
           value={premium}
@@ -70,7 +70,7 @@ export const DealOutputSection: React.FC<Props> = (
           disabled={props.disabled}
           store={store}
         />
-        <FormField
+        <FormField<any>
           label={"Price %/Pips"}
           color={"grey"}
           value={getStyledValue(dealOutput.price, dealEntry.premstyle)}
@@ -80,7 +80,7 @@ export const DealOutputSection: React.FC<Props> = (
           disabled={props.disabled}
           store={store}
         />
-        <FormField
+        <FormField<any>
           label={"Delta"}
           color={"grey"}
           value={getStyledValue(dealOutput.delta, dealEntry.deltastyle)}
@@ -90,7 +90,7 @@ export const DealOutputSection: React.FC<Props> = (
           disabled={props.disabled}
           store={store}
         />
-        <FormField
+        <FormField<any>
           label={"Gamma"}
           color={"grey"}
           value={dealOutput.gamma}
@@ -100,7 +100,7 @@ export const DealOutputSection: React.FC<Props> = (
           disabled={props.disabled}
           store={store}
         />
-        <FormField
+        <FormField<any>
           label={"Net Vega"}
           color={"grey"}
           value={dealOutput.vega}
@@ -110,7 +110,7 @@ export const DealOutputSection: React.FC<Props> = (
           disabled={props.disabled}
           store={store}
         />
-        <FormField
+        <FormField<any>
           label={"Net Hedge"}
           color={"grey"}
           value={getStyledValue(dealOutput.hedge, dealEntry.deltastyle)}

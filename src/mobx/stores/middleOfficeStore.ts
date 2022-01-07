@@ -456,11 +456,45 @@ export class MiddleOfficeStore implements Workspace {
         this.setProgress(100);
         this.setInitialized();
       }, 0);
+      this.installPricerListener();
     }
   }
 
+  private installPricerListener(): void {}
+
   public connectListeners(): () => void {
-    return signalRClient.connectMiddleOfficeStore(this);
+    const remove1 = signalRClient.addPricingResponseListener(
+      (data: PricingMessage): void => {
+        const { entry } = this;
+        const legDefs = this.legDefinitions[entry.strategy.productid];
+        if (entry.dealID === data.dealId) {
+          // Reset the extra fields
+          entry.extra_fields = {
+            fwdpts1: data.legs[1].fwdPts,
+            fwdrate1: data.legs[1].fwdRate,
+            fwdpts2: data.legs.length > 2 ? data.legs[2].fwdPts : null,
+            fwdrate2: data.legs.length > 2 ? data.legs[2].fwdRate : null,
+          };
+          // It is the deal of interest so update
+          // visible legs now
+          const [legs, summaryLeg] = handleLegsResponse(
+            entry,
+            parseDates(data.legs),
+            this.cuts,
+            this.summaryLeg,
+            legDefs
+          );
+
+          this.setLegs(legs, summaryLeg);
+        }
+      }
+    );
+    const remove2 = signalRClient.connectMiddleOfficeStore(this);
+
+    return (): void => {
+      remove1();
+      remove2();
+    };
   }
 
   public reloadStrategies(currency: string): void {
@@ -670,30 +704,6 @@ export class MiddleOfficeStore implements Workspace {
           ? this.getCurrentLegs()
           : API.getLegs(deal.id);
       const legDefs = this.legDefinitions[deal.strategy];
-      const removeListener = signalRClient.addPricingResponseListener(
-        (data: PricingMessage): void => {
-          const { entry } = this;
-          if (entry.dealID === data.dealId) {
-            // Reset the extra fields
-            entry.extra_fields = {
-              fwdpts1: data.legs[1].fwdPts,
-              fwdrate1: data.legs[1].fwdRate,
-              fwdpts2: data.legs.length > 2 ? data.legs[2].fwdPts : null,
-              fwdrate2: data.legs.length > 2 ? data.legs[2].fwdRate : null,
-            };
-            // It is the deal of interest so update
-            // visible legs now
-            const [legs, summaryLeg] = handleLegsResponse(
-              entry,
-              parseDates(data.legs),
-              this.cuts,
-              this.summaryLeg,
-              legDefs
-            );
-            this.setLegs(legs, summaryLeg);
-          }
-        }
-      );
 
       const strategy = this.findStrategyById(deal.strategy);
 
@@ -743,7 +753,6 @@ export class MiddleOfficeStore implements Workspace {
         cancel: (): void => {
           task2.cancel();
           task1.cancel();
-          removeListener();
         },
       };
     }
@@ -925,6 +934,7 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public async addDeal(backendDeal: BackendDeal): Promise<void> {
+    console.log(backendDeal);
     const { deals } = this;
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === backendDeal.linkid
@@ -934,6 +944,10 @@ export class MiddleOfficeStore implements Workspace {
     )) as Deal;
     if (index === -1) {
       this.deals = [deal, ...deals];
+      // Select it now
+      if (deal.id === this.selectedDealID) {
+        this.setDeal(deal);
+      }
     } /* Replace and thus update changed deal */ else {
       const removed: Deal = deals[index];
       this.deals = [...deals.slice(0, index), deal, ...deals.slice(index + 1)];

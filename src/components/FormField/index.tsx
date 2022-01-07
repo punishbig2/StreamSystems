@@ -455,12 +455,12 @@ export class FormField<T, S = any> extends PureComponent<
 
   private getStartAdornment(): string {
     const handler = this.getHandler();
-    return handler.startAdornment();
+    return handler.startAdornment(this.props);
   }
 
   private getEndAdornment(): string {
     const handler = this.getHandler();
-    return handler.endAdornment();
+    return handler.endAdornment(this.props);
   }
 
   private createDefaultField = (): ReactElement => {

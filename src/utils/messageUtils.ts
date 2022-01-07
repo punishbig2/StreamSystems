@@ -87,11 +87,7 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (!isFill(message)) return false;
   if (isBroker) {
     if (workareaStore.personality === STRM) {
-      if (message.Username === message.ContraTrader) {
-        return message.Side === "1";
-      } else {
-        return true;
-      }
+      return message.Side === "1";
     }
     // If it's my trade YES
     if (message.MDMkt === workareaStore.personality) return true;

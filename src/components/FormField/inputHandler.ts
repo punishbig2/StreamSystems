@@ -46,11 +46,11 @@ export abstract class InputHandler<
 
   public reset(props: P) {}
 
-  public startAdornment(): string {
+  public startAdornment(props: P): string {
     return "";
   }
 
-  public endAdornment(): string {
+  public endAdornment(props: P): string {
     return "";
   }
 }
