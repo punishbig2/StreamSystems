@@ -40,7 +40,7 @@
 
   cib-window {
     background-color: $background-color;
-    border: 2px solid $text-color-black;
+    outline: 2px solid $text-color-black;
     transition: outline-color .25s;
     display: initial;
 
