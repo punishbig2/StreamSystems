@@ -137,7 +137,6 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     );
 
   const className = getOrderStatusClass(store.status);
-  console.log(className);
 
   return (
     <>

@@ -51,11 +51,12 @@ export class DarkPoolStore {
     const { roles } = user;
     const { currentOrder, orders } = this;
     const isBroker = roles.includes(Role.Broker);
-    if (!currentOrder) return OrderStatus.None;
+    if (!currentOrder) return OrderStatus.None | OrderStatus.DarkPool;
     const isSameFirm = isBroker
       ? currentOrder.firm === personality
       : currentOrder.firm === user.firm;
-    if (currentOrder.size === null) return OrderStatus.None;
+    if (currentOrder.size === null)
+      return OrderStatus.None | OrderStatus.DarkPool;
     const hasDepthStatus =
       orders.length > 0 ? OrderStatus.HasDepth : OrderStatus.None;
     const hasMyOrderStatus = orders.find((o) => o.user === user.email)

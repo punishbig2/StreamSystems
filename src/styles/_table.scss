@@ -165,6 +165,7 @@ $spinner-size: $table-row-height - 6;
             line-height: $table-header-height / 2;
             height: $table-header-height;
             padding: 0;
+            background: $alternate-background-color;
           }
 
           .dual-header {
@@ -684,8 +685,11 @@ $spinner-size: $table-row-height - 6;
           vertical-align: top;
 
           &.dark-pool {
+            background-color: $alternate-background-color;
+
             &.has-depth:not(.full-dark-pool) {
               background-color: #ffcc00;
+
               &:not(.owned) {
                 color: #333;
               }

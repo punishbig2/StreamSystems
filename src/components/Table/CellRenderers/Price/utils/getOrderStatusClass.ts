@@ -10,7 +10,7 @@ export const getOrderStatusClass = (
   if ((status & OrderStatus.OwnedByBroker) !== 0)
     classes.push("owned-by-broker");
   if ((status & OrderStatus.DarkPool) !== 0) classes.push("dark-pool");
-  if (status & OrderStatus.HasDepth) classes.push("has-depth");
+  if ((status & OrderStatus.HasDepth) !== 0) classes.push("has-depth");
   if (
     (status & OrderStatus.HasMyOrder) !== 0 &&
     (status & OrderStatus.Owned) === 0
@@ -33,5 +33,6 @@ export const getOrderStatusClass = (
   if ((status & OrderStatus.BeingCreated) !== 0) classes.push("busy");
   if ((status & OrderStatus.BeingCancelled) !== 0) classes.push("busy");
   if ((status & OrderStatus.BeingLoaded) !== 0) classes.push("busy");
+
   return classes.join(" ");
 };
