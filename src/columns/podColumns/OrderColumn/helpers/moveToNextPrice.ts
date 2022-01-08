@@ -50,7 +50,7 @@ export const moveToNextPrice = (
       }
     })();
 
-    if ("readonly" in next && next["readonly"]) {
+    if (next["readOnly"]) {
       return moveToNextPrice(next, tabDirection);
     }
 

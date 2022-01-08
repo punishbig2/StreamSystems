@@ -49,23 +49,40 @@ export class DarkPoolStore {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     const { roles } = user;
-    const { currentOrder } = this;
+    const { currentOrder, orders } = this;
     const isBroker = roles.includes(Role.Broker);
     if (!currentOrder) return OrderStatus.None;
     const isSameFirm = isBroker
       ? currentOrder.firm === personality
       : currentOrder.firm === user.firm;
     if (currentOrder.size === null) return OrderStatus.None;
+    const hasDepthStatus =
+      orders.length > 0 ? OrderStatus.HasDepth : OrderStatus.None;
+    const hasMyOrderStatus = orders.find((o) => o.user === user.email)
+      ? OrderStatus.HasMyOrder
+      : OrderStatus.None;
+
     if (currentOrder.user === user.email) {
-      return (
-        OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned
-      );
+      if (orders.length === 1) {
+        return (
+          OrderStatus.FullDarkPool |
+          OrderStatus.DarkPool |
+          OrderStatus.Owned |
+          hasDepthStatus
+        );
+      }
+
+      return OrderStatus.DarkPool | OrderStatus.Owned | hasDepthStatus;
     } else if (isSameFirm) {
       return (
-        OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.SameBank
+        OrderStatus.DarkPool |
+        OrderStatus.SameBank |
+        hasDepthStatus |
+        hasMyOrderStatus
       );
     }
-    return OrderStatus.FullDarkPool | OrderStatus.DarkPool;
+
+    return OrderStatus.DarkPool | hasDepthStatus | hasMyOrderStatus;
   }
 
   @action.bound

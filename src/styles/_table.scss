@@ -562,7 +562,7 @@ $spinner-size: $table-row-height - 6;
             }
           }
 
-          &.among,
+          &.involved,
           &.owned,
           &.owned-by-broker {
             .times {
@@ -662,7 +662,7 @@ $spinner-size: $table-row-height - 6;
             }
           }
 
-          &.among {
+          &.involved {
             &.owned {
               &.at-top {
                 .chevron {
@@ -682,41 +682,44 @@ $spinner-size: $table-row-height - 6;
         .cell {
           display: inline-block;
           vertical-align: top;
-          color: $text-color-black;
 
           &.dark-pool {
-            input {
-              background-color: $darkpool-background-color;
-              font-weight: 600;
-              color: $darkpool-order-text-color;
+            &.has-depth:not(.full-dark-pool) {
+              background-color: #ffcc00;
+              &:not(.owned) {
+                color: #333;
+              }
             }
 
-            &:not(.owned) {
-              color: $darkpool-foreground-color;
+            &.owned,
+            &.full-dark-pool, &.involved {
+              color: $text-color-red;
             }
           }
 
-          &.mid {
-            color: $text-color-blue;
-          }
+          &:not(.dark-pool) {
+            &.mid {
+              color: $text-color-blue;
+            }
 
-          &.spread {
-            color: $text-color-green;
-          }
+            &.spread {
+              color: $text-color-green;
+            }
 
-          &.owned {
-            color: $text-color-red;
-          }
+            &.owned {
+              color: $text-color-red;
+            }
 
-          &:not(.owned).same-bank {
-            color: $text-color-blue;
+            &:not(.owned).same-bank {
+              color: $text-color-blue;
+            }
           }
 
           &.size-layout {
             &.joined {
               color: $text-color-black;
 
-              &:not(.not-among),
+              &:not(.not-involved),
               &.owned {
                 .chevron {
                   color: $text-color-red;

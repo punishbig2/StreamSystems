@@ -17,6 +17,7 @@ import { User } from "types/user";
 import { ArrowDirection } from "types/w";
 import { skipTabIndexAll } from "utils/skipTab";
 import { PodStoreContext, PodStore } from "mobx/stores/podStore";
+import { getOrderStatusClass } from "../../components/Table/CellRenderers/Price/utils/getOrderStatusClass";
 
 type Props = PodRowProps;
 
@@ -135,12 +136,15 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
       "cannot show a dark pool column if there is no authenticated user"
     );
 
+  const className = getOrderStatusClass(store.status);
+  console.log(className);
+
   return (
     <>
       <Price
         arrow={ArrowDirection.None}
         priceType={PriceTypes.DarkPool}
-        className={"dark-pool-base"}
+        className={className}
         value={store.price}
         tooltip={renderTooltip}
         readOnly={(personality !== STRM && isBroker) || !isBroker}

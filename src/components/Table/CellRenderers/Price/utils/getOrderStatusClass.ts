@@ -9,14 +9,14 @@ export const getOrderStatusClass = (
   if ((status & OrderStatus.Joined) !== 0) classes.push("joined");
   if ((status & OrderStatus.OwnedByBroker) !== 0)
     classes.push("owned-by-broker");
-  if ((status & OrderStatus.FullDarkPool) !== 0) classes.push("dark-pool");
+  if ((status & OrderStatus.DarkPool) !== 0) classes.push("dark-pool");
   if (status & OrderStatus.HasDepth) classes.push("has-depth");
   if (
     (status & OrderStatus.HasMyOrder) !== 0 &&
     (status & OrderStatus.Owned) === 0
   )
-    classes.push("among");
-  if ((status & OrderStatus.HasMyOrder) === 0) classes.push("not-among");
+    classes.push("involved");
+  if ((status & OrderStatus.HasMyOrder) === 0) classes.push("not-involved");
   if ((status & OrderStatus.Owned) !== 0) classes.push("owned");
   if ((status & OrderStatus.Active) !== 0) classes.push("active");
   if ((status & OrderStatus.PreFilled) !== 0) classes.push("pre-filled");
@@ -27,6 +27,7 @@ export const getOrderStatusClass = (
     (status & OrderStatus.PriceEdited) !== 0
   )
     classes.push("edited");
+  if ((status & OrderStatus.FullDarkPool) !== 0) classes.push("full-dark-pool");
   if ((status & OrderStatus.InDepth) !== 0) classes.push("in-depth");
   if ((status & OrderStatus.Publishing) !== 0) classes.push("busy");
   if ((status & OrderStatus.BeingCreated) !== 0) classes.push("busy");

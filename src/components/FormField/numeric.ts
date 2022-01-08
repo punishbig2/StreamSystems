@@ -170,7 +170,6 @@ export class NumericInputHandler<
         options
       );
       const formatted: string = formatter.format(1);
-      console.log(formatter.formatToParts());
       // FIXME: use formatToParts()
       if (formatted.indexOf("1") > 0) {
         this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");

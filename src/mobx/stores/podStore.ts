@@ -511,7 +511,6 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   public setDarkPoolPrice(tenor: string, price: number | null) {
-    console.log(tenor, price);
     this.rows = {
       ...this.rows,
       [tenor]: { ...this.rows[tenor], darkPrice: price },
