@@ -33,6 +33,10 @@ const isCancelDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
+  if (entryType === EntryType.Clone || entryType === EntryType.New) {
+    return false;
+  }
+
   return !isEditMode;
 };
 
@@ -95,6 +99,11 @@ const isSaveDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
+  console.log(entryType);
+  if (entryType === EntryType.New || entryType === EntryType.Clone) {
+    return false;
+  }
+
   return !isEditMode || !isModified;
 };
 
@@ -115,7 +124,7 @@ export const isButtonDisabled = (
   isModified: boolean
 ): boolean => {
   if (entry.status === DealStatus.NoStatus) {
-    return true;
+    return entry.type !== EntryType.Empty;
   }
 
   switch (button) {
