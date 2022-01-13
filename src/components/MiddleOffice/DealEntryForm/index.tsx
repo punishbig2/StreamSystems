@@ -13,8 +13,9 @@ import { NotApplicableProxy } from "notApplicableProxy";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "types/dealEntry";
 import { Field } from "./field";
-import { DealStatus } from "../../../types/dealStatus";
+import { DealStatus } from "types/dealStatus";
 import { emailNotSet } from "../helpers";
+import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
   readonly entryType: EntryType;
@@ -22,14 +23,16 @@ interface Props {
   readonly cuts: ReadonlyArray<Cut>;
   readonly isModified: boolean;
   readonly isEditMode: boolean;
-  readonly isReadyForSubmission: boolean;
   readonly disabled: boolean;
-  readonly onUpdateEntry: (partial: Partial<DealEntry>) => Promise<void>;
-  readonly onSetWorking: (working: boolean) => void;
-  readonly onCreateOrClone: () => void;
-  readonly onSaveCurrentEntry: () => void;
-  readonly onSubmit: () => void;
-  readonly onPriced: () => void;
+
+  isButtonDisabled(button: keyof DealEntryButtons): boolean;
+
+  onUpdateEntry(partial: Partial<DealEntry>): Promise<void>;
+  onSetWorking(working: boolean): void;
+  onCreateOrClone(): void;
+  onSaveCurrentEntry(): void;
+  onSubmit(): void;
+  onPriced(): void;
 }
 
 export const DealEntryForm: React.FC<Props> = (
@@ -85,12 +88,11 @@ export const DealEntryForm: React.FC<Props> = (
     FieldDef<DealEntry, DealEntry, MiddleOfficeStore>
   > | null = fieldsRef.current;
 
-  const getActionButtons = (): ReactElement | null => {
+  const ActionButtons = (): ReactElement | null => {
     switch (props.entryType) {
       case EntryType.ExistingDeal:
         return (
           <ExistingEntryButtons
-            disabled={props.disabled}
             isModified={props.isModified}
             isEditMode={props.isEditMode}
             status={entry.status}
@@ -99,6 +101,7 @@ export const DealEntryForm: React.FC<Props> = (
               (emailNotSet(entry.buyer_useremail) ||
                 emailNotSet(entry.seller_useremail))
             }
+            isButtonDisabled={props.isButtonDisabled}
             onSubmit={props.onSubmit}
             onSave={props.onSaveCurrentEntry}
             onPrice={props.onPriced}
@@ -108,8 +111,7 @@ export const DealEntryForm: React.FC<Props> = (
       case EntryType.Clone:
         return (
           <NewEntryButtons
-            disabled={props.disabled}
-            canSubmit={props.isReadyForSubmission}
+            isButtonDisabled={props.isButtonDisabled}
             onSubmit={props.onCreateOrClone}
           />
         );
@@ -148,7 +150,9 @@ export const DealEntryForm: React.FC<Props> = (
           </fieldset>
         </Grid>
       </Grid>
-      <div className={"button-box"}>{getActionButtons()}</div>
+      <div className={"button-box"}>
+        <ActionButtons />
+      </div>
     </form>
   );
 };

@@ -1,9 +1,9 @@
 import React, { ReactElement } from "react";
+import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
-  readonly disabled: boolean;
-  readonly canSubmit: boolean;
-  readonly onSubmit: () => void;
+  isButtonDisabled(button: keyof DealEntryButtons): boolean;
+  onSubmit(): void;
 }
 
 export const NewEntryButtons: React.FC<Props> = (
@@ -21,7 +21,7 @@ export const NewEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSubmit}
-        disabled={!props.canSubmit || props.disabled}
+        disabled={props.isButtonDisabled("submit")}
       >
         Save
       </button>

@@ -1,16 +1,18 @@
 import React, { ReactElement } from "react";
 import { EntryType } from "types/dealEntry";
+import { DealEntryButtons } from "./buttonStateResolver";
 
 interface Props {
   readonly entryType: EntryType;
-  readonly disabled: boolean;
   readonly isEditMode: boolean;
   readonly editable: boolean;
-  readonly onRemoveDeal: () => void;
-  readonly onCancelAddOrClone: () => void;
-  readonly onAddNewDeal: () => void;
-  readonly onEdit: () => void;
-  readonly onCloneDeal: () => void;
+
+  isButtonDisabled(button: keyof DealEntryButtons): boolean;
+  onRemoveDeal(): void;
+  onCancelAddOrClone(): void;
+  onAddNewDeal(): void;
+  onEdit(): void;
+  onCloneDeal(): void;
 }
 
 export const ActionButtons: React.FC<Props> = (
@@ -19,7 +21,7 @@ export const ActionButtons: React.FC<Props> = (
   const cancelButton: ReactElement = (
     <button
       className={"primary"}
-      disabled={props.disabled}
+      disabled={props.isButtonDisabled("cancel")}
       onClick={props.onCancelAddOrClone}
     >
       <i className={"fa fa-times"} />
@@ -31,7 +33,7 @@ export const ActionButtons: React.FC<Props> = (
       return (
         <button
           className={"primary"}
-          disabled={props.disabled}
+          disabled={props.isButtonDisabled("new")}
           onClick={props.onAddNewDeal}
         >
           <i className={"fa fa-plus"} />
@@ -46,7 +48,7 @@ export const ActionButtons: React.FC<Props> = (
         <>
           <button
             className={"primary"}
-            disabled={props.disabled}
+            disabled={props.isButtonDisabled("new")}
             onClick={props.onAddNewDeal}
           >
             <i className={"fa fa-plus"} />
@@ -54,7 +56,7 @@ export const ActionButtons: React.FC<Props> = (
           </button>
           <button
             className={"primary"}
-            disabled={props.disabled || !props.editable}
+            disabled={props.isButtonDisabled("edit")}
             onClick={props.onEdit}
           >
             <i className={"fa fa-edit"} />
@@ -62,7 +64,7 @@ export const ActionButtons: React.FC<Props> = (
           </button>
           <button
             className={"primary"}
-            disabled={props.disabled}
+            disabled={props.isButtonDisabled("clone")}
             onClick={props.onCloneDeal}
           >
             <i className={"fa fa-clone"} />
@@ -70,7 +72,7 @@ export const ActionButtons: React.FC<Props> = (
           </button>
           <button
             className={"danger"}
-            disabled={props.disabled || !props.editable}
+            disabled={props.isButtonDisabled("remove")}
             onClick={props.onRemoveDeal}
           >
             <i className={"fa fa-trash"} />

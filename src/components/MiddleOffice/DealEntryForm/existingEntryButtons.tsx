@@ -1,15 +1,17 @@
 import React, { ReactElement } from "react";
 import { DealStatus } from "types/dealStatus";
+import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
   readonly isModified: boolean;
   readonly isEditMode: boolean;
   readonly status: DealStatus;
-  readonly disabled: boolean;
   readonly submitDisabled: boolean;
-  readonly onPrice?: () => void;
-  readonly onSubmit?: () => void;
-  readonly onSave?: () => void;
+
+  isButtonDisabled(button: keyof DealEntryButtons): boolean;
+  onPrice(): void;
+  onSubmit(): void;
+  onSave(): void;
 }
 
 export const ExistingEntryButtons: React.FC<Props> = (
@@ -21,11 +23,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onPrice}
-        disabled={
-          props.disabled ||
-          props.status === DealStatus.SEFComplete ||
-          props.isEditMode
-        }
+        disabled={props.isButtonDisabled("price")}
       >
         {props.status === DealStatus.Priced ? "Re-price" : "Price"}
       </button>
@@ -33,7 +31,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSave}
-        disabled={!props.isModified || props.disabled}
+        disabled={props.isButtonDisabled("save")}
       >
         Save
       </button>
@@ -41,13 +39,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSubmit}
-        disabled={
-          (props.status !== DealStatus.SEFComplete &&
-            props.status !== DealStatus.Priced) ||
-          props.disabled ||
-          props.isEditMode ||
-          props.submitDisabled
-        }
+        disabled={props.isButtonDisabled("submit")}
       >
         Submit
       </button>

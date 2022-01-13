@@ -30,6 +30,10 @@ import { DealEntry, EntryType } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFUpdate } from "types/sefUpdate";
 import { randomID } from "utils/randomID";
+import {
+  DealEntryButtons,
+  isButtonDisabled,
+} from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
   readonly visible: boolean;
@@ -80,9 +84,8 @@ interface Props {
 export const MiddleOfficeMain: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
-  const [deleteQuestionOpen, showDeleteQuestion] = React.useState<boolean>(
-    false
-  );
+  const [deleteQuestionOpen, showDeleteQuestion] =
+    React.useState<boolean>(false);
   const classes: string[] = ["middle-office"];
   const { error } = props;
   const { entry } = props;
@@ -147,6 +150,15 @@ export const MiddleOfficeMain: React.FC<Props> = (
     props.setDeal(deal);
   };
 
+  const isButtonDisabledWrapper = (button: keyof DealEntryButtons): boolean => {
+    return isButtonDisabled(
+      button,
+      props.entry,
+      props.isEditMode,
+      props.isModified
+    );
+  };
+
   const headingClasses: string[] = ["heading"];
   if (props.status !== MiddleOfficeProcessingState.Normal)
     headingClasses.push("disabled");
@@ -176,9 +188,9 @@ export const MiddleOfficeMain: React.FC<Props> = (
                     <div className={"actions"}>
                       <ActionButtons
                         isEditMode={props.isEditMode}
-                        disabled={disabled}
                         entryType={props.entryType}
                         editable={props.isDealEditable}
+                        isButtonDisabled={isButtonDisabledWrapper}
                         onRemoveDeal={removeDeal}
                         onAddNewDeal={() => props.addNewDeal()}
                         onCloneDeal={() => props.cloneDeal()}
@@ -191,16 +203,16 @@ export const MiddleOfficeMain: React.FC<Props> = (
                     cuts={props.cuts}
                     entryType={props.entryType}
                     entry={props.entry}
-                    disabled={disabled}
                     isEditMode={props.isEditMode}
                     isModified={props.isModified}
-                    isReadyForSubmission={props.isReadyForSubmission}
+                    isButtonDisabled={isButtonDisabledWrapper}
                     onPriced={props.price}
                     onUpdateEntry={props.updateEntry}
                     onSetWorking={props.setWorking}
                     onCreateOrClone={props.createOrClone}
                     onSaveCurrentEntry={props.saveCurrentEntry}
                     onSubmit={props.submit}
+                    disabled={false /* FIXME: use the actual value */}
                   />
                 </div>
                 <div className={"form-group"}>

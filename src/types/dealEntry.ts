@@ -95,7 +95,7 @@ export const emptyDealEntry: DealEntry = {
   premiumDate: new Date(),
   tradeDate: new Date(),
   dealID: "",
-  status: DealStatus.Pending,
+  status: DealStatus.NoStatus,
   style: "European",
   model: 3,
   type: EntryType.Empty,
