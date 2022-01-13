@@ -773,17 +773,14 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public reset(): void {
-    if (this.entryType === EntryType.New) {
-      this.entryType = EntryType.Empty;
-      this.entry = { ...emptyDealEntry };
-      this.originalEntry = this.entry;
-      this.legs = [];
-      this.summaryLeg = null;
-      this.modifiedFields = [];
-    } else if (this.entryType === EntryType.ExistingDeal) {
-      this.setEntry(this.originalEntry);
-    }
+    this.modifiedFields = [];
     this.isEditMode = false;
+    this.legs = [];
+    this.summaryLeg = null;
+    this.originalEntry = { ...emptyDealEntry };
+    this.entry = { ...emptyDealEntry };
+
+    this.setDeal(null);
   }
 
   @action.bound

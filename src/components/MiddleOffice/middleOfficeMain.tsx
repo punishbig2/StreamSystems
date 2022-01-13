@@ -155,7 +155,8 @@ export const MiddleOfficeMain: React.FC<Props> = (
       button,
       props.entry,
       props.isEditMode,
-      props.isModified
+      props.isModified,
+      props.isReadyForSubmission,
     );
   };
 
@@ -212,7 +213,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                     onCreateOrClone={props.createOrClone}
                     onSaveCurrentEntry={props.saveCurrentEntry}
                     onSubmit={props.submit}
-                    disabled={false /* FIXME: use the actual value */}
+                    disabled={disabled}
                   />
                 </div>
                 <div className={"form-group"}>

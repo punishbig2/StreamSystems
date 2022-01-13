@@ -21,7 +21,7 @@ export const NewEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onClick={props.onSubmit}
-        disabled={props.isButtonDisabled("submit")}
+        disabled={props.isButtonDisabled("save")}
       >
         Save
       </button>

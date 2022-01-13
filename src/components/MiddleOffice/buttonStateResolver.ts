@@ -19,6 +19,10 @@ const isNewDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
+  if (entryType === EntryType.Empty) {
+    return false;
+  }
+
   if (dealType === DealType.Electronic) {
     return isEditMode;
   }
@@ -97,11 +101,11 @@ const isSaveDisabled = (
   entryType: EntryType,
   status: DealStatus,
   isEditMode: boolean,
-  isModified: boolean
+  isModified: boolean,
+  isReadyForSubmission: boolean
 ): boolean => {
-  console.log(entryType);
   if (entryType === EntryType.New || entryType === EntryType.Clone) {
-    return false;
+    return !isReadyForSubmission;
   }
 
   return !isEditMode || !isModified;
@@ -114,16 +118,24 @@ const isSubmitDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
-  return status !== DealStatus.Priced && status !== DealStatus.SEFComplete && status !== DealStatus.SEFFailed;
+  return (
+    status !== DealStatus.Priced &&
+    status !== DealStatus.SEFComplete &&
+    status !== DealStatus.SEFFailed
+  );
 };
 
 export const isButtonDisabled = (
   button: keyof DealEntryButtons,
   entry: DealEntry,
   isEditMode: boolean,
-  isModified: boolean
+  isModified: boolean,
+  isReadyForSubmission: boolean
 ): boolean => {
-  if (entry.status === DealStatus.NoStatus) {
+  if (
+    entry.status === DealStatus.NoStatus &&
+    (entry.type === EntryType.ExistingDeal || entry.type === EntryType.Empty)
+  ) {
     return entry.type !== EntryType.Empty;
   }
 
@@ -182,7 +194,8 @@ export const isButtonDisabled = (
         entry.type,
         entry.status,
         isEditMode,
-        isModified
+        isModified,
+        isReadyForSubmission
       );
     case "submit":
       return isSubmitDisabled(
