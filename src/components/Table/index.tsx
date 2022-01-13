@@ -87,7 +87,11 @@ const BasicTable = React.forwardRef(
           />
         </HeaderStoreContext.Provider>
         <ScrollArea>
-          <TableBody rows={transformedRows} selectedRow={props.selectedRow} renderRow={props.renderRow} />
+          <TableBody
+            rows={transformedRows}
+            selectedRow={props.selectedRow}
+            renderRow={props.renderRow}
+          />
         </ScrollArea>
         <div className={"loading-banner"}>
           <div className={"spinner"} />
