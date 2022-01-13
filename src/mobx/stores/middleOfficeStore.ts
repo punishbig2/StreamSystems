@@ -220,11 +220,15 @@ export class MiddleOfficeStore implements Workspace {
     if (!this.isEditMode) return false;
     if (this.entryType === EntryType.New || this.entryType === EntryType.Clone)
       return true;
-    return (
-      !deepEqual(this.entry, this.originalEntry) ||
-      !deepEqual(this.legs, this.originalLegs) ||
-      !deepEqual(this.summaryLeg, this.originalSummaryLeg)
+
+    const entriesEqual = deepEqual(this.entry, this.originalEntry);
+    const legsEqual = deepEqual(this.legs, this.originalLegs);
+    const summaryLegsEqual = deepEqual(
+      this.summaryLeg,
+      this.originalSummaryLeg
     );
+
+    return !(entriesEqual && legsEqual && summaryLegsEqual);
   }
 
   @computed

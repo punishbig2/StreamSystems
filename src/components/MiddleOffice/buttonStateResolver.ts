@@ -91,7 +91,7 @@ const isSaveDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
-  return !isEditMode && !isModified;
+  return !isEditMode || !isModified;
 };
 
 const isSubmitDisabled = (
