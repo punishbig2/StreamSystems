@@ -67,11 +67,11 @@ const isEditDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
-  if (dealType === DealType.Electronic) {
-    return isEditMode;
+  if (status === DealStatus.SEFComplete || status === DealStatus.STPComplete) {
+    return true;
   }
 
-  return false;
+  return isEditMode;
 };
 
 const isPriceDisabled = (
@@ -81,6 +81,10 @@ const isPriceDisabled = (
   isEditMode: boolean,
   isModified: boolean
 ): boolean => {
+  if (isEditMode) {
+    return true;
+  }
+
   return status !== DealStatus.Pending && status !== DealStatus.Priced;
 };
 
