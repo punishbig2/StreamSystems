@@ -276,7 +276,7 @@ $spinner-size: $table-row-height - 6;
       &.selected {
         outline: 1px solid rgba($primary-color, 0.5);
         outline-offset: -1px 1px 0 1px;
-        background-color: rgba($primary-color, 0.1);
+        background-color: rgba($primary-color, 0.5);
       }
 
       &.dark-pool {
