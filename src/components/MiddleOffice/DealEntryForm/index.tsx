@@ -13,7 +13,6 @@ import { NotApplicableProxy } from "notApplicableProxy";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "types/dealEntry";
 import { Field } from "./field";
-import { DealStatus } from "types/dealStatus";
 import { emailNotSet } from "../helpers";
 import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
 
@@ -88,19 +87,19 @@ export const DealEntryForm: React.FC<Props> = (
     FieldDef<DealEntry, DealEntry, MiddleOfficeStore>
   > | null = fieldsRef.current;
 
+  const isSubmitDisabled = React.useMemo(
+    (): boolean =>
+      emailNotSet(entry.buyer_useremail) || emailNotSet(entry.seller_useremail),
+    [entry.buyer_useremail, entry.seller_useremail]
+  );
+
   const ActionButtons = (): ReactElement | null => {
     switch (props.entryType) {
       case EntryType.ExistingDeal:
         return (
           <ExistingEntryButtons
-            isModified={props.isModified}
-            isEditMode={props.isEditMode}
             status={entry.status}
-            submitDisabled={
-              entry.status === DealStatus.SEFComplete &&
-              (emailNotSet(entry.buyer_useremail) ||
-                emailNotSet(entry.seller_useremail))
-            }
+            submitDisabled={isSubmitDisabled}
             isButtonDisabled={props.isButtonDisabled}
             onSubmit={props.onSubmit}
             onSave={props.onSaveCurrentEntry}
@@ -112,7 +111,7 @@ export const DealEntryForm: React.FC<Props> = (
         return (
           <NewEntryButtons
             isButtonDisabled={props.isButtonDisabled}
-            onSubmit={props.onCreateOrClone}
+            onSave={props.onCreateOrClone}
           />
         );
       case EntryType.Empty:
@@ -121,38 +120,42 @@ export const DealEntryForm: React.FC<Props> = (
   };
 
   return (
-    <form
-      className={props.entryType === EntryType.Empty ? "invisible" : undefined}
-    >
-      <Grid alignItems={"stretch"} container>
-        <Grid xs={12} item>
-          <fieldset className={"group full-height"} disabled={props.disabled}>
-            {fields.map(
-              (
-                field: FieldDef<DealEntry, DealEntry, MiddleOfficeStore>
-              ): ReactElement => (
-                <Field
-                  key={field.name + field.type}
-                  field={field}
-                  entry={entry}
-                  // Stuff from properties
-                  isEditMode={props.isEditMode}
-                  disabled={props.disabled}
-                  onChangeCompleted={(partial: Partial<DealEntry>) => {
-                    props
-                      .onUpdateEntry(partial)
-                      .finally((): void => props.onSetWorking(false));
-                  }}
-                  onChangeStart={() => props.onSetWorking(true)}
-                />
-              )
-            )}
-          </fieldset>
+    <>
+      <form
+        className={
+          props.entryType === EntryType.Empty ? "invisible" : undefined
+        }
+      >
+        <Grid alignItems={"stretch"} container>
+          <Grid xs={12} item>
+            <fieldset className={"group full-height"} disabled={props.disabled}>
+              {fields.map(
+                (
+                  field: FieldDef<DealEntry, DealEntry, MiddleOfficeStore>
+                ): ReactElement => (
+                  <Field
+                    key={field.name + field.type}
+                    field={field}
+                    entry={entry}
+                    // Stuff from properties
+                    isEditMode={props.isEditMode}
+                    disabled={props.disabled}
+                    onChangeCompleted={(partial: Partial<DealEntry>) => {
+                      props
+                        .onUpdateEntry(partial)
+                        .finally((): void => props.onSetWorking(false));
+                    }}
+                    onChangeStart={() => props.onSetWorking(true)}
+                  />
+                )
+              )}
+            </fieldset>
+          </Grid>
         </Grid>
-      </Grid>
+      </form>
       <div className={"button-box"}>
         <ActionButtons />
       </div>
-    </form>
+    </>
   );
 };

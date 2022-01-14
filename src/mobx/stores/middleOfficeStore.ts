@@ -52,7 +52,7 @@ import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
 import { safeForceParseDate, toUTC } from "utils/timeUtils";
-import { emailNotSet } from "../../components/MiddleOffice/helpers";
+import { emailNotSet } from "components/MiddleOffice/helpers";
 
 const SOFT_SEF_ERROR: string =
   "Timed out while waiting for the submission result, please refresh the screen. " +
@@ -935,7 +935,6 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public async addDeal(backendDeal: BackendDeal): Promise<void> {
-    console.log(backendDeal);
     const { deals } = this;
     const index: number = deals.findIndex(
       (each: Deal): boolean => each.id === backendDeal.linkid

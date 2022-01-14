@@ -3,8 +3,6 @@ import { DealStatus } from "types/dealStatus";
 import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
-  readonly isModified: boolean;
-  readonly isEditMode: boolean;
   readonly status: DealStatus;
   readonly submitDisabled: boolean;
 
@@ -22,7 +20,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
       <button
         type={"button"}
         className={"primary"}
-        onClick={props.onPrice}
+        onMouseUp={props.onPrice}
         disabled={props.isButtonDisabled("price")}
       >
         {props.status === DealStatus.Priced ? "Re-price" : "Price"}
@@ -30,7 +28,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
       <button
         type={"button"}
         className={"primary"}
-        onClick={props.onSave}
+        onMouseUp={props.onSave}
         disabled={props.isButtonDisabled("save")}
       >
         Save
@@ -38,18 +36,11 @@ export const ExistingEntryButtons: React.FC<Props> = (
       <button
         type={"button"}
         className={"primary"}
-        onClick={props.onSubmit}
-        disabled={props.isButtonDisabled("submit")}
+        onMouseUp={props.onSubmit}
+        disabled={props.isButtonDisabled("submit") || props.submitDisabled}
       >
         Submit
       </button>
-      {/* Trick to prevent accidental submission */}
-      <button
-        type={"submit"}
-        style={{ display: "none" }}
-        aria-hidden={"true"}
-        disabled
-      />
     </>
   );
 };

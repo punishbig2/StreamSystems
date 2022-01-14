@@ -286,6 +286,14 @@ export class NumericInputHandler<
     state: S
   ): StateReturnType<S> {
     const { displayValue } = state;
+    if (
+      isWholeTextSelected(event.currentTarget) ||
+      (state.validity !== Validity.Valid &&
+        state.validity !== Validity.Intermediate)
+    ) {
+      return this.createValue(null, event.currentTarget, props, state);
+    }
+
     const offset: number = getCaretPosition(event.currentTarget) - 1;
     if (offset < 0) {
       event.preventDefault();
@@ -343,3 +351,12 @@ export class NumericInputHandler<
     }
   }
 }
+
+const isWholeTextSelected = (input: HTMLInputElement): boolean => {
+  const { value } = input;
+
+  const start = input.selectionStart ?? 0;
+  const end = input.selectionEnd ?? 0;
+
+  return end - start === value.length;
+};

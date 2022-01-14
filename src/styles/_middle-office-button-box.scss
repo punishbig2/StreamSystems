@@ -33,5 +33,13 @@
       background-color: darken($background-color, 2%);
       color: rgba($foreground-color, 0.15);
     }
+
+    &:hover {
+      background-color: darken($primary-color, 5);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
   }
 }

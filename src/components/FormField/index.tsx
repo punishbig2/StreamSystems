@@ -339,6 +339,10 @@ export class FormField<T, S = any> extends PureComponent<
     }
   }
 
+  private onInputFocus = (event: React.FocusEvent<HTMLInputElement>): void => {
+    event.currentTarget.select();
+  };
+
   private onInputBlur = (): void => {
     const { props } = this;
     const { type } = props;
@@ -509,6 +513,7 @@ export class FormField<T, S = any> extends PureComponent<
             autoComplete={"new-password"}
             onKeyDown={this.onInputKeyDown}
             onBlur={this.onInputBlur}
+            onFocus={this.onInputFocus}
             onChange={this.onInputChange}
             onInput={this.onInputInput}
           />
