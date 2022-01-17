@@ -37,7 +37,8 @@ export const Row: React.FC<Props> = observer((props: Props) => {
 
   useEffect((): void => {
     const onPriceChange = (price: number | null): void => {
-      podStore.setDarkPoolPrice(row.tenor, price);
+      // podStore.setDarkPoolPrice(row.tenor, price);
+      console.log(price);
     };
 
     darkPoolStore.setPriceChangeListener(onPriceChange);

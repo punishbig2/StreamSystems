@@ -40,6 +40,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
   React.useEffect((): void => {
     if (darkPrice === undefined) return;
+    console.log(darkPrice);
     store.setDarkPrice(darkPrice);
   }, [darkPrice, store]);
 
