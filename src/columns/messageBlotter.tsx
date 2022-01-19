@@ -98,7 +98,8 @@ const trader = (sortable: boolean, side: "1" | "2"): TableColumn => ({
   sortable: sortable,
   header: () => (side === "1" ? "Buyer" : "Seller"),
   render: ({ message }: CellProps): ReactElement => {
-    const fullName = side === "1" ? message.FullName : message.ContraFullName;
+    const fullName =
+      side === message.Side ? message.FullName : message.ContraFullName;
     if (fullName === undefined) {
       return <span />;
     }
