@@ -103,6 +103,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       tenor,
       (w: W): void => {
         this.darkOrders = {
+          ...this.darkOrders,
           [w.Tenor]: w.Entries.map(
             (entry: MDEntry): Order => Order.fromWAndMDEntry(w, entry, user)
           ),
