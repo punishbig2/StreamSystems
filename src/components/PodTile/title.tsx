@@ -32,7 +32,7 @@ export const PodTileTitle: React.FC<Props> = observer(
       !ccyPair || !strategy || (personality === STRM && isBroker);
     const { currencies, strategies } = props;
 
-    const glowing: boolean = useGlow(store.orders, store.darkPoolOrders);
+    const glowing: boolean = useGlow(store.orders, store.darkOrders);
 
     return (
       <>
@@ -52,11 +52,15 @@ export const PodTileTitle: React.FC<Props> = observer(
         <div className={"item"}>
           <Select
             value={strategy}
-            list={strategies.map((item: Product): {
-              name: string;
-            } => ({
-              name: item.name,
-            }))}
+            list={strategies.map(
+              (
+                item: Product
+              ): {
+                name: string;
+              } => ({
+                name: item.name,
+              })
+            )}
             disabled={!workareaStore.connected}
             empty={"Strategy"}
             onChange={store.setStrategy}

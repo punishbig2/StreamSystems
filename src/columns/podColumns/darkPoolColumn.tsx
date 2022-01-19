@@ -1,106 +1,224 @@
 import { PodRowProps } from "columns/podColumns/common";
-import { DarkPoolTicket } from "components/DarkPoolTicket";
 import { ModalWindow } from "components/ModalWindow";
 import { onNavigate } from "components/PodTile/helpers";
 import { Price } from "components/Table/CellRenderers/Price";
-import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
 import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
 import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
-import { DarkPoolStore, DarkPoolStoreContext } from "mobx/stores/darkPoolStore";
 import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement, useEffect, useMemo } from "react";
+import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { DarkPoolOrder, Order, OrderStatus } from "types/order";
 import { Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection } from "types/w";
 import { skipTabIndexAll } from "utils/skipTab";
-import { PodStoreContext, PodStore } from "mobx/stores/podStore";
-import { getOrderStatusClass } from "../../components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { PodStore, PodStoreContext } from "mobx/stores/podStore";
+import { DarkPoolTicket } from "components/DarkPoolTicket";
+import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
+import { OrderTypes } from "types/mdEntry";
+import { API } from "API";
+import { Sides } from "types/sides";
+import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
+import signalRClient from "signalR/signalRClient";
+import { DarkPoolMessage } from "types/message";
 
-type Props = PodRowProps;
+type Props = PodRowProps & {
+  readonly isDepth: boolean;
+};
 
 const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
-  const { darkPrice, currency, strategy, tenor, darkpool } = props;
-  const podStore = React.useContext<PodStore>(PodStoreContext);
-  const store = React.useContext<DarkPoolStore>(DarkPoolStoreContext);
+  const [isTicketOpen, setTicketOpen] = React.useState<boolean>(false);
+  const { currency, strategy, tenor, isDepth, rowNumber } = props;
+  const store = React.useContext<PodStore>(PodStoreContext);
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
-  const { connected } = workareaStore;
+  const { darkPrices, darkOrders } = store;
+  const { email, firm } = user;
 
-  const w = React.useMemo(
-    () => podStore.darkPoolOrders[props.tenor],
-    [podStore.darkPoolOrders, props.tenor]
+  const price = React.useMemo(
+    (): number | null => darkPrices[tenor] ?? null,
+    [darkPrices, tenor]
   );
 
-  React.useEffect((): void => {
-    store.onOrderReceived(w);
-  }, [store, w]);
+  const orders = React.useMemo(
+    (): ReadonlyArray<Order> =>
+      darkOrders[tenor]?.filter(
+        (order: Order): boolean => order.size !== null && order.price !== null
+      ) ?? [],
+    [darkOrders, tenor]
+  );
 
-  React.useEffect((): void => {
-    if (darkPrice === undefined) return;
-    console.log(darkPrice);
-    store.setDarkPrice(darkPrice);
-  }, [darkPrice, store]);
+  const myOrders = React.useMemo(
+    (): ReadonlyArray<Order> => orders.filter(isMyOrder(user, personality)),
+    [orders, personality, user]
+  );
 
-  React.useEffect(() => {
-    if (!darkpool) return;
-    store.onOrderReceived(darkpool);
-  }, [store, darkpool, user]);
+  const topOrder = React.useMemo((): Order | null => {
+    if (isDepth) {
+      return orders[rowNumber] ?? null;
+    } else {
+      const mine = orders.find((order: Order) => order.user === email);
+      if (mine !== undefined) {
+        return mine;
+      }
+      const bank = orders.find((order: Order) => order.firm === firm);
+      if (bank !== undefined) {
+        return bank;
+      }
 
-  const onTicketSubmitted = (order: DarkPoolOrder) => {
-    store.createOrder(order).catch(console.warn);
-  };
+      return (
+        orders.find(
+          (order: Order) => order.price !== null && order.size !== null
+        ) ?? null
+      );
+    }
+  }, [email, firm, isDepth, orders, rowNumber]);
+
+  const status = getDarkPoolOrderStatus(orders, topOrder);
+  const closeTicket = React.useCallback((): void => setTicketOpen(false), []);
+  const openTicket = React.useCallback((): void => setTicketOpen(true), []);
+  const onTicketSubmitted = React.useCallback(
+    async (order: DarkPoolOrder): Promise<void> => {
+      const user: User = workareaStore.user;
+      closeTicket();
+
+      const currentOrder: Order | undefined = orders.find((o: Order) => {
+        if (o.type === OrderTypes.Bid && order.Side !== Sides.Buy) return false;
+        if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell)
+          return false;
+        return user.email === o.user;
+      });
+      // if (currentOrder) await API.cancelDarkPoolOrder(currentOrder);
+      await API.createDarkPoolOrder({
+        ...(currentOrder ? { OrderID: currentOrder.orderId } : {}),
+        ...order,
+      });
+    },
+    [closeTicket, orders]
+  );
+  const onCancelOrder = React.useCallback((order: Order): void => {
+    void API.cancelDarkPoolOrder(order);
+  }, []);
 
   const renderTicket = (): ReactElement | null => {
-    if (store.price === null) return null;
+    if (price === null) return null;
+
     return (
       <DarkPoolTicket
-        price={store.price}
+        price={price}
         minimumSize={props.minimumSize}
         tenor={tenor}
-        strategy={strategy}
-        symbol={currency}
+        strategy={props.strategy}
+        symbol={props.currency}
         onSubmit={onTicketSubmitted}
-        onCancel={() => store.closeTicket()}
+        onCancel={closeTicket}
       />
     );
   };
 
-  const renderTooltip = () => {
-    const depth: Order[] = store.depth;
-    if (depth.length === 0) return null;
-    const showInstruction = depth.some((order: Order): boolean => {
-      if ((order.status & OrderStatus.Owned) === 0) return false;
-      return order.instruction !== undefined;
-    });
-    return (
-      <DarkPoolTooltip
-        onCancelOrder={store.cancel}
-        orders={depth}
-        showInstruction={showInstruction}
-      />
-    );
-  };
+  const renderTooltip = React.useCallback((): React.ReactElement | null => {
+    if (isDepth) {
+      if (topOrder === null) {
+        return null;
+      }
 
-  useEffect(() => {
-    if (currency === "" || strategy === "") return;
-    store.onOrderReceived(podStore.darkPoolOrders[tenor]);
-    return store.connect(currency, strategy, tenor);
-  }, [currency, store, strategy, tenor, connected, podStore.darkPoolOrders]);
+      if (isMyOrder(user, personality)(topOrder)) {
+        return (
+          <DarkPoolTooltip
+            onCancelOrder={onCancelOrder}
+            orders={[topOrder]}
+            showInstruction={true}
+          />
+        );
+      }
+      return null;
+    } else {
+      const depth: ReadonlyArray<Order> = myOrders;
+      if (depth.length === 0) return null;
+      const showInstruction = depth.some((order: Order): boolean => {
+        if ((order.status & OrderStatus.Owned) === 0) return false;
+        return order.instruction !== undefined;
+      });
 
-  const clear = React.useCallback(
-    store.getClearDarkPoolPriceCallback(currency, strategy, tenor),
-    [currency, strategy, tenor]
+      return (
+        <DarkPoolTooltip
+          onCancelOrder={onCancelOrder}
+          orders={depth}
+          showInstruction={showInstruction}
+        />
+      );
+    }
+  }, [isDepth, myOrders, onCancelOrder]);
+
+  const onPriceCleared = React.useCallback((): void => {
+    store.setDarkPoolPrice(tenor, null);
+  }, [store, tenor]);
+
+  const onPricePublished = React.useCallback(
+    (message: DarkPoolMessage): void => {
+      const price = ((): number | null => {
+        if (message.DarkPrice === "") {
+          return null;
+        }
+
+        const value = Number(message.DarkPrice);
+        if (isNaN(value)) {
+          return null;
+        }
+
+        return value;
+      })();
+
+      store.setDarkPoolPrice(message.Tenor, price);
+    },
+    [store]
   );
+
+  React.useEffect((): (() => void) | undefined => {
+    const stopListener1 = signalRClient.setDarkPoolClearListener(
+      currency,
+      strategy,
+      tenor,
+      onPriceCleared
+    );
+    const stopListener2 = signalRClient.setDarkPoolPriceListener(
+      currency,
+      strategy,
+      tenor,
+      onPricePublished
+    );
+
+    return (): void => {
+      stopListener1();
+      stopListener2();
+    };
+  }, [currency, onPriceCleared, onPricePublished, strategy, tenor]);
 
   const publish = React.useCallback(
     (price: number): void => {
-      void store.publishPrice(currency, strategy, tenor, price);
+      const user = workareaStore.user;
+      // Update it for us immediately
+      store.setDarkPoolPrice(tenor, price);
+      // Publish it for others
+      void API.publishDarkPoolPrice(
+        user.email,
+        currency,
+        strategy,
+        tenor,
+        price
+      );
     },
     [currency, store, strategy, tenor]
   );
+
+  const clear = (): void => {
+    const user = workareaStore.user;
+    // Update it for us immediately
+    store.setDarkPoolPrice(tenor, null);
+    // Publish it for others
+    void API.clearDarkPoolPrice(user.email, currency, strategy, tenor);
+  };
 
   const onSubmit = (
     input: HTMLInputElement,
@@ -121,23 +239,22 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     return roles.includes(Role.Broker);
   }, [user]);
 
-  const onDoubleClick = () => {
-    if (
-      (store.publishedPrice === null || store.publishedPrice === undefined) &&
-      !store.currentOrder
-    ) {
+  const onDoubleClick = React.useCallback((): void => {
+    if (price == null) {
       return;
     }
+
     if (isBroker && personality === STRM) return;
-    store.openTicket();
-  };
+    // Show the thing
+    openTicket();
+  }, [isBroker, openTicket, personality, price]);
 
   if (user === null)
     throw new Error(
       "cannot show a dark pool column if there is no authenticated user"
     );
 
-  const className = getOrderStatusClass(store.status);
+  const className = getOrderStatusClass(status);
 
   return (
     <>
@@ -145,21 +262,21 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         arrow={ArrowDirection.None}
         priceType={PriceTypes.DarkPool}
         className={className}
-        value={store.price}
+        value={price}
         tooltip={renderTooltip}
         readOnly={(personality !== STRM && isBroker) || !isBroker}
-        status={store.status}
+        status={status}
         allowZero={true}
         onDoubleClick={onDoubleClick}
         onSubmit={onSubmit}
         onNavigate={onNavigate}
       />
-      <ModalWindow render={renderTicket} isOpen={store.isTicketOpen} />
+      <ModalWindow render={renderTicket} isOpen={isTicketOpen} />
     </>
   );
 });
 
-export const DarkPoolColumn = (): TableColumn => ({
+export const DarkPoolColumn = (depth: boolean): TableColumn => ({
   name: "dark-pool",
   header: () => (
     <div className={"dark-pool-header"}>
@@ -167,7 +284,63 @@ export const DarkPoolColumn = (): TableColumn => ({
       <div>Pool</div>
     </div>
   ),
-  render: (row: PodRowProps) => <DarkPoolColumnComponent {...row} />,
+  render: (row: PodRowProps) => (
+    <DarkPoolColumnComponent {...row} isDepth={depth} />
+  ),
   template: "999999.99",
   width: 5,
 });
+
+const getDarkPoolOrderStatus = (
+  orders: ReadonlyArray<Order>,
+  currentOrder: Order | null
+): OrderStatus => {
+  const user: User = workareaStore.user;
+  const personality: string = workareaStore.personality;
+  const { roles } = user;
+  const isBroker = roles.includes(Role.Broker);
+  if (!currentOrder) return OrderStatus.None | OrderStatus.DarkPool;
+  const isSameFirm = isBroker
+    ? currentOrder.firm === personality
+    : currentOrder.firm === user.firm;
+  if (currentOrder.size === null)
+    return OrderStatus.None | OrderStatus.DarkPool;
+  const hasDepthStatus =
+    orders.length > 0 ? OrderStatus.HasDepth : OrderStatus.None;
+  const hasMyOrderStatus = orders.find((o) => o.user === user.email)
+    ? OrderStatus.HasMyOrder
+    : OrderStatus.None;
+
+  if (isMyOrder(user, personality)(currentOrder)) {
+    if (orders.length === 1) {
+      return (
+        OrderStatus.FullDarkPool |
+        OrderStatus.DarkPool |
+        OrderStatus.Owned |
+        hasDepthStatus
+      );
+    }
+
+    return OrderStatus.DarkPool | OrderStatus.Owned | hasDepthStatus;
+  } else if (isSameFirm) {
+    return (
+      OrderStatus.DarkPool |
+      OrderStatus.SameBank |
+      hasDepthStatus |
+      hasMyOrderStatus
+    );
+  }
+
+  return OrderStatus.DarkPool | hasDepthStatus | hasMyOrderStatus;
+};
+
+const isMyOrder =
+  (user: User, personality: string): ((order: Order) => boolean) =>
+  (order: Order): boolean => {
+    const { roles } = user;
+    const isBroker = roles.includes(Role.Broker);
+
+    return isBroker
+      ? order.firm === personality && order.user === user.email
+      : order.user === user.email;
+  };

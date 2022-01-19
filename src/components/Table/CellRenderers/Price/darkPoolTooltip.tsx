@@ -8,9 +8,10 @@ import { Order } from "types/order";
 import { SortDirection } from "types/sortDirection";
 
 interface OwnProps {
-  orders: Order[];
-  showInstruction: boolean;
-  onCancelOrder: (order: Order) => void;
+  readonly orders: ReadonlyArray<Order>;
+  readonly showInstruction: boolean;
+
+  onCancelOrder(order: Order): void;
 }
 
 export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
@@ -46,7 +47,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
       rows={props.orders}
       columns={_columns}
       renderRow={renderRow}
-      className={"padded"}
+      className={"padded dark-pool-tooltip"}
     />
   );
 };

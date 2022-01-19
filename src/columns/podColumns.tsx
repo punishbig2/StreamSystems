@@ -36,20 +36,17 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
   );
 };
 
-const cancelAll = (
-  type: OrderTypes,
-  symbol: string,
-  strategy: string
-) => () => {
-  const user: User = workareaStore.user;
-  const { roles } = user;
-  const isBroker: boolean = roles.includes(Role.Broker);
-  if (isBroker) {
-    void API.cancelAllExtended(symbol, strategy, getSideFromType(type));
-  } else {
-    void API.cancelAll(symbol, strategy, getSideFromType(type));
-  }
-};
+const cancelAll =
+  (type: OrderTypes, symbol: string, strategy: string) => () => {
+    const user: User = workareaStore.user;
+    const { roles } = user;
+    const isBroker: boolean = roles.includes(Role.Broker);
+    if (isBroker) {
+      void API.cancelAllExtended(symbol, strategy, getSideFromType(type));
+    } else {
+      void API.cancelAll(symbol, strategy, getSideFromType(type));
+    }
+  };
 
 const getRefButton = (
   depth: boolean,
@@ -80,7 +77,7 @@ const columns = (
       depth,
       getRefButton(depth, currency, strategy, OrderTypes.Bid)
     ),
-    DarkPoolColumn(),
+    DarkPoolColumn(depth),
     OrderColumnWrapper(
       strings.OfrPx,
       OrderTypes.Ofr,

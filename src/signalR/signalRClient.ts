@@ -183,7 +183,7 @@ export class SignalRClient {
 
     connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
     connection.on(Events.UpdateDarkPoolPrice, this.onUpdateDarkPoolPx);
-    connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPx);
+    connection.on(Events.ClearDarkPoolPrice, this.onClearDarkPoolPrice);
     connection.on(Events.RefAllComplete, this.onRefAllComplete);
   };
 
@@ -428,6 +428,20 @@ export class SignalRClient {
     this.invoke(Methods.UnsubscribeFromDarkPoolPx, currency, strategy, tenor);
   };
 
+  public setDarkPoolClearListener = (
+    currency: string,
+    strategy: string,
+    tenor: string,
+    fn: () => void
+  ): (() => void) => {
+    const event = clearDarkPoolPriceEvent(currency, strategy, tenor);
+    document.addEventListener(event, fn);
+
+    return (): void => {
+      document.removeEventListener(event, fn);
+    };
+  };
+
   public setDarkPoolPriceListener = (
     currency: string,
     strategy: string,
@@ -452,6 +466,7 @@ export class SignalRClient {
     // Try to execute it now
     this.recordCommand(command);
     this.runCommand(command);
+
     return (): void => {
       delete this.callbacks[key];
       this.eraseCommand(command);
@@ -520,7 +535,7 @@ export class SignalRClient {
   private onMessageListener: (message: ReadonlyArray<Message>) => void = () =>
     null;
 
-  private onClearDarkPoolPx = (message: string) => {
+  private onClearDarkPoolPrice = (message: string) => {
     if (!message || message.trim() === "") {
       document.dispatchEvent(new Event(globalClearDarkPoolPriceEvent()));
     } else {

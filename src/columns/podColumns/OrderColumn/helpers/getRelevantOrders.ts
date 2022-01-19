@@ -3,7 +3,7 @@ import { OrderTypes } from "types/mdEntry";
 import { orderSorter } from "components/PodTile/helpers";
 
 export const getRelevantOrders = (
-  orders: Order[],
+  orders: ReadonlyArray<Order>,
   type: OrderTypes
 ): Order[] => {
   if (!orders) return [];

@@ -4,15 +4,16 @@ import { PodRowStore } from "mobx/stores/podRowStore";
 import { W } from "types/w";
 
 export type PodRowProps = PodRow & {
-  orders: Order[];
-  defaultSize: number;
-  minimumSize: number;
-  darkPrice: number | null;
-  currency: string;
-  strategy: string;
-  status: PodRowStatus;
-  rowStore: PodRowStore;
-  darkpool: W;
+  readonly orders: ReadonlyArray<Order>;
+  readonly defaultSize: number;
+  readonly minimumSize: number;
+  readonly darkPrice: number | null;
+  readonly currency: string;
+  readonly strategy: string;
+  readonly status: PodRowStatus;
+  readonly rowStore: PodRowStore;
+  readonly darkpool: W;
+  readonly rowNumber: number;
   // Event handlers
-  onTenorSelected: (tenor: string) => void;
+  onTenorSelected(tenor: string): void;
 };

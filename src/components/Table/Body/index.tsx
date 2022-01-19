@@ -164,7 +164,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(
       );
     }
 
-    const onScroll = (event: any): void => {
+    const onScroll = (): void => {
       if (current === null) return;
       const parent = current.parentElement!;
       const firstRow = Math.min(
@@ -192,13 +192,13 @@ export const TableBody: React.FC<Props> = React.forwardRef(
               state.firstRow,
               state.firstRow + (state.visibleRowCount ?? rows.length)
             )
-            .map((data: any): any => {
+            .map((data: any, index: number): any => {
               const { row } = data;
               const rowProps = {
                 ...data,
                 selected: row.id === props.selectedRow,
               };
-              return props.renderRow(rowProps);
+              return props.renderRow(rowProps, index);
             })}
         </div>
         <div style={{ height: isNaN(state.bottom) ? 0 : state.bottom }} />

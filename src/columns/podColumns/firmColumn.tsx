@@ -9,7 +9,7 @@ export const FirmColumn = (type: OrderTypes): TableColumn => ({
   name: `${type}-firm`,
   header: () => <div>&nbsp;</div>,
   render: (row: PodRowProps): ReactElement | null => {
-    const orders: Order[] = getRelevantOrders(row.orders, type);
+    const orders: ReadonlyArray<Order> = getRelevantOrders(row.orders, type);
     // It should never happen that this is {} as Order
     const order: Order =
       orders.length > 0 ? orders[0] : ({ price: null, size: null } as Order);

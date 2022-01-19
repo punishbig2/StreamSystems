@@ -320,7 +320,7 @@ export class OrderStore {
   }
 
   @action.bound
-  public setCurrentDepth(depth: Order[]): void {
+  public setCurrentDepth(depth: ReadonlyArray<Order>): void {
     if (!depth) return;
     this.depth = depth.filter((order: Order) => order.size !== null);
   }

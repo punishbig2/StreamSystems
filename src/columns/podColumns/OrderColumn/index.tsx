@@ -29,7 +29,7 @@ export enum PodTableType {
 }
 
 type OwnProps = {
-  readonly orders: Order[];
+  readonly orders: ReadonlyArray<Order>;
   readonly type: OrderTypes;
   readonly currency: string;
   readonly strategy: string;

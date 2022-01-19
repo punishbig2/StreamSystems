@@ -6,8 +6,6 @@ import { observer } from "mobx-react";
 import { PodRowStore, PodRowStoreContext } from "mobx/stores/podRowStore";
 import React, { useEffect, useRef } from "react";
 import { PodRowStatus } from "types/podRow";
-import { DarkPoolStore, DarkPoolStoreContext } from "mobx/stores/darkPoolStore";
-import { PodStore, PodStoreContext } from "mobx/stores/podStore";
 
 interface OwnProps {
   readonly id: string;
@@ -28,21 +26,10 @@ export const Row: React.FC<Props> = observer((props: Props) => {
   const store = useRef<PodRowStore>(
     new PodRowStore(props.currency, props.strategy, props.tenor)
   ).current;
-  const podStore = React.useContext<PodStore>(PodStoreContext);
-  const darkPoolStore = React.useContext<DarkPoolStore>(DarkPoolStoreContext);
 
   const { id, columns, row, totalWidth, containerWidth, ...rowProps } = props;
   const { internalRow } = store;
   const classes: string[] = ["tr"];
-
-  useEffect((): void => {
-    const onPriceChange = (price: number | null): void => {
-      // podStore.setDarkPoolPrice(row.tenor, price);
-      console.log(price);
-    };
-
-    darkPoolStore.setPriceChangeListener(onPriceChange);
-  }, [darkPoolStore, podStore, row.tenor]);
 
   useEffect((): void => {
     store.setInternalRow(row);

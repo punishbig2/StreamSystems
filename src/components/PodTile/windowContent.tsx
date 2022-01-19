@@ -8,6 +8,7 @@ import { PodStore, PodStoreContext } from "mobx/stores/podStore";
 import React, { ReactElement } from "react";
 import { DepthData } from "types/depthData";
 import { Symbol } from "types/symbol";
+import { Order } from "types/order";
 
 interface Props {
   readonly columns: ReadonlyArray<TableColumn>;
@@ -20,6 +21,15 @@ interface Props {
 export const WindowContent: React.FC<Props> = observer(
   (props: Props): React.ReactElement => {
     const store = React.useContext<PodStore>(PodStoreContext);
+    const { darkOrders, currentTenor } = store;
+
+    const filteredDarkOrders = React.useMemo((): ReadonlyArray<Order> => {
+      if (currentTenor === null) {
+        return [];
+      }
+
+      return darkOrders[currentTenor];
+    }, [currentTenor, darkOrders]);
 
     const renderProgress = (): ReactElement | null => {
       if (store.currentProgress === null) return null;
@@ -45,14 +55,14 @@ export const WindowContent: React.FC<Props> = observer(
           strategy={props.strategy}
           orders={store.orders}
           onTenorSelected={store.setCurrentTenor}
-          darkPoolOrders={store.darkPoolOrders}
+          darkPoolOrders={store.darkOrders}
         />
         <DepthOfTheBook
           currentTenor={store.currentTenor}
           book={props.dob}
           symbol={props.symbol}
           strategy={props.strategy}
-          darkPoolOrders={store.darkPoolOrders}
+          darkOrders={filteredDarkOrders}
           onTenorSelected={store.setCurrentTenor}
         />
         <ModalWindow

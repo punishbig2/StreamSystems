@@ -29,7 +29,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   @observable loading: boolean = false;
   @observable currentTenor: string | null = null;
 
-  @observable.ref darkPoolOrders: { [tenor: string]: W } = {};
+  @observable.ref darkOrders: { [tenor: string]: ReadonlyArray<Order> } = {};
   @observable.ref orders: { [tenor: string]: ReadonlyArray<Order> } = {};
 
   @observable isRunWindowVisible: boolean = false;
@@ -96,14 +96,16 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     strategy: string,
     tenor: string
   ): () => void {
+    const user = workareaStore.user;
     const darkPool = signalRManager.addDarkPoolOrderListener(
       currency,
       strategy,
       tenor,
       (w: W): void => {
-        this.darkPoolOrders = {
-          ...this.darkPoolOrders,
-          [w.Tenor]: w,
+        this.darkOrders = {
+          [w.Tenor]: w.Entries.map(
+            (entry: MDEntry): Order => Order.fromWAndMDEntry(w, entry, user)
+          ),
         };
       }
     );
@@ -140,10 +142,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     }
   }
 
-  public createMarketListeners(
-    currency: string,
-    strategy: string
-  ): Array<() => void> {
+  public listen(currency: string, strategy: string): Array<() => void> {
     const tenors: ReadonlyArray<string> = workareaStore.tenors;
     // Install a listener for each tenor
     return [
@@ -432,10 +431,22 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
 
   @action.bound
   private initializeDarkPoolFromSnapshot(snapshot: { [k: string]: W } | null) {
+    const user = workareaStore.user;
     if (snapshot === null) {
-      this.darkPoolOrders = {};
+      this.darkOrders = {};
     } else {
-      this.darkPoolOrders = snapshot;
+      this.darkOrders = Object.entries(snapshot).reduce(
+        (
+          orders: Record<string, ReadonlyArray<Order>>,
+          [tenor, w]: [string, W]
+        ): Record<string, ReadonlyArray<Order>> => ({
+          ...orders,
+          [tenor]: w.Entries.map(
+            (entry: MDEntry): Order => Order.fromWAndMDEntry(w, entry, user)
+          ),
+        }),
+        {}
+      );
     }
   }
 
@@ -515,6 +526,22 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       ...this.rows,
       [tenor]: { ...this.rows[tenor], darkPrice: price },
     };
+  }
+
+  @computed
+  public get darkPrices(): Record<string, number | null> {
+    const entries = Object.entries(this.rows);
+
+    return entries.reduce(
+      (
+        prices: Record<string, number | null>,
+        [tenor, row]: [string, PodRow]
+      ): Record<string, number | null> => ({
+        ...prices,
+        [tenor]: row.darkPrice,
+      }),
+      {}
+    );
   }
 }
 

@@ -10,13 +10,12 @@ import { Order, OrderStatus } from "types/order";
 import { PodRow } from "types/podRow";
 import { SortDirection } from "types/sortDirection";
 import { Symbol } from "types/symbol";
-import { W } from "types/w";
 
 interface Props {
   readonly currentTenor: string | null;
   readonly symbol: Symbol;
   readonly strategy: string;
-  readonly darkPoolOrders: { [key: string]: W };
+  readonly darkOrders: ReadonlyArray<Order>;
   readonly book: DepthData;
 
   readonly onTenorSelected: (tenor: string | null) => void;
@@ -26,7 +25,7 @@ export const DepthOfTheBook: React.FC<Props> = (
   props: Props
 ): React.ReactElement => {
   const { rows, columns } = props.book;
-  const { currentTenor, symbol, strategy, darkPoolOrders } = props;
+  const { currentTenor, symbol, strategy, darkOrders } = props;
   const { user } = workareaStore;
   const { onTenorSelected } = props;
 
@@ -39,7 +38,7 @@ export const DepthOfTheBook: React.FC<Props> = (
   );
 
   const renderRow = React.useCallback(
-    (rowProps: any): ReactElement | null => {
+    (rowProps: any, index?: number): ReactElement | null => {
       const { minqty, defaultqty } = symbol;
       const { row } = rowProps;
       if (minqty === undefined || defaultqty === undefined) return null;
@@ -81,14 +80,15 @@ export const DepthOfTheBook: React.FC<Props> = (
           {...rowProps}
           user={workareaStore.user}
           orders={orders}
-          darkpool={darkPoolOrders[row.tenor1]}
+          darkpool={darkOrders}
           defaultSize={defaultqty}
           minimumSize={minqty}
+          rowNumber={index}
           onTenorSelected={(): void => onTenorSelected(null)}
         />
       );
     },
-    [symbol, effectiveRows, darkPoolOrders, onTenorSelected]
+    [symbol, effectiveRows, darkOrders, onTenorSelected]
   );
 
   const _columns = React.useMemo((): ReadonlyArray<ExtendedTableColumn> => {

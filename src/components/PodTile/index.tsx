@@ -48,7 +48,7 @@ export const PodTile: React.FC<Props> = observer(
         currency.name,
         strategy
       );
-      const cleanUps: Array<() => void> = store.createMarketListeners(
+      const cleanUps: Array<() => void> = store.listen(
         currency.name,
         strategy
       );

@@ -1,13 +1,11 @@
 import { Row } from "components/PodTile/Row";
 import { Table } from "components/Table";
 import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
-import { DarkPoolStore, DarkPoolStoreContext } from "mobx/stores/darkPoolStore";
 import React, { ReactElement } from "react";
 import { Order } from "types/order";
 import { PodRow } from "types/podRow";
 import { SortDirection } from "types/sortDirection";
 import { Symbol } from "types/symbol";
-import { W } from "types/w";
 
 interface Props {
   readonly currentTenor: string | null;
@@ -19,7 +17,7 @@ interface Props {
   readonly strategy: string;
   readonly orders: { [tenor: string]: ReadonlyArray<Order> };
   readonly onTenorSelected: (tenor: string | null) => void;
-  readonly darkPoolOrders: { [tenor: string]: W };
+  readonly darkPoolOrders: { [tenor: string]: ReadonlyArray<Order> };
 }
 
 export const TopOfTheBook: React.FC<Props> = (
@@ -35,6 +33,7 @@ export const TopOfTheBook: React.FC<Props> = (
       })
     );
   }, [originalColumns]);
+
   return (
     <div className={"pod"} data-showing-tenor={props.currentTenor !== null}>
       <Table
@@ -47,24 +46,19 @@ export const TopOfTheBook: React.FC<Props> = (
           const { tenor } = row;
 
           return (
-            <DarkPoolStoreContext.Provider
-              key={rowProps.key}
-              value={new DarkPoolStore()}
-            >
-              <Row
-                {...rowProps}
-                currency={name}
-                strategy={props.strategy}
-                tenor={tenor}
-                darkpool={props.darkPoolOrders[tenor]}
-                orders={props.orders[tenor]}
-                defaultSize={defaultqty}
-                minimumSize={minqty}
-                displayOnly={false}
-                rowNumber={index}
-                onTenorSelected={props.onTenorSelected}
-              />
-            </DarkPoolStoreContext.Provider>
+            <Row
+              {...rowProps}
+              currency={name}
+              strategy={props.strategy}
+              tenor={tenor}
+              darkpool={props.darkPoolOrders[tenor]}
+              orders={props.orders[tenor]}
+              defaultSize={defaultqty}
+              minimumSize={minqty}
+              displayOnly={false}
+              rowNumber={index}
+              onTenorSelected={props.onTenorSelected}
+            />
           );
         }}
       />
