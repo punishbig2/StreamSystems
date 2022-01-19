@@ -149,7 +149,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         />
       );
     }
-  }, [isDepth, myOrders, onCancelOrder]);
+  }, [isDepth, myOrders, onCancelOrder, personality, topOrder, user]);
 
   const onPriceCleared = React.useCallback((): void => {
     store.setDarkPoolPrice(tenor, null);
@@ -306,12 +306,14 @@ const getDarkPoolOrderStatus = (
   if (currentOrder.size === null)
     return OrderStatus.None | OrderStatus.DarkPool;
   const hasDepthStatus =
-    orders.length > 0 ? OrderStatus.HasDepth : OrderStatus.None;
-  const hasMyOrderStatus = orders.find((o) => o.user === user.email)
+    orders.length > 0 && !orders.every(isMyOrder(user, personality))
+      ? OrderStatus.HasDepth
+      : OrderStatus.None;
+  const hasMyOrderStatus = orders.find(isMyOrder(user, personality))
     ? OrderStatus.HasMyOrder
     : OrderStatus.None;
 
-  if (isMyOrder(user, personality)(currentOrder)) {
+  if (hasMyOrderStatus) {
     if (orders.length === 1) {
       return (
         OrderStatus.FullDarkPool |
