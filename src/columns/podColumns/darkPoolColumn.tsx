@@ -47,7 +47,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         ?.filter(
           (order: Order): boolean => order.size !== null && order.price !== null
         )
-        .sort((o1: Order, o2: Order): number => o2.timestamp - o1.timestamp) ??
+        .sort((o1: Order, o2: Order): number => o1.timestamp - o2.timestamp) ??
       [],
     [darkOrders, tenor]
   );
