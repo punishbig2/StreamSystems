@@ -43,9 +43,12 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
   const orders = React.useMemo(
     (): ReadonlyArray<Order> =>
-      darkOrders[tenor]?.filter(
-        (order: Order): boolean => order.size !== null && order.price !== null
-      ) ?? [],
+      darkOrders[tenor]
+        ?.filter(
+          (order: Order): boolean => order.size !== null && order.price !== null
+        )
+        .sort((o1: Order, o2: Order): number => o2.timestamp - o1.timestamp) ??
+      [],
     [darkOrders, tenor]
   );
 
