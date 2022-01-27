@@ -26,6 +26,7 @@ import {
   PRICING_RESPONSE_EVENT,
   REF_ALL_COMPLETE,
   SEF_UPDATE,
+  UPDATE_COMMISSION_RATES,
 } from "signalR/constants";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, Message } from "types/message";
@@ -512,7 +513,7 @@ export class SignalRClient {
       throw new Error("cannot listen because I am not connected");
     }
 
-    const eventName = `${firm}updatecommissionrates`;
+    const eventName = `${firm}${UPDATE_COMMISSION_RATES}`;
     const handler = (rawEvent: any) => {
       const event: CustomEvent<ReadonlyArray<CommissionRate>> = rawEvent;
       listener(event.detail);
@@ -522,12 +523,14 @@ export class SignalRClient {
     connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
 
     document.addEventListener(eventName, handler);
+
     return () => {
       if (connection.state === HubConnectionState.Connected) {
         connection
           .invoke(Methods.UnSubscribeForCommissionUpdate)
           .catch(console.warn);
       }
+
       document.removeEventListener(eventName, handler);
     };
   }
@@ -724,9 +727,10 @@ export class SignalRClient {
     const firm: string = object.firm;
     const event: CustomEvent<ReadonlyArray<CommissionRate>> = new CustomEvent<
       ReadonlyArray<CommissionRate>
-    >(firm + "updatecommissionrates", {
+    >(`${firm}${UPDATE_COMMISSION_RATES}`, {
       detail: convertToCommissionRatesArray(object),
     });
+
     document.dispatchEvent(event);
   };
 

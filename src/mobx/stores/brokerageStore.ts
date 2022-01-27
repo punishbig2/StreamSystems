@@ -41,11 +41,8 @@ export class BrokerageStore {
     promise.then(convertToCommissionRatesArray).then(this.onCommissionRates);
   }
 
-  public installListener(): () => void {
-    return this.stream.addCommissionRatesListener(
-      workareaStore.user.firm,
-      this.onCommissionRates
-    );
+  public installListener(firm: string): () => void {
+    return this.stream.addCommissionRatesListener(firm, this.onCommissionRates);
   }
 
   @action.bound

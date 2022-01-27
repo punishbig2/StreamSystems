@@ -18,6 +18,7 @@ export const NEW_DEAL_EVENT = "new_deal_event";
 export const DEAL_DELETED_EVENT = "deal_deleted_event";
 export const SEF_UPDATE = "sef_update";
 export const REF_ALL_COMPLETE = "ref_all_complete";
+export const UPDATE_COMMISSION_RATES = "update_commission_rates";
 
 export enum Events {
   UpdateMarketData = "updateMarketData",
