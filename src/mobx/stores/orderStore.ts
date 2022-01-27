@@ -88,11 +88,6 @@ export class OrderStore {
       return null;
     }
 
-    /// Replace is only allowed to the owner of the order
-    if (order.user !== email) {
-      return null;
-    }
-
     return order.orderId ?? null;
   }
 
@@ -138,7 +133,8 @@ export class OrderStore {
   public async createWithType(
     inputPrice: number | null,
     inputSize: number | null,
-    type: OrderTypes
+    type: OrderTypes,
+    cancelOldOrder = true
   ): Promise<void> {
     const price: number | null = this.getCreatorPrice(inputPrice);
     const size: number | null = this.getCreatorSize(inputSize);
@@ -160,7 +156,9 @@ export class OrderStore {
     const { roles } = user;
     // Create the request
     const side = getSideFromType(type);
-    const matchingOrderId = this.getReplaceOrderId(type);
+    const matchingOrderId = cancelOldOrder
+      ? this.getReplaceOrderId(type)
+      : null;
     const request: FIXMessage = ((): FIXMessage => {
       if (matchingOrderId !== null) {
         return {

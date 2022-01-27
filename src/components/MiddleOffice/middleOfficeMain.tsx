@@ -20,8 +20,8 @@ import { Leg } from "components/MiddleOffice/types/leg";
 import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import { ModalWindow } from "components/ModalWindow";
 import {
-  MoGenericMessage,
   MiddleOfficeProcessingState,
+  MoGenericMessage,
 } from "mobx/stores/middleOfficeStore";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import React from "react";
@@ -87,8 +87,17 @@ export const MiddleOfficeMain: React.FC<Props> = (
   const [deleteQuestionOpen, showDeleteQuestion] =
     React.useState<boolean>(false);
   const classes: string[] = ["middle-office"];
-  const { error } = props;
-  const { entry } = props;
+
+  const {
+    status,
+    isLoadingLegs,
+    loadingDeals,
+    entry,
+    isEditMode,
+    isModified,
+    isReadyForSubmission,
+    error,
+  } = props;
 
   // Deal event handlers
   useNewDealListener((deal: { [key: string]: any }) => {
@@ -150,23 +159,35 @@ export const MiddleOfficeMain: React.FC<Props> = (
     props.setDeal(deal);
   };
 
-  const isButtonDisabledWrapper = (button: keyof DealEntryButtons): boolean => {
-    return isButtonDisabled(
-      button,
-      props.entry,
-      props.isEditMode,
-      props.isModified,
-      props.isReadyForSubmission,
-    );
-  };
+  const disabled: boolean = React.useMemo(
+    (): boolean =>
+      isLoadingLegs ||
+      status !== MiddleOfficeProcessingState.Normal ||
+      loadingDeals,
+    [status, isLoadingLegs, loadingDeals]
+  );
+
+  const isButtonDisabledWrapper = React.useCallback(
+    (button: keyof DealEntryButtons): boolean => {
+      if (disabled) {
+        return true;
+      }
+
+      return isButtonDisabled(
+        button,
+        entry,
+        isEditMode,
+        isModified,
+        isReadyForSubmission
+      );
+    },
+    [disabled, entry, isEditMode, isModified, isReadyForSubmission]
+  );
 
   const headingClasses: string[] = ["heading"];
   if (props.status !== MiddleOfficeProcessingState.Normal)
     headingClasses.push("disabled");
-  const disabled: boolean =
-    props.isLoadingLegs ||
-    props.status !== MiddleOfficeProcessingState.Normal ||
-    props.loadingDeals;
+
   return (
     <>
       <div className={classes.join(" ")}>

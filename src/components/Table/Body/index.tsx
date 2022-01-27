@@ -172,13 +172,22 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         rows.length - state.visibleRowCount
       );
 
+      if (isNaN(firstRow)) {
+        return;
+      }
+
+      const bottom =
+        (rows.length - firstRow - state.visibleRowCount) * state.itemHeight;
+      if (isNaN(bottom)) {
+        return;
+      }
+
       dispatch({
         type: Actions.UpdateScrollTop,
         data: {
           firstRow: firstRow,
           top: firstRow * state.itemHeight,
-          bottom:
-            (rows.length - firstRow - state.visibleRowCount) * state.itemHeight,
+          bottom: bottom,
         },
       });
     };
