@@ -185,7 +185,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
       tenor,
       onPriceCleared
     );
-    const stopListener2 = signalRClient.setDarkPoolPriceListener(
+    const stopListener2 = signalRClient.addDarkPoolPriceListener(
       currency,
       strategy,
       tenor,

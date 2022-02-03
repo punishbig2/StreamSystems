@@ -27,6 +27,7 @@ import {
   REF_ALL_COMPLETE,
   SEF_UPDATE,
   UPDATE_COMMISSION_RATES,
+  UPDATE_DARK_POOL_PRICE,
 } from "signalR/constants";
 import { MDEntry } from "types/mdEntry";
 import { DarkPoolMessage, Message } from "types/message";
@@ -408,27 +409,6 @@ export class SignalRClient {
     };
   };
 
-  public removeDarkPoolPriceListener = (
-    currency: string,
-    strategy: string,
-    tenor: string
-  ) => {
-    if (
-      currency === "" ||
-      strategy === "" ||
-      tenor === "" ||
-      !currency ||
-      !strategy ||
-      !tenor
-    )
-      return;
-    const key: string = $$(currency, strategy, tenor);
-    // Remove it from the map
-    delete this.callbacks[key];
-    // Invoke ths Signal R method
-    this.invoke(Methods.UnsubscribeFromDarkPoolPx, currency, strategy, tenor);
-  };
-
   public setDarkPoolClearListener = (
     currency: string,
     strategy: string,
@@ -443,7 +423,7 @@ export class SignalRClient {
     };
   };
 
-  public setDarkPoolPriceListener = (
+  public addDarkPoolPriceListener = (
     currency: string,
     strategy: string,
     tenor: string,
@@ -458,18 +438,23 @@ export class SignalRClient {
       !tenor
     )
       return (): void => {};
-    const key: string = $$(currency, strategy, tenor);
+    const path: string = $$(currency, strategy, tenor);
+    const eventName: string = `${UPDATE_DARK_POOL_PRICE}${path}`;
     const command: Command = {
       name: Methods.SubscribeForDarkPoolPx,
       args: [currency, strategy, tenor],
     };
-    this.callbacks[key] = fn;
+    const handleEvent = (event: Event): void => {
+      const customEvent = event as CustomEvent<DarkPoolMessage>;
+      fn(customEvent.detail);
+    };
+    document.addEventListener(eventName, handleEvent, true);
     // Try to execute it now
     this.recordCommand(command);
     this.runCommand(command);
 
     return (): void => {
-      delete this.callbacks[key];
+      document.removeEventListener(eventName, handleEvent, true);
       this.eraseCommand(command);
     };
   };
@@ -663,11 +648,12 @@ export class SignalRClient {
 
   private onUpdateDarkPoolPx = (rawMessage: string) => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
-    const key: string = $$(message.Symbol, message.Strategy, message.Tenor);
-    const listener = this.callbacks[key];
-    if (listener) {
-      listener(message);
-    }
+    const path: string = $$(message.Symbol, message.Strategy, message.Tenor);
+    const eventName: string = `${UPDATE_DARK_POOL_PRICE}${path}`;
+    const event = new CustomEvent<DarkPoolMessage>(eventName, {
+      detail: message,
+    });
+    document.dispatchEvent(event);
   };
 
   private replayRecordedCommands = () => {
