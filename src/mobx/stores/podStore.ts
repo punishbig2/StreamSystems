@@ -222,10 +222,9 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
         // Other task
         const quotes: ReadonlyArray<DarkPoolQuote> =
           await darkPoolQuotesTask.execute();
-        const darkPrices = quotes.reduce(
-          quoteReducer,
-          tenors.reduce(nullQuoteReducer, {})
-        );
+        const darkPrices =
+          quotes?.reduce(quoteReducer, tenors.reduce(nullQuoteReducer, {})) ??
+          {};
         const rowIds: ReadonlyArray<string> = Object.keys(this.rows);
         const combined = await combinedTask.execute();
 

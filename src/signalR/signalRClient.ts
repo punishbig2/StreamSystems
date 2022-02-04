@@ -399,7 +399,10 @@ export class SignalRClient {
       }
     );
     if (duplicate !== -1) {
-      console.warn("attempting to add a duplicate command");
+      console.warn(
+        "attempting to add a duplicate command",
+        this.recordedCommands[duplicate]
+      );
     }
     this.recordCommand(command);
     this.runCommand(command);

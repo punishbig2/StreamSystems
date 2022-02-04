@@ -27,8 +27,6 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
     return brokerageStore.installListener(firm);
   }, [brokerageStore, personality, user.firm]);
 
-  console.log(commissionRates);
-
   return (
     <div className={"commission-rates-container"}>
       {commissionRates.map((entry: CommissionRate): ReactElement => {

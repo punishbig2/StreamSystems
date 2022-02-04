@@ -211,7 +211,7 @@ export class RunWindowStore {
         mid: null,
       },
     };
-    console.log(this.rows);
+
     const key1 = RunWindowStore.orderTypeToRowKey(OrderTypes.Bid);
     const key2 = RunWindowStore.orderTypeToRowKey(OrderTypes.Ofr);
     document.dispatchEvent(
