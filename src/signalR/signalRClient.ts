@@ -104,10 +104,10 @@ export class SignalRClient {
 
   public static createConnection = () =>
     new HubConnectionBuilder()
-      .withUrl(
-        `${config.BackendUrl}/liveUpdateSignalRHub`,
-        HttpTransportType.WebSockets
-      )
+      .withUrl(`${config.BackendUrl}/liveUpdateSignalRHub`, {
+        transport: HttpTransportType.WebSockets,
+        skipNegotiation: true,
+      })
       .configureLogging(LogLevel.Error)
       .build();
 
