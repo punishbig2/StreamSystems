@@ -10,6 +10,8 @@ import React, { ReactElement, useEffect } from "react";
 import { toClassName } from "utils/conditionalClasses";
 import workareaStore from "mobx/stores/workareaStore";
 import { STRM } from "stateDefs/workspaceState";
+import { API } from "API";
+import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 
 export const CommissionRates: React.FC = observer((): ReactElement | null => {
   const brokerageStore = React.useContext<BrokerageStore | null>(
@@ -25,10 +27,19 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
     if (!connected) {
       return;
     }
-
     const firm = personality !== STRM ? personality : user.firm;
+    const task = API.getBrokerageCommission(firm);
 
-    return brokerageStore.installListener(firm);
+    task
+      .execute()
+      .then((rates: BrokerageCommissionResponse): void => {
+        brokerageStore.setRates(rates);
+      })
+      .catch(console.warn);
+    return (): void => {
+      brokerageStore.installListener(firm);
+      task.cancel();
+    };
   }, [brokerageStore, connected, personality, user.firm]);
 
   return (

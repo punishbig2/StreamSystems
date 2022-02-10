@@ -31,14 +31,8 @@ export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
   private stream = signalRClient;
 
-  constructor() {
-    const user: User = workareaStore.user;
-    const task: Task<BrokerageCommissionResponse> = API.getBrokerageCommission(
-      user.firm
-    );
-    const promise: Promise<BrokerageCommissionResponse> = task.execute();
-
-    promise.then(convertToCommissionRatesArray).then(this.onCommissionRates);
+  public setRates(rates: BrokerageCommissionResponse): void {
+    this.commissionRates = convertToCommissionRatesArray(rates);
   }
 
   public installListener(firm: string): () => void {
