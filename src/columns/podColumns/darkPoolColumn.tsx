@@ -22,6 +22,7 @@ import { Sides } from "types/sides";
 import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
 import signalRClient from "signalR/signalRClient";
 import { DarkPoolMessage } from "types/message";
+import { DarkPoolQuote } from "types/darkPoolQuote";
 
 type Props = PodRowProps & {
   readonly isDepth: boolean;
@@ -179,7 +180,16 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   );
 
   React.useEffect((): (() => void) | undefined => {
-    const stopListener1 = signalRClient.setDarkPoolClearListener(
+    const task = API.getDarkPoolLastQuotes(currency, strategy);
+    task
+      .execute()
+      .then((quotes: ReadonlyArray<DarkPoolQuote>) =>
+        quotes.forEach((quote: DarkPoolQuote): void =>
+          store.setDarkPoolPrice(quote.Tenor, quote.DarkPrice)
+        )
+      )
+      .catch(console.warn);
+    const stopListener1 = signalRClient.addDarkPoolClearListener(
       currency,
       strategy,
       tenor,
@@ -195,8 +205,9 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     return (): void => {
       stopListener1();
       stopListener2();
+      task.cancel();
     };
-  }, [currency, onPriceCleared, onPricePublished, strategy, tenor]);
+  }, [currency, onPriceCleared, onPricePublished, store, strategy, tenor]);
 
   const publish = React.useCallback(
     (price: number): void => {

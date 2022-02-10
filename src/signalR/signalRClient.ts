@@ -412,7 +412,7 @@ export class SignalRClient {
     };
   };
 
-  public setDarkPoolClearListener = (
+  public addDarkPoolClearListener = (
     currency: string,
     strategy: string,
     tenor: string,
