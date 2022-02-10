@@ -36,6 +36,7 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
         brokerageStore.setRates(rates);
       })
       .catch(console.warn);
+
     return (): void => {
       brokerageStore.installListener(firm);
       task.cancel();
