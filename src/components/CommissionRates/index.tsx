@@ -19,13 +19,17 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
     throw new Error("no brokerage store found");
   }
   const { commissionRates } = brokerageStore;
-  const { user, personality } = workareaStore;
+  const { user, personality, connected } = workareaStore;
 
-  useEffect(() => {
+  useEffect((): (() => void) | void => {
+    if (!connected) {
+      return;
+    }
+
     const firm = personality !== STRM ? personality : user.firm;
 
     return brokerageStore.installListener(firm);
-  }, [brokerageStore, personality, user.firm]);
+  }, [brokerageStore, connected, personality, user.firm]);
 
   return (
     <div className={"commission-rates-container"}>
