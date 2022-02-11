@@ -73,12 +73,16 @@ export class OrderStore {
   }
 
   private getReplaceOrderId(type: OrderTypes): string | null {
-    const { user } = workareaStore;
-    const { email } = user;
+    const { user, personality } = workareaStore;
+    const { email, roles, firm } = user;
     const { depth } = this;
 
     const myOrders = depth.filter((order: Order): boolean => {
       if (order.user !== email) return false;
+      if (roles.includes(Role.Broker)) {
+        return firm === personality && order.type === type;
+      }
+
       return order.type === type;
     });
 
