@@ -24,5 +24,9 @@ export const playBeep = async (
   })();
   const element: HTMLAudioElement = document.createElement("audio");
   element.src = src;
-  element.play();
+
+  element
+    .play()
+    .then((): void => {})
+    .catch((): void => {});
 };

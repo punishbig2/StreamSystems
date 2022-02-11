@@ -634,13 +634,20 @@ export class SignalRClient {
     });
   };
 
+  public messageCount = 0;
   private onUpdateDeals = (message: string): void => {
     const deal: any = JSON.parse(message);
+    // Ignore deals that have lastpx as string
+    if (typeof deal.lastpx === "string") {
+      return;
+    }
+
     const dealWithDefaults: any = {
       ...deal,
       premstyle: coalesce(deal.premstyle, "Forward"),
       deltastyle: coalesce(deal.deltastyle, "Forward"),
     };
+
     void this.addDeal(dealWithDefaults);
   };
 

@@ -37,8 +37,9 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
       })
       .catch(console.warn);
 
+    const removeListener = brokerageStore.installListener(firm);
     return (): void => {
-      brokerageStore.installListener(firm);
+      removeListener();
       task.cancel();
     };
   }, [brokerageStore, connected, personality, user.firm]);

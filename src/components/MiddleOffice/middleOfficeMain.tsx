@@ -101,13 +101,11 @@ export const MiddleOfficeMain: React.FC<Props> = (
 
   // Deal event handlers
   useNewDealListener((deal: { [key: string]: any }) => {
-    // noinspection JSIgnoredPromiseFromCall
-    props.addDeal(deal);
+    void props.addDeal(deal);
   });
 
   useDealDeletedListener((id: string): void => {
-    // noinspection JSIgnoredPromiseFromCall
-    props.removeDeal(id);
+    void props.removeDeal(id);
   });
 
   useDealEditListener((status: DealEditStatus, id: string): void => {
