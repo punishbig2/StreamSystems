@@ -33,6 +33,10 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
     task
       .execute()
       .then((rates: BrokerageCommissionResponse): void => {
+        if (typeof (rates as unknown) === "string") {
+          return;
+        }
+
         brokerageStore.setRates(rates);
       })
       .catch(console.warn);
