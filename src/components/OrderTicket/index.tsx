@@ -5,7 +5,13 @@ import React, { ReactElement, useState } from "react";
 import strings from "locales";
 import { PresetSizeButton } from "components/presetSizeButton";
 import { sizeFormatter } from "utils/sizeFormatter";
-import { Grid, FormControl, FormLabel, OutlinedInput } from "@material-ui/core";
+import {
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Grid,
+  OutlinedInput,
+} from "@material-ui/core";
 import { selectInputText } from "utils/commonUtils";
 
 interface Props {
@@ -17,11 +23,16 @@ interface Props {
 
 const formatValue = (value: number | null, precision: number): string =>
   value === null ? "" : value.toFixed(precision);
+
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const { order } = props;
   const [size, setSize] = useState<number | null>(order.size);
   const [price, setPrice] = useState<string>(formatValue(order.price, 3));
   const classes = useTicketClasses();
+  const priceError = React.useMemo(
+    (): string | null => (isNaN(Number(price)) ? "Invalid value" : null),
+    [price]
+  );
   if (!order) return null;
   const updateQuantity = ({
     target: { value },
@@ -35,10 +46,9 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const updatePrice = ({
     target: { value },
   }: React.ChangeEvent<HTMLInputElement>) => {
-    const numeric = Number(value);
-    if (isNaN(numeric)) return;
     setPrice(value);
   };
+
   const onSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     if (size !== null && price !== null) {
@@ -76,6 +86,9 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
                 labelWidth={0}
                 className={classes.outlinedInput}
               />
+              <FormHelperText error={priceError !== null}>
+                {priceError}
+              </FormHelperText>
             </FormControl>
           </Grid>
           <Grid>
