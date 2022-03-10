@@ -215,13 +215,15 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
       // Update it for us immediately
       store.setDarkPoolPrice(tenor, price);
       // Publish it for others
-      void API.publishDarkPoolPrice(
+      API.publishDarkPoolPrice(
         user.email,
         currency,
         strategy,
         tenor,
         price
-      );
+      ).then((): Promise<void> => {
+        return API.cancelAllDarkPoolOrder(currency, strategy, tenor);
+      });
     },
     [currency, store, strategy, tenor]
   );
