@@ -4,10 +4,20 @@ const baseUrl: string = location.protocol + "//" + hostname;
 // Replace the second item of the host name
 const parts: string[] = hostname.split(".");
 
-const accountUrlBase =
-  hostname === "localhost" || hostname === "172.16.0.2"
-    ? "account.fxo.com"
-    : [...parts.slice(0, -3), "account", ...parts.slice(-2)].join(".");
+const IP_ADDRESS_REGEXP =
+  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+const isLocalOrLAN = (hostname: string): boolean => {
+  if (hostname === "localhost") {
+    return true;
+  }
+
+  return IP_ADDRESS_REGEXP.test(hostname);
+};
+
+const accountUrlBase = isLocalOrLAN(hostname)
+  ? `${hostname}:8822`
+  : [...parts.slice(0, -3), "account", ...parts.slice(-2)].join(".");
 
 const accountUrl: string = `${location.protocol}//${accountUrlBase}`;
 

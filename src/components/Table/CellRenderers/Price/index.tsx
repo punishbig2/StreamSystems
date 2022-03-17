@@ -55,13 +55,23 @@ export interface Props {
 
 export const Price: React.FC<Props> = observer((props: Props) => {
   const [store] = React.useState<PriceStore>(new PriceStore());
+  const [input, setInput] = React.useState<HTMLInputElement | null>(null);
   const { value, status, tooltip } = props;
   if (value === undefined) throw new Error("value is not optional");
 
   React.useEffect(() => {
     store.setBaseValue(value);
+    if (input !== null) {
+      const documentSelection = document.getSelection();
+      const selection = documentSelection?.toString() ?? "";
+      if (selection.length > 0) {
+        if (selection === input.value) {
+          store.setInternalValue(priceFormatter(value));
+        }
+      }
+    }
     setEdited(false);
-  }, [store, value]);
+  }, [input, store, value]);
 
   React.useEffect(() => {
     store.setStatus(status);
@@ -228,6 +238,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
         )}
         <NumericInput
           id={props.uid}
+          ref={setInput}
           readOnly={props.readOnly}
           tabIndex={props.tabIndex}
           title={props.title}
