@@ -234,6 +234,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     store.setDarkPoolPrice(tenor, null);
     // Publish it for others
     void API.clearDarkPoolPrice(user.email, currency, strategy, tenor);
+    void API.cancelAllDarkPoolOrder(currency, strategy, tenor);
   };
 
   const onSubmit = (
