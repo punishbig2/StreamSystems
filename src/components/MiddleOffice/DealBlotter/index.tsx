@@ -70,6 +70,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
         },
         (): boolean => true
       );
+
       const getSign = (direction: SortDirection): 0 | 1 | -1 => {
         switch (direction) {
           case SortDirection.None:
@@ -80,6 +81,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
             return 1;
         }
       };
+
       const sortFn = sorters.reduce(
         (fn: SortFn<Deal>, sorter: Sorter): SortFn<Deal> => {
           return (v1: Deal, v2: Deal): number => {
@@ -116,6 +118,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
     };
 
     const onSortBy = (columnName: string, direction: SortDirection): void => {
+      console.log(columnName, direction);
       const matcher = ({ column: { name } }: Sorter): boolean =>
         name !== columnName;
       const column = getColumnByName(columnName);
@@ -136,11 +139,14 @@ export const DealBlotter: React.FC<Props> = React.memo(
         columns.map(
           (column: TableColumn): ExtendedTableColumn => ({
             ...column,
-            sortDirection: SortDirection.None,
+            sortDirection:
+              sorters.find(
+                (sorter: Sorter): boolean => sorter.column.name === column.name
+              )?.direction ?? SortDirection.None,
             filter: "",
           })
         ),
-      []
+      [sorters]
     );
 
     return (
