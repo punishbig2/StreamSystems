@@ -24,6 +24,7 @@ interface Props {
   readonly errorMessage: string | null;
   readonly currencies: ReadonlyArray<Symbol>;
   readonly tenors: ReadonlyArray<string>;
+  readonly visible: boolean;
 
   readonly onRemoveTile: (id: string) => void;
   readonly onCloseErrorModal: () => void;
@@ -44,7 +45,11 @@ export const ContentView: React.FC<Props> = (
           if (isPodTileStore(contentStore)) {
             return (
               <PodStoreContext.Provider value={contentStore}>
-                <PodTile currencies={props.currencies} tenors={props.tenors} />
+                <PodTile
+                  visible={props.visible}
+                  currencies={props.currencies}
+                  tenors={props.tenors}
+                />
               </PodStoreContext.Provider>
             );
           } else {

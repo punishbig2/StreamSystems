@@ -18,6 +18,8 @@ import { WindowContent } from "./windowContent";
 interface Props {
   readonly tenors: ReadonlyArray<string>;
   readonly currencies: ReadonlyArray<Symbol>;
+
+  readonly visible: boolean;
 }
 
 const getCurrencyFromName = (
@@ -34,7 +36,7 @@ const getCurrencyFromName = (
 export const PodTile: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const store = React.useContext<PodStore>(PodStoreContext);
-    const { currencies, tenors } = props;
+    const { currencies, tenors, visible } = props;
     const { strategy } = store;
     const currency: Symbol | undefined = getCurrencyFromName(
       currencies,
@@ -43,15 +45,13 @@ export const PodTile: React.FC<Props> = observer(
     const { connected, user } = workareaStore;
 
     useEffect((): (() => void) | undefined => {
-      if (!connected || currency === InvalidCurrency || !strategy) return;
+      if (!connected || currency === InvalidCurrency || !strategy || !visible)
+        return;
       const initializeTask: Task<void> = store.initialize(
         currency.name,
         strategy
       );
-      const cleanUps: Array<() => void> = store.listen(
-        currency.name,
-        strategy
-      );
+      const cleanUps: Array<() => void> = store.listen(currency.name, strategy);
 
       setTimeout((): void => {
         void initializeTask.execute();
@@ -61,7 +61,7 @@ export const PodTile: React.FC<Props> = observer(
         initializeTask.cancel();
         cleanUps.forEach((clean: () => void): void => clean());
       };
-    }, [store, currency, strategy, user, connected]);
+    }, [store, currency, strategy, user, connected, visible]);
 
     const bulkCreateOrders = async (orders: ReadonlyArray<Order>) => {
       store.createBulkOrders(orders, currency).catch(console.warn);
@@ -82,6 +82,32 @@ export const PodTile: React.FC<Props> = observer(
       () => createPODColumns(currency.name, strategy, false),
       [currency, strategy]
     );
+
+    /*React.useEffect((): void | VoidFunction => {
+      if (!visible) {
+        return;
+      }
+      console.log(`reloading ${currency.name}:${strategy}`);
+      // Reset darkpool
+      tenors.forEach((tenor: string): void => {
+        store.setDarkPoolPrice(tenor, null);
+      });
+
+      const task = API.getDarkPoolLastQuotes(currency.symbolID, strategy);
+      task
+        .execute()
+        .then((quotes: ReadonlyArray<DarkPoolQuote>) =>
+          quotes.forEach((quote: DarkPoolQuote): void =>
+            store.setDarkPoolPrice(quote.Tenor, quote.DarkPrice)
+          )
+        )
+        .catch(console.warn);
+
+      void task.execute();
+      return (): void => {
+        task.cancel();
+      };
+    }, [currency, store, strategy, tenors, visible]);*/
 
     return (
       <>

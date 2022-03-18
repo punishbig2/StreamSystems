@@ -31,12 +31,13 @@ export const Workspaces: React.FC = observer((): React.ReactElement | null => {
       const style = {
         display: index === currentWorkspaceIndex ? "initial" : "none",
       };
+
       const key = index.toString();
       if (isMiddleOfficeWorkspace(workspace)) {
         return (
           <div style={style} key={key}>
             <MiddleOfficeStoreContext.Provider value={workspace}>
-              <MiddleOffice visible={true} />
+              <MiddleOffice visible={index === currentWorkspaceIndex} />
             </MiddleOfficeStoreContext.Provider>
           </div>
         );
@@ -47,7 +48,7 @@ export const Workspaces: React.FC = observer((): React.ReactElement | null => {
               <TradingWorkspace
                 index={index}
                 isDefault={!workspace.modified}
-                visible={true}
+                visible={index === currentWorkspaceIndex}
                 tenors={workarea.tenors}
                 /* Only filtered symbols */
                 currencies={symbols}

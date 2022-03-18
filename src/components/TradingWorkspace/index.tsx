@@ -93,6 +93,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
             isDefault={props.isDefault}
             currencies={props.currencies}
             tenors={props.tenors}
+            visible={props.visible}
             errorMessage={store.errorMessage}
             onCloseErrorModal={(): void => store.hideErrorModal()}
             onRemoveTile={(id: string) => store.removeTile(id)}
