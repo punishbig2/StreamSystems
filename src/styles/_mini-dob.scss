@@ -13,7 +13,6 @@
 
     font-size: $table-font-size;
     font-weight: $table-font-weight;
-    font-family: $table-font-family;
 
     .mini-firm,
     .mini-price,
@@ -24,7 +23,6 @@
       overflow: hidden;
       text-align: center;
       font-size: inherit;
-      font-family: inherit;
       font-weight: inherit;
 
       &:not(:last-child) {
@@ -46,7 +44,7 @@
     }
 
     .mini-firm {
-      font-size: $table-font-size - 2;
+      font-size: $small-font-size;
       font-weight: $table-font-weight + 100;
       color: $text-color-green;
     }

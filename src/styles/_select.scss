@@ -27,11 +27,10 @@
     appearance: none;
     border: none;
     background: none;
-    font-size: $normal-font-size;
+    font-size: $smaller-font-size;
     flex: 1;
     margin-right: -20px;
     color: $foreground-color;
-    font-family: "Montserrat", sans-serif;
     font-weight: bold;
 
     &.no-selection {

@@ -53,7 +53,9 @@ export const MiddleOffice: React.FC<Props> = observer(
       );
     } else {
       return (
-        <MuiThemeProvider theme={createTheme(preferences.theme)}>
+        <MuiThemeProvider
+          theme={createTheme(preferences.theme, preferences.fontFamily)}
+        >
           <MiddleOfficeMain
             visible={props.visible}
             error={store.error}

@@ -29,7 +29,6 @@
   padding: 3px 8px 1px 8px;
   border-radius: 4px;
   border-bottom: 2px solid darken($primary-color, 15%);
-  font-family: inherit;
 
   &:not(:disabled):active {
     transform: translateY(1px);

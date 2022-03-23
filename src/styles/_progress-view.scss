@@ -32,7 +32,7 @@
     .title {
       display: flex;
       justify-content: space-between;
-      font-size: 16px;
+      font-size: $normal-font-size;
       text-transform: uppercase;
       font-weight: bold;
       margin: 8px 0;
@@ -40,7 +40,7 @@
     }
 
     .message {
-      font-size: 14px;
+      font-size: $small-font-size;
       margin: 8px 0;
       font-weight: 500;
       opacity: 0.75;

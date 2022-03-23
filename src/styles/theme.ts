@@ -3,11 +3,14 @@ import { Palette } from "@material-ui/core/styles/createPalette";
 import { getPalette } from "styles/palette";
 import { typography } from "styles/typography";
 
-export const createTheme = (theme: "dark" | "light"): Theme => {
+export const createTheme = (
+  theme: "dark" | "light",
+  fontFamily: string
+): Theme => {
   const palette: Palette = getPalette(theme);
   return createMuiTheme({
     palette: palette,
-    typography: typography(palette),
+    typography: typography(palette, fontFamily),
     overrides: {
       MuiFormControl: {
         root: {
@@ -20,7 +23,6 @@ export const createTheme = (theme: "dark" | "light"): Theme => {
       },
       MuiFormLabel: {
         root: {
-          fontFamily: '"Montserrat", sans-serif',
           fontSize: 13,
           fontWeight: 500,
           margin: 0,
@@ -29,14 +31,7 @@ export const createTheme = (theme: "dark" | "light"): Theme => {
       },
       MuiMenuItem: {
         root: {
-          fontFamily: '"Roboto", sans-serif',
           fontWeight: 500,
-          fontSize: 15,
-        },
-      },
-      MuiFormHelperText: {
-        root: {
-          fontFamily: '"Montserrat", sans-serif',
         },
       },
       MuiSelect: {
@@ -53,7 +48,6 @@ export const createTheme = (theme: "dark" | "light"): Theme => {
           height: 30,
         },
         input: {
-          fontFamily: '"Roboto", sans-serif',
           fontWeight: 500,
           fontSize: 15,
         },

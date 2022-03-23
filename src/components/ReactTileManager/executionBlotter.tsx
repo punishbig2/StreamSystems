@@ -60,9 +60,13 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
   const groups = React.useMemo((): ReadonlyArray<{ readonly name: string }> => {
     return [
       { name: "All" },
-      ...regions.map((ccyGroup): {
-        name: string;
-      } => ({ name: ccyGroup })),
+      ...regions.map(
+        (
+          ccyGroup
+        ): {
+          name: string;
+        } => ({ name: ccyGroup })
+      ),
     ];
   }, [regions]);
 

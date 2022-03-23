@@ -11,17 +11,16 @@ $window-toolbar-size: 48px;
 $window-footer-size: 36px;
 
 // Font sizes
-$error-title-font-size: 90px;
-$normal-font-size: 14px;
-$large-font-size: $normal-font-size + 4;
-$medium-font-size: $normal-font-size + 2;
-$small-font-size: $normal-font-size - 1;
-$smaller-font-size: $normal-font-size - 2;
-$tiny-font-size: $normal-font-size - 4;
+$error-title-font-size: 10rem;
+$normal-font-size: 1rem;
+$large-font-size: 2rem;
+$medium-font-size: 0.9rem;
+$small-font-size: 0.85rem;
+$smaller-font-size: 0.75rem;
+$tiny-font-size: 0.5rem;
 
-$table-font-size: $normal-font-size;
-$table-font-weight: 400;
-$table-font-family: "Roboto", sans-serif;
+$table-font-size: $small-font-size;
+$table-font-weight: 500;
 $red-x-size: $table-row-height - 6;
 
 $dark-background-form-background-color: #111;

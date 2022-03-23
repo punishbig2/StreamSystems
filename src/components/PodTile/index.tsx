@@ -13,7 +13,7 @@ import { InvalidCurrency } from "stateDefs/windowState";
 import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
-import { WindowContent } from "./windowContent";
+import { WindowContent } from "components/PodTile/windowContent";
 
 interface Props {
   readonly tenors: ReadonlyArray<string>;
@@ -82,32 +82,6 @@ export const PodTile: React.FC<Props> = observer(
       () => createPODColumns(currency.name, strategy, false),
       [currency, strategy]
     );
-
-    /*React.useEffect((): void | VoidFunction => {
-      if (!visible) {
-        return;
-      }
-      console.log(`reloading ${currency.name}:${strategy}`);
-      // Reset darkpool
-      tenors.forEach((tenor: string): void => {
-        store.setDarkPoolPrice(tenor, null);
-      });
-
-      const task = API.getDarkPoolLastQuotes(currency.symbolID, strategy);
-      task
-        .execute()
-        .then((quotes: ReadonlyArray<DarkPoolQuote>) =>
-          quotes.forEach((quote: DarkPoolQuote): void =>
-            store.setDarkPoolPrice(quote.Tenor, quote.DarkPrice)
-          )
-        )
-        .catch(console.warn);
-
-      void task.execute();
-      return (): void => {
-        task.cancel();
-      };
-    }, [currency, store, strategy, tenors, visible]);*/
 
     return (
       <>

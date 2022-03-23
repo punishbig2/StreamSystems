@@ -7,16 +7,16 @@ import { typography } from "styles/typography";
 const labelWidth: string = "35%";
 const fieldSize: number = 25;
 
-export const createTheme = (name: string) => {
+export const createTheme = (name: string, fontFamily: string) => {
   const palette: Palette = getPalette(name as "light" | "dark");
   return createMuiTheme({
     spacing: 4,
     palette: palette,
-    typography: typography(palette),
+    typography: typography(palette, fontFamily),
     overrides: {
       MuiMenuItem: {
         root: {
-          fontSize: 13,
+          fontSize: "smaller",
           fontWeight: 600,
         },
       },
@@ -59,9 +59,8 @@ export const createTheme = (name: string) => {
       },
       MuiInputBase: {
         root: {
-          fontFamily: "'Roboto', sans-serif",
           fontWeight: 600,
-          fontSize: 13,
+          fontSize: "smaller",
           color: "inherit",
           height: fieldSize,
           lineHeight: fieldSize + "px",
@@ -80,11 +79,10 @@ export const createTheme = (name: string) => {
       },
       MuiFormLabel: {
         root: {
-          fontFamily: "'Montserrat', sans-serif",
           minWidth: labelWidth,
           maxWidth: labelWidth,
           fontWeight: 500,
-          fontSize: 13,
+          fontSize: "smaller",
           color: "inherit",
           "&$disabled": {
             color: alpha(palette.text.disabled, 0.5),

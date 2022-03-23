@@ -50,13 +50,13 @@ export const percent = (
 export const getCurrentTime = (): string => Math.round(Date.now()).toString();
 
 export const updateApplicationTheme = (
-  theme: string,
-  colorScheme: string,
-  font: string
+  colorScheme: "light" | "dark",
+  fontFamily: string,
+  fontSize: string
 ) => {
-  void colorScheme;
-  void font;
-  themeStore.setTheme(theme as "light" | "dark");
+  themeStore.setTheme(colorScheme);
+  themeStore.setFontFamily(fontFamily);
+  themeStore.setFontSize(fontSize);
 };
 
 export const selectInputText = (input: HTMLInputElement) =>

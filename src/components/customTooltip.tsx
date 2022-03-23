@@ -26,7 +26,6 @@ const useErrorTooltipStyle = makeStyles(() => ({
   tooltip: {
     color: (props: Props): string => foregrounds[props.tooltipStyle],
     backgroundColor: (props: Props): string => backgrounds[props.tooltipStyle],
-    fontSize: 15,
   },
 }));
 

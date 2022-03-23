@@ -8,6 +8,7 @@ import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 import { idealBlotterHeight } from "utils/idealBlotterHeight";
 import { Size } from "utils/windowUtils";
+import { themeStore } from "mobx/stores/themeStore";
 
 export const useExecutionBlotterSize = (): Size => {
   const user: User = workareaStore.user;
@@ -28,7 +29,11 @@ export const useExecutionBlotterSize = (): Size => {
   );
   return React.useMemo(
     () => ({
-      width: getOptimalWidthFromColumnsSpec(columns),
+      width: getOptimalWidthFromColumnsSpec(
+        themeStore.fontFamily,
+        themeStore.fontSize,
+        columns
+      ),
       // Compute the ideal height
       height: idealBlotterHeight(),
     }),

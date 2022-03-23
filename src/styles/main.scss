@@ -1,5 +1,15 @@
 @import "variables";
 @import "../fonts/montserrat/font.css";
+@import "../fonts/roboto/font.css";
+@import "../fonts/raleway/font.css";
+@import "../fonts/fira_sans/font.css";
+@import "../fonts/heebo/font.css";
+@import "../fonts/josefin_sans/font.css";
+@import "../fonts/lato/font.css";
+@import "../fonts/oswald/font.css";
+@import "../fonts/oxygen/font.css";
+@import "../fonts/nunito/font.css";
+@import "../fonts/poppins/font.css";
 @import "../fonts/fontawesome/css/all.min.css";
 @import "global";
 @import "../color-schemes/default";
@@ -12,6 +22,9 @@
   #{--table-header-height}: $table-header-height;
   #{--window-footer-size}: $window-footer-size;
   #{--table-font-size}: $table-font-size;
-  #{--table-font-family}: $table-font-family;
   #{--table-font-weight}: $table-font-weight;
+}
+
+button, select {
+  font-family: inherit;
 }

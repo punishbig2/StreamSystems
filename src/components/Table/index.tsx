@@ -8,6 +8,7 @@ import { HeaderStore, HeaderStoreContext } from "mobx/stores/headerStore";
 import React from "react";
 import { SortDirection } from "types/sortDirection";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
+import { themeStore } from "mobx/stores/themeStore";
 
 interface Props {
   readonly columns: ReadonlyArray<ExtendedTableColumn>;
@@ -31,74 +32,85 @@ interface Props {
   ) => void;
 }
 
-const BasicTable = React.forwardRef(
-  (props: Props, ref: React.Ref<HTMLDivElement>): React.ReactElement | null => {
-    const { rows, columns } = props;
+const BasicTable = observer(
+  React.forwardRef(
+    (
+      props: Props,
+      ref: React.Ref<HTMLDivElement>
+    ): React.ReactElement | null => {
+      const { rows, columns } = props;
 
-    const optimalWidth = React.useMemo(
-      (): number => getOptimalWidthFromColumnsSpec(columns),
-      [columns]
-    );
+      const optimalWidth = React.useMemo(
+        (): number =>
+          getOptimalWidthFromColumnsSpec(
+            themeStore.fontFamily,
+            themeStore.fontSize,
+            columns
+          ),
+        [columns]
+      );
 
-    const style = React.useMemo(
-      (): React.CSSProperties => ({
-        minWidth: `${optimalWidth}px`,
-        ...props.style,
-      }),
-      [optimalWidth, props.style]
-    );
-    const entries: [string, any][] = rows === null ? [] : Object.entries(rows);
-    const totalWidth: number = columns.reduce(
-      (total: number, column: TableColumn) => total + column.width,
-      0
-    );
+      const style = React.useMemo(
+        (): React.CSSProperties => ({
+          minWidth: `${optimalWidth}px`,
+          ...props.style,
+        }),
+        [optimalWidth, props.style]
+      );
+      const entries: [string, any][] =
+        rows === null ? [] : Object.entries(rows);
+      const totalWidth: number = columns.reduce(
+        (total: number, column: TableColumn) => total + column.width,
+        0
+      );
 
-    const rowsToProps = React.useCallback(
-      ([key, row]: [string, any]) => ({
-        id: key,
-        totalWidth: totalWidth,
-        containerWidth: optimalWidth,
-        key,
-        columns,
-        row,
-      }),
-      [columns, optimalWidth, totalWidth]
-    );
+      const rowsToProps = React.useCallback(
+        ([key, row]: [string, any]) => ({
+          id: key,
+          totalWidth: totalWidth,
+          containerWidth: optimalWidth,
+          key,
+          columns,
+          row,
+        }),
+        [columns, optimalWidth, totalWidth]
+      );
 
-    const transformedRows: { [key: string]: any }[] = React.useMemo(() => {
-      return entries.map(rowsToProps);
-    }, [rowsToProps, entries]);
+      const transformedRows: { [key: string]: any }[] = React.useMemo(() => {
+        return entries.map(rowsToProps);
+      }, [rowsToProps, entries]);
 
-    const classes: string[] = ["table"];
+      const classes: string[] = ["table"];
 
-    if (props.className) classes.push(props.className);
+      if (props.className) classes.push(props.className);
 
-    return (
-      <div ref={ref} className={classes.join(" ")} style={style}>
-        <HeaderStoreContext.Provider value={new HeaderStore()}>
-          <TableHeader
-            columns={columns}
-            allowReorderColumns={props.allowReorderColumns === true}
-            totalWidth={totalWidth}
-            containerWidth={optimalWidth}
-            onSortBy={props.onSortBy}
-            onFiltered={props.onFiltered}
-            onColumnsOrderChange={props.onColumnsOrderChange}
-          />
-        </HeaderStoreContext.Provider>
-        <ScrollArea>
-          <TableBody
-            rows={transformedRows}
-            selectedRow={props.selectedRow}
-            renderRow={props.renderRow}
-          />
-        </ScrollArea>
-        <div className={"loading-banner"}>
-          <div className={"spinner"} />
+      return (
+        <div ref={ref} className={classes.join(" ")} style={style}>
+          <HeaderStoreContext.Provider value={new HeaderStore()}>
+            <TableHeader
+              columns={columns}
+              allowReorderColumns={props.allowReorderColumns === true}
+              totalWidth={totalWidth}
+              containerWidth={optimalWidth}
+              onSortBy={props.onSortBy}
+              onFiltered={props.onFiltered}
+              onColumnsOrderChange={props.onColumnsOrderChange}
+            />
+          </HeaderStoreContext.Provider>
+          <ScrollArea>
+            <TableBody
+              rows={transformedRows}
+              selectedRow={props.selectedRow}
+              renderRow={props.renderRow}
+            />
+          </ScrollArea>
+          <div className={"loading-banner"}>
+            <div className={"spinner"} />
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
+  )
 );
 
 export const Table: React.FC<Props> = observer(BasicTable);

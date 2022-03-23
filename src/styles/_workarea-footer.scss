@@ -38,7 +38,6 @@
 
         input {
           color: inherit;
-          font-family: "Montserrat", sans-serif;
           font-size: $normal-font-size;
           font-weight: 500;
           padding: 0 8px;
@@ -127,14 +126,14 @@
     color: orange;
     cursor: pointer;
     justify-self: flex-end;
-    font-size: 13px;
+    font-size: $small-font-size;
 
     i {
-      font-size: 13px;
+      font-size: inherit;
     }
 
     p {
-      font-size: 13px;
+      font-size: inherit;
       font-weight: 600;
       margin: 0 8px;
     }

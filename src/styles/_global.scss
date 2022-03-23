@@ -6,10 +6,6 @@ button {
   padding: 2px 16px;
 }
 
-body {
-  font-family: "Montserrat", sans-serif;
-}
-
 html,
 body,
 #root {
@@ -21,7 +17,7 @@ body,
 
 button {
   text-transform: uppercase;
-  font-size: small;
+  font-size: $small-font-size;
   font-weight: 600;
 }
 

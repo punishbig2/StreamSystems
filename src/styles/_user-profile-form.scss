@@ -21,7 +21,7 @@
       i {
         line-height: 2 * $medium-font-size;
         text-align: center;
-        font-size: 2 * $medium-font-size - 8;
+        font-size: 1.5 * $medium-font-size;
         background-color: $light-color;
         width: 100%;
         height: 100%;
@@ -47,14 +47,31 @@
   width: 640px;
   padding: 16px 16px 0 16px;
 
+  fieldset {
+    padding: 0;
+    border: none;
+    margin: 8px 0 0 0;
+
+    legend {
+      color: $text-color-black;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin: 0 0 8px -6px;
+      opacity: 0.5;
+    }
+
+    fieldset {
+      padding: initial;
+      border: initial;
+    }
+  }
+
   h4.no-content {
     opacity: 0.3;
     text-align: center;
-    font-family: "Roboto", sans-serif;
   }
 
   .disabled-item {
-    font-family: "Roboto", sans-serif;
     opacity: 0.5;
   }
 }

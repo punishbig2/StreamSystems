@@ -3,13 +3,11 @@ $title-padding: 12px;
 $text-padding: 16px;
 .message-box {
   width: 400px;
-  font-family: "Roboto", sans-serif;
 
   .box-title {
     display: flex;
     align-items: center;
     margin: $title-padding / 3;
-    font-family: inherit;
 
     .icon {
       &.good {
@@ -57,10 +55,7 @@ $text-padding: 16px;
     }
 
     .text {
-      font-family: inherit;
-
       h1 {
-        font-family: inherit;
         font-size: $large-font-size;
         font-weight: 600;
         text-transform: uppercase;
@@ -72,16 +67,11 @@ $text-padding: 16px;
   }
 
   .content {
-    font-family: inherit;
     padding: 0 $text-padding;
     margin: 0 $icon-size;
 
     .pricer-error {
-      font-family: inherit;
-
       p {
-        font-family: inherit;
-
         &:not(:first-child) {
           min-height: 0;
           opacity: 0.5;
@@ -91,7 +81,6 @@ $text-padding: 16px;
     }
 
     p {
-      font-family: inherit;
       font-weight: 500;
       min-height: 5em;
       color: lighten($foreground-color, 15%);

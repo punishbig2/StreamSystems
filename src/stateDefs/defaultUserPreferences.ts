@@ -8,11 +8,10 @@ import { findDefaultTimezone } from "utils/commonUtils";
 
 export const defaultPreferences: UserPreferences = {
   ccyGroup: CurrencyGroups.Default,
-  colorScheme: "default",
   execSound: "default",
   darkPoolExecSound: "default",
-  font: "default",
-  fontSize: "15px",
+  fontFamily: "Default",
+  fontSize: "normal",
   mpid: "",
   oco: OCOModes.Disabled,
   timezone: findDefaultTimezone(),

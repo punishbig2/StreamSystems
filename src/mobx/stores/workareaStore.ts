@@ -252,7 +252,6 @@ export class WorkareaStore {
         this.setStatus(WorkareaStatus.Ready);
       }
     } catch (error) {
-      this.loadTheme();
       this.setStatus(WorkareaStatus.Error);
     }
   }
@@ -292,6 +291,7 @@ export class WorkareaStore {
   @action.bound
   public setPreferences(preferences: UserPreferences) {
     this.preferences = preferences;
+    this.loadTheme();
   }
 
   @action.bound
@@ -353,8 +353,8 @@ export class WorkareaStore {
 
   @action.bound
   private loadTheme() {
-    const { theme, colorScheme, font } = this.preferences;
-    updateApplicationTheme(theme, colorScheme, font);
+    const { theme, fontFamily, fontSize } = this.preferences;
+    updateApplicationTheme(theme, fontFamily, fontSize);
   }
 
   private mapSymbolsWithIds() {
@@ -420,9 +420,10 @@ export class WorkareaStore {
     this.updateLoadingProgress(strings.LoadingRegions);
     // Initialize the persistStorage object
     const savedStore = await persistStorage.read();
-    this.preferences = savedStore.preferences;
     this.workspaces = savedStore.workspaces;
     this.currentWorkspaceIndex = savedStore.currentWorkspaceIndex;
+
+    this.setPreferences(savedStore.preferences);
     autorun((): void => {
       const { persistStorage } = this;
       if (persistStorage === null || persistStorage === undefined) {

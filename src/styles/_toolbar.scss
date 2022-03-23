@@ -44,7 +44,6 @@
         .value {
           line-height: normal;
           font-size: $window-toolbar-size / 3;
-          font-family: "Roboto", sans-serif;
         }
       }
     }
@@ -60,7 +59,6 @@
       .execution-banner-item {
         font-size: $normal-font-size;
         font-weight: 500;
-        font-family: $table-font-family;
         line-height: inherit;
         padding: 0 4px;
         border: 1px solid rgba($foreground-color, 0.05);

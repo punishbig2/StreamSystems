@@ -1,7 +1,6 @@
 $spinner-size: $table-row-height - 6;
 
 .table {
-  font-family: $table-font-family;
   font-size: $table-font-size;
   font-weight: $table-font-weight;
   background: none;
@@ -66,7 +65,6 @@ $spinner-size: $table-row-height - 6;
     overflow-y: hidden;
 
     *:not(.fa) {
-      font-family: inherit;
       font-size: inherit;
       font-weight: inherit;
     }
@@ -97,7 +95,7 @@ $spinner-size: $table-row-height - 6;
         display: inline-block;
         vertical-align: top;
         font-weight: $table-font-weight + 300;
-        font-size: $table-font-size - 3;
+        font-size: 0.8em;
         color: lighten($foreground-color, 5%);
         text-transform: uppercase;
         text-align: center;
@@ -170,7 +168,7 @@ $spinner-size: $table-row-height - 6;
           min-height: $table-header-height;
 
           .dark-pool-header {
-            font-size: $table-header-height / 2 - 1;
+            font-size: $table-header-height / 2;
             line-height: $table-header-height / 2;
             height: $table-header-height;
             padding: 0;
@@ -181,7 +179,6 @@ $spinner-size: $table-row-height - 6;
             height: 2 * $table-header-height;
 
             input {
-              font-family: $table-font-family;
               height: $table-header-height;
               border: none;
               width: 100%;
@@ -260,12 +257,10 @@ $spinner-size: $table-row-height - 6;
   }
 
   .tbody {
-    font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
 
     .tr {
-      font-family: inherit;
       font-size: inherit;
       color: $text-color-black;
       height: $table-row-height;
@@ -313,7 +308,6 @@ $spinner-size: $table-row-height - 6;
       .td {
         display: inline-block;
         vertical-align: top;
-        font-family: inherit;
         font-size: inherit;
         font-weight: inherit;
         text-align: center;
@@ -385,7 +379,6 @@ $spinner-size: $table-row-height - 6;
 
           span:not(.fa) {
             font-size: $smaller-font-size;
-            font-family: $table-font-family;
             font-weight: $table-font-weight + 200;
             padding: 0 4px;
           }
@@ -445,7 +438,6 @@ $spinner-size: $table-row-height - 6;
         }
 
         *:not(.fa) {
-          font-family: inherit;
           font-size: inherit;
           font-weight: inherit;
         }

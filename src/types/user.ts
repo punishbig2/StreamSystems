@@ -62,11 +62,10 @@ export interface UserPreferences {
   readonly userType: UserTypes;
   readonly mpid: string;
   readonly fontSize: string;
-  readonly font: string;
+  readonly fontFamily: string;
   readonly execSound: string;
   readonly darkPoolExecSound: string;
   readonly timezone: string;
-  readonly colorScheme: string;
   readonly ccyGroup: CurrencyGroups;
   readonly oco: OCOModes;
   readonly theme: "dark" | "light";
