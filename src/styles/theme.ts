@@ -23,7 +23,6 @@ export const createTheme = (
       },
       MuiFormLabel: {
         root: {
-          fontSize: 13,
           fontWeight: 500,
           margin: 0,
           marginBottom: 8,
@@ -49,7 +48,6 @@ export const createTheme = (
         },
         input: {
           fontWeight: 500,
-          fontSize: 15,
         },
       },
     },

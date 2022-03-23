@@ -1,13 +1,16 @@
 import { Palette } from "@material-ui/core/styles/createPalette";
+import { TypographyOptions } from "@material-ui/core/styles/createTypography";
 
-export const typography = (palette: Palette, fontFamily: string) => ({
+export const typography = (
+  palette: Palette,
+  fontFamily: string
+): TypographyOptions => ({
   fontFamily: fontFamily,
   subtitle1: {
     fontWeight: 600,
     color: palette.text.secondary,
   },
   subtitle2: {
-    fontSize: "small",
     fontWeight: 500,
     color: palette.text.secondary,
   },

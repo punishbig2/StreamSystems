@@ -64,7 +64,11 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
               "has-discount": entry.hasDiscount,
             })}
           >
-            <Typography color={"textSecondary"} className={"region"}>
+            <Typography
+              variant={"subtitle1"}
+              color={"textSecondary"}
+              className={"region"}
+            >
               {region}
             </Typography>
             <Typography color={"textPrimary"} className={"value"}>

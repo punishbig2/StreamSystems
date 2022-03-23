@@ -38,6 +38,7 @@ const renderTimezone = (value: unknown): ReactNode => {
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const { profile } = props;
+
   const user: User = workareaStore.user;
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
@@ -70,6 +71,11 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
   const formatTimezone = (text: string): string => {
     return text.replace(/_/g, " ");
+  };
+
+  const onCancelWrapper = (): void => {
+    workareaStore.loadTheme();
+    props.onCancel();
   };
 
   const userType: string = isBroker ? "Broker" : "Bank";
@@ -268,7 +274,11 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
         </Grid>
 
         <div className={"modal-buttons"}>
-          <button className={"cancel"} onClick={props.onCancel} type={"button"}>
+          <button
+            className={"cancel"}
+            onClick={onCancelWrapper}
+            type={"button"}
+          >
             {strings.Cancel}
           </button>
           <button

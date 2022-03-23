@@ -27,7 +27,6 @@
     appearance: none;
     border: none;
     background: none;
-    font-size: $smaller-font-size;
     flex: 1;
     margin-right: -20px;
     color: $foreground-color;
@@ -84,12 +83,11 @@
     margin: 0;
     overflow-y: auto;
     color: $foreground-color;
-    font-size: $normal-font-size;
 
     li {
       list-style: none;
-      font-weight: 500;
-      font-size: inherit;
+      font-weight: 700;
+      font-size: $smaller-font-size;
 
       &.selected {
         background-color: darken($background-color, 4%);

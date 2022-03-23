@@ -352,7 +352,7 @@ export class WorkareaStore {
   }
 
   @action.bound
-  private loadTheme() {
+  public loadTheme() {
     const { theme, fontFamily, fontSize } = this.preferences;
     updateApplicationTheme(theme, fontFamily, fontSize);
   }
