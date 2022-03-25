@@ -30,8 +30,9 @@
         justify-content: center;
 
         &.has-discount {
-          p {
-            color: $text-color-green;
+          color: $text-color-green;
+          * {
+            color: inherit;
           }
         }
 
