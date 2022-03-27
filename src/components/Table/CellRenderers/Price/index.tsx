@@ -61,7 +61,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   React.useEffect(() => {
     store.setBaseValue(value);
-    if (input !== null) {
+    /*if (input !== null) {
       const documentSelection = document.getSelection();
       const selection = documentSelection?.toString() ?? "";
       if (selection.length > 0) {
@@ -69,7 +69,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
           store.setInternalValue(priceFormatter(value));
         }
       }
-    }
+    }*/
     setEdited(false);
   }, [input, store, value]);
 
