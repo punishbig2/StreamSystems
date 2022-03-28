@@ -164,6 +164,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       this.ccyPair,
       this.strategy
     ).execute();
+
     const task = this.combineSnapshots(
       this.ccyPair,
       this.strategy,
@@ -401,6 +402,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       execute: async (): Promise<{ [k: string]: W }> => {
         const snapshot: { [k: string]: W } | null = await task.execute();
         if (snapshot === null) return {};
+
         return tenors.reduce((mixed: { [k: string]: W }, tenor: string) => {
           const w: W = depth[tenor];
           if (w) {

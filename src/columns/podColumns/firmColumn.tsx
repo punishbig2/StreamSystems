@@ -1,23 +1,36 @@
 import { TableColumn } from "components/Table/tableColumn";
 import { PodRowProps } from "columns/podColumns/common";
 import React, { ReactElement } from "react";
-import { OrderStatus, Order } from "types/order";
+import { Order, OrderStatus } from "types/order";
 import { getRelevantOrders } from "columns/podColumns/OrderColumn/helpers/getRelevantOrders";
 import { OrderTypes } from "types/mdEntry";
+
+type Props = PodRowProps & {
+  readonly type: OrderTypes;
+};
+
+const Component: React.FC<Props> = (props: Props): ReactElement | null => {
+  const { type, orders: originalOrders } = props;
+  const orders: ReadonlyArray<Order> = React.useMemo(
+    (): ReadonlyArray<Order> => getRelevantOrders(originalOrders, type),
+    [originalOrders, type]
+  );
+  // It should never happen that this is {} as Order
+  const { currency: symbol, strategy, tenor } = props;
+  const order: Order =
+    orders.length > 0
+      ? orders[0]
+      : new Order(tenor, symbol, strategy, "", null, type);
+  if (!order) return null;
+  const { firm, status } = order;
+  if ((status & OrderStatus.Cancelled) !== 0) return null;
+  return <div className={"firm"}>{firm}</div>;
+};
 
 export const FirmColumn = (type: OrderTypes): TableColumn => ({
   name: `${type}-firm`,
   header: () => <div>&nbsp;</div>,
-  render: (row: PodRowProps): ReactElement | null => {
-    const orders: ReadonlyArray<Order> = getRelevantOrders(row.orders, type);
-    // It should never happen that this is {} as Order
-    const order: Order =
-      orders.length > 0 ? orders[0] : ({ price: null, size: null } as Order);
-    if (!order) return null;
-    const { firm, status } = order;
-    if ((status & OrderStatus.Cancelled) !== 0) return null;
-    return <div className={"firm"}>{firm}</div>;
-  },
+  render: (row: PodRowProps) => <Component type={type} {...row} />,
   template: " BANK ",
   width: 4,
 });

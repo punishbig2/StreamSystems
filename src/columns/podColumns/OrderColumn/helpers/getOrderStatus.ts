@@ -7,7 +7,7 @@ import { User } from "types/user";
 
 export const getOrderStatus = (
   target: Order | undefined,
-  depth: Order[],
+  depth: ReadonlyArray<Order>,
   tableType: PodTableType
 ) => {
   const user: User = workareaStore.user;

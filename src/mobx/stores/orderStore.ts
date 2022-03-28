@@ -51,7 +51,7 @@ export class OrderStore {
       if (order.type !== this.type) return false;
       // No cancelled orders
       if ((order.status & OrderStatus.Cancelled) !== 0) return false;
-      // If I am broker, it must be the same firm as personality I am assuming
+      // If I am a broker, it must be the same firm as personality I am assuming
       if (roles.includes(Role.Broker) && order.firm === personality)
         return true;
       // If it's mine, always
@@ -129,7 +129,7 @@ export class OrderStore {
     if (editedSize !== null) return editedSize;
     if (currentOrder !== null && currentOrder.size !== null)
       return currentOrder.size;
-    // Finally use the default size
+    // Finally, use the default size
     return this.defaultSize;
   }
 
@@ -275,6 +275,7 @@ export class OrderStore {
   public setOrder(order: Order | undefined, status: OrderStatus): void {
     if (order?.type === OrderTypes.Invalid) return;
     this.baseStatus = OrderStatus.None;
+
     if (order) {
       this.price = order.price;
       this.baseSize = order.size;
@@ -304,11 +305,6 @@ export class OrderStore {
   @action.bound
   public unsetOrderTicket(): void {
     this.orderTicket = null;
-  }
-
-  @action.bound
-  public setPrice(price: number | null): void {
-    this.price = price;
   }
 
   @action.bound

@@ -4,7 +4,7 @@ import { OrderStore } from "mobx/stores/orderStore";
 
 export const getAggregatedSize = (
   topOrder: OrderStore | Order,
-  orders: Order[]
+  orders: ReadonlyArray<Order>
 ): number | null => {
   if (orders.length === 0) {
     if (topOrder instanceof OrderStore) {

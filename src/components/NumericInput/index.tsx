@@ -119,6 +119,7 @@ const NumericInput = forwardRef(
     const onChangeWrapper = ({
       target: { value },
     }: React.ChangeEvent<HTMLInputElement>) => onChange(value);
+
     return (
       <input
         {...otherProps}

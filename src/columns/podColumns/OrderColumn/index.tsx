@@ -45,8 +45,8 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     const { type, tableType, minimumSize, defaultSize, orders } = props;
     const store = React.useContext<OrderStore>(OrderStoreContext);
     const { price, size } = store;
-    const relevantOrders: Order[] = useMemo(
-      (): Order[] => getRelevantOrders(orders, type),
+    const relevantOrders: ReadonlyArray<Order> = useMemo(
+      (): ReadonlyArray<Order> => getRelevantOrders(orders, type),
       [orders, type]
     );
     // Used for the fallback order
@@ -55,7 +55,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     const order: Order =
       relevantOrders.length > 0
         ? relevantOrders[0]
-        : ({ price: null, size: null, type, tenor, strategy, symbol } as Order);
+        : new Order(tenor, symbol, strategy, "", null, type); // { price: null, size: null, type, tenor, strategy, symbol } as Order);
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     // Determine the status of the order now
@@ -68,6 +68,11 @@ export const OrderColumn: React.FC<OwnProps> = observer(
 
     // Sort siblings
     useEffect(() => {
+      if (order.price === null) {
+        // FIXME: this is really strange
+        return;
+      }
+
       store.setOrder(order, status);
     }, [store, order, status]);
 
