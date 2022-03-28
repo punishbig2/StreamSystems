@@ -16,11 +16,14 @@ const Component: React.FC<Props> = (props: Props): ReactElement | null => {
     [originalOrders, type]
   );
   // It should never happen that this is {} as Order
-  const { currency: symbol, strategy, tenor } = props;
-  const order: Order =
-    orders.length > 0
-      ? orders[0]
-      : new Order(tenor, symbol, strategy, "", null, type);
+  const { currency, strategy, tenor } = props;
+  const order: Order = React.useMemo(
+    (): Order =>
+      orders.length > 0
+        ? orders[0]
+        : new Order(tenor, currency, strategy, "", null, type),
+    [currency, orders, strategy, tenor, type]
+  );
   if (!order) return null;
   const { firm, status } = order;
   if ((status & OrderStatus.Cancelled) !== 0) return null;

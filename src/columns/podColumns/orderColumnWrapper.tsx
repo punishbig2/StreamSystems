@@ -5,14 +5,13 @@ import { PodRowProps } from "columns/podColumns/common";
 import { OrderTypes } from "types/mdEntry";
 import { OrderColumn, PodTableType } from "columns/podColumns/OrderColumn";
 
-const orderStoreCache: Record<string, OrderStore> = {};
-
 export const OrderColumnWrapper = (
   label: string,
   type: OrderTypes,
   isDepth: boolean,
   action: () => ReactElement | null
 ): TableColumn => {
+  const orderStore = new OrderStore();
   return {
     name: `${type}-vol`,
     header: () => {
@@ -54,13 +53,8 @@ export const OrderColumnWrapper = (
       return <div className={"twin-header"}>{items}</div>;
     },
     render: (props: PodRowProps): React.ReactElement => {
-      const orderStoreKey = `${props.currency}${props.strategy}${props.id}${type}`;
-      if (orderStoreCache[orderStoreKey] === undefined) {
-        orderStoreCache[orderStoreKey] = new OrderStore();
-      }
-
       return (
-        <OrderStoreContext.Provider value={orderStoreCache[orderStoreKey]}>
+        <OrderStoreContext.Provider value={orderStore}>
           <OrderColumn
             type={type}
             currency={props.currency}

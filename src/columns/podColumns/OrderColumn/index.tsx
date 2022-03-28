@@ -50,12 +50,15 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       [orders, type]
     );
     // Used for the fallback order
-    const { currency: symbol, strategy, tenor } = props;
+    const { currency, strategy, tenor } = props;
     // It should never happen that this is {} as Order
-    const order: Order =
-      relevantOrders.length > 0
-        ? relevantOrders[0]
-        : new Order(tenor, symbol, strategy, "", null, type); // { price: null, size: null, type, tenor, strategy, symbol } as Order);
+    const order: Order = React.useMemo(
+      (): Order =>
+        relevantOrders.length > 0
+          ? relevantOrders[0]
+          : new Order(tenor, currency, strategy, "", null, type),
+      [currency, relevantOrders, strategy, tenor, type]
+    );
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     // Determine the status of the order now
@@ -68,11 +71,6 @@ export const OrderColumn: React.FC<OwnProps> = observer(
 
     // Sort siblings
     useEffect(() => {
-      if (order.price === null) {
-        // FIXME: this is really strange
-        return;
-      }
-
       store.setOrder(order, status);
     }, [store, order, status]);
 
