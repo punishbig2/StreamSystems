@@ -10,7 +10,7 @@ export const defaultPreferences: UserPreferences = {
   ccyGroup: CurrencyGroups.Default,
   execSound: "default",
   darkPoolExecSound: "default",
-  fontFamily: "Default",
+  fontFamily: "Oxygen",
   fontSize: "normal",
   mpid: "",
   oco: OCOModes.Disabled,
