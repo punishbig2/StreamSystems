@@ -1,5 +1,4 @@
 import { TableColumn } from "components/Table/tableColumn";
-import { OrderStore, OrderStoreContext } from "mobx/stores/orderStore";
 import React, { ReactElement } from "react";
 import { PodRowProps } from "columns/podColumns/common";
 import { OrderTypes } from "types/mdEntry";
@@ -11,7 +10,6 @@ export const OrderColumnWrapper = (
   isDepth: boolean,
   action: () => ReactElement | null
 ): TableColumn => {
-  const orderStore = new OrderStore();
   return {
     name: `${type}-vol`,
     header: () => {
@@ -54,19 +52,17 @@ export const OrderColumnWrapper = (
     },
     render: (props: PodRowProps): React.ReactElement => {
       return (
-        <OrderStoreContext.Provider value={orderStore}>
-          <OrderColumn
-            type={type}
-            currency={props.currency}
-            strategy={props.strategy}
-            tenor={props.tenor}
-            orders={props.orders}
-            defaultSize={props.defaultSize}
-            minimumSize={props.minimumSize}
-            forceEditable={props.id === "#special"}
-            tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
-          />
-        </OrderStoreContext.Provider>
+        <OrderColumn
+          type={type}
+          currency={props.currency}
+          strategy={props.strategy}
+          tenor={props.tenor}
+          orders={props.orders}
+          defaultSize={props.defaultSize}
+          minimumSize={props.minimumSize}
+          forceEditable={props.id === "#special"}
+          tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
+        />
       );
     },
     template: "999999 999999.999",

@@ -407,6 +407,10 @@ export class SignalRClient {
     this.recordCommand(command);
     this.runCommand(command);
     return () => {
+      this.runCommand({
+        name: Methods.UnsubscribeFromMarketData,
+        args: [symbol, strategy, tenor],
+      });
       this.removeMarketListener(symbol, strategy, tenor, eventListener);
       this.eraseCommand(command);
     };
@@ -692,6 +696,9 @@ export class SignalRClient {
             result
           );
         }
+      })
+      .then((): void => {
+        console.info(`invocation of: ${name} OK`);
       })
       .catch((error: any) => {
         console.warn(error);

@@ -12,7 +12,7 @@ import { MiniDOB } from "components/Table/CellRenderers/Price/miniDob";
 import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
 import { Size } from "components/Table/CellRenderers/Size";
 import { observer } from "mobx-react";
-import { OrderStore, OrderStoreContext } from "mobx/stores/orderStore";
+import { OrderStore } from "mobx/stores/orderStore";
 import { PodRowStore, PodRowStoreContext } from "mobx/stores/podRowStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
@@ -43,7 +43,7 @@ type OwnProps = {
 export const OrderColumn: React.FC<OwnProps> = observer(
   (props: OwnProps): ReactElement | null => {
     const { type, tableType, minimumSize, defaultSize, orders } = props;
-    const store = React.useContext<OrderStore>(OrderStoreContext);
+    const [store] = React.useState<OrderStore>(new OrderStore());
     const { price, size } = store;
     const relevantOrders: ReadonlyArray<Order> = useMemo(
       (): ReadonlyArray<Order> => getRelevantOrders(orders, type),
