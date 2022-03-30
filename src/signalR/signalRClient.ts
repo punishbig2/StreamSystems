@@ -365,6 +365,7 @@ export class SignalRClient {
       // Call the actual listener
       listener(customEvent.detail);
     };
+
     document.addEventListener(NEW_DEAL_EVENT, listenerWrapper);
     return () => {
       document.removeEventListener(NEW_DEAL_EVENT, listenerWrapper);
@@ -511,17 +512,16 @@ export class SignalRClient {
       listener(event.detail);
     };
 
-    connection.invoke(Methods.SubscribeForCommissionUpdate).catch(console.warn);
     connection.on(Events.OnCommissionUpdate, this.onCommissionUpdate);
 
+    this.invoke(Methods.SubscribeForCommissionUpdate);
     document.addEventListener(eventName, handler);
 
     return () => {
       if (connection.state === HubConnectionState.Connected) {
-        connection
-          .invoke(Methods.UnSubscribeForCommissionUpdate)
-          .catch(console.warn);
+        this.invoke(Methods.UnSubscribeForCommissionUpdate);
       }
+      connection.off(Events.OnCommissionUpdate);
 
       document.removeEventListener(eventName, handler);
     };
@@ -685,6 +685,8 @@ export class SignalRClient {
     ) {
       return;
     }
+
+    const nameColor = name.startsWith("Un") ? "orange" : "dodgerblue";
     connection
       .invoke(name, ...args)
       .then((result: string): void => {
@@ -698,10 +700,18 @@ export class SignalRClient {
         }
       })
       .then((): void => {
-        console.info(`invocation of: ${name} OK`);
+        console.info(
+          `invocation of: %c${name} %c[SUCCESS]`,
+          `color: ${nameColor}; font-weight: bold;`,
+          "color: #308149; font-weight: bold;"
+        );
       })
       .catch((error: any) => {
-        console.warn(error);
+        console.info(
+          `invocation of: %c${name} %c[FAILURE]`,
+          `color: ${nameColor}; font-weight: bold;`,
+          "color: crimson; font-weight: bold;"
+        );
       });
   };
 
