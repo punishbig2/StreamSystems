@@ -26,14 +26,16 @@ export const convertToCommissionRatesArray = (response: any) => {
 
 export class BrokerageStore {
   @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
-  private stream = signalRClient;
 
   public setRates(rates: BrokerageCommissionResponse): void {
     this.commissionRates = convertToCommissionRatesArray(rates);
   }
 
   public installListener(firm: string): () => void {
-    return this.stream.addCommissionRatesListener(firm, this.onCommissionRates);
+    return signalRClient.addCommissionRatesListener(
+      firm,
+      this.onCommissionRates
+    );
   }
 
   @action.bound

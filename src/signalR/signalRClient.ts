@@ -517,7 +517,7 @@ export class SignalRClient {
     this.invoke(Methods.SubscribeForCommissionUpdate);
     document.addEventListener(eventName, handler);
 
-    return () => {
+    return (): void => {
       if (connection.state === HubConnectionState.Connected) {
         this.invoke(Methods.UnSubscribeForCommissionUpdate);
       }
@@ -718,9 +718,16 @@ export class SignalRClient {
   private invoke = (name: string, ...args: any[]): void => {
     const { connection } = this;
     if (
-      connection !== null &&
-      connection.state === HubConnectionState.Connected
+      connection === null ||
+      connection?.state !== HubConnectionState.Connected
     ) {
+      console.log(
+        `%cWARNING%c: %c${name}%c ignored because there is no connection yet`,
+        "color: orange;",
+        "color: initial;",
+        "color: dodgerblue; font-weight: bold;",
+        "color: initial;"
+      );
     } else {
       this.runCommand({
         name,
