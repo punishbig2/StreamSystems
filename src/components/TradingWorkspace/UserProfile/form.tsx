@@ -26,10 +26,6 @@ interface OwnProps {
   onChange: (name: string, value: any) => void;
 }
 
-declare var GlobalApplicationVersion: string;
-if (GlobalApplicationVersion === undefined)
-  GlobalApplicationVersion = "Unknown";
-
 const renderTimezone = (value: unknown): ReactNode => {
   if (value === "")
     return <span className={"disabled-item"}>{strings.TimezoneUnset}</span>;
@@ -102,7 +98,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
           <div className={"fx-options"}>
             <Typography variant={"subtitle1"}>{strings.UserProfile}</Typography>
             <Typography variant={"subtitle2"}>
-              FX Options {GlobalApplicationVersion}
+              FX Options {window.GlobalApplicationVersion ?? "unknown"}
             </Typography>
           </div>
         </div>

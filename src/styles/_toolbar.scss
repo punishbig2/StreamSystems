@@ -124,6 +124,10 @@
           transform: translateY(1px);
           background-color: darken($primary-color, 5);
         }
+
+        &:disabled {
+          opacity: 0.25;
+        }
       }
 
       .MuiFormControl-root .MuiFormControlLabel-label {

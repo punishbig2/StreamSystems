@@ -39,6 +39,7 @@ export const PodTileTitle: React.FC<Props> = observer(
         <div className={["glow", ...(glowing ? ["glowing"] : [])].join(" ")} />
         <div className={"item"}>
           <Select
+            testId={"currency-selector"}
             value={ccyPair}
             list={currencies.map((item: Symbol): { name: string } => ({
               name: item.name,
@@ -51,6 +52,7 @@ export const PodTileTitle: React.FC<Props> = observer(
         </div>
         <div className={"item"}>
           <Select
+            testId={"strategy-selector"}
             value={strategy}
             list={strategies.map(
               (

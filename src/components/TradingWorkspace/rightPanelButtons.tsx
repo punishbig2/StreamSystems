@@ -11,6 +11,7 @@ interface Props {
   readonly onPersonalityChange: (personality: string) => void;
   readonly onShowProfileModal: () => void;
   readonly onRefAll: () => void;
+  readonly refAllDisabled: boolean;
 }
 
 const useDropdownStyles = makeStyles({
@@ -53,7 +54,7 @@ export const RightPanelButtons: React.FC<Props> = observer(
               </MenuItem>
             ))}
           </Select>
-          <button onClick={props.onRefAll}>
+          <button onClick={props.onRefAll} disabled={props.refAllDisabled}>
             <i className={"fa fa-eraser"} /> Ref ALL
           </button>
           <button onClick={props.onShowProfileModal}>

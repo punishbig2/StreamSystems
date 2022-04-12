@@ -21,6 +21,7 @@ import {
   BrokerageStore,
   BrokerageStoreContext,
 } from "mobx/stores/brokerageStore";
+import { TileStore } from "mobx/stores/tileStore";
 
 interface Props {
   readonly index: number;
@@ -43,7 +44,28 @@ export const TradingWorkspace: React.FC<Props> = observer(
     const store = React.useContext<TradingWorkspaceStore>(
       TradingWorkspaceStoreContext
     );
+    const { tiles, reffingAll } = store;
+    const [refAllDisabled, setRefAllDisabled] = React.useState<boolean>(false);
     if (!isTradingWorkspace(store)) throw new Error("invalid store type");
+
+    React.useEffect((): void | VoidFunction => {
+      if (!reffingAll) return;
+
+      const timer = setInterval((): void => {
+        const someTileHasOrders = tiles.some(
+          (tile: TileStore): boolean => tile.hasOrders
+        );
+        setRefAllDisabled(someTileHasOrders);
+
+        if (!someTileHasOrders) {
+          store.setReffingAll(false);
+        }
+      }, 200);
+
+      return (): void => {
+        clearInterval(timer);
+      };
+    }, [reffingAll, store, tiles]);
 
     const onAddPodTile = () => {
       if (typeof store.addTile === "function") {
@@ -76,11 +98,12 @@ export const TradingWorkspace: React.FC<Props> = observer(
               <i className={"fa fa-eye"} /> Add Blotter
             </button>
             <ExecutionBanner />
-            <BrokerageStoreContext.Provider value={new BrokerageStore()}>
+            <BrokerageStoreContext.Provider value={store.brokerageStore}>
               <CommissionRates />
             </BrokerageStoreContext.Provider>
             <RightPanelButtons
               isBroker={isBroker}
+              refAllDisabled={refAllDisabled}
               onPersonalityChange={store.setPersonality}
               onShowProfileModal={store.showUserProfileModal}
               onRefAll={store.superRefAll}

@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import styles from "styles";
 
 interface OwnProps {
+  readonly testId: string;
   readonly list: ReadonlyArray<{ readonly name: string }>;
   readonly value: string;
   readonly empty?: string;
@@ -233,6 +234,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <div
+      data-testid={props.testId}
       tabIndex={0}
       className={"select-container" + (props.fit ? " fit" : "")}
       ref={setContainer}

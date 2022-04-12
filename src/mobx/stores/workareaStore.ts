@@ -82,6 +82,7 @@ export class WorkareaStore {
   private persistStorage?: PersistStorage;
   @observable isShowingNewVersionModal: boolean = false;
   @observable workSchedule: WorkSchedule = invalidWorkSchedule;
+
   public get effectiveFirm(): string {
     const { user, personality } = this;
     const { roles } = user;

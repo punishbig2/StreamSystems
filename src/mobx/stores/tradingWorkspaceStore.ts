@@ -10,9 +10,11 @@ import { Role } from "types/role";
 import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
+import { BrokerageStore } from "mobx/stores/brokerageStore";
 
 export class TradingWorkspaceStore implements Workspace {
   public readonly type: WorkspaceType = WorkspaceType.Trading;
+  public readonly brokerageStore = new BrokerageStore();
 
   @observable public tiles: ReadonlyArray<TileStore> = [];
   @observable public personality: string = STRM;
@@ -22,6 +24,7 @@ export class TradingWorkspaceStore implements Workspace {
   @observable public loading: boolean = false;
   @observable public modified: boolean = false;
   @observable public executionBlotter: MessageBlotterStore;
+  @observable public reffingAll: boolean = false;
 
   constructor() {
     this.executionBlotter = new MessageBlotterStore(BlotterTypes.Executions);
@@ -61,6 +64,11 @@ export class TradingWorkspaceStore implements Workspace {
   }
 
   @action.bound
+  public setReffingAll(value: boolean): void {
+    this.reffingAll = value;
+  }
+
+  @action.bound
   public setPersonality(personality: string) {
     this.personality = personality;
   }
@@ -96,6 +104,7 @@ export class TradingWorkspaceStore implements Workspace {
   public superRefAll() {
     const { roles } = workareaStore.user;
 
+    this.reffingAll = true;
     if (roles.includes(Role.Broker)) {
       void API.brokerRefAll();
     } else {
@@ -134,6 +143,5 @@ export class TradingWorkspaceStore implements Workspace {
   }
 }
 
-export const TradingWorkspaceStoreContext = React.createContext<TradingWorkspaceStore>(
-  new TradingWorkspaceStore()
-);
+export const TradingWorkspaceStoreContext =
+  React.createContext<TradingWorkspaceStore>(new TradingWorkspaceStore());

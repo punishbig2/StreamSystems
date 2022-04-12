@@ -77,6 +77,7 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
         <div className={"right-panel"}>
           <h3>CCY Group</h3>
           <Select
+            testId={"execution-blotter-currency-group"}
             value={store.currencyGroupFilter}
             disabled={!workareaStore.connected}
             list={groups}

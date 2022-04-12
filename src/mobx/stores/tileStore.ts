@@ -1,12 +1,13 @@
 import { Geometry } from "@cib/windows-manager";
 import { BlotterTypes } from "columns/messageBlotter";
 import { action, computed, observable } from "mobx";
-import { DummyContentStore } from "mobx/stores/contentStore";
+import { DummyContentStore, isPodTileStore } from "mobx/stores/contentStore";
 import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { PodStore } from "mobx/stores/podStore";
 import React from "react";
 import { Persistable } from "types/persistable";
 import { TileType } from "types/tileType";
+import { Order, OrderStatus } from "types/order";
 
 interface IGeometry {
   readonly x: number;
@@ -107,6 +108,31 @@ export class TileStore implements Persistable<TileStore> {
         return new MessageBlotterStore(BlotterTypes.Regular);
     }
     return new DummyContentStore();
+  }
+
+  @computed
+  public get hasOrders(): boolean {
+    const { contentStore } = this;
+    if (isPodTileStore(contentStore)) {
+      const orders = Object.values(contentStore.orders);
+      return orders.some((orders: ReadonlyArray<Order>): boolean =>
+        orders.some((order: Order): boolean => {
+          if (
+            (order.status & OrderStatus.Cancelled) ===
+            OrderStatus.Cancelled
+          ) {
+            return false;
+          }
+
+          return (
+            (order.status & OrderStatus.Owned) === OrderStatus.Owned ||
+            (order.status & OrderStatus.SameBank) === OrderStatus.SameBank
+          );
+        })
+      );
+    }
+
+    return false;
   }
 }
 
