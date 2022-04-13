@@ -14,6 +14,7 @@ import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { WindowContent } from "components/PodTile/windowContent";
+import signalRClient from "signalR/signalRClient";
 
 interface Props {
   readonly tenors: ReadonlyArray<string>;
@@ -37,11 +38,12 @@ export const PodTile: React.FC<Props> = observer(
   (props: Props): ReactElement | null => {
     const store = React.useContext<PodStore>(PodStoreContext);
     const { currencies, tenors, visible } = props;
-    const { strategy } = store;
+    const { strategy, creatingBulk } = store;
     const currency: Symbol | undefined = getCurrencyFromName(
       currencies,
       store.ccyPair
     );
+    const { orders } = store;
     const { connected, user } = workareaStore;
 
     useEffect((): (() => void) | undefined => {
@@ -93,7 +95,7 @@ export const PodTile: React.FC<Props> = observer(
             columns: dobColumns,
             rows: dobRows,
           }}
-          loading={store.creatingBulk}
+          loading={creatingBulk}
         />
         <ModalWindow isOpen={store.isRunWindowVisible}>
           <RunWindowStoreContext.Provider value={store.runWindowStore}>

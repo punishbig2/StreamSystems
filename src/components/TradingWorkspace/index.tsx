@@ -17,10 +17,7 @@ import { Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
-import {
-  BrokerageStore,
-  BrokerageStoreContext,
-} from "mobx/stores/brokerageStore";
+import { BrokerageStoreContext } from "mobx/stores/brokerageStore";
 import { TileStore } from "mobx/stores/tileStore";
 
 interface Props {

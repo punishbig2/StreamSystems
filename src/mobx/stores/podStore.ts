@@ -81,6 +81,11 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   }
 
   @action.bound
+  public setCreatingBulk(value: boolean): void {
+    this.creatingBulk = value;
+  }
+
+  @action.bound
   public persist(currency: string, strategy: string) {
     this.ccyPair = currency;
     this.strategy = strategy;
@@ -133,13 +138,12 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
     if (currency === undefined) {
       throw new Error("currency not set");
     }
+
     this.creatingBulk = true;
     try {
       await this.executeBulkCreation(orders, currency);
     } catch (error) {
-      console.log(error);
-    } finally {
-      this.creatingBulk = false;
+      console.warn(error);
     }
   }
 
@@ -384,6 +388,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       },
       {}
     );
+    this.creatingBulk = false;
     this.ordersCache = this.orders;
     this.loading = false;
   }
