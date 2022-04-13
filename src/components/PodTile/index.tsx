@@ -14,7 +14,6 @@ import { Order } from "types/order";
 import { PodTable } from "types/podTable";
 import { Symbol } from "types/symbol";
 import { WindowContent } from "components/PodTile/windowContent";
-import signalRClient from "signalR/signalRClient";
 
 interface Props {
   readonly tenors: ReadonlyArray<string>;
@@ -43,7 +42,6 @@ export const PodTile: React.FC<Props> = observer(
       currencies,
       store.ccyPair
     );
-    const { orders } = store;
     const { connected, user } = workareaStore;
 
     useEffect((): (() => void) | undefined => {
