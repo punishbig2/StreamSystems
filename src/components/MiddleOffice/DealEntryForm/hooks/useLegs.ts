@@ -131,15 +131,13 @@ export const addFwdRates = (
 ): ReadonlyArray<Leg> => {
   if (summary === null) return legs;
   if (legs.length !== 2) {
-    return legs.map(
-      (leg: Leg): Leg => {
-        return {
-          ...leg,
-          fwdRate: coalesce(leg.fwdRate, summary.fwdrate1),
-          fwdPts: coalesce(leg.fwdPts, summary.fwdpts1),
-        };
-      }
-    );
+    return legs.map((leg: Leg): Leg => {
+      return {
+        ...leg,
+        fwdRate: coalesce(leg.fwdRate, summary.fwdrate1),
+        fwdPts: coalesce(leg.fwdPts, summary.fwdpts1),
+      };
+    });
   } else {
     return [
       {
@@ -229,7 +227,6 @@ export const handleLegsResponse = (
       ),
       null
     ),
-
     spot: toNumberOrFallbackIfNaN(
       coalesce(extra_fields.spot, firstLeg.spot),
       null

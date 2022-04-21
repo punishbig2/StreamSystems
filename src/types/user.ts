@@ -1,5 +1,3 @@
-import { Role } from "types/role";
-
 export enum OCOModes {
   Disabled = "Disabled",
   FullEx = "FullEx",
@@ -40,7 +38,7 @@ export interface User {
   readonly email: string;
   readonly firm: string;
   readonly regions: ReadonlyArray<string>;
-  readonly roles: ReadonlyArray<Role>;
+  readonly roles: ReadonlyArray<string>;
   readonly firstname: string;
   readonly lastname: string;
 }

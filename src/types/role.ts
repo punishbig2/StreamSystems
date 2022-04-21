@@ -1,11 +1,15 @@
-export enum Role {
-  Admin = "FXOAdmin",
-  Trader = "FXOTrader",
-  MiddleOffice = "FXOMiddleOffice",
-  Broker = "FXOBroker",
-}
+const { env } = process;
+
+export const Role = {
+  Admin: env.REACT_APP_GROUP_PREFIX + "FXOAdmin",
+  Trader: env.REACT_APP_GROUP_PREFIX + "FXOTrader",
+  MiddleOffice: env.REACT_APP_GROUP_PREFIX + "FXOMiddleOffice",
+  Broker: env.REACT_APP_GROUP_PREFIX + "FXOBroker",
+};
+
+console.log(Role);
 
 export interface OktaUser {
   readonly email: string;
-  readonly roles: ReadonlyArray<Role>;
+  readonly roles: ReadonlyArray<string>;
 }

@@ -1202,6 +1202,7 @@ export class MiddleOfficeStore implements Workspace {
     const currentDeal = deals.find((deal: Deal): boolean => {
       return deal.id === entry.dealID;
     });
+
     if (currentDeal) {
       this.loadDealEntryFromDeal(currentDeal);
     }
