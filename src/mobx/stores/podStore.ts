@@ -14,7 +14,7 @@ import { Persistable } from "types/persistable";
 import { PodRow } from "types/podRow";
 import { PodTable } from "types/podTable";
 import { Product } from "types/product";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
@@ -476,7 +476,7 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
       const depth: ReadonlyArray<Order> = this.orders[order.tenor];
       if (!depth) return;
       const conflict: Order | undefined = depth.find((o: Order) => {
-        if (user.roles.includes(Role.Broker)) {
+        if (hasRole(user.roles, Role.Broker)) {
           return (
             o.type === order.type && o.firm === personality && o.size !== null
           );

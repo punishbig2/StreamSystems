@@ -13,7 +13,7 @@ import {
 import workareaStore, { isTradingWorkspace } from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { Product } from "types/product";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
@@ -35,7 +35,7 @@ export const TradingWorkspace: React.FC<Props> = observer(
     const user: User = workareaStore.user;
     const isBroker: boolean = useMemo((): boolean => {
       const { roles } = user;
-      return roles.includes(Role.Broker);
+      return hasRole(roles, Role.Broker);
     }, [user]);
 
     const store = React.useContext<TradingWorkspaceStore>(

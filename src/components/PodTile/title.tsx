@@ -7,7 +7,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { Product } from "types/product";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { Symbol } from "types/symbol";
 import { User } from "types/user";
 
@@ -26,7 +26,7 @@ export const PodTileTitle: React.FC<Props> = observer(
     const user: User = workareaStore.user;
     const isBroker: boolean = useMemo((): boolean => {
       const { roles } = user;
-      return roles.includes(Role.Broker);
+      return hasRole(roles, Role.Broker);
     }, [user]);
     const isRunButtonDisabled: boolean =
       !ccyPair || !strategy || (personality === STRM && isBroker);

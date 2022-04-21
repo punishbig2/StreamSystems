@@ -6,7 +6,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactNode, useMemo } from "react";
 import { OrderTypes } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { priceFormatter } from "utils/priceFormatter";
 
@@ -21,7 +21,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   const { rows, orderStore } = props;
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
-    return roles.includes(Role.Broker);
+    return hasRole(roles, Role.Broker);
   }, [user]);
   if (!rows) return null;
   const children = rows.map((order: Order, index: number) => {

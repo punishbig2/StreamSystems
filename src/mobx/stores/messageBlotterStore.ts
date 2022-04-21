@@ -8,14 +8,15 @@ import React from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { Message } from "types/message";
 import { Persistable } from "types/persistable";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { SortDirection } from "types/sortDirection";
 import { TileType } from "types/tileType";
 import { User } from "types/user";
 
 export class MessageBlotterStore
   extends ContentStore
-  implements Persistable<MessageBlotterStore> {
+  implements Persistable<MessageBlotterStore>
+{
   public readonly kind: TileType = TileType.MessageBlotter;
 
   @observable private sortedColumns: {
@@ -71,7 +72,7 @@ export class MessageBlotterStore
     const { roles } = user;
     const personality = workareaStore.personality;
     const brokerMode: boolean =
-      roles.includes(Role.Broker) && personality === STRM;
+      hasRole(roles, Role.Broker) && personality === STRM;
     const columnsMap: { [key: string]: TableColumn[] } = messageBlotterColumns(
       this.blotterType
     );
@@ -217,6 +218,7 @@ export class MessageBlotterStore
   }
 }
 
-export const MessageBlotterStoreContext = React.createContext<MessageBlotterStore>(
-  new MessageBlotterStore(BlotterTypes.None)
-);
+export const MessageBlotterStoreContext =
+  React.createContext<MessageBlotterStore>(
+    new MessageBlotterStore(BlotterTypes.None)
+  );

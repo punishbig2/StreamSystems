@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { TableColumn } from "components/Table/tableColumn";
 import React from "react";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { xPoints } from "utils/timesPolygon";
 import { OrderTypes } from "types/mdEntry";
 import { Order } from "types/order";
@@ -26,7 +26,7 @@ const columns = (
         const user: User = workareaStore.user;
         const personality: string = workareaStore.personality;
         const { roles } = user;
-        const isBroker: boolean = roles.includes(Role.Broker);
+        const isBroker: boolean = hasRole(roles, Role.Broker);
         const clickable =
           order.user === user.email || (isBroker && personality === user.firm);
 

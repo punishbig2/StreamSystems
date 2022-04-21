@@ -1,5 +1,5 @@
 import { MDEntry, OrderTypes } from "types/mdEntry";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { Sides } from "types/sides";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes, W } from "types/w";
@@ -190,7 +190,7 @@ export class Order {
         ? OrderStatus.Cancelled
         : OrderStatus.Active;
     const { roles } = user;
-    const isOwnerBroker: OrderStatus = roles.includes(Role.Broker)
+    const isOwnerBroker: OrderStatus = hasRole(roles, Role.Broker)
       ? OrderStatus.OwnedByBroker
       : OrderStatus.None;
     const order: Order = new Order(

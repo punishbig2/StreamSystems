@@ -8,7 +8,7 @@ import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { OrderTypes } from "types/mdEntry";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { getSideFromType } from "utils/commonUtils";
 
@@ -40,7 +40,7 @@ const cancelAll =
   (type: OrderTypes, symbol: string, strategy: string) => () => {
     const user: User = workareaStore.user;
     const { roles } = user;
-    const isBroker: boolean = roles.includes(Role.Broker);
+    const isBroker: boolean = hasRole(roles, Role.Broker);
     if (isBroker) {
       void API.cancelAllExtended(symbol, strategy, getSideFromType(type));
     } else {
@@ -67,7 +67,7 @@ const columns = (
 ): TableColumn[] => {
   const user: User = workareaStore.user;
   const { roles } = user;
-  const isBroker: boolean = roles.includes(Role.Broker);
+  const isBroker: boolean = hasRole(roles, Role.Broker);
   return [
     TenorColumn(),
     ...(isBroker ? [FirmColumn(OrderTypes.Bid)] : []),

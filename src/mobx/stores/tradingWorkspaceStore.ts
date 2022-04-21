@@ -6,7 +6,7 @@ import { TileStore } from "mobx/stores/tileStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import { STRM } from "stateDefs/workspaceState";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
@@ -105,7 +105,7 @@ export class TradingWorkspaceStore implements Workspace {
     const { roles } = workareaStore.user;
 
     this.reffingAll = true;
-    if (roles.includes(Role.Broker)) {
+    if (hasRole(roles, Role.Broker)) {
       void API.brokerRefAll();
     } else {
       void API.userRefAll();

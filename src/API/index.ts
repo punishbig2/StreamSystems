@@ -31,7 +31,7 @@ import {
   OrderMessage,
 } from "types/order";
 import { Product } from "types/product";
-import { OktaUser, Role } from "types/role";
+import { hasRole, OktaUser, Role } from "types/role";
 import { Sides } from "types/sides";
 import { Symbol } from "types/symbol";
 import { InvalidTenor, Tenor } from "types/tenor";
@@ -386,7 +386,7 @@ export class API {
     const { roles } = user;
     const personality: string = workareaStore.personality;
     // Build a create order request
-    const isBroker: boolean = roles.includes(Role.Broker);
+    const isBroker: boolean = hasRole(roles, Role.Broker);
     if (isBroker && personality === STRM)
       throw new Error("brokers cannot create orders when in streaming mode");
     const MDMkt: string | undefined = isBroker ? personality : undefined;
@@ -486,7 +486,7 @@ export class API {
     user: User
   ): Promise<MessageResponse> {
     const { roles } = user;
-    const isBroker: boolean = roles.includes(Role.Broker);
+    const isBroker: boolean = hasRole(roles, Role.Broker);
     if (order.user !== user.email && !isBroker)
       throw new Error(
         `cancelling someone else's order: ${order.user} -> ${user.email}`
@@ -651,7 +651,7 @@ export class API {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     const { roles } = user;
-    const isBroker: boolean = roles.includes(Role.Broker);
+    const isBroker: boolean = hasRole(roles, Role.Broker);
     if (isBroker && order.MDMkt === STRM) {
       throw new Error("brokers cannot create orders when in streaming mode");
     } else if (!isBroker) {
@@ -1268,7 +1268,13 @@ export class API {
     const allLegs = [
       ...(summaryLeg
         ? summaryLeg.dealOutput
-          ? [{ ...summaryLeg.dealOutput, option: "SumLeg" }]
+          ? [
+              {
+                ...summaryLeg.dealOutput,
+                spotDate: summaryLeg.spotDate,
+                option: "SumLeg",
+              },
+            ]
           : []
         : []),
       ...legs,

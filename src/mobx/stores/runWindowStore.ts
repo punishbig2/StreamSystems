@@ -10,7 +10,7 @@ import { OrderTypes } from "types/mdEntry";
 import { Order, OrderMessage, OrderStatus } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { PodTable } from "types/podTable";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { sizeFormatter } from "utils/sizeFormatter";
 import workareaStore from "./workareaStore";
 
@@ -135,7 +135,7 @@ export class RunWindowStore {
       const { roles } = user;
       if (order.size === null) return false;
       if (order.user !== user.email) return false;
-      if (!roles.includes(Role.Broker)) return true;
+      if (!hasRole(roles, Role.Broker)) return true;
       return order.firm === workareaStore.personality;
     };
     const animate = !this.initialized;

@@ -5,7 +5,7 @@ import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
 
 import React, { ReactElement, useMemo, useRef, useState } from "react";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { CurrencyGroups } from "types/user";
 import { Workspace } from "types/workspace";
 
@@ -28,18 +28,18 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   const ref = useRef<HTMLDivElement>(null);
   const isTrader: boolean = useMemo((): boolean => {
     const { roles } = user;
-    return roles.includes(Role.Trader);
+    return hasRole(roles, Role.Trader);
   }, [user]);
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
-    return roles.includes(Role.Broker);
+    return hasRole(roles, Role.Broker);
   }, [user]);
   const isMiddleOffice: boolean = useMemo((): boolean => {
     const { roles } = user;
     return (
-      roles.includes(Role.MiddleOffice) ||
-      roles.includes(Role.Admin) ||
-      roles.includes(Role.Broker)
+      hasRole(roles, Role.MiddleOffice) ||
+      hasRole(roles, Role.Admin) ||
+      hasRole(roles, Role.Broker)
     );
   }, [user]);
   // Get the workspace entries

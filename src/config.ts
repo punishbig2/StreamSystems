@@ -31,4 +31,5 @@ export default {
   IdleTimeout: -1,
   GetRoleEndpoint: accountUrl + "/api/user/getrole",
   RedirectTimeout: -1,
+  Environment: process.env.REACT_APP_ENV,
 };

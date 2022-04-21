@@ -1,7 +1,7 @@
 import { Typography } from "@material-ui/core";
 import React, { ReactElement, useMemo } from "react";
 import { Message } from "types/message";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User, UserPreferences } from "types/user";
 import { getMessagePrice, getMessageSize } from "utils/messageUtils";
 import { priceFormatter } from "utils/priceFormatter";
@@ -36,7 +36,7 @@ export const TradeConfirmation: React.FC<OwnProps> = (
   const personality: string = workareaStore.personality;
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
-    return roles.includes(Role.Broker);
+    return hasRole(roles, Role.Broker);
   }, [user]);
   const firm: string = isBroker ? personality : user.firm;
   const subject1: string = trade.MDMkt === firm ? "You" : trade.MDMkt;

@@ -2,7 +2,7 @@ import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAgg
 import { PodTableType } from "columns/podColumns/OrderColumn/index";
 import workareaStore from "mobx/stores/workareaStore";
 import { Order, OrderStatus } from "types/order";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 
 export const getOrderStatus = (
@@ -13,7 +13,7 @@ export const getOrderStatus = (
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
   const { roles } = user;
-  const isBroker: boolean = roles.includes(Role.Broker);
+  const isBroker: boolean = hasRole(roles, Role.Broker);
   const bank: string = isBroker ? personality : user.firm;
   let status: OrderStatus = OrderStatus.None;
   if (target === undefined) return status;

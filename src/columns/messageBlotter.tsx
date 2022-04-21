@@ -7,7 +7,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
 import { Message } from "types/message";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { DarkPool } from "types/w";
 import {
   getBuyer,
@@ -150,7 +150,7 @@ const side = (sortable: boolean): TableColumn => ({
   render: (props: CellProps) => {
     const { message } = props;
     const { roles } = workareaStore.user;
-    const isBroker = roles.includes(Role.Broker);
+    const isBroker = hasRole(roles, Role.Broker);
     if (!involved(message) && !isBroker) return <div />;
     return getSide(message);
   },

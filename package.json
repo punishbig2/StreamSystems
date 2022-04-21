@@ -98,10 +98,10 @@
     "workbox-webpack-plugin": "4.3.1"
   },
   "scripts": {
-    "start": "REACT_APP_GROUP_PREFIX=PRD_ node scripts/start.js",
-    "build:dev": "REACT_APP_GROUP_PREFIX= node scripts/build.js",
-    "build:uat": "REACT_APP_GROUP_PREFIX=UAT_ node scripts/build.js",
-    "build:prod": "REACT_APP_GROUP_PREFIX=PRD_ node scripts/build.js",
+    "start": "REACT_APP_ENV='DEV' node scripts/start.js",
+    "build:dev": "REACT_APP_ENV='DEV' node scripts/build.js",
+    "build:uat": "REACT_APP_ENV='UAT' node scripts/build.js",
+    "build:prod": "REACT_APP_ENV='PROD' node scripts/build.js",
     "postbuild": "node scripts/publish-manifest.js",
     "test": "playwright test"
   },

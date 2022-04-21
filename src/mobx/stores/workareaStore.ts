@@ -14,7 +14,7 @@ import { Message } from "types/message";
 import { Order } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { Product, ProductSource } from "types/product";
-import { OktaUser, Role } from "types/role";
+import { hasRole, OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
 import {
   CurrencyGroups,
@@ -87,7 +87,7 @@ export class WorkareaStore {
     const { user, personality } = this;
     const { roles } = user;
 
-    if (roles.includes(Role.Broker)) {
+    if (hasRole(roles, Role.Broker)) {
       return personality;
     }
 
@@ -191,7 +191,7 @@ export class WorkareaStore {
   public isUserAllowedToSignIn(user: User): boolean {
     const { workSchedule } = this;
     const { roles } = user;
-    if (roles.includes(Role.Broker) || roles.includes(Role.Admin)) {
+    if (hasRole(roles, Role.Broker) || hasRole(roles, Role.Admin)) {
       return true;
     }
     const bod = parseAsNYTime(workSchedule.trading_start_time);
@@ -389,16 +389,14 @@ export class WorkareaStore {
     const oktaUser: OktaUser = await API.getUser(id);
     this.users = await API.getAllUsers(oktaUser.email);
     const userInfo: UserInfo = await API.getUserInfo(oktaUser.email);
-    const me: any = userInfo[0]
-      ? userInfo[0]
-      : this.users.find((user: any): boolean => user.email === oktaUser.email);
+    const me = userInfo[0];
     // Find said user in the users array
     if (me === undefined) {
       return undefined;
     } else {
       const { roles } = oktaUser;
 
-      console.log({ ...me });
+      console.log({ ...me }, roles);
       return {
         email: oktaUser.email,
         firm: me.firm,
@@ -504,12 +502,12 @@ export class WorkareaStore {
     switch (workspace.type) {
       case WorkspaceType.MiddleOffice:
         return (
-          roles.includes(Role.MiddleOffice) ||
-          roles.includes(Role.Broker) ||
-          roles.includes(Role.Admin)
+          hasRole(roles, Role.MiddleOffice) ||
+          hasRole(roles, Role.Broker) ||
+          hasRole(roles, Role.Admin)
         );
       case WorkspaceType.Trading:
-        return roles.includes(Role.Broker) || roles.includes(Role.Trader);
+        return hasRole(roles, Role.Broker) || hasRole(roles, Role.Trader);
     }
     return false;
   }

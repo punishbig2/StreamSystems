@@ -2,7 +2,7 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { ExecTypes, Message } from "types/message";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { STRM } from "stateDefs/workspaceState";
 
@@ -82,7 +82,7 @@ export const isAcceptableFill = (message: Message): boolean => {
   const user: User = workareaStore.user;
   if (message.CxlRejResponseTo !== undefined) return false;
   const { roles } = user;
-  const isBroker: boolean = roles.includes(Role.Broker);
+  const isBroker: boolean = hasRole(roles, Role.Broker);
   // Only fills are interesting
   if (!isFill(message)) return false;
   if (isBroker) {

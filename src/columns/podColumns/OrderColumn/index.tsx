@@ -19,7 +19,7 @@ import React, { ReactElement, useEffect, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { OrderTypes } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection } from "types/w";
 
@@ -115,7 +115,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
     };
     const isBroker: boolean = useMemo((): boolean => {
       const { roles } = user;
-      return roles.includes(Role.Broker);
+      return hasRole(roles, Role.Broker);
     }, [user]);
     const readOnly: boolean =
       !props.forceEditable && isBroker && personality === STRM;

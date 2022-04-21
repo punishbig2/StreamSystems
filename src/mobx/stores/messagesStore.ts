@@ -4,7 +4,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
 import { playBeep } from "signalR/helpers";
 import { ExecTypes, Message } from "types/message";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import {
   isAcceptableFill,
@@ -57,7 +57,7 @@ class MessagesStream {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     const { roles } = user;
-    if (roles.includes(Role.Broker)) {
+    if (hasRole(roles, Role.Broker)) {
       return personality === message.MDMkt && message.Username === user.email;
     }
     return message.Username === user.email;

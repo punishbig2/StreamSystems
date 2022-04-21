@@ -3,7 +3,7 @@ import { TableColumn } from "components/Table/tableColumn";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
 import { idealBlotterHeight } from "utils/idealBlotterHeight";
@@ -15,7 +15,7 @@ export const useExecutionBlotterSize = (): Size => {
   const personality: string = workareaStore.personality;
   const brokerMode: boolean = useMemo((): boolean => {
     const { roles } = user;
-    if (!roles.includes(Role.Broker)) return false;
+    if (!hasRole(roles, Role.Broker)) return false;
     return personality === STRM;
   }, [personality, user]);
   const type: "normal" | "broker" = React.useMemo(

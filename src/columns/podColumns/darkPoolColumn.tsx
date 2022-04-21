@@ -9,7 +9,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
 import { STRM } from "stateDefs/workspaceState";
 import { DarkPoolOrder, Order, OrderStatus } from "types/order";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection } from "types/w";
 import { skipTabIndexAll } from "utils/skipTab";
@@ -242,7 +242,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
   const isBroker: boolean = useMemo((): boolean => {
     const { roles } = user;
-    return roles.includes(Role.Broker);
+    return hasRole(roles, Role.Broker);
   }, [user]);
 
   const onDoubleClick = React.useCallback((): void => {
@@ -304,7 +304,7 @@ const getDarkPoolOrderStatus = (
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
   const { roles } = user;
-  const isBroker = roles.includes(Role.Broker);
+  const isBroker = hasRole(roles, Role.Broker);
   if (!currentOrder) return OrderStatus.None | OrderStatus.DarkPool;
   const isSameFirm = isBroker
     ? currentOrder.firm === personality
@@ -346,7 +346,7 @@ const isMyOrder =
   (user: User, personality: string): ((order: Order) => boolean) =>
   (order: Order): boolean => {
     const { roles } = user;
-    const isBroker = roles.includes(Role.Broker);
+    const isBroker = hasRole(roles, Role.Broker);
 
     return isBroker
       ? order.firm === personality && order.user === user.email

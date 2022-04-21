@@ -4,7 +4,7 @@ import { action, computed, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import { OrderTypes } from "types/mdEntry";
 import { FIXMessage, Order, OrderStatus } from "types/order";
-import { Role } from "types/role";
+import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { ArrowDirection, MessageTypes } from "types/w";
 import { getCurrentTime, getSideFromType } from "utils/commonUtils";
@@ -51,10 +51,10 @@ export class OrderStore {
       // No cancelled orders
       if ((order.status & OrderStatus.Cancelled) !== 0) return false;
       // If I am a broker, it must be the same firm as personality I am assuming
-      if (roles.includes(Role.Broker) && order.firm === personality)
+      if (hasRole(roles, Role.Broker) && order.firm === personality)
         return true;
       // If it's mine, always
-      return order.user === email && !roles.includes(Role.Broker);
+      return order.user === email && !hasRole(roles, Role.Broker);
     });
 
     const order = validOrders.reduce(
@@ -78,7 +78,7 @@ export class OrderStore {
 
     const myOrders = depth.filter((order: Order): boolean => {
       if (order.user !== email) return false;
-      if (roles.includes(Role.Broker)) {
+      if (hasRole(roles, Role.Broker)) {
         return firm === personality && order.type === type;
       }
 
@@ -176,7 +176,7 @@ export class OrderStore {
           Firm: workareaStore.effectiveFirm,
           Quantity: size.toString(),
           Price: price.toString(),
-          MDMkt: roles.includes(Role.Broker) ? personality : undefined,
+          MDMkt: hasRole(roles, Role.Broker) ? personality : undefined,
           ...API.getCancelCondition(),
         };
       } else {
@@ -191,7 +191,7 @@ export class OrderStore {
           Firm: workareaStore.effectiveFirm,
           Quantity: size.toString(),
           Price: price.toString(),
-          MDMkt: roles.includes(Role.Broker) ? personality : undefined,
+          MDMkt: hasRole(roles, Role.Broker) ? personality : undefined,
           ...API.getCancelCondition(),
         };
       }
