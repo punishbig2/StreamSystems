@@ -1,8 +1,8 @@
 export enum Role {
-  Admin = "FXOAdmin",
-  Trader = "FXOTrader",
-  MiddleOffice = "FXOMiddleOffice",
-  Broker = "FXOBroker",
+  Admin = "PRD_FXOAdmin",
+  Trader = "PRD_FXOTrader",
+  MiddleOffice = "PRD_FXOMiddleOffice",
+  Broker = "PRD_FXOBroker",
 }
 
 export interface OktaUser {
