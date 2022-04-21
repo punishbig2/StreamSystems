@@ -387,17 +387,20 @@ export class WorkareaStore {
     this.updateLoadingProgress(strings.StartingUp);
 
     const oktaUser: OktaUser = await API.getUser(id);
+    this.users = await API.getAllUsers(oktaUser.email);
     const userInfo: UserInfo = await API.getUserInfo(oktaUser.email);
-    const me = userInfo[0];
+    const me: any = userInfo[0]
+      ? userInfo[0]
+      : this.users.find((user: any): boolean => user.email === oktaUser.email);
     // Find said user in the users array
     if (me === undefined) {
       return undefined;
     } else {
       const { roles } = oktaUser;
-      this.users = await API.getAllUsers(oktaUser.email);
 
+      console.log({ ...me });
       return {
-        email: me.email,
+        email: oktaUser.email,
         firm: me.firm,
         firstname: me.firstname,
         lastname: me.lastname,
