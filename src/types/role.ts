@@ -1,13 +1,9 @@
-const { env } = process;
-
-export const Role = {
-  Admin: env.REACT_APP_GROUP_PREFIX + "FXOAdmin",
-  Trader: env.REACT_APP_GROUP_PREFIX + "FXOTrader",
-  MiddleOffice: env.REACT_APP_GROUP_PREFIX + "FXOMiddleOffice",
-  Broker: env.REACT_APP_GROUP_PREFIX + "FXOBroker",
-};
-
-console.log(Role);
+export enum Role {
+  Admin = "PRD_FXOAdmin",
+  Trader = "PRD_FXOTrader",
+  MiddleOffice = "PRD_FXOMiddleOffice",
+  Broker = "PRD_FXOBroker",
+}
 
 export interface OktaUser {
   readonly email: string;
