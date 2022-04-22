@@ -48,15 +48,18 @@ export const Field: React.FC<Props> = React.memo(
         setDropdownData(transformData(null));
       }
     }, [dataSource, transformData, entry, store]);
+
     const { strategy } = entry;
     const editFlag: EditableFlag = React.useMemo(() => {
       return MiddleOfficeStore.getFieldEditableFlag("", field.name, strategy);
     }, [strategy, field]);
+
     const value: any = React.useMemo(
       (): any =>
         getValue(field, editFlag, entry[field.name], false, store.entities),
       [field, editFlag, entry, store.entities]
     );
+
     const editable: boolean | undefined = React.useMemo(():
       | boolean
       | undefined => {
@@ -78,29 +81,30 @@ export const Field: React.FC<Props> = React.memo(
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
         const { symbol } = entry;
-        const dates: CalendarVolDatesResponse = await ((): Promise<CalendarVolDatesResponse> => {
-          if (typeof value === "string") {
-            return API.queryVolTenors(
-              {
-                tradeDate: toUTC(entry.tradeDate, true),
-                fxPair: symbol.symbolID,
-                addHolidays: true,
-                rollExpiryDates: true,
-              },
-              [value]
-            ).execute();
-          } else {
-            return API.queryVolDates(
-              {
-                tradeDate: toUTC(entry.tradeDate, true),
-                fxPair: symbol.symbolID,
-                addHolidays: true,
-                rollExpiryDates: true,
-              },
-              [toUTC(value)]
-            ).execute();
-          }
-        })();
+        const dates: CalendarVolDatesResponse =
+          await ((): Promise<CalendarVolDatesResponse> => {
+            if (typeof value === "string") {
+              return API.queryVolTenors(
+                {
+                  tradeDate: toUTC(entry.tradeDate, true),
+                  fxPair: symbol.symbolID,
+                  addHolidays: true,
+                  rollExpiryDates: true,
+                },
+                [value]
+              ).execute();
+            } else {
+              return API.queryVolDates(
+                {
+                  tradeDate: toUTC(entry.tradeDate, true),
+                  fxPair: symbol.symbolID,
+                  addHolidays: true,
+                  rollExpiryDates: true,
+                },
+                [toUTC(value)]
+              ).execute();
+            }
+          })();
         return onChangeCompleted({
           [name]: {
             name: typeof value === "string" ? value : SPECIFIC_TENOR,
@@ -157,6 +161,7 @@ export const Field: React.FC<Props> = React.memo(
         onChangeCompleted,
       ]
     );
+
     return (
       <FormField<DealEntry, MiddleOfficeStore>
         {...field}

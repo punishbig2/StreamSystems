@@ -1,8 +1,6 @@
 import { Grid } from "@material-ui/core";
-import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
 import originalFields from "components/MiddleOffice/DealEntryForm/fields";
 import { createDefaultLegsFromDeal } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
-import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { FieldDef } from "forms/fieldDef";
 import {
@@ -15,6 +13,7 @@ import { DealEntry, EntryType } from "types/dealEntry";
 import { Field } from "./field";
 import { emailNotSet } from "../helpers";
 import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
+import { ActionButtons } from "components/MiddleOffice/DealEntryForm/actionButtons";
 
 interface Props {
   readonly entryType: EntryType;
@@ -31,7 +30,7 @@ interface Props {
   onCreateOrClone(): void;
   onSaveCurrentEntry(): void;
   onSubmit(): void;
-  onPriced(): void;
+  onPrice(): void;
 }
 
 export const DealEntryForm: React.FC<Props> = (
@@ -93,32 +92,6 @@ export const DealEntryForm: React.FC<Props> = (
     [entry.buyer_useremail, entry.seller_useremail]
   );
 
-  const ActionButtons = (): ReactElement | null => {
-    switch (props.entryType) {
-      case EntryType.ExistingDeal:
-        return (
-          <ExistingEntryButtons
-            status={entry.status}
-            submitDisabled={isSubmitDisabled}
-            isButtonDisabled={props.isButtonDisabled}
-            onSubmit={props.onSubmit}
-            onSave={props.onSaveCurrentEntry}
-            onPrice={props.onPriced}
-          />
-        );
-      case EntryType.New:
-      case EntryType.Clone:
-        return (
-          <NewEntryButtons
-            isButtonDisabled={props.isButtonDisabled}
-            onSave={props.onCreateOrClone}
-          />
-        );
-      case EntryType.Empty:
-        return null;
-    }
-  };
-
   return (
     <>
       <form
@@ -154,7 +127,16 @@ export const DealEntryForm: React.FC<Props> = (
         </Grid>
       </form>
       <div className={"button-box"}>
-        <ActionButtons />
+        <ActionButtons
+          buttonsDisabled={props.isButtonDisabled}
+          entryType={props.entryType}
+          status={entry.status}
+          submitDisabled={isSubmitDisabled}
+          onSaveCurrentEntry={props.onSaveCurrentEntry}
+          onSubmit={props.onSubmit}
+          onCreateOrClone={props.onCreateOrClone}
+          onPrice={props.onPrice}
+        />
       </div>
     </>
   );

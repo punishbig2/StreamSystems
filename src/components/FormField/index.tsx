@@ -389,6 +389,11 @@ export class FormField<T, S = any> extends PureComponent<
     if (!props.dropdownData) {
       throw new Error("cannot have a dropdown with no data");
     }
+
+    if (String(props.name).endsWith("_useremail")) {
+      console.log(props.dropdownData, props.value);
+    }
+
     return (
       <DropdownField<T>
         name={props.name}
@@ -562,6 +567,7 @@ export class FormField<T, S = any> extends PureComponent<
 
   private content = (): ReactElement | null => {
     const { props } = this;
+
     const control: ReactElement | null = this.createControl();
     if (props.label === undefined) {
       return control;

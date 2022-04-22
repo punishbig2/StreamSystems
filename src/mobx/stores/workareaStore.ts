@@ -396,7 +396,6 @@ export class WorkareaStore {
     } else {
       const { roles } = oktaUser;
 
-      console.log({ ...me }, roles);
       return {
         email: oktaUser.email,
         firm: me.firm,

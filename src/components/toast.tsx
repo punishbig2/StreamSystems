@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 export enum ToastType {
   Success = "success",
@@ -31,11 +31,9 @@ export const toast = {
     const removeMe = () => {
       body.removeChild(element);
     };
+    const root = createRoot(element);
     // Render it
-    ReactDOM.render(
-      <Toast onRemove={removeMe} type={type} message={message} />,
-      element
-    );
+    root.render(<Toast onRemove={removeMe} type={type} message={message} />);
     // Remove it afterwards
     if (timeout > 0) {
       setTimeout(removeMe, timeout);

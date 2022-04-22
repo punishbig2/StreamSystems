@@ -332,11 +332,8 @@ export const createDealEntry = (
   defaultLegAdjust: string | null
 ): Task<DealEntry> => {
   const id: string = deal.id;
-  // const legsCount: number = moStore.getOutLegsCount(deal.strategy);
-  // const symbol: Symbol = moStore.findSymbolById(deal.currencyPair);
   if (symbol === InvalidSymbol)
     throw new Error("cannot find symbol: " + deal.currencyPair);
-  // const strategy: Product = moStore.getStrategyById(deal.strategy);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
   const entry: DealEntry = {
@@ -388,6 +385,7 @@ export const createDealEntry = (
     extra_fields: deal.extraFields,
     errorMsg: deal.error_msg,
   };
+
   return resolveDatesIfNeeded(entry);
 };
 

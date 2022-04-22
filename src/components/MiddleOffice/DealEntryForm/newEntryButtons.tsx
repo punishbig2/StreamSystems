@@ -2,6 +2,8 @@ import React, { ReactElement } from "react";
 import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
+  readonly disabled: boolean;
+
   isButtonDisabled(button: keyof DealEntryButtons): boolean;
   onSave(): void;
 }
@@ -21,7 +23,7 @@ export const NewEntryButtons: React.FC<Props> = (
         type={"button"}
         className={"primary"}
         onMouseUp={props.onSave}
-        disabled={props.isButtonDisabled("save")}
+        disabled={props.disabled || props.isButtonDisabled("save")}
       >
         Save
       </button>
