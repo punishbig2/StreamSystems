@@ -390,10 +390,6 @@ export class FormField<T, S = any> extends PureComponent<
       throw new Error("cannot have a dropdown with no data");
     }
 
-    if (String(props.name).endsWith("_useremail")) {
-      console.log(props.dropdownData, props.value);
-    }
-
     return (
       <DropdownField<T>
         name={props.name}
