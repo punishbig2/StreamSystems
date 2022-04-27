@@ -35,6 +35,7 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
       .then((rates: BrokerageCommissionResponse): void => {
         // noinspection SuspiciousTypeOfGuard
         if (typeof rates === "string") {
+          brokerageStore.setRates({});
           return;
         }
 
