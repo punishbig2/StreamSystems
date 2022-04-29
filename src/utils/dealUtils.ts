@@ -197,9 +197,11 @@ export const createDealFromBackendMessage = async (
     data.tenor1,
     data.expirydate1
   );
+
   const spread: number | null = getSpread(data, strategy);
   const vol: number | null = getVol(data, strategy);
   const price: number | null = getPrice(data.lastpx, data.pricedvol);
+
   const deal = {
     id: data.linkid,
     buyer: coalesce(data.buyerentitycode, data.buyer),
@@ -220,8 +222,8 @@ export const createDealFromBackendMessage = async (
     tenor2: !!tenor2 ? tenor2.name : undefined,
     expiryDate2: !!tenor2 ? tenor2.expiryDate : undefined,
     tradeDate: tradeDate,
-    spotDate: new Date(),
-    premiumDate: new Date(),
+    spotDate: null,
+    premiumDate: null,
     price: price,
     strike: strike === "" ? null : tryToNumber(strike),
     symbol: symbol,
@@ -236,6 +238,7 @@ export const createDealFromBackendMessage = async (
     error_msg: data.error_msg,
     dealPrice: null,
   };
+
   return { ...deal, dealPrice: getDealPrice(deal, legs) };
 };
 
@@ -294,14 +297,13 @@ const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
     execute: async (): Promise<DealEntry> => {
       const tenor1Dates: FixTenorResult = await task1.execute();
       const tenor2Dates: FixTenorResult = await task2.execute();
-      const spotDate: Date | null = forceParseDate(tenor1Dates.spotDate);
       return {
         ...entry,
         tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
         tenor2: tenor2Dates.tenor,
         ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
-        premiumDate: spotDate,
-        spotDate: spotDate,
+        premiumDate: entry.spotDate,
+        spotDate: entry.spotDate,
       };
     },
     cancel: (): void => {

@@ -1,34 +1,27 @@
-import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
-import { isInvalidTenor } from "components/FormField/helpers";
-import { Cut } from "components/MiddleOffice/types/cut";
-import { Leg } from "components/MiddleOffice/types/leg";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, Product } from "types/product";
-import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { DealEntry } from "types/dealEntry";
-import { Sides } from "types/sides";
-import { InvalidSymbol, Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils/commonUtils";
-import {
-  calculateNetValue,
-  convertLegNumbers,
-  createLegsFromDefinitionAndDeal,
-} from "utils/legsUtils";
+import {toNumberOrFallbackIfNaN} from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
+import {isInvalidTenor} from "components/FormField/helpers";
+import {Cut} from "components/MiddleOffice/types/cut";
+import {Leg} from "components/MiddleOffice/types/leg";
+import {LegOptionsDefIn, LegOptionsDefOut,} from "components/MiddleOffice/types/legOptionsDef";
+import {InvalidStrategy, Product} from "types/product";
+import {SummaryLeg} from "components/MiddleOffice/types/summaryLeg";
+import {DealEntry} from "types/dealEntry";
+import {Sides} from "types/sides";
+import {InvalidSymbol, Symbol} from "types/symbol";
+import {InvalidTenor, Tenor} from "types/tenor";
+import {coalesce} from "utils/commonUtils";
+import {calculateNetValue, convertLegNumbers, createLegsFromDefinitionAndDeal,} from "utils/legsUtils";
 
 const buildSummaryLegFromCut = (
   cut: Cut,
   strategy: Product,
   symbol: Symbol,
   tradeDate: Date,
-  premiumDate: Date,
-  spotDate: Date,
+  premiumDate: Date | null,
+  spotDate: Date | null,
   deliveryDate: Date | undefined,
   expiryDate: Date,
-  extraFields: { [key: string]: number | string | null } | undefined
+  extraFields: { [key: string]: number | string | Date | null } | undefined
 ): SummaryLeg => {
   return {
     fwdpts1:
@@ -53,6 +46,7 @@ const buildSummaryLegFromCut = (
       premiumDate: premiumDate,
       deliveryDate: deliveryDate !== undefined ? deliveryDate : new Date(),
       expiryDate: expiryDate,
+      spotDate: spotDate,
       side: Sides.None,
       option: "",
       vol: null,
@@ -96,11 +90,11 @@ const createSummaryLeg = (
   strategy: Product,
   symbol: Symbol,
   tradeDate: Date,
-  premiumDate: Date,
-  spotDate: Date,
+  premiumDate: Date | null,
+  spotDate: Date | null,
   deliveryDate: Date | undefined,
   expiryDate: Date,
-  extraFields: { [key: string]: number | string | null } | undefined
+  extraFields: { [key: string]: number | string | Date | null } | undefined
 ): SummaryLeg | null => {
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
@@ -162,7 +156,7 @@ export const handleLegsResponse = (
   legDefinitions: { out: ReadonlyArray<LegOptionsDefOut> }
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
   if (legs.length === 0) return [[], null];
-  const { extra_fields = {} } = entry;
+  const {extra_fields = {}} = entry;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return [[], null];
   const fwdPts1: number | null = coalesce(
@@ -200,12 +194,13 @@ export const handleLegsResponse = (
       entry.symbol,
       entry.tradeDate,
       entry.premiumDate,
-      entry.spotDate,
+      firstLeg.spotDate ?? entry.spotDate,
       tenor.deliveryDate,
       tenor.expiryDate,
       entry.extra_fields
     ),
     ...summaryLeg,
+    spotDate: legs[0].spotDate,
     fwdpts1: toNumberOrFallbackIfNaN(coalesce(fwdPts1, firstLeg.fwdPts), null),
     fwdrate1: toNumberOrFallbackIfNaN(
       coalesce(fwdRate1, firstLeg.fwdRate),
@@ -256,6 +251,7 @@ export const handleLegsResponse = (
       },
     },
   } as SummaryLeg;
+
   return [addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg];
 };
 
@@ -264,7 +260,7 @@ export const createDefaultLegsFromDeal = (
   entry: DealEntry,
   legDefinitions: { in: ReadonlyArray<LegOptionsDefIn> }
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
-  const { strategy, symbol } = entry;
+  const {strategy, symbol} = entry;
   if (
     strategy === InvalidStrategy ||
     strategy.productid === "" ||

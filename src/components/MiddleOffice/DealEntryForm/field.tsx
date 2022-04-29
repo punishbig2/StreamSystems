@@ -1,19 +1,19 @@
-import { API } from "API";
-import { FormField } from "components/FormField";
-import { getValue } from "components/MiddleOffice/DealEntryForm/helpers";
-import { EditableFlag } from "types/product";
+import {API} from "API";
+import {FormField} from "components/FormField";
+import {getValue} from "components/MiddleOffice/DealEntryForm/helpers";
+import {EditableFlag} from "types/product";
 import deepEqual from "deep-equal";
-import { DropdownItem, FieldDef } from "forms/fieldDef";
+import {DropdownItem, FieldDef} from "forms/fieldDef";
 import {
   MiddleOfficeStore,
   MiddleOfficeStoreContext,
 } from "mobx/stores/middleOfficeStore";
 import React from "react";
-import { DealEntry } from "types/dealEntry";
-import { CalendarVolDatesResponse } from "types/calendarFXPair";
-import { SPECIFIC_TENOR } from "utils/tenorUtils";
+import {DealEntry} from "types/dealEntry";
+import {CalendarVolDatesResponse} from "types/calendarFXPair";
+import {SPECIFIC_TENOR} from "utils/tenorUtils";
 
-import { safeForceParseDate, toUTC } from "utils/timeUtils";
+import {safeForceParseDate, toUTC} from "utils/timeUtils";
 
 export interface DealEntryEditInterface {
   readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
@@ -34,11 +34,9 @@ interface Props {
 export const Field: React.FC<Props> = React.memo(
   (props: Props): React.ReactElement => {
     const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
-    const { field, entry, isEditMode } = props;
-    const { transformData, dataSource } = field;
-    const [dropdownData, setDropdownData] = React.useState<
-      ReadonlyArray<DropdownItem>
-    >([]);
+    const {field, entry, isEditMode} = props;
+    const {transformData, dataSource} = field;
+    const [dropdownData, setDropdownData] = React.useState<ReadonlyArray<DropdownItem>>([]);
     React.useEffect(() => {
       if (!transformData) return;
       if (dataSource) {
@@ -49,7 +47,7 @@ export const Field: React.FC<Props> = React.memo(
       }
     }, [dataSource, transformData, entry, store]);
 
-    const { strategy } = entry;
+    const {strategy} = entry;
     const editFlag: EditableFlag = React.useMemo(() => {
       return MiddleOfficeStore.getFieldEditableFlag("", field.name, strategy);
     }, [strategy, field]);
@@ -77,10 +75,10 @@ export const Field: React.FC<Props> = React.memo(
         }
       }
     }, [isEditMode, editFlag, field, entry, store.isEditMode]);
-    const { onChangeStart, onChangeCompleted } = props;
+    const {onChangeStart, onChangeCompleted} = props;
     const onTenorChange = React.useCallback(
       async (name: keyof DealEntry, value: string | Date): Promise<void> => {
-        const { symbol } = entry;
+        const {symbol} = entry;
         const dates: CalendarVolDatesResponse =
           await ((): Promise<CalendarVolDatesResponse> => {
             if (typeof value === "string") {
@@ -105,7 +103,8 @@ export const Field: React.FC<Props> = React.memo(
               ).execute();
             }
           })();
-        return onChangeCompleted({
+
+        const result = {
           [name]: {
             name: typeof value === "string" ? value : SPECIFIC_TENOR,
             ...safeForceParseDate("deliveryDate", dates.DeliveryDates[0]),
@@ -115,15 +114,17 @@ export const Field: React.FC<Props> = React.memo(
           // otherwise it does
           ...(name === "tenor1"
             ? {
-                ...safeForceParseDate("spotDate", dates.SpotDate),
-                ...safeForceParseDate("premiumDate", dates.SpotDate),
-              }
+              ...safeForceParseDate("spotDate", dates.SpotDate),
+              ...safeForceParseDate("premiumDate", dates.SpotDate),
+            }
             : {}),
-        });
+        };
+
+        return onChangeCompleted(result);
       },
       [entry, onChangeCompleted]
     );
-    const { symbol } = entry;
+    const {symbol} = entry;
     const onChange = React.useCallback(
       async (name: keyof DealEntry, value: any): Promise<void> => {
         const dependants: Partial<DealEntry> = ((
@@ -148,7 +149,7 @@ export const Field: React.FC<Props> = React.memo(
           );
           if (convertedValue === undefined) return;
           // This will also take some time presumably
-          await onChangeCompleted({ [name]: convertedValue, ...dependants });
+          await onChangeCompleted({[name]: convertedValue, ...dependants});
         }
       },
       [
@@ -176,8 +177,8 @@ export const Field: React.FC<Props> = React.memo(
     );
   },
   (prevProps: Props, nextProps: Props) => {
-    const { entry: prevEntry, field } = prevProps;
-    const { entry: nextEntry } = nextProps;
+    const {entry: prevEntry, field} = prevProps;
+    const {entry: nextEntry} = nextProps;
     if (prevProps.isEditMode !== nextProps.isEditMode) return false;
     if (prevEntry.strategy !== nextEntry.strategy) return false;
     if (prevEntry.symbol !== nextEntry.symbol) return false;

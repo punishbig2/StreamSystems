@@ -3,7 +3,7 @@ import { DealOutput } from "types/dealOutput";
 export interface SummaryLeg {
   strategy: string;
   tradeDate: Date;
-  spotDate: Date;
+  spotDate: Date | null;
   spot: number | null;
   cutCity: string;
   cutTime: string;

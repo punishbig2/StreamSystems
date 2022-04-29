@@ -33,6 +33,7 @@ export interface Leg {
   deliveryDate: Date | null;
   rates: Rates;
   usi_num: number | null;
+  spotDate?: Date | null;
 
   custom?: { [p: string]: any };
 }

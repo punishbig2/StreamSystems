@@ -1,17 +1,17 @@
-import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
-import { Leg, Rates } from "components/MiddleOffice/types/leg";
+import {toNumberOrFallbackIfNaN} from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
+import {Leg, Rates} from "components/MiddleOffice/types/leg";
 import {
   LegOptionsDefIn,
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
-import { Product } from "types/product";
-import { DealEntry } from "types/dealEntry";
-import { Sides } from "types/sides";
-import { isStyledValue, StyledValue } from "types/styledValue";
-import { Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { getTenor } from "utils/dealUtils";
-import { safeForceParseDate } from "utils/timeUtils";
+import {Product} from "types/product";
+import {DealEntry} from "types/dealEntry";
+import {Sides} from "types/sides";
+import {isStyledValue, StyledValue} from "types/styledValue";
+import {Symbol} from "types/symbol";
+import {InvalidTenor, Tenor} from "types/tenor";
+import {getTenor} from "utils/dealUtils";
+import {safeForceParseDate} from "utils/timeUtils";
 
 export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
@@ -42,8 +42,8 @@ export const getStyledValue = (
   if (index === undefined) {
     console.warn(
       "cannot get the styled value because the index is undefined for style `" +
-        style +
-        "'"
+      style +
+      "'"
     );
     return null;
   }
@@ -65,6 +65,7 @@ export const parseDates = (legs: ReadonlyArray<any>): ReadonlyArray<Leg> => {
         ...safeForceParseDate<Leg>("premiumDate", leg.premiumDate),
         ...safeForceParseDate<Leg>("expiryDate", leg.expiryDate),
         ...safeForceParseDate<Leg>("deliveryDate", leg.deliveryDate),
+        ...safeForceParseDate<Leg>("spotDate", leg.spotDate),
       };
     };
     return legs.map(mapper);
@@ -148,7 +149,7 @@ export const mergeDefinitionsAndLegs = (
   legs: ReadonlyArray<Leg>,
   definitions: { in: ReadonlyArray<LegOptionsDefIn> }
 ): ReadonlyArray<Leg> => {
-  const { in: list } = definitions;
+  const {in: list} = definitions;
   const mapper = legDefMapper(symbol);
   if (list.length === 1) {
     return list.map(mapper);
@@ -186,7 +187,7 @@ const getReturnLegOut = (
       "We must have a legs definition for strategy: " + strategy.name
     );
   }
-  const { out } = defs;
+  const {out} = defs;
   if (index >= out.length) {
     console.warn(
       `requesting return leg out for a non existing leg ${out.length}/${
@@ -201,7 +202,7 @@ const getReturnLegOut = (
       "We must have a legs definition for strategy: " + strategy.name
     );
   }
-  const { ReturnLegOut } = found;
+  const {ReturnLegOut} = found;
   return ReturnLegOut.toLowerCase();
 };
 

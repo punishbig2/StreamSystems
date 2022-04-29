@@ -1262,7 +1262,7 @@ export class MiddleOfficeStore implements Workspace {
     const { summaryLeg } = this;
     const otherFields = ((
       summaryLeg: SummaryLeg | null
-    ): { extra_fields?: { [key: string]: number | string | null } } => {
+    ): { extra_fields?: { [key: string]: number | string | Date | null } } => {
       if (summaryLeg === null) return {};
       return {
         extra_fields: {
@@ -1274,6 +1274,7 @@ export class MiddleOfficeStore implements Workspace {
         },
       };
     })(summaryLeg);
+
     return {
       ...entry,
       ...otherFields,

@@ -46,8 +46,8 @@ export interface DealEntry {
 
   readonly status: DealStatus;
 
-  readonly spotDate: Date;
-  readonly premiumDate: Date;
+  readonly spotDate: Date | null;
+  readonly premiumDate: Date | null;
   readonly tradeDate: Date;
   readonly horizonDateUTC?: Date;
 
@@ -69,7 +69,7 @@ export interface DealEntry {
   readonly sef_namespace: string | null;
   readonly errorMsg: string | null;
 
-  extra_fields?: { [key: string]: string | number | null };
+  extra_fields?: { [key: string]: string | number | Date | null };
 }
 
 export const emptyDealEntry: DealEntry = {
@@ -91,7 +91,7 @@ export const emptyDealEntry: DealEntry = {
     name: "",
   },
   tenor2: null,
-  spotDate: new Date(),
+  spotDate: null,
   premiumDate: new Date(),
   tradeDate: new Date(),
   dealID: "",
@@ -147,7 +147,7 @@ export interface ServerDealQuery {
   readonly seller_comm: number | null;
   readonly seller_comm_rate: number | null;
   readonly product_fields_changed?: string[];
-  readonly extra_fields?: { [key: string]: string | number | null };
+  readonly extra_fields?: { [key: string]: string | number | Date | null };
   readonly buyer_useremail: string;
   readonly seller_useremail: string;
 }

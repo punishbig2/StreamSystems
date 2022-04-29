@@ -1,28 +1,28 @@
-import { isInvalidTenor, isTenor } from "components/FormField/helpers";
-import { Leg } from "components/MiddleOffice/types/leg";
-import { LegOptionsDefIn } from "components/MiddleOffice/types/legOptionsDef";
+import {isInvalidTenor, isTenor} from "components/FormField/helpers";
+import {Leg} from "components/MiddleOffice/types/leg";
+import {LegOptionsDefIn} from "components/MiddleOffice/types/legOptionsDef";
 import {
   OptionLeg,
   ValuationModel,
   VolMessageIn,
 } from "components/MiddleOffice/types/pricer";
-import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
+import {SummaryLeg} from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
-import { NotApplicableProxy } from "notApplicableProxy";
-import { STRM } from "stateDefs/workspaceState";
-import { BankEntity } from "types/bankEntity";
-import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
-import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
+import {NotApplicableProxy} from "notApplicableProxy";
+import {STRM} from "stateDefs/workspaceState";
+import {BankEntity} from "types/bankEntity";
+import {BrokerageCommissionResponse} from "types/brokerageCommissionResponse";
+import {BrokerageWidthsResponse} from "types/brokerageWidthsResponse";
 import {
   CalendarVolDatesQuery,
   CalendarVolDatesResponse,
 } from "types/calendarFXPair";
-import { DarkPoolQuote } from "types/darkPoolQuote";
-import { DealEntry, ServerDealQuery } from "types/dealEntry";
-import { LegAdjustValue } from "types/legAdjustValue";
-import { Message } from "types/message";
-import { MessageResponse } from "types/messageResponse";
+import {DarkPoolQuote} from "types/darkPoolQuote";
+import {DealEntry, ServerDealQuery} from "types/dealEntry";
+import {LegAdjustValue} from "types/legAdjustValue";
+import {Message} from "types/message";
+import {MessageResponse} from "types/messageResponse";
 import {
   FIXMessage,
   CreateOrderBulk,
@@ -30,14 +30,14 @@ import {
   Order,
   OrderMessage,
 } from "types/order";
-import { Product } from "types/product";
-import { hasRole, OktaUser, Role } from "types/role";
-import { Sides } from "types/sides";
-import { Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { WorkSchedule } from "types/workSchedule";
-import { OCOModes, User, UserInfo } from "types/user";
-import { MessageTypes, W } from "types/w";
+import {Product} from "types/product";
+import {hasRole, OktaUser, Role} from "types/role";
+import {Sides} from "types/sides";
+import {Symbol} from "types/symbol";
+import {InvalidTenor, Tenor} from "types/tenor";
+import {WorkSchedule} from "types/workSchedule";
+import {OCOModes, User, UserInfo} from "types/user";
+import {MessageTypes, W} from "types/w";
 import {
   coalesce,
   floatAsString,
@@ -52,11 +52,11 @@ import {
   resolveBankToEntity,
   resolveEntityToBank,
 } from "utils/dealUtils";
-import { buildFwdRates } from "utils/fwdRates";
-import { mergeDefinitionsAndLegs } from "utils/legsUtils";
-import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
-import { GetDealsDateRange } from "types/getDealsDateRange";
-import { toNumber } from "utils/isNumeric";
+import {buildFwdRates} from "utils/fwdRates";
+import {mergeDefinitionsAndLegs} from "utils/legsUtils";
+import {toUTC, toUTCFIXFormat} from "utils/timeUtils";
+import {GetDealsDateRange} from "types/getDealsDateRange";
+import {toNumber} from "utils/isNumeric";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -127,7 +127,8 @@ const request = <T>(
   contentType?: string
 ): Task<T> => {
   const taskHandler: TaskHandler<T> = {
-    reject: () => {},
+    reject: () => {
+    },
     status: PromiseStatus.Pending,
   };
   // This should be accessible from outside the executor/promise to allow cancellation
@@ -155,7 +156,7 @@ const request = <T>(
             taskHandler.status = PromiseStatus.Rejected;
             reject();
           } else if (xhr.status >= 200 && xhr.status < 300) {
-            const { responseText } = xhr;
+            const {responseText} = xhr;
             if (responseText.length > 0) {
               try {
                 const object: any = JSON.parse(responseText);
@@ -201,7 +202,7 @@ const request = <T>(
   return {
     execute: (): Promise<T> => new Promise<T>(executor),
     cancel: () => {
-      const { status } = taskHandler;
+      const {status} = taskHandler;
       if (status === PromiseStatus.Pending) {
         taskHandler.reject("aborted");
         xhr.abort();
@@ -310,9 +311,7 @@ export class API {
   }
 
   public static async getTimeTable(): Promise<ReadonlyArray<WorkSchedule>> {
-    const task: Task<ReadonlyArray<WorkSchedule>> = GET<
-      ReadonlyArray<WorkSchedule>
-    >(API.buildUrl(API.Config, "timetable", "get"));
+    const task: Task<ReadonlyArray<WorkSchedule>> = GET<ReadonlyArray<WorkSchedule>>(API.buildUrl(API.Config, "timetable", "get"));
     return task.execute();
   }
 
@@ -324,7 +323,7 @@ export class API {
         API.Config,
         "symbols",
         "get",
-        region ? { region } : undefined
+        region ? {region} : undefined
       )
     );
     const currencies: Array<Symbol> = await task.execute();
@@ -344,7 +343,7 @@ export class API {
 
   public static getTenors(): Promise<string[]> {
     const task: Task<string[]> = GET<string[]>(
-      API.buildUrl(API.Config, "tenors", "get", { criteria: "Front=true" })
+      API.buildUrl(API.Config, "tenors", "get", {criteria: "Front=true"})
     );
     return task.execute();
   }
@@ -366,7 +365,7 @@ export class API {
   }
 
   public static getCancelCondition(): { CancelCondition?: number } {
-    const { preferences } = workareaStore;
+    const {preferences} = workareaStore;
     if (preferences.oco === OCOModes.Disabled) {
       return {};
     } else {
@@ -383,7 +382,7 @@ export class API {
     user: User,
     minimumSize: number
   ): Promise<MessageResponse> {
-    const { roles } = user;
+    const {roles} = user;
     const personality: string = workareaStore.personality;
     // Build a create order request
     const isBroker: boolean = hasRole(roles, Role.Broker);
@@ -401,7 +400,7 @@ export class API {
         if (order.price === null || order.size === null)
           throw new Error("price and size MUST be specified");
         if (order.size < minimumSize) order.size = minimumSize;
-        const { price, size } = order;
+        const {price, size} = order;
         return {
           Side: getSideFromType(order.type),
           Tenor: order.tenor,
@@ -485,7 +484,7 @@ export class API {
     order: Order,
     user: User
   ): Promise<MessageResponse> {
-    const { roles } = user;
+    const {roles} = user;
     const isBroker: boolean = hasRole(roles, Role.Broker);
     if (order.user !== user.email && !isBroker)
       throw new Error(
@@ -603,7 +602,7 @@ export class API {
     useremail: string,
     timestamp: number
   ): Promise<Message[]> {
-    const query: any = { timestamp };
+    const query: any = {timestamp};
     const task1: Task<Message[]> = GET<Message[]>(
       API.buildUrl(API.DarkPool, "messages", "get", query)
     );
@@ -621,20 +620,20 @@ export class API {
     strategy: string
   ): Task<OrderMessage[]> {
     return GET<OrderMessage[]>(
-      API.buildUrl(API.Oms, "runorders", "get", { symbol, strategy, useremail })
+      API.buildUrl(API.Oms, "runorders", "get", {symbol, strategy, useremail})
     );
   }
 
   public static async getAllUsers(useremail: string): Promise<User[]> {
     const task: Task<User[]> = GET<User[]>(
-      API.buildUrl(API.UserApi, "AllUsers", "get", { useremail })
+      API.buildUrl(API.UserApi, "AllUsers", "get", {useremail})
     );
     return task.execute();
   }
 
   public static async getUserInfo(useremail: string): Promise<UserInfo> {
     const task: Task<UserInfo> = GET<UserInfo>(
-      API.buildUrl(API.UserApi, "UserInfo", "get", { useremail })
+      API.buildUrl(API.UserApi, "UserInfo", "get", {useremail})
     );
 
     return task.execute();
@@ -650,7 +649,7 @@ export class API {
   public static async createDarkPoolOrder(order: DarkPoolOrder): Promise<any> {
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
-    const { roles } = user;
+    const {roles} = user;
     const isBroker: boolean = hasRole(roles, Role.Broker);
     if (isBroker && order.MDMkt === STRM) {
       throw new Error("brokers cannot create orders when in streaming mode");
@@ -661,7 +660,7 @@ export class API {
     }
     const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, "order", "create"),
-      { ...order, Price: toNumber(order.Price) }
+      {...order, Price: toNumber(order.Price)}
     );
     return task.execute();
   }
@@ -752,17 +751,17 @@ export class API {
     email: string
   ): Promise<[{ workspace: any }]> {
     const task: Task<any> = GET<any>(
-      API.buildUrl(API.UserApi, "UserJson", "get", { useremail: email })
+      API.buildUrl(API.UserApi, "UserJson", "get", {useremail: email})
     );
     return task.execute();
   }
 
   public static async saveUserProfile(data: any): Promise<any> {
-    const { useremail, workspace } = data;
+    const {useremail, workspace} = data;
     const contentType = "application/x-www-form-urlencoded";
     const task: Task<any> = POST<any>(
       API.buildUrl(API.UserApi, "UserJson", "save"),
-      { useremail, workspace },
+      {useremail, workspace},
       contentType
     );
     return task.execute();
@@ -810,7 +809,7 @@ export class API {
     useremail: string
   ): Promise<ReadonlyArray<string>> {
     const task: Task<ReadonlyArray<{ ccyGroup: string }>> = GET<any>(
-      API.buildUrl(API.Config, "userregions", "get", { useremail })
+      API.buildUrl(API.Config, "userregions", "get", {useremail})
     );
     const regions = await task.execute();
     return regions.map(
@@ -822,7 +821,7 @@ export class API {
   public static async getCuts(currency?: string): Promise<any> {
     if (currency) {
       const task: Task<any> = GET<any>(
-        API.buildUrl(API.Config, "cuts", "get", { currency })
+        API.buildUrl(API.Config, "cuts", "get", {currency})
       );
       return task.execute();
     } else {
@@ -873,7 +872,7 @@ export class API {
       entry,
       NotApplicableProxy<DealEntry>("", entry)
     );
-    const { tradeDate, symbol } = proxyEntry;
+    const {tradeDate, symbol} = proxyEntry;
     if (proxyEntry.dealID === undefined)
       throw new Error("cannot price an transient deal");
     const mergedDefinitions: ReadonlyArray<Leg> = mergeDefinitionsAndLegs(
@@ -887,7 +886,7 @@ export class API {
     const legsPromises = mergedDefinitions.map(
       async (leg: Leg, index: number): Promise<OptionLeg> => {
         const proxyLeg = new Proxy(leg, NotApplicableProxy<Leg>("leg", entry));
-        const { strategy } = proxyEntry;
+        const {strategy} = proxyEntry;
         const tenor: Tenor | InvalidTenor = getTenor(proxyEntry, index);
         if (isInvalidTenor(tenor))
           throw new Error(
@@ -906,7 +905,7 @@ export class API {
           proxyEntry.not1
         );
         // We know that the tenor has valid dates now
-        const { expiryDate, deliveryDate } = tenor;
+        const {expiryDate, deliveryDate} = tenor;
         if (deliveryDate === undefined)
           throw new Error("bad tenor for leg " + index);
         return {
@@ -984,7 +983,7 @@ export class API {
       ...(summaryLeg !== null &&
       summaryLeg.spot !== undefined &&
       summaryLeg.spot !== null
-        ? { Spot: summaryLeg.spot }
+        ? {Spot: summaryLeg.spot}
         : {}),
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${legs.length}-Legs`,
@@ -1000,11 +999,9 @@ export class API {
     dealID?: string,
     dateRange?: GetDealsDateRange
   ): Promise<ReadonlyArray<{ [key: string]: any }>> {
-    const task: Task<ReadonlyArray<{ [key: string]: any }>> = GET<
-      ReadonlyArray<{ [key: string]: any }>
-    >(
+    const task: Task<ReadonlyArray<{ [key: string]: any }>> = GET<ReadonlyArray<{ [key: string]: any }>>(
       API.buildUrl(API.Deal, "deals", "get", dateRange ?? {}),
-      dealID !== undefined ? { dealid: dealID } : undefined
+      dealID !== undefined ? {dealid: dealID} : undefined
     );
     const array = await task.execute();
     if (array === null) return [];
@@ -1023,7 +1020,7 @@ export class API {
   }
 
   public static async stpSendReport(dealID: string): Promise<string> {
-    const { user } = workareaStore;
+    const {user} = workareaStore;
     const task: Task<string> = POST<string>(
       API.buildUrl(API.STP, "report", "send"),
       {
@@ -1106,7 +1103,7 @@ export class API {
       };
     // We return the task instead of it's execution promise so that
     // the caller can cancel if desired/needed
-    return GET<any>(API.buildUrl(API.Legs, "legs", "get", { dealid: dealID }));
+    return GET<any>(API.buildUrl(API.Legs, "legs", "get", {dealid: dealID}));
   }
 
   public static async getOptionLegsDefIn(): Promise<any> {
@@ -1153,9 +1150,7 @@ export class API {
   }
 
   public static getLegAdjustValues(): Promise<ReadonlyArray<LegAdjustValue>> {
-    const task: Task<ReadonlyArray<LegAdjustValue>> = GET<
-      ReadonlyArray<LegAdjustValue>
-    >(API.buildUrl(API.MloConfig, "legadjustvalues", "get"));
+    const task: Task<ReadonlyArray<LegAdjustValue>> = GET<ReadonlyArray<LegAdjustValue>>(API.buildUrl(API.MloConfig, "legadjustvalues", "get"));
     return task.execute();
   }
 
@@ -1218,9 +1213,10 @@ export class API {
     entities: BankEntitiesQueryResponse
   ): ServerDealQuery {
     const user: User = workareaStore.user;
-    const { symbol, strategy, tenor1, tenor2 } = entry;
+    const {symbol, strategy, tenor1, tenor2} = entry;
     if (isInvalidTenor(tenor1))
       throw new Error("cannot build deal query without at least 1 tenor");
+
     return {
       linkid: getDealId(entry),
       tenor: tenor1.name,
@@ -1255,7 +1251,7 @@ export class API {
       seller_comm: entry.seller_comm,
       seller_comm_rate: entry.seller_comm_rate,
       product_fields_changed: changed,
-      ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
+      ...(entry.extra_fields ? {extra_fields: entry.extra_fields} : {}),
     };
   }
 
@@ -1264,29 +1260,29 @@ export class API {
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null
   ): Promise<string> {
-    const { user } = workareaStore;
+    const {user} = workareaStore;
     const allLegs = [
       ...(summaryLeg
         ? summaryLeg.dealOutput
           ? [
-              {
-                ...summaryLeg.dealOutput,
-                spotDate: summaryLeg.spotDate,
-                option: "SumLeg",
-              },
-            ]
+            {
+              ...summaryLeg.dealOutput,
+              spotDate: summaryLeg.spotDate,
+              option: "SumLeg",
+            },
+          ]
           : []
         : []),
       ...legs,
     ];
     const mappedLegs: ReadonlyArray<Leg> = allLegs.map((leg: Leg): Leg => {
-      const { strike, fwdPts } = leg;
+      const {strike, fwdPts} = leg;
       return {
         ...leg,
         ...(fwdPts !== null && fwdPts !== undefined
-          ? { fwdPts: floatAsString(fwdPts) }
+          ? {fwdPts: floatAsString(fwdPts)}
           : {}),
-        ...(!!strike ? { strike: floatAsString(tryToNumber(strike)) } : {}),
+        ...(!!strike ? {strike: floatAsString(tryToNumber(strike))} : {}),
       };
     });
     const task = POST<string>(API.buildUrl(API.Legs, "manual", "save"), {
