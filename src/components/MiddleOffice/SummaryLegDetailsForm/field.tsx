@@ -46,11 +46,14 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     ) {
       return "";
     }
+
     if (value === null) {
       if (field.name === "spotDate") {
-        return dealEntry.spotDate;
+        // FIXME: this is a terrible idea
+        void props.onUpdateSummaryLeg("spotDate", dealEntry.spotDate);
       }
     };
+
     return value;
   };
   const isEditable = (): boolean => {

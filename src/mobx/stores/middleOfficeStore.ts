@@ -460,11 +460,8 @@ export class MiddleOfficeStore implements Workspace {
         this.setProgress(100);
         this.setInitialized();
       }, 0);
-      this.installPricerListener();
     }
   }
-
-  private installPricerListener(): void {}
 
   public connectListeners(): () => void {
     const remove1 = signalRClient.addPricingResponseListener(
@@ -521,6 +518,7 @@ export class MiddleOfficeStore implements Workspace {
   @action.bound
   public setSummaryLeg(summaryLeg: SummaryLeg | null): void {
     this.summaryLeg = summaryLeg;
+    this.entry = { ...this.entry, spotDate: summaryLeg?.spotDate ?? null };
   }
 
   @action.bound
@@ -534,6 +532,7 @@ export class MiddleOfficeStore implements Workspace {
     this.legs = legs.slice();
     this.originalLegs = this.legs;
     this.isLoadingLegs = false;
+    this.entry = { ...this.entry, spotDate: summaryLeg?.spotDate ?? null };
     if (reset) {
       this.status = MiddleOfficeProcessingState.Normal;
     }
@@ -739,8 +738,6 @@ export class MiddleOfficeStore implements Workspace {
                 legDefs
               );
               this.setLegs(legs, summary);
-              // Update spot date in the entry
-              this.entry = { ...this.entry, spotDate: summary?.spotDate ?? this.entry.spotDate }
             } else {
               const [legs, summary] = createDefaultLegsFromDeal(
                 this.cuts,
@@ -748,8 +745,6 @@ export class MiddleOfficeStore implements Workspace {
                 legDefs
               );
               this.setLegs(legs, summary);
-              // Update spot date in the entry
-              this.entry = { ...this.entry, spotDate: summary?.spotDate ?? this.entry.spotDate }
             }
             this.isLoadingLegs = false;
           } catch (error) {
@@ -1303,7 +1298,7 @@ export class MiddleOfficeStore implements Workspace {
     this.entryType = EntryType.ExistingDeal;
     this.status = MiddleOfficeProcessingState.Normal;
     if (deal !== undefined) {
-      this.loadDealEntryFromDeal(deal);
+      this.loadDealEntryFromDeal({ ...deal, spotDate: this.entry.spotDate });
     }
   }
 
