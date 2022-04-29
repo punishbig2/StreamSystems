@@ -912,7 +912,7 @@ export class MiddleOfficeStore implements Workspace {
         API.cloneDeal(
           this.buildRequest(),
           legs,
-          summaryLeg,
+          { ...summaryLeg, spotDate: this.entry.spotDate } as SummaryLeg,
           this.entitiesMap,
           this.entities,
           []
