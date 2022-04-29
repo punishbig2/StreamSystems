@@ -739,6 +739,8 @@ export class MiddleOfficeStore implements Workspace {
                 legDefs
               );
               this.setLegs(legs, summary);
+              // Update spot date in the entry
+              this.entry = { ...this.entry, spotDate: summary?.spotDate ?? this.entry.spotDate }
             } else {
               const [legs, summary] = createDefaultLegsFromDeal(
                 this.cuts,
@@ -746,6 +748,8 @@ export class MiddleOfficeStore implements Workspace {
                 legDefs
               );
               this.setLegs(legs, summary);
+              // Update spot date in the entry
+              this.entry = { ...this.entry, spotDate: summary?.spotDate ?? this.entry.spotDate }
             }
             this.isLoadingLegs = false;
           } catch (error) {

@@ -338,6 +338,7 @@ export const createDealEntry = (
     throw new Error("cannot find symbol: " + deal.currencyPair);
   if (strategy === InvalidStrategy)
     throw new Error("cannot find strategy: " + deal.strategy);
+
   const entry: DealEntry = {
     symbol: symbol,
     strategy: strategy,
