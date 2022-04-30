@@ -51,7 +51,7 @@ import {
 import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
 import { calculateNetValue, parseDates } from "utils/legsUtils";
-import { safeForceParseDate, toUTC } from "utils/timeUtils";
+import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
 import { emailNotSet } from "components/MiddleOffice/helpers";
 
 const SOFT_SEF_ERROR: string =
@@ -468,26 +468,27 @@ export class MiddleOfficeStore implements Workspace {
       (data: PricingMessage): void => {
         const { entry } = this;
         const legDefs = this.legDefinitions[entry.strategy.productid];
-        if (entry.dealID === data.dealId) {
-          // Reset the extra fields
-          entry.extra_fields = {
-            fwdpts1: data.legs[1].fwdPts,
-            fwdrate1: data.legs[1].fwdRate,
-            fwdpts2: data.legs.length > 2 ? data.legs[2].fwdPts : null,
-            fwdrate2: data.legs.length > 2 ? data.legs[2].fwdRate : null,
-          };
-          // It is the deal of interest so update
-          // visible legs now
-          const [legs, summaryLeg] = handleLegsResponse(
-            entry,
-            parseDates(data.legs),
-            this.cuts,
-            this.summaryLeg,
-            legDefs
-          );
-
-          this.setLegs(legs, summaryLeg);
+        if (this.isEditMode || entry.dealID !== data.dealId) {
+          return;
         }
+
+        // Reset the extra fields
+        entry.extra_fields = {
+          fwdpts1: data.legs[1].fwdPts,
+          fwdrate1: data.legs[1].fwdRate,
+          fwdpts2: data.legs.length > 2 ? data.legs[2].fwdPts : null,
+          fwdrate2: data.legs.length > 2 ? data.legs[2].fwdRate : null,
+        };
+        // It is the deal of interest so update
+        // visible legs now
+        const [legs, summaryLeg] = handleLegsResponse(
+          entry,
+          parseDates(data.legs),
+          this.cuts,
+          this.summaryLeg,
+          legDefs
+        );
+        this.setLegsAndUpdateSpotDate(entry.dealID, legs, summaryLeg);
       }
     );
     const remove2 = signalRClient.connectMiddleOfficeStore(this);
@@ -752,6 +753,7 @@ export class MiddleOfficeStore implements Workspace {
               throw error;
             }
           }
+          await this.resetSpotDate();
         },
         cancel: (): void => {
           task2.cancel();
@@ -765,9 +767,24 @@ export class MiddleOfficeStore implements Workspace {
     this.legs = [];
     this.summaryLeg = null;
     return {
-      execute: async (): Promise<void> => {},
+      execute: async (): Promise<void> => {
+        await this.resetSpotDate();
+      },
       cancel: (): void => {},
     };
+  }
+
+  private async resetSpotDate(): Promise<void> {
+    const { entry, summaryLeg } = this;
+    const result: FixTenorResult = await MiddleOfficeStore.fixTenorDates(
+      entry.tenor1,
+      entry
+    ).execute();
+    const spotDate = forceParseDate(result.spotDate);
+    this.entry = { ...entry, spotDate: spotDate };
+    if (summaryLeg) {
+      this.summaryLeg = { ...summaryLeg, spotDate: spotDate };
+    }
   }
 
   @action.bound
@@ -1044,7 +1061,7 @@ export class MiddleOfficeStore implements Workspace {
     if (!this.isEditMode) {
       await this.updateSEFInDealEntry(update);
     }
-    // Reset status to normal to hide the progress window
+    // Reset status to normal, to hide the progress window
     this.setStatus(MiddleOfficeProcessingState.Normal);
   }
 
@@ -1382,7 +1399,11 @@ export class MiddleOfficeStore implements Workspace {
         this.summaryLeg,
         legDefs
       );
-      this.setLegs(adjustedLegs, summaryLeg);
+      void this.setLegsAndUpdateSpotDate(
+        update.dealId,
+        adjustedLegs,
+        summaryLeg
+      );
     }
   }
 
@@ -1422,6 +1443,20 @@ export class MiddleOfficeStore implements Workspace {
     const { users } = workareaStore;
     const firm = resolveEntityToBank(entry.seller, this.entitiesMap);
     return users.filter((user: OtherUser): boolean => user.firm === firm);
+  }
+
+  private setLegsAndUpdateSpotDate(
+    dealID: string,
+    legs: ReadonlyArray<Leg>,
+    summaryLeg: SummaryLeg | null
+  ): void {
+    const finalSummaryLeg = {
+      ...summaryLeg,
+      spotDate: this.summaryLeg?.spotDate,
+    } as SummaryLeg;
+
+    void API.saveLegs(dealID, legs, finalSummaryLeg);
+    this.setLegs(legs, finalSummaryLeg);
   }
 }
 
