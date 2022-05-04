@@ -22,7 +22,7 @@ const accountUrlBase = isLocalOrLAN(hostname)
 const accountUrl: string = `${location.protocol}//${accountUrlBase}`;
 
 export default {
-  BackendUrl: `${baseUrl}:4050`,
+  BackendUrl: baseUrl,
   SignOutUrl: accountUrl,
   PricerUrl: `${baseUrl}:4020/api/pricer/query`,
   CalendarServiceBaseUrl: `${baseUrl}:4080`,

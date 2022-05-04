@@ -57,6 +57,7 @@ import { mergeDefinitionsAndLegs } from "utils/legsUtils";
 import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
 import { GetDealsDateRange } from "types/getDealsDateRange";
 import { toNumber } from "utils/isNumeric";
+import { getExtraFields } from "./getExtraFields";
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -1061,7 +1062,7 @@ export class API {
     // Save the deal now
     const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "update"),
-      API.createDealRequest(data, changed, entitiesMap, entities)
+      API.createDealRequest(data, summaryLeg, changed, entitiesMap, entities)
     );
     return task.execute();
   }
@@ -1076,7 +1077,7 @@ export class API {
   ): Promise<string> {
     const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "clone"),
-      API.createDealRequest(data, changed, entitiesMap, entities)
+      API.createDealRequest(data, summaryLeg, changed, entitiesMap, entities)
     );
     return API.onDealCreated(task, legs, summaryLeg);
   }
@@ -1091,7 +1092,7 @@ export class API {
   ): Promise<string> {
     const task: Task<string> = POST<string>(
       API.buildUrl(API.Deal, "deal", "create"),
-      API.createDealRequest(data, changed, entitiesMap, entities)
+      API.createDealRequest(data, summaryLeg, changed, entitiesMap, entities)
     );
     return API.onDealCreated(task, legs, summaryLeg);
   }
@@ -1213,6 +1214,7 @@ export class API {
 
   private static createDealRequest(
     entry: DealEntry,
+    summaryLeg: SummaryLeg | null,
     changed: string[],
     entitiesMap: { [p: string]: BankEntity },
     entities: BankEntitiesQueryResponse
@@ -1256,7 +1258,7 @@ export class API {
       seller_comm: entry.seller_comm,
       seller_comm_rate: entry.seller_comm_rate,
       product_fields_changed: changed,
-      ...(entry.extra_fields ? { extra_fields: entry.extra_fields } : {}),
+      ...getExtraFields(entry, summaryLeg),
     };
   }
 

@@ -80,6 +80,7 @@ export class WorkareaStore {
   private loadingStep: number = 0;
 
   private persistStorage?: PersistStorage;
+  private lastVersionCheckTimestamp: number = 0;
   @observable isShowingNewVersionModal: boolean = false;
   @observable workSchedule: WorkSchedule = invalidWorkSchedule;
 
@@ -512,10 +513,16 @@ export class WorkareaStore {
   }
 
   public async checkVersion(): Promise<void> {
+    if (Date.now() - this.lastVersionCheckTimestamp < 5 * 60 * 1000) {
+      return;
+    }
+
     const response = await fetch("current-version");
     if (response.status !== 200) {
       throw new Error("cannot fetch the version number file");
     }
+
+    this.lastVersionCheckTimestamp = Date.now();
     try {
       const latest = parseVersionNumber(await response.text());
       const active = parseVersionNumber(GlobalApplicationVersion);
