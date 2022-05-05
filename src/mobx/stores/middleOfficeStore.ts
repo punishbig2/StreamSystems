@@ -1284,7 +1284,6 @@ export class MiddleOfficeStore implements Workspace {
         extra_fields: {
           spot: summaryLeg.spot,
           spotDate: summaryLeg.spotDate,
-          spot_date: summaryLeg.spotDate,
           fwdrate1: summaryLeg.fwdrate1,
           fwdpts1: summaryLeg.fwdpts1,
           fwdrate2: summaryLeg.fwdrate2,

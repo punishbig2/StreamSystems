@@ -6,7 +6,7 @@ export const getExtraFields = (
   summaryLeg: SummaryLeg | null
 ): { extra_fields?: any } => {
   const spotDateObj = summaryLeg?.spotDate
-    ? { spotDate: summaryLeg.spotDate, spot_date: summaryLeg.spotDate }
+    ? { spotDate: summaryLeg.spotDate }
     : {};
   if (entry.extra_fields) {
     return {
