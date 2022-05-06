@@ -756,9 +756,9 @@ export class SignalRClient {
 
   private onSEFUpdate = (data: string): void => {
     const object: SEFError = JSON.parse(data);
-    const user: User = workareaStore.user;
+    // const user: User = workareaStore.user;
     if (object.report_status === "REJECTED") {
-      if (object.useremail !== user.email) return;
+      // if (object.useremail !== user.email) return;
       SignalRClient.emitSEFUpdate(object);
     } else {
       SignalRClient.emitSEFUpdate(object);

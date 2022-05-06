@@ -1061,7 +1061,6 @@ export class MiddleOfficeStore implements Workspace {
     if (!this.isEditMode) {
       await this.updateSEFInDealEntry(update);
     }
-    // Reset status to normal, to hide the progress window
     this.setStatus(MiddleOfficeProcessingState.Normal);
   }
 
