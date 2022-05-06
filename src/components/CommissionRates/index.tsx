@@ -9,7 +9,6 @@ import {
 import React, { ReactElement, useEffect } from "react";
 import { toClassName } from "utils/conditionalClasses";
 import workareaStore from "mobx/stores/workareaStore";
-import { STRM } from "stateDefs/workspaceState";
 import { API } from "API";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 
@@ -21,14 +20,13 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
     throw new Error("no brokerage store found");
   }
   const { commissionRates } = brokerageStore;
-  const { user, personality, connected } = workareaStore;
+  const { connected, effectiveFirm } = workareaStore;
 
   useEffect((): (() => void) | void => {
     if (!connected) {
       return;
     }
-    const firm = personality !== STRM ? personality : user.firm;
-    const task = API.getBrokerageCommission(firm);
+    const task = API.getBrokerageCommission(effectiveFirm);
 
     task
       .execute()
@@ -43,12 +41,12 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
       })
       .catch(console.warn);
 
-    const removeListener = brokerageStore.installListener(firm);
+    const removeListener = brokerageStore.installListener(effectiveFirm);
     return (): void => {
       removeListener();
       task.cancel();
     };
-  }, [brokerageStore, connected, personality, user.firm]);
+  }, [brokerageStore, connected, effectiveFirm]);
 
   return (
     <div className={"commission-rates-container"}>
