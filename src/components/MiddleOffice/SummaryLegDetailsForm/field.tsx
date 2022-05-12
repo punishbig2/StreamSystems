@@ -48,11 +48,12 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     }
 
     if (value === null) {
-      if (field.name === "spotDate") {
+      // FIXME: Should we do this?
+      /*if (field.name === "spotDate") {
         // FIXME: this is a terrible idea
         void props.onUpdateSummaryLeg("spotDate", dealEntry.spotDate);
-      }
-    };
+      }*/
+    }
 
     return value;
   };

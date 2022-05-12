@@ -30,7 +30,6 @@ export interface Deal {
   readonly legAdj: boolean;
 
   readonly tradeDate: Date;
-  readonly spotDate: Date | null;
   readonly premiumDate: Date | null;
 
   readonly tenor1: string;

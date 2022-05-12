@@ -1,17 +1,17 @@
-import {toNumberOrFallbackIfNaN} from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
-import {Leg, Rates} from "components/MiddleOffice/types/leg";
+import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
+import { Leg, Rates } from "components/MiddleOffice/types/leg";
 import {
   LegOptionsDefIn,
   LegOptionsDefOut,
 } from "components/MiddleOffice/types/legOptionsDef";
-import {Product} from "types/product";
-import {DealEntry} from "types/dealEntry";
-import {Sides} from "types/sides";
-import {isStyledValue, StyledValue} from "types/styledValue";
-import {Symbol} from "types/symbol";
-import {InvalidTenor, Tenor} from "types/tenor";
-import {getTenor} from "utils/dealUtils";
-import {safeForceParseDate} from "utils/timeUtils";
+import { Product } from "types/product";
+import { DealEntry } from "types/dealEntry";
+import { Sides } from "types/sides";
+import { isStyledValue, StyledValue } from "types/styledValue";
+import { Symbol } from "types/symbol";
+import { InvalidTenor, Tenor } from "types/tenor";
+import { getTenor } from "utils/dealUtils";
+import { safeForceParseDate } from "utils/timeUtils";
 
 export const StylesMap: { [key: string]: 0 | 1 | 2 } = {
   Forward: 0,
@@ -42,8 +42,8 @@ export const getStyledValue = (
   if (index === undefined) {
     console.warn(
       "cannot get the styled value because the index is undefined for style `" +
-      style +
-      "'"
+        style +
+        "'"
     );
     return null;
   }
@@ -92,54 +92,54 @@ const getLegDefaultsFromDeal = (
   return leg;
 };
 
-const legDefMapper = (symbol: Symbol) => (definition: LegOptionsDefIn): Leg => {
-  const rates: Rates = [
-    {
-      currency: symbol.premiumCCY,
-      value: 0,
-    },
-    {
-      currency: symbol.riskCCY,
-      value: 0,
-    },
-  ];
-  return {
-    premium: [null, null, null],
-    price: [null, null, null],
-    vol: null,
-    rates: rates,
-    notional: null,
-    party: "",
-    side: sideToSide(definition.SideType),
-    days: null,
-    delta: [null, null, null],
-    fwdPts: null,
-    fwdRate: null,
-    hedge: [null, null, null],
-    strike: null,
-    premiumDate: null,
-    premiumCurrency: symbol.premiumCCY,
-    option: definition.OptionLegType,
-    deliveryDate: null,
-    expiryDate: null,
-    usi_num: null,
+const legDefMapper =
+  (symbol: Symbol) =>
+  (definition: LegOptionsDefIn): Leg => {
+    const rates: Rates = [
+      {
+        currency: symbol.premiumCCY,
+        value: 0,
+      },
+      {
+        currency: symbol.riskCCY,
+        value: 0,
+      },
+    ];
+    return {
+      premium: [null, null, null],
+      price: [null, null, null],
+      vol: null,
+      rates: rates,
+      notional: null,
+      party: "",
+      side: sideToSide(definition.SideType),
+      days: null,
+      delta: [null, null, null],
+      fwdPts: null,
+      fwdRate: null,
+      hedge: [null, null, null],
+      strike: null,
+      premiumDate: null,
+      premiumCurrency: symbol.premiumCCY,
+      option: definition.OptionLegType,
+      deliveryDate: null,
+      expiryDate: null,
+      usi_num: null,
+    };
   };
-};
 
 export const createLegsFromDefinitionAndDeal = (
   definitions: ReadonlyArray<LegOptionsDefIn>,
   entry: DealEntry
 ): ReadonlyArray<Leg> => {
-  return definitions.map(
-    (definition: LegOptionsDefIn, index: number): Leg => {
-      const mapper = legDefMapper(entry.symbol);
-      const base: Leg = mapper(definition);
-      return {
-        ...base,
-        ...getLegDefaultsFromDeal(entry, index),
-      };
-    }
-  );
+  return definitions.map((definition: LegOptionsDefIn, index: number): Leg => {
+    const mapper = legDefMapper(entry.symbol);
+    const base: Leg = mapper(definition);
+    return {
+      ...base,
+      ...getLegDefaultsFromDeal(entry, index),
+    };
+  });
 };
 
 export const mergeDefinitionsAndLegs = (
@@ -149,23 +149,21 @@ export const mergeDefinitionsAndLegs = (
   legs: ReadonlyArray<Leg>,
   definitions: { in: ReadonlyArray<LegOptionsDefIn> }
 ): ReadonlyArray<Leg> => {
-  const {in: list} = definitions;
+  const { in: list } = definitions;
   const mapper = legDefMapper(symbol);
   if (list.length === 1) {
     return list.map(mapper);
   } else {
-    return list.map(
-      (def: LegOptionsDefIn, index: number): Leg => {
-        const defaultLeg: Leg = mapper(def);
-        const existingLeg: Leg | undefined = legs[index];
-        return {
-          ...existingLeg,
-          // These need be reset or not?
-          option: defaultLeg.option,
-          side: defaultLeg.side,
-        };
-      }
-    );
+    return list.map((def: LegOptionsDefIn, index: number): Leg => {
+      const defaultLeg: Leg = mapper(def);
+      const existingLeg: Leg | undefined = legs[index];
+      return {
+        ...existingLeg,
+        // These need be reset or not?
+        option: defaultLeg.option,
+        side: defaultLeg.side,
+      };
+    });
   }
 };
 
@@ -187,7 +185,7 @@ const getReturnLegOut = (
       "We must have a legs definition for strategy: " + strategy.name
     );
   }
-  const {out} = defs;
+  const { out } = defs;
   if (index >= out.length) {
     console.warn(
       `requesting return leg out for a non existing leg ${out.length}/${
@@ -202,7 +200,7 @@ const getReturnLegOut = (
       "We must have a legs definition for strategy: " + strategy.name
     );
   }
-  const {ReturnLegOut} = found;
+  const { ReturnLegOut } = found;
   return ReturnLegOut.toLowerCase();
 };
 

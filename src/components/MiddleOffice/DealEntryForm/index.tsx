@@ -55,7 +55,8 @@ export const DealEntryForm: React.FC<Props> = (
     const [legs, summaryLeg] = createDefaultLegsFromDeal(
       cuts,
       proxyEntry,
-      store.legDefinitions[strategy.productid]
+      store.legDefinitions[strategy.productid],
+      null
     );
     store.setLegs(legs, summaryLeg);
   }, [symbol, strategy, store]);

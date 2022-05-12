@@ -1,28 +1,33 @@
-import {toNumberOrFallbackIfNaN} from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
-import {isInvalidTenor} from "components/FormField/helpers";
-import {Cut} from "components/MiddleOffice/types/cut";
-import {Leg} from "components/MiddleOffice/types/leg";
-import {LegOptionsDefIn, LegOptionsDefOut,} from "components/MiddleOffice/types/legOptionsDef";
-import {InvalidStrategy, Product} from "types/product";
-import {SummaryLeg} from "components/MiddleOffice/types/summaryLeg";
-import {DealEntry} from "types/dealEntry";
-import {Sides} from "types/sides";
-import {InvalidSymbol, Symbol} from "types/symbol";
-import {InvalidTenor, Tenor} from "types/tenor";
-import {coalesce} from "utils/commonUtils";
-import {calculateNetValue, convertLegNumbers, createLegsFromDefinitionAndDeal,} from "utils/legsUtils";
+import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
+import { isInvalidTenor } from "components/FormField/helpers";
+import { Cut } from "components/MiddleOffice/types/cut";
+import { Leg } from "components/MiddleOffice/types/leg";
+import {
+  LegOptionsDefIn,
+  LegOptionsDefOut,
+} from "components/MiddleOffice/types/legOptionsDef";
+import { InvalidStrategy, Product } from "types/product";
+import {
+  SummaryLeg,
+  SummaryLegBase,
+} from "components/MiddleOffice/types/summaryLeg";
+import { DealEntry } from "types/dealEntry";
+import { Sides } from "types/sides";
+import { InvalidSymbol, Symbol } from "types/symbol";
+import { InvalidTenor, Tenor } from "types/tenor";
+import { coalesce } from "utils/commonUtils";
+import {
+  calculateNetValue,
+  convertLegNumbers,
+  createLegsFromDefinitionAndDeal,
+} from "utils/legsUtils";
 
-const buildSummaryLegFromCut = (
-  cut: Cut,
-  strategy: Product,
-  symbol: Symbol,
-  tradeDate: Date,
-  premiumDate: Date | null,
-  spotDate: Date | null,
-  deliveryDate: Date | undefined,
-  expiryDate: Date,
+const fwdRatesFromExtraFields = (
   extraFields: { [key: string]: number | string | Date | null } | undefined
-): SummaryLeg => {
+): Pick<
+  SummaryLeg,
+  "fwdpts1" | "fwdpts2" | "fwdrate1" | "fwdrate2" | "spot"
+> => {
   return {
     fwdpts1:
       extraFields && typeof extraFields.fwdpts1 === "number"
@@ -40,80 +45,73 @@ const buildSummaryLegFromCut = (
       extraFields && typeof extraFields.fwdrate2 === "number"
         ? extraFields.fwdrate2
         : null,
-    cutCity: cut.City,
-    cutTime: cut.LocalTime,
-    dealOutput: {
-      premiumDate: premiumDate,
-      deliveryDate: deliveryDate !== undefined ? deliveryDate : new Date(),
-      expiryDate: expiryDate,
-      spotDate: spotDate,
-      side: Sides.None,
-      option: "",
-      vol: null,
-      fwdPts: null,
-      fwdRate: null,
-      premium: [null, null, null],
-      strike: null,
-      delta: [null, null, null],
-      gamma: null,
-      hedge: [null, null, null],
-      price: [null, null, null],
-      vega: null,
-      premiumCurrency: "USD",
-      usi_num: null,
-      rates: [
-        {
-          currency: "",
-          value: 0,
-        },
-        {
-          currency: "",
-          value: 0,
-        },
-      ],
-    },
-    delivery: symbol.SettlementType,
-    source: symbol.FixingSource,
     spot:
       !!extraFields && typeof extraFields.spot === "number"
         ? extraFields.spot
         : null,
-    spotDate: spotDate,
-    tradeDate: tradeDate,
-    usi: null,
-    strategy: strategy.description,
   };
 };
 
-const createSummaryLeg = (
+const createEmptySummaryLegFromCuts = (
   cuts: ReadonlyArray<Cut>,
   strategy: Product,
   symbol: Symbol,
   tradeDate: Date,
   premiumDate: Date | null,
-  spotDate: Date | null,
   deliveryDate: Date | undefined,
-  expiryDate: Date,
-  extraFields: { [key: string]: number | string | Date | null } | undefined
-): SummaryLeg | null => {
+  expiryDate: Date
+): SummaryLegBase | null => {
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
     return (
       cut.Code === symbol.PrimaryCutCode &&
       cut.UTCTime === symbol.PrimaryUTCTime
     );
   });
+
   if (cut !== undefined) {
-    return buildSummaryLegFromCut(
-      cut,
-      strategy,
-      symbol,
-      tradeDate,
-      premiumDate,
-      spotDate,
-      deliveryDate,
-      expiryDate,
-      extraFields
-    );
+    return {
+      fwdpts1: null,
+      fwdpts2: null,
+      fwdrate1: null,
+      fwdrate2: null,
+      spot: null,
+      cutCity: cut.City,
+      cutTime: cut.LocalTime,
+      dealOutput: {
+        premiumDate: premiumDate,
+        deliveryDate: deliveryDate !== undefined ? deliveryDate : new Date(),
+        expiryDate: expiryDate,
+        side: Sides.None,
+        option: "",
+        vol: null,
+        fwdPts: null,
+        fwdRate: null,
+        premium: [null, null, null],
+        strike: null,
+        delta: [null, null, null],
+        gamma: null,
+        hedge: [null, null, null],
+        price: [null, null, null],
+        vega: null,
+        premiumCurrency: "USD",
+        usi_num: null,
+        rates: [
+          {
+            currency: "",
+            value: 0,
+          },
+          {
+            currency: "",
+            value: 0,
+          },
+        ],
+      },
+      delivery: symbol.SettlementType,
+      source: symbol.FixingSource,
+      tradeDate: tradeDate,
+      usi: null,
+      strategy: strategy.description,
+    };
   } else {
     return null;
   }
@@ -152,84 +150,90 @@ export const handleLegsResponse = (
   entry: DealEntry,
   legs: ReadonlyArray<Leg>,
   cuts: ReadonlyArray<Cut>,
-  summaryLeg: SummaryLeg | null,
+  origSummaryLeg: SummaryLeg | null,
   legDefinitions: { out: ReadonlyArray<LegOptionsDefOut> }
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
   if (legs.length === 0) return [[], null];
-  const {extra_fields = {}} = entry;
+  const { extra_fields = {} } = entry;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return [[], null];
   const fwdPts1: number | null = coalesce(
     extra_fields.fwdpts1,
-    summaryLeg !== null ? summaryLeg.fwdpts1 : null
+    origSummaryLeg !== null ? origSummaryLeg.fwdpts1 : null
   );
   const fwdRate1: number | null = coalesce(
     extra_fields.fwdrate1,
-    summaryLeg !== null ? summaryLeg.fwdrate1 : null
+    origSummaryLeg !== null ? origSummaryLeg.fwdrate1 : null
   );
   const fwdPts2: number | null = coalesce(
     extra_fields.fwdpts2,
-    summaryLeg !== null ? summaryLeg.fwdpts2 : null
+    origSummaryLeg !== null ? origSummaryLeg.fwdpts2 : null
   );
   const fwdRate2: number | null = coalesce(
     extra_fields.fwdrate2,
-    summaryLeg !== null ? summaryLeg.fwdrate2 : null
+    origSummaryLeg !== null ? origSummaryLeg.fwdrate2 : null
   );
-  const sliceIndex: number = ((): number => {
-    if (legs[0].option === "SumLeg" || legs.length === 1) {
-      return legs.length === 1 ? 0 : 1;
-    } else {
-      return 0;
-    }
-  })();
+
+  const sliceIndex: number = legs.findIndex(
+    (leg: Leg): boolean => leg.option === "SumLeg"
+  );
+
   const finalLegs: ReadonlyArray<Leg> = legs
     .slice(sliceIndex)
     .map(convertLegNumbers);
   const firstLeg = legs[sliceIndex];
   const secondLeg = legs[sliceIndex + 1];
-  const finalSummaryLeg: SummaryLeg = {
-    ...createSummaryLeg(
-      cuts,
-      entry.strategy,
-      entry.symbol,
-      entry.tradeDate,
-      entry.premiumDate,
-      firstLeg.spotDate ?? entry.spotDate,
-      tenor.deliveryDate,
-      tenor.expiryDate,
-      entry.extra_fields
-    ),
-    ...summaryLeg,
-    spotDate: legs[0].spotDate,
-    fwdpts1: toNumberOrFallbackIfNaN(coalesce(fwdPts1, firstLeg.fwdPts), null),
-    fwdrate1: toNumberOrFallbackIfNaN(
-      coalesce(fwdRate1, firstLeg.fwdRate),
-      null
-    ),
-    fwdpts2: toNumberOrFallbackIfNaN(
-      coalesce(
-        fwdPts2,
-        // The legs[1] generally equals legs[0]
-        secondLeg?.fwdPts ?? undefined
+
+  const baseSummaryLeg = createEmptySummaryLegFromCuts(
+    cuts,
+    entry.strategy,
+    entry.symbol,
+    entry.tradeDate,
+    entry.premiumDate,
+    tenor.deliveryDate,
+    tenor.expiryDate
+  );
+  if (baseSummaryLeg === null) {
+    throw new Error("cuts unknown at this stage, this should never happen");
+  }
+
+  const finalSummaryLeg: SummaryLeg = new SummaryLeg(
+    {
+      ...baseSummaryLeg,
+      ...origSummaryLeg,
+      fwdpts1: toNumberOrFallbackIfNaN(
+        coalesce(fwdPts1, firstLeg.fwdPts),
+        null
       ),
-      null
-    ),
-    fwdrate2: toNumberOrFallbackIfNaN(
-      coalesce(
-        fwdRate2,
-        // The legs[1] generally equals legs[0]
-        secondLeg !== undefined ? secondLeg.fwdRate : undefined
+      fwdrate1: toNumberOrFallbackIfNaN(
+        coalesce(fwdRate1, firstLeg.fwdRate),
+        null
       ),
-      null
-    ),
-    spot: toNumberOrFallbackIfNaN(
-      coalesce(extra_fields.spot, firstLeg.spot),
-      null
-    ),
-    usi: entry.usi,
-    ...{
+      fwdpts2: toNumberOrFallbackIfNaN(
+        coalesce(
+          fwdPts2,
+          // The legs[1] generally equals legs[0]
+          secondLeg?.fwdPts ?? undefined
+        ),
+        null
+      ),
+      fwdrate2: toNumberOrFallbackIfNaN(
+        coalesce(
+          fwdRate2,
+          // The legs[1] generally equals legs[0]
+          secondLeg !== undefined ? secondLeg.fwdRate : undefined
+        ),
+        null
+      ),
+      spot: toNumberOrFallbackIfNaN(
+        coalesce(extra_fields.spot, firstLeg.spot),
+        null
+      ),
+      usi: entry.usi ?? null,
       dealOutput: {
-        ...legs[0],
+        ...firstLeg,
+        gamma: null,
+        vega: null,
         hedge: calculateNetValue(
           entry.strategy,
           finalLegs,
@@ -250,7 +254,8 @@ export const handleLegsResponse = (
         ),
       },
     },
-  } as SummaryLeg;
+    firstLeg.spotDate ?? null
+  );
 
   return [addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg];
 };
@@ -258,9 +263,10 @@ export const handleLegsResponse = (
 export const createDefaultLegsFromDeal = (
   cuts: ReadonlyArray<Cut>,
   entry: DealEntry,
-  legDefinitions: { in: ReadonlyArray<LegOptionsDefIn> }
+  legDefinitions: { in: ReadonlyArray<LegOptionsDefIn> },
+  idealSpotDate: Date | null
 ): [ReadonlyArray<Leg>, SummaryLeg | null] => {
-  const {strategy, symbol} = entry;
+  const { strategy, symbol } = entry;
   if (
     strategy === InvalidStrategy ||
     strategy.productid === "" ||
@@ -279,16 +285,26 @@ export const createDefaultLegsFromDeal = (
   );
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return [[], null];
-  const summaryLeg: SummaryLeg | null = createSummaryLeg(
+  const baseSummaryLeg = createEmptySummaryLegFromCuts(
     cuts,
     entry.strategy,
     entry.symbol,
     entry.tradeDate,
     entry.premiumDate,
-    entry.spotDate,
     tenor.deliveryDate,
-    tenor.expiryDate,
-    entry.extra_fields
+    tenor.expiryDate
   );
+  if (baseSummaryLeg === null) {
+    throw new Error("cuts unknown at this stage, this should never happen");
+  }
+
+  const summaryLeg: SummaryLeg = new SummaryLeg(
+    {
+      ...baseSummaryLeg,
+      ...fwdRatesFromExtraFields(entry.extra_fields),
+    },
+    idealSpotDate
+  );
+
   return [addFwdRates(legs, summaryLeg), summaryLeg];
 };

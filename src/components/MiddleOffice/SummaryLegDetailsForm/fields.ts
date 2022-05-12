@@ -24,7 +24,7 @@ export const fields: ReadonlyArray<FieldDef<SummaryLeg, SummaryLeg>> = [
     name: "spotDate",
     label: "Spot Date",
     color: "grey",
-    editable: false /* This value is computed and never editable */,
+    editable: false,
   },
   {
     type: "number",

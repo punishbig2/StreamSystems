@@ -932,9 +932,6 @@ export class API {
         };
       }
     );
-    if (proxyEntry.spotDate === null) {
-      throw new Error("entry does not have spot date");
-    }
     if (proxyEntry.horizonDateUTC === undefined) {
       throw new Error("for some reason horizonDateUTC was not set");
     }
@@ -944,6 +941,10 @@ export class API {
       proxyEntry.tenor1,
       proxyEntry.tenor2
     );
+    const spotDate = summaryLeg?.spotDate;
+    if (!spotDate) {
+      throw new Error("there's no spot date");
+    }
     const request: VolMessageIn = {
       id: proxyEntry.dealID,
       Option: {
@@ -990,7 +991,7 @@ export class API {
       ValuationModel: valuationModel,
       description: `FXO-${strategy.OptionProductType}-${legs.length}-Legs`,
       timeStamp: toUTC(new Date()),
-      spotDate: toUTC(proxyEntry.spotDate),
+      spotDate: toUTC(spotDate),
       version: "arcfintech-volMessage-0.2.2",
     };
     const task: Task<any> = POST<any>(config.PricerUrl, request);
@@ -1274,7 +1275,6 @@ export class API {
           ? [
               {
                 ...summaryLeg.dealOutput,
-                spotDate: summaryLeg.spotDate,
                 option: "SumLeg",
               },
             ]

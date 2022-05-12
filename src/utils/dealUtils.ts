@@ -297,13 +297,13 @@ const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
     execute: async (): Promise<DealEntry> => {
       const tenor1Dates: FixTenorResult = await task1.execute();
       const tenor2Dates: FixTenorResult = await task2.execute();
+
       return {
         ...entry,
         tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
         tenor2: tenor2Dates.tenor,
         ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
-        premiumDate: entry.spotDate,
-        spotDate: entry.spotDate,
+        ...safeForceParseDate("premiumDate", tenor1Dates.spotDate),
       };
     },
     cancel: (): void => {
@@ -354,7 +354,6 @@ export const createDealEntry = (
     seller_useremail: deal.seller_useremail,
     tradeDate: deal.tradeDate,
     premiumDate: deal.premiumDate,
-    spotDate: deal.spotDate,
     dealID: id.toString(),
     status: deal.status,
     sef_namespace: deal.sef_namespace,

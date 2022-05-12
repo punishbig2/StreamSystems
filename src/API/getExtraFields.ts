@@ -5,17 +5,11 @@ export const getExtraFields = (
   entry: DealEntry,
   summaryLeg: SummaryLeg | null
 ): { extra_fields?: any } => {
-  const spotDateObj = summaryLeg?.spotDate
-    ? { spotDate: summaryLeg.spotDate }
-    : {};
   if (entry.extra_fields) {
     return {
-      extra_fields: {
-        ...entry.extra_fields,
-        ...spotDateObj,
-      },
+      extra_fields: entry.extra_fields,
     };
   } else {
-    return { extra_fields: { ...spotDateObj } };
+    return {};
   }
 };

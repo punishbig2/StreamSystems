@@ -152,6 +152,7 @@ export class MiddleOfficeStore implements Workspace {
   private originalSummaryLeg: SummaryLeg | null = null;
   private operationsCount = 9;
   private modifiedFields: string[] = [];
+  private computedSpotDate: Date | null = null;
 
   @observable private _legAdjustValues: ReadonlyArray<LegAdjustValue> = [];
 
@@ -519,7 +520,6 @@ export class MiddleOfficeStore implements Workspace {
   @action.bound
   public setSummaryLeg(summaryLeg: SummaryLeg | null): void {
     this.summaryLeg = summaryLeg;
-    this.entry = { ...this.entry, spotDate: summaryLeg?.spotDate ?? null };
   }
 
   @action.bound
@@ -528,12 +528,12 @@ export class MiddleOfficeStore implements Workspace {
     summaryLeg: SummaryLeg | null,
     reset = false
   ): void {
-    this.summaryLeg = summaryLeg;
+    const spotDate = summaryLeg?.spotDate ?? this.computedSpotDate;
+    this.summaryLeg = summaryLeg ? new SummaryLeg(summaryLeg, spotDate) : null;
     this.originalSummaryLeg = summaryLeg;
     this.legs = legs.slice();
     this.originalLegs = this.legs;
     this.isLoadingLegs = false;
-    this.entry = { ...this.entry, spotDate: summaryLeg?.spotDate ?? null };
     if (reset) {
       this.status = MiddleOfficeProcessingState.Normal;
     }
@@ -606,11 +606,15 @@ export class MiddleOfficeStore implements Workspace {
         ),
         price: calculateNetValue(entry.strategy, this.legs, "price", legDefs),
       };
+
       // Update summary net hedge
-      this.summaryLeg = {
-        ...summaryLeg,
-        dealOutput: dealOutput,
-      };
+      this.summaryLeg = new SummaryLeg(
+        {
+          ...summaryLeg,
+          dealOutput: dealOutput,
+        },
+        this.computedSpotDate
+      );
     }
     this.addModifiedField(key);
   }
@@ -743,7 +747,8 @@ export class MiddleOfficeStore implements Workspace {
               const [legs, summary] = createDefaultLegsFromDeal(
                 this.cuts,
                 this.entry,
-                legDefs
+                legDefs,
+                this.computedSpotDate
               );
               this.setLegs(legs, summary);
             }
@@ -780,10 +785,15 @@ export class MiddleOfficeStore implements Workspace {
       entry.tenor1,
       entry
     ).execute();
-    const spotDate = forceParseDate(result.spotDate);
-    this.entry = { ...entry, spotDate: spotDate };
-    if (summaryLeg) {
-      this.summaryLeg = { ...summaryLeg, spotDate: spotDate };
+
+    this.computedSpotDate = forceParseDate(result.spotDate);
+    if (
+      summaryLeg &&
+      (!summaryLeg.spotDate ||
+        entry.status === DealStatus.Pending ||
+        entry.status === DealStatus.Priced)
+    ) {
+      this.summaryLeg = new SummaryLeg(summaryLeg, this.computedSpotDate);
     }
   }
 
@@ -858,12 +868,19 @@ export class MiddleOfficeStore implements Workspace {
     const { dealID, status } = this.entry;
     if (dealID === undefined)
       throw new Error("cannot send a trade capture without a deal id");
-    this.setStatus(MiddleOfficeProcessingState.Submitting);
+    if (status === DealStatus.Priced) {
+      this.setStatus(MiddleOfficeProcessingState.Submitting);
+    }
+
+    const shouldEndAt = Date.now() + config.RequestTimeout;
     MiddleOfficeStore.doSubmit(dealID, status)
       .then((): void => {
         setTimeout((): void => {
-          console.warn(SOFT_SEF_ERROR);
-        }, config.RequestTimeout);
+          if (status === DealStatus.Priced) {
+            toast.show(SOFT_SEF_ERROR, ToastType.Error);
+            this.setStatus(MiddleOfficeProcessingState.Normal);
+          }
+        }, shouldEndAt - Date.now());
       })
       .catch((error: any): void => {
         this.setError({
@@ -929,7 +946,7 @@ export class MiddleOfficeStore implements Workspace {
         API.cloneDeal(
           this.buildRequest(),
           legs,
-          { ...summaryLeg, spotDate: this.entry.spotDate } as SummaryLeg,
+          summaryLeg,
           this.entitiesMap,
           this.entities,
           []
@@ -1277,12 +1294,11 @@ export class MiddleOfficeStore implements Workspace {
     const { summaryLeg } = this;
     const otherFields = ((
       summaryLeg: SummaryLeg | null
-    ): { extra_fields?: { [key: string]: number | string | Date | null } } => {
+    ): { extra_fields?: { [key: string]: number | string | null } } => {
       if (summaryLeg === null) return {};
       return {
         extra_fields: {
           spot: summaryLeg.spot,
-          spotDate: summaryLeg.spotDate,
           fwdrate1: summaryLeg.fwdrate1,
           fwdpts1: summaryLeg.fwdpts1,
           fwdrate2: summaryLeg.fwdrate2,
@@ -1315,7 +1331,7 @@ export class MiddleOfficeStore implements Workspace {
     this.entryType = EntryType.ExistingDeal;
     this.status = MiddleOfficeProcessingState.Normal;
     if (deal !== undefined) {
-      this.loadDealEntryFromDeal({ ...deal, spotDate: this.entry.spotDate });
+      this.loadDealEntryFromDeal(deal);
     }
   }
 
@@ -1450,13 +1466,8 @@ export class MiddleOfficeStore implements Workspace {
     legs: ReadonlyArray<Leg>,
     summaryLeg: SummaryLeg | null
   ): void {
-    const finalSummaryLeg = {
-      ...summaryLeg,
-      spotDate: this.summaryLeg?.spotDate,
-    } as SummaryLeg;
-
-    void API.saveLegs(dealID, legs, finalSummaryLeg);
-    this.setLegs(legs, finalSummaryLeg);
+    void API.saveLegs(dealID, legs, summaryLeg);
+    this.setLegs(legs, summaryLeg);
   }
 }
 
