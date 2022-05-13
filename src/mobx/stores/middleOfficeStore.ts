@@ -876,7 +876,9 @@ export class MiddleOfficeStore implements Workspace {
     MiddleOfficeStore.doSubmit(dealID, status)
       .then((): void => {
         setTimeout((): void => {
-          if (status === DealStatus.Priced) {
+          if (this.status === MiddleOfficeProcessingState.Normal) {
+            return;
+          } else if (status === DealStatus.Priced) {
             toast.show(SOFT_SEF_ERROR, ToastType.Error);
             this.setStatus(MiddleOfficeProcessingState.Normal);
           }
