@@ -174,9 +174,10 @@ export const handleLegsResponse = (
     origSummaryLeg !== null ? origSummaryLeg.fwdrate2 : null
   );
 
-  const sliceIndex: number =
-    legs.findIndex((leg: Leg): boolean => leg.option === "SumLeg") + 1;
-
+  if (legs[0]?.option !== "SumLeg") {
+    throw new Error(`bad summary leg at index: ${sliceIndex - 1}`);
+  }
+  const sliceIndex: number = 1;
   const finalLegs: ReadonlyArray<Leg> = legs
     .slice(sliceIndex)
     .map(convertLegNumbers);
