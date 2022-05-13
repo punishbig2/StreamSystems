@@ -181,8 +181,10 @@ export const handleLegsResponse = (
   const finalLegs: ReadonlyArray<Leg> = legs
     .slice(sliceIndex)
     .map(convertLegNumbers);
-  const firstLeg = legs[sliceIndex];
-  const secondLeg = legs[sliceIndex + 1];
+  const savedSummaryLeg = legs[0];
+  const leg1 = legs[sliceIndex];
+  const leg2 = legs[sliceIndex + 1];
+  console.log(finalLegs, legs);
 
   const baseSummaryLeg = createEmptySummaryLegFromCuts(
     cuts,
@@ -201,19 +203,14 @@ export const handleLegsResponse = (
     {
       ...baseSummaryLeg,
       ...origSummaryLeg,
-      fwdpts1: toNumberOrFallbackIfNaN(
-        coalesce(fwdPts1, firstLeg.fwdPts),
-        null
-      ),
-      fwdrate1: toNumberOrFallbackIfNaN(
-        coalesce(fwdRate1, firstLeg.fwdRate),
-        null
-      ),
+      ...savedSummaryLeg,
+      fwdpts1: toNumberOrFallbackIfNaN(coalesce(fwdPts1, leg1.fwdPts), null),
+      fwdrate1: toNumberOrFallbackIfNaN(coalesce(fwdRate1, leg1.fwdRate), null),
       fwdpts2: toNumberOrFallbackIfNaN(
         coalesce(
           fwdPts2,
           // The legs[1] generally equals legs[0]
-          secondLeg?.fwdPts ?? undefined
+          leg2?.fwdPts ?? undefined
         ),
         null
       ),
@@ -221,17 +218,17 @@ export const handleLegsResponse = (
         coalesce(
           fwdRate2,
           // The legs[1] generally equals legs[0]
-          secondLeg !== undefined ? secondLeg.fwdRate : undefined
+          leg2 !== undefined ? leg2.fwdRate : undefined
         ),
         null
       ),
       spot: toNumberOrFallbackIfNaN(
-        coalesce(extra_fields.spot, firstLeg.spot),
+        coalesce(extra_fields.spot, leg1.spot),
         null
       ),
       usi: entry.usi ?? null,
       dealOutput: {
-        ...firstLeg,
+        ...leg1,
         gamma: null,
         vega: null,
         hedge: calculateNetValue(
@@ -254,7 +251,7 @@ export const handleLegsResponse = (
         ),
       },
     },
-    firstLeg.spotDate ?? null
+    savedSummaryLeg.spotDate ?? null
   );
 
   return [addFwdRates(finalLegs, finalSummaryLeg), finalSummaryLeg];
