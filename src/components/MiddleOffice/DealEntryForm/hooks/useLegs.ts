@@ -175,7 +175,7 @@ export const handleLegsResponse = (
   );
 
   if (legs[0]?.option !== "SumLeg") {
-    throw new Error(`bad summary leg at index: ${sliceIndex - 1}`);
+    throw new Error("bad summary leg at index");
   }
   const sliceIndex: number = 1;
   const finalLegs: ReadonlyArray<Leg> = legs
