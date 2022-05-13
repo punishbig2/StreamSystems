@@ -174,9 +174,8 @@ export const handleLegsResponse = (
     origSummaryLeg !== null ? origSummaryLeg.fwdrate2 : null
   );
 
-  const sliceIndex: number = legs.findIndex(
-    (leg: Leg): boolean => leg.option === "SumLeg"
-  );
+  const sliceIndex: number =
+    legs.findIndex((leg: Leg): boolean => leg.option === "SumLeg") + 1;
 
   const finalLegs: ReadonlyArray<Leg> = legs
     .slice(sliceIndex)
