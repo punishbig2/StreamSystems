@@ -2,6 +2,7 @@ import { action, observable } from "mobx";
 import React from "react";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import signalRClient from "signalR/signalRClient";
+import { STRM } from "../../stateDefs/workspaceState";
 
 export interface CommissionRate {
   readonly region: string;
@@ -31,7 +32,11 @@ export class BrokerageStore {
     this.commissionRates = convertToCommissionRatesArray(rates);
   }
 
-  public installListener(firm: string): () => void {
+  public installListener(firm: string): VoidFunction {
+    if (firm === STRM) {
+      return (): void => {};
+    }
+
     return signalRClient.addCommissionRatesListener(
       firm,
       this.onCommissionRates
