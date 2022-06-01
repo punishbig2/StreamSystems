@@ -1,6 +1,10 @@
 import { Grid } from "@material-ui/core";
 import { API } from "API";
 import { ActionButtons } from "components/MiddleOffice/actionButtons";
+import {
+  DealEntryButtons,
+  isButtonDisabled,
+} from "components/MiddleOffice/buttonStateResolver";
 import { DealBlotter } from "components/MiddleOffice/DealBlotter";
 import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
 import { DeleteQuestion } from "components/MiddleOffice/deleteQuestion";
@@ -30,10 +34,6 @@ import { DealEntry, EntryType } from "types/dealEntry";
 import { MOErrorMessage } from "types/middleOfficeError";
 import { SEFUpdate } from "types/sefUpdate";
 import { randomID } from "utils/randomID";
-import {
-  DealEntryButtons,
-  isButtonDisabled,
-} from "components/MiddleOffice/buttonStateResolver";
 
 interface Props {
   readonly visible: boolean;
@@ -160,14 +160,18 @@ export const MiddleOfficeMain: React.FC<Props> = (
   const disabled: boolean = React.useMemo(
     (): boolean =>
       isLoadingLegs ||
-      status !== MiddleOfficeProcessingState.Normal ||
+      (status !== MiddleOfficeProcessingState.Normal &&
+        status !== MiddleOfficeProcessingState.SilentlySubmitting) ||
       loadingDeals,
     [status, isLoadingLegs, loadingDeals]
   );
 
   const isButtonDisabledWrapper = React.useCallback(
     (button: keyof DealEntryButtons): boolean => {
-      if (disabled) {
+      if (
+        disabled ||
+        status === MiddleOfficeProcessingState.SilentlySubmitting
+      ) {
         return true;
       }
 
@@ -179,12 +183,16 @@ export const MiddleOfficeMain: React.FC<Props> = (
         isReadyForSubmission
       );
     },
-    [disabled, entry, isEditMode, isModified, isReadyForSubmission]
+    [disabled, entry, isEditMode, isModified, isReadyForSubmission, status]
   );
 
   const headingClasses: string[] = ["heading"];
-  if (props.status !== MiddleOfficeProcessingState.Normal)
+  if (
+    props.status !== MiddleOfficeProcessingState.Normal &&
+    props.status !== MiddleOfficeProcessingState.SilentlySubmitting
+  ) {
     headingClasses.push("disabled");
+  }
 
   return (
     <>
@@ -192,7 +200,10 @@ export const MiddleOfficeMain: React.FC<Props> = (
         <div className={"left-panel"}>
           <DealBlotter
             id={randomID("")}
-            disabled={props.status !== MiddleOfficeProcessingState.Normal}
+            disabled={
+              props.status !== MiddleOfficeProcessingState.Normal &&
+              props.status !== MiddleOfficeProcessingState.SilentlySubmitting
+            }
             selectedRow={props.selectedDealID}
             deals={props.deals}
             onDealSelected={onDealSelected}
@@ -280,7 +291,10 @@ export const MiddleOfficeMain: React.FC<Props> = (
         render={() => <DeleteQuestion onNo={dontDelete} onYes={doDelete} />}
       />
       <ModalWindow
-        isOpen={props.status !== MiddleOfficeProcessingState.Normal}
+        isOpen={
+          props.status !== MiddleOfficeProcessingState.Normal &&
+          props.status !== MiddleOfficeProcessingState.SilentlySubmitting
+        }
         render={() => <ProgressView />}
       />
     </>

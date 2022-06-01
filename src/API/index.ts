@@ -54,7 +54,7 @@ import {
 } from "utils/dealUtils";
 import { buildFwdRates } from "utils/fwdRates";
 import { mergeDefinitionsAndLegs } from "utils/legsUtils";
-import { toUTC, toUTCFIXFormat } from "utils/timeUtils";
+import { forceParseDate, toUTC, toUTCFIXFormat } from "utils/timeUtils";
 import { GetDealsDateRange } from "types/getDealsDateRange";
 import { toNumber } from "utils/isNumeric";
 import { getExtraFields } from "./getExtraFields";
@@ -861,6 +861,37 @@ export class API {
     return task.execute();
   }
 
+  private static async getSpotDate(
+    entry: DealEntry,
+    summaryLeg: SummaryLeg | null
+  ): Promise<Date> {
+    if (summaryLeg?.spotDate) {
+      return summaryLeg?.spotDate;
+    }
+
+    const datesTask = API.queryVolDates(
+      {
+        tradeDate: toUTC(entry.tradeDate, true),
+        addHolidays: true,
+        fxPair: entry.symbol.symbolID,
+        rollExpiryDates: false,
+      },
+      []
+    );
+
+    const { SpotDate: spotDateString } = await datesTask.execute();
+    if (spotDateString === null) {
+      throw new Error("cannot determine the spot date");
+    }
+
+    const spotDate = forceParseDate(spotDateString);
+    if (spotDate === null) {
+      throw new Error("cannot determine the spot date");
+    }
+
+    return spotDate;
+  }
+
   public static async sendPricingRequest(
     entry: DealEntry,
     legs: ReadonlyArray<Leg>,
@@ -875,8 +906,9 @@ export class API {
       NotApplicableProxy<DealEntry>("", entry)
     );
     const { tradeDate, symbol } = proxyEntry;
-    if (proxyEntry.dealID === undefined)
+    if (proxyEntry.dealID === undefined) {
       throw new Error("cannot price an transient deal");
+    }
     const mergedDefinitions: ReadonlyArray<Leg> = mergeDefinitionsAndLegs(
       proxyEntry,
       strategy,
@@ -941,10 +973,7 @@ export class API {
       proxyEntry.tenor1,
       proxyEntry.tenor2
     );
-    const spotDate = summaryLeg?.spotDate;
-    if (!spotDate) {
-      throw new Error("there's no spot date");
-    }
+    const spotDate = await API.getSpotDate(entry, summaryLeg);
     const request: VolMessageIn = {
       id: proxyEntry.dealID,
       Option: {

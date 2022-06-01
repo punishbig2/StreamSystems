@@ -62,6 +62,7 @@ const SOFT_SEF_ERROR: string =
 export enum MiddleOfficeProcessingState {
   Normal,
   Submitting,
+  SilentlySubmitting,
   Pricing,
   LoadingDeal,
   CreatingDeal,
@@ -88,6 +89,7 @@ export const messages: {
   [key in MiddleOfficeProcessingState]: string;
 } = {
   [MiddleOfficeProcessingState.Normal]: "",
+  [MiddleOfficeProcessingState.SilentlySubmitting]: "",
   [MiddleOfficeProcessingState.Pricing]: "Pricing in progress",
   [MiddleOfficeProcessingState.Submitting]: "Submitting",
   [MiddleOfficeProcessingState.CreatingDeal]: "Creating Deal",
@@ -389,11 +391,13 @@ export class MiddleOfficeStore implements Workspace {
   private static async doSubmit(
     dealID: string,
     status: DealStatus
-  ): Promise<any> {
+  ): Promise<string> {
     if (status === DealStatus.Priced) {
       return API.sendTradeCaptureReport(dealID);
     } else if (status === DealStatus.SEFComplete) {
       return API.stpSendReport(dealID);
+    } else {
+      return "Not in the appropriate state, cannot submit";
     }
   }
 
@@ -574,7 +578,6 @@ export class MiddleOfficeStore implements Workspace {
   @action.bound
   public setError(error: MOErrorMessage | null): void {
     this.error = error;
-    this.status = MiddleOfficeProcessingState.Normal;
   }
 
   public async updateLeg(
@@ -866,31 +869,48 @@ export class MiddleOfficeStore implements Workspace {
   @action.bound
   public submit() {
     const { dealID, status } = this.entry;
-    if (dealID === undefined)
+    if (dealID === undefined) {
       throw new Error("cannot send a trade capture without a deal id");
-    if (status === DealStatus.Priced) {
-      this.setStatus(MiddleOfficeProcessingState.Submitting);
     }
 
-    const shouldEndAt = Date.now() + config.RequestTimeout;
+    if (status === DealStatus.Priced) {
+      this.setStatus(MiddleOfficeProcessingState.Submitting);
+    } else {
+      this.setStatus(MiddleOfficeProcessingState.SilentlySubmitting);
+    }
+
+    const startedAt = Date.now();
+    const onError = (error: any): void => {
+      const errorData = {
+        status: "",
+        code: 1,
+        error: "",
+        content: typeof error === "string" ? error : error.content(),
+      };
+
+      this.setError(errorData);
+    };
+
     MiddleOfficeStore.doSubmit(dealID, status)
-      .then((): void => {
+      .then((message: string): void => {
+        if (message !== "" && message !== "Success") {
+          onError(message);
+          return;
+        }
+
         setTimeout((): void => {
           if (this.status === MiddleOfficeProcessingState.Normal) {
             return;
           } else if (status === DealStatus.Priced) {
             toast.show(SOFT_SEF_ERROR, ToastType.Error);
-            this.setStatus(MiddleOfficeProcessingState.Normal);
           }
-        }, shouldEndAt - Date.now());
+        }, startedAt + config.RequestTimeout - Date.now());
       })
-      .catch((error: any): void => {
-        this.setError({
-          status: "Unknown problem",
-          code: 1,
-          error: "Unexpected error",
-          content: typeof error === "string" ? error : error.content(),
-        });
+      .catch(onError)
+      .finally((): void => {
+        setTimeout((): void => {
+          this.setStatus(MiddleOfficeProcessingState.Normal);
+        }, startedAt + 500 - Date.now());
       });
   }
 
@@ -1020,7 +1040,13 @@ export class MiddleOfficeStore implements Workspace {
     const { strategy, symbol } = entry;
     // Set the status to pricing to show a loading spinner
     this.status = MiddleOfficeProcessingState.Pricing;
+
     const legDefs = this.legDefinitions[strategy.productid];
+    if (!legDefs) {
+      throw new Error(
+        `could not find leg definitions for: ${strategy.productid}`
+      );
+    }
     // Send the request
     API.sendPricingRequest(
       entry,

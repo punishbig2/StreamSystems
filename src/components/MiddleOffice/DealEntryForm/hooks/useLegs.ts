@@ -184,7 +184,6 @@ export const handleLegsResponse = (
   const savedSummaryLeg = legs[0];
   const leg1 = legs[sliceIndex];
   const leg2 = legs[sliceIndex + 1];
-  console.log(finalLegs, legs);
 
   const baseSummaryLeg = createEmptySummaryLegFromCuts(
     cuts,

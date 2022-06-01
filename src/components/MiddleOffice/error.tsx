@@ -14,20 +14,18 @@ interface Props {
 }
 
 const convertToElement = (entries: ReadonlyArray<SEFErrorEntry>): ReactNode => {
-  return entries.map(
-    (entry: SEFErrorEntry, index: number): ReactElement => {
-      return (
-        <div key={index} style={{ marginBottom: 8 }}>
-          <Typography variant={"subtitle1"} color={"textPrimary"}>
-            {entry.key}
-          </Typography>
-          <Typography variant={"subtitle2"} color={"textPrimary"}>
-            {entry.value}
-          </Typography>
-        </div>
-      );
-    }
-  );
+  return entries.map((entry: SEFErrorEntry, index: number): ReactElement => {
+    return (
+      <div key={index} style={{ marginBottom: 8 }}>
+        <Typography variant={"subtitle1"} color={"textPrimary"}>
+          {entry.key}
+        </Typography>
+        <Typography variant={"subtitle2"} color={"textPrimary"}>
+          {entry.value}
+        </Typography>
+      </div>
+    );
+  });
 };
 
 export const MiddleOfficeError: React.FC<Props> = ({
@@ -41,6 +39,7 @@ export const MiddleOfficeError: React.FC<Props> = ({
       : typeof error.content === "string"
       ? error.content
       : convertToElement(error.content);
+
   return (
     <MessageBox
       title={strings.ErrorModalTitle}
@@ -52,11 +51,13 @@ export const MiddleOfficeError: React.FC<Props> = ({
                 {content}
               </Typography>
             </div>
-            <div className={"tag"}>
-              <Typography variant={"subtitle2"} color={"textSecondary"}>
-                error code: {error.status} ({error.error})
-              </Typography>
-            </div>
+            {error.status !== "" && error.error !== "" && (
+              <div className={"tag"}>
+                <Typography variant={"subtitle2"} color={"textSecondary"}>
+                  error code: {error.status} ({error.error})
+                </Typography>
+              </div>
+            )}
           </div>
         );
       }}

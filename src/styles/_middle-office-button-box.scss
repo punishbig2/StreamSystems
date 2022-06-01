@@ -32,6 +32,7 @@
     &:disabled {
       background-color: darken($background-color, 2%);
       color: rgba($foreground-color, 0.15);
+      pointer-events: none;
     }
 
     &:hover {

@@ -1,19 +1,20 @@
 import { Grid } from "@material-ui/core";
+import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
+import { ActionButtons } from "components/MiddleOffice/DealEntryForm/actionButtons";
 import originalFields from "components/MiddleOffice/DealEntryForm/fields";
 import { createDefaultLegsFromDeal } from "components/MiddleOffice/DealEntryForm/hooks/useLegs";
 import { Cut } from "components/MiddleOffice/types/cut";
 import { FieldDef } from "forms/fieldDef";
 import {
+  MiddleOfficeProcessingState,
   MiddleOfficeStore,
   MiddleOfficeStoreContext,
 } from "mobx/stores/middleOfficeStore";
 import { NotApplicableProxy } from "notApplicableProxy";
 import React, { ReactElement, useEffect, useRef } from "react";
 import { DealEntry, EntryType } from "types/dealEntry";
-import { Field } from "./field";
 import { emailNotSet } from "../helpers";
-import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
-import { ActionButtons } from "components/MiddleOffice/DealEntryForm/actionButtons";
+import { Field } from "./field";
 
 interface Props {
   readonly entryType: EntryType;
@@ -89,8 +90,10 @@ export const DealEntryForm: React.FC<Props> = (
 
   const isSubmitDisabled = React.useMemo(
     (): boolean =>
-      emailNotSet(entry.buyer_useremail) || emailNotSet(entry.seller_useremail),
-    [entry.buyer_useremail, entry.seller_useremail]
+      emailNotSet(entry.buyer_useremail) ||
+      emailNotSet(entry.seller_useremail) ||
+      store.status === MiddleOfficeProcessingState.Submitting,
+    [entry.buyer_useremail, entry.seller_useremail, store.status]
   );
 
   return (
