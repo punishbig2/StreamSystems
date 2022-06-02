@@ -863,7 +863,8 @@ export class API {
 
   private static async getSpotDate(
     entry: DealEntry,
-    summaryLeg: SummaryLeg | null
+    summaryLeg: SummaryLeg | null,
+    legs: ReadonlyArray<Leg>
   ): Promise<Date> {
     if (summaryLeg?.spotDate) {
       return summaryLeg?.spotDate;
@@ -876,7 +877,11 @@ export class API {
         fxPair: entry.symbol.symbolID,
         rollExpiryDates: false,
       },
-      []
+      legs
+        .map((leg: Leg): string =>
+          leg.expiryDate ? toUTC(leg.expiryDate) : ""
+        )
+        .filter((dateString: string): boolean => dateString !== "")
     );
 
     const { SpotDate: spotDateString } = await datesTask.execute();
@@ -973,7 +978,7 @@ export class API {
       proxyEntry.tenor1,
       proxyEntry.tenor2
     );
-    const spotDate = await API.getSpotDate(entry, summaryLeg);
+    const spotDate = await API.getSpotDate(entry, summaryLeg, legs);
     const request: VolMessageIn = {
       id: proxyEntry.dealID,
       Option: {
