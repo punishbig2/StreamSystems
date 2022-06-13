@@ -55,6 +55,7 @@ export interface Message {
   readonly CxlRejResponseTo: string | undefined;
   readonly FullName: string;
   readonly ContraFullName: string;
+  readonly AggressorIndicator: "Y" | "N";
   readonly ["583"]?: string;
 }
 

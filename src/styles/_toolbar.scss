@@ -66,6 +66,14 @@
         border-radius: 2px;
         color: $foreground-color;
         word-spacing: 2px;
+
+        &.buy {
+          color: $text-color-green;
+        }
+
+        &.sell {
+          color: $text-color-red;
+        }
       }
     }
 
