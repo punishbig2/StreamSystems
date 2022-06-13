@@ -21,8 +21,7 @@ export const hasRole = (list: ReadonlyArray<string>, role: Role): boolean => {
       );
     case "DEV":
     case "UAT":
-      return !!list.find((each: string): boolean => each === role);
     default:
-      return false;
+      return !!list.find((each: string): boolean => each === role);
   }
 };

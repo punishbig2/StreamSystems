@@ -45,7 +45,7 @@ export class SummaryLeg implements SummaryLegBase {
     this.source = base.source;
     this.spot = base.spot;
     this.strategy = base.strategy;
-    this.tradeDate = new Date();
+    this.tradeDate = base.tradeDate;
     this.usi = base.usi;
     this.internalSpotDate = idealSpotDate;
   }

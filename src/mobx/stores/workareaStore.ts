@@ -268,7 +268,7 @@ export class WorkareaStore {
     const workspace: Workspace | undefined = workspaces[index];
     if (workspace === undefined) {
       this.workspaceNotFound = true;
-    } else if (this.getUserAccessToWorkspace(workspace)) {
+    } else if (this.userHasAccessToWorkspace(workspace)) {
       this.currentWorkspaceIndex = index;
     } else {
       this.workspaceAccessDenied = true;
@@ -497,7 +497,7 @@ export class WorkareaStore {
     this.status = status;
   }
 
-  private getUserAccessToWorkspace(workspace: Workspace): boolean {
+  private userHasAccessToWorkspace(workspace: Workspace): boolean {
     const { roles } = this.user;
     switch (workspace.type) {
       case WorkspaceType.MiddleOffice:

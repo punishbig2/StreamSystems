@@ -10,6 +10,7 @@ const ExecutionBanner: React.FC = observer((): ReactElement | null => {
     React.useContext<MessagesStore>(MessagesStoreContext);
   const { executions } = messagesStore;
   const latest: ReadonlyArray<Message> = executions.slice(0, 5);
+
   return (
     <div className={"execution-banner"}>
       {latest.map((execution: Message) => (
