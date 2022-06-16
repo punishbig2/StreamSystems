@@ -2,9 +2,7 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { ExecTypes, Message } from "types/message";
-import { hasRole, Role } from "types/role";
 import { User } from "types/user";
-import { STRM } from "stateDefs/workspaceState";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
@@ -79,16 +77,19 @@ export const isMyMessage = (message: Message): boolean => {
 };
 
 export const isAcceptableFill = (message: Message): boolean => {
-  const user: User = workareaStore.user;
+  // const user: User = workareaStore.user;
   if (message.CxlRejResponseTo !== undefined) return false;
-  const { roles } = user;
-  const isBroker: boolean = hasRole(roles, Role.Broker);
+  // const { roles } = user;
+  // const isBroker: boolean = hasRole(roles, Role.Broker);
   // Only fills are interesting
   if (!isFill(message)) return false;
-  if (isBroker) {
+
+  return message.AggressorIndicator === "Y";
+  /*if (isBroker) {
     if (workareaStore.personality === STRM) {
-      return message.Side === "1";
+      return message.AggressorIndicator === "Y";
     }
+
     // If it's my trade YES
     if (message.MDMkt === workareaStore.personality) return true;
     // If it's my trade and I am contra-trader NO
@@ -110,7 +111,8 @@ export const isAcceptableFill = (message: Message): boolean => {
       return false;
     }
   }
-  return message.Side !== "1";
+
+  return message.AggressorIndicator === "Y";*/
 };
 
 export const isMessage = (row: Message | Deal): row is Message =>

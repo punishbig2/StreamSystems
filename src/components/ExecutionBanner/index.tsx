@@ -1,11 +1,10 @@
+import { observer } from "mobx-react";
 import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 import React, { ReactElement } from "react";
 import { Message } from "types/message";
-import { priceFormatter } from "utils/priceFormatter";
-import { getMessagePrice } from "utils/messageUtils";
-import { observer } from "mobx-react";
-import { Sides } from "types/sides";
 import { toClassName } from "utils/conditionalClasses";
+import { getMessagePrice } from "utils/messageUtils";
+import { priceFormatter } from "utils/priceFormatter";
 
 const ExecutionBanner: React.FC = observer((): ReactElement | null => {
   const messagesStore: MessagesStore =
@@ -35,16 +34,12 @@ const ExecutionBanner: React.FC = observer((): ReactElement | null => {
 export { ExecutionBanner };
 const getAggressionClass = (execution: Message): string => {
   if (execution.AggressorIndicator === "Y") {
-    if (execution.Side === Sides.Buy) {
+    if (execution.Side === "1") {
       return "buy";
     } else {
       return "sell";
     }
   } else {
-    if (execution.Side === Sides.Buy) {
-      return "sell";
-    } else {
-      return "buy";
-    }
+    return "";
   }
 };
