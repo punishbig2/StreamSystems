@@ -3,6 +3,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { ExecTypes, Message } from "types/message";
 import { User } from "types/user";
+import { STRM } from "../stateDefs/workspaceState";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
@@ -80,5 +81,19 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (message.CxlRejResponseTo !== undefined) return false;
   if (!isFill(message)) return false;
 
-  return message.AggressorIndicator === "Y";
+  const { personality, user } = workareaStore;
+  if (personality === STRM) {
+    return message.AggressorIndicator === "Y";
+  } else {
+    if (message.MDMkt === personality || message.MDMkt === user.firm) {
+      return true;
+    } else if (
+      message.ExecBroker === personality ||
+      message.ExecBroker === user.firm
+    ) {
+      return false;
+    } else {
+      return message.AggressorIndicator === "Y";
+    }
+  }
 };

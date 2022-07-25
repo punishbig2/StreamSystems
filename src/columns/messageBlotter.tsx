@@ -139,12 +139,6 @@ const price = (sortable: boolean): TableColumn => ({
 });
 
 const getSide = (message: Message): "Buy" | "Sell" => {
-  const { personality } = workareaStore;
-  // In this case it seems side needs to be flipped
-  if (personality === message.ExecBroker) {
-    return message.Side !== "1" ? "Buy" : "Sell";
-  }
-
   return message.Side === "1" ? "Buy" : "Sell";
 };
 
