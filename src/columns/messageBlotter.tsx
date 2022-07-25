@@ -138,8 +138,15 @@ const price = (sortable: boolean): TableColumn => ({
   },
 });
 
-const getSide = (message: Message): "Buy" | "Sell" =>
-  message.Side === "1" ? "Buy" : "Sell";
+const getSide = (message: Message): "Buy" | "Sell" => {
+  const { personality } = workareaStore;
+  // In this case it seems side needs to be flipped
+  if (personality === message.ExecBroker) {
+    return message.Side !== "1" ? "Buy" : "Sell";
+  }
+
+  return message.Side === "1" ? "Buy" : "Sell";
+};
 
 const side = (sortable: boolean): TableColumn => ({
   name: "Side",
@@ -152,6 +159,7 @@ const side = (sortable: boolean): TableColumn => ({
     const { roles } = workareaStore.user;
     const isBroker = hasRole(roles, Role.Broker);
     if (!involved(message) && !isBroker) return <div />;
+
     return getSide(message);
   },
   width: 2,

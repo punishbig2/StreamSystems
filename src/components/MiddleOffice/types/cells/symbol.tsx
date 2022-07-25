@@ -6,7 +6,12 @@ export const SymbolCell: React.FC<CellProps> = (
 ): ReactElement => {
   const { deal } = props;
   if (deal) {
-    return <div>{deal.symbol}</div>;
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof deal.symbol === "string") {
+      return <div>{deal.symbol}</div>;
+    } else {
+      return <div>{deal.symbol.name}</div>;
+    }
   } else {
     return <div />;
   }

@@ -77,43 +77,8 @@ export const isMyMessage = (message: Message): boolean => {
 };
 
 export const isAcceptableFill = (message: Message): boolean => {
-  // const user: User = workareaStore.user;
   if (message.CxlRejResponseTo !== undefined) return false;
-  // const { roles } = user;
-  // const isBroker: boolean = hasRole(roles, Role.Broker);
-  // Only fills are interesting
   if (!isFill(message)) return false;
 
   return message.AggressorIndicator === "Y";
-  /*if (isBroker) {
-    if (workareaStore.personality === STRM) {
-      return message.AggressorIndicator === "Y";
-    }
-
-    // If it's my trade YES
-    if (message.MDMkt === workareaStore.personality) return true;
-    // If it's my trade and I am contra-trader NO
-    if (
-      message.ExecBroker === workareaStore.personality ||
-      message.ContraTrader === user.email
-    ) {
-      return false;
-    }
-  } else {
-    // If it's my trade YES
-    if (message.Username === user.email || message.MDMkt === user.firm)
-      return true;
-    // If it's my trade and I am contra-trader NO
-    if (
-      message.ContraTrader === user.email ||
-      message.ExecBroker === user.firm
-    ) {
-      return false;
-    }
-  }
-
-  return message.AggressorIndicator === "Y";*/
 };
-
-export const isMessage = (row: Message | Deal): row is Message =>
-  "ClOrdID" in row;

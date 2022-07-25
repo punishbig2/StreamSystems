@@ -11,8 +11,9 @@ export const ScrollArea: React.FC<Props> = (
   const [scrollbar, setScrollbar] = React.useState<HTMLElement | null>(null);
   const [handle, setHandle] = React.useState<HTMLElement | null>(null);
   useScrollbarHandleGrabber(handle, container);
-  const array: ReadonlyArray<React.ReactNode> =
-    Children.toArray<React.ReactNode>(props.children);
+  const array: ReadonlyArray<React.ReactNode> = Children.toArray(
+    props.children
+  );
   if (array.length !== 1) {
     throw new Error("scroll areas only make sense with a single child");
   }

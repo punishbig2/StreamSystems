@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 
 interface Props {
   readonly action?: () => ReactNode;
-  readonly label: string | (() => ReactNode);
+  readonly label: string | React.ReactElement;
   readonly className?: string;
   readonly disabled?: boolean;
 }
