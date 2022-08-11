@@ -1,13 +1,11 @@
 const { location } = window;
 const hostname: string = location.hostname;
 const baseUrl: string = location.protocol + "//" + hostname;
-// Replace the second item of the host name
-const parts: string[] = hostname.split(".");
 
 const IP_ADDRESS_REGEXP =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
-const isLocalOrLAN = (hostname: string): boolean => {
+const isLocalUrl = (hostname: string): boolean => {
   if (hostname === "localhost") {
     return true;
   }
@@ -15,11 +13,11 @@ const isLocalOrLAN = (hostname: string): boolean => {
   return IP_ADDRESS_REGEXP.test(hostname);
 };
 
-const accountUrlBase = isLocalOrLAN(hostname)
+const accountHostname = isLocalUrl(hostname)
   ? `${hostname}:8822`
-  : [...parts.slice(0, -3), "account", ...parts.slice(-2)].join(".");
+  : hostname.replace("trading", "account");
 
-const accountUrl: string = `${location.protocol}//${accountUrlBase}`;
+const accountUrl: string = `${location.protocol}//${accountHostname}`;
 
 export default {
   BackendUrl: baseUrl,

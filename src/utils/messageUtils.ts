@@ -1,4 +1,3 @@
-import { Deal } from "components/MiddleOffice/types/deal";
 import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { ExecTypes, Message } from "types/message";
