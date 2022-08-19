@@ -602,9 +602,9 @@ export class API {
 
   public static async getMessagesSnapshot(
     useremail: string,
-    timestamp: number
+    timestamp?: number
   ): Promise<Message[]> {
-    const query: any = { timestamp };
+    const query: any = timestamp ? { timestamp } : {};
     const task1: Task<Message[]> = GET<Message[]>(
       API.buildUrl(API.DarkPool, "messages", "get", query)
     );

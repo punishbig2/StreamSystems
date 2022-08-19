@@ -7,6 +7,7 @@ export interface TableColumn {
   readonly filterable?: boolean;
   readonly header: (props: any) => ReactElement | string | null;
   readonly render: (props: any) => ReactElement | string | null;
+  readonly value?: (props: any) => string | number;
   readonly span?: number;
   readonly width: number;
   readonly filterByKeyword?: (v1: any, keyword: string) => boolean;

@@ -28,7 +28,7 @@ import {
 export enum BlotterTypes {
   None,
   Executions,
-  Regular,
+  MessageMonitor,
 }
 
 const tenor = (sortable: boolean): TableColumn => ({
@@ -38,6 +38,7 @@ const tenor = (sortable: boolean): TableColumn => ({
   sortable: sortable,
   header: () => "Tenor",
   render: ({ message: { Tenor } }: CellProps) => Tenor,
+  value: ({ message: { Tenor } }: CellProps) => Tenor,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Tenor;
@@ -58,6 +59,7 @@ const symbol = (sortable: boolean): TableColumn => ({
   render: ({ message }: { message: Message }): ReactElement => (
     <span>{message.Symbol}</span>
   ),
+  value: ({ message }: { message: Message }): string => message.Symbol,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Symbol;
@@ -79,6 +81,7 @@ const strategy = (sortable: boolean): TableColumn => ({
   render: ({ message }: CellProps): ReactElement => (
     <span>{message.Strategy}</span>
   ),
+  value: ({ message }: CellProps): string => message.Strategy,
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const original: string = v1.Strategy;
@@ -105,6 +108,15 @@ const trader = (sortable: boolean, side: "1" | "2"): TableColumn => ({
     }
     return <span>{fullName}</span>;
   },
+
+  value: ({ message }: CellProps): string => {
+    const fullName =
+      side === message.Side ? message.FullName : message.ContraFullName;
+    if (fullName === undefined) {
+      return "";
+    }
+    return fullName;
+  },
   width: 5,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);
@@ -126,6 +138,7 @@ const price = (sortable: boolean): TableColumn => ({
   render: (props: CellProps): ReactElement => (
     <span>{priceFormatter(getMessagePrice(props.message))}</span>
   ),
+  value: (props: CellProps): number => getMessagePrice(props.message),
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = Number(v1.Price);
@@ -156,6 +169,14 @@ const side = (sortable: boolean): TableColumn => ({
 
     return getSide(message);
   },
+  value: (props: CellProps): string => {
+    const { message } = props;
+    const { roles } = workareaStore.user;
+    const isBroker = hasRole(roles, Role.Broker);
+    if (!involved(message) && !isBroker) return "";
+
+    return getSide(message);
+  },
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     return getSide(v1).includes(keyword.toLowerCase());
@@ -174,6 +195,7 @@ const size = (sortable: boolean): TableColumn => ({
   render: (props: CellProps): ReactElement => (
     <span>{getMessageSize(props.message)}</span>
   ),
+  value: (props: CellProps): number => getMessageSize(props.message),
   width: 2,
   filterByKeyword: (v1: Message, keyword: string): boolean => {
     const value: number = getMessageSize(v1);
@@ -201,6 +223,12 @@ const transactTime = (): TableColumn => ({
         <span className={"time"}>{TimeFormatter.format(date)}</span>
       </div>
     );
+  },
+  value: (props: CellProps): string => {
+    const { message } = props;
+    const date: Date = parseTime(message.TransactTime, Globals.timezone);
+
+    return date.toISOString();
   },
   width: 4,
   difference: (v1: Message, v2: Message): number => {
@@ -230,6 +258,14 @@ const transactType = (sortable: boolean) => ({
       return data.OrdStatus;
     }
   },
+  value: (props: CellProps): string => {
+    const { message: data } = props;
+    if (TransTypes[data.OrdStatus]) {
+      return TransTypes[data.OrdStatus];
+    } else {
+      return data.OrdStatus;
+    }
+  },
   width: 3,
   difference: (v1: Message, v2: Message): number => {
     return Number(v1.OrdStatus) - Number(v2.OrdStatus);
@@ -250,6 +286,9 @@ const buyer = (sortable: boolean): TableColumn => ({
   header: () => "Bought",
   render: (props: CellProps) => {
     return <div>{getBuyer(props.message)}</div>;
+  },
+  value: (props: CellProps): string => {
+    return getBuyer(props.message) ?? "";
   },
   width: 2,
   filterByKeyword: (message: Message, keyword: string): boolean => {
@@ -285,6 +324,9 @@ const seller = (sortable: boolean): TableColumn => ({
   header: () => "Sold",
   render: (props: CellProps) => {
     return <div>{getSeller(props.message)}</div>;
+  },
+  value: (props: CellProps): string => {
+    return getSeller(props.message) ?? "";
   },
   width: 2,
   filterByKeyword: (message: Message, keyword: string): boolean => {
@@ -331,6 +373,13 @@ const counterParty = (
       </div>
     );
   },
+  value: (props: CellProps): string => {
+    const { message } = props;
+    const { ExecBroker } = message;
+    if (!involved(message)) return "";
+
+    return ExecBroker;
+  },
   width: 2,
   filterByKeyword: ({ ExecBroker }: Message, keyword: string): boolean => {
     if (ExecBroker) {
@@ -370,6 +419,10 @@ const pool = (sortable: boolean): TableColumn => ({
         {ExDestination === DarkPool ? "Dark Pool" : "Electronic"}&nbsp;
       </div>
     );
+  },
+  value: (props: CellProps) => {
+    const { ExDestination } = props.message;
+    return ExDestination === DarkPool ? "Dark Pool" : "Electronic";
   },
   filterable: true,
   sortable: sortable,

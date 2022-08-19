@@ -105,7 +105,7 @@ export class TileStore implements Persistable<TileStore> {
       case TileType.PodTile:
         return new PodStore(id);
       case TileType.MessageBlotter:
-        return new MessageBlotterStore(BlotterTypes.Regular);
+        return new MessageBlotterStore(BlotterTypes.MessageMonitor);
     }
     return new DummyContentStore();
   }

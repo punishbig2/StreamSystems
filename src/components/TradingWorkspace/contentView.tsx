@@ -17,6 +17,7 @@ import React from "react";
 import { Symbol } from "types/symbol";
 import { TileType } from "types/tileType";
 import { MessageBlotterStoreContext } from "mobx/stores/messageBlotterStore";
+import { ExportButton } from "components/MessageBlotter/controls/exportButton";
 
 interface Props {
   readonly tiles: ReadonlyArray<TileStore>;
@@ -61,7 +62,10 @@ export const ContentView: React.FC<Props> = (
           if (isMessageBlotterStore(contentStore)) {
             return (
               <MessageBlotterStoreContext.Provider value={contentStore}>
-                <MessageBlotter id={id} blotterType={BlotterTypes.Regular} />
+                <MessageBlotter
+                  id={id}
+                  blotterType={BlotterTypes.MessageMonitor}
+                />
               </MessageBlotterStoreContext.Provider>
             );
           } else {
@@ -90,7 +94,13 @@ export const ContentView: React.FC<Props> = (
           }
         };
       case TileType.MessageBlotter:
-        return () => <h1>Blotter</h1>;
+        return () => (
+          <div className={"execution-blotter-title"}>
+            <h1>Blotter</h1>
+            <ExportButton blotterType={BlotterTypes.MessageMonitor} />
+            <div style={{ width: 18 }} />
+          </div>
+        );
     }
     return () => null;
   };

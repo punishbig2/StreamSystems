@@ -12,6 +12,7 @@ import {
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement } from "react";
 import { runInNextLoop } from "utils/runInNextLoop";
+import { ExportButton } from "../MessageBlotter/controls/exportButton";
 
 export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
   const store = React.useContext<MessageBlotterStore>(
@@ -74,6 +75,8 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
     <cib-window ref={setTile} scrollable transparent>
       <div slot={"toolbar"} className={"execution-blotter-title"}>
         <h1>Execution Blotter</h1>
+        <ExportButton blotterType={BlotterTypes.Executions} />
+
         <div className={"right-panel"}>
           <h3>CCY Group</h3>
           <Select
