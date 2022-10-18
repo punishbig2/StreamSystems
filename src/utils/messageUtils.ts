@@ -3,6 +3,7 @@ import moment from "moment";
 import { ExecTypes, Message } from "types/message";
 import { User } from "types/user";
 import { STRM } from "../stateDefs/workspaceState";
+import { Role } from "../types/role";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
@@ -81,18 +82,19 @@ export const isAcceptableFill = (message: Message): boolean => {
   if (!isFill(message)) return false;
 
   const { personality, user } = workareaStore;
-  if (personality === STRM) {
+  const { roles, firm } = user;
+  console.log(message.ExecBroker);
+
+  const isBroker = roles.includes(Role.Broker);
+  // If not adopting a bank personality, just return messages that have
+  // the aggressor indicator.
+  if (isBroker && personality === STRM) {
     return message.AggressorIndicator === "Y";
+  } else if (firm === message.MDMkt) {
+    return true;
+  } else if (firm === message.ExecBroker) {
+    return false;
   } else {
-    if (message.MDMkt === personality || message.MDMkt === user.firm) {
-      return true;
-    } else if (
-      message.ExecBroker === personality ||
-      message.ExecBroker === user.firm
-    ) {
-      return false;
-    } else {
-      return message.AggressorIndicator === "Y";
-    }
+    return message.AggressorIndicator === "Y";
   }
 };
