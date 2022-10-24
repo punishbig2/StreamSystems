@@ -79,7 +79,7 @@ export const ContentView: React.FC<Props> = (
   const getTitleRenderer = (id: string, type: TileType) => {
     switch (type) {
       case TileType.PodTile:
-        return (contentStore: ContentStore | null) => {
+        return (contentStore: ContentStore | null): React.ReactElement => {
           if (isPodTileStore(contentStore)) {
             return (
               <PodStoreContext.Provider value={contentStore}>
@@ -94,14 +94,23 @@ export const ContentView: React.FC<Props> = (
           }
         };
       case TileType.MessageBlotter:
-        return () => (
-          <div className={"execution-blotter-title"}>
-            <h1>Blotter</h1>
-            <ExportButton blotterType={BlotterTypes.MessageMonitor} />
-            <div style={{ width: 18 }} />
-          </div>
-        );
+        return (contentStore: ContentStore | null): React.ReactElement => {
+          if (isMessageBlotterStore(contentStore)) {
+            return (
+              <MessageBlotterStoreContext.Provider value={contentStore}>
+                <div className={"execution-blotter-title"}>
+                  <h1>Blotter</h1>
+                  <ExportButton blotterType={BlotterTypes.MessageMonitor} />
+                  <div style={{ width: 18 }} />
+                </div>
+              </MessageBlotterStoreContext.Provider>
+            );
+          } else {
+            throw NotMessageBlotterStoreError;
+          }
+        };
     }
+
     return () => null;
   };
 

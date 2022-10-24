@@ -3,13 +3,10 @@ import { BlotterTypes } from "columns/messageBlotter";
 import {
   MessageBlotterStore,
   MessageBlotterStoreContext,
-} from "../../../mobx/stores/messageBlotterStore";
-import { ExtendedTableColumn } from "../../Table/tableColumn";
-import { Message } from "../../../types/message";
-import {
-  MessagesStore,
-  MessagesStoreContext,
-} from "../../../mobx/stores/messagesStore";
+} from "mobx/stores/messageBlotterStore";
+import { ExtendedTableColumn } from "components/Table/tableColumn";
+import { Message } from "types/message";
+import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
 
 interface Props {
   readonly blotterType: BlotterTypes;
@@ -56,7 +53,7 @@ export const ExportButton: React.FC<Props> = (
       body.append(link);
 
       link.setAttribute("href", url);
-      link.setAttribute("download", "table-content.csv");
+      link.setAttribute("download", blotterType + "-content.csv");
       link.click();
 
       link.remove();

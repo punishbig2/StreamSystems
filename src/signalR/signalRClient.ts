@@ -686,33 +686,16 @@ export class SignalRClient {
       return;
     }
 
-    const nameColor = name.startsWith("Un") ? "orange" : "dodgerblue";
-    connection
-      .invoke(name, ...args)
-      .then((result: string): void => {
-        if (result !== "success") {
-          console.warn(
-            `there was a problem invoking \`${name}' with \`${args.join(
-              ", "
-            )}': `,
-            result
-          );
-        }
-      })
-      .then((): void => {
-        console.info(
-          `invocation of: %c${name} %c[SUCCESS]`,
-          `color: ${nameColor}; font-weight: bold;`,
-          "color: #308149; font-weight: bold;"
+    connection.invoke(name, ...args).then((result: string): void => {
+      if (result !== "success") {
+        console.warn(
+          `there was a problem invoking \`${name}' with \`${args.join(
+            ", "
+          )}': `,
+          result
         );
-      })
-      .catch((error: any) => {
-        console.info(
-          `invocation of: %c${name} %c[FAILURE]`,
-          `color: ${nameColor}; font-weight: bold;`,
-          "color: crimson; font-weight: bold;"
-        );
-      });
+      }
+    });
   };
 
   private invoke = (name: string, ...args: any[]): void => {

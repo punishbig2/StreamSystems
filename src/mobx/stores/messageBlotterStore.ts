@@ -11,7 +11,7 @@ import { Persistable } from "types/persistable";
 import { hasRole, Role } from "types/role";
 import { SortDirection } from "types/sortDirection";
 import { TileType } from "types/tileType";
-import { User } from "types/user";
+import * as users from "types/user";
 
 export class MessageBlotterStore
   extends ContentStore
@@ -68,7 +68,7 @@ export class MessageBlotterStore
   }
 
   @action.bound
-  public setOwner(user: User): void {
+  public setOwner(user: users.User): void {
     const { roles } = user;
     const personality = workareaStore.personality;
     const brokerMode: boolean =
@@ -85,6 +85,7 @@ export class MessageBlotterStore
   @computed
   public get columns(): ReadonlyArray<ExtendedTableColumn> {
     const { initialColumns, columnsOrder } = this;
+
     return columnsOrder
       .filter((index: number) => index < initialColumns.length)
       .map((index: number) => {

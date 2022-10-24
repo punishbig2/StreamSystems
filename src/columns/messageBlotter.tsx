@@ -21,9 +21,9 @@ import { FIX_DATE_FORMAT, parseTime } from "utils/timeUtils";
 import { DateTimeRenderer } from "components/Table/CellRenderers/DateTime";
 
 export enum BlotterTypes {
-  None,
-  Executions,
-  MessageMonitor,
+  None = "none",
+  Executions = "executions",
+  MessageMonitor = "messages",
 }
 
 const tenor = (sortable: boolean): TableColumn => ({
