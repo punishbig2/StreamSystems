@@ -2,7 +2,6 @@ import { CellProps } from "columns/messageBlotterColumns/cellProps";
 import { involved } from "columns/messageBlotterColumns/helpers";
 import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
 import { TableColumn } from "components/Table/tableColumn";
-import { Globals } from "golbals";
 import workareaStore from "mobx/stores/workareaStore";
 import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
@@ -18,12 +17,8 @@ import {
 } from "utils/messageUtils";
 import { priceFormatter } from "utils/priceFormatter";
 import { tenorToNumber } from "utils/tenorUtils";
-import {
-  DateFormatter,
-  FIX_DATE_FORMAT,
-  parseTime,
-  TimeFormatter,
-} from "utils/timeUtils";
+import { FIX_DATE_FORMAT, parseTime } from "utils/timeUtils";
+import { DateTimeRenderer } from "components/Table/CellRenderers/DateTime";
 
 export enum BlotterTypes {
   None,
@@ -216,17 +211,13 @@ const transactTime = (): TableColumn => ({
   sortable: true,
   render: (props: CellProps): ReactElement | string => {
     const { message } = props;
-    const date: Date = parseTime(message.TransactTime, Globals.timezone);
-    return (
-      <div className={"date-time-cell"} title={date.toLocaleTimeString()}>
-        <span className={"date"}>{DateFormatter.format(date)}</span>
-        <span className={"time"}>{TimeFormatter.format(date)}</span>
-      </div>
-    );
+    const date: Date = parseTime(message.TransactTime);
+
+    return <DateTimeRenderer date={date} />;
   },
   value: (props: CellProps): string => {
     const { message } = props;
-    const date: Date = parseTime(message.TransactTime, Globals.timezone);
+    const date: Date = parseTime(message.TransactTime);
 
     return date.toISOString();
   },

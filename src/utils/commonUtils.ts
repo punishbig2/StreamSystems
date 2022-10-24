@@ -31,6 +31,7 @@ export const findDefaultTimezone = () => {
       return text === browserTimezone;
     }
   );
+
   if (found === undefined) {
     return "America/New_York" /* sensible default */;
   } else {

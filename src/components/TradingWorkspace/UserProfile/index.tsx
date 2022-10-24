@@ -27,7 +27,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
   };
 
   useEffect(() => {
-    store.loadUserProfile().then(() => undefined);
+    void store.loadUserProfile();
   }, []);
 
   const onChange = (name: string, value: any) => {

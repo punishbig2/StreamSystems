@@ -106,8 +106,8 @@ export class MessagesStore {
       ...this.executionHistory,
     ].sort((a: Message, b: Message): number => {
       return (
-        parseTime(b.TransactTime, null).getTime() -
-        parseTime(a.TransactTime, null).getTime()
+        parseTime(b.TransactTime).getTime() -
+        parseTime(a.TransactTime).getTime()
       );
     });
   }

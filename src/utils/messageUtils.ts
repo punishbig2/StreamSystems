@@ -79,11 +79,12 @@ export const isMyMessage = (message: Message): boolean => {
 
 export const isAcceptableFill = (message: Message): boolean => {
   if (message.CxlRejResponseTo !== undefined) return false;
-  if (!isFill(message)) return false;
+  if (!isFill(message)) {
+    return false;
+  }
 
   const { personality, user } = workareaStore;
   const { roles, firm } = user;
-  console.log(message.ExecBroker);
 
   const isBroker = roles.includes(Role.Broker);
   // If not adopting a bank personality, just return messages that have

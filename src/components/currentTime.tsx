@@ -2,11 +2,9 @@ import { TextField } from "@material-ui/core";
 import { useTimer } from "hooks/useTimer";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useState } from "react";
-import {
-  DateFormatter,
-  DateTimeFormatter,
-  TimeFormatter,
-} from "utils/timeUtils";
+import { useDateFormat } from "hooks/useDateFormat";
+import { useDateTimeFormat } from "hooks/useDateTimeFormat";
+import { useTimeFormat } from "hooks/useTimeFormat";
 
 interface Props {
   readonly dateOnly?: boolean;
@@ -20,19 +18,29 @@ export const CurrentTime: React.FC<Props> = (
   }
 ): ReactElement => {
   const date: Date = useTimer();
+  const dateFormatter = useDateFormat();
+  const dateTimeFormatter = useDateTimeFormat();
+  const timeFormatter = useTimeFormat();
+
   const [formatter, setFormatter] = useState<Intl.DateTimeFormat>(
     new Intl.DateTimeFormat()
   );
 
   useEffect(() => {
     if (props.dateOnly) {
-      setFormatter(DateFormatter);
+      setFormatter(dateFormatter);
     } else if (props.timeOnly) {
-      setFormatter(TimeFormatter);
+      setFormatter(timeFormatter);
     } else {
-      setFormatter(DateTimeFormatter);
+      setFormatter(dateTimeFormatter);
     }
-  }, [props.timeOnly, props.dateOnly]);
+  }, [
+    props.timeOnly,
+    props.dateOnly,
+    dateFormatter,
+    timeFormatter,
+    dateTimeFormatter,
+  ]);
 
   return (
     <TextField

@@ -2,7 +2,6 @@ import { API, BankEntitiesQueryResponse, Task } from "API";
 import { isTenor } from "components/FormField/helpers";
 import { Commission, Deal } from "components/MiddleOffice/types/deal";
 import { Leg } from "components/MiddleOffice/types/leg";
-import { Globals } from "golbals";
 import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
 import { DealEntry, DealType, EntryType } from "types/dealEntry";
 import { BankEntity } from "types/bankEntity";
@@ -179,7 +178,7 @@ export const createDealFromBackendMessage = async (
   legs: ReadonlyArray<Leg>
 ): Promise<Deal> => {
   const data: any = typeof source === "string" ? JSON.parse(source) : source;
-  const tradeDate: Date = parseTime(data.transacttime, Globals.timezone);
+  const tradeDate: Date = parseTime(data.transacttime);
   const strike: string = coalesce(
     data.strike,
     getDefaultStrikeForStrategy(data.strategy)

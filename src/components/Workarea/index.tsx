@@ -19,15 +19,18 @@ import signalRManager from "signalR/signalRClient";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { Message } from "types/message";
 import { getUserIdFromUrl } from "utils/getIdFromUrl";
+import { DateTimeFormatStore } from "mobx/stores/dateTimeFormatStore";
 
 const Workarea: React.FC = (): React.ReactElement | null => {
-  const { recentExecutions } = store;
-  const { connected, user } = store;
+  const { recentExecutions, connected, user } = store;
   const personality: string = store.personality;
-  const { theme } = store.preferences;
+  const { theme, timezone } = store.preferences;
   const { workspaceAccessDenied } = store;
   const id: string | null = React.useMemo(getUserIdFromUrl, []);
   const messagesStore = React.useContext<MessagesStore>(MessagesStoreContext);
+  const dateTimeFormatStore = React.useContext<DateTimeFormatStore>(
+    DateTimeFormatStore.Context
+  );
 
   React.useEffect((): void => {
     themeStore.setTheme(theme);
@@ -60,12 +63,17 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     }, 0);
   }, [messagesStore, personality]);
 
+  React.useEffect((): void => {
+    dateTimeFormatStore.setTimezone(timezone);
+  }, [dateTimeFormatStore, timezone]);
+
   React.useEffect((): (() => void) | void => {
     if (connected) return;
     const reconnect = (): void => {
       signalRManager.connect();
     };
     window.addEventListener("click", reconnect);
+
     return (): void => {
       window.removeEventListener("click", reconnect);
     };

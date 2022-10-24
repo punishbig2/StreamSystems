@@ -35,7 +35,7 @@ export const parser = {
   },
 };
 
-export const parseTime = (date: string, tz: string | null): Date => {
+export const parseTime = (date: string): Date => {
   const regex: RegExp = /(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})/;
   const match: RegExpExecArray | null = regex.exec(date);
   if (match === null) return new Date();

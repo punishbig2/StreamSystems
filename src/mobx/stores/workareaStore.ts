@@ -10,20 +10,14 @@ import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
 import { STRM } from "stateDefs/workspaceState";
 import { OrderTypes } from "types/mdEntry";
-import { Message } from "types/message";
+import * as message from "types/message";
 import { Order } from "types/order";
 import { PodRow, PodRowStatus } from "types/podRow";
 import { Product, ProductSource } from "types/product";
 import { hasRole, OktaUser, Role } from "types/role";
 import { Symbol } from "types/symbol";
-import {
-  CurrencyGroups,
-  OtherUser,
-  User,
-  UserInfo,
-  UserPreferences,
-} from "types/user";
-import { invalidWorkSchedule, WorkSchedule } from "types/workSchedule";
+import * as users from "types/user";
+import * as schedule from "types/workSchedule";
 import { Workspace } from "types/workspace";
 import { WorkspaceType } from "types/workspaceType";
 import { updateApplicationTheme } from "utils/commonUtils";
@@ -60,29 +54,31 @@ export class WorkareaStore {
   @observable.ref banks: ReadonlyArray<string> = [];
   @observable status: WorkareaStatus = WorkareaStatus.Starting;
   @observable connected: boolean = false;
-  @observable recentExecutions: Array<Message> = [];
+  @observable recentExecutions: Array<message.Message> = [];
 
   @observable.ref defaultOrders: Record<string, ReadonlyArray<Order>> = {};
   @observable.ref defaultPodRows: Record<string, PodRow> = {};
 
   @observable.ref
-  preferences: UserPreferences = defaultPreferences;
-  @observable user: User = {} as User;
+  preferences: users.UserPreferences = defaultPreferences;
+  @observable user: users.User = {} as users.User;
   @observable loadingMessage?: string;
   @observable loadingProgress: number = 0;
   @observable isCreatingWorkspace: boolean = false;
 
   @observable workspaceAccessDenied: boolean = false;
   @observable workspaceNotFound: boolean = false;
-  @observable users: ReadonlyArray<OtherUser> = [];
+  @observable users: ReadonlyArray<users.OtherUser> = [];
 
   private symbolsMap: { [key: string]: Symbol } = {};
   private loadingStep: number = 0;
 
   private persistStorage?: PersistStorage;
   private lastVersionCheckTimestamp: number = 0;
+
   @observable isShowingNewVersionModal: boolean = false;
-  @observable workSchedule: WorkSchedule = invalidWorkSchedule;
+  @observable workSchedule: schedule.WorkSchedule =
+    schedule.invalidWorkSchedule;
 
   public get effectiveFirm(): string {
     const { user, personality } = this;
@@ -163,7 +159,7 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public addStandardWorkspace(group: CurrencyGroups) {
+  public addStandardWorkspace(group: users.CurrencyGroups) {
     this.isCreatingWorkspace = true;
     // Do this after the `isCreatingWorkspace' takes effect
     setTimeout(() => this.internalAddWorkspace(group), 0);
@@ -189,7 +185,7 @@ export class WorkareaStore {
     ];
   }
 
-  public isUserAllowedToSignIn(user: User): boolean {
+  public isUserAllowedToSignIn(user: users.User): boolean {
     const { workSchedule } = this;
     const { roles } = user;
     if (hasRole(roles, Role.Broker) || hasRole(roles, Role.Admin)) {
@@ -209,7 +205,7 @@ export class WorkareaStore {
     this.loadingStep = 100 / 9;
     this.setStatus(WorkareaStatus.Starting);
     try {
-      const user: User | undefined = await this.loadUser(id);
+      const user: users.User | undefined = await this.loadUser(id);
       if (user === undefined) {
         this.setStatus(WorkareaStatus.UserNotFound);
       } else {
@@ -285,13 +281,13 @@ export class WorkareaStore {
   }
 
   @action.bound
-  public addRecentExecution(loadingMessage: Message) {
+  public addRecentExecution(loadingMessage: message.Message) {
     const { recentExecutions } = this;
     recentExecutions.push(loadingMessage);
   }
 
   @action.bound
-  public setPreferences(preferences: UserPreferences) {
+  public setPreferences(preferences: users.UserPreferences) {
     this.preferences = preferences;
     this.loadTheme();
   }
@@ -307,10 +303,10 @@ export class WorkareaStore {
     this.workspaceAccessDenied = false;
   }
 
-  public findUserByEmail(email: string): OtherUser {
+  public findUserByEmail(email: string): users.OtherUser {
     const { users } = this;
-    const found: OtherUser | undefined = users.find(
-      (user: OtherUser): boolean => {
+    const found: users.OtherUser | undefined = users.find(
+      (user: users.OtherUser): boolean => {
         if (user.email === undefined) {
           return false;
         } else if (email === undefined) {
@@ -342,7 +338,7 @@ export class WorkareaStore {
   }
 
   @action.bound
-  private internalAddWorkspace(group: CurrencyGroups) {
+  private internalAddWorkspace(group: users.CurrencyGroups) {
     const { workspaces } = this;
     // Create the workspace
     this.currentWorkspaceIndex = workspaces.length;
@@ -384,12 +380,12 @@ export class WorkareaStore {
   }
 
   @action.bound
-  private async loadUser(id: string): Promise<User | undefined> {
+  private async loadUser(id: string): Promise<users.User | undefined> {
     this.updateLoadingProgress(strings.StartingUp);
 
     const oktaUser: OktaUser = await API.getUser(id);
     this.users = await API.getAllUsers(oktaUser.email);
-    const userInfo: UserInfo = await API.getUserInfo(oktaUser.email);
+    const userInfo: users.UserInfo = await API.getUserInfo(oktaUser.email);
     const me = userInfo[0];
     // Find said user in the users array
     if (me === undefined) {

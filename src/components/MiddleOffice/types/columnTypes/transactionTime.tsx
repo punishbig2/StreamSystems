@@ -3,7 +3,7 @@ import { Deal } from "components/MiddleOffice/types/deal";
 import { TableColumn } from "components/Table/tableColumn";
 import moment, { Moment } from "moment";
 import React, { ReactElement } from "react";
-import { DateFormatter, TimeFormatter } from "utils/timeUtils";
+import { DateTimeRenderer } from "components/Table/CellRenderers/DateTime";
 
 export default (width: number = 6): TableColumn => ({
   name: "TransactTime",
@@ -15,12 +15,7 @@ export default (width: number = 6): TableColumn => ({
     const { deal } = props;
     if (deal) {
       const date: Date = deal.tradeDate;
-      return (
-        <div className={"date-time-cell"} title={date.toLocaleTimeString()}>
-          <span className={"date"}>{DateFormatter.format(date)}</span>
-          <span className={"time"}>{TimeFormatter.format(date)}</span>
-        </div>
-      );
+      return <DateTimeRenderer date={date} />;
     } else {
       return null;
     }
@@ -32,9 +27,10 @@ export default (width: number = 6): TableColumn => ({
     return m1.diff(m2);
   },
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
-    const original: string = DateFormatter.format(v1.tradeDate);
+    /*const original: string = DateFormatter.format(v1.tradeDate);
     if (!original) return false;
     const value: string = origin.toLowerCase();
-    return value.includes(keyword.toLowerCase());
+    return value.includes(keyword.toLowerCase());*/
+    return true;
   },
 });

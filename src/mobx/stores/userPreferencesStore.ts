@@ -1,25 +1,18 @@
-import { Globals } from "golbals";
 import { action, observable } from "mobx";
 import workareaStore from "mobx/stores/workareaStore";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
-import {
-  UserPreferences,
-  UserProfileModalTypes,
-  UserProfileStatus,
-} from "types/user";
+import * as user from "types/user";
 
 export class UserPreferencesStore {
-  @observable status: UserProfileStatus = UserProfileStatus.Initial;
-  @observable currentModalType: UserProfileModalTypes =
-    UserProfileModalTypes.Form;
-  @observable.ref preferences: UserPreferences = defaultPreferences;
-  public initialPreferences: UserPreferences = defaultPreferences;
+  @observable status: user.UserProfileStatus = user.UserProfileStatus.Initial;
+  @observable currentModalType: user.UserProfileModalTypes =
+    user.UserProfileModalTypes.Form;
+  @observable.ref preferences: user.UserPreferences = defaultPreferences;
+  public initialPreferences: user.UserPreferences = defaultPreferences;
 
   @action.bound
   public async loadUserProfile() {
     const { preferences } = workareaStore;
-    // Make this available everywhere
-    Globals.timezone = preferences.timezone;
     // Make the "loading" effective
     this.preferences = preferences;
     this.initialPreferences = preferences;
@@ -31,7 +24,7 @@ export class UserPreferencesStore {
   }
 
   @action.bound
-  public setCurrentModal(modalType: UserProfileModalTypes) {
+  public setCurrentModal(modalType: user.UserProfileModalTypes) {
     this.currentModalType = modalType;
   }
 
@@ -41,19 +34,19 @@ export class UserPreferencesStore {
   }
 
   @action.bound
-  public setCurrentModalType(modalType: UserProfileModalTypes) {
+  public setCurrentModalType(modalType: user.UserProfileModalTypes) {
     this.currentModalType = modalType;
   }
 
   @action.bound
-  public async saveUserProfile(preferences: UserPreferences) {
-    this.setCurrentModalType(UserProfileModalTypes.Saving);
+  public async saveUserProfile(preferences: user.UserPreferences) {
+    this.setCurrentModalType(user.UserProfileModalTypes.Saving);
     // Update the database
     setTimeout(() => {
       workareaStore.setPreferences(preferences);
       // Reset the "initial" values
       this.initialPreferences = preferences;
-      this.setCurrentModalType(UserProfileModalTypes.Form);
+      this.setCurrentModalType(user.UserProfileModalTypes.Form);
     }, 0);
   }
 }
