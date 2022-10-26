@@ -4,6 +4,7 @@ import { ExecTypes, Message } from "types/message";
 import { User } from "types/user";
 import { STRM } from "../stateDefs/workspaceState";
 import { Role } from "../types/role";
+import { involved } from "columns/messageBlotterColumns/helpers";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {
@@ -91,11 +92,11 @@ export const isAcceptableFill = (message: Message): boolean => {
   // the aggressor indicator.
   if (isBroker && personality === STRM) {
     return message.AggressorIndicator === "Y";
-  } else if (firm === message.MDMkt) {
+  } else if (firm === message.MDMkt || user.email === message.Username) {
     return true;
-  } else if (firm === message.ExecBroker) {
-    return false;
-  } else {
+  } else if (!involved(message)) {
     return message.AggressorIndicator === "Y";
+  } else {
+    return false;
   }
 };
