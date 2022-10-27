@@ -4,7 +4,7 @@ import React, { ReactElement } from "react";
 import { ExecTypes, Message } from "types/message";
 import { hasRole, Role } from "types/role";
 import workareaStore from "mobx/stores/workareaStore";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { User } from "types/user";
 
 export const isExecution = (message: Message): boolean => {
@@ -28,7 +28,7 @@ export const isMyMessage = (message: Message): boolean => {
   const personality: string = workareaStore.personality;
   const { roles } = user;
   if (hasRole(roles, Role.Broker)) {
-    if (personality === STRM) return false;
+    if (personality === NONE) return false;
     return (
       (message.Username === user.email ||
         message.ContraTrader === user.email) &&

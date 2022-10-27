@@ -2,7 +2,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { ExecTypes, Message } from "types/message";
 import { User } from "types/user";
-import { STRM } from "../stateDefs/workspaceState";
+import { NONE } from "../stateDefs/workspaceState";
 import { Role } from "../types/role";
 import { involved } from "columns/messageBlotterColumns/helpers";
 
@@ -73,8 +73,15 @@ const isFill = (item: Message): boolean => {
 };
 
 export const isMyMessage = (message: Message): boolean => {
+  const personality: string = workareaStore.personality;
   const user: User = workareaStore.user;
+  const { roles } = user;
   if (message.CxlRejResponseTo !== undefined) return false;
+
+  if (roles.includes(Role.Broker)) {
+    return message.MDMkt === personality;
+  }
+
   return user.email === message.Username;
 };
 
@@ -88,15 +95,21 @@ export const isAcceptableFill = (message: Message): boolean => {
   const { roles, firm } = user;
 
   const isBroker = roles.includes(Role.Broker);
-  // If not adopting a bank personality, just return messages that have
-  // the aggressor indicator.
-  if (isBroker && personality === STRM) {
-    return message.AggressorIndicator === "Y";
-  } else if (firm === message.MDMkt || user.email === message.Username) {
-    return true;
-  } else if (!involved(message)) {
-    return message.AggressorIndicator === "Y";
+  if (isBroker) {
+    if (personality === message.ExecBroker) {
+      return false;
+    } else if (personality === message.MDMkt) {
+      return true;
+    } else {
+      return message.AggressorIndicator === "Y";
+    }
   } else {
-    return false;
+    if (firm === message.ExecBroker) {
+      return false;
+    } else if (firm === message.MDMkt) {
+      return true;
+    } else {
+      return message.AggressorIndicator === "Y";
+    }
   }
 };

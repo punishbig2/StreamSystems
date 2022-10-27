@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { observer } from "mobx-react";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { SelectEventData } from "types/selectEventData";
 
 interface Props {
@@ -45,7 +45,7 @@ export const RightPanelButtons: React.FC<Props> = observer(
             disabled={!workareaStore.connected}
             onChange={onPersonalityChange}
           >
-            <MenuItem key={STRM} value={STRM}>
+            <MenuItem key={NONE} value={NONE}>
               None
             </MenuItem>
             {banks.map((market: string) => (

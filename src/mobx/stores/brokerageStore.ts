@@ -2,7 +2,7 @@ import { action, observable } from "mobx";
 import React from "react";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import signalRClient from "signalR/signalRClient";
-import { STRM } from "../../stateDefs/workspaceState";
+import { NONE } from "../../stateDefs/workspaceState";
 
 export interface CommissionRate {
   readonly region: string;
@@ -33,7 +33,7 @@ export class BrokerageStore {
   }
 
   public installListener(firm: string): VoidFunction {
-    if (firm === STRM) {
+    if (firm === NONE) {
       return (): void => {};
     }
 

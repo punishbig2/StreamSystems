@@ -7,7 +7,7 @@ import { TableColumn } from "components/Table/tableColumn";
 import { observer } from "mobx-react";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { DarkPoolOrder, Order, OrderStatus } from "types/order";
 import { hasRole, Role } from "types/role";
 import { User } from "types/user";
@@ -250,7 +250,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
       return;
     }
 
-    if (isBroker && personality === STRM) return;
+    if (isBroker && personality === NONE) return;
     // Show the thing
     openTicket();
   }, [isBroker, openTicket, personality, price]);
@@ -270,7 +270,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         className={className}
         value={price}
         tooltip={renderTooltip}
-        readOnly={(personality !== STRM && isBroker) || !isBroker}
+        readOnly={(personality !== NONE && isBroker) || !isBroker}
         status={status}
         allowZero={true}
         onDoubleClick={onDoubleClick}

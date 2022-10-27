@@ -10,7 +10,7 @@ import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
 import config from "config";
 import workareaStore from "mobx/stores/workareaStore";
 import { NotApplicableProxy } from "notApplicableProxy";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { BankEntity } from "types/bankEntity";
 import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
 import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
@@ -388,7 +388,7 @@ export class API {
     const personality: string = workareaStore.personality;
     // Build a create order request
     const isBroker: boolean = hasRole(roles, Role.Broker);
-    if (isBroker && personality === STRM)
+    if (isBroker && personality === NONE)
       throw new Error("brokers cannot create orders when in streaming mode");
     const MDMkt: string | undefined = isBroker ? personality : undefined;
     const request: CreateOrderBulk = {
@@ -653,7 +653,7 @@ export class API {
     const personality: string = workareaStore.personality;
     const { roles } = user;
     const isBroker: boolean = hasRole(roles, Role.Broker);
-    if (isBroker && order.MDMkt === STRM) {
+    if (isBroker && order.MDMkt === NONE) {
       throw new Error("brokers cannot create orders when in streaming mode");
     } else if (!isBroker) {
       order.MDMkt = user.firm;
@@ -793,7 +793,7 @@ export class API {
     const request = {
       MsgType: MessageTypes.F,
       User: user.email,
-      MDMkt: personality === STRM ? undefined : personality,
+      MDMkt: personality === NONE ? undefined : personality,
       TransactTime: getCurrentTime(),
       Firm: workareaStore.effectiveFirm,
     };

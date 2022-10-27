@@ -1,7 +1,7 @@
 import { Order } from "types/order";
 import { hasRole, Role } from "types/role";
 import { User } from "types/user";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 
 export const shouldOpenOrderTicket = (
   order: Order,
@@ -10,6 +10,6 @@ export const shouldOpenOrderTicket = (
 ) => {
   const { roles } = user;
   const isBroker: boolean = hasRole(roles, Role.Broker);
-  if (isBroker && personality === STRM) return false;
+  if (isBroker && personality === NONE) return false;
   return order.price !== null && order.size !== null;
 };

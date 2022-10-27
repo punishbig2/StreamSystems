@@ -5,7 +5,7 @@ import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
 import { TileStore } from "mobx/stores/tileStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { hasRole, Role } from "types/role";
 import { TileType } from "types/tileType";
 import { Workspace } from "types/workspace";
@@ -17,7 +17,7 @@ export class TradingWorkspaceStore implements Workspace {
   public readonly brokerageStore = new BrokerageStore();
 
   @observable public tiles: ReadonlyArray<TileStore> = [];
-  @observable public personality: string = STRM;
+  @observable public personality: string = NONE;
   @observable public name: string = "Untitled";
   @observable public isUserProfileModalVisible = false;
   @observable public errorMessage: string | null = null;

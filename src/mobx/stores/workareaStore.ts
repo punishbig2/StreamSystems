@@ -8,7 +8,7 @@ import moment from "moment-timezone";
 import signalRManager from "signalR/signalRClient";
 import { defaultPreferences } from "stateDefs/defaultUserPreferences";
 import { WorkareaStatus } from "stateDefs/workareaState";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { OrderTypes } from "types/mdEntry";
 import * as message from "types/message";
 import { Order } from "types/order";
@@ -130,12 +130,12 @@ export class WorkareaStore {
   @computed
   public get personality(): string {
     const { workspaces, currentWorkspaceIndex } = this;
-    if (currentWorkspaceIndex === null) return STRM;
+    if (currentWorkspaceIndex === null) return NONE;
     const workspace = workspaces[currentWorkspaceIndex];
     if (isTradingWorkspace(workspace)) {
       return workspace.personality;
     } else {
-      return STRM;
+      return NONE;
     }
   }
 

@@ -2,7 +2,7 @@ import messageBlotterColumns, { BlotterTypes } from "columns/messageBlotter";
 import { TableColumn } from "components/Table/tableColumn";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { useMemo } from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { hasRole, Role } from "types/role";
 import { User } from "types/user";
 import { getOptimalWidthFromColumnsSpec } from "utils/getOptimalWidthFromColumnsSpec";
@@ -16,7 +16,7 @@ export const useExecutionBlotterSize = (): Size => {
   const brokerMode: boolean = useMemo((): boolean => {
     const { roles } = user;
     if (!hasRole(roles, Role.Broker)) return false;
-    return personality === STRM;
+    return personality === NONE;
   }, [personality, user]);
   const type: "normal" | "broker" = React.useMemo(
     (): "normal" | "broker" => (brokerMode ? "broker" : "normal"),

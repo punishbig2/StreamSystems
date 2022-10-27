@@ -5,7 +5,7 @@ import { action, computed, observable } from "mobx";
 import { ContentStore } from "mobx/stores/contentStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { Message } from "types/message";
 import { Persistable } from "types/persistable";
 import { hasRole, Role } from "types/role";
@@ -72,7 +72,7 @@ export class MessageBlotterStore
     const { roles } = user;
     const personality = workareaStore.personality;
     const brokerMode: boolean =
-      hasRole(roles, Role.Broker) && personality === STRM;
+      hasRole(roles, Role.Broker) && personality === NONE;
     const columnsMap: { [key: string]: TableColumn[] } = messageBlotterColumns(
       this.blotterType
     );

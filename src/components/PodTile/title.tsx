@@ -5,7 +5,7 @@ import { observer } from "mobx-react";
 import { PodStore, PodStoreContext } from "mobx/stores/podStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useMemo } from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { Product } from "types/product";
 import { hasRole, Role } from "types/role";
 import { Symbol } from "types/symbol";
@@ -29,7 +29,7 @@ export const PodTileTitle: React.FC<Props> = observer(
       return hasRole(roles, Role.Broker);
     }, [user]);
     const isRunButtonDisabled: boolean =
-      !ccyPair || !strategy || (personality === STRM && isBroker);
+      !ccyPair || !strategy || (personality === NONE && isBroker);
     const { currencies, strategies } = props;
 
     const glowing: boolean = useGlow(store.orders, store.darkOrders);

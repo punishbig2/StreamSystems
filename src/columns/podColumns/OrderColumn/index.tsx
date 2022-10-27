@@ -16,7 +16,7 @@ import { OrderStore } from "mobx/stores/orderStore";
 import { PodRowStore, PodRowStoreContext } from "mobx/stores/podRowStore";
 import workareaStore from "mobx/stores/workareaStore";
 import React, { ReactElement, useEffect, useMemo } from "react";
-import { STRM } from "stateDefs/workspaceState";
+import { NONE } from "stateDefs/workspaceState";
 import { OrderTypes } from "types/mdEntry";
 import { Order, OrderStatus } from "types/order";
 import { hasRole, Role } from "types/role";
@@ -118,7 +118,7 @@ export const OrderColumn: React.FC<OwnProps> = observer(
       return hasRole(roles, Role.Broker);
     }, [user]);
     const readOnly: boolean =
-      !props.forceEditable && isBroker && personality === STRM;
+      !props.forceEditable && isBroker && personality === NONE;
     const hasDepth = (store.status & OrderStatus.HasDepth) !== 0;
     /// If we find an order that can be cancelled, then it is cancellable
     const cancellable = store.cancelOrder !== null;
