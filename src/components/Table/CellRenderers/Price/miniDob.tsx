@@ -49,7 +49,7 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
       elements.unshift(sizeElement);
       if (isBroker) {
         elements.unshift(
-          <div key={3} className={"mini-firm"}>
+          <div key={3} className="mini-firm">
             {firm}
           </div>
         );
@@ -58,21 +58,21 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
       elements.push(sizeElement);
       if (isBroker) {
         elements.push(
-          <div key={3} className={"mini-firm"}>
+          <div key={3} className="mini-firm">
             {firm}
           </div>
         );
       }
     }
     return (
-      <div className={"row"} key={index}>
+      <div className="row" key={index}>
         {elements}
       </div>
     );
   });
   return (
     <>
-      <div className={"mini-dob"}>{children}</div>
+      <div className="mini-dob">{children}</div>
     </>
   );
 };

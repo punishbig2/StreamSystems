@@ -21,19 +21,19 @@ export const ProgressModalContent: React.FC<Props> = (
     return () => clearTimeout(timer);
   });
   return (
-    <div className={"progress-dialog"}>
-      <div className={"header"}>
-        {props.maximum < 0 ? <div className={"spinner"} /> : null}
-        <div className={"title"}>
+    <div className="progress-dialog">
+      <div className="header">
+        {props.maximum < 0 ? <div className="spinner" /> : null}
+        <div className="title">
           <h1>{props.message}</h1>
-          <div className={"timer"}>
+          <div className="timer">
             Time elapsed: {elapsedTime.format("HH:mm:ss")}
           </div>
         </div>
       </div>
       {props.maximum < 0 ? null : (
-        <div data-value={percent} className={"progress"}>
-          <div className={"value"} style={{ width: `${percent}%` }} />
+        <div data-value={percent} className="progress">
+          <div className="value" style={{ width: `${percent}%` }} />
         </div>
       )}
     </div>

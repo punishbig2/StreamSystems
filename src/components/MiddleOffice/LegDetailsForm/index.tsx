@@ -48,26 +48,26 @@ export const LegDetailsForm: React.FC<Props> = (
     };
   if (props.isLoading) {
     return (
-      <div className={"form-group"}>
-        <div className={"centered-container"}>
+      <div className="form-group">
+        <div className="centered-container">
           <LdsSpinner size={64} />
         </div>
       </div>
     );
   } else if (legs.length === 0) {
     return (
-      <div className={"form-group"}>
+      <div className="form-group">
         <NoDataMessage />
       </div>
     );
   }
   return (
-    <div className={"form-group"}>
+    <div className="form-group">
       <form>
         {legs.map((leg: Leg, index: number) => {
           return (
-            <fieldset className={"group"} key={index} disabled={props.disabled}>
-              <legend className={"leg-legend"}>Leg {index + 1}</legend>
+            <fieldset className="group" key={index} disabled={props.disabled}>
+              <legend className="leg-legend">Leg {index + 1}</legend>
               <LegDetailsFields
                 leg={leg}
                 disabled={props.disabled}

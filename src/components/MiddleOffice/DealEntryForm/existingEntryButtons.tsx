@@ -18,24 +18,24 @@ export const ExistingEntryButtons: React.FC<Props> = (
   return (
     <>
       <button
-        type={"button"}
-        className={"primary"}
+        type="button"
+        className="primary"
         onMouseUp={props.onPrice}
         disabled={props.isButtonDisabled("price")}
       >
         {props.status === DealStatus.Priced ? "Re-price" : "Price"}
       </button>
       <button
-        type={"button"}
-        className={"primary"}
+        type="button"
+        className="primary"
         onMouseUp={props.onSave}
         disabled={props.isButtonDisabled("save")}
       >
         Save
       </button>
       <button
-        type={"button"}
-        className={"primary"}
+        type="button"
+        className="primary"
         onMouseUp={props.onSubmit}
         disabled={props.isButtonDisabled("submit") || props.submitDisabled}
       >

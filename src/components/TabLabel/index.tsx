@@ -62,7 +62,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   };
   const onDoubleClick = () => setEditable(true);
   return (
-    <div className={"tab-label"}>
+    <div className="tab-label">
       <input
         ref={ref}
         value={getLabel()}
@@ -73,7 +73,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
         onKeyDown={onKeyDown}
       />
       <button onClick={props.onClosed}>
-        <i className={"fa fa-times"} />
+        <i className="fa fa-times" />
       </button>
     </div>
   );

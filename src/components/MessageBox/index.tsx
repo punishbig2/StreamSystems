@@ -18,7 +18,7 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
     if (props.icon === "spinner") {
       return (
         <div className={classes.join(" ")}>
-          <i className={"spinner"} />
+          <i className="spinner" />
         </div>
       );
     } else if (props.icon === "exclamation-triangle") {
@@ -36,22 +36,22 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
     }
   };
   return (
-    <div className={"message-box"}>
-      <div className={"box-title"}>
+    <div className="message-box">
+      <div className="box-title">
         {getIcon()}
-        <div className={"text"}>
+        <div className="text">
           <h1>{props.title}</h1>
         </div>
       </div>
-      <div className={"content"}>
+      <div className="content">
         {typeof props.message === "string" ? (
           <p>{props.message}</p>
         ) : (
           props.message()
         )}
       </div>
-      <div className={"message-box-footer"}>
-        <div className={"modal-buttons"}>{props.buttons()}</div>
+      <div className="message-box-footer">
+        <div className="modal-buttons">{props.buttons()}</div>
       </div>
     </div>
   );

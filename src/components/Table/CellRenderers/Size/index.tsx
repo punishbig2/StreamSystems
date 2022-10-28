@@ -71,7 +71,7 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
       key={1}
       id={props.uid}
       value={sizeFormatter(internalValue)}
-      type={"size"}
+      type="size"
       className={props.className}
       tabIndex={props.tabIndex}
       readOnly={props.readOnly}
@@ -88,20 +88,20 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
 
   const button = (
     <div key={2} className={classes.join(" ")} onClick={props.onCancel}>
-      <svg viewBox={"0 0 612 792"}>
+      <svg viewBox="0 0 612 792">
         <g>
-          <polygon className={"st0"} points={xPoints} />
+          <polygon className="st0" points={xPoints} />
         </g>
       </svg>
     </div>
   );
 
   if (props.type === OrderTypes.Bid) {
-    if (props.chevron) children.push(<Chevron side={"left"} key={3} />);
+    if (props.chevron) children.push(<Chevron side="left" key={3} />);
     children.push(button);
   } else {
     children.unshift(button);
-    if (props.chevron) children.push(<Chevron side={"right"} key={3} />);
+    if (props.chevron) children.push(<Chevron side="right" key={3} />);
   }
   const layoutClasses: string[] = ["size-layout", "cell"];
   if (!!props.className) layoutClasses.push(props.className);

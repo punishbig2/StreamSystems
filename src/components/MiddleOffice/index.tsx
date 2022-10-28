@@ -46,8 +46,8 @@ export const MiddleOffice: React.FC<Props> = observer(
     if (!store.isInitialized) {
       return (
         <ProgressView
-          title={"Loading: Middle Office"}
-          message={"Please wait, we are loading some data"}
+          title="Loading: Middle Office"
+          message="Please wait, we are loading some data"
           value={store.progress}
         />
       );

@@ -406,7 +406,7 @@ const pool = (sortable: boolean): TableColumn => ({
   render: (props: CellProps) => {
     const { ExDestination } = props.message;
     return (
-      <div className={"message-blotter-cell normal"}>
+      <div className="message-blotter-cell normal">
         {ExDestination === DarkPool ? "Dark Pool" : "Electronic"}&nbsp;
       </div>
     );
@@ -422,9 +422,12 @@ const pool = (sortable: boolean): TableColumn => ({
 });
 
 const columns: (type: BlotterTypes) => { [key: string]: TableColumn[] } = (
-  type: BlotterTypes
+  blotterType: BlotterTypes
 ) => {
-  const notExecutionsBlotter: boolean = type !== BlotterTypes.Executions;
+  // 1 is for backward compatibility
+  const notExecutionsBlotter: boolean =
+    blotterType !== BlotterTypes.Executions && String(blotterType) !== "1";
+
   return {
     normal: [
       ...(notExecutionsBlotter ? [transactType(true)] : []),

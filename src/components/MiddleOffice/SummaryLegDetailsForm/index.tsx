@@ -36,7 +36,7 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
   const { premstyle } = dealEntry;
   if (props.isLoading) {
     return (
-      <div className={"centered-container"}>
+      <div className="centered-container">
         <LdsSpinner size={36} />
       </div>
     );
@@ -51,8 +51,8 @@ export const SummaryLegDetailsForm: React.FC<Props> = (
     <>
       <form onSubmit={ignore}>
         <Grid container>
-          <Grid alignItems={"stretch"} container item>
-            <fieldset className={"group"} disabled={props.disabled}>
+          <Grid alignItems="stretch" container item>
+            <fieldset className="group" disabled={props.disabled}>
               {fields.map(
                 (field: FieldDef<SummaryLeg, SummaryLeg>): ReactElement => (
                   <Field

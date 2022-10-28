@@ -25,7 +25,7 @@ const RefButton: React.FC<RefButtonProps> = (props: RefButtonProps) => {
   };
   const isDisabled: boolean = props.currency === "" || props.strategy === "";
   return (
-    <div className={"button-container"}>
+    <div className="button-container">
       <button
         onClick={cancelAll(props.type, props.currency, props.strategy)}
         disabled={isDisabled}

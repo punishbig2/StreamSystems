@@ -13,17 +13,17 @@ export const ProgressView: React.FC<Props> = (props: Props): ReactElement => {
   if (value !== null && (value < 0 || value > 100))
     throw new Error("value can only be in the range [0, 100]");
   return (
-    <div className={"loading-view"}>
-      <div className={"image"}>
-        <img alt={""} src={"/images/stream-logo.png"} />
+    <div className="loading-view">
+      <div className="image">
+        <img alt={""} src="/images/stream-logo.png" />
       </div>
-      <div className={"content"}>
-        <div className={"title"}>
-          <div className={"label"}>{props.title}</div>
-          <div className={"percent"}>{valueStr}</div>
+      <div className="content">
+        <div className="title">
+          <div className="label">{props.title}</div>
+          <div className="percent">{valueStr}</div>
         </div>
         <ProgressBar value={value} />
-        <div className={"message"}>{props.message}&hellip;</div>
+        <div className="message">{props.message}&hellip;</div>
       </div>
     </div>
   );

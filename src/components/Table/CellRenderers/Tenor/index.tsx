@@ -8,7 +8,7 @@ interface TenorProps {
 export const Tenor: React.FC<TenorProps> = (props: TenorProps) => {
   return (
     <div
-      className={"tenor-layout"}
+      className="tenor-layout"
       onDoubleClickCapture={() => props.onTenorSelected(props.tenor)}
     >
       {props.tenor}

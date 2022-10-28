@@ -13,7 +13,7 @@ const ExecutionBanner: React.FC = observer((): ReactElement | null => {
   const latest: ReadonlyArray<Message> = executions.slice(0, 5);
 
   return (
-    <div className={"execution-banner"}>
+    <div className="execution-banner">
       {latest.map((execution: Message) => {
         const aggressionClass = getAggressionClass(execution);
 

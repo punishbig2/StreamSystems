@@ -21,7 +21,7 @@ export default (sortable: boolean): TableColumn => ({
   },
   header: () => "Buyer",
   render: (props: CellProps): React.ReactElement => (
-    <TraderCell side={"buyer"} {...props} />
+    <TraderCell side="buyer" {...props} />
   ),
   filterable: true,
   sortable: sortable,

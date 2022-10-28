@@ -14,7 +14,7 @@ export const OrderColumnWrapper = (
     name: `${type}-vol`,
     header: () => {
       const items: ReactElement[] = [
-        <div className={"price"} key={"1"}>
+        <div className="price" key="1">
           {label}
         </div>,
       ];
@@ -22,13 +22,13 @@ export const OrderColumnWrapper = (
       if (actionItem !== null) {
         if (type === OrderTypes.Bid) {
           items.unshift(
-            <div className={"size"} key={"2"}>
+            <div className="size" key="2">
               {actionItem}
             </div>
           );
         } else if (type === OrderTypes.Ofr) {
           items.push(
-            <div className={"size"} key={"2"}>
+            <div className="size" key="2">
               {actionItem}
             </div>
           );
@@ -36,19 +36,19 @@ export const OrderColumnWrapper = (
       } else {
         if (type === OrderTypes.Bid) {
           items.unshift(
-            <div className={"size"} key={"2"}>
+            <div className="size" key="2">
               &nbsp;
             </div>
           );
         } else {
           items.push(
-            <div className={"size"} key={"2"}>
+            <div className="size" key="2">
               &nbsp;
             </div>
           );
         }
       }
-      return <div className={"twin-header"}>{items}</div>;
+      return <div className="twin-header">{items}</div>;
     },
     render: (props: PodRowProps): React.ReactElement => {
       return (

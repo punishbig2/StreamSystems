@@ -81,15 +81,15 @@ const Workarea: React.FC = (): React.ReactElement | null => {
 
   const renderNewVersionModal = (): React.ReactElement => {
     return (
-      <div className={"message-detail wide"}>
-        <div className={"title"}>New Version Available!</div>
-        <p className={"message"}>
+      <div className="message-detail wide">
+        <div className="title">New Version Available!</div>
+        <p className="message">
           Please click the button below to upgrade your application to the most
           recent version.
         </p>
-        <div className={"modal-buttons"}>
-          <button className={"cancel"} onClick={store.upgradeApplication}>
-            <i className={"fa fa-exclamation-circle"} /> Upgrade!
+        <div className="modal-buttons">
+          <button className="cancel" onClick={store.upgradeApplication}>
+            <i className="fa fa-exclamation-circle" /> Upgrade!
           </button>
         </div>
       </div>
@@ -99,8 +99,8 @@ const Workarea: React.FC = (): React.ReactElement | null => {
   const renderMessage = (): React.ReactElement => {
     const { recentExecutions } = store;
     return (
-      <div className={"message-detail"}>
-        <div className={"title"}>Trade Confirmation</div>
+      <div className="message-detail">
+        <div className="title">Trade Confirmation</div>
         {recentExecutions.map((trade: Message) => (
           <TradeConfirmation
             preferences={store.preferences}
@@ -109,8 +109,8 @@ const Workarea: React.FC = (): React.ReactElement | null => {
             onClose={store.clearLastExecution}
           />
         ))}
-        <div className={"modal-buttons"}>
-          <button className={"cancel"} onClick={store.clearLastExecution}>
+        <div className="modal-buttons">
+          <button className="cancel" onClick={store.clearLastExecution}>
             Close
           </button>
         </div>
@@ -123,11 +123,11 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       "We are setting up your preset workspace, this will not take long. Please be patient.";
     return (
       <MessageBox
-        title={"Creating Workspace"}
+        title="Creating Workspace"
         message={message}
         buttons={() => null}
-        color={"good"}
-        icon={"spinner"}
+        color="good"
+        icon="spinner"
       />
     );
   };
@@ -136,7 +136,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     case WorkareaStatus.Error:
       return (
         <WorkareaError
-          title={"Oops, there was an error while loading"}
+          title="Oops, there was an error while loading"
           detail={
             "We had trouble communicating with the data server. There might be a problem with your connection."
           }
@@ -154,7 +154,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
         <ProgressView
           value={store.loadingProgress}
           message={store.loadingMessage}
-          title={"Loading: Application"}
+          title="Loading: Application"
         />
       );
     case WorkareaStatus.Welcome:

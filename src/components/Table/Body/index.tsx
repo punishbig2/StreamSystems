@@ -158,7 +158,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(
 
     if (rows.length === 0) {
       return (
-        <div className={"empty-table"}>
+        <div className="empty-table">
           <h1>There's no data yet</h1>
         </div>
       );
@@ -193,7 +193,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(
     };
 
     return (
-      <div ref={ref} className={"tbody"} onScroll={debounce(onScroll, 5)}>
+      <div ref={ref} className="tbody" onScroll={debounce(onScroll, 5)}>
         <div style={{ height: state.top }} />
         <div ref={containerRef}>
           {rows

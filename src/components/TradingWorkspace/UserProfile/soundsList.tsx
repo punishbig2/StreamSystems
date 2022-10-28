@@ -82,15 +82,15 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
     };
 
   const DefaultItem: React.FC = () => (
-    <div className={"sound-item"}>
-      <div className={"label"}>Default</div>
+    <div className="sound-item">
+      <div className="label">Default</div>
     </div>
   );
   const AddNewItem: React.FC = () => (
-    <div className={"sound-item"}>
-      <div className={"label"}>Add New</div>
-      <div className={"button"}>
-        <i className={"fa fa-caret-right"} />
+    <div className="sound-item">
+      <div className="label">Add New</div>
+      <div className="button">
+        <i className="fa fa-caret-right" />
       </div>
     </div>
   );
@@ -108,27 +108,27 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <Select
-      id={"exec-sound"}
+      id="exec-sound"
       name={props.name}
       value={getExecSoundValue()}
       renderValue={renderValue}
       disabled={!workareaStore.connected}
       onChange={onExecSoundChange}
     >
-      <MenuItem value={"default"}>
+      <MenuItem value="default">
         <DefaultItem />
       </MenuItem>
       {sounds.map((item: ExecSound) => (
         <MenuItem key={item.name} value={item.name}>
-          <div className={"sound-item"}>
-            <div className={"label"}>{displayName(item.name)}</div>
-            <div className={"button delete"}>
-              <i className={"far fa-trash-alt"} onClick={onDelete(item.name)} />
+          <div className="sound-item">
+            <div className="label">{displayName(item.name)}</div>
+            <div className="button delete">
+              <i className="far fa-trash-alt" onClick={onDelete(item.name)} />
             </div>
           </div>
         </MenuItem>
       ))}
-      <MenuItem key={"add-item-key"} value={"add"}>
+      <MenuItem key="add-item-key" value="add">
         <AddNewItem />
       </MenuItem>
     </Select>

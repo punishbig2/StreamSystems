@@ -12,11 +12,11 @@ interface Props {
 export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
   const renderButtons = () => {
     return (
-      <div className={"pull-right"}>
-        <button className={"cancel"} onClick={props.onNo}>
+      <div className="pull-right">
+        <button className="cancel" onClick={props.onNo}>
           {strings.No}
         </button>
-        <button className={"success"} onClick={props.onYes}>
+        <button className="success" onClick={props.onYes}>
           {strings.Yes}
         </button>
       </div>
@@ -25,8 +25,8 @@ export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
 
   return (
     <MessageBox
-      icon={"question-circle"}
-      color={"neutral"}
+      icon="question-circle"
+      color="neutral"
       title={props.title}
       message={props.content}
       buttons={renderButtons}

@@ -49,7 +49,7 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
   }, [brokerageStore, connected, effectiveFirm]);
 
   return (
-    <div className={"commission-rates-container"}>
+    <div className="commission-rates-container">
       {commissionRates.map((entry: CommissionRate): ReactElement => {
         const { value, region } = entry;
         const formattedValue: string = value.toLocaleString(Globals.locale, {
@@ -64,13 +64,13 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
             })}
           >
             <Typography
-              variant={"subtitle1"}
-              color={"textSecondary"}
-              className={"region"}
+              variant="subtitle1"
+              color="textSecondary"
+              className="region"
             >
               {region}
             </Typography>
-            <Typography color={"textPrimary"} className={"value"}>
+            <Typography color="textPrimary" className="value">
               {formattedValue}
             </Typography>
           </div>

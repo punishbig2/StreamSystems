@@ -37,9 +37,9 @@ const columns = (
             className={classes.join(" ")}
             onClick={clickable ? () => onCancelOrder(order) : undefined}
           >
-            <svg viewBox={"0 0 612 792"}>
+            <svg viewBox="0 0 612 792">
               <g>
-                <polygon className={"st0"} points={xPoints} />
+                <polygon className="st0" points={xPoints} />
               </g>
             </svg>
           </div>
@@ -85,7 +85,7 @@ const columns = (
             header: () => "Inst",
             render: (order: Order) => {
               if (order.instruction === undefined)
-                return <div className={"empty"}>None</div>;
+                return <div className="empty">None</div>;
               return <div>{order.instruction}</div>;
             },
             width: 2,

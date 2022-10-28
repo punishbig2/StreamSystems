@@ -197,7 +197,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
   return (
     <>
       <div className={classes.join(" ")}>
-        <div className={"left-panel"}>
+        <div className="left-panel">
           <DealBlotter
             id={randomID("")}
             disabled={
@@ -209,14 +209,14 @@ export const MiddleOfficeMain: React.FC<Props> = (
             onDealSelected={onDealSelected}
           />
         </div>
-        <Grid className={"right-panel"} container>
+        <Grid className="right-panel" container>
           <Grid xs={7} item>
-            <OverlayScrollbarsComponent className={"container"}>
-              <div className={"form-group-container"}>
-                <div className={"form-group"}>
+            <OverlayScrollbarsComponent className="container">
+              <div className="form-group-container">
+                <div className="form-group">
                   <div className={headingClasses.join(" ")}>
                     <h1>Deal Entry</h1>
-                    <div className={"actions"}>
+                    <div className="actions">
                       <ActionButtons
                         isEditMode={props.isEditMode}
                         entryType={props.entryType}
@@ -246,7 +246,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                     disabled={disabled}
                   />
                 </div>
-                <div className={"form-group"}>
+                <div className="form-group">
                   <div className={headingClasses.join(" ")}>
                     <h1>Summary Leg Details</h1>
                   </div>
@@ -263,8 +263,8 @@ export const MiddleOfficeMain: React.FC<Props> = (
             </OverlayScrollbarsComponent>
           </Grid>
           <Grid xs={5} item>
-            <OverlayScrollbarsComponent className={"container"}>
-              <div className={"form-group-container"}>
+            <OverlayScrollbarsComponent className="container">
+              <div className="form-group-container">
                 <LegDetailsForm
                   legs={props.legs}
                   isEditMode={props.isEditMode}

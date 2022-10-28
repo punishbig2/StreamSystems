@@ -44,8 +44,8 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { name = "", expiryDate = null } = value !== null ? value : {};
   const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   return (
-    <Grid className={"MuiInputBase-root"} alignItems={"center"} container>
-      <Grid className={"bank-entity-field"} spacing={1} item container>
+    <Grid className="MuiInputBase-root" alignItems="center" container>
+      <Grid className="bank-entity-field" spacing={1} item container>
         <Grid xs={6} item>
           <FormField
             dropdownData={[
@@ -55,7 +55,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
             color={props.color}
             value={name}
             name={props.name}
-            type={"dropdown"}
+            type="dropdown"
             editable={!props.readOnly}
             disabled={props.disabled}
             onChange={onSelectChange}
@@ -67,11 +67,11 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           <div style={{ width: 2 }} />
           <FormField<{ date: Date }, MiddleOfficeStore>
             color={props.color}
-            type={"date"}
+            type="date"
             value={expiryDate}
-            placeholder={"MM/DD/YYYY"}
+            placeholder="MM/DD/YYYY"
             editable={!props.readOnly}
-            name={"date"}
+            name="date"
             disabled={props.disabled}
             onInput={onDateChange}
             store={store}

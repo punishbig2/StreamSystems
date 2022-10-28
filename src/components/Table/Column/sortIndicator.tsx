@@ -12,11 +12,11 @@ const Icon: React.FC<{ direction: SortDirection }> = (props: {
 }): React.ReactElement => {
   switch (props.direction) {
     case SortDirection.Descending:
-      return <i className={"fa fa-sort-up"} />;
+      return <i className="fa fa-sort-up" />;
     case SortDirection.Ascending:
-      return <i className={"fa fa-sort-down"} />;
+      return <i className="fa fa-sort-down" />;
     case SortDirection.None:
-      return <i className={"fa fa-sort none"} />;
+      return <i className="fa fa-sort none" />;
   }
 };
 
@@ -40,7 +40,7 @@ export const SortIndicator: React.FC<Props> = (props: Props) => {
 
   if (props.direction === undefined || !props.sortable) return null;
   return (
-    <div className={"sort-indicator"} ref={ref}>
+    <div className="sort-indicator" ref={ref}>
       <Icon direction={props.direction} />
     </div>
   );

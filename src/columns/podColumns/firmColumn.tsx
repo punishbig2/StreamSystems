@@ -27,7 +27,7 @@ const Component: React.FC<Props> = (props: Props): ReactElement | null => {
   if (!order) return null;
   const { firm, status } = order;
   if ((status & OrderStatus.Cancelled) !== 0) return null;
-  return <div className={"firm"}>{firm}</div>;
+  return <div className="firm">{firm}</div>;
 };
 
 export const FirmColumn = (type: OrderTypes): TableColumn => ({

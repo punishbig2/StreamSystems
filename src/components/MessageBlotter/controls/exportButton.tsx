@@ -67,7 +67,7 @@ export const ExportButton: React.FC<Props> = (
   );
 
   return (
-    <div className={"blotter-export-button"} onClick={exportToCSV}>
+    <div className="blotter-export-button" onClick={exportToCSV}>
       Export to CSV
     </div>
   );

@@ -16,8 +16,8 @@ interface Props {
 const Toast: React.FC<Props> = (props: Props): React.ReactElement => {
   return (
     <div className={"toast " + props.type}>
-      <div className={"message"}>{props.message}</div>
-      <div className={"close-button"} onClick={props.onRemove} />
+      <div className="message">{props.message}</div>
+      <div className="close-button" onClick={props.onRemove} />
     </div>
   );
 };

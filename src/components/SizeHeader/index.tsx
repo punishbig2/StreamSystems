@@ -46,9 +46,9 @@ export const SizeHeader: React.FC<Props> = (props: Props) => {
     <DualTableHeader
       label={strings.Size}
       action={() => (
-        <div className={"header-size"}>
+        <div className="header-size">
           <NumericInput
-            type={"size"}
+            type="size"
             value={sizeFormatter(internalValue)}
             onBlur={onBlur}
             onChange={onChange}

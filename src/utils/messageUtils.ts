@@ -2,9 +2,7 @@ import workareaStore from "mobx/stores/workareaStore";
 import moment from "moment";
 import { ExecTypes, Message } from "types/message";
 import { User } from "types/user";
-import { NONE } from "../stateDefs/workspaceState";
-import { Role } from "../types/role";
-import { involved } from "columns/messageBlotterColumns/helpers";
+import { Role } from "types/role";
 
 const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
 export const TransTypes: { [key: string]: string } = {

@@ -15,7 +15,7 @@ export const Direction = (props: DirectionProps): ReactElement => {
     ? `fa fa-long-arrow-alt-${arrows[props.direction]}`
     : undefined;
   return (
-    <div className={"price-direction-layout"}>
+    <div className="price-direction-layout">
       <i className={icon} />
     </div>
   );

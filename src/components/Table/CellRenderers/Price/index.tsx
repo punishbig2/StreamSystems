@@ -178,34 +178,34 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     if (store.inputError === null) {
       return null;
     }
-    return <div className={"input-error"}>{store.inputError}</div>;
+    return <div className="input-error">{store.inputError}</div>;
   };
 
   const getSpinner = () => {
     if ((props.status & OrderStatus.BeingCreated) !== 0) {
       return (
-        <div className={"spinner"}>
+        <div className="spinner">
           <CircularSpinner />
           <span>Creating&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingCancelled) !== 0) {
       return (
-        <div className={"spinner"}>
+        <div className="spinner">
           <CircularSpinner />
           <span>Cancelling&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.BeingLoaded) !== 0) {
       return (
-        <div className={"spinner"}>
+        <div className="spinner">
           <CircularSpinner />
           <span>Loading&hellip;</span>
         </div>
       );
     } else if ((props.status & OrderStatus.Publishing) !== 0) {
       return (
-        <div className={"spinner"}>
+        <div className="spinner">
           <CircularSpinner />
           <span>Pub&hellip;</span>
         </div>
@@ -236,7 +236,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
           value={store.value}
           className={store.internalValue !== null ? "modified" : "initial"}
           placeholder={getPlaceholder(props.value)}
-          type={"price"}
+          type="price"
           onCancelEdit={onCancelEdit}
           onFocus={onFocus}
           onBlur={onCancelEdit}

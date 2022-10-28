@@ -498,20 +498,20 @@ export class FormField<T, S = any> extends PureComponent<
             }
             startAdornment={
               <Adornment
-                position={"start"}
+                position="start"
                 value={startAdornment}
                 inputValue={state.displayValue}
               />
             }
             endAdornment={
               <Adornment
-                position={"end"}
+                position="end"
                 value={endAdornment}
                 inputValue={state.displayValue}
               />
             }
             placeholder={props.placeholder}
-            autoComplete={"new-password"}
+            autoComplete="new-password"
             onKeyDown={this.onInputKeyDown}
             onBlur={this.onInputBlur}
             onFocus={this.onInputFocus}

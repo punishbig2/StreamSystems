@@ -64,23 +64,23 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const presetSizes: number[] = [30, 50, 100];
   return (
     <>
-      <div className={"title-chain modal-title"}>
-        <div className={"title"}>
-          <div className={"item"}>{order.symbol}</div>
-          <div className={"item"}>{order.tenor}</div>
-          <div className={"item"}>{order.strategy}</div>
+      <div className="title-chain modal-title">
+        <div className="title">
+          <div className="item">{order.symbol}</div>
+          <div className="item">{order.tenor}</div>
+          <div className="item">{order.strategy}</div>
         </div>
-        <div className={"subtitle"}>
+        <div className="subtitle">
           <span>{order.type === OrderTypes.Bid ? "Buy" : "Sell"}</span>
         </div>
       </div>
       <form onSubmit={onSubmit}>
-        <div className={"ticket"}>
+        <div className="ticket">
           <Grid>
             <FormControl className={classes.formControl}>
-              <FormLabel htmlFor={"price"}>Vol</FormLabel>
+              <FormLabel htmlFor="price">Vol</FormLabel>
               <OutlinedInput
-                id={"price"}
+                id="price"
                 value={price}
                 onChange={updatePrice}
                 labelWidth={0}
@@ -93,9 +93,9 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           </Grid>
           <Grid>
             <FormControl className={classes.formControl}>
-              <FormLabel htmlFor={"size"}>Amt</FormLabel>
+              <FormLabel htmlFor="size">Amt</FormLabel>
               <OutlinedInput
-                id={"size"}
+                id="size"
                 value={sizeFormatter(size)}
                 inputRef={selectInputText}
                 labelWidth={0}
@@ -103,7 +103,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
                 autoFocus={true}
                 className={classes.outlinedInput}
               />
-              <div className={"preset-buttons three"}>
+              <div className="preset-buttons three">
                 {presetSizes.map((value: number) => (
                   <PresetSizeButton
                     key={value}
@@ -115,11 +115,11 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
             </FormControl>
           </Grid>
         </div>
-        <div className={"modal-buttons"}>
-          <button type={"button"} className={"cancel"} onClick={props.onCancel}>
+        <div className="modal-buttons">
+          <button type="button" className="cancel" onClick={props.onCancel}>
             {strings.Cancel}
           </button>
-          <button className={"success"} disabled={!canSubmit}>
+          <button className="success" disabled={!canSubmit}>
             {strings.Submit}
           </button>
         </div>

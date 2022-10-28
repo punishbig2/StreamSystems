@@ -18,7 +18,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
   const renderRow = (props: any): ReactElement => {
     const { columns, row } = props;
     return (
-      <div className={"tr"} key={row.orderId}>
+      <div className="tr" key={row.orderId}>
         {columns.map((column: TableColumn) => {
           const name: string = column.name;
           const width: string = getCellWidth(column.width, props.totalWidth);
@@ -47,7 +47,7 @@ export const DarkPoolTooltip: React.FC<OwnProps> = (props: OwnProps) => {
       rows={props.orders}
       columns={_columns}
       renderRow={renderRow}
-      className={"padded dark-pool-tooltip"}
+      className="padded dark-pool-tooltip"
     />
   );
 };

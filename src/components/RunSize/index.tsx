@@ -165,28 +165,20 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     switch (getActivationStatus()) {
       case ActivationStatus.Inactive:
         return (
-          <div
-            key={"3"}
-            className={"plus-sign inactive"}
-            onClick={onActivateOrder}
-          >
-            <i className={"fa fa-plus-circle"} />
+          <div key="3" className="plus-sign inactive" onClick={onActivateOrder}>
+            <i className="fa fa-plus-circle" />
           </div>
         );
       case ActivationStatus.Active:
         return (
-          <div
-            key={"3"}
-            className={"plus-sign active"}
-            onClick={onActivateOrder}
-          >
-            <i className={"fa fa-minus-circle"} />
+          <div key="3" className="plus-sign active" onClick={onActivateOrder}>
+            <i className="fa fa-minus-circle" />
           </div>
         );
       case ActivationStatus.Empty:
         return (
-          <div key={"3"} className={"plus-sign empty"}>
-            <i className={"far fa-circle"} />
+          <div key="3" className="plus-sign empty">
+            <i className="far fa-circle" />
           </div>
         );
       default:
@@ -224,7 +216,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       tabIndex={-1}
       className={getOrderStatusClass(status, "size")}
       placeholder={placeholder}
-      type={"size"}
+      type="size"
       value={displayValue}
       onNavigate={props.onNavigate}
       onBlur={onBlurEnsureMinimumSize}
@@ -240,5 +232,5 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     items.unshift(plusSign);
   }
 
-  return <div className={"size-layout"}>{items}</div>;
+  return <div className="size-layout">{items}</div>;
 };

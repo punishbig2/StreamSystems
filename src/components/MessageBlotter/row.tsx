@@ -83,7 +83,7 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
       };
       const id: string = $$(column.name, rowID);
       return (
-        <div className={"td"} id={id} key={id} style={style}>
+        <div className="td" id={id} key={id} style={style}>
           {column.render({ message: row, deal: row })}
         </div>
       );
@@ -92,8 +92,8 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     return (
       <div
         className={getClassFromRowType("tr", props.type, executed, false)}
-        id={"__INSERT_ROW__"}
-        key={"__INSERT_ROW__"}
+        id="__INSERT_ROW__"
+        key="__INSERT_ROW__"
       >
         {columns.map(columnMapper("__INSERT_ROW__"))}
       </div>

@@ -44,7 +44,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       value={computedValue}
       type={props.type}
       color={props.color}
-      currency={"USD"}
+      currency="USD"
       precision={props.precision}
       onChange={async (
         name: keyof BrokerageCommission,

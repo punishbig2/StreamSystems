@@ -29,20 +29,22 @@ const RunPriceColumn = (
   const label: string = type === "bid" ? strings.Bid : strings.Ofr;
   const actionType: RunActions =
     type === "bid" ? RunActions.Bid : RunActions.Ofr;
-  const onPriceChange = (row: RowType) => (
-    input: HTMLInputElement,
-    price: number | null,
-    changed: boolean,
-    tabDirection: TabDirection
-  ) => {
-    if (price !== null) {
-      if (onChange(row.id, price, changed)) {
+  const onPriceChange =
+    (row: RowType) =>
+    (
+      input: HTMLInputElement,
+      price: number | null,
+      changed: boolean,
+      tabDirection: TabDirection
+    ) => {
+      if (price !== null) {
+        if (onChange(row.id, price, changed)) {
+          data.focusNext(input, tabDirection, actionType);
+        }
+      } else {
         data.focusNext(input, tabDirection, actionType);
       }
-    } else {
-      data.focusNext(input, tabDirection, actionType);
-    }
-  };
+    };
 
   return {
     name: `${type}-price`,
@@ -79,20 +81,21 @@ const RunSizeColumn = (
     const parent: Element | null = getNthParentOf(input, 9);
     if (parent === null)
       throw new Error("seriously? how can an input like this have no parent?");
-    const targetInput: HTMLInputElement | null = ((): HTMLInputElement | null => {
-      switch (type) {
-        case "bid":
-          return parent.querySelector(
-            '.tr[data-row-number="0"] .td[data-col-number="2"] input'
-          );
-        case "ofr":
-          return parent.querySelector(
-            '.tr[data-row-number="0"] .td[data-col-number="3"] input'
-          );
-        default:
-          return null;
-      }
-    })();
+    const targetInput: HTMLInputElement | null =
+      ((): HTMLInputElement | null => {
+        switch (type) {
+          case "bid":
+            return parent.querySelector(
+              '.tr[data-row-number="0"] .td[data-col-number="2"] input'
+            );
+          case "ofr":
+            return parent.querySelector(
+              '.tr[data-row-number="0"] .td[data-col-number="3"] input'
+            );
+          default:
+            return null;
+        }
+      })();
     if (targetInput !== null) {
       targetInput.focus();
     }
@@ -144,8 +147,8 @@ const TenorColumn: TableColumn = {
     const { tenor } = row;
     if (row.status !== PodRowStatus.Normal) {
       return (
-        <div className={"error-cell"}>
-          <i className={"fa fa-exclamation-triangle"} />
+        <div className="error-cell">
+          <i className="fa fa-exclamation-triangle" />
         </div>
       );
     }
@@ -162,7 +165,7 @@ const MidCol = (data: RunColumnData) => ({
     <Price
       uid={`run-${id}-mid`}
       value={mid}
-      className={"mid"}
+      className="mid"
       arrow={ArrowDirection.None}
       status={OrderStatus.None}
       onSubmit={(
@@ -194,7 +197,7 @@ const SpreadCol = (data: RunColumnData) => ({
       <Price
         uid={`run-${id}-spread`}
         value={spread}
-        className={"spread"}
+        className="spread"
         arrow={ArrowDirection.None}
         status={OrderStatus.None}
         onSubmit={(

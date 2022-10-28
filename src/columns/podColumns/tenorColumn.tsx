@@ -10,8 +10,8 @@ export const TenorColumn = (): TableColumn => ({
   render: ({ tenor, onTenorSelected, status }: PodRowProps) => {
     if (status !== PodRowStatus.Normal) {
       return (
-        <div className={"error-cell"}>
-          <i className={"fa fa-exclamation-triangle"} />
+        <div className="error-cell">
+          <i className="fa fa-exclamation-triangle" />
         </div>
       );
     }

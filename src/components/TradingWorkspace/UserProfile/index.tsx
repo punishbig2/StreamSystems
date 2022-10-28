@@ -48,10 +48,10 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
     case UserProfileModalTypes.Saving:
       return (
         <MessageBox
-          title={"Saving your profile"}
-          message={"Please wait while we're saving your profile"}
-          icon={"spinner"}
-          color={"good"}
+          title="Saving your profile"
+          message="Please wait while we're saving your profile"
+          icon="spinner"
+          color="good"
           buttons={() => null}
         />
       );

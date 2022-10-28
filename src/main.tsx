@@ -55,7 +55,7 @@ const FXOptionsUI: React.FC = observer((): React.ReactElement => {
         <DateTimeFormatStore.Provider value={new DateTimeFormatStore()}>
           <MessagesStoreContext.Provider value={new MessagesStore()}>
             <WorkareaError
-              title={"Your screen is too small to display this application"}
+              title="Your screen is too small to display this application"
               detail={
                 `Please try to run this application on a window with more than ${MIN_SCREEN_WIDTH}px` +
                 " of width (it should match your resolution unless you have scaling enabled)"

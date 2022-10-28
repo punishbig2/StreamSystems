@@ -23,23 +23,24 @@ export const ReadOnlyField: React.FC<Props> = (
     },
     [value]
   );
-  const inputValue: string = React.useMemo((): string => coalesce(value, ""), [
-    value,
-  ]);
+  const inputValue: string = React.useMemo(
+    (): string => coalesce(value, ""),
+    [value]
+  );
   if (value === "N/A") return <NotApplicableField />;
   return (
     <OutlinedInput
       labelWidth={0}
       startAdornment={
         <Adornment
-          position={"start"}
+          position="start"
           value={props.startAdornment}
           inputValue={inputValue}
         />
       }
       endAdornment={
         <Adornment
-          position={"end"}
+          position="end"
           value={props.endAdornment}
           inputValue={inputValue}
         />
@@ -52,7 +53,7 @@ export const ReadOnlyField: React.FC<Props> = (
       }}
       readOnly={true}
       disabled={props.disabled}
-      title={"Click to copy!"}
+      title="Click to copy!"
       value={inputValue}
       onClick={onCopy}
     />

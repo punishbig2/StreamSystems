@@ -20,11 +20,11 @@ export const ActionButtons: React.FC<Props> = (
 ): ReactElement | null => {
   const cancelButton: ReactElement = (
     <button
-      className={"primary"}
+      className="primary"
       disabled={props.isButtonDisabled("cancel")}
       onClick={props.onCancelAddOrClone}
     >
-      <i className={"fa fa-times"} />
+      <i className="fa fa-times" />
       <span>Cancel</span>
     </button>
   );
@@ -32,11 +32,11 @@ export const ActionButtons: React.FC<Props> = (
     case EntryType.Empty:
       return (
         <button
-          className={"primary"}
+          className="primary"
           disabled={props.isButtonDisabled("new")}
           onClick={props.onAddNewDeal}
         >
-          <i className={"fa fa-plus"} />
+          <i className="fa fa-plus" />
           <span>New</span>
         </button>
       );
@@ -47,35 +47,35 @@ export const ActionButtons: React.FC<Props> = (
       return (
         <>
           <button
-            className={"primary"}
+            className="primary"
             disabled={props.isButtonDisabled("new")}
             onClick={props.onAddNewDeal}
           >
-            <i className={"fa fa-plus"} />
+            <i className="fa fa-plus" />
             <span>New</span>
           </button>
           <button
-            className={"primary"}
+            className="primary"
             disabled={props.isButtonDisabled("edit")}
             onClick={props.onEdit}
           >
-            <i className={"fa fa-edit"} />
+            <i className="fa fa-edit" />
             <span>Edit</span>
           </button>
           <button
-            className={"primary"}
+            className="primary"
             disabled={props.isButtonDisabled("clone")}
             onClick={props.onCloneDeal}
           >
-            <i className={"fa fa-clone"} />
+            <i className="fa fa-clone" />
             <span>Clone</span>
           </button>
           <button
-            className={"danger"}
+            className="danger"
             disabled={props.isButtonDisabled("remove")}
             onClick={props.onRemoveDeal}
           >
-            <i className={"fa fa-trash"} />
+            <i className="fa fa-trash" />
             <span>Remove</span>
           </button>
         </>

@@ -192,7 +192,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         <input
           readOnly={props.disabled}
           ref={setInput}
-          placeholder={"Search"}
+          placeholder="Search"
           value={keyword}
           onChange={onSearchChange}
           onKeyDown={onSearchKeyDown}
@@ -261,7 +261,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         ))}
       </select>
       <div className={"arrow" + (props.value === "" ? " no-selection" : "")}>
-        <i className={"fa fa-caret-down"} />
+        <i className="fa fa-caret-down" />
       </div>
       {renderDropdown()}
     </div>

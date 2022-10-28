@@ -34,27 +34,27 @@ export const WorkareaError: React.FC<Props> = (
     };
   });
   return (
-    <div className={"workarea-error"}>
+    <div className="workarea-error">
       <h1>
-        <i className={"fa fa-exclamation-triangle"} />
+        <i className="fa fa-exclamation-triangle" />
       </h1>
-      <Typography color={"textPrimary"} variant={"h4"}>
+      <Typography color="textPrimary" variant="h4">
         {props.title}
       </Typography>
-      <Typography variant={"body1"} color={"textPrimary"} component={"p"}>
+      <Typography variant="body1" color="textPrimary" component="p">
         {props.detail}
       </Typography>
       {shouldReload ? (
         <>
-          <Typography variant={"body1"} color={"textPrimary"} component={"p"}>
+          <Typography variant="body1" color="textPrimary" component="p">
             Please try to reload the page
-            <a className={"link"} href={config.SignOutUrl}>
+            <a className="link" href={config.SignOutUrl}>
               or click here
             </a>{" "}
             to go to the sign in page
           </Typography>
           {remainingTime <= 0 ? null : (
-            <Typography color={"textPrimary"}>
+            <Typography color="textPrimary">
               You will be redirected to the sign in page in{" "}
               {remainingTime / 1000} seconds
             </Typography>

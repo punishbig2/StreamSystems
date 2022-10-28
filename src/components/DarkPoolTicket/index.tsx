@@ -82,47 +82,47 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
   const renderSide = (value: any) =>
     !value ? (
-      <span className={"invalid"}>Select side&hellip;</span>
+      <span className="invalid">Select side&hellip;</span>
     ) : (
       sideLabels[value as string]
     );
-  const stringSelectSetter = (fn: (value: string) => void) => (
-    event: React.ChangeEvent<SelectEventData>
-  ) => {
-    const { value } = event.target;
-    fn(value as string);
-  };
+  const stringSelectSetter =
+    (fn: (value: string) => void) =>
+    (event: React.ChangeEvent<SelectEventData>) => {
+      const { value } = event.target;
+      fn(value as string);
+    };
   const error =
     size < props.minimumSize ? "Minimum Qty: " + props.minimumSize : " ";
   return (
     <div>
-      <div className={"modal-title"}>
-        <div className={"title-chain modal-title"}>
-          <div className={"title"}>
-            <div className={"item"}>{props.symbol}</div>
-            <div className={"item"}>{props.tenor}</div>
-            <div className={"item"}>{props.strategy}</div>
+      <div className="modal-title">
+        <div className="title-chain modal-title">
+          <div className="title">
+            <div className="item">{props.symbol}</div>
+            <div className="item">{props.tenor}</div>
+            <div className="item">{props.strategy}</div>
           </div>
-          <div className={"subtitle"}>{strings.DarkPool}</div>
+          <div className="subtitle">{strings.DarkPool}</div>
         </div>
       </div>
       <form onSubmit={onSubmit}>
-        <div className={"ticket"}>
+        <div className="ticket">
           <Grid>
             <FormControl className={classes.formControl}>
-              <FormLabel htmlFor={"side"}>Side</FormLabel>
+              <FormLabel htmlFor="side">Side</FormLabel>
               <Select
-                id={"side"}
+                id="side"
                 disabled={!workareaStore.connected}
                 value={side}
                 displayEmpty={true}
                 renderValue={renderSide}
-                variant={"outlined"}
+                variant="outlined"
                 className={classes.select}
                 onChange={stringSelectSetter((value: string) => setSide(value))}
               >
-                <MenuItem value={"BUY"}>Buy</MenuItem>
-                <MenuItem value={"SELL"}>Sell</MenuItem>
+                <MenuItem value="BUY">Buy</MenuItem>
+                <MenuItem value="SELL">Sell</MenuItem>
               </Select>
               <FormHelperText error={true} className={classes.formHelperText}>
                 {side === "" ? "Please choose a side" : " "}
@@ -132,10 +132,10 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
           <Grid>
             <FormControl className={classes.formControl}>
-              <FormLabel htmlFor={"price"}>Vol</FormLabel>
+              <FormLabel htmlFor="price">Vol</FormLabel>
               <OutlinedInput
                 className={classes.outlinedInput}
-                id={"price"}
+                id="price"
                 value={priceFormatter(price)}
                 onChange={updatePrice}
                 labelWidth={0}
@@ -149,7 +149,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
 
           <Grid>
             <FormControl className={classes.formControl}>
-              <FormLabel htmlFor={"size"}>Qty</FormLabel>
+              <FormLabel htmlFor="size">Qty</FormLabel>
               <OutlinedInput
                 className={classes.outlinedInput}
                 value={size}
@@ -161,7 +161,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               <FormHelperText error={true} className={classes.formHelperText}>
                 {error}
               </FormHelperText>
-              <div className={"preset-buttons four"}>
+              <div className="preset-buttons four">
                 {presetSizes.map((value: number) => (
                   <PresetSizeButton
                     key={value}
@@ -174,21 +174,21 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
           </Grid>
           <Grid>
             <FormControl className={classes.formControl}>
-              <FormLabel htmlFor={"inst"}>Instructions</FormLabel>
+              <FormLabel htmlFor="inst">Instructions</FormLabel>
               <Select
-                id={"inst"}
+                id="inst"
                 value={inst}
                 displayEmpty={true}
                 renderValue={(value: any) =>
                   !value ? "None" : instLabels[value as string]
                 }
-                variant={"outlined"}
+                variant="outlined"
                 className={classes.select}
                 disabled={true}
                 onChange={stringSelectSetter((value: string) => setInst(value))}
               >
-                <MenuItem value={"G"}>AON</MenuItem>
-                <MenuItem value={"D"}>
+                <MenuItem value="G">AON</MenuItem>
+                <MenuItem value="D">
                   <sup>1</sup>/<sub>2</sub>&nbsp;ON
                 </MenuItem>
               </Select>
@@ -198,11 +198,11 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
             </FormControl>
           </Grid>
         </div>
-        <div className={"modal-buttons"}>
-          <button type={"button"} className={"cancel"} onClick={props.onCancel}>
+        <div className="modal-buttons">
+          <button type="button" className="cancel" onClick={props.onCancel}>
             {strings.Cancel}
           </button>
-          <button className={"success"} disabled={!canSubmit}>
+          <button className="success" disabled={!canSubmit}>
             {strings.Submit}
           </button>
         </div>

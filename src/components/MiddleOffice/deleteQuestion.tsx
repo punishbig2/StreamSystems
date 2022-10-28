@@ -9,7 +9,7 @@ interface Props {
 export const DeleteQuestion: React.FC<Props> = (props: Props): ReactElement => {
   return (
     <QuestionBox
-      title={"Delete Deal"}
+      title="Delete Deal"
       content={
         "Are you sure you want to remove this deal? This is irreversible"
       }

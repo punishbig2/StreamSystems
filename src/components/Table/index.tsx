@@ -104,8 +104,8 @@ const BasicTable = observer(
               renderRow={props.renderRow}
             />
           </ScrollArea>
-          <div className={"loading-banner"}>
-            <div className={"spinner"} />
+          <div className="loading-banner">
+            <div className="spinner" />
           </div>
         </div>
       );

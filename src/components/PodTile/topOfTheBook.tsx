@@ -35,7 +35,7 @@ export const TopOfTheBook: React.FC<Props> = (
   }, [originalColumns]);
 
   return (
-    <div className={"pod"} data-showing-tenor={props.currentTenor !== null}>
+    <div className="pod" data-showing-tenor={props.currentTenor !== null}>
       <Table
         className={props.loading ? "loading" : undefined}
         columns={columns}

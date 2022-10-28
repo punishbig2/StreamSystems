@@ -36,7 +36,7 @@ export const RightPanelButtons: React.FC<Props> = observer(
       };
       if (banks.length === 0) return null;
       return (
-        <div className={"broker-buttons"}>
+        <div className="broker-buttons">
           <Select
             value={workareaStore.personality}
             autoWidth={true}
@@ -55,21 +55,21 @@ export const RightPanelButtons: React.FC<Props> = observer(
             ))}
           </Select>
           <button onClick={props.onRefAll} disabled={props.refAllDisabled}>
-            <i className={"fa fa-eraser"} /> Ref ALL
+            <i className="fa fa-eraser" /> Ref ALL
           </button>
           <button onClick={props.onShowProfileModal}>
-            <i className={"fa fa-user"} /> User Prof
+            <i className="fa fa-user" /> User Prof
           </button>
         </div>
       );
     } else {
       return (
-        <div className={"broker-buttons"}>
+        <div className="broker-buttons">
           <button onClick={props.onRefAll}>
-            <i className={"fa fa-eraser"} /> Ref ALL
+            <i className="fa fa-eraser" /> Ref ALL
           </button>
           <button onClick={props.onShowProfileModal}>
-            <i className={"fa fa-user"} /> User Prof
+            <i className="fa fa-user" /> User Prof
           </button>
         </div>
       );

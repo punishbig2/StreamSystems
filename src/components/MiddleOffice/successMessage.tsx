@@ -20,16 +20,16 @@ export const SuccessMessage: React.FC = (): ReactElement | null => {
     <MessageBox
       title={title}
       message={text}
-      icon={"check-circle"}
+      icon="check-circle"
       buttons={() => (
         <button
-          className={"cancel"}
+          className="cancel"
           onClick={() => store.setSuccessMessage(null)}
         >
           Close
         </button>
       )}
-      color={"good"}
+      color="good"
     />
   );
 };

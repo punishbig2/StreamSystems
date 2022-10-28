@@ -47,7 +47,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
     props.onTabClosed(index);
   };
   return (
-    <div className={"tab-layout"}>
+    <div className="tab-layout">
       {items.map<ReactElement>((workspace: Workspace, index: number) => {
         const onClosed = (event: React.MouseEvent) => {
           event.stopPropagation();
@@ -77,9 +77,9 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
         ref={ref}
         active={false}
         label={
-          <button className={"new-workspace"}>
+          <button className="new-workspace">
             <span>
-              <i className={"fa fa-plus-circle"} />
+              <i className="fa fa-plus-circle" />
             </span>
             <span>New Workspace</span>
           </button>
@@ -96,21 +96,21 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
         isMiddleOffice={isMiddleOffice}
         anchorEl={ref.current}
       />
-      <div className={"connectivity-indicator"}>
+      <div className="connectivity-indicator">
         {props.connected ? (
-          <div className={"connected"}>
-            <i className={"fa fa-link"} />
+          <div className="connected">
+            <i className="fa fa-link" />
             Live
           </div>
         ) : (
-          <div className={"disconnected"}>
-            <i className={"fa fa-unlink"} />
+          <div className="disconnected">
+            <i className="fa fa-unlink" />
             Refresh
           </div>
         )}
       </div>
-      <a className={"sign-out"} href={config.SignOutUrl}>
-        <i className={"fa fa-sign-out-alt"} />
+      <a className="sign-out" href={config.SignOutUrl}>
+        <i className="fa fa-sign-out-alt" />
         <span>Logout</span>
       </a>
     </div>

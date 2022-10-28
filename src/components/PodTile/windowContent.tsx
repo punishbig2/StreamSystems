@@ -36,7 +36,7 @@ export const WindowContent: React.FC<Props> = observer(
       return (
         <ProgressModalContent
           startTime={store.operationStartedAt}
-          message={"Creating Orders"}
+          message="Creating Orders"
           maximum={store.progressMax}
           progress={store.currentProgress}
         />
@@ -44,7 +44,7 @@ export const WindowContent: React.FC<Props> = observer(
     };
 
     return (
-      <div className={"pod-tile-content"}>
+      <div className="pod-tile-content">
         <TopOfTheBook
           currentTenor={store.currentTenor}
           id={store.id}

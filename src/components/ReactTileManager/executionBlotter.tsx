@@ -73,14 +73,14 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
 
   return (
     <cib-window ref={setTile} scrollable transparent>
-      <div slot={"toolbar"} className={"execution-blotter-title"}>
+      <div slot="toolbar" className="execution-blotter-title">
         <h1>Execution Blotter</h1>
         <ExportButton blotterType={BlotterTypes.Executions} />
 
-        <div className={"right-panel"}>
+        <div className="right-panel">
           <h3>CCY Group</h3>
           <Select
-            testId={"execution-blotter-currency-group"}
+            testId="execution-blotter-currency-group"
             value={store.currencyGroupFilter}
             disabled={!workareaStore.connected}
             list={groups}
@@ -90,11 +90,8 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
           />
         </div>
       </div>
-      <div slot={"content"} className={"window-content"}>
-        <MessageBlotter
-          id={"executions"}
-          blotterType={BlotterTypes.Executions}
-        />
+      <div slot="content" className="window-content">
+        <MessageBlotter id="executions" blotterType={BlotterTypes.Executions} />
       </div>
     </cib-window>
   );

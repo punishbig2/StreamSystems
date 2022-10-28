@@ -14,14 +14,14 @@ export const NewEntryButtons: React.FC<Props> = (
   return (
     <>
       <button
-        type={"submit"}
+        type="submit"
         style={{ display: "none" }}
-        aria-hidden={"true"}
+        aria-hidden="true"
         disabled
       />
       <button
-        type={"button"}
-        className={"primary"}
+        type="button"
+        className="primary"
         onMouseUp={props.onSave}
         disabled={props.disabled || props.isButtonDisabled("save")}
       >

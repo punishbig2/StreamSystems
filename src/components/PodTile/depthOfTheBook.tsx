@@ -102,7 +102,7 @@ export const DepthOfTheBook: React.FC<Props> = (
   }, [columns]);
 
   return (
-    <div className={"dob"} data-showing-tenor={props.currentTenor !== null}>
+    <div className="dob" data-showing-tenor={props.currentTenor !== null}>
       <Table columns={_columns} rows={effectiveRows} renderRow={renderRow} />
     </div>
   );

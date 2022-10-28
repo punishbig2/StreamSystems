@@ -7,7 +7,7 @@ export const LoadingApplicationView: React.FC = (): React.ReactElement => {
     <ProgressView
       value={workarea.loadingProgress}
       message={workarea.loadingMessage ?? ""}
-      title={"Loading: Application"}
+      title="Loading: Application"
     />
   );
 };

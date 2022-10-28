@@ -56,66 +56,66 @@ export const DealOutputSection: React.FC<Props> = (
   }, [symbol]);
   if (dealOutput === null) return null;
   return (
-    <Grid alignItems={"stretch"} container>
-      <fieldset className={"group"} disabled={props.disabled}>
+    <Grid alignItems="stretch" container>
+      <fieldset className="group" disabled={props.disabled}>
         <legend>Deal Output</legend>
         <FormField<any>
-          label={"Net Premium"}
-          color={"grey"}
+          label="Net Premium"
+          color="grey"
           value={premium}
-          name={"netPremium"}
-          type={"currency"}
+          name="netPremium"
+          type="currency"
           currency={currencies.premium}
           precision={premiumPrecision}
           disabled={props.disabled}
           store={store}
         />
         <FormField<any>
-          label={"Price %/Pips"}
-          color={"grey"}
+          label="Price %/Pips"
+          color="grey"
           value={getStyledValue(dealOutput.price, dealEntry.premstyle)}
-          name={"pricePercent"}
+          name="pricePercent"
           type={priceType}
           precision={4}
           disabled={props.disabled}
           store={store}
         />
         <FormField<any>
-          label={"Delta"}
-          color={"grey"}
+          label="Delta"
+          color="grey"
           value={getStyledValue(dealOutput.delta, dealEntry.deltastyle)}
-          name={"delta"}
-          type={"number"}
+          name="delta"
+          type="number"
           precision={4}
           disabled={props.disabled}
           store={store}
         />
         <FormField<any>
-          label={"Gamma"}
-          color={"grey"}
+          label="Gamma"
+          color="grey"
           value={dealOutput.gamma}
-          name={"gamma"}
-          type={"currency"}
+          name="gamma"
+          type="currency"
           currency={currencies.risk}
           disabled={props.disabled}
           store={store}
         />
         <FormField<any>
-          label={"Net Vega"}
-          color={"grey"}
+          label="Net Vega"
+          color="grey"
           value={dealOutput.vega}
-          name={"vega"}
-          type={"currency"}
+          name="vega"
+          type="currency"
           currency={currencies.risk}
           disabled={props.disabled}
           store={store}
         />
         <FormField<any>
-          label={"Net Hedge"}
-          color={"grey"}
+          label="Net Hedge"
+          color="grey"
           value={getStyledValue(dealOutput.hedge, dealEntry.deltastyle)}
-          name={"hedge"}
-          type={"currency"}
+          name="hedge"
+          type="currency"
           currency={currencies.risk}
           disabled={props.disabled}
           store={store}

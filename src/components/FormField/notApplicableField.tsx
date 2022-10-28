@@ -11,7 +11,7 @@ export const NotApplicableField: React.FC = (): React.ReactElement => {
       }}
       readOnly={true}
       inputProps={{ tabIndex: -1 }}
-      value={"N/A"}
+      value="N/A"
     />
   );
 };

@@ -98,7 +98,7 @@ export const ContentView: React.FC<Props> = (
           if (isMessageBlotterStore(contentStore)) {
             return (
               <MessageBlotterStoreContext.Provider value={contentStore}>
-                <div className={"execution-blotter-title"}>
+                <div className="execution-blotter-title">
                   <h1>Blotter</h1>
                   <ExportButton blotterType={BlotterTypes.MessageMonitor} />
                   <div style={{ width: 18 }} />
@@ -115,7 +115,7 @@ export const ContentView: React.FC<Props> = (
   };
 
   return (
-    <div className={"workspace"}>
+    <div className="workspace">
       <ReactTileManager
         tiles={props.tiles}
         getTitleRenderer={getTitleRenderer}

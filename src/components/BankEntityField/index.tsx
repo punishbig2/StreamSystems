@@ -77,7 +77,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
 
   return (
     <Grid container>
-      <Grid className={"bank-entity-field"} spacing={1} item container>
+      <Grid className="bank-entity-field" spacing={1} item container>
         <Grid xs={6} item>
           <FormField
             color={props.color}
@@ -93,7 +93,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
             onChange={onBankChange}
             disabled={disabled}
             editable={!readOnly}
-            type={"dropdown"}
+            type="dropdown"
             store={store}
           />
         </Grid>
@@ -112,7 +112,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
             onChange={onEntityChange}
             disabled={disabled}
             editable={!readOnly}
-            type={"dropdown"}
+            type="dropdown"
             store={store}
           />
         </Grid>

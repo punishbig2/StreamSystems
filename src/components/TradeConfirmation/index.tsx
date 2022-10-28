@@ -50,12 +50,12 @@ export const TradeConfirmation: React.FC<OwnProps> = (
     new Notification(`${line1}\n${line2}`);
   });
   return (
-    <div className={"item"}>
-      <div className={"content"}>
-        <Typography className={"line1"} variant={"body1"} color={"textPrimary"}>
+    <div className="item">
+      <div className="content">
+        <Typography className="line1" variant="body1" color="textPrimary">
           {line1}
         </Typography>
-        <Typography className={"line2"} variant={"body1"} color={"textPrimary"}>
+        <Typography className="line2" variant="body1" color="textPrimary">
           {line2}
         </Typography>
       </div>

@@ -50,7 +50,7 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
       <input
         ref={inputRef}
         defaultValue={props.filter}
-        className={"filter"}
+        className="filter"
         placeholder={strings.Filter}
         readOnly={!workareaStore.connected}
         onChange={onChange}
@@ -91,8 +91,8 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
   const style: CSSProperties = { width, ...props.style };
   return (
     <div className={classes.join(" ")} style={style} ref={containerRef}>
-      <div className={"column"}>
-        <div className={"label"}>{props.children}</div>
+      <div className="column">
+        <div className="label">{props.children}</div>
         <SortIndicator
           sortable={props.sortable === true}
           direction={sortDirection}

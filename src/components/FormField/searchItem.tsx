@@ -55,7 +55,7 @@ export const SearchItem: React.FC<Props> = React.forwardRef(
       <MenuItem
         classes={classes.item}
         disableRipple={true}
-        className={"search-item"}
+        className="search-item"
         onKeyDownCapture={onKeyDown}
         onClickCapture={ignoreClick}
       >
@@ -63,7 +63,7 @@ export const SearchItem: React.FC<Props> = React.forwardRef(
           value={filterValue}
           classes={classes.search}
           labelWidth={0}
-          placeholder={"Type to filter"}
+          placeholder="Type to filter"
           autoFocus={true}
           onChange={onChange}
         />

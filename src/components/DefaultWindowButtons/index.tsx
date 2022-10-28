@@ -9,20 +9,20 @@ interface Props {
 
 export const DefaultWindowButtons: React.FC<Props> = (props: Props) => {
   return (
-    <div className={"window-buttons"}>
+    <div className="window-buttons">
       {props.resizeable && (
-        <button className={"fit"} onClick={props.onResizeToContent}>
-          <i className={"fa fa-compress"} />
+        <button className="fit" onClick={props.onResizeToContent}>
+          <i className="fa fa-compress" />
         </button>
       )}
-      <button className={"minimize"} onClick={props.onMinimize}>
-        <i className={"fa fa-minus"} />
+      <button className="minimize" onClick={props.onMinimize}>
+        <i className="fa fa-minus" />
       </button>
-      <button className={"restore"} onClick={props.onMinimize}>
-        <i className={"fa fa-window-restore"} />
+      <button className="restore" onClick={props.onMinimize}>
+        <i className="fa fa-window-restore" />
       </button>
       <button onClick={props.onClose}>
-        <i className={"fa fa-times"} />
+        <i className="fa fa-times" />
       </button>
     </div>
   );

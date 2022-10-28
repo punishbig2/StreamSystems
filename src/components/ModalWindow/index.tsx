@@ -20,8 +20,8 @@ const ModalWindow: React.FC<PropsWithChildren<Props>> = (
   const content = React.useMemo((): ReactElement | null => {
     if (isOpen) {
       return (
-        <div className={"modal-window-container"}>
-          <div className={"modal-window"}>
+        <div className="modal-window-container">
+          <div className="modal-window">
             {render !== undefined ? render(inheritedProps) : children}
           </div>
         </div>

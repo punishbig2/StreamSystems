@@ -65,11 +65,11 @@ export const ReactTile: React.FC<Props> = observer(
 
     return (
       <cib-window id={store.id} ref={setReference} scrollable autosize>
-        <div slot={"toolbar"} className={"window-title-bar"}>
+        <div slot="toolbar" className="window-title-bar">
           {props.title(store.contentStore)}
           {getTitleBarButtons()}
         </div>
-        <div slot={"content"} className={"window-content"}>
+        <div slot="content" className="window-content">
           {props.content(store.contentStore)}
         </div>
       </cib-window>

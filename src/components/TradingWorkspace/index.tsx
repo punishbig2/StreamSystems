@@ -78,21 +78,21 @@ export const TradingWorkspace: React.FC<Props> = observer(
       return (
         <ProgressView
           value={50}
-          message={"Please wait while we load your workspace"}
-          title={"Loading: Workspace"}
+          message="Please wait while we load your workspace"
+          title="Loading: Workspace"
         />
       );
     }
 
     return (
       <div className={props.visible ? "visible" : "hidden"}>
-        <div className={"toolbar"}>
-          <div className={"content"}>
+        <div className="toolbar">
+          <div className="content">
             <button onClick={onAddPodTile}>
-              <i className={"fa fa-plus"} /> Add POD
+              <i className="fa fa-plus" /> Add POD
             </button>
             <button onClick={onAddMessageBlotterTile}>
-              <i className={"fa fa-eye"} /> Add Blotter
+              <i className="fa fa-eye" /> Add Blotter
             </button>
             <ExecutionBanner />
             <BrokerageStoreContext.Provider value={store.brokerageStore}>

@@ -13,8 +13,8 @@ export const DualTableHeader = (props: Props) => {
   if (props.className !== undefined) classes.push(props.className);
   return (
     <div className={classes.join(" ")}>
-      <div className={"first"}>{props.label}</div>
-      <div className={"second"}>{action ? action() : <div>&nbsp;</div>}</div>
+      <div className="first">{props.label}</div>
+      <div className="second">{action ? action() : <div>&nbsp;</div>}</div>
     </div>
   );
 };

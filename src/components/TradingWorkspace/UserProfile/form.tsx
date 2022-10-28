@@ -28,7 +28,7 @@ interface OwnProps {
 
 const renderTimezone = (value: unknown): ReactNode => {
   if (value === "")
-    return <span className={"disabled-item"}>{strings.TimezoneUnset}</span>;
+    return <span className="disabled-item">{strings.TimezoneUnset}</span>;
   return value as string;
 };
 
@@ -79,60 +79,60 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
   return (
     <>
-      <div className={"modal-title"}>
-        <div className={"user-preferences-modal-title"}>
-          <div className={"user"}>
-            <div className={"avatar"}>
-              <i className={"fa fa-user"} />
+      <div className="modal-title">
+        <div className="user-preferences-modal-title">
+          <div className="user">
+            <div className="avatar">
+              <i className="fa fa-user" />
             </div>
-            <div className={"name"}>
+            <div className="name">
               <Typography
-                color={"textPrimary"}
-                variant={"subtitle1"}
-                className={"title"}
+                color="textPrimary"
+                variant="subtitle1"
+                className="title"
               >
                 {user.email}
               </Typography>
             </div>
           </div>
-          <div className={"fx-options"}>
-            <Typography variant={"subtitle1"}>{strings.UserProfile}</Typography>
-            <Typography variant={"subtitle2"}>
+          <div className="fx-options">
+            <Typography variant="subtitle1">{strings.UserProfile}</Typography>
+            <Typography variant="subtitle2">
               FX Options {window.GlobalApplicationVersion ?? "unknown"}
             </Typography>
           </div>
         </div>
       </div>
       <form
-        className={"user-profile-form"}
-        name={"user-profile"}
+        className="user-profile-form"
+        name="user-profile"
         onSubmit={props.onSubmit}
-        autoComplete={"off"}
+        autoComplete="off"
         noValidate
       >
-        <Grid container direction={"column"}>
+        <Grid container direction="column">
           <fieldset>
             <legend>User Information</legend>
-            <Grid item container spacing={2} direction={"row"}>
+            <Grid item container spacing={2} direction="row">
               <Grid item xs={4}>
-                <FormControl margin={"dense"} fullWidth>
+                <FormControl margin="dense" fullWidth>
                   <FormLabel>User Type</FormLabel>
                   <Input value={userType} readOnly={true} />
                 </FormControl>
               </Grid>
               <Grid item xs={4}>
-                <FormControl margin={"dense"} fullWidth>
+                <FormControl margin="dense" fullWidth>
                   <FormLabel>MPID</FormLabel>
                   <Input value={user.firm} readOnly={true} />
                 </FormControl>
               </Grid>
               <Grid item xs={4}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"oco"}>OCM</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="oco">OCM</FormLabel>
                   <Select
-                    id={"oco"}
+                    id="oco"
                     disabled={!workareaStore.connected}
-                    name={"oco"}
+                    name="oco"
                     value={profile.oco}
                     onChange={onChangeWrapper}
                   >
@@ -147,18 +147,18 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
           <fieldset>
             <legend>Display Settings</legend>
-            <Grid item container spacing={2} direction={"row"}>
+            <Grid item container spacing={2} direction="row">
               <Grid item xs={4}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"fontFamily"}>Font</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="fontFamily">Font</FormLabel>
                   <Select
-                    id={"fontFamily"}
+                    id="fontFamily"
                     disabled={!workareaStore.connected}
-                    name={"fontFamily"}
+                    name="fontFamily"
                     value={profile.fontFamily}
                     onChange={onChangeWrapper}
                   >
-                    <MenuItem value={"default"}>Default</MenuItem>
+                    <MenuItem value="default">Default</MenuItem>
                     {fonts.map(
                       (font: string): React.ReactElement => (
                         <MenuItem key={font} value={font}>
@@ -171,38 +171,38 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               </Grid>
 
               <Grid item xs={4}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"font-size"}>Font Size</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="font-size">Font Size</FormLabel>
                   <Select
-                    id={"font-size"}
+                    id="font-size"
                     disabled={!workareaStore.connected}
-                    name={"fontSize"}
+                    name="fontSize"
                     value={profile.fontSize}
                     onChange={onChangeWrapper}
                   >
-                    <MenuItem value={"smaller"}>Smaller</MenuItem>
-                    <MenuItem value={"small"}>Small</MenuItem>
-                    <MenuItem value={"normal"}>Normal</MenuItem>
-                    <MenuItem value={"medium"}>Medium</MenuItem>
-                    <MenuItem value={"large"}>Large</MenuItem>
-                    <MenuItem value={"larger"}>Larger</MenuItem>
-                    <MenuItem value={"huge"}>Huge</MenuItem>
+                    <MenuItem value="smaller">Smaller</MenuItem>
+                    <MenuItem value="small">Small</MenuItem>
+                    <MenuItem value="normal">Normal</MenuItem>
+                    <MenuItem value="medium">Medium</MenuItem>
+                    <MenuItem value="large">Large</MenuItem>
+                    <MenuItem value="larger">Larger</MenuItem>
+                    <MenuItem value="huge">Huge</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
 
               <Grid item xs={4}>
-                <FormControl fullWidth margin={"dense"}>
-                  <FormLabel htmlFor={"theme"}>Theme</FormLabel>
+                <FormControl fullWidth margin="dense">
+                  <FormLabel htmlFor="theme">Theme</FormLabel>
                   <Select
-                    id={"theme"}
+                    id="theme"
                     disabled={!workareaStore.connected}
-                    name={"theme"}
+                    name="theme"
                     value={profile.theme}
                     onChange={onChangeWrapper}
                   >
-                    <MenuItem value={"light"}>Light</MenuItem>
-                    <MenuItem value={"dark"}>Dark</MenuItem>
+                    <MenuItem value="light">Light</MenuItem>
+                    <MenuItem value="dark">Dark</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -211,22 +211,22 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
           <fieldset>
             <legend>Alerts & Sound Settings</legend>
-            <Grid item container spacing={2} direction={"row"}>
+            <Grid item container spacing={2} direction="row">
               <Grid item xs={6}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"exec-sound"}>Dark Sound</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="exec-sound">Dark Sound</FormLabel>
                   <SoundsList
-                    name={"darkPoolExecSound"}
+                    name="darkPoolExecSound"
                     value={profile.darkPoolExecSound}
                     onChange={props.onChange}
                   />
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"exec-sound"}>Exec Sound</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="exec-sound">Exec Sound</FormLabel>
                   <SoundsList
-                    name={"execSound"}
+                    name="execSound"
                     value={profile.execSound}
                     onChange={props.onChange}
                   />
@@ -240,18 +240,18 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
             <legend>Currency Groups & Timezone</legend>
             <Grid spacing={2} item container>
               <Grid item xs={6}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"ccy-group"}>CCY Group</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="ccy-group">CCY Group</FormLabel>
                   <Input value={regions.join(",")} readOnly={true} />
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
-                <FormControl margin={"dense"} fullWidth>
-                  <FormLabel htmlFor={"time-zone"}>Time Zone</FormLabel>
+                <FormControl margin="dense" fullWidth>
+                  <FormLabel htmlFor="time-zone">Time Zone</FormLabel>
                   <Select
-                    id={"time-zone"}
+                    id="time-zone"
                     disabled={!workareaStore.connected}
-                    name={"timezone"}
+                    name="timezone"
                     value={profile.timezone}
                     displayEmpty
                     renderValue={renderTimezone}
@@ -269,19 +269,11 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
           </fieldset>
         </Grid>
 
-        <div className={"modal-buttons"}>
-          <button
-            className={"cancel"}
-            onClick={onCancelWrapper}
-            type={"button"}
-          >
+        <div className="modal-buttons">
+          <button className="cancel" onClick={onCancelWrapper} type="button">
             {strings.Cancel}
           </button>
-          <button
-            className={"success"}
-            type={"submit"}
-            disabled={hasNotChanged()}
-          >
+          <button className="success" type="submit" disabled={hasNotChanged()}>
             {strings.Save}
           </button>
         </div>

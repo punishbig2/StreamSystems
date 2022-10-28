@@ -27,8 +27,8 @@ export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
   if (target === null) return null;
 
   const element: ReactElement = (
-    <div className={"tooltip"} style={style}>
-      <div className={"tooltip-content"}>{props.children}</div>
+    <div className="tooltip" style={style}>
+      <div className="tooltip-content">{props.children}</div>
     </div>
   );
 

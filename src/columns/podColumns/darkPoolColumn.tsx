@@ -285,7 +285,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 export const DarkPoolColumn = (depth: boolean): TableColumn => ({
   name: "dark-pool",
   header: () => (
-    <div className={"dark-pool-header"}>
+    <div className="dark-pool-header">
       <div>Dark</div>
       <div>Pool</div>
     </div>

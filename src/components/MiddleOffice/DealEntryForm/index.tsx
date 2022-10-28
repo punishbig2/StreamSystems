@@ -103,9 +103,9 @@ export const DealEntryForm: React.FC<Props> = (
           props.entryType === EntryType.Empty ? "invisible" : undefined
         }
       >
-        <Grid alignItems={"stretch"} container>
+        <Grid alignItems="stretch" container>
           <Grid xs={12} item>
-            <fieldset className={"group full-height"} disabled={props.disabled}>
+            <fieldset className="group full-height" disabled={props.disabled}>
               {fields.map(
                 (
                   field: FieldDef<DealEntry, DealEntry, MiddleOfficeStore>
@@ -130,7 +130,7 @@ export const DealEntryForm: React.FC<Props> = (
           </Grid>
         </Grid>
       </form>
-      <div className={"button-box"}>
+      <div className="button-box">
         <ActionButtons
           buttonsDisabled={props.isButtonDisabled}
           entryType={props.entryType}

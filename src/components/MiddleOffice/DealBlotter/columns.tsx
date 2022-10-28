@@ -20,7 +20,7 @@ const StatusCell: React.FC<{ deal: Deal }> = ({
 }): React.ReactElement => {
   if (!deal.error_msg) return <div>{stateMap[deal.status] ?? "unknown"}</div>;
   return (
-    <CustomTooltip title={deal.error_msg} tooltipStyle={"bad"}>
+    <CustomTooltip title={deal.error_msg} tooltipStyle="bad">
       {stateMap[deal.status] ?? "unknown"}
     </CustomTooltip>
   );
@@ -33,7 +33,7 @@ export const columns: ReadonlyArray<TableColumn> = [
     render: (props: CellProps): ReactElement | null => {
       const { deal } = props;
       if (deal) {
-        return <div className={"padded"}>{deal.id}</div>;
+        return <div className="padded">{deal.id}</div>;
       } else {
         return null;
       }

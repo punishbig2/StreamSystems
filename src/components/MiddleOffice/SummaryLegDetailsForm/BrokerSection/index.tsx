@@ -33,8 +33,8 @@ export const BrokerSection: React.FC<Props> = (
   );
 
   return (
-    <Grid alignItems={"stretch"} container>
-      <fieldset className={"group"} disabled={props.disabled}>
+    <Grid alignItems="stretch" container>
+      <fieldset className="group" disabled={props.disabled}>
         <legend>Brokerage</legend>
         {fields.map(
           (

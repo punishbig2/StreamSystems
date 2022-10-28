@@ -15,9 +15,9 @@ export const DateTimeRenderer: React.FC<Props> = observer(
     const timeFormatter: Intl.DateTimeFormat = useTimeFormat();
 
     return (
-      <div className={"date-time-cell"} title={date.toLocaleTimeString()}>
-        <span className={"date"}>{dateFormatter.format(date)}</span>
-        <span className={"time"}>{timeFormatter.format(date)}</span>
+      <div className="date-time-cell" title={date.toLocaleTimeString()}>
+        <span className="date">{dateFormatter.format(date)}</span>
+        <span className="time">{timeFormatter.format(date)}</span>
       </div>
     );
   }

@@ -7,7 +7,7 @@ interface OwnProps {
 const Chevron: React.FC<OwnProps> = (props: OwnProps) => {
   return (
     <div className={`chevron ${props.side}`}>
-      <i className={"fa fa-chevron-up"} />
+      <i className="fa fa-chevron-up" />
     </div>
   );
 };

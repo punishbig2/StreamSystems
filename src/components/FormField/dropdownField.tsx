@@ -171,7 +171,7 @@ export class DropdownField<T, R = string> extends Component<
     const { state } = this;
     if (state.loading) {
       return (
-        <Grid spacing={1} alignItems={"center"} container>
+        <Grid spacing={1} alignItems="center" container>
           <Grid item>Working</Grid>
           <Grid item>
             <LoadingEllipsis />

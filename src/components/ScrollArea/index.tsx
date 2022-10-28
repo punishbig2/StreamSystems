@@ -65,8 +65,8 @@ export const ScrollArea: React.FC<Props> = (
         ref: setContainer,
         height: container?.offsetHeight,
       })}
-      <div ref={setScrollbar} className={"scrollbar-track"}>
-        <div ref={setHandle} className={"scrollbar-handle"} />
+      <div ref={setScrollbar} className="scrollbar-track">
+        <div ref={setHandle} className="scrollbar-handle" />
       </div>
     </>
   );

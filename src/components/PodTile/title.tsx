@@ -37,22 +37,22 @@ export const PodTileTitle: React.FC<Props> = observer(
     return (
       <>
         <div className={["glow", ...(glowing ? ["glowing"] : [])].join(" ")} />
-        <div className={"item"}>
+        <div className="item">
           <Select
-            testId={"currency-selector"}
+            testId="currency-selector"
             value={ccyPair}
             list={currencies.map((item: Symbol): { name: string } => ({
               name: item.name,
             }))}
-            empty={"Currency"}
+            empty="Currency"
             disabled={!workareaStore.connected}
             searchable={true}
             onChange={store.setCurrency}
           />
         </div>
-        <div className={"item"}>
+        <div className="item">
           <Select
-            testId={"strategy-selector"}
+            testId="strategy-selector"
             value={strategy}
             list={strategies.map(
               (
@@ -64,12 +64,12 @@ export const PodTileTitle: React.FC<Props> = observer(
               })
             )}
             disabled={!workareaStore.connected}
-            empty={"Strategy"}
+            empty="Strategy"
             onChange={store.setStrategy}
           />
         </div>
-        {/* <div className={"ccy-group"}>{getTag(currency, strategy)}</div> */}
-        <div className={"item"}>
+        {/* <div className="ccy-group">{getTag(currency, strategy)}</div> */}
+        <div className="item">
           <button onClick={store.showRunWindow} disabled={isRunButtonDisabled}>
             {strings.Run}
           </button>
