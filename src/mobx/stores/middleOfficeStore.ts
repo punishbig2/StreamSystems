@@ -881,11 +881,17 @@ export class MiddleOfficeStore implements Workspace {
 
     const startedAt = Date.now();
     const onError = (error: any): void => {
+      console.log(error);
       const errorData = {
         status: "",
         code: 1,
         error: "",
-        content: typeof error === "string" ? error : error.content(),
+        content:
+          typeof error === "string"
+            ? error
+            : typeof error.content === "function"
+            ? error.content()
+            : error.message,
       };
 
       this.setError(errorData);
