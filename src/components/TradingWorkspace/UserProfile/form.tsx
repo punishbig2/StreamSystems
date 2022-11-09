@@ -8,15 +8,15 @@ import {
 } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import { SoundsList } from "components/TradingWorkspace/UserProfile/soundsList";
-import timezones, { TimezoneInfo } from "data/timezones";
 import deepEqual from "deep-equal";
 import strings from "locales";
 import workareaStore from "mobx/stores/workareaStore";
-import React, { ChangeEvent, FormEvent, ReactNode, useMemo } from "react";
+import React, { ChangeEvent, FormEvent, useMemo } from "react";
 import { hasRole, Role } from "types/role";
 import { OCOModes, User, UserPreferences } from "types/user";
 import fonts from "fonts.json";
 import { themeStore } from "mobx/stores/themeStore";
+import { TimezoneSelect } from "components/TradingWorkspace/UserProfile/components/TimezoneSelect";
 
 interface OwnProps {
   profile: UserPreferences;
@@ -25,12 +25,6 @@ interface OwnProps {
   onCancel: () => void;
   onChange: (name: string, value: any) => void;
 }
-
-const renderTimezone = (value: unknown): ReactNode => {
-  if (value === "")
-    return <span className="disabled-item">{strings.TimezoneUnset}</span>;
-  return value as string;
-};
 
 export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const { profile } = props;
@@ -63,10 +57,6 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
   const hasNotChanged = () => {
     if (props.original === null) return false;
     return deepEqual(profile, props.original);
-  };
-
-  const formatTimezone = (text: string): string => {
-    return text.replace(/_/g, " ");
   };
 
   const onCancelWrapper = (): void => {
@@ -248,21 +238,12 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <Grid item xs={6}>
                 <FormControl margin="dense" fullWidth>
                   <FormLabel htmlFor="time-zone">Time Zone</FormLabel>
-                  <Select
+                  <TimezoneSelect
                     id="time-zone"
-                    disabled={!workareaStore.connected}
                     name="timezone"
                     value={profile.timezone}
-                    displayEmpty
-                    renderValue={renderTimezone}
                     onChange={onChangeWrapper}
-                  >
-                    {timezones.map((zone: TimezoneInfo) => (
-                      <MenuItem key={zone.text} value={zone.text}>
-                        {formatTimezone(zone.text)}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  />
                 </FormControl>
               </Grid>
             </Grid>

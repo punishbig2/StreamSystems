@@ -75,3 +75,16 @@
     opacity: 0.5;
   }
 }
+
+.dropdown-search-box {
+  position: sticky;
+  top: 0;
+  background-color: $background-color;
+  z-index: 1;
+  height: 2.5em;
+
+  .dropdown-search-box-input {
+    padding: 0 16px;
+    height: 2.5em;
+  }
+}
