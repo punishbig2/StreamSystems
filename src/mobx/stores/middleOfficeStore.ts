@@ -50,7 +50,11 @@ import {
 } from "utils/dealUtils";
 import { isNumeric } from "utils/isNumeric";
 import { legsReducer } from "utils/legsReducer";
-import { calculateNetValue, parseDates } from "utils/legsUtils";
+import {
+  calculateNetValue,
+  parseDates,
+  createLegsFromDefinitionAndDeal,
+} from "utils/legsUtils";
 import { forceParseDate, safeForceParseDate, toUTC } from "utils/timeUtils";
 import { emailNotSet } from "components/MiddleOffice/helpers";
 
@@ -814,7 +818,17 @@ export class MiddleOfficeStore implements Workspace {
 
   @action.bound
   public cloneDeal(): void {
-    this.entry = { ...this.entry, type: EntryType.Clone, dealID: undefined };
+    const { strategy } = this.entry;
+
+    this.entry = {
+      ...this.entry,
+      type: EntryType.Clone,
+      dealID: undefined,
+    };
+    this.legs = createLegsFromDefinitionAndDeal(
+      this.legDefinitions[strategy.productid].in,
+      this.entry
+    );
     this.entryType = EntryType.Clone;
     this.isEditMode = true;
   }
