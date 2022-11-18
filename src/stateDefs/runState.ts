@@ -1,4 +1,4 @@
-import { PodTable } from "types/podTable";
+import { PodTable } from 'types/podTable';
 
 export interface RunState {
   readonly orders: PodTable;

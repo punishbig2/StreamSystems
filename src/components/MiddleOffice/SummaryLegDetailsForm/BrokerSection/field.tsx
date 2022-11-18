@@ -1,12 +1,9 @@
-import { FormField } from "components/FormField";
-import { EditableFlag } from "types/product";
-import { FieldDef } from "forms/fieldDef";
-import {
-  MiddleOfficeStore,
-  MiddleOfficeStoreContext,
-} from "mobx/stores/middleOfficeStore";
-import React, { ReactElement, useMemo } from "react";
-import { BrokerageCommission } from "types/brokerageCommission";
+import { FormField } from 'components/FormField';
+import { FieldDef } from 'forms/fieldDef';
+import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import React, { ReactElement, useMemo } from 'react';
+import { BrokerageCommission } from 'types/brokerageCommission';
+import { EditableFlag } from 'types/product';
 
 interface Props extends FieldDef<BrokerageCommission, BrokerageCommission> {
   readonly value: BrokerageCommission;
@@ -20,18 +17,18 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const { entry } = store;
   const { editable: editableProp } = props;
   const editable: boolean | undefined = ((): boolean | undefined => {
-    if (typeof editableProp === "function") {
-      return editableProp(name, entry, store.isEditMode, "");
+    if (typeof editableProp === 'function') {
+      return editableProp(name, entry, store.isEditMode, '');
     } else {
       return editableProp;
     }
   })();
   const computedValue: any = useMemo((): any => {
     if (
-      MiddleOfficeStore.getFieldEditableFlag("", name, entry.strategy) ===
+      MiddleOfficeStore.getFieldEditableFlag('', name, entry.strategy) ===
       EditableFlag.NotApplicable
     ) {
-      return "N/A";
+      return 'N/A';
     } else {
       return value[name];
     }
@@ -46,10 +43,7 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
       color={props.color}
       currency="USD"
       precision={props.precision}
-      onChange={async (
-        name: keyof BrokerageCommission,
-        value: any
-      ): Promise<void> => {
+      onChange={async (name: keyof BrokerageCommission, value: any): Promise<void> => {
         return props.onChange({ ...value, [name]: value });
       }}
       editable={editable}

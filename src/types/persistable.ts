@@ -1,6 +1,6 @@
 export abstract class Persistable<T> {
   public static fromJson<T>(data: { [key: string]: any }): T {
-    throw new Error("abstract method not implemented");
+    throw new Error('abstract method not implemented');
   }
   public abstract get serialized(): { [key: string]: any };
 }
@@ -10,11 +10,17 @@ export const unserializeObject = <T>(
   fromJson: (data: { [key: string]: any }) => T
 ): { [key: string]: T } => {
   const keys = Object.keys(generic);
-  return keys.reduce((result: { [key: string]: T }, key: string): {
-    [key: string]: T;
-  } => {
-    return { ...result, [key]: fromJson(generic[key]) };
-  }, {});
+  return keys.reduce(
+    (
+      result: { [key: string]: T },
+      key: string
+    ): {
+      [key: string]: T;
+    } => {
+      return { ...result, [key]: fromJson(generic[key]) };
+    },
+    {}
+  );
 };
 
 export const serializeObject = <T>(obj: {

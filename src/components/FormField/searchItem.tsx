@@ -1,14 +1,14 @@
-import { MenuItem, OutlinedInput } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import { MenuItem, OutlinedInput } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
 
 const classes = {
   item: {
-    root: "select-search-item-root",
+    root: 'select-search-item-root',
   },
   search: {
-    root: "select-search-root",
-    notchedOutline: "select-search-outline",
-    input: "select-search-input",
+    root: 'select-search-root',
+    notchedOutline: 'select-search-outline',
+    input: 'select-search-input',
   },
 };
 
@@ -25,7 +25,7 @@ const ignoreClick = (event: React.MouseEvent<HTMLLIElement>): void => {
 
 export const SearchItem: React.FC<Props> = React.forwardRef(
   (props: Props, ref: React.Ref<any>): React.ReactElement => {
-    const [filterValue, setFilterValue] = useState<string>("");
+    const [filterValue, setFilterValue] = useState<string>('');
     const { onChange: propsOnChange } = props;
     const onChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
       const { value } = event.target;
@@ -34,10 +34,10 @@ export const SearchItem: React.FC<Props> = React.forwardRef(
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLLIElement>): void => {
       switch (event.key) {
-        case "Escape":
-        case "ArrowDown":
-        case "ArrowUp":
-        case "Enter":
+        case 'Escape':
+        case 'ArrowDown':
+        case 'ArrowUp':
+        case 'Enter':
           break;
         default:
           event.stopPropagation();

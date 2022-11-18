@@ -1,39 +1,32 @@
-import { Grid } from "@material-ui/core";
-import { API } from "API";
-import { ActionButtons } from "components/MiddleOffice/actionButtons";
-import {
-  DealEntryButtons,
-  isButtonDisabled,
-} from "components/MiddleOffice/buttonStateResolver";
-import { DealBlotter } from "components/MiddleOffice/DealBlotter";
-import { DealEntryForm } from "components/MiddleOffice/DealEntryForm";
-import { DeleteQuestion } from "components/MiddleOffice/deleteQuestion";
-import { MiddleOfficeError } from "components/MiddleOffice/error";
-import { useDealDeletedListener } from "components/MiddleOffice/hooks/useDealDeletedListener";
-import { useDealEditListener } from "components/MiddleOffice/hooks/useDealEditListener";
-import { useErrorListener } from "components/MiddleOffice/hooks/useErrorListener";
-import { useNewDealListener } from "components/MiddleOffice/hooks/useNewDealListener";
-import { useSEFListener } from "components/MiddleOffice/hooks/useSEFListener";
-import { LegDetailsForm } from "components/MiddleOffice/LegDetailsForm";
-import { ProgressView } from "components/MiddleOffice/progressView";
-import { SuccessMessage } from "components/MiddleOffice/successMessage";
-import { SummaryLegDetailsForm } from "components/MiddleOffice/SummaryLegDetailsForm";
-import { Cut } from "components/MiddleOffice/types/cut";
-import { Deal } from "components/MiddleOffice/types/deal";
-import { Leg } from "components/MiddleOffice/types/leg";
-import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { ModalWindow } from "components/ModalWindow";
-import {
-  MiddleOfficeProcessingState,
-  MoGenericMessage,
-} from "mobx/stores/middleOfficeStore";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import React from "react";
-import { DealEditStatus } from "signalR/signalRClient";
-import { DealEntry, EntryType } from "types/dealEntry";
-import { MOErrorMessage } from "types/middleOfficeError";
-import { SEFUpdate } from "types/sefUpdate";
-import { randomID } from "utils/randomID";
+import { Grid } from '@material-ui/core';
+import { API } from 'API';
+import { ActionButtons } from 'components/MiddleOffice/actionButtons';
+import { DealEntryButtons, isButtonDisabled } from 'components/MiddleOffice/buttonStateResolver';
+import { DealBlotter } from 'components/MiddleOffice/DealBlotter';
+import { DealEntryForm } from 'components/MiddleOffice/DealEntryForm';
+import { DeleteQuestion } from 'components/MiddleOffice/deleteQuestion';
+import { MiddleOfficeError } from 'components/MiddleOffice/error';
+import { useDealDeletedListener } from 'components/MiddleOffice/hooks/useDealDeletedListener';
+import { useDealEditListener } from 'components/MiddleOffice/hooks/useDealEditListener';
+import { useErrorListener } from 'components/MiddleOffice/hooks/useErrorListener';
+import { useNewDealListener } from 'components/MiddleOffice/hooks/useNewDealListener';
+import { useSEFListener } from 'components/MiddleOffice/hooks/useSEFListener';
+import { LegDetailsForm } from 'components/MiddleOffice/LegDetailsForm';
+import { ProgressView } from 'components/MiddleOffice/progressView';
+import { SuccessMessage } from 'components/MiddleOffice/successMessage';
+import { SummaryLegDetailsForm } from 'components/MiddleOffice/SummaryLegDetailsForm';
+import { Cut } from 'components/MiddleOffice/types/cut';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { SummaryLeg } from 'components/MiddleOffice/types/summaryLeg';
+import { ModalWindow } from 'components/ModalWindow';
+import { MiddleOfficeProcessingState, MoGenericMessage } from 'mobx/stores/middleOfficeStore';
+import React from 'react';
+import { DealEditStatus } from 'signalR/signalRClient';
+import { DealEntry, EntryType } from 'types/dealEntry';
+import { MOErrorMessage } from 'types/middleOfficeError';
+import { SEFUpdate } from 'types/sefUpdate';
+import { randomID } from 'utils/randomID';
 
 interface Props {
   readonly visible: boolean;
@@ -43,13 +36,9 @@ interface Props {
   readonly addDeal: (deal: { [key: string]: any }) => Promise<void>;
   readonly setDeal: (deal: Deal | null) => void;
   readonly setError: (error: MOErrorMessage) => void;
-  readonly updateLeg: (
-    index: number,
-    key: keyof Leg,
-    value: any
-  ) => Promise<void>;
+  readonly updateLeg: (index: number, key: keyof Leg, value: any) => Promise<void>;
   readonly status: MiddleOfficeProcessingState;
-  readonly deals: ReadonlyArray<Deal>;
+  readonly deals: readonly Deal[];
   readonly selectedDealID: string | null;
   readonly isEditMode: boolean;
   readonly isWorking: boolean;
@@ -59,11 +48,11 @@ interface Props {
   readonly cloneDeal: () => void;
   readonly cancelAddOrClone: () => void;
   readonly setEditMode: (editMode: boolean) => void;
-  readonly legs: ReadonlyArray<Leg>;
+  readonly legs: readonly Leg[];
   readonly summaryLeg: SummaryLeg | null;
   readonly isModified: boolean;
   readonly isDealEditable: boolean;
-  readonly cuts: ReadonlyArray<Cut>;
+  readonly cuts: readonly Cut[];
   readonly isReadyForSubmission: boolean;
   readonly updateEntry: (partial: Partial<DealEntry>) => Promise<void>;
   readonly price: () => void;
@@ -73,20 +62,14 @@ interface Props {
   readonly submit: () => void;
   readonly successMessage: MoGenericMessage | null;
   readonly updateSEFStatus: (update: SEFUpdate) => Promise<void>;
-  readonly updateSummaryLeg: (
-    fieldName: keyof SummaryLeg,
-    value: any
-  ) => Promise<void>;
+  readonly updateSummaryLeg: (fieldName: keyof SummaryLeg, value: any) => Promise<void>;
   readonly editDeal: (status: DealEditStatus, id: string) => void;
   readonly loadingDeals: boolean;
 }
 
-export const MiddleOfficeMain: React.FC<Props> = (
-  props: Props
-): React.ReactElement => {
-  const [deleteQuestionOpen, showDeleteQuestion] =
-    React.useState<boolean>(false);
-  const classes: string[] = ["middle-office"];
+export const MiddleOfficeMain: React.FC<Props> = (props: Props): React.ReactElement => {
+  const [deleteQuestionOpen, showDeleteQuestion] = React.useState<boolean>(false);
+  const classes: string[] = ['middle-office'];
 
   const {
     status,
@@ -118,19 +101,17 @@ export const MiddleOfficeMain: React.FC<Props> = (
 
   useErrorListener((error: any): void => props.setError(error));
   // If it's hidden ... wait, what?
-  if (!props.visible) classes.push("hidden");
-  if (props.loadingDeals) classes.push("loading-deals");
+  if (!props.visible) classes.push('hidden');
+  if (props.loadingDeals) classes.push('loading-deals');
 
-  const dontDelete = () => {
+  const dontDelete = (): void => {
     showDeleteQuestion(false);
   };
 
   const doDelete = (): void => {
     showDeleteQuestion(false);
     if (entry.dealID === undefined) {
-      throw new Error(
-        "cannot delete this entry, it has no id so it's new or data is bad"
-      );
+      throw new Error("cannot delete this entry, it has no id so it's new or data is bad");
     } else {
       API.removeDeal(entry.dealID)
         .then(() => null)
@@ -141,19 +122,15 @@ export const MiddleOfficeMain: React.FC<Props> = (
     }
   };
 
-  const removeDeal = () => {
+  const removeDeal = (): void => {
     showDeleteQuestion(true);
   };
 
-  const onUpdateLeg = (
-    index: number,
-    key: keyof Leg,
-    value: any
-  ): Promise<void> => {
+  const onUpdateLeg = (index: number, key: keyof Leg, value: any): Promise<void> => {
     return props.updateLeg(index, key, value);
   };
 
-  const onDealSelected = (deal: Deal | null) => {
+  const onDealSelected = (deal: Deal | null): void => {
     props.setDeal(deal);
   };
 
@@ -168,38 +145,29 @@ export const MiddleOfficeMain: React.FC<Props> = (
 
   const isButtonDisabledWrapper = React.useCallback(
     (button: keyof DealEntryButtons): boolean => {
-      if (
-        disabled ||
-        status === MiddleOfficeProcessingState.SilentlySubmitting
-      ) {
+      if (disabled || status === MiddleOfficeProcessingState.SilentlySubmitting) {
         return true;
       }
 
-      return isButtonDisabled(
-        button,
-        entry,
-        isEditMode,
-        isModified,
-        isReadyForSubmission
-      );
+      return isButtonDisabled(button, entry, isEditMode, isModified, isReadyForSubmission);
     },
     [disabled, entry, isEditMode, isModified, isReadyForSubmission, status]
   );
 
-  const headingClasses: string[] = ["heading"];
+  const headingClasses: string[] = ['heading'];
   if (
     props.status !== MiddleOfficeProcessingState.Normal &&
     props.status !== MiddleOfficeProcessingState.SilentlySubmitting
   ) {
-    headingClasses.push("disabled");
+    headingClasses.push('disabled');
   }
 
   return (
     <>
-      <div className={classes.join(" ")}>
+      <div className={classes.join(' ')}>
         <div className="left-panel">
           <DealBlotter
-            id={randomID("")}
+            id={randomID('')}
             disabled={
               props.status !== MiddleOfficeProcessingState.Normal &&
               props.status !== MiddleOfficeProcessingState.SilentlySubmitting
@@ -211,10 +179,10 @@ export const MiddleOfficeMain: React.FC<Props> = (
         </div>
         <Grid className="right-panel" container>
           <Grid xs={7} item>
-            <OverlayScrollbarsComponent className="container">
+            <div className="container">
               <div className="form-group-container">
                 <div className="form-group">
-                  <div className={headingClasses.join(" ")}>
+                  <div className={headingClasses.join(' ')}>
                     <h1>Deal Entry</h1>
                     <div className="actions">
                       <ActionButtons
@@ -247,7 +215,7 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   />
                 </div>
                 <div className="form-group">
-                  <div className={headingClasses.join(" ")}>
+                  <div className={headingClasses.join(' ')}>
                     <h1>Summary Leg Details</h1>
                   </div>
                   <SummaryLegDetailsForm
@@ -260,10 +228,10 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   />
                 </div>
               </div>
-            </OverlayScrollbarsComponent>
+            </div>
           </Grid>
           <Grid xs={5} item>
-            <OverlayScrollbarsComponent className="container">
+            <div className="container">
               <div className="form-group-container">
                 <LegDetailsForm
                   legs={props.legs}
@@ -274,18 +242,12 @@ export const MiddleOfficeMain: React.FC<Props> = (
                   onUpdateLeg={onUpdateLeg}
                 />
               </div>
-            </OverlayScrollbarsComponent>
+            </div>
           </Grid>
         </Grid>
       </div>
-      <ModalWindow
-        isOpen={error !== null}
-        render={() => <MiddleOfficeError error={error} />}
-      />
-      <ModalWindow
-        isOpen={props.successMessage !== null}
-        render={() => <SuccessMessage />}
-      />
+      <ModalWindow isOpen={error !== null} render={() => <MiddleOfficeError error={error} />} />
+      <ModalWindow isOpen={props.successMessage !== null} render={() => <SuccessMessage />} />
       <ModalWindow
         isOpen={deleteQuestionOpen}
         render={() => <DeleteQuestion onNo={dontDelete} onYes={doDelete} />}

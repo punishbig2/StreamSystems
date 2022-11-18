@@ -1,10 +1,10 @@
-import { Order } from "types/order";
-import { PodRow, PodRowStatus } from "types/podRow";
-import { PodRowStore } from "mobx/stores/podRowStore";
-import { W } from "types/w";
+import { PodRowStore } from 'mobx/stores/podRowStore';
+import { Order } from 'types/order';
+import { PodRow, PodRowStatus } from 'types/podRow';
+import { W } from 'types/w';
 
 export type PodRowProps = PodRow & {
-  readonly orders: ReadonlyArray<Order>;
+  readonly orders: readonly Order[];
   readonly defaultSize: number;
   readonly minimumSize: number;
   readonly darkPrice: number | null;

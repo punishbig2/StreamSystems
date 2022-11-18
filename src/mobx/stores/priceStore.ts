@@ -1,75 +1,84 @@
-import { action, computed, observable } from "mobx";
-import { OrderStatus } from "types/order";
-import { priceFormatter } from "utils/priceFormatter";
+import { action, computed, makeObservable, observable } from 'mobx';
+import { OrderStatus } from 'types/order';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export class PriceStore {
-  @observable tooltipX: number = 0;
-  @observable tooltipY: number = 0;
-  @observable tooltipVisible: boolean = false;
-  @observable flashing: boolean = false;
-  @observable internalValue: string | null = null;
-  @observable baseValue: number | null = null;
-  @observable status: OrderStatus = OrderStatus.None;
-  @observable inputError: string | null = null;
+  public tooltipX = 0;
+  public tooltipY = 0;
+  public tooltipVisible = false;
+  public flashing = false;
+  public internalValue: string | null = null;
+  public baseValue: number | null = null;
+  public status: OrderStatus = OrderStatus.None;
+  public inputError: string | null = null;
 
-  @computed
-  get numericValue(): number | null {
+  constructor() {
+    makeObservable(this, {
+      tooltipX: observable,
+      tooltipY: observable,
+      tooltipVisible: observable,
+      flashing: observable,
+      internalValue: observable,
+      baseValue: observable,
+      status: observable,
+      inputError: observable,
+      numericValue: computed,
+      value: computed,
+      placeholder: computed,
+      setBaseValue: action.bound,
+      setStatus: action.bound,
+      showTooltip: action.bound,
+      hideTooltip: action.bound,
+      setFlashing: action.bound,
+      setInternalValue: action.bound,
+      setInputError: action.bound,
+    });
+  }
+
+  public get numericValue(): number | null {
     const { internalValue } = this;
-    if (
-      internalValue === null ||
-      internalValue.trim() === "" ||
-      internalValue.trim() === "-"
-    )
+    if (internalValue === null || internalValue.trim() === '' || internalValue.trim() === '-')
       return null;
-    const value: number = Number(internalValue);
+    const value = Number(internalValue);
     if (isNaN(value)) return null;
     return value;
   }
 
-  @computed
-  get value(): string {
+  public get value(): string {
     const { internalValue } = this;
     if (internalValue !== null) return internalValue.toString();
-    if ((this.status & OrderStatus.Cancelled) !== 0) return "";
+    if ((this.status & OrderStatus.Cancelled) !== 0) return '';
     return priceFormatter(this.baseValue);
   }
 
-  @computed
-  get placeholder(): string {
+  public get placeholder(): string {
     return priceFormatter(this.baseValue);
   }
 
-  @action.bound
-  public setBaseValue(value: number | null) {
+  public setBaseValue(value: number | null): void {
     this.baseValue = value;
   }
 
-  @action.bound
-  public setStatus(status: OrderStatus) {
+  public setStatus(status: OrderStatus): void {
     this.status = status;
   }
 
-  @action.bound
-  public showTooltip() {
+  public showTooltip(): void {
     this.tooltipVisible = true;
   }
 
-  @action.bound
-  public hideTooltip() {
+  public hideTooltip(): void {
     this.tooltipVisible = false;
   }
 
-  @action.bound
-  public setFlashing(value: boolean) {
+  public setFlashing(value: boolean): void {
     this.flashing = value;
   }
 
-  @action.bound
-  public setInternalValue(value: string | null) {
+  public setInternalValue(value: string | null): void {
     this.internalValue = value;
   }
 
-  @action.bound
   public setInputError(errorMessage: string | null): void {
     this.inputError = errorMessage;
   }

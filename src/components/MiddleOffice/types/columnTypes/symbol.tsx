@@ -1,16 +1,16 @@
-import { SymbolCell } from "components/MiddleOffice/types/cells/symbol";
-import React, { ReactElement } from "react";
-import { TableColumn } from "components/Table/tableColumn";
-import { Deal } from "components/MiddleOffice/types/deal";
-import { compareCurrencyPairs } from "columns/messageBlotterColumns/utils";
-import { CellProps } from "components/MiddleOffice/DealBlotter/props";
+import { compareCurrencyPairs } from 'columns/messageBlotterColumns/utils';
+import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
+import { SymbolCell } from 'components/MiddleOffice/types/cells/symbol';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import { TableColumn } from 'components/Table/tableColumn';
+import React, { ReactElement } from 'react';
 
 export default (sortable: boolean): TableColumn => ({
-  name: "Currency",
-  template: "  XXXXXX  ",
+  name: 'Currency',
+  template: '  XXXXXX  ',
   filterable: true,
   sortable: sortable,
-  header: () => "Currency",
+  header: () => 'Currency',
   render: (props: CellProps): ReactElement | null => {
     const { deal } = props;
     if (deal === null) {

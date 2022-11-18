@@ -1,48 +1,45 @@
-import { FormHelperText, FormLabel, OutlinedInput } from "@material-ui/core";
-import { toClassName } from "columns/messageBlotterColumns/utils";
-import { BankEntityField } from "components/BankEntityField";
-import { CurrentTime } from "components/currentTime";
-import { CustomTooltip } from "components/customTooltip";
-import { Adornment } from "components/FormField/adornment";
-import { DateInputHandler } from "components/FormField/date";
-import { DefaultHandler } from "components/FormField/default";
-import { DropdownField } from "components/FormField/dropdownField";
-import { isInvalidTenor, isTenor } from "components/FormField/helpers";
-import { Editable, InputHandler } from "components/FormField/inputHandler";
-import { MinimalProps } from "components/FormField/minimalProps";
-import { NotApplicableField } from "components/FormField/notApplicableField";
-import { NumericInputHandler } from "components/FormField/numeric";
-import { ReadOnlyField } from "components/FormField/readOnlyField";
-import { StrikeHandler } from "components/FormField/strike";
-import { TenorDropdown } from "components/TenorDropdown";
-import deepEqual from "deep-equal";
-import { DropdownItem } from "forms/fieldDef";
-import { FieldType } from "forms/fieldType";
-import { Validity } from "forms/validity";
-import React, { PureComponent, ReactElement } from "react";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { roundToNearest } from "utils/roundToNearest";
+import { FormHelperText, FormLabel, OutlinedInput } from '@material-ui/core';
+import { toClassName } from 'columns/messageBlotterColumns/utils';
+import { BankEntityField } from 'components/BankEntityField';
+import { CurrentTime } from 'components/currentTime';
+import { CustomTooltip } from 'components/customTooltip';
+import { Adornment } from 'components/FormField/adornment';
+import { DateInputHandler } from 'components/FormField/date';
+import { DefaultHandler } from 'components/FormField/default';
+import { DropdownField } from 'components/FormField/dropdownField';
+import { isInvalidTenor, isTenor } from 'components/FormField/helpers';
+import { Editable, InputHandler } from 'components/FormField/inputHandler';
+import { MinimalProps } from 'components/FormField/minimalProps';
+import { NotApplicableField } from 'components/FormField/notApplicableField';
+import { NumericInputHandler } from 'components/FormField/numeric';
+import { ReadOnlyField } from 'components/FormField/readOnlyField';
+import { StrikeHandler } from 'components/FormField/strike';
+import { TenorDropdown } from 'components/TenorDropdown';
+import deepEqual from 'deep-equal';
+import { DropdownItem } from 'forms/fieldDef';
+import { FieldType } from 'forms/fieldType';
+import { Validity } from 'forms/validity';
+import React, { PureComponent, ReactElement } from 'react';
+import { InvalidTenor, Tenor } from 'types/tenor';
+import { roundToNearest } from 'utils/roundToNearest';
 
 interface Props<T, R = string, S = any> extends MinimalProps<T> {
   readonly id?: string;
   readonly label?: string;
   readonly currency?: string;
   readonly type: FieldType;
-  readonly color: "green" | "orange" | "cream" | "grey";
+  readonly color: 'green' | 'orange' | 'cream' | 'grey';
   readonly disabled?: boolean;
-  readonly items?: (string | number)[];
+  readonly items?: Array<string | number>;
   readonly placeholder?: string;
   readonly precision?: number;
   readonly dropdownData?: ReadonlyArray<DropdownItem<R>>;
   readonly rounding?: number;
   readonly handler?: InputHandler<T>;
   readonly onChange?: (name: keyof T, value: any) => Promise<void>;
-  readonly onInput?: (
-    event: React.ChangeEvent<HTMLInputElement>,
-    value: any
-  ) => void;
+  readonly onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
   readonly tooltip?: (store: S) => string | null;
-  readonly tooltipStyle?: "neutral" | "good" | "bad";
+  readonly tooltipStyle?: 'neutral' | 'good' | 'bad';
   readonly store: S;
 }
 
@@ -62,23 +59,20 @@ interface State extends Editable {
 }
 
 const initialState: State = {
-  displayValue: "",
-  internalValue: "",
+  displayValue: '',
+  internalValue: '',
   focus: false,
   validity: Validity.Intermediate,
   caretPosition: null,
-  filterValue: "",
+  filterValue: '',
   editor: Editor.None,
   changed: false,
 };
 
-export class FormField<T, S = any> extends PureComponent<
-  Props<T, string, S>,
-  State
-> {
+export class FormField<T, S = any> extends PureComponent<Props<T, string, S>, State> {
   static defaultProps = {
     precision: 0,
-    emptyValue: "",
+    emptyValue: '',
     disabled: false,
   };
   public state: State = { ...initialState };
@@ -90,23 +84,23 @@ export class FormField<T, S = any> extends PureComponent<
 
   constructor(props: Props<T, string, S>) {
     super(props);
-    const numeric: InputHandler<
+    const numeric: InputHandler<T, Props<T, string, S>, State> = new NumericInputHandler<
+      T,
+      Props<T>,
+      State
+    >(props, props.store);
+    const date: InputHandler<T, Props<T, string, S>, State> = new DateInputHandler<
       T,
       Props<T, string, S>,
       State
-    > = new NumericInputHandler<T, Props<T>, State>(props, props.store);
-    const date: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = new DateInputHandler<T, Props<T, string, S>, State>();
+    >();
     // Use sane handler for all numeric types
-    this.inputHandlers["number"] = numeric;
-    this.inputHandlers["currency"] = numeric;
-    this.inputHandlers["percent"] = numeric;
-    this.inputHandlers["date"] = date;
-    this.inputHandlers["time"] = date;
-    this.inputHandlers["strike"] = new StrikeHandler(props, props.store);
+    this.inputHandlers['number'] = numeric;
+    this.inputHandlers['currency'] = numeric;
+    this.inputHandlers['percent'] = numeric;
+    this.inputHandlers['date'] = date;
+    this.inputHandlers['time'] = date;
+    this.inputHandlers['strike'] = new StrikeHandler(props, props.store);
     // The default handler
     this.defaultHandler = new DefaultHandler<T, Props<T, string, S>, State>();
   }
@@ -115,16 +109,10 @@ export class FormField<T, S = any> extends PureComponent<
     this.setValueFromProps();
   };
 
-  public componentDidUpdate = (
-    prevProps: Readonly<Props<T, string, S>>
-  ): void => {
+  public componentDidUpdate = (prevProps: Readonly<Props<T, string, S>>): void => {
     const { props, state } = this;
     if (props.editable !== prevProps.editable && !props.editable) {
-      const handler: InputHandler<
-        T,
-        Props<T, string, S>,
-        State
-      > = this.getHandler();
+      const handler: InputHandler<T, Props<T, string, S>, State> = this.getHandler();
       handler.reset(props);
       this.setValueFromProps();
     } else {
@@ -134,11 +122,7 @@ export class FormField<T, S = any> extends PureComponent<
         props.editable !== prevProps.editable ||
         props.currency !== prevProps.currency
       ) {
-        const handler: InputHandler<
-          T,
-          Props<T, string, S>,
-          State
-        > = this.getHandler();
+        const handler: InputHandler<T, Props<T, string, S>, State> = this.getHandler();
         // Reset the formatter
         handler.reset(props);
         // Update the value
@@ -146,10 +130,7 @@ export class FormField<T, S = any> extends PureComponent<
           this.setValueFromProps();
         }
       }
-      if (
-        !deepEqual(props.value, prevProps.value) ||
-        props.type !== prevProps.type
-      ) {
+      if (!deepEqual(props.value, prevProps.value) || props.type !== prevProps.type) {
         if (state.editor !== Editor.User) {
           this.setValueFromProps();
         }
@@ -162,20 +143,17 @@ export class FormField<T, S = any> extends PureComponent<
   };
 
   public render(): ReactElement {
-    const { tooltip, tooltipStyle = "neutral", name, store } = this.props;
+    const { tooltip, tooltipStyle = 'neutral', name, store } = this.props;
     const { internalValue } = this.state;
     const content: ReactElement | null = this.content();
-    const extraClass: ReadonlyArray<string> =
-      name === "status" ? [toClassName(internalValue)] : [];
-    if (typeof tooltip !== "function") {
+    const extraClass: readonly string[] = name === 'status' ? [toClassName(internalValue)] : [];
+    if (typeof tooltip !== 'function') {
       return <div className={this.getClassName(...extraClass)}>{content}</div>;
     } else {
       if (store !== undefined) {
         const tooltipString: string | null = tooltip(store);
-        if (!tooltipString || tooltipString === "") {
-          return (
-            <div className={this.getClassName(...extraClass)}>{content}</div>
-          );
+        if (!tooltipString || tooltipString === '') {
+          return <div className={this.getClassName(...extraClass)}>{content}</div>;
         } else {
           return (
             <CustomTooltip title={tooltipString} tooltipStyle={tooltipStyle}>
@@ -184,9 +162,7 @@ export class FormField<T, S = any> extends PureComponent<
           );
         }
       } else {
-        return (
-          <div className={this.getClassName(...extraClass)}>{content}</div>
-        );
+        return <div className={this.getClassName(...extraClass)}>{content}</div>;
       }
     }
   }
@@ -216,23 +192,19 @@ export class FormField<T, S = any> extends PureComponent<
   private setValue = (value: any): void => {
     const { props, state, input } = this;
     // Get a handler to format the value
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> = this.getHandler();
     // Create a value with appropriate formatting and an
     // internal representation of the value
     const stateUpdate = handler.createValue(value, input, props, state);
 
     // Update the editor to auto so that it's clear
     // the user "DID NOT" edit this field
-    const editorState: Pick<State, "editor"> = { editor: Editor.Auto };
+    const editorState: Pick<State, 'editor'> = { editor: Editor.Auto };
     // Update internal representation of the state
     this.setState({ ...stateUpdate, ...editorState });
   };
 
-  private ensureCaretIsInPlace = () => {
+  private ensureCaretIsInPlace = (): void => {
     const { input, state } = this;
     if (input === null) return;
     // Place the caret in the right place
@@ -241,34 +213,20 @@ export class FormField<T, S = any> extends PureComponent<
   };
 
   private parse = (value: string): any => {
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> = this.getHandler();
     return handler.parse(value, this.props);
   };
 
-  private onInputKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ): void => {
+  private onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
     const { props, state } = this;
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
-    const result: State | Pick<State, keyof State> | null = handler.onKeyDown(
-      event,
-      props,
-      state
-    );
+    const handler: InputHandler<T, Props<T, string, S>, State> = this.getHandler();
+    const result: State | Pick<State, keyof State> | null = handler.onKeyDown(event, props, state);
     if (result !== null) {
       this.setState(result);
     }
   };
 
-  private saveCaretPosition = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private saveCaretPosition = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { currentTarget } = event;
     this.setState({
       caretPosition: currentTarget.selectionStart,
@@ -280,11 +238,8 @@ export class FormField<T, S = any> extends PureComponent<
     this.setState({
       editor: Editor.User,
     });
-    if (typeof state.internalValue === "number") {
-      const [displayValue, validity] = roundToNearest(
-        state.internalValue,
-        props.rounding
-      );
+    if (typeof state.internalValue === 'number') {
+      const [displayValue, validity] = roundToNearest(state.internalValue, props.rounding);
       if (validity === Validity.Valid) {
         this.setState({
           displayValue: displayValue,
@@ -346,7 +301,7 @@ export class FormField<T, S = any> extends PureComponent<
   private onInputBlur = (): void => {
     const { props } = this;
     const { type } = props;
-    if (type === "strike") {
+    if (type === 'strike') {
       setTimeout(() => {
         this.handleStrikeTypeOnBlurEvent();
       }, 0);
@@ -357,7 +312,7 @@ export class FormField<T, S = any> extends PureComponent<
     }
   };
 
-  private onInputInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private onInputInput = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { props } = this;
     if (props.onInput !== undefined) {
       const { target } = event;
@@ -366,15 +321,11 @@ export class FormField<T, S = any> extends PureComponent<
     }
   };
 
-  private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private onInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { props, state } = this;
     const { target } = event;
     if (!props.editable) return;
-    const handler: InputHandler<
-      T,
-      Props<T, string, S>,
-      State
-    > = this.getHandler();
+    const handler: InputHandler<T, Props<T, string, S>, State> = this.getHandler();
     if (!handler.shouldAcceptInput(event.currentTarget, props, state)) {
       event.preventDefault();
     } else {
@@ -387,7 +338,7 @@ export class FormField<T, S = any> extends PureComponent<
   private createDropdownField = (): ReactElement => {
     const { props, state } = this;
     if (!props.dropdownData) {
-      throw new Error("cannot have a dropdown with no data");
+      throw new Error('cannot have a dropdown with no data');
     }
 
     return (
@@ -397,9 +348,7 @@ export class FormField<T, S = any> extends PureComponent<
         editable={props.editable}
         value={state.internalValue}
         items={props.dropdownData}
-        emptyMessage={
-          props.emptyValue !== undefined ? props.emptyValue : "No selection"
-        }
+        emptyMessage={props.emptyValue !== undefined ? props.emptyValue : 'No selection'}
         onChange={props.onChange}
       />
     );
@@ -408,17 +357,10 @@ export class FormField<T, S = any> extends PureComponent<
   private createTenorField = (): ReactElement | null => {
     const { props } = this;
     if (!props.dropdownData) {
-      throw new Error("cannot have a dropdown with no data");
+      throw new Error('cannot have a dropdown with no data');
     }
-    const value: Tenor | InvalidTenor | null = (():
-      | Tenor
-      | InvalidTenor
-      | null => {
-      if (
-        props.value !== null &&
-        !isInvalidTenor(props.value) &&
-        !isTenor(props.value)
-      ) {
+    const value: Tenor | InvalidTenor | null = ((): Tenor | InvalidTenor | null => {
+      if (props.value !== null && !isInvalidTenor(props.value) && !isTenor(props.value)) {
         return null;
       } else {
         return props.value;
@@ -440,10 +382,10 @@ export class FormField<T, S = any> extends PureComponent<
   private createBankEntityField = (): ReactElement => {
     const { props } = this;
     if (!props.dropdownData) {
-      throw new Error("cannot have a dropdown with no data");
+      throw new Error('cannot have a dropdown with no data');
     }
-    if (typeof props.value !== "string") {
-      throw new Error("invalid value type for bank-entity, string expected");
+    if (typeof props.value !== 'string') {
+      throw new Error('invalid value type for bank-entity, string expected');
     }
     return (
       <BankEntityField<T>
@@ -493,22 +435,13 @@ export class FormField<T, S = any> extends PureComponent<
             value={state.displayValue}
             fullWidth={true}
             error={
-              state.validity === Validity.InvalidFormat ||
-              state.validity === Validity.InvalidValue
+              state.validity === Validity.InvalidFormat || state.validity === Validity.InvalidValue
             }
             startAdornment={
-              <Adornment
-                position="start"
-                value={startAdornment}
-                inputValue={state.displayValue}
-              />
+              <Adornment position="start" value={startAdornment} inputValue={state.displayValue} />
             }
             endAdornment={
-              <Adornment
-                position="end"
-                value={endAdornment}
-                inputValue={state.displayValue}
-              />
+              <Adornment position="end" value={endAdornment} inputValue={state.displayValue} />
             }
             placeholder={props.placeholder}
             autoComplete="new-password"
@@ -518,9 +451,7 @@ export class FormField<T, S = any> extends PureComponent<
             onChange={this.onInputChange}
             onInput={this.onInputInput}
           />
-          <FormHelperText error={state.validity === Validity.InvalidFormat}>
-            {}
-          </FormHelperText>
+          <FormHelperText error={state.validity === Validity.InvalidFormat}>{}</FormHelperText>
         </>
       );
     }
@@ -530,18 +461,18 @@ export class FormField<T, S = any> extends PureComponent<
     const { props } = this;
     const { value } = props;
     // Not applicable values are common to all types
-    if (value === "N/A") return <NotApplicableField />;
+    if (value === 'N/A') return <NotApplicableField />;
     // Check which type it is and pick
     switch (props.type) {
-      case "current:time":
+      case 'current:time':
         return <CurrentTime timeOnly={true} />;
-      case "current:date":
+      case 'current:date':
         return <CurrentTime dateOnly={true} />;
-      case "bank-entity":
+      case 'bank-entity':
         return this.createBankEntityField();
-      case "tenor":
+      case 'tenor':
         return this.createTenorField();
-      case "dropdown":
+      case 'dropdown':
         return this.createDropdownField();
       default:
         return this.createDefaultField();
@@ -551,14 +482,14 @@ export class FormField<T, S = any> extends PureComponent<
   private getClassName = (...extraClasses: string[]): string => {
     const { props, state } = this;
     const { internalValue } = state;
-    const classes: string[] = ["field", props.color, ...extraClasses];
-    if (typeof internalValue === "number" && internalValue < 0) {
-      classes.push("negative");
+    const classes: string[] = ['field', props.color, ...extraClasses];
+    if (typeof internalValue === 'number' && internalValue < 0) {
+      classes.push('negative');
     }
     if (state.changed) {
-      classes.push("changed");
+      classes.push('changed');
     }
-    return classes.join(" ");
+    return classes.join(' ');
   };
 
   private content = (): ReactElement | null => {

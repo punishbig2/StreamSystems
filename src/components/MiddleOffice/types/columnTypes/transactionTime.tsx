@@ -1,14 +1,14 @@
-import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { Deal } from "components/MiddleOffice/types/deal";
-import { TableColumn } from "components/Table/tableColumn";
-import moment, { Moment } from "moment";
-import React, { ReactElement } from "react";
-import { DateTimeRenderer } from "components/Table/CellRenderers/DateTime";
+import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import { DateTimeRenderer } from 'components/Table/CellRenderers/DateTime';
+import { TableColumn } from 'components/Table/tableColumn';
+import moment, { Moment } from 'moment';
+import React, { ReactElement } from 'react';
 
-export default (width: number = 6): TableColumn => ({
-  name: "TransactTime",
-  template: "MM/DD/YYYY 00:00:00 pm",
-  header: () => "Time",
+export default (width = 6): TableColumn => ({
+  name: 'TransactTime',
+  template: 'MM/DD/YYYY 00:00:00 pm',
+  header: () => 'Time',
   filterable: true,
   sortable: true,
   render: (props: CellProps): ReactElement | null | string => {
@@ -27,7 +27,7 @@ export default (width: number = 6): TableColumn => ({
     return m1.diff(m2);
   },
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
-    /*const original: string = DateFormatter.format(v1.tradeDate);
+    /* const original: string = DateFormatter.format(v1.tradeDate);
     if (!original) return false;
     const value: string = origin.toLowerCase();
     return value.includes(keyword.toLowerCase());*/

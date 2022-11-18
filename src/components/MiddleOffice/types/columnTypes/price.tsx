@@ -1,23 +1,23 @@
-import React, { ReactElement } from "react";
-import { priceFormatter } from "utils/priceFormatter";
-import { TableColumn } from "components/Table/tableColumn";
-import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { PriceCell } from "components/MiddleOffice/types/cells/price";
-import { Deal } from "components/MiddleOffice/types/deal";
+import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
+import { PriceCell } from 'components/MiddleOffice/types/cells/price';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import { TableColumn } from 'components/Table/tableColumn';
+import React, { ReactElement } from 'react';
+import { priceFormatter } from 'utils/priceFormatter';
 
-export default (sortable: boolean, width: number = 3): TableColumn => ({
-  name: "Price",
-  template: "999999.99",
+export default (sortable: boolean, width = 3): TableColumn => ({
+  name: 'Price',
+  template: '999999.99',
   filterable: true,
   sortable: sortable,
-  header: () => "Level",
+  header: () => 'Level',
   render: (props: CellProps): ReactElement => <PriceCell {...props} />,
   width: width,
   filterByKeyword: (v1: Deal, keyword: string): boolean => {
     // FIXME: should use the right one
     const value: number | null = v1.dealPrice;
     if (value === null) return false;
-    const numeric: number = Number(keyword);
+    const numeric = Number(keyword);
     if (isNaN(numeric)) return false;
     return priceFormatter(value) === priceFormatter(numeric);
   },

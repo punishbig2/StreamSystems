@@ -1,14 +1,14 @@
-import { PodTableType } from "columns/podColumns/OrderColumn";
-import { getOrderStatus } from "columns/podColumns/OrderColumn/helpers/getOrderStatus";
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { OrderStore } from "mobx/stores/orderStore";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactNode, useMemo } from "react";
-import { OrderTypes } from "types/mdEntry";
-import { Order, OrderStatus } from "types/order";
-import { hasRole, Role } from "types/role";
-import { User } from "types/user";
-import { priceFormatter } from "utils/priceFormatter";
+import { PodTableType } from 'columns/podColumns/OrderColumn';
+import { getOrderStatus } from 'columns/podColumns/OrderColumn/helpers/getOrderStatus';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { OrderStore } from 'mobx/stores/orderStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ReactNode, useMemo } from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { Order, OrderStatus } from 'types/order';
+import { hasRole, Role } from 'types/role';
+import { User } from 'types/user';
+import { priceFormatter } from 'utils/priceFormatter';
 
 interface Props {
   readonly rows?: Order[];
@@ -26,21 +26,17 @@ export const MiniDOB: React.FC<Props> = (props: Props) => {
   if (!rows) return null;
   const children = rows.map((order: Order, index: number) => {
     const { price, size, firm } = order;
-    const status: OrderStatus = getOrderStatus(
-      order,
-      orderStore.depth,
-      PodTableType.Dob
-    );
+    const status: OrderStatus = getOrderStatus(order, orderStore.depth, PodTableType.Dob);
     const priceElement: ReactNode = (() => {
       return (
-        <div className={getOrderStatusClass(status, "mini-price")} key={1}>
+        <div className={getOrderStatusClass(status, 'mini-price')} key={1}>
           {priceFormatter(price)}
         </div>
       );
     })();
     const elements: ReactNode[] = [priceElement];
     const sizeElement = (
-      <div className={getOrderStatusClass(status, "mini-size")} key={2}>
+      <div className={getOrderStatusClass(status, 'mini-size')} key={2}>
         {size}
       </div>
     );

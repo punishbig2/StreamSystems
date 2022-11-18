@@ -1,25 +1,25 @@
-import { PodRow } from "types/podRow";
+import { PodRow } from 'types/podRow';
 
-export const SPECIFIC_TENOR = "SPECIFIC";
+export const SPECIFIC_TENOR = 'SPECIFIC';
 
-export const tenorToNumber = (value: string) => {
+export const tenorToNumber = (value: string): number => {
   // FIXME: probably search the number boundary
-  const multiplier: number = Number(value.substr(0, value.length - 1));
+  const multiplier = Number(value.substr(0, value.length - 1));
   const unit: string = value.substr(-1, 1);
   switch (unit) {
-    case "D":
+    case 'D':
       return multiplier;
-    case "W":
+    case 'W':
       return 7 * multiplier;
-    case "M":
+    case 'M':
       return 30 * multiplier;
-    case "Y":
+    case 'Y':
       return 365 * multiplier;
   }
   return 0;
 };
 
-export const compareTenors = (a: PodRow, b: PodRow) => {
+export const compareTenors = (a: PodRow, b: PodRow): number => {
   const at: string = a.tenor;
   const bt: string = b.tenor;
   return tenorToNumber(at) - tenorToNumber(bt);

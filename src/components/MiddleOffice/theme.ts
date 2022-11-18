@@ -1,14 +1,14 @@
-import { createTheme as createMuiTheme } from "@material-ui/core";
-import { alpha } from "@material-ui/core/styles";
-import { Palette } from "@material-ui/core/styles/createPalette";
-import { getPalette } from "styles/palette";
-import { typography } from "styles/typography";
+import { createTheme as createMuiTheme, Theme } from '@material-ui/core';
+import { alpha } from '@material-ui/core/styles';
+import { Palette } from '@material-ui/core/styles/createPalette';
+import { getPalette } from 'styles/palette';
+import { typography } from 'styles/typography';
 
-const labelWidth: string = "35%";
-const fieldSize: number = 25;
+const labelWidth = '35%';
+const fieldSize = 25;
 
-export const createTheme = (name: string, fontFamily: string) => {
-  const palette: Palette = getPalette(name as "light" | "dark");
+export const createTheme = (name: string, fontFamily: string): Theme => {
+  const palette: Palette = getPalette(name as 'light' | 'dark');
   return createMuiTheme({
     spacing: 4,
     palette: palette,
@@ -16,7 +16,7 @@ export const createTheme = (name: string, fontFamily: string) => {
     overrides: {
       MuiMenuItem: {
         root: {
-          fontSize: "smaller",
+          fontSize: 'smaller',
           fontWeight: 600,
         },
       },
@@ -36,23 +36,23 @@ export const createTheme = (name: string, fontFamily: string) => {
           paddingLeft: 8,
           paddingRight: 8,
           height: fieldSize,
-          lineHeight: fieldSize + "px",
+          lineHeight: fieldSize + 'px',
         },
         notchedOutline: {
           borderRadius: 3,
           borderWidth: 1,
-          borderStyle: "solid",
-          borderColor: "inherit",
+          borderStyle: 'solid',
+          borderColor: 'inherit',
         },
       },
       MuiSelect: {
         selectMenu: {
           height: fieldSize,
-          lineHeight: fieldSize + "px",
+          lineHeight: fieldSize + 'px',
         },
         iconOutlined: {
-          fill: "inherit",
-          "&$disabled": {
+          fill: 'inherit',
+          '&$disabled': {
             fill: palette.text.disabled,
           },
         },
@@ -60,14 +60,14 @@ export const createTheme = (name: string, fontFamily: string) => {
       MuiInputBase: {
         root: {
           fontWeight: 600,
-          fontSize: "smaller",
-          color: "inherit",
+          fontSize: 'smaller',
+          color: 'inherit',
           height: fieldSize,
-          lineHeight: fieldSize + "px",
+          lineHeight: fieldSize + 'px',
           flex: 1,
           marginTop: 3,
           marginBottom: 3,
-          "&$error": {
+          '&$error': {
             backgroundColor: alpha(palette.error.main, 0.15),
             color: palette.error.main,
           },
@@ -82,9 +82,9 @@ export const createTheme = (name: string, fontFamily: string) => {
           minWidth: labelWidth,
           maxWidth: labelWidth,
           fontWeight: 500,
-          fontSize: "smaller",
-          color: "inherit",
-          "&$disabled": {
+          fontSize: 'smaller',
+          color: 'inherit',
+          '&$disabled': {
             color: alpha(palette.text.disabled, 0.5),
           },
         },
@@ -92,11 +92,11 @@ export const createTheme = (name: string, fontFamily: string) => {
     },
     props: {
       MuiTextField: {
-        variant: "outlined",
+        variant: 'outlined',
         label: null,
       },
       MuiSelect: {
-        variant: "outlined",
+        variant: 'outlined',
       },
     },
   });

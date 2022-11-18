@@ -1,4 +1,4 @@
-import { CCYPair, RRStrategy } from "data/groups";
+import { CCYPair, RRStrategy } from 'data/groups';
 
 export const isRRStrategy = (value: any): value is RRStrategy => {
   const values: string[] = Object.values(RRStrategy);

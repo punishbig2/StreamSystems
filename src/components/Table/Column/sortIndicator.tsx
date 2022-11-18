@@ -1,5 +1,5 @@
-import React, { ReactElement } from "react";
-import { SortDirection } from "types/sortDirection";
+import React from 'react';
+import { SortDirection } from 'types/sortDirection';
 
 interface Props {
   readonly sortable: boolean;
@@ -24,7 +24,7 @@ export const SortIndicator: React.FC<Props> = (props: Props) => {
   const { onClick } = props;
   const ref = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect((): (() => void) | void => {
+  React.useEffect((): VoidFunction | void => {
     const element: HTMLDivElement | null = ref.current;
     if (element === null) return;
     const onMouseDown = (event: MouseEvent): void => {
@@ -32,9 +32,9 @@ export const SortIndicator: React.FC<Props> = (props: Props) => {
       event.preventDefault();
       onClick();
     };
-    element.addEventListener("mousedown", onMouseDown);
+    element.addEventListener('mousedown', onMouseDown);
     return (): void => {
-      element.removeEventListener("mousedown", onMouseDown);
+      element.removeEventListener('mousedown', onMouseDown);
     };
   }, [onClick, ref]);
 

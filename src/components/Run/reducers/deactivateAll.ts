@@ -1,5 +1,5 @@
-import { RunState } from "stateDefs/runState";
-import { PodRow } from "types/podRow";
+import { RunState } from 'stateDefs/runState';
+import { PodRow } from 'types/podRow';
 
 export const deactivateAll = (state: RunState, rowID: string): RunState => {
   const { orders } = state;

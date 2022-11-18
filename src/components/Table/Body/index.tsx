@@ -1,23 +1,20 @@
-import { RowProps } from "components/MiddleOffice/DealBlotter/row";
-import React from "react";
-import { isNaN } from "lodash";
-import { debounce } from "@material-ui/core";
+import { debounce } from '@material-ui/core';
+import { RowProps } from 'components/MiddleOffice/DealBlotter/row';
+import { isNaN } from 'lodash';
+import React from 'react';
 
 interface OwnProps {
-  readonly renderRow: (
-    props: RowProps,
-    index?: number
-  ) => React.ReactElement | null;
+  readonly renderRow: (props: RowProps, index?: number) => React.ReactElement | null;
 
   readonly [key: string]: any;
 }
 
 type Props = React.PropsWithRef<OwnProps>;
 enum Actions {
-  UpdateGeometry = "UPDATE_GEOMETRY",
-  ResetRowCount = "RESET_ROW_COUNT",
-  UpdateVisibleRowCount = "UPDATE_VISIBLE_ROW_COUNT",
-  UpdateScrollTop = "UPDATE_SCROLL_TOP",
+  UpdateGeometry = 'UPDATE_GEOMETRY',
+  ResetRowCount = 'RESET_ROW_COUNT',
+  UpdateVisibleRowCount = 'UPDATE_VISIBLE_ROW_COUNT',
+  UpdateScrollTop = 'UPDATE_SCROLL_TOP',
 }
 
 interface State {
@@ -79,27 +76,24 @@ export const TableBody: React.FC<Props> = React.forwardRef(
     const { rows = [] } = props;
     const containerRef = React.useRef<HTMLDivElement>(null);
     const { current } = containerRef;
-    const [state, dispatch] = React.useReducer<React.Reducer<State, Action>>(
-      reducer,
-      initialState
-    );
+    const [state, dispatch] = React.useReducer<React.Reducer<State, Action>>(reducer, initialState);
 
-    React.useEffect((): (() => void) | void => {
+    React.useEffect((): VoidFunction | void => {
       if (current === null) {
         return;
       }
 
-      const parent = current.parentElement!;
-      const children = Array.from(current.children).map(
-        (c) => c as HTMLElement
-      );
-      const getHeight = (element: HTMLElement): number =>
-        element.getBoundingClientRect().height;
+      const parent = current.parentElement;
+      if (parent === null) {
+        return;
+      }
+
+      const children = Array.from(current.children).map((c) => c as HTMLElement);
+      const getHeight = (element: HTMLElement): number => element.getBoundingClientRect().height;
 
       const itemHeight =
         children.reduce(
-          (tallest: number, next: HTMLElement): number =>
-            tallest + getHeight(next),
+          (tallest: number, next: HTMLElement): number => tallest + getHeight(next),
           0
         ) / children.length;
 
@@ -135,15 +129,13 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         type: Actions.ResetRowCount,
         data: {
           top: state.firstRow * state.itemHeight,
-          bottom:
-            (rows.length - state.firstRow - visibleRowCount) * state.itemHeight,
+          bottom: (rows.length - state.firstRow - visibleRowCount) * state.itemHeight,
         },
       });
     }, [rows.length, state.firstRow, state.itemHeight, state.visibleRowCount]);
 
     React.useEffect((): void => {
-      const visibleRowCount =
-        Math.ceil(state.containerHeight / state.itemHeight) + 1;
+      const visibleRowCount = Math.ceil(state.containerHeight / state.itemHeight) + 1;
 
       if (!isNaN(visibleRowCount)) {
         dispatch({
@@ -165,8 +157,15 @@ export const TableBody: React.FC<Props> = React.forwardRef(
     }
 
     const onScroll = (): void => {
-      if (current === null) return;
-      const parent = current.parentElement!;
+      if (current === null) {
+        return;
+      }
+
+      const parent = current.parentElement;
+      if (parent === null) {
+        return;
+      }
+
       const firstRow = Math.min(
         Math.max(Math.floor(parent.scrollTop / state.itemHeight), 0),
         rows.length - state.visibleRowCount
@@ -176,8 +175,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         return;
       }
 
-      const bottom =
-        (rows.length - firstRow - state.visibleRowCount) * state.itemHeight;
+      const bottom = (rows.length - firstRow - state.visibleRowCount) * state.itemHeight;
       if (isNaN(bottom)) {
         return;
       }
@@ -197,10 +195,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(
         <div style={{ height: state.top }} />
         <div ref={containerRef}>
           {rows
-            .slice(
-              state.firstRow,
-              state.firstRow + (state.visibleRowCount ?? rows.length)
-            )
+            .slice(state.firstRow, state.firstRow + (state.visibleRowCount ?? rows.length))
             .map((data: any, index: number): any => {
               const { row } = data;
               const rowProps = {

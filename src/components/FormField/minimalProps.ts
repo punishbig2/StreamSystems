@@ -1,5 +1,5 @@
-import { Tenor } from "types/tenor";
-import { FieldType } from "forms/fieldType";
+import { FieldType } from 'forms/fieldType';
+import { Tenor } from 'types/tenor';
 
 export interface MinimalProps<T = any> {
   type: FieldType;
@@ -7,13 +7,5 @@ export interface MinimalProps<T = any> {
   editable?: boolean;
   emptyValue?: string;
   rounding?: number;
-  value:
-    | string
-    | boolean
-    | number
-    | Date
-    | undefined
-    | null
-    | Tenor
-    | Pick<T, keyof T>;
+  value: string | boolean | number | Date | undefined | null | Tenor | Pick<T, keyof T>;
 }

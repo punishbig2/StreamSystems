@@ -1,35 +1,31 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement } from 'react';
 
 interface Props {
   readonly title: string;
   readonly message: string | (() => ReactElement);
-  readonly icon:
-    | "exclamation-triangle"
-    | "question-circle"
-    | "check-circle"
-    | "spinner";
+  readonly icon: 'exclamation-triangle' | 'question-circle' | 'check-circle' | 'spinner';
   readonly buttons: () => ReactElement | null;
-  readonly color: "good" | "bad" | "neutral";
+  readonly color: 'good' | 'bad' | 'neutral';
 }
 
 export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
   const getIcon = (): ReactElement => {
-    const classes: string[] = ["icon", props.color];
-    if (props.icon === "spinner") {
+    const classes: string[] = ['icon', props.color];
+    if (props.icon === 'spinner') {
       return (
-        <div className={classes.join(" ")}>
+        <div className={classes.join(' ')}>
           <i className="spinner" />
         </div>
       );
-    } else if (props.icon === "exclamation-triangle") {
+    } else if (props.icon === 'exclamation-triangle') {
       return (
-        <div className={classes.join(" ")}>
+        <div className={classes.join(' ')}>
           <i className={`fa fa-exclamation-circle`} />
         </div>
       );
     } else {
       return (
-        <div className={classes.join(" ")}>
+        <div className={classes.join(' ')}>
           <i className={`fa fa-${props.icon}`} />
         </div>
       );
@@ -44,11 +40,7 @@ export const MessageBox: React.FC<Props> = (props: Props): ReactElement => {
         </div>
       </div>
       <div className="content">
-        {typeof props.message === "string" ? (
-          <p>{props.message}</p>
-        ) : (
-          props.message()
-        )}
+        {typeof props.message === 'string' ? <p>{props.message}</p> : props.message()}
       </div>
       <div className="message-box-footer">
         <div className="modal-buttons">{props.buttons()}</div>

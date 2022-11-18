@@ -1,5 +1,5 @@
-import { DealStatus } from "types/dealStatus";
-import { Symbol } from "types/symbol";
+import { DealStatus } from 'types/dealStatus';
+import { FXSymbol } from 'types/FXSymbol';
 
 export interface Commission {
   rate: number | null;
@@ -21,7 +21,7 @@ export interface Deal {
   readonly notional2?: number | null;
   readonly strategy: string;
   readonly currencyPair: string;
-  readonly symbol: Symbol;
+  readonly symbol: FXSymbol;
   readonly strike: number | string | null;
   readonly vol: number | null;
   readonly spread: number | null;

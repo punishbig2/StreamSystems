@@ -1,7 +1,7 @@
-import { InputHandler } from "components/FormField/inputHandler";
-import { FieldType } from "forms/fieldType";
-import { Validity } from "forms/validity";
-import { DealEntry } from "types/dealEntry";
+import { InputHandler } from 'components/FormField/inputHandler';
+import { FieldType } from 'forms/fieldType';
+import { Validity } from 'forms/validity';
+import { DealEntry } from 'types/dealEntry';
 
 export interface DropdownItem<T = any> {
   readonly internalValue: T;
@@ -25,7 +25,7 @@ export type EditableFilter = (
 
 export interface FieldDef<T, E = {}, S = {}> {
   readonly type: FieldType;
-  readonly color: "green" | "orange" | "cream" | "grey";
+  readonly color: 'green' | 'orange' | 'cream' | 'grey';
   readonly name: keyof T;
   readonly label: string;
   readonly editable: boolean | EditableFilter;
@@ -34,10 +34,7 @@ export interface FieldDef<T, E = {}, S = {}> {
   readonly validate?: (value: string) => Validity;
   readonly precision?: number;
   // Only for dropdown (for now)
-  readonly transformData?: (
-    item: any,
-    entry?: T
-  ) => ReadonlyArray<DropdownItem>;
+  readonly transformData?: (item: any, entry?: T) => readonly DropdownItem[];
   readonly minimum?: number | ((store: S) => number);
   readonly maximum?: number;
   readonly dataSource?: keyof S;
@@ -46,7 +43,7 @@ export interface FieldDef<T, E = {}, S = {}> {
   readonly key?: string;
   readonly rounding?: number;
   readonly tooltip?: (store: S) => string | null;
-  readonly tooltipStyle?: "neutral" | "good" | "bad";
+  readonly tooltipStyle?: 'neutral' | 'good' | 'bad';
 
   readonly getValue?: (leg: T, entry: S) => any;
 }

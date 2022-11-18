@@ -1,5 +1,5 @@
-import { getOptimalSize } from "utils/windowUtils";
-import { toPixels } from "components/ReactTileManager/helpers/toPixels";
+import { toPixels } from 'components/ReactTileManager/helpers/toPixels';
+import { getOptimalSize } from 'utils/windowUtils';
 
 export const adjustToContent = (element: HTMLDivElement) => {
   const { style } = element;

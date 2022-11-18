@@ -1,5 +1,5 @@
-import { Validity } from "forms/validity";
-import { Globals } from "golbals";
+import { Validity } from 'forms/validity';
+import { Globals } from 'golbals';
 
 export const getRoundingPrecision = (value: number | undefined): number => {
   if (value === undefined) return 0;
@@ -13,7 +13,7 @@ export const roundToNearest = (
   value: number | null,
   reference: number | undefined
 ): [string, Validity] => {
-  if (value === null) return ["", Validity.Intermediate];
+  if (value === null) return ['', Validity.Intermediate];
   if (reference === undefined) {
     return [value.toString(), Validity.Valid];
   }

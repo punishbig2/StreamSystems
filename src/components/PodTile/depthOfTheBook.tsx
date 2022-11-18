@@ -1,41 +1,33 @@
-import { useDobRows } from "components/PodTile/hooks/useDobRows";
-import { Row } from "components/PodTile/Row";
-import { Table } from "components/Table";
-import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement } from "react";
-import { DepthData } from "types/depthData";
-import { OrderTypes } from "types/mdEntry";
-import { Order, OrderStatus } from "types/order";
-import { PodRow } from "types/podRow";
-import { SortDirection } from "types/sortDirection";
-import { Symbol } from "types/symbol";
+import { useDobRows } from 'components/PodTile/hooks/useDobRows';
+import { Row } from 'components/PodTile/Row';
+import { Table } from 'components/Table';
+import { ExtendedTableColumn, TableColumn } from 'components/Table/tableColumn';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ReactElement } from 'react';
+import { DepthData } from 'types/depthData';
+import { FXSymbol } from 'types/FXSymbol';
+import { OrderTypes } from 'types/mdEntry';
+import { Order, OrderStatus } from 'types/order';
+import { PodRow } from 'types/podRow';
+import { SortDirection } from 'types/sortDirection';
 
 interface Props {
   readonly currentTenor: string | null;
-  readonly symbol: Symbol;
+  readonly symbol: FXSymbol;
   readonly strategy: string;
-  readonly darkOrders: ReadonlyArray<Order>;
+  readonly darkOrders: readonly Order[];
   readonly book: DepthData;
 
   readonly onTenorSelected: (tenor: string | null) => void;
 }
 
-export const DepthOfTheBook: React.FC<Props> = (
-  props: Props
-): React.ReactElement => {
+export const DepthOfTheBook: React.FC<Props> = (props: Props): React.ReactElement => {
   const { rows, columns } = props.book;
   const { currentTenor, symbol, strategy, darkOrders } = props;
   const { user } = workareaStore;
   const { onTenorSelected } = props;
 
-  const effectiveRows = useDobRows(
-    rows,
-    currentTenor!,
-    symbol.symbolID,
-    strategy,
-    user
-  );
+  const effectiveRows = useDobRows(rows, currentTenor, symbol.symbolID, strategy, user);
 
   const renderRow = React.useCallback(
     (rowProps: any, index?: number): ReactElement | null => {
@@ -91,12 +83,12 @@ export const DepthOfTheBook: React.FC<Props> = (
     [symbol, effectiveRows, darkOrders, onTenorSelected]
   );
 
-  const _columns = React.useMemo((): ReadonlyArray<ExtendedTableColumn> => {
+  const _columns = React.useMemo((): readonly ExtendedTableColumn[] => {
     return columns.map(
       (column: TableColumn): ExtendedTableColumn => ({
         ...column,
         sortDirection: SortDirection.None,
-        filter: "",
+        filter: '',
       })
     );
   }, [columns]);

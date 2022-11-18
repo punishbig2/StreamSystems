@@ -1,8 +1,8 @@
-import { action, observable } from "mobx";
-import React from "react";
-import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
-import signalRClient from "signalR/signalRClient";
-import { NONE } from "../../stateDefs/workspaceState";
+import { action, makeObservable, observable } from 'mobx';
+import React from 'react';
+import signalRClient from 'signalR/signalRClient';
+import { NONE } from 'stateDefs/workspaceState';
+import { BrokerageCommissionResponse } from 'types/brokerageCommissionResponse';
 
 export interface CommissionRate {
   readonly region: string;
@@ -10,23 +10,30 @@ export interface CommissionRate {
   readonly hasDiscount: boolean;
 }
 
-export const convertToCommissionRatesArray = (response: any) => {
+export const convertToCommissionRatesArray = (response: any): readonly CommissionRate[] => {
   if (response === null) return [];
-  const regions = Object.keys(response).filter((key) => !key.endsWith("-FLAG"));
+  const regions = Object.keys(response).filter((key) => !key.endsWith('-FLAG'));
 
   return regions
-    .filter((region) => region !== "firm" && region !== "msgtype")
+    .filter((region) => region !== 'firm' && region !== 'msgtype')
     .map((region) => {
       return {
         region: region,
-        hasDiscount: response[`${region}-FLAG`] !== "false",
+        hasDiscount: response[`${region}-FLAG`] !== 'false',
         value: Number(response[region]),
       };
     });
 };
 
 export class BrokerageStore {
-  @observable.ref commissionRates: ReadonlyArray<CommissionRate> = [];
+  public commissionRates: readonly CommissionRate[] = [];
+
+  constructor() {
+    makeObservable(this, {
+      commissionRates: observable.ref,
+      onCommissionRates: action.bound,
+    });
+  }
 
   public setRates(rates: BrokerageCommissionResponse): void {
     this.commissionRates = convertToCommissionRatesArray(rates);
@@ -37,18 +44,12 @@ export class BrokerageStore {
       return (): void => {};
     }
 
-    return signalRClient.addCommissionRatesListener(
-      firm,
-      this.onCommissionRates
-    );
+    return signalRClient.addCommissionRatesListener(firm, this.onCommissionRates);
   }
 
-  @action.bound
-  private onCommissionRates(rates: ReadonlyArray<CommissionRate>): void {
+  public onCommissionRates(rates: readonly CommissionRate[]): void {
     this.commissionRates = rates;
   }
 }
 
-export const BrokerageStoreContext = React.createContext<BrokerageStore | null>(
-  null
-);
+export const BrokerageStoreContext = React.createContext<BrokerageStore | null>(null);

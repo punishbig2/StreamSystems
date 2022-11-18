@@ -1,38 +1,32 @@
-import { LdsSpinner } from "components/ldsSpinner";
-import { LegDetailsFields } from "components/MiddleOffice/LegDetailsForm/LegDetailsFields";
-import { Leg } from "components/MiddleOffice/types/leg";
-import { NoDataMessage } from "components/noDataMessage";
-import React, { ReactElement } from "react";
-import { DealEntry } from "types/dealEntry";
-import { StyledValue } from "types/styledValue";
-import { StylesMap } from "utils/legsUtils";
+import { LdsSpinner } from 'components/ldsSpinner';
+import { LegDetailsFields } from 'components/MiddleOffice/LegDetailsForm/LegDetailsFields';
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { NoDataMessage } from 'components/noDataMessage';
+import React, { ReactElement } from 'react';
+import { DealEntry } from 'types/dealEntry';
+import { StyledValue } from 'types/styledValue';
+import { StylesMap } from 'utils/legsUtils';
 
 interface Props {
   readonly dealEntry: DealEntry;
   readonly isEditMode: boolean;
-  readonly legs: ReadonlyArray<Leg>;
+  readonly legs: readonly Leg[];
   readonly isLoading: boolean;
   readonly disabled: boolean;
-  readonly onUpdateLeg: (
-    index: number,
-    key: keyof Leg,
-    items: any
-  ) => Promise<void>;
+  readonly onUpdateLeg: (index: number, key: keyof Leg, items: any) => Promise<void>;
 }
 
-export const LegDetailsForm: React.FC<Props> = (
-  props: Props
-): ReactElement | null => {
+export const LegDetailsForm: React.FC<Props> = (props: Props): ReactElement | null => {
   const { dealEntry, legs } = props;
   const onValueChange =
     (index: number) =>
     async (key: keyof Leg, value: any): Promise<void> => {
       switch (key) {
-        case "rates":
+        case 'rates':
           return undefined;
-        case "hedge":
-        case "price":
-        case "premium":
+        case 'hedge':
+        case 'price':
+        case 'premium':
           if (dealEntry.premstyle === undefined) {
             return props.onUpdateLeg(index, key, [null, null, null]);
           } else {

@@ -1,10 +1,10 @@
-import { Order } from "types/order";
-import { priceFormatter } from "utils/priceFormatter";
-import { OrderStore } from "mobx/stores/orderStore";
+import { OrderStore } from 'mobx/stores/orderStore';
+import { Order } from 'types/order';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export const getAggregatedSize = (
   topOrder: OrderStore | Order,
-  orders: ReadonlyArray<Order>
+  orders: readonly Order[]
 ): number | null => {
   if (orders.length === 0) {
     if (topOrder instanceof OrderStore) {
@@ -17,13 +17,6 @@ export const getAggregatedSize = (
   }
   return orders
     .filter((other: Order) => other.type === topOrder.type)
-    .filter(
-      (other: Order) =>
-        priceFormatter(other.price) === priceFormatter(topOrder.price)
-    )
-    .reduce(
-      (size: number, order: Order) =>
-        size + (order.size === null ? 0 : order.size),
-      0
-    );
+    .filter((other: Order) => priceFormatter(other.price) === priceFormatter(topOrder.price))
+    .reduce((size: number, order: Order) => size + (order.size === null ? 0 : order.size), 0);
 };

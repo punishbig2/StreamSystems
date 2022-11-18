@@ -1,7 +1,7 @@
-import { InvalidStrategy, Product } from "types/product";
-import { DealStatus } from "types/dealStatus";
-import { InvalidSymbol, Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
+import { DealStatus } from 'types/dealStatus';
+import { FXSymbol, InvalidSymbol } from 'types/FXSymbol';
+import { InvalidStrategy, Product } from 'types/product';
+import { InvalidTenor, Tenor } from 'types/tenor';
 
 export enum DealType {
   Invalid = 0,
@@ -23,7 +23,7 @@ export enum EntryType {
 export interface DealEntry {
   readonly dealID?: string;
 
-  readonly symbol: Symbol;
+  readonly symbol: FXSymbol;
   readonly strategy: Product;
 
   readonly tenor1: Tenor | InvalidTenor;
@@ -40,7 +40,7 @@ export interface DealEntry {
   readonly buyer: string;
   readonly seller: string;
   readonly style: string;
-  readonly model: number | "";
+  readonly model: number | '';
 
   readonly legs: number | null;
 
@@ -74,27 +74,27 @@ export interface DealEntry {
 export const emptyDealEntry: DealEntry = {
   symbol: InvalidSymbol,
   strategy: InvalidStrategy,
-  premstyle: "Forward",
-  deltastyle: "Forward",
+  premstyle: 'Forward',
+  deltastyle: 'Forward',
   legs: null,
   not1: null,
   not2: null,
-  legadj: "",
-  buyer: "",
-  buyer_useremail: "",
-  seller: "",
-  seller_useremail: "",
+  legadj: '',
+  buyer: '',
+  buyer_useremail: '',
+  seller: '',
+  seller_useremail: '',
   tenor1: {
     expiryDate: null,
     deliveryDate: null,
-    name: "",
+    name: '',
   },
   tenor2: null,
   premiumDate: new Date(),
   tradeDate: new Date(),
-  dealID: "",
+  dealID: '',
   status: DealStatus.NoStatus,
-  style: "European",
+  style: 'European',
   model: 3,
   type: EntryType.Empty,
   dealType: DealType.Manual,
@@ -120,8 +120,8 @@ export interface ServerDealQuery {
   readonly lastqty: number;
   readonly notional1: number | null;
   readonly size: number; // Notional / 1e6
-  readonly lvsqty: "0";
-  readonly cumqty: "0";
+  readonly lvsqty: '0';
+  readonly cumqty: '0';
   readonly transacttime: string;
   readonly buyerentitycode: string;
   readonly sellerentitycode: string;
@@ -138,7 +138,7 @@ export interface ServerDealQuery {
   readonly deltastyle: string;
   readonly premstyle: string;
   readonly style: string;
-  readonly model: number | "";
+  readonly model: number | '';
   readonly legadj: string;
   readonly buyer_comm: number | null;
   readonly buyer_comm_rate: number | null;

@@ -1,41 +1,37 @@
-import { SizeHeaderProps } from "components/Run/columnData";
-import React, { useState, useEffect } from "react";
-import { DualTableHeader } from "components/dualTableHeader";
-
-import strings from "locales";
-
-import { NumericInput } from "components/NumericInput";
-import { sizeFormatter } from "utils/sizeFormatter";
+import { DualTableHeader } from 'components/dualTableHeader';
+import { NumericInput } from 'components/NumericInput';
+import { SizeHeaderProps } from 'components/Run/columnData';
+import strings from 'locales';
+import React, { useEffect, useState } from 'react';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 type Props = SizeHeaderProps;
 export const SizeHeader: React.FC<Props> = (props: Props) => {
-  const [internalValue, setInternalValue] = useState<number | null>(
-    props.value
-  );
+  const [internalValue, setInternalValue] = useState<number | null>(props.value);
 
-  const onBlur = () => {
+  const onBlur = (): void => {
     setInternalValue(props.value);
   };
 
-  useEffect(() => {
+  useEffect((): void => {
     setInternalValue(props.value);
   }, [props.value]);
 
-  const reset = () => {
+  const reset = (): void => {
     props.onReset();
   };
 
-  const onChange = (value: string | null) => {
-    if (value === "" || value === null) {
+  const onChange = (value: string | null): void => {
+    if (value === '' || value === null) {
       setInternalValue(null);
     } else {
-      const numeric: number = Number(value);
+      const numeric = Number(value);
       if (isNaN(numeric)) return;
       setInternalValue(numeric);
     }
   };
 
-  const onSubmit = (input: HTMLInputElement) => {
+  const onSubmit = (input: HTMLInputElement): void => {
     if (internalValue === null) return;
     if (internalValue >= props.minimum) {
       props.onSubmit(input, internalValue);

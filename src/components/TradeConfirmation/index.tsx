@@ -1,11 +1,11 @@
-import { Typography } from "@material-ui/core";
-import React, { ReactElement, useMemo } from "react";
-import { Message } from "types/message";
-import { hasRole, Role } from "types/role";
-import { User, UserPreferences } from "types/user";
-import { getMessagePrice, getMessageSize } from "utils/messageUtils";
-import { priceFormatter } from "utils/priceFormatter";
-import workareaStore from "mobx/stores/workareaStore";
+import { Typography } from '@material-ui/core';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ReactElement, useMemo } from 'react';
+import { Message } from 'types/message';
+import { hasRole, Role } from 'types/role';
+import { User, UserPreferences } from 'types/user';
+import { getMessagePrice, getMessageSize } from 'utils/messageUtils';
+import { priceFormatter } from 'utils/priceFormatter';
 
 interface OwnProps {
   trade: Message;
@@ -13,25 +13,23 @@ interface OwnProps {
   onClose: () => void;
 }
 
-const getDirection = (trade?: Message) => {
+const getDirection = (trade?: Message): string => {
   if (!trade || !trade.Side) {
-    return "for or to";
+    return 'from or to';
   } else {
     const side = trade.Side as unknown;
-    if (typeof side === "number") {
-      return side === 1 ? "from" : "to";
+    if (typeof side === 'number') {
+      return side === 1 ? 'from' : 'to';
     }
-    return side === "1" ? "from" : "to";
+    return side === '1' ? 'from' : 'to';
   }
 };
 
-export const TradeConfirmation: React.FC<OwnProps> = (
-  props: OwnProps
-): ReactElement | null => {
+export const TradeConfirmation: React.FC<OwnProps> = (props: OwnProps): ReactElement | null => {
   const { trade } = props;
   const { Symbol } = trade;
   const direction: string = getDirection(trade);
-  const verb: string = direction === "from" ? "buy" : "sell";
+  const verb: string = direction === 'from' ? 'buy' : 'sell';
   const user: User = workareaStore.user;
   const personality: string = workareaStore.personality;
   const isBroker: boolean = useMemo((): boolean => {
@@ -39,13 +37,13 @@ export const TradeConfirmation: React.FC<OwnProps> = (
     return hasRole(roles, Role.Broker);
   }, [user]);
   const firm: string = isBroker ? personality : user.firm;
-  const subject1: string = trade.MDMkt === firm ? "You" : trade.MDMkt;
+  const subject1: string = trade.MDMkt === firm ? 'You' : trade.MDMkt;
   const subject2: string = trade.ExecBroker;
   const size: number = getMessageSize(trade);
   const price: string = priceFormatter(getMessagePrice(trade));
   const currency: string = Symbol.slice(0, 3);
-  const line1: string = `${Symbol} ${trade.Tenor} ${trade.Strategy} @ ${price} ${currency}`;
-  const line2: string = `${subject1} ${verb} ${size} ${direction} ${subject2}`;
+  const line1 = `${Symbol} ${trade.Tenor} ${trade.Strategy} @ ${price} ${currency}`;
+  const line2 = `${subject1} ${verb} ${size} ${direction} ${subject2}`;
   Notification.requestPermission().then(() => {
     new Notification(`${line1}\n${line2}`);
   });

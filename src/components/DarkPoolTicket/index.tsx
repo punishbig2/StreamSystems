@@ -6,20 +6,20 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-} from "@material-ui/core";
-import { PresetSizeButton } from "components/presetSizeButton";
-import { useTicketClasses } from "hooks/useTicketClasses";
-import strings from "locales";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { useState } from "react";
-import { DarkPoolOrder } from "types/order";
-import { SelectEventData } from "types/selectEventData";
-import { Sides } from "types/sides";
-import { User } from "types/user";
-import { MessageTypes } from "types/w";
-import { selectInputText } from "utils/commonUtils";
-import { priceFormatter } from "utils/priceFormatter";
-import { sizeFormatter } from "utils/sizeFormatter";
+} from '@material-ui/core';
+import { PresetSizeButton } from 'components/presetSizeButton';
+import { useTicketClasses } from 'hooks/useTicketClasses';
+import strings from 'locales';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { useState } from 'react';
+import { DarkPoolOrder } from 'types/order';
+import { SelectEventData } from 'types/selectEventData';
+import { Sides } from 'types/sides';
+import { User } from 'types/user';
+import { MessageTypes } from 'types/w';
+import { selectInputText } from 'utils/commonUtils';
+import { priceFormatter } from 'utils/priceFormatter';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 interface OwnProps {
   tenor: string;
@@ -31,7 +31,7 @@ interface OwnProps {
   onSubmit: (order: DarkPoolOrder) => void;
 }
 
-const None = "";
+const None = '';
 const presetSizes: number[] = [30, 50, 100, 500];
 
 const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
@@ -40,23 +40,21 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
   const [side, setSide] = useState<string>(None);
   const [inst, setInst] = useState<string>(None);
   const classes = useTicketClasses();
-  const updateSize = ({
-    currentTarget,
-  }: React.ChangeEvent<HTMLInputElement>) => {
-    const numeric: number = Number(currentTarget.value);
+  const updateSize = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>): void => {
+    const numeric = Number(currentTarget.value);
     if (isNaN(numeric)) return;
     setSize(numeric);
   };
 
-  const updatePrice = ({
-    currentTarget,
-  }: React.ChangeEvent<HTMLInputElement>) => {
-    const numeric: number = Number(currentTarget.value);
-    if (isNaN(numeric)) return;
+  const updatePrice = ({ currentTarget }: React.ChangeEvent<HTMLInputElement>): void => {
+    const numeric = Number(currentTarget.value);
+    if (isNaN(numeric)) {
+      return;
+    }
     setPrice(numeric);
   };
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     const user: User = workareaStore.user;
     const order: DarkPoolOrder = {
@@ -75,25 +73,18 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
     props.onSubmit(order);
   };
 
-  const instLabels: { [key: string]: string } = { G: "AON", D: "1/2 ON" };
-  const sideLabels: { [key: string]: string } = { SELL: "Sell", BUY: "Buy" };
-  const canSubmit: boolean =
-    !isNaN(Number(price)) && side !== "" && size >= props.minimumSize;
+  const instLabels: { [key: string]: string } = { G: 'AON', D: '1/2 ON' };
+  const sideLabels: { [key: string]: string } = { SELL: 'Sell', BUY: 'Buy' };
+  const canSubmit: boolean = !isNaN(Number(price)) && side !== '' && size >= props.minimumSize;
 
-  const renderSide = (value: any) =>
-    !value ? (
-      <span className="invalid">Select side&hellip;</span>
-    ) : (
-      sideLabels[value as string]
-    );
+  const renderSide = (value: any): React.ReactElement | string =>
+    !value ? <span className="invalid">Select side&hellip;</span> : sideLabels[value as string];
   const stringSelectSetter =
-    (fn: (value: string) => void) =>
-    (event: React.ChangeEvent<SelectEventData>) => {
+    (fn: (value: string) => void) => (event: React.ChangeEvent<SelectEventData>) => {
       const { value } = event.target;
       fn(value as string);
     };
-  const error =
-    size < props.minimumSize ? "Minimum Qty: " + props.minimumSize : " ";
+  const error = size < props.minimumSize ? 'Minimum Qty: ' + props.minimumSize : ' ';
   return (
     <div>
       <div className="modal-title">
@@ -125,7 +116,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 <MenuItem value="SELL">Sell</MenuItem>
               </Select>
               <FormHelperText error={true} className={classes.formHelperText}>
-                {side === "" ? "Please choose a side" : " "}
+                {side === '' ? 'Please choose a side' : ' '}
               </FormHelperText>
             </FormControl>
           </Grid>
@@ -142,7 +133,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 readOnly
               />
               <FormHelperText error={true}>
-                {isNaN(price) ? "Invalid price value" : " "}
+                {isNaN(price) ? 'Invalid price value' : ' '}
               </FormHelperText>
             </FormControl>
           </Grid>
@@ -163,11 +154,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
               </FormHelperText>
               <div className="preset-buttons four">
                 {presetSizes.map((value: number) => (
-                  <PresetSizeButton
-                    key={value}
-                    value={value}
-                    setValue={setSize}
-                  />
+                  <PresetSizeButton key={value} value={value} setValue={setSize} />
                 ))}
               </div>
             </FormControl>
@@ -179,9 +166,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 id="inst"
                 value={inst}
                 displayEmpty={true}
-                renderValue={(value: any) =>
-                  !value ? "None" : instLabels[value as string]
-                }
+                renderValue={(value: any) => (!value ? 'None' : instLabels[value as string])}
                 variant="outlined"
                 className={classes.select}
                 disabled={true}
@@ -193,7 +178,7 @@ const DarkPoolTicket: React.FC<OwnProps> = (props: OwnProps) => {
                 </MenuItem>
               </Select>
               <FormHelperText error={true} className={classes.formHelperText}>
-                {" "}
+                {' '}
               </FormHelperText>
             </FormControl>
           </Grid>

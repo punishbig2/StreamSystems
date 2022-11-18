@@ -1,24 +1,18 @@
-import { Grid } from "@material-ui/core";
-import {
-  getCurrentEntity,
-  getDefaultEntity,
-} from "components/BankEntityField/helpers";
-import { FormField } from "components/FormField";
-import { DropdownItem } from "forms/fieldDef";
-import {
-  MiddleOfficeStore,
-  MiddleOfficeStoreContext,
-} from "mobx/stores/middleOfficeStore";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
-import { BankEntity } from "types/bankEntity";
+import { Grid } from '@material-ui/core';
+import { getCurrentEntity, getDefaultEntity } from 'components/BankEntityField/helpers';
+import { FormField } from 'components/FormField';
+import { DropdownItem } from 'forms/fieldDef';
+import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+import { BankEntity } from 'types/bankEntity';
 
 interface Props<T> {
-  list: ReadonlyArray<DropdownItem>;
+  list: readonly DropdownItem[];
   value: string;
   name: keyof T;
   disabled: boolean;
   readOnly: boolean;
-  color: "green" | "orange" | "cream" | "grey";
+  color: 'green' | 'orange' | 'cream' | 'grey';
   onChange?: (name: keyof T, value: any) => Promise<void>;
 }
 
@@ -42,10 +36,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
 
   const setCurrentFirm = useCallback(
     (firm: string) => {
-      const defaultValue: BankEntity | undefined = getDefaultEntity(
-        firm,
-        mapped
-      );
+      const defaultValue: BankEntity | undefined = getDefaultEntity(firm, mapped);
       if (defaultValue === undefined) {
         console.warn(`${firm} has no default entity`);
       } else if (onChange !== undefined) {
@@ -62,13 +53,13 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
   }, [mapped]);
 
   const onBankChange = async (name: keyof T, value: any): Promise<void> => {
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       await setCurrentFirm(value);
     }
   };
 
   const onEntityChange = async (name: keyof T, value: any): Promise<void> => {
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       if (onChange !== undefined) {
         await onChange(props.name, value);
       }
@@ -101,7 +92,7 @@ export function BankEntityField<T>(props: Props<T>): ReactElement {
           <FormField
             color={props.color}
             name={props.name}
-            value={entities.includes(value) ? value : ""}
+            value={entities.includes(value) ? value : ''}
             dropdownData={entities.map(
               (item: string): DropdownItem => ({
                 label: item,

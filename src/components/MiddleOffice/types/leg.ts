@@ -1,5 +1,5 @@
-import { Sides } from "types/sides";
-import { StyledValue } from "types/styledValue";
+import { Sides } from 'types/sides';
+import { StyledValue } from 'types/styledValue';
 
 export type Rates = [
   {

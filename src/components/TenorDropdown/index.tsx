@@ -1,19 +1,16 @@
-import { Grid } from "@material-ui/core";
-import { FormField } from "components/FormField";
-import { DropdownItem } from "forms/fieldDef";
-import {
-  MiddleOfficeStore,
-  MiddleOfficeStoreContext,
-} from "mobx/stores/middleOfficeStore";
-import React, { ReactElement } from "react";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { SPECIFIC_TENOR } from "utils/tenorUtils";
+import { Grid } from '@material-ui/core';
+import { FormField } from 'components/FormField';
+import { DropdownItem } from 'forms/fieldDef';
+import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import React, { ReactElement } from 'react';
+import { InvalidTenor, Tenor } from 'types/tenor';
+import { SPECIFIC_TENOR } from 'utils/tenorUtils';
 
 interface Props<T> {
-  data: ReadonlyArray<DropdownItem>;
+  data: readonly DropdownItem[];
   value: Tenor | InvalidTenor | null;
   className?: string;
-  color: "green" | "orange" | "cream" | "grey";
+  color: 'green' | 'orange' | 'cream' | 'grey';
   name: keyof T;
   disabled?: boolean;
   readOnly: boolean;
@@ -28,10 +25,7 @@ const specificTenorDropdownItem: DropdownItem<string> = {
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data, value } = props;
-  const onDateChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    value: Date | string
-  ): void => {
+  const onDateChange = (event: React.ChangeEvent<HTMLInputElement>, value: Date | string): void => {
     if (value instanceof Date && props.onChange !== undefined) {
       void props.onChange(props.name, value);
     }
@@ -41,7 +35,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
       await props.onChange(name, value);
     }
   };
-  const { name = "", expiryDate = null } = value !== null ? value : {};
+  const { name = '', expiryDate = null } = value !== null ? value : {};
   const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   return (
     <Grid className="MuiInputBase-root" alignItems="center" container>

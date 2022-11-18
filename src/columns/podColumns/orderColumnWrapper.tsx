@@ -1,8 +1,8 @@
-import { TableColumn } from "components/Table/tableColumn";
-import React, { ReactElement } from "react";
-import { PodRowProps } from "columns/podColumns/common";
-import { OrderTypes } from "types/mdEntry";
-import { OrderColumn, PodTableType } from "columns/podColumns/OrderColumn";
+import { PodRowProps } from 'columns/podColumns/common';
+import { OrderColumn, PodTableType } from 'columns/podColumns/OrderColumn';
+import { TableColumn } from 'components/Table/tableColumn';
+import React, { ReactElement } from 'react';
+import { OrderTypes } from 'types/mdEntry';
 
 export const OrderColumnWrapper = (
   label: string,
@@ -60,13 +60,13 @@ export const OrderColumnWrapper = (
           orders={props.orders}
           defaultSize={props.defaultSize}
           minimumSize={props.minimumSize}
-          forceEditable={props.id === "#special"}
+          forceEditable={props.id === '#special'}
           tableType={isDepth ? PodTableType.Dob : PodTableType.Pod}
         />
       );
     },
-    template: "999999 999999.999",
+    template: '999999 999999.999',
     width: 13,
-    className: "twin-cell",
+    className: 'twin-cell',
   };
 };

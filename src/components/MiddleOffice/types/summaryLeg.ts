@@ -1,4 +1,4 @@
-import { DealOutput } from "types/dealOutput";
+import { DealOutput } from 'types/dealOutput';
 
 export interface SummaryLegBase {
   strategy: string;
@@ -27,7 +27,7 @@ export class SummaryLeg implements SummaryLegBase {
   public fwdrate2: number | null = null;
   public source: string | null = null;
   public spot: number | null = null;
-  public strategy: string = "";
+  public strategy = '';
   public tradeDate: Date = new Date();
   public usi: string | null = null;
 

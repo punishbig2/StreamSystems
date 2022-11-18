@@ -1,17 +1,17 @@
-import { NumericInput, TabDirection } from "components/NumericInput";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { Direction } from "components/Table/CellRenderers/Price/direction";
-import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { OrderTypes } from "types/mdEntry";
-import { ArrowDirection } from "types/w";
-import React from "react";
-import { priceFormatter } from "utils/priceFormatter";
-import { Tooltip } from "components/Table/CellRenderers/Price/tooltip";
-import { OrderStatus } from "types/order";
-import { CircularSpinner } from "components/circularSpinner";
-import { observer } from "mobx-react";
-import { PriceStore } from "mobx/stores/priceStore";
+import { CircularSpinner } from 'components/circularSpinner';
+import { NumericInput, TabDirection } from 'components/NumericInput';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { Direction } from 'components/Table/CellRenderers/Price/direction';
+import { PriceTypes } from 'components/Table/CellRenderers/Price/priceTypes';
+import { Tooltip } from 'components/Table/CellRenderers/Price/tooltip';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { PriceStore } from 'mobx/stores/priceStore';
+import { observer } from 'mobx-react';
+import React from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { OrderStatus } from 'types/order';
+import { ArrowDirection } from 'types/w';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export enum PriceErrors {
   GreaterThanMax,
@@ -35,14 +35,8 @@ export interface Props {
   readonly uid?: string;
   readonly timestamp?: string;
   readonly tooltip?: React.FC<any> | string;
-  readonly onTabbedOut?: (
-    input: HTMLInputElement,
-    tabDirection: TabDirection
-  ) => void;
-  readonly onNavigate?: (
-    target: HTMLInputElement,
-    direction: NavigateDirection
-  ) => void;
+  readonly onTabbedOut?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
+  readonly onNavigate?: (target: HTMLInputElement, direction: NavigateDirection) => void;
   readonly onError?: (error: PriceErrors, input: HTMLInputElement) => void;
   readonly onDoubleClick?: () => void;
   readonly onSubmit: (
@@ -57,7 +51,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const [store] = React.useState<PriceStore>(new PriceStore());
   const [input, setInput] = React.useState<HTMLInputElement | null>(null);
   const { value, status, tooltip } = props;
-  if (value === undefined) throw new Error("value is not optional");
+  if (value === undefined) throw new Error('value is not optional');
 
   React.useEffect(() => {
     store.setBaseValue(value);
@@ -85,7 +79,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
   const getTooltip = (): React.ReactElement | null => {
     if (!tooltip || !store.tooltipVisible) return null;
     const content: React.ReactElement | string | null =
-      typeof tooltip === "function" ? tooltip({}) : tooltip;
+      typeof tooltip === 'function' ? tooltip({}) : tooltip;
     if (!content) return null;
     return (
       <Tooltip target={target} onClose={hideTooltip}>
@@ -94,13 +88,13 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     );
   };
 
-  const onChange = (value: string | null) => {
+  const onChange = (value: string | null): void => {
     if (!edited) {
       setEdited(true);
     }
     if (value !== null) {
       const trimmed: string = value.trim();
-      const numeric: number = Number(trimmed + "0");
+      const numeric = Number(trimmed + '0');
       if (!isNaN(numeric)) {
         store.setInternalValue(trimmed);
       }
@@ -111,13 +105,10 @@ export const Price: React.FC<Props> = observer((props: Props) => {
 
   const isOpenOrderTicketStatus = (status: OrderStatus): boolean => {
     if ((status & OrderStatus.DarkPool) !== 0) return true;
-    return (
-      (status & OrderStatus.Owned) === 0 &&
-      (status & OrderStatus.SameBank) === 0
-    );
+    return (status & OrderStatus.Owned) === 0 && (status & OrderStatus.SameBank) === 0;
   };
 
-  const onDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {
+  const onDoubleClick = (event: React.MouseEvent<HTMLInputElement>): void => {
     // Stop the event
     event.stopPropagation();
     event.preventDefault();
@@ -135,13 +126,13 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     return edited;
   };
 
-  const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
+  const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection): void => {
     if (!input.readOnly) {
       const { numericValue } = store;
 
       const scaledValue = Math.round(1000 * (numericValue ?? 0));
       if (scaledValue % 25 !== 0) {
-        store.setInputError("Invalid price increment");
+        store.setInputError('Invalid price increment');
         return;
       } else {
         store.setInputError(null);
@@ -164,13 +155,13 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     store.setInternalValue(store.value);
   };
 
-  const onCancelEdit = () => {
+  const onCancelEdit = (): void => {
     store.setInternalValue(null);
     store.setInputError(null);
     setEdited(false);
   };
 
-  const getPlaceholder = (value: number | null) => {
+  const getPlaceholder = (value: number | null): string => {
     return priceFormatter(value);
   };
 
@@ -181,7 +172,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
     return <div className="input-error">{store.inputError}</div>;
   };
 
-  const getSpinner = () => {
+  const getSpinner = (): React.ReactElement | undefined => {
     if ((props.status & OrderStatus.BeingCreated) !== 0) {
       return (
         <div className="spinner">
@@ -212,14 +203,14 @@ export const Price: React.FC<Props> = observer((props: Props) => {
       );
     }
   };
-  const classes = ["price-layout", "cell"];
+  const classes = ['price-layout', 'cell'];
   if (props.className) classes.push(props.className);
-  if (store.flashing) classes.push("flash");
+  if (store.flashing) classes.push('flash');
   classes.push(getOrderStatusClass(props.status));
   return (
     <>
       <div
-        className={classes.join(" ")}
+        className={classes.join(' ')}
         onMouseLeave={hideTooltip}
         onMouseEnter={showTooltip}
         ref={setTarget}
@@ -234,7 +225,7 @@ export const Price: React.FC<Props> = observer((props: Props) => {
           tabIndex={props.tabIndex}
           title={props.title}
           value={store.value}
-          className={store.internalValue !== null ? "modified" : "initial"}
+          className={store.internalValue !== null ? 'modified' : 'initial'}
           placeholder={getPlaceholder(props.value)}
           type="price"
           onCancelEdit={onCancelEdit}

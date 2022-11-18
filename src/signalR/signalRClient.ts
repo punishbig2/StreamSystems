@@ -4,19 +4,12 @@ import {
   HubConnectionBuilder,
   HubConnectionState,
   LogLevel,
-} from "@microsoft/signalr";
-import { Deal } from "components/MiddleOffice/types/deal";
-import config from "config";
-import {
-  CommissionRate,
-  convertToCommissionRatesArray,
-} from "mobx/stores/brokerageStore";
-import {
-  MiddleOfficeProcessingState,
-  MiddleOfficeStore,
-} from "mobx/stores/middleOfficeStore";
-
-import workareaStore from "mobx/stores/workareaStore";
+} from '@microsoft/signalr';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import config from 'config';
+import { CommissionRate, convertToCommissionRatesArray } from 'mobx/stores/brokerageStore';
+import { MiddleOfficeProcessingState, MiddleOfficeStore } from 'mobx/stores/middleOfficeStore';
+import workareaStore from 'mobx/stores/workareaStore';
 import {
   DEAL_DELETED_EVENT,
   DEAL_EDIT_EVENT,
@@ -28,23 +21,23 @@ import {
   SEF_UPDATE,
   UPDATE_COMMISSION_RATES,
   UPDATE_DARK_POOL_PRICE,
-} from "signalR/constants";
-import { MDEntry } from "types/mdEntry";
-import { DarkPoolMessage, Message } from "types/message";
-import { PricingMessage } from "types/pricingMessage";
-import { SEFUpdate } from "types/sefUpdate";
-import { User } from "types/user";
-import { isPodW, W } from "types/w";
-import { clearDarkPoolPriceEvent } from "utils/clearDarkPoolPriceEvent";
-import { coalesce } from "utils/commonUtils";
-import { globalClearDarkPoolPriceEvent } from "utils/globalClearDarkPoolPriceEvent";
-import { $$ } from "utils/stringPaster";
+} from 'signalR/constants';
+import { MDEntry } from 'types/mdEntry';
+import { DarkPoolMessage, Message } from 'types/message';
+import { PricingMessage } from 'types/pricingMessage';
+import { SEFUpdate } from 'types/sefUpdate';
+import { User } from 'types/user';
+import { isPodW, W } from 'types/w';
+import { clearDarkPoolPriceEvent } from 'utils/clearDarkPoolPriceEvent';
+import { coalesce } from 'utils/commonUtils';
+import { globalClearDarkPoolPriceEvent } from 'utils/globalClearDarkPoolPriceEvent';
+import { $$ } from 'utils/stringPaster';
 
 interface SEFError {
   dealid: string;
   deal_state: string;
   error_msg: string;
-  msgtype: "AR";
+  msgtype: 'AR';
   report_status: string;
   useremail: string;
 }
@@ -62,18 +55,13 @@ interface Command {
 export class SignalRClient {
   private connection: HubConnection | null = null;
   private onDisconnectedListener: ((error: any) => void) | null = null;
-  private onConnectedListener: ((connection: HubConnection) => void) | null =
-    null;
-  private recordedCommands: ReadonlyArray<Command> = [];
+  private onConnectedListener: ((connection: HubConnection) => void) | null = null;
+  private recordedCommands: readonly Command[] = [];
   private pendingW: { [k: string]: W } = {};
-  private middleOffices: Array<MiddleOfficeStore> = [];
-
-  private callbacks: {
-    [k: string]: (m: DarkPoolMessage) => void;
-  } = {};
+  private middleOffices: MiddleOfficeStore[] = [];
 
   constructor() {
-    window.addEventListener("offline", (): void => {
+    window.addEventListener('offline', (): void => {
       const { connection } = this;
       // Oddly enough, this is a problem when testing and debugging
       if (connection !== null) {
@@ -81,28 +69,28 @@ export class SignalRClient {
         this.connection = null;
       }
     });
-    window.addEventListener("online", (): void => {
+    window.addEventListener('online', (): void => {
       this.connect();
     });
 
     this.recordedCommands = [
       {
         name: Methods.SubscribeForMBMsg,
-        args: ["*"],
+        args: ['*'],
       },
 
       {
         name: Methods.SubscribeForDeals,
-        args: ["*"],
+        args: ['*'],
       },
       {
         name: Methods.SubscribeForPricingResponse,
-        args: ["*"],
+        args: ['*'],
       },
     ];
   }
 
-  public static createConnection = () =>
+  public static createConnection = (): HubConnection =>
     new HubConnectionBuilder()
       .withUrl(`${config.BackendUrl}/liveUpdateSignalRHub`, {
         transport: HttpTransportType.WebSockets,
@@ -113,10 +101,7 @@ export class SignalRClient {
 
   public connect = (onConnected?: () => void): boolean => {
     const { connection: previousConnection } = this;
-    if (
-      previousConnection !== null &&
-      previousConnection.state === HubConnectionState.Connected
-    ) {
+    if (previousConnection !== null && previousConnection.state === HubConnectionState.Connected) {
       return true;
     }
     const newConnection: HubConnection = SignalRClient.createConnection();
@@ -139,13 +124,13 @@ export class SignalRClient {
     return true;
   };
 
-  private notifyConnected(connection: HubConnection) {
+  private notifyConnected(connection: HubConnection): void {
     if (this.onConnectedListener) {
       this.onConnectedListener(connection);
     }
   }
 
-  private notifyConnectionLoss(error?: any) {
+  private notifyConnectionLoss(error?: any): void {
     if (this.onDisconnectedListener) {
       this.onDisconnectedListener(error);
     }
@@ -165,9 +150,7 @@ export class SignalRClient {
 
   private applySubscriptions = (connection: HubConnection): void => {
     if (connection.state !== HubConnectionState.Connected) {
-      throw new Error(
-        "cannot apply subscriptions because the connection is not established"
-      );
+      throw new Error('cannot apply subscriptions because the connection is not established');
     }
     // Install listeners
     connection.on(Events.UpdateMessageBlotter, this.onUpdateMessageBlotter);
@@ -177,10 +160,7 @@ export class SignalRClient {
     connection.on(Events.UpdateLegs, this.onUpdateLegs);
     connection.on(Events.OnError, this.onError);
     connection.on(Events.OnSEFUpdate, this.onSEFUpdate);
-    connection.on(
-      Events.OnDealEditStart,
-      this.onDealEdit(DealEditStatus.Start)
-    );
+    connection.on(Events.OnDealEditStart, this.onDealEdit(DealEditStatus.Start));
     connection.on(Events.OnDealEditEnd, this.onDealEdit(DealEditStatus.End));
 
     connection.on(Events.UpdateMarketData, this.onUpdateMarketData);
@@ -202,9 +182,7 @@ export class SignalRClient {
     };
   }
 
-  public static addSEFUpdateListener(
-    listener: (message: SEFUpdate) => void
-  ): () => void {
+  public static addSEFUpdateListener(listener: (message: SEFUpdate) => void): () => void {
     const listenerWrapper = (event: Event): void => {
       const custom = event as CustomEvent<SEFUpdate>;
       // Call the actual listener
@@ -230,9 +208,7 @@ export class SignalRClient {
     document.dispatchEvent(event);
   }
 
-  public setDealEditListener(
-    listener: (status: DealEditStatus, id: string) => void
-  ): () => void {
+  public setDealEditListener(listener: (status: DealEditStatus, id: string) => void): () => void {
     const onEdit = (event: Event): void => {
       const customEvent: CustomEvent<{
         id: string;
@@ -250,7 +226,7 @@ export class SignalRClient {
     };
   }
 
-  public handleWMessage = (w: W) => {
+  public handleWMessage = (w: W): void => {
     if (w.ExDestination === undefined) {
       const key: string = $$(w.Symbol, w.Strategy, w.Tenor);
       if (!this.pendingW[key]) {
@@ -259,19 +235,19 @@ export class SignalRClient {
         this.dispatchW(w);
         delete this.pendingW[key];
       }
-    } else if (w.ExDestination === "DP") {
-      const key: string = $$(w.Symbol, w.Strategy, w.Tenor, "Dp");
+    } else if (w.ExDestination === 'DP') {
+      const key: string = $$(w.Symbol, w.Strategy, w.Tenor, 'Dp');
       if (!this.pendingW[key]) {
         this.pendingW[key] = w;
       } else {
-        this.dispatchW(w, "Dp");
+        this.dispatchW(w, 'Dp');
         delete this.pendingW[key];
       }
     }
   };
 
   public addDealDeletedListener(listener: (id: string) => void): () => void {
-    const proxyListener = (event: Event) => {
+    const proxyListener = (event: Event): void => {
       const customEvent: CustomEvent<string> = event as CustomEvent<string>;
       listener(customEvent.detail);
     };
@@ -282,7 +258,7 @@ export class SignalRClient {
   }
 
   public addDeal = async (deal: Deal): Promise<void> => {
-    if ("dealId" in deal) {
+    if ('dealId' in deal) {
       // IGNORE THIS INTENTIONALLY
     } else {
       try {
@@ -296,24 +272,19 @@ export class SignalRClient {
     }
   };
 
-  public setOnConnectedListener = (fn: (connection: HubConnection) => void) => {
+  public setOnConnectedListener = (fn: (connection: HubConnection) => void): void => {
     this.onConnectedListener = fn;
   };
 
-  public setOnDisconnectedListener = (fn: (error: any) => void) => {
+  public setOnDisconnectedListener = (fn: (error: any) => void): void => {
     this.onDisconnectedListener = fn;
   };
 
   private eraseCommand = (command: Command): void => {
     const { recordedCommands } = this;
-    const index = recordedCommands.findIndex(
-      (each: Command): boolean => each === command
-    );
+    const index = recordedCommands.findIndex((each: Command): boolean => each === command);
     if (index === -1) {
-      console.warn(
-        "trying to remove a command that was never recorded: ",
-        command.name
-      );
+      console.warn('trying to remove a command that was never recorded: ', command.name);
     } else {
       this.recordedCommands = [
         ...recordedCommands.slice(0, index),
@@ -322,7 +293,7 @@ export class SignalRClient {
     }
   };
 
-  private recordCommand(command: Command) {
+  private recordCommand(command: Command): void {
     this.recordedCommands = [...this.recordedCommands, command];
   }
 
@@ -331,7 +302,7 @@ export class SignalRClient {
     strategy: string,
     tenor: string,
     eventListener: (e: any) => void
-  ) => {
+  ): void => {
     const key: string = $$(symbol, strategy, tenor);
     // Invoke the method
     this.invoke(Methods.UnsubscribeFromMarketData, symbol, strategy, tenor);
@@ -341,33 +312,27 @@ export class SignalRClient {
 
   public addPricingResponseListener = (
     listener: (response: PricingMessage) => void
-  ) => {
-    const listenerWrapper = (event: Event) => {
+  ): VoidFunction => {
+    const listenerWrapper = (event: Event): void => {
       const customEvent: CustomEvent = event as CustomEvent;
       // Call the actual listener
       listener(customEvent.detail);
     };
     document.addEventListener(PRICING_RESPONSE_EVENT, listenerWrapper, true);
-    return () => {
-      document.removeEventListener(
-        PRICING_RESPONSE_EVENT,
-        listenerWrapper,
-        true
-      );
+    return (): void => {
+      document.removeEventListener(PRICING_RESPONSE_EVENT, listenerWrapper, true);
     };
   };
 
-  public addDealListener = (
-    listener: (deal: { [key: string]: any }) => void
-  ) => {
-    const listenerWrapper = (event: Event) => {
+  public addDealListener = (listener: (deal: { [key: string]: any }) => void): VoidFunction => {
+    const listenerWrapper = (event: Event): void => {
       const customEvent = event as CustomEvent<{ [key: string]: any }>;
       // Call the actual listener
       listener(customEvent.detail);
     };
 
     document.addEventListener(NEW_DEAL_EVENT, listenerWrapper);
-    return () => {
+    return (): void => {
       document.removeEventListener(NEW_DEAL_EVENT, listenerWrapper);
     };
   };
@@ -377,9 +342,9 @@ export class SignalRClient {
     strategy: string,
     tenor: string,
     listener: (w: W) => void
-  ) => {
+  ): VoidFunction => {
     const key: string = $$(symbol, strategy, tenor);
-    const eventListener = (e: any) => {
+    const eventListener = (e: any): void => {
       const event: CustomEvent<W> = e;
       listener(event.detail);
     };
@@ -389,25 +354,18 @@ export class SignalRClient {
       name: Methods.SubscribeForMarketData,
       args: [symbol, strategy, tenor],
     };
-    const duplicate = this.recordedCommands.findIndex(
-      (command: Command): boolean => {
-        if (command.name !== Methods.SubscribeForMarketData) return false;
-        return (
-          command.args[0] === symbol &&
-          command.args[1] === strategy &&
-          command.args[2] === tenor
-        );
-      }
-    );
-    if (duplicate !== -1) {
-      console.warn(
-        "attempting to add a duplicate command",
-        this.recordedCommands[duplicate]
+    const duplicate = this.recordedCommands.findIndex((command: Command): boolean => {
+      if (command.name !== Methods.SubscribeForMarketData) return false;
+      return (
+        command.args[0] === symbol && command.args[1] === strategy && command.args[2] === tenor
       );
+    });
+    if (duplicate !== -1) {
+      console.warn('attempting to add a duplicate command', this.recordedCommands[duplicate]);
     }
     this.recordCommand(command);
     this.runCommand(command);
-    return () => {
+    return (): void => {
       this.runCommand({
         name: Methods.UnsubscribeFromMarketData,
         args: [symbol, strategy, tenor],
@@ -422,7 +380,7 @@ export class SignalRClient {
     strategy: string,
     tenor: string,
     fn: () => void
-  ): (() => void) => {
+  ): VoidFunction => {
     const event = clearDarkPoolPriceEvent(currency, strategy, tenor);
     document.addEventListener(event, fn);
 
@@ -436,18 +394,11 @@ export class SignalRClient {
     strategy: string,
     tenor: string,
     fn: (message: DarkPoolMessage) => void
-  ): (() => void) => {
-    if (
-      currency === "" ||
-      strategy === "" ||
-      tenor === "" ||
-      !currency ||
-      !strategy ||
-      !tenor
-    )
+  ): VoidFunction => {
+    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
       return (): void => {};
     const path: string = $$(currency, strategy, tenor);
-    const eventName: string = `${UPDATE_DARK_POOL_PRICE}${path}`;
+    const eventName = `${UPDATE_DARK_POOL_PRICE}${path}`;
     const command: Command = {
       name: Methods.SubscribeForDarkPoolPx,
       args: [currency, strategy, tenor],
@@ -472,43 +423,37 @@ export class SignalRClient {
     strategy: string,
     tenor: string,
     listener: (w: W) => void
-  ) => {
-    const key: string = $$(symbol, strategy, tenor, "Dp");
-    const eventListener = (e: any) => {
+  ): VoidFunction => {
+    const key: string = $$(symbol, strategy, tenor, 'Dp');
+    const eventListener = (e: any): void => {
       const event: CustomEvent<W> = e;
       listener(event.detail);
     };
     // Commands already exists as this is the same as the market update
     // this.listeners[key] = listener;
     document.addEventListener(key, eventListener);
-    return () => {
+    return (): void => {
       document.removeEventListener(key, eventListener);
     };
   };
 
-  public removeMessagesListener = () => {
-    this.invoke(Methods.UnsubscribeFromMBMsg, "*");
-  };
-
-  public setMessagesListener = (
-    onMessage: (message: ReadonlyArray<Message>) => void
-  ) => {
+  public setMessagesListener = (onMessage: (message: readonly Message[]) => void): void => {
     this.onMessageListener = onMessage;
   };
 
   public addCommissionRatesListener(
     firm: string,
-    listener: (rates: ReadonlyArray<CommissionRate>) => void
-  ): () => void {
+    listener: (rates: readonly CommissionRate[]) => void
+  ): VoidFunction {
     const { connection } = this;
 
     if (connection === null) {
-      throw new Error("cannot listen because I am not connected");
+      throw new Error('cannot listen because I am not connected');
     }
 
     const eventName = `${firm}${UPDATE_COMMISSION_RATES}`;
-    const handler = (rawEvent: any) => {
-      const event: CustomEvent<ReadonlyArray<CommissionRate>> = rawEvent;
+    const handler = (rawEvent: any): void => {
+      const event: CustomEvent<readonly CommissionRate[]> = rawEvent;
       listener(event.detail);
     };
 
@@ -527,18 +472,15 @@ export class SignalRClient {
     };
   }
 
-  private onMessageListener: (message: ReadonlyArray<Message>) => void = () =>
-    null;
+  private onMessageListener: (message: readonly Message[]) => void = () => null;
 
-  private onClearDarkPoolPrice = (message: string) => {
-    if (!message || message.trim() === "") {
+  private onClearDarkPoolPrice = (message: string): void => {
+    if (!message || message.trim() === '') {
       document.dispatchEvent(new Event(globalClearDarkPoolPriceEvent()));
     } else {
       const data = JSON.parse(message);
       document.dispatchEvent(
-        new Event(
-          clearDarkPoolPriceEvent(data.Symbol, data.Strategy, data.Tenor)
-        )
+        new Event(clearDarkPoolPriceEvent(data.Symbol, data.Strategy, data.Tenor))
       );
     }
   };
@@ -546,15 +488,12 @@ export class SignalRClient {
   private onDealEdit(status: DealEditStatus): (message: string) => void {
     return (message: string): void => {
       document.dispatchEvent(
-        new CustomEvent<{ id: string; status: DealEditStatus }>(
-          DEAL_EDIT_EVENT,
-          {
-            detail: {
-              id: message,
-              status: status,
-            },
-          }
-        )
+        new CustomEvent<{ id: string; status: DealEditStatus }>(DEAL_EDIT_EVENT, {
+          detail: {
+            id: message,
+            status: status,
+          },
+        })
       );
     };
   }
@@ -581,7 +520,7 @@ export class SignalRClient {
     return full;
   };
 
-  private dispatchW = (w: W, keySuffix: string = "") => {
+  private dispatchW = (w: W, keySuffix = ''): void => {
     const key: string = $$(w.Symbol, w.Strategy, w.Tenor, keySuffix);
     const detail: W = this.combineWs(w, this.pendingW[key]);
     const event: CustomEvent<W> = new CustomEvent<W>(key, {
@@ -591,10 +530,10 @@ export class SignalRClient {
     document.dispatchEvent(event);
   };
 
-  private messagesCache: ReadonlyArray<Message> = [];
+  private messagesCache: readonly Message[] = [];
   private messagesTimer = setTimeout(() => {}, 0);
 
-  private onUpdateMessageBlotter = (rawMessage: string) => {
+  private onUpdateMessageBlotter = (rawMessage: string): void => {
     clearTimeout(this.messagesTimer);
 
     const message: Message = JSON.parse(rawMessage);
@@ -615,12 +554,9 @@ export class SignalRClient {
 
   private onPricingResponse = (message: string): void => {
     const deal: Deal = JSON.parse(message);
-    const event: CustomEvent<Deal> = new CustomEvent<Deal>(
-      PRICING_RESPONSE_EVENT,
-      {
-        detail: deal,
-      }
-    );
+    const event: CustomEvent<Deal> = new CustomEvent<Deal>(PRICING_RESPONSE_EVENT, {
+      detail: deal,
+    });
     document.dispatchEvent(event);
   };
 
@@ -638,18 +574,17 @@ export class SignalRClient {
     });
   };
 
-  public messageCount = 0;
   private onUpdateDeals = (message: string): void => {
     const deal: any = JSON.parse(message);
     // Ignore deals that have lastpx as string
-    if (typeof deal.lastpx === "string") {
+    if (typeof deal.lastpx === 'string') {
       return;
     }
 
     const dealWithDefaults: any = {
       ...deal,
-      premstyle: coalesce(deal.premstyle, "Forward"),
-      deltastyle: coalesce(deal.deltastyle, "Forward"),
+      premstyle: coalesce(deal.premstyle, 'Forward'),
+      deltastyle: coalesce(deal.deltastyle, 'Forward'),
     };
 
     void this.addDeal(dealWithDefaults);
@@ -660,38 +595,33 @@ export class SignalRClient {
     this.handleWMessage(w);
   };
 
-  private onUpdateDarkPoolPx = (rawMessage: string) => {
+  private onUpdateDarkPoolPx = (rawMessage: string): void => {
     const message: DarkPoolMessage = JSON.parse(rawMessage);
     const path: string = $$(message.Symbol, message.Strategy, message.Tenor);
-    const eventName: string = `${UPDATE_DARK_POOL_PRICE}${path}`;
+    const eventName = `${UPDATE_DARK_POOL_PRICE}${path}`;
     const event = new CustomEvent<DarkPoolMessage>(eventName, {
       detail: message,
     });
     document.dispatchEvent(event);
   };
 
-  private replayRecordedCommands = () => {
+  private replayRecordedCommands = (): void => {
     const { recordedCommands } = this;
     // Execute each command
     recordedCommands.forEach(this.runCommand);
   };
 
-  private runCommand = (command: Command) => {
+  private runCommand = (command: Command): void => {
     const { name, args } = command;
     const { connection } = this;
-    if (
-      connection === null ||
-      connection.state !== HubConnectionState.Connected
-    ) {
+    if (connection === null || connection.state !== HubConnectionState.Connected) {
       return;
     }
 
     connection.invoke(name, ...args).then((result: string): void => {
-      if (result !== "success") {
+      if (result !== 'success') {
         console.warn(
-          `there was a problem invoking \`${name}' with \`${args.join(
-            ", "
-          )}': `,
+          `there was a problem invoking \`${name}' with \`${args.join(', ')}': `,
           result
         );
       }
@@ -700,16 +630,14 @@ export class SignalRClient {
 
   private invoke = (name: string, ...args: any[]): void => {
     const { connection } = this;
-    if (
-      connection === null ||
-      connection?.state !== HubConnectionState.Connected
-    ) {
+    if (connection === null || connection?.state !== HubConnectionState.Connected) {
+      // eslint-disable-next-line no-console
       console.log(
         `%cWARNING%c: %c${name}%c ignored because there is no connection yet`,
-        "color: orange;",
-        "color: initial;",
-        "color: dodgerblue; font-weight: bold;",
-        "color: initial;"
+        'color: orange;',
+        'color: initial;',
+        'color: dodgerblue; font-weight: bold;',
+        'color: initial;'
       );
     } else {
       this.runCommand({
@@ -728,8 +656,8 @@ export class SignalRClient {
   private onCommissionUpdate = (data: string): void => {
     const object: any = JSON.parse(data);
     const firm: string = object.firm;
-    const event: CustomEvent<ReadonlyArray<CommissionRate>> = new CustomEvent<
-      ReadonlyArray<CommissionRate>
+    const event: CustomEvent<readonly CommissionRate[]> = new CustomEvent<
+      readonly CommissionRate[]
     >(`${firm}${UPDATE_COMMISSION_RATES}`, {
       detail: convertToCommissionRatesArray(object),
     });
@@ -740,7 +668,7 @@ export class SignalRClient {
   private onSEFUpdate = (data: string): void => {
     const object: SEFError = JSON.parse(data);
     // const user: User = workareaStore.user;
-    if (object.report_status === "REJECTED") {
+    if (object.report_status === 'REJECTED') {
       // if (object.useremail !== user.email) return;
       SignalRClient.emitSEFUpdate(object);
     } else {
@@ -752,7 +680,7 @@ export class SignalRClient {
     const user: User = workareaStore.user;
     const error: any = JSON.parse(data);
     if (error.useremail !== user.email) {
-      if ("dealid" in error) {
+      if ('dealid' in error) {
         const { middleOffices } = this;
         middleOffices.forEach((store: MiddleOfficeStore): void => {
           if (
@@ -764,7 +692,7 @@ export class SignalRClient {
               error: error.error_msg,
               code: 1001,
               message: error.error_msg,
-              status: "Unable to complete",
+              status: 'Unable to complete',
             });
           }
         });
@@ -782,10 +710,7 @@ export class SignalRClient {
     this.middleOffices = [...middleOffices, store];
     return () => {
       const { middleOffices } = this;
-      this.middleOffices = [
-        ...middleOffices.slice(0, index),
-        ...middleOffices.slice(index + 1),
-      ];
+      this.middleOffices = [...middleOffices.slice(0, index), ...middleOffices.slice(index + 1)];
     };
   }
 }

@@ -1,17 +1,17 @@
-import { ExecutionBlotter } from "components/ReactTileManager/executionBlotter";
-import { ReactTile } from "components/ReactTileManager/ReactTile";
-import { ContentStore } from "mobx/stores/contentStore";
-import { MessageBlotterStoreContext } from "mobx/stores/messageBlotterStore";
-import { TileStore, TileStoreContext } from "mobx/stores/tileStore";
+import { ExecutionBlotter } from 'components/ReactTileManager/executionBlotter';
+import { ReactTile } from 'components/ReactTileManager/ReactTile';
+import { ContentStore } from 'mobx/stores/contentStore';
+import { MessageBlotterStoreContext } from 'mobx/stores/messageBlotterStore';
+import { TileStore, TileStoreContext } from 'mobx/stores/tileStore';
 import {
   TradingWorkspaceStore,
   TradingWorkspaceStoreContext,
-} from "mobx/stores/tradingWorkspaceStore";
-import React, { ReactElement } from "react";
-import { TileType } from "types/tileType";
+} from 'mobx/stores/tradingWorkspaceStore';
+import React, { ReactElement } from 'react';
+import { TileType } from 'types/tileType';
 
 interface Props {
-  readonly tiles: ReadonlyArray<TileStore>;
+  readonly tiles: readonly TileStore[];
   readonly isDefaultWorkspace: boolean;
   readonly getContentRenderer: (
     id: string,
@@ -25,13 +25,9 @@ interface Props {
   readonly onWindowClose: (id: string) => void;
 }
 
-const ReactTileManager: React.FC<Props> = (
-  props: Props
-): React.ReactElement | null => {
+const ReactTileManager: React.FC<Props> = (props: Props): React.ReactElement | null => {
   const { isDefaultWorkspace: ready, tiles } = props;
-  const store = React.useContext<TradingWorkspaceStore>(
-    TradingWorkspaceStoreContext
-  );
+  const store = React.useContext<TradingWorkspaceStore>(TradingWorkspaceStoreContext);
   return (
     <cib-window-manager>
       {tiles.map(

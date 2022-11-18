@@ -1,16 +1,15 @@
-import { Tab } from "components/Tab";
-import { AddWorkspaceMenu } from "components/TabBar/addWorkspaceMenu";
-import { TabLabel } from "components/TabLabel";
-import config from "config";
-import workareaStore from "mobx/stores/workareaStore";
-
-import React, { ReactElement, useMemo, useRef, useState } from "react";
-import { hasRole, Role } from "types/role";
-import { CurrencyGroups } from "types/user";
-import { Workspace } from "types/workspace";
+import { Tab } from 'components/Tab';
+import { AddWorkspaceMenu } from 'components/TabBar/addWorkspaceMenu';
+import { TabLabel } from 'components/TabLabel';
+import config from 'config';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ReactElement, useMemo, useRef, useState } from 'react';
+import { hasRole, Role } from 'types/role';
+import { CurrencyGroups } from 'types/user';
+import { Workspace } from 'types/workspace';
 
 interface Props {
-  readonly items: ReadonlyArray<Workspace>;
+  readonly items: readonly Workspace[];
   readonly active: number | null;
   readonly connected: boolean;
   readonly onAddStandardWorkspace: (group: CurrencyGroups) => void;
@@ -37,25 +36,23 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
   const isMiddleOffice: boolean = useMemo((): boolean => {
     const { roles } = user;
     return (
-      hasRole(roles, Role.MiddleOffice) ||
-      hasRole(roles, Role.Admin) ||
-      hasRole(roles, Role.Broker)
+      hasRole(roles, Role.MiddleOffice) || hasRole(roles, Role.Admin) || hasRole(roles, Role.Broker)
     );
   }, [user]);
   // Get the workspace entries
-  const destroyWorkspace = (index: number) => {
+  const destroyWorkspace = (index: number): void => {
     props.onTabClosed(index);
   };
   return (
     <div className="tab-layout">
       {items.map<ReactElement>((workspace: Workspace, index: number) => {
-        const onClosed = (event: React.MouseEvent) => {
+        const onClosed = (event: React.MouseEvent): void => {
           event.stopPropagation();
           event.preventDefault();
-          // Remove the tab (with it's contents)
+          // Remove the tab (with its contents)
           destroyWorkspace(index);
         };
-        const onClick = () => props.setActiveTab(index);
+        const onClick = (): void => props.setActiveTab(index);
         const label = (
           <TabLabel
             label={workspace.name}
@@ -64,14 +61,7 @@ const TabBar: React.FC<Props> = (props: Props): ReactElement => {
             onClosed={onClosed}
           />
         );
-        return (
-          <Tab
-            key={index}
-            onClick={onClick}
-            active={index === active}
-            label={label}
-          />
-        );
+        return <Tab key={index} onClick={onClick} active={index === active} label={label} />;
       })}
       <Tab
         ref={ref}

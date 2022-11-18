@@ -1,6 +1,6 @@
-import React, { ReactElement, useEffect, useMemo, useState } from "react";
-import ReactDOM from "react-dom";
-import styles from "styles";
+import React, { CSSProperties, ReactElement, useEffect, useMemo, useState } from 'react';
+import ReactDOM from 'react-dom';
+import styles from 'styles';
 
 interface OwnProps {
   readonly testId: string;
@@ -19,7 +19,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [position, setPosition] = useState<ClientRect>(new DOMRect());
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const [keyword, setKeyword] = useState<string>("");
+  const [keyword, setKeyword] = useState<string>('');
   const [dropdown, setDropdown] = useState<HTMLUListElement | null>(null);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
@@ -37,34 +37,29 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     // Get the geometry to locate the dropdown
     if (container !== null) {
       const boundingBox: ClientRect = container.getBoundingClientRect();
-      setPosition(
-        new DOMRect(
-          boundingBox.left - 4,
-          boundingBox.bottom,
-          boundingBox.width + 8,
-          -1
-        )
-      );
+      setPosition(new DOMRect(boundingBox.left - 4, boundingBox.bottom, boundingBox.width + 8, -1));
     }
   };
 
-  const setInput = (input: HTMLInputElement | null) => {
-    if (input === null) return;
+  const setInput = (input: HTMLInputElement | null): void => {
+    if (input === null) {
+      return;
+    }
+
     input.focus();
   };
 
-  const positionToStyle = (position: ClientRect) => {
+  const positionToStyle = (position: ClientRect): CSSProperties => {
     return {
       top: `${position.top}px`,
       width: `${position.width}px`,
       left: `${position.left}px`,
-      height: "auto",
-      maxHeight:
-        window.innerHeight - position.top - styles().windowToolbarHeight + "px",
+      height: 'auto',
+      maxHeight: window.innerHeight - position.top - styles().windowToolbarHeight + 'px',
     };
   };
 
-  useEffect((): void | (() => void) => {
+  useEffect((): void | VoidFunction => {
     if (!isDropdownVisible) return;
 
     const ignore = (event: Event): void => {
@@ -73,46 +68,42 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     };
     const options = { passive: false, capture: true };
     // Install event listeners to ignore these events
-    document.addEventListener("wheel", ignore, options);
-    document.addEventListener("keydown", ignore, options);
+    document.addEventListener('wheel', ignore, options);
+    document.addEventListener('keydown', ignore, options);
 
     return (): void => {
-      document.removeEventListener("keydown", ignore, options);
-      document.removeEventListener("wheel", ignore, options);
+      document.removeEventListener('keydown', ignore, options);
+      document.removeEventListener('wheel', ignore, options);
     };
   }, [isDropdownVisible]);
 
   useEffect(() => {
     if (!isDropdownVisible || dropdown === null) return;
-    const isChildOf = (
-      parent: HTMLElement | ChildNode,
-      child: HTMLElement | null
-    ): boolean => {
+    const isChildOf = (parent: HTMLElement | ChildNode, child: HTMLElement | null): boolean => {
       if (child === null) return false;
       const array: ChildNode[] = Array.from(parent.childNodes);
       if (array.includes(child)) return true;
       return array.some((next: ChildNode) => isChildOf(next, child));
     };
-    const onClickOutside = ({ target }: MouseEvent) => {
-      if (target === dropdown || isChildOf(dropdown, target as HTMLElement))
-        return;
+    const onClickOutside = ({ target }: MouseEvent): void => {
+      if (target === dropdown || isChildOf(dropdown, target as HTMLElement)) return;
       setDropdownVisible(false);
     };
-    document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
   }, [isDropdownVisible, dropdown]);
 
   useEffect(() => {
     if (!isDropdownVisible) return;
     setSelectedValue(value);
-    setKeyword("");
+    setKeyword('');
   }, [isDropdownVisible, value, list]);
 
   const filtered: any[] = useMemo(
     (): Array<{ name: string }> =>
       list.filter(({ name }: { name: string }) => {
         const lowerName: string = name.toLowerCase();
-        if (keyword.trim() === "") return true;
+        if (keyword.trim() === '') return true;
         return lowerName.startsWith(keyword.toLowerCase());
       }),
     [list, keyword]
@@ -132,12 +123,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     }
   }, [selectedValue, filtered]);
 
-  const onSearchChange = (event: React.FormEvent<HTMLInputElement>) => {
+  const onSearchChange = (event: React.FormEvent<HTMLInputElement>): void => {
     const { value } = event.currentTarget;
     setKeyword(value);
   };
 
-  const setSelectedItem = (value: string) => {
+  const setSelectedItem = (value: string): void => {
     setDropdownVisible(false);
     props.onChange(value);
   };
@@ -145,18 +136,18 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
   const renderDropdown = (): ReactElement | null => {
     if (!isDropdownVisible) return null;
 
-    const swallowMouse = (event: React.MouseEvent<HTMLUListElement>) => {
+    const swallowMouse = (event: React.MouseEvent<HTMLUListElement>): void => {
       event.stopPropagation();
       event.preventDefault();
     };
 
-    const onSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const onSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
       event.stopPropagation();
       const index: number = filtered.findIndex(
         (item: { name: string }): boolean => item.name === selectedValue
       );
       switch (event.key) {
-        case "ArrowUp":
+        case 'ArrowUp':
           if (filtered.length === 0) return;
           if (index === 0) {
             setSelectedValue(filtered[filtered.length - 1].name);
@@ -166,7 +157,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
             setSelectedValue(filtered[0].name);
           }
           break;
-        case "ArrowDown":
+        case 'ArrowDown':
           if (filtered.length === 0) return;
           if (index === filtered.length - 1) {
             setSelectedValue(filtered[0].name);
@@ -176,12 +167,12 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
             setSelectedValue(filtered[0].name);
           }
           break;
-        case "Enter":
+        case 'Enter':
           if (selectedValue !== null) {
             setSelectedItem(selectedValue);
           }
           break;
-        case "Escape":
+        case 'Escape':
           setDropdownVisible(false);
           break;
       }
@@ -200,23 +191,23 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
       </div>
     );
 
-    const classes = ["dropdown"];
+    const classes = ['dropdown'];
     if (props.disabled) {
-      classes.push("disabled");
+      classes.push('disabled');
     }
 
     return ReactDOM.createPortal(
-      <div className={classes.join(" ")} style={positionToStyle(position)}>
+      <div className={classes.join(' ')} style={positionToStyle(position)}>
         {props.searchable && searchBox}
         <ul onMouseDownCapture={swallowMouse} ref={setDropdown}>
           {filtered.map((item: { name: string }) => {
             const classes = [];
-            if (selectedValue === item.name) classes.push("selected");
+            if (selectedValue === item.name) classes.push('selected');
             return (
               <li
                 key={item.name}
                 onClick={() => setSelectedItem(item.name)}
-                className={classes.join(" ")}
+                className={classes.join(' ')}
               >
                 <span>{item.name}</span>
               </li>
@@ -228,7 +219,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     );
   };
 
-  const ignoreKeyboard = (event: React.KeyboardEvent<HTMLSelectElement>) => {
+  const ignoreKeyboard = (event: React.KeyboardEvent<HTMLSelectElement>): void => {
     event.preventDefault();
   };
 
@@ -236,13 +227,13 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
     <div
       data-testid={props.testId}
       tabIndex={0}
-      className={"select-container" + (props.fit ? " fit" : "")}
+      className={'select-container' + (props.fit ? ' fit' : '')}
       ref={setContainer}
       onMouseDown={showDropdown}
     >
       <select
         value={props.value}
-        className={"select" + (props.value === "" ? " no-selection" : "")}
+        className={'select' + (props.value === '' ? ' no-selection' : '')}
         disabled={props.disabled}
         onChange={onChange}
         onKeyPressCapture={ignoreKeyboard}
@@ -250,7 +241,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
         onKeyUpCapture={ignoreKeyboard}
       >
         {props.empty ? (
-          <option value={""} disabled={true}>
+          <option value={''} disabled={true}>
             {props.empty}
           </option>
         ) : null}
@@ -260,7 +251,7 @@ export const Select: React.FC<OwnProps> = (props: OwnProps) => {
           </option>
         ))}
       </select>
-      <div className={"arrow" + (props.value === "" ? " no-selection" : "")}>
+      <div className={'arrow' + (props.value === '' ? ' no-selection' : '')}>
         <i className="fa fa-caret-down" />
       </div>
       {renderDropdown()}

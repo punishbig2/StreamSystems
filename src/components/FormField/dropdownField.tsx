@@ -1,10 +1,10 @@
-import { Grid, MenuItem, Select } from "@material-ui/core";
-import { ReadOnlyField } from "components/FormField/readOnlyField";
-import { SearchItem } from "components/FormField/searchItem";
-import { LoadingEllipsis } from "components/loadingEllipsis";
-import { DropdownItem } from "forms/fieldDef";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { Component, ReactElement } from "react";
+import { Grid, MenuItem, Select } from '@material-ui/core';
+import { ReadOnlyField } from 'components/FormField/readOnlyField';
+import { SearchItem } from 'components/FormField/searchItem';
+import { LoadingEllipsis } from 'components/loadingEllipsis';
+import { DropdownItem } from 'forms/fieldDef';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { Component, ReactElement } from 'react';
 
 interface Props<T, R> {
   readonly disabled?: boolean;
@@ -24,26 +24,20 @@ interface State<R> {
   readonly valuesMap: HashMap<DropdownItem<R>>;
 }
 
-export class DropdownField<T, R = string> extends Component<
-  Props<T, R>,
-  State<R>
-> {
+export class DropdownField<T, R = string> extends Component<Props<T, R>, State<R>> {
   public state: State<R> = {
     loading: false,
-    searchKeyword: "",
+    searchKeyword: '',
     valuesMap: {},
   };
 
-  public componentDidUpdate(prevProps: Readonly<Props<T, R>>) {
+  public componentDidUpdate(prevProps: Readonly<Props<T, R>>): void {
     const { props } = this;
     if (prevProps.items !== props.items) {
       const { items } = props;
       this.setState({
         valuesMap: items.reduce(
-          (
-            next: HashMap<DropdownItem<R>>,
-            item: DropdownItem
-          ): HashMap<DropdownItem<R>> => {
+          (next: HashMap<DropdownItem<R>>, item: DropdownItem): HashMap<DropdownItem<R>> => {
             return {
               ...next,
               [item.value]: item,
@@ -90,13 +84,13 @@ export class DropdownField<T, R = string> extends Component<
   private onChange = (
     event: React.ChangeEvent<{ name?: string; value: unknown }>,
     child: React.ReactNode
-  ) => {
+  ): void => {
     const { props } = this;
     if (!props.editable) return;
     const { value } = event.target;
     const item: DropdownItem<R> | undefined = this.getItem(value);
     if (item === undefined) {
-      console.warn("oops, cannot find the item for: " + value);
+      console.warn('oops, cannot find the item for: ' + value);
       return;
     }
     setTimeout(() => {
@@ -133,10 +127,10 @@ export class DropdownField<T, R = string> extends Component<
   private filterItems = (item: DropdownItem<R>): boolean => {
     const { searchKeyword } = this.state;
     const trimmed: string = searchKeyword.trim();
-    if (trimmed === "") return true;
+    if (trimmed === '') return true;
     const { value } = item;
     const normalizedKeyword: string = trimmed.toLowerCase();
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       // Ignore casing, as humans generally do so!
       const normalizedValue: string = value.toLowerCase();
       // Check that the value, includes the keyword
@@ -153,9 +147,9 @@ export class DropdownField<T, R = string> extends Component<
       return valuesMap[value];
     } else {
       return {
-        value: "",
-        internalValue: "",
-        label: "",
+        value: '',
+        internalValue: '',
+        label: '',
       };
     }
   }

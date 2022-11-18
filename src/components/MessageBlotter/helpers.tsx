@@ -1,17 +1,14 @@
-import { BlotterTypes } from "columns/messageBlotter";
-import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
-import React, { ReactElement } from "react";
-import { ExecTypes, Message } from "types/message";
-import { hasRole, Role } from "types/role";
-import workareaStore from "mobx/stores/workareaStore";
-import { NONE } from "stateDefs/workspaceState";
-import { User } from "types/user";
+import { BlotterTypes } from 'columns/messageBlotter';
+import { BlotterRowTypes, Row } from 'components/MessageBlotter/row';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ReactElement } from 'react';
+import { NONE } from 'stateDefs/workspaceState';
+import { ExecTypes, Message } from 'types/message';
+import { hasRole, Role } from 'types/role';
+import { User } from 'types/user';
 
 export const isExecution = (message: Message): boolean => {
-  return (
-    message.OrdStatus === ExecTypes.Filled ||
-    message.OrdStatus === ExecTypes.PartiallyFilled
-  );
+  return message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled;
 };
 
 export const isMyBankMessage = (message: Message): boolean => {
@@ -30,8 +27,7 @@ export const isMyMessage = (message: Message): boolean => {
   if (hasRole(roles, Role.Broker)) {
     if (personality === NONE) return false;
     return (
-      (message.Username === user.email ||
-        message.ContraTrader === user.email) &&
+      (message.Username === user.email || message.ContraTrader === user.email) &&
       (message.MDMkt === personality || message.ExecBroker === personality)
     );
   }

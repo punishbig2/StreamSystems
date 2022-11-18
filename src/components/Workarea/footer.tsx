@@ -1,29 +1,25 @@
-import strings from "locales";
-import { ModalWindow } from "components/ModalWindow";
-import { QuestionBox } from "components/QuestionBox";
-import { TabBar } from "components/TabBar";
-import { observer } from "mobx-react";
-import store from "mobx/stores/workareaStore";
-import React from "react";
+import { ModalWindow } from 'components/ModalWindow';
+import { QuestionBox } from 'components/QuestionBox';
+import { TabBar } from 'components/TabBar';
+import strings from 'locales';
+import store from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React from 'react';
 
 export const Footer: React.FC = observer((): React.ReactElement => {
-  const [selectedToClose, setSelectedToClose] = React.useState<number | null>(
-    null
-  );
+  const [selectedToClose, setSelectedToClose] = React.useState<number | null>(null);
 
   const cancelCloseWorkspace = (): void => setSelectedToClose(null);
   const closeWorkspace = (): void => {
-    store.closeWorkspace(selectedToClose!).then(() => {});
-    // Close the modal window
-    setSelectedToClose(null);
+    if (selectedToClose) {
+      void store.closeWorkspace(selectedToClose);
+      // Close the modal window
+      setSelectedToClose(null);
+    }
   };
 
   const renderCloseQuestion = (): React.ReactElement => (
-    <QuestionBox
-      {...strings.CloseWorkspace}
-      onYes={closeWorkspace}
-      onNo={cancelCloseWorkspace}
-    />
+    <QuestionBox {...strings.CloseWorkspace} onYes={closeWorkspace} onNo={cancelCloseWorkspace} />
   );
 
   return (
@@ -39,10 +35,7 @@ export const Footer: React.FC = observer((): React.ReactElement => {
         onQuit={(): null => null}
         onWorkspaceRename={store.setWorkspaceName}
       />
-      <ModalWindow
-        render={renderCloseQuestion}
-        isOpen={selectedToClose !== null}
-      />
+      <ModalWindow render={renderCloseQuestion} isOpen={selectedToClose !== null} />
     </div>
   );
 });

@@ -1,5 +1,5 @@
-import { DealEntry, DealType, EntryType } from "types/dealEntry";
-import { DealStatus } from "types/dealStatus";
+import { DealEntry, DealType, EntryType } from 'types/dealEntry';
+import { DealStatus } from 'types/dealStatus';
 
 export interface DealEntryButtons {
   readonly new: boolean;
@@ -140,55 +140,19 @@ export const isButtonDisabled = (
   }
 
   switch (button) {
-    case "new":
-      return isNewDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
-    case "cancel":
-      return isCancelDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
-    case "clone":
-      return isCloneDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
-    case "remove":
-      return isRemoveDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
-    case "edit":
-      return isEditDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
-    case "price":
-      return isPriceDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
-    case "save":
+    case 'new':
+      return isNewDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
+    case 'cancel':
+      return isCancelDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
+    case 'clone':
+      return isCloneDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
+    case 'remove':
+      return isRemoveDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
+    case 'edit':
+      return isEditDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
+    case 'price':
+      return isPriceDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
+    case 'save':
       return isSaveDisabled(
         entry.dealType,
         entry.type,
@@ -197,14 +161,8 @@ export const isButtonDisabled = (
         isModified,
         isReadyForSubmission
       );
-    case "submit":
-      return isSubmitDisabled(
-        entry.dealType,
-        entry.type,
-        entry.status,
-        isEditMode,
-        isModified
-      );
+    case 'submit':
+      return isSubmitDisabled(entry.dealType, entry.type, entry.status, isEditMode, isModified);
   }
 
   return true;

@@ -3,11 +3,11 @@ import {
   getCaretPosition,
   InputHandler,
   StateReturnType,
-} from "components/FormField/inputHandler";
-import { MinimalProps } from "components/FormField/minimalProps";
-import { NumericProps } from "components/FormField/numeric";
-import { Validity } from "forms/validity";
-import React from "react";
+} from 'components/FormField/inputHandler';
+import { MinimalProps } from 'components/FormField/minimalProps';
+import { NumericProps } from 'components/FormField/numeric';
+import { Validity } from 'forms/validity';
+import React from 'react';
 
 export abstract class FormattedInput<
   T,
@@ -24,11 +24,7 @@ export abstract class FormattedInput<
     state: S
   ): StateReturnType<S>;
 
-  public abstract shouldAcceptInput(
-    input: HTMLInputElement,
-    props: P,
-    state: S
-  ): boolean;
+  public abstract shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean;
 
   public createValue(
     value: any,
@@ -38,15 +34,15 @@ export abstract class FormattedInput<
   ): StateReturnType<S> {
     if (value === null || value === undefined) {
       return {
-        displayValue: "",
+        displayValue: '',
         internalValue: null,
         validity: Validity.Intermediate,
         caretPosition: 0,
       } as StateReturnType<S>;
-    } else if (value === "N/A") {
+    } else if (value === 'N/A') {
       return {
-        displayValue: "N/A",
-        internalValue: "N/A",
+        displayValue: 'N/A',
+        internalValue: 'N/A',
         validity: Validity.NotApplicable,
         caretPosition: 0,
       } as StateReturnType<S>;
@@ -78,17 +74,17 @@ export abstract class FormattedInput<
   }
 
   public startAdornment(props: P): string {
-    return "";
+    return '';
   }
 
   public endAdornment(props: P): string {
-    return "";
+    return '';
   }
 
   private countFormattingCharacters = (display: string | null): number => {
     if (display === null || display === undefined) return 0;
     try {
-      const stringValue: string = display.replace(/[^0-9]+/g, "");
+      const stringValue: string = display.replace(/[^0-9]+/g, '');
       return display.length - stringValue.length;
     } catch (error) {
       return 0;

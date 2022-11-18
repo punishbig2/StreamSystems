@@ -1,4 +1,4 @@
-import { ModelParameters } from "mobx/stores/middleOfficeStore";
+import { ModelParameters } from 'mobx/stores/middleOfficeStore';
 
 export interface OptionLeg {
   readonly strike?: string | number | null;
@@ -44,7 +44,7 @@ export interface FX {
   readonly ForwardPoints?: Point[] | null;
   readonly strikeForwardMRoundingFactor?: number;
   readonly premiumMRoundingFactor?: number;
-  readonly InterpolationMethod: "PIECEWISE_CONSTANT" | null;
+  readonly InterpolationMethod: 'PIECEWISE_CONSTANT' | null;
 }
 
 export interface VolSurface {

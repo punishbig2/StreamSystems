@@ -1,6 +1,6 @@
-import { Menu, MenuItem } from "@material-ui/core";
-import React from "react";
-import { CurrencyGroups, isCurrencyGroup } from "types/user";
+import { Menu, MenuItem } from '@material-ui/core';
+import React from 'react';
+import { CurrencyGroups, isCurrencyGroup } from 'types/user';
 
 interface MenuProps {
   readonly onAddTradingWorkspace: (group: CurrencyGroups) => void;
@@ -13,10 +13,8 @@ interface MenuProps {
   readonly anchorEl: HTMLElement | null;
 }
 
-export const AddWorkspaceMenu: React.FC<MenuProps> = (
-  props: MenuProps
-): React.ReactElement => {
-  const addTab = (type?: CurrencyGroups) => {
+export const AddWorkspaceMenu: React.FC<MenuProps> = (props: MenuProps): React.ReactElement => {
+  const addTab = (type?: CurrencyGroups): void => {
     if (isCurrencyGroup(type)) {
       props.onAddTradingWorkspace(type);
     } else {
@@ -33,13 +31,9 @@ export const AddWorkspaceMenu: React.FC<MenuProps> = (
       keepMounted={false}
     >
       {props.isTrader || props.isBroker ? (
-        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>
-          Empty
-        </MenuItem>
+        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>Empty</MenuItem>
       ) : null}
-      {props.isMiddleOffice ? (
-        <MenuItem onClick={() => addTab()}>Middle Office</MenuItem>
-      ) : null}
+      {props.isMiddleOffice ? <MenuItem onClick={() => addTab()}>Middle Office</MenuItem> : null}
     </Menu>
   );
 };

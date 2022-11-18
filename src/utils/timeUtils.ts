@@ -1,33 +1,24 @@
-import { Globals } from "golbals";
-import moment from "moment";
+import { Globals } from 'golbals';
+import moment from 'moment';
 
-export const FIX_DATE_FORMAT: string = "YYYYMMDD-HH:mm:ss";
+export const FIX_DATE_FORMAT = 'YYYYMMDD-HH:mm:ss';
 
-export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
-  undefined,
-  {
-    timeZone: Globals.timezone || undefined,
-  }
-);
+export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
+  timeZone: Globals.timezone || undefined,
+});
 
-export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
-  undefined,
-  {
-    timeZone: Globals.timezone || undefined,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }
-);
+export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
+  timeZone: Globals.timezone || undefined,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
-export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
-  undefined,
-  {
-    timeZone: Globals.timezone || undefined,
-    hour: "numeric",
-    minute: "numeric",
-  }
-);
+export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
+  timeZone: Globals.timezone || undefined,
+  hour: 'numeric',
+  minute: 'numeric',
+});
 
 export const parser = {
   parse: (value: string): moment.Moment => {
@@ -36,7 +27,7 @@ export const parser = {
 };
 
 export const parseTime = (date: string): Date => {
-  const regex: RegExp = /(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})/;
+  const regex = /(\d{4})(\d{2})(\d{2})-(\d{2}):(\d{2}):(\d{2})/;
   const match: RegExpExecArray | null = regex.exec(date);
   if (match === null) return new Date();
   return new Date(
@@ -54,7 +45,7 @@ export const parseTime = (date: string): Date => {
 export const toUTCFIXFormat = (date: Date): string => {
   // "YYYYMMDD-HH:mm:ss"
   const m: moment.Moment = moment(date);
-  if (m === undefined || m === null) return "";
+  if (m === undefined || m === null) return '';
   // The ridiculous moment.js library modifies the object
   // in place, so all kinds of side effects :(
   const utc: moment.Moment = m.isUTC() ? m : m.utc();
@@ -63,37 +54,37 @@ export const toUTCFIXFormat = (date: Date): string => {
 };
 
 export const forceParseDate = (value: string | undefined): Date | null => {
-  if (value === undefined || typeof value.match !== "function") return null;
+  if (value === undefined || typeof value.match !== 'function') return null;
   // Check if the string matches FIX date format
   if (value.match(/^\d{4}\d{2}\d{2}-\d{2}:\d{2}:\d{2}$/)) {
     const m: moment.Moment = moment(value, FIX_DATE_FORMAT);
     if (!m.isValid()) {
-      console.warn("invalid date string: " + value);
+      console.warn('invalid date string: ' + value);
       return null;
     }
     return m.toDate();
   } else if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const m: moment.Moment = moment(value, "YYYY-MM-DD");
+    const m: moment.Moment = moment(value, 'YYYY-MM-DD');
     if (!m.isValid()) {
-      console.warn("invalid date string: " + value);
+      console.warn('invalid date string: ' + value);
       return null;
     }
     return m.toDate();
   } else if (value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[Z]]{0,1}$/)) {
-    const m: moment.Moment = moment(value, "YYYY-MM-DDTHH:mm:ssZ");
+    const m: moment.Moment = moment(value, 'YYYY-MM-DDTHH:mm:ssZ');
     if (!m.isValid()) {
-      console.warn("invalid date string: " + value);
+      console.warn('invalid date string: ' + value);
       return null;
     }
     return m.toDate();
   } else {
-    if (value === "Invalid date") {
+    if (value === 'Invalid date') {
       return null;
     }
     // ISO format
     const m: moment.Moment = moment(value);
     if (!m.isValid()) {
-      console.warn("invalid date string: " + value);
+      console.warn('invalid date string: ' + value);
       return null;
     }
     return m.toDate();
@@ -104,11 +95,7 @@ export const currentTimestampFIXFormat = (): string => {
   return toUTCFIXFormat(new Date());
 };
 
-export const addToDate = (
-  date: Date,
-  value: number,
-  units: moment.DurationInputArg2
-): Date => {
+export const addToDate = (date: Date, value: number, units: moment.DurationInputArg2): Date => {
   const asMoment: moment.Moment = moment(date);
   const newMoment: moment.Moment = asMoment.add(value, units);
   return newMoment.toDate();
@@ -116,22 +103,22 @@ export const addToDate = (
 
 const zeroPad = (value: number, length: number): string => {
   const str: string = value.toString();
-  if (typeof str.padStart === "function") {
-    return str.padStart(length, "0");
+  if (typeof str.padStart === 'function') {
+    return str.padStart(length, '0');
   } else {
-    throw new Error("you are using an old browser");
+    throw new Error('you are using an old browser');
   }
 };
 
-export const toUTC = (date: Date, dateOnly: boolean = false): string => {
-  if (typeof date.toISOString !== "function") {
-    return "";
+export const toUTC = (date: Date, dateOnly = false): string => {
+  if (typeof date.toISOString !== 'function') {
+    return '';
   }
   if (dateOnly) {
-    return `${date.getUTCFullYear()}-${zeroPad(
-      date.getUTCMonth() + 1,
+    return `${date.getUTCFullYear()}-${zeroPad(date.getUTCMonth() + 1, 2)}-${zeroPad(
+      date.getUTCDate(),
       2
-    )}-${zeroPad(date.getUTCDate(), 2)}`;
+    )}`;
   }
   return date.toISOString();
 };
@@ -148,12 +135,12 @@ export interface TenorDuration {
 }
 
 export const tenorToDuration = (value: string): TenorDuration => {
-  const regexp: RegExp = new RegExp(/([0-9]+)([DWMY])/);
+  const regexp = new RegExp(/([0-9]+)([DWMY])/);
   const match: string[] | null = value.match(regexp);
   if (match === null || match.length !== 3) {
     return {
       count: 0,
-      unit: "d",
+      unit: 'd',
     };
   } else {
     return {

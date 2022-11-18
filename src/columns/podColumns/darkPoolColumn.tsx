@@ -1,27 +1,27 @@
-import { PodRowProps } from "columns/podColumns/common";
-import { ModalWindow } from "components/ModalWindow";
-import { onNavigate } from "components/PodTile/helpers";
-import { Price } from "components/Table/CellRenderers/Price";
-import { PriceTypes } from "components/Table/CellRenderers/Price/priceTypes";
-import { TableColumn } from "components/Table/tableColumn";
-import { observer } from "mobx-react";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement, useMemo } from "react";
-import { NONE } from "stateDefs/workspaceState";
-import { DarkPoolOrder, Order, OrderStatus } from "types/order";
-import { hasRole, Role } from "types/role";
-import { User } from "types/user";
-import { ArrowDirection } from "types/w";
-import { skipTabIndexAll } from "utils/skipTab";
-import { PodStore, PodStoreContext } from "mobx/stores/podStore";
-import { DarkPoolTicket } from "components/DarkPoolTicket";
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { OrderTypes } from "types/mdEntry";
-import { API } from "API";
-import { Sides } from "types/sides";
-import { DarkPoolTooltip } from "components/Table/CellRenderers/Price/darkPoolTooltip";
-import signalRClient from "signalR/signalRClient";
-import { DarkPoolMessage } from "types/message";
+import { API } from 'API';
+import { PodRowProps } from 'columns/podColumns/common';
+import { DarkPoolTicket } from 'components/DarkPoolTicket';
+import { ModalWindow } from 'components/ModalWindow';
+import { onNavigate } from 'components/PodTile/helpers';
+import { Price } from 'components/Table/CellRenderers/Price';
+import { DarkPoolTooltip } from 'components/Table/CellRenderers/Price/darkPoolTooltip';
+import { PriceTypes } from 'components/Table/CellRenderers/Price/priceTypes';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { TableColumn } from 'components/Table/tableColumn';
+import { PodStore, PodStoreContext } from 'mobx/stores/podStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React, { ReactElement, useMemo } from 'react';
+import signalRClient from 'signalR/signalRClient';
+import { NONE } from 'stateDefs/workspaceState';
+import { OrderTypes } from 'types/mdEntry';
+import { DarkPoolMessage } from 'types/message';
+import { DarkPoolOrder, Order, OrderStatus } from 'types/order';
+import { hasRole, Role } from 'types/role';
+import { Sides } from 'types/sides';
+import { User } from 'types/user';
+import { ArrowDirection } from 'types/w';
+import { skipTabIndexAll } from 'utils/skipTab';
 
 type Props = PodRowProps & {
   readonly isDepth: boolean;
@@ -36,24 +36,18 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const { darkPrices, darkOrders } = store;
   const { email, firm } = user;
 
-  const price = React.useMemo(
-    (): number | null => darkPrices[tenor] ?? null,
-    [darkPrices, tenor]
-  );
+  const price = React.useMemo((): number | null => darkPrices[tenor] ?? null, [darkPrices, tenor]);
 
   const orders = React.useMemo(
-    (): ReadonlyArray<Order> =>
+    (): readonly Order[] =>
       darkOrders[tenor]
-        ?.filter(
-          (order: Order): boolean => order.size !== null && order.price !== null
-        )
-        .sort((o1: Order, o2: Order): number => o1.timestamp - o2.timestamp) ??
-      [],
+        ?.filter((order: Order): boolean => order.size !== null && order.price !== null)
+        .sort((o1: Order, o2: Order): number => o1.timestamp - o2.timestamp) ?? [],
     [darkOrders, tenor]
   );
 
   const myOrders = React.useMemo(
-    (): ReadonlyArray<Order> => orders.filter(isMyOrder(user, personality)),
+    (): readonly Order[] => orders.filter(isMyOrder(user, personality)),
     [orders, personality, user]
   );
 
@@ -70,11 +64,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
         return bank;
       }
 
-      return (
-        orders.find(
-          (order: Order) => order.price !== null && order.size !== null
-        ) ?? null
-      );
+      return orders.find((order: Order) => order.price !== null && order.size !== null) ?? null;
     }
   }, [email, firm, isDepth, orders, rowNumber]);
 
@@ -88,8 +78,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 
       const currentOrder: Order | undefined = orders.find((o: Order) => {
         if (o.type === OrderTypes.Bid && order.Side !== Sides.Buy) return false;
-        if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell)
-          return false;
+        if (o.type === OrderTypes.Ofr && order.Side !== Sides.Sell) return false;
         return user.email === o.user;
       });
       // if (currentOrder) await API.cancelDarkPoolOrder(currentOrder);
@@ -137,7 +126,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
       }
       return null;
     } else {
-      const depth: ReadonlyArray<Order> = myOrders;
+      const depth: readonly Order[] = myOrders;
       if (depth.length === 0) return null;
       const showInstruction = depth.some((order: Order): boolean => {
         if ((order.status & OrderStatus.Owned) === 0) return false;
@@ -161,7 +150,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   const onPricePublished = React.useCallback(
     (message: DarkPoolMessage): void => {
       const price = ((): number | null => {
-        if (message.DarkPrice === "") {
+        if (message.DarkPrice === '') {
           return null;
         }
 
@@ -178,7 +167,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     [store]
   );
 
-  React.useEffect((): (() => void) | undefined => {
+  React.useEffect((): VoidFunction | undefined => {
     const stopListener1 = signalRClient.addDarkPoolClearListener(
       currency,
       strategy,
@@ -204,15 +193,11 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
       // Update it for us immediately
       store.setDarkPoolPrice(tenor, price);
       // Publish it for others
-      API.publishDarkPoolPrice(
-        user.email,
-        currency,
-        strategy,
-        tenor,
-        price
-      ).then((): Promise<void> => {
-        return API.cancelAllDarkPoolOrder(currency, strategy, tenor);
-      });
+      API.publishDarkPoolPrice(user.email, currency, strategy, tenor, price).then(
+        (): Promise<void> => {
+          return API.cancelAllDarkPoolOrder(currency, strategy, tenor);
+        }
+      );
     },
     [currency, store, strategy, tenor]
   );
@@ -226,11 +211,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
     void API.cancelAllDarkPoolOrder(currency, strategy, tenor);
   };
 
-  const onSubmit = (
-    input: HTMLInputElement,
-    price: number | null,
-    changed: boolean
-  ) => {
+  const onSubmit = (input: HTMLInputElement, price: number | null, changed: boolean): void => {
     skipTabIndexAll(input, 5, 2);
     if (!changed) return;
     if (price !== null) {
@@ -256,9 +237,7 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
   }, [isBroker, openTicket, personality, price]);
 
   if (user === null)
-    throw new Error(
-      "cannot show a dark pool column if there is no authenticated user"
-    );
+    throw new Error('cannot show a dark pool column if there is no authenticated user');
 
   const className = getOrderStatusClass(status);
 
@@ -283,22 +262,20 @@ const DarkPoolColumnComponent: React.FC<Props> = observer((props: Props) => {
 });
 
 export const DarkPoolColumn = (depth: boolean): TableColumn => ({
-  name: "dark-pool",
+  name: 'dark-pool',
   header: () => (
     <div className="dark-pool-header">
       <div>Dark</div>
       <div>Pool</div>
     </div>
   ),
-  render: (row: PodRowProps) => (
-    <DarkPoolColumnComponent {...row} isDepth={depth} />
-  ),
-  template: "999999.99",
+  render: (row: PodRowProps) => <DarkPoolColumnComponent {...row} isDepth={depth} />,
+  template: '999999.99',
   width: 5,
 });
 
 const getDarkPoolOrderStatus = (
-  orders: ReadonlyArray<Order>,
+  orders: readonly Order[],
   currentOrder: Order | null
 ): OrderStatus => {
   const user: User = workareaStore.user;
@@ -306,11 +283,8 @@ const getDarkPoolOrderStatus = (
   const { roles } = user;
   const isBroker = hasRole(roles, Role.Broker);
   if (!currentOrder) return OrderStatus.None | OrderStatus.DarkPool;
-  const isSameFirm = isBroker
-    ? currentOrder.firm === personality
-    : currentOrder.firm === user.firm;
-  if (currentOrder.size === null)
-    return OrderStatus.None | OrderStatus.DarkPool;
+  const isSameFirm = isBroker ? currentOrder.firm === personality : currentOrder.firm === user.firm;
+  if (currentOrder.size === null) return OrderStatus.None | OrderStatus.DarkPool;
   const hasDepthStatus =
     orders.length > 0 && !orders.every(isMyOrder(user, personality))
       ? OrderStatus.HasDepth
@@ -321,22 +295,12 @@ const getDarkPoolOrderStatus = (
 
   if (hasMyOrderStatus) {
     if (orders.length === 1) {
-      return (
-        OrderStatus.FullDarkPool |
-        OrderStatus.DarkPool |
-        OrderStatus.Owned |
-        hasDepthStatus
-      );
+      return OrderStatus.FullDarkPool | OrderStatus.DarkPool | OrderStatus.Owned | hasDepthStatus;
     }
 
     return OrderStatus.DarkPool | OrderStatus.Owned | hasDepthStatus;
   } else if (isSameFirm) {
-    return (
-      OrderStatus.DarkPool |
-      OrderStatus.SameBank |
-      hasDepthStatus |
-      hasMyOrderStatus
-    );
+    return OrderStatus.DarkPool | OrderStatus.SameBank | hasDepthStatus | hasMyOrderStatus;
   }
 
   return OrderStatus.DarkPool | hasDepthStatus | hasMyOrderStatus;

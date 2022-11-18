@@ -1,9 +1,9 @@
-import React, { ReactElement } from "react";
-import { EntryType } from "types/dealEntry";
-import { ExistingEntryButtons } from "components/MiddleOffice/DealEntryForm/existingEntryButtons";
-import { NewEntryButtons } from "components/MiddleOffice/DealEntryForm/newEntryButtons";
-import { DealStatus } from "types/dealStatus";
-import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
+import { DealEntryButtons } from 'components/MiddleOffice/buttonStateResolver';
+import { ExistingEntryButtons } from 'components/MiddleOffice/DealEntryForm/existingEntryButtons';
+import { NewEntryButtons } from 'components/MiddleOffice/DealEntryForm/newEntryButtons';
+import React, { ReactElement } from 'react';
+import { EntryType } from 'types/dealEntry';
+import { DealStatus } from 'types/dealStatus';
 
 interface Props {
   readonly status: DealStatus;

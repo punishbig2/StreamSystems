@@ -1,23 +1,18 @@
-import { Geometry, Tile, TileEvent } from "@cib/windows-manager";
-import { BlotterTypes } from "columns/messageBlotter";
-import { MessageBlotter } from "components/MessageBlotter";
-import { getOptimalExecutionsBlotterGeometry } from "components/ReactTileManager/helpers/getOptimalExecutionsBlotterGeometry";
-import { useExecutionBlotterSize } from "components/ReactTileManager/hooks/useExecutionBlotterSize";
-import { Select } from "components/Select";
-import { observer } from "mobx-react";
-import {
-  MessageBlotterStore,
-  MessageBlotterStoreContext,
-} from "mobx/stores/messageBlotterStore";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { ReactElement } from "react";
-import { runInNextLoop } from "utils/runInNextLoop";
-import { ExportButton } from "../MessageBlotter/controls/exportButton";
+import { Geometry, Tile, TileEvent } from '@cib/windows-manager';
+import { BlotterTypes } from 'columns/messageBlotter';
+import { MessageBlotter } from 'components/MessageBlotter';
+import { ExportButton } from 'components/MessageBlotter/controls/exportButton';
+import { getOptimalExecutionsBlotterGeometry } from 'components/ReactTileManager/helpers/getOptimalExecutionsBlotterGeometry';
+import { useExecutionBlotterSize } from 'components/ReactTileManager/hooks/useExecutionBlotterSize';
+import { Select } from 'components/Select';
+import { MessageBlotterStore, MessageBlotterStoreContext } from 'mobx/stores/messageBlotterStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React, { ReactElement } from 'react';
+import { runInNextLoop } from 'utils/runInNextLoop';
 
 export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
-  const store = React.useContext<MessageBlotterStore>(
-    MessageBlotterStoreContext
-  );
+  const store = React.useContext<MessageBlotterStore>(MessageBlotterStoreContext);
 
   const { user } = workareaStore;
   const { lastGeometry: geometry, isNew } = store;
@@ -39,7 +34,7 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
     });
   }, [geometry, height, isNew, store, tile, width]);
 
-  React.useEffect((): (() => void) | void => {
+  React.useEffect((): VoidFunction | void => {
     if (tile === null) return;
     const updateGeometry = ((event: CustomEvent<Geometry>): void => {
       store.setLastGeometry(event.detail);
@@ -60,7 +55,7 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
 
   const groups = React.useMemo((): ReadonlyArray<{ readonly name: string }> => {
     return [
-      { name: "All" },
+      { name: 'All' },
       ...regions.map(
         (
           ccyGroup
@@ -84,9 +79,7 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
             value={store.currencyGroupFilter}
             disabled={!workareaStore.connected}
             list={groups}
-            onChange={(value: string): void =>
-              store.setCurrencyGroupFilter(value)
-            }
+            onChange={(value: string): void => store.setCurrencyGroupFilter(value)}
           />
         </div>
       </div>

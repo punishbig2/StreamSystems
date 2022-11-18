@@ -1,84 +1,133 @@
-import { API } from "API";
-
-import strings from "locales";
-import { action, autorun, computed, observable } from "mobx";
-import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { TradingWorkspaceStore } from "mobx/stores/tradingWorkspaceStore";
-import moment from "moment-timezone";
-import signalRManager from "signalR/signalRClient";
-import { defaultPreferences } from "stateDefs/defaultUserPreferences";
-import { WorkareaStatus } from "stateDefs/workareaState";
-import { NONE } from "stateDefs/workspaceState";
-import { OrderTypes } from "types/mdEntry";
-import * as message from "types/message";
-import { Order } from "types/order";
-import { PodRow, PodRowStatus } from "types/podRow";
-import { Product, ProductSource } from "types/product";
-import { hasRole, OktaUser, Role } from "types/role";
-import { Symbol } from "types/symbol";
-import * as users from "types/user";
-import * as schedule from "types/workSchedule";
-import { Workspace } from "types/workspace";
-import { WorkspaceType } from "types/workspaceType";
-import { updateApplicationTheme } from "utils/commonUtils";
-import { parseAsNYTime } from "utils/parseAsNYTime";
-import { PersistStorage } from "utils/persistStorage";
-import { tenorToNumber } from "utils/tenorUtils";
-import { parseVersionNumber } from "utils/versionNumberParser";
-
-declare const GlobalApplicationVersion: string;
+import { API } from 'API';
+import strings from 'locales';
+import { action, autorun, computed, makeObservable, observable } from 'mobx';
+import { MiddleOfficeStore } from 'mobx/stores/middleOfficeStore';
+import { TradingWorkspaceStore } from 'mobx/stores/tradingWorkspaceStore';
+import moment from 'moment-timezone';
+import signalRManager from 'signalR/signalRClient';
+import { defaultPreferences } from 'stateDefs/defaultUserPreferences';
+import { WorkareaStatus } from 'stateDefs/workareaState';
+import { NONE } from 'stateDefs/workspaceState';
+import { FXSymbol } from 'types/FXSymbol';
+import { OrderTypes } from 'types/mdEntry';
+import * as message from 'types/message';
+import { Order } from 'types/order';
+import { PodRow, PodRowStatus } from 'types/podRow';
+import { Product, ProductSource } from 'types/product';
+import { hasRole, OktaUser, Role } from 'types/role';
+import * as users from 'types/user';
+import * as schedule from 'types/workSchedule';
+import { Workspace } from 'types/workspace';
+import { WorkspaceType } from 'types/workspaceType';
+import { updateApplicationTheme } from 'utils/commonUtils';
+import { parseAsNYTime } from 'utils/parseAsNYTime';
+import { PersistStorage } from 'utils/persistStorage';
+import { tenorToNumber } from 'utils/tenorUtils';
+import { parseVersionNumber } from 'utils/versionNumberParser';
+import { version } from 'version';
 
 export const isTradingWorkspace = (
   workspace: TradingWorkspaceStore | any
 ): workspace is TradingWorkspaceStore => {
   if (workspace === undefined || workspace === null) return false;
-  if (typeof workspace !== "object") return false;
-  return "type" in workspace && workspace.type === WorkspaceType.Trading;
+  if (typeof workspace !== 'object') return false;
+  return 'type' in workspace && workspace.type === WorkspaceType.Trading;
 };
 
 export const isMiddleOfficeWorkspace = (
   workspace: MiddleOfficeStore | any
 ): workspace is MiddleOfficeStore => {
   if (workspace === undefined || workspace === null) return false;
-  if (typeof workspace !== "object") return false;
-  return "type" in workspace && workspace.type === WorkspaceType.MiddleOffice;
+  if (typeof workspace !== 'object') return false;
+  return 'type' in workspace && workspace.type === WorkspaceType.MiddleOffice;
 };
 
 export class WorkareaStore {
-  @observable workspaces: ReadonlyArray<Workspace> = [];
-  @observable currentWorkspaceIndex: number | null = null;
-  @observable symbols: ReadonlyArray<Symbol> = [];
-  @observable.ref products: ReadonlyArray<Product> = [];
-  @observable.ref strategies: ReadonlyArray<Product> = [];
-  @observable.ref tenors: ReadonlyArray<string> = [];
-  @observable.ref banks: ReadonlyArray<string> = [];
-  @observable status: WorkareaStatus = WorkareaStatus.Starting;
-  @observable connected: boolean = false;
-  @observable recentExecutions: Array<message.Message> = [];
+  public workspaces: readonly Workspace[] = [];
+  public currentWorkspaceIndex: number | null = null;
+  public symbols: readonly FXSymbol[] = [];
+  public products: readonly Product[] = [];
+  public strategies: readonly Product[] = [];
+  public tenors: readonly string[] = [];
+  public banks: readonly string[] = [];
+  public status: WorkareaStatus = WorkareaStatus.Starting;
+  public connected = false;
+  public recentExecutions: message.Message[] = [];
 
-  @observable.ref defaultOrders: Record<string, ReadonlyArray<Order>> = {};
-  @observable.ref defaultPodRows: Record<string, PodRow> = {};
+  public defaultOrders: Record<string, readonly Order[]> = {};
+  public defaultPodRows: Record<string, PodRow> = {};
 
-  @observable.ref
-  preferences: users.UserPreferences = defaultPreferences;
-  @observable user: users.User = {} as users.User;
-  @observable loadingMessage?: string;
-  @observable loadingProgress: number = 0;
-  @observable isCreatingWorkspace: boolean = false;
+  public preferences: users.UserPreferences = defaultPreferences;
+  public user: users.User = {} as users.User;
+  public loadingMessage?: string;
+  public loadingProgress = 0;
+  public isCreatingWorkspace = false;
 
-  @observable workspaceAccessDenied: boolean = false;
-  @observable workspaceNotFound: boolean = false;
-  @observable users: ReadonlyArray<users.OtherUser> = [];
+  public workspaceAccessDenied = false;
+  public workspaceNotFound = false;
+  public users: readonly users.OtherUser[] = [];
 
-  private symbolsMap: { [key: string]: Symbol } = {};
-  private loadingStep: number = 0;
+  public symbolsMap: { [key: string]: FXSymbol } = {};
+  public loadingStep = 0;
 
-  private persistStorage?: PersistStorage;
-  private lastVersionCheckTimestamp: number = 0;
+  public persistStorage?: PersistStorage;
+  public lastVersionCheckTimestamp = 0;
 
-  @observable isShowingNewVersionModal: boolean = false;
-  @observable workSchedule: schedule.WorkSchedule =
-    schedule.invalidWorkSchedule;
+  public isShowingNewVersionModal = false;
+  public workSchedule: schedule.WorkSchedule = schedule.invalidWorkSchedule;
+
+  constructor() {
+    makeObservable(this, {
+      workspaces: observable,
+      currentWorkspaceIndex: observable,
+      symbols: observable,
+      products: observable.ref,
+      strategies: observable.ref,
+      tenors: observable.ref,
+      banks: observable.ref,
+      status: observable,
+      connected: observable,
+      recentExecutions: observable,
+      defaultOrders: observable.ref,
+      defaultPodRows: observable.ref,
+      preferences: observable.ref,
+      user: observable,
+      loadingMessage: observable,
+      loadingProgress: observable,
+      isCreatingWorkspace: observable,
+      workspaceAccessDenied: observable,
+      workspaceNotFound: observable,
+      users: observable,
+      isShowingNewVersionModal: observable,
+      workSchedule: observable,
+      serialized: computed,
+      personality: computed,
+      workspace: computed,
+      addStandardWorkspace: action.bound,
+      clearLastExecution: action.bound,
+      closeWorkspace: action.bound,
+      setWorkspace: action.bound,
+      setWorkspaceName: action.bound,
+      addRecentExecution: action.bound,
+      setPreferences: action.bound,
+      addMiddleOffice: action.bound,
+      closeAccessDeniedView: action.bound,
+      internalAddMiddleOffice: action.bound,
+      internalAddWorkspace: action.bound,
+      loadTheme: action.bound,
+      updateLoadingProgress: action.bound,
+      loadUser: action.bound,
+      loadSystemSymbols: action.bound,
+      createSymbolsMap: action.bound,
+      loadSystemStrategies: action.bound,
+      loadSystemTenors: action.bound,
+      loadSystemBanks: action.bound,
+      setStatus: action.bound,
+      showNewVersionModal: action.bound,
+      updateDefaultOrders: action.bound,
+      updateDefaultPodRows: action.bound,
+    });
+  }
 
   public get effectiveFirm(): string {
     const { user, personality } = this;
@@ -96,22 +145,19 @@ export class WorkareaStore {
     const newStore = new WorkareaStore();
     newStore.preferences = data.preferences;
     newStore.currentWorkspaceIndex = data.currentWorkspaceIndex;
-    newStore.workspaces = workspaces.map(
-      (data: { [key: string]: any }): Workspace => {
-        const { type } = data;
-        if (type === WorkspaceType.MiddleOffice) {
-          return MiddleOfficeStore.fromJson(data);
-        } else if (type === WorkspaceType.Trading) {
-          return TradingWorkspaceStore.fromJson(data);
-        } else {
-          throw new Error(`unknown workspace type: ${type}`);
-        }
+    newStore.workspaces = workspaces.map((data: { [key: string]: any }): Workspace => {
+      const { type } = data;
+      if (type === WorkspaceType.MiddleOffice) {
+        return MiddleOfficeStore.fromJson(data);
+      } else if (type === WorkspaceType.Trading) {
+        return TradingWorkspaceStore.fromJson(data);
+      } else {
+        throw new Error(`unknown workspace type: ${type}`);
       }
-    );
+    });
     return newStore;
   }
 
-  @computed
   public get serialized(): { [key: string]: any } {
     const { workspaces } = this;
     return {
@@ -127,7 +173,6 @@ export class WorkareaStore {
     };
   }
 
-  @computed
   public get personality(): string {
     const { workspaces, currentWorkspaceIndex } = this;
     if (currentWorkspaceIndex === null) return NONE;
@@ -139,11 +184,9 @@ export class WorkareaStore {
     }
   }
 
-  @computed
-  get workspace(): Workspace | null {
+  public get workspace(): Workspace | null {
     if (this.currentWorkspaceIndex === null) return null;
-    const found: Workspace | undefined =
-      this.workspaces[this.currentWorkspaceIndex];
+    const found: Workspace | undefined = this.workspaces[this.currentWorkspaceIndex];
     if (found) {
       return found;
     } else {
@@ -151,27 +194,24 @@ export class WorkareaStore {
     }
   }
 
-  private static cleanupUrl(id: string) {
+  public static cleanupUrl(id: string): void {
     const { history, location } = window;
-    const base: string = `${location.protocol}//${location.host}${location.pathname}`;
+    const base = `${location.protocol}//${location.host}${location.pathname}`;
     // Replace the url with the same url but without parameters
-    history.pushState({ userId: id }, "", base);
+    history.pushState({ userId: id }, '', base);
   }
 
-  @action.bound
-  public addStandardWorkspace(group: users.CurrencyGroups) {
+  public addStandardWorkspace(group: users.CurrencyGroups): void {
     this.isCreatingWorkspace = true;
     // Do this after the `isCreatingWorkspace' takes effect
     setTimeout(() => this.internalAddWorkspace(group), 0);
   }
 
-  @action.bound
-  public clearLastExecution() {
+  public clearLastExecution(): void {
     this.recentExecutions = [];
   }
 
-  @action.bound
-  public async closeWorkspace(index: number) {
+  public async closeWorkspace(index: number): Promise<void> {
     const workspaces = [...this.workspaces];
     // Update current workspace id
     if (workspaces.length === 0) {
@@ -179,10 +219,7 @@ export class WorkareaStore {
     } else {
       this.currentWorkspaceIndex = 0;
     }
-    this.workspaces = [
-      ...workspaces.slice(0, index),
-      ...workspaces.slice(index + 1),
-    ];
+    this.workspaces = [...workspaces.slice(0, index), ...workspaces.slice(index + 1)];
   }
 
   public isUserAllowedToSignIn(user: users.User): boolean {
@@ -197,7 +234,7 @@ export class WorkareaStore {
     return eod.isAfter(moment()) && bod.isBefore(moment());
   }
 
-  public async initialize(id: string | null) {
+  public async initialize(id: string | null): Promise<void> {
     if (id === null) {
       this.status = WorkareaStatus.UserNotFound;
       return;
@@ -216,9 +253,7 @@ export class WorkareaStore {
         } else {
           this.createSessionTimer();
         }
-        const regions: ReadonlyArray<string> = await this.loadUserRegions(
-          user.email
-        );
+        const regions: readonly string[] = await this.loadUserRegions(user.email);
         // Now the user object is complete
         this.user = { ...user, regions };
         this.persistStorage = new PersistStorage(this.user);
@@ -246,16 +281,16 @@ export class WorkareaStore {
         await new Promise<void>((resolve: () => void): void => {
           setTimeout(resolve, 1200);
         });
-        // Switch the the normal view
+        // Switch the normal view
         this.setStatus(WorkareaStatus.Ready);
       }
     } catch (error) {
+      console.warn(error);
       this.setStatus(WorkareaStatus.Error);
     }
   }
 
-  @action.bound
-  public setWorkspace(index: number) {
+  public setWorkspace(index: number): void {
     // FIXME: make this faster or smoother
     const { workspaces } = this;
     this.loadingStep = 1;
@@ -271,65 +306,34 @@ export class WorkareaStore {
     }
   }
 
-  @action.bound
-  public setWorkspaceName(index: number, name: string) {
+  public setWorkspaceName(index: number, name: string): void {
     const { workspaces } = this;
     const workspace: Workspace = workspaces[index];
-    if (workspace === undefined) throw new Error("this must be impossible");
+    if (workspace === undefined) throw new Error('this must be impossible');
     workspace.setName(name);
     this.workspaces = [...workspaces];
   }
 
-  @action.bound
-  public addRecentExecution(loadingMessage: message.Message) {
+  public addRecentExecution(loadingMessage: message.Message): void {
     const { recentExecutions } = this;
     recentExecutions.push(loadingMessage);
   }
 
-  @action.bound
-  public setPreferences(preferences: users.UserPreferences) {
+  public setPreferences(preferences: users.UserPreferences): void {
     this.preferences = preferences;
     this.loadTheme();
   }
 
-  @action.bound
-  public addMiddleOffice() {
+  public addMiddleOffice(): void {
     this.isCreatingWorkspace = true;
     setTimeout(this.internalAddMiddleOffice, 0);
   }
 
-  @action.bound
   public closeAccessDeniedView(): void {
     this.workspaceAccessDenied = false;
   }
 
-  public findUserByEmail(email: string): users.OtherUser {
-    const { users } = this;
-    const found: users.OtherUser | undefined = users.find(
-      (user: users.OtherUser): boolean => {
-        if (user.email === undefined) {
-          return false;
-        } else if (email === undefined) {
-          return false;
-        }
-        return user.email.toLowerCase() === email.toLowerCase();
-      }
-    );
-    if (found === undefined) {
-      console.warn(
-        `we tried to find \`${email}' in the list of users from the server but it's not in it`,
-        users
-      );
-      return {
-        email: "unknown user",
-        firm: "unknown firm",
-      };
-    }
-    return found;
-  }
-
-  @action.bound
-  private internalAddMiddleOffice(): void {
+  public internalAddMiddleOffice(): void {
     const { workspaces } = this;
     // Create the workspace
     this.currentWorkspaceIndex = workspaces.length;
@@ -337,8 +341,7 @@ export class WorkareaStore {
     this.isCreatingWorkspace = false;
   }
 
-  @action.bound
-  private internalAddWorkspace(group: users.CurrencyGroups) {
+  public internalAddWorkspace(group: users.CurrencyGroups): void {
     const { workspaces } = this;
     // Create the workspace
     this.currentWorkspaceIndex = workspaces.length;
@@ -349,21 +352,20 @@ export class WorkareaStore {
     void group;
   }
 
-  @action.bound
-  public loadTheme() {
+  public loadTheme(): void {
     const { theme, fontFamily, fontSize } = this.preferences;
     updateApplicationTheme(theme, fontFamily, fontSize);
   }
 
-  private mapSymbolsWithIds() {
+  public mapSymbolsWithIds(): { [key: string]: FXSymbol } {
     const { symbols } = this;
 
     return symbols.reduce(
       (
-        map: { [key: string]: Symbol },
-        symbol: Symbol
+        map: { [key: string]: FXSymbol },
+        symbol: FXSymbol
       ): {
-        [key: string]: Symbol;
+        [key: string]: FXSymbol;
       } => {
         map[symbol.symbolID] = symbol;
         return map;
@@ -372,15 +374,13 @@ export class WorkareaStore {
     );
   }
 
-  @action.bound
-  private updateLoadingProgress(message: string) {
+  public updateLoadingProgress(message: string): void {
     this.loadingMessage = message;
     this.loadingProgress += this.loadingStep;
     if (this.loadingProgress > 100) this.loadingProgress = 100;
   }
 
-  @action.bound
-  private async loadUser(id: string): Promise<users.User | undefined> {
+  public async loadUser(id: string): Promise<users.User | undefined> {
     this.updateLoadingProgress(strings.StartingUp);
 
     const oktaUser: OktaUser = await API.getUser(id);
@@ -405,15 +405,15 @@ export class WorkareaStore {
     }
   }
 
-  private async loadUserRegions(email: string): Promise<ReadonlyArray<string>> {
+  public async loadUserRegions(email: string): Promise<readonly string[]> {
     this.updateLoadingProgress(strings.LoadingRegions);
     return API.getUserRegions(email);
   }
 
-  private async initializePersistStorage(): Promise<void> {
+  public async initializePersistStorage(): Promise<void> {
     const { persistStorage } = this;
     if (persistStorage === null || persistStorage === undefined) {
-      throw new Error("persist storage not set");
+      throw new Error('persist storage not set');
     }
     this.updateLoadingProgress(strings.LoadingRegions);
     // Initialize the persistStorage object
@@ -422,29 +422,27 @@ export class WorkareaStore {
     this.currentWorkspaceIndex = savedStore.currentWorkspaceIndex;
 
     this.setPreferences(savedStore.preferences);
+
     autorun((): void => {
       const { persistStorage } = this;
       if (persistStorage === null || persistStorage === undefined) {
-        throw new Error("persist storage not set");
+        throw new Error('persist storage not set');
       }
       // Save the changes in the store (and all it's children)
       void persistStorage.persist(this.serialized);
     });
   }
 
-  @action.bound
-  private async loadSystemSymbols(): Promise<void> {
+  public async loadSystemSymbols(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingSymbols);
     this.symbols = await API.getSymbols();
   }
 
-  @action.bound
-  private async createSymbolsMap(): Promise<void> {
+  public async createSymbolsMap(): Promise<void> {
     this.symbolsMap = this.mapSymbolsWithIds();
   }
 
-  @action.bound
-  private async loadSystemStrategies(): Promise<void> {
+  public async loadSystemStrategies(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingStrategies);
     this.products = await API.getProductsEx();
     this.strategies = this.products.filter(
@@ -452,26 +450,22 @@ export class WorkareaStore {
     );
   }
 
-  @action.bound
-  private async loadSystemTenors(): Promise<void> {
+  public async loadSystemTenors(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingTenors);
     const tenors: string[] = await API.getTenors();
 
-    this.tenors = tenors.sort(
-      (t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2)
-    );
+    this.tenors = tenors.sort((t1: string, t2: string) => tenorToNumber(t1) - tenorToNumber(t2));
 
     this.updateDefaultPodRows();
     this.updateDefaultOrders();
   }
 
-  @action.bound
-  private async loadSystemBanks(): Promise<void> {
+  public async loadSystemBanks(): Promise<void> {
     this.updateLoadingProgress(strings.LoadingBanks);
     this.banks = await API.getBanks();
   }
 
-  private async connectToSignalR(): Promise<void> {
+  public async connectToSignalR(): Promise<void> {
     this.updateLoadingProgress(strings.EstablishingConnection);
     if (signalRManager.connect()) {
       // Try to connect
@@ -487,13 +481,12 @@ export class WorkareaStore {
     }
   }
 
-  @action.bound
-  private setStatus(status: WorkareaStatus) {
+  public setStatus(status: WorkareaStatus): void {
     this.loadingProgress = 0;
     this.status = status;
   }
 
-  private userHasAccessToWorkspace(workspace: Workspace): boolean {
+  public userHasAccessToWorkspace(workspace: Workspace): boolean {
     const { roles } = this.user;
     switch (workspace.type) {
       case WorkspaceType.MiddleOffice:
@@ -513,23 +506,24 @@ export class WorkareaStore {
       return;
     }
 
-    const response = await fetch("current-version");
+    const response = await fetch('current-version');
     if (response.status !== 200) {
-      throw new Error("cannot fetch the version number file");
+      throw new Error('cannot fetch the version number file');
     }
 
     this.lastVersionCheckTimestamp = Date.now();
     try {
       const latest = parseVersionNumber(await response.text());
-      const active = parseVersionNumber(GlobalApplicationVersion);
+      const active = parseVersionNumber(version);
       if (latest > active) {
         this.showNewVersionModal();
       }
-    } catch {}
+    } catch (error) {
+      console.warn(error);
+    }
   }
 
-  @action.bound
-  private showNewVersionModal(): void {
+  public showNewVersionModal(): void {
     this.isShowingNewVersionModal = true;
   }
 
@@ -537,23 +531,22 @@ export class WorkareaStore {
     window.location.reload();
   }
 
-  private createSessionTimer(): void {
+  public createSessionTimer(): void {
     const { workSchedule } = this;
-    const tradingEndTime = moment(workSchedule.trading_end_time, "HH:mm:SS");
+    const tradingEndTime = moment(workSchedule.trading_end_time, 'HH:mm:SS');
     setTimeout((): void => {
       this.setStatus(WorkareaStatus.NotAllowedAtThisTime);
-    }, tradingEndTime.diff(moment(), "ms"));
+    }, tradingEndTime.diff(moment(), 'ms'));
   }
 
-  @action.bound
-  private updateDefaultOrders(): void {
+  public updateDefaultOrders(): void {
     const { tenors } = this;
 
     this.defaultOrders = tenors.reduce(
       (
-        depth: Record<string, ReadonlyArray<Order>>,
+        depth: Record<string, readonly Order[]>,
         tenor: string
-      ): Record<string, ReadonlyArray<Order>> => {
+      ): Record<string, readonly Order[]> => {
         depth[tenor] = [];
         return depth;
       },
@@ -561,8 +554,7 @@ export class WorkareaStore {
     );
   }
 
-  @action.bound
-  private updateDefaultPodRows(): void {
+  public updateDefaultPodRows(): void {
     const { tenors } = this;
 
     this.defaultPodRows = tenors.reduce(
@@ -570,8 +562,8 @@ export class WorkareaStore {
         const row: PodRow = {
           id: tenor,
           tenor: tenor,
-          bid: new Order(tenor, "", "", "", null, OrderTypes.Invalid),
-          ofr: new Order(tenor, "", "", "", null, OrderTypes.Invalid),
+          bid: new Order(tenor, '', '', '', null, OrderTypes.Invalid),
+          ofr: new Order(tenor, '', '', '', null, OrderTypes.Invalid),
           mid: null,
           spread: null,
           status: PodRowStatus.Normal,

@@ -1,33 +1,56 @@
-import { API } from "API";
-import { BlotterTypes } from "columns/messageBlotter";
-import { action, computed, observable } from "mobx";
-import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
-import { TileStore } from "mobx/stores/tileStore";
-import workareaStore from "mobx/stores/workareaStore";
-import React from "react";
-import { NONE } from "stateDefs/workspaceState";
-import { hasRole, Role } from "types/role";
-import { TileType } from "types/tileType";
-import { Workspace } from "types/workspace";
-import { WorkspaceType } from "types/workspaceType";
-import { BrokerageStore } from "mobx/stores/brokerageStore";
+import { API } from 'API';
+import { BlotterTypes } from 'columns/messageBlotter';
+import { action, computed, makeObservable, observable } from 'mobx';
+import { BrokerageStore } from 'mobx/stores/brokerageStore';
+import { MessageBlotterStore } from 'mobx/stores/messageBlotterStore';
+import { TileStore } from 'mobx/stores/tileStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import React from 'react';
+import { NONE } from 'stateDefs/workspaceState';
+import { hasRole, Role } from 'types/role';
+import { TileType } from 'types/tileType';
+import { Workspace } from 'types/workspace';
+import { WorkspaceType } from 'types/workspaceType';
 
 export class TradingWorkspaceStore implements Workspace {
   public readonly type: WorkspaceType = WorkspaceType.Trading;
   public readonly brokerageStore = new BrokerageStore();
 
-  @observable public tiles: ReadonlyArray<TileStore> = [];
-  @observable public personality: string = NONE;
-  @observable public name: string = "Untitled";
-  @observable public isUserProfileModalVisible = false;
-  @observable public errorMessage: string | null = null;
-  @observable public loading: boolean = false;
-  @observable public modified: boolean = false;
-  @observable public executionBlotter: MessageBlotterStore;
-  @observable public reffingAll: boolean = false;
+  public tiles: readonly TileStore[] = [];
+  public personality: string = NONE;
+  public name = 'Untitled';
+  public isUserProfileModalVisible = false;
+  public errorMessage: string | null = null;
+  public loading = false;
+  public modified = false;
+  public executionBlotter: MessageBlotterStore;
+  public reffingAll = false;
 
   constructor() {
     this.executionBlotter = new MessageBlotterStore(BlotterTypes.Executions);
+    makeObservable(this, {
+      tiles: observable,
+      personality: observable,
+      name: observable,
+      isUserProfileModalVisible: observable,
+      errorMessage: observable,
+      loading: observable,
+      modified: observable,
+      executionBlotter: observable,
+      reffingAll: observable,
+      serialized: computed,
+      setReffingAll: action.bound,
+      setPersonality: action.bound,
+      addTile: action.bound,
+      removeTile: action.bound,
+      superRefAll: action.bound,
+      showUserProfileModal: action.bound,
+      hideUserProfileModal: action.bound,
+      hideErrorModal: action.bound,
+      setName: action.bound,
+      setModified: action.bound,
+      setLoading: action.bound,
+    });
   }
 
   public static fromJson(data: { [key: string]: any }): TradingWorkspaceStore {
@@ -37,14 +60,11 @@ export class TradingWorkspaceStore implements Workspace {
     newStore.tiles = tiles.map(
       (data: { [key: string]: any }): TileStore => TileStore.fromJson(data)
     );
-    newStore.executionBlotter = MessageBlotterStore.fromJson(
-      data.executionBlotter
-    );
+    newStore.executionBlotter = MessageBlotterStore.fromJson(data.executionBlotter);
     newStore.name = data.name;
     return newStore;
   }
 
-  @computed
   public get serialized(): { [key: string]: any } {
     const { tiles, executionBlotter } = this;
 
@@ -63,20 +83,17 @@ export class TradingWorkspaceStore implements Workspace {
     };
   }
 
-  @action.bound
   public setReffingAll(value: boolean): void {
     this.reffingAll = value;
   }
 
-  @action.bound
-  public setPersonality(personality: string) {
+  public setPersonality(personality: string): void {
     this.personality = personality;
   }
 
-  @action.bound
-  public addTile(type: TileType) {
+  public addTile(type: TileType): void {
     const { tiles } = this;
-    const id: string = `t${Math.round(1e8 * Math.random())}`;
+    const id = `t${Math.round(1e8 * Math.random())}`;
     const newTile: TileStore = new TileStore(id, type);
     switch (type) {
       case TileType.PodTile:
@@ -86,22 +103,18 @@ export class TradingWorkspaceStore implements Workspace {
         break;
       case TileType.Empty:
       default:
-        throw new Error("cannot add this kind of window");
+        throw new Error('cannot add this kind of window');
     }
   }
 
-  @action.bound
-  public removeTile(windowID: string) {
+  public removeTile(windowID: string): void {
     const { tiles } = this;
-    const index: number = tiles.findIndex(
-      ({ id }: TileStore) => id === windowID
-    );
+    const index: number = tiles.findIndex(({ id }: TileStore) => id === windowID);
     if (index === -1) return; // Perhaps error here?
     this.tiles = [...tiles.slice(0, index), ...tiles.slice(index + 1)];
   }
 
-  @action.bound
-  public superRefAll() {
+  public superRefAll(): void {
     const { roles } = workareaStore.user;
 
     this.reffingAll = true;
@@ -112,36 +125,31 @@ export class TradingWorkspaceStore implements Workspace {
     }
   }
 
-  @action.bound
-  public showUserProfileModal() {
+  public showUserProfileModal(): void {
     this.isUserProfileModalVisible = true;
   }
 
-  @action.bound
-  public hideUserProfileModal() {
+  public hideUserProfileModal(): void {
     this.isUserProfileModalVisible = false;
   }
 
-  @action.bound
-  public hideErrorModal() {
+  public hideErrorModal(): void {
     this.errorMessage = null;
   }
 
-  @action.bound
-  public setName(name: string) {
+  public setName(name: string): void {
     this.name = name;
   }
 
-  @action.bound
   public setModified(value: boolean): void {
     this.modified = value;
   }
 
-  @action.bound
-  private setLoading(value: boolean) {
+  public setLoading(value: boolean): void {
     this.loading = value;
   }
 }
 
-export const TradingWorkspaceStoreContext =
-  React.createContext<TradingWorkspaceStore>(new TradingWorkspaceStore());
+export const TradingWorkspaceStoreContext = React.createContext<TradingWorkspaceStore>(
+  new TradingWorkspaceStore()
+);

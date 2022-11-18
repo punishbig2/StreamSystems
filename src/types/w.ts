@@ -1,11 +1,11 @@
-import { MDEntry } from "types/mdEntry";
+import { MDEntry } from 'types/mdEntry';
 
 export enum MessageTypes {
-  W = "W",
-  D = "D",
-  G = "G",
-  F = "F",
-  M = "M",
+  W = 'W',
+  D = 'D',
+  G = 'G',
+  F = 'F',
+  M = 'M',
 }
 
 export type TenorType = string;
@@ -13,12 +13,12 @@ export type StrategyType = string;
 export type SymbolType = string;
 
 export enum ArrowDirection {
-  None = "",
-  Up = "0",
-  Down = "2",
+  None = '',
+  Up = '0',
+  Down = '2',
 }
 
-export const DarkPool: string = "DP";
+export const DarkPool = 'DP';
 
 export interface W {
   MsgType: MessageTypes;
@@ -29,11 +29,11 @@ export interface W {
   Tenor: TenorType;
   NoMDEntries: number;
   Entries: MDEntry[];
-  ExDestination: "DP" | undefined;
-  "9712": "TOB" | undefined;
+  ExDestination: 'DP' | undefined;
+  '9712': 'TOB' | undefined;
 }
 
-export const isPodW = (w: W | undefined) => {
+export const isPodW = (w: W | undefined): w is W => {
   if (w === undefined) return false;
-  return w["9712"] === "TOB";
+  return w['9712'] === 'TOB';
 };

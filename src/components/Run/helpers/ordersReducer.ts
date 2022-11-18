@@ -1,5 +1,5 @@
-import { Order } from "types/order";
-import { $$ } from "utils/stringPaster";
+import { Order } from 'types/order';
+import { $$ } from 'utils/stringPaster';
 
 export const ordersReducer = (
   map: { [id: string]: Order },

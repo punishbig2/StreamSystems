@@ -1,11 +1,11 @@
-import { RowFunctions } from "components/PodTile/rowFunctions";
-import { Cell } from "components/Table/Cell";
-import { TableColumn } from "components/Table/tableColumn";
-import { getCellWidth } from "components/Table/helpers";
-import { observer } from "mobx-react";
-import { PodRowStore, PodRowStoreContext } from "mobx/stores/podRowStore";
-import React, { useEffect, useRef } from "react";
-import { PodRowStatus } from "types/podRow";
+import { RowFunctions } from 'components/PodTile/rowFunctions';
+import { Cell } from 'components/Table/Cell';
+import { getCellWidth } from 'components/Table/helpers';
+import { TableColumn } from 'components/Table/tableColumn';
+import { PodRowStore, PodRowStoreContext } from 'mobx/stores/podRowStore';
+import { observer } from 'mobx-react';
+import React, { useEffect, useRef } from 'react';
+import { PodRowStatus } from 'types/podRow';
 
 interface OwnProps {
   readonly id: string;
@@ -29,20 +29,16 @@ export const Row: React.FC<Props> = observer((props: Props) => {
 
   const { id, columns, row, totalWidth, containerWidth, ...rowProps } = props;
   const { internalRow } = store;
-  const classes: string[] = ["tr"];
+  const classes: string[] = ['tr'];
 
   useEffect((): void => {
     store.setInternalRow(row);
   }, [store, row]);
 
-  if (internalRow.status !== PodRowStatus.Normal) classes.push("error");
+  if (internalRow.status !== PodRowStatus.Normal) classes.push('error');
   return (
     <PodRowStoreContext.Provider value={store}>
-      <div
-        id={props.id}
-        className={classes.join(" ")}
-        data-row-number={props.rowNumber}
-      >
+      <div id={props.id} className={classes.join(' ')} data-row-number={props.rowNumber}>
         {columns.map((column: TableColumn, index: number) => {
           const width: string = getCellWidth(column.width, totalWidth);
           const name: string = column.name;

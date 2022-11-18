@@ -1,4 +1,4 @@
-import { DealStatus } from "types/dealStatus";
+import { DealStatus } from 'types/dealStatus';
 
 export interface SEFUpdate {
   readonly dealId: string;

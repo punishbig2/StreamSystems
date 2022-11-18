@@ -1,23 +1,23 @@
-import { Page } from "@playwright/test";
+import { Page } from '@playwright/test';
 
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require('@playwright/test');
 
 const createPod = async (page: Page, userId: string) => {
   await page.goto(`http://localhost:3000/?user=${userId}`);
 
-  const newWorkspaceButton = page.locator("text=NEW WORKSPACE");
+  const newWorkspaceButton = page.locator('text=NEW WORKSPACE');
   expect(newWorkspaceButton).not.toBeNull();
   await newWorkspaceButton.click();
 
-  const emptyWorkspaceButton = page.locator("text=Empty");
+  const emptyWorkspaceButton = page.locator('text=Empty');
   expect(emptyWorkspaceButton).not.toBeNull();
   await emptyWorkspaceButton.click();
 
-  const addPodButton = page.locator("text=ADD POD");
+  const addPodButton = page.locator('text=ADD POD');
   expect(addPodButton).not.toBeNull();
   await addPodButton.click();
 
-  const podWindow = page.locator("cib-window");
+  const podWindow = page.locator('cib-window');
   expect(podWindow).not.toBeNull();
 
   return podWindow;
@@ -50,9 +50,9 @@ const setPodCombination = async (
   await runButton.isEnabled();
 };
 
-test("Basic Test", async ({ page }: { page: Page }) => {
-  const podWindow = await createPod(page, "00u165bdnmpj8AsVb0h8");
-  await setPodCombination(page, podWindow, "USDMXN", "ATMF");
+test('Basic Test', async ({ page }: { page: Page }) => {
+  const podWindow = await createPod(page, '00u165bdnmpj8AsVb0h8');
+  await setPodCombination(page, podWindow, 'USDMXN', 'ATMF');
 
-  await page.screenshot({ path: "/home/iharob/screenshot.png" });
+  await page.screenshot({ path: '/home/iharob/screenshot.png' });
 });

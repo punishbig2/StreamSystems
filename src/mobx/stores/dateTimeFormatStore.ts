@@ -1,21 +1,22 @@
-import React from "react";
-import { findDefaultTimezone } from "utils/commonUtils";
-import { observable, action } from "mobx";
+import { action, makeObservable, observable } from 'mobx';
+import React from 'react';
+import { findDefaultTimezone } from 'utils/commonUtils';
 
 export class DateTimeFormatStore {
-  public static Context = React.createContext<DateTimeFormatStore>(
-    new DateTimeFormatStore()
-  );
+  public static Context = React.createContext<DateTimeFormatStore>(new DateTimeFormatStore());
 
   public static Provider = DateTimeFormatStore.Context.Provider;
 
-  @observable public currentTimezone: string;
+  public currentTimezone: string;
 
   constructor() {
     this.currentTimezone = findDefaultTimezone();
+    makeObservable(this, {
+      currentTimezone: observable,
+      setTimezone: action.bound,
+    });
   }
 
-  @action.bound
   public setTimezone(timezone: string): void {
     this.currentTimezone = timezone;
   }

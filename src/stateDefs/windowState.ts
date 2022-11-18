@@ -1,7 +1,38 @@
-import { Symbol } from "types/symbol";
+import { FXSymbol } from 'types/FXSymbol';
 
-export const InvalidCurrency: Symbol = {
-  name: "",
+export const InvalidCurrency: FXSymbol = {
+  'DayCountBasis-FX': '',
+  'DayCountBasis-VOL': '',
+  'premium-rounding': undefined,
+  'strike-rounding': undefined,
+  ATMType: '',
+  DeltaType: '',
+  FixingSource: '',
+  PrimaryCutCode: '',
+  PrimaryUTCTime: '',
+  SecondaryCutCode: '',
+  SecondaryUTCTime: '',
+  SettlementType: '',
+  SettlementWindow: 0,
+  ccyGroup: '',
+  cross: false,
+  description: '',
+  forwardcode: '',
+  fxsource: '',
+  legadjustvalues: [],
+  notionalCCY: '',
+  premiumAdjustDelta: false,
+  premiumCCY: '',
+  premiumCCYpercent: false,
+  rank: 0,
+  riskCCY: '',
+  riskCCYformat: '',
+  riskCCYpercent: false,
+  symbolID: '',
+  vegaAdjustBF: '',
+  vegaAdjustRR: '',
+  volsource: '',
+  name: '',
   minqty: 0,
   defaultqty: 0,
-} as Symbol;
+};

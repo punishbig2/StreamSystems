@@ -1,18 +1,12 @@
-import { useTicketClasses } from "hooks/useTicketClasses";
-import { OrderTypes } from "types/mdEntry";
-import { Order } from "types/order";
-import React, { ReactElement, useState } from "react";
-import strings from "locales";
-import { PresetSizeButton } from "components/presetSizeButton";
-import { sizeFormatter } from "utils/sizeFormatter";
-import {
-  FormControl,
-  FormHelperText,
-  FormLabel,
-  Grid,
-  OutlinedInput,
-} from "@material-ui/core";
-import { selectInputText } from "utils/commonUtils";
+import { FormControl, FormHelperText, FormLabel, Grid, OutlinedInput } from '@material-ui/core';
+import { PresetSizeButton } from 'components/presetSizeButton';
+import { useTicketClasses } from 'hooks/useTicketClasses';
+import strings from 'locales';
+import React, { ReactElement, useState } from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { Order } from 'types/order';
+import { selectInputText } from 'utils/commonUtils';
+import { sizeFormatter } from 'utils/sizeFormatter';
 
 interface Props {
   readonly order: Order;
@@ -22,7 +16,7 @@ interface Props {
 }
 
 const formatValue = (value: number | null, precision: number): string =>
-  value === null ? "" : value.toFixed(precision);
+  value === null ? '' : value.toFixed(precision);
 
 const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const { order } = props;
@@ -30,26 +24,22 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
   const [price, setPrice] = useState<string>(formatValue(order.price, 3));
   const classes = useTicketClasses();
   const priceError = React.useMemo(
-    (): string | null => (isNaN(Number(price)) ? "Invalid value" : null),
+    (): string | null => (isNaN(Number(price)) ? 'Invalid value' : null),
     [price]
   );
   if (!order) return null;
-  const updateQuantity = ({
-    target: { value },
-  }: React.ChangeEvent<HTMLInputElement>) => {
+  const updateQuantity = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>): void => {
     const numeric = Number(value);
     if (isNaN(numeric)) {
       return;
     }
     setSize(numeric);
   };
-  const updatePrice = ({
-    target: { value },
-  }: React.ChangeEvent<HTMLInputElement>) => {
+  const updatePrice = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>): void => {
     setPrice(value);
   };
 
-  const onSubmit = (event: React.SyntheticEvent) => {
+  const onSubmit = (event: React.SyntheticEvent): void => {
     event.preventDefault();
     if (size !== null && price !== null) {
       props.onSubmit({
@@ -59,8 +49,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
       });
     }
   };
-  const canSubmit: boolean =
-    price !== null && size !== null && size >= props.minimumSize;
+  const canSubmit: boolean = price !== null && size !== null && size >= props.minimumSize;
   const presetSizes: number[] = [30, 50, 100];
   return (
     <>
@@ -71,7 +60,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
           <div className="item">{order.strategy}</div>
         </div>
         <div className="subtitle">
-          <span>{order.type === OrderTypes.Bid ? "Buy" : "Sell"}</span>
+          <span>{order.type === OrderTypes.Bid ? 'Buy' : 'Sell'}</span>
         </div>
       </div>
       <form onSubmit={onSubmit}>
@@ -86,9 +75,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
                 labelWidth={0}
                 className={classes.outlinedInput}
               />
-              <FormHelperText error={priceError !== null}>
-                {priceError}
-              </FormHelperText>
+              <FormHelperText error={priceError !== null}>{priceError}</FormHelperText>
             </FormControl>
           </Grid>
           <Grid>
@@ -105,11 +92,7 @@ const OrderTicket: React.FC<Props> = (props: Props): ReactElement | null => {
               />
               <div className="preset-buttons three">
                 {presetSizes.map((value: number) => (
-                  <PresetSizeButton
-                    key={value}
-                    value={value}
-                    setValue={setSize}
-                  />
+                  <PresetSizeButton key={value} value={value} setValue={setSize} />
                 ))}
               </div>
             </FormControl>

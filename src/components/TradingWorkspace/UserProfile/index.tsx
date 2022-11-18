@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
-import { UserProfileModalTypes } from "types/user";
-import { UserProfileForm } from "components/TradingWorkspace/UserProfile/form";
-import { ErrorBox } from "components/ErrorBox";
-import { MessageBox } from "components/MessageBox";
-import store from "mobx/stores/userPreferencesStore";
-import { observer } from "mobx-react";
-import strings from "locales";
+import { ErrorBox } from 'components/ErrorBox';
+import { MessageBox } from 'components/MessageBox';
+import { UserProfileForm } from 'components/TradingWorkspace/UserProfile/form';
+import strings from 'locales';
+import store from 'mobx/stores/userPreferencesStore';
+import { observer } from 'mobx-react';
+import React, { useEffect } from 'react';
+import { UserProfileModalTypes } from 'types/user';
 
 interface OwnProps {
   onCancel: () => void;
@@ -14,14 +14,14 @@ interface OwnProps {
 type Props = OwnProps;
 
 const UserProfileModal: React.FC<Props> = observer((props: Props) => {
-  const onClose = () => {
+  const onClose = (): void => {
     props.onCancel();
     // Reset the profile in case it has changed
     store.resetInitialProfile();
     store.setCurrentModal(UserProfileModalTypes.Form);
   };
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     store.saveUserProfile(store.preferences).then(onClose);
   };
@@ -30,7 +30,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
     void store.loadUserProfile();
   }, []);
 
-  const onChange = (name: string, value: any) => {
+  const onChange = (name: string, value: any): void => {
     store.setFieldValue(name, value);
   };
 
@@ -58,9 +58,7 @@ const UserProfileModal: React.FC<Props> = observer((props: Props) => {
     case UserProfileModalTypes.Error:
       return (
         <ErrorBox
-          message={
-            "Something went wrong, we are sorry. This is quite unexpected."
-          }
+          message={'Something went wrong, we are sorry. This is quite unexpected.'}
           onClose={onClose}
           title={strings.ErrorModalTitle}
         />

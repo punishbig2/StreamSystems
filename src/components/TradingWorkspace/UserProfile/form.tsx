@@ -1,22 +1,16 @@
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  MenuItem,
-  Select,
-  Typography,
-} from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
-import { SoundsList } from "components/TradingWorkspace/UserProfile/soundsList";
-import deepEqual from "deep-equal";
-import strings from "locales";
-import workareaStore from "mobx/stores/workareaStore";
-import React, { ChangeEvent, FormEvent, useMemo } from "react";
-import { hasRole, Role } from "types/role";
-import { OCOModes, User, UserPreferences } from "types/user";
-import fonts from "fonts.json";
-import { themeStore } from "mobx/stores/themeStore";
-import { TimezoneSelect } from "components/TradingWorkspace/UserProfile/components/TimezoneSelect";
+import { FormControl, FormLabel, Input, MenuItem, Select, Typography } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import { TimezoneSelect } from 'components/TradingWorkspace/UserProfile/components/TimezoneSelect';
+import { SoundsList } from 'components/TradingWorkspace/UserProfile/soundsList';
+import deepEqual from 'deep-equal';
+import fonts from 'fonts.json';
+import strings from 'locales';
+import { themeStore } from 'mobx/stores/themeStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ChangeEvent, FormEvent, useMemo } from 'react';
+import { hasRole, Role } from 'types/role';
+import { OCOModes, User, UserPreferences } from 'types/user';
+import { version } from 'version';
 
 interface OwnProps {
   profile: UserPreferences;
@@ -41,10 +35,10 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     themeStore.setTheme(profile.theme);
   }, [profile.fontFamily, profile.fontSize, profile.theme]);
 
-  const onChangeWrapper = ({ target }: ChangeEvent<any>) => {
+  const onChangeWrapper = ({ target }: ChangeEvent<any>): void => {
     const { name } = target;
     const value: any = (() => {
-      if (target.type === "checkbox") {
+      if (target.type === 'checkbox') {
         return target.checked;
       } else {
         return target.value;
@@ -54,8 +48,11 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     props.onChange(name, value);
   };
 
-  const hasNotChanged = () => {
-    if (props.original === null) return false;
+  const hasNotChanged = (): boolean => {
+    if (props.original === null) {
+      return false;
+    }
+
     return deepEqual(profile, props.original);
   };
 
@@ -64,8 +61,8 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     props.onCancel();
   };
 
-  const userType: string = isBroker ? "Broker" : "Bank";
-  const regions: ReadonlyArray<string> = user.regions;
+  const userType: string = isBroker ? 'Broker' : 'Bank';
+  const regions: readonly string[] = user.regions;
 
   return (
     <>
@@ -76,20 +73,14 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <i className="fa fa-user" />
             </div>
             <div className="name">
-              <Typography
-                color="textPrimary"
-                variant="subtitle1"
-                className="title"
-              >
+              <Typography color="textPrimary" variant="subtitle1" className="title">
                 {user.email}
               </Typography>
             </div>
           </div>
           <div className="fx-options">
             <Typography variant="subtitle1">{strings.UserProfile}</Typography>
-            <Typography variant="subtitle2">
-              FX Options {window.GlobalApplicationVersion ?? "unknown"}
-            </Typography>
+            <Typography variant="subtitle2">FX Options {version}</Typography>
           </div>
         </div>
       </div>
@@ -232,7 +223,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
               <Grid item xs={6}>
                 <FormControl margin="dense" fullWidth>
                   <FormLabel htmlFor="ccy-group">CCY Group</FormLabel>
-                  <Input value={regions.join(",")} readOnly={true} />
+                  <Input value={regions.join(',')} readOnly={true} />
                 </FormControl>
               </Grid>
               <Grid item xs={6}>

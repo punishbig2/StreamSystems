@@ -1,13 +1,13 @@
-import React from "react";
-import { OrderTypes } from "types/mdEntry";
-import { Order } from "types/order";
-import { PodRow, PodRowStatus } from "types/podRow";
-import { PodTable } from "types/podTable";
-import { User } from "types/user";
+import React from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { Order } from 'types/order';
+import { PodRow, PodRowStatus } from 'types/podRow';
+import { PodTable } from 'types/podTable';
+import { User } from 'types/user';
 
 export const useDobRows = (
   originalRows: PodTable,
-  tenor: string,
+  tenor: string | null,
   symbol: string,
   strategy: string,
   user: User
@@ -18,7 +18,7 @@ export const useDobRows = (
     }
 
     const additionalRow: PodRow = {
-      id: "#special",
+      id: '#special',
       tenor: tenor,
       bid: new Order(tenor, symbol, strategy, user.email, null, OrderTypes.Bid),
       ofr: new Order(tenor, symbol, strategy, user.email, null, OrderTypes.Ofr),
@@ -30,7 +30,7 @@ export const useDobRows = (
 
     return {
       ...originalRows,
-      "#special": additionalRow,
+      '#special': additionalRow,
     };
   }, [tenor, symbol, strategy, user, originalRows]);
 };

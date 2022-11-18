@@ -1,71 +1,44 @@
-import { toNumberOrFallbackIfNaN } from "columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN";
-import { isInvalidTenor } from "components/FormField/helpers";
-import { Cut } from "components/MiddleOffice/types/cut";
-import { Leg } from "components/MiddleOffice/types/leg";
-import {
-  LegOptionsDefIn,
-  LegOptionsDefOut,
-} from "components/MiddleOffice/types/legOptionsDef";
-import { InvalidStrategy, Product } from "types/product";
-import {
-  SummaryLeg,
-  SummaryLegBase,
-} from "components/MiddleOffice/types/summaryLeg";
-import { DealEntry } from "types/dealEntry";
-import { Sides } from "types/sides";
-import { InvalidSymbol, Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce } from "utils/commonUtils";
+import { toNumberOrFallbackIfNaN } from 'columns/podColumns/OrderColumn/helpers/toNumberOrFallbackIfNaN';
+import { isInvalidTenor } from 'components/FormField/helpers';
+import { Cut } from 'components/MiddleOffice/types/cut';
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { LegOptionsDefIn, LegOptionsDefOut } from 'components/MiddleOffice/types/legOptionsDef';
+import { SummaryLeg, SummaryLegBase } from 'components/MiddleOffice/types/summaryLeg';
+import { DealEntry } from 'types/dealEntry';
+import { FXSymbol, InvalidSymbol } from 'types/FXSymbol';
+import { InvalidStrategy, Product } from 'types/product';
+import { Sides } from 'types/sides';
+import { InvalidTenor, Tenor } from 'types/tenor';
+import { coalesce } from 'utils/commonUtils';
 import {
   calculateNetValue,
   convertLegNumbers,
   createLegsFromDefinitionAndDeal,
-} from "utils/legsUtils";
+} from 'utils/legsUtils';
 
 const fwdRatesFromExtraFields = (
   extraFields: { [key: string]: number | string | Date | null } | undefined
-): Pick<
-  SummaryLeg,
-  "fwdpts1" | "fwdpts2" | "fwdrate1" | "fwdrate2" | "spot"
-> => {
+): Pick<SummaryLeg, 'fwdpts1' | 'fwdpts2' | 'fwdrate1' | 'fwdrate2' | 'spot'> => {
   return {
-    fwdpts1:
-      extraFields && typeof extraFields.fwdpts1 === "number"
-        ? extraFields.fwdpts1
-        : null,
-    fwdrate1:
-      extraFields && typeof extraFields.fwdrate1 === "number"
-        ? extraFields.fwdrate1
-        : null,
-    fwdpts2:
-      extraFields && typeof extraFields.fwdpts2 === "number"
-        ? extraFields.fwdpts2
-        : null,
-    fwdrate2:
-      extraFields && typeof extraFields.fwdrate2 === "number"
-        ? extraFields.fwdrate2
-        : null,
-    spot:
-      !!extraFields && typeof extraFields.spot === "number"
-        ? extraFields.spot
-        : null,
+    fwdpts1: extraFields && typeof extraFields.fwdpts1 === 'number' ? extraFields.fwdpts1 : null,
+    fwdrate1: extraFields && typeof extraFields.fwdrate1 === 'number' ? extraFields.fwdrate1 : null,
+    fwdpts2: extraFields && typeof extraFields.fwdpts2 === 'number' ? extraFields.fwdpts2 : null,
+    fwdrate2: extraFields && typeof extraFields.fwdrate2 === 'number' ? extraFields.fwdrate2 : null,
+    spot: !!extraFields && typeof extraFields.spot === 'number' ? extraFields.spot : null,
   };
 };
 
 const createEmptySummaryLegFromCuts = (
-  cuts: ReadonlyArray<Cut>,
+  cuts: readonly Cut[],
   strategy: Product,
-  symbol: Symbol,
+  symbol: FXSymbol,
   tradeDate: Date,
   premiumDate: Date | null,
   deliveryDate: Date | undefined,
   expiryDate: Date
 ): SummaryLegBase | null => {
   const cut: Cut | undefined = cuts.find((cut: Cut) => {
-    return (
-      cut.Code === symbol.PrimaryCutCode &&
-      cut.UTCTime === symbol.PrimaryUTCTime
-    );
+    return cut.Code === symbol.PrimaryCutCode && cut.UTCTime === symbol.PrimaryUTCTime;
   });
 
   if (cut !== undefined) {
@@ -82,7 +55,7 @@ const createEmptySummaryLegFromCuts = (
         deliveryDate: deliveryDate !== undefined ? deliveryDate : new Date(),
         expiryDate: expiryDate,
         side: Sides.None,
-        option: "",
+        option: '',
         vol: null,
         fwdPts: null,
         fwdRate: null,
@@ -93,15 +66,15 @@ const createEmptySummaryLegFromCuts = (
         hedge: [null, null, null],
         price: [null, null, null],
         vega: null,
-        premiumCurrency: "USD",
+        premiumCurrency: 'USD',
         usi_num: null,
         rates: [
           {
-            currency: "",
+            currency: '',
             value: 0,
           },
           {
-            currency: "",
+            currency: '',
             value: 0,
           },
         ],
@@ -117,10 +90,7 @@ const createEmptySummaryLegFromCuts = (
   }
 };
 
-export const addFwdRates = (
-  legs: ReadonlyArray<Leg>,
-  summary: SummaryLeg | null
-): ReadonlyArray<Leg> => {
+export const addFwdRates = (legs: readonly Leg[], summary: SummaryLeg | null): readonly Leg[] => {
   if (summary === null) return legs;
   if (legs.length !== 2) {
     return legs.map((leg: Leg): Leg => {
@@ -148,11 +118,11 @@ export const addFwdRates = (
 
 export const handleLegsResponse = (
   entry: DealEntry,
-  legs: ReadonlyArray<Leg>,
-  cuts: ReadonlyArray<Cut>,
+  legs: readonly Leg[],
+  cuts: readonly Cut[],
   origSummaryLeg: SummaryLeg | null,
-  legDefinitions: { out: ReadonlyArray<LegOptionsDefOut> }
-): [ReadonlyArray<Leg>, SummaryLeg | null] => {
+  legDefinitions: { out: readonly LegOptionsDefOut[] }
+): [readonly Leg[], SummaryLeg | null] => {
   if (legs.length === 0) return [[], null];
   const { extra_fields = {} } = entry;
   const tenor: Tenor | InvalidTenor = entry.tenor1;
@@ -174,13 +144,11 @@ export const handleLegsResponse = (
     origSummaryLeg !== null ? origSummaryLeg.fwdrate2 : null
   );
 
-  if (legs[0]?.option !== "SumLeg") {
-    throw new Error("bad summary leg at index");
+  if (legs[0]?.option !== 'SumLeg') {
+    throw new Error('bad summary leg at index');
   }
-  const sliceIndex: number = 1;
-  const finalLegs: ReadonlyArray<Leg> = legs
-    .slice(sliceIndex)
-    .map(convertLegNumbers);
+  const sliceIndex = 1;
+  const finalLegs: readonly Leg[] = legs.slice(sliceIndex).map(convertLegNumbers);
   const savedSummaryLeg = legs[0];
   const leg1 = legs[sliceIndex];
   const leg2 = legs[sliceIndex + 1];
@@ -195,7 +163,7 @@ export const handleLegsResponse = (
     tenor.expiryDate
   );
   if (baseSummaryLeg === null) {
-    throw new Error("cuts unknown at this stage, this should never happen");
+    throw new Error('cuts unknown at this stage, this should never happen');
   }
 
   const finalSummaryLeg: SummaryLeg = new SummaryLeg(
@@ -221,33 +189,15 @@ export const handleLegsResponse = (
         ),
         null
       ),
-      spot: toNumberOrFallbackIfNaN(
-        coalesce(extra_fields.spot, leg1.spot),
-        null
-      ),
+      spot: toNumberOrFallbackIfNaN(coalesce(extra_fields.spot, leg1.spot), null),
       usi: entry.usi ?? null,
       dealOutput: {
         ...leg1,
         gamma: null,
         vega: null,
-        hedge: calculateNetValue(
-          entry.strategy,
-          finalLegs,
-          "hedge",
-          legDefinitions
-        ),
-        premium: calculateNetValue(
-          entry.strategy,
-          finalLegs,
-          "premium",
-          legDefinitions
-        ),
-        price: calculateNetValue(
-          entry.strategy,
-          finalLegs,
-          "price",
-          legDefinitions
-        ),
+        hedge: calculateNetValue(entry.strategy, finalLegs, 'hedge', legDefinitions),
+        premium: calculateNetValue(entry.strategy, finalLegs, 'premium', legDefinitions),
+        price: calculateNetValue(entry.strategy, finalLegs, 'price', legDefinitions),
       },
     },
     savedSummaryLeg.spotDate ?? null
@@ -257,28 +207,25 @@ export const handleLegsResponse = (
 };
 
 export const createDefaultLegsFromDeal = (
-  cuts: ReadonlyArray<Cut>,
+  cuts: readonly Cut[],
   entry: DealEntry,
-  legDefinitions: { in: ReadonlyArray<LegOptionsDefIn> },
+  legDefinitions: { in: readonly LegOptionsDefIn[] },
   idealSpotDate: Date | null
-): [ReadonlyArray<Leg>, SummaryLeg | null] => {
+): [readonly Leg[], SummaryLeg | null] => {
   const { strategy, symbol } = entry;
   if (
     strategy === InvalidStrategy ||
-    strategy.productid === "" ||
+    strategy.productid === '' ||
     symbol === InvalidSymbol ||
-    symbol.symbolID === ""
+    symbol.symbolID === ''
   ) {
     return [[], null];
   }
   if (legDefinitions === undefined) {
-    console.warn("leg definitions missing");
+    console.warn('leg definitions missing');
     return [[], null];
   }
-  const legs: ReadonlyArray<Leg> = createLegsFromDefinitionAndDeal(
-    legDefinitions.in,
-    entry
-  );
+  const legs: readonly Leg[] = createLegsFromDefinitionAndDeal(legDefinitions.in, entry);
   const tenor: Tenor | InvalidTenor = entry.tenor1;
   if (isInvalidTenor(tenor)) return [[], null];
   const baseSummaryLeg = createEmptySummaryLegFromCuts(
@@ -291,7 +238,7 @@ export const createDefaultLegsFromDeal = (
     tenor.expiryDate
   );
   if (baseSummaryLeg === null) {
-    throw new Error("cuts unknown at this stage, this should never happen");
+    throw new Error('cuts unknown at this stage, this should never happen');
   }
 
   const summaryLeg: SummaryLeg = new SummaryLeg(

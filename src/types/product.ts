@@ -1,16 +1,16 @@
 export enum ProductSource {
-  Voice = "Voice",
-  Electronic = "Electronic",
-  Manual = "Manual",
+  Voice = 'Voice',
+  Electronic = 'Electronic',
+  Manual = 'Manual',
 }
 
 export enum EditableFlag {
-  Priced = "Priced",
-  NotEditable = "Not Editable",
-  Pending = "Pending",
-  NotApplicable = "N/A",
-  Editable = "Editable",
-  None = "",
+  Priced = 'Priced',
+  NotEditable = 'Not Editable',
+  Pending = 'Pending',
+  NotApplicable = 'N/A',
+  Editable = 'Editable',
+  None = '',
 }
 
 export interface Product {
@@ -21,7 +21,7 @@ export interface Product {
   productid: string;
   shortname: string;
   source: ProductSource;
-  spreadvsvol: "vol" | "spread" | "both";
+  spreadvsvol: 'vol' | 'spread' | 'both';
   strike: string;
   fields: { f1: { [key: string]: EditableFlag } };
 
@@ -29,7 +29,7 @@ export interface Product {
 }
 
 export const InvalidStrategy: Product = {
-  productid: "",
+  productid: '',
   fields: { f1: {} },
 } as Product;
 export type StrategyMap = { [key: string]: Product };

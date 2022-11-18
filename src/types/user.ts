@@ -1,18 +1,18 @@
 export enum OCOModes {
-  Disabled = "Disabled",
-  FullEx = "FullEx",
-  PartialEx = "PartialEx",
+  Disabled = 'Disabled',
+  FullEx = 'FullEx',
+  PartialEx = 'PartialEx',
 }
 
 export enum UserTypes {
-  Broker = "BROKER",
-  Bank = "BANK",
-  Unset = "",
+  Broker = 'BROKER',
+  Bank = 'BANK',
+  Unset = '',
 }
 
 export enum CurrencyGroups {
-  Default = "",
-  Latam = "LATAM",
+  Default = '',
+  Latam = 'LATAM',
 }
 
 export interface ExecSound {
@@ -37,8 +37,8 @@ export interface UserInfo {
 export interface User {
   readonly email: string;
   readonly firm: string;
-  readonly regions: ReadonlyArray<string>;
-  readonly roles: ReadonlyArray<string>;
+  readonly regions: readonly string[];
+  readonly roles: readonly string[];
   readonly firstname: string;
   readonly lastname: string;
 }
@@ -66,8 +66,8 @@ export interface UserPreferences {
   readonly timezone: string;
   readonly ccyGroup: CurrencyGroups;
   readonly oco: OCOModes;
-  readonly theme: "dark" | "light";
-  readonly execSoundList: ReadonlyArray<string>;
+  readonly theme: 'dark' | 'light';
+  readonly execSoundList: readonly string[];
 }
 
 export const isCurrencyGroup = (value: any): value is CurrencyGroups => {

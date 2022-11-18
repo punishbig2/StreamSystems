@@ -1,5 +1,5 @@
-import { Product } from "types/product";
-import { DealEntry } from "types/dealEntry";
+import { DealEntry } from 'types/dealEntry';
+import { Product } from 'types/product';
 
 export const resolveStrategyDispute = (
   partial: Partial<DealEntry>,

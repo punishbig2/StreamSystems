@@ -1,5 +1,5 @@
-import { DealEntry } from "../types/dealEntry";
-import { SummaryLeg } from "../components/MiddleOffice/types/summaryLeg";
+import { SummaryLeg } from 'components/MiddleOffice/types/summaryLeg';
+import { DealEntry } from 'types/dealEntry';
 
 export const getExtraFields = (
   entry: DealEntry,

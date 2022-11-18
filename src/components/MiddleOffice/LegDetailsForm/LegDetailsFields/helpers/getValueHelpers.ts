@@ -1,21 +1,17 @@
-import { Leg } from "components/MiddleOffice/types/leg";
-import { isStyledValue } from "types/styledValue";
-import { Symbol } from "types/symbol";
-import { isNumeric } from "utils/isNumeric";
-import { getStyledValue } from "utils/legsUtils";
-import { getRoundingPrecision, roundToNearest } from "utils/roundToNearest";
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { FXSymbol } from 'types/FXSymbol';
+import { isStyledValue } from 'types/styledValue';
+import { isNumeric } from 'utils/isNumeric';
+import { getStyledValue } from 'utils/legsUtils';
+import { getRoundingPrecision, roundToNearest } from 'utils/roundToNearest';
 
-export const getStrikeValue = (
-  leg: Leg,
-  symbol: Symbol,
-  name: keyof Leg
-): any => {
+export const getStrikeValue = (leg: Leg, symbol: FXSymbol, name: keyof Leg): any => {
   const value: any = leg[name];
-  if (value === undefined || value === null || value === "N/A") {
+  if (value === undefined || value === null || value === 'N/A') {
     return { value: null, precision: 0, rounding: undefined };
   }
   // Otherwise, simply round it
-  const rounding: number | undefined = symbol["strike-rounding"];
+  const rounding: number | undefined = symbol['strike-rounding'];
   if (rounding === undefined) {
     return { value: null, precision: 0, rounding: undefined };
   }
@@ -37,7 +33,7 @@ export const getStrikeValue = (
 export const getCurrencyValue = (
   leg: Leg,
   name: keyof Leg,
-  symbol: Symbol,
+  symbol: FXSymbol,
   style?: string
 ): any => {
   const currencies: { [key: string]: string } = {
@@ -62,10 +58,10 @@ export const getCurrencyValue = (
 export const getRatesValue = (leg: Leg, index: number): any => {
   const { rates } = leg;
   if (rates === null || rates === undefined) {
-    throw new Error("cannot proceed with invalid rates");
+    throw new Error('cannot proceed with invalid rates');
   } else {
     const rate = rates[index];
     if (rate === undefined) return {};
-    return { ...rate, label: rate.currency + " Rate" };
+    return { ...rate, label: rate.currency + ' Rate' };
   }
 };

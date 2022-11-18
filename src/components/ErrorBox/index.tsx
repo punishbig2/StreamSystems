@@ -1,6 +1,6 @@
-import strings from "locales";
-import React, { ReactElement } from "react";
-import { MessageBox } from "components/MessageBox";
+import { MessageBox } from 'components/MessageBox';
+import strings from 'locales';
+import React, { ReactElement } from 'react';
 
 interface Props {
   readonly title: string;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const ErrorBox: React.FC<Props> = (props: Props): ReactElement => {
-  const renderButtons = () => {
+  const renderButtons = (): ReactElement => {
     return (
       <>
         <button className="cancel" onClick={props.onClose}>

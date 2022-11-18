@@ -1,20 +1,13 @@
-import { FXOAction } from "utils/actionCreator";
-import { RunActions } from "components/Run/reducer";
-import {
-  buildNewOrder,
-  computeRow,
-  getRowStatus,
-} from "components/Run/reducers/computeRow";
-import { RunEntry } from "components/Run/runEntry";
-import equal from "deep-equal";
-import { RunState } from "stateDefs/runState";
-import { Order, OrderStatus } from "types/order";
-import { PodRow } from "types/podRow";
+import { RunActions } from 'components/Run/reducer';
+import { buildNewOrder, computeRow, getRowStatus } from 'components/Run/reducers/computeRow';
+import { RunEntry } from 'components/Run/runEntry';
+import equal from 'deep-equal';
+import { RunState } from 'stateDefs/runState';
+import { Order, OrderStatus } from 'types/order';
+import { PodRow } from 'types/podRow';
+import { FXOAction } from 'utils/actionCreator';
 
-export const valueChange = (
-  state: RunState,
-  { type, data }: FXOAction<RunActions>
-): RunState => {
+export const valueChange = (state: RunState, { type, data }: FXOAction<RunActions>): RunState => {
   const { orders } = state;
   // const finder = rowFinder(orders);
   const row: PodRow = orders[data.id];
@@ -33,25 +26,12 @@ export const valueChange = (
   if (computedEntry.ofr === null) computedEntry.ofr = startingEntry.ofr;
   if (computedEntry.bid === null) computedEntry.bid = startingEntry.bid;
 
-  const coalesce = (v1: number | null, v2: number | null) =>
-    v1 === null ? v2 : v1;
+  const coalesce = (v1: number | null, v2: number | null): number | null => (v1 === null ? v2 : v1);
 
-  const newOfr: Order = buildNewOrder(
-    state,
-    ofr,
-    computedEntry.ofr,
-    startingEntry.ofr
-  );
-  const newBid: Order = buildNewOrder(
-    state,
-    bid,
-    computedEntry.bid,
-    startingEntry.bid
-  );
-  const isQuantityEdited = (order: Order) =>
-    (order.status & OrderStatus.SizeEdited) !== 0;
-  const quantitiesChanged: boolean =
-    isQuantityEdited(bid) || isQuantityEdited(ofr);
+  const newOfr: Order = buildNewOrder(state, ofr, computedEntry.ofr, startingEntry.ofr);
+  const newBid: Order = buildNewOrder(state, bid, computedEntry.bid, startingEntry.bid);
+  const isQuantityEdited = (order: Order): boolean => (order.status & OrderStatus.SizeEdited) !== 0;
+  const quantitiesChanged: boolean = isQuantityEdited(bid) || isQuantityEdited(ofr);
   const inactive = (() => {
     if (type === RunActions.Mid && startingEntry.spread !== null) return false;
     if (type === RunActions.Spread && startingEntry.mid !== null) return false;
@@ -93,15 +73,11 @@ export const valueChange = (
                 ? null
                 : coalesce(computedEntry.mid, startingEntry.mid),
             ofr:
-              inactive &&
-              (ofr.status & OrderStatus.Cancelled) === 0 &&
-              type !== RunActions.Ofr
+              inactive && (ofr.status & OrderStatus.Cancelled) === 0 && type !== RunActions.Ofr
                 ? ofr
                 : newOfr,
             bid:
-              inactive &&
-              (bid.status & OrderStatus.Cancelled) === 0 &&
-              type !== RunActions.Bid
+              inactive && (bid.status & OrderStatus.Cancelled) === 0 && type !== RunActions.Bid
                 ? bid
                 : newBid,
             status: getRowStatus(bid, ofr, computedEntry),

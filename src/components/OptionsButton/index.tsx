@@ -1,5 +1,5 @@
-import React, { ReactElement, useState } from "react";
-import { Menu, MenuItem } from "@material-ui/core";
+import { Menu, MenuItem } from '@material-ui/core';
+import React, { ReactElement, useState } from 'react';
 
 export interface MenuItemSpec {
   readonly label: string;
@@ -18,12 +18,8 @@ export const OptionsButton: React.FC<Props> = (props: Props): ReactElement => {
   const { items } = props;
   return (
     <>
-      <button
-        ref={setButton}
-        disabled={props.disabled}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <i className={"fa fa-" + props.icon} />
+      <button ref={setButton} disabled={props.disabled} onClick={() => setIsOpen(!isOpen)}>
+        <i className={'fa fa-' + props.icon} />
       </button>
       <Menu anchorEl={button} open={isOpen} onClose={() => setIsOpen(false)}>
         {items.map((item: MenuItemSpec) => (
@@ -37,5 +33,5 @@ export const OptionsButton: React.FC<Props> = (props: Props): ReactElement => {
 };
 
 OptionsButton.defaultProps = {
-  icon: "ellipsis-v",
+  icon: 'ellipsis-v',
 };

@@ -1,9 +1,9 @@
-import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import workareaStore from "mobx/stores/workareaStore";
-import { useEffect } from "react";
-import React from "react";
+import { MiddleOfficeStore } from 'mobx/stores/middleOfficeStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import { useEffect } from 'react';
+import React from 'react';
 
-export const useMoInitializer = (store: MiddleOfficeStore) => {
+export const useMoInitializer = (store: MiddleOfficeStore): void => {
   const { connected } = workareaStore;
 
   const updateAll = React.useCallback(async (): Promise<void> => {
@@ -13,7 +13,7 @@ export const useMoInitializer = (store: MiddleOfficeStore) => {
     store.refreshCurrentDeal();
   }, [store]);
 
-  useEffect((): (() => void) | void => {
+  useEffect((): VoidFunction | void => {
     if (connected) {
       void updateAll();
 

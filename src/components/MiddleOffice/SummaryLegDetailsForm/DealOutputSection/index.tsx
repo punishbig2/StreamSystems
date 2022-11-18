@@ -1,15 +1,12 @@
-import { Grid } from "@material-ui/core";
-import { FormField } from "components/FormField";
-import { FieldType } from "forms/fieldType";
-import {
-  MiddleOfficeStore,
-  MiddleOfficeStoreContext,
-} from "mobx/stores/middleOfficeStore";
-import { getStyledValue } from "utils/legsUtils";
-import React, { useEffect, useState } from "react";
-import { DealEntry } from "types/dealEntry";
-import { DealOutput } from "types/dealOutput";
-import { roundPremium } from "utils/roundPremium";
+import { Grid } from '@material-ui/core';
+import { FormField } from 'components/FormField';
+import { FieldType } from 'forms/fieldType';
+import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import React, { useEffect, useState } from 'react';
+import { DealEntry } from 'types/dealEntry';
+import { DealOutput } from 'types/dealOutput';
+import { getStyledValue } from 'utils/legsUtils';
+import { roundPremium } from 'utils/roundPremium';
 
 interface Props {
   premiumStyle: string | undefined;
@@ -18,14 +15,12 @@ interface Props {
   dealOutput: DealOutput | null;
 }
 
-export const DealOutputSection: React.FC<Props> = (
-  props: Props
-): React.ReactElement | null => {
+export const DealOutputSection: React.FC<Props> = (props: Props): React.ReactElement | null => {
   const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const { dealOutput, premiumStyle, dealEntry } = props;
   const { symbol } = dealEntry;
   const [priceType, setPriceType] = useState<FieldType>(
-    symbol.premiumCCYpercent ? "percent" : "number"
+    symbol.premiumCCYpercent ? 'percent' : 'number'
   );
   const [premiumPrecision, setPremiumPrecision] = useState<number>(0);
   const [premium, setPremium] = useState<number | null>(null);
@@ -38,16 +33,14 @@ export const DealOutputSection: React.FC<Props> = (
     // Update precision if it changes (it depends on this value)
     // FIXME: it seems we need to ignore this
     setPremiumPrecision(0); // (getRoundingPrecision(symbol["premium-rounding"]));
-    setPremium(
-      roundPremium(getStyledValue(dealOutput.premium, premiumStyle), symbol)
-    );
+    setPremium(roundPremium(getStyledValue(dealOutput.premium, premiumStyle), symbol));
   }, [symbol, dealOutput, premiumStyle]);
   useEffect((): void => {
     if (symbol === undefined) return;
     if (symbol.premiumCCYpercent) {
-      setPriceType("percent");
+      setPriceType('percent');
     } else {
-      setPriceType("number");
+      setPriceType('number');
     }
     setCurrencies({
       premium: symbol.premiumCCY,

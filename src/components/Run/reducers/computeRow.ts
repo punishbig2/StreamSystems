@@ -1,17 +1,17 @@
-import { RunEntry } from "components/Run/runEntry";
-import { RunActions } from "components/Run/reducer";
-import { RunState } from "stateDefs/runState";
-import { OrderTypes } from "types/mdEntry";
-import { Order, OrderStatus } from "types/order";
-import { PodRowStatus } from "types/podRow";
-import { coalesce } from "utils/commonUtils";
-import { priceFormatter } from "utils/priceFormatter";
+import { RunActions } from 'components/Run/reducer';
+import { RunEntry } from 'components/Run/runEntry';
+import { RunState } from 'stateDefs/runState';
+import { OrderTypes } from 'types/mdEntry';
+import { Order, OrderStatus } from 'types/order';
+import { PodRowStatus } from 'types/podRow';
+import { coalesce } from 'utils/commonUtils';
+import { priceFormatter } from 'utils/priceFormatter';
 
 export const getOrderStatus = (
   status: OrderStatus,
   oldValue: number | null,
   newValue: number | null
-) => {
+): OrderStatus => {
   if (
     priceFormatter(newValue) === priceFormatter(oldValue) &&
     (status & OrderStatus.Cancelled) === 0
@@ -30,15 +30,8 @@ const isActive = (order: Order, newPrice: number | null): boolean => {
   return (order.status & OrderStatus.Cancelled) !== 0;
 };
 
-export const getRowStatus = (
-  bid: Order,
-  ofr: Order,
-  computed: RunEntry
-): PodRowStatus => {
-  if (
-    (bid.status & OrderStatus.Cancelled) !== 0 ||
-    (ofr.status & OrderStatus.Cancelled) !== 0
-  )
+export const getRowStatus = (bid: Order, ofr: Order, computed: RunEntry): PodRowStatus => {
+  if ((bid.status & OrderStatus.Cancelled) !== 0 || (ofr.status & OrderStatus.Cancelled) !== 0)
     return PodRowStatus.Normal;
   if (
     !isActive(bid, computed.bid) ||
@@ -47,18 +40,11 @@ export const getRowStatus = (
     computed.spread === null
   )
     return PodRowStatus.Normal;
-  if (computed.bid === null || computed.ofr === null)
-    return PodRowStatus.Normal;
-  return computed.bid > computed.ofr
-    ? PodRowStatus.InvertedMarketsError
-    : PodRowStatus.Normal;
+  if (computed.bid === null || computed.ofr === null) return PodRowStatus.Normal;
+  return computed.bid > computed.ofr ? PodRowStatus.InvertedMarketsError : PodRowStatus.Normal;
 };
 
-export const computeRow = (
-  type: string,
-  initial: RunEntry,
-  v1: number
-): RunEntry => {
+export const computeRow = (type: string, initial: RunEntry, v1: number): RunEntry => {
   switch (type) {
     case RunActions.Mid:
       if (initial.spread === null) return initial;
@@ -105,15 +91,10 @@ export const buildNewOrder = (
 ): Order => {
   if (computed === null) return original;
   const defaultSize: number =
-    original.type === OrderTypes.Bid
-      ? state.defaultBidSize
-      : state.defaultOfrSize;
+    original.type === OrderTypes.Bid ? state.defaultBidSize : state.defaultOfrSize;
   const price = coalesce(computed, starting);
   const status = getOrderStatus(original.status, original.price, price);
-  const size =
-    (original.status & OrderStatus.Cancelled) !== 0
-      ? defaultSize
-      : original.size;
+  const size = (original.status & OrderStatus.Cancelled) !== 0 ? defaultSize : original.size;
   return {
     ...original,
     // Update the price

@@ -1,6 +1,6 @@
-import { MinimalProps } from "components/FormField/minimalProps";
-import { Validity } from "forms/validity";
-import React from "react";
+import { MinimalProps } from 'components/FormField/minimalProps';
+import { Validity } from 'forms/validity';
+import React from 'react';
 
 export interface Editable {
   displayValue: string;
@@ -16,11 +16,7 @@ export const getCaretPosition = (input: HTMLInputElement | null): number => {
 
 export type StateReturnType<S> = S | Pick<S, keyof S> | null;
 
-export abstract class InputHandler<
-  T,
-  P extends MinimalProps = any,
-  S extends Editable = any
-> {
+export abstract class InputHandler<T, P extends MinimalProps = any, S extends Editable = any> {
   public abstract onKeyDown(
     event: React.KeyboardEvent<HTMLInputElement>,
     props: P,
@@ -38,19 +34,15 @@ export abstract class InputHandler<
 
   public abstract parse(value: string, props: P): any;
 
-  public abstract shouldAcceptInput(
-    input: HTMLInputElement,
-    props: P,
-    state: S
-  ): boolean;
+  public abstract shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean;
 
-  public reset(props: P) {}
+  public reset(props: P): void {}
 
   public startAdornment(props: P): string {
-    return "";
+    return '';
   }
 
   public endAdornment(props: P): string {
-    return "";
+    return '';
   }
 }

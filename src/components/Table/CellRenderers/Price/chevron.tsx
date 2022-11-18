@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
 interface OwnProps {
-  side: "left" | "right";
+  side: 'left' | 'right';
 }
 
 const Chevron: React.FC<OwnProps> = (props: OwnProps) => {

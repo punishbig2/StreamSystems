@@ -1,5 +1,5 @@
-import React, { PropsWithChildren, ReactElement } from "react";
-import ReactDOM from "react-dom";
+import React, { PropsWithChildren, ReactElement } from 'react';
+import ReactDOM from 'react-dom';
 
 interface Props {
   readonly render?: (props: any) => ReactElement | null;
@@ -9,11 +9,9 @@ interface Props {
 const ModalWindow: React.FC<PropsWithChildren<Props>> = (
   props: PropsWithChildren<Props>
 ): ReactElement | null => {
-  const container: HTMLElement | null = document.getElementById("modals");
+  const container: HTMLElement | null = document.getElementById('modals');
   if (container === null) {
-    throw new Error(
-      "this application will not be able to render modal windows"
-    );
+    throw new Error('this application will not be able to render modal windows');
   }
   const { render, children, isOpen, ...inheritedProps } = props;
 

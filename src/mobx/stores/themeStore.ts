@@ -1,58 +1,64 @@
-import { action, computed, observable } from "mobx";
+import { action, computed, makeObservable, observable } from 'mobx';
 
 export class ThemeStore {
-  @observable theme: "dark" | "light" = "dark";
-  @observable localFontFamily: string;
-  @observable localFontSize: string;
+  public theme: 'dark' | 'light' = 'dark';
+  public localFontFamily: string;
+  public localFontSize: string;
 
   constructor() {
-    this.theme = "dark";
-    this.localFontFamily = "Default";
-    this.localFontSize = "normal";
+    this.theme = 'dark';
+    this.localFontFamily = 'Default';
+    this.localFontSize = 'normal';
+
+    makeObservable(this, {
+      theme: observable,
+      localFontFamily: observable,
+      localFontSize: observable,
+      fontSize: computed,
+      fontFamily: computed,
+      setTheme: action.bound,
+      setFontSize: action.bound,
+      setFontFamily: action.bound,
+    });
   }
 
-  @computed
   public get fontSize(): number {
     switch (this.localFontSize) {
-      case "smaller":
+      case 'smaller':
         return 10;
-      case "small":
+      case 'small':
         return 12;
-      case "normal":
+      case 'normal':
         return 15;
-      case "medium":
+      case 'medium':
         return 16;
-      case "large":
+      case 'large':
         return 18;
-      case "larger":
+      case 'larger':
         return 20;
-      case "huge":
+      case 'huge':
         return 22;
       default:
         return 15;
     }
   }
 
-  @computed
   public get fontFamily(): string {
-    if (this.localFontFamily === "Default") {
-      return "sans-serif";
+    if (this.localFontFamily === 'Default') {
+      return 'sans-serif';
     } else {
       return this.localFontFamily;
     }
   }
 
-  @action.bound
-  public setTheme(theme: "dark" | "light"): void {
+  public setTheme(theme: 'dark' | 'light'): void {
     this.theme = theme;
   }
 
-  @action.bound
   public setFontSize(fontSize: string): void {
     this.localFontSize = fontSize;
   }
 
-  @action.bound
   public setFontFamily(fontFamily: string): void {
     this.localFontFamily = fontFamily;
   }

@@ -1,20 +1,20 @@
-import { Symbol } from "types/symbol";
-import { Message } from "types/message";
-import { Product } from "types/product";
-import { User, UserPreferences } from "types/user";
+import { FXSymbol } from 'types/FXSymbol';
+import { Message } from 'types/message';
+import { Product } from 'types/product';
+import { User, UserPreferences } from 'types/user';
 
 export enum WorkareaStatus {
-  Starting,
-  Initializing,
-  Welcome,
-  Ready,
-  UserNotFound,
-  NotAllowedAtThisTime,
-  Error,
+  Starting = 'starting',
+  Initializing = 'initializing',
+  Welcome = 'welcome',
+  Ready = 'ready',
+  UserNotFound = 'user-not-found',
+  NotAllowedAtThisTime = 'not-allowed-at-this-time',
+  Error = 'error',
 }
 
 export interface WorkareaState {
-  currencies: Symbol[];
+  currencies: FXSymbol[];
   tenors: string[];
   strategies: Product[];
   banks: string[];

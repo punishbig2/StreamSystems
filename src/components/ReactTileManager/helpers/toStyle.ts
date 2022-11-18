@@ -1,8 +1,6 @@
-import { CSSProperties } from "react";
+import { CSSProperties } from 'react';
 
-export const toStyle = (
-  geometry: ClientRect | undefined
-): CSSProperties | undefined => {
+export const toStyle = (geometry: ClientRect | undefined): CSSProperties | undefined => {
   if (geometry === undefined) return undefined;
   return {
     left: geometry.left,

@@ -1,22 +1,19 @@
-import { BankEntity } from "types/bankEntity";
+import { BankEntity } from 'types/bankEntity';
 
 const DummyBankEntity: BankEntity = {
-  code: "",
+  code: '',
   default: false,
-  id: "",
-  name: "",
+  id: '',
+  name: '',
 };
 
 export const getCurrentEntity = (
   code: string,
   entities: { [p: string]: BankEntity[] }
 ): BankEntity => {
-  const flat: BankEntity[] = Object.values(
-    entities
-  ).reduce((current: BankEntity[], next: BankEntity[]): BankEntity[] => [
-    ...current,
-    ...next,
-  ]);
+  const flat: BankEntity[] = Object.values(entities).reduce(
+    (current: BankEntity[], next: BankEntity[]): BankEntity[] => [...current, ...next]
+  );
   const found: BankEntity | undefined = flat.find(
     (entity: BankEntity): boolean => entity.code === code
   );

@@ -1,5 +1,5 @@
-import { User } from "types/user";
-import React, { CSSProperties, ReactElement } from "react";
+import React, { CSSProperties, ReactElement } from 'react';
+import { User } from 'types/user';
 
 interface CellProps {
   render: (props: any) => ReactElement | string | null;
@@ -17,7 +17,7 @@ export const Cell: React.FC<CellProps> = (props: CellProps) => {
   const style: CSSProperties = { width };
   return (
     <div
-      className={["td", props.className].join(" ")}
+      className={['td', props.className].join(' ')}
       style={style}
       data-col-number={props.colNumber}
     >

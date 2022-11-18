@@ -1,6 +1,6 @@
-import strings from "locales";
-import React, { ReactElement } from "react";
-import { MessageBox } from "components/MessageBox";
+import { MessageBox } from 'components/MessageBox';
+import strings from 'locales';
+import React from 'react';
 
 interface Props {
   readonly title: string;
@@ -9,8 +9,8 @@ interface Props {
   readonly onYes: () => void;
 }
 
-export const QuestionBox: React.FC<Props> = (props: Props): ReactElement => {
-  const renderButtons = () => {
+export const QuestionBox: React.FC<Props> = (props: Props): React.ReactElement => {
+  const renderButtons = (): React.ReactElement => {
     return (
       <div className="pull-right">
         <button className="cancel" onClick={props.onNo}>

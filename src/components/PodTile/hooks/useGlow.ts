@@ -1,29 +1,22 @@
-import React from "react";
-import { Order, OrderStatus } from "types/order";
+import React from 'react';
+import { Order, OrderStatus } from 'types/order';
 
 export const useGlow = (
-  litPool: { [tenor: string]: ReadonlyArray<Order> },
-  darkPool: { [tenor: string]: ReadonlyArray<Order> }
+  litPool: { [tenor: string]: readonly Order[] },
+  darkPool: { [tenor: string]: readonly Order[] }
 ): boolean => {
   return React.useMemo((): boolean => {
-    const combiner = (
-      combined: ReadonlyArray<Order>,
-      next: ReadonlyArray<Order>
-    ) => [...combined, ...next];
+    const combiner = (combined: readonly Order[], next: readonly Order[]): readonly Order[] => [
+      ...combined,
+      ...next,
+    ];
 
-    const litPoolOrders: ReadonlyArray<Order> = Object.values(litPool).reduce(
-      combiner,
-      []
-    );
+    const litPoolOrders: readonly Order[] = Object.values(litPool).reduce(combiner, []);
 
-    const darkPoolOrders: ReadonlyArray<Order> = Object.values(darkPool).reduce(
-      combiner,
-      []
-    );
+    const darkPoolOrders: readonly Order[] = Object.values(darkPool).reduce(combiner, []);
 
     return [...litPoolOrders, ...darkPoolOrders].some(
-      (order: Order): boolean =>
-        (order.status & OrderStatus.Active) === OrderStatus.Active
+      (order: Order): boolean => (order.status & OrderStatus.Active) === OrderStatus.Active
     );
   }, [darkPool, litPool]);
 };

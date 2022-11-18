@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement } from 'react';
 
 export const LoadingEllipsis: React.FC = (): ReactElement => {
   return (

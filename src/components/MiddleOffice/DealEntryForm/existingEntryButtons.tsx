@@ -1,6 +1,6 @@
-import React, { ReactElement } from "react";
-import { DealStatus } from "types/dealStatus";
-import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
+import { DealEntryButtons } from 'components/MiddleOffice/buttonStateResolver';
+import React, { ReactElement } from 'react';
+import { DealStatus } from 'types/dealStatus';
 
 interface Props {
   readonly status: DealStatus;
@@ -12,24 +12,22 @@ interface Props {
   onSave(): void;
 }
 
-export const ExistingEntryButtons: React.FC<Props> = (
-  props: Props
-): ReactElement => {
+export const ExistingEntryButtons: React.FC<Props> = (props: Props): ReactElement => {
   return (
     <>
       <button
         type="button"
         className="primary"
         onMouseUp={props.onPrice}
-        disabled={props.isButtonDisabled("price")}
+        disabled={props.isButtonDisabled('price')}
       >
-        {props.status === DealStatus.Priced ? "Re-price" : "Price"}
+        {props.status === DealStatus.Priced ? 'Re-price' : 'Price'}
       </button>
       <button
         type="button"
         className="primary"
         onMouseUp={props.onSave}
-        disabled={props.isButtonDisabled("save")}
+        disabled={props.isButtonDisabled('save')}
       >
         Save
       </button>
@@ -37,7 +35,7 @@ export const ExistingEntryButtons: React.FC<Props> = (
         type="button"
         className="primary"
         onMouseUp={props.onSubmit}
-        disabled={props.isButtonDisabled("submit") || props.submitDisabled}
+        disabled={props.isButtonDisabled('submit') || props.submitDisabled}
       >
         Submit
       </button>

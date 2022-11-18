@@ -1,9 +1,9 @@
-import { OutlinedInput } from "@material-ui/core";
-import { Adornment } from "components/FormField/adornment";
-import { NotApplicableField } from "components/FormField/notApplicableField";
-import React, { useCallback } from "react";
-import { coalesce } from "utils/commonUtils";
-import { copyToClipboard } from "utils/copyToClipboard";
+import { OutlinedInput } from '@material-ui/core';
+import { Adornment } from 'components/FormField/adornment';
+import { NotApplicableField } from 'components/FormField/notApplicableField';
+import React, { useCallback } from 'react';
+import { coalesce } from 'utils/commonUtils';
+import { copyToClipboard } from 'utils/copyToClipboard';
 
 interface Props {
   readonly name: string;
@@ -13,9 +13,7 @@ interface Props {
   readonly endAdornment?: string;
 }
 
-export const ReadOnlyField: React.FC<Props> = (
-  props: Props
-): React.ReactElement => {
+export const ReadOnlyField: React.FC<Props> = (props: Props): React.ReactElement => {
   const { value } = props;
   const onCopy = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -23,33 +21,20 @@ export const ReadOnlyField: React.FC<Props> = (
     },
     [value]
   );
-  const inputValue: string = React.useMemo(
-    (): string => coalesce(value, ""),
-    [value]
-  );
-  if (value === "N/A") return <NotApplicableField />;
+  const inputValue: string = React.useMemo((): string => coalesce(value, ''), [value]);
+  if (value === 'N/A') return <NotApplicableField />;
   return (
     <OutlinedInput
       labelWidth={0}
       startAdornment={
-        <Adornment
-          position="start"
-          value={props.startAdornment}
-          inputValue={inputValue}
-        />
+        <Adornment position="start" value={props.startAdornment} inputValue={inputValue} />
       }
-      endAdornment={
-        <Adornment
-          position="end"
-          value={props.endAdornment}
-          inputValue={inputValue}
-        />
-      }
+      endAdornment={<Adornment position="end" value={props.endAdornment} inputValue={inputValue} />}
       inputProps={{
         tabIndex: -1,
       }}
       classes={{
-        notchedOutline: "borderless",
+        notchedOutline: 'borderless',
       }}
       readOnly={true}
       disabled={props.disabled}

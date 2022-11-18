@@ -1,40 +1,40 @@
-import { API, BankEntitiesQueryResponse, Task } from "API";
-import { isTenor } from "components/FormField/helpers";
-import { Commission, Deal } from "components/MiddleOffice/types/deal";
-import { Leg } from "components/MiddleOffice/types/leg";
-import { MiddleOfficeStore } from "mobx/stores/middleOfficeStore";
-import { DealEntry, DealType, EntryType } from "types/dealEntry";
-import { BankEntity } from "types/bankEntity";
-import { DealStatus } from "types/dealStatus";
-import { FixTenorResult } from "types/fixTenorResult";
-import { InvalidStrategy, Product } from "types/product";
-import { InvalidSymbol, Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { coalesce, tryToNumber } from "utils/commonUtils";
-import { getDefaultStrikeForStrategy } from "utils/getDefaultStrikeForStrategy";
-import { DecimalSeparator, isNumeric } from "utils/isNumeric";
+import { API, BankEntitiesQueryResponse, Task } from 'API';
+import { isTenor } from 'components/FormField/helpers';
+import { Commission, Deal } from 'components/MiddleOffice/types/deal';
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { MiddleOfficeStore } from 'mobx/stores/middleOfficeStore';
+import { BankEntity } from 'types/bankEntity';
+import { DealEntry, DealType, EntryType } from 'types/dealEntry';
+import { DealStatus } from 'types/dealStatus';
+import { FixTenorResult } from 'types/fixTenorResult';
+import { FXSymbol, InvalidSymbol } from 'types/FXSymbol';
+import { InvalidStrategy, Product } from 'types/product';
+import { InvalidTenor, Tenor } from 'types/tenor';
+import { coalesce, tryToNumber } from 'utils/commonUtils';
+import { getDefaultStrikeForStrategy } from 'utils/getDefaultStrikeForStrategy';
+import { DecimalSeparator, isNumeric } from 'utils/isNumeric';
 import {
   addToDate,
   forceParseDate,
   naiveTenorToDate,
   parseTime,
   safeForceParseDate,
-} from "utils/timeUtils";
+} from 'utils/timeUtils';
 
 export const stateMap: { [key in DealStatus]: string } = {
-  [DealStatus.NoStatus]: "No Status",
-  [DealStatus.Pending]: "Pending",
-  [DealStatus.Priced]: "Priced",
-  [DealStatus.SEFSubmitted]: "SEF Submitted",
-  [DealStatus.SEFFailed]: "SEF Failed",
-  [DealStatus.SEFComplete]: "SEF Complete",
-  [DealStatus.STPSubmitted]: "STP Submitted",
-  [DealStatus.STPFailed]: "STP Failed",
-  [DealStatus.STPComplete]: "STP Complete",
-  [DealStatus.MKTSComplete]: "MKTS Complete",
-  [DealStatus.TRTNComplete]: "TRTN Complete",
-  [DealStatus.UBSComplete]: "UBS Complete",
-  [DealStatus.MSCOComplete]: "MSCO Complete",
+  [DealStatus.NoStatus]: 'No Status',
+  [DealStatus.Pending]: 'Pending',
+  [DealStatus.Priced]: 'Priced',
+  [DealStatus.SEFSubmitted]: 'SEF Submitted',
+  [DealStatus.SEFFailed]: 'SEF Failed',
+  [DealStatus.SEFComplete]: 'SEF Complete',
+  [DealStatus.STPSubmitted]: 'STP Submitted',
+  [DealStatus.STPFailed]: 'STP Failed',
+  [DealStatus.STPComplete]: 'STP Complete',
+  [DealStatus.MKTSComplete]: 'MKTS Complete',
+  [DealStatus.TRTNComplete]: 'TRTN Complete',
+  [DealStatus.UBSComplete]: 'UBS Complete',
+  [DealStatus.MSCOComplete]: 'MSCO Complete',
 };
 
 export const resolveEntityToBank = (
@@ -53,20 +53,14 @@ export const resolveBankToEntity = (
   entities: BankEntitiesQueryResponse
 ): string => {
   const bank: BankEntity[] | undefined = entities[source];
-  if (bank === undefined)
-    return source /* it probably already is the entity code */;
-  const entity: BankEntity | undefined = bank.find(
-    (entity: BankEntity): boolean => entity.default
-  );
-  if (entity === undefined) return "";
+  if (bank === undefined) return source /* it probably already is the entity code */;
+  const entity: BankEntity | undefined = bank.find((entity: BankEntity): boolean => entity.default);
+  if (entity === undefined) return '';
   return entity.code;
 };
 
 const getCommissionRates = async (item: any): Promise<any> => {
-  if (
-    item.buyer_comm_rate === undefined ||
-    item.seller_comm_rate === undefined
-  ) {
+  if (item.buyer_comm_rate === undefined || item.seller_comm_rate === undefined) {
     const deals: ReadonlyArray<{ [key: string]: any }> = await API.getDeals();
     if (deals.length === 0) return undefined;
     const found: { [key: string]: any } | undefined = deals.find(
@@ -89,40 +83,39 @@ const getCommissionRates = async (item: any): Promise<any> => {
 
 const getSpreadOrVol = (
   item: any,
-  key: "spread" | "vol",
+  key: 'spread' | 'vol',
   strategy: Product | undefined
 ): number | null => {
   const value: any = item[key];
   if (strategy?.spreadvsvol !== key) return null;
-  if (value !== "" && value !== undefined) return value;
+  if (value !== '' && value !== undefined) return value;
   return item.lastpx / 100;
 };
 
 const getSpread = (item: any, strategy: Product | undefined): number | null =>
-  getSpreadOrVol(item, "spread", strategy);
+  getSpreadOrVol(item, 'spread', strategy);
 const getVol = (item: any, strategy: Product | undefined): number | null =>
-  getSpreadOrVol(item, "vol", strategy);
+  getSpreadOrVol(item, 'vol', strategy);
 
 const partialTenor = (
-  symbol: Symbol,
+  symbol: FXSymbol,
   name: string | undefined,
   expiryDate: string
 ): Tenor | null => {
   if (name === undefined) return null;
-  const date: Date | null =
-    expiryDate === "" ? null : forceParseDate(expiryDate);
+  const date: Date | null = expiryDate === '' ? null : forceParseDate(expiryDate);
   if (date === undefined) {
     const expiry: Date = naiveTenorToDate(name);
     return {
       name: name,
-      deliveryDate: addToDate(expiry, symbol.SettlementWindow, "d"),
+      deliveryDate: addToDate(expiry, symbol.SettlementWindow, 'd'),
       expiryDate: expiry,
     };
   } else {
     return {
       name: name,
       ...(date !== null
-        ? { deliveryDate: addToDate(date, symbol.SettlementWindow, "d") }
+        ? { deliveryDate: addToDate(date, symbol.SettlementWindow, 'd') }
         : { deliveryDate: new Date() }),
       ...(date !== null ? { expiryDate: date } : { expiryDate: new Date() }),
     };
@@ -139,29 +132,26 @@ const getPrice = (first: any, second: any): number | null => {
   }
 };
 
-const JSONSafelyParse = (
-  data: unknown
-): { [key: string]: string | number | null } | undefined => {
-  if (typeof data === "string") {
+const JSONSafelyParse = (data: unknown): { [key: string]: string | number | null } | undefined => {
+  if (typeof data === 'string') {
     try {
       return JSON.parse(data);
     } catch {
       return undefined;
     }
-  } else if (typeof data === "undefined") {
+  } else if (typeof data === 'undefined') {
     return undefined;
   } else if (data === null) {
     return undefined;
   } else {
-    console.warn("passing a non string to json parse: ", data);
+    console.warn('passing a non string to json parse: ', data);
     return undefined;
   }
 };
 
-const getDealPrice = (deal: Deal, legs: ReadonlyArray<Leg>): number | null => {
+const getDealPrice = (deal: Deal, legs: readonly Leg[]): number | null => {
   if (deal.vol !== undefined && deal.vol !== null) return 100 * deal.vol;
-  if (deal.spread !== undefined && deal.spread !== null)
-    return 100 * deal.spread;
+  if (deal.spread !== undefined && deal.spread !== null) return 100 * deal.spread;
   if (deal.price === null || deal.price === undefined) {
     if (legs.length === 0) return null;
     if (legs[0].vol === undefined) return null;
@@ -172,36 +162,25 @@ const getDealPrice = (deal: Deal, legs: ReadonlyArray<Leg>): number | null => {
 
 export const createDealFromBackendMessage = async (
   source: { [key: string]: any } | string,
-  symbol: Symbol,
+  symbol: FXSymbol,
   strategy: Product,
   defaultLegAdjust: string | null,
-  legs: ReadonlyArray<Leg>
+  legs: readonly Leg[]
 ): Promise<Deal> => {
-  const data: any = typeof source === "string" ? JSON.parse(source) : source;
+  const data: any = typeof source === 'string' ? JSON.parse(source) : source;
   const tradeDate: Date = parseTime(data.transacttime);
-  const strike: string = coalesce(
-    data.strike,
-    getDefaultStrikeForStrategy(data.strategy)
-  );
-  const tenor1: Tenor | null = partialTenor(
-    symbol,
-    data.tenor,
-    data.expirydate
-  );
+  const strike: string = coalesce(data.strike, getDefaultStrikeForStrategy(data.strategy));
+  const tenor1: Tenor | null = partialTenor(symbol, data.tenor, data.expirydate);
   if (tenor1 === null) {
-    throw new Error("invalid backend message for deal, missing tenor");
+    throw new Error('invalid backend message for deal, missing tenor');
   }
-  const tenor2: Tenor | null = partialTenor(
-    symbol,
-    data.tenor1,
-    data.expirydate1
-  );
+  const tenor2: Tenor | null = partialTenor(symbol, data.tenor1, data.expirydate1);
 
   const spread: number | null = getSpread(data, strategy);
   const vol: number | null = getVol(data, strategy);
   const price: number | null = getPrice(data.lastpx, data.pricedvol);
 
-  const deal = {
+  const deal: Deal = {
     id: data.linkid,
     buyer: coalesce(data.buyerentitycode, data.buyer),
     buyer_useremail: data.buyer_useremail,
@@ -218,19 +197,18 @@ export const createDealFromBackendMessage = async (
     currencyPair: data.symbol,
     tenor1: tenor1.name,
     expiryDate1: tenor1.expiryDate,
-    tenor2: !!tenor2 ? tenor2.name : undefined,
-    expiryDate2: !!tenor2 ? tenor2.expiryDate : undefined,
+    tenor2: tenor2 ? tenor2.name : undefined,
+    expiryDate2: tenor2 ? tenor2.expiryDate : undefined,
     tradeDate: tradeDate,
-    spotDate: null,
     premiumDate: null,
     price: price,
-    strike: strike === "" ? null : tryToNumber(strike),
+    strike: strike === '' ? null : tryToNumber(strike),
     symbol: symbol,
     source: data.source,
     status: data.state,
-    sef_namespace: !!data.sef_namespace ? data.sef_namespace : null,
-    deltaStyle: data.deltastyle === "" ? "Forward" : data.deltastyle,
-    premiumStyle: data.premstyle === "" ? "Forward" : data.premstyle,
+    sef_namespace: data.sef_namespace ? data.sef_namespace : null,
+    deltaStyle: data.deltastyle === '' ? 'Forward' : data.deltastyle,
+    premiumStyle: data.premstyle === '' ? 'Forward' : data.premstyle,
     commissions: await getCommissionRates(data),
     usi: data.usi_num,
     extraFields: JSONSafelyParse(data.extra_fields),
@@ -244,13 +222,13 @@ export const createDealFromBackendMessage = async (
 export const dealSourceToDealType = (source: string): DealType => {
   if (!source) return DealType.Invalid;
   switch (source.toLowerCase()) {
-    case "manual":
+    case 'manual':
       return DealType.Voice;
-    case "electronic":
+    case 'electronic':
       return DealType.Electronic;
-    case "cloned":
+    case 'cloned':
       return DealType.Cloned;
-    case "multileg":
+    case 'multileg':
       return DealType.Manual;
     default:
       return DealType.Invalid;
@@ -260,10 +238,7 @@ export const dealSourceToDealType = (source: string): DealType => {
 const expandCommission = (commission?: {
   buyer: Commission;
   seller: Commission;
-}): Pick<
-  DealEntry,
-  "buyer_comm" | "buyer_comm_rate" | "seller_comm" | "seller_comm_rate"
-> => {
+}): Pick<DealEntry, 'buyer_comm' | 'buyer_comm_rate' | 'seller_comm' | 'seller_comm_rate'> => {
   if (!commission) {
     return {
       buyer_comm: null,
@@ -284,14 +259,8 @@ const expandCommission = (commission?: {
 const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
   const { tenor1, tenor2 } = entry;
   // Query dates for regular tenors
-  const task1: Task<FixTenorResult> = MiddleOfficeStore.fixTenorDates(
-    tenor1,
-    entry
-  );
-  const task2: Task<FixTenorResult> = MiddleOfficeStore.fixTenorDates(
-    tenor2,
-    entry
-  );
+  const task1: Task<FixTenorResult> = MiddleOfficeStore.fixTenorDates(tenor1, entry);
+  const task2: Task<FixTenorResult> = MiddleOfficeStore.fixTenorDates(tenor2, entry);
   return {
     execute: async (): Promise<DealEntry> => {
       const tenor1Dates: FixTenorResult = await task1.execute();
@@ -299,10 +268,10 @@ const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
 
       return {
         ...entry,
-        tenor1: !!tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
+        tenor1: tenor1Dates.tenor ? tenor1Dates.tenor : tenor1,
         tenor2: tenor2Dates.tenor,
-        ...safeForceParseDate("horizonDateUTC", tenor1Dates.horizonDateUTC),
-        ...safeForceParseDate("premiumDate", tenor1Dates.spotDate),
+        ...safeForceParseDate('horizonDateUTC', tenor1Dates.horizonDateUTC),
+        ...safeForceParseDate('premiumDate', tenor1Dates.spotDate),
       };
     },
     cancel: (): void => {
@@ -313,7 +282,7 @@ const resolveDatesIfNeeded = (entry: DealEntry): Task<DealEntry> => {
 };
 
 const toStrike = (rawValue: any): string | undefined => {
-  if (typeof rawValue !== "string") {
+  if (typeof rawValue !== 'string') {
     return rawValue;
   } else {
     const normalized = rawValue.replaceAll(/[.,]/g, DecimalSeparator);
@@ -328,15 +297,13 @@ const toStrike = (rawValue: any): string | undefined => {
 export const createDealEntry = (
   deal: Deal,
   legsCount: number,
-  symbol: Symbol,
+  symbol: FXSymbol,
   strategy: Product,
   defaultLegAdjust: string | null
 ): Task<DealEntry> => {
   const id: string = deal.id;
-  if (symbol === InvalidSymbol)
-    throw new Error("cannot find symbol: " + deal.currencyPair);
-  if (strategy === InvalidStrategy)
-    throw new Error("cannot find strategy: " + deal.strategy);
+  if (symbol === InvalidSymbol) throw new Error('cannot find symbol: ' + deal.currencyPair);
+  if (strategy === InvalidStrategy) throw new Error('cannot find strategy: ' + deal.strategy);
 
   const entry: DealEntry = {
     symbol: symbol,
@@ -356,21 +323,17 @@ export const createDealEntry = (
     dealID: id.toString(),
     status: deal.status,
     sef_namespace: deal.sef_namespace,
-    style: "European",
+    style: 'European',
     tenor1: {
       name: deal.tenor1,
-      deliveryDate: addToDate(deal.expiryDate1, symbol.SettlementWindow, "d"),
+      deliveryDate: addToDate(deal.expiryDate1, symbol.SettlementWindow, 'd'),
       expiryDate: deal.expiryDate1,
     },
     tenor2:
       deal.tenor2 !== undefined && deal.expiryDate2 !== undefined
         ? {
             name: deal.tenor2,
-            deliveryDate: addToDate(
-              deal.expiryDate2,
-              symbol.SettlementWindow,
-              "d"
-            ),
+            deliveryDate: addToDate(deal.expiryDate2, symbol.SettlementWindow, 'd'),
             expiryDate: deal.expiryDate2,
           }
         : null,
@@ -391,7 +354,7 @@ export const createDealEntry = (
 };
 
 export const getTenor = (
-  deal: Pick<DealEntry, "tenor1" | "tenor2">,
+  deal: Pick<DealEntry, 'tenor1' | 'tenor2'>,
   index: number
 ): Tenor | InvalidTenor => {
   const { tenor1, tenor2 } = deal;
@@ -402,7 +365,7 @@ export const getTenor = (
 };
 
 export const getDealId = (deal: DealEntry): string | undefined => {
-  return deal.dealID !== undefined && deal.dealID !== null && deal.dealID !== ""
+  return deal.dealID !== undefined && deal.dealID !== null && deal.dealID !== ''
     ? deal.dealID
     : undefined;
 };

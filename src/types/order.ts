@@ -1,10 +1,10 @@
-import { MDEntry, OrderTypes } from "types/mdEntry";
-import { hasRole, Role } from "types/role";
-import { Sides } from "types/sides";
-import { User } from "types/user";
-import { ArrowDirection, MessageTypes, W } from "types/w";
-import { priceFormatter } from "utils/priceFormatter";
-import { $$ } from "utils/stringPaster";
+import { MDEntry, OrderTypes } from 'types/mdEntry';
+import { hasRole, Role } from 'types/role';
+import { Sides } from 'types/sides';
+import { User } from 'types/user';
+import { ArrowDirection, MessageTypes, W } from 'types/w';
+import { priceFormatter } from 'utils/priceFormatter';
+import { $$ } from 'utils/stringPaster';
 
 export interface FIXMessage {
   OrderID?: string;
@@ -71,7 +71,7 @@ export interface OrderMessage {
   Tenor: string;
   Symbol: string;
   Strategy: string;
-  Side: "1" | "2";
+  Side: '1' | '2';
   OrderQty: string;
   Firm: string;
 }
@@ -87,18 +87,18 @@ const normalizeTickDirection = (
 ): ArrowDirection => {
   if (orderType === OrderTypes.Bid) {
     switch (source) {
-      case "0":
+      case '0':
         return ArrowDirection.Up;
-      case "2":
+      case '2':
         return ArrowDirection.Down;
       default:
         return ArrowDirection.None;
     }
   } else {
     switch (source) {
-      case "0":
+      case '0':
         return ArrowDirection.Down;
-      case "2":
+      case '2':
         return ArrowDirection.Up;
       default:
         return ArrowDirection.None;
@@ -147,30 +147,18 @@ export class Order {
     defaultBidSize: number | null = null,
     defaultOfrSize: number | null = null
   ): Order => {
-    const type: OrderTypes =
-      entry.Side === "1" ? OrderTypes.Bid : OrderTypes.Ofr;
+    const type: OrderTypes = entry.Side === '1' ? OrderTypes.Bid : OrderTypes.Ofr;
     const size = ((): number | null => {
       const fromMessage = Number(entry.OrderQty);
-      if (
-        isNaN(fromMessage) ||
-        priceFormatter(fromMessage) === priceFormatter(0)
-      ) {
+      if (isNaN(fromMessage) || priceFormatter(fromMessage) === priceFormatter(0)) {
         return type === OrderTypes.Bid ? defaultBidSize : defaultOfrSize;
       }
       return fromMessage;
     })();
-    const order: Order = new Order(
-      entry.Tenor,
-      entry.Symbol,
-      entry.Strategy,
-      email,
-      size,
-      type
-    );
+    const order: Order = new Order(entry.Tenor, entry.Symbol, entry.Strategy, email, size, type);
     // Update the price
     order.price = Number(entry.Price);
-    order.status =
-      OrderStatus.Cancelled | OrderStatus.PreFilled | OrderStatus.RunOrder;
+    order.status = OrderStatus.Cancelled | OrderStatus.PreFilled | OrderStatus.RunOrder;
     // Return the newly built order
     return order;
   };
@@ -178,15 +166,12 @@ export class Order {
   public static fromWAndMDEntry = (w: W, entry: MDEntry, user: User): Order => {
     const price: number | null = getNumber(entry.MDEntryPx);
     const ownership: OrderStatus =
-      user.email === entry.MDEntryOriginator
-        ? OrderStatus.Owned
-        : OrderStatus.NotOwned;
+      user.email === entry.MDEntryOriginator ? OrderStatus.Owned : OrderStatus.NotOwned;
     const sameBank: OrderStatus =
       user.firm === entry.MDMkt ? OrderStatus.SameBank : OrderStatus.None;
-    const preFilled: OrderStatus =
-      price !== null ? OrderStatus.PreFilled : OrderStatus.None;
+    const preFilled: OrderStatus = price !== null ? OrderStatus.PreFilled : OrderStatus.None;
     const active: OrderStatus =
-      entry.MDEntrySize === undefined || entry.MDEntrySize === "0"
+      entry.MDEntrySize === undefined || entry.MDEntrySize === '0'
         ? OrderStatus.Cancelled
         : OrderStatus.Active;
     const { roles } = user;
@@ -203,8 +188,8 @@ export class Order {
     );
     // Update fields not in the constructor
     const execInstNames: { [execInst: string]: string } = {
-      G: "AON",
-      D: "1/2 ON",
+      G: 'AON',
+      D: '1/2 ON',
     };
     if (entry.ExecInst !== undefined) {
       order.instruction = execInstNames[entry.ExecInst];
@@ -213,14 +198,11 @@ export class Order {
     order.firm = entry.MDMkt;
     order.orderId = entry.OrderID;
     order.status = ownership | preFilled | sameBank | active | isOwnerBroker;
-    order.arrowDirection = normalizeTickDirection(
-      entry.TickDirection,
-      order.type
-    );
+    order.arrowDirection = normalizeTickDirection(entry.TickDirection, order.type);
     order.timestamp = Number(entry.MDEntryTime);
     // Now return the built order
     return order;
   };
 
-  public uid = () => $$(this.symbol, this.strategy, this.tenor);
+  public uid = (): string => $$(this.symbol, this.strategy, this.tenor);
 }

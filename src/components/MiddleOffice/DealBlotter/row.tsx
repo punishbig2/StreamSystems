@@ -1,8 +1,8 @@
-import { BlotterTypes } from "columns/messageBlotter";
-import { BlotterRowTypes, Row } from "components/MessageBlotter/row";
-import { Deal } from "components/MiddleOffice/types/deal";
-import deepEqual from "deep-equal";
-import React, { ReactElement } from "react";
+import { BlotterTypes } from 'columns/messageBlotter';
+import { BlotterRowTypes, Row } from 'components/MessageBlotter/row';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import deepEqual from 'deep-equal';
+import React, { ReactElement } from 'react';
 
 export interface RowProps {
   readonly row: Deal;

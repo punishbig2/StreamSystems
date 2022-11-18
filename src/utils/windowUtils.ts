@@ -11,15 +11,15 @@ export const getOptimalSize = (element: HTMLDivElement): Size => {
   const savedWidth = style.width;
   const savedHeight = style.height;
 
-  style.width = "100px";
-  style.minWidth = "min-content";
-  style.height = "1px";
+  style.width = '100px';
+  style.minWidth = 'min-content';
+  style.height = '1px';
 
   size.width = element.scrollWidth;
   size.height = element.scrollHeight;
 
   style.width = savedWidth;
-  style.minWidth = "";
+  style.minWidth = '';
   style.height = savedHeight;
   style.top = top;
   style.left = left;

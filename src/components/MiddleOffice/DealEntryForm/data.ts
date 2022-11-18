@@ -9,19 +9,19 @@ export const volSpreadRelationships: { [key: string]: VolSpreadRel } = {
     vol: 13,
   },
   Butterfly: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   CalendarCallSpread: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   CalendarPutSpread: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   CallSpread: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   DoubleBarrier: {
@@ -33,11 +33,11 @@ export const volSpreadRelationships: { [key: string]: VolSpreadRel } = {
     vol: 13,
   },
   PutSpread: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   RiskReversal: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   SingleBarrier: {
@@ -45,11 +45,11 @@ export const volSpreadRelationships: { [key: string]: VolSpreadRel } = {
     vol: 13,
   },
   Straddle: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   Strangle: {
-    spread: "25D",
+    spread: '25D',
     vol: undefined,
   },
   Vanilla: {

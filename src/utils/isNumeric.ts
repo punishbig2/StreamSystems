@@ -1,4 +1,4 @@
-import { Globals } from "golbals";
+import { Globals } from 'golbals';
 
 export const DecimalSeparator = (0.1)
   .toLocaleString(Globals.locale, {
@@ -20,18 +20,15 @@ export const ThousandsSeparator = (1000000)
  * @param value
  * @param greedy
  */
-const getSeparatorRegexp = (
-  value: string,
-  greedy: boolean
-): string | RegExp => {
-  if (value === ".") {
+const getSeparatorRegexp = (value: string, greedy: boolean): string | RegExp => {
+  if (value === '.') {
     if (greedy) {
       return /\./g;
     } else {
       return /\./;
     }
   }
-  return new RegExp(value, greedy ? "g" : undefined);
+  return new RegExp(value, greedy ? 'g' : undefined);
 };
 
 const getDecimalSeparatorForRegexp = (): string | RegExp => {
@@ -46,41 +43,29 @@ export const toNumber = (
   value: number | string | null,
   currency?: string
 ): number | null | undefined => {
-  if (typeof value === "number") return value;
+  if (typeof value === 'number') return value;
   if (value === null) return null;
   const separator: string | RegExp = getDecimalSeparatorForRegexp();
   const fragments: string[] = value
-    .replace(
-      currency === undefined ? " " /* it seems safe to do this */ : currency,
-      ""
-    )
+    .replace(currency === undefined ? ' ' /* it seems safe to do this */ : currency, '')
     .trim()
     .split(separator);
   if (fragments.length === 2) {
-    const integer: string = fragments[0].replace(
-      getThousandsSeparatorRegexp(),
-      ""
-    );
-    const decimal: string = fragments[1].replace(
-      getThousandsSeparatorRegexp(),
-      ""
-    );
+    const integer: string = fragments[0].replace(getThousandsSeparatorRegexp(), '');
+    const decimal: string = fragments[1].replace(getThousandsSeparatorRegexp(), '');
     if (integer.length === 0) return undefined;
     if (decimal.length === 0) {
-      const numeric: number = Number(integer);
+      const numeric = Number(integer);
       if (isNaN(numeric)) return undefined;
       return numeric;
     } else {
-      const numeric: number = Number([integer, decimal].join("."));
+      const numeric = Number([integer, decimal].join('.'));
       if (isNaN(numeric)) return undefined;
       return numeric;
     }
   } else if (fragments.length === 1) {
-    const integer: string = fragments[0].replace(
-      getThousandsSeparatorRegexp(),
-      ""
-    );
-    const numeric: number = Number(integer);
+    const integer: string = fragments[0].replace(getThousandsSeparatorRegexp(), '');
+    const numeric = Number(integer);
     if (isNaN(numeric)) return undefined;
     return numeric;
   } else {
@@ -88,10 +73,8 @@ export const toNumber = (
   }
 };
 
-export const isNumeric = (
-  value: string | number | null | undefined
-): value is number => {
+export const isNumeric = (value: string | number | null | undefined): value is number => {
   if (value === null || value === undefined) return false;
-  if (typeof value === "number") return true;
+  if (typeof value === 'number') return true;
   return toNumber(value) !== undefined;
 };

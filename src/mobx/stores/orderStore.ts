@@ -1,46 +1,72 @@
-import { API } from "API";
-import { getAggregatedSize } from "columns/podColumns/OrderColumn/helpers/getAggregatedSize";
-import { action, computed, observable } from "mobx";
-import workareaStore from "mobx/stores/workareaStore";
-import { OrderTypes } from "types/mdEntry";
-import { FIXMessage, Order, OrderStatus } from "types/order";
-import { hasRole, Role } from "types/role";
-import { User } from "types/user";
-import { ArrowDirection, MessageTypes } from "types/w";
-import { getCurrentTime, getSideFromType } from "utils/commonUtils";
-import { pickBestOrder } from "utils/pickBestOrder";
-import { priceFormatter } from "utils/priceFormatter";
-import { sizeFormatter } from "utils/sizeFormatter";
-import { $$ } from "utils/stringPaster";
+import { API } from 'API';
+import { getAggregatedSize } from 'columns/podColumns/OrderColumn/helpers/getAggregatedSize';
+import { action, computed, makeObservable, observable } from 'mobx';
+import workareaStore from 'mobx/stores/workareaStore';
+import { OrderTypes } from 'types/mdEntry';
+import { FIXMessage, Order, OrderStatus } from 'types/order';
+import { hasRole, Role } from 'types/role';
+import { User } from 'types/user';
+import { ArrowDirection, MessageTypes } from 'types/w';
+import { getCurrentTime, getSideFromType } from 'utils/commonUtils';
+import { pickBestOrder } from 'utils/pickBestOrder';
+import { priceFormatter } from 'utils/priceFormatter';
+import { sizeFormatter } from 'utils/sizeFormatter';
+import { $$ } from 'utils/stringPaster';
 
 export class OrderStore {
   public type: OrderTypes = OrderTypes.Invalid;
 
-  public symbol = "";
-  public strategy = "";
-  public tenor = "";
+  public symbol = '';
+  public strategy = '';
+  public tenor = '';
 
-  @observable orderID: string | undefined;
-  @observable baseSize: number | null = null;
-  @observable price: number | null = null;
-  @observable currentStatus: OrderStatus = OrderStatus.None;
-  @observable baseStatus: OrderStatus = OrderStatus.None;
+  public orderID: string | undefined;
+  public baseSize: number | null = null;
+  public price: number | null = null;
+  public currentStatus: OrderStatus = OrderStatus.None;
+  public baseStatus: OrderStatus = OrderStatus.None;
+  public defaultSize = 0;
+  public minimumSize = 0;
+  public orderTicket: Order | null = null;
+  public depth: Order[] = [];
 
-  @observable defaultSize = 0;
-  @observable minimumSize = 0;
-  @observable orderTicket: Order | null = null;
+  constructor() {
+    makeObservable(this, {
+      orderID: observable,
+      baseSize: observable,
+      price: observable,
+      currentStatus: observable,
+      baseStatus: observable,
+      defaultSize: observable,
+      minimumSize: observable,
+      orderTicket: observable,
+      depth: observable.ref,
+      size: computed,
+      cancelOrder: computed,
+      replaceOrderId: computed,
+      minimumPrice: computed,
+      maximumPrice: computed,
+      status: computed,
+      createWithType: action.bound,
+      create: action.bound,
+      cancel: action.bound,
+      setOrder: action.bound,
+      setDefaultAndMinimumSizes: action.bound,
+      setOrderTicket: action.bound,
+      unsetOrderTicket: action.bound,
+      setStatusBit: action.bound,
+      unsetStatusBit: action.bound,
+      setCurrentDepth: action.bound,
+    });
+  }
 
-  @observable.ref depth: Order[] = [];
-
-  @computed
-  get size(): number | null {
+  public get size(): number | null {
     if ((this.baseStatus & OrderStatus.InDepth) !== 0 || this.baseSize === null)
       return this.baseSize;
     return getAggregatedSize(this, this.depth);
   }
 
-  @computed
-  get cancelOrder(): Order | null {
+  public get cancelOrder(): Order | null {
     const { user, personality } = workareaStore;
     const { email, roles } = user;
     const { depth } = this;
@@ -51,22 +77,18 @@ export class OrderStore {
       // No cancelled orders
       if ((order.status & OrderStatus.Cancelled) !== 0) return false;
       // If I am a broker, it must be the same firm as personality I am assuming
-      if (hasRole(roles, Role.Broker) && order.firm === personality)
-        return true;
+      if (hasRole(roles, Role.Broker) && order.firm === personality) return true;
       // If it's mine, always
       return order.user === email && !hasRole(roles, Role.Broker);
     });
 
-    const order = validOrders.reduce(
-      (best: Order | null, current: Order): Order | null => {
-        if (best === null) {
-          return current;
-        }
+    const order = validOrders.reduce((best: Order | null, current: Order): Order | null => {
+      if (best === null) {
+        return current;
+      }
 
-        return pickBestOrder(best, current);
-      },
-      null
-    );
+      return pickBestOrder(best, current);
+    }, null);
 
     return order ?? null;
   }
@@ -94,23 +116,19 @@ export class OrderStore {
     return order.orderId ?? null;
   }
 
-  @computed
-  get replaceOrderId(): string | null {
+  public get replaceOrderId(): string | null {
     return this.getReplaceOrderId(this.type);
   }
 
-  @computed
-  get minimumPrice(): number {
+  public get minimumPrice(): number {
     return 0;
   }
 
-  @computed
-  get maximumPrice(): number {
+  public get maximumPrice(): number {
     return 0;
   }
 
-  @computed
-  get status(): OrderStatus {
+  public get status(): OrderStatus {
     return this.baseStatus | this.currentStatus;
   }
 
@@ -124,15 +142,13 @@ export class OrderStore {
   public getCreatorSize(editedSize: number | null): number | null {
     const currentOrder = this.getExistingOrder(this.type);
     if (this.defaultSize === undefined)
-      throw new Error("impossible to determine order creation size");
+      throw new Error('impossible to determine order creation size');
     if (editedSize !== null) return editedSize;
-    if (currentOrder !== null && currentOrder.size !== null)
-      return currentOrder.size;
+    if (currentOrder !== null && currentOrder.size !== null) return currentOrder.size;
     // Finally, use the default size
     return this.defaultSize;
   }
 
-  @action.bound
   public async createWithType(
     inputPrice: number | null,
     inputSize: number | null,
@@ -143,25 +159,19 @@ export class OrderStore {
     const size: number | null = this.getCreatorSize(inputSize);
     if (price === null) /* in this case just ignore this */ return;
     if (size === null) {
-      throw new Error(
-        "cannot create orders when the user has not initialized the cell"
-      );
+      throw new Error('cannot create orders when the user has not initialized the cell');
     }
     const user: User = workareaStore.user;
     const personality: string = workareaStore.personality;
     // Now attempt to create the new order
-    if (user === null || personality === null)
-      throw new Error("store not properly initialized");
+    if (user === null || personality === null) throw new Error('store not properly initialized');
     // Set "creating status"
     this.currentStatus =
-      this.currentStatus |
-      (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
+      this.currentStatus | (type === this.type ? OrderStatus.BeingCreated : OrderStatus.None);
     const { roles } = user;
     // Create the request
     const side = getSideFromType(type);
-    const matchingOrderId = cancelOldOrder
-      ? this.getReplaceOrderId(type)
-      : null;
+    const matchingOrderId = cancelOldOrder ? this.getReplaceOrderId(type) : null;
     const request: FIXMessage = ((): FIXMessage => {
       if (matchingOrderId !== null) {
         return {
@@ -197,10 +207,10 @@ export class OrderStore {
       }
     })();
     const response = await API.executeCreateOrderRequest(request);
-    if (response.Status === "Success") {
+    if (response.Status === 'Success') {
       this.currentStatus = this.currentStatus & ~OrderStatus.BeingCreated;
       const newOrder: Order = {
-        instruction: "",
+        instruction: '',
         // Current user owns this order of course
         firm: user.firm,
         user: user.email,
@@ -222,55 +232,42 @@ export class OrderStore {
         uid: () => $$(this.symbol, this.strategy, this.tenor),
       };
       const status: OrderStatus =
-        (this.status & OrderStatus.HasDepth) !== 0
-          ? OrderStatus.HasDepth
-          : OrderStatus.None;
+        (this.status & OrderStatus.HasDepth) !== 0 ? OrderStatus.HasDepth : OrderStatus.None;
       // Update current order
       if ((status & OrderStatus.AtTop) === OrderStatus.AtTop) {
-        this.setOrder(
-          newOrder,
-          newOrder.status | OrderStatus.JustCreated | status
-        );
+        this.setOrder(newOrder, newOrder.status | OrderStatus.JustCreated | status);
       }
     } else {
       this.currentStatus =
-        (this.currentStatus & ~OrderStatus.BeingCreated) |
-        OrderStatus.ActionError;
+        (this.currentStatus & ~OrderStatus.BeingCreated) | OrderStatus.ActionError;
     }
   }
 
-  @action.bound
-  public async create(
-    inputPrice: number | null,
-    inputSize: number | null
-  ): Promise<void> {
+  public async create(inputPrice: number | null, inputSize: number | null): Promise<void> {
     return this.createWithType(inputPrice, inputSize, this.type);
   }
 
-  @action.bound
   public async cancel(): Promise<void> {
     const user: User | null = workareaStore.user;
     if (user !== null) {
       const { cancelOrder: order } = this;
 
       if (order === null) {
-        console.warn("the user should not be able to cancel things");
+        console.warn('the user should not be able to cancel things');
         return;
       }
 
       this.currentStatus = this.currentStatus | OrderStatus.BeingCancelled;
       const response = await API.cancelOrder(order, user);
-      if (response.Status === "Success") {
+      if (response.Status === 'Success') {
         this.currentStatus = this.currentStatus & ~OrderStatus.BeingCancelled;
       } else {
         this.currentStatus =
-          (this.currentStatus & ~OrderStatus.BeingCancelled) |
-          OrderStatus.ActionError;
+          (this.currentStatus & ~OrderStatus.BeingCancelled) | OrderStatus.ActionError;
       }
     }
   }
 
-  @action.bound
   public setOrder(order: Order | undefined, status: OrderStatus): void {
     if (order?.type === OrderTypes.Invalid) return;
     this.baseStatus = OrderStatus.None;
@@ -287,44 +284,34 @@ export class OrderStore {
     }
   }
 
-  @action.bound
-  public setDefaultAndMinimumSizes(
-    defaultSize: number,
-    minimumSize: number
-  ): void {
+  public setDefaultAndMinimumSizes(defaultSize: number, minimumSize: number): void {
     this.defaultSize = defaultSize;
     this.minimumSize = minimumSize;
   }
 
-  @action.bound
   public setOrderTicket(orderTicket: Order): void {
     this.orderTicket = orderTicket;
   }
 
-  @action.bound
   public unsetOrderTicket(): void {
     this.orderTicket = null;
   }
 
-  @action.bound
   public setStatusBit(status: OrderStatus): void {
     this.currentStatus |= status;
   }
 
-  @action.bound
   public unsetStatusBit(status: OrderStatus): void {
     this.currentStatus &= ~status;
   }
 
-  @action.bound
-  public setCurrentDepth(depth: ReadonlyArray<Order>): void {
+  public setCurrentDepth(depth: readonly Order[]): void {
     if (!depth) return;
     this.depth = depth.filter((order: Order) => order.size !== null);
   }
 
   public shouldCancelReplace(size: number | null): boolean {
-    const changed: boolean =
-      sizeFormatter(size) !== sizeFormatter(this.baseSize);
+    const changed: boolean = sizeFormatter(size) !== sizeFormatter(this.baseSize);
     if ((this.baseStatus & OrderStatus.Owned) !== 0) return changed;
     return true;
   }
@@ -350,8 +337,7 @@ export class OrderStore {
         (order.status & OrderStatus.Active) === OrderStatus.Active &&
         (order.status & OrderStatus.Cancelled) === 0
     );
-    if (top === undefined)
-      return OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned;
+    if (top === undefined) return OrderStatus.Active | OrderStatus.AtTop | OrderStatus.Owned;
     if (priceFormatter(price) === priceFormatter(top.price)) {
       return OrderStatus.Active;
     } else {

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 declare global {
   interface Event {
@@ -59,13 +59,13 @@ export const useScrollbarHandleGrabber = (
         setValue(fraction * maxScrollTop);
       };
       const onRelease = (): void => {
-        document.removeEventListener("mousemove", onMove, true);
-        document.removeEventListener("mouseup", onRelease, true);
-        handle.removeClass("grabbed");
+        document.removeEventListener('mousemove', onMove, true);
+        document.removeEventListener('mouseup', onRelease, true);
+        handle.removeClass('grabbed');
       };
-      document.addEventListener("mousemove", onMove, true);
-      document.addEventListener("mouseup", onRelease, true);
-      handle.addClass("grabbed");
+      document.addEventListener('mousemove', onMove, true);
+      document.addEventListener('mouseup', onRelease, true);
+      handle.addClass('grabbed');
     },
     [container]
   );
@@ -75,11 +75,11 @@ export const useScrollbarHandleGrabber = (
     container.scrollTop = value;
   }, [container, value]);
 
-  React.useEffect((): void | (() => void) => {
+  React.useEffect((): void | VoidFunction => {
     if (handle === null) return;
-    handle.addEventListener("mousedown", onStartDrag, true);
+    handle.addEventListener('mousedown', onStartDrag, true);
     return (): void => {
-      handle.removeEventListener("mousedown", onStartDrag, true);
+      handle.removeEventListener('mousedown', onStartDrag, true);
     };
   }, [handle, onStartDrag]);
 

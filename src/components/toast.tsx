@@ -1,10 +1,10 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
 export enum ToastType {
-  Success = "success",
-  Error = "error",
-  Warning = "warning",
+  Success = 'success',
+  Error = 'error',
+  Warning = 'warning',
 }
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 
 const Toast: React.FC<Props> = (props: Props): React.ReactElement => {
   return (
-    <div className={"toast " + props.type}>
+    <div className={'toast ' + props.type}>
       <div className="message">{props.message}</div>
       <div className="close-button" onClick={props.onRemove} />
     </div>
@@ -25,10 +25,10 @@ const Toast: React.FC<Props> = (props: Props): React.ReactElement => {
 export const toast = {
   show: (message: string, type: ToastType, timeout = 10000): void => {
     const { body } = document;
-    const element = document.createElement("div");
+    const element = document.createElement('div');
     // Add the element to the body
     body.appendChild(element);
-    const removeMe = () => {
+    const removeMe = (): void => {
       body.removeChild(element);
     };
     const root = createRoot(element);

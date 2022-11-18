@@ -20,7 +20,7 @@ export interface CalendarVolDatesQuery {
 }
 
 export interface CalendarFXTenorsResponse {
-  Status: "OK" | "ERROR";
+  Status: 'OK' | 'ERROR';
   TimeStamp: number;
   TradeDate: string;
   HorizonDate: string;
@@ -32,7 +32,7 @@ export interface CalendarFXTenorsResponse {
 }
 
 export interface CalendarVolDatesResponse {
-  Status: "OK" | "ERROR";
+  Status: 'OK' | 'ERROR';
   TimeStamp: number;
   TradeDate: string;
   HorizonDate: string;

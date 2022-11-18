@@ -1,27 +1,20 @@
-import { OrderTypes } from "types/mdEntry";
-import { Order } from "types/order";
-import { PodRow, PodRowStatus } from "types/podRow";
-import { PodTable } from "types/podTable";
-import { TenorType } from "types/w";
-import { useEffect } from "react";
-import { compareTenors } from "utils/tenorUtils";
-import { User } from "types/user";
+import { useEffect } from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { Order } from 'types/order';
+import { PodRow, PodRowStatus } from 'types/podRow';
+import { PodTable } from 'types/podTable';
+import { User } from 'types/user';
+import { TenorType } from 'types/w';
+import { compareTenors } from 'utils/tenorUtils';
 
 const buildRows = async (
-  tenors: ReadonlyArray<string>,
+  tenors: readonly string[],
   currency: string,
   strategy: string,
   email: string
 ): Promise<PodRow[]> => {
   const rows: PodRow[] = tenors.map((tenor: TenorType) => {
-    const order: Order = new Order(
-      tenor,
-      currency,
-      strategy,
-      email,
-      null,
-      OrderTypes.Invalid
-    );
+    const order: Order = new Order(tenor, currency, strategy, email, null, OrderTypes.Invalid);
     const row: PodRow = {
       tenor: tenor,
       id: tenor,
@@ -41,7 +34,7 @@ const buildRows = async (
 
 type PodInitializer = (data: PodTable) => void;
 const populateEmptyTOB = (
-  tenors: ReadonlyArray<string>,
+  tenors: readonly string[],
   currency: string,
   strategy: string,
   email: string,
@@ -58,7 +51,7 @@ const populateEmptyTOB = (
 };
 
 export const useInitializer = (
-  tenors: ReadonlyArray<string>,
+  tenors: readonly string[],
   currency: string,
   strategy: string,
   user: User,
@@ -66,7 +59,7 @@ export const useInitializer = (
 ) => {
   useEffect(() => {
     populateEmptyTOB(tenors, currency, strategy, user.email, initialize);
-    if (!currency || !strategy || strategy === "" || currency === "") {
+    if (!currency || !strategy || strategy === '' || currency === '') {
       return;
     }
   }, [tenors, user, initialize, currency, strategy]);

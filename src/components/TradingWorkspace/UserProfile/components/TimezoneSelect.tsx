@@ -1,14 +1,8 @@
-import React, {
-  ReactNode,
-  ChangeEvent,
-  useCallback,
-  useState,
-  useEffect,
-} from "react";
-import workareaStore from "mobx/stores/workareaStore";
-import timezones, { TimezoneInfo } from "data/timezones";
-import { MenuItem, Select, Box, Input } from "@material-ui/core";
-import strings from "locales";
+import { Box, Input, MenuItem, Select } from '@material-ui/core';
+import timezones, { TimezoneInfo } from 'data/timezones';
+import strings from 'locales';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ChangeEvent, ReactNode, useCallback, useEffect, useState } from 'react';
 
 interface Props {
   readonly value: string;
@@ -18,19 +12,14 @@ interface Props {
   onChange(event: ChangeEvent<any>): void;
 }
 
-export const TimezoneSelect: React.FC<Props> = (
-  props: Props
-): React.ReactElement => {
-  const [keyword, setKeyword] = useState<string>("");
-  const [data, setData] = useState<ReadonlyArray<TimezoneInfo>>(timezones);
+export const TimezoneSelect: React.FC<Props> = (props: Props): React.ReactElement => {
+  const [keyword, setKeyword] = useState<string>('');
+  const [data, setData] = useState<readonly TimezoneInfo[]>(timezones);
 
-  const onKeywordChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>): void => {
-      const { value } = event.target;
-      setKeyword(value);
-    },
-    []
-  );
+  const onKeywordChange = useCallback((event: ChangeEvent<HTMLInputElement>): void => {
+    const { value } = event.target;
+    setKeyword(value);
+  }, []);
 
   const stopEvent = useCallback((event: React.SyntheticEvent): void => {
     event.stopPropagation();
@@ -68,8 +57,8 @@ export const TimezoneSelect: React.FC<Props> = (
     >
       <Box className="dropdown-search-box">
         <Input
-          classes={{ root: "dropdown-search-box-input" }}
-          placeholder={"Search"}
+          classes={{ root: 'dropdown-search-box-input' }}
+          placeholder={'Search'}
           fullWidth={true}
           value={keyword}
           onKeyDown={stopEvent}
@@ -90,12 +79,12 @@ export const TimezoneSelect: React.FC<Props> = (
 };
 
 const renderTimezone = (value: unknown): ReactNode => {
-  if (typeof value !== "string" || value === "")
+  if (typeof value !== 'string' || value === '')
     return <span className="disabled-item">{strings.TimezoneUnset}</span>;
 
   return formatTimezone(value);
 };
 
 const formatTimezone = (text: string): string => {
-  return text.replace(/_/g, " ");
+  return text.replace(/_/g, ' ');
 };

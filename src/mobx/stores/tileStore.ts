@@ -1,13 +1,13 @@
-import { Geometry } from "@cib/windows-manager";
-import { BlotterTypes } from "columns/messageBlotter";
-import { action, computed, observable } from "mobx";
-import { DummyContentStore, isPodTileStore } from "mobx/stores/contentStore";
-import { MessageBlotterStore } from "mobx/stores/messageBlotterStore";
-import { PodStore } from "mobx/stores/podStore";
-import React from "react";
-import { Persistable } from "types/persistable";
-import { TileType } from "types/tileType";
-import { Order, OrderStatus } from "types/order";
+import { Geometry } from '@cib/windows-manager';
+import { BlotterTypes } from 'columns/messageBlotter';
+import { action, computed, makeObservable, observable } from 'mobx';
+import { DummyContentStore, isPodTileStore } from 'mobx/stores/contentStore';
+import { MessageBlotterStore } from 'mobx/stores/messageBlotterStore';
+import { PodStore } from 'mobx/stores/podStore';
+import React from 'react';
+import { Order, OrderStatus } from 'types/order';
+import { Persistable } from 'types/persistable';
+import { TileType } from 'types/tileType';
 
 interface IGeometry {
   readonly x: number;
@@ -18,19 +18,16 @@ interface IGeometry {
 
 export class TileStore implements Persistable<TileStore> {
   public readonly id: string;
-  @observable public contentStore:
-    | MessageBlotterStore
-    | PodStore
-    | DummyContentStore;
+  public contentStore: MessageBlotterStore | PodStore | DummyContentStore;
 
-  @observable public type: TileType = TileType.Empty;
+  public type: TileType = TileType.Empty;
   // Persist this for fewer calls to the storage
 
-  @observable public geometry: IGeometry | null = null;
-  @observable public autosize = true;
-  @observable public minimized = false;
-  @observable public docked = true;
-  @observable public scrollable = false;
+  public geometry: IGeometry | null = null;
+  public autosize = true;
+  public minimized = false;
+  public docked = true;
+  public scrollable = false;
 
   public readonly hydrated: boolean = true;
 
@@ -40,6 +37,23 @@ export class TileStore implements Persistable<TileStore> {
     this.type = type;
     this.autosize = type !== TileType.MessageBlotter;
     this.contentStore = TileStore.createContentStore(tileID, type);
+
+    makeObservable(this, {
+      contentStore: observable,
+      type: observable,
+      geometry: observable,
+      autosize: observable,
+      minimized: observable,
+      docked: observable,
+      scrollable: observable,
+      serialized: computed,
+      content: computed,
+      saveGeometry: action.bound,
+      setAutosize: action.bound,
+      setMinimized: action.bound,
+      setDocked: action.bound,
+      hasOrders: computed,
+    });
   }
 
   public static fromJson(data: { [key: string]: any }): TileStore {
@@ -57,7 +71,6 @@ export class TileStore implements Persistable<TileStore> {
     return newStore;
   }
 
-  @computed
   public get serialized(): { [key: string]: any } {
     return {
       content: this.content,
@@ -71,28 +84,23 @@ export class TileStore implements Persistable<TileStore> {
     };
   }
 
-  @computed
   public get content(): { [key: string]: any } {
     const { contentStore } = this;
     return contentStore.serialized;
   }
 
-  @action.bound
-  public saveGeometry(geometry: Geometry) {
+  public saveGeometry(geometry: Geometry): void {
     this.geometry = geometry;
   }
 
-  @action.bound
   public setAutosize(autosize: boolean): boolean {
     return (this.autosize = autosize);
   }
 
-  @action.bound
   public setMinimized(minimized: boolean): boolean {
     return (this.minimized = minimized);
   }
 
-  @action.bound
   public setDocked(docked: boolean): void {
     this.docked = docked;
   }
@@ -110,17 +118,13 @@ export class TileStore implements Persistable<TileStore> {
     return new DummyContentStore();
   }
 
-  @computed
   public get hasOrders(): boolean {
     const { contentStore } = this;
     if (isPodTileStore(contentStore)) {
       const orders = Object.values(contentStore.orders);
-      return orders.some((orders: ReadonlyArray<Order>): boolean =>
+      return orders.some((orders: readonly Order[]): boolean =>
         orders.some((order: Order): boolean => {
-          if (
-            (order.status & OrderStatus.Cancelled) ===
-            OrderStatus.Cancelled
-          ) {
+          if ((order.status & OrderStatus.Cancelled) === OrderStatus.Cancelled) {
             return false;
           }
 
@@ -136,6 +140,4 @@ export class TileStore implements Persistable<TileStore> {
   }
 }
 
-export const TileStoreContext = React.createContext<TileStore>(
-  new TileStore("", TileType.Empty)
-);
+export const TileStoreContext = React.createContext<TileStore>(new TileStore('', TileType.Empty));

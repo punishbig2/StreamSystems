@@ -1,10 +1,10 @@
-import { NumericInput } from "components/NumericInput";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { Chevron } from "components/Table/CellRenderers/Price/chevron";
-import React, { ReactNode, useEffect, useState } from "react";
-import { OrderTypes } from "types/mdEntry";
-import { sizeFormatter } from "utils/sizeFormatter";
-import { xPoints } from "utils/timesPolygon";
+import { NumericInput } from 'components/NumericInput';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { Chevron } from 'components/Table/CellRenderers/Price/chevron';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { sizeFormatter } from 'utils/sizeFormatter';
+import { xPoints } from 'utils/timesPolygon';
 
 interface Props {
   readonly type: OrderTypes;
@@ -18,16 +18,13 @@ interface Props {
   readonly tabIndex?: number;
   readonly readOnly?: boolean;
   readonly onSubmit: (target: HTMLInputElement, value: number | null) => void;
-  readonly onNavigate?: (
-    input: HTMLInputElement,
-    direction: NavigateDirection
-  ) => void;
+  readonly onNavigate?: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 const defaultProps: Props = {
   onCancel: () => null,
   onSubmit: () => null,
-  uid: "",
+  uid: '',
   hideCancelButton: false,
   type: OrderTypes.Invalid,
   value: null,
@@ -38,18 +35,18 @@ const defaultProps: Props = {
 export const Size: React.FC<Props> = (props: Props = defaultProps) => {
   const { value } = props;
   const [internalValue, setInternalValue] = useState<number | null>(value);
-  const classes: string[] = ["times"];
+  const classes: string[] = ['times'];
 
   // If value prop changes, change our internal representation too
   useEffect(() => {
     setInternalValue(value);
   }, [value]);
 
-  const onChange = (value: string | null) => {
+  const onChange = (value: string | null): void => {
     if (value === null) {
       setInternalValue(value);
     } else {
-      const numeric: number = Number(value);
+      const numeric = Number(value);
       if (isNaN(numeric)) {
         setInternalValue(null);
       } else {
@@ -58,11 +55,11 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
     }
   };
 
-  const onSubmit = (input: HTMLInputElement) => {
+  const onSubmit = (input: HTMLInputElement): void => {
     props.onSubmit(input, internalValue);
   };
 
-  const onBlur = () => {
+  const onBlur = (): void => {
     setInternalValue(value);
   };
 
@@ -82,12 +79,12 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
     />,
   ];
 
-  if (props.readOnly) classes.push("readonly");
-  if (props.cancellable) classes.push("clickable");
-  if (props.value === null || props.hideCancelButton) classes.push("empty");
+  if (props.readOnly) classes.push('readonly');
+  if (props.cancellable) classes.push('clickable');
+  if (props.value === null || props.hideCancelButton) classes.push('empty');
 
   const button = (
-    <div key={2} className={classes.join(" ")} onClick={props.onCancel}>
+    <div key={2} className={classes.join(' ')} onClick={props.onCancel}>
       <svg viewBox="0 0 612 792">
         <g>
           <polygon className="st0" points={xPoints} />
@@ -103,7 +100,7 @@ export const Size: React.FC<Props> = (props: Props = defaultProps) => {
     children.unshift(button);
     if (props.chevron) children.push(<Chevron side="right" key={3} />);
   }
-  const layoutClasses: string[] = ["size-layout", "cell"];
-  if (!!props.className) layoutClasses.push(props.className);
-  return <div className={layoutClasses.join(" ")}>{children}</div>;
+  const layoutClasses: string[] = ['size-layout', 'cell'];
+  if (props.className) layoutClasses.push(props.className);
+  return <div className={layoutClasses.join(' ')}>{children}</div>;
 };

@@ -1,14 +1,10 @@
-import { RunActions } from "components/Run/reducer";
-import {
-  buildNewOrder,
-  computeRow,
-  getRowStatus,
-} from "components/Run/reducers/computeRow";
-import { RunEntry } from "components/Run/runEntry";
-import { RunState } from "stateDefs/runState";
-import { PodRow } from "types/podRow";
-import { PodTable } from "types/podTable";
-import deepEqual from "deep-equal";
+import { RunActions } from 'components/Run/reducer';
+import { buildNewOrder, computeRow, getRowStatus } from 'components/Run/reducers/computeRow';
+import { RunEntry } from 'components/Run/runEntry';
+import deepEqual from 'deep-equal';
+import { RunState } from 'stateDefs/runState';
+import { PodRow } from 'types/podRow';
+import { PodTable } from 'types/podTable';
 
 const updateSpread = (state: RunState, row: PodRow, spread: number): PodRow => {
   const { bid, ofr } = row;
@@ -38,14 +34,11 @@ const updateSpread = (state: RunState, row: PodRow, spread: number): PodRow => {
 export const setSpread = (state: RunState, value: number): RunState => {
   const { orders } = state;
   const keys: string[] = Object.keys(orders);
-  const result: PodTable = keys.reduce(
-    (current: PodTable, key: string): PodTable => {
-      return {
-        ...current,
-        [key]: { ...updateSpread(state, orders[key], value) },
-      };
-    },
-    {}
-  );
+  const result: PodTable = keys.reduce((current: PodTable, key: string): PodTable => {
+    return {
+      ...current,
+      [key]: { ...updateSpread(state, orders[key], value) },
+    };
+  }, {});
   return { ...state, orders: result };
 };

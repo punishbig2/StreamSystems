@@ -1,28 +1,22 @@
-import { Typography } from "@material-ui/core";
-import { Globals } from "golbals";
-import { observer } from "mobx-react";
-import {
-  BrokerageStore,
-  BrokerageStoreContext,
-  CommissionRate,
-} from "mobx/stores/brokerageStore";
-import React, { ReactElement, useEffect } from "react";
-import { toClassName } from "utils/conditionalClasses";
-import workareaStore from "mobx/stores/workareaStore";
-import { API } from "API";
-import { BrokerageCommissionResponse } from "types/brokerageCommissionResponse";
+import { Typography } from '@material-ui/core';
+import { API } from 'API';
+import { Globals } from 'golbals';
+import { BrokerageStore, BrokerageStoreContext, CommissionRate } from 'mobx/stores/brokerageStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React, { ReactElement, useEffect } from 'react';
+import { BrokerageCommissionResponse } from 'types/brokerageCommissionResponse';
+import { toClassName } from 'utils/conditionalClasses';
 
 export const CommissionRates: React.FC = observer((): ReactElement | null => {
-  const brokerageStore = React.useContext<BrokerageStore | null>(
-    BrokerageStoreContext
-  );
+  const brokerageStore = React.useContext<BrokerageStore | null>(BrokerageStoreContext);
   if (brokerageStore === null) {
-    throw new Error("no brokerage store found");
+    throw new Error('no brokerage store found');
   }
   const { commissionRates } = brokerageStore;
   const { connected, effectiveFirm } = workareaStore;
 
-  useEffect((): (() => void) | void => {
+  useEffect((): VoidFunction | void => {
     if (!connected) {
       return;
     }
@@ -32,7 +26,7 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
       .execute()
       .then((rates: BrokerageCommissionResponse): void => {
         // noinspection SuspiciousTypeOfGuard
-        if (typeof rates === "string") {
+        if (typeof rates === 'string') {
           brokerageStore.setRates({});
           return;
         }
@@ -59,15 +53,11 @@ export const CommissionRates: React.FC = observer((): ReactElement | null => {
         return (
           <div
             key={region}
-            className={toClassName("entry", {
-              "has-discount": entry.hasDiscount,
+            className={toClassName('entry', {
+              'has-discount': entry.hasDiscount,
             })}
           >
-            <Typography
-              variant="subtitle1"
-              color="textSecondary"
-              className="region"
-            >
+            <Typography variant="subtitle1" color="textSecondary" className="region">
               {region}
             </Typography>
             <Typography color="textPrimary" className="value">

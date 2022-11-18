@@ -1,32 +1,29 @@
-import { API, Task } from "API";
-import { RunRowProxy } from "components/Run/helpers/runRowProxy";
-import { Row } from "components/Run/row";
-import { Table } from "components/Table";
-import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
-import strings from "locales";
-import { observer } from "mobx-react";
-import {
-  RunWindowStore,
-  RunWindowStoreContext,
-} from "mobx/stores/runWindowStore";
-import React, { ReactElement, useEffect } from "react";
-import { Width } from "types/brokerageWidths";
-import { BrokerageWidthsResponse } from "types/brokerageWidthsResponse";
-import { OrderTypes } from "types/mdEntry";
-import { Order, OrderStatus } from "types/order";
-import { PodRow } from "types/podRow";
-import { SortDirection } from "types/sortDirection";
-import { createColumnsWithStore } from "./columnCreator";
+import { API, Task } from 'API';
+import { createColumnsWithStore } from 'components/Run/columnCreator';
+import { RunRowProxy } from 'components/Run/helpers/runRowProxy';
+import { Row } from 'components/Run/row';
+import { Table } from 'components/Table';
+import { ExtendedTableColumn, TableColumn } from 'components/Table/tableColumn';
+import strings from 'locales';
+import { RunWindowStore, RunWindowStoreContext } from 'mobx/stores/runWindowStore';
+import { observer } from 'mobx-react';
+import React, { ReactElement, useEffect } from 'react';
+import { Width } from 'types/brokerageWidths';
+import { BrokerageWidthsResponse } from 'types/brokerageWidthsResponse';
+import { OrderTypes } from 'types/mdEntry';
+import { Order, OrderStatus } from 'types/order';
+import { PodRow } from 'types/podRow';
+import { SortDirection } from 'types/sortDirection';
 
 interface Props {
   readonly symbol: string;
   readonly strategy: string;
-  readonly tenors: ReadonlyArray<string>;
+  readonly tenors: readonly string[];
   readonly minimumSize: number;
   readonly defaultSize: number;
-  readonly orders: { [tenor: string]: ReadonlyArray<Order> };
+  readonly orders: { [tenor: string]: readonly Order[] };
   readonly onClose: () => void;
-  readonly onSubmit: (entries: ReadonlyArray<Order>) => void;
+  readonly onSubmit: (entries: readonly Order[]) => void;
 }
 
 const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
@@ -40,31 +37,28 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
   };
 
   useEffect(() => {
-    const task: Task<BrokerageWidthsResponse> = API.getBrokerageWidths(
-      symbol,
-      strategy
-    );
+    const task: Task<BrokerageWidthsResponse> = API.getBrokerageWidths(symbol, strategy);
     const promise: Promise<BrokerageWidthsResponse> = task.execute();
     store.setBrokerageWidths([]);
     promise
       .then((response: BrokerageWidthsResponse) => {
         store.setBrokerageWidths([
           {
-            type: "gold",
+            type: 'gold',
             value: response[0].gold,
           },
           {
-            type: "silver",
+            type: 'silver',
             value: response[0].silver,
           },
           {
-            type: "bronze",
+            type: 'bronze',
             value: response[0].bronze,
           },
         ]);
       })
       .catch((error: any) => {
-        if (error === "aborted") {
+        if (error === 'aborted') {
           return;
         }
         console.warn(error);
@@ -72,7 +66,7 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
     return () => task.cancel();
   }, [store, strategy, symbol]);
 
-  useEffect((): (() => void) | void => {
+  useEffect((): VoidFunction | void => {
     const task = store.initialize(symbol, strategy, tenors, orders);
     task.execute().catch(console.warn);
     return (): void => {
@@ -84,9 +78,11 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
     store.setDefaultSize(defaultSize);
   }, [defaultSize, store]);
 
-  const activateCancelledOrders = () => {
-    if (!rows) return;
-    const values: ReadonlyArray<PodRow> = Object.values(rows);
+  const activateCancelledOrders = (): void => {
+    if (!rows) {
+      return;
+    }
+    const values: readonly PodRow[] = Object.values(rows);
 
     values.forEach((row: PodRow): void => {
       const { ofr, bid } = row;
@@ -106,11 +102,11 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
     store.updateSelection();
   }, [rows, defaultBidSize, defaultOfrSize, store]);
 
-  const isSubmitEnabled = () => {
+  const isSubmitEnabled = (): boolean => {
     return selection.length > 0;
   };
 
-  const onSubmit = () => {
+  const onSubmit = (): void => {
     props.onSubmit(selection);
   };
 
@@ -131,18 +127,12 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
 
   // This builds the set of columns of the run depth with it's callbacks
   const columns = React.useMemo(
-    (): ReadonlyArray<ExtendedTableColumn> =>
-      createColumnsWithStore(
-        store,
-        minimumSize,
-        defaultSize,
-        defaultBidSize,
-        defaultOfrSize
-      ).map(
+    (): readonly ExtendedTableColumn[] =>
+      createColumnsWithStore(store, minimumSize, defaultSize, defaultBidSize, defaultOfrSize).map(
         (column: TableColumn): ExtendedTableColumn => ({
           ...column,
           sortDirection: SortDirection.None,
-          filter: "",
+          filter: '',
         })
       ),
     [store, defaultBidSize, defaultOfrSize, minimumSize, defaultSize]
@@ -157,29 +147,27 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
           <div className="item">{props.strategy}</div>
         </div>
         <div className="commission-rates">
-          {brokerageWidths.map(
-            (width: Width<any> | undefined): ReactElement | null => {
-              if (width === undefined) return null;
-              return (
-                <button
-                  key={width.type}
-                  className={"rate " + width.type}
-                  onClick={() => setSpread(width.value)}
-                  type="button"
-                  disabled={store.isLoading}
-                >
-                  {width.value}
-                </button>
-              );
-            }
-          )}
+          {brokerageWidths.map((width: Width<any> | undefined): ReactElement | null => {
+            if (width === undefined) return null;
+            return (
+              <button
+                key={width.type}
+                className={'rate ' + width.type}
+                onClick={() => setSpread(width.value)}
+                type="button"
+                disabled={store.isLoading}
+              >
+                {width.value}
+              </button>
+            );
+          })}
         </div>
       </div>
       <Table
         columns={columns}
         rows={rows}
         renderRow={renderRow}
-        className={(store.isLoading ? "loading" : "") + " run-table"}
+        className={(store.isLoading ? 'loading' : '') + ' run-table'}
       />
       <div className="modal-buttons">
         <button
@@ -193,11 +181,7 @@ const Run: React.FC<Props> = observer((props: Props): React.ReactElement => {
           <button className="cancel" onClick={props.onClose}>
             {strings.Close}
           </button>
-          <button
-            className="success"
-            onClick={onSubmit}
-            disabled={!isSubmitEnabled()}
-          >
+          <button className="success" onClick={onSubmit} disabled={!isSubmitEnabled()}>
             {strings.Submit}
           </button>
         </div>

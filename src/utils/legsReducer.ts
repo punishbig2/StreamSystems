@@ -1,13 +1,13 @@
-import { isTenor } from "components/FormField/helpers";
-import { Leg } from "components/MiddleOffice/types/leg";
-import { DealEntry } from "types/dealEntry";
-import { tryToNumber } from "utils/commonUtils";
-import { isNumeric } from "utils/isNumeric";
+import { isTenor } from 'components/FormField/helpers';
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { DealEntry } from 'types/dealEntry';
+import { tryToNumber } from 'utils/commonUtils';
+import { isNumeric } from 'utils/isNumeric';
 
 const isNotional = (value: any): value is number | undefined | null => {
   return (
-    typeof value === "number" ||
-    (typeof value === "string" && isNumeric(value)) ||
+    typeof value === 'number' ||
+    (typeof value === 'string' && isNumeric(value)) ||
     value === undefined ||
     value === null
   );
@@ -23,7 +23,7 @@ export const legsReducer =
     const key: keyof DealEntry = field as keyof DealEntry;
     const value = partial[key];
     switch (key) {
-      case "tenor1":
+      case 'tenor1':
         if (isTenor(value)) {
           return {
             ...leg,
@@ -32,7 +32,7 @@ export const legsReducer =
           };
         }
         break;
-      case "tenor2":
+      case 'tenor2':
         if (index === 1) {
           if (isTenor(value)) {
             return {
@@ -43,7 +43,7 @@ export const legsReducer =
           }
         }
         break;
-      case "not1":
+      case 'not1':
         if (index === 0) {
           if (isNotional(value)) {
             return { ...leg, notional: value };
@@ -56,30 +56,27 @@ export const legsReducer =
         } else {
           return leg;
         }
-      case "not2":
+      case 'not2':
         if (index !== 1) return leg;
         return {
           ...leg,
           notional: isNumeric(partial[key]) ? partial[key] : entry.not1,
         };
-      case "premstyle":
+      case 'premstyle':
         return { ...leg };
-      case "deltastyle":
+      case 'deltastyle':
         return { ...leg };
-      case "vol":
-        if (
-          (typeof value === "string" || typeof value === "number") &&
-          isNumeric(value)
-        ) {
+      case 'vol':
+        if ((typeof value === 'string' || typeof value === 'number') && isNumeric(value)) {
           return { ...leg, vol: value };
         } else {
           return leg;
         }
-      case "dealstrike":
-        if (typeof value === "string") {
+      case 'dealstrike':
+        if (typeof value === 'string') {
           const numeric = tryToNumber(value);
           return { ...leg, strike: numeric };
-        } else if (typeof partial[key] === "number") {
+        } else if (typeof partial[key] === 'number') {
           return { ...leg, strike: partial[key] };
         } else {
           return { ...leg, strike: partial[key] };

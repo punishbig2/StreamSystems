@@ -1,8 +1,8 @@
-import { Tile, Geometry } from "@cib/windows-manager";
-import { TileStore } from "mobx/stores/tileStore";
-import React from "react";
-import { idealBlotterHeight } from "utils/idealBlotterHeight";
-import { runInNextLoop } from "utils/runInNextLoop";
+import { Geometry, Tile } from '@cib/windows-manager';
+import { TileStore } from 'mobx/stores/tileStore';
+import React from 'react';
+import { idealBlotterHeight } from 'utils/idealBlotterHeight';
+import { runInNextLoop } from 'utils/runInNextLoop';
 
 export const useHydrator = (tile: Tile | null, store: TileStore): boolean => {
   const [ready, setReady] = React.useState<boolean>(false);
@@ -22,14 +22,10 @@ export const useHydrator = (tile: Tile | null, store: TileStore): boolean => {
         }
         tile.moveToBestPosition();
         // This way, it does remember where it was if we refresh
-        store.saveGeometry(
-          Geometry.fromPositionAndSize(tile.position, tile.size)
-        );
+        store.saveGeometry(Geometry.fromPositionAndSize(tile.position, tile.size));
         setReady(true);
       } else {
-        tile.setGeometry(
-          new Geometry(geometry.x, geometry.y, geometry.width, geometry.height)
-        );
+        tile.setGeometry(new Geometry(geometry.x, geometry.y, geometry.width, geometry.height));
         setReady(true);
       }
     });

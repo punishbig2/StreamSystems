@@ -1,5 +1,5 @@
-import { Message } from "types/message";
+import { Message } from 'types/message';
 
 export interface MessageBlotterState {
-  readonly entries: ReadonlyArray<Message>;
+  readonly entries: readonly Message[];
 }

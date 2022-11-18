@@ -7,9 +7,9 @@ export interface WorkSchedule {
 }
 
 export const invalidWorkSchedule: WorkSchedule = {
-  end_of_day_time: "00:00:00",
-  trading_start_time: "00:00:00",
-  trading_end_time: "00:00:00",
+  end_of_day_time: '00:00:00',
+  trading_start_time: '00:00:00',
+  trading_end_time: '00:00:00',
   startDay: 0,
   endDay: 7,
 };

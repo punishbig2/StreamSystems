@@ -1,10 +1,5 @@
-import React, {
-  ReactElement,
-  PropsWithChildren,
-  useEffect,
-  useState,
-} from "react";
-import ReactDOM from "react-dom";
+import React, { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 
 interface OwnProps {
   target: HTMLDivElement | null;
@@ -20,8 +15,8 @@ export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
     if (target === null) return;
     const bounds: ClientRect = target.getBoundingClientRect();
     setStyle({
-      left: bounds.right - 8 + "px",
-      top: bounds.bottom - 8 + "px",
+      left: bounds.right - 8 + 'px',
+      top: bounds.bottom - 8 + 'px',
     });
   }, [target]);
   if (target === null) return null;
@@ -32,7 +27,7 @@ export const Tooltip: React.FC<Props> = (props: Props): ReactElement | null => {
     </div>
   );
 
-  const container: HTMLElement | null = document.getElementById("tooltips");
+  const container: HTMLElement | null = document.getElementById('tooltips');
   if (container === null) return null;
 
   return ReactDOM.createPortal(element, container);

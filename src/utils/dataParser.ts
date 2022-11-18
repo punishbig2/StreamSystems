@@ -1,27 +1,19 @@
-import { MDEntry, OrderTypes } from "types/mdEntry";
-import { Order } from "types/order";
-import { PodRow, PodRowStatus } from "types/podRow";
-import { PodTable } from "types/podTable";
-import { User } from "types/user";
-import { W } from "types/w";
+import { MDEntry, OrderTypes } from 'types/mdEntry';
+import { Order } from 'types/order';
+import { PodRow, PodRowStatus } from 'types/podRow';
+import { PodTable } from 'types/podTable';
+import { User } from 'types/user';
+import { W } from 'types/w';
 
-export const mdEntryToTOBEntry = (w: W, user: User) => (
-  entry: MDEntry,
-  fallbackType: OrderTypes
-): Order => {
-  if (entry) {
-    return Order.fromWAndMDEntry(w, entry, user);
-  } else {
-    return new Order(
-      w.Tenor,
-      w.Symbol,
-      w.Strategy,
-      user.email,
-      null,
-      fallbackType
-    );
-  }
-};
+export const mdEntryToTOBEntry =
+  (w: W, user: User) =>
+  (entry: MDEntry, fallbackType: OrderTypes): Order => {
+    if (entry) {
+      return Order.fromWAndMDEntry(w, entry, user);
+    } else {
+      return new Order(w.Tenor, w.Symbol, w.Strategy, user.email, null, fallbackType);
+    }
+  };
 
 const reorder = (w: W): [MDEntry, MDEntry] => {
   const entries: MDEntry[] = w.Entries !== undefined ? w.Entries : [];
@@ -33,16 +25,16 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
     return [
       {
         MDEntryType: OrderTypes.Bid,
-        MDEntryPx: "0",
-        MDEntrySize: "0",
-        MDEntryOriginator: "",
+        MDEntryPx: '0',
+        MDEntrySize: '0',
+        MDEntryOriginator: '',
         MDEntryTime: now.toString(),
       },
       {
         MDEntryType: OrderTypes.Ofr,
-        MDEntryPx: "0",
-        MDEntrySize: "0",
-        MDEntryOriginator: "",
+        MDEntryPx: '0',
+        MDEntrySize: '0',
+        MDEntryOriginator: '',
         MDEntryTime: now.toString(),
       },
     ];
@@ -50,9 +42,9 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
     return [
       {
         MDEntryType: OrderTypes.Bid,
-        MDEntryPx: "0",
-        MDEntrySize: "0",
-        MDEntryOriginator: "",
+        MDEntryPx: '0',
+        MDEntrySize: '0',
+        MDEntryOriginator: '',
         MDEntryTime: now.toString(),
       },
       e2,
@@ -62,9 +54,9 @@ const reorder = (w: W): [MDEntry, MDEntry] => {
       e1,
       {
         MDEntryType: OrderTypes.Ofr,
-        MDEntryPx: "0",
-        MDEntrySize: "0",
-        MDEntryOriginator: "",
+        MDEntryPx: '0',
+        MDEntrySize: '0',
+        MDEntryOriginator: '',
         MDEntryTime: now.toString(),
       },
     ];
@@ -92,12 +84,8 @@ export const toPodRow = (w: W, user: User): PodRow => {
 };
 
 export const orderArrayToPodTableReducer = (table: PodTable, order: Order) => {
-  const currentBid: Order = table[order.tenor]
-    ? table[order.tenor].bid
-    : ({} as Order);
-  const currentOfr: Order = table[order.tenor]
-    ? table[order.tenor].ofr
-    : ({} as Order);
+  const currentBid: Order = table[order.tenor] ? table[order.tenor].bid : ({} as Order);
+  const currentOfr: Order = table[order.tenor] ? table[order.tenor].ofr : ({} as Order);
   table[order.tenor] = {
     id: order.tenor,
     tenor: order.tenor,

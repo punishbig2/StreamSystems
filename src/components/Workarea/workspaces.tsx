@@ -1,25 +1,22 @@
-import { MiddleOffice } from "components/MiddleOffice";
-import { Welcome } from "components/weolcome";
-import { TradingWorkspace } from "components/TradingWorkspace";
-import { observer } from "mobx-react";
-import { MiddleOfficeStoreContext } from "mobx/stores/middleOfficeStore";
-import { TradingWorkspaceStoreContext } from "mobx/stores/tradingWorkspaceStore";
-import workarea, {
-  isMiddleOfficeWorkspace,
-  isTradingWorkspace,
-} from "mobx/stores/workareaStore";
-import React from "react";
-import { WorkareaStatus } from "stateDefs/workareaState";
-import { Symbol } from "types/symbol";
-import { Workspace } from "types/workspace";
+import { MiddleOffice } from 'components/MiddleOffice';
+import { TradingWorkspace } from 'components/TradingWorkspace';
+import { Welcome } from 'components/weolcome';
+import { MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import { TradingWorkspaceStoreContext } from 'mobx/stores/tradingWorkspaceStore';
+import workarea, { isMiddleOfficeWorkspace, isTradingWorkspace } from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React from 'react';
+import { WorkareaStatus } from 'stateDefs/workareaState';
+import { FXSymbol } from 'types/FXSymbol';
+import { Workspace } from 'types/workspace';
 
 export const Workspaces: React.FC = observer((): React.ReactElement | null => {
   const { workspaces, currentWorkspaceIndex, user } = workarea;
   if (workarea.status === WorkareaStatus.Welcome) return <Welcome />;
   if (user === null) return null;
-  const symbols: ReadonlyArray<Symbol> = (() => {
+  const symbols: readonly FXSymbol[] = (() => {
     const { symbols, user } = workarea;
-    return symbols.filter((symbol: Symbol): boolean => {
+    return symbols.filter((symbol: FXSymbol): boolean => {
       const { regions } = user;
       if (regions === undefined) return false;
       return regions.includes(symbol.ccyGroup);
@@ -29,7 +26,7 @@ export const Workspaces: React.FC = observer((): React.ReactElement | null => {
   const elements = workspaces.map(
     (workspace: Workspace, index: number): React.ReactElement | null => {
       const style = {
-        display: index === currentWorkspaceIndex ? "initial" : "none",
+        display: index === currentWorkspaceIndex ? 'initial' : 'none',
       };
 
       const key = index.toString();

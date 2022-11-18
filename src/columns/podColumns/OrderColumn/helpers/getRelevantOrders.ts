@@ -1,11 +1,8 @@
-import { Order } from "types/order";
-import { OrderTypes } from "types/mdEntry";
-import { orderSorter } from "components/PodTile/helpers";
+import { orderSorter } from 'components/PodTile/helpers';
+import { OrderTypes } from 'types/mdEntry';
+import { Order } from 'types/order';
 
-export const getRelevantOrders = (
-  orders: ReadonlyArray<Order>,
-  type: OrderTypes
-): ReadonlyArray<Order> => {
+export const getRelevantOrders = (orders: readonly Order[], type: OrderTypes): readonly Order[] => {
   if (!orders) return [];
   const filtered = orders.filter((order: Order) => order.type === type);
   filtered.sort(orderSorter(type));

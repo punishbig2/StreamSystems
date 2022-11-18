@@ -1,7 +1,7 @@
-import { Leg } from "components/MiddleOffice/types/leg";
+import { Leg } from 'components/MiddleOffice/types/leg';
 
 export interface PricingMessage {
   readonly dealId: string;
-  readonly legs: ReadonlyArray<Leg>;
+  readonly legs: readonly Leg[];
   readonly useremail: string | null;
 }

@@ -1,13 +1,11 @@
-import { Theme, useTheme } from "@material-ui/core";
-import React from "react";
+import { Theme, useTheme } from '@material-ui/core';
+import React from 'react';
 
 interface Props {
   size?: number;
 }
 
-export const LdsSpinner: React.FC<Props> = ({
-  size = 80,
-}: Props): React.ReactElement => {
+export const LdsSpinner: React.FC<Props> = ({ size = 80 }: Props): React.ReactElement => {
   const theme: Theme = useTheme();
   const array: number[] = new Array(10);
   // Just to make it a real array
@@ -20,8 +18,8 @@ export const LdsSpinner: React.FC<Props> = ({
   return (
     <div
       style={{
-        position: "relative",
-        display: "block",
+        position: 'relative',
+        display: 'block',
         width: size,
         height: size,
       }}
@@ -38,20 +36,18 @@ export const LdsSpinner: React.FC<Props> = ({
           >
             <div
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: -size / 4 + width,
                 height: height,
                 left: (size - width) / 2,
                 width: width,
                 background: theme.palette.text.primary,
-                animationName: "lds-spinner",
+                animationName: 'lds-spinner',
                 animationDuration: `${duration}s`,
-                animationTimingFunction: "linear",
-                animationIterationCount: "infinite",
-                transform: "none",
-                animationDelay: `${
-                  (index / (array.length - 1) - 1) * duration
-                }s`,
+                animationTimingFunction: 'linear',
+                animationIterationCount: 'infinite',
+                transform: 'none',
+                animationDelay: `${(index / (array.length - 1) - 1) * duration}s`,
               }}
             />
           </div>

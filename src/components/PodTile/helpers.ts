@@ -1,12 +1,12 @@
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { skipTabIndexAll } from "utils/skipTab";
-import { Order } from "types/order";
-import { PodTable } from "types/podTable";
-import { priceFormatter } from "utils/priceFormatter";
-import { OrderTypes } from "types/mdEntry";
-import { PodRowStatus } from "types/podRow";
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { OrderTypes } from 'types/mdEntry';
+import { Order } from 'types/order';
+import { PodRowStatus } from 'types/podRow';
+import { PodTable } from 'types/podTable';
+import { priceFormatter } from 'utils/priceFormatter';
+import { skipTabIndexAll } from 'utils/skipTab';
 
-export const orderSorter = (type: OrderTypes) => {
+export const orderSorter = (type: OrderTypes): ((o1: Order, o2: Order) => number) => {
   const sign: number = type === OrderTypes.Bid ? -1 : 1;
   return (o1: Order, o2: Order): number => {
     if (o1.size === null) return Number.MAX_SAFE_INTEGER;
@@ -20,15 +20,12 @@ export const orderSorter = (type: OrderTypes) => {
   };
 };
 
-export const convertToDepth = (
-  orders: ReadonlyArray<Order>,
-  tenor: string | null
-): PodTable => {
+export const convertToDepth = (orders: readonly Order[], tenor: string | null): PodTable => {
   if (orders === undefined || tenor === null) return {};
-  const bids: Array<Order> = orders.filter(
+  const bids: Order[] = orders.filter(
     (order: Order) => order.type === OrderTypes.Bid && order.size !== null
   );
-  const ofrs: Array<Order> = orders.filter(
+  const ofrs: Order[] = orders.filter(
     (order: Order) => order.type === OrderTypes.Ofr && order.size !== null
   );
   // Sort them
@@ -51,19 +48,16 @@ export const convertToDepth = (
   return depth;
 };
 
-export const onNavigate = (
-  input: HTMLInputElement,
-  direction: NavigateDirection
-) => {
+export const onNavigate = (input: HTMLInputElement, direction: NavigateDirection): void => {
   switch (direction) {
     case NavigateDirection.Up:
-      skipTabIndexAll(input, -5, "last-row");
+      skipTabIndexAll(input, -5, 'last-row');
       break;
     case NavigateDirection.Left:
       skipTabIndexAll(input, -1);
       break;
     case NavigateDirection.Down:
-      skipTabIndexAll(input, 5, "first-row");
+      skipTabIndexAll(input, 5, 'first-row');
       break;
     case NavigateDirection.Right:
       skipTabIndexAll(input, 1);

@@ -1,12 +1,12 @@
 const { location } = window;
 const hostname: string = location.hostname;
-const baseUrl: string = location.protocol + "//" + hostname;
+const baseUrl: string = location.protocol + '//' + hostname;
 
 const IP_ADDRESS_REGEXP =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 const isLocalUrl = (hostname: string): boolean => {
-  if (hostname === "localhost") {
+  if (hostname === 'localhost') {
     return true;
   }
 
@@ -15,9 +15,9 @@ const isLocalUrl = (hostname: string): boolean => {
 
 const accountHostname = isLocalUrl(hostname)
   ? `${hostname}:8822`
-  : hostname.replace("trading", "account");
+  : hostname.replace('trading', 'account');
 
-const accountUrl: string = `${location.protocol}//${accountHostname}`;
+const accountUrl = `${location.protocol}//${accountHostname}`;
 
 export default {
   BackendUrl: baseUrl,
@@ -27,7 +27,7 @@ export default {
   PrePricerUrl: `${baseUrl}:4020/api`,
   RequestTimeout: 10000,
   IdleTimeout: -1,
-  GetRoleEndpoint: accountUrl + "/api/user/getrole",
+  GetRoleEndpoint: accountUrl + '/api/user/getrole',
   RedirectTimeout: -1,
   Environment: process.env.REACT_APP_ENV,
 };

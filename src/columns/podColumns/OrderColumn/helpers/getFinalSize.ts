@@ -1,4 +1,4 @@
-import { OrderStatus } from "types/order";
+import { OrderStatus } from 'types/order';
 
 export const getFinalSize = (
   status: OrderStatus,
@@ -14,7 +14,6 @@ export const getFinalSize = (
   // Otherwise use current order's size
   if (orderSize !== null) return orderSize;
   // Finally use the default size
-  if (defaultSize === undefined)
-    throw new Error("impossible to determine order creation size");
+  if (defaultSize === undefined) throw new Error('impossible to determine order creation size');
   return defaultSize;
 };

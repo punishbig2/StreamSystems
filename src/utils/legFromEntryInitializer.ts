@@ -1,15 +1,15 @@
-import { Leg } from "components/MiddleOffice/types/leg";
-import { DealEntry } from "types/dealEntry";
-import { Sides } from "types/sides";
-import { Symbol } from "types/symbol";
-import { InvalidTenor, Tenor } from "types/tenor";
-import { getTenor } from "utils/dealUtils";
-import { coalesce } from "./commonUtils";
+import { Leg } from 'components/MiddleOffice/types/leg';
+import { DealEntry } from 'types/dealEntry';
+import { FXSymbol } from 'types/FXSymbol';
+import { Sides } from 'types/sides';
+import { InvalidTenor, Tenor } from 'types/tenor';
+import { coalesce } from 'utils/commonUtils';
+import { getTenor } from 'utils/dealUtils';
 
 export const initializeLegFromEntry = async (
   entry: DealEntry,
   originalLeg: Leg,
-  symbol: Symbol,
+  symbol: FXSymbol,
   legIndex: number
 ): Promise<Partial<Leg>> => {
   const tenor: Tenor | InvalidTenor = getTenor(entry, legIndex);

@@ -1,6 +1,6 @@
-import { RunState } from "stateDefs/runState";
-import { OrderTypes } from "types/mdEntry";
-import { PodRow, PodRowStatus } from "types/podRow";
+import { RunState } from 'stateDefs/runState';
+import { OrderTypes } from 'types/mdEntry';
+import { PodRow, PodRowStatus } from 'types/podRow';
 
 export const deactivateOrder = (
   state: RunState,
@@ -9,7 +9,7 @@ export const deactivateOrder = (
   const { original, orders } = state;
   const originalRow: PodRow = original[rowID];
   if (originalRow === undefined) return state;
-  const key: "ofr" | "bid" = type === OrderTypes.Bid ? "bid" : "ofr";
+  const key: 'ofr' | 'bid' = type === OrderTypes.Bid ? 'bid' : 'ofr';
   const { [key]: order } = originalRow;
   return {
     ...state,

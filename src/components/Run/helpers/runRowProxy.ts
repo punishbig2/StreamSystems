@@ -1,9 +1,8 @@
-import { Order, OrderStatus } from "types/order";
-import { PodRow } from "types/podRow";
+import { Order, OrderStatus } from 'types/order';
+import { PodRow } from 'types/podRow';
 
 const getPrice = (order: Order): number | null => {
-  if ((order.status & OrderStatus.Active) === OrderStatus.Active)
-    return order.price;
+  if ((order.status & OrderStatus.Active) === OrderStatus.Active) return order.price;
   return null;
 };
 
@@ -32,9 +31,9 @@ const getSpread = (row: PodRow): number | null => {
 export const RunRowProxy = {
   get: (target: PodRow, name: keyof PodRow): any => {
     switch (name) {
-      case "mid":
+      case 'mid':
         return getMid(target);
-      case "spread":
+      case 'spread':
         return getSpread(target);
       default:
         return target[name];

@@ -1,13 +1,13 @@
-import { getOrderStatusClass } from "components/Table/CellRenderers/Price/utils/getOrderStatusClass";
-import { RunWindowStore } from "mobx/stores/runWindowStore";
-import { Order, OrderStatus } from "types/order";
-import React, { useEffect, useState, useCallback, ReactNode } from "react";
-import { NumericInput, TabDirection } from "components/NumericInput";
-import { sizeFormatter } from "utils/sizeFormatter";
-import { OrderTypes } from "types/mdEntry";
-import { usePrevious } from "hooks/usePrevious";
-import { NavigateDirection } from "components/NumericInput/navigateDirection";
-import { $$ } from "utils/stringPaster";
+import { NumericInput, TabDirection } from 'components/NumericInput';
+import { NavigateDirection } from 'components/NumericInput/navigateDirection';
+import { getOrderStatusClass } from 'components/Table/CellRenderers/Price/utils/getOrderStatusClass';
+import { usePrevious } from 'hooks/usePrevious';
+import { RunWindowStore } from 'mobx/stores/runWindowStore';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import { OrderTypes } from 'types/mdEntry';
+import { Order, OrderStatus } from 'types/order';
+import { sizeFormatter } from 'utils/sizeFormatter';
+import { $$ } from 'utils/stringPaster';
 
 interface Props {
   readonly defaultValue: number;
@@ -22,15 +22,8 @@ interface Props {
     tabDirection: TabDirection,
     action?: string
   ) => void;
-  readonly onChange: (
-    id: string,
-    value: number | null,
-    changed: boolean
-  ) => void;
-  readonly onNavigate: (
-    input: HTMLInputElement,
-    direction: NavigateDirection
-  ) => void;
+  readonly onChange: (id: string, value: number | null, changed: boolean) => void;
+  readonly onNavigate: (input: HTMLInputElement, direction: NavigateDirection) => void;
 }
 
 enum ActivationStatus {
@@ -43,9 +36,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
   const [locallyModified, setLocallyModified] = useState<boolean>(false);
   const { order, defaultValue, onChange, id, minimumSize, value } = props;
 
-  const [internalValue, setInternalValue] = useState<string>(
-    sizeFormatter(value)
-  );
+  const [internalValue, setInternalValue] = useState<string>(sizeFormatter(value));
 
   useEffect(() => {
     setLocallyModified(false);
@@ -63,7 +54,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     setLocallyModified(false);
   }, [defaultValue, internalValue, locallyModified, value]);
 
-  useEffect((): (() => void) => {
+  useEffect((): VoidFunction => {
     const key = RunWindowStore.orderTypeToRowKey(order.type);
 
     document.addEventListener(`OrderActivationChanged${key}`, reset);
@@ -77,11 +68,11 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     if (value !== null) {
       setInternalValue(sizeFormatter(value));
     } else {
-      setInternalValue("");
+      setInternalValue('');
     }
   }, [value]);
 
-  const onChangeWrapper = (value: string | null) => {
+  const onChangeWrapper = (value: string | null): void => {
     if (!locallyModified) setLocallyModified(true);
     if (value === null) {
       setInternalValue(sizeFormatter(order.size || defaultValue));
@@ -95,7 +86,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
       if (value === null) {
         onChange(id, value, true);
       } else {
-        const numeric: number = Number(value);
+        const numeric = Number(value);
         if (numeric < minimumSize) {
           onChange(id, minimumSize, true);
         } else {
@@ -106,15 +97,15 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     [onChange, id, minimumSize]
   );
 
-  const tabOut = (input: HTMLInputElement, tabDirection: TabDirection) => {
+  const tabOut = (input: HTMLInputElement, tabDirection: TabDirection): void => {
     if (props.onTabbedOut) {
-      props.onTabbedOut(input, tabDirection, $$(order.type, "size"));
+      props.onTabbedOut(input, tabDirection, $$(order.type, 'size'));
     }
   };
 
-  const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection) => {
+  const onSubmit = (input: HTMLInputElement, tabDirection: TabDirection): void => {
     if (locallyModified) {
-      const numeric: number = Number(internalValue);
+      const numeric = Number(internalValue);
       if (!isNaN(numeric)) {
         if (numeric < props.minimumSize) {
           input.focus();
@@ -152,7 +143,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const onActivateOrder = () => {
+  const onActivateOrder = (): void => {
     const status: ActivationStatus = getActivationStatus();
     if (status === ActivationStatus.Active) {
       props.onDeactivateOrder(props.id, order.type);
@@ -161,7 +152,7 @@ export const RunSize: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const getActivationButton = () => {
+  const getActivationButton = (): React.ReactElement | null => {
     switch (getActivationStatus()) {
       case ActivationStatus.Inactive:
         return (
@@ -190,31 +181,34 @@ export const RunSize: React.FC<Props> = (props: Props) => {
 
   const displayValue: string = (() => {
     if (locallyModified) return internalValue;
-    if (order.price === null) return "";
+    if (order.price === null) return '';
     if (
       (order.status & OrderStatus.Cancelled) !== 0 &&
       (order.status & OrderStatus.SizeEdited) === 0
     )
-      return "";
+      return '';
     return internalValue;
   })();
 
   const placeholder: string = (() => {
-    if (order.price === null) return "";
+    if (order.price === null) return '';
     return internalValue;
   })();
 
-  const onBlurEnsureMinimumSize = () => {
-    if (Number(internalValue) >= minimumSize) return;
+  const onBlurEnsureMinimumSize = (): void => {
+    if (Number(internalValue) >= minimumSize) {
+      return;
+    }
+
     setInternalValue(sizeFormatter(minimumSize));
   };
 
   const items: ReactNode[] = [
     <NumericInput
-      id={$$("run-size-", order.uid(), order.type)}
+      id={$$('run-size-', order.uid(), order.type)}
       key={0}
       tabIndex={-1}
-      className={getOrderStatusClass(status, "size")}
+      className={getOrderStatusClass(status, 'size')}
       placeholder={placeholder}
       type="size"
       value={displayValue}

@@ -1,41 +1,37 @@
-import { API } from "API";
-import { action, autorun, computed, observable } from "mobx";
-import workareaStore from "mobx/stores/workareaStore";
-import React from "react";
-import { playBeep } from "signalR/helpers";
-import { ExecTypes, Message } from "types/message";
-import { hasRole, Role } from "types/role";
-import { User } from "types/user";
-import {
-  isAcceptableFill,
-  isMyMessage,
-  sortByTimeDescending,
-} from "utils/messageUtils";
-import userProfileStore from "mobx/stores/userPreferencesStore";
-import signalRClient from "signalR/signalRClient";
-import { parseTime } from "utils/timeUtils";
+import { API } from 'API';
+import { action, autorun, computed, makeObservable, observable } from 'mobx';
+import userProfileStore from 'mobx/stores/userPreferencesStore';
+import workareaStore from 'mobx/stores/workareaStore';
+import React from 'react';
+import { playBeep } from 'signalR/helpers';
+import signalRClient from 'signalR/signalRClient';
+import { ExecTypes, Message } from 'types/message';
+import { hasRole, Role } from 'types/role';
+import { User } from 'types/user';
+import { isAcceptableFill, isMyMessage, sortByTimeDescending } from 'utils/messageUtils';
+import { parseTime } from 'utils/timeUtils';
 
 class MessagesStream {
-  private listener: (message: ReadonlyArray<Message>) => void = (): void => {};
+  private listener: (message: readonly Message[]) => void = (): void => {};
 
   constructor() {
     signalRClient.setMessagesListener(this.onMessage);
   }
 
-  private dispatchExecutedMessageEvent(message: Message) {
+  private dispatchExecutedMessageEvent(message: Message): void {
     void playBeep(userProfileStore.preferences, message.ExDestination);
 
     setTimeout(() => {
-      const eventName: string = `${message.ExecID}executed`;
-      if (message.Side === "1") {
-        const eventName: string = `${message.Symbol}${message.Strategy}${message.Side}Execution`;
+      const eventName = `${message.ExecID}executed`;
+      if (message.Side === '1') {
+        const eventName = `${message.Symbol}${message.Strategy}${message.Side}Execution`;
         document.dispatchEvent(new CustomEvent(eventName));
       }
       document.dispatchEvent(new CustomEvent(eventName));
     }, 500);
   }
 
-  private handleMessageActions(message: Message) {
+  private handleMessageActions(message: Message): void {
     switch (message.OrdStatus) {
       case ExecTypes.Canceled:
         break;
@@ -63,14 +59,14 @@ class MessagesStream {
     return message.Username === user.email;
   };
 
-  public onMessage = (messages: ReadonlyArray<Message>): void => {
+  public onMessage = (messages: readonly Message[]): void => {
     for (const message of messages) {
       this.handleMessageActions(message);
     }
     this.listener(messages);
   };
 
-  public setHandler(listener: (message: ReadonlyArray<Message>) => void): void {
+  public setHandler(listener: (message: readonly Message[]) => void): void {
     this.listener = listener;
   }
 
@@ -80,13 +76,26 @@ class MessagesStream {
 }
 
 export class MessagesStore {
-  @observable loading: boolean = false;
+  public loading = false;
 
-  @observable.ref entries: ReadonlyArray<Message> = [];
+  public entries: readonly Message[] = [];
   private stream: MessagesStream = new MessagesStream();
-  @observable.ref executionHistory: ReadonlyArray<Message> = [];
+  public executionHistory: readonly Message[] = [];
 
   constructor() {
+    makeObservable(this, {
+      loading: observable,
+      entries: observable.ref,
+      executionHistory: observable.ref,
+      messages: computed,
+      executions: computed,
+      addMessages: action.bound,
+      setSnapshotAndHistory: action.bound,
+      connect: action.bound,
+      disconnect: action.bound,
+      reset: action.bound,
+    });
+
     autorun((): void => {
       if (workareaStore.connected) {
         void this.initialize();
@@ -94,65 +103,43 @@ export class MessagesStore {
     });
   }
 
-  @computed
-  public get messages(): ReadonlyArray<Message> {
+  public get messages(): readonly Message[] {
     return this.entries.filter(isMyMessage);
   }
 
-  @computed
-  public get executions(): ReadonlyArray<Message> {
-    return [
-      ...this.entries.filter(isAcceptableFill),
-      ...this.executionHistory,
-    ].sort((a: Message, b: Message): number => {
-      return (
-        parseTime(b.TransactTime).getTime() -
-        parseTime(a.TransactTime).getTime()
-      );
-    });
+  public get executions(): readonly Message[] {
+    return [...this.entries.filter(isAcceptableFill), ...this.executionHistory].sort(
+      (a: Message, b: Message): number => {
+        return parseTime(b.TransactTime).getTime() - parseTime(a.TransactTime).getTime();
+      }
+    );
   }
 
-  @action.bound
-  public addMessages(messages: ReadonlyArray<Message>): void {
+  public addMessages(messages: readonly Message[]): void {
     this.entries = [...messages, ...this.entries];
   }
 
-  @action.bound
-  public async initialize() {
-    this.loading = true;
-    // Load the data ...
-    const now: Date = new Date();
-    const midnight: Date = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      0,
-      0,
-      0
-    );
-    const daysAgo = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate() - 7,
-      0,
-      0,
-      0
-    );
-    const entries: Message[] = await API.getMessagesSnapshot(
-      "*",
-      midnight.getTime()
-    );
+  public setSnapshotAndHistory(entries: readonly Message[], history: readonly Message[]): void {
     // Sort all entries
-    this.entries = entries.sort(sortByTimeDescending);
+    this.entries = entries.slice().sort(sortByTimeDescending);
     // We're done
     this.loading = false;
     // Load executions history
-    this.executionHistory = (
-      await API.getExecutionHistory("*", midnight.getTime(), daysAgo.getTime())
-    ).filter(isAcceptableFill);
+    this.executionHistory = history.filter(isAcceptableFill);
   }
 
-  @action.bound
+  public async initialize(): Promise<void> {
+    this.loading = true;
+    // Load the data ...
+    const now: Date = new Date();
+    const midnight: Date = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const daysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+    const entries = await API.getMessagesSnapshot('*', midnight.getTime());
+    const history = await API.getExecutionHistory('*', midnight.getTime(), daysAgo.getTime());
+
+    this.setSnapshotAndHistory(entries, history);
+  }
+
   public connect(): void {
     // Call the initializer now, because the user email
     // has surely been set ;)
@@ -162,17 +149,13 @@ export class MessagesStore {
     this.stream.setHandler(this.addMessages);
   }
 
-  @action.bound
   public disconnect(): void {
     this.stream.removeHandler();
   }
 
-  @action.bound
   public reset(): void {
     this.entries = [...this.entries];
   }
 }
 
-export const MessagesStoreContext = React.createContext<MessagesStore>(
-  new MessagesStore()
-);
+export const MessagesStoreContext = React.createContext<MessagesStore>(new MessagesStore());

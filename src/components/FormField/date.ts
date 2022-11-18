@@ -1,18 +1,14 @@
-import {
-  Editable,
-  InputHandler,
-  StateReturnType,
-} from "components/FormField/inputHandler";
-import { MinimalProps } from "components/FormField/minimalProps";
-import { Validity } from "forms/validity";
-import moment from "moment";
-import { DateFormatter, TimeFormatter } from "utils/timeUtils";
+import { Editable, InputHandler, StateReturnType } from 'components/FormField/inputHandler';
+import { MinimalProps } from 'components/FormField/minimalProps';
+import { Validity } from 'forms/validity';
+import moment from 'moment';
+import { DateFormatter, TimeFormatter } from 'utils/timeUtils';
 
-export class DateInputHandler<
+export class DateInputHandler<T, P extends MinimalProps, S extends Editable> extends InputHandler<
   T,
-  P extends MinimalProps,
-  S extends Editable
-> extends InputHandler<T, P, S> {
+  P,
+  S
+> {
   public createValue(
     value: any,
     input: HTMLInputElement | null,
@@ -29,24 +25,24 @@ export class DateInputHandler<
 
   public format(value: any, props: P): [string, Validity] {
     switch (props.type) {
-      case "date":
-        if (value === null || value === "") {
-          return ["", Validity.Intermediate];
+      case 'date':
+        if (value === null || value === '') {
+          return ['', Validity.Intermediate];
         } else if (value instanceof Date) {
           return [DateFormatter.format(value), Validity.Valid];
         } else {
           return [value as string, Validity.InvalidFormat];
         }
-      case "time":
-        if (value === null || value === "") {
-          return ["", Validity.Intermediate];
+      case 'time':
+        if (value === null || value === '') {
+          return ['', Validity.Intermediate];
         } else if (value instanceof Date) {
           return [TimeFormatter.format(value), Validity.Valid];
         } else {
           return [value as string, Validity.InvalidFormat];
         }
       default:
-        throw new Error("this formatter is only for date or time types");
+        throw new Error('this formatter is only for date or time types');
     }
   }
 
@@ -62,7 +58,7 @@ export class DateInputHandler<
     if (value instanceof Date) {
       return value;
     } else if (/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/.test(value)) {
-      const date: moment.Moment = moment(value, "MM/DD/YYYY");
+      const date: moment.Moment = moment(value, 'MM/DD/YYYY');
       if (date.isValid()) {
         return date.toDate();
       } else {
@@ -72,11 +68,7 @@ export class DateInputHandler<
     return value;
   }
 
-  public shouldAcceptInput(
-    input: HTMLInputElement,
-    props: P,
-    state: S
-  ): boolean {
+  public shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean {
     return true;
   }
 }

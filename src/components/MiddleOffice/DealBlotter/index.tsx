@@ -1,20 +1,17 @@
-import { columns } from "components/MiddleOffice/DealBlotter/columns";
-import { DealRow, RowProps } from "components/MiddleOffice/DealBlotter/row";
-import { Deal } from "components/MiddleOffice/types/deal";
-import { Table } from "components/Table";
-import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
-import deepEqual from "deep-equal";
-import {
-  MiddleOfficeStore,
-  MiddleOfficeStoreContext,
-} from "mobx/stores/middleOfficeStore";
-import React, { ReactElement, useState } from "react";
-import { SortDirection } from "types/sortDirection";
+import { columns } from 'components/MiddleOffice/DealBlotter/columns';
+import { DealRow, RowProps } from 'components/MiddleOffice/DealBlotter/row';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import { Table } from 'components/Table';
+import { ExtendedTableColumn, TableColumn } from 'components/Table/tableColumn';
+import deepEqual from 'deep-equal';
+import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import React, { ReactElement, useState } from 'react';
+import { SortDirection } from 'types/sortDirection';
 
 interface Props {
   readonly id: string;
   readonly disabled: boolean;
-  readonly deals: ReadonlyArray<Deal>;
+  readonly deals: readonly Deal[];
   readonly onDealSelected: (deal: Deal | null) => void;
   readonly selectedRow: string | null;
 }
@@ -36,20 +33,17 @@ export const DealBlotter: React.FC<Props> = React.memo(
     const { deals } = props;
     const { onDealSelected } = props;
     const [, setTable] = useState<HTMLDivElement | null>(null);
-    const [filters, setFilters] = React.useState<ReadonlyArray<Filter>>([]);
-    const [sorters, setSorters] = React.useState<ReadonlyArray<Sorter>>([]);
+    const [filters, setFilters] = React.useState<readonly Filter[]>([]);
+    const [sorters, setSorters] = React.useState<readonly Sorter[]>([]);
     const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
-    const filteredRows = React.useMemo((): ReadonlyArray<Deal> => {
+    const filteredRows = React.useMemo((): readonly Deal[] => {
       const filterFn = filters.reduce(
-        (
-          fn: (value: Deal) => boolean,
-          filter: Filter
-        ): ((value: Deal) => boolean) => {
+        (fn: (value: Deal) => boolean, filter: Filter): ((value: Deal) => boolean) => {
           return (value: Deal): boolean => {
             const { column } = filter;
             const proxyValue = new Proxy(value, {
               get: (target: Deal, key: keyof Deal): any => {
-                if (key === "buyer" || key === "seller") {
+                if (key === 'buyer' || key === 'seller') {
                   const value = target[key];
                   const entity = store.entitiesMap[value];
                   if (entity === undefined) {
@@ -63,9 +57,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
             if (column.filterByKeyword === undefined) {
               return fn(proxyValue);
             }
-            return (
-              fn(proxyValue) && column.filterByKeyword(proxyValue, filter.value)
-            );
+            return fn(proxyValue) && column.filterByKeyword(proxyValue, filter.value);
           };
         },
         (): boolean => true
@@ -106,7 +98,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
       const filteredFilters = filters.filter(
         ({ column: { name } }: Filter): boolean => name !== columnName
       );
-      if (value.trim() === "") {
+      if (value.trim() === '') {
         setFilters(filteredFilters);
       } else {
         const column: TableColumn | undefined = getColumnByName(columnName);
@@ -118,32 +110,26 @@ export const DealBlotter: React.FC<Props> = React.memo(
     };
 
     const onSortBy = (columnName: string, direction: SortDirection): void => {
-      console.log(columnName, direction);
-      const matcher = ({ column: { name } }: Sorter): boolean =>
-        name !== columnName;
+      const matcher = ({ column: { name } }: Sorter): boolean => name !== columnName;
       const column = getColumnByName(columnName);
       if (column === undefined) throw new Error(`cannot sort by ${columnName}`);
       const filteredSorters = sorters.filter(matcher);
       if (direction === SortDirection.None) {
         setSorters(filteredSorters);
       } else {
-        setSorters([
-          ...filteredSorters,
-          { column: column, direction: direction },
-        ]);
+        setSorters([...filteredSorters, { column: column, direction: direction }]);
       }
     };
 
     const _columns = React.useMemo(
-      (): ReadonlyArray<ExtendedTableColumn> =>
+      (): readonly ExtendedTableColumn[] =>
         columns.map(
           (column: TableColumn): ExtendedTableColumn => ({
             ...column,
             sortDirection:
-              sorters.find(
-                (sorter: Sorter): boolean => sorter.column.name === column.name
-              )?.direction ?? SortDirection.None,
-            filter: "",
+              sorters.find((sorter: Sorter): boolean => sorter.column.name === column.name)
+                ?.direction ?? SortDirection.None,
+            filter: '',
           })
         ),
       [sorters]
@@ -161,7 +147,7 @@ export const DealBlotter: React.FC<Props> = React.memo(
         selectedRow={props.selectedRow}
         ref={setTable}
         allowReorderColumns={true}
-        className={props.disabled ? "disabled" : undefined}
+        className={props.disabled ? 'disabled' : undefined}
       />
     );
   },

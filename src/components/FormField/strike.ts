@@ -1,9 +1,9 @@
-import React from "react";
-import { Editable } from "components/FormField/inputHandler";
-import { MinimalProps } from "components/FormField/minimalProps";
-import { NumericInputHandler } from "components/FormField/numeric";
-import { Validity } from "forms/validity";
-import { DecimalSeparator, isNumeric } from "utils/isNumeric";
+import { Editable } from 'components/FormField/inputHandler';
+import { MinimalProps } from 'components/FormField/minimalProps';
+import { NumericInputHandler } from 'components/FormField/numeric';
+import { Validity } from 'forms/validity';
+import React from 'react';
+import { DecimalSeparator, isNumeric } from 'utils/isNumeric';
 
 const VALID_STRIKE_REGEXP = /^[0-9]+[Dd]$|^ATM[FSZ]$/;
 
@@ -13,15 +13,15 @@ export class StrikeHandler<
   S extends Editable
 > extends NumericInputHandler<T, P, S> {
   public format(value: any, props: P): [string, Validity] {
-    if (typeof value === "undefined") return ["", Validity.Intermediate];
-    if (typeof value !== "string" && typeof value !== "number") {
-      return ["", Validity.Intermediate];
-    } else if (value === "N/A") {
-      return ["", Validity.NotApplicable];
-    } else if (value === "") {
-      return ["", Validity.Valid];
+    if (typeof value === 'undefined') return ['', Validity.Intermediate];
+    if (typeof value !== 'string' && typeof value !== 'number') {
+      return ['', Validity.Intermediate];
+    } else if (value === 'N/A') {
+      return ['', Validity.NotApplicable];
+    } else if (value === '') {
+      return ['', Validity.Valid];
     } else {
-      if (typeof value === "string") {
+      if (typeof value === 'string') {
         const normalized: string = value.toUpperCase();
         const deltaOrSpecial: boolean = VALID_STRIKE_REGEXP.test(normalized);
         if (deltaOrSpecial) {
@@ -55,7 +55,7 @@ export class StrikeHandler<
     if (/ATM[FSZ]/.test(value)) {
       return value;
     } else {
-      const regex: RegExp = /^([0-9]+[dD]).*$/;
+      const regex = /^([0-9]+[dD]).*$/;
       const match: string[] | null = value.match(regex);
       if (match === null) {
         return value.replaceAll(/[.,]/g, DecimalSeparator);
@@ -65,11 +65,7 @@ export class StrikeHandler<
     }
   }
 
-  public shouldAcceptInput(
-    input: HTMLInputElement,
-    props: P,
-    state: S
-  ): boolean {
+  public shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean {
     return true;
   }
 }

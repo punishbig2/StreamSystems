@@ -1,17 +1,17 @@
-import workareaStore from "mobx/stores/workareaStore";
-import moment from "moment";
-import { ExecTypes, Message } from "types/message";
-import { User } from "types/user";
-import { Role } from "types/role";
+import workareaStore from 'mobx/stores/workareaStore';
+import moment from 'moment';
+import { ExecTypes, Message } from 'types/message';
+import { Role } from 'types/role';
+import { User } from 'types/user';
 
-const MESSAGE_TIME_FORMAT: string = "YYYYMMDD-HH:mm:ss.SSS";
+const MESSAGE_TIME_FORMAT = 'YYYYMMDD-HH:mm:ss.SSS';
 export const TransTypes: { [key: string]: string } = {
-  [ExecTypes.New]: "New",
-  [ExecTypes.Canceled]: "Cancel",
-  [ExecTypes.PartiallyFilled]: "Partially Filled",
-  [ExecTypes.Filled]: "Filled",
-  [ExecTypes.Replace]: "Replace",
-  [ExecTypes.PendingCancel]: "Pending Cancel",
+  [ExecTypes.New]: 'New',
+  [ExecTypes.Canceled]: 'Cancel',
+  [ExecTypes.PartiallyFilled]: 'Partially Filled',
+  [ExecTypes.Filled]: 'Filled',
+  [ExecTypes.Replace]: 'Replace',
+  [ExecTypes.PendingCancel]: 'Pending Cancel',
 };
 
 export const getMessageSize = (message: Message): number => {
@@ -27,10 +27,7 @@ export const getMessageSize = (message: Message): number => {
 };
 
 export const getMessagePrice = (message: Message): number => {
-  if (
-    message.OrdStatus === ExecTypes.PartiallyFilled ||
-    message.OrdStatus === ExecTypes.Filled
-  ) {
+  if (message.OrdStatus === ExecTypes.PartiallyFilled || message.OrdStatus === ExecTypes.Filled) {
     return Number(message.LastPx);
   } else {
     return Number(message.Price);
@@ -38,20 +35,14 @@ export const getMessagePrice = (message: Message): number => {
 };
 
 export const getBuyer = (message: Message): string | null => {
-  if (
-    message.OrdStatus === ExecTypes.Filled ||
-    message.OrdStatus === ExecTypes.PartiallyFilled
-  )
-    return message.Side === "1" ? message.MDMkt : message.ExecBroker;
+  if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
+    return message.Side === '1' ? message.MDMkt : message.ExecBroker;
   return null;
 };
 
 export const getSeller = (message: Message): string | null => {
-  if (
-    message.OrdStatus === ExecTypes.Filled ||
-    message.OrdStatus === ExecTypes.PartiallyFilled
-  )
-    return message.Side === "1" ? message.ExecBroker : message.MDMkt;
+  if (message.OrdStatus === ExecTypes.Filled || message.OrdStatus === ExecTypes.PartiallyFilled)
+    return message.Side === '1' ? message.ExecBroker : message.MDMkt;
   return null;
 };
 
@@ -99,7 +90,7 @@ export const isAcceptableFill = (message: Message): boolean => {
     } else if (personality === message.MDMkt) {
       return true;
     } else {
-      return message.AggressorIndicator === "Y";
+      return message.AggressorIndicator === 'Y';
     }
   } else {
     if (firm === message.ExecBroker) {
@@ -107,7 +98,7 @@ export const isAcceptableFill = (message: Message): boolean => {
     } else if (firm === message.MDMkt) {
       return true;
     } else {
-      return message.AggressorIndicator === "Y";
+      return message.AggressorIndicator === 'Y';
     }
   }
 };

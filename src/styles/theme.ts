@@ -1,12 +1,9 @@
-import { createTheme as createMuiTheme, Theme } from "@material-ui/core";
-import { Palette } from "@material-ui/core/styles/createPalette";
-import { getPalette } from "styles/palette";
-import { typography } from "styles/typography";
+import { createTheme as createMuiTheme, Theme } from '@material-ui/core';
+import { Palette } from '@material-ui/core/styles/createPalette';
+import { getPalette } from 'styles/palette';
+import { typography } from 'styles/typography';
 
-export const createTheme = (
-  theme: "dark" | "light",
-  fontFamily: string
-): Theme => {
+export const createTheme = (theme: 'dark' | 'light', fontFamily: string): Theme => {
   const palette: Palette = getPalette(theme);
   return createMuiTheme({
     palette: palette,
@@ -35,15 +32,15 @@ export const createTheme = (
       },
       MuiSelect: {
         select: {
-          "&:focus": {
-            backgroundColor: "transparent",
+          '&:focus': {
+            backgroundColor: 'transparent',
           },
         },
       },
       MuiInputBase: {
         root: {
-          font: "initial",
-          lineHeight: "30px",
+          font: 'initial',
+          lineHeight: '30px',
           height: 30,
         },
         input: {
@@ -53,7 +50,7 @@ export const createTheme = (
     },
     props: {
       MuiSelect: {
-        variant: "standard",
+        variant: 'standard',
       },
     },
   });

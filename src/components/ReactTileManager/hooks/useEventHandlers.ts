@@ -1,14 +1,12 @@
-import { Tile, Geometry, TileEvent } from "@cib/windows-manager";
-import { TileStore } from "mobx/stores/tileStore";
-import React from "react";
+import { Geometry, Tile, TileEvent } from '@cib/windows-manager';
+import { TileStore } from 'mobx/stores/tileStore';
+import React from 'react';
 
 export const useEventHandlers = (tile: Tile | null, store: TileStore): void => {
-  React.useEffect((): (() => void) | void => {
+  React.useEffect((): VoidFunction | void => {
     if (tile === null) return;
-    const onUnderflow = ((
-      event: CustomEvent<"vertical" | "horizontal">
-    ): void => {
-      if (event.detail === "vertical") {
+    const onUnderflow = ((event: CustomEvent<'vertical' | 'horizontal'>): void => {
+      if (event.detail === 'vertical') {
         tile.scrollable = true;
       }
     }) as EventListener;

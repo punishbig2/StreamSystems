@@ -1,5 +1,5 @@
-import React, { ReactElement } from "react";
-import { DealEntryButtons } from "components/MiddleOffice/buttonStateResolver";
+import { DealEntryButtons } from 'components/MiddleOffice/buttonStateResolver';
+import React, { ReactElement } from 'react';
 
 interface Props {
   readonly disabled: boolean;
@@ -8,22 +8,15 @@ interface Props {
   onSave(): void;
 }
 
-export const NewEntryButtons: React.FC<Props> = (
-  props: Props
-): ReactElement => {
+export const NewEntryButtons: React.FC<Props> = (props: Props): ReactElement => {
   return (
     <>
-      <button
-        type="submit"
-        style={{ display: "none" }}
-        aria-hidden="true"
-        disabled
-      />
+      <button type="submit" style={{ display: 'none' }} aria-hidden="true" disabled />
       <button
         type="button"
         className="primary"
         onMouseUp={props.onSave}
-        disabled={props.disabled || props.isButtonDisabled("save")}
+        disabled={props.disabled || props.isButtonDisabled('save')}
       >
         Save
       </button>

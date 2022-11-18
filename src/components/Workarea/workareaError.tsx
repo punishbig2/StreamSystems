@@ -1,6 +1,6 @@
-import { Typography } from "@material-ui/core";
-import React from "react";
-import config from "config";
+import { Typography } from '@material-ui/core';
+import config from 'config';
+import React from 'react';
 
 interface Props {
   readonly shouldReload?: boolean;
@@ -8,12 +8,8 @@ interface Props {
   readonly detail: string;
 }
 
-export const WorkareaError: React.FC<Props> = (
-  props: Props
-): React.ReactElement => {
-  const [remainingTime = 30000, setRemainingTime] = React.useState<number>(
-    config.RedirectTimeout
-  );
+export const WorkareaError: React.FC<Props> = (props: Props): React.ReactElement => {
+  const [remainingTime = 30000, setRemainingTime] = React.useState<number>(config.RedirectTimeout);
   const { shouldReload = true } = props;
   React.useEffect((): void => {
     const { location } = window;
@@ -22,11 +18,10 @@ export const WorkareaError: React.FC<Props> = (
       location.href = config.SignOutUrl;
     }
   }, [remainingTime]);
-  React.useEffect((): (() => void) | void => {
+  React.useEffect((): VoidFunction | void => {
     if (remainingTime < 0 || shouldReload) return;
     const timer = setTimeout(
-      (): void =>
-        setRemainingTime((previous: number): number => previous - 1000),
+      (): void => setRemainingTime((previous: number): number => previous - 1000),
       1000
     );
     return (): void => {
@@ -50,13 +45,12 @@ export const WorkareaError: React.FC<Props> = (
             Please try to reload the page
             <a className="link" href={config.SignOutUrl}>
               or click here
-            </a>{" "}
+            </a>{' '}
             to go to the sign in page
           </Typography>
           {remainingTime <= 0 ? null : (
             <Typography color="textPrimary">
-              You will be redirected to the sign in page in{" "}
-              {remainingTime / 1000} seconds
+              You will be redirected to the sign in page in {remainingTime / 1000} seconds
             </Typography>
           )}
         </>

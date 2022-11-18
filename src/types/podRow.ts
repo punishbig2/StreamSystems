@@ -1,4 +1,4 @@
-import { Order } from "types/order";
+import { Order } from 'types/order';
 
 export enum PodRowStatus {
   Normal,

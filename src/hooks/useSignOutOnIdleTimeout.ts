@@ -1,11 +1,8 @@
-import { useEffect } from "react";
-import config from "config";
+import config from 'config';
+import { useEffect } from 'react';
 
-const addUserActivityListener = (
-  onActivity: () => void,
-  quit: () => void
-): (() => void) => {
-  const events = ["click", "keyup", "keydown"];
+const addUserActivityListener = (onActivity: () => void, quit: () => void): VoidFunction => {
+  const events = ['click', 'keyup', 'keydown'];
   events.forEach((event) => {
     document.addEventListener(event, onActivity);
   });
@@ -18,15 +15,16 @@ const addUserActivityListener = (
 };
 
 export const useSignOutOnIdleTimeout = (): void => {
-  useEffect((): (() => void) | void => {
+  useEffect((): VoidFunction | void => {
     if (config.IdleTimeout < 0) return;
     const { location } = window;
     const state = { timer: setTimeout((): void => {}, 0) };
-    const createIdleKiller = () =>
+    const createIdleKiller = (): ReturnType<typeof setTimeout> =>
       setTimeout((): void => {
         location.href = config.SignOutUrl;
       }, config.IdleTimeout);
     state.timer = createIdleKiller();
+
     return addUserActivityListener(
       (): void => {
         clearTimeout(state.timer);

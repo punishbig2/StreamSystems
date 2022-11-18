@@ -1,6 +1,6 @@
-import { Product } from "types/product";
+import { Product } from 'types/product';
 
 export const getDefaultStrikeForStrategy = (strategy: Product): string => {
-  if (strategy.strike === undefined) return "";
+  if (strategy.strike === undefined) return '';
   return strategy.strike;
 };

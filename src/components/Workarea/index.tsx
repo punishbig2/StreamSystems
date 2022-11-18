@@ -1,42 +1,39 @@
-import { MessageBox } from "components/MessageBox";
-import { ModalWindow } from "components/ModalWindow";
-import { ProgressView } from "components/progressView";
-import { TradeConfirmation } from "components/TradeConfirmation";
-import { AccessDeniedView } from "components/Workarea/accessDeniedView";
-import { Workspaces } from "components/Workarea/workspaces";
-import { DisconnectedDisabler } from "components/Workarea/disconnectedDisabler";
-import { Footer } from "components/Workarea/footer";
-import { UserNotAllowedAtThisTime } from "components/Workarea/userNotAllowedAtThisTime";
-import { UserNotFound } from "components/Workarea/userNotFound";
-import { WorkareaError } from "components/Workarea/workareaError";
-import { observer } from "mobx-react";
-import { MessagesStore, MessagesStoreContext } from "mobx/stores/messagesStore";
+import { MessageBox } from 'components/MessageBox';
+import { ModalWindow } from 'components/ModalWindow';
+import { ProgressView } from 'components/progressView';
+import { TradeConfirmation } from 'components/TradeConfirmation';
+import { AccessDeniedView } from 'components/Workarea/accessDeniedView';
+import { DisconnectedDisabler } from 'components/Workarea/disconnectedDisabler';
+import { Footer } from 'components/Workarea/footer';
+import { UserNotAllowedAtThisTime } from 'components/Workarea/userNotAllowedAtThisTime';
+import { UserNotFound } from 'components/Workarea/userNotFound';
+import { WorkareaError } from 'components/Workarea/workareaError';
+import { Workspaces } from 'components/Workarea/workspaces';
+import { DateTimeFormatStore } from 'mobx/stores/dateTimeFormatStore';
+import { MessagesStore, MessagesStoreContext } from 'mobx/stores/messagesStore';
+import { themeStore } from 'mobx/stores/themeStore';
+import store from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React from 'react';
+import signalRManager from 'signalR/signalRClient';
+import { WorkareaStatus } from 'stateDefs/workareaState';
+import { Message } from 'types/message';
+import { getUserIdFromUrl } from 'utils/getIdFromUrl';
 
-import { themeStore } from "mobx/stores/themeStore";
-import store from "mobx/stores/workareaStore";
-import React from "react";
-import signalRManager from "signalR/signalRClient";
-import { WorkareaStatus } from "stateDefs/workareaState";
-import { Message } from "types/message";
-import { getUserIdFromUrl } from "utils/getIdFromUrl";
-import { DateTimeFormatStore } from "mobx/stores/dateTimeFormatStore";
-
-const Workarea: React.FC = (): React.ReactElement | null => {
+export const Workarea: React.FC = observer((): React.ReactElement | null => {
   const { recentExecutions, connected, user } = store;
   const personality: string = store.personality;
   const { theme, timezone } = store.preferences;
   const { workspaceAccessDenied } = store;
   const id: string | null = React.useMemo(getUserIdFromUrl, []);
   const messagesStore = React.useContext<MessagesStore>(MessagesStoreContext);
-  const dateTimeFormatStore = React.useContext<DateTimeFormatStore>(
-    DateTimeFormatStore.Context
-  );
+  const dateTimeFormatStore = React.useContext<DateTimeFormatStore>(DateTimeFormatStore.Context);
 
   React.useEffect((): void => {
     themeStore.setTheme(theme);
   }, [theme]);
 
-  React.useEffect((): (() => void) => {
+  React.useEffect((): VoidFunction => {
     const interval = setInterval((): void => {
       void store.checkVersion();
     }, 600000);
@@ -49,7 +46,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     store.initialize(id).catch(console.error);
   }, [id]);
 
-  React.useEffect((): (() => void) | void => {
+  React.useEffect((): VoidFunction | void => {
     if (!user || !connected) return;
     messagesStore.connect();
     return (): void => {
@@ -67,15 +64,15 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     dateTimeFormatStore.setTimezone(timezone);
   }, [dateTimeFormatStore, timezone]);
 
-  React.useEffect((): (() => void) | void => {
+  React.useEffect((): VoidFunction | void => {
     if (connected) return;
     const reconnect = (): void => {
       signalRManager.connect();
     };
-    window.addEventListener("click", reconnect);
+    window.addEventListener('click', reconnect);
 
     return (): void => {
-      window.removeEventListener("click", reconnect);
+      window.removeEventListener('click', reconnect);
     };
   }, [connected]);
 
@@ -84,8 +81,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       <div className="message-detail wide">
         <div className="title">New Version Available!</div>
         <p className="message">
-          Please click the button below to upgrade your application to the most
-          recent version.
+          Please click the button below to upgrade your application to the most recent version.
         </p>
         <div className="modal-buttons">
           <button className="cancel" onClick={store.upgradeApplication}>
@@ -119,8 +115,8 @@ const Workarea: React.FC = (): React.ReactElement | null => {
   };
 
   const renderLoadingModal = (): React.ReactElement => {
-    const message: string =
-      "We are setting up your preset workspace, this will not take long. Please be patient.";
+    const message =
+      'We are setting up your preset workspace, this will not take long. Please be patient.';
     return (
       <MessageBox
         title="Creating Workspace"
@@ -138,7 +134,7 @@ const Workarea: React.FC = (): React.ReactElement | null => {
         <WorkareaError
           title="Oops, there was an error while loading"
           detail={
-            "We had trouble communicating with the data server. There might be a problem with your connection."
+            'We had trouble communicating with the data server. There might be a problem with your connection.'
           }
         />
       );
@@ -160,28 +156,15 @@ const Workarea: React.FC = (): React.ReactElement | null => {
     case WorkareaStatus.Welcome:
     case WorkareaStatus.Ready:
       if (workspaceAccessDenied) {
-        return (
-          <AccessDeniedView
-            onClose={(): void => store.closeAccessDeniedView()}
-          />
-        );
+        return <AccessDeniedView onClose={(): void => store.closeAccessDeniedView()} />;
       } else {
         return (
           <>
             <Workspaces />
             <Footer />
-            <ModalWindow
-              render={renderLoadingModal}
-              isOpen={store.isCreatingWorkspace}
-            />
-            <ModalWindow
-              render={renderNewVersionModal}
-              isOpen={store.isShowingNewVersionModal}
-            />
-            <ModalWindow
-              render={renderMessage}
-              isOpen={recentExecutions.length > 0}
-            />
+            <ModalWindow render={renderLoadingModal} isOpen={store.isCreatingWorkspace} />
+            <ModalWindow render={renderNewVersionModal} isOpen={store.isShowingNewVersionModal} />
+            <ModalWindow render={renderMessage} isOpen={recentExecutions.length > 0} />
             <DisconnectedDisabler disconnected={!store.connected} />
           </>
         );
@@ -190,7 +173,4 @@ const Workarea: React.FC = (): React.ReactElement | null => {
       // Should never happen
       return null;
   }
-};
-
-const observed = observer(Workarea);
-export { observed as Workarea };
+});

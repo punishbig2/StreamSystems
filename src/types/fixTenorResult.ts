@@ -1,4 +1,4 @@
-import { Tenor } from "./tenor";
+import { Tenor } from 'types/tenor';
 
 export interface FixTenorResult {
   readonly tenor: Tenor | null;

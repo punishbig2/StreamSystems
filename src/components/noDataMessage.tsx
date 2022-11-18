@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement } from 'react';
 
 export const NoDataMessage: React.FC = (): ReactElement => {
   return (

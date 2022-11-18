@@ -1,26 +1,26 @@
-import { SymbolType, StrategyType, TenorType } from "types/w";
+import { StrategyType, SymbolType, TenorType } from 'types/w';
 
 export enum ExecTypes {
-  None = "",
-  New = "0",
-  PartiallyFilled = "1",
-  Filled = "2",
-  DoneForToday = "3",
-  Canceled = "4",
-  Replace = "5",
-  PendingCancel = "6",
-  Stopped = "7",
-  Rejected = "8",
-  Suspended = "9",
-  PendingNew = "A",
-  Calculated = "B",
-  Expired = "C",
-  Restated = "D",
-  PendingReplace = "E",
-  Trade = "F",
-  TradeCorrect = "G",
-  TradeCancel = "H",
-  OrderStatus = "I",
+  None = '',
+  New = '0',
+  PartiallyFilled = '1',
+  Filled = '2',
+  DoneForToday = '3',
+  Canceled = '4',
+  Replace = '5',
+  PendingCancel = '6',
+  Stopped = '7',
+  Rejected = '8',
+  Suspended = '9',
+  PendingNew = 'A',
+  Calculated = 'B',
+  Expired = 'C',
+  Restated = 'D',
+  PendingReplace = 'E',
+  Trade = 'F',
+  TradeCorrect = 'G',
+  TradeCancel = 'H',
+  OrderStatus = 'I',
 }
 
 export interface Message {
@@ -55,8 +55,8 @@ export interface Message {
   readonly CxlRejResponseTo: string | undefined;
   readonly FullName: string;
   readonly ContraFullName: string;
-  readonly AggressorIndicator: "Y" | "N";
-  readonly ["583"]?: string;
+  readonly AggressorIndicator: 'Y' | 'N';
+  readonly ['583']?: string;
 }
 
 export interface DarkPoolMessage {

@@ -1,8 +1,8 @@
-import workareaStore from "mobx/stores/workareaStore";
-import React, { useState, useEffect, ReactNode } from "react";
-import { ExecSound } from "types/user";
-import { Select, MenuItem } from "@material-ui/core";
-import { addSound, getSoundsList, deleteSound } from "beep-sound";
+import { MenuItem, Select } from '@material-ui/core';
+import { addSound, deleteSound, getSoundsList } from 'beep-sound';
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { ExecSound } from 'types/user';
 
 interface OwnProps {
   value: string;
@@ -16,12 +16,12 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
     getSoundsList().then(setSounds);
   }, []);
 
-  const onExecSoundChange = (event: any) => {
+  const onExecSoundChange = (event: any): void => {
     const { value } = event.target;
-    if (value === "add") {
-      const input: HTMLInputElement = document.createElement("input");
-      input.setAttribute("type", "file");
-      input.setAttribute("accept", "audio/*");
+    if (value === 'add') {
+      const input: HTMLInputElement = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', 'audio/*');
       input.click();
       input.onchange = () => {
         if (input.files) {
@@ -60,26 +60,23 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
     if (sounds.find((sound: ExecSound) => sound.name === props.value)) {
       return props.value;
     } else {
-      return "default";
+      return 'default';
     }
   };
 
-  const removeSound = (name: string) => {
-    const index: number = sounds.findIndex(
-      (sound: ExecSound) => sound.name === name
-    );
+  const removeSound = (name: string): void => {
+    const index: number = sounds.findIndex((sound: ExecSound) => sound.name === name);
     if (index === -1) return;
     setSounds([...sounds.slice(0, index), ...sounds.slice(index + 1)]);
     // Reset to default
-    props.onChange(props.name, "default");
+    props.onChange(props.name, 'default');
   };
 
-  const displayName = (name: string) => name.replace(/\.[^.]+$/, "");
-  const onDelete =
-    (name: string) => (event: React.MouseEvent<HTMLDivElement>) => {
-      event.stopPropagation();
-      deleteSound(name).then(() => removeSound(name));
-    };
+  const displayName = (name: string): string => name.replace(/\.[^.]+$/, '');
+  const onDelete = (name: string) => (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    deleteSound(name).then(() => removeSound(name));
+  };
 
   const DefaultItem: React.FC = () => (
     <div className="sound-item">
@@ -97,9 +94,9 @@ export const SoundsList: React.FC<OwnProps> = (props: OwnProps) => {
 
   const renderValue = (value: any): ReactNode => {
     switch (value) {
-      case "default":
+      case 'default':
         return <DefaultItem />;
-      case "add":
+      case 'add':
         return <AddNewItem />;
       default:
         return displayName(value);

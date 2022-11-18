@@ -1,26 +1,25 @@
-import config from "config";
+import config from 'config';
 
 export enum Role {
-  Admin = "FXOAdmin",
-  Trader = "FXOTrader",
-  MiddleOffice = "FXOMiddleOffice",
-  Broker = "FXOBroker",
+  Admin = 'FXOAdmin',
+  Trader = 'FXOTrader',
+  MiddleOffice = 'FXOMiddleOffice',
+  Broker = 'FXOBroker',
 }
 
 export interface OktaUser {
   readonly email: string;
-  readonly roles: ReadonlyArray<string>;
+  readonly roles: readonly string[];
 }
 
-export const hasRole = (list: ReadonlyArray<string>, role: Role): boolean => {
+export const hasRole = (list: readonly string[], role: Role): boolean => {
   switch (config.Environment) {
-    case "PROD":
+    case 'PROD':
       return !!list.find(
-        (each: string): boolean =>
-          each === ["PRD", role].join("_") || each === role
+        (each: string): boolean => each === ['PRD', role].join('_') || each === role
       );
-    case "DEV":
-    case "UAT":
+    case 'DEV':
+    case 'UAT':
     default:
       return !!list.find((each: string): boolean => each === role);
   }

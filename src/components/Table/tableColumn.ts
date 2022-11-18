@@ -1,5 +1,5 @@
-import { ReactElement } from "react";
-import { SortDirection } from "types/sortDirection";
+import { ReactElement } from 'react';
+import { SortDirection } from 'types/sortDirection';
 
 export interface TableColumn {
   readonly name: string;

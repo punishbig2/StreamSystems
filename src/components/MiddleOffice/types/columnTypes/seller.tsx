@@ -1,11 +1,11 @@
-import { CellProps } from "components/MiddleOffice/DealBlotter/props";
-import { TraderCell } from "components/MiddleOffice/traderCell";
-import { Deal } from "components/MiddleOffice/types/deal";
-import { TableColumn } from "components/Table/tableColumn";
-import React from "react";
+import { CellProps } from 'components/MiddleOffice/DealBlotter/props';
+import { TraderCell } from 'components/MiddleOffice/traderCell';
+import { Deal } from 'components/MiddleOffice/types/deal';
+import { TableColumn } from 'components/Table/tableColumn';
+import React from 'react';
 
 export default (sortable: boolean): TableColumn => ({
-  name: "seller",
+  name: 'seller',
   difference: (m1: Deal, m2: Deal) => {
     const s1: string | null = m1.seller;
     const s2: string | null = m2.seller;
@@ -19,12 +19,10 @@ export default (sortable: boolean): TableColumn => ({
     const lowerCaseSeller: string = seller.toLowerCase();
     return lowerCaseSeller.includes(keyword.toLowerCase());
   },
-  header: () => "Seller",
-  render: (props: CellProps): React.ReactElement => (
-    <TraderCell side="seller" {...props} />
-  ),
+  header: () => 'Seller',
+  render: (props: CellProps): React.ReactElement => <TraderCell side="seller" {...props} />,
   filterable: true,
   sortable: sortable,
-  template: "BUYER",
+  template: 'BUYER',
   width: 2,
 });

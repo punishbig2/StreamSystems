@@ -28,20 +28,6 @@
 
 @font-face {
 	font-family: Raleway;
-	src: url("fonts/Raleway-ExtraBoldItalic.ttf");
-	font-weight: ;
-	font-style: italic;
-}
-
-@font-face {
-	font-family: Raleway;
-	src: url("fonts/Raleway-ExtraBold.ttf");
-	font-weight: ;
-	font-style: normal;
-}
-
-@font-face {
-	font-family: Raleway;
 	src: url("fonts/Raleway-ExtraLightItalic.ttf");
 	font-weight: 200;
 	font-style: italic;

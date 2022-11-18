@@ -1,16 +1,12 @@
-import { FormattedInput } from "components/FormField/formatted";
-import {
-  Editable,
-  getCaretPosition,
-  StateReturnType,
-} from "components/FormField/inputHandler";
-import { MinimalProps } from "components/FormField/minimalProps";
-import { FieldType } from "forms/fieldType";
-import { Validity } from "forms/validity";
-import { Globals } from "golbals";
-import React from "react";
-import { DecimalSeparator, toNumber } from "utils/isNumeric";
-import { roundToNearest } from "utils/roundToNearest";
+import { FormattedInput } from 'components/FormField/formatted';
+import { Editable, getCaretPosition, StateReturnType } from 'components/FormField/inputHandler';
+import { MinimalProps } from 'components/FormField/minimalProps';
+import { FieldType } from 'forms/fieldType';
+import { Validity } from 'forms/validity';
+import { Globals } from 'golbals';
+import React from 'react';
+import { DecimalSeparator, toNumber } from 'utils/isNumeric';
+import { roundToNearest } from 'utils/roundToNearest';
 
 export interface NumericProps {
   value: any;
@@ -27,15 +23,15 @@ const typeToStyle = (
   editable?: boolean
 ): string | undefined => {
   switch (type) {
-    case "percent":
-      return !!editable ? "decimal" : "percent";
-    case "currency":
-      if (currency === undefined || currency.trim() === "") {
-        return "decimal";
+    case 'percent':
+      return editable ? 'decimal' : 'percent';
+    case 'currency':
+      if (currency === undefined || currency.trim() === '') {
+        return 'decimal';
       }
-      return "currency";
+      return 'currency';
     default:
-      return "decimal";
+      return 'decimal';
   }
 };
 
@@ -44,14 +40,11 @@ export class NumericInputHandler<
   P extends NumericProps & MinimalProps<T>,
   S extends Editable
 > extends FormattedInput<T, P, S> {
-  private formatter: Intl.NumberFormat = new Intl.NumberFormat(
-    Globals.locale,
-    {}
-  );
+  private formatter: Intl.NumberFormat = new Intl.NumberFormat(Globals.locale, {});
   private readonly minimum: number | ((data: S) => number) | null;
   private readonly maximum: number | ((data: S) => number) | null;
-  private startAdornmentString: string = "";
-  private endAdornmentString: string = "";
+  private startAdornmentString = '';
+  private endAdornmentString = '';
   private readonly data: S;
 
   constructor(props: P, data: any) {
@@ -67,15 +60,15 @@ export class NumericInputHandler<
     props: P,
     state: S
   ): StateReturnType<S> {
-    /// Reset this in order to remove it if the new character is not the
+    // / Reset this in order to remove it if the new character is not the
     // decimal separator
     switch (event.key) {
-      case "Escape":
+      case 'Escape':
         return this.createValue(props.value, event.currentTarget, props, state);
-      case "Backspace":
+      case 'Backspace':
         return this.onBackspace(event, props, state);
-      case "M":
-      case "m":
+      case 'M':
+      case 'm':
         return this.onM(event, props, state);
       case DecimalSeparator:
         return this.onDecimalSeparator(event, DecimalSeparator, props, state);
@@ -84,61 +77,46 @@ export class NumericInputHandler<
   }
 
   public parse(value: string, props: P): string | number | null {
-    if (value === "") return null;
+    if (value === '') return null;
     const numeric = toNumber(value, props.currency);
     if (numeric === undefined || numeric === null) return value;
-    const divider = props.type === "percent" ? 100 : 1;
-    if (props.type === "percent") return numeric / divider;
+    const divider = props.type === 'percent' ? 100 : 1;
+    if (props.type === 'percent') return numeric / divider;
     return numeric;
   }
 
   public format(value: any, props: P): [string, Validity] {
     const { formatter } = this;
-    if (value === "" || value === null) {
-      return ["", Validity.Intermediate];
+    if (value === '' || value === null) {
+      return ['', Validity.Intermediate];
     }
-    if (typeof value === "number") {
-      if (props.type === "percent") {
+    if (typeof value === 'number') {
+      if (props.type === 'percent') {
         if (props.editable) {
           const formatted: string = formatter.format(100 * value);
           return [formatted, Validity.Valid];
         } else {
           const formatted: string =
-            value < 0
-              ? `(${formatter.format(-100 * value)})`
-              : formatter.format(100 * value);
+            value < 0 ? `(${formatter.format(-100 * value)})` : formatter.format(100 * value);
 
           return [formatted, Validity.Valid];
         }
       }
-      if (props.rounding !== undefined)
-        return roundToNearest(value, props.rounding);
+      if (props.rounding !== undefined) return roundToNearest(value, props.rounding);
       const formatted: string =
-        value < 0 && !props.editable
-          ? `(${formatter.format(-value)})`
-          : formatter.format(value);
-      return [
-        formatted,
-        this.isInRange(value) ? Validity.Valid : Validity.InvalidValue,
-      ];
+        value < 0 && !props.editable ? `(${formatter.format(-value)})` : formatter.format(value);
+      return [formatted, this.isInRange(value) ? Validity.Valid : Validity.InvalidValue];
     } else {
       return [value as string, Validity.InvalidFormat];
     }
   }
 
-  public shouldAcceptInput(
-    input: HTMLInputElement,
-    props: P,
-    state: S
-  ): boolean {
+  public shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean {
     const { displayValue } = state;
     if (props.precision !== undefined && props.precision !== 0) {
       const caretPosition: number | null = getCaretPosition(input);
       if (caretPosition !== null) {
-        if (
-          caretPosition === displayValue.length + 1 &&
-          displayValue.length !== 0
-        ) {
+        if (caretPosition === displayValue.length + 1 && displayValue.length !== 0) {
           return false;
         }
       }
@@ -146,16 +124,12 @@ export class NumericInputHandler<
     return true;
   }
 
-  public reset(props: P) {
+  public reset(props: P): void {
     super.reset(props);
     this.formatter = this.createFormatter(props);
   }
 
-  private updateAdornments(
-    type: FieldType,
-    currency?: string,
-    editable?: boolean
-  ): void {
+  private updateAdornments(type: FieldType, currency?: string, editable?: boolean): void {
     const style = typeToStyle(type, currency, editable);
     const options = {
       maximumFractionDigits: 0,
@@ -165,16 +139,13 @@ export class NumericInputHandler<
       currency: currency,
     };
     try {
-      const formatter: Intl.NumberFormat = new Intl.NumberFormat(
-        Globals.locale,
-        options
-      );
+      const formatter: Intl.NumberFormat = new Intl.NumberFormat(Globals.locale, options);
       const formatted: string = formatter.format(1);
       // FIXME: use formatToParts()
-      if (formatted.indexOf("1") > 0) {
-        this.startAdornmentString = formatted.replace(/[0-9-]*/g, "");
+      if (formatted.indexOf('1') > 0) {
+        this.startAdornmentString = formatted.replace(/[0-9-]*/g, '');
       } else {
-        this.endAdornmentString = formatted.replace(/[0-9-]*/g, "");
+        this.endAdornmentString = formatted.replace(/[0-9-]*/g, '');
       }
     } catch (error) {
       if (error instanceof RangeError) {
@@ -194,7 +165,7 @@ export class NumericInputHandler<
   }
 
   private createFormatter(props: P): Intl.NumberFormat {
-    if (props.type === "currency" && props.currency === undefined) {
+    if (props.type === 'currency' && props.currency === undefined) {
       return new Intl.NumberFormat(Globals.locale, {});
     } else {
       const options = {
@@ -226,14 +197,10 @@ export class NumericInputHandler<
         caretPosition: caretPosition + 1,
       } as Pick<S, keyof S>;
     } else {
-      const integerPart: string = displayValue
-        .slice(0, caretPosition)
-        .replace(/[^0-9-]+/g, "");
-      const decimalPart: string = displayValue
-        .slice(caretPosition)
-        .replace(/[^0-9-]+/g, "");
-      const text: string = [integerPart, decimalPart].join(".");
-      const numeric: number = Number(text);
+      const integerPart: string = displayValue.slice(0, caretPosition).replace(/[^0-9-]+/g, '');
+      const decimalPart: string = displayValue.slice(caretPosition).replace(/[^0-9-]+/g, '');
+      const text: string = [integerPart, decimalPart].join('.');
+      const numeric = Number(text);
       const [newDisplayValue, validity] = this.format(numeric, props);
       return {
         internalValue: numeric,
@@ -248,7 +215,7 @@ export class NumericInputHandler<
     const { minimum } = this;
     if (minimum === null) {
       return null;
-    } else if (typeof minimum === "function") {
+    } else if (typeof minimum === 'function') {
       return minimum(this.data);
     } else {
       return minimum;
@@ -259,7 +226,7 @@ export class NumericInputHandler<
     const { maximum } = this;
     if (maximum === null) {
       return null;
-    } else if (typeof maximum === "function") {
+    } else if (typeof maximum === 'function') {
       return maximum(this.data);
     } else {
       return maximum;
@@ -288,8 +255,7 @@ export class NumericInputHandler<
     const { displayValue } = state;
     if (
       isWholeTextSelected(event.currentTarget) ||
-      (state.validity !== Validity.Valid &&
-        state.validity !== Validity.Intermediate)
+      (state.validity !== Validity.Valid && state.validity !== Validity.Intermediate)
     ) {
       return this.createValue(null, event.currentTarget, props, state);
     }
@@ -305,19 +271,18 @@ export class NumericInputHandler<
         } as StateReturnType<S>;
       } else {
         if (props.precision === undefined || props.precision === 0) return null;
-        const separatorPosition: number =
-          displayValue.length - props.precision - 1;
+        const separatorPosition: number = displayValue.length - props.precision - 1;
         const integerPart: string = displayValue
           .slice(0, separatorPosition)
-          .replace(/[^0-9-]+/g, "");
+          .replace(/[^0-9-]+/g, '');
         const decimalPart: string = displayValue.slice(separatorPosition + 1);
         if (integerPart.length === 1 && Number(decimalPart) === 0) {
           return this.createValue(null, event.currentTarget, props, state);
         } else {
-          const divider = props.type === "percent" ? 100 : 1;
+          const divider = props.type === 'percent' ? 100 : 1;
 
           return this.createValue(
-            Number([integerPart, decimalPart].join(".")) / divider,
+            Number([integerPart, decimalPart].join('.')) / divider,
             event.currentTarget,
             props,
             state

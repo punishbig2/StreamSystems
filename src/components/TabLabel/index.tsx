@@ -1,11 +1,5 @@
-import workareaStore from "mobx/stores/workareaStore";
-import React, {
-  ChangeEvent,
-  KeyboardEvent,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import workareaStore from 'mobx/stores/workareaStore';
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 interface Props {
   readonly label: string;
@@ -20,9 +14,8 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
   const { label, isDefault } = props;
   const [value, setValue] = useState<string | null>(null);
 
-  const getLabel = () => {
-    const finalLabel: string =
-      value === null ? (label !== "" ? label : "Untitled") : value;
+  const getLabel = (): string => {
+    const finalLabel: string = value === null ? (label !== '' ? label : 'Untitled') : value;
     if (isDefault && value === null) {
       return `${finalLabel}`;
     } else {
@@ -30,28 +23,31 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
     }
   };
 
-  useEffect(() => {
-    if (ref.current === null || !editable) return;
+  useEffect((): void => {
+    if (ref.current === null || !editable) {
+      return;
+    }
+
     const input: HTMLInputElement = ref.current;
     input.select();
   }, [ref, editable]);
 
-  const reset = () => {
+  const reset = (): void => {
     setValue(null);
     setEditable(false);
   };
 
-  const onChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+  const onChange = ({ target: { value } }: ChangeEvent<HTMLInputElement>): void => {
     setValue(value);
   };
 
-  const onBlur = () => reset();
-  const onKeyDown = ({ key }: KeyboardEvent<HTMLInputElement>) => {
+  const onBlur = (): void => reset();
+  const onKeyDown = ({ key }: KeyboardEvent<HTMLInputElement>): void => {
     switch (key) {
-      case "Escape":
+      case 'Escape':
         reset();
         break;
-      case "Enter":
+      case 'Enter':
         if (value !== null) {
           props.onRenamed(value);
         }
@@ -60,7 +56,7 @@ export const TabLabel: React.FC<Props> = (props: Props) => {
         break;
     }
   };
-  const onDoubleClick = () => setEditable(true);
+  const onDoubleClick = (): void => setEditable(true);
   return (
     <div className="tab-label">
       <input

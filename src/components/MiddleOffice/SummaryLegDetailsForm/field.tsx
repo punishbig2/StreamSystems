@@ -1,13 +1,10 @@
-import { FormField } from "components/FormField";
-import { EditableFlag } from "types/product";
-import { SummaryLeg } from "components/MiddleOffice/types/summaryLeg";
-import { FieldDef } from "forms/fieldDef";
-import {
-  MiddleOfficeStore,
-  MiddleOfficeStoreContext,
-} from "mobx/stores/middleOfficeStore";
-import React, { ReactElement } from "react";
-import { DealEntry } from "types/dealEntry";
+import { FormField } from 'components/FormField';
+import { SummaryLeg } from 'components/MiddleOffice/types/summaryLeg';
+import { FieldDef } from 'forms/fieldDef';
+import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
+import React, { ReactElement } from 'react';
+import { DealEntry } from 'types/dealEntry';
+import { EditableFlag } from 'types/product';
 
 interface Props {
   readonly dealEntry: DealEntry;
@@ -15,10 +12,7 @@ interface Props {
   readonly field: FieldDef<SummaryLeg, SummaryLeg>;
   readonly disabled: boolean;
   readonly isEditMode: boolean;
-  readonly onUpdateSummaryLeg: (
-    fieldName: keyof SummaryLeg,
-    value: any
-  ) => Promise<void>;
+  readonly onUpdateSummaryLeg: (fieldName: keyof SummaryLeg, value: any) => Promise<void>;
 }
 
 export const Field: React.FC<Props> = (props: Props): ReactElement => {
@@ -27,29 +21,26 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
   const getValue = (): any => {
     if (summaryLeg === null) return null;
     if (
-      MiddleOfficeStore.getFieldEditableFlag(
-        "",
-        field.name,
-        dealEntry.strategy
-      ) === EditableFlag.NotApplicable
+      MiddleOfficeStore.getFieldEditableFlag('', field.name, dealEntry.strategy) ===
+      EditableFlag.NotApplicable
     ) {
-      return "N/A";
+      return 'N/A';
     }
-    if (field.name === "dealOutput")
-      throw new Error("this is not a normal value, cannot display it");
+    if (field.name === 'dealOutput')
+      throw new Error('this is not a normal value, cannot display it');
     const value = summaryLeg[field.name];
     if (
-      field.type === "number" &&
+      field.type === 'number' &&
       value !== null &&
-      typeof value !== "number" &&
-      typeof value !== "string"
+      typeof value !== 'number' &&
+      typeof value !== 'string'
     ) {
-      return "";
+      return '';
     }
 
     if (value === null) {
       // FIXME: Should we do this?
-      /*if (field.name === "spotDate") {
+      /* if (field.name === "spotDate") {
         // FIXME: this is a terrible idea
         void props.onUpdateSummaryLeg("spotDate", dealEntry.spotDate);
       }*/
@@ -58,8 +49,8 @@ export const Field: React.FC<Props> = (props: Props): ReactElement => {
     return value;
   };
   const isEditable = (): boolean => {
-    if (typeof field.editable === "function") {
-      return field.editable(field.name, dealEntry, isEditMode, "sum");
+    if (typeof field.editable === 'function') {
+      return field.editable(field.name, dealEntry, isEditMode, 'sum');
     } else {
       return field.editable;
     }

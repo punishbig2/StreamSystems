@@ -1,10 +1,10 @@
-import { MenuItem, Select } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { observer } from "mobx-react";
-import workareaStore from "mobx/stores/workareaStore";
-import React from "react";
-import { NONE } from "stateDefs/workspaceState";
-import { SelectEventData } from "types/selectEventData";
+import { MenuItem, Select } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import workareaStore from 'mobx/stores/workareaStore';
+import { observer } from 'mobx-react';
+import React from 'react';
+import { NONE } from 'stateDefs/workspaceState';
+import { SelectEventData } from 'types/selectEventData';
 
 interface Props {
   readonly isBroker: boolean;
@@ -17,16 +17,14 @@ interface Props {
 const useDropdownStyles = makeStyles({
   root: {
     height: 30,
-    lineHeight: "18px",
+    lineHeight: '18px',
   },
 });
 
 export const RightPanelButtons: React.FC<Props> = observer(
   (props: Props): React.ReactElement | null => {
     const dropdownClasses = useDropdownStyles();
-    const onPersonalityChange = ({
-      target,
-    }: React.ChangeEvent<SelectEventData>) => {
+    const onPersonalityChange = ({ target }: React.ChangeEvent<SelectEventData>): void => {
       props.onPersonalityChange(target.value as string);
     };
     if (props.isBroker) {

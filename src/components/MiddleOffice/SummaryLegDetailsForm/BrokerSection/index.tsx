@@ -1,9 +1,9 @@
-import { Grid } from "@material-ui/core";
-import { Field } from "components/MiddleOffice/SummaryLegDetailsForm/BrokerSection/field";
-import { fields } from "components/MiddleOffice/SummaryLegDetailsForm/BrokerSection/fields";
-import { FieldDef } from "forms/fieldDef";
-import React, { ReactElement, useMemo } from "react";
-import { BrokerageCommission } from "types/brokerageCommission";
+import { Grid } from '@material-ui/core';
+import { Field } from 'components/MiddleOffice/SummaryLegDetailsForm/BrokerSection/field';
+import { fields } from 'components/MiddleOffice/SummaryLegDetailsForm/BrokerSection/fields';
+import { FieldDef } from 'forms/fieldDef';
+import React, { ReactElement, useMemo } from 'react';
+import { BrokerageCommission } from 'types/brokerageCommission';
 
 interface Props {
   readonly disabled: boolean;
@@ -14,9 +14,7 @@ interface Props {
   readonly onUpdateCommission: (value: BrokerageCommission) => Promise<void>;
 }
 
-export const BrokerSection: React.FC<Props> = (
-  props: Props
-): React.ReactElement<Props> => {
+export const BrokerSection: React.FC<Props> = (props: Props): React.ReactElement<Props> => {
   const { buyerComm, buyerCommRate, sellerComm, sellerCommRate } = props;
   const value: BrokerageCommission = useMemo(
     (): BrokerageCommission => ({
@@ -24,10 +22,7 @@ export const BrokerSection: React.FC<Props> = (
       buyer_comm: buyerComm,
       seller_comm_rate: sellerCommRate,
       seller_comm: sellerComm,
-      total:
-        buyerComm === null || sellerComm === null
-          ? null
-          : buyerComm + sellerComm,
+      total: buyerComm === null || sellerComm === null ? null : buyerComm + sellerComm,
     }),
     [buyerComm, buyerCommRate, sellerComm, sellerCommRate]
   );
@@ -37,9 +32,7 @@ export const BrokerSection: React.FC<Props> = (
       <fieldset className="group" disabled={props.disabled}>
         <legend>Brokerage</legend>
         {fields.map(
-          (
-            fieldDef: FieldDef<BrokerageCommission, BrokerageCommission>
-          ): ReactElement => {
+          (fieldDef: FieldDef<BrokerageCommission, BrokerageCommission>): ReactElement => {
             return (
               <Field
                 key={fieldDef.name}

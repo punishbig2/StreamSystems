@@ -1,35 +1,33 @@
-import { Row } from "components/PodTile/Row";
-import { Table } from "components/Table";
-import { ExtendedTableColumn, TableColumn } from "components/Table/tableColumn";
-import React, { ReactElement } from "react";
-import { Order } from "types/order";
-import { PodRow } from "types/podRow";
-import { SortDirection } from "types/sortDirection";
-import { Symbol } from "types/symbol";
+import { Row } from 'components/PodTile/Row';
+import { Table } from 'components/Table';
+import { ExtendedTableColumn, TableColumn } from 'components/Table/tableColumn';
+import React, { ReactElement } from 'react';
+import { FXSymbol } from 'types/FXSymbol';
+import { Order } from 'types/order';
+import { PodRow } from 'types/podRow';
+import { SortDirection } from 'types/sortDirection';
 
 interface Props {
   readonly currentTenor: string | null;
   readonly id: string;
-  readonly columns: ReadonlyArray<TableColumn>;
+  readonly columns: readonly TableColumn[];
   readonly loading: boolean;
   readonly rows: { [tenor: string]: PodRow };
-  readonly symbol: Symbol;
+  readonly symbol: FXSymbol;
   readonly strategy: string;
-  readonly orders: { [tenor: string]: ReadonlyArray<Order> };
+  readonly orders: { [tenor: string]: readonly Order[] };
   readonly onTenorSelected: (tenor: string | null) => void;
-  readonly darkPoolOrders: { [tenor: string]: ReadonlyArray<Order> };
+  readonly darkPoolOrders: { [tenor: string]: readonly Order[] };
 }
 
-export const TopOfTheBook: React.FC<Props> = (
-  props: Props
-): React.ReactElement => {
+export const TopOfTheBook: React.FC<Props> = (props: Props): React.ReactElement => {
   const { columns: originalColumns } = props;
-  const columns = React.useMemo((): ReadonlyArray<ExtendedTableColumn> => {
+  const columns = React.useMemo((): readonly ExtendedTableColumn[] => {
     return originalColumns.map(
       (column: TableColumn): ExtendedTableColumn => ({
         ...column,
         sortDirection: SortDirection.None,
-        filter: "",
+        filter: '',
       })
     );
   }, [originalColumns]);
@@ -37,7 +35,7 @@ export const TopOfTheBook: React.FC<Props> = (
   return (
     <div className="pod" data-showing-tenor={props.currentTenor !== null}>
       <Table
-        className={props.loading ? "loading" : undefined}
+        className={props.loading ? 'loading' : undefined}
         columns={columns}
         rows={props.rows}
         renderRow={(rowProps: any, index?: number): ReactElement => {

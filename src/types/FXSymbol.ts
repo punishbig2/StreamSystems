@@ -1,7 +1,7 @@
-export interface Symbol {
+export interface FXSymbol {
   ATMType: string;
-  "DayCountBasis-FX": string;
-  "DayCountBasis-VOL": string;
+  'DayCountBasis-FX': string;
+  'DayCountBasis-VOL': string;
   DeltaType: string; // Probably an enum
   FixingSource: string;
   PrimaryCutCode: string;
@@ -29,45 +29,45 @@ export interface Symbol {
   vegaAdjustBF: string | null;
   vegaAdjustRR: string | null;
   volsource: string;
-  "premium-rounding": number | undefined;
-  "strike-rounding": number | undefined;
+  'premium-rounding': number | undefined;
+  'strike-rounding': number | undefined;
   rank: number;
-  legadjustvalues: ReadonlyArray<string>;
+  legadjustvalues: readonly string[];
 }
 
-export const InvalidSymbol: symbol = {
-  ATMType: "",
-  "DayCountBasis-FX": "0",
-  "DayCountBasis-VOL": "0",
-  DeltaType: "Forward",
-  FixingSource: "",
-  PrimaryCutCode: "",
-  PrimaryUTCTime: "",
-  SecondaryCutCode: "",
-  SecondaryUTCTime: "",
-  SettlementType: "",
+export const InvalidSymbol: FXSymbol = {
+  ATMType: '',
+  'DayCountBasis-FX': '0',
+  'DayCountBasis-VOL': '0',
+  DeltaType: 'Forward',
+  FixingSource: '',
+  PrimaryCutCode: '',
+  PrimaryUTCTime: '',
+  SecondaryCutCode: '',
+  SecondaryUTCTime: '',
+  SettlementType: '',
   SettlementWindow: 0,
-  ccyGroup: "",
+  ccyGroup: '',
   cross: false,
   defaultqty: 0,
-  description: "",
+  description: '',
   forwardcode: null,
   fxsource: null,
   minqty: 0,
-  name: "",
-  notionalCCY: "USD",
+  name: '',
+  notionalCCY: 'USD',
   premiumAdjustDelta: false,
-  premiumCCY: "USD",
+  premiumCCY: 'USD',
   riskCCYpercent: false,
-  symbolID: "",
+  symbolID: '',
   vegaAdjustBF: null,
   vegaAdjustRR: null,
-  volsource: "",
-  "premium-rounding": undefined,
-  "strike-rounding": undefined,
+  volsource: '',
+  'premium-rounding': undefined,
+  'strike-rounding': undefined,
   premiumCCYpercent: false,
-  riskCCY: "USD",
-  riskCCYformat: "",
+  riskCCY: 'USD',
+  riskCCYformat: '',
   rank: Number.MAX_SAFE_INTEGER,
   legadjustvalues: [],
 };

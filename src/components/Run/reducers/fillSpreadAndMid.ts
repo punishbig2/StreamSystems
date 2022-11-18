@@ -1,13 +1,12 @@
-import { PodRow } from "types/podRow";
-import { Order, OrderStatus } from "types/order";
+import { Order, OrderStatus } from 'types/order';
+import { PodRow } from 'types/podRow';
 
 const isOrderAcceptableForComputation = (order: Order): boolean => {
   const status: OrderStatus = order.status;
   if (order.price === null) return false;
   const isCancelled: boolean = (status & OrderStatus.Cancelled) !== 0;
   const isModified: boolean =
-    (status & OrderStatus.PriceEdited) !== 0 ||
-    (status & OrderStatus.SizeEdited) !== 0;
+    (status & OrderStatus.PriceEdited) !== 0 || (status & OrderStatus.SizeEdited) !== 0;
   // If the order is not in the canceled state or was modified then it qualifies for
   // mid/spread computations
   return !isCancelled || isModified;
@@ -15,10 +14,7 @@ const isOrderAcceptableForComputation = (order: Order): boolean => {
 
 export const fillSpreadAndMid = (row: PodRow): PodRow => {
   const { ofr, bid } = row;
-  if (
-    isOrderAcceptableForComputation(ofr) &&
-    isOrderAcceptableForComputation(bid)
-  ) {
+  if (isOrderAcceptableForComputation(ofr) && isOrderAcceptableForComputation(bid)) {
     return {
       ...row,
       spread: Number(ofr.price) - Number(bid.price),

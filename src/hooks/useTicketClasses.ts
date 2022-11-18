@@ -1,14 +1,14 @@
-import { makeStyles } from "@material-ui/core";
+import { makeStyles } from '@material-ui/core';
 
 export const useTicketClasses = makeStyles({
   formControl: {
     marginTop: 8,
     marginBottom: 0,
-    width: "100%",
+    width: '100%',
   },
   outlinedInput: {
-    "& input": {
-      textAlign: "center",
+    '& input': {
+      textAlign: 'center',
     },
   },
   formHelperText: {
@@ -17,6 +17,6 @@ export const useTicketClasses = makeStyles({
     fontWeight: 600,
   },
   select: {
-    width: "100%",
+    width: '100%',
   },
 });

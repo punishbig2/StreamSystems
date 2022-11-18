@@ -1,11 +1,11 @@
-import { TableColumn } from "components/Table/tableColumn";
-import { PodRowProps } from "columns/podColumns/common";
-import { Tenor } from "components/Table/CellRenderers/Tenor";
-import React from "react";
-import { PodRowStatus } from "types/podRow";
+import { PodRowProps } from 'columns/podColumns/common';
+import { Tenor } from 'components/Table/CellRenderers/Tenor';
+import { TableColumn } from 'components/Table/tableColumn';
+import React from 'react';
+import { PodRowStatus } from 'types/podRow';
 
 export const TenorColumn = (): TableColumn => ({
-  name: "tenor",
+  name: 'tenor',
   header: () => <div>&nbsp;</div>,
   render: ({ tenor, onTenorSelected, status }: PodRowProps) => {
     if (status !== PodRowStatus.Normal) {
@@ -17,6 +17,6 @@ export const TenorColumn = (): TableColumn => ({
     }
     return <Tenor tenor={tenor} onTenorSelected={onTenorSelected} />;
   },
-  template: "WW",
+  template: 'WW',
   width: 2,
 });
