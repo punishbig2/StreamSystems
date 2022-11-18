@@ -35,7 +35,7 @@ export interface Symbol {
   legadjustvalues: ReadonlyArray<string>;
 }
 
-export const InvalidSymbol: Symbol = {
+export const InvalidSymbol: symbol = {
   ATMType: "",
   "DayCountBasis-FX": "0",
   "DayCountBasis-VOL": "0",
