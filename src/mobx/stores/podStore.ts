@@ -41,7 +41,9 @@ export class PodStore extends ContentStore implements Persistable<PodStore> {
   public runWindowStore: RunWindowStore = new RunWindowStore();
   public creatingBulk = false;
 
-  private updateOrdersTimer = setTimeout((): void => {}, 0);
+  private updateOrdersTimer = setTimeout((): void => {
+    return;
+  }, 0);
   private ordersCache: { [tenor: string]: readonly Order[] } = {};
 
   public progressMax = 100;

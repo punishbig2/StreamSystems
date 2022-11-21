@@ -32,6 +32,7 @@ export class BrokerageStore {
     makeObservable(this, {
       commissionRates: observable.ref,
       onCommissionRates: action.bound,
+      setRates: action.bound,
     });
   }
 
@@ -41,7 +42,9 @@ export class BrokerageStore {
 
   public installListener(firm: string): VoidFunction {
     if (firm === NONE) {
-      return (): void => {};
+      return (): void => {
+        return;
+      };
     }
 
     return signalRClient.addCommissionRatesListener(firm, this.onCommissionRates);

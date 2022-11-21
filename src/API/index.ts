@@ -39,6 +39,7 @@ import { buildFwdRates } from 'utils/fwdRates';
 import { toNumber } from 'utils/isNumeric';
 import { mergeDefinitionsAndLegs } from 'utils/legsUtils';
 import { forceParseDate, toUTC, toUTCFIXFormat } from 'utils/timeUtils';
+import { toValidNumberStringDumb } from 'utils/toValidNumberString';
 
 export type BankEntitiesQueryResponse = { [p: string]: BankEntity[] };
 
@@ -91,7 +92,7 @@ enum PromiseStatus {
   Rejected,
 }
 
-interface TaskHandler<T> {
+interface TaskHandler<_T> {
   status: PromiseStatus;
 
   reject(reason: any): void;
@@ -107,7 +108,9 @@ const request = <T>(
   contentType?: string
 ): Task<T> => {
   const taskHandler: TaskHandler<T> = {
-    reject: () => {},
+    reject: () => {
+      return;
+    },
     status: PromiseStatus.Pending,
   };
   // This should be accessible from outside the executor/promise to allow cancellation
@@ -361,7 +364,7 @@ export class API {
           Side: getSideFromType(order.type),
           Tenor: order.tenor,
           Quantity: size.toFixed(0),
-          Price: price.toString(),
+          Price: toValidNumberStringDumb(price),
           Firm: workareaStore.effectiveFirm,
         };
       }),
@@ -590,9 +593,10 @@ export class API {
     } else {
       order.MDMkt = personality;
     }
+
     const task: Task<MessageResponse> = POST<MessageResponse>(
       API.buildUrl(API.DarkPool, 'order', 'create'),
-      { ...order, Price: toNumber(order.Price) }
+      { ...order, Price: toValidNumberStringDumb(toNumber(order.Price)) }
     );
     return task.execute();
   }

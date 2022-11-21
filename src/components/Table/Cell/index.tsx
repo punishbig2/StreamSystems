@@ -15,6 +15,9 @@ interface CellProps {
 export const Cell: React.FC<CellProps> = (props: CellProps) => {
   const { render, width, handlers, user, ...inheritedProps } = props;
   const style: CSSProperties = { width };
+
+  void handlers;
+
   return (
     <div
       className={['td', props.className].join(' ')}

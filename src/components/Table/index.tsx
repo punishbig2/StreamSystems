@@ -26,7 +26,10 @@ interface Props {
 }
 
 const BasicTable = observer(
-  React.forwardRef((props: Props, ref: React.Ref<HTMLDivElement>): React.ReactElement | null => {
+  React.forwardRef(function BasicTable(
+    props: Props,
+    ref: React.Ref<HTMLDivElement>
+  ): React.ReactElement | null {
     const { rows, columns } = props;
 
     const optimalWidth = React.useMemo(
@@ -43,7 +46,10 @@ const BasicTable = observer(
       [optimalWidth, props.style]
     );
 
-    const entries: Array<[string, any]> = rows === null ? [] : Object.entries(rows);
+    const entries: Array<[string, any]> = React.useMemo(
+      (): Array<[string, any]> => (rows === null ? [] : Object.entries(rows)),
+      [rows]
+    );
 
     const totalWidth: number = React.useMemo(
       (): number => columns.reduce((total: number, column: TableColumn) => total + column.width, 0),

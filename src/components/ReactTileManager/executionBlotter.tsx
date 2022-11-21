@@ -20,7 +20,10 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
   const { width, height } = useExecutionBlotterSize();
 
   React.useEffect((): void => {
-    if (tile === null) return;
+    if (tile === null) {
+      return;
+    }
+
     runInNextLoop((): void => {
       const newGeometry = ((): Geometry => {
         if (isNew) {
@@ -29,16 +32,18 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
           return geometry;
         }
       })();
-      store.setLastGeometry(newGeometry);
+
       tile.setGeometry(newGeometry);
     });
   }, [geometry, height, isNew, store, tile, width]);
 
   React.useEffect((): VoidFunction | void => {
     if (tile === null) return;
+
     const updateGeometry = ((event: CustomEvent<Geometry>): void => {
-      store.setLastGeometry(event.detail);
+      store.setLastGeometry(event.detail, false);
     }) as EventListener;
+
     tile.addEventListener(TileEvent.Moved, updateGeometry);
     tile.addEventListener(TileEvent.Resized, updateGeometry);
     return (): void => {
@@ -66,8 +71,26 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
     ];
   }, [regions]);
 
+  const handleGroupChange = React.useCallback(
+    (value: string): void => store.setCurrencyGroupFilter(value),
+    [store]
+  );
+
+  const restore = React.useCallback((): void => {
+    if (tile === null) {
+      return;
+    }
+
+    runInNextLoop((): void => {
+      const newGeometry = getOptimalExecutionsBlotterGeometry(tile, width, height);
+
+      store.setLastGeometry(newGeometry, true);
+      tile.setGeometry(newGeometry);
+    });
+  }, [height, store, tile, width]);
+
   return (
-    <cib-window ref={setTile} scrollable transparent>
+    <cib-window ref={setTile} sticky={store.docked} scrollable transparent>
       <div slot="toolbar" className="execution-blotter-title">
         <h1>Execution Blotter</h1>
         <ExportButton blotterType={BlotterTypes.Executions} />
@@ -79,8 +102,13 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
             value={store.currencyGroupFilter}
             disabled={!workareaStore.connected}
             list={groups}
-            onChange={(value: string): void => store.setCurrencyGroupFilter(value)}
+            onChange={handleGroupChange}
           />
+          {!store.docked && (
+            <div className="window-button" onClick={restore}>
+              <i className="fa fa-border-style" />
+            </div>
+          )}
         </div>
       </div>
       <div slot="content" className="window-content">

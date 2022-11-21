@@ -29,7 +29,7 @@ interface Sorter {
 type SortFn<T> = (v1: T, v2: T) => number;
 
 export const DealBlotter: React.FC<Props> = React.memo(
-  (props: Props): ReactElement | null => {
+  function DealBlotter(props: Props): ReactElement | null {
     const { deals } = props;
     const { onDealSelected } = props;
     const [, setTable] = useState<HTMLDivElement | null>(null);

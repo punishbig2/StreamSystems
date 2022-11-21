@@ -118,7 +118,9 @@ export const MiddleOfficeMain: React.FC<Props> = (props: Props): React.ReactElem
         .catch((error: any) => {
           console.warn(error);
         })
-        .finally(() => {});
+        .finally(() => {
+          return;
+        });
     }
   };
 

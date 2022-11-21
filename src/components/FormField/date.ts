@@ -13,7 +13,7 @@ export class DateInputHandler<T, P extends MinimalProps, S extends Editable> ext
     value: any,
     input: HTMLInputElement | null,
     props: P,
-    state: S
+    _state: S
   ): StateReturnType<S> {
     const [displayValue, validity] = this.format(value, props);
     return {
@@ -47,9 +47,9 @@ export class DateInputHandler<T, P extends MinimalProps, S extends Editable> ext
   }
 
   public onKeyDown(
-    event: React.KeyboardEvent<HTMLInputElement>,
-    props: P,
-    state: S
+    _event: React.KeyboardEvent<HTMLInputElement>,
+    _props: P,
+    _state: S
   ): StateReturnType<S> {
     return null;
   }
@@ -68,7 +68,7 @@ export class DateInputHandler<T, P extends MinimalProps, S extends Editable> ext
     return value;
   }
 
-  public shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean {
+  public shouldAcceptInput(_input: HTMLInputElement, _props: P, _state: S): boolean {
     return true;
   }
 }

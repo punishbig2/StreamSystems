@@ -15,7 +15,7 @@ export interface RowProps {
 }
 
 export const DealRow: React.FC<RowProps> = React.memo(
-  (props: RowProps): ReactElement => {
+  function DealRow(props: RowProps): ReactElement {
     const { row } = props;
     return (
       <Row

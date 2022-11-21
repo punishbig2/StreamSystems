@@ -34,9 +34,8 @@ export const isMyMessage = (message: Message): boolean => {
   return message.Username === user.email || message.ContraTrader === user.email;
 };
 
-export const renderRowFactory =
-  (blotterType: BlotterTypes) =>
-  (props: any): ReactElement | null => {
+export const renderRowFactory = (blotterType: BlotterTypes) =>
+  function RowElement(props: any): ReactElement | null {
     const message: Message = props.row;
     const rowType = ((): BlotterRowTypes => {
       if (!message) return BlotterRowTypes.Normal;
@@ -65,6 +64,6 @@ export const renderRowFactory =
     );
   };
 
-export const isBusted = (message: Message): boolean => {
+export const isBusted = (_message: Message): boolean => {
   return false;
 };

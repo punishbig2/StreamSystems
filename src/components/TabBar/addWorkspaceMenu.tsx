@@ -31,7 +31,7 @@ export const AddWorkspaceMenu: React.FC<MenuProps> = (props: MenuProps): React.R
       keepMounted={false}
     >
       {props.isTrader || props.isBroker ? (
-        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>Empty</MenuItem>
+        <MenuItem onClick={() => addTab(CurrencyGroups.Default)}>Trading Workspace</MenuItem>
       ) : null}
       {props.isMiddleOffice ? <MenuItem onClick={() => addTab()}>Middle Office</MenuItem> : null}
     </Menu>

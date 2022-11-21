@@ -37,7 +37,7 @@ export const ContentView: React.FC<Props> = (props: Props): React.ReactElement =
   ): ((_: ContentStore | null) => React.ReactElement) => {
     switch (type) {
       case TileType.PodTile:
-        return (contentStore: ContentStore | null): React.ReactElement => {
+        return function PodTileContentView(contentStore: ContentStore | null): React.ReactElement {
           if (isPodTileStore(contentStore)) {
             return (
               <PodStoreContext.Provider value={contentStore}>
@@ -53,7 +53,9 @@ export const ContentView: React.FC<Props> = (props: Props): React.ReactElement =
           }
         };
       case TileType.MessageBlotter:
-        return (contentStore: ContentStore | null): React.ReactElement => {
+        return function MessageBlotterContentView(
+          contentStore: ContentStore | null
+        ): React.ReactElement {
           if (isMessageBlotterStore(contentStore)) {
             return (
               <MessageBlotterStoreContext.Provider value={contentStore}>
@@ -74,7 +76,9 @@ export const ContentView: React.FC<Props> = (props: Props): React.ReactElement =
   ): ((contentStore: ContentStore | null) => React.ReactElement | null) => {
     switch (type) {
       case TileType.PodTile:
-        return (contentStore: ContentStore | null): React.ReactElement | null => {
+        return function PodTileTitleView(
+          contentStore: ContentStore | null
+        ): React.ReactElement | null {
           if (isPodTileStore(contentStore)) {
             return (
               <PodStoreContext.Provider value={contentStore}>
@@ -86,7 +90,9 @@ export const ContentView: React.FC<Props> = (props: Props): React.ReactElement =
           }
         };
       case TileType.MessageBlotter:
-        return (contentStore: ContentStore | null): React.ReactElement | null => {
+        return function MessageBlotterTitleView(
+          contentStore: ContentStore | null
+        ): React.ReactElement | null {
           if (isMessageBlotterStore(contentStore)) {
             return (
               <MessageBlotterStoreContext.Provider value={contentStore}>

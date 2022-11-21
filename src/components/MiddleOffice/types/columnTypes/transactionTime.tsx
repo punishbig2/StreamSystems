@@ -26,7 +26,7 @@ export default (width = 6): TableColumn => ({
     const m2: Moment = moment(v2.tradeDate);
     return m1.diff(m2);
   },
-  filterByKeyword: (v1: Deal, keyword: string): boolean => {
+  filterByKeyword: (/* v1: Deal, keyword: string */): boolean => {
     /* const original: string = DateFormatter.format(v1.tradeDate);
     if (!original) return false;
     const value: string = origin.toLowerCase();

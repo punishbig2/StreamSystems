@@ -29,6 +29,7 @@ export class MessageBlotterStore extends ContentStore implements Persistable<Mes
   public lastGeometry: Geometry = new Geometry(0, 0, 100, 100);
   public currencyGroupFilter = 'All';
   public isNew = true;
+  public docked = true;
 
   public readonly blotterType: BlotterTypes;
   public columnsMap: { [columnName: string]: TableColumn } = {};
@@ -58,6 +59,7 @@ export class MessageBlotterStore extends ContentStore implements Persistable<Mes
       setInitialColumns: action.bound,
       setLastGeometry: action.bound,
       setCurrencyGroupFilter: action.bound,
+      docked: observable,
     });
   }
 
@@ -208,9 +210,10 @@ export class MessageBlotterStore extends ContentStore implements Persistable<Mes
     );
   }
 
-  public setLastGeometry(geometry: Geometry): void {
+  public setLastGeometry(geometry: Geometry, docked: boolean): void {
     this.lastGeometry = geometry;
     this.isNew = false;
+    this.docked = docked;
   }
 
   public setCurrencyGroupFilter(value: string): void {

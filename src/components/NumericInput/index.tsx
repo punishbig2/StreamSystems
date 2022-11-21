@@ -30,7 +30,7 @@ interface Props {
   readonly onSubmit?: (input: HTMLInputElement, tabDirection: TabDirection) => void;
 }
 
-const NumericInput = forwardRef(function <T = string>(
+const NumericInput = forwardRef(function NumericInput(
   props: Props,
   ref: React.Ref<HTMLInputElement>
 ): ReactElement {
@@ -45,6 +45,9 @@ const NumericInput = forwardRef(function <T = string>(
     ...otherProps
   } = props;
   const [selectTimer, setSelectTimer] = useState(setTimeout(() => null, 0));
+
+  void onBlur;
+  void className;
 
   const onFocusWrapper = (event: React.FocusEvent<HTMLInputElement>): void => {
     const { target } = event;

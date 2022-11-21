@@ -28,7 +28,11 @@ export const useExecutionBlotterSize = (): Size => {
   );
   return React.useMemo(
     () => ({
-      width: getOptimalWidthFromColumnsSpec(themeStore.fontFamily, themeStore.fontSize, columns),
+      width: getOptimalWidthFromColumnsSpec(
+        themeStore.fontFamily,
+        themeStore.fontSize + 2,
+        columns
+      ),
       // Compute the ideal height
       height: idealBlotterHeight(),
     }),

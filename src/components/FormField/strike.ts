@@ -12,7 +12,7 @@ export class StrikeHandler<
   P extends MinimalProps,
   S extends Editable
 > extends NumericInputHandler<T, P, S> {
-  public format(value: any, props: P): [string, Validity] {
+  public format(value: any, _props: P): [string, Validity] {
     if (typeof value === 'undefined') return ['', Validity.Intermediate];
     if (typeof value !== 'string' && typeof value !== 'number') {
       return ['', Validity.Intermediate];
@@ -44,14 +44,14 @@ export class StrikeHandler<
   }
 
   public onKeyDown(
-    event: React.KeyboardEvent<HTMLInputElement>,
-    props: P,
-    state: S
+    _event: React.KeyboardEvent<HTMLInputElement>,
+    _props: P,
+    _state: S
   ): Pick<S, keyof S> | S | null {
     return null;
   }
 
-  public parse(value: string, props: P): string | number | null {
+  public parse(value: string, _props: P): string | number | null {
     if (/ATM[FSZ]/.test(value)) {
       return value;
     } else {
@@ -65,7 +65,7 @@ export class StrikeHandler<
     }
   }
 
-  public shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean {
+  public shouldAcceptInput(_input: HTMLInputElement, _props: P, _state: S): boolean {
     return true;
   }
 }

@@ -12,7 +12,7 @@ export class DefaultHandler<T, P extends MinimalProps<T>, S extends Editable> ex
     value: any,
     input: HTMLInputElement | null,
     props: P,
-    state: S
+    _state: S
   ): StateReturnType<S> {
     const [displayValue, validity] = this.format(value, props);
     return {
@@ -34,15 +34,15 @@ export class DefaultHandler<T, P extends MinimalProps<T>, S extends Editable> ex
     }
   }
 
-  public format<T>(value: any, props: P): [string, Validity] {
+  public format<_T>(value: any, props: P): [string, Validity] {
     return getDisplayValue(props.type, props.name, value, !!props.editable, props.emptyValue);
   }
 
-  public parse(value: string, props: P): any {
+  public parse(value: string, _props: P): any {
     return value;
   }
 
-  public shouldAcceptInput(input: HTMLInputElement, props: P, state: S): boolean {
+  public shouldAcceptInput(_input: HTMLInputElement, _props: P, _state: S): boolean {
     return true;
   }
 }

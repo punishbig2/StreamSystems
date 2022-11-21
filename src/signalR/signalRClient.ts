@@ -395,8 +395,12 @@ export class SignalRClient {
     tenor: string,
     fn: (message: DarkPoolMessage) => void
   ): VoidFunction => {
-    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor)
-      return (): void => {};
+    if (currency === '' || strategy === '' || tenor === '' || !currency || !strategy || !tenor) {
+      return (): void => {
+        return;
+      };
+    }
+
     const path: string = $$(currency, strategy, tenor);
     const eventName = `${UPDATE_DARK_POOL_PRICE}${path}`;
     const command: Command = {
@@ -531,7 +535,9 @@ export class SignalRClient {
   };
 
   private messagesCache: readonly Message[] = [];
-  private messagesTimer = setTimeout(() => {}, 0);
+  private messagesTimer = setTimeout(() => {
+    return;
+  }, 0);
 
   private onUpdateMessageBlotter = (rawMessage: string): void => {
     clearTimeout(this.messagesTimer);

@@ -34,18 +34,15 @@ const Column: React.FC<Props> = (props: Props): ReactElement => {
   const getFilterEditor = (): ReactElement | null => {
     if (!props.filterable) return null;
     let timer = setTimeout(() => null, 0);
-    const onChange = useCallback(
-      ({ target: { value } }: React.ChangeEvent<HTMLInputElement>): void => {
-        clearTimeout(timer);
-        // Reset the timer
-        timer = setTimeout(() => {
-          if (props.onFiltered !== undefined) {
-            props.onFiltered(value);
-          }
-        }, 300);
-      },
-      []
-    );
+    const onChange = ({ target: { value } }: React.ChangeEvent<HTMLInputElement>): void => {
+      clearTimeout(timer);
+      // Reset the timer
+      timer = setTimeout(() => {
+        if (props.onFiltered !== undefined) {
+          props.onFiltered(value);
+        }
+      }, 300);
+    };
 
     return (
       <input

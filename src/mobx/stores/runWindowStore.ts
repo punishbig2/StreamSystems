@@ -157,8 +157,12 @@ export class RunWindowStore {
     const { user } = workareaStore;
     if (this.initialized) {
       return {
-        cancel(): void {},
-        execute: async (): Promise<void> => {},
+        cancel(): void {
+          return;
+        },
+        execute: async (): Promise<void> => {
+          return;
+        },
       };
     }
     const filterOrders = (order: Order): boolean => {

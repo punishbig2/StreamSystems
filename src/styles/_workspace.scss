@@ -290,5 +290,14 @@
   .right-panel {
     display: flex;
     align-items: center;
+
+    .window-button {
+      margin: 0 10px;
+      cursor: pointer;
+
+      i {
+        font-size: 12px;
+      }
+    }
   }
 }

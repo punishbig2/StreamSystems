@@ -383,10 +383,10 @@ const counterParty = (sortable: boolean, isExecBlotter: boolean): TableColumn =>
 
 const pool = (sortable: boolean): TableColumn => ({
   name: 'pool',
-  difference: function (p1: any, p2: any) {
+  difference: function (_p1: any, _p2: any) {
     return 0;
   },
-  filterByKeyword: function (p1: any, p2: string) {
+  filterByKeyword: function (_p1: any, _p2: string) {
     return false;
   },
   header: () => 'Venue',

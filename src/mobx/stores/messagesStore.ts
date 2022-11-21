@@ -12,7 +12,9 @@ import { isAcceptableFill, isMyMessage, sortByTimeDescending } from 'utils/messa
 import { parseTime } from 'utils/timeUtils';
 
 class MessagesStream {
-  private listener: (message: readonly Message[]) => void = (): void => {};
+  private listener: (message: readonly Message[]) => void = (): void => {
+    return;
+  };
 
   constructor() {
     signalRClient.setMessagesListener(this.onMessage);
@@ -71,7 +73,9 @@ class MessagesStream {
   }
 
   public removeHandler(): void {
-    this.listener = (): void => {};
+    this.listener = (): void => {
+      return;
+    };
   }
 }
 

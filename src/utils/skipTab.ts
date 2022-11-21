@@ -41,14 +41,18 @@ export const skipTabIndexAll = (
   if (parent !== null) {
     const inputs: HTMLInputElement[] = Array.from(parent.querySelectorAll('input'));
     const startAt: number = inputs.indexOf(target);
-    if (startAt === -1) return;
+    if (startAt === -1) {
+      return;
+    }
     const next: HTMLInputElement = inputs[startAt + n];
     if (next) {
       // Now just focus the input
       next.focus();
     } else {
       if (cycle === 'first-row') {
+        return;
       } else if (cycle === 'last-row') {
+        return;
       } else {
         if (inputs[cycle]) {
           inputs[cycle].focus();

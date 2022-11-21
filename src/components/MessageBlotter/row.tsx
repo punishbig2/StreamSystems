@@ -57,7 +57,9 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
 
   useEffect(() => {
     if (ExecID === null || blotterType !== BlotterTypes.Executions) return;
-    let timer = setTimeout((): void => {}, 0);
+    let timer = setTimeout((): void => {
+      return;
+    }, 0);
     const onExecuted = (): void => {
       setExecuted(true);
       timer = setTimeout(() => {
@@ -76,9 +78,8 @@ const Row: React.FC<Props> = (props: Props): ReactElement | null => {
     };
   }, [ExecID, blotterType]);
 
-  const columnMapper =
-    (rowID: string) =>
-    (column: TableColumn): ReactElement => {
+  const columnMapper = (rowID: string) =>
+    function Column(column: TableColumn): ReactElement {
       const style: CSSProperties = {
         width: getCellWidth(column.width, props.totalWidth),
       };

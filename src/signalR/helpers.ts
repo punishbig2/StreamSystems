@@ -27,6 +27,10 @@ export const playBeep = async (
 
   element
     .play()
-    .then((): void => {})
-    .catch((): void => {});
+    .then((): void => {
+      return;
+    })
+    .catch((): void => {
+      return;
+    });
 };

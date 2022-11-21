@@ -307,7 +307,9 @@ export class MiddleOfficeStore implements Workspace {
             tradeDate: '',
           };
         },
-        cancel: (): void => {},
+        cancel: (): void => {
+          return;
+        },
       };
     }
     const task: Task<CalendarVolDatesResponse> = ((): Task<CalendarVolDatesResponse> => {
@@ -386,7 +388,7 @@ export class MiddleOfficeStore implements Workspace {
 
   public static createEditableFilter(
     allowedTypes: number,
-    status = 0,
+    status?: number,
     isAllowedToEdit: (entry: DealEntry) => boolean = (): boolean => true
   ): EditableFilter {
     return (name: string, entry: DealEntry, editable: boolean, prefix: string): boolean => {
@@ -689,8 +691,12 @@ export class MiddleOfficeStore implements Workspace {
       (this.isEditMode && deal === null)
     ) {
       return {
-        execute: async (): Promise<void> => {},
-        cancel: (): void => {},
+        execute: async (): Promise<void> => {
+          return;
+        },
+        cancel: (): void => {
+          return;
+        },
       };
     }
     this.modifiedFields = [];
@@ -771,7 +777,9 @@ export class MiddleOfficeStore implements Workspace {
       execute: async (): Promise<void> => {
         await this.resetSpotDate();
       },
-      cancel: (): void => {},
+      cancel: (): void => {
+        return;
+      },
     };
   }
 
@@ -1246,7 +1254,9 @@ export class MiddleOfficeStore implements Workspace {
       execute: async (): Promise<{ legs: readonly Leg[] } | null> => {
         return { legs };
       },
-      cancel: (): void => {},
+      cancel: (): void => {
+        return;
+      },
     };
   }
 

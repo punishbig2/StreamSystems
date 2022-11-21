@@ -17,7 +17,7 @@ const isNewDisabled = (
   entryType: EntryType,
   status: DealStatus,
   isEditMode: boolean,
-  isModified: boolean
+  _isModified: boolean
 ): boolean => {
   if (entryType === EntryType.Empty) {
     return false;
@@ -35,7 +35,7 @@ const isCancelDisabled = (
   entryType: EntryType,
   status: DealStatus,
   isEditMode: boolean,
-  isModified: boolean
+  _isModified: boolean
 ): boolean => {
   if (entryType === EntryType.Clone || entryType === EntryType.New) {
     return false;
@@ -49,7 +49,7 @@ const isCloneDisabled = (
   entryType: EntryType,
   status: DealStatus,
   isEditMode: boolean,
-  isModified: boolean
+  _isModified: boolean
 ): boolean => {
   if (status === DealStatus.SEFFailed) {
     return true;
@@ -62,8 +62,8 @@ const isRemoveDisabled = (
   dealType: DealType,
   entryType: EntryType,
   status: DealStatus,
-  isEditMode: boolean,
-  isModified: boolean
+  _isEditMode: boolean,
+  _isModified: boolean
 ): boolean => {
   return status !== DealStatus.Pending && status !== DealStatus.Priced;
 };
@@ -73,7 +73,7 @@ const isEditDisabled = (
   entryType: EntryType,
   status: DealStatus,
   isEditMode: boolean,
-  isModified: boolean
+  _isModified: boolean
 ): boolean => {
   if (status === DealStatus.SEFComplete || status === DealStatus.STPComplete) {
     return true;
@@ -87,7 +87,7 @@ const isPriceDisabled = (
   entryType: EntryType,
   status: DealStatus,
   isEditMode: boolean,
-  isModified: boolean
+  _isModified: boolean
 ): boolean => {
   if (isEditMode) {
     return true;
@@ -115,8 +115,8 @@ const isSubmitDisabled = (
   dealType: DealType,
   entryType: EntryType,
   status: DealStatus,
-  isEditMode: boolean,
-  isModified: boolean
+  _isEditMode: boolean,
+  _isModified: boolean
 ): boolean => {
   return (
     status !== DealStatus.Priced &&

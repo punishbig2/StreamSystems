@@ -17,9 +17,7 @@ interface Props {
   readonly onColumnsOrderChange?: (sourceIndex: number, targetIndex: number) => void;
 }
 
-export const TableHeader: React.FC<Props> = observer(function <T>(
-  props: Props
-): React.ReactElement {
+export const TableHeader: React.FC<Props> = observer(function (props: Props): React.ReactElement {
   const { columns } = props;
   const store = React.useContext<HeaderStore>(HeaderStoreContext);
 
@@ -32,54 +30,58 @@ export const TableHeader: React.FC<Props> = observer(function <T>(
       const onChange = props.onColumnsOrderChange;
       store.setGrabbedColumn(column, element, grabbedAt, onChange);
     },
-    []
+    [props.onColumnsOrderChange, store]
   );
 
-  const onSorted = useCallback((name: string, sortDirection: SortDirection): void => {
-    const newSortOrder = ((): SortDirection => {
-      switch (sortDirection) {
-        case SortDirection.None:
-        case undefined:
-          return SortDirection.Ascending;
-        case SortDirection.Ascending:
-          return SortDirection.Descending;
-        case SortDirection.Descending:
-          return SortDirection.None;
+  const onSorted = useCallback(
+    (name: string, sortDirection: SortDirection): void => {
+      const newSortOrder = ((): SortDirection => {
+        switch (sortDirection) {
+          case SortDirection.None:
+          case undefined:
+            return SortDirection.Ascending;
+          case SortDirection.Ascending:
+            return SortDirection.Descending;
+          case SortDirection.Descending:
+            return SortDirection.None;
+        }
+      })();
+      if (props.onSortBy !== undefined) {
+        props.onSortBy(name, newSortOrder);
       }
-    })();
-    if (props.onSortBy !== undefined) {
-      props.onSortBy(name, newSortOrder);
-    }
-  }, []);
+    },
+    [props]
+  );
 
   const columnMapperFactory = useCallback(
-    (totalWidth: number) => (column: ExtendedTableColumn) => {
-      return (
-        <Column
-          key={column.name}
-          name={column.name}
-          filterable={column.filterable}
-          filter={column.filter}
-          movable={props.allowReorderColumns}
-          sortable={column.sortable}
-          sortDirection={column.sortDirection}
-          width={getCellWidth(column.width, totalWidth)}
-          type={ColumnType.Real}
-          onGrabbed={(element: HTMLDivElement, grabbedAt: number) =>
-            onColumnGrabbed(column, element, grabbedAt)
-          }
-          onFiltered={(keyword: string) => {
-            if (props.onFiltered !== undefined) {
-              props.onFiltered(column.name, keyword);
+    (totalWidth: number): ((_: ExtendedTableColumn) => React.ReactElement) =>
+      function ColumnElement(column: ExtendedTableColumn): React.ReactElement {
+        return (
+          <Column
+            key={column.name}
+            name={column.name}
+            filterable={column.filterable}
+            filter={column.filter}
+            movable={props.allowReorderColumns}
+            sortable={column.sortable}
+            sortDirection={column.sortDirection}
+            width={getCellWidth(column.width, totalWidth)}
+            type={ColumnType.Real}
+            onGrabbed={(element: HTMLDivElement, grabbedAt: number) =>
+              onColumnGrabbed(column, element, grabbedAt)
             }
-          }}
-          onSorted={onSorted}
-        >
-          {column.header(props)}
-        </Column>
-      );
-    },
-    []
+            onFiltered={(keyword: string) => {
+              if (props.onFiltered !== undefined) {
+                props.onFiltered(column.name, keyword);
+              }
+            }}
+            onSorted={onSorted}
+          >
+            {column.header(props)}
+          </Column>
+        );
+      },
+    [onColumnGrabbed, onSorted, props]
   );
 
   const grabbedColumnElement: React.ReactElement | undefined = grabbedColumn ? (

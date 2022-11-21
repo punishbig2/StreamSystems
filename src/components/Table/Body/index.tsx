@@ -71,32 +71,44 @@ const reducer = (state: State, action: Action): State => {
   return state;
 };
 
-export const TableBody: React.FC<Props> = React.forwardRef(
-  (props: Props, ref: React.Ref<any>): React.ReactElement => {
-    const { rows = [] } = props;
-    const containerRef = React.useRef<HTMLDivElement>(null);
-    const { current } = containerRef;
-    const [state, dispatch] = React.useReducer<React.Reducer<State, Action>>(reducer, initialState);
+export const TableBody: React.FC<Props> = React.forwardRef(function TableBody(
+  props: Props,
+  ref: React.Ref<any>
+): React.ReactElement {
+  const { rows = [] } = props;
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const { current } = containerRef;
+  const [state, dispatch] = React.useReducer<React.Reducer<State, Action>>(reducer, initialState);
 
-    React.useEffect((): VoidFunction | void => {
-      if (current === null) {
-        return;
-      }
+  React.useEffect((): VoidFunction | void => {
+    if (current === null) {
+      return;
+    }
 
-      const parent = current.parentElement;
-      if (parent === null) {
-        return;
-      }
+    const parent = current.parentElement;
+    if (parent === null) {
+      return;
+    }
 
-      const children = Array.from(current.children).map((c) => c as HTMLElement);
-      const getHeight = (element: HTMLElement): number => element.getBoundingClientRect().height;
+    const children = Array.from(current.children).map((c) => c as HTMLElement);
+    const getHeight = (element: HTMLElement): number => element.getBoundingClientRect().height;
 
-      const itemHeight =
-        children.reduce(
-          (tallest: number, next: HTMLElement): number => tallest + getHeight(next),
-          0
-        ) / children.length;
+    const itemHeight =
+      children.reduce(
+        (tallest: number, next: HTMLElement): number => tallest + getHeight(next),
+        0
+      ) / children.length;
 
+    dispatch({
+      type: Actions.UpdateGeometry,
+      data: {
+        itemHeight: itemHeight,
+        containerHeight: parent.offsetHeight,
+        contentHeight: parent.scrollHeight,
+      },
+    });
+
+    const resizeObserver = new ResizeObserver((): void => {
       dispatch({
         type: Actions.UpdateGeometry,
         data: {
@@ -105,108 +117,97 @@ export const TableBody: React.FC<Props> = React.forwardRef(
           contentHeight: parent.scrollHeight,
         },
       });
+    });
 
-      const resizeObserver = new ResizeObserver((): void => {
-        dispatch({
-          type: Actions.UpdateGeometry,
-          data: {
-            itemHeight: itemHeight,
-            containerHeight: parent.offsetHeight,
-            contentHeight: parent.scrollHeight,
-          },
-        });
-      });
-
-      resizeObserver.observe(parent);
-      return (): void => {
-        resizeObserver.disconnect();
-      };
-    }, [current]);
-
-    React.useEffect((): void => {
-      const visibleRowCount = Math.min(state.visibleRowCount, rows.length);
-      dispatch({
-        type: Actions.ResetRowCount,
-        data: {
-          top: state.firstRow * state.itemHeight,
-          bottom: (rows.length - state.firstRow - visibleRowCount) * state.itemHeight,
-        },
-      });
-    }, [rows.length, state.firstRow, state.itemHeight, state.visibleRowCount]);
-
-    React.useEffect((): void => {
-      const visibleRowCount = Math.ceil(state.containerHeight / state.itemHeight) + 1;
-
-      if (!isNaN(visibleRowCount)) {
-        dispatch({
-          type: Actions.UpdateVisibleRowCount,
-          data: {
-            visibleRowCount: visibleRowCount,
-            bottom: state.contentHeight - visibleRowCount * state.itemHeight,
-          },
-        });
-      }
-    }, [state.containerHeight, state.contentHeight, state.itemHeight]);
-
-    if (rows.length === 0) {
-      return (
-        <div className="empty-table">
-          <h1>There's no data yet</h1>
-        </div>
-      );
-    }
-
-    const onScroll = (): void => {
-      if (current === null) {
-        return;
-      }
-
-      const parent = current.parentElement;
-      if (parent === null) {
-        return;
-      }
-
-      const firstRow = Math.min(
-        Math.max(Math.floor(parent.scrollTop / state.itemHeight), 0),
-        rows.length - state.visibleRowCount
-      );
-
-      if (isNaN(firstRow)) {
-        return;
-      }
-
-      const bottom = (rows.length - firstRow - state.visibleRowCount) * state.itemHeight;
-      if (isNaN(bottom)) {
-        return;
-      }
-
-      dispatch({
-        type: Actions.UpdateScrollTop,
-        data: {
-          firstRow: firstRow,
-          top: firstRow * state.itemHeight,
-          bottom: bottom,
-        },
-      });
+    resizeObserver.observe(parent);
+    return (): void => {
+      resizeObserver.disconnect();
     };
+  }, [current]);
 
+  React.useEffect((): void => {
+    const visibleRowCount = Math.min(state.visibleRowCount, rows.length);
+    dispatch({
+      type: Actions.ResetRowCount,
+      data: {
+        top: state.firstRow * state.itemHeight,
+        bottom: (rows.length - state.firstRow - visibleRowCount) * state.itemHeight,
+      },
+    });
+  }, [rows.length, state.firstRow, state.itemHeight, state.visibleRowCount]);
+
+  React.useEffect((): void => {
+    const visibleRowCount = Math.ceil(state.containerHeight / state.itemHeight) + 1;
+
+    if (!isNaN(visibleRowCount)) {
+      dispatch({
+        type: Actions.UpdateVisibleRowCount,
+        data: {
+          visibleRowCount: visibleRowCount,
+          bottom: state.contentHeight - visibleRowCount * state.itemHeight,
+        },
+      });
+    }
+  }, [state.containerHeight, state.contentHeight, state.itemHeight]);
+
+  if (rows.length === 0) {
     return (
-      <div ref={ref} className="tbody" onScroll={debounce(onScroll, 5)}>
-        <div style={{ height: state.top }} />
-        <div ref={containerRef}>
-          {rows
-            .slice(state.firstRow, state.firstRow + (state.visibleRowCount ?? rows.length))
-            .map((data: any, index: number): any => {
-              const { row } = data;
-              const rowProps = {
-                ...data,
-                selected: row.id === props.selectedRow,
-              };
-              return props.renderRow(rowProps, index);
-            })}
-        </div>
-        <div style={{ height: isNaN(state.bottom) ? 0 : state.bottom }} />
+      <div className="empty-table">
+        <h1>There&apos;s no data yet</h1>
       </div>
     );
   }
-);
+
+  const onScroll = (): void => {
+    if (current === null) {
+      return;
+    }
+
+    const parent = current.parentElement;
+    if (parent === null) {
+      return;
+    }
+
+    const firstRow = Math.min(
+      Math.max(Math.floor(parent.scrollTop / state.itemHeight), 0),
+      rows.length - state.visibleRowCount
+    );
+
+    if (isNaN(firstRow)) {
+      return;
+    }
+
+    const bottom = (rows.length - firstRow - state.visibleRowCount) * state.itemHeight;
+    if (isNaN(bottom)) {
+      return;
+    }
+
+    dispatch({
+      type: Actions.UpdateScrollTop,
+      data: {
+        firstRow: firstRow,
+        top: firstRow * state.itemHeight,
+        bottom: bottom,
+      },
+    });
+  };
+
+  return (
+    <div ref={ref} className="tbody" onScroll={debounce(onScroll, 5)}>
+      <div style={{ height: state.top }} />
+      <div ref={containerRef}>
+        {rows
+          .slice(state.firstRow, state.firstRow + (state.visibleRowCount ?? rows.length))
+          .map((data: any, index: number): any => {
+            const { row } = data;
+            const rowProps = {
+              ...data,
+              selected: row.id === props.selectedRow,
+            };
+            return props.renderRow(rowProps, index);
+          })}
+      </div>
+      <div style={{ height: isNaN(state.bottom) ? 0 : state.bottom }} />
+    </div>
+  );
+});

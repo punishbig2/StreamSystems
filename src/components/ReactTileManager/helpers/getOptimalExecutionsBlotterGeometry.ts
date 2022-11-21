@@ -9,5 +9,8 @@ export const getOptimalExecutionsBlotterGeometry = (
   if (container === null) {
     throw new Error('impossible, the window cannot be floating around');
   }
-  return new Geometry(0, container.offsetHeight - height - 1, width, height);
+
+  console.log(element);
+
+  return new Geometry(2, window.innerHeight - height - 36, width, height);
 };

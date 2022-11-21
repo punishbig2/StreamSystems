@@ -31,6 +31,9 @@ export const Row: React.FC<Props> = observer((props: Props) => {
   const { internalRow } = store;
   const classes: string[] = ['tr'];
 
+  void containerWidth;
+  void id;
+
   useEffect((): void => {
     store.setInternalRow(row);
   }, [store, row]);

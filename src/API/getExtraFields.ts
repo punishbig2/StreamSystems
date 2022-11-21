@@ -3,7 +3,7 @@ import { DealEntry } from 'types/dealEntry';
 
 export const getExtraFields = (
   entry: DealEntry,
-  summaryLeg: SummaryLeg | null
+  _summaryLeg: SummaryLeg | null
 ): { extra_fields?: any } => {
   if (entry.extra_fields) {
     return {

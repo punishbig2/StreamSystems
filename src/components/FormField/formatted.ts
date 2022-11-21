@@ -73,11 +73,11 @@ export abstract class FormattedInput<
     }
   }
 
-  public startAdornment(props: P): string {
+  public startAdornment(_props: P): string {
     return '';
   }
 
-  public endAdornment(props: P): string {
+  public endAdornment(_props: P): string {
     return '';
   }
 

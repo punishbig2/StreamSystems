@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const Field: React.FC<Props> = React.memo(
-  (props: Props): React.ReactElement => {
+  function Field(props: Props): React.ReactElement {
     const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
     const { field, entry, isEditMode } = props;
     const { transformData, dataSource } = field;

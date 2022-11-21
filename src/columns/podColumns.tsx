@@ -50,8 +50,13 @@ const getRefButton = (
   strategy: string,
   type: OrderTypes
 ): (() => ReactElement | null) => {
-  if (depth) return () => null;
-  return () => <RefButton type={type} currency={currency} strategy={strategy} />;
+  if (depth) {
+    return (): ReactElement | null => null;
+  }
+
+  return function ButtonElement(): ReactElement {
+    return <RefButton type={type} currency={currency} strategy={strategy} />;
+  };
 };
 
 const columns = (currency: string, strategy: string, depth = false): TableColumn[] => {

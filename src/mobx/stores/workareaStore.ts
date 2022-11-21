@@ -126,6 +126,11 @@ export class WorkareaStore {
       showNewVersionModal: action.bound,
       updateDefaultOrders: action.bound,
       updateDefaultPodRows: action.bound,
+      onConnectedHandler: action.bound,
+      onDisconnectedHandler: action.bound,
+      setCurrentWorkspaceIndex: action.bound,
+      setWorkspaces: action.bound,
+      setUser: action.bound,
     });
   }
 
@@ -234,6 +239,10 @@ export class WorkareaStore {
     return eod.isAfter(moment()) && bod.isBefore(moment());
   }
 
+  public setUser(user: users.User): void {
+    this.user = user;
+  }
+
   public async initialize(id: string | null): Promise<void> {
     if (id === null) {
       this.status = WorkareaStatus.UserNotFound;
@@ -255,7 +264,7 @@ export class WorkareaStore {
         }
         const regions: readonly string[] = await this.loadUserRegions(user.email);
         // Now the user object is complete
-        this.user = { ...user, regions };
+        this.setUser({ ...user, regions });
         this.persistStorage = new PersistStorage(this.user);
         // This is just for eye candy :)
         WorkareaStore.cleanupUrl(id);
@@ -376,8 +385,7 @@ export class WorkareaStore {
 
   public updateLoadingProgress(message: string): void {
     this.loadingMessage = message;
-    this.loadingProgress += this.loadingStep;
-    if (this.loadingProgress > 100) this.loadingProgress = 100;
+    this.loadingProgress = Math.min(this.loadingStep + this.loadingProgress, 100);
   }
 
   public async loadUser(id: string): Promise<users.User | undefined> {
@@ -410,6 +418,14 @@ export class WorkareaStore {
     return API.getUserRegions(email);
   }
 
+  public setCurrentWorkspaceIndex(index: number | null): void {
+    this.currentWorkspaceIndex = index;
+  }
+
+  public setWorkspaces(workspaces: readonly Workspace[]) {
+    this.workspaces = workspaces;
+  }
+
   public async initializePersistStorage(): Promise<void> {
     const { persistStorage } = this;
     if (persistStorage === null || persistStorage === undefined) {
@@ -418,9 +434,9 @@ export class WorkareaStore {
     this.updateLoadingProgress(strings.LoadingRegions);
     // Initialize the persistStorage object
     const savedStore = await persistStorage.read();
-    this.workspaces = savedStore.workspaces;
-    this.currentWorkspaceIndex = savedStore.currentWorkspaceIndex;
 
+    this.setWorkspaces(savedStore.workspaces);
+    this.setCurrentWorkspaceIndex(savedStore.currentWorkspaceIndex);
     this.setPreferences(savedStore.preferences);
 
     autorun((): void => {
@@ -465,19 +481,22 @@ export class WorkareaStore {
     this.banks = await API.getBanks();
   }
 
+  public onConnectedHandler(): void {
+    this.status = WorkareaStatus.Ready;
+    this.loadingMessage = strings.Connected;
+    this.connected = true;
+  }
+
+  public onDisconnectedHandler(): void {
+    this.connected = false;
+  }
+
   public async connectToSignalR(): Promise<void> {
     this.updateLoadingProgress(strings.EstablishingConnection);
     if (signalRManager.connect()) {
       // Try to connect
-      signalRManager.setOnConnectedListener(() => {
-        this.status = WorkareaStatus.Ready;
-        this.loadingMessage = strings.Connected;
-        this.connected = true;
-      });
-      signalRManager.setOnDisconnectedListener(() => {
-        // this.status = WorkareaStatus.Error;
-        this.connected = false;
-      });
+      signalRManager.setOnConnectedListener(this.onConnectedHandler);
+      signalRManager.setOnDisconnectedListener(this.onDisconnectedHandler);
     }
   }
 
