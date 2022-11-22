@@ -10,8 +10,9 @@ export enum DealStatus {
   TRTNComplete /*  8 */,
   MKTSComplete /*  9 */,
   UBSComplete /* 10 */,
-  MSCOComplete /* 11 */,
-  STPComplete /* 12 */,
+  CIBCComplete /* 11 */,
+  MSCOComplete /* 12 */,
+  STPComplete /* 13 */,
 }
 
 export const toBitwise = (status: DealStatus): number => 1 << status;
