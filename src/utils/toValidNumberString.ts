@@ -1,8 +1,3 @@
-const formatter = new Intl.NumberFormat(undefined, {
-  maximumFractionDigits: 5,
-  minimumFractionDigits: 5,
-});
-
 export function toValidNumberStringSmart(value: undefined | null): null | undefined;
 
 export function toValidNumberStringSmart(value: number): string;
@@ -14,7 +9,7 @@ export function toValidNumberStringSmart(
     return value;
   }
 
-  return formatter.format(value);
+  return value.toFixed(5);
 }
 
 export function toValidNumberStringDumb(
@@ -24,5 +19,5 @@ export function toValidNumberStringDumb(
     return value;
   }
 
-  return formatter.format(value);
+  return value.toFixed(5);
 }

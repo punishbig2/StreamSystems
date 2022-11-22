@@ -62,6 +62,7 @@ $spinner-size: $table-row-height - 6;
 
   .tbody {
     flex: 1 1 auto;
+    overflow-y: auto;
 
     *:not(.fa) {
       font-size: inherit;

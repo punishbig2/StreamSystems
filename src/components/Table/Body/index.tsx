@@ -1,5 +1,6 @@
 import { debounce } from '@material-ui/core';
 import { RowProps } from 'components/MiddleOffice/DealBlotter/row';
+import { ScrollArea } from 'components/ScrollArea';
 import { isNaN } from 'lodash';
 import React from 'react';
 
@@ -193,21 +194,23 @@ export const TableBody: React.FC<Props> = React.forwardRef(function TableBody(
   };
 
   return (
-    <div ref={ref} className="tbody" onScroll={debounce(onScroll, 5)}>
-      <div style={{ height: state.top }} />
-      <div ref={containerRef}>
-        {rows
-          .slice(state.firstRow, state.firstRow + (state.visibleRowCount ?? rows.length))
-          .map((data: any, index: number): any => {
-            const { row } = data;
-            const rowProps = {
-              ...data,
-              selected: row.id === props.selectedRow,
-            };
-            return props.renderRow(rowProps, index);
-          })}
+    <ScrollArea>
+      <div ref={ref} className="tbody" onScroll={debounce(onScroll, 5)}>
+        <div style={{ height: state.top }} />
+        <div ref={containerRef}>
+          {rows
+            .slice(state.firstRow, state.firstRow + (state.visibleRowCount ?? rows.length))
+            .map((data: any, index: number): any => {
+              const { row } = data;
+              const rowProps = {
+                ...data,
+                selected: row.id === props.selectedRow,
+              };
+              return props.renderRow(rowProps, index);
+            })}
+        </div>
+        <div style={{ height: isNaN(state.bottom) ? 0 : state.bottom }} />
       </div>
-      <div style={{ height: isNaN(state.bottom) ? 0 : state.bottom }} />
-    </div>
+    </ScrollArea>
   );
 });
