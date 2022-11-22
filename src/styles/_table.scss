@@ -104,7 +104,7 @@ $spinner-size: $table-row-height - 6;
         cursor: default;
 
         &.movable {
-          cursor: grab;
+          cursor: move;
         }
 
         &.fake {
