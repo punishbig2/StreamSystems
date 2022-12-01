@@ -40,12 +40,15 @@ export const ScrollArea: React.FC<Props> = (props: Props): React.ReactElement =>
       scrollbar.style.visibility = 'hidden';
     }
   }, [container, handle, scrollbar]);
+
   React.useEffect((): void | VoidFunction => {
     if (container === null) return;
     const resizeObserver = new ResizeObserver(updateScrollbar);
     const mutateObserver = new MutationObserver(updateScrollbar);
+
     resizeObserver.observe(container);
     mutateObserver.observe(container, { childList: true, subtree: true });
+
     const onWheel = (event: WheelEvent): void => {
       container.scrollTop += event.deltaY / 2;
       updateScrollbar();

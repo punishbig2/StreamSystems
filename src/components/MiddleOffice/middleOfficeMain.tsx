@@ -1,4 +1,3 @@
-import { Grid } from '@material-ui/core';
 import { API } from 'API';
 import { ActionButtons } from 'components/MiddleOffice/actionButtons';
 import { DealEntryButtons, isButtonDisabled } from 'components/MiddleOffice/buttonStateResolver';
@@ -20,6 +19,7 @@ import { Deal } from 'components/MiddleOffice/types/deal';
 import { Leg } from 'components/MiddleOffice/types/leg';
 import { SummaryLeg } from 'components/MiddleOffice/types/summaryLeg';
 import { ModalWindow } from 'components/ModalWindow';
+import { ScrollArea } from 'components/ScrollArea';
 import { MiddleOfficeProcessingState, MoGenericMessage } from 'mobx/stores/middleOfficeStore';
 import React from 'react';
 import { DealEditStatus } from 'signalR/signalRClient';
@@ -179,9 +179,10 @@ export const MiddleOfficeMain: React.FC<Props> = (props: Props): React.ReactElem
             onDealSelected={onDealSelected}
           />
         </div>
-        <Grid className="right-panel" container>
-          <Grid xs={7} item>
-            <div className="container">
+
+        <div className="right-panel">
+          <div className="container">
+            <ScrollArea>
               <div className="form-group-container">
                 <div className="form-group">
                   <div className={headingClasses.join(' ')}>
@@ -230,9 +231,9 @@ export const MiddleOfficeMain: React.FC<Props> = (props: Props): React.ReactElem
                   />
                 </div>
               </div>
-            </div>
-          </Grid>
-          <Grid xs={5} item>
+            </ScrollArea>
+          </div>
+          <ScrollArea>
             <div className="container">
               <div className="form-group-container">
                 <LegDetailsForm
@@ -245,8 +246,8 @@ export const MiddleOfficeMain: React.FC<Props> = (props: Props): React.ReactElem
                 />
               </div>
             </div>
-          </Grid>
-        </Grid>
+          </ScrollArea>
+        </div>
       </div>
       <ModalWindow isOpen={error !== null} render={() => <MiddleOfficeError error={error} />} />
       <ModalWindow isOpen={props.successMessage !== null} render={() => <SuccessMessage />} />
