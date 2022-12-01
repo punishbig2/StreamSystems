@@ -66,6 +66,7 @@ export interface DealEntry {
   readonly buyer_useremail: string;
 
   readonly sef_namespace: string | null;
+  readonly sef_dealid: string | null;
   readonly errorMsg: string | null;
 
   extra_fields?: { [key: string]: string | number | null };
@@ -106,6 +107,7 @@ export const emptyDealEntry: DealEntry = {
   seller_comm: null,
   seller_comm_rate: null,
   sef_namespace: null,
+  sef_dealid: null,
   errorMsg: null,
 };
 

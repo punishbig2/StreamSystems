@@ -40,6 +40,7 @@ export interface Deal {
   readonly source: string;
   readonly status: DealStatus;
   readonly sef_namespace: string | null;
+  readonly sef_dealid: string | null;
   readonly error_msg: string | null;
 
   readonly premiumStyle: string;

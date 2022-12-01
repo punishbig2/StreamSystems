@@ -356,7 +356,14 @@ const fields: ReadonlyArray<FieldDef<DealEntry, DealEntry, MiddleOfficeStore>> =
   },
   {
     name: 'sef_namespace',
-    label: 'SEF Namespace',
+    label: 'SEF LEI',
+    type: 'text',
+    color: 'orange',
+    editable: false,
+  },
+  {
+    name: 'sef_dealid',
+    label: 'SEF Deal ID',
     type: 'text',
     color: 'orange',
     editable: false,
