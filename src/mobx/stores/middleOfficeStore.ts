@@ -318,7 +318,7 @@ export class MiddleOfficeStore implements Workspace {
           {
             fxPair: symbol.symbolID,
             addHolidays: true,
-            rollExpiryDates: true,
+            rollExpiryDates: false,
             tradeDate: toUTC(entry.tradeDate, true),
           },
           [toUTC(originalTenor.expiryDate)]
