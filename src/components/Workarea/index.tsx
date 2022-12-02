@@ -9,6 +9,7 @@ import { UserNotAllowedAtThisTime } from 'components/Workarea/userNotAllowedAtTh
 import { UserNotFound } from 'components/Workarea/userNotFound';
 import { WorkareaError } from 'components/Workarea/workareaError';
 import { Workspaces } from 'components/Workarea/workspaces';
+import config from 'config';
 import { DateTimeFormatStore } from 'mobx/stores/dateTimeFormatStore';
 import { MessagesStore, MessagesStoreContext } from 'mobx/stores/messagesStore';
 import { themeStore } from 'mobx/stores/themeStore';
@@ -43,7 +44,11 @@ export const Workarea: React.FC = observer((): React.ReactElement | null => {
   }, []);
 
   React.useEffect((): void => {
-    store.initialize(id).catch(console.error);
+    if (!id) {
+      location.replace(config.SignOutUrl);
+    }
+
+    void store.initialize(id);
   }, [id]);
 
   React.useEffect((): VoidFunction | void => {
