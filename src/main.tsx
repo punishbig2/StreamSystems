@@ -16,6 +16,13 @@ const MIN_SCREEN_WIDTH = 1024;
 const FXOptionsUI: React.FC = observer((): React.ReactElement => {
   const { theme, fontSize, fontFamily } = themeStore;
   const [inadequateScreen, setInadequateScreen] = useState<boolean>(false);
+
+  const { screen } = window;
+  const width = screen.availWidth;
+  const height = screen.availHeight;
+
+  console.log(Math.floor(Math.sqrt(width ** 2 + height ** 2) / 96));
+
   useSignOutOnIdleTimeout();
 
   useEffect((): void => {
