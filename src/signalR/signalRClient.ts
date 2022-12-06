@@ -202,6 +202,7 @@ export class SignalRClient {
         usi: data.usi_no,
         namespace: data.sef_namespace,
         errorMsg: data.error_msg,
+        sefDealId: data.sef_dealid,
       },
     });
 

@@ -1336,6 +1336,7 @@ export class MiddleOfficeStore implements Workspace {
         status: update.status,
         usi: update.usi,
         sef_namespace: update.namespace,
+        sef_dealid: update.sefDealId,
         error_msg: update.errorMsg,
       },
       ...deals.slice(foundIndex + 1),
@@ -1356,6 +1357,8 @@ export class MiddleOfficeStore implements Workspace {
     const task1: Task<DealEntry> = await createDealEntry(
       {
         ...deal,
+        sef_dealid: update.sefDealId,
+        sef_namespace: update.namespace,
         error_msg: update.errorMsg,
       },
       this.getOutLegsCount(deal.strategy),
