@@ -17,12 +17,31 @@ const FXOptionsUI: React.FC = observer((): React.ReactElement => {
   const { theme, fontSize, fontFamily } = themeStore;
   const [inadequateScreen, setInadequateScreen] = useState<boolean>(false);
 
-  const { screen } = window;
-  const width = screen.availWidth;
-  const height = screen.availHeight;
+  useEffect((): VoidFunction | void => {
+    const onResize = (): void => {
+      const { style } = document.body;
+      const { screen } = window;
 
-  console.log(Math.floor(Math.sqrt(width ** 2 + height ** 2) / 96));
+      const width = screen.availWidth / window.outerWidth;
+      const height = screen.availHeight / window.outerHeight;
+      const size = (width + height) / 2;
 
+      style.zoom = `${(1.0 / size).toFixed(2)}`;
+
+      const screenAspectRatio = (screen.availHeight / screen.availWidth).toFixed(3);
+      const windowAspectRatio = (window.outerHeight / window.outerWidth).toFixed(3);
+
+      if (screenAspectRatio !== windowAspectRatio) {
+        console.warn('aspect ratio off, things will not be at the right places');
+      }
+    };
+    onResize();
+
+    window.addEventListener('resize', onResize);
+    return (): void => {
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
   useSignOutOnIdleTimeout();
 
   useEffect((): void => {

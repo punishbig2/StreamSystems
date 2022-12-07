@@ -74,7 +74,7 @@
     "uuidv4": "^6.0.8"
   },
   "scripts": {
-    "start": "REACT_APP_ENV='DEV' react-scripts start",
+    "start": "react-scripts start",
     "build:dev": "REACT_APP_ENV='DEV' react-scripts build",
     "build:uat": "REACT_APP_ENV='UAT' react-scripts build",
     "build:prod": "REACT_APP_ENV='PROD' react-scripts build",
