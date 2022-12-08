@@ -11,7 +11,7 @@ export const resize = (
   if (minWidth > 0 && width < minWidth) {
     width = minWidth;
   }
-  if (width - left > window.innerWidth) return new DOMRect(0, 0, minWidth, height);
+  if (width - left > window.outerWidth) return new DOMRect(0, 0, minWidth, height);
   // Create the new rectangle confined to the r rectangle
   return new DOMRect(left, top, width, height);
 };

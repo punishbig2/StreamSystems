@@ -210,7 +210,8 @@ export class MiddleOfficeStore implements Workspace {
       setBankEntities: action.bound,
       setModels: action.bound,
       refreshCurrentDeal: action.bound,
-      loadDeals: action.bound,
+      setLoadingDeals: action.bound,
+      setDeals: action.bound,
       setEntry: action.bound,
       onDealSaved: action.bound,
       updateSEFInDealsBlotter: action.bound,
@@ -1224,11 +1225,16 @@ export class MiddleOfficeStore implements Workspace {
     }
   }
 
+  public setDeals(deals: readonly Deal[]): void {
+    this.deals = deals;
+  }
+
   public async loadDeals(): Promise<void> {
     try {
       this.setLoadingDeals(true);
-      // Update deals list
-      this.deals = (await this.convertToMiddleOfficeDeal(await API.getDeals())) as readonly Deal[];
+      this.setDeals(
+        (await this.convertToMiddleOfficeDeal(await API.getDeals())) as readonly Deal[]
+      );
     } finally {
       this.setLoadingDeals(false);
     }
@@ -1402,7 +1408,7 @@ export class MiddleOfficeStore implements Workspace {
     };
   }
 
-  private setLoadingDeals(reloadingDeals: boolean): void {
+  public setLoadingDeals(reloadingDeals: boolean): void {
     this.loadingDeals = reloadingDeals;
   }
 

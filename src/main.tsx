@@ -25,8 +25,13 @@ const FXOptionsUI: React.FC = observer((): React.ReactElement => {
       const width = screen.availWidth / window.outerWidth;
       const height = screen.availHeight / window.outerHeight;
       const size = (width + height) / 2;
+      const zoom = Math.round(10.0 / size) / 10.0;
 
-      style.zoom = `${(1.0 / size).toFixed(2)}`;
+      if (zoom.toFixed() === '1.0') {
+        style.zoom = 'normal';
+      } else {
+        style.zoom = zoom.toFixed(2);
+      }
 
       const screenAspectRatio = (screen.availHeight / screen.availWidth).toFixed(3);
       const windowAspectRatio = (window.outerHeight / window.outerWidth).toFixed(3);
