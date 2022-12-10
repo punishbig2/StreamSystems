@@ -7,14 +7,15 @@ import { InvalidTenor, Tenor } from 'types/tenor';
 import { SPECIFIC_TENOR } from 'utils/tenorUtils';
 
 interface Props<T> {
-  data: readonly DropdownItem[];
-  value: Tenor | InvalidTenor | null;
-  className?: string;
-  color: 'green' | 'orange' | 'cream' | 'grey';
-  name: keyof T;
-  disabled?: boolean;
-  readOnly: boolean;
-  onChange?: (name: keyof T, value: any) => Promise<void>;
+  readonly data: readonly DropdownItem[];
+  readonly value: Tenor | InvalidTenor | null;
+  readonly className?: string;
+  readonly color: 'green' | 'orange' | 'cream' | 'grey';
+  readonly name: keyof T;
+  readonly disabled?: boolean;
+  readonly readOnly: boolean;
+
+  onChange?(name: keyof T, value: any): Promise<void>;
 }
 
 const specificTenorDropdownItem: DropdownItem<string> = {
@@ -25,27 +26,33 @@ const specificTenorDropdownItem: DropdownItem<string> = {
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data, value } = props;
+
   const onDateChange = (event: React.ChangeEvent<HTMLInputElement>, value: Date | string): void => {
     if (value instanceof Date && props.onChange !== undefined) {
       void props.onChange(props.name, value);
     }
   };
+
   const onSelectChange = async (name: keyof T, value: any): Promise<void> => {
     if (props.onChange !== undefined) {
       await props.onChange(name, value);
     }
   };
+
   const { name = '', expiryDate = null } = value !== null ? value : {};
+
   const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
+  const tenors = React.useMemo(
+    (): readonly DropdownItem[] => [specificTenorDropdownItem, ...data],
+    [data]
+  );
+
   return (
     <Grid className="MuiInputBase-root" alignItems="center" container>
       <Grid className="bank-entity-field" spacing={1} item container>
         <Grid xs={6} item>
           <FormField
-            dropdownData={[
-              ...(name === SPECIFIC_TENOR ? [specificTenorDropdownItem] : []),
-              ...data,
-            ]}
+            dropdownData={tenors}
             color={props.color}
             value={name}
             name={props.name}
@@ -66,6 +73,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
             placeholder="MM/DD/YYYY"
             editable={!props.readOnly}
             name="date"
+            readOnly={name !== SPECIFIC_TENOR}
             disabled={props.disabled}
             onInput={onDateChange}
             store={store}

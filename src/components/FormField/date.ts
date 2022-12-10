@@ -65,6 +65,7 @@ export class DateInputHandler<T, P extends MinimalProps, S extends Editable> ext
         return value;
       }
     }
+
     return value;
   }
 

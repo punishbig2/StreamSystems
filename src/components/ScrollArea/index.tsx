@@ -43,8 +43,13 @@ export const ScrollArea: React.FC<Props> = (props: Props): React.ReactElement =>
 
   React.useEffect((): void | VoidFunction => {
     if (container === null) return;
-    const resizeObserver = new ResizeObserver(updateScrollbar);
-    const mutateObserver = new MutationObserver(updateScrollbar);
+    const updateScrollbarInUpdatedLoop = (): void => {
+      // Normally we'd use `0` here, but there's a _slowness_ that is causing trouble
+      // in any case.
+      setTimeout(updateScrollbar, 5);
+    };
+    const resizeObserver = new ResizeObserver(updateScrollbarInUpdatedLoop);
+    const mutateObserver = new MutationObserver(updateScrollbarInUpdatedLoop);
 
     resizeObserver.observe(container);
     mutateObserver.observe(container, { childList: true, subtree: true });

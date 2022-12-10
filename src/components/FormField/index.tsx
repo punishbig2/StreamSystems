@@ -36,11 +36,13 @@ interface Props<T, R = string, S = any> extends MinimalProps<T> {
   readonly dropdownData?: ReadonlyArray<DropdownItem<R>>;
   readonly rounding?: number;
   readonly handler?: InputHandler<T>;
-  readonly onChange?: (name: keyof T, value: any) => Promise<void>;
-  readonly onInput?: (event: React.ChangeEvent<HTMLInputElement>, value: any) => void;
   readonly tooltip?: (store: S) => string | null;
   readonly tooltipStyle?: 'neutral' | 'good' | 'bad';
   readonly store: S;
+  readonly readOnly?: boolean;
+
+  onChange?(name: keyof T, value: any): Promise<void>;
+  onInput?(event: React.ChangeEvent<HTMLInputElement>, value: any): void;
 }
 
 enum Editor {
@@ -429,7 +431,7 @@ export class FormField<T, S = any> extends PureComponent<Props<T, string, S>, St
         <>
           <OutlinedInput
             labelWidth={0}
-            readOnly={false}
+            readOnly={props.readOnly ?? false}
             disabled={props.disabled}
             inputRef={this.setInputRef}
             value={state.displayValue}
