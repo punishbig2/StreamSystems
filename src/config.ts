@@ -1,6 +1,5 @@
 const { location } = window;
 const hostname: string = location.hostname;
-const baseUrl: string = location.protocol + '//' + hostname;
 
 const IP_ADDRESS_REGEXP =
   // eslint-disable-next-line max-len
@@ -14,8 +13,12 @@ const isLocalUrl = (hostname: string): boolean => {
   return IP_ADDRESS_REGEXP.test(hostname);
 };
 
+const baseUrl = isLocalUrl(hostname)
+  ? 'https://dev-trading.fxlps.com'
+  : `${location.protocol}//${hostname}`;
+
 const accountHostname = isLocalUrl(hostname)
-  ? `${hostname}:8822`
+  ? 'dev-account.fxlps.com'
   : hostname.replace('trading', 'account');
 
 const accountUrl = `${location.protocol}//${accountHostname}`;
@@ -28,7 +31,7 @@ export default {
   PrePricerUrl: `${baseUrl}:4020/api`,
   RequestTimeout: 10000,
   IdleTimeout: -1,
-  GetRoleEndpoint: accountUrl + '/api/user/getrole',
+  GetRoleEndpoint: `${accountUrl}/api/user/getrole`,
   RedirectTimeout: -1,
   Environment: process.env.REACT_APP_ENV,
 };

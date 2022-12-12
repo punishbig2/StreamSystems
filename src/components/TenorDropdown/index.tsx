@@ -2,7 +2,7 @@ import { Grid } from '@material-ui/core';
 import { FormField } from 'components/FormField';
 import { DropdownItem } from 'forms/fieldDef';
 import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { InvalidTenor, Tenor } from 'types/tenor';
 import { SPECIFIC_TENOR } from 'utils/tenorUtils';
 
@@ -15,7 +15,7 @@ interface Props<T> {
   readonly disabled?: boolean;
   readonly readOnly: boolean;
 
-  onChange?(name: keyof T, value: any): Promise<void>;
+  onChange?(name: keyof T, value: Tenor): Promise<void>;
 }
 
 const specificTenorDropdownItem: DropdownItem<string> = {
@@ -26,20 +26,43 @@ const specificTenorDropdownItem: DropdownItem<string> = {
 
 export function TenorDropdown<T>(props: Props<T>): ReactElement {
   const { data, value } = props;
+  const { name = '', expiryDate = null } = value ?? {};
+  const [intermediateName, setIntermediateName] = useState<string>('');
+  const [intermediateDate, setIntermediateDate] = useState<Date | null>(null);
 
-  const onDateChange = (event: React.ChangeEvent<HTMLInputElement>, value: Date | string): void => {
-    if (value instanceof Date && props.onChange !== undefined) {
-      void props.onChange(props.name, value);
+  useEffect((): void => {
+    setIntermediateName(name);
+  }, [name]);
+
+  useEffect((): void => {
+    setIntermediateDate(expiryDate);
+  }, [expiryDate]);
+
+  const onDateChange = (event: React.ChangeEvent<HTMLInputElement>, date: Date | string): void => {
+    if (date instanceof Date) {
+      void props.onChange?.(props.name, {
+        name: SPECIFIC_TENOR,
+        deliveryDate: date,
+        expiryDate: date,
+      });
+    } else {
+      setIntermediateName(SPECIFIC_TENOR);
     }
   };
 
-  const onSelectChange = async (name: keyof T, value: any): Promise<void> => {
-    if (props.onChange !== undefined) {
-      await props.onChange(name, value);
+  const onSelectChange = async (name: keyof T, tenorName: string): Promise<void> => {
+    if (tenorName !== SPECIFIC_TENOR) {
+      await props.onChange?.(name, {
+        expiryDate: expiryDate ?? new Date(),
+        deliveryDate: expiryDate ?? new Date(),
+        name: tenorName,
+      });
+    } else {
+      setIntermediateDate(null);
     }
-  };
 
-  const { name = '', expiryDate = null } = value !== null ? value : {};
+    setIntermediateName(tenorName);
+  };
 
   const store = React.useContext<MiddleOfficeStore>(MiddleOfficeStoreContext);
   const tenors = React.useMemo(
@@ -54,7 +77,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           <FormField
             dropdownData={tenors}
             color={props.color}
-            value={name}
+            value={intermediateName}
             name={props.name}
             type="dropdown"
             editable={!props.readOnly}
@@ -69,11 +92,10 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
           <FormField<{ date: Date }, MiddleOfficeStore>
             color={props.color}
             type="date"
-            value={expiryDate}
+            value={intermediateDate}
             placeholder="MM/DD/YYYY"
             editable={!props.readOnly}
             name="date"
-            readOnly={name !== SPECIFIC_TENOR}
             disabled={props.disabled}
             onInput={onDateChange}
             store={store}

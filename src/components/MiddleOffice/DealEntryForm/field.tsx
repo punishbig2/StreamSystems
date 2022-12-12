@@ -7,6 +7,7 @@ import React from 'react';
 import { CalendarVolDatesResponse } from 'types/calendarFXPair';
 import { DealEntry } from 'types/dealEntry';
 import { EditableFlag } from 'types/product';
+import { Tenor } from 'types/tenor';
 import { SPECIFIC_TENOR } from 'utils/tenorUtils';
 import { safeForceParseDate, toUTC } from 'utils/timeUtils';
 
@@ -68,12 +69,11 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
   }, [isEditMode, editFlag, field, entry, store.isEditMode]);
 
   const onTenorChange = React.useCallback(
-    async (name: keyof DealEntry, value: string | Date): Promise<void> => {
+    async (name: keyof DealEntry, value: Tenor): Promise<void> => {
       const { symbol } = entry;
 
       const dates: CalendarVolDatesResponse = await ((): Promise<CalendarVolDatesResponse> => {
-        console.log(value);
-        if (typeof value === 'string') {
+        if (value.name !== SPECIFIC_TENOR) {
           return API.queryVolTenors(
             {
               tradeDate: toUTC(entry.tradeDate, true),
@@ -81,7 +81,7 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
               addHolidays: true,
               rollExpiryDates: true,
             },
-            [value]
+            [value.name]
           ).execute();
         } else {
           return API.queryVolDates(
@@ -91,14 +91,14 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
               addHolidays: true,
               rollExpiryDates: true,
             },
-            [toUTC(value)]
+            [toUTC(value.expiryDate)]
           ).execute();
         }
       })();
 
       const result = {
         [name]: {
-          name: typeof value === 'string' ? value : SPECIFIC_TENOR,
+          name: value.name,
           ...safeForceParseDate('deliveryDate', dates.DeliveryDates[0]),
           ...safeForceParseDate('expiryDate', dates.ExpiryDates[0]),
         },
@@ -111,6 +111,7 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
             }
           : {}),
       };
+      console.log(result);
 
       return onChangeCompleted(result);
     },
