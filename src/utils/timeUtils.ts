@@ -3,18 +3,18 @@ import moment from 'moment';
 
 export const FIX_DATE_FORMAT = 'YYYYMMDD-HH:mm:ss';
 
-export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
+export const DateTimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat('en-US', {
   timeZone: Globals.timezone || undefined,
 });
 
-export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
+export const DateFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat('en-US', {
   timeZone: Globals.timezone || undefined,
   year: 'numeric',
   month: '2-digit',
   day: '2-digit',
 });
 
-export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
+export const TimeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat('en-US', {
   timeZone: Globals.timezone || undefined,
   hour: 'numeric',
   minute: 'numeric',
@@ -163,5 +163,6 @@ export const naiveTenorToDateString = (tenor: string): string => {
 
 export const safeForceParseDate = <T>(key: keyof T, value: any): any => {
   if (!value) return {};
+
   return { [key]: forceParseDate(value) };
 };

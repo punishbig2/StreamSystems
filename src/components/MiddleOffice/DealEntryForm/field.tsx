@@ -1,5 +1,6 @@
 import { API } from 'API';
 import { FormField } from 'components/FormField';
+import { isInvalidTenor } from 'components/FormField/helpers';
 import { getValue } from 'components/MiddleOffice/DealEntryForm/helpers';
 import { DropdownItem, FieldDef } from 'forms/fieldDef';
 import { MiddleOfficeStore, MiddleOfficeStoreContext } from 'mobx/stores/middleOfficeStore';
@@ -131,9 +132,34 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
 
       if (field.type === 'tenor') {
         await onTenorChange(name, value);
+      } else if (field.name === 'symbol') {
+        const { tenor1, tenor2 } = entry;
+        const convertedValue: any = getValue(field, editFlag, value, true, store.entities);
+        if (convertedValue === undefined) {
+          return;
+        }
+
+        // Compute the tenor1 value with the new symbol
+        if (!isInvalidTenor(tenor1) && tenor1.name !== '') {
+          await onTenorChange('tenor1', tenor1);
+        }
+
+        // Compute the tenor1 value with the new symbol (if needed)
+        if (
+          tenor2 !== null &&
+          !isInvalidTenor(tenor2) &&
+          typeof tenor2 !== 'string' &&
+          tenor2.name !== ''
+        ) {
+          await onTenorChange('tenor2', tenor2);
+        }
+
+        await onChangeCompleted({ [name]: convertedValue, ...dependants });
       } else {
         const convertedValue: any = getValue(field, editFlag, value, true, store.entities);
-        if (convertedValue === undefined) return;
+        if (convertedValue === undefined) {
+          return;
+        }
         // This will also take some time presumably
         await onChangeCompleted({ [name]: convertedValue, ...dependants });
       }

@@ -35,8 +35,12 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
   }, [name]);
 
   useEffect((): void => {
+    if (name === SPECIFIC_TENOR) {
+      return;
+    }
+
     setIntermediateDate(expiryDate);
-  }, [expiryDate]);
+  }, [expiryDate, name]);
 
   const onDateChange = (event: React.ChangeEvent<HTMLInputElement>, date: Date | string): void => {
     if (date instanceof Date) {
