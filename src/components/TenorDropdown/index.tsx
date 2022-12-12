@@ -35,7 +35,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
   }, [name]);
 
   useEffect((): void => {
-    if (name === SPECIFIC_TENOR) {
+    if (name === SPECIFIC_TENOR && intermediateDate !== null) {
       return;
     }
 
