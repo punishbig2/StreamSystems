@@ -1335,14 +1335,16 @@ export class MiddleOfficeStore implements Workspace {
       console.warn("this message doesn't seem to belong to this app");
       return;
     }
+    const currentDeal = deals[foundIndex];
+
     this.deals = [
       ...deals.slice(0, foundIndex),
       {
-        ...deals[foundIndex],
+        ...currentDeal,
         status: update.status,
         usi: update.usi,
-        sef_namespace: update.namespace,
-        sef_dealid: update.sefDealId,
+        sef_namespace: update.namespace ?? currentDeal.sef_namespace,
+        sef_dealid: update.sefDealId ?? currentDeal.sef_dealid,
         error_msg: update.errorMsg,
       },
       ...deals.slice(foundIndex + 1),
@@ -1363,8 +1365,8 @@ export class MiddleOfficeStore implements Workspace {
     const task1: Task<DealEntry> = await createDealEntry(
       {
         ...deal,
-        sef_dealid: update.sefDealId,
-        sef_namespace: update.namespace,
+        sef_dealid: update.sefDealId ?? deal.sef_dealid,
+        sef_namespace: update.namespace ?? deal.sef_namespace,
         error_msg: update.errorMsg,
       },
       this.getOutLegsCount(deal.strategy),

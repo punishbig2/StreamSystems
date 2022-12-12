@@ -14,11 +14,11 @@ const isLocalUrl = (hostname: string): boolean => {
 };
 
 const baseUrl = isLocalUrl(hostname)
-  ? 'https://dev-trading.fxlps.com'
+  ? process.env.REACT_APP_BASE_URL
   : `${location.protocol}//${hostname}`;
 
 const accountHostname = isLocalUrl(hostname)
-  ? 'dev-account.fxlps.com'
+  ? process.env.REACT_APP_ACCOUNT_HOST
   : hostname.replace('trading', 'account');
 
 const accountUrl = `${location.protocol}//${accountHostname}`;

@@ -112,7 +112,6 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
             }
           : {}),
       };
-      console.log(result);
 
       return onChangeCompleted(result);
     },
@@ -164,7 +163,7 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
         await onChangeCompleted({ [name]: convertedValue, ...dependants });
       }
     },
-    [onChangeStart, field, store, symbol, onTenorChange, editFlag, onChangeCompleted]
+    [onChangeStart, field, store, symbol, onTenorChange, entry, editFlag, onChangeCompleted]
   );
 
   return (

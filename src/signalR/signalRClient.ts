@@ -200,9 +200,9 @@ export class SignalRClient {
         dealId: data.dealid,
         status: Number(data.deal_state),
         usi: data.usi_no,
-        namespace: data.sef_namespace,
         errorMsg: data.error_msg,
-        sefDealId: data.sef_dealid,
+        ...(data.sef_namespace ? { namespace: data.sef_namespace } : {}),
+        ...(data.sef_dealid ? { sefDealId: data.sef_dealid } : {}),
       },
     });
 

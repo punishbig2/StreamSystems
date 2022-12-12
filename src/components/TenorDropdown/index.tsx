@@ -40,7 +40,7 @@ export function TenorDropdown<T>(props: Props<T>): ReactElement {
     }
 
     setIntermediateDate(expiryDate);
-  }, [expiryDate, name]);
+  }, [expiryDate, intermediateDate, name]);
 
   const onDateChange = (event: React.ChangeEvent<HTMLInputElement>, date: Date | string): void => {
     if (date instanceof Date) {
