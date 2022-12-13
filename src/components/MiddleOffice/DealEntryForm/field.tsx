@@ -90,7 +90,7 @@ export const Field: React.FC<Props> = (props: Props): React.ReactElement => {
               tradeDate: toUTC(entry.tradeDate, true),
               fxPair: symbol.symbolID,
               addHolidays: true,
-              rollExpiryDates: true,
+              rollExpiryDates: false,
             },
             [toUTC(value.expiryDate)]
           ).execute();

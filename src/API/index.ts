@@ -1082,7 +1082,6 @@ export class API {
     return POST<CalendarVolDatesResponse>(url, {
       ...query,
       ExpiryDates: dates,
-      rollExpiryDates: true,
     });
   }
 
@@ -1094,7 +1093,6 @@ export class API {
     return POST<CalendarVolDatesResponse>(url, {
       ...query,
       Tenors: tenors,
-      rollExpiryDates: true,
     });
   }
 

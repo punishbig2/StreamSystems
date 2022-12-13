@@ -43,6 +43,7 @@ import {
 import { isNumeric } from 'utils/isNumeric';
 import { legsReducer } from 'utils/legsReducer';
 import { calculateNetValue, createLegsFromDefinitionAndDeal, parseDates } from 'utils/legsUtils';
+import { SPECIFIC_TENOR } from 'utils/tenorUtils';
 import { forceParseDate, safeForceParseDate, toUTC } from 'utils/timeUtils';
 
 const SOFT_SEF_ERROR: string =
@@ -329,7 +330,7 @@ export class MiddleOfficeStore implements Workspace {
           {
             fxPair: symbol.symbolID,
             addHolidays: true,
-            rollExpiryDates: true,
+            rollExpiryDates: originalTenor.name !== SPECIFIC_TENOR,
             tradeDate: toUTC(entry.tradeDate, true),
           },
           [originalTenor.name]
