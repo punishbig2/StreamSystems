@@ -2,7 +2,7 @@ import { debounce } from '@material-ui/core';
 import { RowProps } from 'components/MiddleOffice/DealBlotter/row';
 import { ScrollArea } from 'components/ScrollArea';
 import { isNaN } from 'lodash';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface OwnProps {
   readonly renderRow: (props: RowProps, index?: number) => React.ReactElement | null;
@@ -80,6 +80,14 @@ export const TableBody: React.FC<Props> = React.forwardRef(function TableBody(
   const containerRef = React.useRef<HTMLDivElement>(null);
   const { current } = containerRef;
   const [state, dispatch] = React.useReducer<React.Reducer<State, Action>>(reducer, initialState);
+
+  const className = useMemo((): string => {
+    if (rows.length === 0) {
+      return 'tbody empty';
+    }
+
+    return 'tbody';
+  }, [rows.length]);
 
   React.useEffect((): VoidFunction | void => {
     if (current === null) {
@@ -195,7 +203,7 @@ export const TableBody: React.FC<Props> = React.forwardRef(function TableBody(
 
   return (
     <ScrollArea>
-      <div ref={ref} className="tbody" onScroll={debounce(onScroll, 5)}>
+      <div ref={ref} className={className} onScroll={debounce(onScroll, 5)}>
         <div style={{ height: state.top }} />
         <div ref={containerRef}>
           {rows

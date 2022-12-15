@@ -75,6 +75,7 @@ const BasicTable = observer(
     const classes: string[] = ['table'];
 
     if (props.className) classes.push(props.className);
+    if (transformedRows.length === 0) classes.push('empty');
 
     return (
       <div ref={ref} className={classes.join(' ')} style={style}>

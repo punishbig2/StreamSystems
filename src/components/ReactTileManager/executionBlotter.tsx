@@ -89,31 +89,54 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
     });
   }, [height, store, tile, width]);
 
-  return (
-    <cib-window ref={setTile} sticky={store.docked} scrollable transparent>
-      <div slot="toolbar" className="execution-blotter-title">
-        <h1>Execution Blotter</h1>
-        <ExportButton blotterType={BlotterTypes.Executions} />
+  if (store.docked) {
+    return (
+      <cib-window ref={setTile} sticky scrollable transparent>
+        <div slot="toolbar" className="execution-blotter-title">
+          <h1>Execution Blotter</h1>
+          <ExportButton blotterType={BlotterTypes.Executions} />
 
-        <div className="right-panel">
-          <h3>CCY Group</h3>
-          <Select
-            testId="execution-blotter-currency-group"
-            value={store.currencyGroupFilter}
-            disabled={!workareaStore.connected}
-            list={groups}
-            onChange={handleGroupChange}
-          />
-          {!store.docked && (
+          <div className="right-panel">
+            <h3>CCY Group</h3>
+            <Select
+              testId="execution-blotter-currency-group"
+              value={store.currencyGroupFilter}
+              disabled={!workareaStore.connected}
+              list={groups}
+              onChange={handleGroupChange}
+            />
+          </div>
+        </div>
+        <div slot="content" className="window-content">
+          <MessageBlotter id="executions" blotterType={BlotterTypes.Executions} />
+        </div>
+      </cib-window>
+    );
+  } else {
+    return (
+      <cib-window ref={setTile} scrollable transparent>
+        <div slot="toolbar" className="execution-blotter-title">
+          <h1>Execution Blotter</h1>
+          <ExportButton blotterType={BlotterTypes.Executions} />
+
+          <div className="right-panel">
+            <h3>CCY Group</h3>
+            <Select
+              testId="execution-blotter-currency-group"
+              value={store.currencyGroupFilter}
+              disabled={!workareaStore.connected}
+              list={groups}
+              onChange={handleGroupChange}
+            />
             <div className="window-button" onClick={restore}>
               <i className="fa fa-border-style" />
             </div>
-          )}
+          </div>
         </div>
-      </div>
-      <div slot="content" className="window-content">
-        <MessageBlotter id="executions" blotterType={BlotterTypes.Executions} />
-      </div>
-    </cib-window>
-  );
+        <div slot="content" className="window-content">
+          <MessageBlotter id="executions" blotterType={BlotterTypes.Executions} />
+        </div>
+      </cib-window>
+    );
+  }
 });
