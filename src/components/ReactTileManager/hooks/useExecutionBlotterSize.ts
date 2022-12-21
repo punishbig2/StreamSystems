@@ -8,6 +8,7 @@ import { hasRole, Role } from 'types/role';
 import { User } from 'types/user';
 import { getOptimalWidthFromColumnsSpec } from 'utils/getOptimalWidthFromColumnsSpec';
 import { idealBlotterHeight } from 'utils/idealBlotterHeight';
+import { convertRemToPixels } from 'utils/remToPixels';
 import { Size } from 'utils/windowUtils';
 
 export const useExecutionBlotterSize = (): Size => {
@@ -18,23 +19,24 @@ export const useExecutionBlotterSize = (): Size => {
     if (!hasRole(roles, Role.Broker)) return false;
     return personality === NONE;
   }, [personality, user]);
+
   const type: 'normal' | 'broker' = React.useMemo(
     (): 'normal' | 'broker' => (brokerMode ? 'broker' : 'normal'),
     [brokerMode]
   );
+
   const columns = React.useMemo(
     (): readonly TableColumn[] => messageBlotterColumns(BlotterTypes.Executions)[type],
     [type]
   );
+
   return React.useMemo(
     () => ({
-      width: getOptimalWidthFromColumnsSpec(
-        themeStore.fontFamily,
-        themeStore.fontSize + 2,
-        columns
-      ),
+      width: getOptimalWidthFromColumnsSpec(themeStore.fontFamily, themeStore.fontSize, columns),
       // Compute the ideal height
-      height: idealBlotterHeight(),
+      height:
+        convertRemToPixels(idealBlotterHeight()) +
+        9 /* +9 is for the borders which are in pixels */,
     }),
     [columns]
   );

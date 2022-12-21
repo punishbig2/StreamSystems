@@ -17,6 +17,6 @@ export const TenorColumn = (): TableColumn => ({
     }
     return <Tenor tenor={tenor} onTenorSelected={onTenorSelected} />;
   },
-  template: 'WW',
-  width: 2,
+  template: 'WWQ',
+  width: 3,
 });

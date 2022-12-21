@@ -10,6 +10,7 @@ import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { createTheme } from 'styles/theme';
+import { toRelativeFontSize } from 'utils/fontSize';
 
 const MIN_SCREEN_WIDTH = 1024;
 
@@ -17,36 +18,6 @@ const FXOptionsUI: React.FC = observer((): React.ReactElement => {
   const { theme, fontSize, fontFamily } = themeStore;
   const [inadequateScreen, setInadequateScreen] = useState<boolean>(false);
 
-  useEffect((): VoidFunction | void => {
-    const onResize = (): void => {
-      const { style } = document.body;
-      const { screen } = window;
-
-      const width = screen.availWidth / window.outerWidth;
-      const height = screen.availHeight / window.outerHeight;
-      const size = (width + height) / 2;
-      const zoom = Math.round(10.0 / size) / 10.0;
-
-      if (zoom.toFixed() === '1.0') {
-        style.zoom = 'normal';
-      } else {
-        style.zoom = zoom.toFixed(2);
-      }
-
-      const screenAspectRatio = (screen.availHeight / screen.availWidth).toFixed(3);
-      const windowAspectRatio = (window.outerHeight / window.outerWidth).toFixed(3);
-
-      if (screenAspectRatio !== windowAspectRatio) {
-        console.warn('aspect ratio off, things will not be at the right places');
-      }
-    };
-    onResize();
-
-    window.addEventListener('resize', onResize);
-    return (): void => {
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
   useSignOutOnIdleTimeout();
 
   useEffect((): void => {
@@ -54,7 +25,7 @@ const FXOptionsUI: React.FC = observer((): React.ReactElement => {
     const html = document.getElementsByTagName('html')[0] as HTMLElement;
     body.setAttribute('class', theme + '-theme');
 
-    html.style.fontSize = `${fontSize}px`;
+    html.style.fontSize = toRelativeFontSize(fontSize);
     html.style.fontFamily = fontFamily;
   }, [theme, fontSize, fontFamily]);
 

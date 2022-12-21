@@ -35,7 +35,8 @@ const BasicTable = observer(
     const optimalWidth = React.useMemo(
       (): number =>
         getOptimalWidthFromColumnsSpec(themeStore.fontFamily, themeStore.fontSize, columns),
-      [columns]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [columns, themeStore.fontSize, themeStore.fontFamily]
     );
 
     const style = React.useMemo(

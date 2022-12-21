@@ -1,4 +1,6 @@
 import { Geometry } from '@cib/windows-manager';
+import getStyles, { Styles } from 'styles';
+import { convertRemToPixels } from 'utils/remToPixels';
 
 export const getOptimalExecutionsBlotterGeometry = (
   element: HTMLElement,
@@ -9,11 +11,12 @@ export const getOptimalExecutionsBlotterGeometry = (
   if (container === null) {
     throw new Error('impossible, the window cannot be floating around');
   }
-  const bodyStyle = getComputedStyle(document.body);
-  const zoomValue = Number(bodyStyle.getPropertyValue('zoom'));
-  if (isNaN(zoomValue)) {
-    return new Geometry(2, window.innerHeight - height - 38, width, height);
-  } else {
-    return new Geometry(2, window.innerHeight / zoomValue - height - 38, width, height);
-  }
+  const styles: Styles = getStyles();
+
+  return new Geometry(
+    2,
+    window.innerHeight - height - convertRemToPixels(styles.windowFooterSize),
+    width,
+    height
+  );
 };

@@ -1,5 +1,6 @@
 import { TableColumn } from 'components/Table/tableColumn';
 import styles from 'styles';
+import { toRelativeFontSize } from 'utils/fontSize';
 
 export const getOptimalWidthFromColumnsSpec = (
   fontFamily: string,
@@ -12,11 +13,13 @@ export const getOptimalWidthFromColumnsSpec = (
   const variables = styles();
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
-  if (context === null) return 0;
+  if (context === null) {
+    return 0;
+  }
 
   const fontSize = parseFloat(variables.tableFontSize) * baseFontSize;
   // Set the canvas font to use for measuring
-  context.font = `${fontSize}px ${fontFamily}`;
+  context.font = `${toRelativeFontSize(fontSize)} ${fontFamily}`;
   // Sums the widths of individual elements
   const reducer = (value: number, column: TableColumn): number => {
     const measurement = context.measureText(column.template);

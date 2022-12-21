@@ -72,6 +72,7 @@ export class MessageBlotterStore extends ContentStore implements Persistable<Mes
     newStore.isNew = data.isNew;
     newStore.lastGeometry = data.lastGeometry;
     newStore.currencyGroupFilter = data.currencyGroupFilter ?? '';
+    newStore.docked = !!data.docked;
     return newStore;
   }
 
@@ -84,6 +85,7 @@ export class MessageBlotterStore extends ContentStore implements Persistable<Mes
       blotterType: this.blotterType,
       lastGeometry: this.lastGeometry,
       currencyGroupFilter: this.currencyGroupFilter,
+      docked: this.docked,
       isNew: this.isNew,
     };
   }

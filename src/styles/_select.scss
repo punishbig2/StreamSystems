@@ -1,7 +1,8 @@
 .select-container {
   display: flex;
   align-items: center;
-  width: 13ex;
+  width: 6rem;
+  font-size: $small-font-size;
   line-height: $title-bar-height;
   height: $title-bar-height;
   cursor: default;
@@ -31,6 +32,7 @@
     margin-right: -20px;
     color: $foreground-color;
     font-weight: bold;
+    font-size: inherit;
 
     &.no-selection {
       color: rgba($foreground-color, 0.5);
