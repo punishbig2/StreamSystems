@@ -36,7 +36,7 @@ export const useExecutionBlotterSize = (): Size => {
       // Compute the ideal height
       height:
         convertRemToPixels(idealBlotterHeight()) +
-        9 /* +9 is for the borders which are in pixels */,
+        7 /* +7 is for the borders which are in pixels */,
     }),
     [columns]
   );
