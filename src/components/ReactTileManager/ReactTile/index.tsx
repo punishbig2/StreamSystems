@@ -29,25 +29,36 @@ export const ReactTile: React.FC<Props> = observer((props: Props): React.ReactEl
   useEventHandlers(tile, store);
 
   React.useEffect((): void => {
-    if (tile === null) return;
-    tile.style.visibility = ready ? 'visible' : 'hidden';
+    if (tile === null) {
+      return;
+    }
+
+    const { style } = tile;
+    // Set visible when ready
+    style.visibility = ready ? 'visible' : 'hidden';
   }, [ready, tile]);
 
-  const onClose = (): void => {
+  const onClose = React.useCallback((): void => {
     props.onClose(store.id);
-  };
-  const onMinimize = (): void => {
+  }, [props, store.id]);
+
+  const onMinimize = React.useCallback((): void => {
     if (tile !== null) {
       tile.minimized = store.setMinimized(!tile.minimized);
     }
-  };
-  const onResizeToContent = (): void => {
+  }, [store, tile]);
+
+  const onResizeToContent = React.useCallback((): void => {
     if (tile !== null) {
       tile.autosize = store.setAutosize(true);
     }
-  };
+  }, [store, tile]);
+
   const getTitleBarButtons = (): React.ReactElement | null => {
-    if (props.fixed) return null;
+    if (props.fixed) {
+      return null;
+    }
+
     return (
       <DefaultWindowButtons
         resizeable={props.type === TileType.PodTile}
@@ -57,6 +68,27 @@ export const ReactTile: React.FC<Props> = observer((props: Props): React.ReactEl
       />
     );
   };
+
+  const handleWindowResize = React.useCallback((): void => {
+    if (tile === null) {
+      return;
+    }
+
+    if (tile.autosize) {
+      onResizeToContent();
+    } else if (tile.sticky) {
+      console.log(tile);
+    } else if (tile.docked) {
+      console.log(tile);
+    }
+  }, [onResizeToContent, tile]);
+
+  React.useEffect((): VoidFunction => {
+    window.addEventListener('resize', handleWindowResize);
+    return (): void => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, [handleWindowResize]);
 
   return (
     <cib-window id={store.id} ref={setReference} scrollable autosize>
