@@ -1,5 +1,4 @@
 import { MenuItem, Select } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import workareaStore from 'mobx/stores/workareaStore';
 import { observer } from 'mobx-react';
 import React from 'react';
@@ -14,16 +13,8 @@ interface Props {
   readonly refAllDisabled: boolean;
 }
 
-const useDropdownStyles = makeStyles({
-  root: {
-    height: 30,
-    lineHeight: '18px',
-  },
-});
-
 export const RightPanelButtons: React.FC<Props> = observer(
   (props: Props): React.ReactElement | null => {
-    const dropdownClasses = useDropdownStyles();
     const onPersonalityChange = ({ target }: React.ChangeEvent<SelectEventData>): void => {
       props.onPersonalityChange(target.value as string);
     };
@@ -32,13 +23,16 @@ export const RightPanelButtons: React.FC<Props> = observer(
       const renderValue = (value: unknown): React.ReactNode => {
         return value as string;
       };
-      if (banks.length === 0) return null;
+
+      if (banks.length === 0) {
+        return null;
+      }
+
       return (
         <div className="broker-buttons">
           <Select
             value={workareaStore.personality}
-            autoWidth={true}
-            classes={dropdownClasses}
+            classes={{ root: 'right-panel-select' }}
             renderValue={renderValue}
             disabled={!workareaStore.connected}
             onChange={onPersonalityChange}

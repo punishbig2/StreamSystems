@@ -89,6 +89,20 @@ export const ExecutionBlotter: React.FC = observer((): ReactElement | null => {
     });
   }, [height, store, tile, width]);
 
+  const handleWindowResize = React.useCallback((): void => {
+    if (store.docked) {
+      setTimeout(restore, 0);
+    }
+  }, [restore]);
+
+  React.useEffect((): VoidFunction => {
+    window.addEventListener('resize', handleWindowResize);
+
+    return (): void => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, [handleWindowResize]);
+
   if (store.docked) {
     return (
       <cib-window ref={setTile} sticky scrollable transparent>

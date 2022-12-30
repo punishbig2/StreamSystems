@@ -45,39 +45,42 @@ const ReactTileManager: React.FC<Props> = (props: Props): React.ReactElement | n
 
     timer.current = setTimeout((): void => {
       const tileManager = tileManagerRef.current;
-
-      for (const tile of tiles) {
-        tile.setAutosize(false);
-      }
-
       if (tileManager !== null) {
         tileManager.arrangeTiles();
       }
     }, 50);
-  }, [tiles]);
+  }, []);
+
+  const handleContextMenu = useCallback((genericEvent: Event): void => {
+    const event = genericEvent as unknown as MouseEvent;
+    event.preventDefault();
+    event.stopPropagation();
+
+    setMenuPosition({ x: event.clientX, y: event.clientY });
+
+    const closeOnClick = (): void => {
+      document.removeEventListener('click', closeOnClick, true);
+      setMenuPosition(null);
+    };
+
+    document.addEventListener('click', closeOnClick, true);
+  }, []);
 
   React.useEffect((): VoidFunction => {
-    const onContextMenu = (genericEvent: Event): void => {
-      const event = genericEvent as unknown as MouseEvent;
-      event.preventDefault();
+    const tileManager = tileManagerRef.current;
 
-      setMenuPosition({ x: event.clientX, y: event.clientY });
-
-      const closeOnClick = (): void => {
-        document.removeEventListener('click', closeOnClick, true);
-        setMenuPosition(null);
-      };
-
-      document.addEventListener('click', closeOnClick, true);
-    };
-
-    window.addEventListener('contextmenu', onContextMenu);
     window.addEventListener('resize', handleWindowResize);
+    if (tileManager !== null) {
+      tileManager.addEventListener('contextmenu', handleContextMenu, true);
+    }
+
     return (): void => {
       window.removeEventListener('resize', handleWindowResize);
-      window.removeEventListener('contextmenu', onContextMenu);
+      if (tileManager !== null) {
+        tileManager.removeEventListener('contextmenu', handleContextMenu, true);
+      }
     };
-  }, [handleWindowResize]);
+  }, [handleContextMenu, handleWindowResize]);
 
   const arrangeTiles = useCallback((): void => {
     const tileManager = tileManagerRef.current;
@@ -88,7 +91,7 @@ const ReactTileManager: React.FC<Props> = (props: Props): React.ReactElement | n
 
   return (
     <>
-      <cib-window-manager ref={tileManagerRef}>
+      <cib-window-manager scrolls-horizontally={true} ref={tileManagerRef}>
         {tiles.map(
           (tile: TileStore): React.ReactElement => (
             <TileStoreContext.Provider value={tile} key={tile.id}>

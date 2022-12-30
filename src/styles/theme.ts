@@ -40,8 +40,8 @@ export const createTheme = (theme: 'dark' | 'light', fontFamily: string): Theme 
       MuiInputBase: {
         root: {
           font: 'initial',
-          lineHeight: '30px',
-          height: 30,
+          lineHeight: '2rem',
+          height: '2rem',
         },
         input: {
           fontWeight: 500,

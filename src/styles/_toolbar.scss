@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .toolbar {
   position: absolute;
   top: 0;
@@ -15,8 +17,9 @@
     font-size: $normal-font-size;
     padding: 0 16px;
     border-bottom: 1px solid $table-border-color;
-    height: $window-toolbar-size;
+    height: $window-toolbar-size - 0.2rem;
     line-height: $window-toolbar-size;
+    margin-top: 0.1rem;
 
     .commission-rates-container {
       display: flex;
@@ -31,6 +34,7 @@
 
         &.has-discount {
           color: $text-color-green;
+
           * {
             color: inherit;
           }
@@ -51,7 +55,7 @@
       display: flex;
       flex: 1;
       align-items: center;
-      height: 2em;
+      height: 2rem;
       line-height: $table-row-height;
       padding: 0 8px;
 
@@ -79,7 +83,7 @@
 
     button,
     .MuiInputBase-root {
-      line-height: 2;
+      line-height: 1.5rem;
       border: none;
       background-color: $primary-color;
       color: $button-foreground-color;
@@ -126,6 +130,24 @@
       align-items: center;
       margin: 0 0 0 auto;
 
+      .MuiInput-underline {
+        align-items: center;
+
+        &::after, &::before {
+          display: none;
+        }
+      }
+
+      .right-panel-select {
+        padding: 0 16px;
+        width: 100px;
+      }
+
+    .MuiSvgIcon-root {
+      margin: 0.25rem 8px 0.25rem 0;
+    }
+
+
       button {
         &:active {
           transition: all 0.2s;
@@ -135,33 +157,6 @@
 
         &:disabled {
           opacity: 0.25;
-        }
-      }
-
-      .MuiFormControl-root .MuiFormControlLabel-label {
-        line-height: inherit;
-        width: 100px;
-      }
-
-      .MuiInputBase-root {
-        &::after,
-        &::before {
-          border: none;
-        }
-
-        .MuiSelect-root {
-          padding-right: 48px;
-          padding-left: 16px;
-          background-color: $primary-color;
-          color: $button-foreground-color;
-          border-radius: 2px;
-          font-size: $normal-font-size;
-          font-weight: 500;
-          border-bottom: 2px rgba(0, 0, 0, 0.55);
-        }
-
-        .MuiSvgIcon-root {
-          fill: $button-foreground-color;
         }
       }
     }

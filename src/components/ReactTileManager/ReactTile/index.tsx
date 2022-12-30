@@ -77,9 +77,10 @@ export const ReactTile: React.FC<Props> = observer((props: Props): React.ReactEl
     if (tile.autosize) {
       onResizeToContent();
     } else if (tile.sticky) {
-      console.log(tile);
+      // Do nothing for now
+      console.warn('sticky tile needs to be relocated');
     } else if (tile.docked) {
-      console.log(tile);
+      // Do nothing for now
     }
   }, [onResizeToContent, tile]);
 

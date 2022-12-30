@@ -12,8 +12,7 @@
   right: -1px;
 
   background-color: $light-color;
-  overflow: hidden;
-  overflow-y: auto;
+  overflow: auto;
 
   h3,
   h5 {
@@ -34,8 +33,7 @@
   z-index: 1;
 
   cib-window-manager {
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: auto;
   }
 
   cib-window {
