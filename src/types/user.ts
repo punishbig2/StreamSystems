@@ -56,6 +56,11 @@ export enum UserProfileModalTypes {
   Saving,
 }
 
+export interface WindowManagerPreferences {
+  readonly allowHorizontalOverflow: boolean;
+  readonly reArrangeDockedWindows: boolean;
+}
+
 export interface UserPreferences {
   readonly userType: UserTypes;
   readonly mpid: string;
@@ -68,6 +73,7 @@ export interface UserPreferences {
   readonly oco: OCOModes;
   readonly theme: 'dark' | 'light';
   readonly execSoundList: readonly string[];
+  readonly windowManager: WindowManagerPreferences;
 }
 
 export const isCurrencyGroup = (value: any): value is CurrencyGroups => {

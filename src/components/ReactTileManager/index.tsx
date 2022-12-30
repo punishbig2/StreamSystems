@@ -1,5 +1,5 @@
 import { TileManager } from '@cib/windows-manager';
-import { MenuItem, Paper } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
 import { ExecutionBlotter } from 'components/ReactTileManager/executionBlotter';
 import { ReactTile } from 'components/ReactTileManager/ReactTile';
 import { noop } from 'lodash';
@@ -10,6 +10,7 @@ import {
   TradingWorkspaceStore,
   TradingWorkspaceStoreContext,
 } from 'mobx/stores/tradingWorkspaceStore';
+import workareaStore from 'mobx/stores/workareaStore';
 import React, { MouseEvent, ReactElement, useCallback, useRef, useState } from 'react';
 import { TileType } from 'types/tileType';
 
@@ -39,17 +40,21 @@ const ReactTileManager: React.FC<Props> = (props: Props): React.ReactElement | n
   const store = React.useContext<TradingWorkspaceStore>(TradingWorkspaceStoreContext);
   const tileManagerRef = useRef<TileManager>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(setTimeout(noop, 0));
+  const userPreferences = workareaStore.preferences;
+  const settings = userPreferences.windowManager;
 
   const handleWindowResize = React.useCallback((): void => {
-    clearTimeout(timer.current);
+    if (settings.reArrangeDockedWindows) {
+      clearTimeout(timer.current);
 
-    timer.current = setTimeout((): void => {
-      const tileManager = tileManagerRef.current;
-      if (tileManager !== null) {
-        tileManager.arrangeTiles();
-      }
-    }, 50);
-  }, []);
+      timer.current = setTimeout((): void => {
+        const tileManager = tileManagerRef.current;
+        if (tileManager !== null) {
+          tileManager.arrangeTiles();
+        }
+      }, 50);
+    }
+  }, [settings.reArrangeDockedWindows]);
 
   const handleContextMenu = useCallback((genericEvent: Event): void => {
     const event = genericEvent as unknown as MouseEvent;
@@ -91,7 +96,10 @@ const ReactTileManager: React.FC<Props> = (props: Props): React.ReactElement | n
 
   return (
     <>
-      <cib-window-manager scrolls-horizontally={true} ref={tileManagerRef}>
+      <cib-window-manager
+        scrolls-horizontally={settings.allowHorizontalOverflow}
+        ref={tileManagerRef}
+      >
         {tiles.map(
           (tile: TileStore): React.ReactElement => (
             <TileStoreContext.Provider value={tile} key={tile.id}>
@@ -118,9 +126,7 @@ const ReactTileManager: React.FC<Props> = (props: Props): React.ReactElement | n
             left: menuPosition.x,
             zIndex: Number.MAX_SAFE_INTEGER,
           }}
-        >
-          <MenuItem onClick={arrangeTiles}>Arrange Tiles</MenuItem>
-        </Paper>
+        ></Paper>
       ) : null}
     </>
   );

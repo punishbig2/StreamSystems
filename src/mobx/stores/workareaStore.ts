@@ -148,6 +148,7 @@ export class WorkareaStore {
   public static fromJson(data: { [key: string]: any }): WorkareaStore {
     const { workspaces } = data;
     const newStore = new WorkareaStore();
+
     newStore.preferences = data.preferences;
     newStore.currentWorkspaceIndex = data.currentWorkspaceIndex;
     newStore.workspaces = workspaces.map((data: { [key: string]: any }): Workspace => {

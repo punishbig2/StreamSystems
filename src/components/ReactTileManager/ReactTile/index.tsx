@@ -4,6 +4,7 @@ import { useEventHandlers } from 'components/ReactTileManager/hooks/useEventHand
 import { useHydrator } from 'components/ReactTileManager/hooks/useHydrator';
 import { ContentStore } from 'mobx/stores/contentStore';
 import { TileStore, TileStoreContext } from 'mobx/stores/tileStore';
+import workareaStore from 'mobx/stores/workareaStore';
 import { observer } from 'mobx-react';
 import React from 'react';
 import { TileType } from 'types/tileType';
@@ -25,6 +26,8 @@ export const ReactTile: React.FC<Props> = observer((props: Props): React.ReactEl
   const [tile, setReference] = React.useState<Tile | null>(null);
   const store = React.useContext<TileStore>(TileStoreContext);
   const ready = useHydrator(tile, store);
+  const userPreferences = workareaStore.preferences;
+  const settings = userPreferences.windowManager;
 
   useEventHandlers(tile, store);
 
@@ -70,19 +73,21 @@ export const ReactTile: React.FC<Props> = observer((props: Props): React.ReactEl
   };
 
   const handleWindowResize = React.useCallback((): void => {
-    if (tile === null) {
-      return;
-    }
+    if (settings.reArrangeDockedWindows) {
+      if (tile === null) {
+        return;
+      }
 
-    if (tile.autosize) {
-      onResizeToContent();
-    } else if (tile.sticky) {
-      // Do nothing for now
-      console.warn('sticky tile needs to be relocated');
-    } else if (tile.docked) {
-      // Do nothing for now
+      if (tile.autosize) {
+        onResizeToContent();
+      } else if (tile.sticky) {
+        // Do nothing for now
+        console.warn('sticky tile needs to be relocated');
+      } else if (tile.docked) {
+        // Do nothing for now
+      }
     }
-  }, [onResizeToContent, tile]);
+  }, [onResizeToContent, settings.reArrangeDockedWindows, tile]);
 
   React.useEffect((): VoidFunction => {
     window.addEventListener('resize', handleWindowResize);

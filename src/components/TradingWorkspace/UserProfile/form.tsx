@@ -1,4 +1,13 @@
-import { FormControl, FormLabel, Input, MenuItem, Select, Typography } from '@material-ui/core';
+import {
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Input,
+  MenuItem,
+  Select,
+  Switch,
+  Typography,
+} from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import { TimezoneSelect } from 'components/TradingWorkspace/UserProfile/components/TimezoneSelect';
 import { SoundsList } from 'components/TradingWorkspace/UserProfile/soundsList';
@@ -9,7 +18,7 @@ import { themeStore } from 'mobx/stores/themeStore';
 import workareaStore from 'mobx/stores/workareaStore';
 import React, { ChangeEvent, FormEvent, useMemo } from 'react';
 import { hasRole, Role } from 'types/role';
-import { OCOModes, User, UserPreferences } from 'types/user';
+import { OCOModes, User, UserPreferences, WindowManagerPreferences } from 'types/user';
 import { version } from 'version';
 
 interface OwnProps {
@@ -48,6 +57,14 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
     props.onChange(name, value);
   };
 
+  const updateWindowPreferences = (
+    key: keyof WindowManagerPreferences
+  ): ((event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void) => {
+    return (event: React.ChangeEvent<HTMLInputElement>, checked: boolean): void => {
+      props.onChange('windowManager', { ...windowManagerPreferences, [key]: checked });
+    };
+  };
+
   const hasNotChanged = (): boolean => {
     if (props.original === null) {
       return false;
@@ -63,6 +80,7 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
 
   const userType: string = isBroker ? 'Broker' : 'Bank';
   const regions: readonly string[] = user.regions;
+  const windowManagerPreferences = profile.windowManager;
 
   return (
     <>
@@ -237,6 +255,40 @@ export const UserProfileForm: React.FC<OwnProps> = (props: OwnProps) => {
                   />
                 </FormControl>
               </Grid>
+            </Grid>
+          </fieldset>
+
+          <fieldset>
+            <legend>Tile Manager Settings</legend>
+            <Grid spacing={2} item container>
+              <FormControl margin="dense" fullWidth>
+                <FormLabel htmlFor="ccy-group">CCY Group</FormLabel>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      color="primary"
+                      checked={windowManagerPreferences.allowHorizontalOverflow}
+                      onChange={updateWindowPreferences('allowHorizontalOverflow')}
+                    />
+                  }
+                  label="Allow Tiles to overflow to the right (Experimental)"
+                />
+              </FormControl>
+            </Grid>
+            <Grid spacing={2} item container>
+              <FormControl margin="dense" fullWidth>
+                <FormLabel htmlFor="ccy-group">CCY Group</FormLabel>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      color="primary"
+                      checked={windowManagerPreferences.reArrangeDockedWindows}
+                      onChange={updateWindowPreferences('reArrangeDockedWindows')}
+                    />
+                  }
+                  label="Re-arrange docked tiles when the window size is changed (Experimental)"
+                />
+              </FormControl>
             </Grid>
           </fieldset>
         </Grid>

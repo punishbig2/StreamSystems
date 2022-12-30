@@ -47,6 +47,11 @@ export const createTheme = (theme: 'dark' | 'light', fontFamily: string): Theme 
           fontWeight: 500,
         },
       },
+      MuiFormControlLabel: {
+        label: {
+          color: palette.getContrastText(palette.background.paper),
+        },
+      },
     },
     props: {
       MuiSelect: {

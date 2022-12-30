@@ -12,22 +12,29 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { createTheme } from 'styles/theme';
 import { toRelativeFontSize } from 'utils/fontSize';
 
-const MIN_SCREEN_WIDTH = 1024;
+const MIN_SCREEN_WIDTH = 980;
 
 const FXOptionsUI: React.FC = observer((): React.ReactElement => {
   const { theme, fontSize, fontFamily } = themeStore;
   const [inadequateScreen, setInadequateScreen] = useState<boolean>(false);
+  const userPreferences = workareaStore.preferences;
+  const windowManagerPreferences = userPreferences.windowManager;
 
   useSignOutOnIdleTimeout();
 
   useEffect((): void => {
     const { body } = document;
     const html = document.getElementsByTagName('html')[0] as HTMLElement;
-    body.setAttribute('class', theme + '-theme');
+    const { style } = html;
 
-    html.style.fontSize = toRelativeFontSize(fontSize);
-    html.style.fontFamily = fontFamily;
-  }, [theme, fontSize, fontFamily]);
+    body.setAttribute('class', theme + '-theme');
+    if (windowManagerPreferences.reArrangeDockedWindows) {
+      style.fontSize = toRelativeFontSize(fontSize);
+    } else {
+      style.fontSize = `${fontSize}px`;
+    }
+    style.fontFamily = fontFamily;
+  }, [theme, fontSize, fontFamily, windowManagerPreferences.reArrangeDockedWindows]);
 
   useEffect((): VoidFunction => {
     const checkWindowWidth = (): void => {

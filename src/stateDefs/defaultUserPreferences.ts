@@ -13,4 +13,8 @@ export const defaultPreferences: UserPreferences = {
   userType: UserTypes.Unset,
   execSoundList: [],
   theme: 'dark',
+  windowManager: {
+    allowHorizontalOverflow: true,
+    reArrangeDockedWindows: true,
+  },
 };
