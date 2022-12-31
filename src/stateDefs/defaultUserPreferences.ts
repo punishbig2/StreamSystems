@@ -14,7 +14,7 @@ export const defaultPreferences: UserPreferences = {
   execSoundList: [],
   theme: 'dark',
   windowManager: {
-    allowHorizontalOverflow: true,
-    reArrangeDockedWindows: true,
+    allowHorizontalOverflow: false,
+    reArrangeDockedWindows: false,
   },
 };
